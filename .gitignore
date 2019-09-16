@@ -130,4 +130,4 @@ ENV/
 # ---------------------
 
 # vscode config files
-.vscode
+.vscode/
