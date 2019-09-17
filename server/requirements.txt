@@ -3,3 +3,6 @@ Flask-Testing
 Flask-RESTful
 Flask-Cors
 nose
+flask-sqlalchemy
+flask_migrate
+pymysql
