@@ -12,27 +12,24 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from config import Config
+
 import routes
+
+FLASK_APP = 'app.py'
 
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
-
-# class HelloWorld(Resource):
-#     def get(self):
-#         return {
-#             "msg": "hello, this is flask"
-#         }
-        
-#     def post(self):
-#         some_json = request.get_json()
-#         return {'you sent': some_json}, 201
-
-# class Multi(Resource):
-#     def get(self, num):
-#         return {'result': num*10}
+app.config.from_object(Config)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 routes.init(api)
+
+import models # needs to be after db instance
 
 if __name__ == '__main__':
     app.run(debug=True)
