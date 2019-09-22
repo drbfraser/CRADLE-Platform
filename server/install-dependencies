@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+echo "If this script fails, ensure that Python 3 and Pip are installed. The pip3 executable is used."
+
+echo "Installing Flask-related dependencies..."
+pip3 install flask flask-restful flask-cors flask-sqlalchemy flask-migrate flask-testing
+
+echo "Installing MySQL dependencies..."
+pip3 install pymysql
+
+echo "Installing testing dependencies..."
+pip3 install nose
+
+echo "Done."
