@@ -26,14 +26,14 @@ class Patient(Resource):
 
         return response_body, 201
 
-    def put(self, id):
-        logging.debug('Received request: PUT /patient/' + id)
+    def put(self, patient_id):
+        logging.debug('Received request: PUT /patient/' + patient_id)
 
         body = self._get_request_body()
-        invalid = PatientValidation.update_info_invalid(id, body)
+        invalid = PatientValidation.update_info_invalid(patient_id, body)
         if invalid is not None:
             return invalid
 
-        response_body = PatientManager.update_info(id, body)
+        response_body = PatientManager.update_info(patient_id, body)
 
         return response_body, 201
