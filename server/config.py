@@ -9,9 +9,8 @@ from flask_marshmallow import Marshmallow
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
-    # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost:3306/cradle' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:////Users/kevin/Desktop/test-cradle.db'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{username}:{password}@localhost:3306/{db_name}' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:////test-cradle.db'
 
 
 FLASK_APP = 'app.py'
