@@ -4,5 +4,8 @@ Flask-RESTful
 Flask-Cors
 nose
 flask-sqlalchemy
+flask-marshmallow
+marshmallow-sqlalchemy
+marshmallow_enum
 flask_migrate
 pymysql

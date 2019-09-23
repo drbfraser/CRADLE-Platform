@@ -9,28 +9,12 @@
       * Start Flask server
 """
 
-from flask import Flask, request
-from flask_restful import Resource, Api
-from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from config import Config
-import logging
-import os
 
-# Local files
+import config
 import routes
 
-FLASK_APP = 'app.py'
-
-logging.basicConfig(level=logging.DEBUG)
-
-app = Flask(__name__)
-CORS(app)
-api = Api(app)
-app.config.from_object(Config)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+app = config.app
+routes.init(config.api)
 
 # For Heroku configuration
 port = os.environ.get('PORT')
@@ -43,8 +27,6 @@ else:
     host = '0.0.0.0'
 
 routes.init(api)
-
-import models # needs to be after db instance
 
 if __name__ == '__main__':
     app.run(debug=True, host=host, port=port)
