@@ -1,0 +1,15 @@
+#!/bin/bash
+
+cd "$(dirname "$0")" || return
+BASE_URL="$(./base-url)"
+
+if [ $# -ge 1 ] ; then
+    curl \
+      --include \
+      --request POST  \
+      --header "Content-Type: application/json" \
+      --data '{"personal-info":"'"$1"'"}' \
+      "$BASE_URL"/patient
+else
+    echo "Usage: ./create-patient name"
+fi
