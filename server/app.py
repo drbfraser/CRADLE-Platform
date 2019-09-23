@@ -16,6 +16,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import Config
 
+import os
 import routes
 
 FLASK_APP = 'app.py'
@@ -27,10 +28,20 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+# For Heroku configuration
+port = os.environ.get('PORT')
+host = None
+if port is None:
+    print('PORT environment variable not found. Using Flask default.')
+else:
+    print('PORT environment variable found:', port)
+    print('Binding to host 0.0.0.0')
+    host = '0.0.0.0'
+
 routes.init(api)
 
 import models # needs to be after db instance
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host=host, port=port)
 
