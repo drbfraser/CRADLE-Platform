@@ -1,9 +1,9 @@
 """
     @File: app.py
-    @ Description: 
+    @ Description:
     - This file is the main entry point for the server
     - It's main job is to initilize all of its connections including:
-      * Connect to database 
+      * Connect to database
       * Serve React App
       * Initilize server routes
       * Start Flask server
@@ -15,11 +15,15 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import Config
-
+import logging
 import os
+
+# Local files
 import routes
 
 FLASK_APP = 'app.py'
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 CORS(app)
@@ -44,4 +48,3 @@ import models # needs to be after db instance
 
 if __name__ == '__main__':
     app.run(debug=True, host=host, port=port)
-
