@@ -1,4 +1,5 @@
-from app import db
+from config import db, ma
+from marshmallow_enum import EnumField
 import enum
 
 # To add a table to db, make a new class
@@ -9,14 +10,14 @@ import enum
 ### ENUMS CLASSES ###
 #####################
 class RoleEnum(enum.Enum):
-    VHT = 1
-    HCW = 2
-    ADMIN = 3
+    VHT = 'VHT'
+    HCW = 'HCW'
+    ADMIN = 'ADMIN'
 
 class SexEnum(enum.Enum):
-    MALE = 1
-    FEMALE = 2
-    OTHER = 3
+    MALE = 'M'
+    FEMALE = 'F'
+    OTHER = 'I'
 
 
 ######################
@@ -122,8 +123,27 @@ class Village(db.Model):
     village_no = db.Column(db.String(50), primary_key=True)
 
 
+######################
+###    SCHEMAS     ###
+######################
 
+class UserSchema(ma.ModelSchema):
+    class Meta:
+        include_fk = True
+        model = User
 
-    
+class PatientSchema(ma.ModelSchema):
+    sex = EnumField(SexEnum, by_value=True)
+    class Meta:
+        include_fk = True
+        model = Patient
 
+class ReferralSchema(ma.ModelSchema):
+    class Meta:
+        include_fk = True
+        model = Referral
 
+class ReadingSchema(ma.ModelSchema):
+    class Meta:
+        include_fk = True
+        model = Reading
