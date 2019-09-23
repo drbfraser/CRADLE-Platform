@@ -9,7 +9,7 @@
       * Start Flask server
 """
 
-
+import os
 import config
 import routes
 
@@ -25,8 +25,6 @@ else:
     print('PORT environment variable found:', port)
     print('Binding to host 0.0.0.0')
     host = '0.0.0.0'
-
-routes.init(api)
 
 if __name__ == '__main__':
     app.run(debug=True, host=host, port=port)

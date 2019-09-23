@@ -52,7 +52,7 @@ class PatientApi(Resource):
 
         # Add a new patient to db
         schema = PatientSchema()
-        new_patient = schema.load(patientData, session=db.session)
+        new_patient = schema.load(patient_data, session=db.session)
 
         db.session.add(new_patient)
         db.session.commit()
