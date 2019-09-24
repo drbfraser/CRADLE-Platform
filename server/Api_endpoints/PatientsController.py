@@ -14,7 +14,7 @@ def abort_if_body_empty(request_body):
 
 
 def abort_if_patient_doesnt_exist(patient_id):
-    patient = Patient.query.filter_by(id=patient_id).one_or_none()
+    patient = PatientManager.get_patient(patient_id)
 
     if patient is None:
         abort(404, message="Patient {} doesn't exist.".format(patient_id))
@@ -23,7 +23,7 @@ def abort_if_patient_doesnt_exist(patient_id):
 
 
 def abort_if_patients_doesnt_exist():
-    patients = Patient.query.all()
+    patients = PatientManager.get_patients()
 
     if patients is None:
         abort(404, message="No patients currently exist.")
@@ -32,18 +32,27 @@ def abort_if_patients_doesnt_exist():
 
 
 def abort_if_patient_exists(patient_id):
-    patient = Patient.query.filter_by(id=patient_id).one_or_none()
+    patient = PatientManager.get_patient(patient_id)
 
     if patient:
         abort(404, message="Patient {} already exists.".format(patient_id))
 
 
-class PatientController(Resource):
+class PatientAll(Resource):
     @staticmethod
     def _get_request_body():
         body = request.get_json(force=True)
         logging.debug('Request body: ' + str(body))
         return body
+
+    # Get all patients
+    def get(self):
+        logging.debug('Received request: GET /patient')
+        patients = abort_if_patients_doesnt_exist()
+
+        patient_schema = PatientSchema(many=True)
+        data = patient_schema.dump(patients)
+        return data
 
     # Create a new patient
     def post(self):
@@ -60,6 +69,8 @@ class PatientController(Resource):
         response_body = PatientManager.create_patient(patient_data)
         return response_body, 201
 
+class PatientInfo(Resource):
+
     # Get a single patient
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
@@ -67,13 +78,6 @@ class PatientController(Resource):
 
         patient_schema = PatientSchema()
         data = patient_schema.dump(patient)
-        return data
-
-    def get_all(self):
-        patients = abort_if_patients_doesnt_exist()
-
-        patient_schema = PatientSchema(many=True)
-        data = patient_schema.dump(patients)
         return data
 
     # Update patient info (reading, referral, or fillout)
