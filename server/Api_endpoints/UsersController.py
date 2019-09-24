@@ -42,14 +42,27 @@ class UserAuthApi(Resource):
             data = data['data']
 
             user = User.query.filter_by(email=data['email']).first()
-            user_data = data
             if user and flask_bcrypt.check_password_hash(user.password_hash, data['password_hash']):
+                del data['password_hash']
+
+                # setup any extra user params
+                data['role'] = user.role_ids[0].name.name # get first role of user
+                data['isLoggedIn'] = True
+
                 access_token = create_access_token(identity=data)
                 refresh_token = create_refresh_token(identity=data)
-                user_data['token'] = access_token
-                user_data['refresh'] = refresh_token
-                return {'data': user_data}, 200
+                data['token'] = access_token
+                data['refresh'] = refresh_token
+
+                return data, 200
             else:
                 return {'message': 'invalid username or password'}, 401
         else:
             return {'message': 'Bad request parameters: {}'.format(data['message'])}, 400
+
+# Get identity of current user with jwt token
+class UserTokenApi(Resource):
+    @jwt_required
+    def get(self):
+        current_user = get_jwt_identity()
+        return current_user, 200
