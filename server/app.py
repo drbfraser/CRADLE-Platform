@@ -11,7 +11,6 @@
 
 import os
 import config
-import os
 import routes
 
 app = config.app
@@ -27,5 +26,8 @@ else:
     print('Binding to host 0.0.0.0')
     host = '0.0.0.0'
 
+import models # needs to be after db instance
+
 if __name__ == '__main__':
     app.run(debug=True, host=host, port=port)
+
