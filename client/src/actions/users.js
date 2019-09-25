@@ -14,11 +14,11 @@ export const userPostFetch = user => {
         .then(data => {
           if (data.message) {
             // TODO: check for status code
-            localStorage.setItem("token", data.jwt)
+            localStorage.setItem("token", data.token)
             dispatch(loginUser(data))
             dispatch(push('/patients'))
           } else {
-            
+
           }
         })
     }
