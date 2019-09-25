@@ -3,8 +3,8 @@
     @Description: This file contains all the routes for the server
 """
 
-from Api_endpoints.HelloWorld import *
-from Api_endpoints.Multi import *
+from Controller.HelloWorld import *
+from Controller.Multi import *
 
 def init(api):
     api.add_resource(HelloWorld, '/', '/home', '/api/hello-world')

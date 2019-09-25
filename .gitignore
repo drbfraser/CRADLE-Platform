@@ -131,3 +131,5 @@ ENV/
 
 # vscode config files
 .vscode/
+client/src/containers/home/interview.java
+endpoints.md
