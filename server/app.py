@@ -1,16 +1,17 @@
 """
     @File: app.py
-    @ Description: 
+    @ Description:
     - This file is the main entry point for the server
     - It's main job is to initilize all of its connections including:
-      * Connect to database 
+      * Connect to database
       * Serve React App
       * Initilize server routes
       * Start Flask server
 """
+
+import os
 import config
 import routes
-import os
 
 app = config.app
 routes.init(config.api)
@@ -24,8 +25,6 @@ else:
     print('PORT environment variable found:', port)
     print('Binding to host 0.0.0.0')
     host = '0.0.0.0'
-
-# routes.init(api)
 
 import models # needs to be after db instance
 
