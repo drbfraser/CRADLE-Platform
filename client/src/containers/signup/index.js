@@ -19,7 +19,6 @@ class Signup extends Component {
   handleSubmit = event => {
     event.preventDefault()
     console.log('submitted!')
-    console.log(this.state)
     this.props.userPostFetch(this.state)
   }
 
@@ -63,5 +62,6 @@ const mapDispatchToProps = dispatch =>
   )
 
 export default connect(
+  null,
   mapDispatchToProps
 )(Signup)
