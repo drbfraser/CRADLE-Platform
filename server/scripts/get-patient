@@ -6,10 +6,9 @@ BASE_URL="$(./base-url)"
 if [ $# -ge 1 ] ; then
     curl \
       --include \
-      --request PUT  \
+      --request GET  \
       --header "Content-Type: application/json" \
-      --data '{"reading":"1", "referral":"2", "fillout":"3"}' \
       "$BASE_URL"/patient/"$1"
 else
-    echo "Usage: ./update-patient-info id"
+    echo "Usage: ./get-patient id"
 fi

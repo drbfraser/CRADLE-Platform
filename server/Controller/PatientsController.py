@@ -70,6 +70,11 @@ class PatientAll(Resource):
         return response_body, 201
 
 class PatientInfo(Resource):
+    @staticmethod
+    def _get_request_body():
+        body = request.get_json(force=True)
+        logging.debug('Request body: ' + str(body))
+        return body
 
     # Get a single patient
     def get(self, patient_id):
