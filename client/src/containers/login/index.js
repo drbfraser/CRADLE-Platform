@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import { Route, Link } from 'react-router-dom'
 import { push } from 'connected-react-router'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -23,27 +24,30 @@ class Login extends Component {
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit} className="content">
         <h1>Login</h1>
 
         <label>Email</label>
         <input
           name='email'
-          placeholder='Email'
+          type='email'
           value={this.state.email}
           onChange={this.handleChange}
-          /><br/>
-
+          />
+        <br/>
         <label>Password</label>
         <input
           type='password'
           name='password_hash'
-          placeholder='Password'
           value={this.state.password_hash}
           onChange={this.handleChange}
-          /><br/>
-
-        <input type='submit'/>
+          />
+        <br/>
+        <div className="flexbox">
+          <input className="contant-submit white" type='submit'/>
+          <Link className="link" style={{ textDecoration: 'none' }} to="/signup"> Sign up </Link>
+        </div>
+        
       </form>
     )
   }
