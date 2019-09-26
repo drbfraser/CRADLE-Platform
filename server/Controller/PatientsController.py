@@ -37,7 +37,7 @@ def abort_if_patient_exists(patient_id):
     if patient:
         abort(404, message="Patient {} already exists.".format(patient_id))
 
-
+# /patient
 class PatientAll(Resource):
     @staticmethod
     def _get_request_body():
@@ -69,6 +69,7 @@ class PatientAll(Resource):
         response_body = PatientManager.create_patient(patient_data)
         return response_body, 201
 
+# /patient/<string:patient_id>
 class PatientInfo(Resource):
 
     # Get a single patient
