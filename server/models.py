@@ -26,12 +26,12 @@ class SexEnum(enum.Enum):
 ######################
 ### HELPER CLASSES ###
 ######################
-user_role = db.Table('user_role',
+userRole = db.Table('userRole',
     db.Column('id', db.Integer, primary_key=True),
     
     # FOREIGN KEYS
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('role_id', db.Integer, db.ForeignKey('role.id'))
+    db.Column('userId', db.Integer, db.ForeignKey('user.id')),
+    db.Column('roleId', db.Integer, db.ForeignKey('role.id'))
 )
 
 
@@ -42,14 +42,14 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
-    password_hash = db.Column(db.String(128))
+    password = db.Column(db.String(128))
 
     # FOREIGN KEYS
-    health_facility_id = db.Column(db.Integer, db.ForeignKey('health_facility.id'), nullable=True)
+    healthFacilityId = db.Column(db.Integer, db.ForeignKey('healthFacility.id'), nullable=True)
 
     # RELATIONSHIPS
-    health_facility = db.relationship('HealthFacility', backref=db.backref('users', lazy=True))
-    role_ids = db.relationship('Role', secondary=user_role, backref=db.backref('users', lazy=True))
+    healthFacility = db.relationship('HealthFacility', backref=db.backref('users', lazy=True))
+    roleIds = db.relationship('Role', secondary=userRole, backref=db.backref('users', lazy=True))
     referrals = db.relationship('Referral', backref=db.backref('users', lazy=True))
 
     def __repr__(self):
@@ -61,69 +61,88 @@ class Role(db.Model):
 
 class Referral(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date_referred = db.Column(db.DateTime, nullable=False)
+    dateReferred = db.Column(db.String(100), nullable=False) 
+    comment = db.Column(db.Text)
 
     # FOREIGN KEYS
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
+    userId = db.Column(db.Integer, db.ForeignKey('user.id'))
+    patientId = db.Column(db.String(50), db.ForeignKey('patient.patientId'))
 
-    referral_health_facility_id = db.Column(db.Integer, db.ForeignKey('health_facility.id'))
-    reading_id = db.Column(db.Integer, db.ForeignKey('reading.id'))
-    follow_up_id = db.Column(db.Integer, db.ForeignKey('follow_up.id'))
+    referralHealthFacilityId = db.Column(db.Integer, db.ForeignKey('healthFacility.id'))
+    readingId = db.Column(db.Integer, db.ForeignKey('reading.readingId'))
+    followUpId = db.Column(db.Integer, db.ForeignKey('followUp.id'))
 
     # RELATIONSHIPS
-    health_facility = db.relationship('HealthFacility', backref=db.backref('referrals', lazy=True))
+    healthFacility = db.relationship('HealthFacility', backref=db.backref('referrals', lazy=True))
     reading = db.relationship('Reading', backref=db.backref('referrals', lazy=True))
-    follow_up = db.relationship('FollowUp', backref=db.backref('referrals', lazy=True))
+    followUp = db.relationship('FollowUp', backref=db.backref('referrals', lazy=True))
 
 class HealthFacility(db.Model):
+    __tablename__ = 'healthFacility'
     id = db.Column(db.Integer, primary_key=True)
     address = db.Column(db.String(150), nullable=True)
 
 
 class Patient(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    age = db.Column(db.Integer, nullable=False)
-    sex = db.Column(db.Enum(SexEnum), nullable=False)
-    pregnant = db.Column(db.Boolean)
-    gestationalAge = db.Column(db.String(20))
-    medical_history = db.Column(db.Text)
-    drug_history = db.Column(db.Text)
+    patientId = db.Column(db.String(50), primary_key=True)
+    patientName = db.Column(db.String(50))
+    patientAge = db.Column(db.Integer, nullable=False)
+    patientSex = db.Column(db.Enum(SexEnum), nullable=False)
+    isPregnant = db.Column(db.Boolean)
+    gestationalAgeUnit = db.Column(db.String(50))
+    gestationalAgeValue = db.Column(db.String(20))
+    medicalHistory = db.Column(db.Text)
+    drugHistory = db.Column(db.Text)
     symptoms = db.Column(db.Text)
 
 
     # FOREIGN KEYS
-    village_no = db.Column(db.String(50), db.ForeignKey('village.village_no'))
+    villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
 
     # RELATIONSHIPS
     village = db.relationship('Village', backref=db.backref('patients', lazy=True))
 
 
 class Reading(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    bp_systolic = db.Column(db.Integer)
-    bp_diastolic = db.Column(db.Integer)
-    heart_rate_bpm = db.Column(db.Integer)
-    date_time_taken = db.Column(db.DateTime)
-    date_uploaded_to_server = db.Column(db.DateTime)
-    gps_location_of_reading = db.Column(db.String(50))
+    readingId = db.Column(db.Integer, primary_key=True)
+    bpSystolic = db.Column(db.Integer)
+    bpDiastolic = db.Column(db.Integer)
+    heartRateBPM = db.Column(db.Integer)
+
+    # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
+    dateLastSaved = db.Column(db.String(100)) 
+    dateTimeTaken = db.Column(db.String(100))
+    dateUploadedToServer = db.Column(db.String(100))
+    dateRecheckVitalsNeeded = db.Column(db.String(100))
+
+    gpsLocationOfReading = db.Column(db.String(50))
+    retestOfPreviousReadingIds = db.Column(db.String(100))
+    isFlaggedForFollowup = db.Column(db.Boolean)
+    appVersion = db.Column(db.String(50))
+    deviceInfo = db.Column(db.String(50))
+    totalOcrSeconds = db.Column(db.Float)
+    manuallyChangeOcrResults = db.Column(db.Integer)
+    temporaryFlags = db.Column(db.Integer)
+    userHasSelectedNoSymptoms = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False)
+    patientId = db.Column(db.String(50), db.ForeignKey('patient.patientId'), nullable=False)
 
     # RELATIONSHIPS
     patient = db.relationship('Patient', backref=db.backref('readings', lazy=True))
 
 
 class FollowUp(db.Model):
+    __tablename__ = 'followUp'
     id = db.Column(db.Integer, primary_key=True)
-    follow_up_action = db.Column(db.Text)
+    followUpAction = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
 
 
 class Village(db.Model):
-    village_no = db.Column(db.String(50), primary_key=True)
+    villageNumber = db.Column(db.String(50), primary_key=True)
+    zoneNumber    = db.Column(db.String(50))
 
 
 ######################
@@ -136,7 +155,7 @@ class UserSchema(ma.ModelSchema):
         model = User
 
 class PatientSchema(ma.ModelSchema):
-    sex = EnumField(SexEnum, by_value=True)
+    patientSex = EnumField(SexEnum, by_value=True)
     class Meta:
         include_fk = True
         model = Patient
@@ -168,12 +187,12 @@ user_schema = {
             "type": "string",
             "format": "email"
         },
-        "password_hash": {
+        "password": {
             "type": "string",
             "minLength": 5
         },
     },
-    "required": ["email", "password_hash"],
+    "required": ["email", "password"],
     "additionalProperties": False
 }
 

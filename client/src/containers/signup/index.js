@@ -8,7 +8,7 @@ import { userPostFetch } from '../../actions/users'
 class Signup extends Component {
   state = {
     email: "",
-    password_hash: "",
+    password: "",
   }
 
   handleChange = event => {
@@ -39,8 +39,8 @@ class Signup extends Component {
         <label>Password</label>
         <input
           type='password'
-          name='password_hash'
-          value={this.state.password_hash}
+          name='password'
+          value={this.state.password}
           onChange={this.handleChange}
           />
         <br/>

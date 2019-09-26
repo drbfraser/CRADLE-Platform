@@ -41,7 +41,7 @@ def abort_if_patient_exists(patient_id):
 class PatientAll(Resource):
     @staticmethod
     def _get_request_body():
-        body = request.get_json(force=True)
+        body = request.get_json(force=True)['personal-info']
         logging.debug('Request body: ' + str(body))
         return body
 
@@ -61,7 +61,7 @@ class PatientAll(Resource):
 
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
-        abort_if_patient_exists(patient_data.get('id'))
+        abort_if_patient_exists(patient_data.get('patientId'))
         invalid = PatientValidation.create_body_invalid(patient_data)
         if invalid is not None:
             return invalid
