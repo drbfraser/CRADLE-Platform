@@ -71,7 +71,7 @@ class PatientAll(Resource):
         return response_body, 201
 
 
-# URI: /patient/{patient_id}
+# URI: /patient/<string:patient_id>
 class PatientInfo(Resource):
 
     @staticmethod
