@@ -9,13 +9,13 @@ def create_patient(patient_data):
     print(patient_data)
     # Add a new patient to db
     schema = PatientSchema()
-    new_patient = schema.load(patient_data['personal-info'], session=db.session)
+    new_patient = schema.load(patient_data, session=db.session)
 
     db.session.add(new_patient)
     db.session.commit()
 
-    # Return the newly created patient
-    return schema.dump(new_patient)
+    # Return the newly created patient object
+    return new_patient
 
 def get_patient(patient_id):
     patient = Patient.query.filter_by(patientId=patient_id).one_or_none()
