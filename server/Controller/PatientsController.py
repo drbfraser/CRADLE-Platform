@@ -73,6 +73,11 @@ class PatientAll(Resource):
 
 # URI: /patient/<string:patient_id>
 class PatientInfo(Resource):
+    @staticmethod
+    def _get_request_body():
+        body = request.get_json(force=True)
+        logging.debug('Request body: ' + str(body))
+        return body
 
     @staticmethod
     def _get_request_body():
