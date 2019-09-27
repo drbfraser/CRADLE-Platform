@@ -1,4 +1,7 @@
 from config import db, ma
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+from jsonschema.exceptions import SchemaError
 from marshmallow_enum import EnumField
 import enum
 
@@ -147,3 +150,39 @@ class ReadingSchema(ma.ModelSchema):
     class Meta:
         include_fk = True
         model = Reading
+
+class RoleSchema(ma.ModelSchema):
+    class Meta:
+        include_fk = True
+        model = Role
+
+
+
+user_schema = {
+    "type": "object",
+    "properties": {
+        "username": {
+            "type": "string",
+        },
+        "email": {
+            "type": "string",
+            "format": "email"
+        },
+        "password_hash": {
+            "type": "string",
+            "minLength": 5
+        },
+    },
+    "required": ["email", "password_hash"],
+    "additionalProperties": False
+}
+
+
+def validate_user(data):
+    try:
+        validate(data, user_schema)
+    except ValidationError as e:
+        return {'ok': False, 'message': e}
+    except SchemaError as e:
+        return {'ok': False, 'message': e}
+    return {'ok': True, 'data': data}

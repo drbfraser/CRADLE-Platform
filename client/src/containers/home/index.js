@@ -14,7 +14,7 @@ import {
 } from '../../actions/posts'
 
 const Home = props => (
-  <div>
+  <div className="content">
     <h1>Home</h1>
     <p>Count: {props.count}</p>
 
