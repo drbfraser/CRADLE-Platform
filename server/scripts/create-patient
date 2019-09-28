@@ -3,22 +3,18 @@
 cd "$(dirname "$0")" || return
 BASE_URL="$(./base-url)"
 
+UUID=$(uuidgen)
+
 curl \
   --include \
   --request POST  \
   --header "Content-Type: application/json" \
   --data '
 {
-  "personal-info": {
-    "age": 30,
-    "sex": "M",
-    "medical_history": "None",
-    "drug_history": "None",
-    "pregnant": "Y",
-    "symptoms": "None",
-    "gestationalAge": "10",
-    "village_no": "12",
-    "village": null
+  "patient": {
+    "patientId": "'"$UUID"'",
+    "patientAge": 30,
+    "patientSex": "M"
   }
 }' \
   "$BASE_URL"/patient

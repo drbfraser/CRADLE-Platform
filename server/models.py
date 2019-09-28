@@ -100,6 +100,9 @@ class Patient(db.Model):
     # RELATIONSHIPS
     village = db.relationship('Village', backref=db.backref('patients', lazy=True))
 
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
 
 class Reading(db.Model):
     readingId = db.Column(db.Integer, primary_key=True)

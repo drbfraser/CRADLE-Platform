@@ -16,7 +16,7 @@ class PatientRepositoryMysql(PatientRepository):
         db.session.commit()
 
         # Return the newly created patient
-        return new_patient
+        return new_patient.as_dict()
 
     def get(self, patient_id):
         patient = Patient.query.filter_by(patientId=patient_id).one_or_none()
