@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "Deleting and receating the MySQL database..."
+echo "You will be prompted for your MySQL root password."
+mysql -u root -p -e"DROP DATABASE cradle; CREATE DATABASE cradle;"
+
+echo "Creating the tables..."
+flask db upgrade
+
+echo "Seeding the initial user information..."
+python3 manage.py seed
+
+echo "Done."
+
