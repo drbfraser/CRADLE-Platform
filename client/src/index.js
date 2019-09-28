@@ -7,7 +7,6 @@ import App from './containers/app'
 
 import 'sanitize.css/sanitize.css'
 import './index.css'
-import 'semantic-ui-css/semantic.min.css'
 
 
 const target = document.querySelector('#root')
