@@ -15,7 +15,7 @@ class PatientPage extends Component {
 
   render() {
     return (
-        <div >
+        <div>
           <h1>Patients Page</h1>
           <p> only logged in users are allowed to see this </p>
         </div>

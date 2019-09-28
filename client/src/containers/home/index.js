@@ -1,5 +1,6 @@
 import React from 'react'
 import { push } from 'connected-react-router'
+import { Button } from 'semantic-ui-react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import {
@@ -21,10 +22,10 @@ const Home = props => (
     <p>Message from server: {props.msg}</p>
 
     <p>
-      <button onClick={props.increment}>Increment</button>
-      <button onClick={props.incrementAsync} disabled={props.isIncrementing}>
+      <Button onClick={props.increment}>Increment</Button>
+      <Button onClick={props.incrementAsync} disabled={props.isIncrementing}>
         Increment Async
-      </button>
+      </Button>
     </p>
 
     <p>
