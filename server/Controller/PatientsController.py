@@ -2,7 +2,6 @@ import logging
 
 from flask import request
 from flask_restful import Resource, abort
-import logging
 
 # Project modules
 from models import Patient, PatientSchema, ReadingSchema

@@ -1,4 +1,5 @@
 import { push } from 'connected-react-router'
+import axios from 'axios';
 
 export const userPostFetch = user => {
   return dispatch => {
@@ -40,9 +41,10 @@ export const userLoginFetch = user => {
           // Invalid post raise an error, i.e. password not filled
           console.log(data.message)
         } else {
-          localStorage.setItem("token", data.token)
-          dispatch(loginUser(data))
-          dispatch(push('/patients'))
+          localStorage.setItem("token", data.token);
+          dispatch(getCurrentUser()).then(() => {
+            dispatch(push('/patients'))
+          })
         }
       })
   }
@@ -51,30 +53,28 @@ export const userLoginFetch = user => {
 export const getCurrentUser = () => {
   return dispatch => {
     const token = localStorage.token;
-    if (token) {
-      return fetch("http://localhost:5000/user/current", {
-        method: "GET",
-        headers: {
+      return axios.get("http://localhost:5000/user/current", {
+        'headers': {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': `Bearer ${token}`
         }
       })
-        .then(resp => resp.json())
-        .then(data => {
-          if (data.message) {
+        .then(res => {
+          if (res.msg) {
+            console.log(res)
             // invalid token, remove current token
             localStorage.removeItem("token")
             dispatch(push('/login'))
           } else {
-            dispatch(loginUser(data))
+            console.log(res)
+            dispatch(loginUser(res.data))
           }
-        })
-    } else {
-      // no token, go to login
-      dispatch(push('/login'))
+        }).catch((err) => { 
+          dispatch(push('/login'))
+          return {'message' : 'Not authorized'}
+        } )
     }
-  }
 }
 
 export const logoutUser = () => {
