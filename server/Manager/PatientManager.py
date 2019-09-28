@@ -24,3 +24,6 @@ def update_info(id, request_body):
     # response_body = {'you sent': body}
 
     return request_body
+
+def delete_all():
+    return database.delete_all()

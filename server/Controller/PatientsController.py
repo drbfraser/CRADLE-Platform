@@ -74,6 +74,11 @@ class PatientAll(Resource):
         response_body = PatientManager.create_patient(patient_data)
         return response_body, 201
 
+    @staticmethod
+    def delete():
+        PatientManager.delete_all()
+        return {}
+
 
 # URI: /patient/<string:patient_id>
 class PatientInfo(Resource):

@@ -29,3 +29,9 @@ class PatientRepositoryMysql(PatientRepository):
         if patients:
             return patients
         return None
+
+    @staticmethod
+    def delete_all():
+        count = db.session.query(Patient).delete()
+        db.session.commit()
+        print("Deleted", count, "patients")
