@@ -11,10 +11,15 @@ import { getPosts } from '../../actions/posts';
 class PatientPage extends Component {
   state = {
     columns: [
-      { title: 'Patient ID', field: 'patientId' },
+      { title: 'Patient ID', field: 'patientId', defaultSort: 'asc' },
       { title: 'Patient Name', field: 'patientName' },
       { title: 'Patient Sex', field: 'patientSex' },
+      // { title: 'Last Reading', render: rowData => <p>Oct 01, 2019 10:59 AM</p> },
+      { title: 'Readings', render: rowData => <button>View Readings</button> },
       { title: 'Pregant', field: 'isPregnant', type: 'boolean' },
+      // { title: 'Referred', field: 'isReferred', type: 'boolean' },
+      { title: 'Follow Up Status', field: 'followUp',
+        render: rowData => rowData.isPregnant ? (<button>Follow Up</button>) : (<p>Not needed</p>) },
     ],
     data: [],
   }
@@ -22,7 +27,11 @@ class PatientPage extends Component {
 
   componentDidMount = () => {
     console.log('componentDidMount')
-    this.props.getCurrentUser().then(() => {
+    this.props.getCurrentUser().then((err) => {
+      if (err !== undefined) {
+        // error from getCurrentUser(), don't get patients
+        return
+      }
       this.props.getPatients()
     })
   }

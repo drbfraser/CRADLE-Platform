@@ -72,6 +72,7 @@ export const getCurrentUser = () => {
           }
         }).catch((err) => { 
           dispatch(push('/login'))
+          return {'message' : 'Not authorized'}
         } )
     }
 }
