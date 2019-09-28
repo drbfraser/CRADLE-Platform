@@ -131,9 +131,6 @@ class PatientReading(Resource):
         # create new reading 
         reading = ReadingManager.create_reading(patient_reading_data['reading'], patient.patientId)
 
-<<<<<<< HEAD
-        return response_body, 201
-=======
         # associate new reading with patient
 
         patient_schema = PatientSchema()
@@ -142,4 +139,3 @@ class PatientReading(Resource):
                 'reading' : reading_schema.dump(reading),
                 'patient' : patient_schema.dump(patient)
                 }, 201
->>>>>>> 88cec87f7dd99da97f323ebac9ba1fd2b8767d36
