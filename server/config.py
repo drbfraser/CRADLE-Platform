@@ -8,14 +8,29 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_jwt_extended import JWTManager
-
+from environs import Env
+import environs
 from flask_bcrypt import Bcrypt
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
-    #SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:huangkeyi.0416@localhost:3306/cradle' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'test-cradle.db')
+    env = Env()
+    env.read_env()
+
+    try: 
+        db_user = env("DB_USERNAME")
+        db_pw = env("DB_PASSWORD")
+    except environs.EnvError:
+        print("*******************************************************")
+        print("DB_USERNAME or DB_PASSWORD environment variable not set")
+        print("*******************************************************")
+
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@localhost:3306/cradle' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
+    
+    print("SQLALCHEMY_DATABASE_URI: " + SQLALCHEMY_DATABASE_URI)
+
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'test-cradle.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT_SECRET_KEY= os.environ.get('SECRET')
