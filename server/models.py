@@ -93,8 +93,6 @@ class Patient(db.Model):
     gestationalAgeValue = db.Column(db.String(20))
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
-    symptoms = db.Column(db.Text)
-
 
     # FOREIGN KEYS
     villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
@@ -108,6 +106,7 @@ class Reading(db.Model):
     bpSystolic = db.Column(db.Integer)
     bpDiastolic = db.Column(db.Integer)
     heartRateBPM = db.Column(db.Integer)
+    symptoms = db.Column(db.Text)
 
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
     dateLastSaved = db.Column(db.String(100)) 

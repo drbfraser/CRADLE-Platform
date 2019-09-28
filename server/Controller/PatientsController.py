@@ -3,10 +3,10 @@ import logging
 from flask import request
 from flask_restful import Resource, abort
 
-from Manager import PatientManager
 # Project modules
+from models import Patient, PatientSchema, ReadingSchema
 from Validation import PatientValidation
-from models import PatientSchema
+from Manager import PatientManager, ReadingManager
 
 
 def abort_if_body_empty(request_body):
@@ -53,16 +53,20 @@ class PatientAll(Resource):
     def get():
         logging.debug('Received request: GET /patient')
         patients = abort_if_patients_doesnt_exist()
-        return PatientManager.get_patients()
+        
+        patient_schema = PatientSchema(many=True)
+        data = patient_schema.dump(patients)
+
+        return data
 
     # Create a new patient
     def post(self):
         logging.debug('Received request: POST /patient')
         patient_data = self._get_request_body()
-
+        print(patient_data)
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
-        abort_if_patient_exists(patient_data.get('patientId'))
+        abort_if_patient_exists(patient_data['patientId'])
         invalid = PatientValidation.create_body_invalid(patient_data)
         if invalid is not None:
             return invalid
@@ -73,12 +77,6 @@ class PatientAll(Resource):
 
 # URI: /patient/<string:patient_id>
 class PatientInfo(Resource):
-    @staticmethod
-    def _get_request_body():
-        body = request.get_json(force=True)
-        logging.debug('Request body: ' + str(body))
-        return body
-
     @staticmethod
     def _get_request_body():
         body = request.get_json(force=True)
@@ -118,20 +116,30 @@ class PatientReading(Resource):
     # Create a new patient with a reading
     def post(self):
         logging.debug('Received request: POST /patient/referral')
-        patient_referral_data = self._get_request_body()
-
+        patient_reading_data = self._get_request_body()
         # Ensure all data is valid
-        abort_if_body_empty(patient_referral_data)
-        invalid = PatientValidation.create_body_invalid(patient_referral_data['patient'])
+        abort_if_body_empty(patient_reading_data)
+        invalid = PatientValidation.create_body_invalid(patient_reading_data['patient'])
         if invalid is not None:
             return invalid
-        
+
         # check if patient is already created
-        patient = PatientManager.get_patient(patient_referral_data['patient']['patientId'])
+        patient = PatientManager.get_patient(patient_reading_data['patient']['patientId'])
         if patient is None:
-            patient = PatientManager.create_patient(patient_referral_data['patient'])
+            patient = PatientManager.create_patient(patient_reading_data['patient'])
 
         # create new reading 
-        reading = ReadingManager.create_reading(patient_referral_data['reading'], patient.patientId)
+        reading = ReadingManager.create_reading(patient_reading_data['reading'], patient.patientId)
 
+<<<<<<< HEAD
         return response_body, 201
+=======
+        # associate new reading with patient
+
+        patient_schema = PatientSchema()
+        reading_schema = ReadingSchema()
+        return {'message' : 'Patient reading created successfully!',
+                'reading' : reading_schema.dump(reading),
+                'patient' : patient_schema.dump(patient)
+                }, 201
+>>>>>>> 88cec87f7dd99da97f323ebac9ba1fd2b8767d36
