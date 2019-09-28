@@ -117,21 +117,20 @@ class PatientReading(Resource):
     # Create a new patient with a reading
     def post(self):
         logging.debug('Received request: POST /patient/referral')
-        patient_referral_data = self._get_request_body()
-
+        patient_reading_data = self._get_request_body()
         # Ensure all data is valid
-        abort_if_body_empty(patient_referral_data)
-        invalid = PatientValidation.create_body_invalid(patient_referral_data['patient'])
+        abort_if_body_empty(patient_reading_data)
+        invalid = PatientValidation.create_body_invalid(patient_reading_data['patient'])
         if invalid is not None:
             return invalid
-        
+
         # check if patient is already created
-        patient = PatientManager.get_patient(patient_referral_data['patient']['patientId'])
+        patient = PatientManager.get_patient(patient_reading_data['patient']['patientId'])
         if patient is None:
-            patient = PatientManager.create_patient(patient_referral_data['patient'])
+            patient = PatientManager.create_patient(patient_reading_data['patient'])
 
         # create new reading 
-        reading = ReadingManager.create_reading(patient_referral_data['reading'], patient.patientId)
+        reading = ReadingManager.create_reading(patient_reading_data['reading'], patient.patientId)
 
         # associate new reading with patient
 
