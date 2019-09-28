@@ -9,9 +9,8 @@ marshmallow-sqlalchemy
 marshmallow_enum
 flask_migrate
 pymysql
-<<<<<<< HEAD
 flask_jwt_extended
 flask_bcrypt
 jsonschema
-=======
->>>>>>> 7013252fa7c5661bcf912299e68d043832429d9d
+flask_script
+environs

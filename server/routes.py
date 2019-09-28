@@ -19,6 +19,7 @@ def init(api):
 
 
     api.add_resource(PatientInfo, '/patient/<string:patient_id>') # [GET]
+    api.add_resource(PatientReading, '/patient/reading') # [POST]
     api.add_resource(PatientAll, '/patient') # [GET, POST]
 
     api.add_resource(ReferralApi, '/referral') # [GET, POST]

@@ -46,13 +46,12 @@ class ReferralApi(Resource):
 
     # Create a new referral
     def post(self):
+        print(request.get_json())
         referral_data = request.get_json()
-
-        abort_if_referral_exists(referral_data['id'])
 
         # Add a new referral to db
         schema = ReferralSchema()
-        new_referral = schema.load(referral_data, session=db.session)
+        new_referral = schema.load(referral_data['referral'], session=db.session)
 
         db.session.add(new_referral)
         db.session.commit()

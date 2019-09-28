@@ -11,8 +11,9 @@ export const getPosts = () => {
         type: UPDATE_POSTS_REQUESTED
       })
 
-      axios.get("http://localhost:5000/api/hello-world").then(res => {
-        console.log("hello world res: ", res);
+      
+      return axios.get("http://localhost:5000/api/hello-world").then(res => {
+        // console.log("hello world res: ", res);
         dispatch({
           type: UPDATE_MSG,
           payload: res.data

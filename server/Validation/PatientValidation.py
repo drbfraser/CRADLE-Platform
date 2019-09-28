@@ -11,8 +11,8 @@ def create_body_invalid(request_body):
     """
     if request_body is None:
         return {'HTTP 400': 'The request body cannot be empty.'}, 400
-    if request_body.get('personal-info') is None:
-        return {'HTTP 400': 'The request body field personal-info is required.'}, 400
+    if request_body.get('patientId') is None:
+        return {'HTTP 400': 'The request body field patientId is required.'}, 400
 
     return None
 
