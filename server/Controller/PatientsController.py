@@ -1,9 +1,11 @@
+import logging
+
 from flask import request
 from flask_restful import Resource, abort
-from models import Patient, PatientSchema, ReadingSchema
 import logging
 
 # Project modules
+from models import Patient, PatientSchema, ReadingSchema
 from Validation import PatientValidation
 from Manager import PatientManager, ReadingManager
 
@@ -37,8 +39,10 @@ def abort_if_patient_exists(patient_id):
     if patient:
         abort(404, message="Patient {} already exists.".format(patient_id))
 
-# /patient
+
+# URI: /patient
 class PatientAll(Resource):
+
     @staticmethod
     def _get_request_body():
         body = request.get_json(force=True)['patient']
@@ -46,22 +50,24 @@ class PatientAll(Resource):
         return body
 
     # Get all patients
-    def get(self):
+    @staticmethod
+    def get():
         logging.debug('Received request: GET /patient')
         patients = abort_if_patients_doesnt_exist()
-
+        
         patient_schema = PatientSchema(many=True)
         data = patient_schema.dump(patients)
+
         return data
 
     # Create a new patient
     def post(self):
         logging.debug('Received request: POST /patient')
         patient_data = self._get_request_body()
-
+        print(patient_data)
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
-        abort_if_patient_exists(patient_data.get('patientId'))
+        abort_if_patient_exists(patient_data['patientId'])
         invalid = PatientValidation.create_body_invalid(patient_data)
         if invalid is not None:
             return invalid
@@ -69,8 +75,14 @@ class PatientAll(Resource):
         response_body = PatientManager.create_patient(patient_data)
         return response_body, 201
 
-# /patient/<string:patient_id>
+
+# URI: /patient/<string:patient_id>
 class PatientInfo(Resource):
+    @staticmethod
+    def _get_request_body():
+        body = request.get_json(force=True)
+        logging.debug('Request body: ' + str(body))
+        return body
 
     # Get a single patient
     def get(self, patient_id):

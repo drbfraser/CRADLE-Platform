@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cd "$(dirname "$0")" || return
+BASE_URL="$(./base-url)"
+
+curl \
+  --include \
+  --request GET  \
+  --header "Content-Type: application/json" \
+  "$BASE_URL"/patient
