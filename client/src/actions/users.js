@@ -13,12 +13,12 @@ export const userPostFetch = user => {
       .then(resp => resp.json())
       .then(data => {
         if (data.message) {
-          // TODO: check for status code
+          // TODO: do something with error message
+          console.log(data)
+        } else {
           dispatch(userLoginFetch(user)).then(() => { // log the user in
             dispatch(push('/patients'))
           }) 
-        } else {
-
         }
       })
   }
@@ -38,7 +38,7 @@ export const userLoginFetch = user => {
       .then(data => {
         if (data.message) {
           // Invalid post raise an error, i.e. password not filled
-          console.log(data)
+          console.log(data.message)
         } else {
           localStorage.setItem("token", data.token)
           dispatch(loginUser(data))

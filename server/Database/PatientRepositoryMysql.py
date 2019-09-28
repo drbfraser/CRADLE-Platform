@@ -7,19 +7,19 @@ class PatientRepositoryMysql(PatientRepository):
     def __init__(self):
         pass
 
-    def add_new_patient(self, data):
+    def add_new_patient(self, patient_data):
         # Add a new patient to db
         schema = PatientSchema()
-        new_patient = schema.load(data['personal-info'], session=db.session)
+        new_patient = schema.load(patient_data, session=db.session)
 
         db.session.add(new_patient)
         db.session.commit()
 
         # Return the newly created patient
-        return schema.dump(new_patient)
+        return new_patient
 
     def get(self, patient_id):
-        patient = Patient.query.filter_by(id=patient_id).one_or_none()
+        patient = Patient.query.filter_by(patientId=patient_id).one_or_none()
         if patient:
             return patient
         return None

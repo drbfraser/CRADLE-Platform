@@ -2,11 +2,12 @@ import logging
 
 from flask import request
 from flask_restful import Resource, abort
+import logging
 
-from Manager import PatientManager
 # Project modules
+from models import Patient, PatientSchema, ReadingSchema
 from Validation import PatientValidation
-from models import PatientSchema
+from Manager import PatientManager, ReadingManager
 
 
 def abort_if_body_empty(request_body):
@@ -44,7 +45,7 @@ class PatientAll(Resource):
 
     @staticmethod
     def _get_request_body():
-        body = request.get_json(force=True)
+        body = request.get_json(force=True)['patient']
         logging.debug('Request body: ' + str(body))
         return body
 
@@ -53,16 +54,20 @@ class PatientAll(Resource):
     def get():
         logging.debug('Received request: GET /patient')
         patients = abort_if_patients_doesnt_exist()
-        return PatientManager.get_patients()
+        
+        patient_schema = PatientSchema(many=True)
+        data = patient_schema.dump(patients)
+
+        return data
 
     # Create a new patient
     def post(self):
         logging.debug('Received request: POST /patient')
         patient_data = self._get_request_body()
-
+        print(patient_data)
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
-        abort_if_patient_exists(patient_data.get('id'))
+        abort_if_patient_exists(patient_data['patientId'])
         invalid = PatientValidation.create_body_invalid(patient_data)
         if invalid is not None:
             return invalid
@@ -79,12 +84,6 @@ class PatientInfo(Resource):
         logging.debug('Request body: ' + str(body))
         return body
 
-    @staticmethod
-    def _get_request_body():
-        body = request.get_json(force=True)
-        logging.debug('Request body: ' + str(body))
-        return body
-
     # Get a single patient
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
@@ -94,16 +93,50 @@ class PatientInfo(Resource):
         data = patient_schema.dump(patient)
         return data
 
-    # Update patient info (reading, referral, or fillout)
+    # Update patient info
     def put(self, patient_id):
         logging.debug('Received request: PUT /patient/' + patient_id)
 
-        patient = abort_if_patient_doesnt_exist(patient_id)
-        data = self._get_request_body()
-        invalid = PatientValidation.update_info_invalid(patient_id, data)
+        # patient = abort_if_patient_doesnt_exist(patient_id)
+        # invalid = PatientValidation.update_info_invalid(patient_id, data)
+        # if invalid is not None:
+        #     return invalid
+
+        # response_body = PatientManager.update_info(patient_id, data)
+
+        return response_body, 201
+
+# /patient/reading/ [POST]
+class PatientReading(Resource):
+    @staticmethod
+    def _get_request_body():
+        body = request.get_json(force=True)
+        logging.debug('Request body: ' + str(body))
+        return body
+
+    # Create a new patient with a reading
+    def post(self):
+        logging.debug('Received request: POST /patient/referral')
+        patient_reading_data = self._get_request_body()
+        # Ensure all data is valid
+        abort_if_body_empty(patient_reading_data)
+        invalid = PatientValidation.create_body_invalid(patient_reading_data['patient'])
         if invalid is not None:
             return invalid
 
-        response_body = PatientManager.update_info(patient_id, data)
+        # check if patient is already created
+        patient = PatientManager.get_patient(patient_reading_data['patient']['patientId'])
+        if patient is None:
+            patient = PatientManager.create_patient(patient_reading_data['patient'])
 
-        return response_body, 201
+        # create new reading 
+        reading = ReadingManager.create_reading(patient_reading_data['reading'], patient.patientId)
+
+        # associate new reading with patient
+
+        patient_schema = PatientSchema()
+        reading_schema = ReadingSchema()
+        return {'message' : 'Patient reading created successfully!',
+                'reading' : reading_schema.dump(reading),
+                'patient' : patient_schema.dump(patient)
+                }, 201
