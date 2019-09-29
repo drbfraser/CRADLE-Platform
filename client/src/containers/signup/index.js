@@ -25,7 +25,7 @@ class Signup extends Component {
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit} className="content">
+      <form onSubmit={this.handleSubmit} className="content-box">
         <h1>Sign Up</h1>
 
         <label>Email</label>
