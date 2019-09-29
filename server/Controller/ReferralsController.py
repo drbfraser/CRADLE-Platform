@@ -30,7 +30,12 @@ def abort_if_referral_exists(referral_id):
     if referral:
         abort(404, message="Referral {} already exists".format(referral_id))
 
-
+""" Returns a single referral matching the inputted id
+    urlParams:
+        id: id/primary key of referral
+    returns:
+        single referral matching submitted id
+"""
 # /referral/<int:id> [GET]
 class ReferralInfo(Resource):
     def get(self, id):
@@ -52,12 +57,38 @@ class ReferralApi(Resource):
         print('Request body: ' + json.dumps(body, indent=2, sort_keys=True))
         return body
 
+    """ Get Referrals
+        queryParams (Optional):
+            - healthFacilityId
+            - userId
+            - patientId
+        Description:    
+            if query params are supplied, 
+            all referrals that match the given query params are return
+            else, all referrals are returned
+    """
     def get(self):
-        referrals = abort_if_referrals_doesnt_exist()
+        # NEEDS TESTING AND 
+        
+        args = request.args
+        print("args: " + json.dumps(args, sort_keys=True, indent=2))
+
+        print(str(bool(args)))
 
         referral_schema = ReferralSchema(many=True)
+
+        if not args:
+            referrals = abort_if_referrals_doesnt_exist()
+        else:
+            referrals = Referral.query.filter_by(**args)
+        
         data = referral_schema.dump(referrals)
         return data
+
+
+        
+
+            
 
     
     """ Creates a new Referral
