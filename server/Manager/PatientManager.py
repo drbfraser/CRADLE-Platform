@@ -3,14 +3,15 @@
 import collections
 import logging
 
-from Database import PatientRepository, PatientRepositoryMysql
+from Database import PatientRepository, PatientRepositoryMysql, PatientRepositoryLocal
 from models import Patient, PatientSchema
 
 database = PatientRepositoryMysql.PatientRepositoryMysql()
+# database = PatientRepositoryLocal.PatientRepositoryLocal()
 
 def create_patient(patient_data):
     new_patient = database.add_new_patient(patient_data)
-    if isinstance(new_patient, collections.Mapping):
+    if isinstance(new_patient, collections.Mapping):  # Local database stub
         return new_patient
     return database.model_to_dict(new_patient)  # Conversion from SQLAlchemy Model object
 
@@ -18,7 +19,13 @@ def get_patient(patient_id):
     return database.get(patient_id)
 
 def get_patients():
-    return database.get_all()
+    patients = database.get_all()
+    if patients is None:
+        return None
+    elif isinstance(patients, collections.Mapping):  # Local database stub
+        return patients
+
+    return PatientSchema(many=True).dump(patients)  # Conversion from SQLAlchemy Model object
 
 def update_info(id, request_body):
     logging.debug('Reached PatientManager')

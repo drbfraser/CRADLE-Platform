@@ -5,8 +5,7 @@ from Database.PatientRepository import PatientRepository
 
 
 class PatientRepositoryLocal(PatientRepository):
-    def __init__(self):
-        self._patientList = {}
+    patientList = {}  # Global to all
 
     @staticmethod
     def model_to_dict(model):
@@ -17,17 +16,23 @@ class PatientRepositoryLocal(PatientRepository):
         """
         return model
 
-    def add_new_patient(self, info):
+    @staticmethod
+    def add_new_patient(info):
         patient_id = str(uuid.uuid4())
-        self._patientList[patient_id] = copy.deepcopy(info)
+        PatientRepositoryLocal.patientList[patient_id] = copy.deepcopy(info)
 
         return {'id': patient_id}
 
-    def get(self, patient_id):
-        return self._patientList.get(patient_id)
+    @staticmethod
+    def get(patient_id):
+        return PatientRepositoryLocal.patientList.get(patient_id)
 
-    def get_all(self):
-        return copy.deepcopy(self._patientList)
+    @staticmethod
+    def get_all():
+        if not PatientRepositoryLocal.patientList:
+            return None
+        return PatientRepositoryLocal.patientList
 
-    def delete_all(self):
-        self._patientList = {}
+    @staticmethod
+    def delete_all():
+        PatientRepositoryLocal.patientList = {}

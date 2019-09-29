@@ -24,15 +24,6 @@ def abort_if_patient_doesnt_exist(patient_id):
         return patient
 
 
-def abort_if_patients_doesnt_exist():
-    patients = PatientManager.get_patients()
-
-    if patients is None:
-        abort(404, message="No patients currently exist.")
-    else:
-        return patients
-
-
 def abort_if_patient_exists(patient_id):
     patient = PatientManager.get_patient(patient_id)
 
@@ -53,12 +44,11 @@ class PatientAll(Resource):
     @staticmethod
     def get():
         logging.debug('Received request: GET /patient')
-        patients = abort_if_patients_doesnt_exist()
-        
-        patient_schema = PatientSchema(many=True)
-        data = patient_schema.dump(patients)
 
-        return data
+        patients = PatientManager.get_patients()
+        if patients is None:
+            abort(404, message="No patients currently exist.")
+        return patients
 
     # Create a new patient
     def post(self):
