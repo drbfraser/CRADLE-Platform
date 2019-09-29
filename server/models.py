@@ -26,7 +26,7 @@ class SexEnum(enum.Enum):
 ######################
 ### HELPER CLASSES ###
 ######################
-userRole = db.Table('userRole',
+userRole = db.Table('userrole',
     db.Column('id', db.Integer, primary_key=True),
     
     # FOREIGN KEYS
@@ -45,7 +45,7 @@ class User(db.Model):
     password = db.Column(db.String(128))
 
     # FOREIGN KEYS
-    healthFacilityId = db.Column(db.Integer, db.ForeignKey('healthFacility.id'), nullable=True)
+    healthFacilityId = db.Column(db.Integer, db.ForeignKey('healthfacility.id'), nullable=True)
 
     # RELATIONSHIPS
     healthFacility = db.relationship('HealthFacility', backref=db.backref('users', lazy=True))
@@ -68,9 +68,9 @@ class Referral(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('user.id'))
     patientId = db.Column(db.String(50), db.ForeignKey('patient.patientId'))
 
-    referralHealthFacilityId = db.Column(db.Integer, db.ForeignKey('healthFacility.id'))
+    referralHealthFacilityId = db.Column(db.Integer, db.ForeignKey('healthfacility.id'))
     readingId = db.Column(db.Integer, db.ForeignKey('reading.readingId'))
-    followUpId = db.Column(db.Integer, db.ForeignKey('followUp.id'))
+    followUpId = db.Column(db.Integer, db.ForeignKey('followup.id'))
 
     # RELATIONSHIPS
     healthFacility = db.relationship('HealthFacility', backref=db.backref('referrals', lazy=True))
@@ -78,7 +78,7 @@ class Referral(db.Model):
     followUp = db.relationship('FollowUp', backref=db.backref('referrals', lazy=True))
 
 class HealthFacility(db.Model):
-    __tablename__ = 'healthFacility'
+    __tablename__ = 'healthfacility'
     id = db.Column(db.Integer, primary_key=True)
     address = db.Column(db.String(150), nullable=True)
 
@@ -94,11 +94,12 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
 
+    villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
-    villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
+    # villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
 
     # RELATIONSHIPS
-    village = db.relationship('Village', backref=db.backref('patients', lazy=True))
+    # village = db.relationship('Village', backref=db.backref('patients', lazy=True))
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
@@ -135,7 +136,7 @@ class Reading(db.Model):
 
 
 class FollowUp(db.Model):
-    __tablename__ = 'followUp'
+    __tablename__ = 'followup'
     id = db.Column(db.Integer, primary_key=True)
     followUpAction = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
