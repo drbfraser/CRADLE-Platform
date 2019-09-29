@@ -10,7 +10,7 @@ from Manager import PatientManager, ReadingManager
 
 
 def abort_if_body_empty(request_body):
-    if request is None:
+    if request_body is None:
         abort(400, message="The request body cannot be empty.")
 
 
