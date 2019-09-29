@@ -1,4 +1,5 @@
 import logging
+import json
 
 from flask import request
 from flask_restful import Resource, abort
@@ -45,7 +46,7 @@ class PatientAll(Resource):
     @staticmethod
     def _get_request_body():
         body = request.get_json(force=True)['patient']
-        logging.debug('Request body: ' + str(body))
+        print('Request body: ' + str(body))
         return body
 
     # Get all patients
