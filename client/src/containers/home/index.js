@@ -15,7 +15,7 @@ import {
 } from '../../actions/posts'
 
 const Home = props => (
-  <div className="content">
+  <div className="content-box">
     <h1>Home</h1>
     <Modal trigger={<Button>Show Modal</Button>}>
     <Modal.Header>Select a Photo</Modal.Header>
