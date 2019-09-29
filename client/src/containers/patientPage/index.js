@@ -135,9 +135,10 @@ class PatientPage extends Component {
           />
 
           <Modal closeIcon onClose={this.closeModal} open={this.state.displayModal}>
+            <Modal.Header>Patient Information</Modal.Header>
             <Modal.Content scrolling>
               <Modal.Description>
-                <Header>Patient #{this.state.selectedPatient.patientId}</Header>
+                <Header>Patient ID #{this.state.selectedPatient.patientId}</Header>
                 <Divider />
                 <Form onSubmit={this.handleSubmit}>
                   <Form.Group widths='equal'>
