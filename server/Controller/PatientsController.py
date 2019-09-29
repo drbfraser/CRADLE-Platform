@@ -82,11 +82,12 @@ class PatientInfo(Resource):
     # Get a single patient
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
-        patient = abort_if_patient_doesnt_exist(patient_id)
 
-        patient_schema = PatientSchema()
-        data = patient_schema.dump(patient)
-        return data
+        patient = PatientManager.get_patient(patient_id)
+
+        if patient is None:
+            abort(404, message="Patient {} doesn't exist.".format(patient_id))
+        return patient
 
     # Update patient info
     def put(self, patient_id):

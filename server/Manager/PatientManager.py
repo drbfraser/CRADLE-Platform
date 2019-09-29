@@ -16,7 +16,13 @@ def create_patient(patient_data):
     return database.model_to_dict(new_patient)  # Conversion from SQLAlchemy Model object
 
 def get_patient(patient_id):
-    return database.get(patient_id)
+    patient_data = database.get(patient_id)
+    if patient_data is None:
+        return None
+    elif isinstance(patients, collections.Mapping):  # Local database stub
+        return patients
+
+    return PatientSchema().dump(patient)  # Conversion from SQLAlchemy Model object
 
 def get_patients():
     patients = database.get_all()
