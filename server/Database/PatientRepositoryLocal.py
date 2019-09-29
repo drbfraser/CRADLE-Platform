@@ -28,3 +28,6 @@ class PatientRepositoryLocal(PatientRepository):
 
     def get_all(self):
         return copy.deepcopy(self._patientList)
+
+    def delete_all(self):
+        self._patientList = {}
