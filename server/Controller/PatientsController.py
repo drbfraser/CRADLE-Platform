@@ -24,15 +24,6 @@ def abort_if_patient_doesnt_exist(patient_id):
         return patient
 
 
-def abort_if_patients_doesnt_exist():
-    patients = PatientManager.get_patients()
-
-    if patients is None:
-        abort(404, message="No patients currently exist.")
-    else:
-        return patients
-
-
 def abort_if_patient_exists(patient_id):
     patient = PatientManager.get_patient(patient_id)
 
@@ -57,12 +48,11 @@ class PatientAll(Resource):
     @staticmethod
     def get():
         logging.debug('Received request: GET /patient')
-        patients = abort_if_patients_doesnt_exist()
-        
-        patient_schema = PatientSchema(many=True)
-        data = patient_schema.dump(patients)
 
-        return data
+        patients = PatientManager.get_patients()
+        if patients is None:
+            abort(404, message="No patients currently exist.")
+        return patients
 
     # Create a new patient
     def post(self):
@@ -95,11 +85,12 @@ class PatientInfo(Resource):
     # Get a single patient
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
-        patient = abort_if_patient_doesnt_exist(patient_id)
 
-        patient_schema = PatientSchema()
-        data = patient_schema.dump(patient)
-        return data
+        patient = PatientManager.get_patient(patient_id)
+
+        if patient is None:
+            abort(404, message="Patient {} doesn't exist.".format(patient_id))
+        return patient
 
     # Update patient info
     def put(self, patient_id):
@@ -113,6 +104,7 @@ class PatientInfo(Resource):
         # response_body = PatientManager.update_info(patient_id, data)
 
         return response_body, 201
+
 
 # /patient/reading/ [POST]
 class PatientReading(Resource):
@@ -132,19 +124,11 @@ class PatientReading(Resource):
         if invalid is not None:
             return invalid
 
-        # check if patient is already created
-        patient = PatientManager.get_patient(patient_reading_data['patient']['patientId'])
-        if patient is None:
-            patient = PatientManager.create_patient(patient_reading_data['patient'])
-
-        # create new reading 
-        reading = ReadingManager.create_reading(patient_reading_data['reading'], patient.patientId)
+        # create new reading (and patient if it does not already exist)
+        reading_and_patient = ReadingManager.create_reading(
+            patient_reading_data['patient']['patientId'],
+            patient_reading_data)
 
         # associate new reading with patient
-
-        patient_schema = PatientSchema()
-        reading_schema = ReadingSchema()
-        return {'message' : 'Patient reading created successfully!',
-                'reading' : reading_schema.dump(reading),
-                'patient' : patient_schema.dump(patient)
-                }, 201
+        reading_and_patient['message'] = 'Patient reading created successfully!'
+        return reading_and_patient, 201
