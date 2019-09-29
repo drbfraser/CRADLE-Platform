@@ -2,6 +2,11 @@ from flask import request
 from flask_restful import Resource, abort
 from models import Referral, ReferralSchema
 from config import db
+import json
+
+from Validation.ReferralValidator import ReferralValidator
+
+validator = ReferralValidator()
 
 def abort_if_referral_doesnt_exist(referral_id):
     referral = Referral.query.filter_by(id=referral_id).one_or_none()
@@ -37,6 +42,16 @@ class ReferralInfo(Resource):
 
 # /referral [GET, POST]
 class ReferralApi(Resource):
+    @staticmethod
+    def _get_request_body():
+        raw_req_body = request.get_json(force=True)
+        if 'referral' in raw_req_body:
+            body = raw_req_body['referral']
+        else:
+            body = raw_req_body
+        print('Request body: ' + json.dumps(body, indent=2, sort_keys=True))
+        return body
+
     def get(self):
         referrals = abort_if_referrals_doesnt_exist()
 
@@ -44,14 +59,43 @@ class ReferralApi(Resource):
         data = referral_schema.dump(referrals)
         return data
 
-    # Create a new referral
+    
+    """ Creates a new Referral
+        JSON Request Body Example: {
+            "dateReferred" : "2019-09-25T19:00:16.683-07:00[America/Vancouver]",
+            "comment" : "please help her",
+            "userId" : null,
+            "patientId": "34",
+            "referralHealthFacilityId": 1,
+            "readingId" : 1,
+            "followUpId" : null
+        }
+        Preconditions: 
+            userId belongs to a valid User, required
+            patientId belongs to a valid Patient, required
+            referralHealthFacilityId belongs to a valid HealthFacility, required
+            readingId belongs to a valid Reading, required
+            followUpId belongs to a valid FollowUp
+        Returns: 
+            newly created referral object
+    """
     def post(self):
-        print(request.get_json())
-        referral_data = request.get_json()
+        referral_data = self._get_request_body()
+
+        # validate new referral 
+        try:
+            validator.enforce_required(referral_data)
+            validator.validate(referral_data)
+        except Exception as e:
+            print(e)
+            return {
+                "code": 400,
+                "error": str(e)
+            }, 400
 
         # Add a new referral to db
         schema = ReferralSchema()
-        new_referral = schema.load(referral_data['referral'], session=db.session)
+        new_referral = schema.load(referral_data, session=db.session)
 
         db.session.add(new_referral)
         db.session.commit()
