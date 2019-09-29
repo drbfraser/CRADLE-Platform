@@ -1,19 +1,21 @@
 # This module contains all Patient-related processing.
 
-import logging
+from Database import ReadingRepositoryMysql, PatientRepositoryMysql
+from models import ReadingSchema, PatientSchema
 
-from models import Reading, ReadingSchema
-from config import db
+readingDatabase = ReadingRepositoryMysql.ReadingRepositoryMysql()
+patientDatabase = PatientRepositoryMysql.PatientRepositoryMysql()
 
-def create_reading(reading_data, patient_id):
-    reading_data['patientId'] = patient_id
 
-    # Add a new patient to db
-    schema = ReadingSchema()
-    new_reading = schema.load(reading_data, session=db.session)
+def create_reading(patient_id, patient_reading_data):
+    # check if patient is already created
+    patient = patientDatabase.get(patient_id)
+    if patient is None:
+        patient = patientDatabase.add_new_patient(patient_reading_data['patient'])
 
-    db.session.add(new_reading)
-    db.session.commit()
+    reading = readingDatabase.add_new_reading(patient_id, patient_reading_data['reading'])
 
-    # Return the newly created reading object
-    return new_reading
+    return {
+        'reading': ReadingSchema().dump(reading),
+        'patient': PatientSchema().dump(patient)
+    }
