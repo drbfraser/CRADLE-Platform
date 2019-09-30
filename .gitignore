@@ -133,6 +133,3 @@ ENV/
 .vscode/
 client/src/containers/home/interview.java
 endpoints.md
-
-#config
-config.py
