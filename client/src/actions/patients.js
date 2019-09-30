@@ -12,7 +12,7 @@ export const getPatients = () => {
         type: GET_PATIENTS_REQUESTED
       })
 
-      axios.get(BASE_URL + "/patient").then((res) => {
+      axios.get(BASE_URL + "/patient/allinfo").then((res) => {
           console.log("get patients res: ", res);
           dispatch({
               type: GET_PATIENTS,

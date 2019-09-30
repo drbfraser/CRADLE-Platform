@@ -33,6 +33,15 @@ def get_patients():
 
     return PatientSchema(many=True).dump(patients)  # Conversion from SQLAlchemy Model object
 
+def get_patients_object():
+    patients = database.get_all()
+    if patients is None:
+        return None
+    elif isinstance(patients, collections.Mapping):  # Local database stub
+        return patients
+
+    return patients
+
 def update_info(id, request_body):
     logging.debug('Reached PatientManager')
 
