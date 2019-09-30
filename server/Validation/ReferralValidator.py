@@ -45,6 +45,7 @@ class ReferralValidator(object):
             key: val
         }
         res = table.query.filter_by(**filter).one_or_none()
+        # res = table.query.filter_by(key=val).one_or_none()
         if not res:
             raise Exception(f'{key}: {val} does not belong to an existing {table.__tablename__}')
     
@@ -62,6 +63,5 @@ class ReferralValidator(object):
             
         if len(required) > 0:
             raise Exception(f'Required keys: {required}, missing')
-            
             
 

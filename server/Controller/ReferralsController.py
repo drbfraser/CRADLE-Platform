@@ -6,6 +6,7 @@ import json
 
 from Manager.ReadingManager import *
 from Manager.PatientManager import *
+from Manager.HealthFacilityManager import *
 
 from models import User, Patient, HealthFacility, Reading, FollowUp
 
@@ -128,7 +129,6 @@ class ReferralApi(Resource):
             print("patient does not exist yet, creating")
             # do validation here
             create_patient(req_data['patient'])    
-            req_data["referral"]["patientId"] = req_data['patient']['patientId']
     
         # if the reading already created, dont create, else use the patientId
         # and create new reading
@@ -136,9 +136,8 @@ class ReferralApi(Resource):
             validator.exists(Reading, "readingId", req_data['reading']['readingId'])
         except Exception as e:
             print("reading does not exist yet, creating")
-            req_data['reading']['patientId']
+            req_data['reading']['patientId'] = req_data['patient']['patientId']
             create_reading(req_data['reading'])
-            req_data["referral"]["readingId"] = req_data['reading']['readingId']
 
         # if the health facility is created, dont create, else use the 
         # healthFacilityName to create a new health facility 
@@ -146,8 +145,14 @@ class ReferralApi(Resource):
             validator.exists(HealthFacility, "healthFacility", req_data)
         except Exception as e:
             print("healthFacility doesnt exist, creating")
-        
+            create_health_facility(
+                {'healthFaciityName': req_data['healthFaciityName']}
+            )
+            
+
         referral_data = build_ref_dict(req_data)
+
+        print("referral_data: " + json.dumps(referral_data, indent=2, sort_keys=True))
 
         # validate new referral 
         try:
