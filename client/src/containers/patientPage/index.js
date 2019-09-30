@@ -117,6 +117,9 @@ class PatientPage extends Component {
 
         if (this.state.selectedPatient.readings[i]['comment']) { // has a referral attached!
           readings.push(<p>Referral Status: Referred! : {this.state.selectedPatient.readings[i]['comment']}</p>)
+          readings.push(<Button>Follow Up</Button>)
+        }else {
+          readings.push(<p>Referral Status: Not Referred!</p>)
         }
         readings.push(<Divider />)
       }
