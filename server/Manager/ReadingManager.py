@@ -24,6 +24,4 @@ def create_reading_and_patient(patient_id, patient_reading_data):
 
 def create_reading(reading_data):
     reading = readingDatabase.add_new_reading(reading_data)
-    return {
-        'reading': ReadingSchema().dump(reading),
-    }
+    return ReadingSchema().dump(reading)
