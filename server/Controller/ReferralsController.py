@@ -34,7 +34,7 @@ def abort_if_referral_exists(referral_id):
     referral = Referral.query.filter_by(id=referral_id).one_or_none()
 
     if referral:
-        abort(404, message="Referral {} already exists".format(referral_id))
+        abort(400, message="Referral {} already exists".format(referral_id))
 
 """ Returns a single referral matching the inputted id
     urlParams:
