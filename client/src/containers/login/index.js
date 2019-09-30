@@ -5,6 +5,8 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { userLoginFetch } from '../../actions/users';
 
+import './login.css'
+
 class Login extends Component {
   state = {
     email: "",
@@ -24,31 +26,33 @@ class Login extends Component {
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit} className="content-box">
-        <h1>Login</h1>
+      <div className="loginWrapper">
+        <form onSubmit={this.handleSubmit} className="content-box">
+          <h1>Login</h1>
 
-        <label>Email</label>
-        <input
-          name='email'
-          type='email'
-          value={this.state.email}
-          onChange={this.handleChange}
-          />
-        <br/>
-        <label>Password</label>
-        <input
-          type='password'
-          name='password'
-          value={this.state.password}
-          onChange={this.handleChange}
-          />
-        <br/>
-        <div className="flexbox">
-          <input className="contant-submit white" type='submit'/>
-          <Link className="link" style={{ textDecoration: 'none' }} to="/signup"> Sign up </Link>
-        </div>
-        
-      </form>
+          <label>Email</label>
+          <input
+            name='email'
+            type='email'
+            value={this.state.email}
+            onChange={this.handleChange}
+            />
+          <br/>
+          <label>Password</label>
+          <input
+            type='password'
+            name='password'
+            value={this.state.password}
+            onChange={this.handleChange}
+            />
+          <br/>
+          <div className="flexbox">
+            <input className="contant-submit white" type='submit'/>
+            <Link className="link" style={{ textDecoration: 'none' }} to="/signup"> Sign up </Link>
+          </div>
+          
+        </form>
+      </div>
     )
   }
 }
