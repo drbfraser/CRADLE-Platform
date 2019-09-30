@@ -43,13 +43,8 @@ class PatientPage extends Component {
     }
 
     return (
-<<<<<<< HEAD
-        <div>
-          <h1>Patients Page</h1>
-=======
         <div >
           <h1>Patients List</h1>
->>>>>>> 7040fe2d8bf93a3fe60f73134a6459e67cdb14be
           <p> only logged in users are allowed to see this </p>
           <MaterialTable
             title="Patients Table"

@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { Route, Link } from 'react-router-dom'
+import { Menu, Button } from 'semantic-ui-react'
 import Home from '../home'
 import PatientPage from '../patientPage'
 import Signup from '../signup'
@@ -11,17 +12,35 @@ import { logoutUser } from '../../actions/users';
 class App extends Component {
 
   render() {
+  
     return (
-      <div>
-        <header className="flexbox"> 
-          <Link className="link white" style={{ textDecoration: 'none' }} to="/"> Home </Link>
-          <Link className="link white" style={{ textDecoration: 'none' }} to="/patients"> Patients </Link>
+      <div >
+        <Menu className='menu theme_color'>
+          <Menu.Item name='Home' >
+              <Link className="link" style={{ textDecoration: 'none' }} to="/"> Home </Link>
+          </Menu.Item>
+          
+          <Menu.Item>
+            <Link className="link" style={{ textDecoration: 'none' }} to="/patients"> Patients </Link>
+          </Menu.Item>
+            
+          <Menu.Item>
           {this.props.user.isLoggedIn ? (
-            <button className="logout white" onClick={ () => this.props.logoutUser() }>Logout</button>
+            <Link className="link" style={{ textDecoration: 'none' }} to="/" onClick={ () => this.props.logoutUser() }>Logout</Link>
           ) : (
-            <Link className="link white" style={{ textDecoration: 'none' }} to="/login"> Login </Link>
+            <Link className="link" style={{ textDecoration: 'none' }} to="/login"> Login </Link>
           )}
-        </header>
+          </Menu.Item> 
+          
+          {this.props.user.isLoggedIn ? (
+            <div></div>
+          ) : (
+            <Menu.Item>
+              <Link className="link" style={{ textDecoration: 'none' }} to="/signup"> Signup </Link>
+            </Menu.Item>
+          )}
+        </Menu>
+          
         
         <main>
           <Route exact path="/" component={Home} />

@@ -27,10 +27,6 @@
     "redux": "4.0.4",
     "redux-thunk": "2.3.0",
     "sanitize.css": "7.0.3",
-<<<<<<< HEAD
-    "semantic-ui-css": "^2.4.1",
-=======
->>>>>>> 7040fe2d8bf93a3fe60f73134a6459e67cdb14be
     "semantic-ui-react": "^0.88.1",
     "serve": "10.1.2"
   },

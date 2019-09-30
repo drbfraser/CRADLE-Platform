@@ -1,6 +1,5 @@
 import React from 'react'
 import { push } from 'connected-react-router'
-import { Button } from 'semantic-ui-react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Button, Header,  Image, Modal } from 'semantic-ui-react'
@@ -34,7 +33,7 @@ const Home = props => (
     </Modal>
     <Button content='Primary' primary />
     <Button content='Secondary' secondary />
-    <div class="ui divider"></div>
+    <div className="ui divider"></div>
     <Header as='h1'>First Header</Header>
     <Header as='h2'>Second Header</Header>
     <Header as='h3'>Third Header</Header>
@@ -46,39 +45,39 @@ const Home = props => (
 
     <p>Message from server: {props.msg}</p>
 
-    <p>
+    <div>
       <Button onClick={props.increment}>Increment</Button>
       <Button onClick={props.incrementAsync} disabled={props.isIncrementing}>
         Increment Async
       </Button>
-    </p>
+    </div>
 
-    <p>
+    <div>
       <button onClick={props.decrement}>Decrement</button>
       <button onClick={props.decrementAsync} disabled={props.isDecrementing}>
         Decrement Async
       </button>
-    </p>
+    </div>
 
-    <p>
+    <div>
       <button onClick={() => props.changePage()}>
         Go to about page via redux
       </button>
-    </p>
+    </div>
 
-    <p>
+    <div>
       <button onClick={() => props.getPosts()}>
         Click me to get posts from server.
       </button>
-    </p>
+    </div>
 
-    <p>
+    <div>
       <ul>
         {props.posts.map((post, i) => {
           return <li key={i}>{post.title}</li>
         })}
       </ul>
-    </p>
+    </div>
 
   </div>
 )
