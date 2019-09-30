@@ -1,7 +1,7 @@
 import { push } from 'connected-react-router'
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:5000/api"
+import BASE_URL from '../serverUrl'
 
 export const userPostFetch = user => {
   return dispatch => {

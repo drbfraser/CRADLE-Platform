@@ -1,10 +1,10 @@
 import axios from 'axios';
 
+import BASE_URL from '../serverUrl'
+
 export const GET_PATIENTS = 'posts/GET_PATIENTS'
 export const GET_PATIENTS_REQUESTED = 'posts/GET_PATIENTS_REQUESTED'
 export const GET_PATIENTS_ERR = 'posts/GET_POSTS_ERR'
-
-const BASE_URL = "http://localhost:5000/api"
 
 export const getPatients = () => {
     return dispatch => {
