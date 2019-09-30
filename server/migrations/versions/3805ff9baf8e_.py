@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4c315c30c5df
+Revision ID: 3805ff9baf8e
 Revises: 
-Create Date: 2019-09-29 17:19:36.403890
+Create Date: 2019-09-29 17:22:52.383527
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4c315c30c5df'
+revision = '3805ff9baf8e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -61,7 +61,7 @@ def upgrade():
     sa.Column('bpDiastolic', sa.Integer(), nullable=True),
     sa.Column('heartRateBPM', sa.Integer(), nullable=True),
     sa.Column('symptoms', sa.Text(), nullable=True),
-    sa.Column('trafficLightStatus', sa.Enum('NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN', name='trafficlightenum'), nullable=False),
+    sa.Column('trafficLightStatus', sa.Enum('NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN', name='trafficlightenum'), nullable=True),
     sa.Column('dateLastSaved', sa.String(length=100), nullable=True),
     sa.Column('dateTimeTaken', sa.String(length=100), nullable=True),
     sa.Column('dateUploadedToServer', sa.String(length=100), nullable=True),
