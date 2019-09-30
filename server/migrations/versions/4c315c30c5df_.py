@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 0f5578c0f6bb
+Revision ID: 4c315c30c5df
 Revises: 
-Create Date: 2019-09-27 17:32:51.693795
+Create Date: 2019-09-29 17:19:36.403890
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0f5578c0f6bb'
+revision = '4c315c30c5df'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,19 +26,8 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('healthfacility',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('address', sa.String(length=150), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('role',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.Enum('VHT', 'HCW', 'ADMIN', name='roleenum'), nullable=False),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('village',
-    sa.Column('villageNumber', sa.String(length=50), nullable=False),
-    sa.Column('zoneNumber', sa.String(length=50), nullable=True),
-    sa.PrimaryKeyConstraint('villageNumber')
+    sa.Column('healthFacilityName', sa.String(length=50), nullable=False),
+    sa.PrimaryKeyConstraint('healthFacilityName')
     )
     op.create_table('patient',
     sa.Column('patientId', sa.String(length=50), nullable=False),
@@ -50,27 +39,29 @@ def upgrade():
     sa.Column('gestationalAgeValue', sa.String(length=20), nullable=True),
     sa.Column('medicalHistory', sa.Text(), nullable=True),
     sa.Column('drugHistory', sa.Text(), nullable=True),
+    sa.Column('zone', sa.String(length=20), nullable=True),
+    sa.Column('tank', sa.String(length=20), nullable=True),
+    sa.Column('block', sa.String(length=20), nullable=True),
     sa.Column('villageNumber', sa.String(length=50), nullable=True),
-    sa.ForeignKeyConstraint(['villageNumber'], ['village.villageNumber'], ),
     sa.PrimaryKeyConstraint('patientId')
     )
-    op.create_table('user',
+    op.create_table('role',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=64), nullable=True),
-    sa.Column('email', sa.String(length=120), nullable=True),
-    sa.Column('password', sa.String(length=128), nullable=True),
-    sa.Column('healthFacilityId', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['healthFacilityId'], ['healthfacility.id'], ),
+    sa.Column('name', sa.Enum('VHT', 'HCW', 'ADMIN', name='roleenum'), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
-    op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
+    op.create_table('village',
+    sa.Column('villageNumber', sa.String(length=50), nullable=False),
+    sa.Column('zoneNumber', sa.String(length=50), nullable=True),
+    sa.PrimaryKeyConstraint('villageNumber')
+    )
     op.create_table('reading',
-    sa.Column('readingId', sa.Integer(), nullable=False),
+    sa.Column('readingId', sa.String(length=50), nullable=False),
     sa.Column('bpSystolic', sa.Integer(), nullable=True),
     sa.Column('bpDiastolic', sa.Integer(), nullable=True),
     sa.Column('heartRateBPM', sa.Integer(), nullable=True),
     sa.Column('symptoms', sa.Text(), nullable=True),
+    sa.Column('trafficLightStatus', sa.Enum('NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN', name='trafficlightenum'), nullable=False),
     sa.Column('dateLastSaved', sa.String(length=100), nullable=True),
     sa.Column('dateTimeTaken', sa.String(length=100), nullable=True),
     sa.Column('dateUploadedToServer', sa.String(length=100), nullable=True),
@@ -88,6 +79,34 @@ def upgrade():
     sa.ForeignKeyConstraint(['patientId'], ['patient.patientId'], ),
     sa.PrimaryKeyConstraint('readingId')
     )
+    op.create_table('user',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('username', sa.String(length=64), nullable=True),
+    sa.Column('email', sa.String(length=120), nullable=True),
+    sa.Column('password', sa.String(length=128), nullable=True),
+    sa.Column('healthFacilityName', sa.String(length=50), nullable=True),
+    sa.ForeignKeyConstraint(['healthFacilityName'], ['healthfacility.healthFacilityName'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
+    op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
+    op.create_table('referral',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('dateReferred', sa.String(length=100), nullable=False),
+    sa.Column('comment', sa.Text(), nullable=True),
+    sa.Column('actionTaken', sa.Text(), nullable=True),
+    sa.Column('userId', sa.Integer(), nullable=True),
+    sa.Column('patientId', sa.String(length=50), nullable=True),
+    sa.Column('referralHealthFacilityName', sa.String(length=50), nullable=True),
+    sa.Column('readingId', sa.String(length=50), nullable=True),
+    sa.Column('followUpId', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['followUpId'], ['followup.id'], ),
+    sa.ForeignKeyConstraint(['patientId'], ['patient.patientId'], ),
+    sa.ForeignKeyConstraint(['readingId'], ['reading.readingId'], ),
+    sa.ForeignKeyConstraint(['referralHealthFacilityName'], ['healthfacility.healthFacilityName'], ),
+    sa.ForeignKeyConstraint(['userId'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('userrole',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('userId', sa.Integer(), nullable=True),
@@ -96,36 +115,20 @@ def upgrade():
     sa.ForeignKeyConstraint(['userId'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('referral',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('dateReferred', sa.String(length=100), nullable=False),
-    sa.Column('comment', sa.Text(), nullable=True),
-    sa.Column('userId', sa.Integer(), nullable=True),
-    sa.Column('patientId', sa.String(length=50), nullable=True),
-    sa.Column('referralHealthFacilityId', sa.Integer(), nullable=True),
-    sa.Column('readingId', sa.Integer(), nullable=True),
-    sa.Column('followUpId', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['followUpId'], ['followup.id'], ),
-    sa.ForeignKeyConstraint(['patientId'], ['patient.patientId'], ),
-    sa.ForeignKeyConstraint(['readingId'], ['reading.readingId'], ),
-    sa.ForeignKeyConstraint(['referralHealthFacilityId'], ['healthfacility.id'], ),
-    sa.ForeignKeyConstraint(['userId'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('referral')
     op.drop_table('userrole')
-    op.drop_table('reading')
+    op.drop_table('referral')
     op.drop_index(op.f('ix_user_username'), table_name='user')
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_table('user')
-    op.drop_table('patient')
+    op.drop_table('reading')
     op.drop_table('village')
     op.drop_table('role')
+    op.drop_table('patient')
     op.drop_table('healthfacility')
     op.drop_table('followup')
     # ### end Alembic commands ###
