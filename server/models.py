@@ -22,11 +22,19 @@ class SexEnum(enum.Enum):
     FEMALE = 'F'
     OTHER = 'I'
 
+class TrafficLightEnum(enum.Enum):
+    NONE = 'NONE'
+    GREEN = 'GREEN'
+    YELLOW_UP = 'YELLOW_UP'
+    YELLOW_DOWN = 'YELLOW_DOWN'
+    RED_UP = 'RED_UP'
+    RED_DOWN = 'RED_DOWN'
+
 
 ######################
 ### HELPER CLASSES ###
 ######################
-userRole = db.Table('userRole',
+userRole = db.Table('userrole',
     db.Column('id', db.Integer, primary_key=True),
     
     # FOREIGN KEYS
@@ -45,7 +53,7 @@ class User(db.Model):
     password = db.Column(db.String(128))
 
     # FOREIGN KEYS
-    healthFacilityId = db.Column(db.Integer, db.ForeignKey('healthFacility.id'), nullable=True)
+    healthFacilityName = db.Column(db.String(50), db.ForeignKey('healthfacility.healthFacilityName'), nullable=True)
 
     # RELATIONSHIPS
     healthFacility = db.relationship('HealthFacility', backref=db.backref('users', lazy=True))
@@ -63,14 +71,15 @@ class Referral(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dateReferred = db.Column(db.String(100), nullable=False) 
     comment = db.Column(db.Text)
+    actionTaken = db.Column(db.Text)
 
     # FOREIGN KEYS
     userId = db.Column(db.Integer, db.ForeignKey('user.id'))
     patientId = db.Column(db.String(50), db.ForeignKey('patient.patientId'))
 
-    referralHealthFacilityId = db.Column(db.Integer, db.ForeignKey('healthFacility.id'))
-    readingId = db.Column(db.Integer, db.ForeignKey('reading.readingId'))
-    followUpId = db.Column(db.Integer, db.ForeignKey('followUp.id'))
+    referralHealthFacilityName = db.Column(db.String(50), db.ForeignKey('healthfacility.healthFacilityName'))
+    readingId = db.Column(db.String(50), db.ForeignKey('reading.readingId'))
+    followUpId = db.Column(db.Integer, db.ForeignKey('followup.id'))
 
     # RELATIONSHIPS
     healthFacility = db.relationship('HealthFacility', backref=db.backref('referrals', lazy=True))
@@ -78,9 +87,8 @@ class Referral(db.Model):
     followUp = db.relationship('FollowUp', backref=db.backref('referrals', lazy=True))
 
 class HealthFacility(db.Model):
-    __tablename__ = 'healthFacility'
-    id = db.Column(db.Integer, primary_key=True)
-    address = db.Column(db.String(150), nullable=True)
+    __tablename__ = 'healthfacility'
+    healthFacilityName = db.Column(db.String(50), primary_key=True)
 
 
 class Patient(db.Model):
@@ -93,20 +101,28 @@ class Patient(db.Model):
     gestationalAgeValue = db.Column(db.String(20))
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
+    zone = db.Column(db.String(20))
+    tank = db.Column(db.String(20))
+    block = db.Column(db.String(20))
 
+    villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
-    villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
+    # villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
 
     # RELATIONSHIPS
-    village = db.relationship('Village', backref=db.backref('patients', lazy=True))
+    # village = db.relationship('Village', backref=db.backref('patients', lazy=True))
+
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
 
 class Reading(db.Model):
-    readingId = db.Column(db.Integer, primary_key=True)
+    readingId = db.Column(db.String(50), primary_key=True)
     bpSystolic = db.Column(db.Integer)
     bpDiastolic = db.Column(db.Integer)
     heartRateBPM = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
+    trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
 
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
     dateLastSaved = db.Column(db.String(100)) 
@@ -132,7 +148,7 @@ class Reading(db.Model):
 
 
 class FollowUp(db.Model):
-    __tablename__ = 'followUp'
+    __tablename__ = 'followup'
     id = db.Column(db.Integer, primary_key=True)
     followUpAction = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
@@ -174,7 +190,10 @@ class RoleSchema(ma.ModelSchema):
         include_fk = True
         model = Role
 
-
+class HealthFacilitySchema(ma.ModelSchema):
+    class Meta:
+        include_fk = True
+        model = HealthFacility
 
 user_schema = {
     "type": "object",

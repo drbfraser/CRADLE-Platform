@@ -1,0 +1,34 @@
+#!/bin/bash
+
+cd "$(dirname "$0")" || return
+BASE_URL="$(./base-url)"
+
+UUID=$(uuidgen)
+
+curl \
+  --include \
+  --request POST  \
+  --header "Content-Type: application/json" \
+  --data '
+{
+    "patient": {
+        "patientId": "'"$UUID"'",
+        "patientName":"Kevin",
+        "patientAge":15,
+        "gestationalAgeUnit":"GESTATIONAL_AGE_UNITS_WEEKS",
+        "gestationalAgeValue":"34",
+        "villageNumber": "123245",
+        "patientSex":"F",
+        "isPregnant":"true"
+    },
+    "reading":{
+        "dateLastSaved":"2019-09-28T15:17:19.048-07:00[America\/Vancouver]",
+        "bpSystolic":45,
+        "bpDiastolic":45,
+        "heartRateBPM":56,
+        "isFlaggedForFollowup":false,
+        "symptoms":"Blurred vision"
+    }
+}
+' \
+  "$BASE_URL"/patient/reading

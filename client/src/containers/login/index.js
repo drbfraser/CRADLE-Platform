@@ -24,7 +24,7 @@ class Login extends Component {
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit} className="content">
+      <form onSubmit={this.handleSubmit} className="content-box">
         <h1>Login</h1>
 
         <label>Email</label>

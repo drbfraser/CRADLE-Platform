@@ -5,6 +5,8 @@ export const UPDATE_POSTS_REQUESTED = 'posts/UPDATE_POSTS_REQUESTED'
 export const UPDATE_POSTS_ERR = 'posts/UPDATE_POSTS_ERR'
 export const UPDATE_MSG = 'posts/UPDATE_MSG'
 
+const BASE_URL = "http://localhost:5000/api"
+
 export const getPosts = () => {
     return dispatch => {
       dispatch({
@@ -12,7 +14,7 @@ export const getPosts = () => {
       })
 
       
-      return axios.get("http://localhost:5000/api/hello-world").then(res => {
+      return axios.get(BASE_URL + "/hello-world").then(res => {
         // console.log("hello world res: ", res);
         dispatch({
           type: UPDATE_MSG,
