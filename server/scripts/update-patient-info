@@ -11,7 +11,7 @@ if [ $# -ge 1 ] ; then
       --data '
 {
   "reading": {
-    "readingId": 3,
+    "readingId": "UUIDDR!#R#!",
     "dateLastSaved": "2019-09-25T19:00:43.002-07:00[America/Vancouver]",
     "pathToPhoto": "/storage/emulated/0/Pictures/CradleSupportApp/IMG_20190925_190031.jpg",
     "bpSystolic": 45,
