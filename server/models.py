@@ -190,7 +190,10 @@ class RoleSchema(ma.ModelSchema):
         include_fk = True
         model = Role
 
-
+class HealthFacilitySchema(ma.ModelSchema):
+    class Meta:
+        include_fk = True
+        model = HealthFacility
 
 user_schema = {
     "type": "object",

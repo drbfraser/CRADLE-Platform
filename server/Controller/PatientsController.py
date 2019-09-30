@@ -28,7 +28,7 @@ def abort_if_patient_exists(patient_id):
     patient = PatientManager.get_patient(patient_id)
 
     if patient:
-        abort(404, message="Patient {} already exists.".format(patient_id))
+        abort(400, message="Patient {} already exists.".format(patient_id))
 
 
 # URI: /patient
@@ -36,8 +36,12 @@ class PatientAll(Resource):
 
     @staticmethod
     def _get_request_body():
-        body = request.get_json(force=True)['patient']
-        print('Request body: ' + str(body))
+        raw_req_body = request.get_json(force=True)
+        if 'patient' in raw_req_body:
+            body = raw_req_body['patient']
+        else:
+            body = raw_req_body
+        print('Request body: ' + json.dumps(body, indent=2, sort_keys=True))
         return body
 
     # Get all patients
@@ -54,7 +58,6 @@ class PatientAll(Resource):
     def post(self):
         logging.debug('Received request: POST /patient')
         patient_data = self._get_request_body()
-        print(patient_data)
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
         abort_if_patient_exists(patient_data['patientId'])
@@ -122,7 +125,7 @@ class PatientReading(Resource):
             return invalid
 
         # create new reading (and patient if it does not already exist)
-        reading_and_patient = ReadingManager.create_reading(
+        reading_and_patient = ReadingManager.create_reading_and_patient(
             patient_reading_data['patient']['patientId'],
             patient_reading_data)
 
