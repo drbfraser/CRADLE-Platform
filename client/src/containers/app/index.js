@@ -8,12 +8,12 @@ import Login from '../login'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { logoutUser } from '../../actions/users';
-import PropTypres from 'prop-types'
+import PropTypes from 'prop-types'
 
 class App extends Component {
 
-  static propTypres = {
-    color: PropTypres.string,
+  static propTypes = {
+    color: PropTypes.string,
   }
 
   state = { activeItem: 'Home' }
@@ -26,7 +26,7 @@ class App extends Component {
     return (
       
       <div >
-        <Menu color={'blue'} key={'biue'} inverted>
+        <Menu color={'blue'} key={'blue'} inverted>
           <Menu.Item name='Home' active={activeItem === 'Home'} onClick={this.handleItemClick}>
               <Link className="link" style={{ textDecoration: 'none' }} to="/"> Home </Link>
           </Menu.Item>
