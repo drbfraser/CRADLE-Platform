@@ -125,7 +125,7 @@ class PatientReading(Resource):
             return invalid
 
         # create new reading (and patient if it does not already exist)
-        reading_and_patient = ReadingManager.create_reading(
+        reading_and_patient = ReadingManager.create_reading_and_patient(
             patient_reading_data['patient']['patientId'],
             patient_reading_data)
 

@@ -12,9 +12,7 @@ class ReadingRepositoryMysql:
         return PatientSchema().dump(model)
 
     @staticmethod
-    def add_new_reading(patient_id, reading_data):
-        reading_data['patientId'] = patient_id
-
+    def add_new_reading(reading_data):
         # Add a new patient to db
         schema = ReadingSchema()
         new_reading = schema.load(reading_data, session=db.session)

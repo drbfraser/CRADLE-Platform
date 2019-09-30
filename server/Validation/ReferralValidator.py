@@ -7,11 +7,14 @@ import json
 class ReferralValidator(object):
     def validate(self, new_ref):
         """
-            userId belongs to a valid User, required
-            patientId belongs to a valid Patient, required
-            referralHealthFacilityId belongs to a valid HealthFacility, required
-            readingId belongs to a valid Reading, required
-            followUpId belongs to a valid FollowUp
+            description:
+                validates a referral dict as contain valid fields
+            rules:
+                userId belongs to a valid User, required
+                patientId belongs to a valid Patient, required
+                referralHealthFacilityId belongs to a valid HealthFacility, required
+                readingId belongs to a valid Reading, required
+                followUpId belongs to a valid FollowUp
         """ 
         print("validating referral")
 

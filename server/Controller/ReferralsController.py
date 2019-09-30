@@ -4,6 +4,11 @@ from models import Referral, ReferralSchema
 from config import db
 import json
 
+from Manager.ReadingManager import *
+from Manager.PatientManager import *
+
+from models import User, Patient, HealthFacility, Reading, FollowUp
+
 from Validation.ReferralValidator import ReferralValidator
 
 validator = ReferralValidator()
@@ -50,10 +55,10 @@ class ReferralApi(Resource):
     @staticmethod
     def _get_request_body():
         raw_req_body = request.get_json(force=True)
-        if 'referral' in raw_req_body:
-            body = raw_req_body['referral']
-        else:
-            body = raw_req_body
+        # if 'referral' in raw_req_body:
+        #     body = raw_req_body['referral']
+        # else:
+        body = raw_req_body
         print('Request body: ' + json.dumps(body, indent=2, sort_keys=True))
         return body
 
@@ -69,7 +74,6 @@ class ReferralApi(Resource):
     """
     def get(self):
         # NEEDS TESTING AND 
-        
         args = request.args
         print("args: " + json.dumps(args, sort_keys=True, indent=2))
 
@@ -84,34 +88,66 @@ class ReferralApi(Resource):
         
         data = referral_schema.dump(referrals)
         return data
-
-
-        
-
             
 
     
     """ Creates a new Referral
-        JSON Request Body Example: {
-            "dateReferred" : "2019-09-25T19:00:16.683-07:00[America/Vancouver]",
-            "comment" : "please help her",
-            "userId" : null,
-            "patientId": "34",
-            "referralHealthFacilityId": 1,
-            "readingId" : 1,
-            "followUpId" : null
+        JSON Request Body Example: 
+        {
+            "patient": {
+                "patientId": ...,
+                ...
+            },
+            "reading": {
+                "readingId": ...,
+                ...
+            }
+            “referral”: {
+                "date" : "2019-09-29T17:03:44.552-07:00[America\/Vancouver]", [REQUIRED]
+                “comment” : “please help her”, [REQUIRED]
+                "healthFacilityName": "St. Pauls Hospital", [REQUIRED]
+                "actionTaken": "i tried to save the patient's life but need help now"
+            }
         }
+
         Preconditions: 
-            userId belongs to a valid User, required
-            patientId belongs to a valid Patient, required
-            referralHealthFacilityId belongs to a valid HealthFacility, required
-            readingId belongs to a valid Reading, required
-            followUpId belongs to a valid FollowUp
+            patient info and reading info included
+            all values are the correct data type
+        Description:
+            creates Patient, Reading, and HealthFacility if not already created
         Returns: 
             newly created referral object
     """
     def post(self):
-        referral_data = self._get_request_body()
+        req_data = self._get_request_body()
+        
+        # if the patient is already created, dont create, 
+        try:
+            validator.exists(Patient, "patientId", req_data['patient']['patientId'])
+        except Exception as e:
+            print("patient does not exist yet, creating")
+            # do validation here
+            create_patient(req_data['patient'])    
+            req_data["referral"]["patientId"] = req_data['patient']['patientId']
+    
+        # if the reading already created, dont create, else use the patientId
+        # and create new reading
+        try:
+            validator.exists(Reading, "readingId", req_data['reading']['readingId'])
+        except Exception as e:
+            print("reading does not exist yet, creating")
+            req_data['reading']['patientId']
+            create_reading(req_data['reading'])
+            req_data["referral"]["readingId"] = req_data['reading']['readingId']
+
+        # if the health facility is created, dont create, else use the 
+        # healthFacilityName to create a new health facility 
+        try:
+            validator.exists(HealthFacility, "healthFacility", req_data)
+        except Exception as e:
+            print("healthFacility doesnt exist, creating")
+        
+        referral_data = build_ref_dict(req_data)
 
         # validate new referral 
         try:
@@ -134,3 +170,12 @@ class ReferralApi(Resource):
         # return the newly created referral
         data = schema.dump(new_referral)
         return data, 201
+
+def build_ref_dict(ref_json):
+    ref_dict = {}
+    ref_dict['patientId'] = ref_json['patientId']
+    ref_dict['readingId'] = ref_json['readingId']
+    ref_dict['dateReferred'] = ref_json['date']
+    ref_dict['referralHealthFacilityId'] = ref_json['heathFacilityName']
+    return ref_dict
+
