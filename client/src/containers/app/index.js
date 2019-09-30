@@ -8,23 +8,34 @@ import Login from '../login'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { logoutUser } from '../../actions/users';
+import PropTypres from 'prop-types'
 
 class App extends Component {
 
+  static propTypres = {
+    color: PropTypres.string,
+  }
+
+  state = { activeItem: 'Home' }
+  handleItemClick = (e, { name }) => this.setState({ activeItem: name })
+
   render() {
-  
+      const { color } = this.props
+      const { activeItem } = this.state
+
     return (
+      
       <div >
-        <Menu className='menu theme_color'>
-          <Menu.Item name='Home' >
+        <Menu color={'blue'} key={'biue'} inverted>
+          <Menu.Item name='Home' active={activeItem === 'Home'} onClick={this.handleItemClick}>
               <Link className="link" style={{ textDecoration: 'none' }} to="/"> Home </Link>
           </Menu.Item>
           
-          <Menu.Item>
+          <Menu.Item name='Patient' active={activeItem === 'Patient'} onClick={this.handleItemClick}>
             <Link className="link" style={{ textDecoration: 'none' }} to="/patients"> Patients </Link>
           </Menu.Item>
             
-          <Menu.Item>
+          <Menu.Item name='Login' active={activeItem === 'Login'} onClick={this.handleItemClick}>
           {this.props.user.isLoggedIn ? (
             <Link className="link" style={{ textDecoration: 'none' }} to="/" onClick={ () => this.props.logoutUser() }>Logout</Link>
           ) : (
@@ -35,7 +46,7 @@ class App extends Component {
           {this.props.user.isLoggedIn ? (
             <div></div>
           ) : (
-            <Menu.Item>
+            <Menu.Item name='Signup' active={activeItem === 'Signup'} onClick={this.handleItemClick}>
               <Link className="link" style={{ textDecoration: 'none' }} to="/signup"> Signup </Link>
             </Menu.Item>
           )}
