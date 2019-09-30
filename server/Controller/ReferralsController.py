@@ -128,8 +128,10 @@ class ReferralApi(Resource):
         except Exception as e:
             print("patient does not exist yet, creating")
             # do validation here
-            create_patient(req_data['patient'])    
-    
+            created_patient = create_patient(req_data['patient'])  
+            print("created_patient: ")
+            pprint(created_patient)
+
         # if the reading already created, dont create, else use the patientId
         # and create new reading
         try:
@@ -137,22 +139,26 @@ class ReferralApi(Resource):
         except Exception as e:
             print("reading does not exist yet, creating")
             req_data['reading']['patientId'] = req_data['patient']['patientId']
-            create_reading(req_data['reading'])
+            created_reading = create_reading(req_data['reading'])
+            print("created_reading: ")
+            pprint(created_reading)
 
         # if the health facility is created, dont create, else use the 
         # healthFacilityName to create a new health facility 
         try:
-            validator.exists(HealthFacility, "healthFacility", req_data)
+            validator.exists(HealthFacility, "healthFacilityName", req_data['healthFacilityName'])
         except Exception as e:
             print("healthFacility doesnt exist, creating")
-            create_health_facility(
-                {'healthFaciityName': req_data['healthFaciityName']}
+            created_hf = create_health_facility(
+                {'healthFacilityName': req_data['healthFacilityName']}
             )
-            
+            print("created health facility: ")
+            pprint(created_hf)
 
         referral_data = build_ref_dict(req_data)
 
-        print("referral_data: " + json.dumps(referral_data, indent=2, sort_keys=True))
+        print("referral_data: ")
+        pprint(referral_data)
 
         # validate new referral 
         try:
@@ -178,9 +184,12 @@ class ReferralApi(Resource):
 
 def build_ref_dict(ref_json):
     ref_dict = {}
-    ref_dict['patientId'] = ref_json['patientId']
-    ref_dict['readingId'] = ref_json['readingId']
+    ref_dict['patientId'] = ref_json['patient']['patientId']
+    ref_dict['readingId'] = ref_json['reading']['readingId']
     ref_dict['dateReferred'] = ref_json['date']
-    ref_dict['referralHealthFacilityId'] = ref_json['heathFacilityName']
+    ref_dict['referralHealthFacilityName'] = ref_json['healthFacilityName']
+    ref_dict['comment'] = ref_json['comment']
     return ref_dict
 
+def pprint(to_print):
+    print(json.dumps(to_print, sort_keys=True, indent=2))
