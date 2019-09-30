@@ -2,7 +2,7 @@ import os
 import datetime
 import json
 from flask_cors import CORS
-from flask import Flask, request
+from flask import Flask, request, send_from_directory
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -52,7 +52,17 @@ class JSONEncoder(json.JSONEncoder):
 FLASK_APP = 'app.py'
 FLASK_DEBUG=1
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../client/build')
+
+# Serve React App
+# @app.route('/', defaults={'path': ''})
+# @app.route('/<path:path>')
+# def serve(path):
+#     if path != "" and os.path.exists(app.static_folder + '/' + path):
+#         return send_from_directory(app.static_folder, path)
+#     else:
+#         return send_from_directory(app.static_folder, 'index.html')
+
 CORS(app)
 api = Api(app)
 app.config.from_object(Config)
