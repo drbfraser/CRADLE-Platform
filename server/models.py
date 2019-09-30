@@ -22,6 +22,14 @@ class SexEnum(enum.Enum):
     FEMALE = 'F'
     OTHER = 'I'
 
+class TrafficLightEnum(enum.Enum):
+    NONE = 'NONE'
+    GREEN = 'GREEN'
+    YELLOW_UP = 'YELLOW_UP'
+    YELLOW_DOWN = 'YELLOW_DOWN'
+    RED_UP = 'RED_UP'
+    RED_DOWN = 'RED_DOWN'
+
 
 ######################
 ### HELPER CLASSES ###
@@ -45,7 +53,7 @@ class User(db.Model):
     password = db.Column(db.String(128))
 
     # FOREIGN KEYS
-    healthFacilityId = db.Column(db.Integer, db.ForeignKey('healthfacility.id'), nullable=True)
+    healthFacilityName = db.Column(db.String(50), db.ForeignKey('healthfacility.healthFacilityName'), nullable=True)
 
     # RELATIONSHIPS
     healthFacility = db.relationship('HealthFacility', backref=db.backref('users', lazy=True))
@@ -63,13 +71,14 @@ class Referral(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dateReferred = db.Column(db.String(100), nullable=False) 
     comment = db.Column(db.Text)
+    actionTaken = db.Column(db.Text)
 
     # FOREIGN KEYS
     userId = db.Column(db.Integer, db.ForeignKey('user.id'))
     patientId = db.Column(db.String(50), db.ForeignKey('patient.patientId'))
 
-    referralHealthFacilityId = db.Column(db.Integer, db.ForeignKey('healthfacility.id'))
-    readingId = db.Column(db.Integer, db.ForeignKey('reading.readingId'))
+    referralHealthFacilityName = db.Column(db.String(50), db.ForeignKey('healthfacility.healthFacilityName'))
+    readingId = db.Column(db.String(50), db.ForeignKey('reading.readingId'))
     followUpId = db.Column(db.Integer, db.ForeignKey('followup.id'))
 
     # RELATIONSHIPS
@@ -79,8 +88,7 @@ class Referral(db.Model):
 
 class HealthFacility(db.Model):
     __tablename__ = 'healthfacility'
-    id = db.Column(db.Integer, primary_key=True)
-    address = db.Column(db.String(150), nullable=True)
+    healthFacilityName = db.Column(db.String(50), primary_key=True)
 
 
 class Patient(db.Model):
@@ -93,6 +101,9 @@ class Patient(db.Model):
     gestationalAgeValue = db.Column(db.String(20))
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
+    zone = db.Column(db.String(20))
+    tank = db.Column(db.String(20))
+    block = db.Column(db.String(20))
 
     villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
@@ -106,11 +117,12 @@ class Patient(db.Model):
 
 
 class Reading(db.Model):
-    readingId = db.Column(db.Integer, primary_key=True)
+    readingId = db.Column(db.String(50), primary_key=True)
     bpSystolic = db.Column(db.Integer)
     bpDiastolic = db.Column(db.Integer)
     heartRateBPM = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
+    trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
 
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
     dateLastSaved = db.Column(db.String(100)) 
