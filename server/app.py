@@ -30,7 +30,7 @@ else:
 import models # needs to be after db instance
 
 if '-prod' in sys.argv:
-    port = 8088
+    port = 8080
     host = "::"
 
 if __name__ == '__main__':
