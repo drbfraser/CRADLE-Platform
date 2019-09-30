@@ -3,6 +3,8 @@ export const INCREMENT = 'counter/INCREMENT'
 export const DECREMENT_REQUESTED = 'counter/DECREMENT_REQUESTED'
 export const DECREMENT = 'counter/DECREMENT'
 
+const BASE_URL = "http://localhost:5000/api"
+
 export const increment = () => {
     return dispatch => {
         dispatch({

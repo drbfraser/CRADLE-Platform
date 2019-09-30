@@ -1,9 +1,11 @@
 import { push } from 'connected-react-router'
 import axios from 'axios';
 
+const BASE_URL = "http://localhost:5000/api"
+
 export const userPostFetch = user => {
   return dispatch => {
-    return fetch("http://localhost:5000/user/register", {
+    return fetch(BASE_URL + "/user/register", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
@@ -27,7 +29,7 @@ export const userPostFetch = user => {
 
 export const userLoginFetch = user => {
   return dispatch => {
-    return fetch("http://localhost:5000/user/auth", {
+    return fetch(BASE_URL + "/user/auth", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
@@ -53,7 +55,7 @@ export const userLoginFetch = user => {
 export const getCurrentUser = () => {
   return dispatch => {
     const token = localStorage.token;
-      return axios.get("http://localhost:5000/user/current", {
+      return axios.get(BASE_URL + "/user/current", {
         'headers': {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

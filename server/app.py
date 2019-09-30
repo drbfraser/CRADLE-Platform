@@ -12,6 +12,7 @@
 import os
 import config
 import routes
+import sys
 
 app = config.app
 routes.init(config.api)
@@ -27,6 +28,10 @@ else:
     host = '0.0.0.0'
 
 import models # needs to be after db instance
+
+if '-prod' in sys.argv:
+    port = 8088
+    host = "::"
 
 if __name__ == '__main__':
     app.run(debug=True, host=host, port=port)
