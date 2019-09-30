@@ -32,19 +32,20 @@ class PatientPage extends Component {
         render: rowData => 
           <div>
             <p>{rowData.patientName}</p>
-            <a onClick={() => this.openModal({rowData})}>View Info</a>
+            <a onClick={() => this.openPatientModal({rowData})}>View Info</a>
           </div>  
       },
-      { title: 'Readings', render: rowData => <a onClick={() => console.log(`clicked ${rowData}`)}>View Readings</a>},
+      { title: 'Readings', render: rowData => <a onClick={() => this.openReadingModal({rowData})}>View Reading</a> },
       { title: 'Follow Up Status', field: 'followUp',
         render: rowData => rowData.isPregnant ? (<button>Follow Up</button>) : (<p>Not needed</p>) },
     ],
     data: [],
     selectedPatient: { patientId: '', patientName: 'Test', 
                        patientSex: 'F', medicalHistory: '',
-                       drugHistory: '', villageNumber:''
+                       drugHistory: '', villageNumber:'', readings: []
                       },
-    displayModal: false
+    displayPatientModal: false,
+    displayReadingModal: false
   }
 
   componentDidMount = () => {
@@ -63,15 +64,26 @@ class PatientPage extends Component {
     this.setState({'selectedPatient': { ...this.state.selectedPatient, [value.name] : value.value } })
   }
 
-  openModal = (patientData) => {
+  openPatientModal = (patientData) => {
     console.log(patientData)
-    console.log('open modal')
-    this.setState({ displayModal: true, selectedPatient: patientData['rowData'] })
+    console.log('open patient modal')
+    this.setState({ displayPatientModal: true, selectedPatient: patientData['rowData'] })
   }
 
-  closeModal = () => {
-    console.log('close modal')
-    this.setState({ displayModal: false })
+  closePatientModal = () => {
+    console.log('close patient modal')
+    this.setState({ displayPatientModal: false })
+  }
+
+  openReadingModal = (patientData) => {
+    console.log(patientData)
+    console.log('open reading modal')
+    this.setState({ displayReadingModal: true, selectedPatient: patientData['rowData'] })
+  }
+
+  closeReadingModal = () => {
+    console.log('close reading modal')
+    this.setState({ displayReadingModal: false })
   }
   
   handleSubmit = (event) => {
@@ -94,6 +106,22 @@ class PatientPage extends Component {
     if (!this.props.user.isLoggedIn) {
       return <div />
     }
+
+    let readings = [];
+    if (this.state.selectedPatient.readings.length > 0) {
+      for (var i = 0; i < this.state.selectedPatient.readings.length; i++) {
+        readings.push(<p>Reading {i+1}</p>)
+        readings.push(<p>Date Referred: {this.state.selectedPatient.readings[i]['dateReferred']}</p>)
+        readings.push(<p>BP Diastolic: {this.state.selectedPatient.readings[i]['bpDiastolic']}</p>)
+        readings.push(<p>BP Systolic: {this.state.selectedPatient.readings[i]['bpSystolic']}</p>)
+
+        if (this.state.selectedPatient.readings[i]['comment']) { // has a referral attached!
+          readings.push(<p>Referral Status: Referred! : {this.state.selectedPatient.readings[i]['comment']}</p>)
+        }
+        readings.push(<Divider />)
+      }
+    }
+
 
     return (
         <div >
@@ -134,11 +162,11 @@ class PatientPage extends Component {
             }}
           />
 
-          <Modal closeIcon onClose={this.closeModal} open={this.state.displayModal}>
-            <Modal.Header>Patient Information</Modal.Header>
+          <Modal closeIcon onClose={this.closePatientModal} open={this.state.displayPatientModal}>
+            <Modal.Header>Patient Readings</Modal.Header>
             <Modal.Content scrolling>
               <Modal.Description>
-                <Header>Patient ID #{this.state.selectedPatient.patientId}</Header>
+                <Header>Patient Readings for ID #{this.state.selectedPatient.patientId}</Header>
                 <Divider />
                 <Form onSubmit={this.handleSubmit}>
                   <Form.Group widths='equal'>
@@ -205,6 +233,17 @@ class PatientPage extends Component {
                   <Form.Field control={Button}>Submit</Form.Field>
                 </Form>
 
+              </Modal.Description>
+            </Modal.Content>
+          </Modal>
+
+          <Modal closeIcon onClose={this.closeReadingModal} open={this.state.displayReadingModal}>
+            <Modal.Header>Patient Information</Modal.Header>
+            <Modal.Content scrolling>
+              <Modal.Description>
+                <Header>Patient ID #{this.state.selectedPatient.patientId}</Header>
+                <Divider />
+                <p>{readings}</p>
               </Modal.Description>
             </Modal.Content>
           </Modal>

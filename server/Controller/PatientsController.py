@@ -5,7 +5,7 @@ from flask import request
 from flask_restful import Resource, abort
 
 # Project modules
-from models import Patient, PatientSchema, ReadingSchema
+from models import Patient, PatientSchema, ReadingSchema, ReferralSchema
 from Validation import PatientValidation
 from Manager import PatientManager, ReadingManager
 
@@ -28,7 +28,7 @@ def abort_if_patient_exists(patient_id):
     patient = PatientManager.get_patient(patient_id)
 
     if patient:
-        abort(400, message="Patient {} already exists.".format(patient_id))
+        abort(404, message="Patient {} already exists.".format(patient_id))
 
 
 # URI: /patient
@@ -36,12 +36,8 @@ class PatientAll(Resource):
 
     @staticmethod
     def _get_request_body():
-        raw_req_body = request.get_json(force=True)
-        if 'patient' in raw_req_body:
-            body = raw_req_body['patient']
-        else:
-            body = raw_req_body
-        print('Request body: ' + json.dumps(body, indent=2, sort_keys=True))
+        body = request.get_json(force=True)['patient']
+        print('Request body: ' + str(body))
         return body
 
     # Get all patients
@@ -58,6 +54,7 @@ class PatientAll(Resource):
     def post(self):
         logging.debug('Received request: POST /patient')
         patient_data = self._get_request_body()
+        print(patient_data)
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
         abort_if_patient_exists(patient_data['patientId'])
@@ -132,3 +129,56 @@ class PatientReading(Resource):
         # associate new reading with patient
         reading_and_patient['message'] = 'Patient reading created successfully!'
         return reading_and_patient, 201
+
+
+# /patient/all/ [GET]
+class PatientAllInformation(Resource):
+    @staticmethod
+    def _get_request_body():
+        body = request.get_json(force=True)
+        logging.debug('Request body: ' + str(body))
+        return body
+
+    # get all patient information (patientinfo, readings, and referrals)
+    def get(self):
+        # get all patients
+        patients_query = PatientManager.get_patients_object()
+        if patients_query is None:
+            abort(404, message="No patients currently exist.")
+
+        patient_schema = PatientSchema()
+        reading_schema = ReadingSchema()
+        referral_schema = ReferralSchema()
+
+        result_json_arr = []
+        for patient in patients_query:
+            result_json = {}
+            # populate patient key
+            result_json = patient_schema.dump(patient)
+
+            readings_query = patient.readings
+            if readings_query:
+                readings_arr = []
+                for reading in readings_query:
+                    # build the reading json to add to array
+                    reading_json = reading_schema.dump(reading)
+
+                    # add referral if exists in reading
+                    if reading.referrals:
+                        reading_json['comment'] = reading.referrals[0].comment
+                        reading_json['dateReferred'] = reading.referrals[0].dateReferred
+                        reading_json['healthFacilityName'] = reading.referrals[0].referralHealthFacilityName
+                    
+                    # add reading to readings array w/ referral info if exists
+                    readings_arr.append(reading_json)
+                
+                # add reading key to patient key
+                result_json['readings'] = readings_arr
+
+                # add to result array 
+                result_json_arr.append(result_json)
+                                
+
+
+        return result_json_arr, 201
+
