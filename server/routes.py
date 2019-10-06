@@ -18,11 +18,10 @@ def init(api):
     api.add_resource(UserAuthApi, '/api/user/auth') # [POST]
     api.add_resource(UserTokenApi, '/api/user/current') # [GET]
 
-
+    api.add_resource(PatientAllInformation, '/api/patient/allinfo') # [GET]
     api.add_resource(PatientInfo, '/api/patient/<string:patient_id>') # [GET]
     api.add_resource(PatientReading, '/api/patient/reading') # [POST]
     api.add_resource(PatientAll, '/api/patient') # [GET, POST]
-    api.add_resource(PatientAllInformation, '/api/patient/allinfo') # [GET]
 
     api.add_resource(ReferralApi, '/api/referral') # [GET, POST]
     api.add_resource(ReferralInfo, '/api/referral/<int:id>') # [GET]
