@@ -1,3 +1,19 @@
+"""
+Filename: 
+    Database.py
+Author:
+    Vinson Ly
+Description:
+    Parent Database class that contains a generic implementation of 
+    common database operations including CRUD
+Usage:
+    - Create child Database classes that inherit from this class and 
+    overriding the constructor to pass in the appropriate values for
+    self.table and self.schema.
+    - The implemented methods can be override in the child class if 
+    custom implementations are needed
+"""
+
 from config import db
 import collections
 
