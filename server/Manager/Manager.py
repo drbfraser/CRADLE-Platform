@@ -32,3 +32,7 @@ class Manager:
 
     def delete_all(self):
         return self.database.delete_all()
+
+    def search(self, search_dict):
+        return self.database.search(search_dict)
+        
