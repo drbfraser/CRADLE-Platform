@@ -8,6 +8,7 @@ from Controller.Multi import *
 from Controller.UsersController import *
 from Controller.PatientsController import *
 from Controller.ReferralsController import ReferralApi, ReferralInfo
+from Controller.HealthFacilityController import HealthFacility
 
 def init(api):
     api.add_resource(HelloWorld, '/api/hello-world')
@@ -26,3 +27,4 @@ def init(api):
     api.add_resource(ReferralApi, '/api/referral') # [GET, POST]
     api.add_resource(ReferralInfo, '/api/referral/<int:id>') # [GET]
 
+    api.add_resource(HealthFacility, '/api/health_facility', '/api/health_facility/<string:name>') # [GET, POST]

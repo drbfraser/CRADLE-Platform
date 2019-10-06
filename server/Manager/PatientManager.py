@@ -19,10 +19,10 @@ def get_patient(patient_id):
     patient_data = database.get(patient_id)
     if patient_data is None:
         return None
-    elif isinstance(patients, collections.Mapping):  # Local database stub
-        return patients
+    elif isinstance(patient_data, collections.Mapping):  # Local database stub
+        return patient_data
 
-    return PatientSchema().dump(patient)  # Conversion from SQLAlchemy Model object
+    return PatientSchema().dump(patient_data)  # Conversion from SQLAlchemy Model object
 
 def get_patients():
     patients = database.get_all()

@@ -6,7 +6,7 @@ import json
 
 from Manager.ReadingManager import *
 from Manager.PatientManager import *
-from Manager.HealthFacilityManager import *
+from Manager.HealthFacilityManagerOld import *
 
 from models import User, Patient, HealthFacility, Reading, FollowUp
 
