@@ -9,6 +9,9 @@ from models import Patient, PatientSchema, ReadingSchema, ReferralSchema
 from Validation import PatientValidation
 from Manager import PatientManager, ReadingManager
 
+from Manager.PatientManagerNew import PatientManager as PatientManagerNew
+
+patientManager = PatientManagerNew()
 
 def abort_if_body_empty(request_body):
     if request_body is None:
@@ -16,7 +19,7 @@ def abort_if_body_empty(request_body):
 
 
 def abort_if_patient_doesnt_exist(patient_id):
-    patient = PatientManager.get_patient(patient_id)
+    patient = patientManager.read("patientId", patient_id)
 
     if patient is None:
         abort(404, message="Patient {} doesn't exist.".format(patient_id))
@@ -25,7 +28,7 @@ def abort_if_patient_doesnt_exist(patient_id):
 
 
 def abort_if_patient_exists(patient_id):
-    patient = PatientManager.get_patient(patient_id)
+    patient = patientManager.read("patientId", patient_id)
 
     if patient:
         abort(400, message="Patient {} already exists.".format(patient_id))
@@ -49,7 +52,7 @@ class PatientAll(Resource):
     def get():
         logging.debug('Received request: GET /patient')
 
-        patients = PatientManager.get_patients()
+        patients = patientManager.read_all()
         if patients is None:
             abort(404, message="No patients currently exist.")
         return patients
@@ -65,12 +68,12 @@ class PatientAll(Resource):
         if invalid is not None:
             return invalid
 
-        response_body = PatientManager.create_patient(patient_data)
+        response_body = patientManager.create(patient_data)
         return response_body, 201
 
     @staticmethod
     def delete():
-        PatientManager.delete_all()
+        patientManager.delete_all()
         return {}
 
 
@@ -86,7 +89,7 @@ class PatientInfo(Resource):
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
 
-        patient = PatientManager.get_patient(patient_id)
+        patient = patientManager.read("patientId", patient_id)
 
         if patient is None:
             abort(404, message="Patient {} doesn't exist.".format(patient_id))
@@ -96,14 +99,14 @@ class PatientInfo(Resource):
     def put(self, patient_id):
         logging.debug('Received request: PUT /patient/' + patient_id)
 
-        # patient = abort_if_patient_doesnt_exist(patient_id)
+        patient = abort_if_patient_doesnt_exist(patient_id)
         # invalid = PatientValidation.update_info_invalid(patient_id, data)
         # if invalid is not None:
         #     return invalid
 
-        # response_body = PatientManager.update_info(patient_id, data)
+        response_body = patientManager.update("patientId", patient_id, data)
 
-        return response_body, 201
+        return response_body, 200
 
 
 # /patient/reading/ [POST]

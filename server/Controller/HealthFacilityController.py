@@ -5,8 +5,6 @@ from flask import request
 from flask_restful import Resource, abort
 
 # Project modules
-from models import Patient, PatientSchema, ReadingSchema, ReferralSchema
-from Validation import PatientValidation
 from Manager.HealthFacilityManager import HealthFacilityManager
 
 healthFacilityManager = HealthFacilityManager()
