@@ -26,6 +26,9 @@ class Manager:
 
     def update(self, key, value, new_data):
         return self.database.update(key, value, new_data)
-        
+    
+    def delete(self, key, value):
+        return self.database.delete(key, value)
+
     def delete_all(self):
         return self.database.delete_all()

@@ -19,17 +19,17 @@ class Database:
         db.session.commit()
         return self.model_to_dict(new_entry)
     
-    def read_all(self):
-        all_entries = self.table.query.all()
-        if all_entries:
-            return self.schema(many=True).dump(all_entries)
-        return None
-    
     def read(self, key, value):
         search_dict = {}
         search_dict[key] = value
         entry = self.table.query.filter_by(**search_dict).one_or_none()
         return self.model_to_dict(entry)
+
+    def read_all(self):
+        all_entries = self.table.query.all()
+        if all_entries:
+            return self.schema(many=True).dump(all_entries)
+        return None
 
     def update(self, key, value, new_data):
         search_dict = {}
@@ -42,6 +42,15 @@ class Database:
             db.session.commit()
         return self.model_to_dict(found_entry)
 
+    def delete(self, key, value):
+        search_dict = {}
+        search_dict[key] = value
+        found_entry = self.table.query.filter_by(**search_dict).first()
+        if found_entry:
+            db.session.delete(found_entry)
+            db.session.commit()
+            return True
+        return False
 
     def delete_all(self):
         count = db.session.query(self.table).delete()

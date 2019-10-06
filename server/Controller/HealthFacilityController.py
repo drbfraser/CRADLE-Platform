@@ -56,8 +56,13 @@ class HealthFacility(Resource):
         return
 
     @staticmethod
-    def delete():
-        healthFacilityManager.delete_all()
+    def delete(name=None):
+        if name:
+            logging.debug('Received request: DELETE /health_facility/<id>')
+            healthFacilityManager.delete("healthFacilityName", name)
+        else:
+            logging.debug('Received request: DELETE /health_facility')
+            healthFacilityManager.delete_all()
         return {}
 
     
