@@ -1,4 +1,4 @@
-from Database.PatientRepositoryNew import PatientRepo
+from Database.PatientRepoNew import PatientRepo
 from Manager.Manager import Manager
 
 class PatientManager(Manager):
