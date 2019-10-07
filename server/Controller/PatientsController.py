@@ -5,12 +5,10 @@ from flask import request
 from flask_restful import Resource, abort
 
 # Project modules
-from models import Patient, PatientSchema, ReadingSchema, ReferralSchema
-from Validation import PatientValidation
-from Manager import PatientManager, ReadingManager
-
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
 from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
+
+from Validation import PatientValidation
 
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
