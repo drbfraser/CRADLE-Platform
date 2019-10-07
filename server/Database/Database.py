@@ -105,7 +105,8 @@ class Database:
         found_entry = self.table.query.filter_by(**search_dict).first()
         if found_entry:
             for key in new_data:
-                setattr(found_entry, key, new_data[key])
+                this_type = type(getattr(found_entry, key))
+                setattr(found_entry, key, this_type(new_data[key]))
             db.session.commit()
         return self.model_to_dict(found_entry)
 

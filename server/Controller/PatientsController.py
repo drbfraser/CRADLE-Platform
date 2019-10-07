@@ -99,6 +99,8 @@ class PatientInfo(Resource):
     def put(self, patient_id):
         logging.debug('Received request: PUT /patient/' + patient_id)
 
+        data = PatientInfo._get_request_body()
+
         patient = abort_if_patient_doesnt_exist(patient_id)
         # invalid = PatientValidation.update_info_invalid(patient_id, data)
         # if invalid is not None:

@@ -1,12 +1,10 @@
 import json
 from Database.PatientRepoNew import PatientRepo
 from Database.ReadingRepoNew import ReadingRepo
+from Database.ReferralRepo import ReferralRepo
 from Manager.Manager import Manager
-from Manager.ReadingManagerNew import ReadingManager
-from Manager.ReferralManager import ReferralManager
+from Manager import referralManager, readingManager
 
-readingManager = ReadingManager()
-referralManager = ReferralManager()
 
 class PatientManager(Manager):
     def __init__(self):
@@ -36,7 +34,7 @@ class PatientManager(Manager):
                     
                         reading_json['comment'] = top_ref["comment"]
                         reading_json['dateReferred'] = top_ref["dateReferred"]
-                        reading_json['healthFacilityName'] = top_ref["healthFacility"]
+                        reading_json['healthFacilityName'] = top_ref["referralHealthFacilityName"]
                     
                     # add reading to readings array w/ referral info if exists
                     readings_arr.append(reading_json)
