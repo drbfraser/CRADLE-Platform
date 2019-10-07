@@ -10,8 +10,10 @@ from Validation import PatientValidation
 from Manager import PatientManager, ReadingManager
 
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
+from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 
 patientManager = PatientManagerNew()
+readingManager = ReadingManagerNew()
 
 def abort_if_body_empty(request_body):
     if request_body is None:
@@ -130,14 +132,14 @@ class PatientReading(Resource):
             return invalid
 
         # create new reading (and patient if it does not already exist)
-        reading_and_patient = ReadingManager.create_reading_and_patient(
+        reading_and_patient = readingManager.create_reading_and_patient(
             patient_reading_data['patient']['patientId'],
-            patient_reading_data)
+            patient_reading_data
+        )
 
         # associate new reading with patient
         reading_and_patient['message'] = 'Patient reading created successfully!'
         return reading_and_patient, 201
-
 
 # /patient/all/ [GET]
 class PatientAllInformation(Resource):

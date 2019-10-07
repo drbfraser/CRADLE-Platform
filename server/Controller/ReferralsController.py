@@ -7,7 +7,6 @@ from utils import pprint
 # Project modules
 from models import Referral, ReferralSchema
 from models import User, Patient, HealthFacility, Reading, FollowUp
-from Manager.ReadingManager import *
 from Manager.PatientManager import *
 from Manager.HealthFacilityManagerOld import *
 
