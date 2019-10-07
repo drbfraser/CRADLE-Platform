@@ -1,6 +1,6 @@
 # This module provides functions to validate the request data for a Patient.
 
-from Manager import PatientManager
+from Manager import patientManager
 
 
 def create_body_invalid(request_body):
@@ -27,7 +27,7 @@ def update_info_invalid(patient_id, request_body):
     if request_body is None:
         return {'HTTP 400': 'The request body cannot be empty.'}, 400
 
-    if PatientManager.get_patient(patient_id) is None:
+    if patientManager.read("patientId", patient_id) is None:
         return {'HTTP 404': 'The given Patient ID was invalid.'}, 404
 
     has_required_field = \
