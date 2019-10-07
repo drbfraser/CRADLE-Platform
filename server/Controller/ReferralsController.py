@@ -5,13 +5,7 @@ from config import db
 from utils import pprint
 
 # Project modules
-from models import Referral, ReferralSchema
-from models import User, Patient, HealthFacility, Reading, FollowUp
-from Manager.PatientManager import *
-from Manager.HealthFacilityManagerOld import *
-
 from Manager.ReferralManager import ReferralManager
-
 from Validation.ReferralValidator import ReferralValidator
 
 referralManager = ReferralManager()
@@ -32,7 +26,6 @@ def abort_if_referrals_doesnt_exist():
         return referrals
 
 def abort_if_referral_exists(referral_id):
-    referral = Referral.query.filter_by(id=referral_id).one_or_none()
     referral = referralManager.read("id", referral_id)
     if referral:
         abort(400, message="Referral {} already exists".format(referral_id))
