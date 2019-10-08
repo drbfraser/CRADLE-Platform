@@ -1,7 +1,6 @@
 
 # This module provides functions to validate the request data for a Referral.
 
-from Manager import PatientManager
 from models import User, Patient, HealthFacility, Reading, FollowUp
 import json
 

@@ -18,9 +18,9 @@ class RoleEnum(enum.Enum):
     ADMIN = 'ADMIN'
 
 class SexEnum(enum.Enum):
-    MALE = 'M'
-    FEMALE = 'F'
-    OTHER = 'I'
+    MALE = 'MALE'
+    FEMALE = 'FEMALE'
+    OTHER = 'OTHER'
 
 class TrafficLightEnum(enum.Enum):
     NONE = 'NONE'
