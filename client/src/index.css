@@ -47,7 +47,8 @@ button:disabled {
   justify-content: center;
   min-height: 100%;
   width: 45%;
-  margin: 2em auto;
+  margin-right: 15%;
+  margin-bottom: 25%;
   padding: 10px;
   position: relative;
   box-shadow: 2px 5px 5px #888888;
