@@ -128,12 +128,15 @@ class PatientPage extends Component {
 
     return (
         <div >
-          <h1>Patients List</h1>
-          <p> only logged in users are allowed to see this </p>
           <MaterialTable
             title="Patients Table"
             columns={this.state.columns}
             data={this.props.data}
+            options={{
+              rowStyle: {
+                height: '150px',
+              }
+            }}
             editable={{
               onRowAdd: newData =>
                 new Promise(resolve => {
