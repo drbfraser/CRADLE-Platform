@@ -12,7 +12,7 @@ from Validation.ReferralValidator import ReferralValidator
 
 from Manager.Manager import Manager
 
-from Manager import patientManager, readingManager, HealthFacilityManager
+from Manager import patientManager, readingManager, healthFacilityManager
 
 validator = ReferralValidator()
 
