@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
   },
   appBar: {
-    backgroundColor: '#84CED4',
+    backgroundColor: '#15152B',
     zIndex: theme.zIndex.drawer + 1,
   },
   drawer: {
@@ -39,6 +39,13 @@ const useStyles = makeStyles(theme => ({
     flexShrink: 0,
   },
   drawerPaper: {
+    /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#3b679e+0,34787e+0,45889f+51,65a6df+100 */
+    background: '#3b679e', /* Old browsers */
+    background: '-moz-linear-gradient(top,  #3b679e 0%, #34787e 0%, #45889f 51%, #65a6df 100%)', /* FF3.6-15 */
+    background: '-webkit-linear-gradient(top,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)', /* Chrome10-25,Safari5.1-6 */
+    background: 'linear-gradient(to bottom,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)', /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr='#3b679e', endColorstr='#65a6df',GradientType=0 )", /* IE6-9 */
+
     width: drawerWidth,
   },
   content: {
@@ -46,6 +53,9 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(3),
   },
   toolbar: theme.mixins.toolbar,
+  listItem: { flexDirection: 'column', margin: '10px 0px 10px 0px' },
+  logout: { marginTop: '50px', bottom: 0},
+  itemText : { color : 'white', paddingTop : '8px' }
 }));
 
 
@@ -71,50 +81,54 @@ const App = (props) => {
           <div className={classes.toolbar} />
           {props.user.isLoggedIn ? (
             <List>
-              <ListItem button
+              <ListItem className={classes.listItem}
+                        button
                         component={Link}
                         to="/patients"
                         selected={activeItem === "Patients"}
                         onClick={() => setActiveItem("Patients")}>
-                <ListItemIcon> <Icon size="big" name="user doctor" /> </ListItemIcon>
-                <ListItemText primary="Patients" />
+                <ListItemIcon> <Icon size="huge" name="user doctor" inverted="true" /> </ListItemIcon>
+                <ListItemText className={classes.itemText} primary="Patients" />
               </ListItem>
-              <ListItem button
+              <ListItem className={classes.listItem}
+                        button
                         component={Link}
                         to="/stats"
                         selected={activeItem === "Statistics"}
                         onClick={() => setActiveItem("Statistics")}>
-                <ListItemIcon> <Icon size="big" name="line graph" /> </ListItemIcon>
-                <ListItemText primary="Statistics" />
+                <ListItemIcon> <Icon size="huge" name="line graph" inverted="true" /> </ListItemIcon>
+                <ListItemText className={classes.itemText} primary="Statistics" />
               </ListItem>
-              <ListItem button
+              <ListItem className={classes.listItem}
+                        button
                         component={Link}
                         to="/referrals"
                         selected={activeItem === "Referrals"}
                         onClick={() => setActiveItem("Referrals")}>
-                <ListItemIcon> <Icon size="big" name="download" /> </ListItemIcon>
-                <ListItemText primary="Referrals" />
+                <ListItemIcon> <Icon size="huge" name="download" inverted="true" /> </ListItemIcon>
+                <ListItemText className={classes.itemText} primary="Referrals" />
               </ListItem>
-              <ListItem button
+              <ListItem className={classes.listItem}
+                        button
                         component={Link}
                         to="/newreading"
                         selected={activeItem === "Reading"}
                         onClick={() => setActiveItem("Reading")}>
-                <ListItemIcon> <Icon size="big" name="add square" /> </ListItemIcon>
-                <ListItemText primary="New Reading" />
+                <ListItemIcon> <Icon size="huge" name="add square" inverted="true" /> </ListItemIcon>
+                <ListItemText className={classes.itemText} primary="New Reading" />
               </ListItem>
               <Divider />
-              <ListItem button key="Logout" onClick={ () => props.logoutUser() }>
-                <ListItemText primary="Logout" />
+              <ListItem className={[classes.listItem, classes.logout]} button key="Logout" onClick={ () => props.logoutUser() }>
+                <ListItemText className={classes.itemText} primary="Logout" />
               </ListItem>
             </List>
           ) : (
             <List>
               <ListItem button component={Link} to="/login" key="Login">
-                <ListItemText primary="Login" />
+                <ListItemText className={classes.itemText} primary="Login" />
               </ListItem>
               <ListItem button component={Link} to="/signup"key="Signup">
-                <ListItemText primary="Signup" />
+                <ListItemText className={classes.itemText} primary="Signup" />
               </ListItem>
             </List>
           )}
