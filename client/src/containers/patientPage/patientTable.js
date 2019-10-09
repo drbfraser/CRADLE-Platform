@@ -25,7 +25,7 @@ class PatientTable extends Component {
         {   title: 'Patient ID', field: 'patientId', defaultSort: 'asc' },
         {   title: 'Village No.', field: 'villageNumber'},
         {   title: 'Last Reading', field: 'followUp',
-                render: rowData => rowData.readings ? (<p>{rowData.readings[rowData.readings.length-1].dateTimeTaken}</p>) : (<p>Not needed</p>) },
+                render: rowData => rowData.readings ? (<p>{rowData.readings[0].dateTimeTaken}</p>) : (<p>Not needed</p>) },
         ],
         data: [],
         selectedPatient: { patientId: '', patientName: 'Test', 

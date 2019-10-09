@@ -84,7 +84,7 @@ class PatientSummary extends Component {
     let readings = [];
 
     if (this.props.selectedPatient.readings.length > 0) {
-      for (var i = this.props.selectedPatient.readings.length - 1; i >= 0; i--) {
+      for (var i = 0; i < this.props.selectedPatient.readings.length; i++) {
         const dateTimeTaken = this.props.selectedPatient.readings[i]['dateTimeTaken']
         const bpDiastolic = this.props.selectedPatient.readings[i]['bpDiastolic']
         const bpSystolic = this.props.selectedPatient.readings[i]['bpSystolic']
