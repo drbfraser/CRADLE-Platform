@@ -164,8 +164,8 @@ class PatientSummary extends Component {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Diastolic</TableCell>
-                      <TableCell align="right">Systolic</TableCell>
+                      <TableCell>Systolic</TableCell>
+                      <TableCell align="right">Diastolic</TableCell>
                       <TableCell align="right">Heart Rate(BPM)</TableCell>
                       <TableCell align="right">Symptoms</TableCell>
                       <TableCell align="right">Date Taken</TableCell>
@@ -175,9 +175,9 @@ class PatientSummary extends Component {
                     {readings.map(row => (
                       <TableRow key={row.dateReferred}>
                         <TableCell component="th" scope="row">
-                          {row.bpDiastolic}
+                          {row.bpSystolic}
                         </TableCell>
-                        <TableCell align="right">{row.bpSystolic}</TableCell>
+                        <TableCell align="right">{row.bpDiastolic}</TableCell>
                         <TableCell align="right">{row.heartRateBPM}</TableCell>
                         <TableCell align="right">{row.symptoms}</TableCell>
                         <TableCell align="right">{row.dateTimeTaken}</TableCell>
