@@ -195,6 +195,11 @@ class HealthFacilitySchema(ma.ModelSchema):
         include_fk = True
         model = HealthFacility
 
+class FollowUpSchema(ma.ModelSchema):
+    class Meta:
+        include_fk = True
+        model = FollowUp
+
 user_schema = {
     "type": "object",
     "properties": {
