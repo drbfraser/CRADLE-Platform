@@ -36,11 +36,23 @@ def abort_if_referral_exists(referral_id):
     returns:
         single referral matching submitted id
 """
-# /referral/<int:id> [GET]
+# /referral/<int:id> [GET, PUT]
 class ReferralInfo(Resource):
     def get(self, id):
         referral = abort_if_referral_doesnt_exist(id)
         return referral
+    
+    def put(self, id=None):
+        if not id:
+            abort(400, message="id is required")
+
+        new_referral_fields = ReferralApi._get_request_body()
+        update_res = referralManager.update("id", id, new_referral_fields)
+
+        if not update_res:
+            abort(400, message=f'No referral exists with id "{id}"')
+        else:
+            return update_res
 
 # /referral [GET, POST]
 class ReferralApi(Resource):
