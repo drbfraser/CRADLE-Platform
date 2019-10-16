@@ -83,8 +83,8 @@ class Referral(db.Model):
 
     # RELATIONSHIPS
     healthFacility = db.relationship('HealthFacility', backref=db.backref('referrals', lazy=True))
-    reading = db.relationship('Reading', backref=db.backref('referrals', lazy=True))
-    followUp = db.relationship('FollowUp', backref=db.backref('referral', lazy=True, uselist=False))
+    reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
+    followUp = db.relationship('FollowUp', backref=db.backref('referral', lazy=True, uselist=False, cascade="save-update"))
     
 
 class HealthFacility(db.Model):
