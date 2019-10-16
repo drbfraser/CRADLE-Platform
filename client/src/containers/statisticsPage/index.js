@@ -1,10 +1,8 @@
 import React, {Component} from 'react';
-import MaterialTable from 'material-table';
-import { push } from 'connected-react-router'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients } from '../../actions/patients';
 import { getCurrentUser } from '../../actions/users';
+import { getStatistics } from '../../actions/statistics';
 import { Line } from 'react-chartjs-2';
 import { Button,
   Header, Image, Modal,
@@ -13,54 +11,101 @@ import { Button,
 } from 'semantic-ui-react'
 
 import './index.css'
-import newReadingPage from '../newReadingPage';
 
 class StatisticsPage extends Component {
+  readingsPerMonth = {
+    label: 'Total Number of Readings',
+    fill: false,
+    lineTension: 0.1,
+    backgroundColor: 'rgba(75,192,192,0.4)',
+    borderColor: 'rgba(75,192,192,1)',
+    pointHoverRadius: 5,
+    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+    pointHoverBorderColor: 'rgba(220,220,220,1)',
+    pointRadius: 1,
+    data: this.props.statistics.readingsPerMonth
+  }
+
+  referralsPerMonth = {
+    label: 'Total Number of Referrals',
+    fill: false,
+    lineTension: 0.1,
+    backgroundColor: 'rgba(75,192,192,0.4)',
+    borderColor: 'rgba(75,192,192,1)',
+    pointHoverRadius: 5,
+    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+    pointHoverBorderColor: 'rgba(220,220,220,1)',
+    pointRadius: 1,
+    data: this.props.statistics.referralsPerMonth
+  }
+
+  assesmentsPerMonth = {
+    label: 'Total Number of Assesments',
+    fill: false,
+    lineTension: 0.1,
+    backgroundColor: 'rgba(75,192,192,0.4)',
+    borderColor: 'rgba(75,192,192,1)',
+    pointHoverRadius: 5,
+    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+    pointHoverBorderColor: 'rgba(220,220,220,1)',
+    pointRadius: 1,
+    data: this.props.statistics.assesmentsPerMonth
+  }
+
+  referralsPregnantWomenPerMonth = {
+    label: 'Total Number of Pregnant Women Referred',
+    fill: false,
+    lineTension: 0.1,
+    backgroundColor: 'rgba(75,192,192,0.4)',
+    borderColor: 'rgba(75,192,192,1)',
+    pointHoverRadius: 5,
+    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+    pointHoverBorderColor: 'rgba(220,220,220,1)',
+    pointRadius: 1,
+    data: this.props.statistics.referralsPregnantWomenPerMonth
+  }
+
+  assesmentsPregnantWomenPerMonth = {
+    label: 'Total Number of Pregnant Women Assessed',
+    fill: false,
+    lineTension: 0.1,
+    backgroundColor: 'rgba(75,192,192,0.4)',
+    borderColor: 'rgba(75,192,192,1)',
+    pointHoverRadius: 5,
+    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+    pointHoverBorderColor: 'rgba(220,220,220,1)',
+    pointRadius: 1,
+    data: this.props.statistics.assesmentsPregnantWomenPerMonth
+  }
+
+  xLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
   state = { 
-    readingData: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    readings: {
+      labels: this.xLabels,
       datasets: [
-        {
-          label: 'My First dataset',
-          fill: false,
-          lineTension: 0.1,
-          backgroundColor: 'rgba(75,192,192,0.4)',
-          borderColor: 'rgba(75,192,192,1)',
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-          pointHoverBorderColor: 'rgba(220,220,220,1)',
-          pointRadius: 1,
-          data: [65, 59, 80, 81, 56, 55, 40, 50]
-        },
-        {
-          label: 'My Second dataset',
-          fill: false,
-          lineTension: 0.1,
-          backgroundColor: 'rgba(30,144,255,0.4)',
-          borderColor: 'rgba(30,144,255,1)',
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: 'rgba(30,144,255,1)',
-          pointHoverBorderColor: 'rgba(220,220,220,1)',
-          pointRadius: 1,
-          data: [55, 50, 65, 60, 68, 72, 84]
-        }
+        this.readingsPerMonth
       ]
     },
-    referralData: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    referralsVsAssesment: {
+      labels: this.xLabels,
       datasets: [
-        {
-          label: 'My First dataset',
-          fill: false,
-          lineTension: 0.1,
-          backgroundColor: 'rgba(75,192,192,0.4)',
-          borderColor: 'rgba(75,192,192,1)',
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-          pointHoverBorderColor: 'rgba(220,220,220,1)',
-          pointRadius: 1,
-          data: [65, 59, 80, 81, 56, 55, 40, 50]
-        }
+        this.referralsPerMonth,
+        this.assesmentsPerMonth
+      ]
+    },
+    referralsVsPregnantWomenReferredVsAssessed: {
+      labels: this.xLabels,
+      datasets: [
+        this.referralsPerMonth,
+        this.referralsPregnantWomenPerMonth,
+        this.assesmentsPregnantWomenPerMonth
+      ]
+    },
+    trafficLight: {
+      labels: this.xLabels,
+      datasets: [
+
       ]
     }
   }
@@ -71,7 +116,7 @@ class StatisticsPage extends Component {
         // error from getCurrentUser(), don't get statistics
         return
       }
-      // this.props.getStatistics()
+      this.props.getStatistics()
     })
   }
 
@@ -90,20 +135,20 @@ class StatisticsPage extends Component {
           </div> */}
           <div>
             <h2>Number of total cradle readings recorded</h2>
-            <Line ref="chart" data={this.state.readingData} />
+            <Line ref="chart" data={this.state.readings} />
           </div>
           <div>
             <h2>Number of referrals made vs number of them that got assessed</h2>
-            <Line ref="chart" data={this.state.referralData} />
+            <Line ref="chart" data={this.state.referralsVsAssesment} />
           </div>
           <div>
             <h2>Number of referrals made vs number of pregnant women referred vs number of pregnant women assessed
 </h2>
-            <Line ref="chart" data={this.state.readingData} />
+            <Line ref="chart" data={this.state.referralsVsPregnantWomenReferredVsAssessed} />
           </div>
           <div>
             <h2>Traffic light</h2>
-            <Line ref="chart" data={this.state.readingData} />
+            <Line ref="chart" data={this.state.trafficLight} />
           </div>
         </div>
       </div>
@@ -111,14 +156,16 @@ class StatisticsPage extends Component {
   }
 }
 
-const mapStateToProps = ({ user }) => ({
-  user : user.currentUser
+const mapStateToProps = ({ state }) => ({
+    user : state.user.currentUser,
+    statistics: state.statistics
 })
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       getCurrentUser,
+      getStatistics,
     },
     dispatch
   )
