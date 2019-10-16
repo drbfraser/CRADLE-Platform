@@ -25,17 +25,17 @@ class StatsManager(Manager):
                 date: how date is recorded in that category e.g dateTime vs dateReferred
                 needassessmentCount: 0/1 if not needed or needed
         """
-    def get_readings_referrals_or_assessments_month(self, category, date, needassessmentCount):
+    def get_readings_referrals_or_assessments_month(self, category, date, need_assessment_count):
         data = [0,0,0,0,0,0,0,0,0,0,0,0]
         counter = 0
         for item in category:
-            dateString = item[date]
+            date_string = item[date]
             #make sure to add error checking in here
-            dateObject = datetime.strptime(dateString[5:7] , '%m')
-            month = dateObject.month
-            if(needassessmentCount == 0):
+            date_object = datetime.strptime(date_string[5:7] , '%m')
+            month = date_object.month
+            if(need_assessment_count == 0):
                 data[month-1] += 1
-            elif(needassessmentCount == 1): #counting number of assessments done
+            elif(need_assessment_count == 1): #counting number of assessments done
                 if(item['followUpId'] is not None):
                     data[month-1] += 1
             else:
@@ -52,12 +52,11 @@ class StatsManager(Manager):
 
     def get_data_for_pregnant_patients(self, category):
         data = [0,0,0,0,0,0,0,0,0,0,0,0]
-        counter = 0
         for item in referrals:
-            dateString = item['dateReferred']
+            date_string = item['dateReferred']
             # make sure to add error checking in here
-            dateObject = datetime.strptime(dateString[5:7] , '%m')
-            month = dateObject.month
+            date_object = datetime.strptime(date_string[5:7] , '%m')
+            month = date_object.month
             patient_id = item['patientId']
             patient = patientManager.read("patientId", patient_id)
             
@@ -67,7 +66,7 @@ class StatsManager(Manager):
                     data[month-1] += 1
 
             # checking referrals for pregnant patients that had a followup
-            if(category == "pregassessment"):
+            if(category == "pregAssessment"):
                 if(item['followUpId'] is not None and patient['isPregnant']==1):
                     data[month-1] += 1
 
@@ -100,7 +99,7 @@ class StatsManager(Manager):
         pregnant_referrals_per_month = self.get_data_for_pregnant_patients('pregReferrals')
         
         # getting number of referrals that were made for women who were pregnant who got an assessment (follow up)
-        pregnant_assessments_per_month = self.get_data_for_pregnant_patients('pregassessment')
+        pregnant_assessments_per_month = self.get_data_for_pregnant_patients('pregAssessment')
 
 
         # building json
