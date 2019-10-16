@@ -9,10 +9,13 @@ from Controller.UsersController import *
 from Controller.PatientsController import *
 from Controller.ReferralsController import ReferralApi, ReferralInfo
 from Controller.HealthFacilityController import HealthFacility
+from Controller.StatsController import *
+
 
 def init(api):
     api.add_resource(HelloWorld, '/api/hello-world')
     api.add_resource(Multi, '/api/multi/<int:num>')
+    api.add_resource(AllStats, '/api/stats') # [GET]
 
     api.add_resource(UserApi, '/api/user/register') # [POST]
     api.add_resource(UserAuthApi, '/api/user/auth') # [POST]
