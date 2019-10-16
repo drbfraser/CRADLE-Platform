@@ -2,9 +2,13 @@ import axios from 'axios';
 
 import BASE_URL from '../serverUrl'
 
-export const GET_PATIENTS = 'posts/GET_PATIENTS'
-export const GET_PATIENTS_REQUESTED = 'posts/GET_PATIENTS_REQUESTED'
-export const GET_PATIENTS_ERR = 'posts/GET_POSTS_ERR'
+export const GET_PATIENTS = 'patients/GET_PATIENTS'
+export const GET_PATIENTS_REQUESTED = 'patient/GET_PATIENTS_REQUESTED'
+export const GET_PATIENTS_ERR = 'patient/GET_PATIENTS_ERR'
+
+export const UPDATE_PATIENT = 'patient/UPDATE_PATIENT'
+export const UPDATE_PATIENT_REQUESTED  = 'patients/UPDATE_PATIENTS_REQUESTED'
+export const UPDATE_PATIENT_ERR = 'patients/UPDATE_PATIENT_ERR'
 
 export const getPatients = () => {
     return dispatch => {
@@ -26,3 +30,23 @@ export const getPatients = () => {
       })
     }
   }
+
+export const updatePatient = (patientId, data)=> {
+  return dispatch => {
+    dispatch({
+      type: UPDATE_PATIENT_REQUESTED
+    })
+    axios.put(BASE_URL + "/patient/"+ patientId, data).then((res) => {
+      console.log("get patients res: ", res);
+      dispatch({
+          type: UPDATE_PATIENT,
+          payload: res.data
+      })
+   }).catch(err => {
+      console.log(err);
+      dispatch({
+          type: UPDATE_PATIENT_ERR
+      })
+  })
+  }
+}

@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 import { Icon } from 'semantic-ui-react'
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
@@ -11,6 +13,10 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import { updatePatient } from '../../actions/patients'
+import { getPatients } from '../../actions/patients'
+
+
 
 import { Button,
   Header, Image, Modal,
@@ -58,16 +64,29 @@ class PatientSummary extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient)) // pass by value
+    let patientId = patientData.patientId
+  
 
     // delete any unnecessary fields
     delete patientData.readings
     delete patientData.tableData
     delete patientData.patientId
+    // TODO: find out why adding patient history does not work
+    delete patientData.medicalHistory
+    delete patientData.tank
+    delete patientData.zone
+    delete patientData.block
+    delete patientData.drugHistory
 
-    let patientJSON = JSON.stringify({ 'patient' : patientData });
+    let patientJSON = JSON.stringify( patientData );
     console.log(patientJSON)
     
     // TODO: make request to update patient record
+    this.props.updatePatient(patientId,patientData)
+    this.props.getPatients()
+    this.closePatientModal()
+
+
   }
 
   handleSelectChange = (e, value) => {
@@ -275,4 +294,19 @@ class PatientSummary extends Component {
   }
 }
 
-export default PatientSummary
+
+const mapStateToProps = ({}) => ({})
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      updatePatient,
+      getPatients
+    },
+    dispatch
+  )
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PatientSummary)
