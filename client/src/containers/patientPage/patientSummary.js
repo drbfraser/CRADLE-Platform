@@ -71,17 +71,10 @@ class PatientSummary extends Component {
     delete patientData.readings
     delete patientData.tableData
     delete patientData.patientId
-    // TODO: find out why adding patient history does not work
-    delete patientData.medicalHistory
-    delete patientData.tank
-    delete patientData.zone
-    delete patientData.block
-    delete patientData.drugHistory
 
     let patientJSON = JSON.stringify( patientData );
     console.log(patientJSON)
     
-    // TODO: make request to update patient record
     this.props.updatePatient(patientId,patientData)
     this.props.getPatients()
     this.closePatientModal()

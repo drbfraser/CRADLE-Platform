@@ -3,7 +3,10 @@
 import { 
     GET_PATIENTS,
     GET_PATIENTS_REQUESTED,
-    GET_PATIENTS_ERR
+    GET_PATIENTS_ERR,
+    UPDATE_PATIENT,
+    UPDATE_PATIENT_REQUESTED,
+    UPDATE_PATIENT_ERR
  } from '../actions/patients';
 
 const initialState = {
@@ -14,23 +17,29 @@ const initialState = {
 export default (state = initialState, action) => {
   switch (action.type) {
     case GET_PATIENTS:
+    case UPDATE_PATIENT:  
       return {
         ...state,
         patientsList: action.payload,
         isLoading: false
       }
     
-    case GET_PATIENTS_REQUESTED: 
+    case GET_PATIENTS_REQUESTED:
+    case UPDATE_PATIENT_REQUESTED: 
       return {
           ...state,
           isLoading: true
       }
 
     case GET_PATIENTS_ERR:
+    case UPDATE_PATIENT_ERR:
       return {
           ...state,
           isLoading: false
       }
+
+
+      
 
     default:
       return state
