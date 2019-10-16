@@ -16,16 +16,16 @@ readings = readingManager.read_all()
 
 # TO DO: NEED TO ADD ERROR CHECKING
 class StatsManager(Manager):
-    def __init__(Self):
+    def __init__(self):
   
         """ 
-        Description: can get either the total number of readings, or referrals, or assesments per month:
+        Description: can get either the total number of readings, or referrals, or assessments per month:
             Parameters: 
                 category: e.g readings, referrals
                 date: how date is recorded in that category e.g dateTime vs dateReferred
-                needAssesmentCount: 0/1 if not needed or needed
+                needassessmentCount: 0/1 if not needed or needed
         """
-    def get_readings_referrals_or_assesments_month(Self, category, date, needAssesmentCount):
+    def get_readings_referrals_or_assessments_month(self, category, date, needassessmentCount):
         data = [0,0,0,0,0,0,0,0,0,0,0,0]
         counter = 0
         for item in category:
@@ -33,13 +33,13 @@ class StatsManager(Manager):
             #make sure to add error checking in here
             dateObject = datetime.strptime(dateString[5:7] , '%m')
             month = dateObject.month
-            if(needAssesmentCount == 0):
+            if(needassessmentCount == 0):
                 data[month-1] += 1
-            elif(needAssesmentCount == 1): #counting number of assesments done
+            elif(needassessmentCount == 1): #counting number of assessments done
                 if(item['followUpId'] is not None):
                     data[month-1] += 1
             else:
-                print("Invalid assesment option")
+                print("invalid assessment optionl only 0 or 1 are valid options.")
                 #programmer error, fix function call
         return data
 
@@ -47,10 +47,10 @@ class StatsManager(Manager):
         Description: can get either the total number of pregnant patients that were referred,
         or total number of pregnant women that were referred and followed up
             Parameters: 
-                Category: referred vs assesed           
+                category: referred vs assesed           
     """
 
-    def get_data_for_pregnant_patients(Self, category):
+    def get_data_for_pregnant_patients(self, category):
         data = [0,0,0,0,0,0,0,0,0,0,0,0]
         counter = 0
         for item in referrals:
@@ -67,7 +67,7 @@ class StatsManager(Manager):
                     data[month-1] += 1
 
             # checking referrals for pregnant patients that had a followup
-            if(category == "pregAsessments"):
+            if(category == "pregassessment"):
                 if(item['followUpId'] is not None and patient['isPregnant']==1):
                     data[month-1] += 1
 
@@ -79,37 +79,36 @@ class StatsManager(Manager):
         Description: puts a json object together with the following:
             total number of readings per month
             total number of referrals per month
-            total number of assesments done (patients that were followed up) per month
+            total number of assessments done (patients that were followed up) per month
             total number of referrals made for pregnant patients per month
             total number of referrals made for pregnant patients that were followed up per month
             each quantity is of an array, each index in the array refers to that index-1 month
     """
-    def put_data_together(Self):
+    def put_data_together(self):
         print("putting data together")
 
         # getting readings per month
-        readings_per_month = Self.get_readings_referrals_or_assesments_month(readings, 'dateTimeTaken', 0)
+        readings_per_month = self.get_readings_referrals_or_assessments_month(readings, 'dateTimeTaken', 0)
 
         # getting number of referrals per month
-        referrals_per_month = Self.get_readings_referrals_or_assesments_month(referrals, 'dateReferred', 0)
+        referrals_per_month = self.get_readings_referrals_or_assessments_month(referrals, 'dateReferred', 0)
 
-        # getting number of assesments per month
-        assesments_per_month = Self.get_readings_referrals_or_assesments_month(referrals, 'dateReferred', 1)
+        # getting number of assessments per month
+        assessments_per_month = self.get_readings_referrals_or_assessments_month(referrals, 'dateReferred', 1)
         
         # getting number of referrals that were made for pregnant women
-        pregnant_referrals_per_month = Self.get_data_for_pregnant_patients('pregReferrals')
+        pregnant_referrals_per_month = self.get_data_for_pregnant_patients('pregReferrals')
         
-        # getting number of referrals that were made for women who were pregnant who got an assesment (follow up)
-        pregnant_assesments_per_month = Self.get_data_for_pregnant_patients('pregAsessments')
+        # getting number of referrals that were made for women who were pregnant who got an assessment (follow up)
+        pregnant_assessments_per_month = self.get_data_for_pregnant_patients('pregassessment')
 
 
         # building json
         build_json = { 'readingsPerMonth': readings_per_month, 
                        'referralsPerMonth': referrals_per_month, 
-                       'assesmentsPerMonth': assesments_per_month,
+                       'assessmentsPerMonth': assessments_per_month,
                        'referralsPregnantWomenPerMonth': pregnant_referrals_per_month,
-                       'assesmentsPregnantWomenPerMonth': pregnant_assesments_per_month }
-        json_data = json.dumps(build_json)
+                       'assessmentsPregnantWomenPerMonth': pregnant_assessments_per_month }
     
-        #json.loads(json_data
-        return json_data
+        # returning stats in json format
+        return json.loads(json.dumps(build_json))
