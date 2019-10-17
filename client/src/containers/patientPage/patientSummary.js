@@ -6,11 +6,6 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
 
 import { Button,
   Header, Image, Modal,
@@ -98,25 +93,24 @@ class PatientSummary extends Component {
       <div>
       {this.state.selectedPatient ? (
         <div >
-          <Button onClick={() => this.handleBackBtn() }>Back</Button>
-          
-          <h1>Patient Summary</h1>
-
+          <h1>
+            <Icon style={{"cursor" : "pointer", "line-height" : "0.7em"}} size="large" name="chevron left" onClick={() => this.handleBackBtn() }/>
+            Patient Summary : {this.state.selectedPatient.patientName}
+          </h1>
           <Divider />
 
-          <Grid container spacing={0} justify="center">
-            <Grid item xs={8}>
-              <Paper style={{"padding" : "24px 16px"}}>
+          <Grid container direction="row" spacing={4} >
+            <Grid item xs={6} style={{"minWidth" : "500px"}} >
+              <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
                 <Typography variant="h5" component="h3">
-                  Patient Information
+                  Medical Information
                 </Typography>
                 <Divider />
-                <Typography component="p">
-                  Patient ID: {this.state.selectedPatient.patientId} <br/>
-                  Patient Initials: {this.state.selectedPatient.patientName} <br/>
-                  Patient Age: {this.state.selectedPatient.patientAge} <br/>
-                  Patient Sex: {this.state.selectedPatient.patientSex} <br/>
-                  Pregant: {this.state.selectedPatient.isPregnant ? "Yes" : "No"} <br/>
+                <div style={{"padding" : "20px 50px"}}>
+                  <p><b>Patient ID: </b> {this.state.selectedPatient.patientId} </p>
+                  <p><b>Patient Age: </b> {this.state.selectedPatient.patientAge} </p>
+                  <p><b>Patient Sex: </b> {this.state.selectedPatient.patientSex} </p>
+                  <p><b>Pregant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
                   <ExpansionPanel>
                     <ExpansionPanelSummary
                       expandIcon={<Icon name="chevron down" />}
@@ -149,44 +143,48 @@ class PatientSummary extends Component {
                   </ExpansionPanel>
                   <Divider />
                   <Button onClick={() => this.openPatientModal() }>Edit Patient</Button>
+                </div>
+              </Paper>
+            </Grid>
+            <Grid item xs={6} style={{"minWidth" : "500px", "height": '100%'}} >
+              <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
+                <Typography variant="h5" component="h3">
+                  Vitals Over Time
                 </Typography>
+                <Divider/>
               </Paper>
             </Grid>
           </Grid>
           <br/>
           <Grid container spacing={0}>
-            <Grid item xs={12}>
-            <Paper style={{"padding" : "24px 16px"}}>
-                <Typography variant="h6" component="h6">
-                  All Readings
-                </Typography>
-                <Divider />
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Systolic</TableCell>
-                      <TableCell align="right">Diastolic</TableCell>
-                      <TableCell align="right">Heart Rate(BPM)</TableCell>
-                      <TableCell align="right">Symptoms</TableCell>
-                      <TableCell align="right">Date Taken</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {readings.map(row => (
-                      <TableRow key={row.dateReferred}>
-                        <TableCell component="th" scope="row">
-                          {row.bpSystolic}
-                        </TableCell>
-                        <TableCell align="right">{row.bpDiastolic}</TableCell>
-                        <TableCell align="right">{row.heartRateBPM}</TableCell>
-                        <TableCell align="right">{row.symptoms}</TableCell>
-                        <TableCell align="right">{row.dateTimeTaken}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Paper>
-            </Grid>
+          {readings.map(row => (
+              <Grid item xs={12}>
+              <Paper style={{"marginBottom":"35px", "height":"400px", "padding" : "45px 50px", "borderRadius" : "15px"}}>
+                  <div style={{"display": "inline-block", "width":"50%"}}>
+                    <Typography variant="h4" component="h4">
+                      Reading
+                    </Typography>
+
+                    <div style={{"padding" : "15px 50px"}}>
+                      <Icon size="huge" name="alarm" />
+                      <br/><br/>
+                      <p><b>Systolic Blood Pressure: </b> {row.bpSystolic} </p>
+                      <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>
+                      <p><b>Heart Rate (BPM): </b> {row.heartRateBPM} </p>
+                      <p><b>Symptoms: </b> {row.symptoms} </p>
+                    </div>
+                  </div>
+                  <div style={{"borderLeft": "2px solid #84ced4", "display": "inline-block", "width":"50%", "float": "right", "height" : "100%"}}>
+                    <div style={{"padding" : "15px 50px"}}>
+                      <Typography variant="h4" component="h4">
+                        Assessment
+                      </Typography>
+                    </div>
+                  </div>
+                </Paper>
+              </Grid>
+            ))}
+
           </Grid>
 
           <Modal closeIcon onClose={this.closePatientModal} open={this.state.displayPatientModal}>
