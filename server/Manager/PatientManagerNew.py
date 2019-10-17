@@ -28,8 +28,8 @@ class PatientManager(Manager):
                     print(json.dumps(reading_json, indent=2, sort_keys=True))
 
                     # add referral if exists in reading
-                    if reading_json["referrals"]:
-                        top_ref = referralManager.read("id", reading_json["referrals"][0])
+                    if reading_json["referral"]:
+                        top_ref = referralManager.read("id", reading_json["referral"])
                         print("top_ref: " + json.dumps(top_ref, indent=2, sort_keys=True))
                     
                         reading_json['comment'] = top_ref["comment"]
