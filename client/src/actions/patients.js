@@ -31,22 +31,25 @@ export const getPatients = () => {
     }
   }
 
-export const updatePatient = (patientId, data)=> {
-  return dispatch => {
-    dispatch({
-      type: UPDATE_PATIENT_REQUESTED
-    })
-    axios.put(BASE_URL + "/patient/"+ patientId, data).then((res) => {
-      console.log("get patients res: ", res);
-      dispatch({
-          type: UPDATE_PATIENT,
-          payload: res.data
-      })
-   }).catch(err => {
-      console.log(err);
-      dispatch({
-          type: UPDATE_PATIENT_ERR
-      })
-  })
-  }
+export const updatePatient = (patientId, data) => {
+    return dispatch => {
+        dispatch({
+            type: UPDATE_PATIENT_REQUESTED
+        })
+
+        return axios.put(BASE_URL + "/patient/"+ patientId, data).then((res) => {
+            dispatch({
+                type: UPDATE_PATIENT,
+                payload: res.data
+            })
+            console.log("UPDATE PATIENT DATA", res.data)
+        })
+        .then( () => dispatch(getPatients()))
+        .catch(err => {
+            console.log(err);
+            dispatch({
+                type: UPDATE_PATIENT_ERR
+            })
+        })
+    }
 }

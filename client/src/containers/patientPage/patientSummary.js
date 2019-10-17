@@ -76,7 +76,6 @@ class PatientSummary extends Component {
     console.log(patientJSON)
     
     this.props.updatePatient(patientId,patientData)
-    this.props.getPatients()
     this.closePatientModal()
 
 
