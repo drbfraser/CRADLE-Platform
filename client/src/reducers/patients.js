@@ -17,7 +17,6 @@ const initialState = {
 export default (state = initialState, action) => {
   switch (action.type) {
     case GET_PATIENTS:
-    case UPDATE_PATIENT:  
       return {
         ...state,
         patientsList: action.payload,
@@ -25,14 +24,12 @@ export default (state = initialState, action) => {
       }
     
     case GET_PATIENTS_REQUESTED:
-    case UPDATE_PATIENT_REQUESTED: 
       return {
           ...state,
           isLoading: true
       }
 
     case GET_PATIENTS_ERR:
-    case UPDATE_PATIENT_ERR:
       return {
           ...state,
           isLoading: false
