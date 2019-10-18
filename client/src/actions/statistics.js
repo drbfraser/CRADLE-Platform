@@ -12,7 +12,7 @@ export const getStatistics = () => {
         })
 
         axios.get(BASE_URL + "/stats").then((res) => {
-            console.log("get statistics: ", res);
+            // console.log("get statistics: ", res);
             dispatch({
                 type: GET_STATISTICS,
                 payload: res.data

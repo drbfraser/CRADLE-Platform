@@ -13,102 +13,6 @@ import { Button,
 import './index.css'
 
 class StatisticsPage extends Component {
-  readingsPerMonth = {
-    label: 'Total Number of Readings',
-    fill: false,
-    lineTension: 0.1,
-    backgroundColor: 'rgba(75,192,192,0.4)',
-    borderColor: 'rgba(75,192,192,1)',
-    pointHoverRadius: 5,
-    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-    pointHoverBorderColor: 'rgba(220,220,220,1)',
-    pointRadius: 1,
-    data: this.props.statistics.readingsPerMonth
-  }
-
-  referralsPerMonth = {
-    label: 'Total Number of Referrals',
-    fill: false,
-    lineTension: 0.1,
-    backgroundColor: 'rgba(75,192,192,0.4)',
-    borderColor: 'rgba(75,192,192,1)',
-    pointHoverRadius: 5,
-    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-    pointHoverBorderColor: 'rgba(220,220,220,1)',
-    pointRadius: 1,
-    data: this.props.statistics.referralsPerMonth
-  }
-
-  assesmentsPerMonth = {
-    label: 'Total Number of Assesments',
-    fill: false,
-    lineTension: 0.1,
-    backgroundColor: 'rgba(75,192,192,0.4)',
-    borderColor: 'rgba(75,192,192,1)',
-    pointHoverRadius: 5,
-    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-    pointHoverBorderColor: 'rgba(220,220,220,1)',
-    pointRadius: 1,
-    data: this.props.statistics.assesmentsPerMonth
-  }
-
-  referralsPregnantWomenPerMonth = {
-    label: 'Total Number of Pregnant Women Referred',
-    fill: false,
-    lineTension: 0.1,
-    backgroundColor: 'rgba(75,192,192,0.4)',
-    borderColor: 'rgba(75,192,192,1)',
-    pointHoverRadius: 5,
-    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-    pointHoverBorderColor: 'rgba(220,220,220,1)',
-    pointRadius: 1,
-    data: this.props.statistics.referralsPregnantWomenPerMonth
-  }
-
-  assesmentsPregnantWomenPerMonth = {
-    label: 'Total Number of Pregnant Women Assessed',
-    fill: false,
-    lineTension: 0.1,
-    backgroundColor: 'rgba(75,192,192,0.4)',
-    borderColor: 'rgba(75,192,192,1)',
-    pointHoverRadius: 5,
-    pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-    pointHoverBorderColor: 'rgba(220,220,220,1)',
-    pointRadius: 1,
-    data: this.props.statistics.assesmentsPregnantWomenPerMonth
-  }
-
-  xLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-  state = { 
-    readings: {
-      labels: this.xLabels,
-      datasets: [
-        this.readingsPerMonth
-      ]
-    },
-    referralsVsAssesment: {
-      labels: this.xLabels,
-      datasets: [
-        this.referralsPerMonth,
-        this.assesmentsPerMonth
-      ]
-    },
-    referralsVsPregnantWomenReferredVsAssessed: {
-      labels: this.xLabels,
-      datasets: [
-        this.referralsPerMonth,
-        this.referralsPregnantWomenPerMonth,
-        this.assesmentsPregnantWomenPerMonth
-      ]
-    },
-    trafficLight: {
-      labels: this.xLabels,
-      datasets: [
-
-      ]
-    }
-  }
 
   componentDidMount = () => {
     this.props.getCurrentUser().then((err) => {
@@ -117,6 +21,7 @@ class StatisticsPage extends Component {
         return
       }
       this.props.getStatistics()
+      
     })
   }
 
@@ -124,6 +29,89 @@ class StatisticsPage extends Component {
     // don't render page if user is not logged in
     if (!this.props.user.isLoggedIn) {
       return <div />
+    }
+
+    const xLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+    const readingsPerMonth = {
+      label: 'Total Number of Readings',
+      fill: false,
+      lineTension: 0.1,
+      backgroundColor: 'rgba(75,192,192,0.4)',
+      borderColor: 'rgba(75,192,192,1)',
+      pointRadius: 1,
+      data: this.props.statisticsList.readingsPerMonth
+    }
+
+    const referralsPerMonth = {
+      label: 'Total Number of Referrals',
+      fill: false,
+      lineTension: 0.1,
+      backgroundColor: 'rgba(30,144,255,0.4)',
+      borderColor: 'rgba(30,144,255,1)',
+      pointRadius: 1,
+      data: this.props.statisticsList.referralsPerMonth
+    }
+
+    const assesmentsPerMonth = {
+      label: 'Total Number of Assesments',
+      fill: false,
+      lineTension: 0.1,
+      backgroundColor: 'rgba(123,204,238,0.4)',
+      borderColor: 'rgba(123,204,238,1)',
+      pointRadius: 1,
+      data: this.props.assesmentsPerMonth
+    }
+
+    const referralsPregnantWomenPerMonth = {
+      label: 'Total Number of Pregnant Women Referred',
+      fill: false,
+      lineTension: 0.1,
+      backgroundColor: 'rgba(72,61,139,0.4)',
+      borderColor: 'rgba(72,61,139,1)',
+      pointRadius: 1,
+      data: this.props.statisticsList.referralsPregnantWomenPerMonth
+    }
+
+    const assesmentsPregnantWomenPerMonth = {
+      label: 'Total Number of Pregnant Women Assessed',
+      fill: false,
+      lineTension: 0.1,
+      backgroundColor: 'rgba(65,105,255,0.4)',
+      borderColor: 'rgba(65,105,255,1)',
+      pointRadius: 1,
+      data: this.props.statisticsList.assesmentsPregnantWomenPerMonth
+    }
+
+    const readings = {
+      labels: xLabels,
+      datasets: [
+        readingsPerMonth
+      ]
+    }   
+
+    const referralsVsAssesment = {
+      labels: xLabels,
+      datasets: [
+        referralsPerMonth,
+        assesmentsPerMonth
+      ]
+    }
+
+    const referralsVsPregnantWomenReferredVsAssessed = {
+      labels: xLabels,
+      datasets: [
+        referralsPerMonth,
+        referralsPregnantWomenPerMonth,
+        assesmentsPregnantWomenPerMonth
+      ]
+    }
+
+    const trafficLight = {
+      labels: xLabels,
+      datasets: [
+
+      ]
     }
 
     return (
@@ -135,20 +123,20 @@ class StatisticsPage extends Component {
           </div> */}
           <div>
             <h2>Number of total cradle readings recorded</h2>
-            <Line ref="chart" data={this.state.readings} />
+            <Line ref="chart" data={readings} />
           </div>
           <div>
             <h2>Number of referrals made vs number of them that got assessed</h2>
-            <Line ref="chart" data={this.state.referralsVsAssesment} />
+            <Line ref="chart" data={referralsVsAssesment} />
           </div>
           <div>
             <h2>Number of referrals made vs number of pregnant women referred vs number of pregnant women assessed
 </h2>
-            <Line ref="chart" data={this.state.referralsVsPregnantWomenReferredVsAssessed} />
+            <Line ref="chart" data={referralsVsPregnantWomenReferredVsAssessed} />
           </div>
           <div>
             <h2>Traffic light</h2>
-            <Line ref="chart" data={this.state.trafficLight} />
+            <Line ref="chart" data={trafficLight} />
           </div>
         </div>
       </div>
@@ -156,9 +144,9 @@ class StatisticsPage extends Component {
   }
 }
 
-const mapStateToProps = ({ state }) => ({
-    user : state.user.currentUser,
-    statistics: state.statistics
+const mapStateToProps = ({ user, statistics }) => ({
+    user : user.currentUser,
+    statisticsList: statistics.statisticsList
 })
 
 const mapDispatchToProps = dispatch =>
