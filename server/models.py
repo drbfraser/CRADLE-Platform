@@ -141,6 +141,69 @@ class Reading(db.Model):
     temporaryFlags = db.Column(db.Integer)
     userHasSelectedNoSymptoms = db.Column(db.Boolean)
 
+
+    # @hybrid_property
+    def getTrafficLight(self):
+        RED_SYSTOLIC = 160
+        RED_DIASTOLIC = 110
+        YELLOW_SYSTOLIC = 140
+        YELLOW_DIASTOLIC = 90
+        SHOCK_HIGH = 1.7
+        SHOCK_MEDIUM = 0.9
+
+        if self.bpSystolic == None or self.bpDiastolic == None or self.heartRateBPM == None:
+            return TrafficLightEnum.NONE.name
+        
+        shockIndex = self.heartRateBPM / self.bpSystolic
+
+        isBpVeryHigh = (self.bpSystolic >= RED_SYSTOLIC) or (self.bpDiastolic >= RED_DIASTOLIC)
+        isBpHigh = (self.bpSystolic >= YELLOW_SYSTOLIC) or (self.bpDiastolic >= YELLOW_DIASTOLIC)
+        isSevereShock = (shockIndex >= SHOCK_HIGH)
+        isShock = (shockIndex >= SHOCK_MEDIUM)
+
+        if isSevereShock:
+            trafficLight = TrafficLightEnum.RED_DOWN.name
+        elif isBpVeryHigh:
+            trafficLight = TrafficLightEnum.RED_UP.name
+        elif isShock:
+            trafficLight = TrafficLightEnum.YELLOW_DOWN.name
+        elif isBpHigh:
+            trafficLight = TrafficLightEnum.YELLOW_UP.name
+        else:
+            trafficLight = TrafficLightEnum.GREEN.name
+
+        return trafficLight
+
+    def __init__(self, patientId, readingId, bpSystolic,
+                 bpDiastolic,heartRateBPM,symptoms,
+                 trafficLightStatus=None,dateLastSaved=None,
+                 dateTimeTaken=None,dateUploadedToServer=None,
+                 dateRecheckVitalsNeeded=None, gpsLocationOfReading=None,
+                 retestOfPreviousReadingIds=None, isFlaggedForFollowup=None, appVersion=None,
+                 deviceInfo=None, totalOcrSeconds=None, manuallyChangeOcrResults=None,
+                 temporaryFlags=None, userHasSelectedNoSymptoms=None):
+        self.patientId = patientId
+        self.readingId = readingId
+        self.bpSystolic = bpSystolic
+        self.bpDiastolic = bpDiastolic
+        self.heartRateBPM = heartRateBPM
+        self.symptoms = symptoms
+        self.trafficLightStatus = self.getTrafficLight()
+        self.dateTimeTaken = dateTimeTaken
+        self.dateLastSaved = dateLastSaved
+        self.dateUploadedToServer = dateUploadedToServer
+        self.dateRecheckVitalsNeeded = dateRecheckVitalsNeeded
+        self.gpsLocationOfReading = gpsLocationOfReading
+        self.retestOfPreviousReadingIds = retestOfPreviousReadingIds
+        self.isFlaggedForFollowup = isFlaggedForFollowup
+        self.appVersion = appVersion
+        self.deviceInfo = deviceInfo
+        self.totalOcrSeconds = totalOcrSeconds
+        self.manuallyChangeOcrResults = manuallyChangeOcrResults
+        self.temporaryFlags = temporaryFlags
+        self.userHasSelectedNoSymptoms = userHasSelectedNoSymptoms
+
+
     # FOREIGN KEYS
     patientId = db.Column(db.String(50), db.ForeignKey('patient.patientId'), nullable=False)
 
@@ -182,10 +245,11 @@ class ReferralSchema(ma.ModelSchema):
         model = Referral
 
 class ReadingSchema(ma.ModelSchema):
+    trafficLightStatus = EnumField(TrafficLightEnum, by_value=True)
     class Meta:
         include_fk = True
         model = Reading
-
+    
 class RoleSchema(ma.ModelSchema):
     class Meta:
         include_fk = True
