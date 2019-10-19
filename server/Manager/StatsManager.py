@@ -9,10 +9,6 @@ patientManager = PatientManager()
 referralManager = ReferralManager()
 readingManager = ReadingManager()
 
-patients = patientManager.read_all()
-referrals = referralManager.read_all()
-readings = readingManager.read_all()
-
 
 # TO DO: NEED TO ADD ERROR CHECKING
 class StatsManager(Manager):
@@ -52,6 +48,7 @@ class StatsManager(Manager):
 
     def get_data_for_pregnant_patients(self, category):
         data = [0,0,0,0,0,0,0,0,0,0,0,0]
+        referrals = referralManager.read_all()
         for item in referrals:
             date_string = item['dateReferred']
             # make sure to add error checking in here
@@ -85,7 +82,9 @@ class StatsManager(Manager):
     """
     def put_data_together(self):
         print("putting data together")
-
+        readings = readingManager.read_all()
+        referrals = referralManager.read_all()
+        
         # getting readings per month
         readings_per_month = self.get_readings_referrals_or_assessments_month(readings, 'dateTimeTaken', 0)
 
