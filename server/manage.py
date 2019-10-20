@@ -1,6 +1,9 @@
 
 # this seeds the database with seed command below
-
+import random
+import string
+from random import randrange
+from datetime import timedelta, datetime
 from flask_script import Manager
 from config import app, db, flask_bcrypt
 from models import *
@@ -203,5 +206,39 @@ def seed():
 
     print('Complete!')
 
+@manager.command
+def getRandomInitials():
+    return random.choice(string.ascii_letters) + random.choice(string.ascii_letters)
+
+@manager.command
+def getRandomVillage():
+    return random.choice(villageList)
+
+
+@manager.command
+def getRandomPatientId():
+    return random.choice(patientList)
+
+def getRandomAge():
+    return random.randint(20,40)
+
+@manager.command
+def random_date():
+    """
+    This function will return a random datetime between two datetime 
+    objects.
+    """
+    start = d1
+    end = d2
+    delta = end - start
+    int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
+    random_second = randrange(int_delta)
+    return start + timedelta(seconds=random_second)
+
 if __name__ == "__main__":
+    patientList = [random.randint(48300027408,48300099999) for i in range(100)]
+    villageList = ['1001','1002','1003','1004','1005','1006','1007','1008','1009']
+    sexList = ['FEMALE', 'MALE']
+    d1 = datetime.strptime('1/1/2019 12:01 AM', '%m/%d/%Y T%I:%M %p')
+    d2 = datetime.strptime('12/31/2019 11:59 PM', '%m/%d/%Y %I:%M %p')
     manager.run()
