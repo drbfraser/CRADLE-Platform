@@ -87,7 +87,7 @@ const App = (props) => {
                         to="/patients"
                         selected={activeItem === "Patients"}
                         onClick={() => setActiveItem("Patients")}>
-                <ListItemIcon> <Icon size="huge" name="user doctor" inverted="true" /> </ListItemIcon>
+                <ListItemIcon> <Icon size="huge" name="user doctor" inverted /> </ListItemIcon>
                 <ListItemText className={classes.itemText} primary="Patients" />
               </ListItem>
               <ListItem className={classes.listItem}
@@ -96,7 +96,7 @@ const App = (props) => {
                         to="/stats"
                         selected={activeItem === "Statistics"}
                         onClick={() => setActiveItem("Statistics")}>
-                <ListItemIcon> <Icon size="huge" name="line graph" inverted="true" /> </ListItemIcon>
+                <ListItemIcon> <Icon size="huge" name="line graph" inverted /> </ListItemIcon>
                 <ListItemText className={classes.itemText} primary="Statistics" />
               </ListItem>
               <ListItem className={classes.listItem}
@@ -105,7 +105,7 @@ const App = (props) => {
                         to="/referrals"
                         selected={activeItem === "Referrals"}
                         onClick={() => setActiveItem("Referrals")}>
-                <ListItemIcon> <Icon size="huge" name="download" inverted="true" /> </ListItemIcon>
+                <ListItemIcon> <Icon size="huge" name="download" inverted /> </ListItemIcon>
                 <ListItemText className={classes.itemText} primary="Referrals" />
               </ListItem>
               <ListItem className={classes.listItem}
@@ -114,7 +114,7 @@ const App = (props) => {
                         to="/newreading"
                         selected={activeItem === "Reading"}
                         onClick={() => setActiveItem("Reading")}>
-                <ListItemIcon> <Icon size="huge" name="add square" inverted="true" /> </ListItemIcon>
+                <ListItemIcon> <Icon size="huge" name="add square" inverted /> </ListItemIcon>
                 <ListItemText className={classes.itemText} primary="New Reading" />
               </ListItem>
               <Divider />
