@@ -3,7 +3,10 @@
 import { 
     GET_PATIENTS,
     GET_PATIENTS_REQUESTED,
-    GET_PATIENTS_ERR
+    GET_PATIENTS_ERR,
+    UPDATE_PATIENT,
+    UPDATE_PATIENT_REQUESTED,
+    UPDATE_PATIENT_ERR
  } from '../actions/patients';
 
 const initialState = {
@@ -20,7 +23,7 @@ export default (state = initialState, action) => {
         isLoading: false
       }
     
-    case GET_PATIENTS_REQUESTED: 
+    case GET_PATIENTS_REQUESTED:
       return {
           ...state,
           isLoading: true
@@ -31,6 +34,9 @@ export default (state = initialState, action) => {
           ...state,
           isLoading: false
       }
+
+
+      
 
     default:
       return state
