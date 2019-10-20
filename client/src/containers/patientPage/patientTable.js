@@ -16,7 +16,7 @@ class PatientTable extends Component {
             field: 'patientName',
             render: rowData => 
                 <p key={"initials" + rowData.tableData.id}
-                   style={{"font-size": "200%", "fontWeight" : "bold", "textAlign" : "center"}}
+                   style={{"fontSize": "200%", "fontWeight" : "bold", "textAlign" : "center"}}
                 >{rowData.patientName}</p>,
             headerStyle : {
                 textAlign: "center"
@@ -45,7 +45,6 @@ class PatientTable extends Component {
                 rowStyle: rowData => {
                     return {
                         height: '75px',
-                        // backgroundColor: rowData.tableData.id % 2 === 0 ? "#FFF" : "#F0F0F0",
                     }
                 }
             }}
