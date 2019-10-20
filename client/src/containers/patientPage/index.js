@@ -46,11 +46,6 @@ class PatientPage extends Component {
     return (
       <div>
         {this.state.showSelectedPatient ? (
-          // <div>
-          //   <Button onClick={() => this.setState({ 'showSelectedPatient' : false }) }>Back</Button>
-          //   <h1>Patient Summary</h1>
-          //   <h2>{this.state.selectedPatient.patientName}</h2>
-          // </div>
           <PatientSummary callbackFromParent={this.backBtnCallback} selectedPatient={this.state.selectedPatient}></PatientSummary>
         ) : (
           <PatientTable callbackFromParent={this.patientCallback} data={this.props.patients.patientsList}></PatientTable>
