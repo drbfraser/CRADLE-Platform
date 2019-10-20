@@ -14,3 +14,4 @@ flask_bcrypt
 jsonschema
 flask_script
 environs
+numpy

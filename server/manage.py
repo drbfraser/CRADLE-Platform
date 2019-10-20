@@ -5,6 +5,7 @@ import string
 import uuid
 import sys
 import datetime
+import numpy as np
 from random import randrange
 from datetime import timedelta, datetime
 from flask_script import Manager
@@ -71,7 +72,7 @@ def seed():
 
         numOfReadings = random.randint(1,5)
         dateList = [getRandomDate() for i in range(numOfReadings)]
-        dateList.sort(reverse = True)
+        dateList.sort()
 
         for i in range(numOfReadings):
             readingId = str(uuid.uuid4())
@@ -83,7 +84,7 @@ def seed():
                 "dateTimeTaken": dateList[i],
                 "readingId": readingId,
                 "bpSystolic": getRandomBpSystolic(),
-                "bpDiastolic": getRandomBpSystolic(),
+                "bpDiastolic": getRandomBpDiastolic(),
                 "heartRateBPM": getRandomHeartRateBPM(),
                 "symptoms": getRandomSymptoms(),
             }
@@ -113,13 +114,13 @@ def getRandomAge():
     return random.randint(20,40)
 
 def getRandomBpSystolic():
-    return random.randint(70,190)
+    return random.choice(bpSystolicList)
 
 def getRandomBpDiastolic():
-    return random.randint(40,100)
+    return random.choice(bpDiastolicList)
 
 def getRandomHeartRateBPM():
-    return random.randint(50,90)
+    return random.choice(heartRateList)
 
 def getRandomHealthFacilityName():
     return random.choice(healthFacilityList)
@@ -159,6 +160,9 @@ if __name__ == "__main__":
     healthFacilityList = ['H1233', 'H2555', 'H3445', 'H5123']
     symptomsList = ['HEADACHE', 'BLURRED VISION', 'ABDO PAIN', 'BLEEDING', 'FEVERISH']
     sexList = ['FEMALE', 'MALE']
+    bpSystolicList = list(np.random.normal(120, 20, 1000).astype(int))
+    bpDiastolicList = list(np.random.normal(80, 20, 1000).astype(int))
+    heartRateList = list(np.random.normal(60,15,1000).astype(int))
 
     d1 = datetime.strptime('1/1/2019 12:01 AM', '%m/%d/%Y %I:%M %p')
     d2 = datetime.strptime('12/31/2019 11:59 PM', '%m/%d/%Y %I:%M %p')
