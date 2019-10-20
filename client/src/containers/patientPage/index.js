@@ -48,7 +48,7 @@ class PatientPage extends Component {
         {this.state.showSelectedPatient ? (
           <PatientSummary callbackFromParent={this.backBtnCallback} selectedPatient={this.state.selectedPatient}></PatientSummary>
         ) : (
-          <PatientTable callbackFromParent={this.patientCallback} data={this.props.patients.patientsList}></PatientTable>
+          <PatientTable callbackFromParent={this.patientCallback} data={this.props.patients.patientsList} isLoading={this.props.patients.isLoading}></PatientTable>
         )}
       </div>
     )

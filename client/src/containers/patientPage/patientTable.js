@@ -50,6 +50,7 @@ class PatientTable extends Component {
         return (
             <MaterialTable
                 title="Patients Table"
+                isLoading={this.props.isLoading}
                 columns={this.state.columns}
                 data={this.props.data}
                 options={{
