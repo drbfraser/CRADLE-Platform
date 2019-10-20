@@ -8,21 +8,18 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import moment from 'moment';
 import { updatePatient } from '../../actions/patients'
 import { getPatients } from '../../actions/patients'
-
-
 
 import { Button,
   Header, Image, Modal,
   Divider, Form, Select,
   Input, TextArea, Item
 } from 'semantic-ui-react'
+import { ReactComponent as GreenTraffic } from './drawable/green.svg';
+import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
+import { ReactComponent as RedTraffic } from './drawable/red.svg';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -86,23 +83,110 @@ class PatientSummary extends Component {
     this.setState({'selectedPatient': { ...this.state.selectedPatient, [value.name] : value.value } })
   }
 
-  createReadings = (dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms) => {
-    return { dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms }
+  createReadings = (readingId, dateTimeTaken, bpDiastolic,
+                    bpSystolic, heartRateBPM, symptoms,
+                    trafficLightStatus, isReferred, dateReferred,
+                    drugHistory, medicalHistory) => {
+    return { readingId, dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms,
+             trafficLightStatus, isReferred, dateReferred, drugHistory, medicalHistory }
   }
 
+  sortReadings = (readings) => {
+    let sortedReadings = readings.sort((a,b) => this.getMomentDate(b.dateTimeTaken).valueOf() - this.getMomentDate(a.dateTimeTaken).valueOf())
+    return sortedReadings
+  }
+
+  getMomentDate = (dateStr) => {
+    var dateStr = dateStr.slice(0,19)
+    return moment(dateStr);
+  }
+
+  getPrettyDate = (dateStr) => {
+    return this.getMomentDate(dateStr).format("MMMM Do YYYY, h:mm:ss a");
+  }
+
+  getTrafficIcon = (trafficLightStatus) => {
+    console.log(trafficLightStatus)
+    if (trafficLightStatus == "RED_DOWN") {
+      return <div>
+              <RedTraffic style={{"height":"75px", "width":"75px"}} />
+              <Icon name="arrow down" size="huge" />
+             </div>
+    } else if (trafficLightStatus == "RED_UP") {
+      console.log('got red up')
+        return <div>
+                <RedTraffic style={{"height":"75px", "width":"75px"}} />
+                <Icon name="arrow up" size="huge" />
+               </div>
+    } else if (trafficLightStatus == "YELLOW_UP") {
+        console.log('got yellow up')
+        return <div>
+                <YellowTraffic style={{"height":"75px", "width":"75px"}} />
+                <Icon name="arrow up" size="huge" />
+               </div>
+    } else if (trafficLightStatus == "YELLOW_DOWN") {
+        return <div>
+                <YellowTraffic style={{"height":"75px", "width":"75px"}} />
+                <Icon name="arrow down" size="huge" />
+               </div>
+    } else {
+        return <GreenTraffic style={{"height":"75px", "width":"75px"}} />
+    }
+  }
+
+  getReferralOrAssessment = (row) => {
+    const isReferred = row.isReferred
+    // const isAssessed = row.isAssessed
+    if (isReferred) {
+      // TODO: make another check to see if they have been assessed
+      // if (isAssessed) {
+
+      // }
+
+      return <div style={{"padding" : "80px 0px"}}>
+              <Typography variant="h4" component="h4">
+                Referral Pending
+              </Typography>
+
+              <Typography variant="subtitle1" component="subtitle1">
+                Created {this.getPrettyDate(row.dateReferred)}
+              </Typography>
+              <br/> <br/>
+              <Button style={{"backgroundColor" : "#84ced4"}} size="large">Assess</Button>
+            </div>
+    } else {
+      return  <div style={{"padding" : "80px 0px"}}>
+                <Typography variant="h4" component="h4">
+                  No Referral
+                </Typography>
+              </div>
+    }
+  }
 
   render() {
+    console.log(this.state.selectedPatient)
     let readings = [];
 
     if (this.props.selectedPatient.readings.length > 0) {
       for (var i = 0; i < this.props.selectedPatient.readings.length; i++) {
+        const readingId = this.props.selectedPatient.readings[i]['readingId']
         const dateTimeTaken = this.props.selectedPatient.readings[i]['dateTimeTaken']
         const bpDiastolic = this.props.selectedPatient.readings[i]['bpDiastolic']
         const bpSystolic = this.props.selectedPatient.readings[i]['bpSystolic']
         const heartRateBPM = this.props.selectedPatient.readings[i]['heartRateBPM']
         const symptoms = this.props.selectedPatient.readings[i]['symptoms']
-        readings.push(this.createReadings(dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms))
+        const trafficLightStatus = this.props.selectedPatient.readings[i]['trafficLightStatus']
+        const isReferred = this.props.selectedPatient.readings[i]['referral'] ? true : false
+        const dateReferred = this.props.selectedPatient.readings[i]['dateReferred']
+        const medicalHistory = this.props.selectedPatient.readings[i]['medicalHistory']
+        const drugHistory = this.props.selectedPatient.readings[i]['drugHistory']
+        readings.push(this.createReadings(readingId, dateTimeTaken, bpDiastolic,
+                                          bpSystolic, heartRateBPM, symptoms,
+                                          trafficLightStatus, isReferred, dateReferred,
+                                          medicalHistory, drugHistory))
       }
+
+      readings = this.sortReadings(readings)
     }
 
     return (
@@ -119,6 +203,7 @@ class PatientSummary extends Component {
             <Grid item xs={6} style={{"minWidth" : "500px"}} >
               <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
                 <Typography variant="h5" component="h3">
+                  <Icon style={{"line-height" : "0.7em"}} name="address card outline" size="large" />
                   Medical Information
                 </Typography>
                 <Divider />
@@ -137,8 +222,7 @@ class PatientSummary extends Component {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
                       <Typography>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                        sit amet blandit leo lobortis eget.
+                        {this.state.selectedPatient.medicalHistory}
                       </Typography>
                     </ExpansionPanelDetails>
                   </ExpansionPanel>
@@ -152,8 +236,7 @@ class PatientSummary extends Component {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
                       <Typography>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                        sit amet blandit leo lobortis eget.
+                        {this.state.selectedPatient.drugHistory}
                       </Typography>
                     </ExpansionPanelDetails>
                   </ExpansionPanel>
@@ -165,6 +248,7 @@ class PatientSummary extends Component {
             <Grid item xs={6} style={{"minWidth" : "500px", "height": '100%'}} >
               <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
                 <Typography variant="h5" component="h3">
+                  <Icon style={{"line-height" : "0.7em"}} name="heartbeat" size="large" />
                   Vitals Over Time
                 </Typography>
                 <Divider/>
@@ -174,15 +258,19 @@ class PatientSummary extends Component {
           <br/>
           <Grid container spacing={0}>
           {readings.map(row => (
-              <Grid item xs={12}>
+              <Grid key={row.readingId} xs={12}>
               <Paper style={{"marginBottom":"35px", "height":"400px", "padding" : "45px 50px", "borderRadius" : "15px"}}>
                   <div style={{"display": "inline-block", "width":"50%"}}>
                     <Typography variant="h4" component="h4">
                       Reading
                     </Typography>
 
-                    <div style={{"padding" : "15px 50px"}}>
-                      <Icon size="huge" name="alarm" />
+                    <Typography variant="subtitle1" component="subtitle1">
+                      Taken on {this.getPrettyDate(row.dateTimeTaken)}
+                    </Typography>
+
+                    <div style={{"padding" : "25px 50px"}}>
+                      {this.getTrafficIcon(row.trafficLightStatus)}
                       <br/><br/>
                       <p><b>Systolic Blood Pressure: </b> {row.bpSystolic} </p>
                       <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>
@@ -191,10 +279,8 @@ class PatientSummary extends Component {
                     </div>
                   </div>
                   <div style={{"borderLeft": "2px solid #84ced4", "display": "inline-block", "width":"50%", "float": "right", "height" : "100%"}}>
-                    <div style={{"padding" : "15px 50px"}}>
-                      <Typography variant="h4" component="h4">
-                        Assessment
-                      </Typography>
+                    <div style={{"padding" : "0px 50px"}}>
+                      {this.getReferralOrAssessment(row)}
                     </div>
                   </div>
                 </Paper>
