@@ -49,12 +49,10 @@ class PatientSummary extends Component {
   }
 
   openPatientModal = () => {
-    console.log('open patient modal')
     this.setState({ displayPatientModal: true })
   }
 
   closePatientModal = () => {
-    console.log('close patient modal')
     this.setState({ displayPatientModal: false })
   }
 
@@ -70,16 +68,12 @@ class PatientSummary extends Component {
     delete patientData.patientId
 
     let patientJSON = JSON.stringify( patientData );
-    console.log(patientJSON)
     
     this.props.updatePatient(patientId,patientData)
     this.closePatientModal()
-
-
   }
 
   handleSelectChange = (e, value) => {
-    console.log(value)
     this.setState({'selectedPatient': { ...this.state.selectedPatient, [value.name] : value.value } })
   }
 
@@ -106,20 +100,17 @@ class PatientSummary extends Component {
   }
 
   getTrafficIcon = (trafficLightStatus) => {
-    console.log(trafficLightStatus)
     if (trafficLightStatus == "RED_DOWN") {
       return <div>
               <RedTraffic style={{"height":"75px", "width":"75px"}} />
               <Icon name="arrow down" size="huge" />
              </div>
     } else if (trafficLightStatus == "RED_UP") {
-      console.log('got red up')
         return <div>
                 <RedTraffic style={{"height":"75px", "width":"75px"}} />
                 <Icon name="arrow up" size="huge" />
                </div>
     } else if (trafficLightStatus == "YELLOW_UP") {
-        console.log('got yellow up')
         return <div>
                 <YellowTraffic style={{"height":"75px", "width":"75px"}} />
                 <Icon name="arrow up" size="huge" />
@@ -164,7 +155,6 @@ class PatientSummary extends Component {
   }
 
   render() {
-    console.log(this.state.selectedPatient)
     let readings = [];
 
     if (this.props.selectedPatient.readings.length > 0) {
