@@ -160,9 +160,9 @@ if __name__ == "__main__":
     healthFacilityList = ['H1233', 'H2555', 'H3445', 'H5123']
     symptomsList = ['HEADACHE', 'BLURRED VISION', 'ABDO PAIN', 'BLEEDING', 'FEVERISH']
     sexList = ['FEMALE', 'MALE']
-    bpSystolicList = list(np.random.normal(120, 20, 1000).astype(int))
-    bpDiastolicList = list(np.random.normal(80, 20, 1000).astype(int))
-    heartRateList = list(np.random.normal(60,15,1000).astype(int))
+    bpSystolicList = list(np.random.normal(120, 35, 1000).astype(int))
+    bpDiastolicList = list(np.random.normal(80, 25, 1000).astype(int))
+    heartRateList = list(np.random.normal(60,17,1000).astype(int))
 
     d1 = datetime.strptime('1/1/2019 12:01 AM', '%m/%d/%Y %I:%M %p')
     d2 = datetime.strptime('12/31/2019 11:59 PM', '%m/%d/%Y %I:%M %p')
