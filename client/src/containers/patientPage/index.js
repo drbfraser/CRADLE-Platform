@@ -23,7 +23,9 @@ class PatientPage extends Component {
         return
       }
       
-      this.props.getPatients()
+      if (this.props.patients.patientsList.length == 0) {
+        this.props.getPatients()
+      }
     })
   }
 
