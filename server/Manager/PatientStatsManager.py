@@ -54,19 +54,19 @@ class PatientStatsManager():
         
         # getting all bpSystolic readings for each month
         bp_systolic = self.get_data('bpSystolic', readings, patient_id)
-        self.clean_up_data(bp_systolic)
+        #self.clean_up_data(bp_systolic)
 
         # getting all bpDiastolic readings for each month
         bp_diastolic = self.get_data('bpDiastolic', readings, patient_id)
-        self.clean_up_data(bp_diastolic)
+        #self.clean_up_data(bp_diastolic)
 
         # getting all heart rate readings for each month
         heart_rate = self.get_data('heartRateBPM', readings, patient_id)
-        self.clean_up_data(heart_rate)
+        #self.clean_up_data(heart_rate)
 
         # getting all traffic light statuses for each month
         traffic_light_statuses = self.get_data('trafficLightStatus', readings, patient_id)
-        self.clean_up_data(traffic_light_statuses)
+        #self.clean_up_data(traffic_light_statuses)
 
 
         # putting data into one object now
