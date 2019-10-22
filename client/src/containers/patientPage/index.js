@@ -23,7 +23,9 @@ class PatientPage extends Component {
         return
       }
       
-      this.props.getPatients()
+      if (this.props.patients.patientsList.length == 0) {
+        this.props.getPatients()
+      }
     })
   }
 
@@ -46,14 +48,9 @@ class PatientPage extends Component {
     return (
       <div>
         {this.state.showSelectedPatient ? (
-          // <div>
-          //   <Button onClick={() => this.setState({ 'showSelectedPatient' : false }) }>Back</Button>
-          //   <h1>Patient Summary</h1>
-          //   <h2>{this.state.selectedPatient.patientName}</h2>
-          // </div>
           <PatientSummary callbackFromParent={this.backBtnCallback} selectedPatient={this.state.selectedPatient}></PatientSummary>
         ) : (
-          <PatientTable callbackFromParent={this.patientCallback} data={this.props.patients.patientsList}></PatientTable>
+          <PatientTable callbackFromParent={this.patientCallback} data={this.props.patients.patientsList} isLoading={this.props.patients.isLoading}></PatientTable>
         )}
       </div>
     )

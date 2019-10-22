@@ -8,21 +8,18 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import moment from 'moment';
 import { updatePatient } from '../../actions/patients'
 import { getPatients } from '../../actions/patients'
-
-
 
 import { Button,
   Header, Image, Modal,
   Divider, Form, Select,
   Input, TextArea, Item
 } from 'semantic-ui-react'
+import { ReactComponent as GreenTraffic } from './drawable/green.svg';
+import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
+import { ReactComponent as RedTraffic } from './drawable/red.svg';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -52,12 +49,10 @@ class PatientSummary extends Component {
   }
 
   openPatientModal = () => {
-    console.log('open patient modal')
     this.setState({ displayPatientModal: true })
   }
 
   closePatientModal = () => {
-    console.log('close patient modal')
     this.setState({ displayPatientModal: false })
   }
 
@@ -73,61 +68,140 @@ class PatientSummary extends Component {
     delete patientData.patientId
 
     let patientJSON = JSON.stringify( patientData );
-    console.log(patientJSON)
     
     this.props.updatePatient(patientId,patientData)
     this.closePatientModal()
-
-
   }
 
   handleSelectChange = (e, value) => {
-    console.log(value)
     this.setState({'selectedPatient': { ...this.state.selectedPatient, [value.name] : value.value } })
   }
 
-  createReadings = (dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms) => {
-    return { dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms }
+  createReadings = (readingId, dateTimeTaken, bpDiastolic,
+                    bpSystolic, heartRateBPM, symptoms,
+                    trafficLightStatus, isReferred, dateReferred,
+                    drugHistory, medicalHistory) => {
+    return { readingId, dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms,
+             trafficLightStatus, isReferred, dateReferred, drugHistory, medicalHistory }
   }
 
+  sortReadings = (readings) => {
+    let sortedReadings = readings.sort((a,b) => this.getMomentDate(b.dateTimeTaken).valueOf() - this.getMomentDate(a.dateTimeTaken).valueOf())
+    return sortedReadings
+  }
+
+  getMomentDate = (dateStr) => {
+    var dateStr = dateStr.slice(0,19)
+    return moment(dateStr);
+  }
+
+  getPrettyDate = (dateStr) => {
+    return this.getMomentDate(dateStr).format("MMMM Do YYYY, h:mm:ss a");
+  }
+
+  getTrafficIcon = (trafficLightStatus) => {
+    if (trafficLightStatus == "RED_DOWN") {
+      return <div>
+              <RedTraffic style={{"height":"75px", "width":"75px"}} />
+              <Icon name="arrow down" size="huge" />
+             </div>
+    } else if (trafficLightStatus == "RED_UP") {
+        return <div>
+                <RedTraffic style={{"height":"75px", "width":"75px"}} />
+                <Icon name="arrow up" size="huge" />
+               </div>
+    } else if (trafficLightStatus == "YELLOW_UP") {
+        return <div>
+                <YellowTraffic style={{"height":"75px", "width":"75px"}} />
+                <Icon name="arrow up" size="huge" />
+               </div>
+    } else if (trafficLightStatus == "YELLOW_DOWN") {
+        return <div>
+                <YellowTraffic style={{"height":"75px", "width":"75px"}} />
+                <Icon name="arrow down" size="huge" />
+               </div>
+    } else {
+        return <GreenTraffic style={{"height":"75px", "width":"75px"}} />
+    }
+  }
+
+  getReferralOrAssessment = (row) => {
+    const isReferred = row.isReferred
+    // const isAssessed = row.isAssessed
+    if (isReferred) {
+      // TODO: make another check to see if they have been assessed
+      // if (isAssessed) {
+
+      // }
+
+      return <div style={{"padding" : "80px 0px"}}>
+              <Typography variant="h4" component="h4">
+                Referral Pending
+              </Typography>
+
+              <Typography variant="subtitle1" component="subtitle1">
+                Created {this.getPrettyDate(row.dateReferred)}
+              </Typography>
+              <br/> <br/>
+              <Button style={{"backgroundColor" : "#84ced4"}} size="large">Assess</Button>
+            </div>
+    } else {
+      return  <div style={{"padding" : "80px 0px"}}>
+                <Typography variant="h4" component="h4">
+                  No Referral
+                </Typography>
+              </div>
+    }
+  }
 
   render() {
     let readings = [];
 
     if (this.props.selectedPatient.readings.length > 0) {
       for (var i = 0; i < this.props.selectedPatient.readings.length; i++) {
+        const readingId = this.props.selectedPatient.readings[i]['readingId']
         const dateTimeTaken = this.props.selectedPatient.readings[i]['dateTimeTaken']
         const bpDiastolic = this.props.selectedPatient.readings[i]['bpDiastolic']
         const bpSystolic = this.props.selectedPatient.readings[i]['bpSystolic']
         const heartRateBPM = this.props.selectedPatient.readings[i]['heartRateBPM']
         const symptoms = this.props.selectedPatient.readings[i]['symptoms']
-        readings.push(this.createReadings(dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms))
+        const trafficLightStatus = this.props.selectedPatient.readings[i]['trafficLightStatus']
+        const isReferred = this.props.selectedPatient.readings[i]['referral'] ? true : false
+        const dateReferred = this.props.selectedPatient.readings[i]['dateReferred']
+        const medicalHistory = this.props.selectedPatient.readings[i]['medicalHistory']
+        const drugHistory = this.props.selectedPatient.readings[i]['drugHistory']
+        readings.push(this.createReadings(readingId, dateTimeTaken, bpDiastolic,
+                                          bpSystolic, heartRateBPM, symptoms,
+                                          trafficLightStatus, isReferred, dateReferred,
+                                          medicalHistory, drugHistory))
       }
+
+      readings = this.sortReadings(readings)
     }
 
     return (
       <div>
       {this.state.selectedPatient ? (
         <div >
-          <Button onClick={() => this.handleBackBtn() }>Back</Button>
-          
-          <h1>Patient Summary</h1>
-
+          <h1>
+            <Icon style={{"cursor" : "pointer", "line-height" : "0.7em"}} size="large" name="chevron left" onClick={() => this.handleBackBtn() }/>
+            Patient Summary : {this.state.selectedPatient.patientName}
+          </h1>
           <Divider />
 
-          <Grid container spacing={0} justify="center">
-            <Grid item xs={8}>
-              <Paper style={{"padding" : "24px 16px"}}>
+          <Grid container direction="row" spacing={4} >
+            <Grid item xs={6} style={{"minWidth" : "500px"}} >
+              <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
                 <Typography variant="h5" component="h3">
-                  Patient Information
+                  <Icon style={{"line-height" : "0.7em"}} name="address card outline" size="large" />
+                  Medical Information
                 </Typography>
                 <Divider />
-                <Typography component="p">
-                  Patient ID: {this.state.selectedPatient.patientId} <br/>
-                  Patient Initials: {this.state.selectedPatient.patientName} <br/>
-                  Patient Age: {this.state.selectedPatient.patientAge} <br/>
-                  Patient Sex: {this.state.selectedPatient.patientSex} <br/>
-                  Pregant: {this.state.selectedPatient.isPregnant ? "Yes" : "No"} <br/>
+                <div style={{"padding" : "20px 50px"}}>
+                  <p><b>Patient ID: </b> {this.state.selectedPatient.patientId} </p>
+                  <p><b>Patient Age: </b> {this.state.selectedPatient.patientAge} </p>
+                  <p><b>Patient Sex: </b> {this.state.selectedPatient.patientSex} </p>
+                  <p><b>Pregant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
                   <ExpansionPanel>
                     <ExpansionPanelSummary
                       expandIcon={<Icon name="chevron down" />}
@@ -138,8 +212,7 @@ class PatientSummary extends Component {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
                       <Typography>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                        sit amet blandit leo lobortis eget.
+                        {this.state.selectedPatient.medicalHistory}
                       </Typography>
                     </ExpansionPanelDetails>
                   </ExpansionPanel>
@@ -153,51 +226,57 @@ class PatientSummary extends Component {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
                       <Typography>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                        sit amet blandit leo lobortis eget.
+                        {this.state.selectedPatient.drugHistory}
                       </Typography>
                     </ExpansionPanelDetails>
                   </ExpansionPanel>
                   <Divider />
                   <Button onClick={() => this.openPatientModal() }>Edit Patient</Button>
+                </div>
+              </Paper>
+            </Grid>
+            <Grid item xs={6} style={{"minWidth" : "500px", "height": '100%'}} >
+              <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
+                <Typography variant="h5" component="h3">
+                  <Icon style={{"line-height" : "0.7em"}} name="heartbeat" size="large" />
+                  Vitals Over Time
                 </Typography>
+                <Divider/>
               </Paper>
             </Grid>
           </Grid>
           <br/>
           <Grid container spacing={0}>
-            <Grid item xs={12}>
-            <Paper style={{"padding" : "24px 16px"}}>
-                <Typography variant="h6" component="h6">
-                  All Readings
-                </Typography>
-                <Divider />
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Systolic</TableCell>
-                      <TableCell align="right">Diastolic</TableCell>
-                      <TableCell align="right">Heart Rate(BPM)</TableCell>
-                      <TableCell align="right">Symptoms</TableCell>
-                      <TableCell align="right">Date Taken</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {readings.map(row => (
-                      <TableRow key={row.dateReferred}>
-                        <TableCell component="th" scope="row">
-                          {row.bpSystolic}
-                        </TableCell>
-                        <TableCell align="right">{row.bpDiastolic}</TableCell>
-                        <TableCell align="right">{row.heartRateBPM}</TableCell>
-                        <TableCell align="right">{row.symptoms}</TableCell>
-                        <TableCell align="right">{row.dateTimeTaken}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Paper>
-            </Grid>
+          {readings.map(row => (
+              <Grid key={row.readingId} xs={12}>
+              <Paper style={{"marginBottom":"35px", "height":"400px", "padding" : "45px 50px", "borderRadius" : "15px"}}>
+                  <div style={{"display": "inline-block", "width":"50%"}}>
+                    <Typography variant="h4" component="h4">
+                      Reading
+                    </Typography>
+
+                    <Typography variant="subtitle1" component="subtitle1">
+                      Taken on {this.getPrettyDate(row.dateTimeTaken)}
+                    </Typography>
+
+                    <div style={{"padding" : "25px 50px"}}>
+                      {this.getTrafficIcon(row.trafficLightStatus)}
+                      <br/><br/>
+                      <p><b>Systolic Blood Pressure: </b> {row.bpSystolic} </p>
+                      <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>
+                      <p><b>Heart Rate (BPM): </b> {row.heartRateBPM} </p>
+                      <p><b>Symptoms: </b> {row.symptoms} </p>
+                    </div>
+                  </div>
+                  <div style={{"borderLeft": "2px solid #84ced4", "display": "inline-block", "width":"50%", "float": "right", "height" : "100%"}}>
+                    <div style={{"padding" : "0px 50px"}}>
+                      {this.getReferralOrAssessment(row)}
+                    </div>
+                  </div>
+                </Paper>
+              </Grid>
+            ))}
+
           </Grid>
 
           <Modal closeIcon onClose={this.closePatientModal} open={this.state.displayPatientModal}>
