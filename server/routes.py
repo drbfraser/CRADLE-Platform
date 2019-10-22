@@ -11,12 +11,16 @@ from Controller.ReferralsController import ReferralApi, ReferralInfo
 from Controller.HealthFacilityController import HealthFacility
 from Controller.FollowUpController import FollowUp
 from Controller.StatsController import *
+from Controller.PatientStatsController import *
+
+
 
 
 def init(api):
     api.add_resource(HelloWorld, '/api/hello-world')
     api.add_resource(Multi, '/api/multi/<int:num>')
     api.add_resource(AllStats, '/api/stats') # [GET]
+    api.add_resource(PatientStats,'/api/patient/stats/<string:patient_id>') # [GET]
 
     api.add_resource(UserApi, '/api/user/register') # [POST]
     api.add_resource(UserAuthApi, '/api/user/auth') # [POST]
