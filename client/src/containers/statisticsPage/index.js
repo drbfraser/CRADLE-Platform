@@ -30,6 +30,15 @@ class StatisticsPage extends Component {
     const xLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     const trafficLightLabels = ['GREEN', 'YELLOW UP', 'YELLOW DOWN', 'RED UP', 'RED DOWN']
 
+    var getDate = new Date();
+    var getMonth = getDate.getMonth();
+
+    const readings = this.props.statisticsList.readingsPerMonth
+    var readingArray = []
+    for (var i in readings) {
+      readingArray.push(readings[i])
+    }
+
     const readingsPerMonth = {
       label: 'Total Number of Readings',
       fill: false,
@@ -37,7 +46,13 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(75,192,192,0.4)',
       borderColor: 'rgba(75,192,192,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.readingsPerMonth
+      data: readings
+    }
+
+    const referrals = this.props.statisticsList.referralsPerMonth
+    var referralsArray = []
+    for (var i in referrals) {
+      referralsArray.push(referrals[i])
     }
 
     const referralsPerMonth = {
@@ -47,7 +62,13 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(148,0,211,0.4)',
       borderColor: 'rgba(148,0,211,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.referralsPerMonth
+      data: referrals
+    }
+
+    const assesment = this.props.statisticsList.assesmentsPerMonth
+    var assesmentArray = []
+    for (var i in assesment) {
+      assesmentArray.push(assesment[i])
     }
 
     const assesmentsPerMonth = {
@@ -57,7 +78,13 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(255,127,80,0.4)',
       borderColor: 'rgba(255,127,80,1)',
       pointRadius: 1,
-      data: this.props.assesmentsPerMonth
+      data: assesment
+    }
+
+    const referralsWomen = this.props.statisticsList.referralsWomenPerMonth
+    var referralsWomenArray = []
+    for (var i in referralsWomen) {
+      referralsWomenArray.push(referralsWomen[i])
     }
 
     const referralsWomenPerMonth = {
@@ -67,7 +94,13 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(21,21,43,0.4)',
       borderColor: 'rgba(21,21,43,1)',
       pointRadius: 1,
-      data: this.props.referralsWomenPerMonth
+      data: referralsWomen
+    }
+
+    const referralsPregnantWomen = this.props.statisticsList.referralsPregnantWomenPerMonth
+    var referralsPregnantWomenArray = []
+    for (var i in referralsPregnantWomen) {
+      referralsPregnantWomenArray.push(referralsPregnantWomen[i])
     }
 
     const referralsPregnantWomenPerMonth = {
@@ -77,7 +110,13 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(75,192,192,0.4)',
       borderColor: 'rgba(75,192,192,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.referralsPregnantWomenPerMonth
+      data: referralsPregnantWomen
+    }
+
+    const assesmentsWomen = this.props.statisticsList.assesmentsWomenPerMonth
+    var assesmentsWomenArray =[]
+    for (var i in assesmentsWomen) {
+      assesmentsWomenArray.push(assesmentsWomen[i])
     }
 
     const assesmentsWomenPerMonth = {
@@ -87,7 +126,13 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(148,0,211,0.4)',
       borderColor: 'rgba(148,0,211,1)',
       pointRadius: 1,
-      data: this.props.assesmentsWomenPerMonth
+      data: assesmentsWomen
+    }
+
+    const assesmentsPregnantWomen = this.props.statisticsList.assesmentsPregnantWomenPerMonth
+    var assesmentsPregnantWomenArray =[]
+    for (var i in assesmentsPregnantWomen) {
+      assesmentsPregnantWomenArray.push(assesmentsPregnantWomen[i])
     }
 
     const assesmentsPregnantWomenPerMonth = {
@@ -119,11 +164,11 @@ class StatisticsPage extends Component {
       ]
     }
 
-    const trafficLight = {
+    var trafficLight = {
       labels: trafficLightLabels,
       datasets: [{
         backgroundColor: ['green', 'yellow', 'yellow', 'red', 'red'],
-        data: [10,8,6,4,2]
+        data: [5,4,3,2,1]
       }]
     }
 
@@ -155,15 +200,15 @@ class StatisticsPage extends Component {
             <h2>In the last month, there were:</h2>
             <Statistic.Group>
               <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineBlue'>47</Statistic.Value>
+                <Statistic.Value className='underlineBlue'>{readingArray[getMonth-1]}</Statistic.Value>
                 <Statistic.Label className='virticalWritting'>READINGS TAKEN</Statistic.Label>
               </Statistic>
               <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlinePurple'>26</Statistic.Value>
+                <Statistic.Value className='underlinePurple'>{referralsArray[getMonth-1]}</Statistic.Value>
                 <Statistic.Label className='virticalWritting'>REFERRALS SENT</Statistic.Label>
               </Statistic>
               <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineOrange'>200</Statistic.Value>
+                <Statistic.Value className='underlineOrange'>{assesmentArray[getMonth-1]}</Statistic.Value>
                 <Statistic.Label className='virticalWritting'>ASSESSMENTS MADE</Statistic.Label>
               </Statistic>
             </Statistic.Group>
@@ -175,19 +220,19 @@ class StatisticsPage extends Component {
             <h2>A snapshot of all women assessed:</h2>
             <Statistic.Group>
               <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineBlack'>100</Statistic.Value>
+                <Statistic.Value className='underlineBlack'>{referralsWomenArray[getMonth-1]}</Statistic.Value>
                 <Statistic.Label className='virticalWritting'>WOMEN REFERRED</Statistic.Label>
               </Statistic>
               <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineBlue'>47</Statistic.Value>
+                <Statistic.Value className='underlineBlue'>{referralsPregnantWomenArray[getMonth-1]}</Statistic.Value>
                 <Statistic.Label className='virticalWritting'>PREGNANT WOMEN REFERRED</Statistic.Label>
               </Statistic>
               <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlinePurple'>26</Statistic.Value>
+                <Statistic.Value className='underlinePurple'>{assesmentsWomenArray[getMonth-1]}</Statistic.Value>
                 <Statistic.Label className='virticalWritting'>WOMEN ASSESSED</Statistic.Label>
               </Statistic>
               <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineOrange'>20</Statistic.Value>
+                <Statistic.Value className='underlineOrange'>{assesmentsPregnantWomenArray[getMonth-1]}</Statistic.Value>
                 <Statistic.Label className='virticalWritting'>PREGNANT WOMEN ASSESSED</Statistic.Label>
               </Statistic>
             </Statistic.Group>
