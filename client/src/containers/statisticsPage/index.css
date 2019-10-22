@@ -2,3 +2,10 @@
     padding-left: 5%;
     padding-right: 5%;
 }
+
+.underline {
+    background-color: #4bc0c0; 
+    width: 6%;
+    height: 2px;
+    border-color: #000;
+}

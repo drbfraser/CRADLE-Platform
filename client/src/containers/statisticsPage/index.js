@@ -116,11 +116,13 @@ class StatisticsPage extends Component {
 
     return (
       <div>
-        <h1>Statistics Page</h1>
+        <h1>Our Health Facility’s Statistics</h1>
         <div className='statisticBox'>
-          {/* <div>
-            <Statistic horizontal label='Patients' value='0' />
-          </div> */}
+          <div>
+            <h2>In the last month, our health facility assessed:</h2>
+            <Statistic horizontal label='PEOPLE' value='47' />
+            <div className='underline'>  </div>
+          </div>
           <div>
             <h2>Number of total cradle readings recorded</h2>
             <Line ref="chart" data={readings} />
