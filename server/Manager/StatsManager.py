@@ -14,7 +14,7 @@ readingManager = ReadingManager()
 # add init
 class StatsManager():
 
-    def set_traffic_light(self, item, data):
+    def get_traffic_light(self, item, data):
         yellow_up_index = 1
         yellow_down_index = 2
         red_up_index = 3
@@ -64,8 +64,8 @@ class StatsManager():
                 if(item['followUpId'] is not None):
                     data[month-1] += 1
             elif(category == 'trafficLight' and month == month_needed_for_for_traffic_light):
-                # setting traffic light data
-                self.set_traffic_light(item, data)
+                # get traffic light data
+                get.set_traffic_light(item, data)
                 
         return data
 
