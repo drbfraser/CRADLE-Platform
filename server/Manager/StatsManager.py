@@ -46,7 +46,7 @@ class StatsManager():
         if(category != 'trafficLight'):
             data = [0,0,0,0,0,0,0,0,0,0,0,0]
         
-        else(category == 'trafficLight'):
+        else:
             data = [0,0,0,0,0]
 
 
