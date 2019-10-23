@@ -65,7 +65,7 @@ class StatsManager():
                     data[month-1] += 1
             elif(category == 'trafficLight' and month == month_needed_for_for_traffic_light):
                 # get traffic light data
-                get_traffic_light(item, data)
+                self.get_traffic_light(item, data)
                 
         return data
 
