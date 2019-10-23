@@ -46,12 +46,9 @@ class StatsManager():
         if(category != 'trafficLight'):
             data = [0,0,0,0,0,0,0,0,0,0,0,0]
         
-        elif(category == 'trafficLight'):
+        else(category == 'trafficLight'):
             data = [0,0,0,0,0]
 
-        else:
-            print("invalid assessment optionl only 0 or 1 are valid options.")
-            #programmer error, fix function call
 
         today = datetime.today()
         month_needed_for_for_traffic_light = today.month - 1
