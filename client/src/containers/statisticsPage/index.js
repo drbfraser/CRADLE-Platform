@@ -63,27 +63,27 @@ class StatisticsPage extends Component {
       data: this.props.statisticsList.assessmentsPerMonth
     }
 
-    const referralsWomenPerMonth = {
+    const womenReferredPerMonth = {
       label: 'Total Number of Women Referred',
       fill: false,
       lineTension: 0.1,
       backgroundColor: 'rgba(21,21,43,0.4)',
       borderColor: 'rgba(21,21,43,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.womenReferralsPerMonth
+      data: this.props.statisticsList.womenReferredPerMonth
     }
 
-    const referralsPregnantWomenPerMonth = {
+    const pregnantWomenReferredPerMonth = {
       label: 'Total Number of Pregnant Women Referred',
       fill: false,
       lineTension: 0.1,
       backgroundColor: 'rgba(75,192,192,0.4)',
       borderColor: 'rgba(75,192,192,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.referralsPregnantWomenPerMonth
+      data: this.props.statisticsList.pregnantWomenReferredPerMonth
     }
 
-    const assessmentsWomenPerMonth = {
+    const womenAssessedPerMonth = {
       label: 'Total Number of Women Assessed',
       fill: false,
       lineTension: 0.1,
@@ -93,14 +93,14 @@ class StatisticsPage extends Component {
       data: this.props.statisticsList.womenAssessedPerMonth
     }
 
-    const assessmentsPregnantWomenPerMonth = {
+    const pregnantWomenAssessedPerMonth = {
       label: 'Total Number of Pregnant Women Assessed',
       fill: false,
       lineTension: 0.1,
       backgroundColor: 'rgba(255,127,80,0.4)',
       borderColor: 'rgba(255,127,80,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.assessmentsPregnantWomenPerMonth
+      data: this.props.statisticsList.pregnantWomenAssessedPerMonth
     }
 
     const readingsVsReferralsVsAssessment = {
@@ -115,20 +115,26 @@ class StatisticsPage extends Component {
     const womenReferralsVsAssessed = {
       labels: xLabels,
       datasets: [
-        referralsWomenPerMonth,
-        referralsPregnantWomenPerMonth,
-        assessmentsWomenPerMonth,
-        assessmentsPregnantWomenPerMonth
+        womenReferredPerMonth,
+        pregnantWomenReferredPerMonth,
+        womenAssessedPerMonth,
+        pregnantWomenAssessedPerMonth
       ]
     }
 
-    var trafficLight = {
-      labels: trafficLightLabels,
-      datasets: [{
-        backgroundColor: ['green', 'yellow', 'yellow', 'red', 'red'],
-        data: [5,4,3,2,1]
-      }]
+    var trafficLight = {}
+    if(this.props.statisticsList.trafficLightStatusLastMonth) {
+      trafficLight = {
+        labels: trafficLightLabels,
+        datasets: [{
+          backgroundColor: ['green', 'yellow', 'yellow', 'red', 'red'],
+          data: Object.values(this.props.statisticsList.trafficLightStatusLastMonth)
+        }]
+      }
     }
+    
+
+
 
     return (
       <div>
@@ -136,20 +142,25 @@ class StatisticsPage extends Component {
           <h1 className='headerSize'>Our Health Facility’s Statistics</h1>
           <div>
             <h2>In the last month, our health facility assessed:</h2>
-            <Statistic.Group>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineBlue'>47</Statistic.Value>
-                <Statistic.Label>PEOPLE</Statistic.Label>
-              </Statistic>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineBlue'>26</Statistic.Value>
-                <Statistic.Label>WOMEN</Statistic.Label>
-              </Statistic>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineBlue'>200</Statistic.Value>
-                <Statistic.Label className='virticalWritting'>PREGNANT WOMEN</Statistic.Label>
-              </Statistic>
-            </Statistic.Group>
+            {(this.props.statisticsList.uniquePeopleAssesedPerMonth
+            || this.props.statisticsList.womenAssessedPerMonth
+            || this.props.statisticsList.pregnantWomenAssessedPerMonth) ? (
+              <Statistic.Group>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.uniquePeopleAssesedPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label>PEOPLE</Statistic.Label>
+                </Statistic>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.womenAssessedPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label>WOMEN</Statistic.Label>
+                </Statistic>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.pregnantWomenAssessedPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label className='virticalWritting'>PREGNANT WOMEN</Statistic.Label>
+                </Statistic>
+              </Statistic.Group>
+            ) : (<div></div>)
+            }
           </div>
           <br/>
           <br/>
@@ -187,7 +198,7 @@ class StatisticsPage extends Component {
             && this.props.statisticsList.assessmentsPregnantWomenPerMonth) ? (
               <Statistic.Group>
                 <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineBlack'>{this.props.statisticsList.womenReferralsPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Value className='underlineBlack'>{this.props.statisticsList.pregnantWomenReferredPerMonth[getMonth-1]}</Statistic.Value>
                   <Statistic.Label className='virticalWritting'>WOMEN REFERRED</Statistic.Label>
                 </Statistic>
                 <Statistic horizontal className='statSubBox'>
@@ -199,7 +210,7 @@ class StatisticsPage extends Component {
                   <Statistic.Label className='virticalWritting'>WOMEN ASSESSED</Statistic.Label>
                 </Statistic>
                 <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineOrange'>{this.props.statisticsList.assessmentsPregnantWomenPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Value className='underlineOrange'>{this.props.statisticsList.pregnantWomenAssessedPerMonth[getMonth-1]}</Statistic.Value>
                   <Statistic.Label className='virticalWritting'>PREGNANT WOMEN ASSESSED</Statistic.Label>
                 </Statistic>
             </Statistic.Group>
@@ -212,6 +223,7 @@ class StatisticsPage extends Component {
           <br/>
           <div>
             <h2>Traffic lights from last month:</h2>
+            <br/>
             <Bar ref="chart" className='chartBox' data={trafficLight} options={{legend: {display: false}, scales: {yAxes: [{ticks: {beginAtZero: true}}]}}} />
           </div>
         </div>
