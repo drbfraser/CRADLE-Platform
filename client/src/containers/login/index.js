@@ -48,7 +48,6 @@ class Login extends Component {
           <br/>
           <div className="flexbox">
             <input className="contant-submit white" type='submit'/>
-            <Link className="link" style={{ textDecoration: 'none' }} to="/signup"> Sign up </Link>
           </div>
           
         </form>
