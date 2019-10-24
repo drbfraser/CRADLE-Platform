@@ -25,12 +25,12 @@ class PatientManager(Manager):
                     # build the reading json to add to array
                     reading_json = readingManager.read("readingId", reading)
 
-                    print(json.dumps(reading_json, indent=2, sort_keys=True))
+                    # print(json.dumps(reading_json, indent=2, sort_keys=True))
 
                     # add referral if exists in reading
                     if reading_json["referral"]:
                         top_ref = referralManager.read("id", reading_json["referral"])
-                        print("top_ref: " + json.dumps(top_ref, indent=2, sort_keys=True))
+                        # print("top_ref: " + json.dumps(top_ref, indent=2, sort_keys=True))
                     
                         reading_json['comment'] = top_ref["comment"]
                         reading_json['dateReferred'] = top_ref["dateReferred"]
