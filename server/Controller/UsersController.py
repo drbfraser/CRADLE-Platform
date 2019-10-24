@@ -14,17 +14,21 @@ class UserApi(Resource):
         data = validate_user(request.get_json())
         if data['ok']:
             data = data['data']
+
+            # get password
             data['password'] = flask_bcrypt.generate_password_hash(data['password'])
+
+            # find the role of the user
+            role = Role.query.filter_by(name=data['role']).first()
+            del data['role']
             
             # Add a new patient to db
-            # TODO: properly handle role for user, currently default to 'HCW'
             user_schema = UserSchema()
-            role_hcw = Role.query.filter_by(name='HCW').first()
-
             new_user = user_schema.load(data, session=db.session)
-            role_hcw.users.append(new_user) # add new user to 'HCW' role
 
-            db.session.add(role_hcw)
+            role.users.append(new_user) # add new user to their role
+
+            db.session.add(role) # add user and role
             db.session.commit()
 
             return {}, 200
@@ -47,6 +51,7 @@ class UserAuthApi(Resource):
 
                 # setup any extra user params
                 data['role'] = user.roleIds[0].name.name # get first role of user
+                data['firstName'] = user.firstName
                 data['isLoggedIn'] = True
 
                 access_token = create_access_token(identity=data)
