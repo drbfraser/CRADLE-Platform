@@ -33,12 +33,6 @@ class StatisticsPage extends Component {
     var getDate = new Date();
     var getMonth = getDate.getMonth();
 
-    const readings = this.props.statisticsList.readingsPerMonth
-    var readingArray = []
-    for (var i in readings) {
-      readingArray.push(readings[i])
-    }
-
     const readingsPerMonth = {
       label: 'Total Number of Readings',
       fill: false,
@@ -46,13 +40,7 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(75,192,192,0.4)',
       borderColor: 'rgba(75,192,192,1)',
       pointRadius: 1,
-      data: readings
-    }
-
-    const referrals = this.props.statisticsList.referralsPerMonth
-    var referralsArray = []
-    for (var i in referrals) {
-      referralsArray.push(referrals[i])
+      data: this.props.statisticsList.readingsPerMonth
     }
 
     const referralsPerMonth = {
@@ -62,29 +50,17 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(148,0,211,0.4)',
       borderColor: 'rgba(148,0,211,1)',
       pointRadius: 1,
-      data: referrals
+      data: this.props.statisticsList.referralsPerMonth
     }
 
-    const assesment = this.props.statisticsList.assesmentsPerMonth
-    var assesmentArray = []
-    for (var i in assesment) {
-      assesmentArray.push(assesment[i])
-    }
-
-    const assesmentsPerMonth = {
+    const assessmentsPerMonth = {
       label: 'Total Number of Assesments',
       fill: false,
       lineTension: 0.1,
       backgroundColor: 'rgba(255,127,80,0.4)',
       borderColor: 'rgba(255,127,80,1)',
       pointRadius: 1,
-      data: assesment
-    }
-
-    const referralsWomen = this.props.statisticsList.referralsWomenPerMonth
-    var referralsWomenArray = []
-    for (var i in referralsWomen) {
-      referralsWomenArray.push(referralsWomen[i])
+      data: this.props.statisticsList.assessmentsPerMonth
     }
 
     const referralsWomenPerMonth = {
@@ -94,13 +70,7 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(21,21,43,0.4)',
       borderColor: 'rgba(21,21,43,1)',
       pointRadius: 1,
-      data: referralsWomen
-    }
-
-    const referralsPregnantWomen = this.props.statisticsList.referralsPregnantWomenPerMonth
-    var referralsPregnantWomenArray = []
-    for (var i in referralsPregnantWomen) {
-      referralsPregnantWomenArray.push(referralsPregnantWomen[i])
+      data: this.props.statisticsList.womenReferralsPerMonth
     }
 
     const referralsPregnantWomenPerMonth = {
@@ -110,47 +80,35 @@ class StatisticsPage extends Component {
       backgroundColor: 'rgba(75,192,192,0.4)',
       borderColor: 'rgba(75,192,192,1)',
       pointRadius: 1,
-      data: referralsPregnantWomen
+      data: this.props.statisticsList.referralsPregnantWomenPerMonth
     }
 
-    const assesmentsWomen = this.props.statisticsList.assesmentsWomenPerMonth
-    var assesmentsWomenArray =[]
-    for (var i in assesmentsWomen) {
-      assesmentsWomenArray.push(assesmentsWomen[i])
-    }
-
-    const assesmentsWomenPerMonth = {
+    const assessmentsWomenPerMonth = {
       label: 'Total Number of Women Assessed',
       fill: false,
       lineTension: 0.1,
       backgroundColor: 'rgba(148,0,211,0.4)',
       borderColor: 'rgba(148,0,211,1)',
       pointRadius: 1,
-      data: assesmentsWomen
+      data: this.props.statisticsList.womenAssessedPerMonth
     }
 
-    const assesmentsPregnantWomen = this.props.statisticsList.assesmentsPregnantWomenPerMonth
-    var assesmentsPregnantWomenArray =[]
-    for (var i in assesmentsPregnantWomen) {
-      assesmentsPregnantWomenArray.push(assesmentsPregnantWomen[i])
-    }
-
-    const assesmentsPregnantWomenPerMonth = {
+    const assessmentsPregnantWomenPerMonth = {
       label: 'Total Number of Pregnant Women Assessed',
       fill: false,
       lineTension: 0.1,
       backgroundColor: 'rgba(255,127,80,0.4)',
       borderColor: 'rgba(255,127,80,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.assesmentsPregnantWomenPerMonth
+      data: this.props.statisticsList.assessmentsPregnantWomenPerMonth
     }
 
-    const readingsVsReferralsVsAssesment = {
+    const readingsVsReferralsVsAssessment = {
       labels: xLabels,
       datasets: [
         readingsPerMonth,
         referralsPerMonth,
-        assesmentsPerMonth
+        assessmentsPerMonth
       ]
     }   
 
@@ -159,8 +117,8 @@ class StatisticsPage extends Component {
       datasets: [
         referralsWomenPerMonth,
         referralsPregnantWomenPerMonth,
-        assesmentsWomenPerMonth,
-        assesmentsPregnantWomenPerMonth
+        assessmentsWomenPerMonth,
+        assessmentsPregnantWomenPerMonth
       ]
     }
 
@@ -198,44 +156,56 @@ class StatisticsPage extends Component {
           <h1 className='headerSize'>Global Statistics</h1>
           <div>
             <h2>In the last month, there were:</h2>
-            <Statistic.Group>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineBlue'>{readingArray[getMonth-1]}</Statistic.Value>
-                <Statistic.Label className='virticalWritting'>READINGS TAKEN</Statistic.Label>
-              </Statistic>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlinePurple'>{referralsArray[getMonth-1]}</Statistic.Value>
-                <Statistic.Label className='virticalWritting'>REFERRALS SENT</Statistic.Label>
-              </Statistic>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineOrange'>{assesmentArray[getMonth-1]}</Statistic.Value>
-                <Statistic.Label className='virticalWritting'>ASSESSMENTS MADE</Statistic.Label>
-              </Statistic>
+            {(this.props.statisticsList.readingsPerMonth 
+            && this.props.statisticsList.referralsPerMonth 
+            && this.props.statisticsList.assessmentsPerMonth) ? (
+              <Statistic.Group>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.readingsPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label className='virticalWritting'>READINGS TAKEN</Statistic.Label>
+                </Statistic>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlinePurple'>{this.props.statisticsList.referralsPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label className='virticalWritting'>REFERRALS SENT</Statistic.Label>
+                </Statistic>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlineOrange'>{this.props.statisticsList.assessmentsPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label className='virticalWritting'>ASSESSMENTS MADE</Statistic.Label>
+                </Statistic>
             </Statistic.Group>
+            ) : (<div></div>)
+            }
             <br/>
-            <Line ref="chart" className='chartBox' data={readingsVsReferralsVsAssesment}/>
+            <Line ref="chart" className='chartBox' data={readingsVsReferralsVsAssessment}/>
           </div>
           <br/>
           <div>
             <h2>A snapshot of all women assessed:</h2>
-            <Statistic.Group>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineBlack'>{referralsWomenArray[getMonth-1]}</Statistic.Value>
-                <Statistic.Label className='virticalWritting'>WOMEN REFERRED</Statistic.Label>
-              </Statistic>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineBlue'>{referralsPregnantWomenArray[getMonth-1]}</Statistic.Value>
-                <Statistic.Label className='virticalWritting'>PREGNANT WOMEN REFERRED</Statistic.Label>
-              </Statistic>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlinePurple'>{assesmentsWomenArray[getMonth-1]}</Statistic.Value>
-                <Statistic.Label className='virticalWritting'>WOMEN ASSESSED</Statistic.Label>
-              </Statistic>
-              <Statistic horizontal className='statSubBox'>
-                <Statistic.Value className='underlineOrange'>{assesmentsPregnantWomenArray[getMonth-1]}</Statistic.Value>
-                <Statistic.Label className='virticalWritting'>PREGNANT WOMEN ASSESSED</Statistic.Label>
-              </Statistic>
+            {(this.props.statisticsList.womenReferralsPerMonth 
+            && this.props.statisticsList.referralsPregnantWomenPerMonth
+            && this.props.statisticsList.womenAssessedPerMonth
+            && this.props.statisticsList.assessmentsPregnantWomenPerMonth) ? (
+              <Statistic.Group>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlineBlack'>{this.props.statisticsList.womenReferralsPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label className='virticalWritting'>WOMEN REFERRED</Statistic.Label>
+                </Statistic>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.referralsPregnantWomenPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label className='virticalWritting'>PREGNANT WOMEN REFERRED</Statistic.Label>
+                </Statistic>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlinePurple'>{this.props.statisticsList.womenAssessedPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label className='virticalWritting'>WOMEN ASSESSED</Statistic.Label>
+                </Statistic>
+                <Statistic horizontal className='statSubBox'>
+                  <Statistic.Value className='underlineOrange'>{this.props.statisticsList.assessmentsPregnantWomenPerMonth[getMonth-1]}</Statistic.Value>
+                  <Statistic.Label className='virticalWritting'>PREGNANT WOMEN ASSESSED</Statistic.Label>
+                </Statistic>
             </Statistic.Group>
+            ) : (<div></div>)
+            }
+            
             <br/>
             <Line ref="chart" className='chartBox' data={womenReferralsVsAssessed} />
           </div>
