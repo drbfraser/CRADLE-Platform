@@ -77,8 +77,9 @@ class StatsManager():
                 category: referred vs assesed           
     """
 
-    def get_data_for_women(self, category):
+    def get_unique_counts(self, category):
         data = [0,0,0,0,0,0,0,0,0,0,0,0]
+        collected = []
         referrals = referralManager.read_all()
         for item in referrals:
             date_string = item['dateReferred']
@@ -89,24 +90,34 @@ class StatsManager():
             patient = patientManager.read("patientId", patient_id)
             
             # checking if referral was for a pregnant patient
-            if(category == "pregReferrals"):
+            if(category == "pregReferrals" and patient not in collected):
                 if(patient['isPregnant']==1): 
                     data[month-1] += 1
+                    collected.append(patient)
 
-            # checking referrals for pregnant patients that were assessed
+            # checking how many pregnant women were assessed 
             if(category == "pregAssessment"):
-                if(item['followUpId'] is not None and patient['isPregnant']==1):
+                if(item['followUpId'] is not None and patient['isPregnant']==1 and patient not in collected):
                     data[month-1] += 1
+                    collected.append(patient)
 
-            # checking how referrals were for women
-            if(category == 'womenReferred'):
+            # checking how many women were referred
+            if(category == 'womenReferred' and patient not in collected):
                 if patient['patientSex'] == 'FEMALE':
-                        data[month-1] += 1
+                    data[month-1] += 1
+                    collected.append(patient)
 
            # checking referrals for women that were assessed
             if(category == "womenAssessed"):
-                    if(item['followUpId'] is not None and patient['patientSex']=='FEMALE'):
-                        data[month-1] += 1
+                if(item['followUpId'] is not None and patient['patientSex']=='FEMALE' and patient not in collected):
+                    data[month-1] += 1
+                    collected.append(patient)
+
+           # checking unique people
+            if(category == "uniquePeopleAssessed"):
+                if(item['followUpId'] is not None and patient not in collected):
+                    data[month-1] += 1        
+                    collected.append(patient)
         return data
 
     """ 
@@ -139,21 +150,25 @@ class StatsManager():
         assessments_per_month = self.get_data(referrals, 'dateReferred', 'assessment')
         data_to_return['assessmentsPerMonth'] = assessments_per_month
         
-        # getting number of referrals that were made for pregnant women
-        pregnant_referrals_per_month = self.get_data_for_women('pregReferrals')
-        data_to_return['referralsPregnantWomenPerMonth'] = pregnant_referrals_per_month
+        # getting number of pregnant women that were referred
+        pregnant_referrals_per_month = self.get_unique_counts('pregReferrals')
+        data_to_return['pregnantWomenReferredPerMonth'] = pregnant_referrals_per_month
         
-        # getting number of referrals that were made for women who were pregnant who got an assessment (follow up)
-        pregnant_assessments_per_month = self.get_data_for_women('pregAssessment')
-        data_to_return['assessmentsPregnantWomenPerMonth'] = pregnant_assessments_per_month
+        # getting number of number pregnant women assessed
+        pregnant_assessments_per_month = self.get_unique_counts('pregAssessment')
+        data_to_return['pregnantWomenAssessedPerMonth'] = pregnant_assessments_per_month
 
-        # getting number of referrals for women 
-        women_referrals_per_month = self.get_data_for_women('womenReferred')
-        data_to_return['womenReferralsPerMonth'] = women_referrals_per_month
+        # getting number of women referred per month
+        women_referrals_per_month = self.get_unique_counts('womenReferred')
+        data_to_return['womenReferredPerMonth'] = women_referrals_per_month
 
-        # getting number of referrals made for women who got assessed
-        women_assessments_per_month = self.get_data_for_women('womenAssessed')
+        # getting number of women assessed per month
+        women_assessments_per_month = self.get_unique_counts('womenAssessed')
         data_to_return['womenAssessedPerMonth'] = women_assessments_per_month
+
+        # getting unique number of people assessed per month
+        unique_people_assessed_per_month = self.get_unique_counts('uniquePeopleAssessed')
+        data_to_return['uniquePeopleAssesedPerMonth'] = unique_people_assessed_per_month
 
         # getting traffic light data for the last month 
         # sorry to the person who has to read the magic numbers below
