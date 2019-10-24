@@ -77,7 +77,6 @@ class Signup extends Component {
           <Divider />
           <div className="flexbox">
             <input className="contant-submit white" type='submit'/>
-            <Link className="link" style={{ textDecoration: 'none' }} to="/login"> Login </Link>
           </div>
         </form>
       </div>
