@@ -9,17 +9,18 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
 import moment from 'moment';
-import { updatePatient } from '../../actions/patients'
-import { getPatients } from '../../actions/patients'
-
 import { Button,
   Header, Image, Modal,
   Divider, Form, Select,
   Input, TextArea, Item
 } from 'semantic-ui-react'
+
+import { updatePatient } from '../../actions/patients'
+import { getPatients } from '../../actions/patients'
 import { ReactComponent as GreenTraffic } from './drawable/green.svg';
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
 import { ReactComponent as RedTraffic } from './drawable/red.svg';
+import FollowUpModal from '../../components/FollowUp/FollowUpModal';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -144,6 +145,8 @@ class PatientSummary extends Component {
               </Typography>
               <br/> <br/>
               <Button style={{"backgroundColor" : "#84ced4"}} size="large">Assess</Button>
+              <FollowUpModal />
+
             </div>
     } else {
       return  <div style={{"padding" : "80px 0px"}}>
