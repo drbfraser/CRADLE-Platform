@@ -11,6 +11,7 @@ import { Icon } from 'semantic-ui-react'
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import IconButton from '@material-ui/core/IconButton';
 import { Route, Link } from 'react-router-dom'
 import Home from '../home'
 import PatientPage from '../patientPage'
@@ -33,6 +34,10 @@ const useStyles = makeStyles(theme => ({
   appBar: {
     backgroundColor: '#15152B',
     zIndex: theme.zIndex.drawer + 1,
+  },
+  toolbarButtons: {
+    marginLeft: "auto",
+    marginRight: -12
   },
   drawer: {
     width: drawerWidth,
@@ -63,6 +68,17 @@ const App = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState('Patients')
 
+  const getRole = (role) => {
+    if (role == 'VHT') {
+      return 'VHT'
+    } else if (role == 'HCW') {
+      return 'Healthcare Worker'
+    } else if (role == 'ADMIN') {
+      return "Admin"
+    }
+    return "";
+  }
+
   return (
       <div className={classes.root} >
         <CssBaseline />
@@ -71,7 +87,20 @@ const App = (props) => {
             <Typography variant="h6" noWrap>
               Cradle
             </Typography>
+            {props.user.isLoggedIn && 
+              <IconButton
+              className={classes.toolbarButtons}
+              onClick={() => ""}
+              color="inherit"
+              >
+                <Icon name="user circle" size="large" />
+                <Typography variant="body1" noWrap>
+                  {props.user.firstName} ({getRole(props.user.role)})
+                </Typography>
+              </IconButton>
+             }
           </Toolbar>
+          
         </AppBar>
         <Drawer className={classes.drawer} variant="permanent"
                 classes={{
@@ -121,14 +150,15 @@ const App = (props) => {
               <ListItem className={[classes.listItem, classes.logout]} button key="Logout" onClick={ () => props.logoutUser() }>
                 <ListItemText className={classes.itemText} primary="Logout" />
               </ListItem>
+              {props.user.role == 'ADMIN' &&
+              <ListItem className={[classes.listItem]} component={Link} button key="new user" to="/signup">
+                <ListItemText className={classes.itemText} primary="Create New User" />
+              </ListItem>}
             </List>
           ) : (
             <List>
               <ListItem button component={Link} to="/login" key="Login">
                 <ListItemText className={classes.itemText} primary="Login" />
-              </ListItem>
-              <ListItem button component={Link} to="/signup"key="Signup">
-                <ListItemText className={classes.itemText} primary="Signup" />
               </ListItem>
             </List>
           )}

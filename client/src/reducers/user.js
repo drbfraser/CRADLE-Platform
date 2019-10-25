@@ -1,20 +1,35 @@
-export const INCREMENT_REQUESTED = 'counter/INCREMENT_REQUESTED'
-export const INCREMENT = 'counter/INCREMENT'
-export const DECREMENT_REQUESTED = 'counter/DECREMENT_REQUESTED'
-export const DECREMENT = 'counter/DECREMENT'
+import { combineReducers } from "redux"
 
-const initialState = {
+const initialStateUser = {
   currentUser: {}
 }
-export default (state = initialState, action) => {
+
+const initialStateRegisterStatus = {
+  registerStatus: {}
+}
+
+const userReducer = (state = initialStateUser, action) => {
   switch (action.type) {
     case 'LOGIN_USER':
-      return {...state, currentUser: action.payload}
+      return action.payload
     case 'LOGOUT_USER':
-      return {...state, currentUser: {} }
+      return {}
     case 'INVALID_USER':
-      return {...state, currentUser: {} }
+      return {}
     default:
-      return state;
+      return state
   }
 }
+
+const registerStatusReducer = (state = {}, action) => {
+  switch (action.type) {
+    case 'REGISTER_SUCCESS':
+      return { message : "Success! User has been successfully created", error : false }
+    case 'REGISTER_ERROR':
+      return { message : action.payload, error : true }
+    default:
+      return {}
+  }
+}
+
+export default combineReducers({ currentUser: userReducer, registerStatus: registerStatusReducer})

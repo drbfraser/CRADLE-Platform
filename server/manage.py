@@ -26,17 +26,22 @@ def seed():
     db.session.add_all([role1,role2,role3])
     db.session.commit()
 
-    # NOTE: users are automatically added to 'HCW' role
+    role_admin = Role.query.filter_by(name='ADMIN').first()
     role_hcw = Role.query.filter_by(name='HCW').first()
+    role_vht = Role.query.filter_by(name='VHT').first()
 
     user_schema = UserSchema()
-    u1 = { 'email' : 'a@a.com', 'password': flask_bcrypt.generate_password_hash('123456') }
-    u2 = { 'email' : 'b@b.com', 'password': flask_bcrypt.generate_password_hash('123456') }
+    u0 = { 'email' : 'admin@admin.com', 'firstName': 'Admin', 'password': flask_bcrypt.generate_password_hash('123456') }
+    u1 = { 'email' : 'a@a.com', 'firstName': 'Brian', 'password': flask_bcrypt.generate_password_hash('123456') }
+    u2 = { 'email' : 'b@b.com', 'firstName' : 'TestVHT','password': flask_bcrypt.generate_password_hash('123456') }
+    role_admin.users.append(user_schema.load(u0, session=db.session))
     role_hcw.users.append(user_schema.load(u1, session=db.session))
-    role_hcw.users.append(user_schema.load(u2, session=db.session))
+    role_vht.users.append(user_schema.load(u2, session=db.session))
 
     print('Seeding users...')
+    db.session.add(role_admin)
     db.session.add(role_hcw)
+    db.session.add(role_vht)
     db.session.commit()
 
     # seed health facilities

@@ -48,6 +48,7 @@ userRole = db.Table('userrole',
 #####################
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    firstName = db.Column(db.String(25))
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password = db.Column(db.String(128))
@@ -274,6 +275,12 @@ user_schema = {
         "email": {
             "type": "string",
             "format": "email"
+        },
+        "firstName": {
+            "type": "string",
+        },
+        "role": {
+            "type": "string",
         },
         "password": {
             "type": "string",
