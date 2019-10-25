@@ -15,6 +15,11 @@ class UserApi(Resource):
         if data['ok']:
             data = data['data']
 
+            # check if user exists
+            user = User.query.filter_by(email=data['email']).first()
+            if user:
+                return { "message" : "Email has already been taken"}, 400
+
             # get password
             data['password'] = flask_bcrypt.generate_password_hash(data['password'])
 
@@ -33,7 +38,7 @@ class UserApi(Resource):
 
             return {}, 200
         else:
-            return {'message': 'Bad request parameters: {}'.format(data['message'])}, 400
+            return {'message': 'Please check the fields'}, 400
 
 
 # user/auth [POST]
@@ -61,7 +66,7 @@ class UserAuthApi(Resource):
 
                 return data, 200
             else:
-                return {'message': 'invalid username or password'}, 401
+                return {'message': 'Invalid email or password'}, 401
         else:
             return {'message': 'Bad request parameters: {}'.format(data['message'])}, 400
 

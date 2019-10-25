@@ -16,12 +16,9 @@ export const userPostFetch = user => {
       .then(resp => resp.json())
       .then(data => {
         if (data.message) {
-          // TODO: do something with error message
-          console.log(data)
+          dispatch(registerError(data.message))
         } else {
-          dispatch(userLoginFetch(user)).then(() => { // log the user in
-            dispatch(push('/patients'))
-          }) 
+          dispatch(registerSuccess())
         }
       })
   }
@@ -94,6 +91,15 @@ const logoutUserAction = () => ({
 const loginUser = userObj => ({
   type: 'LOGIN_USER',
   payload: userObj
+})
+
+const registerSuccess = () => ({
+  type: 'REGISTER_SUCCESS',
+})
+
+const registerError = (message) => ({
+  type: 'REGISTER_ERROR',
+  payload: message
 })
 
 const invalidUser = () => ({
