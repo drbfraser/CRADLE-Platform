@@ -7,20 +7,38 @@ import {
 
 import FollowUpModal from './FollowUpModal';
 
-export default class index extends Component {
+export default class FollowUp extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            isOpen: false
+        }
+
+        this.handleOpen = this.handleOpen.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+    }
+    
     static propTypes = {
         prop: PropTypes
     }
 
-    handleSubmit() {
-        console.log("handlingSubmit")
+    handleOpen() {
+        this.setState({
+            isOpen: true
+        })
+    }
+
+    handleClose() {
+        this.setState({
+            isOpen: false
+        })
     }
 
     render() {
         return (
             <div>
-                <Button>Follow Up</Button>
-                <FollowUpModal handleSubmit={this.handleSubmit} />
+                <Button onClick={this.handleOpen}>Follow Up</Button>
+                <FollowUpModal handleSubmit={this.handleSubmit} isOpen={this.state.isOpen} handleClose={this.handleClose}/>
             </div>
         )
     }

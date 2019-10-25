@@ -20,7 +20,7 @@ import { getPatients } from '../../actions/patients'
 import { ReactComponent as GreenTraffic } from './drawable/green.svg';
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
 import { ReactComponent as RedTraffic } from './drawable/red.svg';
-import FollowUpModal from '../../components/FollowUp/FollowUpModal';
+import FollowUp from '../../components/FollowUp';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -145,7 +145,7 @@ class PatientSummary extends Component {
               </Typography>
               <br/> <br/>
               <Button style={{"backgroundColor" : "#84ced4"}} size="large">Assess</Button>
-              <FollowUpModal />
+              <FollowUp />
 
             </div>
     } else {
