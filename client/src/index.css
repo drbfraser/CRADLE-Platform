@@ -64,6 +64,27 @@ input {
   border: 0;
 }
 
+.content-box-signup {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  width: 45%;
+  min-width: 500px;
+  margin-right: 15%;
+  margin-bottom: 25%;
+  padding: 10px;
+  position: relative;
+  box-shadow: 2px 5px 5px #888888;
+  margin: auto;
+}
+
+.content-box h1 {
+  font-weight: 400;
+  font-size: 3em;
+  margin: 0.2em 0 0.1em;
+}
+
 input::placeholder {
     color: rgb(112, 106, 106);
 }

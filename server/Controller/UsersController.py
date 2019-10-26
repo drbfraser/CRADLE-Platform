@@ -14,22 +14,31 @@ class UserApi(Resource):
         data = validate_user(request.get_json())
         if data['ok']:
             data = data['data']
+
+            # check if user exists
+            user = User.query.filter_by(email=data['email']).first()
+            if user:
+                return { "message" : "Email has already been taken"}, 400
+
+            # get password
             data['password'] = flask_bcrypt.generate_password_hash(data['password'])
+
+            # find the role of the user
+            role = Role.query.filter_by(name=data['role']).first()
+            del data['role']
             
             # Add a new patient to db
-            # TODO: properly handle role for user, currently default to 'HCW'
             user_schema = UserSchema()
-            role_hcw = Role.query.filter_by(name='HCW').first()
-
             new_user = user_schema.load(data, session=db.session)
-            role_hcw.users.append(new_user) # add new user to 'HCW' role
 
-            db.session.add(role_hcw)
+            role.users.append(new_user) # add new user to their role
+
+            db.session.add(role) # add user and role
             db.session.commit()
 
             return {}, 200
         else:
-            return {'message': 'Bad request parameters: {}'.format(data['message'])}, 400
+            return {'message': 'Please check the fields'}, 400
 
 
 # user/auth [POST]
@@ -47,6 +56,7 @@ class UserAuthApi(Resource):
 
                 # setup any extra user params
                 data['role'] = user.roleIds[0].name.name # get first role of user
+                data['firstName'] = user.firstName
                 data['isLoggedIn'] = True
 
                 access_token = create_access_token(identity=data)
@@ -56,7 +66,7 @@ class UserAuthApi(Resource):
 
                 return data, 200
             else:
-                return {'message': 'invalid username or password'}, 401
+                return {'message': 'Invalid email or password'}, 401
         else:
             return {'message': 'Bad request parameters: {}'.format(data['message'])}, 400
 
