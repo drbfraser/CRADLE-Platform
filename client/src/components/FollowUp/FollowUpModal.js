@@ -44,6 +44,7 @@ export default class FollowUpModal extends Component {
         }
 
         this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.onClose = this.onClose.bind(this);
         this.onOpen = this.onOpen.bind(this);
     }
@@ -67,6 +68,11 @@ export default class FollowUpModal extends Component {
         })
     }
 
+    handleSubmit() {
+        console.log("submitting follow up info");
+        console.log("handle submit state:  " + this.state);
+    }
+
     render() {
         console.log("followUpModal state: ", this.state)
         return (
@@ -76,33 +82,32 @@ export default class FollowUpModal extends Component {
                     <Modal.Content scrolling>
                     <Modal.Description>
                         <Form onSubmit={this.props.handleSubmit}>
-                        <Form.Field
-                            name="followUpAction"
-                            value={this.state.data.followUpAction || ''}
-                            control={TextArea}
-                            label='Follow Up Action'
-                            placeholder="Patient's action performed for this follow up"
-                            onChange={this.handleChange}
-                        />
-                        <Form.Field
-                            name="diagnosis"
-                            value={this.state.data.diagnosis || ''}
-                            control={TextArea}
-                            label='Diagnosis'
-                            placeholder="Medical diagnosis of the cause of their chief complaint"
-                            onChange={this.handleChange}
-                        />
-                        <Form.Field
-                            name="treatment"
-                            value={this.state.data.treatment || ''}
-                            control={TextArea}
-                            label='Treatment'
-                            placeholder="Treatment performed on patient to remedy their chief complaint"
-                            onChange={this.handleChange}
-                        />
-                        <Form.Field control={Button}>Submit</Form.Field>
+                            <Form.Field
+                                name="followUpAction"
+                                value={this.state.data.followUpAction || ''}
+                                control={TextArea}
+                                label='Follow Up Action'
+                                placeholder="Patient's action performed for this follow up"
+                                onChange={this.handleChange}
+                            />
+                            <Form.Field
+                                name="diagnosis"
+                                value={this.state.data.diagnosis || ''}
+                                control={TextArea}
+                                label='Diagnosis'
+                                placeholder="Medical diagnosis of the cause of their chief complaint"
+                                onChange={this.handleChange}
+                            />
+                            <Form.Field
+                                name="treatment"
+                                value={this.state.data.treatment || ''}
+                                control={TextArea}
+                                label='Treatment'
+                                placeholder="Treatment performed on patient to remedy their chief complaint"
+                                onChange={this.handleChange}
+                            />
+                            <Form.Field control={Button}>Submit</Form.Field>
                         </Form>
-
                     </Modal.Description>
                     </Modal.Content>
                 </Modal>
