@@ -15,8 +15,9 @@ import { Button,
   Input, TextArea, Item
 } from 'semantic-ui-react'
 
-import { updatePatient } from '../../actions/patients'
-import { getPatients } from '../../actions/patients'
+import { getPrettyDate, getMomentDate } from '../../utils';
+import { updatePatient, getPatients } from '../../actions/patients';
+import { getReferrals } from '../../actions/referrals';
 import { ReactComponent as GreenTraffic } from './drawable/green.svg';
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
 import { ReactComponent as RedTraffic } from './drawable/red.svg';
@@ -42,6 +43,23 @@ class PatientSummary extends Component {
 
   componentDidMount = () => {
     this.setState({ 'selectedPatient' : this.props.selectedPatient })
+  
+    console.log("this.props.selectedPatient: ",  this.props.selectedPatient);
+
+    this.props.getReferrals(this.getReferralIds(this.props.selectedPatient))
+  }
+
+  getReferralIds(selectedPatient) {
+    console.log("selectedPatient: ", selectedPatient)
+    let res = [];
+    for(let i in selectedPatient.readings) {
+      let reading = selectedPatient.readings[i];
+      if(reading.referral != null) {
+        res.push(reading.referral)
+      }
+    }
+    console.log("referralIds", res)
+    return res
   }
 
   handleBackBtn = () => {
@@ -87,17 +105,8 @@ class PatientSummary extends Component {
   }
 
   sortReadings = (readings) => {
-    let sortedReadings = readings.sort((a,b) => this.getMomentDate(b.dateTimeTaken).valueOf() - this.getMomentDate(a.dateTimeTaken).valueOf())
+    let sortedReadings = readings.sort((a,b) => getMomentDate(b.dateTimeTaken).valueOf() - getMomentDate(a.dateTimeTaken).valueOf())
     return sortedReadings
-  }
-
-  getMomentDate = (dateStr) => {
-    var dateStr = dateStr.slice(0,19)
-    return moment(dateStr);
-  }
-
-  getPrettyDate = (dateStr) => {
-    return this.getMomentDate(dateStr).format("MMMM Do YYYY, h:mm:ss a");
   }
 
   getTrafficIcon = (trafficLightStatus) => {
@@ -141,7 +150,7 @@ class PatientSummary extends Component {
               </Typography>
 
               <Typography variant="subtitle1" component="subtitle1">
-                Created {this.getPrettyDate(row.dateReferred)}
+                Created {getPrettyDate(row.dateReferred)}
               </Typography>
               <br/> <br/>
               <Button style={{"backgroundColor" : "#84ced4"}} size="large">Assess</Button>
@@ -259,7 +268,7 @@ class PatientSummary extends Component {
                     </Typography>
 
                     <Typography variant="subtitle1" component="subtitle1">
-                      Taken on {this.getPrettyDate(row.dateTimeTaken)}
+                      Taken on {getPrettyDate(row.dateTimeTaken)}
                     </Typography>
 
                     <div style={{"padding" : "25px 50px"}}>
@@ -375,7 +384,8 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       updatePatient,
-      getPatients
+      getPatients,
+      getReferrals
     },
     dispatch
   )
