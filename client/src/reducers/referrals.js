@@ -13,7 +13,7 @@ import {
  } from '../actions/referrals';
 
 const initialState = {
-    mappedReferrals: null, // maps reading id to referral objects
+    mappedReferrals: {}, // maps reading id to referral objects
     referral: null, 
     isFetchingReferral: false,
     msg: ""

@@ -8,7 +8,6 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
-import moment from 'moment';
 import { Button,
   Header, Image, Modal,
   Divider, Form, Select,
@@ -22,6 +21,7 @@ import { ReactComponent as GreenTraffic } from './drawable/green.svg';
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
 import { ReactComponent as RedTraffic } from './drawable/red.svg';
 import FollowUp from '../../components/FollowUp';
+import ReferralInfo from './referralInfo';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -282,7 +282,8 @@ class PatientSummary extends Component {
                   </div>
                   <div style={{"borderLeft": "2px solid #84ced4", "display": "inline-block", "width":"50%", "float": "right", "height" : "100%"}}>
                     <div style={{"padding" : "0px 50px"}}>
-                      {this.getReferralOrAssessment(row)}
+                      {console.log("row: ", row)}
+                      <ReferralInfo referral={this.props.referrals[row.readingId]}/>
                     </div>
                   </div>
                 </Paper>
@@ -378,7 +379,11 @@ class PatientSummary extends Component {
 }
 
 
-const mapStateToProps = ({}) => ({})
+const mapStateToProps = ({
+  referrals
+}) => ({
+  referrals: referrals.mappedReferrals
+})
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(

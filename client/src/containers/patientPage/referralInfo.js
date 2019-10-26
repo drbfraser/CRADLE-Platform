@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import Typography from '@material-ui/core/Typography';
 
 import { getPrettyDate } from '../../utils';
+import FollowUp from '../../components/FollowUp';
 
 export default class ReferralInfo extends Component {
     static propTypes = {
@@ -21,9 +23,7 @@ export default class ReferralInfo extends Component {
                         Created {getPrettyDate(ref.dateReferred)}
                     </Typography>
                     <br/> <br/>
-                    <Button style={{"backgroundColor" : "#84ced4"}} size="large">Assess</Button>
                     <FollowUp />
-
                 </div>
             )
         } else {

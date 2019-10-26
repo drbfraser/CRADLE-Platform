@@ -37,7 +37,12 @@ export default class FollowUp extends Component {
     render() {
         return (
             <div>
-                <Button onClick={this.handleOpen}>Follow Up</Button>
+                <Button 
+                    style={{"backgroundColor" : "#84ced4"}} 
+                    size="large" 
+                    onClick={this.handleOpen}>
+                        Assess  
+                </Button>
                 <FollowUpModal handleSubmit={this.handleSubmit} isOpen={this.state.isOpen} handleClose={this.handleClose}/>
             </div>
         )
