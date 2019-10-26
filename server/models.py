@@ -3,6 +3,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from jsonschema.exceptions import SchemaError
 from marshmallow_enum import EnumField
+from marshmallow_sqlalchemy import fields
 import enum
 
 # To add a table to db, make a new class
@@ -240,11 +241,6 @@ class PatientSchema(ma.ModelSchema):
         include_fk = True
         model = Patient
 
-class ReferralSchema(ma.ModelSchema):
-    class Meta:
-        include_fk = True
-        model = Referral
-
 class ReadingSchema(ma.ModelSchema):
     trafficLightStatus = EnumField(TrafficLightEnum, by_value=True)
     class Meta:
@@ -265,6 +261,12 @@ class FollowUpSchema(ma.ModelSchema):
     class Meta:
         include_fk = True
         model = FollowUp
+
+class ReferralSchema(ma.ModelSchema):
+    followUp = fields.Nested(FollowUpSchema)
+    class Meta:
+        include_fk = True
+        model = Referral
 
 user_schema = {
     "type": "object",
