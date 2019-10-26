@@ -4,8 +4,8 @@ import { push } from 'connected-react-router'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { userLoginFetch } from '../../actions/users';
+import image from './img/splash_screen_4.png'
 
-import './login.css'
 
 class Login extends Component {
   state = {
@@ -27,31 +27,38 @@ class Login extends Component {
   render() {
     return (
       <div className="loginWrapper">
-        <form onSubmit={this.handleSubmit} className="content-box">
-          <h1>Login</h1>
-
-          <label>Email</label>
-          <input
-            name='email'
-            type='email'
-            value={this.state.email}
-            onChange={this.handleChange}
-            />
-          <br/>
-          <label>Password</label>
-          <input
-            type='password'
-            name='password'
-            value={this.state.password}
-            onChange={this.handleChange}
-            />
-          <br/>
-          <div className="flexbox">
-            <input className="contant-submit white" type='submit'/>
-            <Link className="link" style={{ textDecoration: 'none' }} to="/signup"> Sign up </Link>
-          </div>
-          
-        </form>
+        <div className='subWrapper'>
+          <img src={image} className='imgStyle' ></img>
+        </div>
+        <div className='subWrapper'>
+          <div style={{"position" : "relative", "left" : "-10%"}}>
+            <form onSubmit={this.handleSubmit}>
+              <h1 style={{"font-size" : "50px"}}>Log In</h1>
+              <br/>
+              <h2>Email</h2>
+              <input
+                name='email'
+                type='email'
+                placeholder='bfraser@sfu.ca'
+                value={this.state.email}
+                onChange={this.handleChange}
+                className='inputStyle'
+                />
+              <br/>
+              <h2>Password</h2>
+              <input
+                type='password'
+                name='password'
+                placeholder='********'
+                value={this.state.password}
+                onChange={this.handleChange}
+                className='inputStyle'
+                />
+              <br/>
+              <button type='submit' className='contant-submit white'>Go</button>
+            </form>
+          </div> 
+        </div>
       </div>
     )
   }

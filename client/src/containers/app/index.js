@@ -124,11 +124,19 @@ const App = (props) => {
             </List>
           ) : (
             <List>
-              <ListItem button component={Link} to="/login" key="Login">
-                <ListItemText className={classes.itemText} primary="Login" />
+              <ListItem className={classes.listItem} 
+                        button 
+                        component={Link} 
+                        to="/login" 
+                        key="Login">
+                <ListItemText className={classes.itemText} primary="Log In" />
               </ListItem>
-              <ListItem button component={Link} to="/signup"key="Signup">
-                <ListItemText className={classes.itemText} primary="Signup" />
+              <ListItem className={classes.listItem} 
+                        button 
+                        component={Link} 
+                        to="/signup"
+                        key="Signup">
+                <ListItemText className={classes.itemText} primary="Sign Up" />
               </ListItem>
             </List>
           )}
