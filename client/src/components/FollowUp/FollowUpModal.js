@@ -19,7 +19,6 @@ import { Button,
 export default class FollowUpModal extends Component {
     static propTypes = {
         initialValues: PropTypes.objectOf(PropTypes.string),
-        handleSubmit: PropTypes.func.isRequired,
         handleClose: PropTypes.func.isRequired,
         isOpen: PropTypes.bool.isRequired
     }
@@ -49,15 +48,9 @@ export default class FollowUpModal extends Component {
         this.onOpen = this.onOpen.bind(this);
     }
 
-    onClose() {
+    onClose() {}
 
-    }
-
-    onOpen() {
-        this.setState({
-
-        })
-    }
+    onOpen() {}
 
     handleChange(e, value) {
         this.setState({
@@ -70,7 +63,7 @@ export default class FollowUpModal extends Component {
 
     handleSubmit() {
         console.log("submitting follow up info");
-        console.log("handle submit state:  " + this.state);
+        console.log("handle submit state:  ", this.state);
     }
 
     render() {
@@ -81,7 +74,7 @@ export default class FollowUpModal extends Component {
                     <Modal.Header>Referral Follow-Up Information</Modal.Header>
                     <Modal.Content scrolling>
                     <Modal.Description>
-                        <Form onSubmit={this.props.handleSubmit}>
+                        <Form onSubmit={this.handleSubmit}>
                             <Form.Field
                                 name="followUpAction"
                                 value={this.state.data.followUpAction || ''}

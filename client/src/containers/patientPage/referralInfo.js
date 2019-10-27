@@ -4,6 +4,7 @@ import Typography from '@material-ui/core/Typography';
 
 import { getPrettyDate } from '../../utils';
 import FollowUp from '../../components/FollowUp';
+import FollowUpInfo from './followUpInfo';
 
 export default class ReferralInfo extends Component {
     static propTypes = {
@@ -14,16 +15,21 @@ export default class ReferralInfo extends Component {
         if (this.props.referral) {
             let ref = this.props.referral
             return (
-                <div style={{"padding" : "80px 0px"}}>
+                <div>
                     <Typography variant="h4" component="h4">
-                        Referral Pending
+                        {ref.followUp ? (
+                            "Referral Assessed"
+                        ) : (
+                            "Referral Pending"
+                        )}
                     </Typography>
 
                     <Typography variant="subtitle1" component="subtitle1">
                         Created {getPrettyDate(ref.dateReferred)}
                     </Typography>
                     <br/> <br/>
-                    <FollowUp />
+                    <FollowUpInfo followUp={ref.followUp}/>
+                    <FollowUp followUp={ref.followUp}/>
                 </div>
             )
         } else {

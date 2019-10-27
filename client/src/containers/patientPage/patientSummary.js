@@ -20,7 +20,6 @@ import { getReferrals } from '../../actions/referrals';
 import { ReactComponent as GreenTraffic } from './drawable/green.svg';
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
 import { ReactComponent as RedTraffic } from './drawable/red.svg';
-import FollowUp from '../../components/FollowUp';
 import ReferralInfo from './referralInfo';
 
 const sexOptions = [
@@ -135,37 +134,6 @@ class PatientSummary extends Component {
     }
   }
 
-  getReferralOrAssessment = (row) => {
-    const isReferred = row.isReferred
-    // const isAssessed = row.isAssessed
-    if (isReferred) {
-      // TODO: make another check to see if they have been assessed
-      // if (isAssessed) {
-
-      // }
-
-      return <div style={{"padding" : "80px 0px"}}>
-              <Typography variant="h4" component="h4">
-                Referral Pending
-              </Typography>
-
-              <Typography variant="subtitle1" component="subtitle1">
-                Created {getPrettyDate(row.dateReferred)}
-              </Typography>
-              <br/> <br/>
-              <Button style={{"backgroundColor" : "#84ced4"}} size="large">Assess</Button>
-              <FollowUp />
-
-            </div>
-    } else {
-      return  <div style={{"padding" : "80px 0px"}}>
-                <Typography variant="h4" component="h4">
-                  No Referral
-                </Typography>
-              </div>
-    }
-  }
-
   render() {
     let readings = [];
 
@@ -261,7 +229,7 @@ class PatientSummary extends Component {
           <Grid container spacing={0}>
           {readings.map(row => (
               <Grid key={row.readingId} xs={12}>
-              <Paper style={{"marginBottom":"35px", "height":"400px", "padding" : "45px 50px", "borderRadius" : "15px"}}>
+              <Paper style={{"marginBottom":"35px", "height": "auto", "padding" : "45px 50px", "borderRadius" : "15px", "display": "flex"}}>
                   <div style={{"display": "inline-block", "width":"50%"}}>
                     <Typography variant="h4" component="h4">
                       Reading

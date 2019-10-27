@@ -41,9 +41,17 @@ export default class FollowUp extends Component {
                     style={{"backgroundColor" : "#84ced4"}} 
                     size="large" 
                     onClick={this.handleOpen}>
-                        Assess  
+                        {this.props.followUp ? (
+                            "Update Assessment"
+                        ) : (
+                            "Assess"
+                        )}
                 </Button>
-                <FollowUpModal handleSubmit={this.handleSubmit} isOpen={this.state.isOpen} handleClose={this.handleClose}/>
+                <FollowUpModal 
+                    isOpen={this.state.isOpen} 
+                    handleClose={this.handleClose}
+                    initialValues={this.props.followUp}
+                />
             </div>
         )
     }
