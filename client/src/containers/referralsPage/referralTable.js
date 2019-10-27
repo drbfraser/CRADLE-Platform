@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import MaterialTable from 'material-table';
 import moment from 'moment';
 
-class PatientTable extends Component {
+class ReferralTable extends Component {
     
     state = {
         columns: [
@@ -19,10 +19,11 @@ class PatientTable extends Component {
         },
         {   title: 'Patient ID', field: 'patientId' },
         {   title: 'Village No.', field: 'villageNumber'},
-        {   title: 'Last Reading',
-                render: rowData => <p>{this.getPrettyDate(this.getLatestReading(rowData.readings))}</p>,
-            customSort: (a,b) => this.getMomentDate(this.getLatestReading(a.readings)).valueOf() - this.getMomentDate(this.getLatestReading(b.readings)).valueOf(),
-            defaultSort: 'desc' }
+        {   title: 'Date Referred',
+                render: rowData => <p>{this.getPrettyDate(this.getLatestReferral(rowData.readings))}</p>,
+            customSort: (a,b) => this.getMomentDate(this.getLatestReferral(a.readings)).valueOf() - this.getMomentDate(this.getLatestReferral(b.readings)).valueOf(),
+            defaultSort: 'desc' },
+        {   title: 'Assessment', render: rowData => <p>Pending</p>},
         ],
         data: [],
         selectedPatient: { patientId: '', patientName: 'Test', 
@@ -31,9 +32,9 @@ class PatientTable extends Component {
                         }
     }
 
-    getLatestReading = (readings) => {
+    getLatestReferral = (readings) => {
         let sortedReadings = readings.sort((a,b) => this.getMomentDate(b.dateTimeTaken).valueOf() - this.getMomentDate(a.dateTimeTaken).valueOf())
-        return sortedReadings[0].dateTimeTaken
+        return sortedReadings[0].dateReferred
     }
 
     getPrettyDate = (dateStr) => {
@@ -49,7 +50,7 @@ class PatientTable extends Component {
 
         return (
             <MaterialTable
-                title="Patients Table"
+                title="Referrals Table"
                 isLoading={this.props.isLoading}
                 columns={this.state.columns}
                 data={this.props.data}
@@ -67,4 +68,4 @@ class PatientTable extends Component {
     }
 }
 
-export default PatientTable
+export default ReferralTable
