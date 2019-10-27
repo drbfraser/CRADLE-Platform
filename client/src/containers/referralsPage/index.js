@@ -1,29 +1,66 @@
 import React, {Component} from 'react';
-import MaterialTable from 'material-table';
-import { push } from 'connected-react-router'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients } from '../../actions/patients';
-import { getCurrentUser } from '../../actions/users';
+import { getPatients } from '../../actions/patients'
+import { getCurrentUser } from '../../actions/users'
+import PatientTable from './referralTable'
+import PatientSummary from '../patientPage/patientSummary'
 
-import { Button,
-  Header, Image, Modal,
-  Divider, Form, Select,
-  Input, TextArea
-} from 'semantic-ui-react'
 
-class ReferralsPage extends Component {
-  state = { }
+class ReferralPage extends Component {
+  state = {
+    selectedPatient: { patientId: '', patientName: 'Test', 
+                       patientSex: 'F', medicalHistory: '',
+                       drugHistory: '', villageNumber:'', readings: []
+                      },
+    showSelectedPatient : false,
+    patientsList: []
+  }
 
   componentDidMount = () => {
     this.props.getCurrentUser().then((err) => {
       if (err !== undefined) {
-        // error from getCurrentUser(), don't get statistics
+        // error from getCurrentUser(), don't get patients
         return
       }
-      // this.props.getPatients()
+      
+      if (this.props.patients.patientsList.length == 0) {
+        this.props.getPatients()
+      }
     })
   }
+
+  filterReferrals = (patientsList) => {
+    const result = patientsList.filter(patient => {
+      if (patient.readings.length == 0) {
+        return false
+      }
+
+      // check if patient has a referral
+      for (var i = 0; i < patient.readings.length; i++) {
+        if (patient.readings[i].referral != null) {
+          return true
+        }
+      }
+      return false
+    })
+    return result
+  } 
+
+  componentWillReceiveProps(props) {
+    const referredPatients = this.filterReferrals(props.patients.patientsList)
+    this.setState({ patientsList : referredPatients})
+  }
+
+  patientCallback = (selectedPatient) => {
+    console.log('Received callback: ')
+    this.setState({'selectedPatient': selectedPatient, 'showSelectedPatient': true })
+  }
+
+  backBtnCallback = (status) => {
+    this.setState({ 'showSelectedPatient' : false })
+  }
+
 
   render() {
     // don't render page if user is not logged in
@@ -32,20 +69,26 @@ class ReferralsPage extends Component {
     }
 
     return (
-      <div >
-        <h1>Referrals Page</h1>
+      <div>
+        {this.state.showSelectedPatient ? (
+          <PatientSummary callbackFromParent={this.backBtnCallback} selectedPatient={this.state.selectedPatient}></PatientSummary>
+        ) : (
+          <PatientTable callbackFromParent={this.patientCallback} data={this.state.patientsList} isLoading={this.props.patients.isLoading}></PatientTable>
+        )}
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ patients, user }) => ({
+  patients : patients,
   user : user.currentUser
 })
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
+      getPatients,
       getCurrentUser,
     },
     dispatch
@@ -54,4 +97,4 @@ const mapDispatchToProps = dispatch =>
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ReferralsPage)
+)(ReferralPage)
