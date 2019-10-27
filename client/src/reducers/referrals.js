@@ -1,9 +1,9 @@
 // import all the actions here
 
 import { 
-    GET_REFERRAL,
-    GET_REFERRAL_REQUESTED,
-    GET_REFERRAL_ERR,
+    GET_REFERRAL, // currently unused
+    GET_REFERRAL_REQUESTED, // currently unused
+    GET_REFERRAL_ERR, // currently unused
     GET_REFERRALS,
     GET_REFERRALS_REQUESTED,
     GET_REFERRALS_ERR,
@@ -15,13 +15,13 @@ import {
 
 const initialState = {
     mappedReferrals: {}, // maps reading id to referral objects
-    referral: null, 
-    isFetchingReferral: false,
+    referralId: null, 
     readingId: null
 }
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    
     case GET_REFERRAL:
       return {
         ...state,

@@ -17,12 +17,13 @@ import { Button,
     Input, TextArea, Item
   } from 'semantic-ui-react'
 
-import { updateFollowUp, setReadingId } from '../../actions/referrals';
+import { updateFollowUp, setReadingId, createFollowUp } from '../../actions/referrals';
 
 class FollowUpModal extends Component {
     static propTypes = {
         initialValues: PropTypes.objectOf(PropTypes.string),
         updateFollowUp: PropTypes.func.isRequired,
+        referralId: PropTypes.string.isRequired,
         readingId: PropTypes.string.isRequired
     }
 
@@ -89,13 +90,21 @@ class FollowUpModal extends Component {
 
     handleSubmit() {
         console.log("submitting follow up info");
+        this.state.data.referral = this.props.referralId
         console.log("handle submit state data:  ", this.state.data);
-        this.props.updateFollowUp(this.props.initialValues['id'], this.state.data);
+        
+        // update existing followUpInfo
+        if (this.props.initialValues) {
+            this.props.updateFollowUp(this.props.initialValues['id'], this.state.data);
+        } else { // create new followUpInfo
+            this.props.createFollowUp(this.state.data);
+        }
+        
         this.handleClose();
     }
 
     render() {
-        console.log("followUpModal state: ", this.state)
+        // console.log("followUpModal state: ", this.state)
         return (
             <div>
                 <Modal 
@@ -160,6 +169,7 @@ const mapDispatchToProps = dispatch =>
     bindActionCreators(
         {
             updateFollowUp,
+            createFollowUp,
             setReadingId
         },
             dispatch

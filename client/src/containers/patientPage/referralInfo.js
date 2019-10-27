@@ -27,9 +27,9 @@ export default class ReferralInfo extends Component {
                     <Typography variant="subtitle1" component="subtitle1">
                         Created {getPrettyDate(ref.dateReferred)}
                     </Typography>
-                    <br/> <br/>
+                    <br/> 
                     <FollowUpInfo followUp={ref.followUp}/>
-                    <FollowUpModal readingId={this.props.readingId} initialValues={ref.followUp}/>
+                    <FollowUpModal readingId={this.props.readingId} referralId={ref.id} initialValues={ref.followUp}/>
                 </div>
             )
         } else {

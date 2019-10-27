@@ -101,6 +101,29 @@ export const updateFollowUp = (followUpId, data) => {
     }
 }
 
+export const createFollowUp = (data) => {
+    return dispatch => {
+        dispatch({
+            type: UPDATE_FOLLOW_UP_REQUESTED
+        })
+
+        return axios.post(BASE_URL + `/follow_up`, data).then((res) => {
+            dispatch({
+                type: UPDATE_FOLLOW_UP,
+                payload: res.data
+            })
+            console.log("CREATE FOLLOW UP DATA", res.data)
+        })
+        // .then(() => dispatch(getReferrals(res.data.referral)))
+        .catch(err => {
+            console.log(err);
+            dispatch({
+                type: UPDATE_FOLLOW_UP_ERR
+            })
+        })
+    }
+}
+
 export const setReadingId = (readingId) => {
     return dispatch => {
         console.log("setting reading id")

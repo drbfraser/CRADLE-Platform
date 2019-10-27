@@ -250,7 +250,6 @@ class PatientSummary extends Component {
                   </div>
                   <div style={{"borderLeft": "2px solid #84ced4", "display": "inline-block", "width":"50%", "float": "right", "height" : "100%"}}>
                     <div style={{"padding" : "0px 50px"}}>
-                      {console.log("row: ", row)}
                       <ReferralInfo readingId={row.readingId} referral={this.props.referrals[row.readingId]}/>
                     </div>
                   </div>
