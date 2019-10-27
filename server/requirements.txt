@@ -15,3 +15,4 @@ jsonschema
 flask_script
 environs
 numpy
+uwsgi
