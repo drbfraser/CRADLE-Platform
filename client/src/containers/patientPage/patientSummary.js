@@ -8,6 +8,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
+
 import { Button,
   Header, Image, Modal,
   Divider, Form, Select,
@@ -17,6 +18,9 @@ import { Button,
 import { getPrettyDate, getMomentDate } from '../../utils';
 import { updatePatient, getPatients } from '../../actions/patients';
 import { getReferrals } from '../../actions/referrals';
+import { getSelectedPatientStats } from '../../actions/statistics';
+
+import { Bar, Line } from 'react-chartjs-2';
 import { ReactComponent as GreenTraffic } from './drawable/green.svg';
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
 import { ReactComponent as RedTraffic } from './drawable/red.svg';
@@ -46,6 +50,9 @@ class PatientSummary extends Component {
     console.log("this.props.selectedPatient: ",  this.props.selectedPatient);
 
     this.props.getReferrals(this.getReferralIds(this.props.selectedPatient))
+  
+    this.props.getSelectedPatientStats(this.props.selectedPatient.patientId)
+
   }
 
   getReferralIds(selectedPatient) {
@@ -134,7 +141,19 @@ class PatientSummary extends Component {
     }
   }
 
+  average = (monthlyArray) => {
+    if (monthlyArray.length != 0) {
+      var total = 0;
+      for (var i = 0; i < monthlyArray.length; i++) {
+        total += monthlyArray[i];
+      }
+      return total/monthlyArray.length;
+    }
+    return 0;
+  }
+
   render() {
+
     let readings = [];
 
     if (this.props.selectedPatient.readings.length > 0) {
@@ -157,6 +176,87 @@ class PatientSummary extends Component {
       }
 
       readings = this.sortReadings(readings)
+    }
+
+    var getDate = new Date();
+    var getMonth = getDate.getMonth();
+
+    var bpSystolicReadingsMontly = {}
+
+    if (this.props.selectedPatientStatsList.bpSystolicReadingsMontly) {
+      const bpSystolicReadingsData =this.props.selectedPatientStatsList.bpSystolicReadingsMontly
+      var averageSystolic = Array(12);
+      for (var i = 0; i < 12; i++){
+        averageSystolic[i] = this.average(bpSystolicReadingsData[i])
+      }
+
+      bpSystolicReadingsMontly = {
+        label: 'Systolic',
+        fill: false,
+        lineTension: 0.1,
+        backgroundColor: 'rgba(75,192,192,0.4)',
+        borderColor: 'rgba(75,192,192,1)',
+        pointRadius: 1,
+        data: averageSystolic
+      }
+    }
+
+    var bpDiastolicReadingsMonthly = {}
+    if (this.props.selectedPatientStatsList.bpDiastolicReadingsMonthly) {
+      const bpDiastolicReadingsData =this.props.selectedPatientStatsList.bpDiastolicReadingsMonthly
+      var averageDiastolic = Array(12);
+      for (var i = 0; i < 12; i++){
+        averageDiastolic[i] = this.average(bpDiastolicReadingsData[i])
+      }
+
+      bpDiastolicReadingsMonthly = {
+        label: 'Diastolic',
+        fill: false,
+        lineTension: 0.1,
+        backgroundColor: 'rgba(148,0,211,0.4)',
+        borderColor: 'rgba(148,0,211,1)',
+        pointRadius: 1,
+        data: averageDiastolic
+      }
+    }
+
+    var heartRateReadingsMonthly = {}
+    if (this.props.selectedPatientStatsList.heartRateReadingsMonthly) {
+      const heartRateData =this.props.selectedPatientStatsList.heartRateReadingsMonthly
+      var averageHeartRate = Array(12);
+      for (var i = 0; i < 12; i++){
+        averageHeartRate[i] = this.average(heartRateData[i])
+      }
+
+      heartRateReadingsMonthly = {
+        label: 'Heart Rate',
+        fill: false,
+        lineTension: 0.1,
+        backgroundColor: 'rgba(255,127,80,0.4)',
+        borderColor: 'rgba(255,127,80,1)',
+        pointRadius: 1,
+        data: averageHeartRate
+      }
+    }
+    
+    const vitalsOverTime = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [
+        bpSystolicReadingsMontly,
+        bpDiastolicReadingsMonthly,
+        heartRateReadingsMonthly
+      ]
+    }
+
+    var trafficLight = {}
+    if(this.props.selectedPatientStatsList.trafficLightCountsFromDay1) {
+      trafficLight = {
+        labels: ['GREEN', 'YELLOW UP', 'YELLOW DOWN', 'RED UP', 'RED DOWN'],
+        datasets: [{
+          backgroundColor: ['green', 'yellow', 'yellow', 'red', 'red'],
+          data: Object.values(this.props.selectedPatientStatsList.trafficLightCountsFromDay1)
+        }]
+      }
     }
 
     return (
@@ -216,12 +316,21 @@ class PatientSummary extends Component {
               </Paper>
             </Grid>
             <Grid item xs={6} style={{"minWidth" : "500px", "height": '100%'}} >
-              <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
+              <Paper style={{"padding" : "35px 25px 0px", "borderRadius" : "15px"}}>
                 <Typography variant="h5" component="h3">
                   <Icon style={{"line-height" : "0.7em"}} name="heartbeat" size="large" />
                   Vitals Over Time
                 </Typography>
                 <Divider/>
+                <div>
+                  <h4 style={{"margin" : "0"}}>Average Vitals Over Time:</h4>
+                  <Line ref="chart" data={vitalsOverTime}/>
+                </div>
+                <div>
+                  <h4 style={{"margin" : "0"}}>Traffic Light from Last Month:</h4>
+                  <Bar ref="chart" data={trafficLight} 
+                  options={{legend: {display: false}, scales: {xAxes: [{ticks: {fontSize: 10}}], yAxes: [{ticks: {beginAtZero: true}}]}}} />
+                </div>
               </Paper>
             </Grid>
           </Grid>
@@ -347,9 +456,11 @@ class PatientSummary extends Component {
 
 
 const mapStateToProps = ({
-  referrals
+  referrals,
+  patientStats
 }) => ({
-  referrals: referrals.mappedReferrals
+  referrals: referrals.mappedReferrals,
+  selectedPatientStatsList : patientStats.selectedPatientStatsList
 })
 
 const mapDispatchToProps = dispatch =>
@@ -357,7 +468,8 @@ const mapDispatchToProps = dispatch =>
     {
       updatePatient,
       getPatients,
-      getReferrals
+      getReferrals,
+      getSelectedPatientStats
     },
     dispatch
   )
