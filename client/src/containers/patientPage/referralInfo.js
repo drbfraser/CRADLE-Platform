@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import Typography from '@material-ui/core/Typography';
 
 import { getPrettyDate } from '../../utils';
-import FollowUp from '../../components/FollowUp';
+import FollowUpModal from '../../components/FollowUp/FollowUpModal';
 import FollowUpInfo from './followUpInfo';
 
 export default class ReferralInfo extends Component {
@@ -29,7 +29,7 @@ export default class ReferralInfo extends Component {
                     </Typography>
                     <br/> <br/>
                     <FollowUpInfo followUp={ref.followUp}/>
-                    <FollowUp followUp={ref.followUp}/>
+                    <FollowUpModal readingId={this.props.readingId} initialValues={ref.followUp}/>
                 </div>
             )
         } else {

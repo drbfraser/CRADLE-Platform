@@ -9,14 +9,15 @@ import {
     GET_REFERRALS_ERR,
     UPDATE_FOLLOW_UP,
     UPDATE_FOLLOW_UP_REQUESTED,
-    UPDATE_FOLLOW_UP_ERR
+    UPDATE_FOLLOW_UP_ERR,
+    SET_READING_ID
  } from '../actions/referrals';
 
 const initialState = {
     mappedReferrals: {}, // maps reading id to referral objects
     referral: null, 
     isFetchingReferral: false,
-    msg: ""
+    readingId: null
 }
 
 export default (state = initialState, action) => {
@@ -35,12 +36,15 @@ export default (state = initialState, action) => {
             isLoading: false
         }
     
-    case UPDATE_FOLLOW_UP:
+    case UPDATE_FOLLOW_UP:    
         return {
             ...state,
-            referral: {
-                ...state.referral,
-                followUp: action.payload
+            mappedReferrals: {
+                ...state.mappedReferrals,
+                [state.readingId]: {
+                    ...state.mappedReferrals[state.readingId],
+                    followUp: action.payload
+                }
             },
             isLoading: false
         }
@@ -60,6 +64,12 @@ export default (state = initialState, action) => {
           ...state,
           isLoading: false
       }
+    
+    case SET_READING_ID:
+        return {
+            ...state,
+            readingId: action.payload
+        }
 
     default:
       return state

@@ -9,18 +9,21 @@
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 import { Button,
     Header, Image, Modal,
     Divider, Form, Select,
     Input, TextArea, Item
   } from 'semantic-ui-react'
 
-export default class FollowUpModal extends Component {
+import { updateFollowUp, setReadingId } from '../../actions/referrals';
+
+class FollowUpModal extends Component {
     static propTypes = {
         initialValues: PropTypes.objectOf(PropTypes.string),
-        handleClose: PropTypes.func.isRequired,
-        isOpen: PropTypes.bool.isRequired
+        updateFollowUp: PropTypes.func.isRequired,
+        readingId: PropTypes.string.isRequired
     }
 
     constructor(props) {
@@ -31,9 +34,21 @@ export default class FollowUpModal extends Component {
                 followUpAction: "",
                 diagnosis: "",
                 treatment: ""
-            }
+            },
+            isOpen: false
         }
 
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleOpen = this.handleOpen.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+        this.onOpen = this.onOpen.bind(this);
+        this.loadInitialValues = this.loadInitialValues.bind(this);
+
+        this.loadInitialValues();
+    }
+
+    loadInitialValues() {
         if (this.props.initialValues) {
             for (let key in this.state.data) {
                 if (key in this.props.initialValues) {
@@ -41,16 +56,27 @@ export default class FollowUpModal extends Component {
                 }
             }
         }
-
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.onClose = this.onClose.bind(this);
-        this.onOpen = this.onOpen.bind(this);
     }
 
-    onClose() {}
+    handleOpen() {
+        this.setState({
+            isOpen: true
+        }, () => {
+            this.loadInitialValues();
+            this.setState(this.state);
+        })
+    }
 
-    onOpen() {}
+    handleClose() {
+        this.setState({
+            isOpen: false
+        })
+    }
+
+    onOpen() {
+        console.log("on open")
+        this.props.setReadingId(this.props.readingId)
+    }
 
     handleChange(e, value) {
         this.setState({
@@ -63,14 +89,33 @@ export default class FollowUpModal extends Component {
 
     handleSubmit() {
         console.log("submitting follow up info");
-        console.log("handle submit state:  ", this.state);
+        console.log("handle submit state data:  ", this.state.data);
+        this.props.updateFollowUp(this.props.initialValues['id'], this.state.data);
+        this.handleClose();
     }
 
     render() {
         console.log("followUpModal state: ", this.state)
         return (
             <div>
-                <Modal closeIcon onClose={this.props.handleClose} onOpen={this.onOpen} open={this.props.isOpen}>
+                <Modal 
+                    trigger={
+                        <Button 
+                            style={{"backgroundColor" : "#84ced4"}} 
+                            size="large" 
+                            onClick={this.handleOpen}>
+                                {this.props.initialValues ? (
+                                    "Update Assessment"
+                                ) : (
+                                    "Assess"
+                                )}
+                        </Button>
+                    }
+                    onClose={this.handleClose}
+                    onOpen={this.onOpen}
+                    open={this.state.isOpen}
+                    closeIcon
+                >
                     <Modal.Header>Referral Follow-Up Information</Modal.Header>
                     <Modal.Content scrolling>
                     <Modal.Description>
@@ -108,3 +153,19 @@ export default class FollowUpModal extends Component {
         )
     }
 }
+
+const mapStateToProps = ({}) => ({})
+  
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(
+        {
+            updateFollowUp,
+            setReadingId
+        },
+            dispatch
+    )
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(FollowUpModal)

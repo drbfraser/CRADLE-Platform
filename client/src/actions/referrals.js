@@ -2,21 +2,23 @@ import axios from 'axios';
 
 import BASE_URL from '../serverUrl'
 
-export const GET_REFERRALS = 'patients/GET_REFERRALS'
-export const GET_REFERRALS_REQUESTED = 'patient/GET_REFERRALS_REQUESTED'
-export const GET_REFERRALS_ERR = 'patient/GET_REFERRALS_ERR'
+export const GET_REFERRALS = 'referrals/GET_REFERRALS'
+export const GET_REFERRALS_REQUESTED = 'referral/GET_REFERRALS_REQUESTED'
+export const GET_REFERRALS_ERR = 'referral/GET_REFERRALS_ERR'
 
-export const GET_REFERRAL = 'patients/GET_REFERRAL'
-export const GET_REFERRAL_REQUESTED = 'patient/GET_REFERRAL_REQUESTED'
-export const GET_REFERRAL_ERR = 'patient/GET_REFERRAL_ERR'
+export const GET_REFERRAL = 'referrals/GET_REFERRAL'
+export const GET_REFERRAL_REQUESTED = 'referral/GET_REFERRAL_REQUESTED'
+export const GET_REFERRAL_ERR = 'referral/GET_REFERRAL_ERR'
 
-export const UPDATE_REFERRAL = 'patient/UPDATE_REFERRAL'
-export const UPDATE_REFERRAL_REQUESTED  = 'patients/UPDATE_REFERRALS_REQUESTED'
-export const UPDATE_REFERRAL_ERR = 'patients/UPDATE_REFERRAL_ERR'
+export const UPDATE_REFERRAL = 'referral/UPDATE_REFERRAL'
+export const UPDATE_REFERRAL_REQUESTED  = 'referrals/UPDATE_REFERRALS_REQUESTED'
+export const UPDATE_REFERRAL_ERR = 'referrals/UPDATE_REFERRAL_ERR'
 
-export const UPDATE_FOLLOW_UP = 'patient/UPDATE_FOLLOW_UP'
-export const UPDATE_FOLLOW_UP_REQUESTED  = 'patients/UPDATE_FOLLOW_UPS_REQUESTED'
-export const UPDATE_FOLLOW_UP_ERR = 'patients/UPDATE_FOLLOW_UP_ERR'
+export const UPDATE_FOLLOW_UP = 'referral/UPDATE_FOLLOW_UP'
+export const UPDATE_FOLLOW_UP_REQUESTED  = 'referrals/UPDATE_FOLLOW_UP_REQUESTED'
+export const UPDATE_FOLLOW_UP_ERR = 'referrals/UPDATE_FOLLOW_UP_ERR'
+
+export const SET_READING_ID = 'referrals/SET_READING_ID'
 
 export const getReferral = (referralId) => {
     return dispatch => {
@@ -76,25 +78,35 @@ export const getReferrals = (referralIds) => {
     }
   }
 
-// export const updateFollowUp = (followUpId, data) => {
-//     return dispatch => {
-//         dispatch({
-//             type: UPDATE_FOLLOW_UP_REQUESTED
-//         })
+export const updateFollowUp = (followUpId, data) => {
+    return dispatch => {
+        dispatch({
+            type: UPDATE_FOLLOW_UP_REQUESTED
+        })
 
-//         return axios.put(BASE_URL + `/follow_up/${followUpId}`, data).then((res) => {
-//             dispatch({
-//                 type: UPDATE_FOLLOW_UP,
-//                 payload: res.data
-//             })
-//             console.log("UPDATE FOLLOW UP DATA", res.data)
-//         })
-//         .then(() => dispatch(getReferrals(res.data.referral)))
-//         .catch(err => {
-//             console.log(err);
-//             dispatch({
-//                 type: UPDATE_FOLLOW_ERR
-//             })
-//         })
-//     }
-// }
+        return axios.put(BASE_URL + `/follow_up/${followUpId}`, data).then((res) => {
+            dispatch({
+                type: UPDATE_FOLLOW_UP,
+                payload: res.data
+            })
+            console.log("UPDATE FOLLOW UP DATA", res.data)
+        })
+        // .then(() => dispatch(getReferrals(res.data.referral)))
+        .catch(err => {
+            console.log(err);
+            dispatch({
+                type: UPDATE_FOLLOW_UP_ERR
+            })
+        })
+    }
+}
+
+export const setReadingId = (readingId) => {
+    return dispatch => {
+        console.log("setting reading id")
+        return dispatch({
+            type: SET_READING_ID,
+            payload: readingId
+        })
+    }
+}
