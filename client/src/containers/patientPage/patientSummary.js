@@ -42,6 +42,8 @@ class PatientSummary extends Component {
   state = {
     displayPatientModal: false,
     selectedPatient: {},
+    showVitals: true,
+    showTrafficLights: false
   }
 
   componentDidMount = () => {
@@ -151,6 +153,14 @@ class PatientSummary extends Component {
       return total/monthlyArray.length;
     }
     return 0;
+  }
+
+  showVitals = () => {
+    this.setState({ showVitals : true, showTrafficLights : false })
+  }
+
+  showTrafficLights = () => {
+    this.setState({ showVitals : false, showTrafficLights : true })
   }
 
   render() {
@@ -323,15 +333,24 @@ class PatientSummary extends Component {
                   Vitals Over Time
                 </Typography>
                 <Divider/>
-                <div>
-                  <h4 style={{"margin" : "0"}}>Average Vitals Over Time:</h4>
-                  <Line ref="chart" data={vitalsOverTime}/>
-                </div>
-                <div>
-                  <h4 style={{"margin" : "0"}}>Traffic Light from Last Month:</h4>
-                  <Bar ref="chart" data={trafficLight} 
-                  options={{legend: {display: false}, scales: {xAxes: [{ticks: {fontSize: 10}}], yAxes: [{ticks: {beginAtZero: true}}]}}} />
-                </div>
+                <Button.Group style={{"width":"100%"}}>
+                  <Button active={this.state.showVitals} onClick={() => this.showVitals()}>Show Vitals Over Time</Button>
+                  <Button active={this.state.showTrafficLights} onClick={() => this.showTrafficLights()}>Show Traffic Lights</Button>
+                </Button.Group>
+                <br/><br/>
+                {this.state.showVitals &&
+                  <div>
+                    <h4 style={{"margin" : "0"}}>Average Vitals Over Time:</h4>
+                    <Line ref="chart" data={vitalsOverTime}/>
+                  </div>
+                }
+                {this.state.showTrafficLights &&
+                  <div>
+                    <h4 style={{"margin" : "0"}}>Traffic Light from Last Month:</h4>
+                    <Bar ref="chart" data={trafficLight} 
+                    options={{legend: {display: false}, scales: {xAxes: [{ticks: {fontSize: 10}}], yAxes: [{ticks: {beginAtZero: true}}]}}} />
+                  </div>
+                }
               </Paper>
             </Grid>
           </Grid>
