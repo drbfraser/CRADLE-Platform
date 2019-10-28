@@ -113,3 +113,24 @@ button:disabled {
 .white {
   color: #fff;
 }
+
+.center {
+  text-align: center;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.appIcon {
+  width: 100px;
+  padding: 20px;
+}
+
+.sidebarIcon {
+  width: 40px;
+}
+
+* {
+  font-family: 'IBM Plex Sans', sans-serif;
+}

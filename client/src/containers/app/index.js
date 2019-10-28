@@ -25,6 +25,13 @@ import { bindActionCreators } from 'redux'
 import { logoutUser } from '../../actions/users';
 import PropTypes from 'prop-types'
 
+import AppImg from './img/app_icon.png'
+import PatientsImg from './img/patients.svg'
+import ReferralsImg from './img/referrals.svg'
+import StatisticsImg from './img/statistics.svg'
+import CreateImg from './img/create.svg'
+import { bold } from 'ansi-colors';
+
 const drawerWidth = 200;
 
 const useStyles = makeStyles(theme => ({
@@ -79,12 +86,27 @@ const App = (props) => {
     return "";
   }
 
+  const titleTextStyle = {
+    fontFamily: "Open Sans",
+    fontWeight: "bold",
+    fontSize: 36
+  }
+
+  const sidebarTextStyle = {
+    fontFamily: "Open Sans",
+    fontWeight: 300,
+    fontSize: 18
+  };
+
+  const offsetFromTop = 50;
+
   return (
       <div className={classes.root} >
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
-          <Toolbar>
-            <Typography variant="h6" noWrap>
+          <Toolbar >
+            <img src={AppImg} class="appIcon" />
+            <Typography noWrap style={titleTextStyle}>
               Cradle
             </Typography>
             {props.user.isLoggedIn && 
@@ -102,13 +124,17 @@ const App = (props) => {
           </Toolbar>
           
         </AppBar>
+
+
+        {props.user.isLoggedIn ? (
         <Drawer className={classes.drawer} variant="permanent"
                 classes={{
                   paper: classes.drawerPaper,
                 }}
-                anchor="left">
-          <div className={classes.toolbar} />
-          {props.user.isLoggedIn ? (
+                anchor="left"
+                >
+          <div className={classes.toolbar}
+                style={{ marginTop:offsetFromTop }}/>
             <List>
               <ListItem className={classes.listItem}
                         button
@@ -116,8 +142,16 @@ const App = (props) => {
                         to="/patients"
                         selected={activeItem === "Patients"}
                         onClick={() => setActiveItem("Patients")}>
-                <ListItemIcon> <Icon size="huge" name="user doctor" inverted /> </ListItemIcon>
-                <ListItemText className={classes.itemText} primary="Patients" />
+                <ListItemIcon><img src={PatientsImg} class="center sidebarIcon" /></ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Patients
+                    </Typography>
+                  }
+                />
               </ListItem>
               <ListItem className={classes.listItem}
                         button
@@ -125,8 +159,16 @@ const App = (props) => {
                         to="/stats"
                         selected={activeItem === "Statistics"}
                         onClick={() => setActiveItem("Statistics")}>
-                <ListItemIcon> <Icon size="huge" name="line graph" inverted /> </ListItemIcon>
-                <ListItemText className={classes.itemText} primary="Statistics" />
+                <ListItemIcon><img src={StatisticsImg} class="center sidebarIcon" /></ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Statistics
+                    </Typography>
+                  }
+                />
               </ListItem>
               <ListItem className={classes.listItem}
                         button
@@ -134,8 +176,16 @@ const App = (props) => {
                         to="/referrals"
                         selected={activeItem === "Referrals"}
                         onClick={() => setActiveItem("Referrals")}>
-                <ListItemIcon> <Icon size="huge" name="download" inverted /> </ListItemIcon>
-                <ListItemText className={classes.itemText} primary="Referrals" />
+                <ListItemIcon><img src={ReferralsImg} class="center sidebarIcon" /></ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Referrals
+                    </Typography>
+                  }
+                />
               </ListItem>
               <ListItem className={classes.listItem}
                         button
@@ -143,33 +193,39 @@ const App = (props) => {
                         to="/newreading"
                         selected={activeItem === "Reading"}
                         onClick={() => setActiveItem("Reading")}>
-                <ListItemIcon> <Icon size="huge" name="add square" inverted /> </ListItemIcon>
-                <ListItemText className={classes.itemText} primary="New Reading" />
+                <ListItemIcon><img src={CreateImg} class="center sidebarIcon" /></ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      New Reading
+                    </Typography>
+                  }
+                />
               </ListItem>
               <Divider />
               <ListItem className={[classes.listItem, classes.logout]} button key="Logout" onClick={ () => props.logoutUser() }>
-                <ListItemText className={classes.itemText} primary="Logout" />
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Logout
+                    </Typography>
+                  }
+                />
               </ListItem>
               {props.user.role == 'ADMIN' &&
               <ListItem className={[classes.listItem]} component={Link} button key="new user" to="/signup">
                 <ListItemText className={classes.itemText} primary="Create New User" />
               </ListItem>}
             </List>
-          ) : (
-            <List>
-              <ListItem className={classes.listItem} 
-                        button 
-                        component={Link} 
-                        to="/login" 
-                        key="Login">
-                <ListItemText className={classes.itemText} primary="Log In" />
-              </ListItem>
-            </List>
-          )}
         </Drawer>
+        ) : (null)}
           
         
-        <main className={classes.content}>
+        <main className={classes.content} style={{paddingTop:offsetFromTop}}>
           <div className={classes.toolbar} />
           <Route exact path="/" component={Home} />
           <Route exact path="/patients" component={PatientPage} />
