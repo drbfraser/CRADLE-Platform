@@ -25,6 +25,7 @@ import { bindActionCreators } from 'redux'
 import { logoutUser } from '../../actions/users';
 import PropTypes from 'prop-types'
 
+import AppImg from './img/app_icon.png'
 import PatientsImg from './img/patients.svg'
 import ReferralsImg from './img/referrals.svg'
 import StatisticsImg from './img/statistics.svg'
@@ -85,6 +86,12 @@ const App = (props) => {
     return "";
   }
 
+  const titleTextStyle = {
+    fontFamily: "Open Sans",
+    fontWeight: "bold",
+    fontSize: 36
+  }
+
   const sidebarTextStyle = {
     fontFamily: "Open Sans",
     fontWeight: 300,
@@ -95,8 +102,9 @@ const App = (props) => {
       <div className={classes.root} >
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
-          <Toolbar>
-            <Typography variant="h6" noWrap>
+          <Toolbar >
+            <img src={AppImg} class="appIcon" />
+            <Typography noWrap style={titleTextStyle}>
               Cradle
             </Typography>
             {props.user.isLoggedIn && 
@@ -118,8 +126,10 @@ const App = (props) => {
                 classes={{
                   paper: classes.drawerPaper,
                 }}
-                anchor="left">
-          <div className={classes.toolbar} />
+                anchor="left"
+                >
+          <div className={classes.toolbar}
+                style={{ marginTop:50 }}/>
           {props.user.isLoggedIn ? (
             <List>
               <ListItem className={classes.listItem}

@@ -122,6 +122,11 @@ button:disabled {
   margin: auto;
 }
 
+.appIcon {
+  width: 100px;
+  padding: 20px;
+}
+
 .sidebarIcon {
   width: 40px;
 }
