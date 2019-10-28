@@ -346,7 +346,7 @@ class PatientSummary extends Component {
                 }
                 {this.state.showTrafficLights &&
                   <div>
-                    <h4 style={{"margin" : "0"}}>Traffic Light from Last Month:</h4>
+                    <h4 style={{"margin" : "0"}}>Traffic Lights From All Readings:</h4>
                     <Bar ref="chart" data={trafficLight} 
                     options={{legend: {display: false}, scales: {xAxes: [{ticks: {fontSize: 10}}], yAxes: [{ticks: {beginAtZero: true}}]}}} />
                   </div>
