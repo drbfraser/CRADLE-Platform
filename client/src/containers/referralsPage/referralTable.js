@@ -52,7 +52,7 @@ class ReferralTable extends Component {
         
         return (
             <MaterialTable
-                title="Referrals Table"
+                title="Referrals"
                 isLoading={this.props.isLoading}
                 columns={this.state.columns}
                 data={this.props.data}
