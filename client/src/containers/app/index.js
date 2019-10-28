@@ -25,6 +25,12 @@ import { bindActionCreators } from 'redux'
 import { logoutUser } from '../../actions/users';
 import PropTypes from 'prop-types'
 
+import PatientsImg from './img/patients.svg'
+import ReferralsImg from './img/referrals.svg'
+import StatisticsImg from './img/statistics.svg'
+import CreateImg from './img/create.svg'
+import { bold } from 'ansi-colors';
+
 const drawerWidth = 200;
 
 const useStyles = makeStyles(theme => ({
@@ -79,6 +85,12 @@ const App = (props) => {
     return "";
   }
 
+  const sidebarTextStyle = {
+    fontFamily: "Open Sans",
+    fontWeight: 300,
+    fontSize: 18
+  };
+
   return (
       <div className={classes.root} >
         <CssBaseline />
@@ -116,8 +128,16 @@ const App = (props) => {
                         to="/patients"
                         selected={activeItem === "Patients"}
                         onClick={() => setActiveItem("Patients")}>
-                <ListItemIcon> <Icon size="huge" name="user doctor" inverted /> </ListItemIcon>
-                <ListItemText className={classes.itemText} primary="Patients" />
+                <ListItemIcon><img src={PatientsImg} class="center sidebarIcon" /></ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Patients
+                    </Typography>
+                  }
+                />
               </ListItem>
               <ListItem className={classes.listItem}
                         button
@@ -125,8 +145,16 @@ const App = (props) => {
                         to="/stats"
                         selected={activeItem === "Statistics"}
                         onClick={() => setActiveItem("Statistics")}>
-                <ListItemIcon> <Icon size="huge" name="line graph" inverted /> </ListItemIcon>
-                <ListItemText className={classes.itemText} primary="Statistics" />
+                <ListItemIcon><img src={StatisticsImg} class="center sidebarIcon" /></ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Statistics
+                    </Typography>
+                  }
+                />
               </ListItem>
               <ListItem className={classes.listItem}
                         button
@@ -134,8 +162,16 @@ const App = (props) => {
                         to="/referrals"
                         selected={activeItem === "Referrals"}
                         onClick={() => setActiveItem("Referrals")}>
-                <ListItemIcon> <Icon size="huge" name="download" inverted /> </ListItemIcon>
-                <ListItemText className={classes.itemText} primary="Referrals" />
+                <ListItemIcon><img src={ReferralsImg} class="center sidebarIcon" /></ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Referrals
+                    </Typography>
+                  }
+                />
               </ListItem>
               <ListItem className={classes.listItem}
                         button
@@ -143,12 +179,28 @@ const App = (props) => {
                         to="/newreading"
                         selected={activeItem === "Reading"}
                         onClick={() => setActiveItem("Reading")}>
-                <ListItemIcon> <Icon size="huge" name="add square" inverted /> </ListItemIcon>
-                <ListItemText className={classes.itemText} primary="New Reading" />
+                <ListItemIcon><img src={CreateImg} class="center sidebarIcon" /></ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      New Reading
+                    </Typography>
+                  }
+                />
               </ListItem>
               <Divider />
               <ListItem className={[classes.listItem, classes.logout]} button key="Logout" onClick={ () => props.logoutUser() }>
-                <ListItemText className={classes.itemText} primary="Logout" />
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Logout
+                    </Typography>
+                  }
+                />
               </ListItem>
               {props.user.role == 'ADMIN' &&
               <ListItem className={[classes.listItem]} component={Link} button key="new user" to="/signup">
