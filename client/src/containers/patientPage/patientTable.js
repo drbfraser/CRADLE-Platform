@@ -46,7 +46,7 @@ class PatientTable extends Component {
     }
 
     render() {
-
+        
         return (
             <MaterialTable
                 title="Patients Table"

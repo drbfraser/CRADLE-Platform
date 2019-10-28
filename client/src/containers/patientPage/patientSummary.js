@@ -258,7 +258,7 @@ class PatientSummary extends Component {
         }]
       }
     }
-
+    
     return (
       <div>
       {this.state.selectedPatient ? (

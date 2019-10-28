@@ -21,6 +21,7 @@ class PatientManager(Manager):
 
             if patient["readings"]:
                 readings_arr = []
+                needs_assessment = False
                 for reading in patient["readings"]:
                     # build the reading json to add to array
                     reading_json = readingManager.read("readingId", reading)
@@ -29,15 +30,20 @@ class PatientManager(Manager):
 
                     # add referral if exists in reading
                     if reading_json["referral"]:
+
                         top_ref = referralManager.read("id", reading_json["referral"])
-                        # print("top_ref: " + json.dumps(top_ref, indent=2, sort_keys=True))
-                    
+                        if not top_ref['followUp']:
+                            needs_assessment = True
+                        
                         reading_json['comment'] = top_ref["comment"]
                         reading_json['dateReferred'] = top_ref["dateReferred"]
                         reading_json['healthFacilityName'] = top_ref["referralHealthFacilityName"]
                     
                     # add reading to readings array w/ referral info if exists
                     readings_arr.append(reading_json)
+
+                # add assessed field to patient
+                patient['needsAssessment'] = needs_assessment
                 
                 # add reading key to patient key
                 patient['readings'] = readings_arr

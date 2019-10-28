@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import BASE_URL from '../serverUrl'
+import { getPatients } from './patients';
 
 export const GET_REFERRALS = 'referrals/GET_REFERRALS'
 export const GET_REFERRALS_REQUESTED = 'referral/GET_REFERRALS_REQUESTED'
@@ -113,7 +114,7 @@ export const createFollowUp = (data) => {
                 payload: res.data
             })
             console.log("CREATE FOLLOW UP DATA", res.data)
-        })
+        }).then(() => dispatch(getPatients()))
         // .then(() => dispatch(getReferrals(res.data.referral)))
         .catch(err => {
             console.log(err);
