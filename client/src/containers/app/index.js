@@ -124,6 +124,9 @@ const App = (props) => {
           </Toolbar>
           
         </AppBar>
+
+
+        {props.user.isLoggedIn ? (
         <Drawer className={classes.drawer} variant="permanent"
                 classes={{
                   paper: classes.drawerPaper,
@@ -132,7 +135,6 @@ const App = (props) => {
                 >
           <div className={classes.toolbar}
                 style={{ marginTop:offsetFromTop }}/>
-          {props.user.isLoggedIn ? (
             <List>
               <ListItem className={classes.listItem}
                         button
@@ -219,18 +221,8 @@ const App = (props) => {
                 <ListItemText className={classes.itemText} primary="Create New User" />
               </ListItem>}
             </List>
-          ) : (
-            <List>
-              <ListItem className={classes.listItem} 
-                        button 
-                        component={Link} 
-                        to="/login" 
-                        key="Login">
-                <ListItemText className={classes.itemText} primary="Log In" />
-              </ListItem>
-            </List>
-          )}
         </Drawer>
+        ) : (null)}
           
         
         <main className={classes.content} style={{paddingTop:offsetFromTop}}>
