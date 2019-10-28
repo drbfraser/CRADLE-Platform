@@ -35,9 +35,6 @@ export default (state = initialState, action) => {
           isLoading: false
       }
 
-
-      
-
     default:
       return state
   }

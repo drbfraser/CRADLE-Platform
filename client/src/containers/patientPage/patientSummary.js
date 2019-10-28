@@ -8,20 +8,23 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
-import moment from 'moment';
-import { updatePatient } from '../../actions/patients';
-import { getPatients } from '../../actions/patients';
-import { getSelectedPatientStats } from '../../actions/statistics';
 
 import { Button,
   Header, Image, Modal,
   Divider, Form, Select,
   Input, TextArea, Item
-} from 'semantic-ui-react';
+} from 'semantic-ui-react'
+
+import { getPrettyDate, getMomentDate } from '../../utils';
+import { updatePatient, getPatients } from '../../actions/patients';
+import { getReferrals } from '../../actions/referrals';
+import { getSelectedPatientStats } from '../../actions/statistics';
+
 import { Bar, Line } from 'react-chartjs-2';
 import { ReactComponent as GreenTraffic } from './drawable/green.svg';
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
 import { ReactComponent as RedTraffic } from './drawable/red.svg';
+import ReferralInfo from './referralInfo';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -43,7 +46,26 @@ class PatientSummary extends Component {
 
   componentDidMount = () => {
     this.setState({ 'selectedPatient' : this.props.selectedPatient })
+  
+    console.log("this.props.selectedPatient: ",  this.props.selectedPatient);
+
+    this.props.getReferrals(this.getReferralIds(this.props.selectedPatient))
+  
     this.props.getSelectedPatientStats(this.props.selectedPatient.patientId)
+
+  }
+
+  getReferralIds(selectedPatient) {
+    console.log("selectedPatient: ", selectedPatient)
+    let res = [];
+    for(let i in selectedPatient.readings) {
+      let reading = selectedPatient.readings[i];
+      if(reading.referral != null) {
+        res.push(reading.referral)
+      }
+    }
+    console.log("referralIds", res)
+    return res
   }
 
   handleBackBtn = () => {
@@ -67,6 +89,7 @@ class PatientSummary extends Component {
 
     // delete any unnecessary fields
     delete patientData.readings
+    delete patientData.needsAssessment
     delete patientData.tableData
     delete patientData.patientId
 
@@ -89,17 +112,8 @@ class PatientSummary extends Component {
   }
 
   sortReadings = (readings) => {
-    let sortedReadings = readings.sort((a,b) => this.getMomentDate(b.dateTimeTaken).valueOf() - this.getMomentDate(a.dateTimeTaken).valueOf())
+    let sortedReadings = readings.sort((a,b) => getMomentDate(b.dateTimeTaken).valueOf() - getMomentDate(a.dateTimeTaken).valueOf())
     return sortedReadings
-  }
-
-  getMomentDate = (dateStr) => {
-    var dateStr = dateStr.slice(0,19)
-    return moment(dateStr);
-  }
-
-  getPrettyDate = (dateStr) => {
-    return this.getMomentDate(dateStr).format("MMMM Do YYYY, h:mm:ss a");
   }
 
   getTrafficIcon = (trafficLightStatus) => {
@@ -125,35 +139,6 @@ class PatientSummary extends Component {
                </div>
     } else {
         return <GreenTraffic style={{"height":"75px", "width":"75px"}} />
-    }
-  }
-
-  getReferralOrAssessment = (row) => {
-    const isReferred = row.isReferred
-    // const isAssessed = row.isAssessed
-    if (isReferred) {
-      // TODO: make another check to see if they have been assessed
-      // if (isAssessed) {
-
-      // }
-
-      return <div style={{"padding" : "80px 0px"}}>
-              <Typography variant="h4" component="h4">
-                Referral Pending
-              </Typography>
-
-              <Typography variant="subtitle1" component="subtitle1">
-                Created {this.getPrettyDate(row.dateReferred)}
-              </Typography>
-              <br/> <br/>
-              <Button style={{"backgroundColor" : "#84ced4"}} size="large">Assess</Button>
-            </div>
-    } else {
-      return  <div style={{"padding" : "80px 0px"}}>
-                <Typography variant="h4" component="h4">
-                  No Referral
-                </Typography>
-              </div>
     }
   }
 
@@ -274,7 +259,7 @@ class PatientSummary extends Component {
         }]
       }
     }
-
+    
     return (
       <div>
       {this.state.selectedPatient ? (
@@ -354,14 +339,14 @@ class PatientSummary extends Component {
           <Grid container spacing={0}>
           {readings.map(row => (
               <Grid key={row.readingId} xs={12}>
-              <Paper style={{"marginBottom":"35px", "height":"400px", "padding" : "45px 50px", "borderRadius" : "15px"}}>
+              <Paper style={{"marginBottom":"35px", "height": "auto", "padding" : "45px 50px", "borderRadius" : "15px", "display": "flex"}}>
                   <div style={{"display": "inline-block", "width":"50%"}}>
                     <Typography variant="h4" component="h4">
                       Reading
                     </Typography>
 
                     <Typography variant="subtitle1" component="subtitle1">
-                      Taken on {this.getPrettyDate(row.dateTimeTaken)}
+                      Taken on {getPrettyDate(row.dateTimeTaken)}
                     </Typography>
 
                     <div style={{"padding" : "25px 50px"}}>
@@ -375,7 +360,7 @@ class PatientSummary extends Component {
                   </div>
                   <div style={{"borderLeft": "2px solid #84ced4", "display": "inline-block", "width":"50%", "float": "right", "height" : "100%"}}>
                     <div style={{"padding" : "0px 50px"}}>
-                      {this.getReferralOrAssessment(row)}
+                      <ReferralInfo readingId={row.readingId} referral={this.props.referrals[row.readingId]}/>
                     </div>
                   </div>
                 </Paper>
@@ -471,7 +456,11 @@ class PatientSummary extends Component {
 }
 
 
-const mapStateToProps = ({patientStats}) => ({
+const mapStateToProps = ({
+  referrals,
+  patientStats
+}) => ({
+  referrals: referrals.mappedReferrals,
   selectedPatientStatsList : patientStats.selectedPatientStatsList
 })
 
@@ -480,6 +469,7 @@ const mapDispatchToProps = dispatch =>
     {
       updatePatient,
       getPatients,
+      getReferrals,
       getSelectedPatientStats
     },
     dispatch

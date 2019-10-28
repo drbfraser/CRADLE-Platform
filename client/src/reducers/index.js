@@ -4,6 +4,7 @@ import posts from './posts'
 import userReducer from './user'
 import patients from './patients'
 import statistics from './statistics'
+import referrals from './referrals'
 import patientStats from './patientStats'
 
 export default combineReducers({
@@ -12,5 +13,6 @@ export default combineReducers({
   user: userReducer,
   patients,
   statistics,
+  referrals,
   patientStats
 })

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import MaterialTable from 'material-table';
 import moment from 'moment';
+import { Icon } from 'semantic-ui-react'
 
 class ReferralTable extends Component {
     
@@ -23,7 +24,8 @@ class ReferralTable extends Component {
                 render: rowData => <p>{this.getPrettyDate(this.getLatestReferral(rowData.readings))}</p>,
             customSort: (a,b) => this.getMomentDate(this.getLatestReferral(a.readings)).valueOf() - this.getMomentDate(this.getLatestReferral(b.readings)).valueOf(),
             defaultSort: 'desc' },
-        {   title: 'Assessment', render: rowData => <p>Pending</p>},
+        {   title: 'Assessment', render: rowData => rowData.needsAssessment ? (<p><Icon name="clock outline" size="large" color="red"/> Pending</p>) :
+                                                                            (<p><Icon name="checkmark" size="large" color="green"/> Complete</p>)},
         ],
         data: [],
         selectedPatient: { patientId: '', patientName: 'Test', 
@@ -47,7 +49,7 @@ class ReferralTable extends Component {
     }
 
     render() {
-
+        
         return (
             <MaterialTable
                 title="Referrals Table"
