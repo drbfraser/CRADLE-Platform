@@ -89,6 +89,7 @@ class PatientSummary extends Component {
 
     // delete any unnecessary fields
     delete patientData.readings
+    delete patientData.needsAssessment
     delete patientData.tableData
     delete patientData.patientId
 
