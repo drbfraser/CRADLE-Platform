@@ -98,6 +98,8 @@ const App = (props) => {
     fontSize: 18
   };
 
+  const offsetFromTop = 50;
+
   return (
       <div className={classes.root} >
         <CssBaseline />
@@ -129,7 +131,7 @@ const App = (props) => {
                 anchor="left"
                 >
           <div className={classes.toolbar}
-                style={{ marginTop:50 }}/>
+                style={{ marginTop:offsetFromTop }}/>
           {props.user.isLoggedIn ? (
             <List>
               <ListItem className={classes.listItem}
@@ -231,7 +233,7 @@ const App = (props) => {
         </Drawer>
           
         
-        <main className={classes.content}>
+        <main className={classes.content} style={{paddingTop:offsetFromTop}}>
           <div className={classes.toolbar} />
           <Route exact path="/" component={Home} />
           <Route exact path="/patients" component={PatientPage} />
