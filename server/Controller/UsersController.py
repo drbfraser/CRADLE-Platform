@@ -1,9 +1,28 @@
+import logging
 from flask import request, jsonify
 from flask_restful import Resource, abort
 from models import validate_user, User, UserSchema, Role
 from config import db, flask_bcrypt
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                     jwt_required, jwt_refresh_token_required, get_jwt_identity)
+from Manager.UserManager import UserManager
+
+
+userManager = UserManager()
+
+# user/all [POST]
+class UserAll(Resource):
+    
+    # get all users
+    def get(self):
+        logging.debug('Received request: GET user/all')
+
+        users = userManager.read_all_no_password()
+        if users is None:
+            abort(404, message="No users currently exist.")
+        print(users)
+        return users
+
 
 # user/register [POST]
 class UserApi(Resource):

@@ -17,7 +17,6 @@ from Controller.PatientStatsController import *
 
 
 def init(api):
-    api.add_resource(HelloWorld, '/api/hello-world')
     api.add_resource(Multi, '/api/multi/<int:num>')
     api.add_resource(AllStats, '/api/stats') # [GET]
     api.add_resource(PatientStats,'/api/patient/stats/<string:patient_id>') # [GET]
@@ -25,6 +24,7 @@ def init(api):
     api.add_resource(UserApi, '/api/user/register') # [POST]
     api.add_resource(UserAuthApi, '/api/user/auth') # [POST]
     api.add_resource(UserTokenApi, '/api/user/current') # [GET]
+    api.add_resource(UserAll, '/api/user/all') # [GET]
 
     api.add_resource(PatientAllInformation, '/api/patient/allinfo') # [GET]
     api.add_resource(PatientReading, '/api/patient/reading') # [POST]
