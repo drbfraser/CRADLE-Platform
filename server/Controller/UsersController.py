@@ -1,4 +1,4 @@
-import logging
+import logging, json
 from flask import request, jsonify
 from flask_restful import Resource, abort
 from models import validate_user, User, UserSchema, Role
@@ -6,9 +6,11 @@ from config import db, flask_bcrypt
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                     jwt_required, jwt_refresh_token_required, get_jwt_identity)
 from Manager.UserManager import UserManager
+from Manager.RoleManager import RoleManager
 
 
 userManager = UserManager()
+roleManager = RoleManager()
 
 # user/all [POST]
 class UserAll(Resource):
@@ -76,6 +78,7 @@ class UserAuthApi(Resource):
                 # setup any extra user params
                 data['role'] = user.roleIds[0].name.name # get first role of user
                 data['firstName'] = user.firstName
+                data['healthFacilityName'] = user.healthFacilityName
                 data['isLoggedIn'] = True
 
                 access_token = create_access_token(identity=data)
@@ -95,3 +98,32 @@ class UserTokenApi(Resource):
     def get(self):
         current_user = get_jwt_identity()
         return current_user, 200
+
+# user/edit/<int:id> [PUT]
+class UserEdit(Resource):
+
+    @staticmethod
+    def _get_request_body():
+        raw_req_body = request.get_json(force=True)
+        print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
+        return raw_req_body
+    
+    # edit user with id
+    def put(self, id):
+
+        # validate inputs
+        if not id:
+            abort(400, message="User ID is required")
+
+        new_user = UserEdit._get_request_body()
+        if new_user['newRoleIds']:
+            # add user to role
+            roleManager.add_user_to_role(id, new_user['newRoleIds'])
+            new_user.pop('newRoleIds', None)
+
+        update_res = userManager.update("id", id, new_user)
+
+        if not update_res:
+            abort(400, message=f'No user exists with id "{id}"')
+        else:
+            return update_res
