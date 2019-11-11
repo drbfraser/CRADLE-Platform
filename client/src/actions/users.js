@@ -3,6 +3,14 @@ import axios from 'axios';
 
 import BASE_URL from '../serverUrl'
 
+export const GET_USERS_SUCCESS = 'users/GET_USERS_SUCCESS'
+export const GET_USERS_REQ  = 'users/GET_USERS_REQ'
+export const GET_USERS_ERR = 'users/GET_USERS_ERR'
+
+export const UPDATE_USERS_SUCCESS = 'users/UPDATE_USERS_SUCCESS'
+export const UPDATE_USERS_REQ  = 'users/UPDATE_USERS_REQ'
+export const UPDATE_USERS_ERR = 'users/UPDATE_USERS_ERR'
+
 export const userPostFetch = user => {
   return dispatch => {
     return fetch(BASE_URL + "/user/register", {
@@ -74,6 +82,50 @@ export const getCurrentUser = () => {
           return {'message' : 'Not authorized'}
         } )
     }
+}
+
+export const getUsers = () => {
+  return dispatch => {
+    dispatch({
+      type: GET_USERS_REQ
+    })
+
+    axios.get(BASE_URL + "/user/all").then((res) => {
+        console.log("get users res: ", res);
+        dispatch({
+            type: GET_USERS_SUCCESS,
+            payload: res.data
+        })
+    }).catch(err => {
+        console.log(err);
+        dispatch({
+            type: GET_USERS_ERR
+        })
+    })
+  }
+}
+
+export const updateUser = (userId, data) => {
+  return dispatch => {
+      dispatch({
+          type: UPDATE_USERS_REQ
+      })
+
+      return axios.put(BASE_URL + "/user/edit/"+ userId, data).then((res) => {
+          dispatch({
+              type: UPDATE_USERS_SUCCESS,
+              payload: res.data
+          })
+          console.log("UPDATE PATIENT DATA", res.data)
+      })
+      .then( () => dispatch(getUsers()))
+      .catch(err => {
+          console.log(err);
+          dispatch({
+              type: UPDATE_USERS_ERR
+          })
+      })
+  }
 }
 
 export const logoutUser = () => {
