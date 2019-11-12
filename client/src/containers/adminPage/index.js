@@ -5,21 +5,13 @@ import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users'
 import { getUsers } from '../../actions/users'
 import { updateUser } from '../../actions/users'
+import { deleteUser } from '../../actions/users'
+import { getHealthFacilityList } from '../../actions/healthFacilities'
 import { Button,
   Header, Icon, Modal,
   Divider, Form, Select,
   Input, Dropdown, Message
 } from 'semantic-ui-react'
-
-
-// NOTE: hard coded health facilities
-// TODO: get list of health facilities from backend
-const hfOptions = [
-  { key: '1', text: 'H1233', value: 'H1233' },
-  { key: '2', text: 'H2555', value: 'H2555' },
-  { key: '3', text: 'H3445', value: 'H3445' },
-  { key: '4', text: 'H5123', value: 'H5123' },
-]
 
 const options = [
   { key: 'vht', text: 'VHT', value: 1 },
@@ -32,12 +24,16 @@ class AdminPage extends Component {
   state = {
     columns: [
     {   title: 'Actions', render: rowData => {
+        if (rowData.email === "admin@admin.com") {
+          return <div></div>
+        }
         return (
-          (rowData.email !== "admin@admin.com" || rowData.email !== this.props.user.email) &&
+          (rowData.email !== this.props.user.email) &&
             <span>
               <Icon onClick={() => this.openUserEditModal(rowData)} style={{ "cursor": "pointer"}} name="pencil" size="large"/>
-              <Icon style={{ "cursor": "pointer", "marginLeft" : "15px"}} name="user delete" size="large"/>
-            </span>)}
+              <Icon onClick={() => this.openConfirmDeleteModal(rowData)} style={{ "cursor": "pointer", "marginLeft" : "15px"}} name="user delete" size="large"/>
+            </span>)
+        }
     },
     {   title: 'First Name',
         field: 'firstName',
@@ -50,6 +46,7 @@ class AdminPage extends Component {
     data: [],
     roleMapping: { 1: 'VHT', 2: 'HCW', 3: 'ADMIN'},
     displayUserEditModal: false,
+    displayConfirmDeleteModal: false,
     selectedUser : { dropdownSelections: [] },
   }
 
@@ -62,13 +59,20 @@ class AdminPage extends Component {
   }
 
   openUserEditModal = (rowData) => {
-    console.log(rowData)
     this.setState({ displayUserEditModal: true, selectedUser: { ...rowData, dropdownSelections: rowData.roleIds} } )
   }
 
   closeUserEditModal = () => {
-    console.log(this.state.selectedUser)
     this.setState({ displayUserEditModal: false, selectedUser: {} })
+  }
+
+  openConfirmDeleteModal = (rowData) => {
+    console.log(rowData)
+    this.setState({ displayConfirmDeleteModal: true, selectedUser: { ...rowData } } )
+  }
+
+  closeConfirmDeleteModal = () => {
+    this.setState({ displayConfirmDeleteModal: false, selectedUser: {} })
   }
 
   handleSubmit = (event) => {
@@ -93,6 +97,15 @@ class AdminPage extends Component {
     this.closeUserEditModal()
   }
 
+  handleDelete = (event) => {
+    event.preventDefault();
+    let userData = JSON.parse(JSON.stringify(this.state.selectedUser)) // pass by value
+    let userId = userData.id
+
+    this.props.deleteUser(userId)
+    this.closeConfirmDeleteModal()
+  }
+
   componentDidMount = () => {
     this.props.getCurrentUser().then((err) => {
       if (err !== undefined) {
@@ -100,7 +113,10 @@ class AdminPage extends Component {
         return
       }
       
-      this.props.getUsers()
+      if (!this.props.usersList || !this.props.healthFacilityList) {
+        this.props.getUsers()
+        this.props.getHealthFacilityList()
+      }
     })
   }
 
@@ -133,8 +149,19 @@ class AdminPage extends Component {
   }
 
   render() {
+    // construct health facilities list object for dropdown
+    let hfOptions = [];
+    if (this.props.healthFacilityList !== undefined && this.props.healthFacilityList.length > 0) {
+      for (var i = 0; i < this.props.healthFacilityList.length; i++) {
+        hfOptions.push({'key'  : this.props.healthFacilityList[i],
+                        'text' : this.props.healthFacilityList[i],
+                        'value': this.props.healthFacilityList[i]
+                      })
+      }
+    }
+
     // only admins can see this page
-    if (this.props.user.role != 'ADMIN') {
+    if (this.props.user.roles == undefined || !this.props.user.roles.includes('ADMIN')) {
       return  <Message warning>
                 <Message.Header>Only Admins can enter this page</Message.Header>
                 <p>Please login with an Admin account</p>
@@ -186,7 +213,7 @@ class AdminPage extends Component {
                     value={this.state.selectedUser.healthFacilityName}
                     label='Health Facility'
                     options={hfOptions}
-                    placeholder='Gender'
+                    placeholder='Health Facility'
                     onChange={this.handleSelectChange}
                   />
                 </Form.Group>
@@ -206,16 +233,34 @@ class AdminPage extends Component {
             </Modal.Description>
           </Modal.Content>
         </Modal>
+
+        <Modal basic size='small' closeIcon onClose={this.closeConfirmDeleteModal} open={this.state.displayConfirmDeleteModal}>
+          <Header icon='archive' content='Confirm Deleting User' />
+          <Modal.Content>
+            <p>Are you sure you want to delete the User:</p>
+            <p>First Name: {this.state.selectedUser.firstName}</p>
+            <p>Email: {this.state.selectedUser.email}</p>
+          </Modal.Content>
+          <Modal.Actions>
+            <Button basic color='red' inverted onClick={() => this.closeConfirmDeleteModal()}>
+              <Icon name='remove' /> No
+            </Button>
+            <Button color='green' inverted onClick={this.handleDelete}>
+              <Icon name='checkmark' /> Yes
+            </Button>
+          </Modal.Actions>
+        </Modal>
+
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user, healthFacilities }) => ({
   user : user.currentUser,
   isLoading: user.allUsers.isLoading,
   usersList : user.allUsers.usersList,
-  registerStatus : user.registerStatus
+  healthFacilityList: healthFacilities.healthFacilitiesList
 })
 
 const mapDispatchToProps = dispatch =>
@@ -223,7 +268,9 @@ const mapDispatchToProps = dispatch =>
     {
       getCurrentUser,
       getUsers,
-      updateUser
+      updateUser,
+      deleteUser,
+      getHealthFacilityList
     },
     dispatch
   )
