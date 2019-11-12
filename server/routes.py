@@ -26,6 +26,7 @@ def init(api):
     api.add_resource(UserTokenApi, '/api/user/current') # [GET]
     api.add_resource(UserAll, '/api/user/all') # [GET]
     api.add_resource(UserEdit, '/api/user/edit/<int:id>') # [POST]
+    api.add_resource(UserDelete, '/api/user/delete/<int:id>') # [DELETE]
 
     api.add_resource(PatientAllInformation, '/api/patient/allinfo') # [GET]
     api.add_resource(PatientReading, '/api/patient/reading') # [POST]
