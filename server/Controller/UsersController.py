@@ -22,7 +22,6 @@ class UserAll(Resource):
         users = userManager.read_all_no_password()
         if users is None:
             abort(404, message="No users currently exist.")
-        print(users)
         return users
 
 
@@ -76,7 +75,12 @@ class UserAuthApi(Resource):
                 del data['password']
 
                 # setup any extra user params
-                data['role'] = user.roleIds[0].name.name # get first role of user
+                roles = []
+                if user.roleIds:
+                    for role in user.roleIds:
+                        roles.append(role.name.name)
+                
+                data['roles'] = roles
                 data['firstName'] = user.firstName
                 data['healthFacilityName'] = user.healthFacilityName
                 data['isLoggedIn'] = True
@@ -127,3 +131,21 @@ class UserEdit(Resource):
             abort(400, message=f'No user exists with id "{id}"')
         else:
             return update_res
+
+# user/delete/<int:id>
+class UserDelete(Resource):
+
+    @jwt_required
+    def delete(self, id):
+        current_user = get_jwt_identity()
+        if 'ADMIN' in current_user['roles']:
+            if id:
+                logging.debug('Received request: DELETE /user/delete/<id>')
+                del_res = userManager.delete("id", id)
+                if not del_res:
+                    abort(400, message=f'No user exists with id "{id}"')
+            else:
+                abort(400, message='No id supplied for user delete')
+        else:
+            abort(400, message='Only Admins can delete users') 
+        return {}
