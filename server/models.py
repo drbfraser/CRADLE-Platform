@@ -284,6 +284,9 @@ user_schema = {
         "role": {
             "type": "string",
         },
+        "healthFacilityName": {
+            "type": "string",
+        },
         "password": {
             "type": "string",
             "minLength": 5

@@ -17,6 +17,15 @@ manager = Manager(app)
 # USAGE: python manage.py seed
 @manager.command
 def seed():
+    # SEED health facilities
+    print('Seeding health facilities...')
+
+    healthfacility_schema = HealthFacilitySchema()
+    for hf in healthFacilityList:
+        hf_schema = { "healthFacilityName" : hf }
+        db.session.add(healthfacility_schema.load(hf_schema))
+    db.session.commit()
+
     # SEED roles
     role1 = Role(name='VHT')
     role2 = Role(name='HCW')
@@ -31,9 +40,9 @@ def seed():
     role_vht = Role.query.filter_by(name='VHT').first()
 
     user_schema = UserSchema()
-    u0 = { 'email' : 'admin@admin.com', 'firstName': 'Admin', 'password': flask_bcrypt.generate_password_hash('123456') }
-    u1 = { 'email' : 'a@a.com', 'firstName': 'Brian', 'password': flask_bcrypt.generate_password_hash('123456') }
-    u2 = { 'email' : 'b@b.com', 'firstName' : 'TestVHT','password': flask_bcrypt.generate_password_hash('123456') }
+    u0 = { 'email' : 'admin@admin.com', 'firstName': 'Admin', 'password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
+    u1 = { 'email' : 'a@a.com', 'firstName': 'Brian', 'password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
+    u2 = { 'email' : 'b@b.com', 'firstName' : 'TestVHT','password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
     role_admin.users.append(user_schema.load(u0, session=db.session))
     role_hcw.users.append(user_schema.load(u1, session=db.session))
     role_vht.users.append(user_schema.load(u2, session=db.session))
@@ -42,15 +51,6 @@ def seed():
     db.session.add(role_admin)
     db.session.add(role_hcw)
     db.session.add(role_vht)
-    db.session.commit()
-
-    # seed health facilities
-    print('Seeding health facilities...')
-
-    healthfacility_schema = HealthFacilitySchema()
-    for hf in healthFacilityList:
-        hf_schema = { "healthFacilityName" : hf }
-        db.session.add(healthfacility_schema.load(hf_schema))
     db.session.commit()
 
 

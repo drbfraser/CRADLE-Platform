@@ -9,7 +9,7 @@ from Manager.HealthFacilityManager import HealthFacilityManager
 
 healthFacilityManager = HealthFacilityManager()
 
-# URI: /patient
+# URI: /health_facility
 class HealthFacility(Resource):
 
     @staticmethod
@@ -18,7 +18,7 @@ class HealthFacility(Resource):
         print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
         return raw_req_body
 
-    # Get all patients
+    # Get all health facilities
     @staticmethod
     def get(name=None):      
         args = request.args  
@@ -42,7 +42,7 @@ class HealthFacility(Resource):
                 abort(404, message="No health facilities currently exist.")
             return hfs
 
-    # Create a new patient
+    # Create a new hf
     @staticmethod
     def post():
         logging.debug('Received request: POST /health_facility')
@@ -77,4 +77,17 @@ class HealthFacility(Resource):
             healthFacilityManager.delete_all()
         return {}
 
-    
+# api/health_facility_list
+class HealthFacilityList(Resource):
+
+    # return list of health facility names
+    def get(self):
+        hfs = healthFacilityManager.read_all()
+        if not hfs:
+            abort(404, message="No health facilities currently exist.")
+
+        hfs_names = []
+        for hf in hfs:
+            hfs_names.append(hf['healthFacilityName'])
+        
+        return hfs_names
