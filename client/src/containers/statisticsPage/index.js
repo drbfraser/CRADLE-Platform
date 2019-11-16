@@ -197,17 +197,17 @@ class StatisticsPage extends Component {
           <div>
             <h2>A snapshot of all women assessed:</h2>
             <div className='centerize'>
-              {(this.props.statisticsList.womenReferralsPerMonth 
-              && this.props.statisticsList.referralsPregnantWomenPerMonth
+              {(this.props.statisticsList.womenReferredPerMonth 
+              && this.props.statisticsList.pregnantWomenReferredPerMonth
               && this.props.statisticsList.womenAssessedPerMonth
-              && this.props.statisticsList.assessmentsPregnantWomenPerMonth) ? (
+              && this.props.statisticsList.pregnantWomenAssessedPerMonth) ? (
                 <Statistic.Group>
                   <Statistic horizontal className='statSubBox'>
-                    <Statistic.Value className='underlineBlack'>{this.props.statisticsList.pregnantWomenReferredPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Value className='underlineBlack'>{this.props.statisticsList.womenReferredPerMonth[getMonth-1]}</Statistic.Value>
                     <Statistic.Label className='virticalWritting'>WOMEN REFERRED</Statistic.Label>
                   </Statistic>
                   <Statistic horizontal className='statSubBox'>
-                    <Statistic.Value className='underlineBlue'>{this.props.statisticsList.referralsPregnantWomenPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Value className='underlineBlue'>{this.props.statisticsList.pregnantWomenReferredPerMonth[getMonth-1]}</Statistic.Value>
                     <Statistic.Label className='virticalWritting'>PREGNANT WOMEN REFERRED</Statistic.Label>
                   </Statistic>
                   <Statistic horizontal className='statSubBox'>
