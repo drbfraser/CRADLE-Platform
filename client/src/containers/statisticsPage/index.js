@@ -132,99 +132,111 @@ class StatisticsPage extends Component {
         }]
       }
     }
-    
-
-
-
+  
     return (
       <div>
         <div className='statisticBox'>
           <h1 className='headerSize'>Our Health Facility’s Statistics</h1>
           <div>
             <h2>In the last month, our health facility assessed:</h2>
-            {(this.props.statisticsList.uniquePeopleAssesedPerMonth
-            || this.props.statisticsList.womenAssessedPerMonth
-            || this.props.statisticsList.pregnantWomenAssessedPerMonth) ? (
-              <Statistic.Group>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.uniquePeopleAssesedPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label>PEOPLE</Statistic.Label>
-                </Statistic>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.womenAssessedPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label>WOMEN</Statistic.Label>
-                </Statistic>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.pregnantWomenAssessedPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label className='virticalWritting'>PREGNANT WOMEN</Statistic.Label>
-                </Statistic>
-              </Statistic.Group>
-            ) : (<div></div>)
-            }
+            <div className='centerize'>
+              {(this.props.statisticsList.uniquePeopleAssesedPerMonth
+              || this.props.statisticsList.womenAssessedPerMonth
+              || this.props.statisticsList.pregnantWomenAssessedPerMonth) ? (
+                <Statistic.Group>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlineBlue'>{this.props.statisticsList.uniquePeopleAssesedPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label>PEOPLE</Statistic.Label>
+                  </Statistic>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlineBlue'>{this.props.statisticsList.womenAssessedPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label>WOMEN</Statistic.Label>
+                  </Statistic>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlineBlue'>{this.props.statisticsList.pregnantWomenAssessedPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label className='virticalWritting'>PREGNANT WOMEN</Statistic.Label>
+                  </Statistic>
+                </Statistic.Group>
+              ) : (<div></div>)
+              }
+            </div>
           </div>
           <br/>
           <br/>
           <h1 className='headerSize'>Global Statistics</h1>
           <div>
             <h2>In the last month, there were:</h2>
-            {(this.props.statisticsList.readingsPerMonth 
-            && this.props.statisticsList.referralsPerMonth 
-            && this.props.statisticsList.assessmentsPerMonth) ? (
-              <Statistic.Group>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.readingsPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label className='virticalWritting'>READINGS TAKEN</Statistic.Label>
-                </Statistic>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlinePurple'>{this.props.statisticsList.referralsPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label className='virticalWritting'>REFERRALS SENT</Statistic.Label>
-                </Statistic>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineOrange'>{this.props.statisticsList.assessmentsPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label className='virticalWritting'>ASSESSMENTS MADE</Statistic.Label>
-                </Statistic>
-            </Statistic.Group>
-            ) : (<div></div>)
-            }
+            <div className='centerize'>
+              {(this.props.statisticsList.readingsPerMonth 
+              && this.props.statisticsList.referralsPerMonth 
+              && this.props.statisticsList.assessmentsPerMonth) ? (
+                <Statistic.Group>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlineBlue'>{this.props.statisticsList.readingsPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label className='virticalWritting'>READINGS TAKEN</Statistic.Label>
+                  </Statistic>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlinePurple'>{this.props.statisticsList.referralsPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label className='virticalWritting'>REFERRALS SENT</Statistic.Label>
+                  </Statistic>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlineOrange'>{this.props.statisticsList.assessmentsPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label className='virticalWritting'>ASSESSMENTS MADE</Statistic.Label>
+                  </Statistic>
+              </Statistic.Group>
+              ) : (<div></div>)
+              }
+              <div className='chartBox'>
+                <Line ref="chart" data={readingsVsReferralsVsAssessment}/>
+              </div>
+            </div>
             <br/>
-            <Line ref="chart" className='chartBox' data={readingsVsReferralsVsAssessment}/>
           </div>
+          <br/>
           <br/>
           <div>
             <h2>A snapshot of all women assessed:</h2>
-            {(this.props.statisticsList.womenReferralsPerMonth 
-            && this.props.statisticsList.referralsPregnantWomenPerMonth
-            && this.props.statisticsList.womenAssessedPerMonth
-            && this.props.statisticsList.assessmentsPregnantWomenPerMonth) ? (
-              <Statistic.Group>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineBlack'>{this.props.statisticsList.pregnantWomenReferredPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label className='virticalWritting'>WOMEN REFERRED</Statistic.Label>
-                </Statistic>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineBlue'>{this.props.statisticsList.referralsPregnantWomenPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label className='virticalWritting'>PREGNANT WOMEN REFERRED</Statistic.Label>
-                </Statistic>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlinePurple'>{this.props.statisticsList.womenAssessedPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label className='virticalWritting'>WOMEN ASSESSED</Statistic.Label>
-                </Statistic>
-                <Statistic horizontal className='statSubBox'>
-                  <Statistic.Value className='underlineOrange'>{this.props.statisticsList.pregnantWomenAssessedPerMonth[getMonth-1]}</Statistic.Value>
-                  <Statistic.Label className='virticalWritting'>PREGNANT WOMEN ASSESSED</Statistic.Label>
-                </Statistic>
-            </Statistic.Group>
-            ) : (<div></div>)
-            }
-            
-            <br/>
-            <Line ref="chart" className='chartBox' data={womenReferralsVsAssessed} />
+            <div className='centerize'>
+              {(this.props.statisticsList.womenReferralsPerMonth 
+              && this.props.statisticsList.referralsPregnantWomenPerMonth
+              && this.props.statisticsList.womenAssessedPerMonth
+              && this.props.statisticsList.assessmentsPregnantWomenPerMonth) ? (
+                <Statistic.Group>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlineBlack'>{this.props.statisticsList.pregnantWomenReferredPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label className='virticalWritting'>WOMEN REFERRED</Statistic.Label>
+                  </Statistic>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlineBlue'>{this.props.statisticsList.referralsPregnantWomenPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label className='virticalWritting'>PREGNANT WOMEN REFERRED</Statistic.Label>
+                  </Statistic>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlinePurple'>{this.props.statisticsList.womenAssessedPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label className='virticalWritting'>WOMEN ASSESSED</Statistic.Label>
+                  </Statistic>
+                  <Statistic horizontal className='statSubBox'>
+                    <Statistic.Value className='underlineOrange'>{this.props.statisticsList.pregnantWomenAssessedPerMonth[getMonth-1]}</Statistic.Value>
+                    <Statistic.Label className='virticalWritting'>PREGNANT WOMEN ASSESSED</Statistic.Label>
+                  </Statistic>
+              </Statistic.Group>
+              ) : (<div></div>)
+              }
+              <br/>
+              <div className='chartBox'> 
+                <Line ref="chart" data={womenReferralsVsAssessed} />
+              </div>
+            </div>
           </div>
           <br/>
+          <br/>
           <div>
-            <h2>Traffic lights from last month:</h2>
+            <h2 className='setBottomHeight'>Traffic lights from last month:</h2>
             <br/>
-            <Bar ref="chart" className='chartBox' data={trafficLight} options={{legend: {display: false}, scales: {yAxes: [{ticks: {beginAtZero: true}}]}}} />
+            <div className='centerize'>
+              <div className='chartBox'>
+               <Bar ref="chart" data={trafficLight} options={{legend: {display: false}, scales: {yAxes: [{ticks: {beginAtZero: true}}]}}} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
