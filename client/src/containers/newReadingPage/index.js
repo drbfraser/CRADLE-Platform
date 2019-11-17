@@ -9,8 +9,10 @@ import { getCurrentUser } from '../../actions/users';
 import { Button,
   Header, Image, Modal,
   Divider, Form, Select,
-  Input, TextArea
+  Input, TextArea, Icon
 } from 'semantic-ui-react'
+
+import './index.css'
 
 class NewReadingPage extends Component {
   state = { }
@@ -33,7 +35,28 @@ class NewReadingPage extends Component {
 
     return (
       <div >
-        <h1>Add a New Reading Page</h1>
+        <h1>Create a new:</h1>
+        <div className='centerize'>
+          <div>
+            <Button icon labelPosition='left' className='buttonStyle'>
+              <Icon bordered name='user plus' size='big' color='vlack'/>
+              <div className='patientText'>PATIENT</div>
+            </Button>
+          </div>
+          <Divider horizontal>OR</Divider>
+          <div>
+            <Button icon labelPosition='left' className='buttonStyle'>
+              <div className='iconBgStyle'>
+                <Icon.Group size='big' bordered className='iconStyle'>
+                  <Icon name='heart' color='balck'/>
+                  <Icon corner name='add' color='color'/>
+                </Icon.Group>
+              </div>
+              <div className='reading'>READING</div>
+              <div className='exitPatient'>EXISTING PATIENT</div>
+            </Button>
+          </div>
+        </div>
       </div>
     )
   }
