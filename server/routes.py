@@ -12,6 +12,7 @@ from Controller.HealthFacilityController import HealthFacility
 from Controller.FollowUpController import FollowUp
 from Controller.StatsController import *
 from Controller.PatientStatsController import *
+from Controller.SMSController import *
 
 
 
@@ -37,3 +38,5 @@ def init(api):
     api.add_resource(HealthFacility, '/api/health_facility', '/api/health_facility/<string:name>') # [GET, POST, PUT, DELETE]
 
     api.add_resource(FollowUp, '/api/follow_up', '/api/follow_up/<int:id>') # [GET, POST, PUT, DELETE]
+
+    api.add_resource(SMS, '/api/sms')
