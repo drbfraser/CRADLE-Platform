@@ -16,3 +16,5 @@ flask_script
 environs
 numpy
 uwsgi
+pyjwt
+requests
