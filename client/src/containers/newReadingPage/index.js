@@ -118,7 +118,7 @@ class NewReadingPage extends Component {
                 name='isPregnant'
                 value={this.state.patient.isPregnant}
                 control={Select}
-                label='Pregant'
+                label='Pregnant'
                 options={pregOptions}
                 onChange={this.handleSelectChange}
               />
