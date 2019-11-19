@@ -74,8 +74,9 @@ class NewReadingPage extends Component {
       <div >
         <h1><b>Create a new patient and reading:</b></h1> 
         <Divider/>
-        <div className='infoCard centerize'> 
-          <Form className='formStyle'>
+        <div className='card'>
+          <div className='centerize'>
+            <Form className='infoCard formStyle'>
             <Header><b>Patient Information</b></Header>
             <Divider/>
             <Form.Group widths='equal'>
@@ -160,8 +161,8 @@ class NewReadingPage extends Component {
                 name="villageNumber"
                 value={this.state.patient.villageNumber}
                 control={Input}
-                label='VillageNumber'
-                placeholder='VillageNumber'
+                label='Village Number'
+                placeholder='Village Number'
                 onChange={this.handleChange}
               />
             </Form.Group>
@@ -182,12 +183,11 @@ class NewReadingPage extends Component {
               onChange={this.handleChange}
             />
           </Form>
-        </div>  
-        <div className='flexBox'>
+          </div> 
           <div className='bpCard'>
-            <Form className='formStyle'>
-              <Header className='centerize'><b>Blood Pressure</b></Header>
-              <div className='centerize'>
+            <Form className='formStyle centerize'>
+              <Header><b>Blood Pressure</b></Header>
+              <div className='bpField'>
                 <Form.Field inline
                   name="systolic"
                   value={''}
@@ -253,7 +253,8 @@ class NewReadingPage extends Component {
               </div>
             </Form>
           </div>
-        </div>
+        
+        </div> 
         <div className='contentRight'>
           <Button style={{"backgroundColor" : "#84ced4"}} type='submit'>Create</Button>
         </div>             

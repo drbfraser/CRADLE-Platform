@@ -2,18 +2,30 @@
     align-content: center;
 }
 
+.card {
+    width: 98%;
+    height: auto;
+}
+
 .infoCard {
-    width: 95%;
+    width: 100%;
+    margin: 10px;
 }
 
 .bpCard {
-    width: 35%;
-    margin: 20px;
+    width: 45%;
+    margin: 40px 0;
+    float: left;
+}
+
+.bpField {
+    text-align: right;
 }
 
 .symptomCard {
-    width: 40%;
-    margin: 20px;
+    width: 45%;
+    margin: 30px 0;
+    float: right;
 }
 
 .formStyle {
@@ -27,6 +39,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
+    width: 95%;
 }
 
 .contentRight {
