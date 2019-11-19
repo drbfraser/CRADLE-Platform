@@ -150,7 +150,7 @@ const App = (props) => {
                   className={classes.itemText}
                   primary={
                     <Typography style={sidebarTextStyle}>
-                      Create New
+                      Patient &amp; Reading
                     </Typography>
                   }
                 />

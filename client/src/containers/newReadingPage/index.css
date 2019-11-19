@@ -1,42 +1,35 @@
 .centerize {
     align-content: center;
-    padding-top: 8%;
 }
 
-.buttonStyle {
-    width: 350px;
-    height: 80px;
+.infoCard {
+    width: 95%;
 }
 
-.patientText {
-    font-size: 33px;
+.bpCard {
+    width: 35%;
+    margin: 20px;
+}
+
+.symptomCard {
+    width: 40%;
+    margin: 20px;
+}
+
+.formStyle {
+    padding: 20px;
+    border: 1px solid rgb(211, 205, 205);
+    border-radius: 5px;
+    box-shadow: 3px 1px rgb(211, 205, 205);
+}
+
+.flexBox {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.contentRight {
     position: relative;
-    left: 8px;
-}
-
-.reading {
-    font-size: 33px;
-    position: relative;
-    top: -68px;
-    left: 15px;
-}
-
-.exitPatient {
-    font-size: 16px;
-    position: relative;
-    top: -56px;
-    left: 16px;
-}
-
-.iconStyle {
-    top: 23px;
-}
-
-.iconBgStyle {
-    background-color: rgba(0,0,0,0.05);
-    position: relative;
-    top: -12px;
-    left: -65px;
-    height: 80px;
-    width: 80px;
+    left: 85%;
 }

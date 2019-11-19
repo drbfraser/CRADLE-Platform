@@ -14,8 +14,36 @@ import { Button,
 
 import './index.css'
 
+const sexOptions = [
+  { key: 'm', text: 'Male', value: 'MALE' },
+  { key: 'f', text: 'Female', value: 'FEMALE' },
+  { key: 'o', text: 'Other', value: 'I' },
+]
+
+const pregOptions = [
+  { key: 'y', text: 'Yes', value: true },
+  { key: 'n', text: 'No', value: false },
+]
+
 class NewReadingPage extends Component {
-  state = { }
+  state = { 
+    patient: {
+      patientId: "",
+      patientName: "",
+      patientAge: "",
+      patientSex: "FEMALE",
+      isPregnant: true,
+      gestationalAgeValue: "",
+      zone: "",
+      block: "",
+      tank: "",
+      villageNumber: "",
+      drugHistory: "",
+      medicalHistory: "",
+      readings: [],
+      gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS"
+    }
+  }
 
   componentDidMount = () => {
     this.props.getCurrentUser().then((err) => {
@@ -23,8 +51,17 @@ class NewReadingPage extends Component {
         // error from getCurrentUser(), don't get statistics
         return
       }
-      // this.props.getStatistics()
+      
     })
+  }
+
+
+  handleChange = event => {
+    this.setState({ patient: { ...this.state.patient, [event.target.name]: event.target.value }})
+  }
+
+  handleSelectChange = (e, value) => {
+    this.setState({ patient: { ...this.state.patient, [value.name] : value.value }})
   }
 
   render() {
@@ -35,28 +72,191 @@ class NewReadingPage extends Component {
 
     return (
       <div >
-        <h1>Create a new:</h1>
-        <div className='centerize'>
-          <div>
-            <Button icon labelPosition='left' className='buttonStyle'>
-              <Icon bordered name='user plus' size='big' color='vlack'/>
-              <div className='patientText'>PATIENT</div>
-            </Button>
-          </div>
-          <Divider horizontal>OR</Divider>
-          <div>
-            <Button icon labelPosition='left' className='buttonStyle'>
-              <div className='iconBgStyle'>
-                <Icon.Group size='big' bordered className='iconStyle'>
-                  <Icon name='heart' color='balck'/>
-                  <Icon corner name='add' color='color'/>
-                </Icon.Group>
+        <h1><b>Create a new patient and reading:</b></h1> 
+        <Divider/>
+        <div className='infoCard centerize'> 
+          <Form className='formStyle'>
+            <Header><b>Patient Information</b></Header>
+            <Divider/>
+            <Form.Group widths='equal'>
+              <Form.Field 
+                name="patientName"
+                value={this.state.patient.patientName}
+                control={Input}
+                label='Name'
+                placeholder='Patient Name'
+                onChange={this.handleChange}
+              />
+              <Form.Field 
+                name="patientId"
+                value={this.state.patient.patientId}
+                control={Input}
+                label='ID'
+                placeholder='ID Number'
+                onChange={this.handleChange}
+              />
+            </Form.Group>
+            <Form.Group widths='equal'>
+              <Form.Field 
+                name="patientAge"
+                value={this.state.patient.patientAge}
+                control={Input}
+                label='Age'
+                placeholder='Patient Age'
+                onChange={this.handleChange}
+              />
+              <Form.Field 
+                name="patientSex"
+                value={this.state.patient.patientSex}
+                control={Select}
+                label='Gender'
+                options={sexOptions}
+                placeholder='Gender'
+                onChange={this.handleSelectChange}
+              />
+              <Form.Field
+                name='isPregnant'
+                value={this.state.patient.isPregnant}
+                control={Select}
+                label='Pregant'
+                options={pregOptions}
+                onChange={this.handleSelectChange}
+              />
+              <Form.Field 
+                name="gestationalAgeValue"
+                value={this.state.patient.gestationalAgeValue}
+                control={Input}
+                label='Gestational Age'
+                placeholder='Gestational Age in Weeks'
+                onChange={this.handleChange}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Field 
+                name="zone"
+                value={this.state.patient.zone}
+                control={Input}
+                label='Zone'
+                placeholder='Zone'
+                onChange={this.handleChange}
+              />
+              <Form.Field 
+                name="block"
+                value={this.state.patient.block}
+                control={Input}
+                label='Block'
+                placeholder='Block'
+                onChange={this.handleChange}
+              />
+              <Form.Field 
+                name="tank"
+                value={this.state.patient.tank}
+                control={Input}
+                label='Tank'
+                placeholder='Tank'
+                onChange={this.handleChange}
+              />
+              <Form.Field 
+                name="villageNumber"
+                value={this.state.patient.villageNumber}
+                control={Input}
+                label='VillageNumber'
+                placeholder='VillageNumber'
+                onChange={this.handleChange}
+              />
+            </Form.Group>
+            <Form.Field
+              name="drugHistory"
+              value={this.state.patient.drugHistory || ''}
+              control={TextArea}
+              label='Drug History'
+              placeholder="Patient's drug history..."
+              onChange={this.handleChange}
+            />
+            <Form.Field
+              name="medicalHistory"
+              value={this.state.patient.medicalHistory || ''}
+              control={TextArea}
+              label='Medical History'
+              placeholder="Patient's medical history..."
+              onChange={this.handleChange}
+            />
+          </Form>
+        </div>  
+        <div className='flexBox'>
+          <div className='bpCard'>
+            <Form className='formStyle'>
+              <Header className='centerize'><b>Blood Pressure</b></Header>
+              <div className='centerize'>
+                <Form.Field inline
+                  name="systolic"
+                  value={''}
+                  control={Input}
+                  label='Systolic:'
+                />
+                <Form.Field inline
+                  name="diastolic"
+                  value={''}
+                  control={Input}
+                  label='Diastolic:'
+                />
+                <Form.Field inline
+                  name="heartRate"
+                  value={''}
+                  control={Input}
+                  label='Heart rate:'
+                />
               </div>
-              <div className='reading'>READING</div>
-              <div className='exitPatient'>EXISTING PATIENT</div>
-            </Button>
+            </Form>
+          </div>
+          <div className='symptomCard'>
+            <Form className='formStyle centerize'>
+              <Header><b>Symptoms</b></Header>
+              <div>
+                <Form.Checkbox
+                  label='None (patient healthy)'
+                />
+                <Form.Group widths='equal'>
+                  <Form.Checkbox
+                    label='Headache'
+                  />
+                  <Form.Checkbox
+                    label='Bleeding'
+                  />
+                </Form.Group>
+                <Form.Group widths='equal'>
+                  <Form.Checkbox
+                    label='Blurred vision'
+                  />
+                  <Form.Checkbox
+                    label='Feverish'
+                  />
+                </Form.Group>
+                <Form.Group widths='equal'>
+                  <Form.Checkbox
+                    label='Abdominal pain'
+                  />
+                  <Form.Checkbox
+                    label='Unwell'
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Checkbox 
+                    widths='3'
+                    label='Other:'
+                  />
+                  <Form.TextArea
+                    widths='1'
+                    name='otherSymptoms'
+                  />
+                </Form.Group>
+              </div>
+            </Form>
           </div>
         </div>
+        <div className='contentRight'>
+          <Button style={{"backgroundColor" : "#84ced4"}} type='submit'>Create</Button>
+        </div>             
       </div>
     )
   }
