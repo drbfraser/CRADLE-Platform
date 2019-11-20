@@ -107,7 +107,7 @@ const App = (props) => {
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
           <Toolbar >
-            <img src={AppImg} class="appIcon" />
+            <img src={AppImg} className="appIcon" />
             <Typography noWrap style={titleTextStyle}>
               Cradle
             </Typography>
@@ -138,6 +138,23 @@ const App = (props) => {
           <div className={classes.toolbar}
                 style={{ marginTop:offsetFromTop }}/>
             <List>
+            <ListItem className={classes.listItem}
+                        button
+                        component={Link}
+                        to="/newreading"
+                        selected={activeItem === "Reading"}
+                        onClick={() => setActiveItem("Reading")}>
+                <ListItemIcon><img src={CreateImg} class="center sidebarIcon" /></ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Patient &amp; Reading
+                    </Typography>
+                  }
+                />
+              </ListItem>
               <ListItem className={classes.listItem}
                         button
                         component={Link}
@@ -151,23 +168,6 @@ const App = (props) => {
                   primary={
                     <Typography style={sidebarTextStyle}>
                       Patients
-                    </Typography>
-                  }
-                />
-              </ListItem>
-              <ListItem className={classes.listItem}
-                        button
-                        component={Link}
-                        to="/stats"
-                        selected={activeItem === "Statistics"}
-                        onClick={() => setActiveItem("Statistics")}>
-                <ListItemIcon><img src={StatisticsImg} class="center sidebarIcon" /></ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.itemText}
-                  primary={
-                    <Typography style={sidebarTextStyle}>
-                      Statistics
                     </Typography>
                   }
                 />
@@ -192,16 +192,16 @@ const App = (props) => {
               <ListItem className={classes.listItem}
                         button
                         component={Link}
-                        to="/newreading"
-                        selected={activeItem === "Reading"}
-                        onClick={() => setActiveItem("Reading")}>
-                <ListItemIcon><img src={CreateImg} class="center sidebarIcon" /></ListItemIcon>
+                        to="/stats"
+                        selected={activeItem === "Statistics"}
+                        onClick={() => setActiveItem("Statistics")}>
+                <ListItemIcon><img src={StatisticsImg} class="center sidebarIcon" /></ListItemIcon>
                 <ListItemText
                   disableTypography
                   className={classes.itemText}
                   primary={
                     <Typography style={sidebarTextStyle}>
-                      New Reading
+                      Statistics
                     </Typography>
                   }
                 />
@@ -220,7 +220,7 @@ const App = (props) => {
               </ListItem>
               {props.user.roles.includes('ADMIN') &&
               <List>
-                <ListItem className={[classes.listItem]}
+                <ListItem className={classes.listItem}
                           component={Link}
                           button
                           key="new user"
@@ -229,7 +229,7 @@ const App = (props) => {
                           onClick={() => setActiveItem("Signup")}>
                   <ListItemText className={classes.itemText} primary="Create New User" />
                 </ListItem>
-                <ListItem className={[classes.listItem]}
+                <ListItem className={classes.listItem}
                           component={Link}
                           button
                           key="new user"

@@ -292,7 +292,7 @@ class PatientSummary extends Component {
                   <p><b>Patient ID: </b> {this.state.selectedPatient.patientId} </p>
                   <p><b>Patient Age: </b> {this.state.selectedPatient.patientAge} </p>
                   <p><b>Patient Sex: </b> {this.state.selectedPatient.patientSex} </p>
-                  <p><b>Pregant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
+                  <p><b>Pregnant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
                   <ExpansionPanel>
                     <ExpansionPanelSummary
                       expandIcon={<Icon name="chevron down" />}
@@ -435,7 +435,7 @@ class PatientSummary extends Component {
                       name='isPregnant'
                       value={this.state.selectedPatient.isPregnant}
                       control={Select}
-                      label='Pregant'
+                      label='Pregnant'
                       options={pregOptions}
                       onChange={this.handleSelectChange}
                     />
