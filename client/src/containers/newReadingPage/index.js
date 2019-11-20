@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import MaterialTable from 'material-table';
+import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -71,12 +72,11 @@ class NewReadingPage extends Component {
     }
 
     return (
-      <div >
+      <div>
         <h1><b>Create a new patient and reading:</b></h1> 
         <Divider/>
-        <div className='card'>
-          <div className='centerize'>
-            <Form className='infoCard formStyle'>
+        <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
+          <Form>
             <Header><b>Patient Information</b></Header>
             <Divider/>
             <Form.Group widths='equal'>
@@ -183,81 +183,80 @@ class NewReadingPage extends Component {
               onChange={this.handleChange}
             />
           </Form>
-          </div> 
-          <div className='bpCard'>
-            <Form className='formStyle centerize'>
-              <Header><b>Blood Pressure</b></Header>
-              <div className='bpField'>
-                <Form.Field inline
-                  name="systolic"
-                  value={''}
-                  control={Input}
-                  label='Systolic:'
-                />
-                <Form.Field inline
-                  name="diastolic"
-                  value={''}
-                  control={Input}
-                  label='Diastolic:'
-                />
-                <Form.Field inline
-                  name="heartRate"
-                  value={''}
-                  control={Input}
-                  label='Heart rate:'
-                />
-              </div>
-            </Form>
-          </div>
-          <div className='symptomCard'>
-            <Form className='formStyle centerize'>
-              <Header><b>Symptoms</b></Header>
-              <div>
+        </Paper> 
+        <Paper className='bpCard' style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
+          <Form className='centerize'>
+            <Header><b>Blood Pressure</b></Header>
+            <div className='bpField'>
+              <Form.Field inline
+                name="systolic"
+                value={''}
+                control={Input}
+                label='Systolic:'
+              />
+              <Form.Field inline
+                name="diastolic"
+                value={''}
+                control={Input}
+                label='Diastolic:'
+              />
+              <Form.Field inline
+                name="heartRate"
+                value={''}
+                control={Input}
+                label='Heart rate:'
+              />
+            </div>
+          </Form>
+        </Paper>
+        <Paper className='symptomCard' style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
+          <Form className='centerize'>
+            <Header><b>Symptoms</b></Header>
+            <div>
+              <Form.Checkbox
+                label='None (patient healthy)'
+              />
+              <Form.Group widths='equal'>
                 <Form.Checkbox
-                  label='None (patient healthy)'
+                  label='Headache'
                 />
-                <Form.Group widths='equal'>
-                  <Form.Checkbox
-                    label='Headache'
-                  />
-                  <Form.Checkbox
-                    label='Bleeding'
-                  />
-                </Form.Group>
-                <Form.Group widths='equal'>
-                  <Form.Checkbox
-                    label='Blurred vision'
-                  />
-                  <Form.Checkbox
-                    label='Feverish'
-                  />
-                </Form.Group>
-                <Form.Group widths='equal'>
-                  <Form.Checkbox
-                    label='Abdominal pain'
-                  />
-                  <Form.Checkbox
-                    label='Unwell'
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Checkbox 
-                    widths='3'
-                    label='Other:'
-                  />
-                  <Form.TextArea
-                    widths='1'
-                    name='otherSymptoms'
-                  />
-                </Form.Group>
-              </div>
-            </Form>
-          </div>
-        
-        </div> 
+                <Form.Checkbox
+                  label='Bleeding'
+                />
+              </Form.Group>
+              <Form.Group widths='equal'>
+                <Form.Checkbox
+                  label='Blurred vision'
+                />
+                <Form.Checkbox
+                  label='Feverish'
+                />
+              </Form.Group>
+              <Form.Group widths='equal'>
+                <Form.Checkbox
+                  label='Abdominal pain'
+                />
+                <Form.Checkbox
+                  label='Unwell'
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Checkbox 
+                  widths='3'
+                  label='Other:'
+                />
+                <Form.TextArea
+                  widths='1'
+                  name='otherSymptoms'
+                />
+              </Form.Group>
+            </div>
+          </Form>
+        </Paper>
+        <div style={{"clear" : "both"}}></div>
         <div className='contentRight'>
-          <Button style={{"backgroundColor" : "#84ced4"}} type='submit'>Create</Button>
-        </div>             
+          <Button style={{"backgroundColor" : "#84ced4"}} type='submit'>Submit</Button>
+        </div>
       </div>
     )
   }
