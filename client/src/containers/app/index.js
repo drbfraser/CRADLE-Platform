@@ -14,6 +14,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import { Route, Link } from 'react-router-dom'
 import Home from '../home'
+import AdminPage from '../adminPage'
 import PatientPage from '../patientPage'
 import StatisticsPage from '../statisticsPage'
 import ReferralsPage from '../referralsPage'
@@ -75,13 +76,14 @@ const App = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState('Patients')
 
-  const getRole = (role) => {
-    if (role == 'VHT') {
-      return 'VHT'
-    } else if (role == 'HCW') {
+  const getRole = (roles) => {
+
+    if (roles.includes('ADMIN')) {
+      return 'ADMIN'
+    } else if (roles.includes('HCW')) {
       return 'Healthcare Worker'
-    } else if (role == 'ADMIN') {
-      return "Admin"
+    } else if (roles.includes('VHT')) {
+      return "VHT"
     }
     return "";
   }
@@ -117,7 +119,7 @@ const App = (props) => {
               >
                 <Icon name="user circle" size="large" />
                 <Typography variant="body1" noWrap>
-                  {props.user.firstName} ({getRole(props.user.role)})
+                  {props.user.firstName} ({getRole(props.user.roles)})
                 </Typography>
               </IconButton>
              }
@@ -216,10 +218,27 @@ const App = (props) => {
                   }
                 />
               </ListItem>
-              {props.user.role == 'ADMIN' &&
-              <ListItem className={[classes.listItem]} component={Link} button key="new user" to="/signup">
-                <ListItemText className={classes.itemText} primary="Create New User" />
-              </ListItem>}
+              {props.user.roles.includes('ADMIN') &&
+              <List>
+                <ListItem className={[classes.listItem]}
+                          component={Link}
+                          button
+                          key="new user"
+                          to="/signup"
+                          selected={activeItem === "Signup"}
+                          onClick={() => setActiveItem("Signup")}>
+                  <ListItemText className={classes.itemText} primary="Create New User" />
+                </ListItem>
+                <ListItem className={[classes.listItem]}
+                          component={Link}
+                          button
+                          key="new user"
+                          to="/admin"
+                          selected={activeItem === "Admin"}
+                          onClick={() => setActiveItem("Admin")}>
+                  <ListItemText className={classes.itemText} primary="Admin Panel" />
+                </ListItem>
+              </List>}
             </List>
         </Drawer>
         ) : (null)}
@@ -228,6 +247,7 @@ const App = (props) => {
         <main className={classes.content} style={{paddingTop:offsetFromTop}}>
           <div className={classes.toolbar} />
           <Route exact path="/" component={Home} />
+          <Route exact path="/admin" component={AdminPage} />
           <Route exact path="/patients" component={PatientPage} />
           <Route exact path="/signup" component={Signup} />
           <Route exact path="/login" component={Login} />
