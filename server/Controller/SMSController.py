@@ -11,31 +11,32 @@ import requests
 class SMS(Resource):
 
     # /api/sms [POST]
-    # SMS BODY SHOULD BE A JWT TOKEN
+    # SMS BODY SHOULD BE A REFERRAL JSON STRING
     #
     def post(self):
         req = request.form.to_dict()
         print(json.dumps(req, indent=2, sort_keys=True))
 
-        # get the token from sms body
-        jwt_token = req['Body']
+        # get json string from sms body
+        body = req['Body']
 
-        # decode jwt token
         try:
-            body_json = jwt.decode(jwt_token, 'secret', algorithms=['HS256'])
-            body_json = json.dumps(body_json, indent=2, sort_keys=True)
-            print(body_json)
-        except (KeyError, jwt.DecodeError, jwt.ExpiredSignatureError, jwt.ExpiredSignature):
-            abort(400, message="Invalid Token")
+            body_json = json.loads(body)
+        except ValueError as e:
+            abort(400, message="Invalid JSON string received")
 
+        body_json = json.dumps(body_json, indent=2, sort_keys=True)
+        print(body_json)
         # call local endpoint
         BASE_URL = current_app.config['BASE_URL']
         req = requests.post(BASE_URL + 'api/referral', data=body_json)
 
         resp = MessagingResponse()
         if req.status_code == 201:
+            print('Referral Success')
             resp.message("Referral has been sent!")
         else:
+            print('Referral Error')
             resp.message("Error! Referral has not been sent. Please try again.")
 
         # Start our TwiML response
