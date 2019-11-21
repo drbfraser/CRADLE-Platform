@@ -83,6 +83,7 @@ class UserAuthApi(Resource):
             data = data['data']
 
             user = User.query.filter_by(email=data['email']).first()
+
             if user and flask_bcrypt.check_password_hash(user.password, data['password']):
                 del data['password']
 
@@ -97,6 +98,12 @@ class UserAuthApi(Resource):
                 data['healthFacilityName'] = user.healthFacilityName
                 data['isLoggedIn'] = True
                 data['userId'] = user.id
+
+                vhtList = []
+                if user.vhtList:
+                    for user in user.vhtList:
+                        vhtList.append(user.id)
+                    data['vhtList'] = vhtList
 
                 access_token = create_access_token(identity=data)
                 refresh_token = create_refresh_token(identity=data)
