@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 04fa0747cb71
+Revision ID: 3d7d77465333
 Revises: 
-Create Date: 2019-11-21 02:05:12.985376
+Create Date: 2019-11-21 03:28:15.703590
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '04fa0747cb71'
+revision = '3d7d77465333'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -90,14 +90,14 @@ def upgrade():
     sa.Column('userId', sa.Integer(), nullable=True),
     sa.Column('patientId', sa.String(length=50), nullable=False),
     sa.ForeignKeyConstraint(['patientId'], ['patient.patientId'], ),
-    sa.ForeignKeyConstraint(['userId'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['userId'], ['user.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('readingId')
     )
     op.create_table('supervises',
     sa.Column('choId', sa.Integer(), nullable=True),
     sa.Column('vhtId', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['choId'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['vhtId'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['choId'], ['user.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['vhtId'], ['user.id'], ondelete='CASCADE'),
     sa.UniqueConstraint('choId', 'vhtId', name='unique_supervise')
     )
     op.create_index(op.f('ix_supervises_choId'), 'supervises', ['choId'], unique=False)

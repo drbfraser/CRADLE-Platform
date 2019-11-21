@@ -45,8 +45,8 @@ userRole = db.Table('userrole',
 )
 
 supervises = db.Table('supervises',
-    db.Column('choId', db.Integer, db.ForeignKey('user.id'), index=True),
-    db.Column('vhtId', db.Integer, db.ForeignKey('user.id')),
+    db.Column('choId', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True),
+    db.Column('vhtId', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE')),
     db.UniqueConstraint('choId', 'vhtId', name='unique_supervise')
 )
 
@@ -154,7 +154,7 @@ class Reading(db.Model):
     userHasSelectedNoSymptoms = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    userId = db.Column(db.Integer, db.ForeignKey('user.id'))
+    userId = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
 
     # @hybrid_property
     def getTrafficLight(self):
