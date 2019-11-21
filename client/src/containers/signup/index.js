@@ -126,6 +126,7 @@ class Signup extends Component {
               <select onChange={this.handleChange} name='role'>
                 <option value="VHT">VHT</option>
                 <option value="HCW">HCW</option>
+                <option value="CHO">CHO</option>
                 <option value="ADMIN">ADMIN</option>
               </select>
               <Form.Field
