@@ -26,10 +26,9 @@ class SMS(Resource):
             abort(400, message="Invalid JSON string received")
 
         body_json = json.dumps(body_json, indent=2, sort_keys=True)
-        print(body_json)
+
         # call local endpoint
-        BASE_URL = current_app.config['BASE_URL']
-        req = requests.post(BASE_URL + 'api/referral', data=body_json)
+        req = requests.post('http:localhost:8080/api/referral', data=body_json)
 
         resp = MessagingResponse()
         if req.status_code == 201:
