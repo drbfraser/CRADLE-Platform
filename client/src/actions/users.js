@@ -145,7 +145,10 @@ export const updateUser = (userId, data) => {
           })
           console.log("UPDATE USER DATA", res.data)
       })
-      .then( () => dispatch(getUsers()))
+      .then( () => { 
+        dispatch(getUsers())
+        dispatch(getVhtList())
+      })
       .catch(err => {
           console.log(err);
           dispatch({
