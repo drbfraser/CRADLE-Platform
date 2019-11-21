@@ -17,6 +17,7 @@ class RoleEnum(enum.Enum):
     VHT = 'VHT'
     HCW = 'HCW'
     ADMIN = 'ADMIN'
+    CHO = 'CHO'
 
 class SexEnum(enum.Enum):
     MALE = 'MALE'
@@ -43,6 +44,11 @@ userRole = db.Table('userrole',
     db.Column('roleId', db.Integer, db.ForeignKey('role.id'))
 )
 
+supervises = db.Table('supervises',
+    db.Column('choId', db.Integer, db.ForeignKey('user.id'), index=True),
+    db.Column('vhtId', db.Integer, db.ForeignKey('user.id')),
+    db.UniqueConstraint('choId', 'vhtId', name='unique_supervise')
+)
 
 #####################
 ### MODEL CLASSES ###
@@ -61,6 +67,10 @@ class User(db.Model):
     healthFacility = db.relationship('HealthFacility', backref=db.backref('users', lazy=True))
     roleIds = db.relationship('Role', secondary=userRole, backref=db.backref('users', lazy=True))
     referrals = db.relationship('Referral', backref=db.backref('users', lazy=True))
+    vhtList = db.relationship('User',
+                              secondary = supervises,
+                              primaryjoin = id==supervises.c.choId,
+                              secondaryjoin = id==supervises.c.vhtId)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -143,6 +153,8 @@ class Reading(db.Model):
     temporaryFlags = db.Column(db.Integer)
     userHasSelectedNoSymptoms = db.Column(db.Boolean)
 
+    # FOREIGN KEYS
+    userId = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     # @hybrid_property
     def getTrafficLight(self):
@@ -176,7 +188,7 @@ class Reading(db.Model):
 
         return trafficLight
 
-    def __init__(self, patientId, readingId, bpSystolic,
+    def __init__(self, userId, patientId, readingId, bpSystolic,
                  bpDiastolic,heartRateBPM,symptoms,
                  trafficLightStatus=None,dateLastSaved=None,
                  dateTimeTaken=None,dateUploadedToServer=None,
@@ -184,6 +196,7 @@ class Reading(db.Model):
                  retestOfPreviousReadingIds=None, isFlaggedForFollowup=None, appVersion=None,
                  deviceInfo=None, totalOcrSeconds=None, manuallyChangeOcrResults=None,
                  temporaryFlags=None, userHasSelectedNoSymptoms=None):
+        self.userId = userId     
         self.patientId = patientId
         self.readingId = readingId
         self.bpSystolic = bpSystolic
