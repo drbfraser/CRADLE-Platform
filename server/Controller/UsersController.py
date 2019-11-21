@@ -100,6 +100,7 @@ class UserAuthApi(Resource):
                 data['userId'] = user.id
 
                 vhtList = []
+                data['vhtList'] = []
                 if user.vhtList:
                     for user in user.vhtList:
                         vhtList.append(user.id)
