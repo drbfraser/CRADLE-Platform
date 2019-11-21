@@ -82,6 +82,8 @@ const App = (props) => {
       return 'ADMIN'
     } else if (roles.includes('HCW')) {
       return 'Healthcare Worker'
+    } else if (roles.includes('CHO')) {
+      return "CHO"
     } else if (roles.includes('VHT')) {
       return "VHT"
     }
