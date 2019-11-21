@@ -77,7 +77,7 @@ class AdminPage extends Component {
   }
 
   closeConfirmDeleteModal = () => {
-    this.setState({ displayConfirmDeleteModal: false, selectedUser: {} })
+    this.setState({ displayConfirmDeleteModal: false, selectedUser: { dropdownSelections: [], vhtDropdownSelections: [], roleIds: [] } })
   }
 
   handleSubmit = (event) => {
