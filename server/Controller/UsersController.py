@@ -24,6 +24,18 @@ class UserAll(Resource):
             abort(404, message="No users currently exist.")
         return users
 
+# user/vhts [GET]
+class UserAllVHT(Resource):
+    
+    # get all VHT Ids 
+    def get(self):
+        logging.debug('Received request: GET user/vhts')
+
+        vhtId_list = userManager.read_all_vhts()
+        if vhtId_list is None:
+            return []
+        return vhtId_list
+
 
 # user/register [POST]
 class UserApi(Resource):
@@ -120,11 +132,19 @@ class UserEdit(Resource):
             abort(400, message="User ID is required")
 
         new_user = UserEdit._get_request_body()
-        if new_user['newRoleIds']:
+        
+        newVhtIds = new_user.get('newVhtIds')
+        if newVhtIds is not None:
+            # add vht to CHO's vht list
+            roleManager.add_vht_to_supervise(id, new_user['newVhtIds'])
+            new_user.pop('newVhtIds', None)
+
+        newRoleIds = new_user.get('newRoleIds')
+        if newRoleIds is not None:
             # add user to role
             roleManager.add_user_to_role(id, new_user['newRoleIds'])
             new_user.pop('newRoleIds', None)
-
+        
         update_res = userManager.update("id", id, new_user)
 
         if not update_res:
