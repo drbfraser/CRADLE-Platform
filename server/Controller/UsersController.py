@@ -96,6 +96,7 @@ class UserAuthApi(Resource):
                 data['firstName'] = user.firstName
                 data['healthFacilityName'] = user.healthFacilityName
                 data['isLoggedIn'] = True
+                data['userId'] = user.id
 
                 access_token = create_access_token(identity=data)
                 refresh_token = create_refresh_token(identity=data)
