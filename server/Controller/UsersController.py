@@ -101,10 +101,11 @@ class UserAuthApi(Resource):
 
                 vhtList = []
                 data['vhtList'] = []
-                if user.vhtList:
-                    for user in user.vhtList:
-                        vhtList.append(user.id)
-                    data['vhtList'] = vhtList
+                if 'CHO' in roles:
+                    if user.vhtList:
+                        for user in user.vhtList:
+                            vhtList.append(user.id)
+                        data['vhtList'] = vhtList
 
                 access_token = create_access_token(identity=data)
                 refresh_token = create_refresh_token(identity=data)
