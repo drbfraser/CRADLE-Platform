@@ -122,11 +122,13 @@ class AdminPage extends Component {
         return
       }
       
-      if (!this.props.usersList || !this.props.healthFacilityList) {
-        this.props.getUsers()
-        this.props.getHealthFacilityList()
+      if (this.props.user.roles !== undefined && this.props.user.roles.includes('ADMIN')) {
+        if (!this.props.usersList || !this.props.healthFacilityList) {
+          this.props.getUsers()
+          this.props.getHealthFacilityList()
+        }
+        this.props.getVhtList()
       }
-      this.props.getVhtList()
     })
   }
 
