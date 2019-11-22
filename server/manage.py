@@ -30,27 +30,32 @@ def seed():
     role1 = Role(name='VHT')
     role2 = Role(name='HCW')
     role3 = Role(name='ADMIN')
+    role4 = Role(name='CHO')
 
     print('Seeding roles...')
-    db.session.add_all([role1,role2,role3])
+    db.session.add_all([role1,role2,role3,role4])
     db.session.commit()
 
     role_admin = Role.query.filter_by(name='ADMIN').first()
     role_hcw = Role.query.filter_by(name='HCW').first()
     role_vht = Role.query.filter_by(name='VHT').first()
+    role_cho = Role.query.filter_by(name='CHO').first()
 
     user_schema = UserSchema()
     u0 = { 'email' : 'admin@admin.com', 'firstName': 'Admin', 'password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
     u1 = { 'email' : 'a@a.com', 'firstName': 'Brian', 'password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
     u2 = { 'email' : 'b@b.com', 'firstName' : 'TestVHT','password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
+    u3 = { 'email' : 'c@c.com', 'firstName' : 'TestCHO','password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
     role_admin.users.append(user_schema.load(u0, session=db.session))
     role_hcw.users.append(user_schema.load(u1, session=db.session))
     role_vht.users.append(user_schema.load(u2, session=db.session))
+    role_cho.users.append(user_schema.load(u3, session=db.session))
 
     print('Seeding users...')
     db.session.add(role_admin)
     db.session.add(role_hcw)
     db.session.add(role_vht)
+    db.session.add(role_cho)
     db.session.commit()
 
 
@@ -79,12 +84,14 @@ def seed():
         dateList = [getRandomDate() for i in range(numOfReadings)]
         dateList.sort()
 
+        userId = getRandomUser()
         for i in range(numOfReadings):
             readingId = str(uuid.uuid4())
             healthFacilityName = getRandomHealthFacilityName()
 
             # get random reading(s) for patient
             r1 =  {
+                "userId" : userId,
                 "patientId" : patientId,
                 "dateTimeTaken": dateList[i],
                 "readingId": readingId,
@@ -130,6 +137,9 @@ def getRandomHeartRateBPM():
 def getRandomHealthFacilityName():
     return random.choice(healthFacilityList)
 
+def getRandomUser():
+    return random.choice(usersList)
+
 def getRandomSymptoms():
     numOfSymptoms = random.randint(0,4)
     if numOfSymptoms == 0:
@@ -161,6 +171,7 @@ if __name__ == "__main__":
     random.shuffle(patientList)
     patientList = list(map(str, patientList))
 
+    usersList = [1,2,3,4]
     villageList = ['1001','1002','1003','1004','1005','1006','1007','1008','1009']
     healthFacilityList = ['H1233', 'H2555', 'H3445', 'H5123']
     symptomsList = ['HEADACHE', 'BLURRED VISION', 'ABDO PAIN', 'BLEEDING', 'FEVERISH']

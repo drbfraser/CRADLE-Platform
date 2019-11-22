@@ -4,6 +4,9 @@ import {
   GET_USERS_REQ,
   GET_USERS_SUCCESS,
   GET_USERS_ERR,
+  GET_VHTS_SUCCESS,
+  GET_VHTS_REQ,
+  GET_VHTS_ERR,
 } from '../actions/users';
 
 const initialStateUser = {
@@ -64,4 +67,33 @@ const allUsersReducer = (state = {}, action) => {
   }
 }
 
-export default combineReducers({ currentUser: userReducer, registerStatus: registerStatusReducer, allUsers: allUsersReducer})
+const allVhtsReducer = (state = {}, action) => {
+  switch (action.type) {
+    case GET_VHTS_SUCCESS:
+      return {
+        ...state,
+        vhtList: action.payload,
+        isLoading: false
+      }
+    
+    case GET_VHTS_REQ:
+      return {
+          ...state,
+          isLoading: true
+      }
+
+    case GET_VHTS_ERR:
+      return {
+          ...state,
+          isLoading: false
+      }
+
+    default:
+      return state
+  }
+}
+
+export default combineReducers({ currentUser: userReducer,
+                                 registerStatus: registerStatusReducer,
+                                 allUsers: allUsersReducer,
+                                 allVhts: allVhtsReducer})
