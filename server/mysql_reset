@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately upon any failed command
+set -e
+
 echo "Deleting and receating the MySQL database..."
 echo "You will be prompted for your MySQL root password."
 mysql -u root -p -e"DROP DATABASE cradle; CREATE DATABASE cradle;"

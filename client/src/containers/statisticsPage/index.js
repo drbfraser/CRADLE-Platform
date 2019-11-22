@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users';
 import { getStatistics } from '../../actions/statistics';
 import { Bar, Line } from 'react-chartjs-2';
-import { Statistic } from 'semantic-ui-react'
+import { Card, Statistic, CardGroup } from 'semantic-ui-react'
 
 import './index.css'
 
@@ -144,18 +144,22 @@ class StatisticsPage extends Component {
               || this.props.statisticsList.womenAssessedPerMonth
               || this.props.statisticsList.pregnantWomenAssessedPerMonth) ? (
                 <Statistic.Group>
+
                   <Statistic horizontal className='statSubBox'>
                     <Statistic.Value className='underlineBlue'>{this.props.statisticsList.uniquePeopleAssesedPerMonth[getMonth-1]}</Statistic.Value>
                     <Statistic.Label>PEOPLE</Statistic.Label>
                   </Statistic>
+
                   <Statistic horizontal className='statSubBox'>
                     <Statistic.Value className='underlineBlue'>{this.props.statisticsList.womenAssessedPerMonth[getMonth-1]}</Statistic.Value>
                     <Statistic.Label>WOMEN</Statistic.Label>
                   </Statistic>
+                    
                   <Statistic horizontal className='statSubBox'>
                     <Statistic.Value className='underlineBlue'>{this.props.statisticsList.pregnantWomenAssessedPerMonth[getMonth-1]}</Statistic.Value>
                     <Statistic.Label className='virticalWritting'>PREGNANT WOMEN</Statistic.Label>
                   </Statistic>
+
                 </Statistic.Group>
               ) : (<div></div>)
               }
@@ -171,24 +175,31 @@ class StatisticsPage extends Component {
               && this.props.statisticsList.referralsPerMonth 
               && this.props.statisticsList.assessmentsPerMonth) ? (
                 <Statistic.Group>
+
                   <Statistic horizontal className='statSubBox'>
                     <Statistic.Value className='underlineBlue'>{this.props.statisticsList.readingsPerMonth[getMonth-1]}</Statistic.Value>
                     <Statistic.Label className='virticalWritting'>READINGS TAKEN</Statistic.Label>
                   </Statistic>
+                    
                   <Statistic horizontal className='statSubBox'>
                     <Statistic.Value className='underlinePurple'>{this.props.statisticsList.referralsPerMonth[getMonth-1]}</Statistic.Value>
                     <Statistic.Label className='virticalWritting'>REFERRALS SENT</Statistic.Label>
                   </Statistic>
+                    
                   <Statistic horizontal className='statSubBox'>
                     <Statistic.Value className='underlineOrange'>{this.props.statisticsList.assessmentsPerMonth[getMonth-1]}</Statistic.Value>
                     <Statistic.Label className='virticalWritting'>ASSESSMENTS MADE</Statistic.Label>
                   </Statistic>
+
               </Statistic.Group>
               ) : (<div></div>)
               }
-              <div className='chartBox'>
-                <Line ref="chart" data={readingsVsReferralsVsAssessment}/>
-              </div>
+              <Card fluid>
+                <Card.Content>
+                <div className='chartBox'>
+                  <Line ref="chart" data={readingsVsReferralsVsAssessment}/>
+                </div>
+              </Card.Content></Card>
             </div>
             <br/>
           </div>
@@ -223,7 +234,11 @@ class StatisticsPage extends Component {
               }
               <br/>
               <div className='chartBox'> 
-                <Line ref="chart" data={womenReferralsVsAssessed} />
+              <Card fluid>
+                <Card.Content>
+                  <Line ref="chart" data={womenReferralsVsAssessed} />
+                </Card.Content>
+              </Card>
               </div>
             </div>
           </div>
@@ -234,7 +249,11 @@ class StatisticsPage extends Component {
             <br/>
             <div className='centerize'>
               <div className='chartBox'>
-               <Bar ref="chart" data={trafficLight} options={{legend: {display: false}, scales: {yAxes: [{ticks: {beginAtZero: true}}]}}} />
+                <Card fluid>
+                  <Card.Content>
+                    <Bar ref="chart" data={trafficLight} options={{legend: {display: false}, scales: {yAxes: [{ticks: {beginAtZero: true}}]}}} />
+                  </Card.Content>
+                </Card>
               </div>
             </div>
           </div>
