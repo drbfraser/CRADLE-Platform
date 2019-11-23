@@ -23,10 +23,17 @@ const userReducer = (state = initialStateUser, action) => {
       return action.payload
     case 'LOGOUT_USER':
       return {}
-    case 'INVALID_USER':
-      return {}
     default:
       return state
+  }
+}
+
+const userErrorReducer = (state = {}, action) => {
+  switch (action.type) {
+    case 'INVALID_USER':
+      return action.payload
+    default:
+      return ''
   }
 }
 
@@ -96,4 +103,5 @@ const allVhtsReducer = (state = {}, action) => {
 export default combineReducers({ currentUser: userReducer,
                                  registerStatus: registerStatusReducer,
                                  allUsers: allUsersReducer,
-                                 allVhts: allVhtsReducer})
+                                 allVhts: allVhtsReducer,
+                                 serverLoginErrorMessage: userErrorReducer})
