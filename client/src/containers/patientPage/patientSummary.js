@@ -26,6 +26,8 @@ import { ReactComponent as GreenTraffic } from './drawable/green.svg';
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
 import { ReactComponent as RedTraffic } from './drawable/red.svg';
 import ReferralInfo from './referralInfo';
+import { getCurrentUser } from '../../actions/users';
+import { newReadingPost } from '../../actions/newReading';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -55,8 +57,9 @@ class PatientSummary extends Component {
     showTrafficLights: false,
     displayReadingModal: false,
     newReading: {
+      userId: "",
       readingId: "",
-      dateLastSaved: "",
+      dateTimeTaken: "",
       bpSystolic: "",
       bpDiastolic: "",
       heartRateBPM: "",
@@ -155,18 +158,28 @@ class PatientSummary extends Component {
     var readingID = guid()
 
     this.setState({
-      reading: {
-        ...this.state.reading,
+      newReading: {
+        ...this.state.newReading,
+        userId: this.props.user.userId,
         readingId: readingID,
-        dateLastSaved: dateTime,
+        dateTimeTaken: dateTime.toJSON(),
         symptoms: symptom.toString()
       }
     }, function () {
+      let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient))
+      let readingData = JSON.parse(JSON.stringify(this.state.newReading))
+
+      // delete any unnecessary fields
+      delete patientData.readings
+      delete patientData.needsAssessment
+      delete patientData.tableData
+
       let newData = {
-        patient: this.state.selectedPatient,
-        reading: this.state.newReading
+        patient: patientData,
+        reading: readingData
       }
-      //console.log(newData)
+
+      console.log(newData)
       this.props.newReadingPost(newData)
       this.closeReadingModal()
     })
@@ -679,9 +692,11 @@ class PatientSummary extends Component {
 
 
 const mapStateToProps = ({
+  user,
   referrals,
   patientStats
 }) => ({
+  user : user.currentUser,
   referrals: referrals.mappedReferrals,
   selectedPatientStatsList: patientStats.selectedPatientStatsList
 })
@@ -692,7 +707,9 @@ const mapDispatchToProps = dispatch =>
       updatePatient,
       getPatients,
       getReferrals,
-      getSelectedPatientStats
+      getSelectedPatientStats,
+      getCurrentUser,
+      newReadingPost
     },
     dispatch
   )

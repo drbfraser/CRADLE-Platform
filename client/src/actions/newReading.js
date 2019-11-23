@@ -1,7 +1,7 @@
 import axios from 'axios';
 import BASE_URL from '../serverUrl'
 
-export const newReadingPost = (patient,reading) => {
+export const newReadingPost = (reading) => {
     return dispatch => {
         return fetch(BASE_URL + "/patient/reading", {
             method: "POST",
@@ -9,7 +9,7 @@ export const newReadingPost = (patient,reading) => {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
             },
-            body: JSON.stringify(patient,reading)
+            body: JSON.stringify(reading)
         }).then(resp => resp.json())
             .then(data => {
                 console.log(data)

@@ -46,8 +46,9 @@ class NewReadingPage extends Component {
       medicalHistory: ""
     },
     reading: {
+      userId: "",
       readingId: "",
-      dateLastSaved: "",
+      dateTimeTaken: "",
       bpSystolic: "",
       bpDiastolic: "",
       heartRateBPM: "",
@@ -135,14 +136,18 @@ class NewReadingPage extends Component {
     this.setState({ 
       reading: {
         ...this.state.reading,
+        userId: this.props.user.userId,
         readingId: readingID,
-        dateLastSaved: dateTime,
+        dateTimeTaken: dateTime,
         symptoms: symptom.toString()
       }
     }, function() {
+      let patientData = JSON.parse(JSON.stringify(this.state.patient))
+      let readingData = JSON.parse(JSON.stringify(this.state.reading))
+
       let newData = {
-        patient: this.state.patient,
-        reading: this.state.reading
+        patient: patientData,
+        reading: readingData
       }
       console.log(newData)
       this.props.newReadingPost(newData)
