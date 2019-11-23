@@ -28,7 +28,7 @@ class SMS(Resource):
         body_json = json.dumps(body_json, indent=2, sort_keys=True)
 
         # call local endpoint
-        req = requests.post('http:localhost:8080/api/referral', data=body_json)
+        req = requests.post('http://localhost:8080/api/referral', data=body_json)
 
         resp = MessagingResponse()
         if req.status_code == 201:
