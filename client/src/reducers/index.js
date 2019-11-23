@@ -7,6 +7,7 @@ import statistics from './statistics'
 import referrals from './referrals'
 import patientStats from './patientStats'
 import healthFacilities from './healthFacilities'
+import newReading from './newReading'
 
 export default combineReducers({
   counter,
@@ -16,5 +17,6 @@ export default combineReducers({
   statistics,
   referrals,
   patientStats,
-  healthFacilities
+  healthFacilities,
+  newReading
 })
