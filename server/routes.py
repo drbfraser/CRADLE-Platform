@@ -12,6 +12,7 @@ from Controller.HealthFacilityController import *
 from Controller.FollowUpController import FollowUp
 from Controller.StatsController import *
 from Controller.PatientStatsController import *
+from Controller.SMSController import *
 
 
 
@@ -27,6 +28,7 @@ def init(api):
     api.add_resource(UserAll, '/api/user/all') # [GET]
     api.add_resource(UserEdit, '/api/user/edit/<int:id>') # [POST]
     api.add_resource(UserDelete, '/api/user/delete/<int:id>') # [DELETE]
+    api.add_resource(UserAllVHT, '/api/user/vhts') # [GET]
 
     api.add_resource(PatientAllInformation, '/api/patient/allinfo') # [GET]
     api.add_resource(PatientReading, '/api/patient/reading') # [POST]
@@ -40,3 +42,5 @@ def init(api):
     api.add_resource(HealthFacilityList, '/api/health_facility_list') # [GET]
 
     api.add_resource(FollowUp, '/api/follow_up', '/api/follow_up/<int:id>') # [GET, POST, PUT, DELETE]
+
+    api.add_resource(SMS, '/api/sms')

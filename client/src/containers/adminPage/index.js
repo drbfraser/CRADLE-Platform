@@ -6,6 +6,7 @@ import { getCurrentUser } from '../../actions/users'
 import { getUsers } from '../../actions/users'
 import { updateUser } from '../../actions/users'
 import { deleteUser } from '../../actions/users'
+import { getVhtList } from '../../actions/users'
 import { getHealthFacilityList } from '../../actions/healthFacilities'
 import { Button,
   Header, Icon, Modal,
@@ -17,6 +18,7 @@ const options = [
   { key: 'vht', text: 'VHT', value: 1 },
   { key: 'hcw', text: 'HCW', value: 2 },
   { key: 'admin', text: 'ADMIN', value: 3 },
+  { key: 'cho', text: 'CHO', value: 4 }
 ]
 
 class AdminPage extends Component {
@@ -44,10 +46,10 @@ class AdminPage extends Component {
     {   title: 'Roles', field: 'roleIds',
         render: rowData => <p>{this.getRoles(rowData.roleIds)}</p>}],
     data: [],
-    roleMapping: { 1: 'VHT', 2: 'HCW', 3: 'ADMIN'},
+    roleMapping: { 1: 'VHT', 2: 'HCW', 3: 'ADMIN', 4: 'CHO'},
     displayUserEditModal: false,
     displayConfirmDeleteModal: false,
-    selectedUser : { dropdownSelections: [] },
+    selectedUser : { dropdownSelections: [], vhtDropdownSelections: [], roleIds: [] },
   }
 
   handleSelectChange = (e, value) => {
@@ -58,21 +60,24 @@ class AdminPage extends Component {
     this.setState({'selectedUser': { ...this.state.selectedUser, dropdownSelections : value.value } })
   }
 
+  handleVhtDropdownChange = (e, value) => {
+    this.setState({'selectedUser': { ...this.state.selectedUser, vhtDropdownSelections : value.value } })
+  }
+
   openUserEditModal = (rowData) => {
-    this.setState({ displayUserEditModal: true, selectedUser: { ...rowData, dropdownSelections: rowData.roleIds} } )
+    this.setState({ displayUserEditModal: true, selectedUser: { ...rowData, dropdownSelections: rowData.roleIds, vhtDropdownSelections: rowData.vhtList} } )
   }
 
   closeUserEditModal = () => {
-    this.setState({ displayUserEditModal: false, selectedUser: {} })
+    this.setState({ displayUserEditModal: false, selectedUser: { dropdownSelections: [], vhtDropdownSelections: [], roleIds: [] } })
   }
 
   openConfirmDeleteModal = (rowData) => {
-    console.log(rowData)
     this.setState({ displayConfirmDeleteModal: true, selectedUser: { ...rowData } } )
   }
 
   closeConfirmDeleteModal = () => {
-    this.setState({ displayConfirmDeleteModal: false, selectedUser: {} })
+    this.setState({ displayConfirmDeleteModal: false, selectedUser: { dropdownSelections: [], vhtDropdownSelections: [], roleIds: [] } })
   }
 
   handleSubmit = (event) => {
@@ -86,13 +91,17 @@ class AdminPage extends Component {
     delete userData['id']
     delete userData['tableData']
     delete userData['healthFacility']
+    delete userData['vhtList']
 
     userData['newRoleIds'] = userData['dropdownSelections']
     delete userData['dropdownSelections']
-    
-    let userJSON = JSON.stringify( userData, null, 2 )
 
-    console.log(userJSON)
+    userData['newVhtIds'] = userData['vhtDropdownSelections']
+    delete userData['vhtDropdownSelections']
+    
+    // let userJSON = JSON.stringify( userData, null, 2 )
+    // console.log(userJSON)
+
     this.props.updateUser(userId,userData)
     this.closeUserEditModal()
   }
@@ -113,9 +122,12 @@ class AdminPage extends Component {
         return
       }
       
-      if (!this.props.usersList || !this.props.healthFacilityList) {
-        this.props.getUsers()
-        this.props.getHealthFacilityList()
+      if (this.props.user.roles !== undefined && this.props.user.roles.includes('ADMIN')) {
+        if (!this.props.usersList || !this.props.healthFacilityList) {
+          this.props.getUsers()
+          this.props.getHealthFacilityList()
+        }
+        this.props.getVhtList()
       }
     })
   }
@@ -151,11 +163,22 @@ class AdminPage extends Component {
   render() {
     // construct health facilities list object for dropdown
     let hfOptions = [];
+    
     if (this.props.healthFacilityList !== undefined && this.props.healthFacilityList.length > 0) {
       for (var i = 0; i < this.props.healthFacilityList.length; i++) {
         hfOptions.push({'key'  : this.props.healthFacilityList[i],
                         'text' : this.props.healthFacilityList[i],
                         'value': this.props.healthFacilityList[i]
+                      })
+      }
+    }
+
+    let vhtOptions = [];
+    if (this.props.vhtList !== undefined && this.props.vhtList.length > 0) {
+      for (var i = 0; i < this.props.vhtList.length; i++) {
+        vhtOptions.push({'key'  : this.props.vhtList[i].id,
+                        'text' : this.props.vhtList[i].email,
+                        'value': this.props.vhtList[i].id
                       })
       }
     }
@@ -227,6 +250,18 @@ class AdminPage extends Component {
                     onChange={this.handleDropdownChange }/>
                   
                 </Form.Group>
+
+                {this.state.selectedUser.roleIds.includes(4) &&
+                  <Form.Group>
+                    <Form.Field
+                      label='VHT Supervising'
+                    ><div></div></Form.Field>
+                    <Dropdown placeholder='VHT Supervising' fluid multiple selection
+                      options={vhtOptions}
+                      value={this.state.selectedUser.vhtDropdownSelections}
+                      onChange={this.handleVhtDropdownChange }/>
+                  </Form.Group>
+                }
                 <Form.Field style={{"marginTop" : "50px"}} control={Button}>Update User</Form.Field>
               </Form>
 
@@ -260,6 +295,7 @@ const mapStateToProps = ({ user, healthFacilities }) => ({
   user : user.currentUser,
   isLoading: user.allUsers.isLoading,
   usersList : user.allUsers.usersList,
+  vhtList : user.allVhts.vhtList,
   healthFacilityList: healthFacilities.healthFacilitiesList
 })
 
@@ -270,7 +306,8 @@ const mapDispatchToProps = dispatch =>
       getUsers,
       updateUser,
       deleteUser,
-      getHealthFacilityList
+      getHealthFacilityList,
+      getVhtList
     },
     dispatch
   )

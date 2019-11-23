@@ -25,7 +25,6 @@ class Signup extends Component {
   }
 
   handleChange = event => {
-    console.log(event.target.value)
     this.setState({ user: {
         ...this.state.user,
         [event.target.name]: event.target.value
@@ -127,6 +126,7 @@ class Signup extends Component {
               <select onChange={this.handleChange} name='role'>
                 <option value="VHT">VHT</option>
                 <option value="HCW">HCW</option>
+                <option value="CHO">CHO</option>
                 <option value="ADMIN">ADMIN</option>
               </select>
               <Form.Field

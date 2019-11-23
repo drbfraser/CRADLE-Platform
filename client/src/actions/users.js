@@ -7,6 +7,10 @@ export const GET_USERS_SUCCESS = 'users/GET_USERS_SUCCESS'
 export const GET_USERS_REQ  = 'users/GET_USERS_REQ'
 export const GET_USERS_ERR = 'users/GET_USERS_ERR'
 
+export const GET_VHTS_SUCCESS = 'users/GET_VHTS_SUCCESS'
+export const GET_VHTS_REQ  = 'users/GET_VHTS_REQ'
+export const GET_VHTS_ERR = 'users/GET_VHTS_ERR'
+
 export const UPDATE_USERS_SUCCESS = 'users/UPDATE_USERS_SUCCESS'
 export const UPDATE_USERS_REQ  = 'users/UPDATE_USERS_REQ'
 export const UPDATE_USERS_ERR = 'users/UPDATE_USERS_ERR'
@@ -108,6 +112,26 @@ export const getUsers = () => {
   }
 }
 
+export const getVhtList = () => {
+  return dispatch => {
+      dispatch({
+          type: GET_VHTS_REQ
+      })
+
+      return axios.get(BASE_URL + "/user/vhts").then((res) => {
+          dispatch({
+              type: GET_VHTS_SUCCESS,
+              payload: res.data
+          })
+      }).catch(err => {
+          console.log(err);
+          dispatch({
+              type: GET_VHTS_ERR
+          })
+      })
+  }
+}
+
 export const updateUser = (userId, data) => {
   return dispatch => {
       dispatch({
@@ -121,7 +145,10 @@ export const updateUser = (userId, data) => {
           })
           console.log("UPDATE USER DATA", res.data)
       })
-      .then( () => dispatch(getUsers()))
+      .then( () => { 
+        dispatch(getUsers())
+        dispatch(getVhtList())
+      })
       .catch(err => {
           console.log(err);
           dispatch({
