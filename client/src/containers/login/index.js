@@ -17,7 +17,7 @@ const SignupForm = (props) => {
     validationSchema: Yup.object({
       password: Yup.string()
         .max(15, 'Must be 15 characters or less')
-        .min(6, 'Must be at least 6 characters')
+        .min(5, 'Must be at least 5 characters')
         .required('Required'),
       email: Yup.string()
         .email('Invalid email address')
