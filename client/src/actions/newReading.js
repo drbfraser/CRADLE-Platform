@@ -1,5 +1,6 @@
 import axios from 'axios';
 import BASE_URL from '../serverUrl'
+import { getPatients } from './patients'
 
 export const newReadingPost = (reading) => {
     return dispatch => {
@@ -15,12 +16,13 @@ export const newReadingPost = (reading) => {
                 console.log(data)
                 if (data.message) {
                     dispatch({
-                        type: 'CREATE_ERROR',
+                        type: 'CREATE_SUCCESS',
                         payload: data.message
                     })
+                    dispatch(getPatients())
                 } else {
                     dispatch({
-                        type: 'CREATE_SUCCESS'
+                        type: 'CREATE_ERROR'
                     })
                 }
             })
