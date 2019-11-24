@@ -120,9 +120,16 @@ const App = (props) => {
               color="inherit"
               >
                 <Icon name="user circle" size="large" />
-                <Typography variant="body1" noWrap>
-                  {props.user.firstName} ({getRole(props.user.roles)})
-                </Typography>
+                <div>
+                  <Typography variant="body1" noWrap>
+                    {props.user.firstName} ({getRole(props.user.roles)})
+                  </Typography>
+                  {props.user.healthFacilityName &&
+                    <Typography variant="body2" noWrap>
+                      Healthcare Facility: {props.user.healthFacilityName}
+                    </Typography>
+                  }
+                </div>
               </IconButton>
              }
           </Toolbar>

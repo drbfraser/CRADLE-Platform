@@ -443,8 +443,8 @@ class PatientSummary extends Component {
             <div style={{ "clear": "both" }}></div>
             <Divider />
             <Grid container direction="row" spacing={4} >
-              <Grid item xs={6} style={{ "minWidth": "500px" }} >
-                <Paper style={{ "padding": "35px 25px", "borderRadius": "15px" }}>
+              <Grid item xs={6} style={{ "minWidth": "500px", "height": "100% !important" }} >
+                <Paper style={{ "padding": "35px 25px", "borderRadius": "15px", "height": "100%" }}>
                   <Typography variant="h5" component="h3">
                     <Icon style={{ "line-height": "0.7em" }} name="address card outline" size="large" />
                     Medical Information
@@ -455,6 +455,9 @@ class PatientSummary extends Component {
                     <p><b>Patient Age: </b> {this.state.selectedPatient.patientAge} </p>
                     <p><b>Patient Sex: </b> {this.state.selectedPatient.patientSex} </p>
                     <p><b>Pregnant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
+                    {this.state.selectedPatient.isPregnant &&
+                      <p><b>Gestational Age: </b> {this.state.selectedPatient.gestationalAgeValue} weeks</p>
+                    }
                     <ExpansionPanel>
                       <ExpansionPanelSummary
                         expandIcon={<Icon name="chevron down" />}
@@ -488,8 +491,8 @@ class PatientSummary extends Component {
                   </div>
                 </Paper>
               </Grid>
-              <Grid item xs={6} style={{ "minWidth": "500px", "height": '100%' }} >
-                <Paper style={{ "padding": "35px 25px 0px", "borderRadius": "15px" }}>
+              <Grid item xs={6} style={{ "minWidth": "500px", "height": "100% !important" }} >
+                <Paper style={{ "padding": "35px 25px 0px", "borderRadius": "15px", "height" : "100%" }}>
                   <Typography variant="h5" component="h3">
                     <Icon style={{ "line-height": "0.7em" }} name="heartbeat" size="large" />
                     Vitals Over Time
