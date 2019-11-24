@@ -7,13 +7,14 @@ import {
 import './index.css'
 
 function SymptomForm(props) {
-  //console.log(props)
+  // console.log(props)
   return (
     <Paper className='symptomCard' style={{ "padding": "35px 25px", "borderRadius": "15px" }}>
       <Form className='centerize'>
         <Header><b>Symptoms</b></Header>
         <div>
           <Form.Checkbox
+            checked={props.checkedItems.none}
             value={props.checkedItems.none}
             name='none'
             label='None (patient healthy)'
@@ -21,12 +22,14 @@ function SymptomForm(props) {
           />
           <Form.Group widths='equal'>
             <Form.Checkbox
+              checked={props.checkedItems.headache}
               value={props.checkedItems.headache}
               name='headache'
               label='Headache'
               onChange={props.onChange}
             />
             <Form.Checkbox
+              checked={props.checkedItems.bleeding}
               value={props.checkedItems.bleeding}
               name='bleeding'
               label='Bleeding'
@@ -35,12 +38,14 @@ function SymptomForm(props) {
           </Form.Group>
           <Form.Group widths='equal'>
             <Form.Checkbox
+              checked={props.checkedItems.blurredVision}
               value={props.checkedItems.blurredVision}
               name='blurredVision'
               label='Blurred vision'
               onChange={props.onChange}
             />
             <Form.Checkbox
+              checked={props.checkedItems.feverish}
               value={props.checkedItems.feverish}
               name='feverish'
               label='Feverish'
@@ -49,12 +54,14 @@ function SymptomForm(props) {
           </Form.Group>
           <Form.Group widths='equal'>
             <Form.Checkbox
+              checked={props.checkedItems.abdominalPain}
               value={props.checkedItems.abdominalPain}
               name='abdominalPain'
               label='Abdominal pain'
               onChange={props.onChange}
             />
             <Form.Checkbox
+              checked={props.checkedItems.unwell}
               value={props.checkedItems.unwell}
               name='unwell'
               label='Unwell'
@@ -63,6 +70,7 @@ function SymptomForm(props) {
           </Form.Group>
           <Form.Group>
             <Form.Checkbox
+              checked={props.checkedItems.other}
               value={props.checkedItems.other}
               widths='3'
               name='other'
@@ -70,6 +78,7 @@ function SymptomForm(props) {
               onChange={props.onChange}
             />
             <Form.TextArea
+              checked={props.checkedItems.otherSymptoms}
               widths='1'
               name='otherSymptoms'
               value={props.checkedItems.otherSymptoms}

@@ -4,18 +4,18 @@ const createReadingStatus =  (state = {}, action) => {
     switch (action.type) {
         case 'CREATE_SUCCESS':
             return { 
-                message : "Success! New reading has been successfully created", 
+                message : action.payload, 
                 error : false
             }
             
         case 'CREATE_ERROR':
             return { 
-                message : action.payload, 
+                message : "Error! Patient reading not created.", 
                 error : true
             }
             
         default:
-            return {}
+            return { error : false }
     }
 }
 

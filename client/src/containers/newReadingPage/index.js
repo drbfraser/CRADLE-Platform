@@ -10,6 +10,7 @@ import { newReadingPost } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
 import BpForm from './bpForm';
 import SymptomForm from './symptomForm';
+import SweetAlert from 'sweetalert2-react';
 
 import { Button,
   Header, Image, Modal,
@@ -66,7 +67,8 @@ class NewReadingPage extends Component {
       unwell: false,
       other: false,
       otherSymptoms: ""
-    }
+    },
+    showSuccessReading : false
   }
 
 
@@ -150,7 +152,53 @@ class NewReadingPage extends Component {
         reading: readingData
       }
       console.log(newData)
-      this.props.newReadingPost(newData)
+      this.props.newReadingPost(newData).then( () => {
+          console.log(this.props.createReadingStatusError)
+          // reset fields after form submit
+          if (this.props.createReadingStatusError === false) {
+            
+            this.setState({
+              patient: {
+                patientId: "",
+                patientName: "",
+                patientAge: "",
+                patientSex: "FEMALE",
+                isPregnant: true,
+                gestationalAgeValue: "",
+                gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
+                zone: "",
+                block: "",
+                tank: "",
+                villageNumber: "",
+                drugHistory: "",
+                medicalHistory: ""
+              },
+              reading: {
+                userId: "",
+                readingId: "",
+                dateTimeTaken: "",
+                bpSystolic: "",
+                bpDiastolic: "",
+                heartRateBPM: "",
+                dateRecheckVitalsNeeded: "",
+                isFlaggedForFollowup: false,
+                symptoms: ""
+              },
+              checkedItems: {
+                none: false,
+                headache: false,
+                bleeding: false,
+                blurredVision: false,
+                feverish: false,
+                abdominalPain: false,
+                unwell: false,
+                other: false,
+                otherSymptoms: ""
+              },
+              showSuccessReading: true
+          })
+        }
+      })
     })
   }
 
@@ -183,6 +231,14 @@ class NewReadingPage extends Component {
             Submit
           </Button>
         </div>
+
+        <SweetAlert
+          type="success"
+          show={this.state.showSuccessReading}
+          title="Patient Reading Created!"
+          text="Success! You can view the new reading by going to the Patients tab"
+          onConfirm={() => this.setState({ showSuccessReading: false })}
+        />
       </div>
     )
   }
@@ -190,7 +246,7 @@ class NewReadingPage extends Component {
 
 const mapStateToProps = ({ user, newReading }) => ({
   user : user.currentUser,
-  createReadingStatus: newReading.createReadingStatus
+  createReadingStatusError: newReading.error
 })
 
 const mapDispatchToProps = dispatch =>
