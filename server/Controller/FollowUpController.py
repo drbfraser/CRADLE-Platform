@@ -47,20 +47,22 @@ class FollowUp(Resource):
     # Create a new follow up
     @jwt_required
     def post(self):
-        current_user = get_jwt_identity()
         logging.debug('Received request: POST /follow_up')
+        current_user = get_jwt_identity()
         follow_up_data = FollowUp._get_request_body()
         response_body = followUpManager.create(follow_up_data, current_user)
         return response_body, 201
-
+    
+    @jwt_required
     def put(self, id=None):
         logging.debug('Received request: PUT /follow_up/<id>')
+        current_user = get_jwt_identity()
         # validate inputs
         if not id:
             abort(400, message="id is required")
     
         new_follow_up = FollowUp._get_request_body()
-        update_res = followUpManager.update("id", id, new_follow_up)
+        update_res = followUpManager.update("id", id, new_follow_up, current_user)
 
         if not update_res:
             abort(400, message=f'No FollowUp exists with id "{id}"')

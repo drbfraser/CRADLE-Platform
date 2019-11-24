@@ -10,12 +10,8 @@ class FollowUpManager(Manager):
     def create(self, data, user):
 
         current_time = get_current_time()
-        print("current_time: " + current_time)
-
         data['dateAssessed'] = current_time
         data['healthcareWorkerId'] = user['userId']
-
-        pprint(data)
 
         if "referral" in data: 
             referral_id = data["referral"]
@@ -29,7 +25,12 @@ class FollowUpManager(Manager):
         else:
             return super(FollowUpManager, self).create(data)
 
-    def update(self, key, value, new_data):
+    def update(self, key, value, new_data, user):
+
+        current_time = get_current_time()
+        new_data['dateAssessed'] = current_time
+        new_data['healthcareWorkerId'] = user['userId']
+
         if "referral" in new_data: 
             referral_id = new_data["referral"]
             new_data.pop("referral", None)
