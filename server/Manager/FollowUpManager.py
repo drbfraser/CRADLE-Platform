@@ -11,7 +11,6 @@ class FollowUpManager(Manager):
     # include patient schema in response
     def mobile_read(self, key, value):
         follow_up = super(FollowUpManager, self).read(key, value)
-        pprint(follow_up)
         return self.include_patient(follow_up)
     
     def mobile_search(self, search_dict):
@@ -32,14 +31,8 @@ class FollowUpManager(Manager):
             return follow_up
         
         referral = referralManager.read("id", follow_up['referral'])
-
-        print("referral: ")
-        pprint(referral)
-
         patient = patientManager.read("patientId", referral['patientId'])
-
         follow_up['patient'] = patient
-
         return follow_up
 
     def create(self, data, user):
