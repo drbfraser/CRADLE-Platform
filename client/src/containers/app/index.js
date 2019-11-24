@@ -51,7 +51,6 @@ const useStyles = makeStyles(theme => ({
   },
   toolbarButtonsPadded: {
     marginLeft: "auto",
-    marginRight: -12,
     paddingLeft: 30,
     paddingRight: 30
   },
@@ -122,11 +121,11 @@ const App = (props) => {
               Cradle
             </Typography>
             {props.user.isLoggedIn &&
-              <div>
-               <IconButton
-                className={classes.toolbarButtons}
-                onClick={() => ""}
-                c olor="inherit"
+              <div style={{marginLeft:"auto", marginRight:0}}>
+                <IconButton
+                    className={classes.toolbarButtons}
+                    onClick={() => ""}
+                    color="inherit"
                 >
                   <Icon name="user circle" size="large" />
                   <div>
