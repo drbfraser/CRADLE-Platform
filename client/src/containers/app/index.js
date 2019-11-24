@@ -13,19 +13,15 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import { Route, Link } from 'react-router-dom'
-
 import Home from '../home'
 import AdminPage from '../adminPage'
 import HelpPage from '../helpPage'
-import NewReadingPage from '../newReadingPage'
 import PatientPage from '../patientPage'
-import NewReadingExistingPatientPage from '../newReadingExistingPatientPage'
 import StatisticsPage from '../statisticsPage'
 import ReferralsPage from '../referralsPage'
-
+import NewReadingPage from '../newReadingPage'
 import Signup from '../signup'
 import Login from '../login'
-
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { logoutUser } from '../../actions/users';
@@ -304,13 +300,12 @@ const App = (props) => {
           <Route exact path="/" component={Home} />
           <Route exact path="/admin" component={AdminPage} />
           <Route exact path="/help" component={HelpPage} />
-          <Route exact path="/newreading" component={NewReadingPage} />
           <Route exact path="/patients" component={PatientPage} />
-          <Route exact path="/newreadingexistingpatient" component={NewReadingExistingPatientPage} />
           <Route exact path="/signup" component={Signup} />
           <Route exact path="/login" component={Login} />
           <Route exact path="/stats" component={StatisticsPage} />
           <Route exact path="/referrals" component={ReferralsPage} />
+          <Route exact path="/newreading" component={NewReadingPage} />
         </main>
       </div>
     )
