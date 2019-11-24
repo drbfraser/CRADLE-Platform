@@ -4,7 +4,6 @@ const createReadingStatus =  (state = {}, action) => {
     switch (action.type) {
         case 'CREATE_SUCCESS':
             return { 
-
                 message : action.payload, 
                 error : false
             }

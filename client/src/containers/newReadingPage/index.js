@@ -150,7 +150,52 @@ class NewReadingPage extends Component {
         reading: readingData
       }
       console.log(newData)
-      this.props.newReadingPost(newData)
+      this.props.newReadingPost(newData).then( () => {
+          console.log(this.props.createReadingStatusError)
+          // reset fields after form submit
+          if (this.props.createReadingStatusError === false) {
+            
+            this.setState({
+              patient: {
+                patientId: "",
+                patientName: "",
+                patientAge: "",
+                patientSex: "FEMALE",
+                isPregnant: true,
+                gestationalAgeValue: "",
+                gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
+                zone: "",
+                block: "",
+                tank: "",
+                villageNumber: "",
+                drugHistory: "",
+                medicalHistory: ""
+              },
+              reading: {
+                userId: "",
+                readingId: "",
+                dateTimeTaken: "",
+                bpSystolic: "",
+                bpDiastolic: "",
+                heartRateBPM: "",
+                dateRecheckVitalsNeeded: "",
+                isFlaggedForFollowup: false,
+                symptoms: ""
+              },
+              checkedItems: {
+                none: false,
+                headache: false,
+                bleeding: false,
+                blurredVision: false,
+                feverish: false,
+                abdominalPain: false,
+                unwell: false,
+                other: false,
+                otherSymptoms: ""
+              }
+          })
+        }
+      })
     })
   }
 
@@ -190,7 +235,7 @@ class NewReadingPage extends Component {
 
 const mapStateToProps = ({ user, newReading }) => ({
   user : user.currentUser,
-  createReadingStatus: newReading.createReadingStatus
+  createReadingStatusError: newReading.error
 })
 
 const mapDispatchToProps = dispatch =>
