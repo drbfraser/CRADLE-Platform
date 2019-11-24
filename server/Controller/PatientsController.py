@@ -7,9 +7,9 @@ from flask_restful import Resource, abort
 # Project modules
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
 from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
-
 from Validation import PatientValidation
-
+from flask_jwt_extended import (create_access_token, create_refresh_token,
+                                    jwt_required, jwt_refresh_token_required, get_jwt_identity)
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 
@@ -146,10 +146,14 @@ class PatientAllInformation(Resource):
         body = request.get_json(force=True)
         logging.debug('Request body: ' + str(body))
         return body
-
+    
     # get all patient information (patientinfo, readings, and referrals)
+    @jwt_required
     def get(self):
-        patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
+        current_user = get_jwt_identity()
+        patients_readings_referrals = patientManager.get_patient_with_referral_and_reading(current_user)
+        #patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
+
         if not patients_readings_referrals:
             abort(404, message="No patients currently exist.")
         else:

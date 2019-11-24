@@ -54,6 +54,7 @@ export const userLoginFetch = user => {
         if (data.message) {
           // Invalid post raise an error, i.e. password not filled
           console.log(data.message)
+          dispatch(invalidUser(data.message))
         } else {
           localStorage.setItem("token", data.token);
           dispatch(getCurrentUser()).then(() => {
@@ -212,6 +213,7 @@ const registerError = (message) => ({
   payload: message
 })
 
-const invalidUser = () => ({
-  type: 'INVALID_USER'
+const invalidUser = (message) => ({
+  type: 'INVALID_USER',
+  payload: message
 })

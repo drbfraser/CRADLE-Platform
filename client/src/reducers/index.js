@@ -9,7 +9,8 @@ import patientStats from './patientStats'
 import healthFacilities from './healthFacilities'
 import newReading from './newReading'
 
-export default combineReducers({
+
+const appReducer = combineReducers({
   counter,
   posts,
   user: userReducer,
@@ -20,3 +21,10 @@ export default combineReducers({
   healthFacilities,
   newReading
 })
+
+export default (state, action) => {
+  if (action.type === 'LOGOUT_USER') {
+    state = undefined
+  }
+  return appReducer(state,action)
+}

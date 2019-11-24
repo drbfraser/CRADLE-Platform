@@ -403,43 +403,65 @@ class PatientSummary extends Component {
                     <Icon style={{ "line-height": "0.7em" }} name="address card outline" size="large" />
                     Medical Information
                 </Typography>
+                <Divider />
+                <div style={{"padding" : "20px 50px"}}>
+                  <p><b>Patient ID: </b> {this.state.selectedPatient.patientId} </p>
+                  <p><b>Patient Age: </b> {this.state.selectedPatient.patientAge} </p>
+                  <p><b>Patient Sex: </b> {this.state.selectedPatient.patientSex} </p>
+                  <p><b>Pregnant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
+                  {this.state.selectedPatient.isPregnant &&
+                    <p><b>Gestational Age: </b> {this.state.selectedPatient.gestationalAgeValue} weeks</p>
+                  }
+                  <ExpansionPanel>
+                    <ExpansionPanelSummary
+                      expandIcon={<Icon name="chevron down" />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography>Medical History</Typography>
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails>
+                      <Typography>
+                        {this.state.selectedPatient.medicalHistory}
+                      </Typography>
+                    </ExpansionPanelDetails>
+                  </ExpansionPanel>
+                  <ExpansionPanel>
+                    <ExpansionPanelSummary
+                      expandIcon={<Icon name="chevron down" />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography>Drug History</Typography>
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails>
+                      <Typography>
+                        {this.state.selectedPatient.drugHistory}
+                      </Typography>
+                    </ExpansionPanelDetails>
+                  </ExpansionPanel>
                   <Divider />
-                  <div style={{ "padding": "20px 50px" }}>
-                    <p><b>Patient ID: </b> {this.state.selectedPatient.patientId} </p>
-                    <p><b>Patient Age: </b> {this.state.selectedPatient.patientAge} </p>
-                    <p><b>Patient Sex: </b> {this.state.selectedPatient.patientSex} </p>
-                    <p><b>Pregnant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
-                    <ExpansionPanel>
-                      <ExpansionPanelSummary
-                        expandIcon={<Icon name="chevron down" />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                      >
-                        <Typography>Medical History</Typography>
-                      </ExpansionPanelSummary>
-                      <ExpansionPanelDetails>
-                        <Typography>
-                          {this.state.selectedPatient.medicalHistory}
-                        </Typography>
-                      </ExpansionPanelDetails>
-                    </ExpansionPanel>
-                    <ExpansionPanel>
-                      <ExpansionPanelSummary
-                        expandIcon={<Icon name="chevron down" />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                      >
-                        <Typography>Drug History</Typography>
-                      </ExpansionPanelSummary>
-                      <ExpansionPanelDetails>
-                        <Typography>
-                          {this.state.selectedPatient.drugHistory}
-                        </Typography>
-                      </ExpansionPanelDetails>
-                    </ExpansionPanel>
-                    <Divider />
-                    <Button onClick={() => this.openPatientModal()}>Edit Patient</Button>
-                  </div>
+                  <Button onClick={() => this.openPatientModal() }>Edit Patient</Button>
+                </div>
+              </Paper>
+            </Grid>
+            <Grid item xs={6} style={{"minWidth" : "500px", "height": '100%'}} >
+              <Paper style={{"padding" : "51px 25px", "borderRadius" : "15px"}}>
+                <Typography variant="h5" component="h3">
+                  <Icon style={{"line-height" : "0.7em"}} name="heartbeat" size="large" />
+                  Vitals Over Time
+                </Typography>
+                <Divider/>
+                <Button.Group style={{"width":"100%"}}>
+                  <Button active={this.state.showVitals} onClick={() => this.showVitals()}>Show Vitals Over Time</Button>
+                  <Button active={this.state.showTrafficLights} onClick={() => this.showTrafficLights()}>Show Traffic Lights</Button>
+                </Button.Group>
+                <br/><br/>
+                {this.state.showVitals &&
+                  <div>
+                    <h4 style={{"margin" : "0"}}>Average Vitals Over Time:</h4>
+                    <Line ref="chart" data={vitalsOverTime}/>
+                  </div>}
                 </Paper>
               </Grid>
               <Grid item xs={6} style={{ "minWidth": "500px", "height": '100%' }} >
