@@ -4,14 +4,53 @@ from Database.ReadingRepoNew import ReadingRepo
 from Database.ReferralRepo import ReferralRepo
 from Manager.Manager import Manager
 from Manager import referralManager, readingManager
+from Manager.ReferralManager import ReferralManager #referral data
+from Manager.ReadingManagerNew import ReadingManager #referral data
+
+
+# to do: remove all the redundant imports
+
+from Manager.UserManager import UserManager
+userManager = UserManager()
+referralManager = ReferralManager()
+readingManager = ReadingManager()
+from Manager.FilterHelper import filtered_list_hcw, filtered_list_vht, filtered_list_cho
+from Manager.RoleManager import RoleManager
+roleManager = RoleManager()
+from flask_jwt_extended import (create_access_token, create_refresh_token,
+jwt_required, jwt_refresh_token_required, get_jwt_identity)
+
 
 
 class PatientManager(Manager):
     def __init__(self):
         Manager.__init__(self, PatientRepo)
 
-    def get_patient_with_referral_and_reading(self):
-        patients_query = self.read_all()
+
+    def get_patient_with_referral_and_reading(self, current_user):
+        print(current_user)
+        
+        # harcoding for testing purposes
+        # get filtered list of patients here, and then query only that list
+        patient_list = self.read_all()
+        ref_list = referralManager.read_all()
+        readings_list = readingManager.read_all() 
+        user_list = userManager.read_all()
+
+        if 'ADMIN' in current_user['roles']:
+            patients_query = self.read_all()
+        elif 'HCW' in current_user['roles']:
+            patients_query = filtered_list_hcw(patient_list, ref_list, user_list, current_user['userId'])
+        elif 'CHO' in current_user['roles']:
+            patients_query = filtered_list_cho(patient_list, readings_list, current_user['vhtList'], current_user['userId'])
+        elif 'VHT' in current_user['roles']:
+            patients_query = filtered_list_vht(patient_list, readings_list, current_user['userId'])
+        
+        # otherwise show them all, which is not the best way to handle it, but risky to throw errors atm
+        else:
+             patients_query = patient_list
+        
+        print(len(patients_query))
 
         if not patients_query:
             return None
