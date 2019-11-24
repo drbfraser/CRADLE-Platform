@@ -31,6 +31,7 @@ function PatientInfoForm(props) {
               placeholder='Patient Name'
               onChange={props.onChange}
               type='text'
+              pattern="[a-zA-Z]*"
               maxlength='30'
               minlength='2'
               required
@@ -42,7 +43,7 @@ function PatientInfoForm(props) {
               label='ID'
               placeholder='ID Number'
               onChange={props.onChange}
-              type='number'
+              type='text'
               maxlength='15'
               minlength='1'
               required
