@@ -655,21 +655,33 @@ class PatientSummary extends Component {
                           value={this.state.selectedPatient.bpSystolic}
                           control={Input}
                           label='Systolic'
+                          type='number'
+                          maxlength='3'
+                          minlength='2'
                           onChange={this.handleReadingChange}
+                          required
                         />
                         <Form.Field
                           name="bpDiastolic"
                           value={this.state.selectedPatient.bpDiastolic}
                           control={Input}
                           label='Diastolic'
+                          type='number'
+                          maxlength='3'
+                          minlength='2'
                           onChange={this.handleReadingChange}
+                          required
                         />
                         <Form.Field
                           name="heartRateBPM"
                           value={this.state.selectedPatient.heartRateBPM}
                           control={Input}
                           label='Heart rate'
+                          type='number'
+                          maxlength='3'
+                          minlength='2'
                           onChange={this.handleReadingChange}
+                          required
                         />
                       </Form.Group>
                       <Form.Checkbox

@@ -30,6 +30,10 @@ function PatientInfoForm(props) {
               label='Name'
               placeholder='Patient Name'
               onChange={props.onChange}
+              type='text'
+              maxlength='30'
+              minlength='2'
+              required
             />
             <Form.Field 
               name="patientId"
@@ -38,6 +42,10 @@ function PatientInfoForm(props) {
               label='ID'
               placeholder='ID Number'
               onChange={props.onChange}
+              type='number'
+              maxlength='15'
+              minlength='1'
+              required
             />
           </Form.Group>
           <Form.Group widths='equal'>
@@ -46,8 +54,12 @@ function PatientInfoForm(props) {
               value={props.patient.patientAge}
               control={Input}
               label='Age'
+              type='number'
+              maxlength='3'
+              minlength='1'
               placeholder='Patient Age'
               onChange={props.onChange}
+              required
             />
             <Form.Field 
               name="patientSex"
@@ -57,6 +69,7 @@ function PatientInfoForm(props) {
               options={sexOptions}
               placeholder='Gender'
               onChange={props.onSelectChange}
+              required
             />
             <Form.Field
               name='isPregnant'
@@ -65,6 +78,7 @@ function PatientInfoForm(props) {
               label='Pregnant'
               options={pregOptions}
               onChange={props.onSelectChange}
+              disabled={props.patient.patientSex == 'MALE'}
             />
             <Form.Field 
               name="gestationalAgeValue"
@@ -73,6 +87,7 @@ function PatientInfoForm(props) {
               label='Gestational Age'
               placeholder='Gestational Age in Weeks'
               onChange={props.onChange}
+              disabled={props.patient.patientSex == 'MALE' || !props.patient.isPregnant}
             />
           </Form.Group>
           <Form.Group>
@@ -81,6 +96,7 @@ function PatientInfoForm(props) {
               value={props.patient.zone}
               control={Input}
               label='Zone'
+              type='number'
               placeholder='Zone'
               onChange={props.onChange}
             />
@@ -89,6 +105,7 @@ function PatientInfoForm(props) {
               value={props.patient.block}
               control={Input}
               label='Block'
+              type='number'
               placeholder='Block'
               onChange={props.onChange}
             />
@@ -97,6 +114,7 @@ function PatientInfoForm(props) {
               value={props.patient.tank}
               control={Input}
               label='Tank'
+              type='number'
               placeholder='Tank'
               onChange={props.onChange}
             />
@@ -105,6 +123,7 @@ function PatientInfoForm(props) {
               value={props.patient.villageNumber}
               control={Input}
               label='Village Number'
+              type='number'
               placeholder='Village Number'
               onChange={props.onChange}
             />

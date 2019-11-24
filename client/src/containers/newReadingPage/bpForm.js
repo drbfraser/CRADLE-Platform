@@ -19,7 +19,11 @@ function BpForm(props) {
                         value={props.reading.bpSystolic}
                         control={Input}
                         label='Systolic:'
+                        type='number'
+                        maxlength='3'
+                        minlength='2'
                         onChange={props.onChange}
+                        required
                     />
                     <Form.Field
                         inline
@@ -27,7 +31,11 @@ function BpForm(props) {
                         value={props.reading.bpDiastolic}
                         control={Input}
                         label='Diastolic:'
+                        type='number'
+                        maxlength='3'
+                        minlength='2'
                         onChange={props.onChange}
+                        required
                     />
                     <Form.Field
                         inline
@@ -35,7 +43,11 @@ function BpForm(props) {
                         value={props.reading.heartRateBPM}
                         control={Input}
                         label='Heart rate:'
+                        type='number'
+                        maxlength='3'
+                        minlength='2'
                         onChange={props.onChange}
+                        required
                     />
                 </div>
             </Form>
