@@ -52,7 +52,7 @@ class PatientSummary extends Component {
 
   state = {
     displayPatientModal: false,
-    selectedPatient: {},
+    selectedPatient: { readings: [] },
     showVitals: true,
     showTrafficLights: false,
     displayReadingModal: false,
@@ -89,6 +89,39 @@ class PatientSummary extends Component {
 
     this.props.getSelectedPatientStats(this.props.selectedPatient.patientId)
 
+  }
+
+  calculateShockIndex = (reading) => {
+    const RED_SYSTOLIC = 160
+    const RED_DIASTOLIC = 110
+    const YELLOW_SYSTOLIC = 140
+    const YELLOW_DIASTOLIC = 90
+    const SHOCK_HIGH = 1.7
+    const SHOCK_MEDIUM = 0.9
+
+    if (reading['bpSystolic'] == undefined || reading['bpDiastolic'] == undefined || reading['heartRateBPM'] == undefined)
+        return "NONE"
+    
+    const shockIndex = reading['heartRateBPM'] / reading['bpSystolic']
+
+    const isBpVeryHigh = (reading['bpSystolic'] >= RED_SYSTOLIC) || (reading['bpDiastolic'] >= RED_DIASTOLIC)
+    const isBpHigh = (reading['bpSystolic'] >= YELLOW_SYSTOLIC) || (reading['bpDiastolic'] >= YELLOW_DIASTOLIC)
+    const isSevereShock = (shockIndex >= SHOCK_HIGH)
+    const isShock = (shockIndex >= SHOCK_MEDIUM)
+
+    let trafficLight = ""
+    if (isSevereShock) {
+      trafficLight = "RED_DOWN"
+    } else if (isBpVeryHigh) {
+      trafficLight = "RED_UP"
+    } else if (isShock) {
+      trafficLight = "YELLOW_DOWN"
+    } else if (isBpHigh) {
+      trafficLight = "YELLOW_UP"
+    } else {
+      trafficLight = "GREEN"
+    }
+    return trafficLight
   }
 
   getReferralIds(selectedPatient) {
@@ -181,6 +214,12 @@ class PatientSummary extends Component {
 
       console.log(newData)
       this.props.newReadingPost(newData)
+
+      newData['reading']['trafficLightStatus'] = this.calculateShockIndex(newData['reading'])
+      this.setState({ selectedPatient :{ ...this.state.selectedPatient,
+        readings: [...this.state.selectedPatient.readings, newData['reading'] ]
+       }
+      })
       this.closeReadingModal()
     })
   }
@@ -278,32 +317,36 @@ class PatientSummary extends Component {
     this.setState({ showVitals: false, showTrafficLights: true })
   }
 
+  createReadingObject = (reading) => {
+    const readingId = reading['readingId']
+    const dateTimeTaken = reading['dateTimeTaken']
+    const bpDiastolic = reading['bpDiastolic']
+    const bpSystolic = reading['bpSystolic']
+    const heartRateBPM = reading['heartRateBPM']
+    const symptoms = reading['symptoms']
+    const trafficLightStatus = reading['trafficLightStatus']
+    const isReferred = reading['referral'] ? true : false
+    const dateReferred = reading['dateReferred']
+    const medicalHistory = reading['medicalHistory']
+    const drugHistory = reading['drugHistory']
+    return this.createReadings(readingId, dateTimeTaken, bpDiastolic,
+                                  bpSystolic, heartRateBPM, symptoms,
+                                  trafficLightStatus, isReferred, dateReferred,
+                                  medicalHistory, drugHistory)
+  }
+
   render() {
 
-    let readings = [];
+    let readings = []
 
-    if (this.props.selectedPatient.readings.length > 0) {
-      for (var i = 0; i < this.props.selectedPatient.readings.length; i++) {
-        const readingId = this.props.selectedPatient.readings[i]['readingId']
-        const dateTimeTaken = this.props.selectedPatient.readings[i]['dateTimeTaken']
-        const bpDiastolic = this.props.selectedPatient.readings[i]['bpDiastolic']
-        const bpSystolic = this.props.selectedPatient.readings[i]['bpSystolic']
-        const heartRateBPM = this.props.selectedPatient.readings[i]['heartRateBPM']
-        const symptoms = this.props.selectedPatient.readings[i]['symptoms']
-        const trafficLightStatus = this.props.selectedPatient.readings[i]['trafficLightStatus']
-        const isReferred = this.props.selectedPatient.readings[i]['referral'] ? true : false
-        const dateReferred = this.props.selectedPatient.readings[i]['dateReferred']
-        const medicalHistory = this.props.selectedPatient.readings[i]['medicalHistory']
-        const drugHistory = this.props.selectedPatient.readings[i]['drugHistory']
-        readings.push(this.createReadings(readingId, dateTimeTaken, bpDiastolic,
-          bpSystolic, heartRateBPM, symptoms,
-          trafficLightStatus, isReferred, dateReferred,
-          medicalHistory, drugHistory))
+    if (this.state.selectedPatient.readings !== undefined && this.state.selectedPatient.readings.length > 0) {
+      for (var i = 0; i < this.state.selectedPatient.readings.length; i++) {
+        const reading = this.createReadingObject(this.state.selectedPatient.readings[i])
+        readings.push(reading)
       }
 
       readings = this.sortReadings(readings)
     }
-
     var getDate = new Date();
     var getMonth = getDate.getMonth();
 
@@ -415,11 +458,11 @@ class PatientSummary extends Component {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                       >
-                        <Typography>Medical History</Typography>
+                        <Typography>Drug History</Typography>
                       </ExpansionPanelSummary>
                       <ExpansionPanelDetails>
                         <Typography>
-                          {this.state.selectedPatient.medicalHistory}
+                          {this.state.selectedPatient.drugHistory}
                         </Typography>
                       </ExpansionPanelDetails>
                     </ExpansionPanel>
@@ -429,11 +472,11 @@ class PatientSummary extends Component {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                       >
-                        <Typography>Drug History</Typography>
+                        <Typography>Medical History</Typography>
                       </ExpansionPanelSummary>
                       <ExpansionPanelDetails>
                         <Typography>
-                          {this.state.selectedPatient.drugHistory}
+                          {this.state.selectedPatient.medicalHistory}
                         </Typography>
                       </ExpansionPanelDetails>
                     </ExpansionPanel>
