@@ -8,7 +8,8 @@ import referrals from './referrals'
 import patientStats from './patientStats'
 import healthFacilities from './healthFacilities'
 
-export default combineReducers({
+
+const appReducer = combineReducers({
   counter,
   posts,
   user: userReducer,
@@ -18,3 +19,10 @@ export default combineReducers({
   patientStats,
   healthFacilities
 })
+
+export default (state, action) => {
+  if (action.type === 'LOGOUT_USER') {
+    state = undefined
+  }
+  return appReducer(state,action)
+}
