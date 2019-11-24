@@ -388,15 +388,14 @@ class PatientSummary extends Component {
     return (
       <div>
         {this.state.selectedPatient ? (
-          <div >
-            <h1>
+          <div style={{"margin": "2.5em 0"}}>
+            <h1 style={{"width": "70%", "margin": "-1.35em 0"}}>
               <Icon style={{ "cursor": "pointer", "line-height": "0.7em" }} size="large" name="chevron left" onClick={() => this.handleBackBtn()} />
               Patient Summary : {this.state.selectedPatient.patientName}
             </h1>
-            <Divider />
             <Button style={{ "float": "right" }} onClick={() => this.openReadingModal()}>Add New Reading</Button>
             <div style={{ "clear": "both" }}></div>
-
+            <Divider />
             <Grid container direction="row" spacing={4} >
               <Grid item xs={6} style={{ "minWidth": "500px" }} >
                 <Paper style={{ "padding": "35px 25px", "borderRadius": "15px" }}>
