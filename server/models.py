@@ -232,7 +232,6 @@ class FollowUp(db.Model):
     followUpAction = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
-    blah = db.Column(db.Text)
     dateAssessed = db.Column(db.String(100), nullable=False)
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
 
@@ -277,6 +276,7 @@ class HealthFacilitySchema(ma.ModelSchema):
         model = HealthFacility
 
 class FollowUpSchema(ma.ModelSchema):
+    healthcareWorker = fields.Nested(UserSchema)
     class Meta:
         include_fk = True
         model = FollowUp
