@@ -7,7 +7,7 @@ import List from '@material-ui/core/List';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import { Icon } from 'semantic-ui-react'
+import { Icon, Button } from 'semantic-ui-react'
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -48,6 +48,12 @@ const useStyles = makeStyles(theme => ({
   toolbarButtons: {
     marginLeft: "auto",
     marginRight: -12
+  },
+  toolbarButtonsPadded: {
+    marginLeft: "auto",
+    marginRight: -12,
+    paddingLeft: 30,
+    paddingRight: 30
   },
   drawer: {
     width: drawerWidth,
@@ -115,7 +121,7 @@ const App = (props) => {
             <Typography noWrap style={titleTextStyle}>
               Cradle
             </Typography>
-            {props.user.isLoggedIn && 
+            {props.user.isLoggedIn &&
               <div>
                <IconButton
                 className={classes.toolbarButtons}
@@ -134,14 +140,14 @@ const App = (props) => {
                     }
                   </div>
                 </IconButton>
-                
+
                 <IconButton
-                    className={classes.toolbarButtons}
+                    className={classes.toolbarButtonsPadded}
                     onClick={() => setActiveItem("Help")}
                     selected={activeItem === "Help"}
                     color="inherit"
                 >
-                  <img src={HelpButton} style="width=75%;"/>
+                  <Icon name="help" size="small" />
                 </IconButton>
               </div>
              }
