@@ -14,6 +14,9 @@ function FollowUpInfo(props) {
                 <Divider />
                 <Header size='small'>Treatment:</Header>
                 <p>{props.followUp.treatment}</p>
+                <Divider />
+                <p><b>Assessed By:</b> Healthcare Worker {props.followUp.healthcareWorkerId}</p>
+                <p><b>Date Last Assessed:</b> {props.followUp.dateAssessed}</p>
             </Segment>
         )
     } else {
