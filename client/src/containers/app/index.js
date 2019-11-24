@@ -142,6 +142,9 @@ const App = (props) => {
 
                 <IconButton
                     className={classes.toolbarButtonsPadded}
+                    button
+                    component={Link}
+                    to="/help"
                     onClick={() => setActiveItem("Help")}
                     selected={activeItem === "Help"}
                     color="inherit"
