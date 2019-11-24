@@ -84,8 +84,14 @@ export const updateFollowUp = (followUpId, data) => {
         dispatch({
             type: UPDATE_FOLLOW_UP_REQUESTED
         })
-
-        return axios.put(BASE_URL + `/follow_up/${followUpId}`, data).then((res) => {
+        const token = localStorage.token;
+        return axios.put(BASE_URL + `/follow_up/${followUpId}`, data, {
+            'headers': {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          }).then((res) => {
             dispatch({
                 type: UPDATE_FOLLOW_UP,
                 payload: res.data
@@ -107,8 +113,14 @@ export const createFollowUp = (data) => {
         dispatch({
             type: UPDATE_FOLLOW_UP_REQUESTED
         })
-
-        return axios.post(BASE_URL + `/follow_up`, data).then((res) => {
+        const token = localStorage.token;
+        return axios.post(BASE_URL + `/follow_up`, data, {
+            'headers': {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }).then((res) => {
             dispatch({
                 type: UPDATE_FOLLOW_UP,
                 payload: res.data

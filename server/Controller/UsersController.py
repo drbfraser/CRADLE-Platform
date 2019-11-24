@@ -166,7 +166,7 @@ class UserEdit(Resource):
 class UserDelete(Resource):
 
     @jwt_required
-    def delete(self, id):
+    def delete(self, id=None):
         current_user = get_jwt_identity()
         if 'ADMIN' in current_user['roles']:
             if id:
