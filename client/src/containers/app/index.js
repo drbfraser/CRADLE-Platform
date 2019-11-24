@@ -32,6 +32,7 @@ import PatientsImg from './img/patients.svg'
 import ReferralsImg from './img/referrals.svg'
 import StatisticsImg from './img/statistics.svg'
 import CreateImg from './img/create.svg'
+import HelpButton from './img/ic_help.svg'
 import { bold } from 'ansi-colors';
 
 const drawerWidth = 200;
@@ -115,23 +116,34 @@ const App = (props) => {
               Cradle
             </Typography>
             {props.user.isLoggedIn && 
-              <IconButton
-              className={classes.toolbarButtons}
-              onClick={() => ""}
-              color="inherit"
-              >
-                <Icon name="user circle" size="large" />
-                <div>
-                  <Typography variant="body1" noWrap>
-                    {props.user.firstName} ({getRole(props.user.roles)})
-                  </Typography>
-                  {props.user.healthFacilityName &&
-                    <Typography variant="body2" noWrap>
-                      Healthcare Facility: {props.user.healthFacilityName}
+              <div>
+               <IconButton
+                className={classes.toolbarButtons}
+                onClick={() => ""}
+                c olor="inherit"
+                >
+                  <Icon name="user circle" size="large" />
+                  <div>
+                    <Typography variant="body1" noWrap>
+                      {props.user.firstName} ({getRole(props.user.roles)})
                     </Typography>
-                  }
-                </div>
-              </IconButton>
+                    {props.user.healthFacilityName &&
+                      <Typography variant="body2" noWrap>
+                        Healthcare Facility: {props.user.healthFacilityName}
+                      </Typography>
+                    }
+                  </div>
+                </IconButton>
+                
+                <IconButton
+                    className={classes.toolbarButtons}
+                    onClick={() => setActiveItem("Help")}
+                    selected={activeItem === "Help"}
+                    color="inherit"
+                >
+                  <img src={HelpButton} style="width=75%;"/>
+                </IconButton>
+              </div>
              }
           </Toolbar>
           
