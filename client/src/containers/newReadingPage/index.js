@@ -72,7 +72,7 @@ class NewReadingPage extends Component {
     }
 
     return (
-      <div>
+      <div style={{maxWidth:1200, marginLeft: "auto", marginRight: "auto"}}>
         <h1><b>Create a new patient and reading:</b></h1> 
         <Divider/>
         <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
