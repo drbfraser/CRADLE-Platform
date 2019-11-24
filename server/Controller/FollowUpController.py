@@ -3,6 +3,7 @@ import json
 
 from flask import request
 from flask_restful import Resource, abort
+from flask_jwt_extended import (jwt_required, get_jwt_identity)
 
 # Project modules
 from Manager.FollowUpManager import FollowUpManager
@@ -21,8 +22,7 @@ class FollowUp(Resource):
     # Get all followups
     # Get all followups with an ID
     # Get all followups, for a specific referral
-    @staticmethod
-    def get(id=None):      
+    def get(self, id=None):      
         args = request.args  
         if id:
             logging.debug('Received request: GET /follow_up/<id>')
@@ -44,16 +44,16 @@ class FollowUp(Resource):
                 abort(404, message="No FollowUps currently exist.")
             return follow_ups
 
-    # Create a new patient
-    @staticmethod
-    def post():
+    # Create a new follow up
+    @jwt_required
+    def post(self):
+        current_user = get_jwt_identity()
         logging.debug('Received request: POST /follow_up')
-        hf_data = FollowUp._get_request_body()
-        response_body = followUpManager.create(hf_data)
+        follow_up_data = FollowUp._get_request_body()
+        response_body = followUpManager.create(follow_up_data, current_user)
         return response_body, 201
 
-    @staticmethod
-    def put(id=None):
+    def put(self, id=None):
         logging.debug('Received request: PUT /follow_up/<id>')
         # validate inputs
         if not id:
@@ -67,8 +67,7 @@ class FollowUp(Resource):
         else:
             return update_res
 
-    @staticmethod
-    def delete(id=None):
+    def delete(self, id=None):
         # validate inputs
         if id:
             logging.debug('Received request: DELETE /follow_up/<id>')

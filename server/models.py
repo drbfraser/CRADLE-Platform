@@ -232,6 +232,12 @@ class FollowUp(db.Model):
     followUpAction = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
+    blah = db.Column(db.Text)
+    dateAssessed = db.Column(db.String(100), nullable=False)
+    healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
+
+    # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
+    healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
 
 
 class Village(db.Model):
