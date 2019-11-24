@@ -10,6 +10,7 @@ import { newReadingPost } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
 import BpForm from './bpForm';
 import SymptomForm from './symptomForm';
+import SweetAlert from 'sweetalert2-react';
 
 import { Button,
   Header, Image, Modal,
@@ -66,7 +67,8 @@ class NewReadingPage extends Component {
       unwell: false,
       other: false,
       otherSymptoms: ""
-    }
+    },
+    showSuccessReading : false
   }
 
 
@@ -192,7 +194,8 @@ class NewReadingPage extends Component {
                 unwell: false,
                 other: false,
                 otherSymptoms: ""
-              }
+              },
+              showSuccessReading: true
           })
         }
       })
@@ -228,6 +231,14 @@ class NewReadingPage extends Component {
             Submit
           </Button>
         </div>
+
+        <SweetAlert
+          type="success"
+          show={this.state.showSuccessReading}
+          title="Patient Reading Created!"
+          text="Success! You can view the new reading by going to the Patients tab"
+          onConfirm={() => this.setState({ showSuccessReading: false })}
+        />
       </div>
     )
   }

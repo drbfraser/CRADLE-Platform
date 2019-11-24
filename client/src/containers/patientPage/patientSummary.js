@@ -8,6 +8,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
+import SweetAlert from 'sweetalert2-react';
 
 import {
   Button,
@@ -77,7 +78,8 @@ class PatientSummary extends Component {
       unwell: false,
       other: false,
       otherSymptoms: ""
-    }
+    },
+    showSuccessReading : false
   }
 
   componentDidMount = () => {
@@ -218,7 +220,8 @@ class PatientSummary extends Component {
       newData['reading']['trafficLightStatus'] = this.calculateShockIndex(newData['reading'])
       this.setState({ selectedPatient :{ ...this.state.selectedPatient,
         readings: [...this.state.selectedPatient.readings, newData['reading'] ]
-       }
+       },
+       showSuccessReading : true
       })
       this.closeReadingModal()
     })
@@ -720,6 +723,13 @@ class PatientSummary extends Component {
                 </Modal.Description>
               </Modal.Content>
             </Modal>
+            <SweetAlert
+              type="success"
+              show={this.state.showSuccessReading}
+              title="Reading Created!"
+              text="Success! You can view the new reading below"
+              onConfirm={() => this.setState({ showSuccessReading: false })}
+            />
           </div>
         ) : (
             <div>
