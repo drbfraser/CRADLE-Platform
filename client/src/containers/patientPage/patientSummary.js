@@ -68,7 +68,7 @@ class PatientSummary extends Component {
       symptoms: ""
     },
     checkedItems: {
-      none: false,
+      none: true,
       headache: false,
       bleeding: false,
       blurredVision: false,
@@ -669,6 +669,7 @@ class PatientSummary extends Component {
                         name='otherSymptoms'
                         value={this.state.checkedItems.otherSymptoms}
                         onChange={this.handleOtherSymptom}
+                        disabled={!this.state.checkedItems.other}
                       />
                     </Form.Group>
 

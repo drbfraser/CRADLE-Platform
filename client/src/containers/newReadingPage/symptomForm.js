@@ -74,6 +74,7 @@ function SymptomForm(props) {
               name='otherSymptoms'
               value={props.checkedItems.otherSymptoms}
               onChange={props.onOtherChange}
+              disabled={!props.checkedItems.other}
             />
           </Form.Group>
         </div>
