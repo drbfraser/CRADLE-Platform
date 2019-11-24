@@ -108,12 +108,25 @@ class NewReadingPage extends Component {
       }
     }
     //console.log(symptom)
-    this. setState({ 
+    if (value.name != 'none') {
+      if (symptom.indexOf('none') >= 0) {
+        symptom.pop('none')
+      }
+      this. setState({ 
+        checkedItems: { 
+          ...this.state.checkedItems, 
+          [value.name] : !value.value,
+          none: false,
+          symptoms: symptom
+        }})
+    } else {
+      this. setState({ 
       checkedItems: { 
         ...this.state.checkedItems, 
         [value.name] : !value.value,
         symptoms: symptom
       }})
+    }
   }
 
   handleOtherSymptom = event => {

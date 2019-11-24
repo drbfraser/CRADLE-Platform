@@ -33,6 +33,7 @@
     "sanitize.css": "7.0.3",
     "semantic-ui-react": "^0.88.1",
     "serve": "10.1.2",
+    "sweetalert2-react": "^0.8.3",
     "yup": "^0.27.0"
   },
   "browserslist": [
