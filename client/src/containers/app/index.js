@@ -15,6 +15,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { Route, Link } from 'react-router-dom'
 import Home from '../home'
 import AdminPage from '../adminPage'
+import HelpPage from '../helpPage'
 import PatientPage from '../patientPage'
 import StatisticsPage from '../statisticsPage'
 import ReferralsPage from '../referralsPage'
@@ -278,6 +279,7 @@ const App = (props) => {
           <div className={classes.toolbar} />
           <Route exact path="/" component={Home} />
           <Route exact path="/admin" component={AdminPage} />
+          <Route exact path="/help" component={HelpPage} />
           <Route exact path="/patients" component={PatientPage} />
           <Route exact path="/signup" component={Signup} />
           <Route exact path="/login" component={Login} />
