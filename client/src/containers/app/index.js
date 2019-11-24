@@ -67,7 +67,7 @@ const useStyles = makeStyles(theme => ({
   },
   toolbar: theme.mixins.toolbar,
   listItem: { flexDirection: 'column', margin: '10px 0px 10px 0px' },
-  logout: { marginTop: '50px', bottom: 0},
+  logout: { marginTop: '20px', bottom: 0},
   itemText : { color : 'white', paddingTop : '8px' }
 }));
 
@@ -215,7 +215,49 @@ const App = (props) => {
                   }
                 />
               </ListItem>
+
               <Divider />
+
+              {props.user.roles.includes('ADMIN') &&
+              <div>
+                <ListItem className={[classes.listItem]}
+                          component={Link}
+                          button
+                          key="new user"
+                          to="/signup"
+                          selected={activeItem === "Signup"}
+                          onClick={() => setActiveItem("Signup")}>
+                  <ListItemText
+                    disableTypography
+                    className={classes.itemText}
+                    primary={
+                      <Typography style={sidebarTextStyle}>
+                        Create New User
+                      </Typography>
+                    }
+                  />
+                </ListItem>
+                <ListItem className={classes.listItem}
+                          component={Link}
+                          button
+                          key="new user"
+                          to="/admin"
+                          selected={activeItem === "Admin"}
+                          onClick={() => setActiveItem("Admin")}>
+                  <ListItemText
+                    disableTypography
+                    className={classes.itemText}
+                    primary={
+                      <Typography style={sidebarTextStyle}>
+                        Admin Panel
+                      </Typography>
+                    }
+                  />
+                </ListItem>
+
+                <Divider />
+              </div>}
+
               <ListItem className={[classes.listItem, classes.logout]} button key="Logout" onClick={ () => props.logoutUser() }>
                 <ListItemText
                   disableTypography
@@ -227,27 +269,6 @@ const App = (props) => {
                   }
                 />
               </ListItem>
-              {props.user.roles.includes('ADMIN') &&
-              <List>
-                <ListItem className={classes.listItem}
-                          component={Link}
-                          button
-                          key="new user"
-                          to="/signup"
-                          selected={activeItem === "Signup"}
-                          onClick={() => setActiveItem("Signup")}>
-                  <ListItemText className={classes.itemText} primary="Create New User" />
-                </ListItem>
-                <ListItem className={classes.listItem}
-                          component={Link}
-                          button
-                          key="new user"
-                          to="/admin"
-                          selected={activeItem === "Admin"}
-                          onClick={() => setActiveItem("Admin")}>
-                  <ListItemText className={classes.itemText} primary="Admin Panel" />
-                </ListItem>
-              </List>}
             </List>
         </Drawer>
         ) : (null)}
