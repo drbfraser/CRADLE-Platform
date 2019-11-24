@@ -58,7 +58,7 @@ class NewReadingPage extends Component {
       symptoms: ""
     },
     checkedItems: {
-      none: false,
+      none: true,
       headache: false,
       bleeding: false,
       blurredVision: false,

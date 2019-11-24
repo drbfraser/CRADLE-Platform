@@ -69,7 +69,7 @@ class PatientSummary extends Component {
       symptoms: ""
     },
     checkedItems: {
-      none: false,
+      none: true,
       headache: false,
       bleeding: false,
       blurredVision: false,
@@ -79,7 +79,7 @@ class PatientSummary extends Component {
       other: false,
       otherSymptoms: ""
     },
-    showSuccessReading : false
+    showSuccessReading: false
   }
 
   componentDidMount = () => {
@@ -102,8 +102,8 @@ class PatientSummary extends Component {
     const SHOCK_MEDIUM = 0.9
 
     if (reading['bpSystolic'] == undefined || reading['bpDiastolic'] == undefined || reading['heartRateBPM'] == undefined)
-        return "NONE"
-    
+      return "NONE"
+
     const shockIndex = reading['heartRateBPM'] / reading['bpSystolic']
 
     const isBpVeryHigh = (reading['bpSystolic'] >= RED_SYSTOLIC) || (reading['bpDiastolic'] >= RED_DIASTOLIC)
@@ -218,10 +218,12 @@ class PatientSummary extends Component {
       this.props.newReadingPost(newData)
 
       newData['reading']['trafficLightStatus'] = this.calculateShockIndex(newData['reading'])
-      this.setState({ selectedPatient :{ ...this.state.selectedPatient,
-        readings: [...this.state.selectedPatient.readings, newData['reading'] ]
-       },
-       showSuccessReading : true
+      this.setState({
+        selectedPatient: {
+          ...this.state.selectedPatient,
+          readings: [...this.state.selectedPatient.readings, newData['reading']]
+        },
+        showSuccessReading: true
       })
       this.closeReadingModal()
     })
@@ -333,9 +335,9 @@ class PatientSummary extends Component {
     const medicalHistory = reading['medicalHistory']
     const drugHistory = reading['drugHistory']
     return this.createReadings(readingId, dateTimeTaken, bpDiastolic,
-                                  bpSystolic, heartRateBPM, symptoms,
-                                  trafficLightStatus, isReferred, dateReferred,
-                                  medicalHistory, drugHistory)
+      bpSystolic, heartRateBPM, symptoms,
+      trafficLightStatus, isReferred, dateReferred,
+      medicalHistory, drugHistory)
   }
 
   render() {
@@ -434,8 +436,8 @@ class PatientSummary extends Component {
     return (
       <div>
         {this.state.selectedPatient ? (
-          <div style={{"margin": "2.5em 0"}}>
-            <h1 style={{"width": "70%", "margin": "-1.35em 0"}}>
+          <div style={{ "margin": "2.5em 0" }}>
+            <h1 style={{ "width": "70%", "margin": "-1.35em 0" }}>
               <Icon style={{ "cursor": "pointer", "line-height": "0.7em" }} size="large" name="chevron left" onClick={() => this.handleBackBtn()} />
               Patient Summary : {this.state.selectedPatient.patientName}
             </h1>
@@ -464,11 +466,11 @@ class PatientSummary extends Component {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                       >
-                        <Typography>Drug History</Typography>
+                        <Typography>Medical History</Typography>
                       </ExpansionPanelSummary>
                       <ExpansionPanelDetails>
                         <Typography>
-                          {this.state.selectedPatient.drugHistory}
+                          {this.state.selectedPatient.medicalHistory}
                         </Typography>
                       </ExpansionPanelDetails>
                     </ExpansionPanel>
@@ -478,11 +480,11 @@ class PatientSummary extends Component {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                       >
-                        <Typography>Medical History</Typography>
+                        <Typography>Drug History</Typography>
                       </ExpansionPanelSummary>
                       <ExpansionPanelDetails>
                         <Typography>
-                          {this.state.selectedPatient.medicalHistory}
+                          {this.state.selectedPatient.drugHistory}
                         </Typography>
                       </ExpansionPanelDetails>
                     </ExpansionPanel>
@@ -497,255 +499,256 @@ class PatientSummary extends Component {
                     <Icon style={{ "line-height": "0.7em" }} name="heartbeat" size="large" />
                     Vitals Over Time
                 </Typography>
-                  <Divider />
-                  <Button.Group style={{ "width": "100%" }}>
-                    <Button active={this.state.showVitals} onClick={() => this.showVitals()}>Show Vitals Over Time</Button>
-                    <Button active={this.state.showTrafficLights} onClick={() => this.showTrafficLights()}>Show Traffic Lights</Button>
-                  </Button.Group>
-                  <br /><br />
-                  {this.state.showVitals &&
-                    <div>
-                      <h4 style={{ "margin": "0" }}>Average Vitals Over Time:</h4>
-                      <Line ref="chart" data={vitalsOverTime} />
-                    </div>
-                  }
-                  {this.state.showTrafficLights &&
-                    <div>
-                      <h4 style={{ "margin": "0" }}>Traffic Lights From All Readings:</h4>
-                      <Bar ref="chart" data={trafficLight}
-                        options={{ legend: { display: false }, scales: { xAxes: [{ ticks: { fontSize: 10 } }], yAxes: [{ ticks: { beginAtZero: true } }] } }} />
-                    </div>
-                  }
-                </Paper>
-              </Grid>
-            </Grid>
-            <br />
-            <Grid container spacing={0}>
-              {readings.map(row => (
-                <Grid key={row.readingId} xs={12}>
-                  <Paper style={{ "marginBottom": "35px", "height": "auto", "padding": "45px 50px", "borderRadius": "15px", "display": "flex" }}>
-                    <div style={{ "display": "inline-block", "width": "50%" }}>
-                      <Typography variant="h4" component="h4">
-                        Reading
-                    </Typography>
-
-                      <Typography variant="subtitle1" component="subtitle1">
-                        Taken on {getPrettyDate(row.dateTimeTaken)}
-                      </Typography>
-
-                      <div style={{ "padding": "25px 50px" }}>
-                        {this.getTrafficIcon(row.trafficLightStatus)}
-                        <br /><br />
-                        <p><b>Systolic Blood Pressure: </b> {row.bpSystolic} </p>
-                        <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>
-                        <p><b>Heart Rate (BPM): </b> {row.heartRateBPM} </p>
-                        <p><b>Symptoms: </b> {row.symptoms} </p>
+                    <Divider />
+                    <Button.Group style={{ "width": "100%" }}>
+                      <Button active={this.state.showVitals} onClick={() => this.showVitals()}>Show Vitals Over Time</Button>
+                      <Button active={this.state.showTrafficLights} onClick={() => this.showTrafficLights()}>Show Traffic Lights</Button>
+                    </Button.Group>
+                    <br /><br />
+                    {this.state.showVitals &&
+                      <div>
+                        <h4 style={{ "margin": "0" }}>Average Vitals Over Time:</h4>
+                        <Line ref="chart" data={vitalsOverTime} />
                       </div>
-                    </div>
-                    <div style={{ "borderLeft": "2px solid #84ced4", "display": "inline-block", "width": "50%", "float": "right", "height": "100%" }}>
-                      <div style={{ "padding": "0px 50px" }}>
-                        <ReferralInfo readingId={row.readingId} referral={this.props.referrals[row.readingId]} />
+                    }
+                    {this.state.showTrafficLights &&
+                      <div>
+                        <h4 style={{ "margin": "0" }}>Traffic Lights From All Readings:</h4>
+                        <Bar ref="chart" data={trafficLight}
+                          options={{ legend: { display: false }, scales: { xAxes: [{ ticks: { fontSize: 10 } }], yAxes: [{ ticks: { beginAtZero: true } }] } }} />
                       </div>
-                    </div>
+                    }
                   </Paper>
                 </Grid>
-              ))}
+              </Grid>
+              <br />
+              <Grid container spacing={0}>
+                {readings.map(row => (
+                  <Grid key={row.readingId} xs={12}>
+                    <Paper style={{ "marginBottom": "35px", "height": "auto", "padding": "45px 50px", "borderRadius": "15px", "display": "flex" }}>
+                      <div style={{ "display": "inline-block", "width": "50%" }}>
+                        <Typography variant="h4" component="h4">
+                          Reading
+                        </Typography>
 
-            </Grid>
+                        <Typography variant="subtitle1" component="subtitle1">
+                          Taken on {getPrettyDate(row.dateTimeTaken)}
+                        </Typography>
 
-            <Modal closeIcon onClose={this.closePatientModal} open={this.state.displayPatientModal}>
-              <Modal.Header>Patient Information</Modal.Header>
-              <Modal.Content scrolling>
-                <Modal.Description>
-                  <Header>Patient Information for ID #{this.state.selectedPatient.patientId}</Header>
-                  <Divider />
-                  <Form onSubmit={this.handleSubmit}>
-                    <Form.Group widths='equal'>
-                      <Form.Field
-                        name="patientName"
-                        value={this.state.selectedPatient.patientName}
-                        control={Input}
-                        label='Name'
-                        placeholder='Patient Name'
-                        onChange={this.handleSelectChange}
-                      />
-                      <Form.Field
-                        name="patientAge"
-                        value={this.state.selectedPatient.patientAge}
-                        control={Input}
-                        label='Age'
-                        placeholder='Patient age'
-                        onChange={this.handleSelectChange}
-                      />
-                      <Form.Field
-                        name="patientSex"
-                        control={Select}
-                        value={this.state.selectedPatient.patientSex}
-                        label='Gender'
-                        options={sexOptions}
-                        placeholder='Gender'
-                        onChange={this.handleSelectChange}
-                      />
-                    </Form.Group>
-                    <Form.Group widths='equal'>
-                      <Form.Field
-                        name='villageNumber'
-                        value={this.state.selectedPatient.villageNumber}
-                        control={Input}
-                        label='Village Number'
-                        placeholder='Village Number'
-                        onChange={this.handleSelectChange}
-                      />
-                      <Form.Field
-                        name='isPregnant'
-                        value={this.state.selectedPatient.isPregnant}
-                        control={Select}
-                        label='Pregnant'
-                        options={pregOptions}
-                        onChange={this.handleSelectChange}
-                      />
-                    </Form.Group>
-                    <Form.Field
-                      name="drugHistory"
-                      value={this.state.selectedPatient.drugHistory || ''}
-                      control={TextArea}
-                      label='Drug History'
-                      placeholder="Patient's drug history..."
-                      onChange={this.handleSelectChange}
-                    />
-                    <Form.Field
-                      name="medicalHistory"
-                      value={this.state.selectedPatient.medicalHistory || ''}
-                      control={TextArea}
-                      label='Medical History'
-                      placeholder="Patient's medical history..."
-                      onChange={this.handleSelectChange}
-                    />
-                    <Form.Field control={Button}>Submit</Form.Field>
-                  </Form>
+                        <div style={{ "padding": "25px 50px" }}>
+                          {this.getTrafficIcon(row.trafficLightStatus)}
+                          <br /><br />
+                          <p><b>Systolic Blood Pressure: </b> {row.bpSystolic} </p>
+                          <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>
+                          <p><b>Heart Rate (BPM): </b> {row.heartRateBPM} </p>
+                          <p><b>Symptoms: </b> {row.symptoms} </p>
+                        </div>
+                      </div>
+                      <div style={{ "borderLeft": "2px solid #84ced4", "display": "inline-block", "width": "50%", "float": "right", "height": "100%" }}>
+                        <div style={{ "padding": "0px 50px" }}>
+                          <ReferralInfo readingId={row.readingId} referral={this.props.referrals[row.readingId]} />
+                        </div>
+                      </div>
+                    </Paper>
+                  </Grid>
+                ))}
 
-                </Modal.Description>
-              </Modal.Content>
-            </Modal>
-            <Modal closeIcon onClose={this.closeReadingModal} open={this.state.displayReadingModal}>
-              <Modal.Header>Patient Information</Modal.Header>
-              <Modal.Content scrolling>
-                <Modal.Description>
-                  <Header>New Patient Reading for ID #{this.state.selectedPatient.patientId}</Header>
-                  <Divider />
-                  <Form onSubmit={this.handleReadingSubmit}>
-                    <Form.Group widths='equal'>
-                      <Form.Field
-                        name="bpSystolic"
-                        value={this.state.selectedPatient.bpSystolic}
-                        control={Input}
-                        label='Systolic'
-                        onChange={this.handleReadingChange}
-                      />
-                      <Form.Field
-                        name="bpDiastolic"
-                        value={this.state.selectedPatient.bpDiastolic}
-                        control={Input}
-                        label='Diastolic'
-                        onChange={this.handleReadingChange}
-                      />
-                      <Form.Field
-                        name="heartRateBPM"
-                        value={this.state.selectedPatient.heartRateBPM}
-                        control={Input}
-                        label='Heart rate'
-                        onChange={this.handleReadingChange}
-                      />
-                    </Form.Group>
-                    <Form.Checkbox
-                      value={this.state.checkedItems.none}
-                      name='none'
-                      label='None (patient healthy)'
-                      onChange={this.handleCheckedChange}
-                    />
-                    <Form.Group widths='equal'>
-                      <Form.Checkbox
-                        value={this.state.checkedItems.headache}
-                        name='headache'
-                        label='Headache'
-                        onChange={this.handleCheckedChange}
-                      />
-                      <Form.Checkbox
-                        value={this.state.checkedItems.bleeding}
-                        name='bleeding'
-                        label='Bleeding'
-                        onChange={this.handleCheckedChange}
-                      />
-                    </Form.Group>
-                    <Form.Group widths='equal'>
-                      <Form.Checkbox
-                        value={this.state.checkedItems.blurredVision}
-                        name='blurredVision'
-                        label='Blurred vision'
-                        onChange={this.handleCheckedChange}
-                      />
-                      <Form.Checkbox
-                        value={this.state.checkedItems.feverish}
-                        name='feverish'
-                        label='Feverish'
-                        onChange={this.handleCheckedChange}
-                      />
-                    </Form.Group>
-                    <Form.Group widths='equal'>
-                      <Form.Checkbox
-                        value={this.state.checkedItems.abdominalPain}
-                        name='abdominalPain'
-                        label='Abdominal pain'
-                        onChange={this.handleCheckedChange}
-                      />
-                      <Form.Checkbox
-                        value={this.state.checkedItems.unwell}
-                        name='unwell'
-                        label='Unwell'
-                        onChange={this.handleCheckedChange}
-                      />
-                    </Form.Group>
-                    <Form.Group>
-                      <Form.Checkbox
-                        value={this.state.checkedItems.other}
-                        widths='3'
-                        name='other'
-                        label='Other:'
-                        onChange={this.handleCheckedChange}
-                      />
-                      <Form.TextArea
-                        widths='1'
-                        name='otherSymptoms'
-                        value={this.state.checkedItems.otherSymptoms}
-                        onChange={this.handleOtherSymptom}
-                      />
-                    </Form.Group>
+              </Grid>
 
-                    <Form.Field control={Button}>Submit</Form.Field>
-                  </Form>
-                </Modal.Description>
-              </Modal.Content>
-            </Modal>
-            <SweetAlert
-              type="success"
-              show={this.state.showSuccessReading}
-              title="Reading Created!"
-              text="Success! You can view the new reading below"
-              onConfirm={() => this.setState({ showSuccessReading: false })}
-            />
+              <Modal closeIcon onClose={this.closePatientModal} open={this.state.displayPatientModal}>
+                <Modal.Header>Patient Information</Modal.Header>
+                <Modal.Content scrolling>
+                  <Modal.Description>
+                    <Header>Patient Information for ID #{this.state.selectedPatient.patientId}</Header>
+                    <Divider />
+                    <Form onSubmit={this.handleSubmit}>
+                      <Form.Group widths='equal'>
+                        <Form.Field
+                          name="patientName"
+                          value={this.state.selectedPatient.patientName}
+                          control={Input}
+                          label='Name'
+                          placeholder='Patient Name'
+                          onChange={this.handleSelectChange}
+                        />
+                        <Form.Field
+                          name="patientAge"
+                          value={this.state.selectedPatient.patientAge}
+                          control={Input}
+                          label='Age'
+                          placeholder='Patient age'
+                          onChange={this.handleSelectChange}
+                        />
+                        <Form.Field
+                          name="patientSex"
+                          control={Select}
+                          value={this.state.selectedPatient.patientSex}
+                          label='Gender'
+                          options={sexOptions}
+                          placeholder='Gender'
+                          onChange={this.handleSelectChange}
+                        />
+                      </Form.Group>
+                      <Form.Group widths='equal'>
+                        <Form.Field
+                          name='villageNumber'
+                          value={this.state.selectedPatient.villageNumber}
+                          control={Input}
+                          label='Village Number'
+                          placeholder='Village Number'
+                          onChange={this.handleSelectChange}
+                        />
+                        <Form.Field
+                          name='isPregnant'
+                          value={this.state.selectedPatient.isPregnant}
+                          control={Select}
+                          label='Pregnant'
+                          options={pregOptions}
+                          onChange={this.handleSelectChange}
+                        />
+                      </Form.Group>
+                      <Form.Field
+                        name="drugHistory"
+                        value={this.state.selectedPatient.drugHistory || ''}
+                        control={TextArea}
+                        label='Drug History'
+                        placeholder="Patient's drug history..."
+                        onChange={this.handleSelectChange}
+                      />
+                      <Form.Field
+                        name="medicalHistory"
+                        value={this.state.selectedPatient.medicalHistory || ''}
+                        control={TextArea}
+                        label='Medical History'
+                        placeholder="Patient's medical history..."
+                        onChange={this.handleSelectChange}
+                      />
+                      <Form.Field control={Button}>Submit</Form.Field>
+                    </Form>
+
+                  </Modal.Description>
+                </Modal.Content>
+              </Modal>
+              <Modal closeIcon onClose={this.closeReadingModal} open={this.state.displayReadingModal}>
+                <Modal.Header>Patient Information</Modal.Header>
+                <Modal.Content scrolling>
+                  <Modal.Description>
+                    <Header>New Patient Reading for ID #{this.state.selectedPatient.patientId}</Header>
+                    <Divider />
+                    <Form onSubmit={this.handleReadingSubmit}>
+                      <Form.Group widths='equal'>
+                        <Form.Field
+                          name="bpSystolic"
+                          value={this.state.selectedPatient.bpSystolic}
+                          control={Input}
+                          label='Systolic'
+                          onChange={this.handleReadingChange}
+                        />
+                        <Form.Field
+                          name="bpDiastolic"
+                          value={this.state.selectedPatient.bpDiastolic}
+                          control={Input}
+                          label='Diastolic'
+                          onChange={this.handleReadingChange}
+                        />
+                        <Form.Field
+                          name="heartRateBPM"
+                          value={this.state.selectedPatient.heartRateBPM}
+                          control={Input}
+                          label='Heart rate'
+                          onChange={this.handleReadingChange}
+                        />
+                      </Form.Group>
+                      <Form.Checkbox
+                        value={this.state.checkedItems.none}
+                        name='none'
+                        label='None (patient healthy)'
+                        onChange={this.handleCheckedChange}
+                      />
+                      <Form.Group widths='equal'>
+                        <Form.Checkbox
+                          value={this.state.checkedItems.headache}
+                          name='headache'
+                          label='Headache'
+                          onChange={this.handleCheckedChange}
+                        />
+                        <Form.Checkbox
+                          value={this.state.checkedItems.bleeding}
+                          name='bleeding'
+                          label='Bleeding'
+                          onChange={this.handleCheckedChange}
+                        />
+                      </Form.Group>
+                      <Form.Group widths='equal'>
+                        <Form.Checkbox
+                          value={this.state.checkedItems.blurredVision}
+                          name='blurredVision'
+                          label='Blurred vision'
+                          onChange={this.handleCheckedChange}
+                        />
+                        <Form.Checkbox
+                          value={this.state.checkedItems.feverish}
+                          name='feverish'
+                          label='Feverish'
+                          onChange={this.handleCheckedChange}
+                        />
+                      </Form.Group>
+                      <Form.Group widths='equal'>
+                        <Form.Checkbox
+                          value={this.state.checkedItems.abdominalPain}
+                          name='abdominalPain'
+                          label='Abdominal pain'
+                          onChange={this.handleCheckedChange}
+                        />
+                        <Form.Checkbox
+                          value={this.state.checkedItems.unwell}
+                          name='unwell'
+                          label='Unwell'
+                          onChange={this.handleCheckedChange}
+                        />
+                      </Form.Group>
+                      <Form.Group>
+                        <Form.Checkbox
+                          value={this.state.checkedItems.other}
+                          widths='3'
+                          name='other'
+                          label='Other:'
+                          onChange={this.handleCheckedChange}
+                        />
+                        <Form.TextArea
+                          widths='1'
+                          name='otherSymptoms'
+                          value={this.state.checkedItems.otherSymptoms}
+                          onChange={this.handleOtherSymptom}
+                          disabled={!this.state.checkedItems.other}
+                        />
+                      </Form.Group>
+
+                      <Form.Field control={Button}>Submit</Form.Field>
+                    </Form>
+                  </Modal.Description>
+                </Modal.Content>
+              </Modal>
+              <SweetAlert
+                type="success"
+                show={this.state.showSuccessReading}
+                title="Reading Created!"
+                text="Success! You can view the new reading below"
+                onConfirm={() => this.setState({ showSuccessReading: false })}
+              />
           </div>
-        ) : (
+            ) : (
             <div>
               <Button onClick={() => this.handleBackBtn()}>Back</Button>
               <h2>No patient selected</h2>
             </div>
-          )}
+            )}
       </div>
     )
   }
 }
-
-
+        
+        
 const mapStateToProps = ({
   user,
   referrals,
@@ -755,20 +758,20 @@ const mapStateToProps = ({
   referrals: referrals.mappedReferrals,
   selectedPatientStatsList: patientStats.selectedPatientStatsList
 })
-
+      
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      updatePatient,
-      getPatients,
-      getReferrals,
-      getSelectedPatientStats,
-      getCurrentUser,
-      newReadingPost
-    },
-    dispatch
-  )
-
+        updatePatient,
+        getPatients,
+        getReferrals,
+        getSelectedPatientStats,
+        getCurrentUser,
+        newReadingPost
+      },
+      dispatch
+    )
+    
 export default connect(
   mapStateToProps,
   mapDispatchToProps
