@@ -110,3 +110,32 @@ class FollowUpMobile(Resource):
             if not follow_ups:
                 abort(404, message="No FollowUps currently exist.")
             return follow_ups
+
+class FollowUpMobileSummarized(Resource):
+    @staticmethod
+    def _get_request_body():
+        raw_req_body = request.get_json(force=True)
+        print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
+        return raw_req_body
+
+    def get(self, id=None):      
+        args = request.args  
+        if id:
+            logging.debug('Received request: GET /mobile/follow_up/<id>')
+            follow_up = followUpManager.mobile_read_summarized("id", id)
+            if follow_up is None: 
+                abort(400, message=f'No FollowUp exists with id "{id}"')
+            return follow_up
+        elif args:
+            logging.debug('Received request: GET /mobile/follow_up')
+            print("args: " + json.dumps(args, indent=2, sort_keys=True))
+            follow_ups = followUpManager.mobile_search_summarized(args)
+            if not follow_ups:
+                abort(400, message="No FollowUps found with given query params.")
+            return follow_ups
+        else:
+            logging.debug('Received request: GET /mobile/follow_up')
+            follow_ups = followUpManager.mobile_read_all_summarized()
+            if not follow_ups:
+                abort(404, message="No FollowUps currently exist.")
+            return follow_ups

@@ -9,7 +9,7 @@ from Controller.UsersController import *
 from Controller.PatientsController import *
 from Controller.ReferralsController import ReferralApi, ReferralInfo
 from Controller.HealthFacilityController import *
-from Controller.FollowUpController import FollowUp, FollowUpMobile
+from Controller.FollowUpController import FollowUp, FollowUpMobile, FollowUpMobileSummarized
 from Controller.StatsController import *
 from Controller.PatientStatsController import *
 from Controller.SMSController import *
@@ -43,5 +43,7 @@ def init(api):
 
     api.add_resource(FollowUp, '/api/follow_up', '/api/follow_up/<int:id>') # [GET, POST, PUT, DELETE]
     api.add_resource(FollowUpMobile, '/api/mobile/follow_up', '/api/mobile/follow_up/<int:id>') # [GET]
+    api.add_resource(FollowUpMobileSummarized, '/api/mobile/summarized/follow_up', '/api/mobile/summarized/follow_up/<int:id>') # [GET]
+
 
     api.add_resource(SMS, '/api/sms')
