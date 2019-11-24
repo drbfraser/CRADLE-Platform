@@ -40,13 +40,12 @@ class PatientManager(Manager):
         if 'ADMIN' in current_user['roles']:
             patients_query = self.read_all()
         elif 'HCW' in current_user['roles']:
-            #print(current_user[userId])
             patients_query = filtered_list_hcw(patient_list, ref_list, user_list, current_user['userId'])
-        elif 'VHT' in current_user['roles']:
-            patients_query = filtered_list_vht(patient_list, readings_list, current_user['userId'])
         elif 'CHO' in current_user['roles']:
             patients_query = filtered_list_cho(patient_list, readings_list, current_user['vhtList'], current_user['userId'])
-
+        elif 'VHT' in current_user['roles']:
+            patients_query = filtered_list_vht(patient_list, readings_list, current_user['userId'])
+        
         # otherwise show them all, which is not the best way to handle it, but risky to throw errors atm
         else:
              patients_query = patient_list
