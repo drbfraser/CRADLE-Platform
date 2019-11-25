@@ -25,7 +25,7 @@ class VideoLanding extends Component {
     }
 
     this.handleRoomIdChange = this.handleRoomIdChange.bind(this);
-    this.toggleCreateForm = this.toggleCreateForm.bind(this);
+    this.createNewRoom = this.createNewRoom.bind(this);
     this.toggleEnterForm = this.toggleEnterForm.bind(this);
     this.joinExistingRoom = this.joinExistingRoom.bind(this);
   }
@@ -39,12 +39,10 @@ class VideoLanding extends Component {
     this.setState({roomId: id})
   }
 
-  toggleCreateForm() {
-    this.setState((state) => ({
-      enterFormOpen: false,
-      roomId: cryptoRandomString(6), // redux
-      isOpener: true // redux
-    }));
+  createNewRoom() {
+      let randomString = Math.random().toString(13).replace('0.', '').substring(0,6);
+      console.log("creating new room: ", randomString);
+      this.props.createRoom(randomString)
   }
 
   toggleEnterForm() {
@@ -79,7 +77,7 @@ class VideoLanding extends Component {
           CradleChat
         </Header>
        
-        <Button className="createRoom" onClick={this.toggleCreateForm} style={{marginRight: '15px', backgroundColor: styles.createRoom}}>
+        <Button className="createRoom" onClick={this.createNewRoom} style={{marginRight: '15px', backgroundColor: styles.createRoom}}>
           Create Room
         </Button>
 

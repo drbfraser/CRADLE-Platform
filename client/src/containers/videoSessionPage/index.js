@@ -3,7 +3,12 @@ import { Button } from 'semantic-ui-react';
 import RTCMultiConnection from 'rtcmulticonnection';
 import $ from "jquery";
 import swal from 'sweetalert';
-// import Chat from './Chat';
+import Chat from './Chat';
+
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+
+import './session.css'
 
 var connection = new RTCMultiConnection();
 
@@ -16,6 +21,7 @@ const styles = theme => ({
   },
 }); 
 
+
 var predefinedRoomId = 'cradle';
 
 class Session extends Component {
@@ -26,7 +32,7 @@ class Session extends Component {
       localConnected: false,
       remoteConnected: false,
       chatHistory: [],
-      roomStatus: "Waiting for remote user to join room...R",
+      roomStatus: "Waiting for remote user to join room...",
       configured: false
     }
 
@@ -86,7 +92,6 @@ class Session extends Component {
 
     } else {
 
-      this.joinerSetup();
       this.joinRoom();
 
 
@@ -217,7 +222,7 @@ class Session extends Component {
                   <div className="localStream" id="localStream">
                   </div>  
               </div>
-              {/* <Chat connection={connection} isOpener={this.props.isOpener}/> */}
+              <Chat connection={connection} isOpener={this.props.isOpener}/>
           </div>  
         </div>
       </div>
@@ -245,4 +250,12 @@ const copyToClipboard = str => {
   }
 };
 
-export default Session;
+const mapStateToProps = ({ chat }) => ({
+    isOpener: chat.isOpener,
+    roomId: chat.roomId
+})
+
+export default connect(
+    mapStateToProps,
+    null
+)(Session)
