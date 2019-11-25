@@ -31,9 +31,9 @@ else:
 import models # needs to be after db instance
 
 if '-prod' in sys.argv:
-    port = 8080
+    port = 8040
     host = "::"
-    app.config['BASE_URL'] = "http://cmpt373.csil.sfu.ca:8088/"
+    app.config['BASE_URL'] = "https://cmpt373.csil.sfu.ca:8048/"
 else:
     app.config['BASE_URL'] = "http://localhost:5000/"
 
