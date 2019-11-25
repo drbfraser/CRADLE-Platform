@@ -19,7 +19,6 @@ const pregOptions = [
 function PatientInfoForm(props) {
   return (
       <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
-        <Form>
           <Header><b>Patient Information</b></Header>
           <Divider/>
           <Form.Group widths='equal'>
@@ -27,13 +26,13 @@ function PatientInfoForm(props) {
               name="patientName"
               value={props.patient.patientName}
               control={Input}
-              label='Name'
-              placeholder='Patient Name'
+              label='Patient Initials'
+              placeholder='Patient Initials'
               onChange={props.onChange}
               type='text'
               pattern="[a-zA-Z]*"
-              maxlength='30'
-              minlength='2'
+              maxLength='4'
+              minLength='1'
               required
             />
             <Form.Field 
@@ -44,8 +43,8 @@ function PatientInfoForm(props) {
               placeholder='ID Number'
               onChange={props.onChange}
               type='text'
-              maxlength='15'
-              minlength='1'
+              maxLength='15'
+              minLength='1'
               required
             />
           </Form.Group>
@@ -56,8 +55,8 @@ function PatientInfoForm(props) {
               control={Input}
               label='Age'
               type='number'
-              maxlength='3'
-              minlength='1'
+              min='15'
+              max='60'
               placeholder='Patient Age'
               onChange={props.onChange}
               required
@@ -87,6 +86,9 @@ function PatientInfoForm(props) {
               control={Input}
               label='Gestational Age'
               placeholder='Gestational Age in Weeks'
+              type='number'
+              min='1'
+              max='60'
               onChange={props.onChange}
               disabled={props.patient.patientSex == 'MALE' || !props.patient.isPregnant}
             />
@@ -145,7 +147,6 @@ function PatientInfoForm(props) {
             placeholder="Patient's medical history..."
             onChange={props.onChange}
           />
-        </Form>
       </Paper> 
   );
 }

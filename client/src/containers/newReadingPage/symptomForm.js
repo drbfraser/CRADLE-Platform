@@ -10,7 +10,6 @@ function SymptomForm(props) {
   // console.log(props)
   return (
     <Paper className='symptomCard' style={{ "padding": "35px 25px", "borderRadius": "15px" }}>
-      <Form className='centerize'>
         <Header><b>Symptoms</b></Header>
         <div>
           <Form.Checkbox
@@ -87,7 +86,6 @@ function SymptomForm(props) {
             />
           </Form.Group>
         </div>
-      </Form>
     </Paper>
   )
 }

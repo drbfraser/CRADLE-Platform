@@ -88,7 +88,11 @@ class NewReadingPage extends Component {
   }
 
   handleSelectChange = (e, value) => {
-    this.setState({ patient: { ...this.state.patient, [value.name] : value.value }})
+    if (value.name === "patientSex" && value.value === "MALE") {
+      this.setState({ patient: { ...this.state.patient, patientSex : "MALE", gestationalAgeValue : "", isPregnant : false }})
+    } else {
+      this.setState({ patient: { ...this.state.patient, [value.name] : value.value }})
+    }
   }
 
   handleReadingChange = (e, value) => {
@@ -225,25 +229,25 @@ class NewReadingPage extends Component {
       <div>
         <h1><b>Create a new patient and reading:</b></h1> 
         <Divider/>
-        
-        <PatientInfoForm patient={this.state.patient} onChange={this.handleChange} onSelectChange={this.handleSelectChange}/>
-        <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
-        <SymptomForm 
-          checkedItems={this.state.checkedItems} 
-          patient={this.state.patient} 
-          onChange={this.handleCheckedChange} 
-          onOtherChange={this.handleOtherSymptom}
-        />
+        <Form onSubmit={this.handleSubmit}>
+          <PatientInfoForm patient={this.state.patient} onChange={this.handleChange} onSelectChange={this.handleSelectChange}/>
+          <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
+          <SymptomForm 
+            checkedItems={this.state.checkedItems} 
+            patient={this.state.patient} 
+            onChange={this.handleCheckedChange} 
+            onOtherChange={this.handleOtherSymptom}
+          />
 
-        <div style={{"clear" : "both"}}></div>
-        <div className='contentRight'>
-          <Button 
-          style={{"backgroundColor" : "#84ced4"}} 
-          type='submit'
-          onClick={this.handleSubmit}>
-            Submit
-          </Button>
-        </div>
+          <div style={{"clear" : "both"}}></div>
+          <div className='contentRight'>
+            <Button 
+            style={{"backgroundColor" : "#84ced4"}} 
+            type='submit'>
+              Submit
+            </Button>
+          </div>
+        </Form>
 
         <SweetAlert
           type="success"
