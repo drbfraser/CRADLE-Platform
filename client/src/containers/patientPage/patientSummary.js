@@ -656,8 +656,8 @@ class PatientSummary extends Component {
                           control={Input}
                           label='Systolic'
                           type='number'
-                          maxlength='3'
-                          minlength='2'
+                          min='10'
+                          max='300'
                           onChange={this.handleReadingChange}
                           required
                         />
@@ -667,8 +667,8 @@ class PatientSummary extends Component {
                           control={Input}
                           label='Diastolic'
                           type='number'
-                          maxlength='3'
-                          minlength='2'
+                          min='10'
+                          max='300'
                           onChange={this.handleReadingChange}
                           required
                         />
@@ -678,8 +678,8 @@ class PatientSummary extends Component {
                           control={Input}
                           label='Heart rate'
                           type='number'
-                          maxlength='3'
-                          minlength='2'
+                          min='30'
+                          max='300'
                           onChange={this.handleReadingChange}
                           required
                         />
