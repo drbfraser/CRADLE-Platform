@@ -11,12 +11,16 @@ class FollowUpManager(Manager):
     # include patient schema in response
     def mobile_read(self, key, value):
         follow_up = super(FollowUpManager, self).read(key, value)
+        if not follow_up:
+            return follow_up
         follow_up = self.include_patient(follow_up)
         follow_up = self.include_referral(follow_up)
         return follow_up
     
     def mobile_search(self, search_dict):
         follow_ups = super(FollowUpManager, self).search(search_dict)
+        if not follow_ups: 
+            return None
         for i in range(len(follow_ups)):
             follow_up = self.include_patient(follow_ups[i])
             follow_up = self.include_patient(follow_up)
@@ -26,6 +30,8 @@ class FollowUpManager(Manager):
 
     def mobile_read_all(self):
         follow_ups = super(FollowUpManager, self).read_all()
+        if not follow_ups:
+            return None
         for i in range(len(follow_ups)):
             follow_up = self.include_patient(follow_ups[i])
             follow_up = self.include_patient(follow_up)
@@ -39,12 +45,16 @@ class FollowUpManager(Manager):
     
     def mobile_search_summarized(self, search_dict):
         follow_ups = self.mobile_search(search_dict)
+        if not follow_ups:
+            return None
         for i in range(len(follow_ups)):
             follow_ups[i] = self.mobile_summarize(follow_ups[i])
         return follow_ups
     
     def mobile_read_all_summarized(self):
         follow_ups = self.mobile_read_all()
+        if not follow_ups:
+            return None
         for i in range(len(follow_ups)):
             follow_ups[i] = self.mobile_summarize(follow_ups[i])
         return follow_ups
@@ -69,6 +79,9 @@ class FollowUpManager(Manager):
         return follow_up
 
     def mobile_summarize(self, follow_up):
+        if not follow_up:
+            return None
+
         res = {
             "id": follow_up["id"],
             "diagnosis": follow_up["diagnosis"],
