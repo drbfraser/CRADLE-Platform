@@ -269,15 +269,23 @@ class PatientSummary extends Component {
         checkedItems: { 
           ...this.state.checkedItems, 
           [value.name] : !value.value,
-          none: false,
-          symptoms: symptom
+          none: false
         }})
     } else {
-      this.setState({
+      while(symptom.length > 0) {
+        symptom.pop();
+      }
+      this. setState({ 
         checkedItems: {
-          ...this.state.checkedItems,
-          [value.name]: !value.value,
-          symptoms: symptom
+          none: true,
+          headache: false,
+          bleeding: false,
+          blurredVision: false,
+          feverish: false,
+          abdominalPain: false,
+          unwell: false,
+          other: false,
+          otherSymptoms: ""
         }
       })
     }
