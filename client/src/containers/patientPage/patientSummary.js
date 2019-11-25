@@ -454,7 +454,14 @@ class PatientSummary extends Component {
               <Icon style={{ "cursor": "pointer", "line-height": "0.7em" }} size="large" name="chevron left" onClick={() => this.handleBackBtn()} />
               Patient Summary : {this.state.selectedPatient.patientName}
             </h1>
-            <Button style={{ "float": "right" }} onClick={() => this.openReadingModal()}>Add New Reading</Button>
+            <Button style={{ "float": "right" }}
+                    onClick={() => this.openReadingModal()}
+                    icon>
+              <Icon name='plus' size="large" />
+              <Typography variant="body2" component="body2" style={{"lineHeight" : "1.5em", "padding": "10px"}}>
+                Add New Reading
+              </Typography>
+            </Button>
             <div style={{ "clear": "both" }}></div>
             <Divider />
             <Grid container direction="row" spacing={4} >
