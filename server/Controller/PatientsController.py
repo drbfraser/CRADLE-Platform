@@ -125,9 +125,15 @@ class PatientReading(Resource):
         patient_reading_data = self._get_request_body()
         # Ensure all data is valid
         abort_if_body_empty(patient_reading_data)
-        invalid = PatientValidation.create_body_invalid(patient_reading_data['patient'])
-        if invalid is not None:
-            return invalid
+        is_invalid_patient = PatientValidation.check_required_fields(patient_reading_data['patient'], 'patient')
+        #is_invalid = PatientValidation.create_body_invalid(patient_reading_data['patient'])
+        is_invalid_reading = PatientValidation.check_required_fields(patient_reading_data['reading'], 'reading')
+
+        if is_invalid_patient is not None:
+            return is_invalid_patient
+
+        if is_invalid_reading is not None:
+            return is_invalid_reading
 
         # create new reading (and patient if it does not already exist)
         reading_and_patient = readingManager.create_reading_and_patient(
@@ -138,6 +144,7 @@ class PatientReading(Resource):
         # associate new reading with patient
         reading_and_patient['message'] = 'Patient reading created successfully!'
         return reading_and_patient, 201
+
 
 # /patient/all/ [GET]
 class PatientAllInformation(Resource):
