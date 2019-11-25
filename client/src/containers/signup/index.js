@@ -1,17 +1,14 @@
 import React, {Component} from 'react';
-import { push } from 'connected-react-router'
-import { Route, Link } from 'react-router-dom'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { userPostFetch } from '../../actions/users'
 import { getCurrentUser } from '../../actions/users'
 import { getHealthFacilityList } from '../../actions/healthFacilities'
 import { Button,
-  Header, Icon, Modal,
   Divider, Form, Select,
-  Input, Dropdown, Message
+  Message
 } from 'semantic-ui-react'
-import { Paper, Snackbar, IconButton } from '@material-ui/core';
+import { Paper } from '@material-ui/core';
 
 class Signup extends Component {
   state = {
@@ -63,7 +60,7 @@ class Signup extends Component {
 
   render() {
     // only admins can see this page
-    if (this.props.user.roles == undefined || !this.props.user.roles.includes('ADMIN')) {
+    if (this.props.user.roles === undefined || !this.props.user.roles.includes('ADMIN')) {
       return  <Message warning>
                 <Message.Header>Only Admins can enter this page</Message.Header>
                 <p>Please login with an Admin account</p>

@@ -1,6 +1,4 @@
 import React, {Component} from 'react';
-import { Route, Link } from 'react-router-dom'
-import { push } from 'connected-react-router'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { userLoginFetch } from '../../actions/users';

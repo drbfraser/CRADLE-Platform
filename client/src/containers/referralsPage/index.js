@@ -24,7 +24,7 @@ class ReferralPage extends Component {
         return
       }
       
-      if (this.props.patients.patientsList.length == 0) {
+      if (this.props.patients.patientsList.length === 0) {
         this.props.getPatients()
       }
     })
@@ -32,7 +32,7 @@ class ReferralPage extends Component {
 
   filterReferrals = (patientsList) => {
     const result = patientsList.filter(patient => {
-      if (patient.readings.length == 0) {
+      if (patient.readings.length === 0) {
         return false
       }
 

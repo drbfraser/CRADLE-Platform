@@ -11,10 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import SweetAlert from 'sweetalert2-react';
 
 import {
-  Button,
-  Header, Image, Modal,
-  Divider, Form, Select,
-  Input, TextArea, Item
+  Button, Header, Modal, Divider, Form, Select, Input, TextArea
 } from 'semantic-ui-react'
 
 import { getPrettyDate, getMomentDate } from '../../utils';
@@ -182,7 +179,7 @@ class PatientSummary extends Component {
     delete patientData.tableData
     delete patientData.patientId
 
-    let patientJSON = JSON.stringify(patientData);
+    // let patientJSON = JSON.stringify(patientData);
     this.props.updatePatient(patientId, patientData)
     this.closePatientModal("formSubmitted")
   }
@@ -311,22 +308,22 @@ class PatientSummary extends Component {
   }
 
   getTrafficIcon = (trafficLightStatus) => {
-    if (trafficLightStatus == "RED_DOWN") {
+    if (trafficLightStatus === "RED_DOWN") {
       return <div>
         <RedTraffic style={{ "height": "75px", "width": "75px" }} />
         <Icon name="arrow down" size="huge" />
       </div>
-    } else if (trafficLightStatus == "RED_UP") {
+    } else if (trafficLightStatus === "RED_UP") {
       return <div>
         <RedTraffic style={{ "height": "75px", "width": "75px" }} />
         <Icon name="arrow up" size="huge" />
       </div>
-    } else if (trafficLightStatus == "YELLOW_UP") {
+    } else if (trafficLightStatus === "YELLOW_UP") {
       return <div>
         <YellowTraffic style={{ "height": "75px", "width": "75px" }} />
         <Icon name="arrow up" size="huge" />
       </div>
-    } else if (trafficLightStatus == "YELLOW_DOWN") {
+    } else if (trafficLightStatus === "YELLOW_DOWN") {
       return <div>
         <YellowTraffic style={{ "height": "75px", "width": "75px" }} />
         <Icon name="arrow down" size="huge" />
@@ -337,7 +334,7 @@ class PatientSummary extends Component {
   }
 
   average = (monthlyArray) => {
-    if (monthlyArray.length != 0) {
+    if (monthlyArray.length !== 0) {
       var total = 0;
       for (var i = 0; i < monthlyArray.length; i++) {
         total += monthlyArray[i];
@@ -385,16 +382,14 @@ class PatientSummary extends Component {
 
       readings = this.sortReadings(readings)
     }
-    var getDate = new Date();
-    var getMonth = getDate.getMonth();
 
     var bpSystolicReadingsMontly = {}
 
     if (this.props.selectedPatientStatsList.bpSystolicReadingsMontly) {
       const bpSystolicReadingsData = this.props.selectedPatientStatsList.bpSystolicReadingsMontly
       var averageSystolic = Array(12);
-      for (var i = 0; i < 12; i++) {
-        averageSystolic[i] = this.average(bpSystolicReadingsData[i])
+      for (var j = 0; j < 12; j++){
+        averageSystolic[j] = this.average(bpSystolicReadingsData[j])
       }
 
       bpSystolicReadingsMontly = {
@@ -412,8 +407,8 @@ class PatientSummary extends Component {
     if (this.props.selectedPatientStatsList.bpDiastolicReadingsMonthly) {
       const bpDiastolicReadingsData = this.props.selectedPatientStatsList.bpDiastolicReadingsMonthly
       var averageDiastolic = Array(12);
-      for (var i = 0; i < 12; i++) {
-        averageDiastolic[i] = this.average(bpDiastolicReadingsData[i])
+      for (var l = 0; l < 12; l++){
+        averageDiastolic[l] = this.average(bpDiastolicReadingsData[l])
       }
 
       bpDiastolicReadingsMonthly = {
@@ -431,8 +426,8 @@ class PatientSummary extends Component {
     if (this.props.selectedPatientStatsList.heartRateReadingsMonthly) {
       const heartRateData = this.props.selectedPatientStatsList.heartRateReadingsMonthly
       var averageHeartRate = Array(12);
-      for (var i = 0; i < 12; i++) {
-        averageHeartRate[i] = this.average(heartRateData[i])
+      for (var k = 0; k < 12; k++){
+        averageHeartRate[k] = this.average(heartRateData[k])
       }
 
       heartRateReadingsMonthly = {

@@ -44,7 +44,7 @@ class ReferralTable extends Component {
     }
 
     getMomentDate = (dateStr) => {
-        var dateStr = dateStr.slice(0,19)
+        dateStr = dateStr.slice(0,19)
         return moment(dateStr);
     }
 

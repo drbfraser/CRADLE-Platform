@@ -25,15 +25,12 @@ import Login from '../login'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { logoutUser } from '../../actions/users';
-import PropTypes from 'prop-types'
 
 import AppImg from './img/app_icon.png'
 import PatientsImg from './img/patients.svg'
 import ReferralsImg from './img/referrals.svg'
 import StatisticsImg from './img/statistics.svg'
 import CreateImg from './img/create.svg'
-import HelpButton from './img/ic_help.svg'
-import { bold } from 'ansi-colors';
 
 const drawerWidth = 200;
 

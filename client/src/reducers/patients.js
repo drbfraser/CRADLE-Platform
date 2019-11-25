@@ -4,9 +4,9 @@ import {
     GET_PATIENTS,
     GET_PATIENTS_REQUESTED,
     GET_PATIENTS_ERR,
-    UPDATE_PATIENT,
-    UPDATE_PATIENT_REQUESTED,
-    UPDATE_PATIENT_ERR
+    // UPDATE_PATIENT,
+    // UPDATE_PATIENT_REQUESTED,
+    // UPDATE_PATIENT_ERR
  } from '../actions/patients';
 
 const initialState = {

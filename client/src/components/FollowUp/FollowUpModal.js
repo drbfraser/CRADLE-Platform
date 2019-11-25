@@ -12,9 +12,9 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Button,
-    Header, Image, Modal,
-    Divider, Form, Select,
-    Input, TextArea, Item
+    Modal,
+    Form,
+    TextArea,
   } from 'semantic-ui-react'
 
 import { updateFollowUp, setReadingId, createFollowUp } from '../../actions/referrals';

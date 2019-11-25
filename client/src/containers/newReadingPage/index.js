@@ -1,10 +1,7 @@
 import React, {Component} from 'react';
-import MaterialTable from 'material-table';
 import Paper from '@material-ui/core/Paper';
-import { push } from 'connected-react-router'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients } from '../../actions/patients';
 import { getCurrentUser } from '../../actions/users';
 import { newReadingPost } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
@@ -12,10 +9,10 @@ import BpForm from './bpForm';
 import SymptomForm from './symptomForm';
 import SweetAlert from 'sweetalert2-react';
 
-import { Button,
-  Header, Image, Modal,
-  Divider, Form, Select,
-  Input, TextArea, Message
+import {
+  Button, Header, Divider,
+  Form, Select, Input,
+  TextArea
 } from 'semantic-ui-react'
 
 import './index.css'
