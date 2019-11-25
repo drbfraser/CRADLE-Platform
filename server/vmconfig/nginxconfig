@@ -5,4 +5,9 @@ server {
         include uwsgi_params;
         uwsgi_pass unix:/var/www/cradleplatform/server/cradleplatform.sock;
     }
+
+    listen [::]:8040 ssl; # managed by Certbot
+    listen 8040 ssl; # managed by Certbot
+    ssl_certificate /etc/ssl/cradleplatform/fullchain.pem;
+    ssl_certificate_key /etc/ssl/cradleplatform/privkey.pem;
 }
