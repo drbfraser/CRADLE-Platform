@@ -24,6 +24,7 @@ import NewReadingPage from '../newReadingPage'
 import Signup from '../signup'
 import Login from '../login'
 import VideoLanding from '../videoChatLandingPage'
+import Session from '../videoSessionPage';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -307,6 +308,7 @@ const App = (props) => {
           <Route exact path="/referrals" component={ReferralsPage} />
           <Route exact path="/newreading" component={NewReadingPage} />
           <Route exact path="/chat/landing" component={VideoLanding} />
+          {/* <Route exact path="/chat/session" component={Session} /> */}
         </main>
       </div>
     )
