@@ -193,20 +193,21 @@ class AdminPage extends Component {
 
     return (
       <div>
-        <MaterialTable
-            title="Admin Panel"
-            isLoading={this.props.isLoading}
-            columns={this.state.columns}
-            data={this.props.usersList}
-            options={{
-                rowStyle: rowData => {
-                    return {
-                        height: '75px',
-                    }
-                },
-                pageSize: 10
-            }}
-        />
+        <h1>Admin Panel</h1>
+          <MaterialTable
+              title="Manage Users"
+              isLoading={this.props.isLoading}
+              columns={this.state.columns}
+              data={this.props.usersList}
+              options={{
+                  rowStyle: rowData => {
+                      return {
+                          height: '75px',
+                      }
+                  },
+                  pageSize: 10
+              }}
+          />
 
         <Modal closeIcon onClose={this.closeUserEditModal} open={this.state.displayUserEditModal}>
             <Modal.Header>User Information</Modal.Header>
