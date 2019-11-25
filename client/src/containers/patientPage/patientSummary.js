@@ -500,11 +500,11 @@ class PatientSummary extends Component {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                       >
-                        <Typography>Medical History</Typography>
+                        <Typography>Drug History</Typography>
                       </ExpansionPanelSummary>
                       <ExpansionPanelDetails>
                         <Typography>
-                          {this.state.selectedPatient.medicalHistory}
+                          {this.state.selectedPatient.drugHistory}
                         </Typography>
                       </ExpansionPanelDetails>
                     </ExpansionPanel>
@@ -514,11 +514,11 @@ class PatientSummary extends Component {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                       >
-                        <Typography>Drug History</Typography>
+                        <Typography>Medical History</Typography>
                       </ExpansionPanelSummary>
                       <ExpansionPanelDetails>
                         <Typography>
-                          {this.state.selectedPatient.drugHistory}
+                          {this.state.selectedPatient.medicalHistory}
                         </Typography>
                       </ExpansionPanelDetails>
                     </ExpansionPanel>
