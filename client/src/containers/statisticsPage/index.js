@@ -194,12 +194,11 @@ class StatisticsPage extends Component {
               </Statistic.Group>
               ) : (<div></div>)
               }
-              <Card fluid>
-                <Card.Content>
-                <div className='chartBox'>
+              <div className='chartBox'>
+                <Card fluid><Card.Content>
                   <Line ref="chart" data={readingsVsReferralsVsAssessment}/>
-                </div>
-              </Card.Content></Card>
+                </Card.Content></Card>
+              </div>
             </div>
             <br/>
           </div>
