@@ -154,7 +154,7 @@ class Reading(db.Model):
     userHasSelectedNoSymptoms = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    userId = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    userId = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
 
     # @hybrid_property
     def getTrafficLight(self):
