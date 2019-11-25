@@ -13,10 +13,6 @@ const initialStateUser = {
   currentUser: {}
 }
 
-const initialStateRegisterStatus = {
-  registerStatus: {}
-}
-
 const userReducer = (state = initialStateUser, action) => {
   switch (action.type) {
     case 'LOGIN_USER':

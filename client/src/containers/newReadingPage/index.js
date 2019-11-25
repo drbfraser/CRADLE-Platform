@@ -1,10 +1,6 @@
 import React, {Component} from 'react';
-import MaterialTable from 'material-table';
-import Paper from '@material-ui/core/Paper';
-import { push } from 'connected-react-router'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients } from '../../actions/patients';
 import { getCurrentUser } from '../../actions/users';
 import { newReadingPost } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
@@ -12,11 +8,7 @@ import BpForm from './bpForm';
 import SymptomForm from './symptomForm';
 import SweetAlert from 'sweetalert2-react';
 
-import { Button,
-  Header, Image, Modal,
-  Divider, Form, Select,
-  Input, TextArea, Message
-} from 'semantic-ui-react'
+import {Button, Divider, Form} from 'semantic-ui-react'
 
 import './index.css'
 
@@ -24,7 +16,8 @@ var symptom = []
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    var r = Math.random() * 16 | 0;
+    var v = (c === 'x') ? r : ((r & 0x3) | 0x8);
     return v.toString(16);
   });
 }
@@ -112,11 +105,11 @@ class NewReadingPage extends Component {
       }
     }
     //console.log(symptom)
-    if (value.name != 'none') {
+    if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop('none')
       }
-      this. setState({ 
+      this.setState({ 
         checkedItems: { 
           ...this.state.checkedItems, 
           [value.name] : !value.value,
@@ -126,7 +119,7 @@ class NewReadingPage extends Component {
       while(symptom.length > 0) {
         symptom.pop();
       }
-      this. setState({ 
+      this.setState({ 
         checkedItems: {
           none: true,
           headache: false,
@@ -153,7 +146,7 @@ class NewReadingPage extends Component {
 
     if (symptom.indexOf('other') >= 0) {
       symptom.pop('other')
-      if (this.state.checkedItems.otherSymptoms != '') {
+      if (this.state.checkedItems.otherSymptoms !== '') {
         symptom.push(this.state.checkedItems.otherSymptoms)
       }
     }

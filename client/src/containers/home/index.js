@@ -1,9 +1,6 @@
 import React from 'react'
-import { Redirect } from 'react-router-dom' 
-import { push } from 'connected-react-router'
-import { bindActionCreators } from 'redux'
+import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { Button, Header,  Image, Modal } from 'semantic-ui-react'
 
 
 const Home = props => {

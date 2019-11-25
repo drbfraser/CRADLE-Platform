@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
 
 

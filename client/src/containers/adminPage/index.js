@@ -10,7 +10,7 @@ import { getVhtList } from '../../actions/users'
 import { getHealthFacilityList } from '../../actions/healthFacilities'
 import { Button,
   Header, Icon, Modal,
-  Divider, Form, Select,
+  Form, Select,
   Input, Dropdown, Message
 } from 'semantic-ui-react'
 
@@ -134,7 +134,7 @@ class AdminPage extends Component {
 
   getRoles = (roleIds) => {
     var roleStr = "";
-    if (roleIds.length == 1) {
+    if (roleIds.length === 1) {
       return this.state.roleMapping[roleIds[0]]
     }
 
@@ -147,7 +147,7 @@ class AdminPage extends Component {
   getRolesArray = (roleIds) => {
     var roles = [];
 
-    if (roleIds.length == 1) {
+    if (roleIds.length === 1) {
       var roleName = this.state.roleMapping[roleIds[0]]
       roles.push(roleName)
       return [...roles]
@@ -175,16 +175,16 @@ class AdminPage extends Component {
 
     let vhtOptions = [];
     if (this.props.vhtList !== undefined && this.props.vhtList.length > 0) {
-      for (var i = 0; i < this.props.vhtList.length; i++) {
-        vhtOptions.push({'key'  : this.props.vhtList[i].id,
-                        'text' : this.props.vhtList[i].email,
-                        'value': this.props.vhtList[i].id
+      for (var j = 0; j < this.props.vhtList.length; j++) {
+        vhtOptions.push({'key'  : this.props.vhtList[j].id,
+                        'text' : this.props.vhtList[j].email,
+                        'value': this.props.vhtList[j].id
                       })
       }
     }
 
     // only admins can see this page
-    if (this.props.user.roles == undefined || !this.props.user.roles.includes('ADMIN')) {
+    if (this.props.user.roles === undefined || !this.props.user.roles.includes('ADMIN')) {
       return  <Message warning>
                 <Message.Header>Only Admins can enter this page</Message.Header>
                 <p>Please login with an Admin account</p>

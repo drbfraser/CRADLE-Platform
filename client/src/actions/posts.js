@@ -22,17 +22,17 @@ export const getPosts = () => {
         })
       })
 
-      axios.get("https://jsonplaceholder.typicode.com/posts").then((res) => {
-          console.log("get posts res: ", res);
-          dispatch({
-              type: UPDATE_POSTS,
-              payload: res.data
-          })
-      }).catch(err => {
-          console.err(err);
-          dispatch({
-              type: UPDATE_POSTS_ERR
-          })
-      })
+      // axios.get("https://jsonplaceholder.typicode.com/posts").then((res) => {
+      //     console.log("get posts res: ", res);
+      //     dispatch({
+      //         type: UPDATE_POSTS,
+      //         payload: res.data
+      //     })
+      // }).catch(err => {
+      //     console.err(err);
+      //     dispatch({
+      //         type: UPDATE_POSTS_ERR
+      //     })
+      // })
     }
   }

@@ -7,7 +7,7 @@ import List from '@material-ui/core/List';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import { Icon, Button } from 'semantic-ui-react'
+import { Icon } from 'semantic-ui-react'
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -25,15 +25,12 @@ import Login from '../login'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { logoutUser } from '../../actions/users';
-import PropTypes from 'prop-types'
 
 import AppImg from './img/app_icon.png'
 import PatientsImg from './img/patients.svg'
 import ReferralsImg from './img/referrals.svg'
 import StatisticsImg from './img/statistics.svg'
 import CreateImg from './img/create.svg'
-import HelpButton from './img/ic_help.svg'
-import { bold } from 'ansi-colors';
 
 const drawerWidth = 200;
 

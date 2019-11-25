@@ -11,10 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import SweetAlert from 'sweetalert2-react';
 
 import {
-  Button,
-  Header, Image, Modal,
-  Divider, Form, Select,
-  Input, TextArea, Item
+  Button, Header, Modal, Divider, Form, Select, Input, TextArea
 } from 'semantic-ui-react'
 
 import { getPrettyDate, getMomentDate } from '../../utils';
@@ -45,7 +42,8 @@ var symptom = []
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    var r = Math.random() * 16 | 0;
+    var v = (c === 'x') ? r : ((r & 0x3) | 0x8);
     return v.toString(16);
   });
 }
@@ -102,7 +100,9 @@ class PatientSummary extends Component {
     const SHOCK_HIGH = 1.7
     const SHOCK_MEDIUM = 0.9
 
-    if (reading['bpSystolic'] == undefined || reading['bpDiastolic'] == undefined || reading['heartRateBPM'] == undefined)
+    if (reading['bpSystolic'] === undefined ||
+        reading['bpDiastolic'] === undefined ||
+        reading['heartRateBPM'] === undefined)
       return "NONE"
 
     const shockIndex = reading['heartRateBPM'] / reading['bpSystolic']
@@ -182,7 +182,7 @@ class PatientSummary extends Component {
     delete patientData.tableData
     delete patientData.patientId
 
-    let patientJSON = JSON.stringify(patientData);
+    // let patientJSON = JSON.stringify(patientData);
     this.props.updatePatient(patientId, patientData)
     this.closePatientModal("formSubmitted")
   }
@@ -192,7 +192,7 @@ class PatientSummary extends Component {
 
     if (symptom.indexOf('other') >= 0) {
       symptom.pop('other')
-      if (this.state.checkedItems.otherSymptoms != '') {
+      if (this.state.checkedItems.otherSymptoms !== '') {
         symptom.push(this.state.checkedItems.otherSymptoms)
       }
     }
@@ -261,11 +261,11 @@ class PatientSummary extends Component {
       }
     }
 
-    if (value.name != 'other') {
+    if (value.name !== 'other') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop('none')
       }
-      this. setState({ 
+      this.setState({ 
         checkedItems: { 
           ...this.state.checkedItems, 
           [value.name] : !value.value,
@@ -275,7 +275,7 @@ class PatientSummary extends Component {
       while(symptom.length > 0) {
         symptom.pop();
       }
-      this. setState({ 
+      this.setState({ 
         checkedItems: {
           none: true,
           headache: false,
@@ -311,22 +311,22 @@ class PatientSummary extends Component {
   }
 
   getTrafficIcon = (trafficLightStatus) => {
-    if (trafficLightStatus == "RED_DOWN") {
+    if (trafficLightStatus === "RED_DOWN") {
       return <div>
         <RedTraffic style={{ "height": "75px", "width": "75px" }} />
         <Icon name="arrow down" size="huge" />
       </div>
-    } else if (trafficLightStatus == "RED_UP") {
+    } else if (trafficLightStatus === "RED_UP") {
       return <div>
         <RedTraffic style={{ "height": "75px", "width": "75px" }} />
         <Icon name="arrow up" size="huge" />
       </div>
-    } else if (trafficLightStatus == "YELLOW_UP") {
+    } else if (trafficLightStatus === "YELLOW_UP") {
       return <div>
         <YellowTraffic style={{ "height": "75px", "width": "75px" }} />
         <Icon name="arrow up" size="huge" />
       </div>
-    } else if (trafficLightStatus == "YELLOW_DOWN") {
+    } else if (trafficLightStatus === "YELLOW_DOWN") {
       return <div>
         <YellowTraffic style={{ "height": "75px", "width": "75px" }} />
         <Icon name="arrow down" size="huge" />
@@ -337,7 +337,7 @@ class PatientSummary extends Component {
   }
 
   average = (monthlyArray) => {
-    if (monthlyArray.length != 0) {
+    if (monthlyArray.length !== 0) {
       var total = 0;
       for (var i = 0; i < monthlyArray.length; i++) {
         total += monthlyArray[i];
@@ -385,16 +385,14 @@ class PatientSummary extends Component {
 
       readings = this.sortReadings(readings)
     }
-    var getDate = new Date();
-    var getMonth = getDate.getMonth();
 
     var bpSystolicReadingsMontly = {}
 
     if (this.props.selectedPatientStatsList.bpSystolicReadingsMontly) {
       const bpSystolicReadingsData = this.props.selectedPatientStatsList.bpSystolicReadingsMontly
       var averageSystolic = Array(12);
-      for (var i = 0; i < 12; i++) {
-        averageSystolic[i] = this.average(bpSystolicReadingsData[i])
+      for (var j = 0; j < 12; j++){
+        averageSystolic[j] = this.average(bpSystolicReadingsData[j])
       }
 
       bpSystolicReadingsMontly = {
@@ -412,8 +410,8 @@ class PatientSummary extends Component {
     if (this.props.selectedPatientStatsList.bpDiastolicReadingsMonthly) {
       const bpDiastolicReadingsData = this.props.selectedPatientStatsList.bpDiastolicReadingsMonthly
       var averageDiastolic = Array(12);
-      for (var i = 0; i < 12; i++) {
-        averageDiastolic[i] = this.average(bpDiastolicReadingsData[i])
+      for (var l = 0; l < 12; l++){
+        averageDiastolic[l] = this.average(bpDiastolicReadingsData[l])
       }
 
       bpDiastolicReadingsMonthly = {
@@ -431,8 +429,8 @@ class PatientSummary extends Component {
     if (this.props.selectedPatientStatsList.heartRateReadingsMonthly) {
       const heartRateData = this.props.selectedPatientStatsList.heartRateReadingsMonthly
       var averageHeartRate = Array(12);
-      for (var i = 0; i < 12; i++) {
-        averageHeartRate[i] = this.average(heartRateData[i])
+      for (var k = 0; k < 12; k++){
+        averageHeartRate[k] = this.average(heartRateData[k])
       }
 
       heartRateReadingsMonthly = {
@@ -667,7 +665,7 @@ class PatientSummary extends Component {
                           min='1'
                           max='60'
                           required
-                          disabled={this.state.selectedPatient.patientSex == 'MALE' || !this.state.selectedPatient.isPregnant}
+                          disabled={this.state.selectedPatient.patientSex === 'MALE' || !this.state.selectedPatient.isPregnant}
                         />
                       </Form.Group>
                       <Form.Field
