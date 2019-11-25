@@ -13,6 +13,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import { Route, Link } from 'react-router-dom'
+
 import Home from '../home'
 import AdminPage from '../adminPage'
 import HelpPage from '../helpPage'
@@ -22,6 +23,9 @@ import ReferralsPage from '../referralsPage'
 import NewReadingPage from '../newReadingPage'
 import Signup from '../signup'
 import Login from '../login'
+import VideoLanding from '../videoChatLandingPage'
+import Session from '../videoSessionPage';
+
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { logoutUser } from '../../actions/users';
@@ -233,6 +237,23 @@ const App = (props) => {
                   }
                 />
               </ListItem>
+              {/* <ListItem className={classes.listItem}
+                        button
+                        component={Link}
+                        to="/chat/landing"
+                        selected={activeItem === "Chat"}
+                        onClick={() => setActiveItem("Chat")}>
+                
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Chat
+                    </Typography>
+                  }
+                />
+              </ListItem> */}
 
               <Divider />
 
@@ -303,6 +324,8 @@ const App = (props) => {
           <Route exact path="/stats" component={StatisticsPage} />
           <Route exact path="/referrals" component={ReferralsPage} />
           <Route exact path="/newreading" component={NewReadingPage} />
+          {/* <Route exact path="/chat/landing" component={VideoLanding} />
+          <Route exact path="/chat/session" component={Session} /> */}
         </main>
       </div>
     )
