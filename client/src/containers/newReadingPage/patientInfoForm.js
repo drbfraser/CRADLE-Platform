@@ -78,7 +78,7 @@ function PatientInfoForm(props) {
               label='Pregnant'
               options={pregOptions}
               onChange={props.onSelectChange}
-              disabled={props.patient.patientSex == 'MALE'}
+              disabled={props.patient.patientSex === 'MALE'}
             />
             <Form.Field 
               name="gestationalAgeValue"
@@ -90,7 +90,7 @@ function PatientInfoForm(props) {
               min='1'
               max='60'
               onChange={props.onChange}
-              disabled={props.patient.patientSex == 'MALE' || !props.patient.isPregnant}
+              disabled={props.patient.patientSex === 'MALE' || !props.patient.isPregnant}
             />
           </Form.Group>
           <Form.Group>

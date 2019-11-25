@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users';
 import { getStatistics } from '../../actions/statistics';
 import { Bar, Line } from 'react-chartjs-2';
-import { Card, Statistic, CardGroup } from 'semantic-ui-react'
+import { Card, Statistic } from 'semantic-ui-react'
 
 import './index.css'
 

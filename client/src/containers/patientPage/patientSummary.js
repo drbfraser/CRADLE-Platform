@@ -42,7 +42,8 @@ var symptom = []
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    var r = Math.random() * 16 | 0;
+    var v = (c === 'x') ? r : ((r & 0x3) | 0x8);
     return v.toString(16);
   });
 }
@@ -99,7 +100,9 @@ class PatientSummary extends Component {
     const SHOCK_HIGH = 1.7
     const SHOCK_MEDIUM = 0.9
 
-    if (reading['bpSystolic'] == undefined || reading['bpDiastolic'] == undefined || reading['heartRateBPM'] == undefined)
+    if (reading['bpSystolic'] === undefined ||
+        reading['bpDiastolic'] === undefined ||
+        reading['heartRateBPM'] === undefined)
       return "NONE"
 
     const shockIndex = reading['heartRateBPM'] / reading['bpSystolic']
@@ -189,7 +192,7 @@ class PatientSummary extends Component {
 
     if (symptom.indexOf('other') >= 0) {
       symptom.pop('other')
-      if (this.state.checkedItems.otherSymptoms != '') {
+      if (this.state.checkedItems.otherSymptoms !== '') {
         symptom.push(this.state.checkedItems.otherSymptoms)
       }
     }
@@ -258,11 +261,11 @@ class PatientSummary extends Component {
       }
     }
 
-    if (value.name != 'other') {
+    if (value.name !== 'other') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop('none')
       }
-      this. setState({ 
+      this.setState({ 
         checkedItems: { 
           ...this.state.checkedItems, 
           [value.name] : !value.value,
@@ -272,7 +275,7 @@ class PatientSummary extends Component {
       while(symptom.length > 0) {
         symptom.pop();
       }
-      this. setState({ 
+      this.setState({ 
         checkedItems: {
           none: true,
           headache: false,
@@ -662,7 +665,7 @@ class PatientSummary extends Component {
                           min='1'
                           max='60'
                           required
-                          disabled={this.state.selectedPatient.patientSex == 'MALE' || !this.state.selectedPatient.isPregnant}
+                          disabled={this.state.selectedPatient.patientSex === 'MALE' || !this.state.selectedPatient.isPregnant}
                         />
                       </Form.Group>
                       <Form.Field

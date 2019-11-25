@@ -1,9 +1,6 @@
 import React from 'react';
 import Paper from '@material-ui/core/Paper';
-import {
-    Form, Header, Divider,
-    Select, Input, TextArea,
-} from 'semantic-ui-react';
+import {Form, Header, Input} from 'semantic-ui-react';
 
 import './index.css'
 
