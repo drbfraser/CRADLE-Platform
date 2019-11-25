@@ -6,25 +6,28 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getPatients } from '../../actions/patients';
 import { getCurrentUser } from '../../actions/users';
+import { newReadingPost } from '../../actions/newReading';
+import PatientInfoForm from './patientInfoForm';
+import BpForm from './bpForm';
+import SymptomForm from './symptomForm';
+import SweetAlert from 'sweetalert2-react';
 
 import { Button,
   Header, Image, Modal,
   Divider, Form, Select,
-  Input, TextArea, Icon
+  Input, TextArea, Message
 } from 'semantic-ui-react'
 
 import './index.css'
 
-const sexOptions = [
-  { key: 'm', text: 'Male', value: 'MALE' },
-  { key: 'f', text: 'Female', value: 'FEMALE' },
-  { key: 'o', text: 'Other', value: 'I' },
-]
+var symptom = []
 
-const pregOptions = [
-  { key: 'y', text: 'Yes', value: true },
-  { key: 'n', text: 'No', value: false },
-]
+function guid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 class NewReadingPage extends Component {
   state = { 
@@ -35,16 +38,39 @@ class NewReadingPage extends Component {
       patientSex: "FEMALE",
       isPregnant: true,
       gestationalAgeValue: "",
+      gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
       zone: "",
       block: "",
       tank: "",
       villageNumber: "",
       drugHistory: "",
-      medicalHistory: "",
-      readings: [],
-      gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS"
-    }
+      medicalHistory: ""
+    },
+    reading: {
+      userId: "",
+      readingId: "",
+      dateTimeTaken: "",
+      bpSystolic: "",
+      bpDiastolic: "",
+      heartRateBPM: "",
+      dateRecheckVitalsNeeded: "",
+      isFlaggedForFollowup: false,
+      symptoms: ""
+    },
+    checkedItems: {
+      none: true,
+      headache: false,
+      bleeding: false,
+      blurredVision: false,
+      feverish: false,
+      abdominalPain: false,
+      unwell: false,
+      other: false,
+      otherSymptoms: ""
+    },
+    showSuccessReading : false
   }
+
 
   componentDidMount = () => {
     this.props.getCurrentUser().then((err) => {
@@ -62,7 +88,144 @@ class NewReadingPage extends Component {
   }
 
   handleSelectChange = (e, value) => {
-    this.setState({ patient: { ...this.state.patient, [value.name] : value.value }})
+    if (value.name === "patientSex" && value.value === "MALE") {
+      this.setState({ patient: { ...this.state.patient, patientSex : "MALE", gestationalAgeValue : "", isPregnant : false }})
+    } else {
+      this.setState({ patient: { ...this.state.patient, [value.name] : value.value }})
+    }
+  }
+
+  handleReadingChange = (e, value) => {
+    this.setState({ reading: { ...this.state.reading, [value.name] : value.value }})
+  }
+
+  handleCheckedChange = (e, value) => {
+    //console.log(value.name)
+    // true => false, pop
+    if (value.value) {
+      if (symptom.indexOf(value.name) >= 0) {
+        symptom.pop(value.name)
+      }
+    } else { // false => true, push
+      if (symptom.indexOf(value.name) < 0) {
+        symptom.push(value.name)
+      }
+    }
+    //console.log(symptom)
+    if (value.name != 'none') {
+      if (symptom.indexOf('none') >= 0) {
+        symptom.pop('none')
+      }
+      this. setState({ 
+        checkedItems: { 
+          ...this.state.checkedItems, 
+          [value.name] : !value.value,
+          none: false
+        }})
+    } else {
+      while(symptom.length > 0) {
+        symptom.pop();
+      }
+      this. setState({ 
+        checkedItems: {
+          none: true,
+          headache: false,
+          bleeding: false,
+          blurredVision: false,
+          feverish: false,
+          abdominalPain: false,
+          unwell: false,
+          other: false,
+          otherSymptoms: ""
+        }
+      })
+    }
+  }
+
+  handleOtherSymptom = event => {
+    //console.log(event.target)
+    this.setState({ checkedItems: { ...this.state.checkedItems, [event.target.name]: event.target.value }})
+  }
+
+  handleSubmit = event => {
+    event.preventDefault()
+    console.log('Create new submit')
+
+    if (symptom.indexOf('other') >= 0) {
+      symptom.pop('other')
+      if (this.state.checkedItems.otherSymptoms != '') {
+        symptom.push(this.state.checkedItems.otherSymptoms)
+      }
+    }
+
+    var dateTime = new Date()
+    var readingID = guid()
+
+    this.setState({ 
+      reading: {
+        ...this.state.reading,
+        userId: this.props.user.userId,
+        readingId: readingID,
+        dateTimeTaken: dateTime,
+        symptoms: symptom.toString()
+      }
+    }, function() {
+      let patientData = JSON.parse(JSON.stringify(this.state.patient))
+      let readingData = JSON.parse(JSON.stringify(this.state.reading))
+
+      let newData = {
+        patient: patientData,
+        reading: readingData
+      }
+      console.log(newData)
+      this.props.newReadingPost(newData).then( () => {
+          console.log(this.props.createReadingStatusError)
+          // reset fields after form submit
+          if (this.props.createReadingStatusError === false) {
+            
+            this.setState({
+              patient: {
+                patientId: "",
+                patientName: "",
+                patientAge: "",
+                patientSex: "FEMALE",
+                isPregnant: true,
+                gestationalAgeValue: "",
+                gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
+                zone: "",
+                block: "",
+                tank: "",
+                villageNumber: "",
+                drugHistory: "",
+                medicalHistory: ""
+              },
+              reading: {
+                userId: "",
+                readingId: "",
+                dateTimeTaken: "",
+                bpSystolic: "",
+                bpDiastolic: "",
+                heartRateBPM: "",
+                dateRecheckVitalsNeeded: "",
+                isFlaggedForFollowup: false,
+                symptoms: ""
+              },
+              checkedItems: {
+                none: false,
+                headache: false,
+                bleeding: false,
+                blurredVision: false,
+                feverish: false,
+                abdominalPain: false,
+                unwell: false,
+                other: false,
+                otherSymptoms: ""
+              },
+              showSuccessReading: true
+          })
+        }
+      })
+    })
   }
 
   render() {
@@ -75,201 +238,48 @@ class NewReadingPage extends Component {
       <div>
         <h1><b>Create a new patient and reading:</b></h1> 
         <Divider/>
-        <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
-          <Form>
-            <Header><b>Patient Information</b></Header>
-            <Divider/>
-            <Form.Group widths='equal'>
-              <Form.Field 
-                name="patientName"
-                value={this.state.patient.patientName}
-                control={Input}
-                label='Name'
-                placeholder='Patient Name'
-                onChange={this.handleChange}
-              />
-              <Form.Field 
-                name="patientId"
-                value={this.state.patient.patientId}
-                control={Input}
-                label='ID'
-                placeholder='ID Number'
-                onChange={this.handleChange}
-              />
-            </Form.Group>
-            <Form.Group widths='equal'>
-              <Form.Field 
-                name="patientAge"
-                value={this.state.patient.patientAge}
-                control={Input}
-                label='Age'
-                placeholder='Patient Age'
-                onChange={this.handleChange}
-              />
-              <Form.Field 
-                name="patientSex"
-                value={this.state.patient.patientSex}
-                control={Select}
-                label='Gender'
-                options={sexOptions}
-                placeholder='Gender'
-                onChange={this.handleSelectChange}
-              />
-              <Form.Field
-                name='isPregnant'
-                value={this.state.patient.isPregnant}
-                control={Select}
-                label='Pregnant'
-                options={pregOptions}
-                onChange={this.handleSelectChange}
-              />
-              <Form.Field 
-                name="gestationalAgeValue"
-                value={this.state.patient.gestationalAgeValue}
-                control={Input}
-                label='Gestational Age'
-                placeholder='Gestational Age in Weeks'
-                onChange={this.handleChange}
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.Field 
-                name="zone"
-                value={this.state.patient.zone}
-                control={Input}
-                label='Zone'
-                placeholder='Zone'
-                onChange={this.handleChange}
-              />
-              <Form.Field 
-                name="block"
-                value={this.state.patient.block}
-                control={Input}
-                label='Block'
-                placeholder='Block'
-                onChange={this.handleChange}
-              />
-              <Form.Field 
-                name="tank"
-                value={this.state.patient.tank}
-                control={Input}
-                label='Tank'
-                placeholder='Tank'
-                onChange={this.handleChange}
-              />
-              <Form.Field 
-                name="villageNumber"
-                value={this.state.patient.villageNumber}
-                control={Input}
-                label='Village Number'
-                placeholder='Village Number'
-                onChange={this.handleChange}
-              />
-            </Form.Group>
-            <Form.Field
-              name="drugHistory"
-              value={this.state.patient.drugHistory || ''}
-              control={TextArea}
-              label='Drug History'
-              placeholder="Patient's drug history..."
-              onChange={this.handleChange}
-            />
-            <Form.Field
-              name="medicalHistory"
-              value={this.state.patient.medicalHistory || ''}
-              control={TextArea}
-              label='Medical History'
-              placeholder="Patient's medical history..."
-              onChange={this.handleChange}
-            />
-          </Form>
-        </Paper> 
-        <Paper className='bpCard' style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
-          <Form className='centerize'>
-            <Header><b>Blood Pressure</b></Header>
-            <div className='bpField'>
-              <Form.Field inline
-                name="systolic"
-                value={''}
-                control={Input}
-                label='Systolic:'
-              />
-              <Form.Field inline
-                name="diastolic"
-                value={''}
-                control={Input}
-                label='Diastolic:'
-              />
-              <Form.Field inline
-                name="heartRate"
-                value={''}
-                control={Input}
-                label='Heart rate:'
-              />
-            </div>
-          </Form>
-        </Paper>
-        <Paper className='symptomCard' style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
-          <Form className='centerize'>
-            <Header><b>Symptoms</b></Header>
-            <div>
-              <Form.Checkbox
-                label='None (patient healthy)'
-              />
-              <Form.Group widths='equal'>
-                <Form.Checkbox
-                  label='Headache'
-                />
-                <Form.Checkbox
-                  label='Bleeding'
-                />
-              </Form.Group>
-              <Form.Group widths='equal'>
-                <Form.Checkbox
-                  label='Blurred vision'
-                />
-                <Form.Checkbox
-                  label='Feverish'
-                />
-              </Form.Group>
-              <Form.Group widths='equal'>
-                <Form.Checkbox
-                  label='Abdominal pain'
-                />
-                <Form.Checkbox
-                  label='Unwell'
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Checkbox 
-                  widths='3'
-                  label='Other:'
-                />
-                <Form.TextArea
-                  widths='1'
-                  name='otherSymptoms'
-                />
-              </Form.Group>
-            </div>
-          </Form>
-        </Paper>
-        <div style={{"clear" : "both"}}></div>
-        <div className='contentRight'>
-          <Button style={{"backgroundColor" : "#84ced4"}} type='submit'>Submit</Button>
-        </div>
+        <Form onSubmit={this.handleSubmit}>
+          <PatientInfoForm patient={this.state.patient} onChange={this.handleChange} onSelectChange={this.handleSelectChange}/>
+          <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
+          <SymptomForm 
+            checkedItems={this.state.checkedItems} 
+            patient={this.state.patient} 
+            onChange={this.handleCheckedChange} 
+            onOtherChange={this.handleOtherSymptom}
+          />
+
+          <div style={{"clear" : "both"}}></div>
+          <div className='contentRight'>
+            <Button 
+            style={{"backgroundColor" : "#84ced4"}} 
+            type='submit'>
+              Submit
+            </Button>
+          </div>
+        </Form>
+
+        <SweetAlert
+          type="success"
+          show={this.state.showSuccessReading}
+          title="Patient Reading Created!"
+          text="Success! You can view the new reading by going to the Patients tab"
+          onConfirm={() => this.setState({ showSuccessReading: false })}
+        />
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ user }) => ({
-  user : user.currentUser
+const mapStateToProps = ({ user, newReading }) => ({
+  user : user.currentUser,
+  createReadingStatusError: newReading.error
 })
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       getCurrentUser,
+      newReadingPost,
     },
     dispatch
   )
