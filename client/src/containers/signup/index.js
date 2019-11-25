@@ -100,6 +100,7 @@ class Signup extends Component {
 
               <label>Email</label>
               <input
+                required
                 name='email'
                 type='email'
                 value={this.state.user.email}
@@ -108,6 +109,10 @@ class Signup extends Component {
               <br/>
               <label>First Name</label>
               <input
+                required
+                pattern="[a-zA-Z]*"
+                minLength='2'
+                maxLength='30'
                 name='firstName'
                 type='text'
                 value={this.state.user.firstName}
@@ -116,6 +121,9 @@ class Signup extends Component {
               <br/>
               <label>Password</label>
               <input
+                required
+                minLength='5'
+                maxLength='35'
                 type='password'
                 name='password'
                 value={this.state.user.password}
@@ -123,16 +131,17 @@ class Signup extends Component {
                 />
               <br/>
               <label>Role</label>
-              <select onChange={this.handleChange} name='role'>
+              <select onChange={this.handleChange} name='role' required>
                 <option value="VHT">VHT</option>
                 <option value="HCW">HCW</option>
                 <option value="CHO">CHO</option>
                 <option value="ADMIN">ADMIN</option>
               </select>
               <Form.Field
+                required
                 name="healthFacilityName"
                 control={Select}
-                value={this.state.user.healthFacilityName}
+                value={this.state.user.healthFacilityName || hfOptions[0]['value']}
                 label='Health Facility'
                 options={hfOptions}
                 placeholder='Health Facility'
