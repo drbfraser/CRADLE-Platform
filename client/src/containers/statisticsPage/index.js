@@ -143,7 +143,7 @@ class StatisticsPage extends Component {
               {(this.props.statisticsList.uniquePeopleAssesedPerMonth
               || this.props.statisticsList.womenAssessedPerMonth
               || this.props.statisticsList.pregnantWomenAssessedPerMonth) ? (
-                <Statistic.Group>
+                <Statistic.Group style={{marginLeft: "auto", marginRight: "auto"}}>
 
                   <Statistic horizontal className='statSubBox'>
                     <Statistic.Value className='underlineBlue'>{this.props.statisticsList.uniquePeopleAssesedPerMonth[getMonth-1]}</Statistic.Value>
@@ -174,7 +174,7 @@ class StatisticsPage extends Component {
               {(this.props.statisticsList.readingsPerMonth 
               && this.props.statisticsList.referralsPerMonth 
               && this.props.statisticsList.assessmentsPerMonth) ? (
-                <Statistic.Group>
+                <Statistic.Group style={{marginLeft: "auto", marginRight: "auto", paddingBottom: 20}}>
 
                   <Statistic horizontal className='statSubBox'>
                     <Statistic.Value className='underlineBlue'>{this.props.statisticsList.readingsPerMonth[getMonth-1]}</Statistic.Value>
@@ -211,7 +211,7 @@ class StatisticsPage extends Component {
               && this.props.statisticsList.pregnantWomenReferredPerMonth
               && this.props.statisticsList.womenAssessedPerMonth
               && this.props.statisticsList.pregnantWomenAssessedPerMonth) ? (
-                <Statistic.Group>
+                <Statistic.Group style={{marginLeft: "auto", marginRight: "auto", paddingBottom: 20}}>
                   <Statistic horizontal className='statSubBox'>
                     <Statistic.Value className='underlineBlack'>{this.props.statisticsList.womenReferredPerMonth[getMonth-1]}</Statistic.Value>
                     <Statistic.Label className='virticalWritting'>WOMEN REFERRED</Statistic.Label>
