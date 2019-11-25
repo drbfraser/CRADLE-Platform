@@ -138,7 +138,7 @@ class Signup extends Component {
                 required
                 name="healthFacilityName"
                 control={Select}
-                value={this.state.user.healthFacilityName || hfOptions[0]['value']}
+                value={this.state.user.healthFacilityName}
                 label='Health Facility'
                 options={hfOptions}
                 placeholder='Health Facility'
