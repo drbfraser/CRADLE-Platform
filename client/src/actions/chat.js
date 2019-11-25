@@ -1,18 +1,20 @@
 export const CREATE_ROOM = 'chat/CREATE_ROOM'
 export const JOIN_ROOM = 'chat/JOIN_ROOM'
 
-export const createRoom = () => {
+export const createRoom = (roomId) => {
     return dispatch => {
         dispatch({
-            type: CREATE_ROOM
+            type: CREATE_ROOM,
+            payload: roomId
         })
     }
 }
 
-export const joinRoom = () => {
+export const joinRoom = (roomId) => {
     return dispatch => {
         dispatch({
-            type: JOIN_ROOM
+            type: JOIN_ROOM,
+            payload: roomId
         })
     }
 }

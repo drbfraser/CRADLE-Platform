@@ -8,6 +8,7 @@ import referrals from './referrals'
 import patientStats from './patientStats'
 import healthFacilities from './healthFacilities'
 import newReading from './newReading'
+import chat from './chat'
 
 
 const appReducer = combineReducers({
@@ -19,7 +20,8 @@ const appReducer = combineReducers({
   referrals,
   patientStats,
   healthFacilities,
-  newReading
+  newReading,
+  chat
 })
 
 export default (state, action) => {
