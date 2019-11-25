@@ -7,7 +7,7 @@ import List from '@material-ui/core/List';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import { Icon } from 'semantic-ui-react'
+import { Icon, Button } from 'semantic-ui-react'
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -15,6 +15,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { Route, Link } from 'react-router-dom'
 import Home from '../home'
 import AdminPage from '../adminPage'
+import HelpPage from '../helpPage'
 import PatientPage from '../patientPage'
 import StatisticsPage from '../statisticsPage'
 import ReferralsPage from '../referralsPage'
@@ -31,6 +32,7 @@ import PatientsImg from './img/patients.svg'
 import ReferralsImg from './img/referrals.svg'
 import StatisticsImg from './img/statistics.svg'
 import CreateImg from './img/create.svg'
+import HelpButton from './img/ic_help.svg'
 import { bold } from 'ansi-colors';
 
 const drawerWidth = 200;
@@ -46,6 +48,11 @@ const useStyles = makeStyles(theme => ({
   toolbarButtons: {
     marginLeft: "auto",
     marginRight: -12
+  },
+  toolbarButtonsPadded: {
+    marginLeft: "auto",
+    paddingLeft: 30,
+    paddingRight: 30
   },
   drawer: {
     width: drawerWidth,
@@ -67,7 +74,7 @@ const useStyles = makeStyles(theme => ({
   },
   toolbar: theme.mixins.toolbar,
   listItem: { flexDirection: 'column', margin: '10px 0px 10px 0px' },
-  logout: { marginTop: '50px', bottom: 0},
+  logout: { marginTop: '20px', bottom: 0},
   itemText : { color : 'white', paddingTop : '8px' }
 }));
 
@@ -113,24 +120,38 @@ const App = (props) => {
             <Typography noWrap style={titleTextStyle}>
               Cradle
             </Typography>
-            {props.user.isLoggedIn && 
-              <IconButton
-              className={classes.toolbarButtons}
-              onClick={() => ""}
-              color="inherit"
-              >
-                <Icon name="user circle" size="large" />
-                <div>
-                  <Typography variant="body1" noWrap>
-                    {props.user.firstName} ({getRole(props.user.roles)})
-                  </Typography>
-                  {props.user.healthFacilityName &&
-                    <Typography variant="body2" noWrap>
-                      Healthcare Facility: {props.user.healthFacilityName}
+            {props.user.isLoggedIn &&
+              <div style={{marginLeft:"auto", marginRight:0}}>
+                <IconButton
+                    className={classes.toolbarButtons}
+                    onClick={() => ""}
+                    color="inherit"
+                >
+                  <Icon name="user circle" size="large" />
+                  <div>
+                    <Typography variant="body1" noWrap>
+                      {props.user.firstName} ({getRole(props.user.roles)})
                     </Typography>
-                  }
-                </div>
-              </IconButton>
+                    {props.user.healthFacilityName &&
+                      <Typography variant="body2" noWrap>
+                        Healthcare Facility: {props.user.healthFacilityName}
+                      </Typography>
+                    }
+                  </div>
+                </IconButton>
+
+                <IconButton
+                    className={classes.toolbarButtonsPadded}
+                    button
+                    component={Link}
+                    to="/help"
+                    onClick={() => setActiveItem("Help")}
+                    selected={activeItem === "Help"}
+                    color="inherit"
+                >
+                  <Icon name="help" size="small" />
+                </IconButton>
+              </div>
              }
           </Toolbar>
           
@@ -215,7 +236,49 @@ const App = (props) => {
                   }
                 />
               </ListItem>
+
               <Divider />
+
+              {props.user.roles.includes('ADMIN') &&
+              <div>
+                <ListItem className={[classes.listItem]}
+                          component={Link}
+                          button
+                          key="new user"
+                          to="/signup"
+                          selected={activeItem === "Signup"}
+                          onClick={() => setActiveItem("Signup")}>
+                  <ListItemText
+                    disableTypography
+                    className={classes.itemText}
+                    primary={
+                      <Typography style={sidebarTextStyle}>
+                        Create New User
+                      </Typography>
+                    }
+                  />
+                </ListItem>
+                <ListItem className={classes.listItem}
+                          component={Link}
+                          button
+                          key="new user"
+                          to="/admin"
+                          selected={activeItem === "Admin"}
+                          onClick={() => setActiveItem("Admin")}>
+                  <ListItemText
+                    disableTypography
+                    className={classes.itemText}
+                    primary={
+                      <Typography style={sidebarTextStyle}>
+                        Admin Panel
+                      </Typography>
+                    }
+                  />
+                </ListItem>
+
+                <Divider />
+              </div>}
+
               <ListItem className={[classes.listItem, classes.logout]} button key="Logout" onClick={ () => props.logoutUser() }>
                 <ListItemText
                   disableTypography
@@ -227,27 +290,6 @@ const App = (props) => {
                   }
                 />
               </ListItem>
-              {props.user.roles.includes('ADMIN') &&
-              <List>
-                <ListItem className={classes.listItem}
-                          component={Link}
-                          button
-                          key="new user"
-                          to="/signup"
-                          selected={activeItem === "Signup"}
-                          onClick={() => setActiveItem("Signup")}>
-                  <ListItemText className={classes.itemText} primary="Create New User" />
-                </ListItem>
-                <ListItem className={classes.listItem}
-                          component={Link}
-                          button
-                          key="new user"
-                          to="/admin"
-                          selected={activeItem === "Admin"}
-                          onClick={() => setActiveItem("Admin")}>
-                  <ListItemText className={classes.itemText} primary="Admin Panel" />
-                </ListItem>
-              </List>}
             </List>
         </Drawer>
         ) : (null)}
@@ -257,6 +299,7 @@ const App = (props) => {
           <div className={classes.toolbar} />
           <Route exact path="/" component={Home} />
           <Route exact path="/admin" component={AdminPage} />
+          <Route exact path="/help" component={HelpPage} />
           <Route exact path="/patients" component={PatientPage} />
           <Route exact path="/signup" component={Signup} />
           <Route exact path="/login" component={Login} />
