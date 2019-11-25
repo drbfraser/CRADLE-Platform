@@ -136,6 +136,7 @@ class FollowUpModal extends Component {
                                 label='Follow Up Action'
                                 placeholder="Patient's action performed for this follow up"
                                 onChange={this.handleChange}
+                                required
                             />
                             <Form.Field
                                 name="diagnosis"
@@ -144,6 +145,7 @@ class FollowUpModal extends Component {
                                 label='Diagnosis'
                                 placeholder="Medical diagnosis of the cause of their chief complaint"
                                 onChange={this.handleChange}
+                                required
                             />
                             <Form.Field
                                 name="treatment"
@@ -152,6 +154,7 @@ class FollowUpModal extends Component {
                                 label='Treatment'
                                 placeholder="Treatment performed on patient to remedy their chief complaint"
                                 onChange={this.handleChange}
+                                required
                             />
                             <Form.Field control={Button}>Submit</Form.Field>
                         </Form>
