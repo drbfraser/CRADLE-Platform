@@ -79,7 +79,8 @@ class PatientSummary extends Component {
       other: false,
       otherSymptoms: ""
     },
-    showSuccessReading: false
+    showSuccessReading: false,
+    selectedPatientCopy : { readings: [] },
   }
 
   componentDidMount = () => {
@@ -145,11 +146,19 @@ class PatientSummary extends Component {
   }
 
   openPatientModal = () => {
+    this.setState({ selectedPatientCopy : {...this.state.selectedPatient} } )
     this.setState({ displayPatientModal: true })
   }
 
-  closePatientModal = () => {
-    this.setState({ displayPatientModal: false })
+  closePatientModal = (e, data) => {
+    if (e === "formSubmitted") {
+      this.setState({ displayPatientModal: false })
+    } else { // form not submitted
+      // display original patient fields
+      this.setState({ selectedPatient : {...this.state.selectedPatientCopy},
+                      displayPatientModal : false } )
+    }
+    
   }
 
   openReadingModal = () => {
@@ -174,9 +183,8 @@ class PatientSummary extends Component {
     delete patientData.patientId
 
     let patientJSON = JSON.stringify(patientData);
-
     this.props.updatePatient(patientId, patientData)
-    this.closePatientModal()
+    this.closePatientModal("formSubmitted")
   }
 
   handleReadingSubmit = event => {
@@ -230,7 +238,11 @@ class PatientSummary extends Component {
   }
 
   handleSelectChange = (e, value) => {
-    this.setState({ 'selectedPatient': { ...this.state.selectedPatient, [value.name]: value.value } })
+    if (value.name === "patientSex" && value.value === "MALE") {
+      this.setState({ selectedPatient: { ...this.state.selectedPatient, patientSex : "MALE", gestationalAgeValue : "", isPregnant : false }})
+    } else {
+      this.setState({ 'selectedPatient': { ...this.state.selectedPatient, [value.name]: value.value } })
+    }
   }
 
   handleReadingChange = (e, value) => {
@@ -476,7 +488,9 @@ class PatientSummary extends Component {
                     <p><b>Patient ID: </b> {this.state.selectedPatient.patientId} </p>
                     <p><b>Patient Age: </b> {this.state.selectedPatient.patientAge} </p>
                     <p><b>Patient Sex: </b> {this.state.selectedPatient.patientSex} </p>
-                    <p><b>Pregnant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
+                    {this.state.selectedPatient.patientSex === "FEMALE" &&
+                      <p><b>Pregnant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
+                    }
                     {this.state.selectedPatient.isPregnant &&
                       <p><b>Gestational Age: </b> {this.state.selectedPatient.gestationalAgeValue} weeks</p>
                     }
@@ -576,28 +590,34 @@ class PatientSummary extends Component {
               </Grid>
 
               <Modal closeIcon onClose={this.closePatientModal} open={this.state.displayPatientModal}>
-                <Modal.Header>Patient Information</Modal.Header>
+                <Modal.Header>Patient Information for ID #{this.state.selectedPatient.patientId}</Modal.Header>
                 <Modal.Content scrolling>
-                  <Modal.Description>
-                    <Header>Patient Information for ID #{this.state.selectedPatient.patientId}</Header>
-                    <Divider />
                     <Form onSubmit={this.handleSubmit}>
                       <Form.Group widths='equal'>
                         <Form.Field
                           name="patientName"
                           value={this.state.selectedPatient.patientName}
                           control={Input}
-                          label='Name'
-                          placeholder='Patient Name'
+                          label='Patient Initials'
+                          placeholder='Patient Initials'
                           onChange={this.handleSelectChange}
+                          type='text'
+                          pattern="[a-zA-Z]*"
+                          maxLength='4'
+                          minLength='1'
+                          required
                         />
                         <Form.Field
                           name="patientAge"
                           value={this.state.selectedPatient.patientAge}
                           control={Input}
                           label='Age'
-                          placeholder='Patient age'
+                          placeholder='Patient Age'
                           onChange={this.handleSelectChange}
+                          type='number'
+                          min='15'
+                          max='60'
+                          required
                         />
                         <Form.Field
                           name="patientSex"
@@ -607,6 +627,7 @@ class PatientSummary extends Component {
                           options={sexOptions}
                           placeholder='Gender'
                           onChange={this.handleSelectChange}
+                          required
                         />
                       </Form.Group>
                       <Form.Group widths='equal'>
@@ -625,6 +646,20 @@ class PatientSummary extends Component {
                           label='Pregnant'
                           options={pregOptions}
                           onChange={this.handleSelectChange}
+                          disabled={this.state.selectedPatient.patientSex ===  "MALE"}
+                        />
+                        <Form.Field
+                          name='gestationalAgeValue'
+                          value={this.state.selectedPatient.gestationalAgeValue}
+                          control={Input}
+                          label='Gestational Age in Weeks'
+                          placeholder='Gestational Age in Weeks'
+                          onChange={this.handleSelectChange}
+                          type='number'
+                          min='1'
+                          max='60'
+                          required
+                          disabled={this.state.selectedPatient.patientSex == 'MALE' || !this.state.selectedPatient.isPregnant}
                         />
                       </Form.Group>
                       <Form.Field
@@ -646,7 +681,6 @@ class PatientSummary extends Component {
                       <Form.Field control={Button}>Submit</Form.Field>
                     </Form>
 
-                  </Modal.Description>
                 </Modal.Content>
               </Modal>
               <Modal closeIcon onClose={this.closeReadingModal} open={this.state.displayReadingModal}>
