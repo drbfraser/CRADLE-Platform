@@ -4,7 +4,7 @@ export default function (props) {
     return (
         <div className="chatHistory" id="chatHistory">
             { props.chatHistory.map((msg) => {
-                return(<ChatMessage msg={msg} sender={msg.sender}/>)
+                return(<ChatMessage msg={msg} sender={msg.sender} senderName={msg.senderName}/>)
             })}
         </div>
     )
@@ -22,7 +22,7 @@ function ChatMessage(props) {
                 <img className="chatAvatar" src="/images/nurse.png"></img>
             )}
             <div className="chatContent">
-                <span className="messageUserName">Brian</span>
+                <span className="messageUserName">{props.senderName}</span>
                 <span>{props.msg.text}</span>
             </div>
         </div>

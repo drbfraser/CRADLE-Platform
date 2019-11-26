@@ -4,11 +4,15 @@ import React, {
 import Input from '@material-ui/core/Input';
 import './chat.css'
 import ChatHistory from './chatHistory.js'
+import { getCurrentUser } from '../../../actions/users';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
-import Fab from '@material-ui/core/Fab';
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+
+// import Fab from '@material-ui/core/Fab';
 // import AddIcon from '@material-ui/icons/Add';
 
 import $ from "jquery"
@@ -46,12 +50,14 @@ class Chat extends Component {
 
         let sender = this.getSender(true);
 
-        console.log(event.data);
+        console.log("event.data: ", event.data);
+
         this.setState({
             pendingInput: "",
             chatHistory: this.state.chatHistory.concat({
+                senderName: event.data.senderName,
                 sender: sender,
-                text: event.data
+                text: event.data.msg
             })
         }, function () {
             // scroll to the bottom of chat
@@ -62,13 +68,19 @@ class Chat extends Component {
     handleSubmit(event) {
         console.log("submitting input: ", this.state.pendingInput);
 
-        this.props.connection.send(this.state.pendingInput);
+        let data = {
+            "msg": this.state.pendingInput,
+            "senderName": this.props.user.firstName
+        }
+
+        this.props.connection.send(data);
 
         let sender = this.getSender();
 
         this.setState({
             pendingInput: "",
             chatHistory: this.state.chatHistory.concat({
+                senderName: this.props.user.firstName,
                 sender: sender,
                 text: this.state.pendingInput
             })
@@ -119,19 +131,12 @@ class Chat extends Component {
 
     const { classes } = this.props;
 
-    let name;
-
-    if(this.props.isOpener) {
-        name = "Vinson Ly"
-    } else {
-        name = "Julian Cheung"
-    }
-
+    const name = this.props.user.firstName;
 
     return(
         <div className="chatContainer">
             {/* <ChatInfo name={name}/> */}
-            <ChatHistory chatHistory={this.state.chatHistory}/>
+            <ChatHistory chatHistory={this.state.chatHistory} />
             <div className="chatInput">
                 <Button size="small" color="primary" className={classes.button + " chatSubmitButton"}>
                     Send
@@ -167,7 +172,14 @@ class Chat extends Component {
   }
 }
 
-export default withStyles(styles)(Chat);
+const mapStateToProps = ({ user }) => ({
+    user : user.currentUser
+})
+
+export default connect(
+    mapStateToProps,
+    null
+)(withStyles(styles)(Chat));
 
 function ChatInfo(props) {
     return (
