@@ -249,7 +249,7 @@ const App = (props) => {
                   className={classes.itemText}
                   primary={
                     <Typography style={sidebarTextStyle}>
-                      Chat
+                      Live Video Chat
                     </Typography>
                   }
                 />
@@ -326,6 +326,7 @@ const App = (props) => {
           <Route exact path="/newreading" component={NewReadingPage} />
           <Route exact path="/chat/landing" component={VideoLanding} />
           <Route exact path="/chat/session" component={Session} />
+          <Route exact path="/chat/session/:roomId" component={Session} />
         </main>
       </div>
     )

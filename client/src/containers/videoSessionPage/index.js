@@ -52,6 +52,8 @@ class Session extends Component {
   getRoomId() {
     if(this.props.roomId) {
       return this.props.roomId
+    } else if(this.props.match.params.roomId) {
+      return this.props.match.params.roomId
     } else {
       return predefinedRoomId
     }

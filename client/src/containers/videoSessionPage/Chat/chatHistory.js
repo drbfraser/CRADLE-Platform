@@ -19,7 +19,7 @@ function ChatMessage(props) {
             {props.sender == "opener" ? (
                 <img className="chatAvatar" src="/images/doctor.png"></img>
             ) : (
-                <img className="chatAvatar" src="/images/nurse.png"></img>
+                <img className="chatAvatar" src="/images/girl-doctor.png"></img>
             )}
             <div className="chatContent">
                 <span className="messageUserName">{props.senderName}</span>
