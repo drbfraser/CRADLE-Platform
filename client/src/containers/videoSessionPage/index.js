@@ -37,7 +37,7 @@ class Session extends Component {
       localConnected: false,
       remoteConnected: false,
       chatHistory: [],
-      roomStatus: "Waiting for remote user to join room...",
+      roomStatus: "Joining room, connecting...",
       configured: false
     }
 
@@ -91,15 +91,22 @@ class Session extends Component {
     
     this.config(true);
 
-    this.setState({
+    let newState = {
       configured: true
-    })
+    }
+
+    if(this.props.isOpener) {
+      newState['roomStatus'] = "Room created, waiting for remote user to join room..."
+    }
+
+    this.setState(newState);
     
     setTimeout(() => {
       console.log("isOpener: ", this.props.isOpener);
       console.log("roomId: ", this.getRoomId());
 
       if(this.props.isOpener) {
+        
         this.openRoom();
 
         console.log("url: ", this.props.match.url);
@@ -113,7 +120,7 @@ class Session extends Component {
         this.joinRoom();
 
       }
-    }, 5000)
+    }, 1000)
 
   }
 
@@ -219,6 +226,23 @@ class Session extends Component {
     console.log("done config")
   }
   
+  componentWillUnmount() {
+    console.log("about to unmount");
+
+    // disconnect with all users
+    this.connection.getAllParticipants().forEach(function(pid) {
+      this.connection.disconnectWith(pid);
+    });
+
+    // stop all local cameras
+    this.connection.attachStreams.forEach(function(localStream) {
+      localStream.stop();
+    });
+
+    // close socket.io connection
+    this.connection.closeSocket();
+
+  }
   
   render() {
 
