@@ -35,6 +35,7 @@ import PatientsImg from './img/patients.svg'
 import ReferralsImg from './img/referrals.svg'
 import StatisticsImg from './img/statistics.svg'
 import CreateImg from './img/create.svg'
+import VideoImg from './img/video-solid.svg'
 
 const drawerWidth = 200;
 
@@ -237,23 +238,29 @@ const App = (props) => {
                   }
                 />
               </ListItem>
-              {/* <ListItem className={classes.listItem}
+              <ListItem className={classes.listItem}
                         button
                         component={Link}
                         to="/chat/landing"
                         selected={activeItem === "Chat"}
                         onClick={() => setActiveItem("Chat")}>
                 
+                <ListItemIcon>
+                  <img src={VideoImg} class="center sidebarIcon" />
+                
+                  {/* <i className="fas fa-video"></i> */}
+                </ListItemIcon>
+
                 <ListItemText
                   disableTypography
                   className={classes.itemText}
                   primary={
                     <Typography style={sidebarTextStyle}>
-                      Chat
+                      Live Video Chat
                     </Typography>
                   }
                 />
-              </ListItem> */}
+              </ListItem>
 
               <Divider />
 
@@ -324,8 +331,9 @@ const App = (props) => {
           <Route exact path="/stats" component={StatisticsPage} />
           <Route exact path="/referrals" component={ReferralsPage} />
           <Route exact path="/newreading" component={NewReadingPage} />
-          {/* <Route exact path="/chat/landing" component={VideoLanding} />
-          <Route exact path="/chat/session" component={Session} /> */}
+          <Route exact path="/chat/landing" component={VideoLanding} />
+          <Route exact path="/chat/session" component={Session} />
+          <Route exact path="/chat/session/:roomId" component={Session} />
         </main>
       </div>
     )
