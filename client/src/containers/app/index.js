@@ -35,6 +35,7 @@ import PatientsImg from './img/patients.svg'
 import ReferralsImg from './img/referrals.svg'
 import StatisticsImg from './img/statistics.svg'
 import CreateImg from './img/create.svg'
+import VideoImg from './img/video-solid.svg'
 
 const drawerWidth = 200;
 
@@ -244,6 +245,12 @@ const App = (props) => {
                         selected={activeItem === "Chat"}
                         onClick={() => setActiveItem("Chat")}>
                 
+                <ListItemIcon>
+                  <img src={VideoImg} class="center sidebarIcon" />
+                
+                  {/* <i className="fas fa-video"></i> */}
+                </ListItemIcon>
+
                 <ListItemText
                   disableTypography
                   className={classes.itemText}

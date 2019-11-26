@@ -97,32 +97,30 @@ class Session extends Component {
       configured: true
     }
 
+    console.log("isOpener: ", this.props.isOpener);
+    console.log("roomId: ", this.getRoomId());
+
+    if(this.props.isOpener) {
+      
+      this.openRoom();
+
+      console.log("url: ", this.props.match.url);
+
+      copyToClipboard("https://" + `${window.location.hostname + this.props.match.url}`);
+
+      swal("Room Link Copied to Clipboard", "Paste and send your room URL to your patient", "success");
+
+    } else {
+
+      this.joinRoom();
+
+    }
+
     if(this.props.isOpener) {
       newState['roomStatus'] = "Room created, waiting for remote user to join room..."
     }
 
     this.setState(newState);
-    
-    setTimeout(() => {
-      console.log("isOpener: ", this.props.isOpener);
-      console.log("roomId: ", this.getRoomId());
-
-      if(this.props.isOpener) {
-        
-        this.openRoom();
-
-        console.log("url: ", this.props.match.url);
-
-        copyToClipboard("https://" + `${window.location.hostname + this.props.match.url}`);
-
-        swal("Room Link Copied to Clipboard", "Paste and send your room URL to your patient", "success");
-
-      } else {
-
-        this.joinRoom();
-
-      }
-    }, 1000)
 
   }
 
