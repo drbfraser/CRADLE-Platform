@@ -7,7 +7,7 @@
 
 .chatInput {
     height: 95px;
-    width: calc(100% - 20px);
+    width: 100%;
     padding-left: 10px;
     padding-right: 10px;
     box-shadow: 0px -1px 100px 1px rgba(50, 50, 50, 0.75);
@@ -17,7 +17,6 @@
     height: calc(100% - 95px - 50px);
     overflow-y: scroll;
     border-bottom: 2px solid black;
-    padding-top:50px;
 }
 
 .chatMessage {
@@ -51,17 +50,17 @@
 
 button.chatSubmitButton {
     position: absolute;
-    right: -5px;
+    right: 15px;
     padding: 0;
     font-size: 10px;
     margin-right: 0;
 }
 
 div.chatInfoContainer {
-    width: 25%;
+    width: 100%;
     height: 50px;
     background-color: #428FE6;
-    position: absolute;
+    /* position: absolute; */
     display:flex;
     justify-content: center;
     align-items: center;

@@ -237,7 +237,7 @@ const App = (props) => {
                   }
                 />
               </ListItem>
-              {/* <ListItem className={classes.listItem}
+              <ListItem className={classes.listItem}
                         button
                         component={Link}
                         to="/chat/landing"
@@ -253,7 +253,7 @@ const App = (props) => {
                     </Typography>
                   }
                 />
-              </ListItem> */}
+              </ListItem>
 
               <Divider />
 
@@ -324,8 +324,8 @@ const App = (props) => {
           <Route exact path="/stats" component={StatisticsPage} />
           <Route exact path="/referrals" component={ReferralsPage} />
           <Route exact path="/newreading" component={NewReadingPage} />
-          {/* <Route exact path="/chat/landing" component={VideoLanding} />
-          <Route exact path="/chat/session" component={Session} /> */}
+          <Route exact path="/chat/landing" component={VideoLanding} />
+          <Route exact path="/chat/session" component={Session} />
         </main>
       </div>
     )

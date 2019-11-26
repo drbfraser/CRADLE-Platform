@@ -1,17 +1,17 @@
 .session {
-    height: 100vh;
-    width: 100vw;
+    height: calc(100vh - 150px);
+    width: 100%;
     background-color: lightpink;
 }
 
 .session-ui {
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
 }
 
 .topSection {
-    width: 100vw;
-    height: 75vh;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: row;
 }
@@ -34,16 +34,10 @@
     width: 300px;
     position: relative;
     bottom: 225px;
-    right: calc(-75vw + 300px + 25px);
+    right: calc(-100% + 300px + 25px);
     background-color: black;
     border-radius: 15px;
     border: 1px white solid;
-}
-
-.museBox {
-    width: 100%;
-    height: 25%;
-    background-color: white;
 }
 
 #localStream > video {

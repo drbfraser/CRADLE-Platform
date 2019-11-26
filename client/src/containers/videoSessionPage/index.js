@@ -1,16 +1,23 @@
 import React, { Component } from 'react';
 import { Button } from 'semantic-ui-react';
-import RTCMultiConnection from 'rtcmulticonnection';
 import $ from "jquery";
 import swal from 'sweetalert';
 import Chat from './Chat';
+
+
+import * as io from 'socket.io-client';
+import * as RTCMultiConnection from 'rtcmulticonnection'
+
+// import RTCMultiConnection from 'rtcmulticonnection';
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import './session.css'
 
-var connection = new RTCMultiConnection();
+window.io = io
+
+// var connection = new RTCMultiConnection();
 
 const styles = theme => ({
   button: {
@@ -40,6 +47,8 @@ class Session extends Component {
     this.getRoomId = this.getRoomId.bind(this);
     this.openRoom = this.openRoom.bind(this);
     this.joinRoom = this.joinRoom.bind(this);
+
+    this.connection = new RTCMultiConnection();
   }
 
   getRoomId() {
@@ -57,7 +66,7 @@ class Session extends Component {
     
     console.log("opening room with id: ", thisRoomId);
 
-    connection.open( thisRoomId );
+    this.connection.open( thisRoomId );
     
   }
 
@@ -68,34 +77,38 @@ class Session extends Component {
     
     console.log("joining room with id: ", thisRoomId);
 
-    connection.join( thisRoomId ); 
+    this.connection.join( thisRoomId ); 
   }
 
   componentDidMount() {
+    console.log("in component did mount")
+    
     this.config(true);
 
     this.setState({
       configured: true
     })
+    
+    setTimeout(() => {
+      console.log("isOpener: ", this.props.isOpener);
+      console.log("roomId: ", this.getRoomId());
 
-    console.log("isOpener: ", this.props.isOpener);
-    console.log("roomId: ", this.getRoomId());
+      if(this.props.isOpener) {
+        this.openRoom();
 
-    if(this.props.isOpener) {
-      this.openRoom();
+        console.log("url: ", this.props.match.url);
 
-      console.log("url: ", this.props.match.url);
+        copyToClipboard("https://" + `${window.location.hostname + this.props.match.url}`);
 
-      copyToClipboard("https://" + `${window.location.hostname + this.props.match.url}`);
+        swal("Room Link Copied to Clipboard", "Paste and send your room URL to your patient", "success");
 
-      swal("Room Link Copied to Clipboard", "Paste and send your room URL to your patient", "success");
+      } else {
 
-    } else {
+        this.joinRoom();
 
-      this.joinRoom();
+      }
+    }, 5000)
 
-
-    }
   }
 
   componentDidUpdate() {
@@ -113,28 +126,28 @@ class Session extends Component {
 
   config(isLocal) {
     // this line is VERY_important
-    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+    this.connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
   
     // all below lines are optional; however recommended.
   
-    connection.session = {
+    this.connection.session = {
         audio: true,
         video: true,
         data: true
     };
   
-    connection.sdpConstraints.mandatory = {
+    this.connection.sdpConstraints.mandatory = {
         OfferToReceiveAudio: true,
         OfferToReceiveVideo: true
     };
   
     if(isLocal) {  
-      connection.videosContainer = document.getElementById('localStream');
+      this.connection.videosContainer = document.getElementById('localStream');
     } else {
-      connection.videosContainer = document.getElementById('remoteStream');
+      this.connection.videosContainer = document.getElementById('remoteStream');
     }
   
-    connection.onopen = function(event) {
+    this.connection.onopen = function(event) {
       var remoteUserId = event.userid;
       var remoteUserFullName = event.extra.fullName;
   
@@ -145,11 +158,13 @@ class Session extends Component {
       })
     }.bind(this);
   
-    connection.onstream = function(event) {
-  
+    this.connection.onstream = function(event) {
+      
+      console.log("onstream: ");
+
       console.log("state: ", this.state);
   
-      console.log("isRoomJoined: ", connection.isRoomJoined);
+      console.log("isRoomJoined: ", this.connection.isRoomJoined);
   
       console.log("isLocal: ", isLocal);
   
@@ -184,18 +199,18 @@ class Session extends Component {
   
       event.mediaElement.removeAttribute('controls')
   
-      window.connection = connection;
+      window.connection = this.connection;
   
     }.bind(this)
   
 
-    window.connection = connection;
+    window.connection = this.connection;
 
     // connection.onmessage = function(event) {
     //   console.log("received a message: ", event.data);
     // }
 
-    this.connection = connection;
+    console.log("done config")
   }
   
   
@@ -205,6 +220,8 @@ class Session extends Component {
     console.log("this.props.isOpener: ", this.props.isOpener);
 
     let roomId = this.getRoomId();
+
+    console.log("connection: ", this.connection);
 
     return (
       <div className="session">
@@ -222,7 +239,7 @@ class Session extends Component {
                   <div className="localStream" id="localStream">
                   </div>  
               </div>
-              <Chat connection={connection} isOpener={this.props.isOpener}/>
+              <Chat connection={this.connection} isOpener={this.props.isOpener}/>
           </div>  
         </div>
       </div>

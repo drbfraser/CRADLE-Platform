@@ -142,7 +142,7 @@ class Chat extends Component {
                 }>
                     <AddIcon />
                 </Fab> */}
-                <form className="chatForm" id="chatForm" style={{paddingLeft: "35px", paddingRight: "35px"}}>
+                <form className="chatForm" id="chatForm" style={{paddingRight: "35px"}}>
                     <Input
                         id="outlined-multiline-static"
                         multiline
