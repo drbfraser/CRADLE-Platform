@@ -1,16 +1,21 @@
 import React, { Component } from 'react';
 import { Button } from 'semantic-ui-react';
-import RTCMultiConnection from 'rtcmulticonnection';
 import $ from "jquery";
 import swal from 'sweetalert';
 import Chat from './Chat';
+import { getCurrentUser } from '../../actions/users';
+
+import * as io from 'socket.io-client';
+import * as RTCMultiConnection from 'rtcmulticonnection'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import './session.css'
 
-var connection = new RTCMultiConnection();
+window.io = io
+
+// var connection = new RTCMultiConnection();
 
 const styles = theme => ({
   button: {
@@ -32,7 +37,7 @@ class Session extends Component {
       localConnected: false,
       remoteConnected: false,
       chatHistory: [],
-      roomStatus: "Waiting for remote user to join room...",
+      roomStatus: "Joining room, connecting...",
       configured: false
     }
 
@@ -40,11 +45,15 @@ class Session extends Component {
     this.getRoomId = this.getRoomId.bind(this);
     this.openRoom = this.openRoom.bind(this);
     this.joinRoom = this.joinRoom.bind(this);
+
+    this.connection = new RTCMultiConnection();
   }
 
   getRoomId() {
     if(this.props.roomId) {
       return this.props.roomId
+    } else if(this.props.match.params.roomId) {
+      return this.props.match.params.roomId
     } else {
       return predefinedRoomId
     }
@@ -57,7 +66,7 @@ class Session extends Component {
     
     console.log("opening room with id: ", thisRoomId);
 
-    connection.open( thisRoomId );
+    this.connection.open( thisRoomId );
     
   }
 
@@ -68,20 +77,31 @@ class Session extends Component {
     
     console.log("joining room with id: ", thisRoomId);
 
-    connection.join( thisRoomId ); 
+    this.connection.join( thisRoomId ); 
   }
 
   componentDidMount() {
+    console.log("in component did mount")
+
+    this.props.getCurrentUser().then((err) => {
+      if (err !== undefined) {
+        // error from getCurrentUser(), don't get statistics
+        return
+      }
+      
+    })
+    
     this.config(true);
 
-    this.setState({
+    let newState = {
       configured: true
-    })
+    }
 
     console.log("isOpener: ", this.props.isOpener);
     console.log("roomId: ", this.getRoomId());
 
     if(this.props.isOpener) {
+      
       this.openRoom();
 
       console.log("url: ", this.props.match.url);
@@ -94,8 +114,14 @@ class Session extends Component {
 
       this.joinRoom();
 
-
     }
+
+    if(this.props.isOpener) {
+      newState['roomStatus'] = "Room created, waiting for remote user to join room..."
+    }
+
+    this.setState(newState);
+
   }
 
   componentDidUpdate() {
@@ -113,28 +139,28 @@ class Session extends Component {
 
   config(isLocal) {
     // this line is VERY_important
-    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+    this.connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
   
     // all below lines are optional; however recommended.
   
-    connection.session = {
+    this.connection.session = {
         audio: true,
         video: true,
         data: true
     };
   
-    connection.sdpConstraints.mandatory = {
+    this.connection.sdpConstraints.mandatory = {
         OfferToReceiveAudio: true,
         OfferToReceiveVideo: true
     };
   
     if(isLocal) {  
-      connection.videosContainer = document.getElementById('localStream');
+      this.connection.videosContainer = document.getElementById('localStream');
     } else {
-      connection.videosContainer = document.getElementById('remoteStream');
+      this.connection.videosContainer = document.getElementById('remoteStream');
     }
   
-    connection.onopen = function(event) {
+    this.connection.onopen = function(event) {
       var remoteUserId = event.userid;
       var remoteUserFullName = event.extra.fullName;
   
@@ -145,11 +171,13 @@ class Session extends Component {
       })
     }.bind(this);
   
-    connection.onstream = function(event) {
-  
+    this.connection.onstream = function(event) {
+      
+      console.log("onstream: ");
+
       console.log("state: ", this.state);
   
-      console.log("isRoomJoined: ", connection.isRoomJoined);
+      console.log("isRoomJoined: ", this.connection.isRoomJoined);
   
       console.log("isLocal: ", isLocal);
   
@@ -184,27 +212,52 @@ class Session extends Component {
   
       event.mediaElement.removeAttribute('controls')
   
-      window.connection = connection;
+      window.connection = this.connection;
   
     }.bind(this)
   
 
-    window.connection = connection;
+    window.connection = this.connection;
 
     // connection.onmessage = function(event) {
     //   console.log("received a message: ", event.data);
     // }
 
-    this.connection = connection;
+    console.log("done config")
   }
   
+  componentWillUnmount() {
+    console.log("about to unmount");
+
+    // disconnect with all users
+    this.connection.getAllParticipants().forEach(function(pid) {
+      this.connection.disconnectWith(pid);
+    });
+
+    // stop all local cameras
+    this.connection.attachStreams.forEach(function(localStream) {
+      localStream.stop();
+    });
+
+    // close socket.io connection
+    this.connection.closeSocket();
+
+  }
   
   render() {
+
+    // don't render page if user is not logged in
+    if (!this.props.user.isLoggedIn) {
+      return <div />
+    }
+
     const { classes } = this.props
 
     console.log("this.props.isOpener: ", this.props.isOpener);
 
     let roomId = this.getRoomId();
+
+    console.log("connection: ", this.connection);
 
     return (
       <div className="session">
@@ -222,7 +275,7 @@ class Session extends Component {
                   <div className="localStream" id="localStream">
                   </div>  
               </div>
-              <Chat connection={connection} isOpener={this.props.isOpener}/>
+              <Chat connection={this.connection} isOpener={this.props.isOpener}/>
           </div>  
         </div>
       </div>
@@ -250,12 +303,21 @@ const copyToClipboard = str => {
   }
 };
 
-const mapStateToProps = ({ chat }) => ({
+const mapStateToProps = ({ chat, user }) => ({
     isOpener: chat.isOpener,
-    roomId: chat.roomId
+    roomId: chat.roomId,
+    user : user.currentUser
 })
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      getCurrentUser,
+    },
+    dispatch
+  )
 
 export default connect(
     mapStateToProps,
-    null
+    mapDispatchToProps
 )(Session)

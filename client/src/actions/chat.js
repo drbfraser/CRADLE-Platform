@@ -10,7 +10,7 @@ export const createRoom = (roomId) => {
             payload: roomId
         })
         dispatch(
-            push('/chat/session')
+            push('/chat/session/' + roomId)
         )
     }
 }
@@ -22,7 +22,7 @@ export const joinRoom = (roomId) => {
             payload: roomId
         })
         dispatch(
-            push('/chat/session')
+            push('/chat/session/' + roomId)
         )
     }
 }
