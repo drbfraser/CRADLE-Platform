@@ -36,7 +36,12 @@ class ReferralTable extends Component {
 
     getLatestReferral = (readings) => {
         let sortedReadings = readings.sort((a,b) => this.getMomentDate(b.dateTimeTaken).valueOf() - this.getMomentDate(a.dateTimeTaken).valueOf())
-        return sortedReadings[0].dateReferred
+        
+        if(sortedReadings[0].dateReferred) {
+            return sortedReadings[0].dateReferred
+        } else {
+            return ""
+        }
     }
 
     getPrettyDate = (dateStr) => {
