@@ -1,5 +1,5 @@
 .loginOverlay {
-    background-color: #00BFA3;
+    background-color: lightblue;
     height: calc(100vh - 70px);
     /* width: 100vw; */
     display: flex;

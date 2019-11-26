@@ -2,6 +2,7 @@
     height: calc(100vh - 150px);
     width: 100%;
     background-color: lightpink;
+    border: 2px solid black;
 }
 
 .session-ui {

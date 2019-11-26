@@ -17,11 +17,14 @@ function ChatMessage(props) {
     return (
         <div className="chatMessage">
             {props.sender == "opener" ? (
-                <img className="chatAvatar" src="/images/cropped-doctor.png"></img>
+                <img className="chatAvatar" src="/images/doctor.png"></img>
             ) : (
-                <img className="chatAvatar" src="/images/cropped-user.jpg"></img>
+                <img className="chatAvatar" src="/images/nurse.png"></img>
             )}
-            <div>{props.msg.text}</div>
+            <div className="chatContent">
+                <span className="messageUserName">Brian</span>
+                <span>{props.msg.text}</span>
+            </div>
         </div>
     )
 }

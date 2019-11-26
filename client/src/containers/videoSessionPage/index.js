@@ -3,12 +3,10 @@ import { Button } from 'semantic-ui-react';
 import $ from "jquery";
 import swal from 'sweetalert';
 import Chat from './Chat';
-
+import { getCurrentUser } from '../../actions/users';
 
 import * as io from 'socket.io-client';
 import * as RTCMultiConnection from 'rtcmulticonnection'
-
-// import RTCMultiConnection from 'rtcmulticonnection';
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -82,6 +80,14 @@ class Session extends Component {
 
   componentDidMount() {
     console.log("in component did mount")
+
+    this.props.getCurrentUser().then((err) => {
+      if (err !== undefined) {
+        // error from getCurrentUser(), don't get statistics
+        return
+      }
+      
+    })
     
     this.config(true);
 
@@ -215,6 +221,12 @@ class Session extends Component {
   
   
   render() {
+
+    // don't render page if user is not logged in
+    if (!this.props.user.isLoggedIn) {
+      return <div />
+    }
+
     const { classes } = this.props
 
     console.log("this.props.isOpener: ", this.props.isOpener);
@@ -267,12 +279,21 @@ const copyToClipboard = str => {
   }
 };
 
-const mapStateToProps = ({ chat }) => ({
+const mapStateToProps = ({ chat, user }) => ({
     isOpener: chat.isOpener,
-    roomId: chat.roomId
+    roomId: chat.roomId,
+    user : user.currentUser
 })
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      getCurrentUser,
+    },
+    dispatch
+  )
 
 export default connect(
     mapStateToProps,
-    null
+    mapDispatchToProps
 )(Session)

@@ -130,7 +130,7 @@ class Chat extends Component {
 
     return(
         <div className="chatContainer">
-            <ChatInfo name={name}/>
+            {/* <ChatInfo name={name}/> */}
             <ChatHistory chatHistory={this.state.chatHistory}/>
             <div className="chatInput">
                 <Button size="small" color="primary" className={classes.button + " chatSubmitButton"}>
