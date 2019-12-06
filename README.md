@@ -36,7 +36,39 @@ cd cradle-vsa.github.io/
 
 ### Database (MySQL)
 
-_Under construction._
+Install [MySQL](https://www.mysql.com/).
+
+Configure access to the root account on MySQL so that you can login with the following command:
+```
+mysql -u root -p YOUR_PASSWORD_HERE
+```
+
+For reference, see this [sample guide from DigitalOcean for Debian-based systems](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-18-04).
+
+Once in the prompt, create a new database named `cradle` (case-sensitive):
+```
+mysql> CREATE DATABASE cradle;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> exit
+Bye
+```
+
+In the `server/` directory, create a file named `.env` containing your local MySQL root username and password in the following format:
+```
+DB_USERNAME=MY_MYSQL_DB_USERNAME
+DB_PASSWORD=MY_MYSQL_DB_PASSWORD
+```
+
+For example:
+```
+DB_USERNAME=root
+DB_PASSWORD=123456
+```
+
+This file will be automatically ignored by Git. Do not manually commit it to the repository.
+
+When the back-end web server is started, it will connect to the database using the credentials in this file.
 
 ### Back-End Web Server
 
@@ -53,10 +85,6 @@ sudo apt-get install python3 python3-pip
 ```
 
 Install the PIP dependencies:
-```shell
-pip3 install PACKAGES
-```
-
 ```shell
 pip3 install -r requirements.txt
 ```
