@@ -1,5 +1,7 @@
 # <img src="readme-img/logo.png" width=40> Cradle VSA System: React Front-End and Python (Flask) Back-End
 
+![License](https://img.shields.io/github/license/Cradle-VSA/cradle-vsa.github.io)
+
 React front-end web application and Python back-end web server for the Cradle VSA System.
 
 View the React web application here: https://cradle-vsa.github.io/client/build
