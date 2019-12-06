@@ -1,6 +1,6 @@
 {
   "private": true,
-  "homepage": "https://cradle-vsa.github.io",
+  "homepage": "https://cradle-vsa.github.io/client/build",
   "scripts": {
     "deploy": "now && now alias",
     "start": "react-scripts start",
