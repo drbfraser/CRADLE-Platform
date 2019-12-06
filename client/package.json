@@ -1,6 +1,6 @@
 {
   "private": true,
-  "homepage": "https://create-react-app-redux.now.sh",
+  "homepage": "https://cradle-vsa.github.io",
   "scripts": {
     "deploy": "now && now alias",
     "start": "react-scripts start",
