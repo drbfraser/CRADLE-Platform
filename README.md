@@ -8,6 +8,8 @@ View the React web application here: https://cradle-vsa.github.io/client/build
 
 The back-end is in the directory `server/` and the front-end is in the directory `client/`.
 
+![Screenshot](readme-img/screenshot.png)
+
 ## Software Stack (Front-End)
 
 | Purpose | Technology |
