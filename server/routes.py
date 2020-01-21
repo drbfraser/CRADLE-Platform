@@ -13,7 +13,7 @@ from Controller.FollowUpController import FollowUp, FollowUpMobile, FollowUpMobi
 from Controller.StatsController import *
 from Controller.PatientStatsController import *
 from Controller.SMSController import *
-from Controller.AccountController import *  
+from Controller.PasswordResetController import *
 
 
 
@@ -46,8 +46,8 @@ def init(api):
     api.add_resource(FollowUpMobile, '/api/mobile/follow_up', '/api/mobile/follow_up/<int:id>') # [GET]
     api.add_resource(FollowUpMobileSummarized, '/api/mobile/summarized/follow_up', '/api/mobile/summarized/follow_up/<int:id>') # [GET]
 
-    api.add_resource(PasswordResetTokenAPI, '/api/password_reset') # [GET, POST]
-    api.add_resource()
+    api.add_resource(ForgotPassword, '/api/forgot') # [POST]
+    # api.add_resource(PasswordReset, '/api/auth/reset')
 
 
     api.add_resource(SMS, '/api/sms')
