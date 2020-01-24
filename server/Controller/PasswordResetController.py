@@ -34,9 +34,11 @@ class ForgotPassword(Resource):
         return raw_req_body
 
     # generate temporary password reset token
+    # TODO: support reset password with security questions (for those with no email)?
+    # TODO: 2FA?
     def post(self):
-        logging.debug("Receive requestion: POST /forgot")
-        url = request.host_url + 'reset/'
+        logging.debug("Receive request: POST /forgot")
+        url = request.host_url + 'api/reset/'
         try:
             # get email sent from client
             body = self._get_request_body()
@@ -48,7 +50,7 @@ class ForgotPassword(Resource):
             if user is None:
                 abort(400, message=f'No user with email "{email}" exists.')
 
-            expires = datetime.timedelta(hours=24)
+            expires = datetime.timedelta(hours=1)
             print(f'user with email "{email}" has requested for a password reset.')
             logging.debug(f'user with email "{email}" has requested for a password reset.')
 
@@ -57,8 +59,8 @@ class ForgotPassword(Resource):
 
             # send email
             header = 'To:' + EMAIL_ADDRESS + '\n' + 'From: ' + EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
-            content = f'Dear User,\n\nTo reset your password follow this link:\n\n {url + reset_token} \n\n'\
-                      f'If this was not requested by you, please ignore this message. \n\n\n ' f'Cradle Support'
+            content = f'Dear User,\n\nTo reset your password follow this link:\n\n{url + reset_token} \n(expires in 1 hour)\n\n'\
+                      f'If this was not requested by you, please ignore this message.\n\n\nCradle Support'
             msg = header + content
             smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
             smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
@@ -66,7 +68,7 @@ class ForgotPassword(Resource):
             smtp.close()
 
             logging.debug('Sent link to reset email')
-            return reset_token, 200
+            return url + reset_token, 200
 
         except Exception as e:
             print(f"Error occurred: {e.with_traceback()}")
@@ -76,46 +78,43 @@ class ForgotPassword(Resource):
 
 # verify is generated token is valid
 class ResetPassword(Resource):
-    def post(self):
-        url = request.host_url + 'reset/'
-        try:
+    # def get(self):
+    #     logging.debug('Receive Request: GET /reset')
+    #     return 200
 
+    def put(self):
+        logging.debug('Receive Request: POST /reset')
+        url = request.host_url
+        print(f'======= + {url}')
+        try:
             # retrieve token and newly entered password
             body = request.get_json()
             reset_token = body.get('reset_token')
-            password = body.get('password')
+            password = body.get('new_password')
 
-            if not reset_token or not password:
+            # error handling handled by form
+            if not reset_token:
                 # TODO: proper exception handling
-                logging.debug('Token and password invalid')
+                logging.debug('Token invalid')
                 abort(404, message="Invalid token")
 
             # decode token
             user_email = decode_token(reset_token)['identity']
 
-            # TODO: query user with id
-            user_id = UserManager.search()
+            # TODO: query user with email
+            curr_user = userManager.read({'email': user_email})
+
+            # TODO: hash pw
+            hash_password = flask_bcrypt.generate_password_hash(password)
 
             # update password
             # TODO: update user password field
-            userManager.update()
+            userManager.update("password", hash_password, curr_user)
 
-            # respond with password change success
-            contents = [
-                "Dear {}, \n\t your password has been reset. If this was you, "
-            ]
-            yagmail.SMTP('mmarty98@hotmail.com').send('kawaisim@hotmail.com', 'successfully reset', contents)
-            flash('Your email has been changed.', 'info')
+            # TODO: respond with password change success
+            return 200
 
         except Exception as e:
-            logging.debug('An error occured' + e)
-
-        # except SchemaValidationError:
-        #     raise SchemaValidationError
-        # except ExpiredSignatureError:
-        #     raise ExpiredTokenError
-        # except (DecodeError, InvalidTokenError):
-        #     raise BadTokenError
-        logging.debug('An error occurred' + e)
-        # TODO: proper exception handling
-        return None
+            # TODO: proper exception handling
+            print(f"Error occurred: {e.with_traceback()}")
+            return None
