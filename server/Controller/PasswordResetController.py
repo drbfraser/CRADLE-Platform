@@ -4,7 +4,7 @@ import yagmail
 import os
 import smtplib
 from email.message import EmailMessage
-
+from environs import Env
 from flask import request, jsonify
 from flask_restful import Resource, abort
 from flask import Flask, flash, render_template, request, redirect, jsonify, url_for, session
@@ -18,8 +18,11 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 userManager = UserManager()
 
-EMAIL_ADDRESS = os.environ.get('EMAIL_USER')
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+env = Env()
+env.read_env()
+
+EMAIL_ADDRESS = env("EMAIL_USER")
+EMAIL_PASSWORD = env("EMAIL_PASSWORD")
 
 
 # /auth/password_reset
@@ -58,23 +61,24 @@ class ForgotPassword(Resource):
             msg['Subject'] = 'Password Reset Requested'
             msg['From'] = EMAIL_ADDRESS
             msg['To'] = EMAIL_ADDRESS
-            msg.set_content(f'Dear User,\n\tTo reset your password follow this link: {reset_token} ' \
-                   f'If this was not requested by you, please ignore this message. ' \
-                   f'\n ' \
-                   f'Cradle Support')
+            msg.set_content(f'Dear User,\n\tTo reset your password follow this link: {url + reset_token} If this was not requested by you, please ignore this message. \n ' f'Cradle Support')
 
-            return url+reset_token, 200
-            with smtplib.SMTP_SSL('smtp.gmail.com', 456) as smtp:
-                smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-                smtp.sendmail(msg)
+            smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            # print(f'{EMAIL_ADDRESS} + {EMAIL_PASSWORD}')
+            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            smtp.sendmail(msg, None, None)  # ?????
+            smtp.quit()
 
             logging.debug('Sent link to reset email')
-            flash('If the email exists, you will be sent a link to reset your password', 'info')
+            # flash('If the email exists, you will be sent a link to reset your password', 'info')
+            return reset_token, 200
 
         except Exception as e:
             # logging.debug('An error occurred' + e)
+            print(f"Error occurred: {e.with_traceback()}")
             # TODO: proper exception handling
             return None
+
 
 # verify is generated token is valid
 class ResetPassword(Resource):
@@ -88,7 +92,6 @@ class ResetPassword(Resource):
             password = body.get('password')
 
             if not reset_token or not password:
-
                 # TODO: proper exception handling
                 logging.debug('Token and password invalid')
                 abort(404, message="Invalid token")
@@ -112,7 +115,6 @@ class ResetPassword(Resource):
 
         except Exception as e:
             logging.debug('An error occured' + e)
-
 
         # except SchemaValidationError:
         #     raise SchemaValidationError
