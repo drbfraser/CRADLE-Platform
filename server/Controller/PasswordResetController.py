@@ -34,7 +34,6 @@ class ForgotPassword(Resource):
         return raw_req_body
 
     # generate temporary password reset token
-    # todo: extract 'SECRET_KEY' and use better secret key?
     def post(self):
         logging.debug("Receive requestion: POST /forgot")
         url = request.host_url + 'reset/'
@@ -43,7 +42,7 @@ class ForgotPassword(Resource):
             body = self._get_request_body()
             email = body.get('email')
 
-            # TODO: query for user in database
+            # query for user in database
             user = userManager.read("email", email)
 
             if user is None:
@@ -56,23 +55,20 @@ class ForgotPassword(Resource):
             # create reset token
             reset_token = create_access_token(str(email), expires_delta=expires)
 
-            # todo: send email
-            subject = 'Password Reset Requested'
-            header = 'To:' + EMAIL_ADDRESS + '\n' + 'From: ' + EMAIL_ADDRESS + '\n' + 'Password Reset Requested \n'
-            content = f'Dear User,\n\tTo reset your password follow this link: {url + reset_token} '\
-                      f'If this was not requested by you, please ignore this message. \n ' f'Cradle Support'
+            # send email
+            header = 'To:' + EMAIL_ADDRESS + '\n' + 'From: ' + EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
+            content = f'Dear User,\n\nTo reset your password follow this link:\n\n {url + reset_token} \n\n'\
+                      f'If this was not requested by you, please ignore this message. \n\n\n ' f'Cradle Support'
             msg = header + content
             smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
             smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            smtp.sendmail(EMAIL_ADDRESS, EMAIL_ADDRESS, msg)  # ?????
+            smtp.sendmail(EMAIL_ADDRESS, EMAIL_ADDRESS, msg)
             smtp.close()
 
             logging.debug('Sent link to reset email')
-            # flash('If the email exists, you will be sent a link to reset your password', 'info')
             return reset_token, 200
 
         except Exception as e:
-            # logging.debug('An error occurred' + e)
             print(f"Error occurred: {e.with_traceback()}")
             # TODO: proper exception handling
             return None
