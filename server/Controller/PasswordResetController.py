@@ -57,17 +57,15 @@ class ForgotPassword(Resource):
             reset_token = create_access_token(str(email), expires_delta=expires)
 
             # todo: send email
-            msg = EmailMessage()
-            msg['Subject'] = 'Password Reset Requested'
-            msg['From'] = EMAIL_ADDRESS
-            msg['To'] = EMAIL_ADDRESS
-            msg.set_content(f'Dear User,\n\tTo reset your password follow this link: {url + reset_token} If this was not requested by you, please ignore this message. \n ' f'Cradle Support')
-
+            subject = 'Password Reset Requested'
+            header = 'To:' + EMAIL_ADDRESS + '\n' + 'From: ' + EMAIL_ADDRESS + '\n' + 'Password Reset Requested \n'
+            content = f'Dear User,\n\tTo reset your password follow this link: {url + reset_token} '\
+                      f'If this was not requested by you, please ignore this message. \n ' f'Cradle Support'
+            msg = header + content
             smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            # print(f'{EMAIL_ADDRESS} + {EMAIL_PASSWORD}')
             smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            smtp.sendmail(msg, None, None)  # ?????
-            smtp.quit()
+            smtp.sendmail(EMAIL_ADDRESS, EMAIL_ADDRESS, msg)  # ?????
+            smtp.close()
 
             logging.debug('Sent link to reset email')
             # flash('If the email exists, you will be sent a link to reset your password', 'info')
