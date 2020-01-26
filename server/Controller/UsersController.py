@@ -118,6 +118,14 @@ class UserAuthApi(Resource):
         else:
             return {'message': 'Bad request parameters: {}'.format(data['message'])}, 400
 
+# user/auth/refresh
+class UserAuthTokenRefreshApi(Resource):
+    @jwt_refresh_token_required
+    def post(self):
+        current_user = get_jwt_identity()
+        new_token = create_access_token(identity=current_user, fresh=False)
+        return {'token': new_token}, 200
+
 # Get identity of current user with jwt token
 class UserTokenApi(Resource):
     @jwt_required
