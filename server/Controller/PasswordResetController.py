@@ -82,11 +82,17 @@ class ResetPassword(Resource):
     #     logging.debug('Receive Request: GET /reset')
     #     return 200
 
-    def put(self):
-        logging.debug('Receive Request: POST /reset')
+    def put(self, reset_token):
+        # logging.debug('Receive Request: POST /reset')
+
         url = request.host_url
         print(f'======= + {url}')
         try:
+            user_email = decode_token(reset_token)['identity']
+
+            if reset_token is None or user_email is not:
+                abort(400, message="reset_token not valid")
+
             # retrieve token and newly entered password
             body = request.get_json()
             reset_token = body.get('reset_token')
@@ -99,7 +105,6 @@ class ResetPassword(Resource):
                 abort(404, message="Invalid token")
 
             # decode token
-            user_email = decode_token(reset_token)['identity']
 
             # TODO: query user with email
             curr_user = userManager.read({'email': user_email})

@@ -154,7 +154,12 @@ class UserEdit(Resource):
             # add user to role
             roleManager.add_user_to_role(id, new_user['newRoleIds'])
             new_user.pop('newRoleIds', None)
-        
+
+        # update user password
+        new_passwords = new_user.get('new_password')
+        if new_passwords is not None:
+            userManager.update(id, new_user['new_password'])
+
         update_res = userManager.update("id", id, new_user)
 
         if not update_res:
