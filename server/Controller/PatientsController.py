@@ -60,11 +60,16 @@ class PatientAll(Resource):
     # Create a new patient
     def post(self):
         logging.debug('Received request: POST /patient')
+        try: 
+            patient_data = self._get_request_body()
+        except:
+            return {'HTTP 400': 'The json body could not be deocded. Try enclosing appropriate fields with quotations, or ensuring that values are comma seperated'}, 400
         patient_data = self._get_request_body()
+
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
         abort_if_patient_exists(patient_data['patientId'])
-        invalid = PatientValidation.create_body_invalid(patient_data)
+        invalid = PatientValidation.check_required_fields(patient_data)
         if invalid is not None:
             return invalid
 
@@ -122,18 +127,25 @@ class PatientReading(Resource):
     # Create a new patient with a reading
     def post(self):
         logging.debug('Received request: POST /patient/referral')
+        try:
+            patient_reading_data = self._get_request_body()
+        except: 
+            return {'HTTP 400': 'The json body could not be deocded. Try enclosing appropriate fields with quotations'}, 400
         patient_reading_data = self._get_request_body()
         # Ensure all data is valid
         abort_if_body_empty(patient_reading_data)
-        is_invalid_patient = PatientValidation.check_required_fields(patient_reading_data['patient'], 'patient')
+        is_invalid_patient = PatientValidation.check_required_fields(patient_reading_data['patient'])
         #is_invalid = PatientValidation.create_body_invalid(patient_reading_data['patient'])
-        is_invalid_reading = PatientValidation.check_required_fields(patient_reading_data['reading'], 'reading')
+
+        # todo: validate with new reading validator
+        #is_invalid_reading = PatientValidation.check_required_fields(patient_reading_data['reading'], 'reading')
 
         if is_invalid_patient is not None:
             return is_invalid_patient
 
-        if is_invalid_reading is not None:
-            return is_invalid_reading
+        # validate with new reading validator
+        # if is_invalid_reading is not None:
+        #     return is_invalid_reading
 
         # create new reading (and patient if it does not already exist)
         reading_and_patient = readingManager.create_reading_and_patient(
