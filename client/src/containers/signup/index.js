@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { userPostFetch } from '../../actions/users'
+import { registerUser } from '../../actions/users'
 import { getCurrentUser } from '../../actions/users'
-import { getHealthFacilityList } from '../../actions/healthFacilities'
+import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
 import { Button,
   Divider, Form, Select,
   Message
@@ -36,22 +36,9 @@ class Signup extends Component {
   handleSubmit = event => {
     event.preventDefault()
     console.log('submitted!')
-    this.props.userPostFetch(this.state.user).then( () => {
-      // reset fields
-      if (this.props.registerStatus.error === false) {
-          this.setState({
-            user: {
-              email: "",
-              password: "",
-              firstName: "",
-              role: "VHT" // default value
-          }
-        })
-      }
-    })
+    this.props.registerUser(this.state.user)
+    // TODO: think of better way to reset fields than using timer
   }
-
-  
 
   componentDidMount = () => {
     this.props.getCurrentUser()
@@ -162,15 +149,22 @@ const mapStateToProps = ({ user, healthFacilities }) => ({
   healthFacilityList: healthFacilities.healthFacilitiesList
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
+const mapDispatchToProps = dispatch => ({
+  getHealthFacilityList: () => {
+    dispatch(getHealthFacilityListRequested())
+    dispatch(getHealthFacilityList())
+  },
+  registerUser: user => {
+    dispatch(registerUser(user))
+  },
+  ...bindActionCreators(
     {
-      userPostFetch,
       getCurrentUser,
-      getHealthFacilityList
     },
     dispatch
   )
+})
+  
 
 export default connect(
   mapStateToProps,

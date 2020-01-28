@@ -15,9 +15,9 @@ import {
 } from 'semantic-ui-react'
 
 import { getPrettyDate, getMomentDate } from '../../utils';
-import { updatePatient, getPatients } from '../../actions/patients';
+import { updatePatient, getPatients, getPatientsRequested } from '../../actions/patients';
 import { getReferrals } from '../../actions/referrals';
-import { getSelectedPatientStats } from '../../actions/statistics';
+import { getSelectedPatientStats, getSelectedPatientStatsRequested } from '../../actions/statistics';
 
 import { Bar, Line } from 'react-chartjs-2';
 import { ReactComponent as GreenTraffic } from './drawable/green.svg';
@@ -142,6 +142,7 @@ class PatientSummary extends Component {
 
   handleBackBtn = () => {
     // go back to patient table
+    this.props.getPatients()
     this.props.callbackFromParent(false)
   }
 
@@ -833,15 +834,19 @@ const mapStateToProps = ({
       
 const mapDispatchToProps = dispatch => ({
   getPatients: () => {
+    dispatch(getPatientsRequested())
     dispatch(getPatients())
   },
   updatePatient: (patientId, data) => {
     dispatch(updatePatient(patientId, data))
   },
+  getSelectedPatientStats: petientId => {
+    dispatch(getSelectedPatientStatsRequested())
+    dispatch(getSelectedPatientStats(petientId))
+  },
   ...bindActionCreators(
     {
       getReferrals,
-      getSelectedPatientStats,
       getCurrentUser,
       newReadingPost
     },

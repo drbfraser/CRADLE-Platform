@@ -33,12 +33,12 @@ export const updatePatient = (patientId, data) => {
     )
 }
 
-export const updatePatientOnSuccess = (response) => ({
+const updatePatientOnSuccess = response => ({
     type: UPDATE_PATIENT,
     payload: response
 })
 
-export const updatePatientOnError = (error) => ({
+const updatePatientOnError = error => ({
     type: UPDATE_PATIENT_ERR,
     payload: error
 })
@@ -47,12 +47,12 @@ export const getPatientsRequested = () => ({
     type: GET_PATIENTS_REQUESTED
 })
 
-export const getPatientsOnSuccess = (response) => ({
+const getPatientsOnSuccess = response => ({
     type: GET_PATIENTS,
     payload: response
 })
 
-export const getPatientsOnError = (error) => ({
+const getPatientsOnError = error => ({
     type: GET_PATIENTS_ERR,
     payload: error
 })

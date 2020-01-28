@@ -7,7 +7,7 @@ import { getUsers } from '../../actions/users'
 import { updateUser } from '../../actions/users'
 import { deleteUser } from '../../actions/users'
 import { getVhtList } from '../../actions/users'
-import { getHealthFacilityList } from '../../actions/healthFacilities'
+import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
 import { Button,
   Header, Icon, Modal,
   Form, Select,
@@ -300,18 +300,23 @@ const mapStateToProps = ({ user, healthFacilities }) => ({
   healthFacilityList: healthFacilities.healthFacilitiesList
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
+const mapDispatchToProps = dispatch => ({
+  getHealthFacilityList: () => {
+    dispatch(getHealthFacilityListRequested())
+    dispatch(getHealthFacilityList())
+  },
+  ...bindActionCreators(
     {
       getCurrentUser,
       getUsers,
       updateUser,
       deleteUser,
-      getHealthFacilityList,
       getVhtList
     },
     dispatch
   )
+})
+  
 
 export default connect(
   mapStateToProps,

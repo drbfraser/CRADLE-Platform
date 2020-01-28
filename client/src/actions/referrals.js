@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 import BASE_URL from '../serverUrl'
-import { getPatients } from './patients';
 import { requestActionCreator } from './api';
 import { Method, Endpoint } from '../api/constants';
 
@@ -32,12 +31,12 @@ export const getReferral = (referralId) => {
         getReferralOnError
     )
 }
-export const getReferralOnSuccess = response => ({
+const getReferralOnSuccess = response => ({
     type: GET_REFERRAL,
     payload: response
 })
 
-export const getReferralOnError = error => ({
+const getReferralOnError = error => ({
     type: GET_REFERRAL_ERR,
     payload: error
 })
@@ -100,12 +99,12 @@ export const createFollowUp = (data) => {
     )
 }
 
-export const updateFollowUpOnSuccess = response => ({
+const updateFollowUpOnSuccess = response => ({
     type: UPDATE_FOLLOW_UP,
     payload: response
 })
 
-export const updateFollowUpOnError = error => ({
+const updateFollowUpOnError = error => ({
     type: UPDATE_FOLLOW_UP_ERR,
     payload: error
 })

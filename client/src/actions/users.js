@@ -2,6 +2,8 @@ import { push } from 'connected-react-router'
 import axios from 'axios';
 
 import BASE_URL from '../serverUrl'
+import { requestActionCreator } from './api';
+import { Endpoint, Method } from '../api/constants';
 
 export const GET_USERS_SUCCESS = 'users/GET_USERS_SUCCESS'
 export const GET_USERS_REQ  = 'users/GET_USERS_REQ'
@@ -19,7 +21,15 @@ export const DELETE_USERS_SUCCESS = 'users/DELETE_USERS_SUCCESS'
 export const DELETE_USERS_REQ  = 'users/DELETE_USERS_REQ'
 export const DELETE_USERS_ERR = 'users/DELETE_USERS_ERR'
 
-export const userPostFetch = user => {
+export const registerUser = user => {
+  return requestActionCreator(
+    Endpoint.USER + Endpoint.REGISTER,
+    Method.POST,
+    user,
+    registerSuccess,
+    registerError
+  )
+
   return dispatch => {
     return fetch(BASE_URL + "/user/register", {
       method: "POST",

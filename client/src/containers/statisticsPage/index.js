@@ -267,14 +267,18 @@ const mapStateToProps = ({ user, statistics }) => ({
     statisticsList: statistics.statisticsList
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
+const mapDispatchToProps = dispatch => ({
+  getStatistics: () => {
+    dispatch(getStatistics())
+  },
+  ...bindActionCreators(
     {
-      getCurrentUser,
-      getStatistics,
+      getCurrentUser
     },
     dispatch
   )
+})
+  
 
 export default connect(
   mapStateToProps,

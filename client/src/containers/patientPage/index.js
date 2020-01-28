@@ -74,15 +74,6 @@ const mapDispatchToProps = dispatch => ({
   )
 }) 
 
-// const mapDispatchToProps = dispatch =>
-//   bindActionCreators(
-//     {
-//       getPatients,
-//       getCurrentUser,
-//     },  
-//     dispatch
-//   )
-
 export default connect(
   mapStateToProps,
   mapDispatchToProps

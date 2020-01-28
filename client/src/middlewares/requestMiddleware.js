@@ -29,7 +29,7 @@ export default function requestMiddleware() {
         },
         data: data
       }).then((res) => {
-          console.log("get patients res: ", res);
+          console.log("response: ", res);
           dispatch(onSuccess(res))
       }).catch(err => {
           console.log(err);
