@@ -48,7 +48,7 @@ class ForgotPassword(Resource):
             logging.debug(f'user with email "{email}" has requested for a password reset.')
 
             # create reset token
-            reset_token = create_access_token(str(email + str(datetime.datetime.now())), expires_delta=expires)
+            reset_token = create_access_token(str(email + user['password']), expires_delta=expires)
 
             # send email
             header = 'To:' + EMAIL_ADDRESS + '\n' + 'From: ' + EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
