@@ -4,8 +4,7 @@ from Manager import patientManager
 from Manager import patientManager
 
 """
-    Description: validates request for creating a new patient, will also be using this to help validate new patient
-    with a reading
+    Description: validates request for creating a new patient, will also be using this to help validate new patient with a reading
 
     Request looks like: 
         request_body = {
