@@ -1,20 +1,13 @@
 import logging, json
 import datetime
-import yagmail
-import os
 import smtplib
-from email.message import EmailMessage
 from environs import Env
-from flask import request, jsonify
 from flask_restful import Resource, abort
 from flask import Flask, flash, render_template, request, redirect, jsonify, url_for, session
-from models import validate_user, User, UserSchema, Role
 from config import db, flask_bcrypt
-from datetime import timedelta
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, jwt_refresh_token_required, get_jwt_identity, decode_token)
 from Manager.UserManager import UserManager
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 userManager = UserManager()
 
@@ -55,7 +48,7 @@ class ForgotPassword(Resource):
             logging.debug(f'user with email "{email}" has requested for a password reset.')
 
             # create reset token
-            reset_token = create_access_token(str(email), expires_delta=expires)
+            reset_token = create_access_token(str(email + str(datetime.datetime.now())), expires_delta=expires)
 
             # send email
             header = 'To:' + EMAIL_ADDRESS + '\n' + 'From: ' + EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
@@ -90,7 +83,7 @@ class ResetPassword(Resource):
         try:
             user_email = decode_token(reset_token)['identity']
 
-            if reset_token is None or user_email is not:
+            if reset_token is None or user_email is None:
                 abort(400, message="reset_token not valid")
 
             # retrieve token and newly entered password
