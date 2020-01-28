@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients } from '../../actions/patients'
+import { getPatients, getPatientsRequested } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
 import PatientTable from './patientTable'
 import PatientSummary from './patientSummary'
-
 
 class PatientPage extends Component {
   state = {
@@ -62,14 +61,27 @@ const mapStateToProps = ({ patients, user }) => ({
   user : user.currentUser
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
+const mapDispatchToProps = dispatch => ({
+  getPatients: () => {
+    dispatch(getPatientsRequested())
+    dispatch(getPatients())
+  },
+  ...bindActionCreators(
     {
-      getPatients,
       getCurrentUser,
     },
     dispatch
   )
+}) 
+
+// const mapDispatchToProps = dispatch =>
+//   bindActionCreators(
+//     {
+//       getPatients,
+//       getCurrentUser,
+//     },  
+//     dispatch
+//   )
 
 export default connect(
   mapStateToProps,

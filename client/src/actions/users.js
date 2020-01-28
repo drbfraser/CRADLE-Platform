@@ -41,6 +41,7 @@ export const userPostFetch = user => {
 
 export const userLoginFetch = user => {
   return dispatch => {
+    // TODO: create a server request action to remove redundant code
     return fetch(BASE_URL + "/user/auth", {
       method: "POST",
       headers: {
@@ -57,6 +58,7 @@ export const userLoginFetch = user => {
           dispatch(invalidUser(data.message))
         } else {
           localStorage.setItem("token", data.token);
+          localStorage.setItem("refresh", data.refresh);
           dispatch(getCurrentUser()).then(() => {
             dispatch(push('/patients'))
           })

@@ -18,6 +18,7 @@ import { Button,
   } from 'semantic-ui-react'
 
 import { updateFollowUp, setReadingId, createFollowUp } from '../../actions/referrals';
+import { getPatients } from '../../actions/patients'
 
 class FollowUpModal extends Component {
     static propTypes = {
@@ -168,15 +169,18 @@ class FollowUpModal extends Component {
 
 const mapStateToProps = ({}) => ({})
   
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(
+const mapDispatchToProps = dispatch => ({
+    createFollowUp: data => {
+        dispatch(createFollowUp(data))
+    },
+    ...bindActionCreators(
         {
             updateFollowUp,
-            createFollowUp,
-            setReadingId
+            setReadingId,
         },
-            dispatch
+        dispatch
     )
+})
 
 export default connect(
     mapStateToProps,

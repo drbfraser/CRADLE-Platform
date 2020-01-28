@@ -2,6 +2,8 @@ import axios from 'axios';
 
 import BASE_URL from '../serverUrl'
 import { getPatients } from './patients';
+import { requestActionCreator } from './api';
+import { Method, Endpoint } from '../api/constants';
 
 export const GET_REFERRALS = 'referrals/GET_REFERRALS'
 export const GET_REFERRALS_REQUESTED = 'referral/GET_REFERRALS_REQUESTED'
@@ -22,26 +24,25 @@ export const UPDATE_FOLLOW_UP_ERR = 'referrals/UPDATE_FOLLOW_UP_ERR'
 export const SET_READING_ID = 'referrals/SET_READING_ID'
 
 export const getReferral = (referralId) => {
-    return dispatch => {
-      dispatch({
-        type: GET_REFERRAL_REQUESTED
-      })
+    return requestActionCreator(
+        Endpoint.REFERRAL + '/' + referralId,
+        Method.GET,
+        null,
+        getReferralOnSuccess,
+        getReferralOnError
+    )
+}
+export const getReferralOnSuccess = response => ({
+    type: GET_REFERRAL,
+    payload: response
+})
 
-      axios.get(BASE_URL + `/referral/${referralId}`).then((res) => {
-          console.log("get referral res: ", res);
-          dispatch({
-              type: GET_REFERRAL,
-              payload: res.data
-          })
-      }).catch(err => {
-          console.log(err);
-          dispatch({
-              type: GET_REFERRAL_ERR
-          })
-      })
-    }
-  }
+export const getReferralOnError = error => ({
+    type: GET_REFERRAL_ERR,
+    payload: error
+})
 
+// TODO: create endpoint /referral to get all referrals for user
 export const getReferrals = (referralIds) => {
     return dispatch => {
       dispatch({
@@ -80,62 +81,34 @@ export const getReferrals = (referralIds) => {
   }
 
 export const updateFollowUp = (followUpId, data) => {
-    return dispatch => {
-        dispatch({
-            type: UPDATE_FOLLOW_UP_REQUESTED
-        })
-        const token = localStorage.token;
-        return axios.put(BASE_URL + `/follow_up/${followUpId}`, data, {
-            'headers': {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          }).then((res) => {
-            dispatch({
-                type: UPDATE_FOLLOW_UP,
-                payload: res.data
-            })
-            console.log("UPDATE FOLLOW UP DATA", res.data)
-        })
-        // .then(() => dispatch(getReferrals(res.data.referral)))
-        .catch(err => {
-            console.log(err);
-            dispatch({
-                type: UPDATE_FOLLOW_UP_ERR
-            })
-        })
-    }
+    return requestActionCreator(
+        Endpoint.FOLLOW_UP + '/' + followUpId,
+        Method.PUT,
+        data,
+        updateFollowUpOnSuccess,
+        updateFollowUpOnError
+    )
 }
 
 export const createFollowUp = (data) => {
-    return dispatch => {
-        dispatch({
-            type: UPDATE_FOLLOW_UP_REQUESTED
-        })
-        const token = localStorage.token;
-        return axios.post(BASE_URL + `/follow_up`, data, {
-            'headers': {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        }).then((res) => {
-            dispatch({
-                type: UPDATE_FOLLOW_UP,
-                payload: res.data
-            })
-            console.log("CREATE FOLLOW UP DATA", res.data)
-        }).then(() => dispatch(getPatients()))
-        // .then(() => dispatch(getReferrals(res.data.referral)))
-        .catch(err => {
-            console.log(err);
-            dispatch({
-                type: UPDATE_FOLLOW_UP_ERR
-            })
-        })
-    }
+    return requestActionCreator(
+        Endpoint.FOLLOW_UP,
+        Method.POST,
+        data,
+        updateFollowUpOnSuccess,
+        updateFollowUpOnError
+    )
 }
+
+export const updateFollowUpOnSuccess = response => ({
+    type: UPDATE_FOLLOW_UP,
+    payload: response
+})
+
+export const updateFollowUpOnError = error => ({
+    type: UPDATE_FOLLOW_UP_ERR,
+    payload: error
+})
 
 export const setReadingId = (readingId) => {
     return dispatch => {

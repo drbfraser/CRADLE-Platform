@@ -85,14 +85,18 @@ const mapStateToProps = ({ patients, user }) => ({
   user : user.currentUser
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
+const mapDispatchToProps = dispatch => ({
+  getPatients: () => {
+    dispatch(getPatients())
+  },
+  ...bindActionCreators(
     {
-      getPatients,
       getCurrentUser,
     },
     dispatch
   )
+})
+  
 
 export default connect(
   mapStateToProps,
