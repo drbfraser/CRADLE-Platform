@@ -118,7 +118,7 @@ class UserAuthApi(Resource):
         else:
             return {'message': 'Bad request parameters: {}'.format(data['message'])}, 400
 
-# user/auth/refresh
+# user/auth/refresh_token
 class UserAuthTokenRefreshApi(Resource):
     @jwt_refresh_token_required
     def post(self):
