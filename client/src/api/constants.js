@@ -6,7 +6,8 @@ export const Endpoint = {
     HEALTH_FACILITY_LIST: '/health_facility_list',
     STATS: '/stats',
     USER: '/user',
-    REGISTER: '/register'
+    REGISTER: '/register',
+    AUTH: '/auth'
 }
 
 export const Method = {

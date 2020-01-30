@@ -21,6 +21,8 @@ export const DELETE_USERS_SUCCESS = 'users/DELETE_USERS_SUCCESS'
 export const DELETE_USERS_REQ  = 'users/DELETE_USERS_REQ'
 export const DELETE_USERS_ERR = 'users/DELETE_USERS_ERR'
 
+export const USER_LOGIN_SUCCESS = 'USER_LOGIN_SUCCESS'
+
 export const registerUser = user => {
   return requestActionCreator(
     Endpoint.USER + Endpoint.REGISTER,
@@ -29,52 +31,16 @@ export const registerUser = user => {
     registerSuccess,
     registerError
   )
-
-  return dispatch => {
-    return fetch(BASE_URL + "/user/register", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(user)
-    }).then(resp => resp.json())
-      .then(data => {
-        if (data.message) {
-          dispatch(registerError(data.message))
-        } else {
-          dispatch(registerSuccess())
-        }
-      }).then( setTimeout( () => { dispatch(getUsers())}, 2500))
-  }
 }
 
 export const userLoginFetch = user => {
-  return dispatch => {
-    // TODO: create a server request action to remove redundant code
-    return fetch(BASE_URL + "/user/auth", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(user)
-    })
-      .then(resp => resp.json())
-      .then(data => {
-        if (data.message) {
-          // Invalid post raise an error, i.e. password not filled
-          console.log(data.message)
-          dispatch(invalidUser(data.message))
-        } else {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("refresh", data.refresh);
-          dispatch(getCurrentUser()).then(() => {
-            dispatch(push('/patients'))
-          })
-        }
-      })
-  }
+  return requestActionCreator(
+    Endpoint.USER + Endpoint.AUTH,
+    Method.POST,
+    user,
+    userLoginOnSuccess,
+    invalidUser
+  )
 }
 
 export const getCurrentUser = () => {
@@ -228,4 +194,9 @@ const registerError = (message) => ({
 const invalidUser = (message) => ({
   type: 'INVALID_USER',
   payload: message
+})
+
+const userLoginOnSuccess = response => ({
+  type: USER_LOGIN_SUCCESS,
+  payload: response
 })

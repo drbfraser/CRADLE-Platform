@@ -7,7 +7,9 @@ import {
   GET_VHTS_SUCCESS,
   GET_VHTS_REQ,
   GET_VHTS_ERR,
+  USER_LOGIN_SUCCESS
 } from '../actions/users';
+import { getUserFromResponse } from "../utils";
 
 const initialStateUser = {
   currentUser: {}
@@ -19,6 +21,14 @@ const userReducer = (state = initialStateUser, action) => {
       return action.payload
     case 'LOGOUT_USER':
       return {}
+    case USER_LOGIN_SUCCESS:
+      localStorage.setItem("token", action.payload.data.token);
+      localStorage.setItem("refresh", action.payload.data.refresh);
+      return {
+        ...state,
+        ...getUserFromResponse(action.payload.data),
+        isLoggedIn: true
+      }
     default:
       return state
   }
