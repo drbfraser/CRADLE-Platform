@@ -75,8 +75,9 @@ class ResetPassword(Resource):
     #     logging.debug('Receive Request: GET /reset')
     #     return 200
 
+    @jwt_required
     def put(self, reset_token):
-        # logging.debug('Receive Request: POST /reset')
+        logging.debug('Receive Request: PUT /reset/<reset_token>')
 
         url = request.host_url
         print(f'======= + {url}')
