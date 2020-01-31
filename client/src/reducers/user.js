@@ -7,7 +7,8 @@ import {
   GET_VHTS_SUCCESS,
   GET_VHTS_REQ,
   GET_VHTS_ERR,
-  USER_LOGIN_SUCCESS
+  USER_LOGIN_SUCCESS,
+  UPDATE_USERS_SUCCESS
 } from '../actions/users';
 import { getUserFromResponse } from "../utils";
 
@@ -59,8 +60,9 @@ const allUsersReducer = (state = {}, action) => {
     case GET_USERS_SUCCESS:
       return {
         ...state,
-        usersList: action.payload,
-        isLoading: false
+        usersList: action.payload.data,
+        isLoading: false,
+        updateUserList: false
       }
     
     case GET_USERS_REQ:
@@ -72,7 +74,16 @@ const allUsersReducer = (state = {}, action) => {
     case GET_USERS_ERR:
       return {
           ...state,
-          isLoading: false
+          isLoading: false,
+          updateUserList: false
+      }
+    
+    // TODO: get users list if necessary
+    case UPDATE_USERS_SUCCESS:
+      return {
+        ...state,
+        updateUserList: true,
+        updateVhtList: true
       }
 
     default:
@@ -85,7 +96,7 @@ const allVhtsReducer = (state = {}, action) => {
     case GET_VHTS_SUCCESS:
       return {
         ...state,
-        vhtList: action.payload,
+        vhtList: action.payload.data,
         isLoading: false
       }
     

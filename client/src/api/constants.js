@@ -7,7 +7,10 @@ export const Endpoint = {
     STATS: '/stats',
     USER: '/user',
     REGISTER: '/register',
-    AUTH: '/auth'
+    AUTH: '/auth',
+    ALL: '/all',
+    VHTS: '/vhts',
+    EDIT: '/edit'
 }
 
 export const Method = {

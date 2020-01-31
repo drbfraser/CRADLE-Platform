@@ -2,11 +2,16 @@ import React, {Component} from 'react';
 import MaterialTable from 'material-table';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getCurrentUser } from '../../actions/users'
-import { getUsers } from '../../actions/users'
-import { updateUser } from '../../actions/users'
-import { deleteUser } from '../../actions/users'
-import { getVhtList } from '../../actions/users'
+import { 
+  getCurrentUser,
+  getUsers, 
+  getUsersRequested, 
+  getVhtList, 
+  getVhtsRequested, 
+  updateUser, 
+  deleteUser, 
+  updateUserRequested
+} from '../../actions/users'
 import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
 import { Button,
   Header, Icon, Modal,
@@ -130,6 +135,12 @@ class AdminPage extends Component {
         this.props.getVhtList()
       }
     })
+  }
+
+  static getDerivedStateFromProps = (props, state) => {
+    if (props.updateUserList) {
+      props.getUsers();
+    }
   }
 
   getRoles = (roleIds) => {
@@ -295,6 +306,7 @@ class AdminPage extends Component {
 const mapStateToProps = ({ user, healthFacilities }) => ({
   user : user.currentUser,
   isLoading: user.allUsers.isLoading,
+  updateUserList: user.allUsers.updateUserList,
   usersList : user.allUsers.usersList,
   vhtList : user.allVhts.vhtList,
   healthFacilityList: healthFacilities.healthFacilitiesList
@@ -305,13 +317,22 @@ const mapDispatchToProps = dispatch => ({
     dispatch(getHealthFacilityListRequested())
     dispatch(getHealthFacilityList())
   },
+  getUsers: () => {
+    dispatch(getUsersRequested())
+    dispatch(getUsers())
+  },
+  getVhtList: () => {
+    dispatch(getVhtsRequested())
+    dispatch(getVhtList())
+  },
+  updateUser: (userId, userData) => {
+    dispatch(updateUserRequested())
+    dispatch(updateUser(userId, userData))
+  },
   ...bindActionCreators(
     {
       getCurrentUser,
-      getUsers,
-      updateUser,
       deleteUser,
-      getVhtList
     },
     dispatch
   )

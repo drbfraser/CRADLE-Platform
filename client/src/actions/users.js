@@ -43,6 +43,7 @@ export const userLoginFetch = user => {
   )
 }
 
+// TODO: don't call this everywhere, call only when user logging in
 export const getCurrentUser = () => {
   return dispatch => {
     const token = localStorage.token;
@@ -71,47 +72,33 @@ export const getCurrentUser = () => {
 }
 
 export const getUsers = () => {
-  return dispatch => {
-    dispatch({
-      type: GET_USERS_REQ
-    })
-
-    axios.get(BASE_URL + "/user/all").then((res) => {
-        console.log("get users res: ", res);
-        dispatch({
-            type: GET_USERS_SUCCESS,
-            payload: res.data
-        })
-    }).catch(err => {
-        console.log(err);
-        dispatch({
-            type: GET_USERS_ERR
-        })
-    })
-  }
+  return requestActionCreator(
+    Endpoint.USER + Endpoint.ALL,
+    Method.GET,
+    null,
+    getUsersOnSuccess,
+    getUsersOnError
+  )
 }
 
 export const getVhtList = () => {
-  return dispatch => {
-      dispatch({
-          type: GET_VHTS_REQ
-      })
-
-      return axios.get(BASE_URL + "/user/vhts").then((res) => {
-          dispatch({
-              type: GET_VHTS_SUCCESS,
-              payload: res.data
-          })
-      }).catch(err => {
-          console.log(err);
-          dispatch({
-              type: GET_VHTS_ERR
-          })
-      })
-  }
+  return requestActionCreator(
+    Endpoint.USER + Endpoint.VHTS,
+    Method.GET,
+    null,
+    getVhtsOnSuccess,
+    getVhtsOnError
+  )
 }
 
 export const updateUser = (userId, data) => {
+  return requestActionCreator(
+    Endpoint.USER + Endpoint.EDIT + '/' + userId,
+    Method.PUT,
+    data,
+    updateUserOnSuccess,
+    updateUserOnError
+  )
   return dispatch => {
       dispatch({
           type: UPDATE_USERS_REQ
@@ -136,6 +123,20 @@ export const updateUser = (userId, data) => {
       })
   }
 }
+
+export const updateUserRequested = () =>( {
+  type: UPDATE_USERS_REQ
+})
+
+const updateUserOnSuccess = response => ({
+  type: UPDATE_USERS_SUCCESS,
+  payload: response
+})
+
+const updateUserOnError = error => ({
+  type: UPDATE_USERS_ERR,
+  payload: error
+})
 
 export const deleteUser = (userId) => {
   const token = localStorage.token;
@@ -199,4 +200,32 @@ const invalidUser = (message) => ({
 const userLoginOnSuccess = response => ({
   type: USER_LOGIN_SUCCESS,
   payload: response
+})
+
+const getUsersOnSuccess = response => ({
+  type: GET_USERS_SUCCESS,
+  payload: response
+})
+
+const getUsersOnError = error => ({
+  type: GET_USERS_ERR,
+  payload: error
+})
+
+export const getUsersRequested = () => ({
+  type: GET_USERS_REQ
+})
+
+const getVhtsOnSuccess = response => ({
+  type: GET_VHTS_SUCCESS,
+  payload: response
+})
+
+const getVhtsOnError = error => ({
+  type: GET_VHTS_ERR,
+  payload: error
+})
+
+export const getVhtsRequested = () => ({
+  type: GET_VHTS_REQ
 })
