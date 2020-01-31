@@ -8,15 +8,15 @@ from config import db, flask_bcrypt
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, jwt_refresh_token_required, get_jwt_identity, decode_token)
 from Manager.UserManager import UserManager
-
+from itsdangerous import URLSafeTimedSerializer
 userManager = UserManager()
 
 env = Env()
 env.read_env()
 
-EMAIL_ADDRESS = env("EMAIL_USER")
+SENDER_EMAIL_ADDRESS = env("EMAIL_USER")
 EMAIL_PASSWORD = env("EMAIL_PASSWORD")
-
+serializer = URLSafeTimedSerializer('change this secret key!')
 
 # /auth/password_reset
 class ForgotPassword(Resource):
@@ -35,29 +35,33 @@ class ForgotPassword(Resource):
         try:
             # get email sent from client
             body = self._get_request_body()
-            email = body.get('email')
+            user_email = body.get('email')
 
             # query for user in database
-            user = userManager.read("email", email)
+            user = userManager.read("email", user_email)
 
             if user is None:
-                abort(400, message=f'No user with email "{email}" exists.')
+                abort(400, message=f'No user with email "{user_email}" exists.')
 
-            expires = datetime.timedelta(hours=1)
-            print(f'user with email "{email}" has requested for a password reset.')
-            logging.debug(f'user with email "{email}" has requested for a password reset.')
+            print(f'user with email "{user_email}" has requested for a password reset.')
+            logging.debug(f'user with email "{user_email}" has requested for a password reset.')
 
             # create reset token
-            reset_token = create_access_token(str(email + user['password']), expires_delta=expires)
+            reset_token = serializer.dumps(user_email, salt='email-confirm') # salt needed since we are also using JWT for session
 
             # send email
-            header = 'To:' + EMAIL_ADDRESS + '\n' + 'From: ' + EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
+            header = 'To:' + SENDER_EMAIL_ADDRESS + '\n' + 'From: ' + SENDER_EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
             content = f'Dear User,\n\nTo reset your password follow this link:\n\n{url + reset_token} \n(expires in 1 hour)\n\n'\
                       f'If this was not requested by you, please ignore this message.\n\n\nCradle Support'
             msg = header + content
             smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            smtp.sendmail(EMAIL_ADDRESS, EMAIL_ADDRESS, msg)
+            smtp.login(SENDER_EMAIL_ADDRESS, EMAIL_PASSWORD)
+
+            #smtp.sendmail(SENDER_EMAIL_ADDRESS, user_email)
+
+            # Testing purpose
+            smtp.sendmail(SENDER_EMAIL_ADDRESS, 'kojorem568@hiwave.org', msg)
+
             smtp.close()
 
             logging.debug('Sent link to reset email')
@@ -75,15 +79,14 @@ class ResetPassword(Resource):
     #     logging.debug('Receive Request: GET /reset')
     #     return 200
 
-    @jwt_required
     def put(self, reset_token):
         logging.debug('Receive Request: PUT /reset/<reset_token>')
 
         url = request.host_url
         print(f'======= + {url}')
         try:
-            user_email = decode_token(reset_token)['identity']
-
+            user_email = serializer.loads(reset_token, salt='email-confirm', max_age=20)
+            return f'token works!!! {user_email}'
             if reset_token is None or user_email is None:
                 abort(400, message="reset_token not valid")
 
