@@ -119,7 +119,7 @@ export const logoutUser = () => {
   }
 }
 
-const logoutUserAction = () => ({
+export const logoutUserAction = () => ({
   type: 'LOGOUT_USER'
 })
 
