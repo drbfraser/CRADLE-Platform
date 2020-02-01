@@ -62,7 +62,7 @@ export default function requestMiddleware() {
 			dispatch(onSuccess(res))
 		}).catch(err => {
 			console.log("error: ", err);
-			dispatch(onError(err))
+			dispatch(onError(err.response.data.message))
 		})
     };
   }
