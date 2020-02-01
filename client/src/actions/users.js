@@ -43,7 +43,9 @@ export const userLoginFetch = user => {
   )
 }
 
-// TODO: don't call this everywhere, call only when user logging in
+// TODOs: don't call this everywhere, call only when user logging in
+// turn this into an action
+// store current user info in localStorage
 export const getCurrentUser = () => {
   return dispatch => {
     const token = localStorage.token;
