@@ -1,40 +1,49 @@
-import logging, json
-import datetime
+import json
+import logging
 import smtplib
+
 from environs import Env
+from flask import request
 from flask_restful import Resource, abort
-from flask import Flask, flash, render_template, request, redirect, jsonify, url_for, session
-from config import db, flask_bcrypt
-from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                jwt_required, jwt_refresh_token_required, get_jwt_identity, decode_token)
-from Manager.UserManager import UserManager
 from itsdangerous import URLSafeTimedSerializer
+
+from Manager.UserManager import UserManager
+from config import flask_bcrypt
+
 userManager = UserManager()
 
 env = Env()
 env.read_env()
 
 SENDER_EMAIL_ADDRESS = env("EMAIL_USER")
-EMAIL_PASSWORD = env("EMAIL_PASSWORD")
+SENDER_EMAIL_PASSWORD = env("EMAIL_PASSWORD")
 serializer = URLSafeTimedSerializer('change this secret key!')
+
+# TODO: 2FA?
+
+def _get_request_body():
+    raw_req_body = request.get_json(force=True)
+    print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
+    return raw_req_body
+
+def send_email(receivers, msg):
+    if receivers is None:
+        abort(400, message='receiver email is non-existent')
+    smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    smtp.login(SENDER_EMAIL_ADDRESS, SENDER_EMAIL_PASSWORD)
+    smtp.sendmail(SENDER_EMAIL_ADDRESS, 'kojorem568@hiwave.org', msg)
+    smtp.close()
 
 # /auth/password_reset
 class ForgotPassword(Resource):
-    @staticmethod
-    def _get_request_body():
-        raw_req_body = request.get_json(force=True)
-        print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
-        return raw_req_body
-
-    # generate temporary password reset token
-    # TODO: support reset password with security questions (for those with no email)?
-    # TODO: 2FA?
     def post(self):
         logging.debug("Receive request: POST /forgot")
         url = request.host_url + 'api/reset/'
+        logging.debug('Sent link to reset email')
+
         try:
             # get email sent from client
-            body = self._get_request_body()
+            body = _get_request_body()
             user_email = body.get('email')
 
             # query for user in database
@@ -50,21 +59,21 @@ class ForgotPassword(Resource):
             reset_token = serializer.dumps(user_email, salt='email-confirm') # salt needed since we are also using JWT for session
 
             # send email
-            header = 'To:' + SENDER_EMAIL_ADDRESS + '\n' + 'From: ' + SENDER_EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
+            header = 'To:' + user_email + '\n' + 'From: ' + SENDER_EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
             content = f'Dear User,\n\nTo reset your password follow this link:\n\n{url + reset_token} \n(expires in 1 hour)\n\n'\
                       f'If this was not requested by you, please ignore this message.\n\n\nCradle Support'
             msg = header + content
-            smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            smtp.login(SENDER_EMAIL_ADDRESS, EMAIL_PASSWORD)
+            send_email(user_email, msg)
+            # smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            # smtp.login(SENDER_EMAIL_ADDRESS, EMAIL_PASSWORD)
 
             #smtp.sendmail(SENDER_EMAIL_ADDRESS, user_email)
 
             # Testing purpose
-            smtp.sendmail(SENDER_EMAIL_ADDRESS, 'kojorem568@hiwave.org', msg)
+            # smtp.sendmail(SENDER_EMAIL_ADDRESS, 'kojorem568@hiwave.org', msg)
 
-            smtp.close()
+            # smtp.close()
 
-            logging.debug('Sent link to reset email')
             return url + reset_token, 200
 
         except Exception as e:
@@ -75,46 +84,39 @@ class ForgotPassword(Resource):
 
 # verify is generated token is valid
 class ResetPassword(Resource):
-    # def get(self):
-    #     logging.debug('Receive Request: GET /reset')
-    #     return 200
-
     def put(self, reset_token):
         logging.debug('Receive Request: PUT /reset/<reset_token>')
-
         url = request.host_url
-        print(f'======= + {url}')
         try:
-            user_email = serializer.loads(reset_token, salt='email-confirm', max_age=20)
-            return f'token works!!! {user_email}'
-            if reset_token is None or user_email is None:
+            user_email = serializer.loads(reset_token, salt='email-confirm', max_age=60)
+
+            if user_email is None:
                 abort(400, message="reset_token not valid")
 
             # retrieve token and newly entered password
-            body = request.get_json()
-            reset_token = body.get('reset_token')
+            body = _get_request_body()
             password = body.get('new_password')
 
-            # error handling handled by form
-            if not reset_token:
-                # TODO: proper exception handling
-                logging.debug('Token invalid')
-                abort(404, message="Invalid token")
+            # query user with email
+            curr_user = userManager.read('email', user_email)
 
-            # decode token
-
-            # TODO: query user with email
-            curr_user = userManager.read({'email': user_email})
-
-            # TODO: hash pw
+            # hash pw
             hash_password = flask_bcrypt.generate_password_hash(password)
 
             # update password
-            # TODO: update user password field
-            userManager.update("password", hash_password, curr_user)
+            # update user password field
+            print(f'{hash_password}')
+            curr_user['password'] = hash_password
+            userManager.update(curr_user["id"], hash_password)
+            # userManager.update('id', password)
+            update_res = userManager.update("id", str(curr_user["id"]), curr_user)
 
-            # TODO: respond with password change success
-            return 200
+            # respond with password change success
+            header = 'To:' + user_email + '\n' + 'From: ' + SENDER_EMAIL_ADDRESS + '\n' + 'Subject: Password Change \n'
+            content = f'Dear User,\n\nYour password have been succsesfully changed.\n\n\nCradle Support'
+            msg = header + content
+            send_email(user_email, msg)
+            return f'password changed for user with email address: {curr_user["email"]}', 200
 
         except Exception as e:
             # TODO: proper exception handling
