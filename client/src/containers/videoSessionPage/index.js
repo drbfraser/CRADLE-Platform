@@ -301,6 +301,5 @@ const mapStateToProps = ({ chat, user }) => ({
 })
 
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
 )(Session)
