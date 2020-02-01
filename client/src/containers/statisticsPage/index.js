@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { getCurrentUser } from '../../actions/users';
 import { getStatistics } from '../../actions/statistics';
 import { Bar, Line } from 'react-chartjs-2';
 import { Card, Statistic } from 'semantic-ui-react'
@@ -10,7 +11,14 @@ import './index.css'
 class StatisticsPage extends Component {
 
   componentDidMount = () => {
-    this.props.getStatistics()
+    this.props.getCurrentUser().then((err) => {
+      if (err !== undefined) {
+        // error from getCurrentUser(), don't get statistics
+        return
+      }
+      this.props.getStatistics()
+      
+    })
   }
 
   render() {
@@ -262,7 +270,13 @@ const mapStateToProps = ({ user, statistics }) => ({
 const mapDispatchToProps = dispatch => ({
   getStatistics: () => {
     dispatch(getStatistics())
-  }
+  },
+  ...bindActionCreators(
+    {
+      getCurrentUser
+    },
+    dispatch
+  )
 })
   
 

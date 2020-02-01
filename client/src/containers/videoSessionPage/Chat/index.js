@@ -4,6 +4,7 @@ import React, {
 import Input from '@material-ui/core/Input';
 import './chat.css'
 import ChatHistory from './chatHistory.js'
+import { getCurrentUser } from '../../../actions/users';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';

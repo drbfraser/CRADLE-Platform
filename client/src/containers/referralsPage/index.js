@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getPatients, getPatientsRequested } from '../../actions/patients'
+import { getCurrentUser } from '../../actions/users'
 import PatientTable from './referralTable'
 import PatientSummary from '../patientPage/patientSummary'
 
@@ -17,9 +18,16 @@ class ReferralPage extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.patients.patientsList.length === 0) {
-      this.props.getPatients()
-    }
+    this.props.getCurrentUser().then((err) => {
+      if (err !== undefined) {
+        // error from getCurrentUser(), don't get patients
+        return
+      }
+      
+      if (this.props.patients.patientsList.length === 0) {
+        this.props.getPatients()
+      }
+    })
   }
 
   filterReferrals = (patientsList) => {
@@ -81,7 +89,13 @@ const mapDispatchToProps = dispatch => ({
   getPatients: () => {
     dispatch(getPatientsRequested())
     dispatch(getPatients())
-  }
+  },
+  ...bindActionCreators(
+    {
+      getCurrentUser,
+    },
+    dispatch
+  )
 })
   
 

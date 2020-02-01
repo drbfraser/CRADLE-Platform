@@ -24,6 +24,7 @@ import { ReactComponent as GreenTraffic } from './drawable/green.svg';
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
 import { ReactComponent as RedTraffic } from './drawable/red.svg';
 import ReferralInfo from './referralInfo';
+import { getCurrentUser } from '../../actions/users';
 import { newReadingPost } from '../../actions/newReading';
 
 const sexOptions = [
@@ -848,7 +849,8 @@ const mapDispatchToProps = dispatch => ({
   },
   ...bindActionCreators(
     {
-      getReferrals
+      getReferrals,
+      getCurrentUser
     },
     dispatch
   )
