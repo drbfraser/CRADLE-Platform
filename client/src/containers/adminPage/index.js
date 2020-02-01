@@ -3,7 +3,6 @@ import MaterialTable from 'material-table';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { 
-  getCurrentUser,
   getUsers, 
   getUsersRequested, 
   getVhtList, 
@@ -122,26 +121,20 @@ class AdminPage extends Component {
   }
 
   componentDidMount = () => {
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get users
-        return
+    if (this.props.user.roles !== undefined && this.props.user.roles.includes('ADMIN')) {
+      if (!this.props.usersList || !this.props.healthFacilityList) {
+        this.props.getUsers()
+        this.props.getHealthFacilityList()
       }
-      
-      if (this.props.user.roles !== undefined && this.props.user.roles.includes('ADMIN')) {
-        if (!this.props.usersList || !this.props.healthFacilityList) {
-          this.props.getUsers()
-          this.props.getHealthFacilityList()
-        }
-        this.props.getVhtList()
-      }
-    })
+      this.props.getVhtList()
+    }
   }
 
   static getDerivedStateFromProps = (props, state) => {
     if (props.updateUserList) {
       props.getUsers();
     }
+    return null
   }
 
   getRoles = (roleIds) => {
@@ -333,15 +326,8 @@ const mapDispatchToProps = dispatch => ({
   deleteUser: userId => {
     dispatch(deleteUserRequested())
     dispatch(deleteUser(userId))
-  },
-  ...bindActionCreators(
-    {
-      getCurrentUser
-    },
-    dispatch
-  )
+  }
 })
-  
 
 export default connect(
   mapStateToProps,

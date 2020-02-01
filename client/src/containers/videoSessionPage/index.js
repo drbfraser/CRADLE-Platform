@@ -3,7 +3,6 @@ import { Button } from 'semantic-ui-react';
 import $ from "jquery";
 import swal from 'sweetalert';
 import Chat from './Chat';
-import { getCurrentUser } from '../../actions/users';
 
 import * as io from 'socket.io-client';
 import * as RTCMultiConnection from 'rtcmulticonnection'
@@ -83,14 +82,6 @@ class Session extends Component {
   componentDidMount() {
     console.log("in component did mount")
 
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get statistics
-        return
-      }
-      
-    })
-    
     this.config(true);
 
     let newState = {
@@ -308,14 +299,6 @@ const mapStateToProps = ({ chat, user }) => ({
     roomId: chat.roomId,
     user : user.currentUser
 })
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      getCurrentUser,
-    },
-    dispatch
-  )
 
 export default connect(
     mapStateToProps,

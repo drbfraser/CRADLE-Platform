@@ -43,34 +43,6 @@ export const userLoginFetch = user => {
   )
 }
 
-// TODO: don't call this everywhere, call only when user logging in
-export const getCurrentUser = () => {
-  return dispatch => {
-    const token = localStorage.token;
-      return axios.get(BASE_URL + "/user/current", {
-        'headers': {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      })
-        .then(res => {
-          if (res.msg) {
-            console.log(res)
-            // invalid token, remove current token
-            localStorage.removeItem("token")
-            dispatch(push('/login'))
-          } else {
-            console.log(res)
-            dispatch(loginUser(res.data))
-          }
-        }).catch((err) => { 
-          dispatch(push('/login'))
-          return {'message' : 'Not authorized'}
-        } )
-    }
-}
-
 export const getUsers = () => {
   return requestActionCreator(
     Endpoint.USER + Endpoint.ALL,
@@ -119,7 +91,7 @@ export const logoutUser = () => {
   }
 }
 
-const logoutUserAction = () => ({
+export const logoutUserAction = () => ({
   type: 'LOGOUT_USER'
 })
 

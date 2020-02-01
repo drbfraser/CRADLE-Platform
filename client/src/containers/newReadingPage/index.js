@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getCurrentUser } from '../../actions/users';
 import { newReadingPost, createReadingDefault } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
 import BpForm from './bpForm';
@@ -64,16 +63,6 @@ const initState = {
 
 class NewReadingPage extends Component {
   state = initState
-
-  componentDidMount = () => {
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get statistics
-        return
-      }
-      
-    })
-  }
 
   static getDerivedStateFromProps = (props, state) => {
     if (props.readingCreated) {
@@ -285,13 +274,7 @@ const mapDispatchToProps = dispatch => ({
   },
   createReadingDefault: () => {
     dispatch(createReadingDefault())
-  },
-  ...bindActionCreators(
-    {
-      getCurrentUser
-    },
-    dispatch
-  )
+  }
 })
 
 export default connect(

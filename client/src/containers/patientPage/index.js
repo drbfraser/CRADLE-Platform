@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getPatients, getPatientsRequested } from '../../actions/patients'
-import { getCurrentUser } from '../../actions/users'
 import PatientTable from './patientTable'
 import PatientSummary from './patientSummary'
 
@@ -16,16 +15,9 @@ class PatientPage extends Component {
   }
 
   componentDidMount = () => {
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get patients
-        return
-      }
-      
-      if (this.props.patients.patientsList.length === 0) {
-        this.props.getPatients()
-      }
-    })
+    if (this.props.patients.patientsList.length === 0) {
+      this.props.getPatients()
+    }
   }
 
   patientCallback = (selectedPatient) => {
@@ -65,13 +57,7 @@ const mapDispatchToProps = dispatch => ({
   getPatients: () => {
     dispatch(getPatientsRequested())
     dispatch(getPatients())
-  },
-  ...bindActionCreators(
-    {
-      getCurrentUser,
-    },
-    dispatch
-  )
+  }
 }) 
 
 export default connect(

@@ -12,7 +12,8 @@ export const Endpoint = {
     VHTS: '/vhts',
     EDIT: '/edit',
     DELETE: '/delete',
-    READING: '/reading'
+    READING: '/reading',
+    REFRESH: '/refresh_token'
 }
 
 export const Method = {

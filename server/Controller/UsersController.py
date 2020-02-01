@@ -16,6 +16,7 @@ roleManager = RoleManager()
 class UserAll(Resource):
     
     # get all users
+    @jwt_required
     def get(self):
         logging.debug('Received request: GET user/all')
 
@@ -28,6 +29,7 @@ class UserAll(Resource):
 class UserAllVHT(Resource):
     
     # get all VHT Ids 
+    @jwt_required
     def get(self):
         logging.debug('Received request: GET user/vhts')
 
@@ -41,6 +43,7 @@ class UserAllVHT(Resource):
 class UserApi(Resource):
 
     # Create a new user
+    @jwt_required
     def post(self):
         # register user endpoint
         data = validate_user(request.get_json())
@@ -143,6 +146,7 @@ class UserEdit(Resource):
         return raw_req_body
     
     # edit user with id
+    @jwt_required
     def put(self, id):
 
         # validate inputs

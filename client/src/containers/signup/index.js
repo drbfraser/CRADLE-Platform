@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { registerUser } from '../../actions/users'
-import { getCurrentUser } from '../../actions/users'
 import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
 import { Button,
   Divider, Form, Select,
@@ -41,7 +40,6 @@ class Signup extends Component {
   }
 
   componentDidMount = () => {
-    this.props.getCurrentUser()
     this.props.getHealthFacilityList()
   }
 
@@ -156,13 +154,7 @@ const mapDispatchToProps = dispatch => ({
   },
   registerUser: user => {
     dispatch(registerUser(user))
-  },
-  ...bindActionCreators(
-    {
-      getCurrentUser,
-    },
-    dispatch
-  )
+  }
 })
   
 

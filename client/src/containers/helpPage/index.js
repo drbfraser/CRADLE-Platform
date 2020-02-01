@@ -1,19 +1,9 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getCurrentUser } from '../../actions/users'
 
 
 class HelpPage extends Component {
-  componentDidMount = () => {
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser()
-        return
-      }
-    })
-  }
-
   render() {
     // don't render page if user is not logged in
     if (!this.props.user.isLoggedIn) {
@@ -32,14 +22,6 @@ class HelpPage extends Component {
 const mapStateToProps = ({ user }) => ({
   user : user.currentUser
 })
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      getCurrentUser,
-    },
-    dispatch
-  )
 
 export default connect(
   mapStateToProps,

@@ -8,7 +8,6 @@ import { connect } from 'react-redux'
 import { Button, Header, Form } from 'semantic-ui-react'
 
 import { createRoom, joinRoom } from '../../actions/chat';
-import { getCurrentUser } from '../../actions/users';
 
 const cryptoRandomString = require('crypto-random-string');
 
@@ -52,18 +51,6 @@ class VideoLanding extends Component {
       roomId: null,
       isOpener: false
     }))
-  }
-
-  componentDidMount() {
-    console.log("in component did mount")
-
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get statistics
-        return
-      }
-      
-    })
   }
 
   // after the user has logged in or created the room, set the appropriate state variables and then render the Session Component and pass in these state variables as props 
@@ -164,8 +151,7 @@ const mapDispatchToProps = dispatch =>
     bindActionCreators(
         {
             createRoom,
-            joinRoom,
-            getCurrentUser
+            joinRoom
         },
             dispatch
     )
