@@ -8,7 +8,9 @@ import {
   GET_VHTS_REQ,
   GET_VHTS_ERR,
   USER_LOGIN_SUCCESS,
-  UPDATE_USERS_SUCCESS
+  UPDATE_USERS_SUCCESS,
+  DELETE_USERS_SUCCESS,
+  DELETE_USERS_ERR
 } from '../actions/users';
 import { getUserFromResponse } from "../utils";
 
@@ -21,7 +23,7 @@ const userReducer = (state = initialStateUser, action) => {
     case 'LOGIN_USER':
       return action.payload
     case 'LOGOUT_USER':
-      return {}
+      return { isLoggedIn: false }
     case USER_LOGIN_SUCCESS:
       localStorage.setItem("token", action.payload.data.token);
       localStorage.setItem("refresh", action.payload.data.refresh);
@@ -79,11 +81,17 @@ const allUsersReducer = (state = {}, action) => {
       }
     
     // TODO: get users list if necessary
+    case DELETE_USERS_SUCCESS:
     case UPDATE_USERS_SUCCESS:
       return {
         ...state,
         updateUserList: true,
-        updateVhtList: true
+      }
+
+    case DELETE_USERS_ERR:
+      return {
+        ...state,
+        updateUserList: false
       }
 
     default:

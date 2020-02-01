@@ -99,71 +99,16 @@ export const updateUser = (userId, data) => {
     updateUserOnSuccess,
     updateUserOnError
   )
-  return dispatch => {
-      dispatch({
-          type: UPDATE_USERS_REQ
-      })
-
-      return axios.put(BASE_URL + "/user/edit/"+ userId, data).then((res) => {
-          dispatch({
-              type: UPDATE_USERS_SUCCESS,
-              payload: res.data
-          })
-          console.log("UPDATE USER DATA", res.data)
-      })
-      .then( () => { 
-        dispatch(getUsers())
-        dispatch(getVhtList())
-      })
-      .catch(err => {
-          console.log(err);
-          dispatch({
-              type: UPDATE_USERS_ERR
-          })
-      })
-  }
 }
 
-export const updateUserRequested = () =>( {
-  type: UPDATE_USERS_REQ
-})
-
-const updateUserOnSuccess = response => ({
-  type: UPDATE_USERS_SUCCESS,
-  payload: response
-})
-
-const updateUserOnError = error => ({
-  type: UPDATE_USERS_ERR,
-  payload: error
-})
-
 export const deleteUser = (userId) => {
-  const token = localStorage.token;
-
-  return dispatch => {
-      dispatch({
-          type: DELETE_USERS_REQ
-      })
-      return axios.delete(BASE_URL + "/user/delete/"+ userId, {
-        'headers': {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      }, {}).then(() => {
-          dispatch({
-              type: DELETE_USERS_SUCCESS,
-          })
-          console.log("DELETED USER");
-      })
-      .then( () => dispatch(getUsers()))
-      .catch(err => {
-          console.log(err);
-          dispatch({
-              type: DELETE_USERS_ERR
-          })
-      })
-  }
+  return requestActionCreator(
+    Endpoint.USER + Endpoint.DELETE + '/' + userId,
+    Method.DELETE,
+    null,
+    deleteUserOnSuccess,
+    deleteUserOnError
+  )
 }
 
 export const logoutUser = () => {
@@ -228,4 +173,31 @@ const getVhtsOnError = error => ({
 
 export const getVhtsRequested = () => ({
   type: GET_VHTS_REQ
+})
+
+const deleteUserOnSuccess = () => ({
+  type: DELETE_USERS_SUCCESS,
+})
+
+const deleteUserOnError = (message) => ({
+  type: DELETE_USERS_ERR,
+  payload: message
+})
+
+export const deleteUserRequested = () => ({
+  type: DELETE_USERS_REQ
+})
+
+export const updateUserRequested = () =>( {
+  type: UPDATE_USERS_REQ
+})
+
+const updateUserOnSuccess = response => ({
+  type: UPDATE_USERS_SUCCESS,
+  payload: response
+})
+
+const updateUserOnError = error => ({
+  type: UPDATE_USERS_ERR,
+  payload: error
 })

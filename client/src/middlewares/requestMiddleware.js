@@ -32,7 +32,7 @@ export default function requestMiddleware() {
           console.log("response: ", res);
           dispatch(onSuccess(res))
       }).catch(err => {
-          console.log(err);
+          console.log("error: ", err);
           dispatch(onError(err))
       })
       // const accessToken = localStorage.token;

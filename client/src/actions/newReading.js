@@ -1,31 +1,34 @@
 import BASE_URL from '../serverUrl'
 import { getPatients } from './patients'
+import { Endpoint, Method } from '../api/constants'
+import { requestActionCreator } from './api'
+
+export const CREATE_READING_SUCCESS = 'CREATE_READING_SUCCESS'
+export const CREATE_READING_ERR = 'CREATE_READING_ERR'
+export const CREATE_READING_DEFAULT = 'CREATE_READING_DEFAULT'
 
 export const newReadingPost = (reading) => {
-    return dispatch => {
-        return fetch(BASE_URL + "/patient/reading", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            body: JSON.stringify(reading)
-        }).then(resp => resp.json())
-            .then(data => {
-                console.log(data)
-                if (data.message) {
-                    dispatch({
-                        type: 'CREATE_SUCCESS',
-                        payload: data.message
-                    })
-                    dispatch(getPatients())
-                } else {
-                    dispatch({
-                        type: 'CREATE_ERROR'
-                    })
-                }
-            })
-    }
+    return requestActionCreator(
+        Endpoint.PATIENT + Endpoint.READING,
+        Method.POST,
+        reading,
+        createReadingOnSuccess,
+        createReadingOnError
+      )
 }
+
+const createReadingOnSuccess = response => ({
+    type: CREATE_READING_SUCCESS,
+    payload: response
+})
+  
+const createReadingOnError = error => ({
+    type: CREATE_READING_ERR,
+    payload: error
+})
+
+export const createReadingDefault = () => ({
+    type: CREATE_READING_DEFAULT
+})
 
   

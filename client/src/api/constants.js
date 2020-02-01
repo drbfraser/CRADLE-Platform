@@ -10,11 +10,14 @@ export const Endpoint = {
     AUTH: '/auth',
     ALL: '/all',
     VHTS: '/vhts',
-    EDIT: '/edit'
+    EDIT: '/edit',
+    DELETE: '/delete',
+    READING: '/reading'
 }
 
 export const Method = {
     GET: 'get',
     POST: 'post',
-    PUT: 'put'
+    PUT: 'put',
+    DELETE: 'delete'
 }

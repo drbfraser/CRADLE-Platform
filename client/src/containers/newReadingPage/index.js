@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users';
-import { newReadingPost } from '../../actions/newReading';
+import { newReadingPost, createReadingDefault } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
 import BpForm from './bpForm';
 import SymptomForm from './symptomForm';
@@ -21,49 +21,49 @@ function guid() {
     return v.toString(16);
   });
 }
+const initState = { 
+  patient: {
+    patientId: "",
+    patientName: "",
+    patientAge: "",
+    patientSex: "FEMALE",
+    isPregnant: true,
+    gestationalAgeValue: "",
+    gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
+    zone: "",
+    block: "",
+    tank: "",
+    villageNumber: "",
+    drugHistory: "",
+    medicalHistory: ""
+  },
+  reading: {
+    userId: "",
+    readingId: "",
+    dateTimeTaken: "",
+    bpSystolic: "",
+    bpDiastolic: "",
+    heartRateBPM: "",
+    dateRecheckVitalsNeeded: "",
+    isFlaggedForFollowup: false,
+    symptoms: ""
+  },
+  checkedItems: {
+    none: true,
+    headache: false,
+    bleeding: false,
+    blurredVision: false,
+    feverish: false,
+    abdominalPain: false,
+    unwell: false,
+    other: false,
+    otherSymptoms: ""
+  },
+  showSuccessReading : false
+}
 
 class NewReadingPage extends Component {
-  state = { 
-    patient: {
-      patientId: "",
-      patientName: "",
-      patientAge: "",
-      patientSex: "FEMALE",
-      isPregnant: true,
-      gestationalAgeValue: "",
-      gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
-      zone: "",
-      block: "",
-      tank: "",
-      villageNumber: "",
-      drugHistory: "",
-      medicalHistory: ""
-    },
-    reading: {
-      userId: "",
-      readingId: "",
-      dateTimeTaken: "",
-      bpSystolic: "",
-      bpDiastolic: "",
-      heartRateBPM: "",
-      dateRecheckVitalsNeeded: "",
-      isFlaggedForFollowup: false,
-      symptoms: ""
-    },
-    checkedItems: {
-      none: true,
-      headache: false,
-      bleeding: false,
-      blurredVision: false,
-      feverish: false,
-      abdominalPain: false,
-      unwell: false,
-      other: false,
-      otherSymptoms: ""
-    },
-    showSuccessReading : false
-  }
-
+  state = initState
 
   componentDidMount = () => {
     this.props.getCurrentUser().then((err) => {
@@ -75,6 +75,15 @@ class NewReadingPage extends Component {
     })
   }
 
+  static getDerivedStateFromProps = (props, state) => {
+    if (props.readingCreated) {
+      props.createReadingDefault()
+      return {
+        ...state,
+        showSuccessReading: true
+      }
+    }
+  }
 
   handleChange = event => {
     this.setState({ patient: { ...this.state.patient, [event.target.name]: event.target.value }})
@@ -171,53 +180,54 @@ class NewReadingPage extends Component {
         reading: readingData
       }
       console.log(newData)
-      this.props.newReadingPost(newData).then( () => {
-          console.log(this.props.createReadingStatusError)
-          // reset fields after form submit
-          if (this.props.createReadingStatusError === false) {
+      this.props.newReadingPost(newData)
+      // .then( () => {
+      //     console.log(this.props.createReadingStatusError)
+      //     // reset fields after form submit
+      //     if (this.props.createReadingStatusError === false) {
             
-            this.setState({
-              patient: {
-                patientId: "",
-                patientName: "",
-                patientAge: "",
-                patientSex: "FEMALE",
-                isPregnant: true,
-                gestationalAgeValue: "",
-                gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
-                zone: "",
-                block: "",
-                tank: "",
-                villageNumber: "",
-                drugHistory: "",
-                medicalHistory: ""
-              },
-              reading: {
-                userId: "",
-                readingId: "",
-                dateTimeTaken: "",
-                bpSystolic: "",
-                bpDiastolic: "",
-                heartRateBPM: "",
-                dateRecheckVitalsNeeded: "",
-                isFlaggedForFollowup: false,
-                symptoms: ""
-              },
-              checkedItems: {
-                none: false,
-                headache: false,
-                bleeding: false,
-                blurredVision: false,
-                feverish: false,
-                abdominalPain: false,
-                unwell: false,
-                other: false,
-                otherSymptoms: ""
-              },
-              showSuccessReading: true
-          })
-        }
-      })
+      //       this.setState({
+      //         patient: {
+      //           patientId: "",
+      //           patientName: "",
+      //           patientAge: "",
+      //           patientSex: "FEMALE",
+      //           isPregnant: true,
+      //           gestationalAgeValue: "",
+      //           gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
+      //           zone: "",
+      //           block: "",
+      //           tank: "",
+      //           villageNumber: "",
+      //           drugHistory: "",
+      //           medicalHistory: ""
+      //         },
+      //         reading: {
+      //           userId: "",
+      //           readingId: "",
+      //           dateTimeTaken: "",
+      //           bpSystolic: "",
+      //           bpDiastolic: "",
+      //           heartRateBPM: "",
+      //           dateRecheckVitalsNeeded: "",
+      //           isFlaggedForFollowup: false,
+      //           symptoms: ""
+      //         },
+      //         checkedItems: {
+      //           none: false,
+      //           headache: false,
+      //           bleeding: false,
+      //           blurredVision: false,
+      //           feverish: false,
+      //           abdominalPain: false,
+      //           unwell: false,
+      //           other: false,
+      //           otherSymptoms: ""
+      //         },
+      //         showSuccessReading: true
+      //     })
+      //   }
+      // })
     })
   }
 
@@ -256,26 +266,33 @@ class NewReadingPage extends Component {
           show={this.state.showSuccessReading}
           title="Patient Reading Created!"
           text="Success! You can view the new reading by going to the Patients tab"
-          onConfirm={() => this.setState({ showSuccessReading: false })}
+          onConfirm={() => this.setState(initState)}
         />
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ user, newReading }) => ({
+const mapStateToProps = ({ user, newReading, patients }) => ({
   user : user.currentUser,
-  createReadingStatusError: newReading.error
+  createReadingStatusError: newReading.error,
+  readingCreated: newReading.readingCreated
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
+const mapDispatchToProps = dispatch => ({
+  newReadingPost: data => {
+    dispatch(newReadingPost(data))
+  },
+  createReadingDefault: () => {
+    dispatch(createReadingDefault())
+  },
+  ...bindActionCreators(
     {
-      getCurrentUser,
-      newReadingPost,
+      getCurrentUser
     },
     dispatch
   )
+})
 
 export default connect(
   mapStateToProps,

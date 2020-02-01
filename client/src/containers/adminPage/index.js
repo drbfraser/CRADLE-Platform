@@ -10,7 +10,8 @@ import {
   getVhtsRequested, 
   updateUser, 
   deleteUser, 
-  updateUserRequested
+  updateUserRequested,
+  deleteUserRequested
 } from '../../actions/users'
 import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
 import { Button,
@@ -329,10 +330,13 @@ const mapDispatchToProps = dispatch => ({
     dispatch(updateUserRequested())
     dispatch(updateUser(userId, userData))
   },
+  deleteUser: userId => {
+    dispatch(deleteUserRequested())
+    dispatch(deleteUser(userId))
+  },
   ...bindActionCreators(
     {
-      getCurrentUser,
-      deleteUser,
+      getCurrentUser
     },
     dispatch
   )

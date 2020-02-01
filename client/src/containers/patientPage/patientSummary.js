@@ -844,11 +844,13 @@ const mapDispatchToProps = dispatch => ({
     dispatch(getSelectedPatientStatsRequested())
     dispatch(getSelectedPatientStats(petientId))
   },
+  newReadingPost: data => {
+    dispatch(newReadingPost(data))
+  },
   ...bindActionCreators(
     {
       getReferrals,
-      getCurrentUser,
-      newReadingPost
+      getCurrentUser
     },
     dispatch
   )
