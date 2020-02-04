@@ -17,8 +17,7 @@ env.read_env()
 
 SENDER_EMAIL_ADDRESS = env("EMAIL_USER")
 SENDER_EMAIL_PASSWORD = env("EMAIL_PASSWORD")
-serializer = URLSafeTimedSerializer('change this secret key!') # TODO: export key 
-
+serializer = URLSafeTimedSerializer('change this secret key!') # TODO: export key
 
 # TODO: 2FA?
 
