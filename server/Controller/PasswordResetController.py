@@ -1,23 +1,24 @@
 import smtplib
-
 from environs import Env
 from itsdangerous import URLSafeTimedSerializer
-
 import logging, json
-from flask import request, jsonify
+from flask import request
 from flask_restful import Resource, abort
-
 from Manager.UserManager import UserManager
 from config import flask_bcrypt
+from Validation.errors import SchemaValidationError, InternalServerError, \
+    EmailDoesnotExistsError, BadTokenError
+from jwt.exceptions import ExpiredSignatureError, DecodeError, \
+    InvalidTokenError
 
 userManager = UserManager()
-
 env = Env()
 env.read_env()
 
 SENDER_EMAIL_ADDRESS = env("EMAIL_USER")
 SENDER_EMAIL_PASSWORD = env("EMAIL_PASSWORD")
-serializer = URLSafeTimedSerializer('change this secret key!')
+serializer = URLSafeTimedSerializer('change this secret key!') # TODO: export key 
+
 
 # TODO: 2FA?
 
@@ -26,15 +27,17 @@ def _get_request_body():
     print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
     return raw_req_body
 
-def send_email(receivers, msg):
-    if receivers is None:
+
+def send_email(receiver, msg):
+    if receiver is None:
         abort(400, message='receiver email is non-existent')
     smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     smtp.login(SENDER_EMAIL_ADDRESS, SENDER_EMAIL_PASSWORD)
-    smtp.sendmail(SENDER_EMAIL_ADDRESS, 'kojorem568@hiwave.org', msg)
+    smtp.sendmail(SENDER_EMAIL_ADDRESS, receiver, msg)
     smtp.close()
 
-# /auth/password_reset
+
+# /api/forgot
 class ForgotPassword(Resource):
     def post(self):
         logging.debug("Receive request: POST /forgot")
@@ -48,11 +51,8 @@ class ForgotPassword(Resource):
 
             # query for user in database
             user = userManager.read("email", user_email)
-
             if user is None:
                 abort(400, message=f'No user with email "{user_email}" exists.')
-
-            print(f'user with email "{user_email}" has requested for a password reset.')
             logging.debug(f'user with email "{user_email}" has requested for a password reset.')
 
             # create reset token
@@ -60,20 +60,20 @@ class ForgotPassword(Resource):
 
             # send email
             header = 'To:' + user_email + '\n' + 'From: ' + SENDER_EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
-            content = f'Dear User,\n\nTo reset your password follow this link:\n\n{url + reset_token} \n(expires in 1 hour)\n\n'\
+            content = f'Dear User,\n\nTo reset your password follow this link:\n\n{url + reset_token} \n(expires in 1 hour)\n\n' \
                       f'If this was not requested by you, please ignore this message.\n\n\nCradle Support'
             msg = header + content
             send_email(user_email, msg)
 
             return url + reset_token, 200
 
+        except EmailDoesnotExistsError:
+            raise EmailDoesnotExistsError
         except Exception as e:
-            print(f"Error occurred: {e.with_traceback()}")
-            # TODO: proper exception handling
-            return None
+            raise InternalServerError
 
 
-# verify is generated token is valid
+# /api/reset/<string:reset_token>
 class ResetPassword(Resource):
     def put(self, reset_token):
         logging.debug('Receive Request: PUT /reset/<reset_token>')
@@ -100,7 +100,7 @@ class ResetPassword(Resource):
             send_email(user_email, msg)
             return f'password changed for user with email address: {user_email}', 200
 
+        except (DecodeError, InvalidTokenError):
+            raise BadTokenError
         except Exception as e:
-            # TODO: proper exception handling
-            print(f"Error occurred: {e.with_traceback()}")
-            return None
+            raise InternalServerError
