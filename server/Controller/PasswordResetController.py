@@ -1,11 +1,11 @@
-import json
-import logging
 import smtplib
 
 from environs import Env
-from flask import request
-from flask_restful import Resource, abort
 from itsdangerous import URLSafeTimedSerializer
+
+import logging, json
+from flask import request, jsonify
+from flask_restful import Resource, abort
 
 from Manager.UserManager import UserManager
 from config import flask_bcrypt
@@ -56,7 +56,7 @@ class ForgotPassword(Resource):
             logging.debug(f'user with email "{user_email}" has requested for a password reset.')
 
             # create reset token
-            reset_token = serializer.dumps(user_email, salt='email-confirm') # salt needed since we are also using JWT for session
+            reset_token = serializer.dumps(user_email)
 
             # send email
             header = 'To:' + user_email + '\n' + 'From: ' + SENDER_EMAIL_ADDRESS + '\n' + 'Subject: Password Reset Requested \n'
@@ -64,15 +64,6 @@ class ForgotPassword(Resource):
                       f'If this was not requested by you, please ignore this message.\n\n\nCradle Support'
             msg = header + content
             send_email(user_email, msg)
-            # smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            # smtp.login(SENDER_EMAIL_ADDRESS, EMAIL_PASSWORD)
-
-            #smtp.sendmail(SENDER_EMAIL_ADDRESS, user_email)
-
-            # Testing purpose
-            # smtp.sendmail(SENDER_EMAIL_ADDRESS, 'kojorem568@hiwave.org', msg)
-
-            # smtp.close()
 
             return url + reset_token, 200
 
@@ -88,35 +79,26 @@ class ResetPassword(Resource):
         logging.debug('Receive Request: PUT /reset/<reset_token>')
         url = request.host_url
         try:
-            user_email = serializer.loads(reset_token, salt='email-confirm', max_age=60)
-
+            user_email = serializer.loads(reset_token, max_age=60)
             if user_email is None:
                 abort(400, message="reset_token not valid")
 
-            # retrieve token and newly entered password
             body = _get_request_body()
-            password = body.get('new_password')
-
-            # query user with email
             curr_user = userManager.read('email', user_email)
+            if curr_user is None:
+                abort(400, message='there is no user with that email')
 
-            # hash pw
-            hash_password = flask_bcrypt.generate_password_hash(password)
-
-            # update password
-            # update user password field
-            print(f'{hash_password}')
-            curr_user['password'] = hash_password
-            userManager.update(curr_user["id"], hash_password)
-            # userManager.update('id', password)
-            update_res = userManager.update("id", str(curr_user["id"]), curr_user)
+            body['password'] = flask_bcrypt.generate_password_hash(body['password']).decode("utf-8")
+            update_res = userManager.update("email", user_email, body)
+            if not update_res:
+                abort(400, message=f'"{user_email}" does not exist')
 
             # respond with password change success
             header = 'To:' + user_email + '\n' + 'From: ' + SENDER_EMAIL_ADDRESS + '\n' + 'Subject: Password Change \n'
             content = f'Dear User,\n\nYour password have been succsesfully changed.\n\n\nCradle Support'
             msg = header + content
             send_email(user_email, msg)
-            return f'password changed for user with email address: {curr_user["email"]}', 200
+            return f'password changed for user with email address: {user_email}', 200
 
         except Exception as e:
             # TODO: proper exception handling
