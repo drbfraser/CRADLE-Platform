@@ -13,6 +13,10 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 
+decoding_error =  'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
+
+
+
 def abort_if_body_empty(request_body):
     if request_body is None:
         abort(400, message="The request body cannot be empty.")
@@ -63,7 +67,7 @@ class PatientAll(Resource):
         try: 
             patient_data = self._get_request_body()
         except:
-            return {'HTTP 400': 'The json body could not be deocded. Try enclosing appropriate fields with quotations, or ensuring that values are comma seperated'}, 400
+            return {'HTTP 400':decoding_error}, 400
         patient_data = self._get_request_body()
 
         # Ensure all data is valid
@@ -130,7 +134,7 @@ class PatientReading(Resource):
         try:
             patient_reading_data = self._get_request_body()
         except: 
-            return {'HTTP 400': 'The json body could not be deocded. Try enclosing appropriate fields with quotations'}, 400
+            return {'HTTP 400':decoding_error}, 400
         patient_reading_data = self._get_request_body()
         # Ensure all data is valid
         abort_if_body_empty(patient_reading_data)
