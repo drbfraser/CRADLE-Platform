@@ -38,7 +38,9 @@ def abort_if_patient_exists(patient_id):
         abort(400, message="Patient {} already exists.".format(patient_id))
 
 
-# URI: /patient
+# URI: /api/patient [Get, Post]
+# [GET]: Get a list of patients 
+# [POST]: Creating a new patient 
 class PatientAll(Resource):
 
     @staticmethod
@@ -51,7 +53,7 @@ class PatientAll(Resource):
         print('Request body: ' + json.dumps(body, indent=2, sort_keys=True))
         return body
 
-    # Get all patients
+    # Get list of all patients
     @staticmethod
     def get():
         logging.debug('Received request: GET /patient')
@@ -86,7 +88,9 @@ class PatientAll(Resource):
         return {}
 
 
-# URI: /patient/<string:patient_id>
+# URI: api/patient/<string:patient_id> 
+# [GET]: Get a specific patient's information
+# [PUT]: Update a specific patient's information
 class PatientInfo(Resource):
     @staticmethod
     def _get_request_body():
@@ -120,7 +124,8 @@ class PatientInfo(Resource):
         return response_body, 200
 
 
-# /patient/reading/ [POST]
+# URI: api/patient/reading/ [POST]
+# [POST]: Create a new patient with a reading 
 class PatientReading(Resource):
     @staticmethod
     def _get_request_body():
@@ -162,7 +167,8 @@ class PatientReading(Resource):
         return reading_and_patient, 201
 
 
-# /patient/all/ [GET]
+# URI: api/patient/allinfo 
+# [GET]: Get a list of ALL patients and their information (info, readings, referrals) 
 class PatientAllInformation(Resource):
     @staticmethod
     def _get_request_body():
