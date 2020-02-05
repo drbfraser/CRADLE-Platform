@@ -6,10 +6,8 @@ from flask import request
 from flask_restful import Resource, abort
 from Manager.UserManager import UserManager
 from config import flask_bcrypt
-from Validation.errors import SchemaValidationError, InternalServerError, \
-    EmailDoesnotExistsError, BadTokenError
-from jwt.exceptions import ExpiredSignatureError, DecodeError, \
-    InvalidTokenError
+from Validation.errors import InternalServerError, EmailDoesnotExistsError, BadTokenError
+from jwt.exceptions import DecodeError, InvalidTokenError
 
 userManager = UserManager()
 env = Env()
@@ -18,8 +16,6 @@ env.read_env()
 SENDER_EMAIL_ADDRESS = env("EMAIL_USER")
 SENDER_EMAIL_PASSWORD = env("EMAIL_PASSWORD")
 serializer = URLSafeTimedSerializer('change this secret key!') # TODO: export key
-
-# TODO: 2FA?
 
 def _get_request_body():
     raw_req_body = request.get_json(force=True)
