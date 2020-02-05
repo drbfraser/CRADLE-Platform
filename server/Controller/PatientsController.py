@@ -40,7 +40,7 @@ def abort_if_patient_exists(patient_id):
 
 # URI: /api/patient [Get, Post]
 # [GET]: Get a list of patients 
-# [POST]: Creating a new patient 
+# [POST]: Create a new patient 
 class PatientAll(Resource):
 
     @staticmethod
@@ -75,7 +75,7 @@ class PatientAll(Resource):
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
         abort_if_patient_exists(patient_data['patientId'])
-        invalid = PatientValidation.check_required_fields(patient_data)
+        invalid = PatientValidation.check_patient_fields(patient_data)
         if invalid is not None:
             return invalid
 
@@ -143,11 +143,11 @@ class PatientReading(Resource):
         patient_reading_data = self._get_request_body()
         # Ensure all data is valid
         abort_if_body_empty(patient_reading_data)
-        is_invalid_patient = PatientValidation.check_required_fields(patient_reading_data['patient'])
+        is_invalid_patient = PatientValidation.check_patient_fields(patient_reading_data['patient'])
         #is_invalid = PatientValidation.create_body_invalid(patient_reading_data['patient'])
 
         # todo: validate with new reading validator
-        #is_invalid_reading = PatientValidation.check_required_fields(patient_reading_data['reading'], 'reading')
+        #is_invalid_reading = PatientValidation.check_patient_fields(patient_reading_data['reading'], 'reading')
 
         if is_invalid_patient is not None:
             return is_invalid_patient
