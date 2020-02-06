@@ -10,7 +10,7 @@ from Manager import patientManager
         request_body = {
         "patientId":"51253242033", -- string
         "patientName":"BF", -- string
-        "patientAge":49, -- can be string or int, should probably stick to one
+        "patientAge":49, -- int, should probably stick to one
         "gestationalAgeUnit":"GESTATIONAL_AGE_UNITS_WEEKS", -- string
         "gestationalAgeValue":"45", -- string
         "villageNumber":"1251515", -- string
@@ -58,6 +58,7 @@ def check_patient_fields(request_body):
     'patientSex'
     }
 
+    # todo: repeated code -- pull this out as a funciton that all necessary functions can use 
     # make sure all required keys and values are in request body
     for key in required_keys:
         if key not in request_body:
@@ -67,6 +68,7 @@ def check_patient_fields(request_body):
             print('Missing value for: ' + key)
             return {'HTTP 400': 'The request body value for the key {' + key + '} is required.'}, 400
 
+    
     # values that must be of type string
     must_be_string = {
     'patientId',
@@ -83,16 +85,19 @@ def check_patient_fields(request_body):
 
     # values that must be of type int
     must_be_int = {
-    # currently ok being a string or an int, but may need to change this
     'patientAge' 
     }
         
-
+    # todo: repeated code -- pull this out as a funciton that all necessary functions can use 
     # making sure that values are of the correct type
     for key in request_body:
         if key in must_be_string and request_body.get(key) is not None:
-            if not isinstance(request_body.get(key), str):
+            if not isinstance((request_body.get(key)), str):
                 return {'HTTP 400': 'The value for key {' + key + '} is must be a string.'}, 400
+        if key in must_be_int and request_body.get(key) is not None:
+            if not isinstance(int(request_body.get(key)), int):
+                return {'HTTP 400': 'The value for key {' + key + '} is must be an int.'}, 400
+        # add other type checks here once they're confirmed 
 
 
     # To Do: Do we also want to check for value ranges here? Or only on client side?
@@ -130,9 +135,8 @@ def check_patient_fields(request_body):
         - isFlaggedForfollowup
         - Symotoms: or has selected no symptoms
         
-
     Check value ranges:
-        - bpSystolic: check min and max
+        - bpSystolic: check min and max 
         - bpDiastolic: check min and max
         - heartRateBPM: check min and max
         - Datetime cannot be in the past
@@ -141,11 +145,7 @@ def check_patient_fields(request_body):
 
 """
 
-def check_patient_and_reading_fields(request_body):
-
-    error = check_patient_fields(request['patient'])
-    if error is not None
-        return error
+def check_reading_fields(request_body):
   
     if request_body is None:
         return {'HTTP 400': 'The request body cannot be empty.'}, 400
@@ -161,7 +161,6 @@ def check_patient_and_reading_fields(request_body):
     'bpDiastolic',
     'heartRateBPM',
     'isFlaggedForFollowup',
-    'symptoms'
     }
 
     # make sure all required keys and values are in request body
@@ -175,7 +174,7 @@ def check_patient_and_reading_fields(request_body):
 
     # values that must be of type string
     must_be_string = {
-    'userId',
+    # 'userId', -- deal with this later
     'dateTimeTaken',
     'readingId',
     'symptoms'
@@ -188,23 +187,17 @@ def check_patient_and_reading_fields(request_body):
     'heartRateBPM'
     }
         
-    # to do: need to check for type int as well, turn this into a general function above
-    # making sure that values are of the correct type
-    for key in request_body['reading']:
-        if key in must_be_string and request_body['reading'].get(key) is not None:
-            if not isinstance(request_body['reading'].get(key), str):
+    # todo: repeated code -- pull this out as a funciton that all necessary functions can use 
+    # making sure that expected string types are infact strings / ints (depending on critera)
+    for key in request_body:
+        if key in must_be_string and request_body.get(key) is not None:
+            if not isinstance((request_body.get(key)), str):
                 return {'HTTP 400': 'The value for key {' + key + '} is must be a string.'}, 400
-
-    for key in request_body['reading']:
-        if key in must_be_int and request_body['reading'].get(key) is not None:
-            if not isinstance(request_body.get(key), int):
+        if key in must_be_int and request_body.get(key) is not None:
+            if not isinstance(int(request_body.get(key)), int):
                 return {'HTTP 400': 'The value for key {' + key + '} is must be an int.'}, 400
-
-
-    # To Do: Do we also want to check for value ranges here? Or only on client side?
-
-
-
+        # add other type checks here once they're confirmed 
+   
 
 # Todo:  only being used in one function, merging this code with new validation code, clean up
 def create_body_invalid(request_body):

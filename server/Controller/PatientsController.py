@@ -144,17 +144,14 @@ class PatientReading(Resource):
         # Ensure all data is valid
         abort_if_body_empty(patient_reading_data)
         is_invalid_patient = PatientValidation.check_patient_fields(patient_reading_data['patient'])
-        #is_invalid = PatientValidation.create_body_invalid(patient_reading_data['patient'])
-
-        # todo: validate with new reading validator
-        #is_invalid_reading = PatientValidation.check_patient_fields(patient_reading_data['reading'], 'reading')
+        is_invalid_reading = PatientValidation.check_reading_fields(patient_reading_data['reading'])
 
         if is_invalid_patient is not None:
             return is_invalid_patient
 
         # validate with new reading validator
-        # if is_invalid_reading is not None:
-        #     return is_invalid_reading
+        if is_invalid_reading is not None:
+            return is_invalid_reading
 
         # create new reading (and patient if it does not already exist)
         reading_and_patient = readingManager.create_reading_and_patient(
