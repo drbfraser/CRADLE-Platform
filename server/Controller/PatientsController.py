@@ -13,6 +13,10 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 
+decoding_error = 'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
+
+
+
 def abort_if_body_empty(request_body):
     if request_body is None:
         abort(400, message="The request body cannot be empty.")
@@ -34,7 +38,9 @@ def abort_if_patient_exists(patient_id):
         abort(400, message="Patient {} already exists.".format(patient_id))
 
 
-# URI: /patient
+# URI: /api/patient [Get, Post]
+# [GET]: Get a list of patients 
+# [POST]: Create a new patient 
 class PatientAll(Resource):
 
     @staticmethod
@@ -47,7 +53,7 @@ class PatientAll(Resource):
         print('Request body: ' + json.dumps(body, indent=2, sort_keys=True))
         return body
 
-    # Get all patients
+    # Get list of all patients
     @staticmethod
     def get():
         logging.debug('Received request: GET /patient')
@@ -60,11 +66,16 @@ class PatientAll(Resource):
     # Create a new patient
     def post(self):
         logging.debug('Received request: POST /patient')
+        try: 
+            patient_data = self._get_request_body()
+        except:
+            return {'HTTP 400':decoding_error}, 400
         patient_data = self._get_request_body()
+
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
         abort_if_patient_exists(patient_data['patientId'])
-        invalid = PatientValidation.create_body_invalid(patient_data)
+        invalid = PatientValidation.check_patient_fields(patient_data)
         if invalid is not None:
             return invalid
 
@@ -77,7 +88,9 @@ class PatientAll(Resource):
         return {}
 
 
-# URI: /patient/<string:patient_id>
+# URI: api/patient/<string:patient_id> 
+# [GET]: Get a specific patient's information
+# [PUT]: Update a specific patient's information
 class PatientInfo(Resource):
     @staticmethod
     def _get_request_body():
@@ -111,7 +124,8 @@ class PatientInfo(Resource):
         return response_body, 200
 
 
-# /patient/reading/ [POST]
+# URI: api/patient/reading/ [POST]
+# [POST]: Create a new patient with a reading 
 class PatientReading(Resource):
     @staticmethod
     def _get_request_body():
@@ -122,16 +136,20 @@ class PatientReading(Resource):
     # Create a new patient with a reading
     def post(self):
         logging.debug('Received request: POST /patient/referral')
+        try:
+            patient_reading_data = self._get_request_body()
+        except: 
+            return {'HTTP 400':decoding_error}, 400
         patient_reading_data = self._get_request_body()
         # Ensure all data is valid
         abort_if_body_empty(patient_reading_data)
-        is_invalid_patient = PatientValidation.check_required_fields(patient_reading_data['patient'], 'patient')
-        #is_invalid = PatientValidation.create_body_invalid(patient_reading_data['patient'])
-        is_invalid_reading = PatientValidation.check_required_fields(patient_reading_data['reading'], 'reading')
+        is_invalid_patient = PatientValidation.check_patient_fields(patient_reading_data['patient'])
+        is_invalid_reading = PatientValidation.check_reading_fields(patient_reading_data['reading'])
 
         if is_invalid_patient is not None:
             return is_invalid_patient
 
+        # validate with new reading validator
         if is_invalid_reading is not None:
             return is_invalid_reading
 
@@ -146,7 +164,8 @@ class PatientReading(Resource):
         return reading_and_patient, 201
 
 
-# /patient/all/ [GET]
+# URI: api/patient/allinfo 
+# [GET]: Get a list of ALL patients and their information (info, readings, referrals) 
 class PatientAllInformation(Resource):
     @staticmethod
     def _get_request_body():
