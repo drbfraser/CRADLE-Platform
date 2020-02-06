@@ -13,7 +13,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 
-decoding_error =  'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
+decoding_error = 'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
 
 
 
