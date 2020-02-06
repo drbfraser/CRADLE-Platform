@@ -19,3 +19,4 @@ uwsgi
 pyjwt
 requests
 twilio
+yagmail
