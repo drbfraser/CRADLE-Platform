@@ -91,6 +91,7 @@ function PatientInfoForm(props) {
               max='60'
               onChange={props.onChange}
               disabled={props.patient.patientSex === 'MALE' || !props.patient.isPregnant}
+              required
             />
           </Form.Group>
           <Form.Group>
