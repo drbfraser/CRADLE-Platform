@@ -497,7 +497,7 @@ class PatientSummary extends Component {
                     {this.state.selectedPatient.patientSex === "FEMALE" &&
                       <p><b>Pregnant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
                     }
-                    {this.state.selectedPatient.isPregnant &&
+                    {this.state.selectedPatient.isPregnant && this.state.selectedPatient.gestationalAgeValue &&
                       <p><b>Gestational Age: </b> {this.state.selectedPatient.gestationalAgeValue} weeks</p>
                     }
                     <ExpansionPanel>
