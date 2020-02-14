@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import MaterialTable from 'material-table';
-import moment from 'moment';
+import { getPrettyDate, getMomentDate } from '../../utils';
 
 class PatientTable extends Component {
     
@@ -20,8 +20,8 @@ class PatientTable extends Component {
         {   title: 'Patient ID', field: 'patientId' },
         {   title: 'Village No.', field: 'villageNumber'},
         {   title: 'Last Reading',
-                render: rowData => <p>{this.getPrettyDate(this.getLatestReading(rowData.readings))}</p>,
-            customSort: (a,b) => this.getMomentDate(this.getLatestReading(a.readings)).valueOf() - this.getMomentDate(this.getLatestReading(b.readings)).valueOf(),
+                render: rowData => <p>{getPrettyDate(this.getLatestReading(rowData.readings))}</p>,
+            customSort: (a,b) => getMomentDate(this.getLatestReading(a.readings)).valueOf() - getMomentDate(this.getLatestReading(b.readings)).valueOf(),
             defaultSort: 'desc' }
         ],
         data: [],
@@ -32,17 +32,8 @@ class PatientTable extends Component {
     }
 
     getLatestReading = (readings) => {
-        let sortedReadings = readings.sort((a,b) => this.getMomentDate(b.dateTimeTaken).valueOf() - this.getMomentDate(a.dateTimeTaken).valueOf())
+        let sortedReadings = readings.sort((a,b) => getMomentDate(b.dateTimeTaken).valueOf() - getMomentDate(a.dateTimeTaken).valueOf())
         return sortedReadings[0].dateTimeTaken
-    }
-
-    getPrettyDate = (dateStr) => {
-        return this.getMomentDate(dateStr).format("MMMM Do, YYYY");
-    }
-
-    getMomentDate = (dateStr) => {
-        dateStr = dateStr.slice(0,19)
-        return moment(dateStr);
     }
 
     render() {

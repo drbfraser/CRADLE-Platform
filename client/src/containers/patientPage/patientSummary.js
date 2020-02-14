@@ -14,7 +14,7 @@ import {
   Button, Header, Modal, Divider, Form, Select, Input, TextArea
 } from 'semantic-ui-react'
 
-import { getPrettyDate, getMomentDate } from '../../utils';
+import { getPrettyDateTime, getMomentDate } from '../../utils';
 import { updatePatient, getPatients } from '../../actions/patients';
 import { getReferrals } from '../../actions/referrals';
 import { getSelectedPatientStats } from '../../actions/statistics';
@@ -572,7 +572,7 @@ class PatientSummary extends Component {
                         </Typography>
 
                         <Typography variant="subtitle1" component="subtitle1">
-                          Taken on {getPrettyDate(row.dateTimeTaken)}
+                          Taken on {getPrettyDateTime(row.dateTimeTaken)}
                         </Typography>
 
                         <div style={{ "padding": "25px 50px" }}>
