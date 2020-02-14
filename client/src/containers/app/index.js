@@ -36,6 +36,7 @@ import ReferralsImg from './img/referrals.svg'
 import StatisticsImg from './img/statistics.svg'
 import CreateImg from './img/create.svg'
 import VideoImg from './img/video-solid.svg'
+import EduImg from './img/graduation-cap-solid.svg'
 
 const drawerWidth = 200;
 
@@ -261,6 +262,29 @@ const App = (props) => {
                   }
                 />
               </ListItem>
+              <ListItem className={classes.listItem}
+                        button
+                        component={Link}
+                        to="/resources"
+                        selected={activeItem === "Resources"}
+                        onClick={() => setActiveItem("Resources")}>
+                
+                <ListItemIcon>
+                  <img src={EduImg} class="center sidebarIcon" />
+                
+                  {/* <i className="fas fa-video"></i> */}
+                </ListItemIcon>
+
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>
+                      Resources
+                    </Typography>
+                  }
+                />
+              </ListItem>
 
               <Divider />
 
@@ -331,6 +355,7 @@ const App = (props) => {
           <Route exact path="/stats" component={StatisticsPage} />
           <Route exact path="/referrals" component={ReferralsPage} />
           <Route exact path="/newreading" component={NewReadingPage} />
+          <Route exact path="/resources" component={HelpPage} />
           <Route exact path="/chat/landing" component={VideoLanding} />
           <Route exact path="/chat/session" component={Session} />
           <Route exact path="/chat/session/:roomId" component={Session} />
