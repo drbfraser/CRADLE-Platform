@@ -20,12 +20,10 @@ import { getReferrals } from '../../actions/referrals';
 import { getSelectedPatientStats } from '../../actions/statistics';
 
 import { Bar, Line } from 'react-chartjs-2';
-import { ReactComponent as GreenTraffic } from './drawable/green.svg';
-import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
-import { ReactComponent as RedTraffic } from './drawable/red.svg';
 import ReferralInfo from './referralInfo';
 import { getCurrentUser } from '../../actions/users';
 import { newReadingPost } from '../../actions/newReading';
+import { getTrafficIcon } from './patientUtils';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -310,32 +308,6 @@ class PatientSummary extends Component {
     return sortedReadings
   }
 
-  getTrafficIcon = (trafficLightStatus) => {
-    if (trafficLightStatus === "RED_DOWN") {
-      return <div>
-        <RedTraffic style={{ "height": "75px", "width": "75px" }} />
-        <Icon name="arrow down" size="huge" />
-      </div>
-    } else if (trafficLightStatus === "RED_UP") {
-      return <div>
-        <RedTraffic style={{ "height": "75px", "width": "75px" }} />
-        <Icon name="arrow up" size="huge" />
-      </div>
-    } else if (trafficLightStatus === "YELLOW_UP") {
-      return <div>
-        <YellowTraffic style={{ "height": "75px", "width": "75px" }} />
-        <Icon name="arrow up" size="huge" />
-      </div>
-    } else if (trafficLightStatus === "YELLOW_DOWN") {
-      return <div>
-        <YellowTraffic style={{ "height": "75px", "width": "75px" }} />
-        <Icon name="arrow down" size="huge" />
-      </div>
-    } else {
-      return <GreenTraffic style={{ "height": "75px", "width": "75px" }} />
-    }
-  }
-
   average = (monthlyArray) => {
     if (monthlyArray.length !== 0) {
       var total = 0;
@@ -576,7 +548,7 @@ class PatientSummary extends Component {
                         </Typography>
 
                         <div style={{ "padding": "25px 50px" }}>
-                          {this.getTrafficIcon(row.trafficLightStatus)}
+                          {getTrafficIcon(row.trafficLightStatus)}
                           <br /><br />
                           <p><b>Systolic Blood Pressure: </b> {row.bpSystolic} </p>
                           <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>

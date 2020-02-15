@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import MaterialTable from 'material-table';
 import { getPrettyDate, getMomentDate } from '../../utils';
+import { getTrafficIcon } from './patientUtils';
 
 class PatientTable extends Component {
     
@@ -19,9 +20,15 @@ class PatientTable extends Component {
         },
         {   title: 'Patient ID', field: 'patientId' },
         {   title: 'Village No.', field: 'villageNumber'},
+        {   title: 'Vital Sign',
+            cellStyle: {
+                padding: '0px'
+            },
+            render: rowData => getTrafficIcon(this.getLatestReading(rowData.readings).trafficLightStatus),
+        },
         {   title: 'Last Reading',
-                render: rowData => <p>{getPrettyDate(this.getLatestReading(rowData.readings))}</p>,
-            customSort: (a,b) => getMomentDate(this.getLatestReading(a.readings)).valueOf() - getMomentDate(this.getLatestReading(b.readings)).valueOf(),
+                render: rowData => <p>{getPrettyDate(this.getLatestReadingDateTime(rowData.readings))}</p>,
+            customSort: (a,b) => getMomentDate(this.getLatestReadingDateTime(a.readings)).valueOf() - getMomentDate(this.getLatestReadingDateTime(b.readings)).valueOf(),
             defaultSort: 'desc' }
         ],
         data: [],
@@ -33,7 +40,11 @@ class PatientTable extends Component {
 
     getLatestReading = (readings) => {
         let sortedReadings = readings.sort((a,b) => getMomentDate(b.dateTimeTaken).valueOf() - getMomentDate(a.dateTimeTaken).valueOf())
-        return sortedReadings[0].dateTimeTaken
+        return sortedReadings[0]
+    }
+
+    getLatestReadingDateTime = (readings) => {
+        return this.getLatestReading(readings).dateTimeTaken
     }
 
     render() {
