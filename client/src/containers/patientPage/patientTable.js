@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import MaterialTable from 'material-table';
-import moment from 'moment';
+import { getPrettyDate, getMomentDate } from '../../utils';
+import { getTrafficIcon } from './patientUtils';
 
 class PatientTable extends Component {
     
@@ -19,9 +20,15 @@ class PatientTable extends Component {
         },
         {   title: 'Patient ID', field: 'patientId' },
         {   title: 'Village No.', field: 'villageNumber'},
+        {   title: 'Vital Sign',
+            cellStyle: {
+                padding: '0px'
+            },
+            render: rowData => getTrafficIcon(this.getLatestReading(rowData.readings).trafficLightStatus),
+        },
         {   title: 'Last Reading',
-                render: rowData => <p>{this.getPrettyDate(this.getLatestReading(rowData.readings))}</p>,
-            customSort: (a,b) => this.getMomentDate(this.getLatestReading(a.readings)).valueOf() - this.getMomentDate(this.getLatestReading(b.readings)).valueOf(),
+                render: rowData => <p>{getPrettyDate(this.getLatestReadingDateTime(rowData.readings))}</p>,
+            customSort: (a,b) => getMomentDate(this.getLatestReadingDateTime(a.readings)).valueOf() - getMomentDate(this.getLatestReadingDateTime(b.readings)).valueOf(),
             defaultSort: 'desc' }
         ],
         data: [],
@@ -32,17 +39,12 @@ class PatientTable extends Component {
     }
 
     getLatestReading = (readings) => {
-        let sortedReadings = readings.sort((a,b) => this.getMomentDate(b.dateTimeTaken).valueOf() - this.getMomentDate(a.dateTimeTaken).valueOf())
-        return sortedReadings[0].dateTimeTaken
+        let sortedReadings = readings.sort((a,b) => getMomentDate(b.dateTimeTaken).valueOf() - getMomentDate(a.dateTimeTaken).valueOf())
+        return sortedReadings[0]
     }
 
-    getPrettyDate = (dateStr) => {
-        return this.getMomentDate(dateStr).format("MMMM Do, YYYY");
-    }
-
-    getMomentDate = (dateStr) => {
-        dateStr = dateStr.slice(0,19)
-        return moment(dateStr);
+    getLatestReadingDateTime = (readings) => {
+        return this.getLatestReading(readings).dateTimeTaken
     }
 
     render() {
