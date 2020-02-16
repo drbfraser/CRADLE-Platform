@@ -153,8 +153,7 @@ class Reading(db.Model):
     heartRateBPM = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
-    # change this to enum (currently cumbersome because currently system saves data straight from json, values look like 'g ++' and we cannot have enums with that name)
-    # so need some sort of way to map it over manually when saving data
+   
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
     dateLastSaved = db.Column(db.String(100)) 
     dateTimeTaken = db.Column(db.String(100))
@@ -170,6 +169,8 @@ class Reading(db.Model):
     manuallyChangeOcrResults = db.Column(db.Integer)
     temporaryFlags = db.Column(db.Integer)
     userHasSelectedNoSymptoms = db.Column(db.Boolean)
+    # change this to enum (currently cumbersome because currently system saves data straight from json, values look like 'g ++' and we cannot have enums with that name)
+    # so need some sort of way to map it over manually when saving data
     urineTest = db.Column(db.String(50))
 
 
