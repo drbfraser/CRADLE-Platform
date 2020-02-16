@@ -6,6 +6,7 @@ import { newReadingPost } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
 import BpForm from './bpForm';
 import SymptomForm from './symptomForm';
+import UrineTestForm from './urineTestForm';
 import SweetAlert from 'sweetalert2-react';
 
 import {Button, Divider, Form} from 'semantic-ui-react'
@@ -23,13 +24,56 @@ function guid() {
 }
 
 class NewReadingPage extends Component {
+  // state = { 
+  //   patient: {
+  //     patientId: "",
+  //     patientName: "",
+  //     patientAge: "",
+  //     patientSex: "FEMALE",
+  //     isPregnant: true,
+  //     gestationalAgeValue: "",
+  //     gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
+  //     zone: "",
+  //     block: "",
+  //     tank: "",
+  //     villageNumber: "",
+  //     drugHistory: "",
+  //     medicalHistory: ""
+  //   },
+  //   reading: {
+  //     userId: "",
+  //     readingId: "",
+  //     dateTimeTaken: "",
+  //     bpSystolic: "",
+  //     bpDiastolic: "",
+  //     heartRateBPM: "",
+  //     dateRecheckVitalsNeeded: "",
+  //     isFlaggedForFollowup: false,
+  //     symptoms: "",
+  //     urineTest: ""
+  //   },
+  //   checkedItems: {
+  //     none: true,
+  //     headache: false,
+  //     bleeding: false,
+  //     blurredVision: false,
+  //     feverish: false,
+  //     abdominalPain: false,
+  //     unwell: false,
+  //     other: false,
+  //     otherSymptoms: ""
+  //   },
+  //   showSuccessReading : false,
+  //   hasUrineTest: false
+  // }
+
   state = { 
     patient: {
-      patientId: "",
-      patientName: "",
-      patientAge: "",
-      patientSex: "FEMALE",
-      isPregnant: true,
+      patientId: "123",
+      patientName: "as",
+      patientAge: "19",
+      patientSex: "MALE",
+      isPregnant: false,
       gestationalAgeValue: "",
       gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
       zone: "",
@@ -43,12 +87,13 @@ class NewReadingPage extends Component {
       userId: "",
       readingId: "",
       dateTimeTaken: "",
-      bpSystolic: "",
-      bpDiastolic: "",
-      heartRateBPM: "",
+      bpSystolic: "123",
+      bpDiastolic: "123",
+      heartRateBPM: "123",
       dateRecheckVitalsNeeded: "",
       isFlaggedForFollowup: false,
-      symptoms: ""
+      symptoms: "",
+      urineTest: ""
     },
     checkedItems: {
       none: true,
@@ -61,7 +106,8 @@ class NewReadingPage extends Component {
       other: false,
       otherSymptoms: ""
     },
-    showSuccessReading : false
+    showSuccessReading : false,
+    hasUrineTest: false
   }
 
 
@@ -90,6 +136,29 @@ class NewReadingPage extends Component {
 
   handleReadingChange = (e, value) => {
     this.setState({ reading: { ...this.state.reading, [value.name] : value.value }})
+  }
+
+  handleUrineTestChange = (e, value) => {
+    this.setState({
+      reading: {
+        ...this.state.reading,
+        urineTest: value.value
+      }
+    })
+  }
+
+  handleUrineTestSwitchChange = (e) => {
+    this.setState({
+      hasUrineTest: e.target.checked
+    })
+    if (!e.target.checked) {
+      this.setState({
+        reading: {
+          ...this.state.reading,
+          urineTest: ""
+        }
+      })
+    }
   }
 
   handleCheckedChange = (e, value) => {
@@ -165,6 +234,9 @@ class NewReadingPage extends Component {
     }, function() {
       let patientData = JSON.parse(JSON.stringify(this.state.patient))
       let readingData = JSON.parse(JSON.stringify(this.state.reading))
+      if (!this.state.hasUrineTest || readingData.urineTest == "") {
+        delete readingData.urineTest
+      }
 
       let newData = {
         patient: patientData,
@@ -239,6 +311,12 @@ class NewReadingPage extends Component {
             patient={this.state.patient} 
             onChange={this.handleCheckedChange} 
             onOtherChange={this.handleOtherSymptom}
+          />
+          <UrineTestForm
+            reading={this.state.reading}
+            onChange={this.handleUrineTestChange}
+            onSwitchChange={this.handleUrineTestSwitchChange}
+            hasUrineTest={this.state.hasUrineTest}
           />
 
           <div style={{"clear" : "both"}}></div>
