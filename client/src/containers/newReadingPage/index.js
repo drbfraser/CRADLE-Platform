@@ -24,56 +24,13 @@ function guid() {
 }
 
 class NewReadingPage extends Component {
-  // state = { 
-  //   patient: {
-  //     patientId: "",
-  //     patientName: "",
-  //     patientAge: "",
-  //     patientSex: "FEMALE",
-  //     isPregnant: true,
-  //     gestationalAgeValue: "",
-  //     gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
-  //     zone: "",
-  //     block: "",
-  //     tank: "",
-  //     villageNumber: "",
-  //     drugHistory: "",
-  //     medicalHistory: ""
-  //   },
-  //   reading: {
-  //     userId: "",
-  //     readingId: "",
-  //     dateTimeTaken: "",
-  //     bpSystolic: "",
-  //     bpDiastolic: "",
-  //     heartRateBPM: "",
-  //     dateRecheckVitalsNeeded: "",
-  //     isFlaggedForFollowup: false,
-  //     symptoms: "",
-  //     urineTest: ""
-  //   },
-  //   checkedItems: {
-  //     none: true,
-  //     headache: false,
-  //     bleeding: false,
-  //     blurredVision: false,
-  //     feverish: false,
-  //     abdominalPain: false,
-  //     unwell: false,
-  //     other: false,
-  //     otherSymptoms: ""
-  //   },
-  //   showSuccessReading : false,
-  //   hasUrineTest: false
-  // }
-
   state = { 
     patient: {
-      patientId: "123",
-      patientName: "as",
-      patientAge: "19",
-      patientSex: "MALE",
-      isPregnant: false,
+      patientId: "",
+      patientName: "",
+      patientAge: "",
+      patientSex: "FEMALE",
+      isPregnant: true,
       gestationalAgeValue: "",
       gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
       zone: "",
@@ -87,9 +44,9 @@ class NewReadingPage extends Component {
       userId: "",
       readingId: "",
       dateTimeTaken: "",
-      bpSystolic: "123",
-      bpDiastolic: "123",
-      heartRateBPM: "123",
+      bpSystolic: "",
+      bpDiastolic: "",
+      heartRateBPM: "",
       dateRecheckVitalsNeeded: "",
       isFlaggedForFollowup: false,
       symptoms: "",
@@ -109,7 +66,6 @@ class NewReadingPage extends Component {
     showSuccessReading : false,
     hasUrineTest: false
   }
-
 
   componentDidMount = () => {
     this.props.getCurrentUser().then((err) => {
