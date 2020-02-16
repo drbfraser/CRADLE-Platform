@@ -296,10 +296,10 @@ class PatientSummary extends Component {
   createReadings = (readingId, dateTimeTaken, bpDiastolic,
     bpSystolic, heartRateBPM, symptoms,
     trafficLightStatus, isReferred, dateReferred,
-    drugHistory, medicalHistory) => {
+    drugHistory, medicalHistory, urineTest) => {
     return {
       readingId, dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms,
-      trafficLightStatus, isReferred, dateReferred, drugHistory, medicalHistory
+      trafficLightStatus, isReferred, dateReferred, drugHistory, medicalHistory, urineTest
     }
   }
 
@@ -339,10 +339,11 @@ class PatientSummary extends Component {
     const dateReferred = reading['dateReferred']
     const medicalHistory = reading['medicalHistory']
     const drugHistory = reading['drugHistory']
+    const urineTest = reading['urineTest']
     return this.createReadings(readingId, dateTimeTaken, bpDiastolic,
       bpSystolic, heartRateBPM, symptoms,
       trafficLightStatus, isReferred, dateReferred,
-      medicalHistory, drugHistory)
+      medicalHistory, drugHistory, urineTest)
   }
 
   render() {
@@ -553,6 +554,7 @@ class PatientSummary extends Component {
                           <p><b>Systolic Blood Pressure: </b> {row.bpSystolic} </p>
                           <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>
                           <p><b>Heart Rate (BPM): </b> {row.heartRateBPM} </p>
+                          {row.urineTest && <p><b>Urine Test Result: </b> {row.urineTest} </p>}
                           <p><b>Symptoms: </b> {row.symptoms} </p>
                         </div>
                       </div>

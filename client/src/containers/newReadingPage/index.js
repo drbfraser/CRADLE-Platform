@@ -6,6 +6,7 @@ import { newReadingPost } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
 import BpForm from './bpForm';
 import SymptomForm from './symptomForm';
+import UrineTestForm from './urineTestForm';
 import SweetAlert from 'sweetalert2-react';
 
 import {Button, Divider, Form} from 'semantic-ui-react'
@@ -48,7 +49,8 @@ class NewReadingPage extends Component {
       heartRateBPM: "",
       dateRecheckVitalsNeeded: "",
       isFlaggedForFollowup: false,
-      symptoms: ""
+      symptoms: "",
+      urineTest: ""
     },
     checkedItems: {
       none: true,
@@ -61,9 +63,9 @@ class NewReadingPage extends Component {
       other: false,
       otherSymptoms: ""
     },
-    showSuccessReading : false
+    showSuccessReading : false,
+    hasUrineTest: false
   }
-
 
   componentDidMount = () => {
     this.props.getCurrentUser().then((err) => {
@@ -90,6 +92,29 @@ class NewReadingPage extends Component {
 
   handleReadingChange = (e, value) => {
     this.setState({ reading: { ...this.state.reading, [value.name] : value.value }})
+  }
+
+  handleUrineTestChange = (e, value) => {
+    this.setState({
+      reading: {
+        ...this.state.reading,
+        urineTest: value.value
+      }
+    })
+  }
+
+  handleUrineTestSwitchChange = (e) => {
+    this.setState({
+      hasUrineTest: e.target.checked
+    })
+    if (!e.target.checked) {
+      this.setState({
+        reading: {
+          ...this.state.reading,
+          urineTest: ""
+        }
+      })
+    }
   }
 
   handleCheckedChange = (e, value) => {
@@ -165,6 +190,9 @@ class NewReadingPage extends Component {
     }, function() {
       let patientData = JSON.parse(JSON.stringify(this.state.patient))
       let readingData = JSON.parse(JSON.stringify(this.state.reading))
+      if (!this.state.hasUrineTest || readingData.urineTest == "") {
+        delete readingData.urineTest
+      }
 
       let newData = {
         patient: patientData,
@@ -239,6 +267,12 @@ class NewReadingPage extends Component {
             patient={this.state.patient} 
             onChange={this.handleCheckedChange} 
             onOtherChange={this.handleOtherSymptom}
+          />
+          <UrineTestForm
+            reading={this.state.reading}
+            onChange={this.handleUrineTestChange}
+            onSwitchChange={this.handleUrineTestSwitchChange}
+            hasUrineTest={this.state.hasUrineTest}
           />
 
           <div style={{"clear" : "both"}}></div>
