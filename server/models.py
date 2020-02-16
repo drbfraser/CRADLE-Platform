@@ -32,6 +32,23 @@ class TrafficLightEnum(enum.Enum):
     RED_UP = 'RED_UP'
     RED_DOWN = 'RED_DOWN'
 
+# use as enum for later
+class UrineTestEnum(enum.Enum):
+    LEUC_PLUS = 'leuc +'
+    LEUC_PLUS_PLUS = 'leuc ++'
+    LEUC_PLUS_PLUS_PLUS = 'leuc +++'
+    NIT_PLUS = 'nit +'
+    NIT_PLUS_PLUS = 'nit ++'
+    NIT_PLUS_PLUS_PLUS= 'nit +++'
+    GLU_PLUS = 'glu +'
+    GLU_PLUS_PLUS = 'glu ++'
+    GLU_PLUS_PLUS_PLUS = 'glu +++'
+    PRO_PLUS = 'pro +'
+    PRO_PLUS_PLUS = 'pro ++'
+    PRO_PLUS_PLUS_PLUS = 'pro +++'
+    BLOOD_PLUS = 'blood +'
+    BLOOD_PLUS_PLUS = 'blood ++'
+    BLOOD_PLUS_PLUS_PLUS = 'blood +++'
 
 ######################
 ### HELPER CLASSES ###
@@ -136,7 +153,7 @@ class Reading(db.Model):
     heartRateBPM = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
-
+   
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
     dateLastSaved = db.Column(db.String(100)) 
     dateTimeTaken = db.Column(db.String(100))
@@ -152,6 +169,10 @@ class Reading(db.Model):
     manuallyChangeOcrResults = db.Column(db.Integer)
     temporaryFlags = db.Column(db.Integer)
     userHasSelectedNoSymptoms = db.Column(db.Boolean)
+    # change this to enum (currently cumbersome because currently system saves data straight from json, values look like 'g ++' and we cannot have enums with that name)
+    # so need some sort of way to map it over manually when saving data
+    urineTest = db.Column(db.String(50))
+
 
     # FOREIGN KEYS
     userId = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
@@ -195,7 +216,7 @@ class Reading(db.Model):
                  dateRecheckVitalsNeeded=None, gpsLocationOfReading=None,
                  retestOfPreviousReadingIds=None, isFlaggedForFollowup=None, appVersion=None,
                  deviceInfo=None, totalOcrSeconds=None, manuallyChangeOcrResults=None,
-                 temporaryFlags=None, userHasSelectedNoSymptoms=None):
+                 temporaryFlags=None, userHasSelectedNoSymptoms=None, urineTest=None):
         self.userId = userId     
         self.patientId = patientId
         self.readingId = readingId
@@ -217,6 +238,8 @@ class Reading(db.Model):
         self.manuallyChangeOcrResults = manuallyChangeOcrResults
         self.temporaryFlags = temporaryFlags
         self.userHasSelectedNoSymptoms = userHasSelectedNoSymptoms
+        self.urineTest = urineTest
+
 
 
     # FOREIGN KEYS
