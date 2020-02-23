@@ -3,6 +3,7 @@ from Manager.Manager import Manager
 from Manager import patientManager
 from Manager.urineTestManager import urineTestManager
 import logging
+from marshmallow import ValidationError
 urineTestManager = urineTestManager()
 
 # reember to account for scenerio where there is no urine test reading
@@ -22,17 +23,26 @@ class ReadingManager(Manager):
         del patient_reading_data['reading']['urineTests'] 
         reading = self.create(patient_reading_data['reading'])
 
+        # if urine test was done, then create urine test 
+        res = None
+        if urineTestData is not None:
+            res = self.add_urine_test(reading, urineTestData)
+            reading = res
+        
+        # return all created data
+        return {
+        'reading': reading,
+        'patient': patient
+        }
 
+    def add_urine_test(self, reading, urineTestData):
         # if a urine test already exits for reading, throw an error, otherwise create the urine test reading 
         existingReading = urineTestManager.read("readingId", reading['readingId'])
         if existingReading is None:
-            urineTests = urineTestManager.create(urineTestData)
-            logging.debug("urine test created")
-            reading['urineTests'] = urineTests
-            return {
-                'reading': reading,
-                'patient': patient
-            }
+                urineTests = urineTestManager.create(urineTestData)
+                logging.debug("urine test created")
+                reading['urineTests'] = urineTests
+                return reading
         else:
             logging.debug("urine test not created")
-            return "Reading Exists"
+            raise ValueError("A urine test already exists for this reading")        

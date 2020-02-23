@@ -165,11 +165,6 @@ class PatientReading(Resource):
             patient_reading_data['patient']['patientId'],
             patient_reading_data
         )
-
-        if reading_and_patient == "Reading Exists":
-            return {'HTTP 400':"A urine test already exists for this reading"}, 400
-        # add more error handling for when user tries to overwrite exisiting urine id data
-
         # associate new reading with patient
         reading_and_patient['message'] = 'Patient reading created successfully!'
         return reading_and_patient, 201
