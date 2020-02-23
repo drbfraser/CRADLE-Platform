@@ -107,9 +107,6 @@ class PatientInfo(Resource):
         logging.debug('Received request: GET /patient/' + patient_id)
 
         patient = patientManager.read("patientId", patient_id)
-        print("getting readings")
-        readings = readingManager.read_all()
-        print(readings)
         #curr_user = userManager.read('email', 'a@a.com')
         #print(curr_user)
 
