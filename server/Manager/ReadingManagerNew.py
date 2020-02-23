@@ -19,4 +19,5 @@ class ReadingManager(Manager):
         return {
             'reading': reading,
             'patient': patient
+            # add urineTest in here
         }

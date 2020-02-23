@@ -8,10 +8,13 @@ from flask_restful import Resource, abort
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
 from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 from Validation import PatientValidation
+from Manager.UserManager import UserManager
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                     jwt_required, jwt_refresh_token_required, get_jwt_identity)
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
+userManager = UserManager()
+
 
 decoding_error = 'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
 
@@ -100,9 +103,16 @@ class PatientInfo(Resource):
 
     # Get a single patient
     def get(self, patient_id):
+
         logging.debug('Received request: GET /patient/' + patient_id)
 
         patient = patientManager.read("patientId", patient_id)
+        print("getting readings")
+        readings = readingManager.read_all()
+        print(readings)
+        #curr_user = userManager.read('email', 'a@a.com')
+        #print(curr_user)
+
 
         if patient is None:
             abort(404, message="Patient {} doesn't exist.".format(patient_id))
@@ -174,10 +184,10 @@ class PatientAllInformation(Resource):
         return body
     
     # get all patient information (patientinfo, readings, and referrals)
-    @jwt_required
+    #@jwt_required
     def get(self):
-        current_user = get_jwt_identity()
-        patients_readings_referrals = patientManager.get_patient_with_referral_and_reading(current_user)
+        #current_user = get_jwt_identity()
+        patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
         #patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
 
         if not patients_readings_referrals:
