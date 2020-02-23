@@ -38,19 +38,17 @@ def abort_if_patient_exists(patient_id):
     if patient:
         abort(400, message="Patient {} already exists.".format(patient_id))
 
-# valid input: yyyy/mm/dd
+# input format: yyyy-mm-dd
 # output: age
 def calculate_age_from_dob(patient_data):
-    if patient_data['dob'] is not None and patient_data['patientAge'] is None:
-        days_in_year = 365.2425
-        print(patient_data['dob'])
-        birthDate = datetime.strptime(patient_data['dob'], '%Y-%m-%d')
-        age = int((datetime.now() - birthDate).days / days_in_year)
-        patient_data['patientAge'] = age
-        return patient_data
+    days_in_year = 365.2425
+    birthDate = datetime.strptime(patient_data['dob'], '%Y-%m-%d')
+    age = int((datetime.now() - birthDate).days / days_in_year)
+    patient_data['patientAge'] = age
+    return patient_data
 
 
-    # URI: /api/patient [Get, Post]
+# URI: /api/patient [Get, Post]
 # [GET]: Get a list of patients
 # [POST]: Create a new patient 
 class PatientAll(Resource):
@@ -92,8 +90,8 @@ class PatientAll(Resource):
             return invalid
 
         # if age is not provided, populate age using dob
-        patient_data = calculate_age_from_dob(patient_data)
-        print('patientage is === {}'.format(patient_data['patientAge']))
+        if patient_data['dob'] is not None and patient_data['patientAge'] is None:
+            patient_data = calculate_age_from_dob(patient_data)
 
         response_body = patientManager.create(patient_data)
         return response_body, 201
