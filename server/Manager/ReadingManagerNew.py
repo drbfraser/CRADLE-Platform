@@ -4,7 +4,6 @@ from Manager import patientManager
 from Manager.urineTestManager import urineTestManager
 import logging
 urineTestManager = urineTestManager()
-from marshmallow import ValidationError
 
 # reember to account for scenerio where there is no urine test reading
 class ReadingManager(Manager):
@@ -19,30 +18,21 @@ class ReadingManager(Manager):
         patient_reading_data['reading']['patientId'] = patient_id
         
         # creating new reading and saving urine test data on the side for creation later 
-        if patient_reading_data['reading']['urineTests'] is not None:
-            urineTestData = patient_reading_data['reading']['urineTests']
-            del patient_reading_data['reading']['urineTests'] 
-            reading = self.create(patient_reading_data['reading'])
+        urineTestData = patient_reading_data['reading']['urineTests']
+        del patient_reading_data['reading']['urineTests'] 
+        reading = self.create(patient_reading_data['reading'])
 
 
-            # if a urine test already exits for reading, throw an error, otherwise create the urine test reading 
-            existingReading = urineTestManager.read("readingId", reading['readingId'])
-            if existingReading is None:
-                logging.debug("urine test created")
-                urineTests = urineTestManager.create(urineTestData)
-                reading['urineTests'] = urineTests
-                return {
-                    'reading': reading,
-                    'patient': patient
-                }
-            else:
-                logging.debug("urine test not created")
-                return "Reading Exists"
-
-        else: 
-            try:
-                reading = self.create(patient_reading_data['reading'])
-                urineTests = urineTestManager.create({"readingId":'10', "id": '10'})
-                reading['urineTests'] = urineTests
-            except ValidationError:
-                print("nbd")
+        # if a urine test already exits for reading, throw an error, otherwise create the urine test reading 
+        existingReading = urineTestManager.read("readingId", reading['readingId'])
+        if existingReading is None:
+            urineTests = urineTestManager.create(urineTestData)
+            logging.debug("urine test created")
+            reading['urineTests'] = urineTests
+            return {
+                'reading': reading,
+                'patient': patient
+            }
+        else:
+            logging.debug("urine test not created")
+            return "Reading Exists"
