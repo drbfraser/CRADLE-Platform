@@ -171,15 +171,8 @@ class Reading(db.Model):
     userHasSelectedNoSymptoms = db.Column(db.Boolean)
     # change this to enum (currently cumbersome because currently system saves data straight from json, values look like 'g ++' and we cannot have enums with that name)
     # so need some sort of way to map it over manually when saving data
-    # remove this once frontend + mobile has changed urine test reading as well
     urineTest = db.Column(db.String(50))
-    
-    # new urine test reading requested
-    urineTestLeuc = db.Column(db.String(5))
-    urineTestNit = db.Column(db.String(5))
-    urineTestGlu = db.Column(db.String(5))
-    urineTestPro = db.Column(db.String(5))
-    urineTestBlood = db.Column(db.String(5))
+
 
     # FOREIGN KEYS
     userId = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
@@ -223,8 +216,7 @@ class Reading(db.Model):
                  dateRecheckVitalsNeeded=None, gpsLocationOfReading=None,
                  retestOfPreviousReadingIds=None, isFlaggedForFollowup=None, appVersion=None,
                  deviceInfo=None, totalOcrSeconds=None, manuallyChangeOcrResults=None,
-                 temporaryFlags=None, userHasSelectedNoSymptoms=None, urineTest=None, 
-                 urineTestLeuc=None, urineTestNit=None, urineTestGlu=None, urineTestPro=None, urineTestBlood=None):
+                 temporaryFlags=None, userHasSelectedNoSymptoms=None, urineTest=None):
         self.userId = userId     
         self.patientId = patientId
         self.readingId = readingId
@@ -247,11 +239,6 @@ class Reading(db.Model):
         self.temporaryFlags = temporaryFlags
         self.userHasSelectedNoSymptoms = userHasSelectedNoSymptoms
         self.urineTest = urineTest
-        self.urineTestLeuc = urineTestLeuc
-        self.urineTestNit = urineTestNit
-        self.urineTestGlu = urineTestGlu
-        self.urineTestPro = urineTestPro
-        self.urineTestBlood = urineTestBlood
 
 
 
@@ -260,6 +247,9 @@ class Reading(db.Model):
 
     # RELATIONSHIPS
     patient = db.relationship('Patient', backref=db.backref('readings', lazy=True))
+    urineTests = db.relationship('urineTest', backref=db.backref('reading', lazy=True))
+
+
 
 
 class FollowUp(db.Model):
@@ -278,6 +268,21 @@ class FollowUp(db.Model):
 class Village(db.Model):
     villageNumber = db.Column(db.String(50), primary_key=True)
     zoneNumber    = db.Column(db.String(50))
+
+
+class urineTest(db.Model):
+    Id = db.Column(db.String(50), primary_key=True)
+    urineTestLeuc = db.Column(db.String(5))
+    urineTestNit = db.Column(db.String(5))
+    urineTestGlu = db.Column(db.String(5))
+    urineTestPro = db.Column(db.String(5))
+    urineTestBlood = db.Column(db.String(5))
+    #urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
+    readingId = db.Column(db.ForeignKey('reading.readingId'))
+
+
+
+    
 
 
 ######################
@@ -322,6 +327,13 @@ class ReferralSchema(ma.ModelSchema):
     class Meta:
         include_fk = True
         model = Referral
+
+class urineTestSchema(ma.ModelSchema):
+    # urineTests = fields.Nested(ReadingSchema)
+    class Meta:
+        include_fk = True
+        model = urineTest
+
 
 user_schema = {
     "type": "object",
