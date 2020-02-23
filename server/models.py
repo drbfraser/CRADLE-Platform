@@ -132,6 +132,7 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
+    dob = db.Column(db.Date)
 
     villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS

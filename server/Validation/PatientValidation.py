@@ -16,8 +16,6 @@ from Manager import patientManager
         "villageNumber":"1251515", -- string
         "patientSex":"FEMALE", 
         "isPregnant":"true", -- boolean
-        "tank" : null, -- string
-        "zone": "11", -- string
         "block": "15", -- string
         "medicalHistory": "nothing really", db.text (long string)
         "drugHistory": "nothing really", db.text (long string)
@@ -37,7 +35,7 @@ from Manager import patientManager
         - Patient age: check min-max age on google/our current client restrictions
         - Patient sex: should be male or female (check sex vs gender)
         - Gestational unit: need more info
-        - Tank/Zone/village/block: need more info
+        - Zone/village: need more info
 
     Village number should exist
 """
@@ -54,7 +52,7 @@ def check_patient_fields(request_body):
     required_keys = {
     'patientId',
     'patientName',
-    'patientAge', 
+    # 'patientAge',
     'patientSex'
     }
 
@@ -76,9 +74,7 @@ def check_patient_fields(request_body):
     'gestationalAgeUnit',
     'gestationalAgeValue',
     'villageNumber',
-    'tank',
     'zone',
-    'block',
     'medicalHistory',
     'drugHistory'
     }
@@ -88,16 +84,16 @@ def check_patient_fields(request_body):
     'patientAge' 
     }
         
-    # todo: repeated code -- pull this out as a funciton that all necessary functions can use 
-    # making sure that values are of the correct type
-    for key in request_body:
-        if key in must_be_string and request_body.get(key) is not None:
-            if not isinstance((request_body.get(key)), str):
-                return {'HTTP 400': 'The value for key {' + key + '} is must be a string.'}, 400
-        if key in must_be_int and request_body.get(key) is not None:
-            if not isinstance(int(request_body.get(key)), int):
-                return {'HTTP 400': 'The value for key {' + key + '} is must be an int.'}, 400
-        # add other type checks here once they're confirmed 
+    # # todo: repeated code -- pull this out as a funciton that all necessary functions can use
+    # # making sure that values are of the correct type
+    # for key in request_body:
+    #     if key in must_be_string and request_body.get(key) is not None:
+    #         if not isinstance((request_body.get(key)), str):
+    #             return {'HTTP 400': 'The value for key {' + key + '} is must be a string.'}, 400
+    #     if key in must_be_int and request_body.get(key) is not None:
+    #         if not isinstance(int(request_body.get(key)), int):
+    #             return {'HTTP 400': 'The value for key {' + key + '} is must be an int.'}, 400
+    #     # add other type checks here once they're confirmed
 
 
     # To Do: Do we also want to check for value ranges here? Or only on client side?
@@ -212,8 +208,8 @@ def create_body_invalid(request_body):
         return {'HTTP 400': 'The request body cannot be empty.'}, 400
     if request_body.get('patientId') == "":
         return {'HTTP 400': 'The request body field patientId is required.'}, 400
-    if request_body.get('patientAge') == "":
-        return {'HTTP 400': 'The request body field patientAge is required.'}, 400
+    # if request_body.get('patientAge') == "":
+    #     return {'HTTP 400': 'The request body field patientAge is required.'}, 400
     if request_body.get('patientSex') == "":
         return {'HTTP 400': 'The request body field patientSex is required.'}, 400
 
