@@ -23,6 +23,14 @@ function guid() {
   });
 }
 
+const initialUrineTests = {
+  urineTestNit: "",
+  urineTestBlood: "",
+  urineTestLeuc: "",
+  urineTestPro: "",
+  urineTestGlu: ""
+}
+
 class NewReadingPage extends Component {
   state = { 
     patient: {
@@ -50,7 +58,7 @@ class NewReadingPage extends Component {
       dateRecheckVitalsNeeded: "",
       isFlaggedForFollowup: false,
       symptoms: "",
-      urineTest: ""
+      urineTests: initialUrineTests
     },
     checkedItems: {
       none: true,
@@ -98,7 +106,10 @@ class NewReadingPage extends Component {
     this.setState({
       reading: {
         ...this.state.reading,
-        urineTest: value.value
+        urineTests: {
+          ...this.state.reading.urineTests,
+          [value.name]: value.value
+        }
       }
     })
   }
@@ -111,7 +122,7 @@ class NewReadingPage extends Component {
       this.setState({
         reading: {
           ...this.state.reading,
-          urineTest: ""
+          urineTests: initialUrineTests
         }
       })
     }
@@ -190,8 +201,8 @@ class NewReadingPage extends Component {
     }, function() {
       let patientData = JSON.parse(JSON.stringify(this.state.patient))
       let readingData = JSON.parse(JSON.stringify(this.state.reading))
-      if (!this.state.hasUrineTest || readingData.urineTest == "") {
-        delete readingData.urineTest
+      if (!this.state.hasUrineTest) {
+        delete readingData.urineTests
       }
 
       let newData = {
