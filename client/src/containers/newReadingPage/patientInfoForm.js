@@ -104,31 +104,14 @@ function PatientInfoForm(props) {
               placeholder='Zone'
               onChange={props.onChange}
             />
-            <Form.Field 
-              name="block"
-              value={props.patient.block}
-              control={Input}
-              label='Block'
-              type='number'
-              placeholder='Block'
-              onChange={props.onChange}
-            />
-            <Form.Field 
-              name="tank"
-              value={props.patient.tank}
-              control={Input}
-              label='Tank'
-              type='number'
-              placeholder='Tank'
-              onChange={props.onChange}
-            />
+            
             <Form.Field 
               name="villageNumber"
               value={props.patient.villageNumber}
               control={Input}
-              label='Village Number'
+              label='Village'
               type='number'
-              placeholder='Village Number'
+              placeholder='Village'
               onChange={props.onChange}
             />
           </Form.Group>
