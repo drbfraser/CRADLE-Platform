@@ -3,6 +3,7 @@ import json
 
 from flask import request
 from flask_restful import Resource, abort
+from datetime import date, datetime
 
 # Project modules
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
@@ -37,9 +38,18 @@ def abort_if_patient_exists(patient_id):
     if patient:
         abort(400, message="Patient {} already exists.".format(patient_id))
 
+# input format: yyyy-mm-dd
+# output: age
+def calculate_age_from_dob(patient_data):
+    DAYS_IN_YEAR = 365.2425
+    birthDate = datetime.strptime(patient_data['dob'], '%Y-%m-%d')
+    age = int((datetime.now() - birthDate).days / days_in_year)
+    patient_data['patientAge'] = age
+    return patient_data
+
 
 # URI: /api/patient [Get, Post]
-# [GET]: Get a list of patients 
+# [GET]: Get a list of patients
 # [POST]: Create a new patient 
 class PatientAll(Resource):
 
@@ -66,7 +76,7 @@ class PatientAll(Resource):
     # Create a new patient
     def post(self):
         logging.debug('Received request: POST /patient')
-        try: 
+        try:
             patient_data = self._get_request_body()
         except:
             return {'HTTP 400':decoding_error}, 400
@@ -78,6 +88,10 @@ class PatientAll(Resource):
         invalid = PatientValidation.check_patient_fields(patient_data)
         if invalid is not None:
             return invalid
+
+        # if age is not provided, populate age using dob
+        if patient_data['dob'] is not None and patient_data['patientAge'] is None:
+            patient_data = calculate_age_from_dob(patient_data)
 
         response_body = patientManager.create(patient_data)
         return response_body, 201
@@ -138,7 +152,7 @@ class PatientReading(Resource):
         logging.debug('Received request: POST /patient/referral')
         try:
             patient_reading_data = self._get_request_body()
-        except: 
+        except:
             return {'HTTP 400':decoding_error}, 400
         patient_reading_data = self._get_request_body()
         # Ensure all data is valid
@@ -172,7 +186,7 @@ class PatientAllInformation(Resource):
         body = request.get_json(force=True)
         logging.debug('Request body: ' + str(body))
         return body
-    
+
     # get all patient information (patientinfo, readings, and referrals)
     @jwt_required
     def get(self):
@@ -183,4 +197,4 @@ class PatientAllInformation(Resource):
         if not patients_readings_referrals:
             abort(404, message="No patients currently exist.")
         else:
-            return patients_readings_referrals    
+            return patients_readings_referrals
