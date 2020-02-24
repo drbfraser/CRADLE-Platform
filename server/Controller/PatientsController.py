@@ -41,7 +41,7 @@ def abort_if_patient_exists(patient_id):
 # input format: yyyy-mm-dd
 # output: age
 def calculate_age_from_dob(patient_data):
-    days_in_year = 365.2425
+    DAYS_IN_YEAR = 365.2425
     birthDate = datetime.strptime(patient_data['dob'], '%Y-%m-%d')
     age = int((datetime.now() - birthDate).days / days_in_year)
     patient_data['patientAge'] = age
