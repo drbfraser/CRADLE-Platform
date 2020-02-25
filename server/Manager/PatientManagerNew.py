@@ -6,7 +6,11 @@ from Manager.Manager import Manager
 from Manager import referralManager, readingManager
 from Manager.ReferralManager import ReferralManager #referral data
 from Manager.ReadingManagerNew import ReadingManager #referral data
+from models import *
+from flask_sqlalchemy import SQLAlchemy
+from Manager.urineTestManager import urineTestManager
 
+urineTestManager = urineTestManager()
 
 # to do: remove all the redundant imports
 
@@ -28,7 +32,7 @@ class PatientManager(Manager):
 
 
     def get_patient_with_referral_and_reading(self, current_user):
-        print(current_user)
+        #print(current_user)
         
         # harcoding for testing purposes
         # get filtered list of patients here, and then query only that list
@@ -48,7 +52,7 @@ class PatientManager(Manager):
         
         # otherwise show them all, which is not the best way to handle it, but risky to throw errors atm
         else:
-             patients_query = patient_list
+            patients_query = patient_list
         
         print(len(patients_query))
 
@@ -64,8 +68,8 @@ class PatientManager(Manager):
                 for reading in patient["readings"]:
                     # build the reading json to add to array
                     reading_json = readingManager.read("readingId", reading)
-
-                    # print(json.dumps(reading_json, indent=2, sort_keys=True))
+                
+                    reading_json['urineTests'] = urineTestManager.read("readingId", reading)
 
                     # add referral if exists in reading
                     if reading_json["referral"]:
