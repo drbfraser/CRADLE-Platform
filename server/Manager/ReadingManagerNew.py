@@ -5,8 +5,7 @@ from Manager.urineTestManager import urineTestManager
 import logging
 from marshmallow import ValidationError
 urineTestManager = urineTestManager()
-
-# reember to account for scenerio where there is no urine test reading
+import uuid 
 class ReadingManager(Manager):
     def __init__(self):
         Manager.__init__(self, ReadingRepo)
@@ -31,14 +30,15 @@ class ReadingManager(Manager):
         
         # return all created data
         return {
-        'reading': reading,
-        'patient': patient
+            'reading': reading,
+            'patient': patient
         }
 
     def add_urine_test(self, reading, urineTestData):
         # if a urine test already exits for reading, throw an error, otherwise create the urine test reading 
         existingReading = urineTestManager.read("readingId", reading['readingId'])
         if existingReading is None:
+                urineTestData['Id'] = str(uuid.uuid4()) 
                 urineTests = urineTestManager.create(urineTestData)
                 logging.debug("urine test created")
                 reading['urineTests'] = urineTests

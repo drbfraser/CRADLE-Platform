@@ -103,13 +103,8 @@ class PatientInfo(Resource):
 
     # Get a single patient
     def get(self, patient_id):
-
         logging.debug('Received request: GET /patient/' + patient_id)
-
         patient = patientManager.read("patientId", patient_id)
-        #curr_user = userManager.read('email', 'a@a.com')
-        #print(curr_user)
-
 
         if patient is None:
             abort(404, message="Patient {} doesn't exist.".format(patient_id))

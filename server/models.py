@@ -280,11 +280,6 @@ class urineTest(db.Model):
     #urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
     readingId = db.Column(db.ForeignKey('reading.readingId'))
 
-
-
-    
-
-
 ######################
 ###    SCHEMAS     ###
 ######################
