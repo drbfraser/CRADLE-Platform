@@ -247,6 +247,9 @@ class Reading(db.Model):
 
     # RELATIONSHIPS
     patient = db.relationship('Patient', backref=db.backref('readings', lazy=True))
+    urineTests = db.relationship('urineTest', backref=db.backref('reading', lazy=True))
+
+
 
 
 class FollowUp(db.Model):
@@ -266,6 +269,16 @@ class Village(db.Model):
     villageNumber = db.Column(db.String(50), primary_key=True)
     zoneNumber    = db.Column(db.String(50))
 
+
+class urineTest(db.Model):
+    Id = db.Column(db.String(50), primary_key=True)
+    urineTestLeuc = db.Column(db.String(5))
+    urineTestNit = db.Column(db.String(5))
+    urineTestGlu = db.Column(db.String(5))
+    urineTestPro = db.Column(db.String(5))
+    urineTestBlood = db.Column(db.String(5))
+    #urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
+    readingId = db.Column(db.ForeignKey('reading.readingId'))
 
 ######################
 ###    SCHEMAS     ###
@@ -309,6 +322,13 @@ class ReferralSchema(ma.ModelSchema):
     class Meta:
         include_fk = True
         model = Referral
+
+class urineTestSchema(ma.ModelSchema):
+    # urineTests = fields.Nested(ReadingSchema)
+    class Meta:
+        include_fk = True
+        model = urineTest
+
 
 user_schema = {
     "type": "object",
