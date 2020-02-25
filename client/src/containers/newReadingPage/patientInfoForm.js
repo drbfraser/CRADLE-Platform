@@ -1,5 +1,6 @@
 import React from 'react';
 import Paper from '@material-ui/core/Paper';
+
 import { 
   Form, Header, Divider, 
   Select, Input, TextArea, 
@@ -59,7 +60,16 @@ function PatientInfoForm(props) {
               max='60'
               placeholder='Patient Age'
               onChange={props.onChange}
-              required
+            />
+            <Form.Field
+               name="dob"
+               value={props.patient.dob}
+               control={Input}
+               label='Birthday'
+               type='date'
+               placeholder='Birthday'
+               onChange={props.onSelectChange}
+               required
             />
             <Form.Field 
               name="patientSex"
