@@ -560,7 +560,7 @@ class PatientSummary extends Component {
                           {row.urineTests && 
                           <div>
                             <p><b>Urine Test Result: </b></p>
-                            <div style={{"paddingLeft": "30px"}}>
+                            <div style={{"paddingLeft": "15px"}}>
                               <p><b>{urineTestChemicals.LEUC}: </b> {row.urineTests.urineTestLeuc} </p>
                               <p><b>{urineTestChemicals.NIT}: </b> {row.urineTests.urineTestNit} </p>
                               <p><b>{urineTestChemicals.GLU}: </b> {row.urineTests.urineTestGlu} </p>
