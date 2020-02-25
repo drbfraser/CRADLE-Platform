@@ -39,6 +39,7 @@ class ReadingManager(Manager):
         existingReading = urineTestManager.read("readingId", reading['readingId'])
         if existingReading is None:
                 urineTestData['Id'] = str(uuid.uuid4()) 
+                urineTestData['readingId'] = reading['readingId']
                 urineTests = urineTestManager.create(urineTestData)
                 logging.debug("urine test created")
                 reading['urineTests'] = urineTests
