@@ -42,9 +42,11 @@ def abort_if_patient_exists(patient_id):
 # output: age
 def calculate_age_from_dob(patient_data):
     DAYS_IN_YEAR = 365.2425
-    birthDate = datetime.strptime(patient_data['dob'], '%Y-%m-%d')
+    birthDate = datetime.strptime(patient_data['patient']['dob'], '%Y-%m-%d')
+
     age = int((datetime.now() - birthDate).days / DAYS_IN_YEAR)
-    patient_data['patientAge'] = age
+    print('========={}'.format(age))
+    patient_data['patient']['patientAge'] = age
     return patient_data
 
 
@@ -90,7 +92,7 @@ class PatientAll(Resource):
             return invalid
 
         # if age is not provided, populate age using dob
-        if patient_data['dob'] is not None and patient_data['patientAge'] is None:
+        if patient_data['dob'] is not None and patient_data['patientAge'] == -1:
             patient_data = calculate_age_from_dob(patient_data)
 
         response_body = patientManager.create(patient_data)
@@ -167,6 +169,10 @@ class PatientReading(Resource):
         if is_invalid_reading is not None:
             return is_invalid_reading
 
+
+        if patient_reading_data['patient']['dob'] is not None and patient_reading_data['patient']['patientAge'] == '-1':
+            patient_reading_data = calculate_age_from_dob(patient_reading_data)
+
         # create new reading (and patient if it does not already exist)
         reading_and_patient = readingManager.create_reading_and_patient(
             patient_reading_data['patient']['patientId'],
@@ -175,6 +181,7 @@ class PatientReading(Resource):
 
         # associate new reading with patient
         reading_and_patient['message'] = 'Patient reading created successfully!'
+
         return reading_and_patient, 201
 
 
