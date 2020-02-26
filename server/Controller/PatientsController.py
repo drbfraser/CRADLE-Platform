@@ -4,6 +4,7 @@ import json
 from flask import request
 from flask_restful import Resource, abort
 from datetime import date, datetime
+from Controller.Helpers import _get_request_body
 
 # Project modules
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
@@ -45,7 +46,6 @@ def calculate_age_from_dob(patient_data):
     birthDate = datetime.strptime(patient_data['patient']['dob'], '%Y-%m-%d')
 
     age = int((datetime.now() - birthDate).days / DAYS_IN_YEAR)
-    print('========={}'.format(age))
     patient_data['patient']['patientAge'] = age
     return patient_data
 
@@ -108,11 +108,6 @@ class PatientAll(Resource):
 # [GET]: Get a specific patient's information
 # [PUT]: Update a specific patient's information
 class PatientInfo(Resource):
-    @staticmethod
-    def _get_request_body():
-        body = request.get_json(force=True)
-        logging.debug('Request body: ' + str(body))
-        return body
 
     # Get a single patient
     def get(self, patient_id):
@@ -128,7 +123,7 @@ class PatientInfo(Resource):
     def put(self, patient_id):
         logging.debug('Received request: PUT /patient/' + patient_id)
 
-        data = PatientInfo._get_request_body()
+        data = _get_request_body(request)
 
         patient = abort_if_patient_doesnt_exist(patient_id)
         # invalid = PatientValidation.update_info_invalid(patient_id, data)
@@ -143,20 +138,15 @@ class PatientInfo(Resource):
 # URI: api/patient/reading/ [POST]
 # [POST]: Create a new patient with a reading 
 class PatientReading(Resource):
-    @staticmethod
-    def _get_request_body():
-        body = request.get_json(force=True)
-        logging.debug('Request body: ' + str(body))
-        return body
 
     # Create a new patient with a reading
     def post(self):
         logging.debug('Received request: POST /patient/referral')
         try:
-            patient_reading_data = self._get_request_body()
+            patient_reading_data = _get_request_body(request)
         except:
             return {'HTTP 400':decoding_error}, 400
-        patient_reading_data = self._get_request_body()
+        patient_reading_data = _get_request_body(request)
         # Ensure all data is valid
         abort_if_body_empty(patient_reading_data)
         is_invalid_patient = PatientValidation.check_patient_fields(patient_reading_data['patient'])
@@ -188,11 +178,6 @@ class PatientReading(Resource):
 # URI: api/patient/allinfo 
 # [GET]: Get a list of ALL patients and their information (info, readings, referrals) 
 class PatientAllInformation(Resource):
-    @staticmethod
-    def _get_request_body():
-        body = request.get_json(force=True)
-        logging.debug('Request body: ' + str(body))
-        return body
 
     # get all patient information (patientinfo, readings, and referrals)
     @jwt_required
