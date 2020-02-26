@@ -465,6 +465,7 @@ class PatientSummary extends Component {
                   <Divider />
                   <div style={{ "padding": "20px 50px" }}>
                     <p><b>Patient ID: </b> {this.state.selectedPatient.patientId} </p>
+                    <p><b>Patient Birthday: </b> {this.state.selectedPatient.dob} </p>
                     <p><b>Patient Age: </b> {this.state.selectedPatient.patientAge} </p>
                     <p><b>Patient Sex: </b> {this.state.selectedPatient.patientSex} </p>
                     {this.state.selectedPatient.patientSex === "FEMALE" &&
@@ -585,6 +586,16 @@ class PatientSummary extends Component {
                           pattern="[a-zA-Z]*"
                           maxLength='4'
                           minLength='1'
+                          required
+                        />
+                        <Form.Field
+                          name='dob'
+                          value={this.state.selectedPatient.dob}
+                          control={Input}
+                          label='dob'
+                          placeholder='dob'
+                          onChange={this.handleSelectChange}
+                          type='date'
                           required
                         />
                         <Form.Field
