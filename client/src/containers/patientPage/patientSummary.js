@@ -556,7 +556,6 @@ class PatientSummary extends Component {
                           <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>
                           <p><b>Heart Rate (BPM): </b> {row.heartRateBPM} </p>
                           <p><b>Symptoms: </b> {row.symptoms} </p>
-                          {/*row.urineTests && <p><b>Urine Test Result: </b> {row.urineTests} </p>*/}
                           {row.urineTests && 
                           <div>
                             <p><b>Urine Test Result: </b></p>
