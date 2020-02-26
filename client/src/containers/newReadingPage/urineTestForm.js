@@ -13,11 +13,11 @@ const resultOptions = [
 ]
 
 export const urineTestChemicals = {
-    LEUC: 'leuc',
-    NIT: 'nit',
-    GLU: 'glu',
-    PRO: 'pro',
-    BLOOD: 'blood'
+    LEUC: 'Leukocytes',
+    NIT: 'Nitrites',
+    GLU: 'Glucose',
+    PRO: 'Protein',
+    BLOOD: 'Blood'
 }
 
 function UrineTestForm(props) {
