@@ -24,6 +24,7 @@ import ReferralInfo from './referralInfo';
 import { getCurrentUser } from '../../actions/users';
 import { newReadingPost } from '../../actions/newReading';
 import { getTrafficIcon } from './patientUtils';
+import { urineTestChemicals } from '../newReadingPage/urineTestForm';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -296,10 +297,10 @@ class PatientSummary extends Component {
   createReadings = (readingId, dateTimeTaken, bpDiastolic,
     bpSystolic, heartRateBPM, symptoms,
     trafficLightStatus, isReferred, dateReferred,
-    drugHistory, medicalHistory, urineTest) => {
+    drugHistory, medicalHistory, urineTests) => {
     return {
       readingId, dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms,
-      trafficLightStatus, isReferred, dateReferred, drugHistory, medicalHistory, urineTest
+      trafficLightStatus, isReferred, dateReferred, drugHistory, medicalHistory, urineTests
     }
   }
 
@@ -339,11 +340,11 @@ class PatientSummary extends Component {
     const dateReferred = reading['dateReferred']
     const medicalHistory = reading['medicalHistory']
     const drugHistory = reading['drugHistory']
-    const urineTest = reading['urineTest']
+    const urineTests = reading['urineTests']
     return this.createReadings(readingId, dateTimeTaken, bpDiastolic,
       bpSystolic, heartRateBPM, symptoms,
       trafficLightStatus, isReferred, dateReferred,
-      medicalHistory, drugHistory, urineTest)
+      medicalHistory, drugHistory, urineTests)
   }
 
   render() {
@@ -554,8 +555,18 @@ class PatientSummary extends Component {
                           <p><b>Systolic Blood Pressure: </b> {row.bpSystolic} </p>
                           <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>
                           <p><b>Heart Rate (BPM): </b> {row.heartRateBPM} </p>
-                          {row.urineTest && <p><b>Urine Test Result: </b> {row.urineTest} </p>}
                           <p><b>Symptoms: </b> {row.symptoms} </p>
+                          {row.urineTests && 
+                          <div>
+                            <p><b>Urine Test Result: </b></p>
+                            <div style={{"paddingLeft": "15px"}}>
+                              <p><b>{urineTestChemicals.LEUC}: </b> {row.urineTests.urineTestLeuc} </p>
+                              <p><b>{urineTestChemicals.NIT}: </b> {row.urineTests.urineTestNit} </p>
+                              <p><b>{urineTestChemicals.GLU}: </b> {row.urineTests.urineTestGlu} </p>
+                              <p><b>{urineTestChemicals.PRO}: </b> {row.urineTests.urineTestPro} </p>
+                              <p><b>{urineTestChemicals.BLOOD}: </b> {row.urineTests.urineTestBlood} </p>
+                            </div>
+                          </div>}
                         </div>
                       </div>
                       <div style={{ "borderLeft": "2px solid #84ced4", "display": "inline-block", "width": "50%", "float": "right", "height": "100%" }}>
