@@ -262,7 +262,7 @@ class FollowUp(db.Model):
     specialInvestigations = db.Column(db.Text)
     medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
     followupNeeded = db.Column(db.Boolean)
-    dateTimeReviewNeeded = db.Column(db.DateTime)
+    dateReviewNeeded = db.Column(db.Date)
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
 
