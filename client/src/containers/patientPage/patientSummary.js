@@ -205,7 +205,8 @@ class PatientSummary extends Component {
         userId: this.props.user.userId,
         readingId: readingID,
         dateTimeTaken: dateTime.toJSON(),
-        symptoms: symptom.toString()
+        symptoms: symptom.toString(),
+        urineTests: null
       }
     }, function () {
       let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient))
