@@ -27,6 +27,7 @@ class Config(object):
         print("DB_USERNAME or DB_PASSWORD environment variable not set")
         print("*******************************************************")
 
+    is_docker = None
     try:
         is_docker = env("IS_DOCKER")
         # db_ip = env("DB_IP")
