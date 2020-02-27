@@ -41,7 +41,7 @@ class HealthFacility(Resource):
     @staticmethod
     def post():
         logging.debug('Received request: POST /health_facility')
-        hf_data = _get_request_body(request)
+        hf_data = _get_request_body()
         response_body = healthFacilityManager.create(hf_data)
         return response_body, 201
 
@@ -51,7 +51,7 @@ class HealthFacility(Resource):
         if not name:
             abort(400, message="name is required")
     
-        new_hf = _get_request_body(request)
+        new_hf = _get_request_body()
         update_res = healthFacilityManager.update("healthFacilityName", name, new_hf)
 
         if not update_res:
