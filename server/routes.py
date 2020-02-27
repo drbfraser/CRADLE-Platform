@@ -32,7 +32,7 @@ def init(api):
     api.add_resource(UserAllVHT, '/api/user/vhts') # [GET]
 
     api.add_resource(PatientAllInformation, '/api/patient/allinfo') # [GET]
-    api.add_resource(PatientReading, '/api/patient/reading/<string:patient_id>') # [GET, POST]
+    api.add_resource(PatientReading, '/api/patient/reading/<string:patient_id>', '/api/patient/reading') # [GET, POST]
     api.add_resource(PatientInfo, '/api/patient/<string:patient_id>') # [GET, PUT]
     api.add_resource(PatientAll, '/api/patient') # [GET, POST]
 
