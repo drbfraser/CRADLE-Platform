@@ -204,7 +204,7 @@ class NewReadingPage extends Component {
       let patientData = JSON.parse(JSON.stringify(this.state.patient))
       let readingData = JSON.parse(JSON.stringify(this.state.reading))
       if (!this.state.hasUrineTest) {
-        delete readingData.urineTests
+        readingData.urineTests = null
       }
 
       let newData = {
@@ -241,7 +241,8 @@ class NewReadingPage extends Component {
                 heartRateBPM: "",
                 dateRecheckVitalsNeeded: "",
                 isFlaggedForFollowup: false,
-                symptoms: ""
+                symptoms: "",
+                urineTests: initialUrineTests
               },
               checkedItems: {
                 none: false,
@@ -254,7 +255,8 @@ class NewReadingPage extends Component {
                 other: false,
                 otherSymptoms: ""
               },
-              showSuccessReading: true
+              showSuccessReading: true,
+              hasUrineTest: false
           })
         }
       })
