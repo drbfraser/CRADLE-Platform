@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients } from '../../actions/patients'
+import { getPatients, getPatient } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
 import PatientTable from './referralTable'
 import PatientSummary from '../patientPage/patientSummary'
@@ -9,11 +9,6 @@ import PatientSummary from '../patientPage/patientSummary'
 
 class ReferralPage extends Component {
   state = {
-    selectedPatient: { patientId: '', patientName: 'Test', 
-                       patientSex: 'F', medicalHistory: '',
-                       drugHistory: '', villageNumber:'', readings: []
-                      },
-    showSelectedPatient : false,
     patientsList: []
   }
 
@@ -22,8 +17,7 @@ class ReferralPage extends Component {
       if (err !== undefined) {
         // error from getCurrentUser(), don't get patients
         return
-      }
-      
+      }      
       if (this.props.patients.patientsList.length === 0) {
         this.props.getPatients()
       }
@@ -49,19 +43,21 @@ class ReferralPage extends Component {
 
   static getDerivedStateFromProps(props, state) {
     const referredPatients = ReferralPage.filterReferrals(props.patients.patientsList)
-    return {
+    let newState = {
       ...state,
       patientsList: referredPatients
     }
+
+    return newState;
   }
 
   patientCallback = (selectedPatient) => {
     console.log('Received callback: ')
-    this.setState({'selectedPatient': selectedPatient, 'showSelectedPatient': true })
+    this.props.history.push(`/patient/${selectedPatient.patientId}`);
   }
 
-  backBtnCallback = (status) => {
-    this.setState({ 'showSelectedPatient' : false })
+  backBtnCallback = () => {
+    this.props.history.goBack();
   }
 
 
@@ -73,18 +69,14 @@ class ReferralPage extends Component {
 
     return (
       <div>
-        {this.state.showSelectedPatient ? (
-          <PatientSummary callbackFromParent={this.backBtnCallback} selectedPatient={this.state.selectedPatient}></PatientSummary>
-        ) : (
           <PatientTable callbackFromParent={this.patientCallback} data={this.state.patientsList} isLoading={this.props.patients.isLoading}></PatientTable>
-        )}
       </div>
     )
   }
 }
 
 const mapStateToProps = ({ patients, user }) => ({
-  patients : patients,
+  patients: patients,
   user : user.currentUser
 })
 
@@ -93,6 +85,7 @@ const mapDispatchToProps = dispatch =>
     {
       getPatients,
       getCurrentUser,
+      getPatient
     },
     dispatch
   )

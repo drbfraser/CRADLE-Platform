@@ -15,7 +15,7 @@ import {
 const initialState = {
     patient: {},
     patientsList: [],
-    isFetchingPatient: false,
+    isLoading: true
 }
 
 export default (state = initialState, action) => {
@@ -57,8 +57,6 @@ export default (state = initialState, action) => {
           ...state,
           isLoading: false
       }
-      
-    
 
     default:
       return state
