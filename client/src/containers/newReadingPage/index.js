@@ -42,8 +42,7 @@ class NewReadingPage extends Component {
       gestationalAgeValue: "",
       gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
       zone: "",
-      block: "",
-      tank: "",
+      dob: "",
       villageNumber: "",
       drugHistory: "",
       medicalHistory: ""
@@ -186,6 +185,9 @@ class NewReadingPage extends Component {
         symptom.push(this.state.checkedItems.otherSymptoms)
       }
     }
+    if (this.state.patient.patientAge == '') {
+      this.state.patient.patientAge = '-1'
+    }
 
     var dateTime = new Date()
     var readingID = guid()
@@ -220,13 +222,12 @@ class NewReadingPage extends Component {
                 patientId: "",
                 patientName: "",
                 patientAge: "",
+                dob: "",
                 patientSex: "FEMALE",
                 isPregnant: true,
                 gestationalAgeValue: "",
                 gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
                 zone: "",
-                block: "",
-                tank: "",
                 villageNumber: "",
                 drugHistory: "",
                 medicalHistory: ""
