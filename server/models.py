@@ -132,8 +132,7 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    tank = db.Column(db.String(20))
-    block = db.Column(db.String(20))
+    dob = db.Column(db.Date)
 
     villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
@@ -247,6 +246,9 @@ class Reading(db.Model):
 
     # RELATIONSHIPS
     patient = db.relationship('Patient', backref=db.backref('readings', lazy=True))
+    urineTests = db.relationship('urineTest', backref=db.backref('reading', lazy=True))
+
+
 
 
 class FollowUp(db.Model):
@@ -257,7 +259,10 @@ class FollowUp(db.Model):
     treatment = db.Column(db.Text)
     dateAssessed = db.Column(db.String(100), nullable=False)
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
-
+    specialInvestigations = db.Column(db.Text)
+    medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
+    followupNeeded = db.Column(db.Boolean)
+    dateReviewNeeded = db.Column(db.Date)
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
 
@@ -266,6 +271,16 @@ class Village(db.Model):
     villageNumber = db.Column(db.String(50), primary_key=True)
     zoneNumber    = db.Column(db.String(50))
 
+
+class urineTest(db.Model):
+    Id = db.Column(db.String(50), primary_key=True)
+    urineTestLeuc = db.Column(db.String(5))
+    urineTestNit = db.Column(db.String(5))
+    urineTestGlu = db.Column(db.String(5))
+    urineTestPro = db.Column(db.String(5))
+    urineTestBlood = db.Column(db.String(5))
+    #urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
+    readingId = db.Column(db.ForeignKey('reading.readingId'))
 
 ######################
 ###    SCHEMAS     ###
@@ -309,6 +324,13 @@ class ReferralSchema(ma.ModelSchema):
     class Meta:
         include_fk = True
         model = Referral
+
+class urineTestSchema(ma.ModelSchema):
+    # urineTests = fields.Nested(ReadingSchema)
+    class Meta:
+        include_fk = True
+        model = urineTest
+
 
 user_schema = {
     "type": "object",

@@ -7,6 +7,7 @@ from utils import pprint
 # Project modules
 from Manager.ReferralManager import ReferralManager
 from Validation.ReferralValidator import ReferralValidator
+from Controller.Helpers import _get_request_body
 
 referralManager = ReferralManager()
 validator = ReferralValidator()
@@ -56,12 +57,6 @@ class ReferralInfo(Resource):
 
 # /referral [GET, POST]
 class ReferralApi(Resource):
-    @staticmethod
-    def _get_request_body():
-        raw_req_body = request.get_json(force=True)
-        body = raw_req_body
-        print('Request body: ' + json.dumps(body, indent=2, sort_keys=True))
-        return body
 
     """ Get Referrals
         queryParams (Optional):
@@ -114,5 +109,5 @@ class ReferralApi(Resource):
             newly created referral object
     """
     def post(self):
-        req_data = self._get_request_body()
+        req_data = _get_request_body()
         return referralManager.create_referral_with_patient_and_reading(req_data), 201
