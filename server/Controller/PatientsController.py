@@ -123,7 +123,7 @@ class PatientInfo(Resource):
     def put(self, patient_id):
         logging.debug('Received request: PUT /patient/' + patient_id)
 
-        data = _get_request_body(request)
+        data = _get_request_body()
 
         patient = abort_if_patient_doesnt_exist(patient_id)
         # invalid = PatientValidation.update_info_invalid(patient_id, data)
@@ -143,10 +143,10 @@ class PatientReading(Resource):
     def post(self):
         logging.debug('Received request: POST /patient/referral')
         try:
-            patient_reading_data = _get_request_body(request)
+            patient_reading_data = _get_request_body()
         except:
             return {'HTTP 400':decoding_error}, 400
-        patient_reading_data = _get_request_body(request)
+        patient_reading_data = _get_request_body()
         # Ensure all data is valid
         abort_if_body_empty(patient_reading_data)
         is_invalid_patient = PatientValidation.check_patient_fields(patient_reading_data['patient'])

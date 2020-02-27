@@ -109,5 +109,5 @@ class ReferralApi(Resource):
             newly created referral object
     """
     def post(self):
-        req_data = _get_request_body(request)
+        req_data = _get_request_body()
         return referralManager.create_referral_with_patient_and_reading(req_data), 201
