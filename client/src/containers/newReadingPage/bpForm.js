@@ -6,7 +6,7 @@ import './index.css'
 
 function BpForm(props) {
     return (
-        <Paper className='bpCard' style={{ "padding": "35px 25px", "borderRadius": "15px", "minWidth" : "450px" }}>
+        <Paper className='bpCard' style={{ "padding": "35px 25px", "borderRadius": "15px" }}>
             <Header><b>Blood Pressure</b></Header>
             <div className='bpField'>
                 <Form.Field

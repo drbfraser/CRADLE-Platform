@@ -23,6 +23,14 @@ function guid() {
   });
 }
 
+const initialUrineTests = {
+  urineTestNit: "",
+  urineTestBlood: "",
+  urineTestLeuc: "",
+  urineTestPro: "",
+  urineTestGlu: ""
+}
+
 class NewReadingPage extends Component {
   state = { 
     patient: {
@@ -49,7 +57,7 @@ class NewReadingPage extends Component {
       dateRecheckVitalsNeeded: "",
       isFlaggedForFollowup: false,
       symptoms: "",
-      urineTest: ""
+      urineTests: initialUrineTests
     },
     checkedItems: {
       none: true,
@@ -97,7 +105,10 @@ class NewReadingPage extends Component {
     this.setState({
       reading: {
         ...this.state.reading,
-        urineTest: value.value
+        urineTests: {
+          ...this.state.reading.urineTests,
+          [value.name]: value.value
+        }
       }
     })
   }
@@ -110,7 +121,7 @@ class NewReadingPage extends Component {
       this.setState({
         reading: {
           ...this.state.reading,
-          urineTest: ""
+          urineTests: initialUrineTests
         }
       })
     }
@@ -192,8 +203,8 @@ class NewReadingPage extends Component {
     }, function() {
       let patientData = JSON.parse(JSON.stringify(this.state.patient))
       let readingData = JSON.parse(JSON.stringify(this.state.reading))
-      if (!this.state.hasUrineTest || readingData.urineTest == "") {
-        delete readingData.urineTest
+      if (!this.state.hasUrineTest) {
+        readingData.urineTests = null
       }
 
       let newData = {
@@ -230,7 +241,8 @@ class NewReadingPage extends Component {
                 heartRateBPM: "",
                 dateRecheckVitalsNeeded: "",
                 isFlaggedForFollowup: false,
-                symptoms: ""
+                symptoms: "",
+                urineTests: initialUrineTests
               },
               checkedItems: {
                 none: false,
@@ -243,7 +255,8 @@ class NewReadingPage extends Component {
                 other: false,
                 otherSymptoms: ""
               },
-              showSuccessReading: true
+              showSuccessReading: true,
+              hasUrineTest: false
           })
         }
       })
@@ -262,20 +275,24 @@ class NewReadingPage extends Component {
         <Divider/>
         <Form onSubmit={this.handleSubmit}>
           <PatientInfoForm patient={this.state.patient} onChange={this.handleChange} onSelectChange={this.handleSelectChange}/>
-          <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
-          <SymptomForm 
-            checkedItems={this.state.checkedItems} 
-            patient={this.state.patient} 
-            onChange={this.handleCheckedChange} 
-            onOtherChange={this.handleOtherSymptom}
-          />
-          <UrineTestForm
-            reading={this.state.reading}
-            onChange={this.handleUrineTestChange}
-            onSwitchChange={this.handleUrineTestSwitchChange}
-            hasUrineTest={this.state.hasUrineTest}
-          />
-
+          <div className='leftContainer'>
+            <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
+            <SymptomForm 
+              checkedItems={this.state.checkedItems} 
+              patient={this.state.patient} 
+              onChange={this.handleCheckedChange} 
+              onOtherChange={this.handleOtherSymptom}
+            />
+          </div>
+          <div className="rightContainer">
+            <UrineTestForm
+              reading={this.state.reading}
+              onChange={this.handleUrineTestChange}
+              onSwitchChange={this.handleUrineTestSwitchChange}
+              hasUrineTest={this.state.hasUrineTest}
+            />
+          </div>
+          
           <div style={{"clear" : "both"}}></div>
           <div className='contentRight'>
             <Button 

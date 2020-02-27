@@ -10,10 +10,13 @@ from Controller.Helpers import _get_request_body
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
 from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 from Validation import PatientValidation
+from Manager.UserManager import UserManager
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                     jwt_required, jwt_refresh_token_required, get_jwt_identity)
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
+userManager = UserManager()
+
 
 decoding_error = 'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
 
@@ -112,7 +115,6 @@ class PatientInfo(Resource):
     # Get a single patient
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
-
         patient = patientManager.read("patientId", patient_id)
 
         if patient is None:
@@ -168,7 +170,6 @@ class PatientReading(Resource):
             patient_reading_data['patient']['patientId'],
             patient_reading_data
         )
-
         # associate new reading with patient
         reading_and_patient['message'] = 'Patient reading created successfully!'
 

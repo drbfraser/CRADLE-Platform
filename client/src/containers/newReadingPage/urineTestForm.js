@@ -6,26 +6,23 @@ import {Form, Header, Select} from 'semantic-ui-react';
 import './index.css'
 
 const resultOptions = [
-    { key: 'leucp', text: 'leuc +', value: 'leuc +' },
-    { key: 'leucpp', text: 'leuc ++', value: 'leuc ++' },
-    { key: 'leucppp', text: 'leuc +++', value: 'leuc +++' },
-    { key: 'nitp', text: 'nit +', value: 'nit +' },
-    { key: 'nitpp', text: 'nit ++', value: 'nit ++' },
-    { key: 'nitppp', text: 'nit +++', value: 'nit +++' },
-    { key: 'glup', text: 'glu +', value: 'glu +' },
-    { key: 'glupp', text: 'glu ++', value: 'glu ++' },
-    { key: 'gluppp', text: 'glu +++', value: 'glu +++' },
-    { key: 'prop', text: 'pro +', value: 'pro +' },
-    { key: 'propp', text: 'pro ++', value: 'pro ++' },
-    { key: 'proppp', text: 'pro +++', value: 'pro +++' },
-    { key: 'bloodp', text: 'blood +', value: 'blood +' },
-    { key: 'bloodpp', text: 'blood ++', value: 'blood ++' },
-    { key: 'bloodppp', text: 'blood +++', value: 'blood +++' },
+    { key: 'm', text: '-', value: '-' },
+    { key: 'p', text: '+', value: '+' },
+    { key: 'pp', text: '++', value: '++' },
+    { key: 'ppp', text: '+++', value: '+++' },
 ]
+
+export const urineTestChemicals = {
+    LEUC: 'Leukocytes',
+    NIT: 'Nitrites',
+    GLU: 'Glucose',
+    PRO: 'Protein',
+    BLOOD: 'Blood'
+}
 
 function UrineTestForm(props) {
     return (
-        <Paper className='bpCard' style={{ 'padding': '35px 25px', 'borderRadius': '15px', 'minWidth' : '450px' }}>
+        <Paper className='urineTestCard' style={{ 'padding': '35px 25px', 'borderRadius': '15px' }}>
             <Header>
                 <b>Urine Test</b>
                 <Switch
@@ -35,19 +32,64 @@ function UrineTestForm(props) {
                     color='primary'
                 />
             </Header>
+            {props.hasUrineTest &&
             <div className='urineTest'>
                 <Form.Field 
-                    name='urineTest'
+                    name='urineTestLeuc'
                     value={props.reading.urineTest}
                     control={Select}
-                    label='Test Result'
+                    label={urineTestChemicals.LEUC}
                     options={resultOptions}
                     placeholder='Test Result'
                     onChange={props.onChange}
                     disabled={!props.hasUrineTest}
                     required
                 />
-            </div>
+                <Form.Field
+                    name='urineTestNit'
+                    value={props.reading.urineTest}
+                    control={Select}
+                    label={urineTestChemicals.NIT}
+                    options={resultOptions}
+                    placeholder='Test Result'
+                    onChange={props.onChange}
+                    disabled={!props.hasUrineTest}
+                    required
+                />
+                <Form.Field 
+                    name='urineTestGlu'
+                    value={props.reading.urineTest}
+                    control={Select}
+                    label={urineTestChemicals.GLU}
+                    options={resultOptions}
+                    placeholder='Test Result'
+                    onChange={props.onChange}
+                    disabled={!props.hasUrineTest}
+                    required
+                />
+                <Form.Field 
+                    name='urineTestPro'
+                    value={props.reading.urineTest}
+                    control={Select}
+                    label={urineTestChemicals.PRO}
+                    options={resultOptions}
+                    placeholder='Test Result'
+                    onChange={props.onChange}
+                    disabled={!props.hasUrineTest}
+                    required
+                />
+                <Form.Field 
+                    name='urineTestBlood'
+                    value={props.reading.urineTest}
+                    control={Select}
+                    label={urineTestChemicals.BLOOD}
+                    options={resultOptions}
+                    placeholder='Test Result'
+                    onChange={props.onChange}
+                    disabled={!props.hasUrineTest}
+                    required
+                />
+            </div>}
         </Paper>
     )
 }
