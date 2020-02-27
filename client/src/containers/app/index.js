@@ -18,6 +18,7 @@ import Home from '../home'
 import AdminPage from '../adminPage'
 import HelpPage from '../helpPage'
 import PatientPage from '../patientPage'
+import PatientSummaryContainer from '../patientPage/patientSummaryContainer';
 import StatisticsPage from '../statisticsPage'
 import ReferralsPage from '../referralsPage'
 import NewReadingPage from '../newReadingPage'
@@ -350,6 +351,7 @@ const App = (props) => {
           <Route exact path="/admin" component={AdminPage} />
           <Route exact path="/help" component={HelpPage} />
           <Route exact path="/patients" component={PatientPage} />
+          <Route path="/patient/:id" component={PatientSummaryContainer} />
           <Route exact path="/signup" component={Signup} />
           <Route exact path="/login" component={Login} />
           <Route exact path="/stats" component={StatisticsPage} />

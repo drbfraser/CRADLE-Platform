@@ -137,9 +137,25 @@ class PatientInfo(Resource):
         return response_body, 200
 
 
-# URI: api/patient/reading/ [POST]
+# URI: api/patient/reading/:id [POST]
+# [GET]: Get a patient's information w/ reading information
 # [POST]: Create a new patient with a reading 
 class PatientReading(Resource):
+   # Get a single patient
+    def get(self, patient_id):
+        logging.debug('Received request: GET /patient/' + patient_id)
+        patient = patientManager.read("patientId", patient_id)
+        
+        new_readings = []
+        for reading in patient['readings']:
+            new_readings.append(readingManager.read("readingId", reading))
+
+        patient['readings'] = new_readings
+
+        if patient is None:
+            abort(404, message="Patient {} doesn't exist.".format(patient_id))
+        return patient
+
 
     # Create a new patient with a reading
     def post(self):
