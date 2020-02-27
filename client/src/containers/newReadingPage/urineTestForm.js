@@ -22,7 +22,7 @@ export const urineTestChemicals = {
 
 function UrineTestForm(props) {
     return (
-        <Paper className='bpCard' style={{ 'padding': '35px 25px', 'borderRadius': '15px', 'minWidth' : '450px' }}>
+        <Paper className='urineTestCard' style={{ 'padding': '35px 25px', 'borderRadius': '15px' }}>
             <Header>
                 <b>Urine Test</b>
                 <Switch

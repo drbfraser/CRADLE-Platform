@@ -272,20 +272,24 @@ class NewReadingPage extends Component {
         <Divider/>
         <Form onSubmit={this.handleSubmit}>
           <PatientInfoForm patient={this.state.patient} onChange={this.handleChange} onSelectChange={this.handleSelectChange}/>
-          <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
-          <SymptomForm 
-            checkedItems={this.state.checkedItems} 
-            patient={this.state.patient} 
-            onChange={this.handleCheckedChange} 
-            onOtherChange={this.handleOtherSymptom}
-          />
-          <UrineTestForm
-            reading={this.state.reading}
-            onChange={this.handleUrineTestChange}
-            onSwitchChange={this.handleUrineTestSwitchChange}
-            hasUrineTest={this.state.hasUrineTest}
-          />
-
+          <div className='leftContainer'>
+            <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
+            <SymptomForm 
+              checkedItems={this.state.checkedItems} 
+              patient={this.state.patient} 
+              onChange={this.handleCheckedChange} 
+              onOtherChange={this.handleOtherSymptom}
+            />
+          </div>
+          <div className="rightContainer">
+            <UrineTestForm
+              reading={this.state.reading}
+              onChange={this.handleUrineTestChange}
+              onSwitchChange={this.handleUrineTestSwitchChange}
+              hasUrineTest={this.state.hasUrineTest}
+            />
+          </div>
+          
           <div style={{"clear" : "both"}}></div>
           <div className='contentRight'>
             <Button 
