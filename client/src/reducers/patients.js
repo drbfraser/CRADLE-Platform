@@ -4,12 +4,16 @@ import {
     GET_PATIENTS,
     GET_PATIENTS_REQUESTED,
     GET_PATIENTS_ERR,
+    GET_PATIENT,
+    GET_PATIENT_REQUESTED,
+    GET_PATIENT_ERR,
     // UPDATE_PATIENT,
     // UPDATE_PATIENT_REQUESTED,
     // UPDATE_PATIENT_ERR
  } from '../actions/patients';
 
 const initialState = {
+    patient: {},
     patientsList: [],
     isFetchingPatient: false,
 }
@@ -34,6 +38,27 @@ export default (state = initialState, action) => {
           ...state,
           isLoading: false
       }
+    case GET_PATIENT:
+      return {
+        ...state,
+        patient: action.payload,
+        isLoading: false
+      }
+    
+    case GET_PATIENT_REQUESTED:
+      return {
+          ...state,
+          patient: action.payload,
+          isLoading: true
+      }
+
+    case GET_PATIENT_ERR:
+      return {
+          ...state,
+          isLoading: false
+      }
+      
+    
 
     default:
       return state

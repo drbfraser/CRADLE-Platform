@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients } from '../../actions/patients'
+import { getPatients, getPatient } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
 import PatientTable from './patientTable'
 import PatientSummary from './patientSummary'
@@ -9,14 +9,29 @@ import PatientSummary from './patientSummary'
 
 class PatientPage extends Component {
   state = {
-    selectedPatient: { patientId: '', patientName: 'Test', 
-                       patientSex: 'F', medicalHistory: '',
-                       drugHistory: '', villageNumber:'', readings: []
-                      },
+    rawPatient: {},
+    selectedPatient: { 
+      patientId: '', 
+      patientName: 'Test', 
+      patientSex: 'F', 
+      medicalHistory: '',
+      drugHistory: '', 
+      villageNumber:'', 
+      readings: []
+    },
     showSelectedPatient : false,
   }
 
   componentDidMount = () => {
+    console.log("this.props: ", this.props);
+    
+    // route to single patient page
+    if(this.props.match && this.props.match.params && this.props.match.params.id) {
+      console.log(this.props.match.params.id);
+
+      this.props.getPatient(this.props.match.params.id);
+    }
+
     this.props.getCurrentUser().then((err) => {
       if (err !== undefined) {
         // error from getCurrentUser(), don't get patients
@@ -29,9 +44,25 @@ class PatientPage extends Component {
     })
   }
 
+  static getDerivedStateFromProps(props, state) {
+    if (props.patient && props.patient != state.rawPatient) {
+      return {
+        ...state,
+        rawPatient: props.patient,
+        selectedPatient: {
+          ...props.patient,
+          needsAssessment: false
+        },
+        showSelectedPatient: props.match && props.match.params && props.match.params.id != null
+      }
+    }
+    return null;
+  }
+  
   patientCallback = (selectedPatient) => {
     console.log('Received callback: ')
-    this.setState({'selectedPatient': selectedPatient, 'showSelectedPatient': true })
+    // this.setState({'selectedPatient': selectedPatient, 'showSelectedPatient': true })
+    this.props.history.push(`/patient/${selectedPatient.patientId}`);
   }
 
   backBtnCallback = (status) => {
@@ -44,6 +75,9 @@ class PatientPage extends Component {
     if (!this.props.user.isLoggedIn) {
       return <div />
     }
+
+    console.log("state: ", this.state);
+    console.log("this.state.showSelectedPatient: ", this.state.showSelectedPatient);
 
     return (
       <div>
@@ -58,7 +92,10 @@ class PatientPage extends Component {
 }
 
 const mapStateToProps = ({ patients, user }) => ({
-  patients : patients,
+  patient: patients.patient,
+  patients: {
+    patientsList: patients.patientsList
+  },
   user : user.currentUser
 })
 
@@ -67,6 +104,7 @@ const mapDispatchToProps = dispatch =>
     {
       getPatients,
       getCurrentUser,
+      getPatient
     },
     dispatch
   )

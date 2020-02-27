@@ -30,7 +30,7 @@ class ReferralPage extends Component {
     })
   }
 
-  filterReferrals = (patientsList) => {
+  static filterReferrals(patientsList) {
     const result = patientsList.filter(patient => {
       if (patient.readings.length === 0) {
         return false
@@ -47,9 +47,12 @@ class ReferralPage extends Component {
     return result
   } 
 
-  componentWillReceiveProps(props) {
-    const referredPatients = this.filterReferrals(props.patients.patientsList)
-    this.setState({ patientsList : referredPatients})
+  static getDerivedStateFromProps(props, state) {
+    const referredPatients = ReferralPage.filterReferrals(props.patients.patientsList)
+    return {
+      ...state,
+      patientsList: referredPatients
+    }
   }
 
   patientCallback = (selectedPatient) => {
