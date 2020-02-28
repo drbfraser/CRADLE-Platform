@@ -143,7 +143,7 @@ class PatientInfo(Resource):
 class PatientReading(Resource):
    # Get a single patient
     def get(self, patient_id):
-        logging.debug('Received request: GET /patient/' + patient_id)
+        logging.debug('Received request: GET /patient/reading/' + patient_id)
         patient = patientManager.read("patientId", patient_id)
         
         new_readings = []
@@ -159,7 +159,7 @@ class PatientReading(Resource):
 
     # Create a new patient with a reading
     def post(self):
-        logging.debug('Received request: POST /patient/referral')
+        logging.debug('Received request: POST /patient/reading')
         try:
             patient_reading_data = _get_request_body()
         except:
@@ -178,7 +178,7 @@ class PatientReading(Resource):
             return is_invalid_reading
 
         patient_data = patient_reading_data['patient']
-        if patient_data['dob'] is not None and patient_data['patientAge'] == '-1':
+        if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] == '-1':
             patient_reading_data['patient'] = calculate_age_from_dob(patient_data)
 
         # create new reading (and patient if it does not already exist)
