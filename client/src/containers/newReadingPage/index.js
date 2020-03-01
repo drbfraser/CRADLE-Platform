@@ -6,7 +6,7 @@ import { newReadingPost } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
 import BpForm from './bpForm';
 import SymptomForm from './symptomForm';
-import UrineTestForm from './urineTestForm';
+import UrineTestForm, { initialUrineTests } from './urineTestForm';
 import SweetAlert from 'sweetalert2-react';
 
 import {Button, Divider, Form} from 'semantic-ui-react'
@@ -21,14 +21,6 @@ function guid() {
     var v = (c === 'x') ? r : ((r & 0x3) | 0x8);
     return v.toString(16);
   });
-}
-
-const initialUrineTests = {
-  urineTestNit: "",
-  urineTestBlood: "",
-  urineTestLeuc: "",
-  urineTestPro: "",
-  urineTestGlu: ""
 }
 
 class NewReadingPage extends Component {
