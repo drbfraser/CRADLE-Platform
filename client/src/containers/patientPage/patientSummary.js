@@ -300,7 +300,7 @@ class PatientSummary extends Component {
     this.setState({ checkedItems: { ...this.state.checkedItems, [event.target.name]: event.target.value } })
   }
 
-  handleUrineTestChange = (e, value) => {
+  handleUrineTestChange = (event, value) => {
     this.setState({
       newReading: {
         ...this.state.newReading,
@@ -312,11 +312,11 @@ class PatientSummary extends Component {
     })
   }
 
-  handleUrineTestSwitchChange = (e) => {
+  handleUrineTestSwitchChange = (event) => {
     this.setState({
-      hasUrineTest: e.target.checked
+      hasUrineTest: event.target.checked
     })
-    if (!e.target.checked) {
+    if (!event.target.checked) {
       this.setState({
         newReading: {
           ...this.state.newReading,
