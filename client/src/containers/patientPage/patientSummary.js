@@ -24,7 +24,7 @@ import ReferralInfo from './referralInfo';
 import { getCurrentUser } from '../../actions/users';
 import { newReadingPost } from '../../actions/newReading';
 import { getTrafficIcon } from './patientUtils';
-import { urineTestChemicals } from '../newReadingPage/urineTestForm';
+import UrineTestForm, { urineTestChemicals, initialUrineTests } from '../newReadingPage/urineTestForm';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -63,7 +63,8 @@ class PatientSummary extends Component {
       heartRateBPM: "",
       dateRecheckVitalsNeeded: "",
       isFlaggedForFollowup: false,
-      symptoms: ""
+      symptoms: "",
+      urineTests: initialUrineTests
     },
     checkedItems: {
       none: true,
@@ -78,6 +79,7 @@ class PatientSummary extends Component {
     },
     showSuccessReading: false,
     selectedPatientCopy : { readings: [] },
+    hasUrineTest: false
   }
 
   componentDidMount = () => {
@@ -206,7 +208,6 @@ class PatientSummary extends Component {
         readingId: readingID,
         dateTimeTaken: dateTime.toJSON(),
         symptoms: symptom.toString(),
-        urineTests: null
       }
     }, function () {
       let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient))
@@ -216,6 +217,9 @@ class PatientSummary extends Component {
       delete patientData.readings
       delete patientData.needsAssessment
       delete patientData.tableData
+      if (!this.state.hasUrineTest) {
+        readingData.urineTests = null
+      }
 
       let newData = {
         patient: patientData,
@@ -231,7 +235,8 @@ class PatientSummary extends Component {
           ...this.state.selectedPatient,
           readings: [...this.state.selectedPatient.readings, newData['reading']]
         },
-        showSuccessReading: true
+        showSuccessReading: true,
+        hasUrineTest: false
       })
       this.closeReadingModal()
     })
@@ -293,6 +298,32 @@ class PatientSummary extends Component {
 
   handleOtherSymptom = event => {
     this.setState({ checkedItems: { ...this.state.checkedItems, [event.target.name]: event.target.value } })
+  }
+
+  handleUrineTestChange = (event, value) => {
+    this.setState({
+      newReading: {
+        ...this.state.newReading,
+        urineTests: {
+          ...this.state.newReading.urineTests,
+          [value.name]: value.value
+        }
+      }
+    })
+  }
+
+  handleUrineTestSwitchChange = (event) => {
+    this.setState({
+      hasUrineTest: event.target.checked
+    })
+    if (!event.target.checked) {
+      this.setState({
+        newReading: {
+          ...this.state.newReading,
+          urineTests: initialUrineTests
+        }
+      })
+    }
   }
 
   createReadings = (readingId, dateTimeTaken, bpDiastolic,
@@ -691,8 +722,8 @@ class PatientSummary extends Component {
                 <Modal.Content scrolling>
                   <Modal.Description>
                     <Header>New Patient Reading for ID #{this.state.selectedPatient.patientId}</Header>
-                    <Divider />
                     <Form onSubmit={this.handleReadingSubmit}>
+                      <Paper style={{ 'padding': '35px 25px', 'borderRadius': '15px' }}>
                       <Form.Group widths='equal'>
                         <Form.Field
                           name="bpSystolic"
@@ -792,7 +823,13 @@ class PatientSummary extends Component {
                           disabled={!this.state.checkedItems.other}
                         />
                       </Form.Group>
-
+                      </Paper>
+                      <UrineTestForm
+                        reading={this.state.newReading}
+                        onChange={this.handleUrineTestChange}
+                        onSwitchChange={this.handleUrineTestSwitchChange}
+                        hasUrineTest={this.state.hasUrineTest}
+                      />
                       <Form.Field control={Button}>Submit</Form.Field>
                     </Form>
                   </Modal.Description>

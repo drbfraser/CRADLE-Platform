@@ -20,6 +20,15 @@ export const urineTestChemicals = {
     BLOOD: 'Blood'
 }
 
+
+export const initialUrineTests = {
+    urineTestNit: "",
+    urineTestBlood: "",
+    urineTestLeuc: "",
+    urineTestPro: "",
+    urineTestGlu: ""
+  }
+
 function UrineTestForm(props) {
     return (
         <Paper className='urineTestCard' style={{ 'padding': '35px 25px', 'borderRadius': '15px' }}>
@@ -36,7 +45,6 @@ function UrineTestForm(props) {
             <div className='urineTest'>
                 <Form.Field 
                     name='urineTestLeuc'
-                    value={props.reading.urineTest}
                     control={Select}
                     label={urineTestChemicals.LEUC}
                     options={resultOptions}
@@ -47,7 +55,6 @@ function UrineTestForm(props) {
                 />
                 <Form.Field
                     name='urineTestNit'
-                    value={props.reading.urineTest}
                     control={Select}
                     label={urineTestChemicals.NIT}
                     options={resultOptions}
@@ -58,7 +65,6 @@ function UrineTestForm(props) {
                 />
                 <Form.Field 
                     name='urineTestGlu'
-                    value={props.reading.urineTest}
                     control={Select}
                     label={urineTestChemicals.GLU}
                     options={resultOptions}
@@ -69,7 +75,6 @@ function UrineTestForm(props) {
                 />
                 <Form.Field 
                     name='urineTestPro'
-                    value={props.reading.urineTest}
                     control={Select}
                     label={urineTestChemicals.PRO}
                     options={resultOptions}
@@ -80,7 +85,6 @@ function UrineTestForm(props) {
                 />
                 <Form.Field 
                     name='urineTestBlood'
-                    value={props.reading.urineTest}
                     control={Select}
                     label={urineTestChemicals.BLOOD}
                     options={resultOptions}
