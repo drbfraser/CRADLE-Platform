@@ -12,16 +12,14 @@ class PatientFacilityManager(Manager):
     def __init__(self):
         Manager.__init__(self, PatientFacilityRepo)
 
-    def add_patient_facility_relationship(self,patient_reading_data):
+    def add_patient_facility_relationship(self, patientId, healthFacilityName):
         # add patient to facility
         # add patient to the facility of the user that took their reading
         try: 
-            user = userManager.read("id", patient_reading_data['reading']['userId'])
-            userFacility = user['healthFacilityName']
             patient_facility_to_insert = {
                 "id": str(uuid.uuid4()),
-                "patientId": patient_reading_data['patient']['patientId'],
-                "healthFacilityName": userFacility
+                "patientId": patientId,
+                "healthFacilityName": healthFacilityName
             }
             self.create(patient_facility_to_insert)
         except IntegrityError:

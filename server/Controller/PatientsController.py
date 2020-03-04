@@ -190,7 +190,12 @@ class PatientReading(Resource):
         )
 
         # add patient to the facility of the user that took their reading
-        patientFacilityManager.add_patient_facility_relationship(patient_reading_data)
+        user = userManager.read("id", patient_reading_data['reading']['userId'])
+        userFacility = user['healthFacilityName']
+        patientFacilityManager.add_patient_facility_relationship(
+            patient_reading_data['patient']['patientId'],
+            userFacility
+        )
 
         # associate new reading with patient
         reading_and_patient['message'] = 'Patient reading created successfully!'
