@@ -32,24 +32,6 @@ class TrafficLightEnum(enum.Enum):
     RED_UP = 'RED_UP'
     RED_DOWN = 'RED_DOWN'
 
-# use as enum for later
-class UrineTestEnum(enum.Enum):
-    LEUC_PLUS = 'leuc +'
-    LEUC_PLUS_PLUS = 'leuc ++'
-    LEUC_PLUS_PLUS_PLUS = 'leuc +++'
-    NIT_PLUS = 'nit +'
-    NIT_PLUS_PLUS = 'nit ++'
-    NIT_PLUS_PLUS_PLUS= 'nit +++'
-    GLU_PLUS = 'glu +'
-    GLU_PLUS_PLUS = 'glu ++'
-    GLU_PLUS_PLUS_PLUS = 'glu +++'
-    PRO_PLUS = 'pro +'
-    PRO_PLUS_PLUS = 'pro ++'
-    PRO_PLUS_PLUS_PLUS = 'pro +++'
-    BLOOD_PLUS = 'blood +'
-    BLOOD_PLUS_PLUS = 'blood ++'
-    BLOOD_PLUS_PLUS_PLUS = 'blood +++'
-
 ######################
 ### HELPER CLASSES ###
 ######################
@@ -281,6 +263,8 @@ class urineTest(db.Model):
     urineTestBlood = db.Column(db.String(5))
     #urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
     readingId = db.Column(db.ForeignKey('reading.readingId'))
+
+
 
 ######################
 ###    SCHEMAS     ###
