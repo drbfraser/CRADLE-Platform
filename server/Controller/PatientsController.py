@@ -1,6 +1,6 @@
 import logging
 import json
-
+import uuid 
 from flask import request
 from flask_restful import Resource, abort
 from datetime import date, datetime
@@ -11,11 +11,13 @@ from Manager.PatientManagerNew import PatientManager as PatientManagerNew
 from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 from Validation import PatientValidation
 from Manager.UserManager import UserManager
+from Manager.PatientFacilityManager import PatientFacilityManager
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                     jwt_required, jwt_refresh_token_required, get_jwt_identity)
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 userManager = UserManager()
+patientFacilityManager = PatientFacilityManager()
 
 
 decoding_error = 'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
@@ -159,7 +161,7 @@ class PatientReading(Resource):
 
     # Create a new patient with a reading
     def post(self):
-        logging.debug('Received request: POST /patient/referral')
+        logging.debug('Received request: POST api/patient/reading')
         try:
             patient_reading_data = _get_request_body()
         except:
@@ -186,6 +188,10 @@ class PatientReading(Resource):
             patient_reading_data['patient']['patientId'],
             patient_reading_data
         )
+
+        # add patient to the facility of the user that took their reading
+        patientFacilityManager.add_patient_facility_relationship(patient_reading_data)
+
         # associate new reading with patient
         reading_and_patient['message'] = 'Patient reading created successfully!'
 
