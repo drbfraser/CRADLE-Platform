@@ -5,6 +5,7 @@ from jsonschema.exceptions import SchemaError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
 import enum
+from sqlalchemy import UniqueConstraint
 
 # To add a table to db, make a new class
 # create a migration: flask db migrate
@@ -266,13 +267,10 @@ class urineTest(db.Model):
     readingId = db.Column(db.ForeignKey('reading.readingId'))
 
 class PatientFacility(db.Model):
-    # switch Id to id
-    Id = db.Column(db.String(50), primary_key=True)
-    patientId = db.Column(db.ForeignKey('patient.patientId'))
-    healthfacilityName = db.Column(db.ForeignKey('healthfacility.healthFacilityName'))
-    
-
-
+    id = db.Column(db.String(50), primary_key=True)
+    patientId = db.Column(db.ForeignKey('patient.patientId'), nullable=False)
+    healthFacilityName = db.Column(db.ForeignKey('healthfacility.healthFacilityName'), nullable=False)
+    db.UniqueConstraint('patientId', 'healthFacilityName', name='no_duplicate_patient_facility')
 
 ######################
 ###    SCHEMAS     ###
