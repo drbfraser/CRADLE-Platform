@@ -100,6 +100,7 @@ class Referral(db.Model):
 
 class HealthFacility(db.Model):
     __tablename__ = 'healthfacility'
+    # To Do: should probably have a unique id as primary key here, in addition to facility name
     healthFacilityName = db.Column(db.String(50), primary_key=True)
 
 
@@ -264,6 +265,13 @@ class urineTest(db.Model):
     #urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
     readingId = db.Column(db.ForeignKey('reading.readingId'))
 
+class PatientFacility(db.Model):
+    # switch Id to id
+    Id = db.Column(db.String(50), primary_key=True)
+    patientId = db.Column(db.ForeignKey('patient.patientId'))
+    healthfacilityName = db.Column(db.ForeignKey('healthfacility.healthFacilityName'))
+    
+
 
 
 ######################
@@ -314,6 +322,12 @@ class urineTestSchema(ma.ModelSchema):
     class Meta:
         include_fk = True
         model = urineTest
+
+class PatientFacilitySchema(ma.ModelSchema):
+    class Meta:
+        include_fk = True
+        model = PatientFacility
+
 
 
 user_schema = {
