@@ -12,6 +12,8 @@ from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 from Validation import PatientValidation
 from Manager.UserManager import UserManager
 from Manager.PatientFacilityManager import PatientFacilityManager
+from Manager.urineTestManager import urineTestManager
+
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                     jwt_required, jwt_refresh_token_required, get_jwt_identity)
 patientManager = PatientManagerNew()
@@ -20,6 +22,7 @@ userManager = UserManager()
 patientFacilityManager = PatientFacilityManager()
 
 
+urineTestManager = urineTestManager()
 decoding_error = 'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
 
 
@@ -147,11 +150,12 @@ class PatientReading(Resource):
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
         patient = patientManager.read("patientId", patient_id)
-        
+
         new_readings = []
         for reading in patient['readings']:
-            new_readings.append(readingManager.read("readingId", reading))
-
+            new_reading = readingManager.read("readingId", reading)
+            new_reading["urineTests"] = urineTestManager.read("readingId", reading)
+            new_readings.append(new_reading)
         patient['readings'] = new_readings
 
         if patient is None:
