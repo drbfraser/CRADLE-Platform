@@ -42,10 +42,10 @@ def seed():
     role_cho = Role.query.filter_by(name='CHO').first()
 
     user_schema = UserSchema()
-    u0 = { 'email' : 'admin@admin.com', 'firstName': 'Admin', 'password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
-    u1 = { 'email' : 'a@a.com', 'firstName': 'Brian', 'password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
-    u2 = { 'email' : 'b@b.com', 'firstName' : 'TestVHT','password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
-    u3 = { 'email' : 'c@c.com', 'firstName' : 'TestCHO','password': flask_bcrypt.generate_password_hash('123456'), "healthFacilityName": getRandomHealthFacilityName() }
+    u0 = { 'email' : 'admin123@admin.com', 'firstName': 'Admin', 'password': flask_bcrypt.generate_password_hash('admin123'), "healthFacilityName": getRandomHealthFacilityName() }
+    u1 = { 'email' : 'hcw@hcw.com', 'firstName': 'Brian', 'password': flask_bcrypt.generate_password_hash('hcw123'), "healthFacilityName": getRandomHealthFacilityName() }
+    u2 = { 'email' : 'vht@vht.com', 'firstName' : 'TestVHT','password': flask_bcrypt.generate_password_hash('vht123'), "healthFacilityName": getRandomHealthFacilityName() }
+    u3 = { 'email' : 'cho@cho.com', 'firstName' : 'TestCHO','password': flask_bcrypt.generate_password_hash('cho123'), "healthFacilityName": getRandomHealthFacilityName() }
     role_admin.users.append(user_schema.load(u0, session=db.session))
     role_hcw.users.append(user_schema.load(u1, session=db.session))
     role_vht.users.append(user_schema.load(u2, session=db.session))
