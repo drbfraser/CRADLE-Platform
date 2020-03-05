@@ -92,7 +92,10 @@ Install the PIP dependencies:
 ```shell
 pip3 install -r requirements.txt
 ```
-
+If there are flask errors try: 
+```shell
+pip3 install -r requirements.txt --user
+```
 #### Virtualenv (Optional: Isolated Environment for Python packages)
 
 Install Virtualenv and create an environment named `venv` (or any name you prefer) within your project directory:
@@ -135,7 +138,7 @@ python3 app.py
 
 flask run
 ```
-
+**Note:** flask might complain when you have python3 and python 2.7 install. In this case uninstall python 2.7
 The server will be available on port 5000 (http://127.0.0.1:5000).
 
 ### Front-End Web Application (Yarn with React)
