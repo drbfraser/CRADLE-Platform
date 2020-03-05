@@ -120,18 +120,35 @@ class NewReadingPage extends Component {
   }
 
   handleCheckedChange = (e, value) => {
-    //console.log(value.name)
+    console.log(value.name)
     // true => false, pop
     if (value.value) {
       if (symptom.indexOf(value.name) >= 0) {
         symptom.pop(value.name)
+        if(symptom.length == 0) {
+          // TODO : set None to true
+          console.log('its emptyyyy')
+          this.setState({
+            checkedItems: {
+              none: true,
+              headache: false,
+              bleeding: false,
+              blurredVision: false,
+              feverish: false,
+              abdominalPain: false,
+              unwell: false,
+              other: false,
+              otherSymptoms: ""
+            }
+          })
+        }
       }
     } else { // false => true, push
       if (symptom.indexOf(value.name) < 0) {
         symptom.push(value.name)
       }
     }
-    //console.log(symptom)
+    console.log(symptom)
     if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop('none')
@@ -237,7 +254,7 @@ class NewReadingPage extends Component {
                 urineTests: initialUrineTests
               },
               checkedItems: {
-                none: false,
+                none: true,
                 headache: false,
                 bleeding: false,
                 blurredVision: false,
