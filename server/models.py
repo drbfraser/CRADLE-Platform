@@ -124,7 +124,7 @@ class HealthFacility(db.Model):
 class Patient(db.Model):
     patientId = db.Column(db.String(50), primary_key=True)
     patientName = db.Column(db.String(50))
-    patientAge = db.Column(db.Integer, nullable=False)
+    patientAge = db.Column(db.Integer)
     patientSex = db.Column(db.Enum(SexEnum), nullable=False)
     isPregnant = db.Column(db.Boolean)
     gestationalAgeUnit = db.Column(db.String(50))
