@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { registerUser } from '../../actions/users'
 import { getCurrentUser } from '../../actions/users'
@@ -157,12 +156,9 @@ const mapDispatchToProps = dispatch => ({
   registerUser: user => {
     dispatch(registerUser(user))
   },
-  ...bindActionCreators(
-    {
-      getCurrentUser,
-    },
-    dispatch
-  )
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  }
 })
   
 

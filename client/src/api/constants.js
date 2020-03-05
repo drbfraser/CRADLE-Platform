@@ -13,7 +13,8 @@ export const Endpoint = {
     EDIT: '/edit',
     DELETE: '/delete',
     READING: '/reading',
-    REFRESH: '/refresh_token'
+    REFRESH: '/refresh_token',
+    CURRENT: '/current'
 }
 
 export const Method = {

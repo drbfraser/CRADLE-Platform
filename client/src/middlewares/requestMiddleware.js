@@ -46,6 +46,7 @@ export default function requestMiddleware() {
 				localStorage.removeItem("refresh")
 				dispatch(logoutUserAction())
 				dispatch(go('/login'))
+				return;
 			}
 		}
 		axios({
@@ -62,7 +63,7 @@ export default function requestMiddleware() {
 			dispatch(onSuccess(res))
 		}).catch(err => {
 			console.log("error: ", err);
-			dispatch(onError(err.response.data.message))
+			dispatch(onError(err))
 		})
     };
   }

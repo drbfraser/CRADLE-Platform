@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users'
 import { Tab } from 'semantic-ui-react'
@@ -18,12 +17,9 @@ const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />
 
 class HelpPage extends Component {
   componentDidMount = () => {
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser()
-        return
-      }
-    })
+    if (!this.props.user.isLoggedIn) {
+      this.props.getCurrentUser()
+    }
   }
 
   render() {
@@ -44,14 +40,13 @@ const mapStateToProps = ({ user }) => ({
   user : user.currentUser
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      getCurrentUser,
-    },
-    dispatch
-  )
+const mapDispatchToProps = dispatch => ({
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  }
+})
 
 export default connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(HelpPage)

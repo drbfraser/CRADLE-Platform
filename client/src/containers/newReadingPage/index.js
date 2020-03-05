@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users';
 import { newReadingPost, createReadingDefault } from '../../actions/newReading';
@@ -68,13 +67,9 @@ class NewReadingPage extends Component {
   state = initState
 
   componentDidMount = () => {
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get statistics
-        return
-      }
-      
-    })
+    if (!this.props.user.isLoggedIn) {
+      this.props.getCurrentUser()
+    }
   }
 
   static getDerivedStateFromProps = (props, state) => {
@@ -283,12 +278,9 @@ const mapDispatchToProps = dispatch => ({
   createReadingDefault: () => {
     dispatch(createReadingDefault())
   },
-  ...bindActionCreators(
-    {
-      getCurrentUser
-    },
-    dispatch
-  )
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  }
 })
 
 export default connect(

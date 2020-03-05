@@ -881,10 +881,12 @@ const mapDispatchToProps = dispatch => ({
   newReadingPost: data => {
     dispatch(newReadingPost(data))
   },
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  },
   ...bindActionCreators(
     {
       getReferrals,
-      getCurrentUser
     },
     dispatch
   )

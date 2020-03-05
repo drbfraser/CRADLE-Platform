@@ -57,13 +57,9 @@ class VideoLanding extends Component {
   componentDidMount() {
     console.log("in component did mount")
 
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get statistics
-        return
-      }
-      
-    })
+    if (!this.props.user.isLoggedIn) {
+      this.props.getCurrentUser()
+    }
   }
 
   // after the user has logged in or created the room, set the appropriate state variables and then render the Session Component and pass in these state variables as props 
@@ -160,15 +156,18 @@ const mapStateToProps = ({ chat, user }) => ({
     user : user.currentUser
 })
   
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(
-        {
-            createRoom,
-            joinRoom,
-            getCurrentUser
-        },
-            dispatch
-    )
+const mapDispatchToProps = dispatch => ({
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  },
+  ...bindActionCreators(
+    {
+      createRoom,
+      joinRoom,
+    },
+    dispatch
+  )
+})
 
 export default connect(
     mapStateToProps,
