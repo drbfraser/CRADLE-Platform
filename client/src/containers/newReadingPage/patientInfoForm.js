@@ -69,7 +69,6 @@ function PatientInfoForm(props) {
                type='date'
                placeholder='Birthday'
                onChange={props.onSelectChange}
-               required
             />
             <Form.Field 
               name="patientSex"
