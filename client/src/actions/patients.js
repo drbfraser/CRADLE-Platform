@@ -15,31 +15,13 @@ export const UPDATE_PATIENT_REQUESTED  = 'patients/UPDATE_PATIENTS_REQUESTED'
 export const UPDATE_PATIENT_ERR = 'patients/UPDATE_PATIENT_ERR'
 
 export const getPatient = (patientId) => {
-    // TO DO: secure this endpoint with token in the future
-    // const token = localStorage.token;
-    return dispatch => {
-        dispatch({
-          type: GET_PATIENT_REQUESTED
-        })
-        axios.get(BASE_URL + `/patient/reading/${patientId}`,{
-          'headers': {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            // 'Authorization': `Bearer ${token}`
-          }
-        }).then((res) => {
-            console.log("get patient res: ", res);
-            dispatch({
-                type: GET_PATIENT,
-                payload: res.data
-            })
-        }).catch(err => {
-            console.log(err);
-            dispatch({
-                type: GET_PATIENT_ERR
-            })
-        })
-    }
+    return requestActionCreator(
+        Endpoint.PATIENT + Endpoint.READING + '/' + patientId,
+        Method.GET,
+        null,
+        getPatientOnSuccess,
+        getPatientOnError
+    )
 }
 
 export const getPatients = () => {
@@ -84,4 +66,18 @@ const getPatientsOnSuccess = response => ({
 const getPatientsOnError = error => ({
     type: GET_PATIENTS_ERR,
     payload: error
+})
+
+const getPatientOnSuccess = response => ({
+    type: GET_PATIENT,
+    payload: response
+})
+
+const getPatientOnError = error => ({
+    type: GET_PATIENT_ERR,
+    payload: error
+})
+
+export const getPatientRequested = () => ({
+    type: GET_PATIENT_REQUESTED
 })

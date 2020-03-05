@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatient } from '../../actions/patients'
+import { getPatient, getPatientRequested } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
 import PatientSummary from './patientSummary';
 
@@ -51,14 +51,19 @@ const mapStateToProps = ({ patients, user }) => ({
     user : user.currentUser,
   })
   
-  const mapDispatchToProps = dispatch =>
-    bindActionCreators(
+  const mapDispatchToProps = dispatch => ({
+    getPatient: (patientId) => {
+      dispatch(getPatientRequested())
+      dispatch(getPatient(patientId))
+    },
+    ...bindActionCreators(
       {
-        getPatient,
         getCurrentUser,
       },
       dispatch
     )
+  })
+    
   
   export default connect(
     mapStateToProps,

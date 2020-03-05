@@ -1,10 +1,9 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients, getPatientsRequested, getPatient } from '../../actions/patients'
+import { getPatients, getPatientsRequested } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
 import PatientTable from './patientTable'
-import PatientSummary from './patientSummary'
 
 class PatientPage extends Component {
   state = {
