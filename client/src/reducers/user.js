@@ -10,7 +10,8 @@ import {
   USER_LOGIN_SUCCESS,
   UPDATE_USERS_SUCCESS,
   DELETE_USERS_SUCCESS,
-  DELETE_USERS_ERR
+  DELETE_USERS_ERR,
+  REGISTER_USER_DEFAULT
 } from '../actions/users';
 import { getUserFromResponse } from "../utils";
 
@@ -49,11 +50,24 @@ const userErrorReducer = (state = {}, action) => {
 const registerStatusReducer = (state = {}, action) => {
   switch (action.type) {
     case 'REGISTER_SUCCESS':
-      return { message : "Success! User has been successfully created", error : false }
+      return { 
+        message : "Success! User has been successfully created", 
+        error : false,
+        userCreated: true
+      }
     case 'REGISTER_ERROR':
-      return { message : action.payload, error : true }
+      return { 
+        message : action.payload, 
+        error : true,
+        userCreated: false
+      }
+    case REGISTER_USER_DEFAULT:
+      return {
+        ...state,
+        userCreated: false
+      }
     default:
-      return {}
+      return { userCreated: false }
   }
 }
 

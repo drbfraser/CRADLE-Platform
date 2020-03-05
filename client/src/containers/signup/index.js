@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux'
-import { registerUser } from '../../actions/users'
+import { registerUser, registerUserDefault } from '../../actions/users'
 import { getCurrentUser } from '../../actions/users'
 import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
 import { Button,
@@ -9,16 +9,18 @@ import { Button,
 } from 'semantic-ui-react'
 import { Paper } from '@material-ui/core';
 
-class Signup extends Component {
-  state = {
-    user: {
-      email: "",
-      password: "",
-      firstName: "",
-      healthFacilityName: "",
-      role: "VHT" // default value
-    }
+const initState = {
+  user: {
+    email: "",
+    password: "",
+    firstName: "",
+    healthFacilityName: "",
+    role: "VHT" // default value
   }
+}
+
+class Signup extends Component {
+  state = initState
 
   handleChange = event => {
     this.setState({ user: {
@@ -42,6 +44,13 @@ class Signup extends Component {
   componentDidMount = () => {
     this.props.getCurrentUser()
     this.props.getHealthFacilityList()
+  }
+
+  static getDerivedStateFromProps = (props, state) => {
+    if (props.registerStatus.userCreated) {
+      props.registerUserDefault()
+      return initState
+    }
   }
 
   render() {
@@ -158,6 +167,9 @@ const mapDispatchToProps = dispatch => ({
   },
   getCurrentUser: () => {
     dispatch(getCurrentUser())
+  },
+  registerUserDefault: () => {
+    dispatch(registerUserDefault())
   }
 })
   

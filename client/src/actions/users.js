@@ -22,6 +22,7 @@ export const DELETE_USERS_REQ  = 'users/DELETE_USERS_REQ'
 export const DELETE_USERS_ERR = 'users/DELETE_USERS_ERR'
 
 export const USER_LOGIN_SUCCESS = 'USER_LOGIN_SUCCESS'
+export const REGISTER_USER_DEFAULT = 'REGISTER_USER_DEFAULT'
 
 export const registerUser = user => {
   return requestActionCreator(
@@ -182,4 +183,8 @@ const updateUserOnSuccess = response => ({
 const updateUserOnError = error => ({
   type: UPDATE_USERS_ERR,
   payload: error
+})
+
+export const registerUserDefault = () => ({
+  type: REGISTER_USER_DEFAULT
 })
