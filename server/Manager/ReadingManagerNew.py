@@ -18,13 +18,8 @@ class ReadingManager(Manager):
         patient_reading_data['reading']['patientId'] = patient_id
         
         # creating new reading and saving urine test data on the side for creation later 
-
-        urineTestData = None
-
-        if ('urineTests' in patient_reading_data['reading'] and patient_reading_data['reading']['urineTests']):
-            urineTestData = patient_reading_data['reading']['urineTests']
-            del patient_reading_data['reading']['urineTests'] 
-
+        urineTestData = patient_reading_data['reading']['urineTests']
+        del patient_reading_data['reading']['urineTests'] 
         reading = self.create(patient_reading_data['reading'])
 
         # if urine test was done, then create urine test 
