@@ -154,6 +154,10 @@ Install the necessary packages:
 ```shell
 yarn install
 ```
+or 
+```shell
+yarn install --ignore-engines
+```
 
 Start the server locally:
 ```shell
