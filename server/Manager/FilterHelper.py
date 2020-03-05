@@ -1,8 +1,7 @@
-
-
-# need to finish filtering for CHO 
+from Manager.PatientFacilityManager import PatientFacilityManager
+patientFacilityManager = PatientFacilityManager()
 # todo: should probably refactor all of this into one function b/c there's some code reuse
-
+# todo: when cleaning up code, can use search insted of manually finding
 def filtered_list_hcw(patients, referrals, users, userId):
     print("Filtering list...")
     patient_id_list = []
@@ -15,17 +14,29 @@ def filtered_list_hcw(patients, referrals, users, userId):
         if u['id'] == userId:
             facilityName = u['healthFacilityName']
     
-
+    # we can technically get rid of filtering via referrals alltogether
+    # however curently our data seeding file does not use apis to add patients so that relationship is never entered into the patient_facility table
+    # so leaving this referral filter here for now, but can remove it in production as all patient creation will happen via APIs
     # getting patient Ids for all patients referred to the clinic in question
     for r in referrals:
         if r['referralHealthFacilityName'] == facilityName:  
             if(r['patientId'] not in patient_id_list):
                 patient_id_list.append(r['patientId'])
+      
+    # finding patients that have relationship to facility that current user is from
+    args = {
+    "healthFacilityName": facilityName}
+    patients_created_at_facility = patientFacilityManager.search(args)
+    
+    # adding those patients to filtered list
+    for p in patients_created_at_facility:
+        if(p['patientId'] not in patient_id_list):
+            patient_id_list.append(p['patientId'])
         
-    # getting all patient rows based on patientIds collected in last table
+    # getting all patient rows based on patientIds collected
     for p in patients:
         if p['patientId'] in patient_id_list:
-            patient_filtered_list.append(p)   
+            patient_filtered_list.append(p) 
 
     # now we have a filtered list
     return patient_filtered_list
