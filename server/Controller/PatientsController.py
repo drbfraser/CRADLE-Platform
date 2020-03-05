@@ -96,7 +96,7 @@ class PatientAll(Resource):
             return invalid
 
         # if age is not provided, populate age using dob
-        if patient_data['dob'] is not None and patient_data['patientAge'] == '-1':
+        if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
             patient_data = calculate_age_from_dob(patient_data)
 
         response_body = patientManager.create(patient_data)
