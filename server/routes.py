@@ -13,11 +13,11 @@ from Controller.FollowUpController import FollowUp, FollowUpMobile, FollowUpMobi
 from Controller.StatsController import *
 from Controller.PatientStatsController import *
 from Controller.SMSController import *
-
-
+from Controller.PasswordResetController import *
 
 
 def init(api):
+    api.add_resource(HelloWorld, '/api/hello-world')
     api.add_resource(Multi, '/api/multi/<int:num>')
     api.add_resource(AllStats, '/api/stats') # [GET]
     api.add_resource(PatientStats,'/api/patient/stats/<string:patient_id>') # [GET]
@@ -32,7 +32,7 @@ def init(api):
     api.add_resource(UserAllVHT, '/api/user/vhts') # [GET]
 
     api.add_resource(PatientAllInformation, '/api/patient/allinfo') # [GET]
-    api.add_resource(PatientReading, '/api/patient/reading') # [POST]
+    api.add_resource(PatientReading, '/api/patient/reading/<string:patient_id>', '/api/patient/reading') # [GET, POST]
     api.add_resource(PatientInfo, '/api/patient/<string:patient_id>') # [GET, PUT]
     api.add_resource(PatientAll, '/api/patient') # [GET, POST]
 
@@ -45,6 +45,9 @@ def init(api):
     api.add_resource(FollowUp, '/api/follow_up', '/api/follow_up/<int:id>') # [GET, POST, PUT, DELETE]
     api.add_resource(FollowUpMobile, '/api/mobile/follow_up', '/api/mobile/follow_up/<int:id>') # [GET]
     api.add_resource(FollowUpMobileSummarized, '/api/mobile/summarized/follow_up', '/api/mobile/summarized/follow_up/<int:id>') # [GET]
+
+    api.add_resource(ForgotPassword, '/api/forgot') # [POST]
+    api.add_resource(ResetPassword, '/api/reset/<string:reset_token>') # [PUT]
 
 
     api.add_resource(SMS, '/api/sms')

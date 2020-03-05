@@ -1,7 +1,11 @@
 import moment from 'moment';
 
+export function getPrettyDateTime(dateStr) {
+    return getMomentDate(dateStr).format("DD.MM.YY, h:mm:ss a");
+}
+
 export function getPrettyDate(dateStr) {
-    return getMomentDate(dateStr).format("MMMM Do YYYY, h:mm:ss a");
+    return getMomentDate(dateStr).format("DD.MM.YY");
 }
 
 export function getMomentDate(dateS) {

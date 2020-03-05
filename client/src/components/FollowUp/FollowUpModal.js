@@ -11,11 +11,14 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Button,
+import { 
+    Button,
     Modal,
     Form,
     TextArea,
-  } from 'semantic-ui-react'
+    Input
+} from 'semantic-ui-react'
+import Switch from '@material-ui/core/Switch';
 
 import { updateFollowUp, setReadingId, createFollowUp } from '../../actions/referrals';
 import { getPatients } from '../../actions/patients'
@@ -35,7 +38,11 @@ class FollowUpModal extends Component {
             data: {
                 followUpAction: "",
                 diagnosis: "",
-                treatment: ""
+                treatment: "",
+                specialInvestigations: "",
+                medicationPrescribed: "",
+                followupNeeded: false,
+                dateReviewNeeded: ""
             },
             isOpen: false
         }
@@ -46,6 +53,7 @@ class FollowUpModal extends Component {
         this.handleClose = this.handleClose.bind(this);
         this.onOpen = this.onOpen.bind(this);
         this.loadInitialValues = this.loadInitialValues.bind(this);
+        this.handleSwitchChange = this.handleSwitchChange.bind(this);
 
         this.loadInitialValues();
     }
@@ -89,6 +97,15 @@ class FollowUpModal extends Component {
         })
     }
 
+    handleSwitchChange(e) {
+        this.setState({
+            data: {
+                ...this.state.data,
+                followupNeeded: e.target.checked
+            }
+        })
+    }
+
     handleSubmit() {
         console.log("submitting follow up info");
         this.state.data.referral = this.props.referralId
@@ -98,6 +115,13 @@ class FollowUpModal extends Component {
         if (this.props.initialValues) {
             this.props.updateFollowUp(this.props.initialValues['id'], this.state.data);
         } else { // create new followUpInfo
+            const followupData = this.state.data;
+            // TODO: remove this once mobile is up to date with the new assessment changes
+            followupData.followUpAction = followupData.specialInvestigations;
+
+            if (!followupData.followupNeeded) {
+                delete followupData.dateReviewNeeded;
+            }
             this.props.createFollowUp(this.state.data);
         }
         
@@ -131,10 +155,10 @@ class FollowUpModal extends Component {
                     <Modal.Description>
                         <Form onSubmit={this.handleSubmit}>
                             <Form.Field
-                                name="followUpAction"
-                                value={this.state.data.followUpAction || ''}
+                                name="specialInvestigations"
+                                value={this.state.data.specialInvestigations || ''}
                                 control={TextArea}
-                                label='Follow Up Action'
+                                label='Special Investigations + Results (If available)'
                                 placeholder="Patient's action performed for this follow up"
                                 onChange={this.handleChange}
                                 required
@@ -143,7 +167,7 @@ class FollowUpModal extends Component {
                                 name="diagnosis"
                                 value={this.state.data.diagnosis || ''}
                                 control={TextArea}
-                                label='Diagnosis'
+                                label='Final Diagnosis'
                                 placeholder="Medical diagnosis of the cause of their chief complaint"
                                 onChange={this.handleChange}
                                 required
@@ -152,12 +176,39 @@ class FollowUpModal extends Component {
                                 name="treatment"
                                 value={this.state.data.treatment || ''}
                                 control={TextArea}
-                                label='Treatment'
+                                label='Treatment/Operation'
                                 placeholder="Treatment performed on patient to remedy their chief complaint"
                                 onChange={this.handleChange}
                                 required
                             />
-                            <Form.Field control={Button}>Submit</Form.Field>
+                            <Form.Field
+                                name="medicationPrescribed"
+                                value={this.state.data.medicationPrescribed || ''}
+                                control={TextArea}
+                                label='Medication Prescribed'
+                                placeholder="Medication prescribed to patient to remedy their chief complaint"
+                                onChange={this.handleChange}
+                                required
+                            />
+                            <Form.Field style={{"margin": "0px"}}>
+                                <label style={{"display": "inline-block", "marginRight": "5px"}}>Follow-up Needed</label>
+                                <Switch
+                                    className='followupNeeded'
+                                    checked={this.state.data.followupNeeded}
+                                    onChange={this.handleSwitchChange}
+                                    color='primary'
+                                />
+                            </Form.Field>
+                            {this.state.data.followupNeeded && 
+                            <Form.Field
+                                name="dateReviewNeeded"
+                                control={Input}
+                                type='date'
+                                disabled={!this.state.data.followupNeeded}
+                                onChange={this.handleChange}
+                                required
+                            ></Form.Field>}
+                            <Form.Field control={Button} style={{"marginTop": "10px"}}>Submit</Form.Field>
                         </Form>
                     </Modal.Description>
                     </Modal.Content>

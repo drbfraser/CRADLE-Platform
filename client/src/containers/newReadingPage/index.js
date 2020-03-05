@@ -6,6 +6,7 @@ import { newReadingPost, createReadingDefault } from '../../actions/newReading';
 import PatientInfoForm from './patientInfoForm';
 import BpForm from './bpForm';
 import SymptomForm from './symptomForm';
+import UrineTestForm, { initialUrineTests } from './urineTestForm';
 import SweetAlert from 'sweetalert2-react';
 
 import {Button, Divider, Form} from 'semantic-ui-react'
@@ -31,8 +32,7 @@ const initState = {
     gestationalAgeValue: "",
     gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
     zone: "",
-    block: "",
-    tank: "",
+    dob: "",
     villageNumber: "",
     drugHistory: "",
     medicalHistory: ""
@@ -46,7 +46,8 @@ const initState = {
     heartRateBPM: "",
     dateRecheckVitalsNeeded: "",
     isFlaggedForFollowup: false,
-    symptoms: ""
+    symptoms: "",
+    urineTests: initialUrineTests
   },
   checkedItems: {
     none: true,
@@ -59,7 +60,8 @@ const initState = {
     other: false,
     otherSymptoms: ""
   },
-  showSuccessReading : false
+  showSuccessReading : false,
+  hasUrineTest: false
 }
 
 class NewReadingPage extends Component {
@@ -99,6 +101,32 @@ class NewReadingPage extends Component {
 
   handleReadingChange = (e, value) => {
     this.setState({ reading: { ...this.state.reading, [value.name] : value.value }})
+  }
+
+  handleUrineTestChange = (e, value) => {
+    this.setState({
+      reading: {
+        ...this.state.reading,
+        urineTests: {
+          ...this.state.reading.urineTests,
+          [value.name]: value.value
+        }
+      }
+    })
+  }
+
+  handleUrineTestSwitchChange = (e) => {
+    this.setState({
+      hasUrineTest: e.target.checked
+    })
+    if (!e.target.checked) {
+      this.setState({
+        reading: {
+          ...this.state.reading,
+          urineTests: initialUrineTests
+        }
+      })
+    }
   }
 
   handleCheckedChange = (e, value) => {
@@ -159,6 +187,9 @@ class NewReadingPage extends Component {
         symptom.push(this.state.checkedItems.otherSymptoms)
       }
     }
+    if (this.state.patient.patientAge == '') {
+      this.state.patient.patientAge = '-1'
+    }
 
     var dateTime = new Date()
     var readingID = guid()
@@ -174,6 +205,9 @@ class NewReadingPage extends Component {
     }, function() {
       let patientData = JSON.parse(JSON.stringify(this.state.patient))
       let readingData = JSON.parse(JSON.stringify(this.state.reading))
+      if (!this.state.hasUrineTest) {
+        readingData.urineTests = null
+      }
 
       let newData = {
         patient: patientData,
@@ -196,14 +230,24 @@ class NewReadingPage extends Component {
         <Divider/>
         <Form onSubmit={this.handleSubmit}>
           <PatientInfoForm patient={this.state.patient} onChange={this.handleChange} onSelectChange={this.handleSelectChange}/>
-          <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
-          <SymptomForm 
-            checkedItems={this.state.checkedItems} 
-            patient={this.state.patient} 
-            onChange={this.handleCheckedChange} 
-            onOtherChange={this.handleOtherSymptom}
-          />
-
+          <div className='leftContainer'>
+            <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
+            <SymptomForm 
+              checkedItems={this.state.checkedItems} 
+              patient={this.state.patient} 
+              onChange={this.handleCheckedChange} 
+              onOtherChange={this.handleOtherSymptom}
+            />
+          </div>
+          <div className="rightContainer">
+            <UrineTestForm
+              reading={this.state.reading}
+              onChange={this.handleUrineTestChange}
+              onSwitchChange={this.handleUrineTestSwitchChange}
+              hasUrineTest={this.state.hasUrineTest}
+            />
+          </div>
+          
           <div style={{"clear" : "both"}}></div>
           <div className='contentRight'>
             <Button 

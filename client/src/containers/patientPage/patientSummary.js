@@ -14,18 +14,17 @@ import {
   Button, Header, Modal, Divider, Form, Select, Input, TextArea
 } from 'semantic-ui-react'
 
-import { getPrettyDate, getMomentDate } from '../../utils';
 import { updatePatient, getPatients, getPatientsRequested } from '../../actions/patients';
+import { getPrettyDateTime, getMomentDate } from '../../utils';
 import { getReferrals } from '../../actions/referrals';
 import { getSelectedPatientStats, getSelectedPatientStatsRequested } from '../../actions/statistics';
 
 import { Bar, Line } from 'react-chartjs-2';
-import { ReactComponent as GreenTraffic } from './drawable/green.svg';
-import { ReactComponent as YellowTraffic } from './drawable/yellow.svg';
-import { ReactComponent as RedTraffic } from './drawable/red.svg';
 import ReferralInfo from './referralInfo';
 import { getCurrentUser } from '../../actions/users';
 import { newReadingPost } from '../../actions/newReading';
+import { getTrafficIcon } from './patientUtils';
+import UrineTestForm, { urineTestChemicals, initialUrineTests } from '../newReadingPage/urineTestForm';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -64,7 +63,8 @@ class PatientSummary extends Component {
       heartRateBPM: "",
       dateRecheckVitalsNeeded: "",
       isFlaggedForFollowup: false,
-      symptoms: ""
+      symptoms: "",
+      urineTests: initialUrineTests
     },
     checkedItems: {
       none: true,
@@ -79,6 +79,7 @@ class PatientSummary extends Component {
     },
     showSuccessReading: false,
     selectedPatientCopy : { readings: [] },
+    hasUrineTest: false
   }
 
   componentDidMount = () => {
@@ -207,7 +208,7 @@ class PatientSummary extends Component {
         userId: this.props.user.userId,
         readingId: readingID,
         dateTimeTaken: dateTime.toJSON(),
-        symptoms: symptom.toString()
+        symptoms: symptom.toString(),
       }
     }, function () {
       let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient))
@@ -217,6 +218,9 @@ class PatientSummary extends Component {
       delete patientData.readings
       delete patientData.needsAssessment
       delete patientData.tableData
+      if (!this.state.hasUrineTest) {
+        readingData.urineTests = null
+      }
 
       let newData = {
         patient: patientData,
@@ -232,7 +236,8 @@ class PatientSummary extends Component {
           ...this.state.selectedPatient,
           readings: [...this.state.selectedPatient.readings, newData['reading']]
         },
-        showSuccessReading: true
+        showSuccessReading: true,
+        hasUrineTest: false
       })
       this.closeReadingModal()
     })
@@ -296,45 +301,45 @@ class PatientSummary extends Component {
     this.setState({ checkedItems: { ...this.state.checkedItems, [event.target.name]: event.target.value } })
   }
 
+  handleUrineTestChange = (event, value) => {
+    this.setState({
+      newReading: {
+        ...this.state.newReading,
+        urineTests: {
+          ...this.state.newReading.urineTests,
+          [value.name]: value.value
+        }
+      }
+    })
+  }
+
+  handleUrineTestSwitchChange = (event) => {
+    this.setState({
+      hasUrineTest: event.target.checked
+    })
+    if (!event.target.checked) {
+      this.setState({
+        newReading: {
+          ...this.state.newReading,
+          urineTests: initialUrineTests
+        }
+      })
+    }
+  }
+
   createReadings = (readingId, dateTimeTaken, bpDiastolic,
     bpSystolic, heartRateBPM, symptoms,
     trafficLightStatus, isReferred, dateReferred,
-    drugHistory, medicalHistory) => {
+    drugHistory, medicalHistory, urineTests) => {
     return {
       readingId, dateTimeTaken, bpDiastolic, bpSystolic, heartRateBPM, symptoms,
-      trafficLightStatus, isReferred, dateReferred, drugHistory, medicalHistory
+      trafficLightStatus, isReferred, dateReferred, drugHistory, medicalHistory, urineTests
     }
   }
 
   sortReadings = (readings) => {
     let sortedReadings = readings.sort((a, b) => getMomentDate(b.dateTimeTaken).valueOf() - getMomentDate(a.dateTimeTaken).valueOf())
     return sortedReadings
-  }
-
-  getTrafficIcon = (trafficLightStatus) => {
-    if (trafficLightStatus === "RED_DOWN") {
-      return <div>
-        <RedTraffic style={{ "height": "75px", "width": "75px" }} />
-        <Icon name="arrow down" size="huge" />
-      </div>
-    } else if (trafficLightStatus === "RED_UP") {
-      return <div>
-        <RedTraffic style={{ "height": "75px", "width": "75px" }} />
-        <Icon name="arrow up" size="huge" />
-      </div>
-    } else if (trafficLightStatus === "YELLOW_UP") {
-      return <div>
-        <YellowTraffic style={{ "height": "75px", "width": "75px" }} />
-        <Icon name="arrow up" size="huge" />
-      </div>
-    } else if (trafficLightStatus === "YELLOW_DOWN") {
-      return <div>
-        <YellowTraffic style={{ "height": "75px", "width": "75px" }} />
-        <Icon name="arrow down" size="huge" />
-      </div>
-    } else {
-      return <GreenTraffic style={{ "height": "75px", "width": "75px" }} />
-    }
   }
 
   average = (monthlyArray) => {
@@ -368,10 +373,11 @@ class PatientSummary extends Component {
     const dateReferred = reading['dateReferred']
     const medicalHistory = reading['medicalHistory']
     const drugHistory = reading['drugHistory']
+    const urineTests = reading['urineTests']
     return this.createReadings(readingId, dateTimeTaken, bpDiastolic,
       bpSystolic, heartRateBPM, symptoms,
       trafficLightStatus, isReferred, dateReferred,
-      medicalHistory, drugHistory)
+      medicalHistory, drugHistory, urineTests)
   }
 
   render() {
@@ -493,12 +499,13 @@ class PatientSummary extends Component {
                   <Divider />
                   <div style={{ "padding": "20px 50px" }}>
                     <p><b>Patient ID: </b> {this.state.selectedPatient.patientId} </p>
+                    <p><b>Patient Birthday: </b> {this.state.selectedPatient.dob} </p>
                     <p><b>Patient Age: </b> {this.state.selectedPatient.patientAge} </p>
                     <p><b>Patient Sex: </b> {this.state.selectedPatient.patientSex} </p>
                     {this.state.selectedPatient.patientSex === "FEMALE" &&
                       <p><b>Pregnant: </b> {this.state.selectedPatient.isPregnant ? "Yes" : "No"} </p>
                     }
-                    {this.state.selectedPatient.isPregnant &&
+                    {this.state.selectedPatient.isPregnant && this.state.selectedPatient.gestationalAgeValue &&
                       <p><b>Gestational Age: </b> {this.state.selectedPatient.gestationalAgeValue} weeks</p>
                     }
                     <ExpansionPanel>
@@ -573,16 +580,27 @@ class PatientSummary extends Component {
                         </Typography>
 
                         <Typography variant="subtitle1" component="subtitle1">
-                          Taken on {getPrettyDate(row.dateTimeTaken)}
+                          Taken on {getPrettyDateTime(row.dateTimeTaken)}
                         </Typography>
 
                         <div style={{ "padding": "25px 50px" }}>
-                          {this.getTrafficIcon(row.trafficLightStatus)}
+                          {getTrafficIcon(row.trafficLightStatus)}
                           <br /><br />
                           <p><b>Systolic Blood Pressure: </b> {row.bpSystolic} </p>
                           <p><b>Diastolic Blood Pressure: </b> {row.bpDiastolic} </p>
                           <p><b>Heart Rate (BPM): </b> {row.heartRateBPM} </p>
                           <p><b>Symptoms: </b> {row.symptoms} </p>
+                          {row.urineTests && 
+                          <div>
+                            <p><b>Urine Test Result: </b></p>
+                            <div style={{"paddingLeft": "15px"}}>
+                              <p><b>{urineTestChemicals.LEUC}: </b> {row.urineTests.urineTestLeuc} </p>
+                              <p><b>{urineTestChemicals.NIT}: </b> {row.urineTests.urineTestNit} </p>
+                              <p><b>{urineTestChemicals.GLU}: </b> {row.urineTests.urineTestGlu} </p>
+                              <p><b>{urineTestChemicals.PRO}: </b> {row.urineTests.urineTestPro} </p>
+                              <p><b>{urineTestChemicals.BLOOD}: </b> {row.urineTests.urineTestBlood} </p>
+                            </div>
+                          </div>}
                         </div>
                       </div>
                       <div style={{ "borderLeft": "2px solid #84ced4", "display": "inline-block", "width": "50%", "float": "right", "height": "100%" }}>
@@ -612,6 +630,16 @@ class PatientSummary extends Component {
                           pattern="[a-zA-Z]*"
                           maxLength='4'
                           minLength='1'
+                          required
+                        />
+                        <Form.Field
+                          name='dob'
+                          value={this.state.selectedPatient.dob}
+                          control={Input}
+                          label='dob'
+                          placeholder='dob'
+                          onChange={this.handleSelectChange}
+                          type='date'
                           required
                         />
                         <Form.Field
@@ -695,8 +723,8 @@ class PatientSummary extends Component {
                 <Modal.Content scrolling>
                   <Modal.Description>
                     <Header>New Patient Reading for ID #{this.state.selectedPatient.patientId}</Header>
-                    <Divider />
                     <Form onSubmit={this.handleReadingSubmit}>
+                      <Paper style={{ 'padding': '35px 25px', 'borderRadius': '15px' }}>
                       <Form.Group widths='equal'>
                         <Form.Field
                           name="bpSystolic"
@@ -796,7 +824,13 @@ class PatientSummary extends Component {
                           disabled={!this.state.checkedItems.other}
                         />
                       </Form.Group>
-
+                      </Paper>
+                      <UrineTestForm
+                        reading={this.state.newReading}
+                        onChange={this.handleUrineTestChange}
+                        onSwitchChange={this.handleUrineTestSwitchChange}
+                        hasUrineTest={this.state.hasUrineTest}
+                      />
                       <Form.Field control={Button}>Submit</Form.Field>
                     </Form>
                   </Modal.Description>

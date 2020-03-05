@@ -32,6 +32,23 @@ class TrafficLightEnum(enum.Enum):
     RED_UP = 'RED_UP'
     RED_DOWN = 'RED_DOWN'
 
+# use as enum for later
+class UrineTestEnum(enum.Enum):
+    LEUC_PLUS = 'leuc +'
+    LEUC_PLUS_PLUS = 'leuc ++'
+    LEUC_PLUS_PLUS_PLUS = 'leuc +++'
+    NIT_PLUS = 'nit +'
+    NIT_PLUS_PLUS = 'nit ++'
+    NIT_PLUS_PLUS_PLUS= 'nit +++'
+    GLU_PLUS = 'glu +'
+    GLU_PLUS_PLUS = 'glu ++'
+    GLU_PLUS_PLUS_PLUS = 'glu +++'
+    PRO_PLUS = 'pro +'
+    PRO_PLUS_PLUS = 'pro ++'
+    PRO_PLUS_PLUS_PLUS = 'pro +++'
+    BLOOD_PLUS = 'blood +'
+    BLOOD_PLUS_PLUS = 'blood ++'
+    BLOOD_PLUS_PLUS_PLUS = 'blood +++'
 
 ######################
 ### HELPER CLASSES ###
@@ -115,8 +132,7 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    tank = db.Column(db.String(20))
-    block = db.Column(db.String(20))
+    dob = db.Column(db.Date)
 
     villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
@@ -136,7 +152,7 @@ class Reading(db.Model):
     heartRateBPM = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
-
+   
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
     dateLastSaved = db.Column(db.String(100)) 
     dateTimeTaken = db.Column(db.String(100))
@@ -152,6 +168,10 @@ class Reading(db.Model):
     manuallyChangeOcrResults = db.Column(db.Integer)
     temporaryFlags = db.Column(db.Integer)
     userHasSelectedNoSymptoms = db.Column(db.Boolean)
+    # change this to enum (currently cumbersome because currently system saves data straight from json, values look like 'g ++' and we cannot have enums with that name)
+    # so need some sort of way to map it over manually when saving data
+    urineTest = db.Column(db.String(50))
+
 
     # FOREIGN KEYS
     userId = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
@@ -195,7 +215,7 @@ class Reading(db.Model):
                  dateRecheckVitalsNeeded=None, gpsLocationOfReading=None,
                  retestOfPreviousReadingIds=None, isFlaggedForFollowup=None, appVersion=None,
                  deviceInfo=None, totalOcrSeconds=None, manuallyChangeOcrResults=None,
-                 temporaryFlags=None, userHasSelectedNoSymptoms=None):
+                 temporaryFlags=None, userHasSelectedNoSymptoms=None, urineTest=None):
         self.userId = userId     
         self.patientId = patientId
         self.readingId = readingId
@@ -217,6 +237,8 @@ class Reading(db.Model):
         self.manuallyChangeOcrResults = manuallyChangeOcrResults
         self.temporaryFlags = temporaryFlags
         self.userHasSelectedNoSymptoms = userHasSelectedNoSymptoms
+        self.urineTest = urineTest
+
 
 
     # FOREIGN KEYS
@@ -224,6 +246,9 @@ class Reading(db.Model):
 
     # RELATIONSHIPS
     patient = db.relationship('Patient', backref=db.backref('readings', lazy=True))
+    urineTests = db.relationship('urineTest', backref=db.backref('reading', lazy=True))
+
+
 
 
 class FollowUp(db.Model):
@@ -234,7 +259,10 @@ class FollowUp(db.Model):
     treatment = db.Column(db.Text)
     dateAssessed = db.Column(db.String(100), nullable=False)
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
-
+    specialInvestigations = db.Column(db.Text)
+    medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
+    followupNeeded = db.Column(db.Boolean)
+    dateReviewNeeded = db.Column(db.Date)
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
 
@@ -243,6 +271,16 @@ class Village(db.Model):
     villageNumber = db.Column(db.String(50), primary_key=True)
     zoneNumber    = db.Column(db.String(50))
 
+
+class urineTest(db.Model):
+    Id = db.Column(db.String(50), primary_key=True)
+    urineTestLeuc = db.Column(db.String(5))
+    urineTestNit = db.Column(db.String(5))
+    urineTestGlu = db.Column(db.String(5))
+    urineTestPro = db.Column(db.String(5))
+    urineTestBlood = db.Column(db.String(5))
+    #urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
+    readingId = db.Column(db.ForeignKey('reading.readingId'))
 
 ######################
 ###    SCHEMAS     ###
@@ -286,6 +324,13 @@ class ReferralSchema(ma.ModelSchema):
     class Meta:
         include_fk = True
         model = Referral
+
+class urineTestSchema(ma.ModelSchema):
+    # urineTests = fields.Nested(ReadingSchema)
+    class Meta:
+        include_fk = True
+        model = urineTest
+
 
 user_schema = {
     "type": "object",

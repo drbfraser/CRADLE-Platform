@@ -4,6 +4,7 @@ import json
 from flask import request
 from flask_restful import Resource, abort
 from flask_jwt_extended import jwt_required
+from Controller.Helpers import _get_request_body
 
 # Project modules
 from Manager.HealthFacilityManager import HealthFacilityManager
@@ -12,12 +13,6 @@ healthFacilityManager = HealthFacilityManager()
 
 # URI: /health_facility
 class HealthFacility(Resource):
-
-    @staticmethod
-    def _get_request_body():
-        raw_req_body = request.get_json(force=True)
-        print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
-        return raw_req_body
 
     # Get all health facilities
     @staticmethod
@@ -49,7 +44,7 @@ class HealthFacility(Resource):
     @jwt_required
     def post():
         logging.debug('Received request: POST /health_facility')
-        hf_data = HealthFacility._get_request_body()
+        hf_data = _get_request_body()
         response_body = healthFacilityManager.create(hf_data)
         return response_body, 201
 
@@ -60,7 +55,7 @@ class HealthFacility(Resource):
         if not name:
             abort(400, message="name is required")
     
-        new_hf = HealthFacility._get_request_body()
+        new_hf = _get_request_body()
         update_res = healthFacilityManager.update("healthFacilityName", name, new_hf)
 
         if not update_res:

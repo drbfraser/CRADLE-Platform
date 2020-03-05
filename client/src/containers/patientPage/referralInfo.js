@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Typography from '@material-ui/core/Typography';
 import { Icon } from 'semantic-ui-react'
-import { getPrettyDate } from '../../utils';
+import { getPrettyDateTime } from '../../utils';
 import FollowUpModal from '../../components/FollowUp/FollowUpModal';
 import FollowUpInfo from './followUpInfo';
 
@@ -30,7 +30,7 @@ export default class ReferralInfo extends Component {
                         <Icon name="clock outline"
                               size="large"
                               style={{"line-height" : "0.7em"}} />
-                        Referred on {getPrettyDate(ref.dateReferred)}
+                        Referred on {getPrettyDateTime(ref.dateReferred)}
                     </Typography>
 
                     <br/> <br/>

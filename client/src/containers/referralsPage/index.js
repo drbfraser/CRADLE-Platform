@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients, getPatientsRequested } from '../../actions/patients'
+import { getPatients, getPatientsRequested, getPatient } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
 import PatientTable from './referralTable'
 import PatientSummary from '../patientPage/patientSummary'
@@ -9,11 +9,6 @@ import PatientSummary from '../patientPage/patientSummary'
 
 class ReferralPage extends Component {
   state = {
-    selectedPatient: { patientId: '', patientName: 'Test', 
-                       patientSex: 'F', medicalHistory: '',
-                       drugHistory: '', villageNumber:'', readings: []
-                      },
-    showSelectedPatient : false,
     patientsList: []
   }
 
@@ -22,15 +17,14 @@ class ReferralPage extends Component {
       if (err !== undefined) {
         // error from getCurrentUser(), don't get patients
         return
-      }
-      
+      }      
       if (this.props.patients.patientsList.length === 0) {
         this.props.getPatients()
       }
     })
   }
 
-  filterReferrals = (patientsList) => {
+  static filterReferrals(patientsList) {
     const result = patientsList.filter(patient => {
       if (patient.readings.length === 0) {
         return false
@@ -47,18 +41,23 @@ class ReferralPage extends Component {
     return result
   } 
 
-  componentWillReceiveProps(props) {
-    const referredPatients = this.filterReferrals(props.patients.patientsList)
-    this.setState({ patientsList : referredPatients})
+  static getDerivedStateFromProps(props, state) {
+    const referredPatients = ReferralPage.filterReferrals(props.patients.patientsList)
+    let newState = {
+      ...state,
+      patientsList: referredPatients
+    }
+
+    return newState;
   }
 
   patientCallback = (selectedPatient) => {
     console.log('Received callback: ')
-    this.setState({'selectedPatient': selectedPatient, 'showSelectedPatient': true })
+    this.props.history.push(`/patient/${selectedPatient.patientId}`);
   }
 
-  backBtnCallback = (status) => {
-    this.setState({ 'showSelectedPatient' : false })
+  backBtnCallback = () => {
+    this.props.history.goBack();
   }
 
 
@@ -70,18 +69,14 @@ class ReferralPage extends Component {
 
     return (
       <div>
-        {this.state.showSelectedPatient ? (
-          <PatientSummary callbackFromParent={this.backBtnCallback} selectedPatient={this.state.selectedPatient}></PatientSummary>
-        ) : (
           <PatientTable callbackFromParent={this.patientCallback} data={this.state.patientsList} isLoading={this.props.patients.isLoading}></PatientTable>
-        )}
       </div>
     )
   }
 }
 
 const mapStateToProps = ({ patients, user }) => ({
-  patients : patients,
+  patients: patients,
   user : user.currentUser
 })
 
@@ -93,6 +88,7 @@ const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(
     {
       getCurrentUser,
+      getPatient
     },
     dispatch
   )

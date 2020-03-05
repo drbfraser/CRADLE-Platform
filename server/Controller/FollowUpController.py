@@ -4,6 +4,7 @@ import json
 from flask import request
 from flask_restful import Resource, abort
 from flask_jwt_extended import (jwt_required, get_jwt_identity)
+from Controller.Helpers import _get_request_body
 
 # Project modules
 from Manager.FollowUpManager import FollowUpManager
@@ -12,12 +13,6 @@ followUpManager = FollowUpManager()
 
 # URI: /followup
 class FollowUp(Resource):
-
-    @staticmethod
-    def _get_request_body():
-        raw_req_body = request.get_json(force=True)
-        print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
-        return raw_req_body
 
     # Get all followups
     # Get all followups with an ID
@@ -50,7 +45,7 @@ class FollowUp(Resource):
     def post(self):
         logging.debug('Received request: POST /follow_up')
         current_user = get_jwt_identity()
-        follow_up_data = FollowUp._get_request_body()
+        follow_up_data = _get_request_body()
         response_body = followUpManager.create(follow_up_data, current_user)
         return response_body, 201
     
@@ -62,7 +57,7 @@ class FollowUp(Resource):
         if not id:
             abort(400, message="id is required")
     
-        new_follow_up = FollowUp._get_request_body()
+        new_follow_up = _get_request_body()
         update_res = followUpManager.update("id", id, new_follow_up, current_user)
 
         if not update_res:
@@ -85,12 +80,6 @@ class FollowUp(Resource):
 
 
 class FollowUpMobile(Resource):
-    @staticmethod
-    def _get_request_body():
-        raw_req_body = request.get_json(force=True)
-        print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
-        return raw_req_body
-
     @jwt_required
     def get(self, id=None):      
         args = request.args  
@@ -115,11 +104,6 @@ class FollowUpMobile(Resource):
             return follow_ups
 
 class FollowUpMobileSummarized(Resource):
-    @staticmethod
-    def _get_request_body():
-        raw_req_body = request.get_json(force=True)
-        print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
-        return raw_req_body
 
     @jwt_required
     def get(self, id=None):      

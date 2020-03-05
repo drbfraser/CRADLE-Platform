@@ -32,7 +32,7 @@ const SignupForm = (props) => {
       <h2>Email</h2>
       <input name="email"
              className='inputStyle'
-             placeholder='bfraser@sfu.ca'
+             placeholder='somebody@example.com'
              {...formik.getFieldProps('email')} />
       {formik.touched.email && formik.errors.email ? (
         <div className="formError">{formik.errors.email}</div>

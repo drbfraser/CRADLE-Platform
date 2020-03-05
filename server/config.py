@@ -21,12 +21,25 @@ class Config(object):
     try: 
         db_user = env("DB_USERNAME")
         db_pw = env("DB_PASSWORD")
+
     except environs.EnvError:
         print("*******************************************************")
         print("DB_USERNAME or DB_PASSWORD environment variable not set")
         print("*******************************************************")
 
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@localhost:3306/cradle' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
+    is_docker = None
+    try:
+        is_docker = env("IS_DOCKER")
+        # db_ip = env("DB_IP")
+    except environs.EnvError:
+        print("is_docker or dp_ip not set")
+    else:
+        print("isdocker: " + str(is_docker))
+
+    if not (is_docker == None):
+        SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@host.docker.internal:3306/cradle' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
+    else:
+        SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@localhost:3306/cradle' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
     
     print("SQLALCHEMY_DATABASE_URI: " + SQLALCHEMY_DATABASE_URI)
 
@@ -35,6 +48,7 @@ class Config(object):
     
     # JWT_SECRET_KEY= os.environ.get('SECRET')
     JWT_SECRET_KEY = 'very secret'
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=1) 
 
 class JSONEncoder(json.JSONEncoder):
 

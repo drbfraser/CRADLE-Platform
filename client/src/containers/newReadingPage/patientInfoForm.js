@@ -1,5 +1,6 @@
 import React from 'react';
 import Paper from '@material-ui/core/Paper';
+
 import { 
   Form, Header, Divider, 
   Select, Input, TextArea, 
@@ -59,7 +60,16 @@ function PatientInfoForm(props) {
               max='60'
               placeholder='Patient Age'
               onChange={props.onChange}
-              required
+            />
+            <Form.Field
+               name="dob"
+               value={props.patient.dob}
+               control={Input}
+               label='Birthday'
+               type='date'
+               placeholder='Birthday'
+               onChange={props.onSelectChange}
+               required
             />
             <Form.Field 
               name="patientSex"
@@ -91,6 +101,7 @@ function PatientInfoForm(props) {
               max='60'
               onChange={props.onChange}
               disabled={props.patient.patientSex === 'MALE' || !props.patient.isPregnant}
+              required
             />
           </Form.Group>
           <Form.Group>
@@ -103,31 +114,14 @@ function PatientInfoForm(props) {
               placeholder='Zone'
               onChange={props.onChange}
             />
-            <Form.Field 
-              name="block"
-              value={props.patient.block}
-              control={Input}
-              label='Block'
-              type='number'
-              placeholder='Block'
-              onChange={props.onChange}
-            />
-            <Form.Field 
-              name="tank"
-              value={props.patient.tank}
-              control={Input}
-              label='Tank'
-              type='number'
-              placeholder='Tank'
-              onChange={props.onChange}
-            />
+            
             <Form.Field 
               name="villageNumber"
               value={props.patient.villageNumber}
               control={Input}
-              label='Village Number'
+              label='Village'
               type='number'
-              placeholder='Village Number'
+              placeholder='Village'
               onChange={props.onChange}
             />
           </Form.Group>

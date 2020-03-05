@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import MaterialTable from 'material-table';
-import moment from 'moment';
 import { Icon } from 'semantic-ui-react'
+import { getPrettyDate, getMomentDate } from '../../utils';
 
 class ReferralTable extends Component {
     
@@ -21,8 +21,8 @@ class ReferralTable extends Component {
         {   title: 'Patient ID', field: 'patientId' },
         {   title: 'Village No.', field: 'villageNumber'},
         {   title: 'Date Referred',
-                render: rowData => <p>{this.getPrettyDate(this.getLatestReferral(rowData.readings))}</p>,
-            customSort: (a,b) => this.getMomentDate(this.getLatestReferral(a.readings)).valueOf() - this.getMomentDate(this.getLatestReferral(b.readings)).valueOf(),
+                render: rowData => <p>{getPrettyDate(this.getLatestReferral(rowData.readings))}</p>,
+            customSort: (a,b) => getMomentDate(this.getLatestReferral(a.readings)).valueOf() - getMomentDate(this.getLatestReferral(b.readings)).valueOf(),
             defaultSort: 'desc' },
         {   title: 'Assessment', render: rowData => rowData.needsAssessment ? (<p><Icon name="clock outline" size="large" color="red"/> Pending</p>) :
                                                                             (<p><Icon name="checkmark" size="large" color="green"/> Complete</p>)},
@@ -35,22 +35,13 @@ class ReferralTable extends Component {
     }
 
     getLatestReferral = (readings) => {
-        let sortedReadings = readings.sort((a,b) => this.getMomentDate(b.dateTimeTaken).valueOf() - this.getMomentDate(a.dateTimeTaken).valueOf())
+        let sortedReadings = readings.sort((a,b) => getMomentDate(b.dateTimeTaken).valueOf() - getMomentDate(a.dateTimeTaken).valueOf())
         
         if(sortedReadings[0].dateReferred) {
             return sortedReadings[0].dateReferred
         } else {
             return ""
         }
-    }
-
-    getPrettyDate = (dateStr) => {
-        return this.getMomentDate(dateStr).format("MMMM Do, YYYY");
-    }
-
-    getMomentDate = (dateStr) => {
-        dateStr = dateStr.slice(0,19)
-        return moment(dateStr);
     }
 
     render() {

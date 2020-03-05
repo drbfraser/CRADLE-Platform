@@ -14,8 +14,11 @@ flask_bcrypt
 jsonschema
 flask_script
 environs
+Cython
 numpy
 uwsgi
 pyjwt
 requests
 twilio
+yagmail
+cryptography
