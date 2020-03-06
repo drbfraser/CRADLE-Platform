@@ -25,6 +25,7 @@ import { getCurrentUser } from '../../actions/users';
 import { newReadingPost } from '../../actions/newReading';
 import { getTrafficIcon } from './patientUtils';
 import UrineTestForm, { urineTestChemicals, initialUrineTests } from '../newReadingPage/urineTestForm';
+import SymptomForm from '../newReadingPage/symptomForm'
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -255,6 +256,7 @@ class PatientSummary extends Component {
   }
 
   handleCheckedChange = (e, value) => {
+    console.log(value.name)
     // true => false, pop
     if (value.value) {
       if (symptom.indexOf(value.name) >= 0) {
@@ -265,14 +267,14 @@ class PatientSummary extends Component {
         symptom.push(value.name)
       }
     }
-
-    if (value.name !== 'other') {
+    console.log(symptom)
+    if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop('none')
       }
-      this.setState({ 
-        checkedItems: { 
-          ...this.state.checkedItems, 
+      this.setState({
+        checkedItems: {
+          ...this.state.checkedItems,
           [value.name] : !value.value,
           none: false
         }})
@@ -280,7 +282,7 @@ class PatientSummary extends Component {
       while(symptom.length > 0) {
         symptom.pop();
       }
-      this.setState({ 
+      this.setState({
         checkedItems: {
           none: true,
           headache: false,
@@ -759,54 +761,12 @@ class PatientSummary extends Component {
                           required
                         />
                       </Form.Group>
-                      <Form.Checkbox
-                        value={this.state.checkedItems.none}
-                        name='none'
-                        label='None (patient healthy)'
-                        onChange={this.handleCheckedChange}
-                      />
-                      <Form.Group widths='equal'>
-                        <Form.Checkbox
-                          value={this.state.checkedItems.headache}
-                          name='headache'
-                          label='Headache'
+                        <SymptomForm
+                          checkedItems={this.state.checkedItems}
+                          patient={this.state.patient}
                           onChange={this.handleCheckedChange}
+                          onOtherChange={this.handleOtherSymptom}
                         />
-                        <Form.Checkbox
-                          value={this.state.checkedItems.bleeding}
-                          name='bleeding'
-                          label='Bleeding'
-                          onChange={this.handleCheckedChange}
-                        />
-                      </Form.Group>
-                      <Form.Group widths='equal'>
-                        <Form.Checkbox
-                          value={this.state.checkedItems.blurredVision}
-                          name='blurredVision'
-                          label='Blurred vision'
-                          onChange={this.handleCheckedChange}
-                        />
-                        <Form.Checkbox
-                          value={this.state.checkedItems.feverish}
-                          name='feverish'
-                          label='Feverish'
-                          onChange={this.handleCheckedChange}
-                        />
-                      </Form.Group>
-                      <Form.Group widths='equal'>
-                        <Form.Checkbox
-                          value={this.state.checkedItems.abdominalPain}
-                          name='abdominalPain'
-                          label='Abdominal pain'
-                          onChange={this.handleCheckedChange}
-                        />
-                        <Form.Checkbox
-                          value={this.state.checkedItems.unwell}
-                          name='unwell'
-                          label='Unwell'
-                          onChange={this.handleCheckedChange}
-                        />
-                      </Form.Group>
                       <Form.Group>
                         <Form.Checkbox
                           value={this.state.checkedItems.other}
