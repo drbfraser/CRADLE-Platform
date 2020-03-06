@@ -593,14 +593,28 @@ class PatientSummary extends Component {
                           <p><b>Symptoms: </b> {row.symptoms} </p>
                           {row.urineTests && 
                           <div>
-                            <p><b>Urine Test Result: </b></p>
-                            <div style={{"paddingLeft": "15px"}}>
-                              <p><b>{urineTestChemicals.LEUC}: </b> {row.urineTests.urineTestLeuc} </p>
-                              <p><b>{urineTestChemicals.NIT}: </b> {row.urineTests.urineTestNit} </p>
-                              <p><b>{urineTestChemicals.GLU}: </b> {row.urineTests.urineTestGlu} </p>
-                              <p><b>{urineTestChemicals.PRO}: </b> {row.urineTests.urineTestPro} </p>
-                              <p><b>{urineTestChemicals.BLOOD}: </b> {row.urineTests.urineTestBlood} </p>
-                            </div>
+
+
+                            <ExpansionPanel>
+                              <ExpansionPanelSummary
+                                expandIcon={<Icon name="chevron down" />}
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                              >
+                                <Typography><b>Urine Tests Result</b></Typography>
+                              </ExpansionPanelSummary>
+                              <ExpansionPanelDetails>
+                                <Typography>
+                                  <p><b>{urineTestChemicals.LEUC}: </b> {row.urineTests.urineTestLeuc} </p>
+                                  <p><b>{urineTestChemicals.NIT}: </b> {row.urineTests.urineTestNit} </p>
+                                  <p><b>{urineTestChemicals.GLU}: </b> {row.urineTests.urineTestGlu} </p>
+                                  <p><b>{urineTestChemicals.PRO}: </b> {row.urineTests.urineTestPro} </p>
+                                  <p><b>{urineTestChemicals.BLOOD}: </b> {row.urineTests.urineTestBlood} </p>
+                                </Typography>
+                              </ExpansionPanelDetails>
+                            </ExpansionPanel>
+
+
                           </div>}
                         </div>
                       </div>
