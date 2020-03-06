@@ -25,8 +25,6 @@ patientFacilityManager = PatientFacilityManager()
 urineTestManager = urineTestManager()
 decoding_error = 'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
 
-
-
 def abort_if_body_empty(request_body):
     if request_body is None:
         abort(400, message="The request body cannot be empty.")
