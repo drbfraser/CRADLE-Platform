@@ -116,10 +116,7 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    #dob = db.Column(db.Date)
     dob = db.Column(db.String(50))
-
-
     villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
     # villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
@@ -248,7 +245,6 @@ class FollowUp(db.Model):
     specialInvestigations = db.Column(db.Text)
     medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
     followupNeeded = db.Column(db.Boolean)
-    #dateReviewNeeded = db.Colum.Date)
     dateReviewNeeded = db.Column(db.String(50))
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
@@ -328,8 +324,6 @@ class PatientFacilitySchema(ma.ModelSchema):
     class Meta:
         include_fk = True
         model = PatientFacility
-
-
 
 user_schema = {
     "type": "object",

@@ -1,5 +1,4 @@
 from models import PatientFacility, PatientFacilitySchema
-
 from .Database import Database
 
 class PatientFacilityRepo(Database):

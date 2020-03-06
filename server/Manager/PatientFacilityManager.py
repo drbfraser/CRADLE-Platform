@@ -6,8 +6,6 @@ from Manager.Manager import Manager
 from Manager.UserManager import UserManager
 userManager = UserManager()
 
-
-
 class PatientFacilityManager(Manager):
     def __init__(self):
         Manager.__init__(self, PatientFacilityRepo)
