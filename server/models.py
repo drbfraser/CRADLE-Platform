@@ -116,7 +116,9 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    dob = db.Column(db.Date)
+    #dob = db.Column(db.Date)
+    dob = db.Column(db.String(50))
+
 
     villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
@@ -246,7 +248,8 @@ class FollowUp(db.Model):
     specialInvestigations = db.Column(db.Text)
     medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
     followupNeeded = db.Column(db.Boolean)
-    dateReviewNeeded = db.Column(db.Date)
+    #dateReviewNeeded = db.Colum.Date)
+    dateReviewNeeded = db.Column(db.String(50))
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
 
