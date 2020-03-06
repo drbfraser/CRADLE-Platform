@@ -100,7 +100,7 @@ class PatientAll(Resource):
             return invalid
 
         # if age is not provided, populate age using dob
-        if patient_data['dob'] is not None and patient_data['patientAge'] == '-1':
+        if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
             patient_data = calculate_age_from_dob(patient_data)
 
         response_body = patientManager.create(patient_data)
@@ -184,7 +184,7 @@ class PatientReading(Resource):
             return is_invalid_reading
 
         patient_data = patient_reading_data['patient']
-        if patient_data['dob'] is not None and patient_data['patientAge'] == '-1':
+        if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
             patient_reading_data['patient'] = calculate_age_from_dob(patient_data)
 
         # create new reading (and patient if it does not already exist)
