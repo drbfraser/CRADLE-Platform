@@ -17,6 +17,16 @@ const pregOptions = [
   { key: 'n', text: 'No', value: false },
 ]
 
+export const GESTATIONAL_AGE_UNITS = {
+  WEEKS: "GESTATIONAL_AGE_UNITS_WEEKS",
+  MONTHS: "GESTATIONAL_AGE_UNITS_MONTHS"
+}
+
+const gestationalAgeUnitOptions = [
+  { key: 'week', text: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
+  { key: 'month', text: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS },
+]
+
 function PatientInfoForm(props) {
   return (
       <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
@@ -80,6 +90,8 @@ function PatientInfoForm(props) {
               onChange={props.onSelectChange}
               required
             />
+          </Form.Group>
+          <Form.Group widths='equal'>
             <Form.Field
               name='isPregnant'
               value={props.patient.isPregnant}
@@ -94,11 +106,21 @@ function PatientInfoForm(props) {
               value={props.patient.gestationalAgeValue}
               control={Input}
               label='Gestational Age'
-              placeholder='Gestational Age in Weeks'
+              placeholder='Gestational Age'
               type='number'
               min='1'
-              max='60'
+              max={props.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS ? '60' : '13'}
               onChange={props.onChange}
+              disabled={props.patient.patientSex === 'MALE' || !props.patient.isPregnant}
+              required
+            />
+            <Form.Field
+              name="gestationalAgeUnit"
+              value={props.patient.gestationalAgeUnit}
+              control={Select}
+              options={gestationalAgeUnitOptions}
+              onChange={props.onSelectChange}
+              label='Gestational Age Unit'
               disabled={props.patient.patientSex === 'MALE' || !props.patient.isPregnant}
               required
             />

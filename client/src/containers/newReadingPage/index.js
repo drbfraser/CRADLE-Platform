@@ -23,6 +23,11 @@ function guid() {
   });
 }
 
+const GESTATIONAL_AGE_UNITS = {
+  WEEKS: "GESTATIONAL_AGE_UNITS_WEEKS",
+  MONTHS: "GESTATIONAL_AGE_UNITS_MONTHS"
+}
+
 class NewReadingPage extends Component {
   state = { 
     patient: {
@@ -32,7 +37,7 @@ class NewReadingPage extends Component {
       patientSex: "FEMALE",
       isPregnant: true,
       gestationalAgeValue: "",
-      gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
+      gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
       zone: "",
       dob: null,
       villageNumber: "",
@@ -209,17 +214,17 @@ class NewReadingPage extends Component {
           // reset fields after form submit
           if (this.props.createReadingStatusError === false) {
             
-            this.setState({
+            this.setState({ 
               patient: {
                 patientId: "",
                 patientName: "",
                 patientAge: "",
-                dob: null,
                 patientSex: "FEMALE",
                 isPregnant: true,
                 gestationalAgeValue: "",
-                gestationalAgeUnit: "GESTATIONAL_AGE_UNITS_WEEKS",
+                gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
                 zone: "",
+                dob: null,
                 villageNumber: "",
                 drugHistory: "",
                 medicalHistory: ""
@@ -237,7 +242,7 @@ class NewReadingPage extends Component {
                 urineTests: initialUrineTests
               },
               checkedItems: {
-                none: false,
+                none: true,
                 headache: false,
                 bleeding: false,
                 blurredVision: false,
@@ -247,9 +252,9 @@ class NewReadingPage extends Component {
                 other: false,
                 otherSymptoms: ""
               },
-              showSuccessReading: true,
+              showSuccessReading : true,
               hasUrineTest: false
-          })
+            })
         }
       })
     })
