@@ -67,7 +67,7 @@ class NewReadingPage extends Component {
       other: false,
       otherSymptoms: ""
     },
-    showSuccessReading : false,
+    showSuccessReading: false,
     hasUrineTest: false
   }
 
@@ -252,9 +252,9 @@ class NewReadingPage extends Component {
                 other: false,
                 otherSymptoms: ""
               },
-              showSuccessReading : true,
+              showSuccessReading: true,
               hasUrineTest: false
-            })
+          })
         }
       })
     })
