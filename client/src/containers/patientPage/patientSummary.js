@@ -593,14 +593,11 @@ class PatientSummary extends Component {
                           <p><b>Symptoms: </b> {row.symptoms} </p>
                           {row.urineTests && 
                           <div>
-
-
                             <ExpansionPanel>
                               <ExpansionPanelSummary
                                 expandIcon={<Icon name="chevron down" />}
                                 aria-controls="panel1a-content"
-                                id="panel1a-header"
-                              >
+                                id="panel1a-header">
                                 <Typography><b>Urine Tests Result</b></Typography>
                               </ExpansionPanelSummary>
                               <ExpansionPanelDetails>
