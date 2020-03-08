@@ -34,9 +34,9 @@ def filtered_list_hcw(patients, referrals, users, userId):
             patient_id_list.append(p['patientId'])
         
     # getting all patient rows based on patientIds collected
-    for p in patients:
-        if p['patientId'] in patient_id_list:
-            patient_filtered_list.append(p) 
+    for patient in patients:
+        if patient['patientId'] in patient_id_list:
+            patient_filtered_list.append(patient) 
 
     # now we have a filtered list
     return patient_filtered_list
