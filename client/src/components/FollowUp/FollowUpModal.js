@@ -41,7 +41,9 @@ class FollowUpModal extends Component {
                 specialInvestigations: "",
                 medicationPrescribed: "",
                 followupNeeded: false,
-                dateReviewNeeded: ""
+                dateReviewNeeded: "",
+                followupInstruction: "",
+                frequency: ""
             },
             isOpen: false
         }
@@ -189,6 +191,24 @@ class FollowUpModal extends Component {
                                 onChange={this.handleChange}
                                 required
                             />
+                            <Form.Field
+                              name="followupInstructions"
+                              value={this.state.data.followupInstruction || ''}
+                              control={TextArea}
+                              label='Instruction for Follow up'
+                              placeholder="Instruction for VHT to help patient to remedy their chief complaint"
+                              onChange={this.handleChange}
+                              required
+                            />
+                            <Form.Field
+                              name="frequency"
+                              value={this.state.data.frequency || ''}
+                              control={TextArea}
+                              label='Frequency'
+                              placeholder="Frequency for VHT to visit their patient to remedy their chief complaint"
+                              onChange={this.handleChange}
+                              required
+                            />
                             <Form.Field style={{"margin": "0px"}}>
                                 <label style={{"display": "inline-block", "marginRight": "5px"}}>Follow-up Needed</label>
                                 <Switch
@@ -198,15 +218,36 @@ class FollowUpModal extends Component {
                                     color='primary'
                                 />
                             </Form.Field>
-                            {this.state.data.followupNeeded && 
-                            <Form.Field
-                                name="dateReviewNeeded"
-                                control={Input}
-                                type='date'
-                                disabled={!this.state.data.followupNeeded}
-                                onChange={this.handleChange}
-                                required
-                            ></Form.Field>}
+                            {this.state.data.followupNeeded &&
+                            <Form>
+                                <Form.Field
+                                  name="dateReviewNeeded"
+                                  control={Input}
+                                  type='date'
+                                  disabled={!this.state.data.followupNeeded}
+                                  onChange={this.handleChange}
+                                  required
+                                ></Form.Field>
+                                <Form.Field
+                                  name="followupInstructions"
+                                  value={this.state.data.followupInstruction || ''}
+                                  control={TextArea}
+                                  label='Instruction for Follow up'
+                                  placeholder="Instruction for VHT to help patient to remedy their chief complaint"
+                                  onChange={this.handleChange}
+                                  required
+                                ></Form.Field>
+                                <Form.Field
+                                  name="frequency"
+                                  value={this.state.data.frequency || ''}
+                                  control={TextArea}
+                                  label='Frequency'
+                                  placeholder="Frequency for VHT to visit their patient to remedy their chief complaint"
+                                  onChange={this.handleChange}
+                                  required
+                                ></Form.Field>
+                            </Form>
+                            }
                             <Form.Field control={Button} style={{"marginTop": "10px"}}>Submit</Form.Field>
                         </Form>
                     </Modal.Description>
