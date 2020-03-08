@@ -652,7 +652,6 @@ class PatientSummary extends Component {
                           placeholder='dob'
                           onChange={this.handleSelectChange}
                           type='date'
-                          required
                         />
                         <Form.Field
                           name="patientAge"
@@ -664,7 +663,6 @@ class PatientSummary extends Component {
                           type='number'
                           min='15'
                           max='60'
-                          required
                         />
                         <Form.Field
                           name="patientSex"
@@ -683,7 +681,7 @@ class PatientSummary extends Component {
                           value={this.state.selectedPatient.villageNumber}
                           control={Input}
                           label='Village Number'
-                          placeholder='Village Number'
+                          placeholder='Village'
                           onChange={this.handleSelectChange}
                         />
                         <Form.Field

@@ -19,7 +19,7 @@ class PatientTable extends Component {
             sorting: false
         },
         {   title: 'Patient ID', field: 'patientId' },
-        {   title: 'Village No.', field: 'villageNumber'},
+        {   title: 'Village', field: 'villageNumber'},
         {   title: 'Vital Sign',
             cellStyle: {
                 padding: '0px'
