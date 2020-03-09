@@ -81,11 +81,6 @@ class NewReadingPage extends Component {
     })
   }
 
-
-  handleChange = event => {
-    this.setState({ patient: { ...this.state.patient, [event.target.name]: event.target.value }})
-  }
-
   handleSelectChange = (e, value) => {
     if (value.name === "patientSex" && value.value === "MALE") {
       this.setState({ patient: { ...this.state.patient, patientSex : "MALE", gestationalAgeValue : "", isPregnant : false }})
@@ -271,7 +266,10 @@ class NewReadingPage extends Component {
         <h1><b>Create a new patient and reading:</b></h1> 
         <Divider/>
         <Form onSubmit={this.handleSubmit}>
-          <PatientInfoForm patient={this.state.patient} onChange={this.handleChange} onSelectChange={this.handleSelectChange}/>
+          <PatientInfoForm 
+            patient={this.state.patient} 
+            onChange={this.handleSelectChange} 
+          />
           <div className='leftContainer'>
             <BpForm reading={this.state.reading} onChange={this.handleReadingChange}/>
             <SymptomForm 

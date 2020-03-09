@@ -25,6 +25,7 @@ import { getCurrentUser } from '../../actions/users';
 import { newReadingPost } from '../../actions/newReading';
 import { getTrafficIcon } from './patientUtils';
 import UrineTestForm, { urineTestChemicals, initialUrineTests } from '../newReadingPage/urineTestForm';
+import PatientInfoForm from '../newReadingPage/patientInfoForm';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -616,103 +617,14 @@ class PatientSummary extends Component {
               <Modal closeIcon onClose={this.closePatientModal} open={this.state.displayPatientModal}>
                 <Modal.Header>Patient Information for ID #{this.state.selectedPatient.patientId}</Modal.Header>
                 <Modal.Content scrolling>
-                    <Form onSubmit={this.handleSubmit}>
-                      <Form.Group widths='equal'>
-                        <Form.Field
-                          name="patientName"
-                          value={this.state.selectedPatient.patientName}
-                          control={Input}
-                          label='Patient Initials'
-                          placeholder='Patient Initials'
-                          onChange={this.handleSelectChange}
-                          type='text'
-                          pattern="[a-zA-Z]*"
-                          maxLength='4'
-                          minLength='1'
-                          required
-                        />
-                        <Form.Field
-                          name='dob'
-                          value={this.state.selectedPatient.dob}
-                          control={Input}
-                          label='dob'
-                          placeholder='dob'
-                          onChange={this.handleSelectChange}
-                          type='date'
-                        />
-                        <Form.Field
-                          name="patientAge"
-                          value={this.state.selectedPatient.patientAge}
-                          control={Input}
-                          label='Age'
-                          placeholder='Patient Age'
-                          onChange={this.handleSelectChange}
-                          type='number'
-                          min='15'
-                          max='60'
-                        />
-                        <Form.Field
-                          name="patientSex"
-                          control={Select}
-                          value={this.state.selectedPatient.patientSex}
-                          label='Gender'
-                          options={sexOptions}
-                          placeholder='Gender'
-                          onChange={this.handleSelectChange}
-                          required
-                        />
-                      </Form.Group>
-                      <Form.Group widths='equal'>
-                        <Form.Field
-                          name='villageNumber'
-                          value={this.state.selectedPatient.villageNumber}
-                          control={Input}
-                          label='Village Number'
-                          placeholder='Village'
-                          onChange={this.handleSelectChange}
-                        />
-                        <Form.Field
-                          name='isPregnant'
-                          value={this.state.selectedPatient.isPregnant}
-                          control={Select}
-                          label='Pregnant'
-                          options={pregOptions}
-                          onChange={this.handleSelectChange}
-                          disabled={this.state.selectedPatient.patientSex ===  "MALE"}
-                        />
-                        <Form.Field
-                          name='gestationalAgeValue'
-                          value={this.state.selectedPatient.gestationalAgeValue}
-                          control={Input}
-                          label='Gestational Age in Weeks'
-                          placeholder='Gestational Age in Weeks'
-                          onChange={this.handleSelectChange}
-                          type='number'
-                          min='1'
-                          max='60'
-                          required
-                          disabled={this.state.selectedPatient.patientSex === 'MALE' || !this.state.selectedPatient.isPregnant}
-                        />
-                      </Form.Group>
-                      <Form.Field
-                        name="drugHistory"
-                        value={this.state.selectedPatient.drugHistory || ''}
-                        control={TextArea}
-                        label='Drug History'
-                        placeholder="Patient's drug history..."
-                        onChange={this.handleSelectChange}
-                      />
-                      <Form.Field
-                        name="medicalHistory"
-                        value={this.state.selectedPatient.medicalHistory || ''}
-                        control={TextArea}
-                        label='Medical History'
-                        placeholder="Patient's medical history..."
-                        onChange={this.handleSelectChange}
-                      />
-                      <Form.Field control={Button}>Submit</Form.Field>
-                    </Form>
-
+                <Form onSubmit={this.handleSubmit}>
+                  <PatientInfoForm 
+                    patient={this.state.selectedPatient} 
+                    onChange={this.handleSelectChange} 
+                    isEditPage={true}
+                  />
+                  <Form.Field style={{'marginTop': '10px'}} control={Button}>Submit</Form.Field>
+                </Form>
                 </Modal.Content>
               </Modal>
               <Modal closeIcon onClose={this.closeReadingModal} open={this.state.displayReadingModal}>
