@@ -33,6 +33,15 @@ class TrafficLightEnum(enum.Enum):
     RED_UP = 'RED_UP'
     RED_DOWN = 'RED_DOWN'
 
+class frequencyUnitEnum(enum.Enum):
+    MINUTES = 'MINUTES'
+    HOURS = 'HOURS'
+    DAYS = 'DAYS'
+    WEEKS = 'WEEKS'
+    MONTHS = 'MONTHS'
+    YEARS = 'YEARS'
+
+
 ######################
 ### HELPER CLASSES ###
 ######################
@@ -237,7 +246,7 @@ class Reading(db.Model):
 class FollowUp(db.Model):
     __tablename__ = 'followup'
     id = db.Column(db.Integer, primary_key=True)
-    followUpAction = db.Column(db.Text)
+    followupInstructions = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
     dateAssessed = db.Column(db.String(100), nullable=False)
@@ -245,9 +254,12 @@ class FollowUp(db.Model):
     specialInvestigations = db.Column(db.Text)
     medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
     followupNeeded = db.Column(db.Boolean)
-    dateReviewNeeded = db.Column(db.String(50))
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
+    followupFrequencyValue = db.Column(db.Float)
+    followupFrequencyUnit = db.Column(db.Enum(frequencyUnitEnum))
+    dateFollowupNeededTill = db.Column(db.String(50))
+
 
 
 class Village(db.Model):
@@ -303,6 +315,7 @@ class HealthFacilitySchema(ma.ModelSchema):
         model = HealthFacility
 
 class FollowUpSchema(ma.ModelSchema):
+    followupFrequencyUnit = EnumField(frequencyUnitEnum, by_value=True)
     healthcareWorker = fields.Nested(UserSchema)
     class Meta:
         include_fk = True
