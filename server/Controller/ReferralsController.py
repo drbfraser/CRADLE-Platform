@@ -6,13 +6,11 @@ from utils import pprint
 
 # Project modules
 from Manager.ReferralManager import ReferralManager
-from Manager.PatientFacilityManager import PatientFacilityManager
 from Validation.ReferralValidator import ReferralValidator
 from Controller.Helpers import _get_request_body
 
 referralManager = ReferralManager()
 validator = ReferralValidator()
-patientFacilityManager = PatientFacilityManager()
 
 def abort_if_referral_doesnt_exist(referral_id):
     referral = referralManager.read("id", referral_id)
@@ -113,9 +111,4 @@ class ReferralApi(Resource):
     def post(self):
         req_data = _get_request_body()
 
-        # add patient facility relationship
-        patientFacilityManager.add_patient_facility_relationship(
-            req_data['patient']['patientId'],
-            req_data['healthFacilityName']
-        )
         return referralManager.create_referral_with_patient_and_reading(req_data), 201
