@@ -191,24 +191,6 @@ class FollowUpModal extends Component {
                                 onChange={this.handleChange}
                                 required
                             />
-                            <Form.Field
-                              name="followupInstructions"
-                              value={this.state.data.followupInstruction || ''}
-                              control={TextArea}
-                              label='Instruction for Follow up'
-                              placeholder="Instruction for VHT to help patient to remedy their chief complaint"
-                              onChange={this.handleChange}
-                              required
-                            />
-                            <Form.Field
-                              name="frequency"
-                              value={this.state.data.frequency || ''}
-                              control={TextArea}
-                              label='Frequency'
-                              placeholder="Frequency for VHT to visit their patient to remedy their chief complaint"
-                              onChange={this.handleChange}
-                              required
-                            />
                             <Form.Field style={{"margin": "0px"}}>
                                 <label style={{"display": "inline-block", "marginRight": "5px"}}>Follow-up Needed</label>
                                 <Switch

@@ -46,6 +46,7 @@ class FollowUp(Resource):
         current_user = get_jwt_identity()
         follow_up_data = _get_request_body()
         response_body = followUpManager.create(follow_up_data, current_user)
+        print("======={}".format(response_body))
         return response_body, 201
     
     @jwt_required

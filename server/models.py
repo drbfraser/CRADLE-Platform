@@ -248,7 +248,7 @@ class FollowUp(db.Model):
     dateReviewNeeded = db.Column(db.String(50))
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
-    instruction = db.Column(db.Text)
+    followupInstruction = db.Column(db.Text)
     frequency = db.Column(db.Text)
 
 class Village(db.Model):
