@@ -22,6 +22,16 @@ import Switch from '@material-ui/core/Switch';
 
 import { updateFollowUp, setReadingId, createFollowUp } from '../../actions/referrals';
 
+const followupFrequencyUnit = [
+    {key:'min', text:'Minute', value:'MINUTE'},
+    {key:'hour', text:'Hour', value:'HOUR'},
+    {key:'day', text:'Day', value:'DAY'},
+    {key:'week', text:'Week', value:'WEEK'},
+    {key:'month', text:'Month', value:'MONTH'},
+    {key:'year', text:'Year', value:'YEAR'},
+]
+
+
 class FollowUpModal extends Component {
     static propTypes = {
         initialValues: PropTypes.objectOf(PropTypes.string),
@@ -41,7 +51,7 @@ class FollowUpModal extends Component {
                 specialInvestigations: "",
                 medicationPrescribed: "",
                 followupNeeded: false,
-                dateReviewNeeded: "",
+                dateFollowupNeededTill: "",
                 followupInstruction: "",
                 frequency: ""
             },
@@ -121,7 +131,7 @@ class FollowUpModal extends Component {
             followupData.followUpAction = followupData.specialInvestigations;
 
             if (!followupData.followupNeeded) {
-                delete followupData.dateReviewNeeded;
+                delete followupData.dateFollowupNeededTill;
             }
             this.props.createFollowUp(this.state.data);
         }
@@ -203,7 +213,7 @@ class FollowUpModal extends Component {
                             {this.state.data.followupNeeded &&
                             <Form>
                                 <Form.Field
-                                  name="dateReviewNeeded"
+                                  name="dateFollowupNeededTill"
                                   control={Input}
                                   type='date'
                                   disabled={!this.state.data.followupNeeded}
