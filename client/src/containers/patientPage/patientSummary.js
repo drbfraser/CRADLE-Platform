@@ -636,7 +636,7 @@ class PatientSummary extends Component {
                           value={this.state.selectedPatient.dob}
                           control={Input}
                           label='dob'
-                          placeholder='dob'
+                          placeholder='Date of Birth'
                           onChange={this.handleSelectChange}
                           type='date'
                         />
