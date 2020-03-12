@@ -36,14 +36,14 @@ export default (state = initialState, action) => {
             isLoading: false
         }
     
-    case UPDATE_FOLLOW_UP:    
+    case UPDATE_FOLLOW_UP:
         return {
             ...state,
             mappedReferrals: {
                 ...state.mappedReferrals,
                 [state.readingId]: {
                     ...state.mappedReferrals[state.readingId],
-                    followUp: action.payload
+                    followUp: action.payload.data
                 }
             },
             isLoading: false

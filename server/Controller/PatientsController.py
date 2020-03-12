@@ -73,6 +73,7 @@ class PatientAll(Resource):
 
     # Get list of all patients
     @staticmethod
+    @jwt_required
     def get():
         logging.debug('Received request: GET /patient')
 
@@ -82,6 +83,7 @@ class PatientAll(Resource):
         return patients
 
     # Create a new patient
+    @jwt_required
     def post(self):
         logging.debug('Received request: POST /patient')
         try:
@@ -105,6 +107,7 @@ class PatientAll(Resource):
         return response_body, 201
 
     @staticmethod
+    @jwt_required
     def delete():
         patientManager.delete_all()
         return {}
@@ -116,6 +119,7 @@ class PatientAll(Resource):
 class PatientInfo(Resource):
 
     # Get a single patient
+    @jwt_required
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
         patient = patientManager.read("patientId", patient_id)
@@ -125,6 +129,7 @@ class PatientInfo(Resource):
         return patient
 
     # Update patient info
+    @jwt_required
     def put(self, patient_id):
         logging.debug('Received request: PUT /patient/' + patient_id)
 
@@ -162,6 +167,7 @@ class PatientReading(Resource):
 
 
     # Create a new patient with a reading
+    @jwt_required
     def post(self):
         logging.debug('Received request: POST api/patient/reading')
         try:

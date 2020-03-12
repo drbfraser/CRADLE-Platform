@@ -1,4 +1,5 @@
 from flask_restful import Resource, abort
+from flask_jwt_extended import jwt_required
 from Manager.PatientStatsManager import PatientStatsManager
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
 patientStatsManager = PatientStatsManager()
@@ -18,6 +19,7 @@ class PatientStats(Resource):
     # TO DO: NEED TO RETURN JSON IN NICER FORMAT
     # TO DO: Add more error checking
     # GET /api/patient/stats/<string:patient_id>
+    @jwt_required
     def get(self, patient_id):
         stats = patientStatsManager.put_data_together(patient_id)
         return stats
