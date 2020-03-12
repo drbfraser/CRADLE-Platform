@@ -22,7 +22,7 @@ import Switch from '@material-ui/core/Switch';
 
 import { updateFollowUp, setReadingId, createFollowUp } from '../../actions/referrals';
 
-const followupFrequencyUnitUnit = [
+const followupFollowupFrequencyUnitUnit = [
     {key:'min', text:'Minutes', value:'MINUTES'},
     {key:'hour', text:'Hours', value:'HOURS'},
     {key:'day', text:'Days', value:'DAYS'},
@@ -50,19 +50,18 @@ class FollowUpModal extends Component {
 
         this.state = {
             data: {
-                followUpAction: "",
                 diagnosis: "",
                 treatment: "",
                 specialInvestigations: "",
                 medicationPrescribed: "",
                 followupNeeded: false,
                 dateFollowupNeededTill: "",
-                followupInstruction: "",
-                frequencyUnit: "",
-                frequencyValue: "",
+                followupInstructions: "",
+                followupFrequencyUnit: "",
+                followupFrequencyValue: "",
             },
             isOpen: false,
-            dateOrCondition: "date"
+            dateOrCondition: "DATE"
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -144,7 +143,7 @@ class FollowUpModal extends Component {
         } else { // create new followUpInfo
             const followupData = this.state.data;
             // TODO: remove this once mobile is up to date with the new assessment changes
-            followupData.followUpAction = followupData.specialInvestigations;
+            // followupData.followUpAction = followupData.specialInvestigations;
 
             if (!followupData.followupNeeded) {
                 delete followupData.dateFollowupNeededTill;
@@ -230,7 +229,7 @@ class FollowUpModal extends Component {
                             <Form>
                                 <Form.Field
                                   name="followupInstructions"
-                                  value={this.state.data.followupInstruction || ''}
+                                  value={this.state.data.followupInstructions || ''}
                                   control={TextArea}
                                   label='Instructions for Follow up'
                                   placeholder="Instruction for VHT to help patient to remedy their chief complaint"
@@ -239,23 +238,23 @@ class FollowUpModal extends Component {
                                 ></Form.Field>
                                 <Form.Group widths='equal'>
                                     <Form.Field
-                                      name="frequencyValue"
-                                      value={this.state.data.frequencyValue || ''}
+                                      name="followupFrequencyValue"
+                                      value={this.state.data.followupFrequencyValue || ''}
                                       control={Input}
                                       type='number'
                                       min='1'
                                       label='Frequency'
-                                      placeholder="Frequency"
+                                      placeholder="Number"
                                       onChange={this.handleChange}
                                       required
                                     ></Form.Field>
                                     <Form.Field
-                                      name="frequencyUnit"
-                                      value={this.state.data.frequencyUnit || ''}
+                                      name="followupFrequencyUnit"
+                                      value={this.state.data.followupFrequencyUnit || ''}
                                       control={Select}
-                                      options={followupFrequencyUnitUnit}
+                                      options={followupFollowupFrequencyUnitUnit}
                                       label='Frequency Unit'
-                                      // placeholder="FrequencyUnit for VHT to visit their patient to remedy their chief complaint"
+                                      // placeholder="FollowupFrequencyUnit for VHT to visit their patient to remedy their chief complaint"
                                       onChange={this.handleChange}
                                       required
                                     ></Form.Field>
