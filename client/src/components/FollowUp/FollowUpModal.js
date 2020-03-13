@@ -1,5 +1,5 @@
 /**
- * Description: Modal reponsible for the the UI to create and update 
+ * Description: Modal reponsible for the the UI to create and update
  *      the Follow Up info for Referrals
  * Props:
  *  initialValues [JSON]: initial values of to insert into the form
@@ -11,17 +11,32 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { 
+import {
     Button,
     Modal,
     Form,
     TextArea,
-    Input
+    Input, Select
 } from 'semantic-ui-react'
 import Switch from '@material-ui/core/Switch';
 
 import { updateFollowUp, setReadingId, createFollowUp } from '../../actions/referrals';
 import { getPatients } from '../../actions/patients'
+
+const followupFollowupFrequencyUnitUnit = [
+    {key:'min', text:'Minutes', value:'MINUTES'},
+    {key:'hour', text:'Hours', value:'HOURS'},
+    {key:'day', text:'Days', value:'DAYS'},
+    {key:'week', text:'Weeks', value:'WEEKS'},
+    {key:'month', text:'Months', value:'MONTHS'},
+    {key:'year', text:'Years', value:'YEARS'},
+]
+
+const untilDateOrCondition = [
+    {key:'date', text:'Date', value:'DATE'},
+    {key:'condition', text:'Condition', value:'CONDITION'}
+]
+
 
 class FollowUpModal extends Component {
     static propTypes = {
@@ -36,15 +51,18 @@ class FollowUpModal extends Component {
 
         this.state = {
             data: {
-                followUpAction: "",
                 diagnosis: "",
                 treatment: "",
                 specialInvestigations: "",
                 medicationPrescribed: "",
                 followupNeeded: false,
-                dateReviewNeeded: ""
+                dateFollowupNeededTill: "",
+                followupInstructions: "",
+                followupFrequencyUnit: "",
+                followupFrequencyValue: "",
             },
-            isOpen: false
+            isOpen: false,
+            dateOrCondition: "DATE"
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -89,6 +107,9 @@ class FollowUpModal extends Component {
     }
 
     handleChange(e, value) {
+        if (value.name === "untilDateOrCond" && (value.value === "CONDITION" || value.value === "DATE")) {
+            this.setState( {dateOrCondition: value.value} )
+        }
         this.setState({
             'data': {
                 ...this.state.data,
@@ -106,25 +127,31 @@ class FollowUpModal extends Component {
         })
     }
 
+    handleDateOrConditionChange = (error, value) => {
+        if (value.value === "CONDITION") {
+            this.setState({untilDate: false})
+        }
+    }
+
     handleSubmit() {
         console.log("submitting follow up info");
         this.state.data.referral = this.props.referralId
         console.log("handle submit state data:  ", this.state.data);
-        
+
         // update existing followUpInfo
         if (this.props.initialValues) {
             this.props.updateFollowUp(this.props.initialValues['id'], this.state.data);
         } else { // create new followUpInfo
             const followupData = this.state.data;
             // TODO: remove this once mobile is up to date with the new assessment changes
-            followupData.followUpAction = followupData.specialInvestigations;
+            // followupData.followUpAction = followupData.specialInvestigations;
 
             if (!followupData.followupNeeded) {
-                delete followupData.dateReviewNeeded;
+                delete followupData.dateFollowupNeededTill;
             }
             this.props.createFollowUp(this.state.data);
         }
-        
+
         this.handleClose();
     }
 
@@ -132,11 +159,11 @@ class FollowUpModal extends Component {
         // console.log("followUpModal state: ", this.state)
         return (
             <div>
-                <Modal 
+                <Modal
                     trigger={
-                        <Button 
-                            style={{"backgroundColor" : "#84ced4"}} 
-                            size="large" 
+                        <Button
+                            style={{"backgroundColor" : "#84ced4"}}
+                            size="large"
                             onClick={this.handleOpen}>
                                 {this.props.initialValues ? (
                                     "Update Assessment"
@@ -199,15 +226,70 @@ class FollowUpModal extends Component {
                                     color='primary'
                                 />
                             </Form.Field>
-                            {this.state.data.followupNeeded && 
-                            <Form.Field
-                                name="dateReviewNeeded"
-                                control={Input}
-                                type='date'
-                                disabled={!this.state.data.followupNeeded}
-                                onChange={this.handleChange}
-                                required
-                            ></Form.Field>}
+                            {this.state.data.followupNeeded &&
+                            <Form>
+                                <Form.Field
+                                  name="followupInstructions"
+                                  value={this.state.data.followupInstructions || ''}
+                                  control={TextArea}
+                                  label='Instructions for Follow up'
+                                  placeholder="Instruction for VHT to help patient to remedy their chief complaint"
+                                  onChange={this.handleChange}
+                                  required
+                                ></Form.Field>
+                                <Form.Group widths='equal'>
+                                    <Form.Field
+                                      name="followupFrequencyValue"
+                                      value={this.state.data.followupFrequencyValue || ''}
+                                      control={Input}
+                                      type='number'
+                                      min='1'
+                                      label='Frequency'
+                                      placeholder="Number"
+                                      onChange={this.handleChange}
+                                      required
+                                    ></Form.Field>
+                                    <Form.Field
+                                      name="followupFrequencyUnit"
+                                      value={this.state.data.followupFrequencyUnit || ''}
+                                      control={Select}
+                                      options={followupFollowupFrequencyUnitUnit}
+                                      label='Frequency Unit'
+                                      // placeholder="FollowupFrequencyUnit for VHT to visit their patient to remedy their chief complaint"
+                                      onChange={this.handleChange}
+                                      required
+                                    ></Form.Field>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Field
+                                        name='untilDateOrCond'
+                                        value={this.state.dateOrCondition}
+                                        control={Select}
+                                        options={untilDateOrCondition}
+                                        label='Until'
+                                        onChange={this.handleChange}
+                                        required
+                                    ></Form.Field>
+                                    <Form.Field
+                                      name="dateFollowupNeededTill"
+                                      control={Input}
+                                      type='date'
+                                      label='Until Date'
+                                      disabled={this.state.dateOrCondition === "CONDITION"}
+                                      onChange={this.handleChange}
+                                      required
+                                    ></Form.Field>
+                                    <Form.Field
+                                      name="dateFollowupNeededTill"
+                                      control={TextArea}
+                                      label='Until Condition'
+                                      disabled={this.state.dateOrCondition === "DATE"}
+                                      onChange={this.handleChange}
+                                      required
+                                    ></Form.Field>
+                                </Form.Group>
+                            </Form>
+                            }
                             <Form.Field control={Button} style={{"marginTop": "10px"}}>Submit</Form.Field>
                         </Form>
                     </Modal.Description>
