@@ -146,7 +146,7 @@ class NewReadingPage extends Component {
   }
 
   handleCheckedChange = (e, value) => {
-    //console.log(value.name)
+    // console.log(value.name)
     // true => false, pop
     if (value.value) {
       if (symptom.indexOf(value.name) >= 0) {
@@ -158,7 +158,7 @@ class NewReadingPage extends Component {
         symptom.push(value.name)
       }
     }
-    //console.log(symptom)
+    // console.log(symptom)
     if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop('none')
