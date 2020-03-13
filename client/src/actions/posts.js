@@ -7,6 +7,7 @@ export const UPDATE_POSTS_REQUESTED = 'posts/UPDATE_POSTS_REQUESTED'
 export const UPDATE_POSTS_ERR = 'posts/UPDATE_POSTS_ERR'
 export const UPDATE_MSG = 'posts/UPDATE_MSG'
 
+// TODO: use requsetActionCreator
 export const getPosts = () => {
     return dispatch => {
       dispatch({

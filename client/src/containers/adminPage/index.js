@@ -1,13 +1,18 @@
 import React, {Component} from 'react';
 import MaterialTable from 'material-table';
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getCurrentUser } from '../../actions/users'
-import { getUsers } from '../../actions/users'
-import { updateUser } from '../../actions/users'
-import { deleteUser } from '../../actions/users'
-import { getVhtList } from '../../actions/users'
-import { getHealthFacilityList } from '../../actions/healthFacilities'
+import { 
+  getCurrentUser,
+  getUsers, 
+  getUsersRequested, 
+  getVhtList, 
+  getVhtsRequested, 
+  updateUser, 
+  deleteUser, 
+  updateUserRequested,
+  deleteUserRequested
+} from '../../actions/users'
+import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
 import { Button,
   Header, Icon, Modal,
   Form, Select,
@@ -116,20 +121,21 @@ class AdminPage extends Component {
   }
 
   componentDidMount = () => {
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get users
-        return
-      }
-      
-      if (this.props.user.roles !== undefined && this.props.user.roles.includes('ADMIN')) {
-        if (!this.props.usersList || !this.props.healthFacilityList) {
-          this.props.getUsers()
-          this.props.getHealthFacilityList()
-        }
-        this.props.getVhtList()
-      }
-    })
+    if (!this.props.user.isLoggedIn) {
+      this.props.getCurrentUser()
+    }
+    if (!this.props.usersList || !this.props.healthFacilityList) {
+      this.props.getUsers()
+      this.props.getHealthFacilityList()
+    }
+    this.props.getVhtList()
+  }
+
+  static getDerivedStateFromProps = (props, state) => {
+    if (props.updateUserList) {
+      props.getUsers();
+    }
+    return state
   }
 
   getRoles = (roleIds) => {
@@ -295,23 +301,38 @@ class AdminPage extends Component {
 const mapStateToProps = ({ user, healthFacilities }) => ({
   user : user.currentUser,
   isLoading: user.allUsers.isLoading,
+  updateUserList: user.allUsers.updateUserList,
   usersList : user.allUsers.usersList,
   vhtList : user.allVhts.vhtList,
   healthFacilityList: healthFacilities.healthFacilitiesList
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      getCurrentUser,
-      getUsers,
-      updateUser,
-      deleteUser,
-      getHealthFacilityList,
-      getVhtList
-    },
-    dispatch
-  )
+const mapDispatchToProps = dispatch => ({
+  getHealthFacilityList: () => {
+    dispatch(getHealthFacilityListRequested())
+    dispatch(getHealthFacilityList())
+  },
+  getUsers: () => {
+    dispatch(getUsersRequested())
+    dispatch(getUsers())
+  },
+  getVhtList: () => {
+    dispatch(getVhtsRequested())
+    dispatch(getVhtList())
+  },
+  updateUser: (userId, userData) => {
+    dispatch(updateUserRequested())
+    dispatch(updateUser(userId, userData))
+  },
+  deleteUser: userId => {
+    dispatch(deleteUserRequested())
+    dispatch(deleteUser(userId))
+  },
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  },
+})
+  
 
 export default connect(
   mapStateToProps,

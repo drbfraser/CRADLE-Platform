@@ -17,6 +17,7 @@ class FollowUp(Resource):
     # Get all followups
     # Get all followups with an ID
     # Get all followups, for a specific referral
+    @jwt_required
     def get(self, id=None):      
         args = request.args  
         if id:
@@ -64,6 +65,7 @@ class FollowUp(Resource):
         else:
             return update_res
 
+    @jwt_required
     def delete(self, id=None):
         # validate inputs
         if id:
@@ -78,6 +80,7 @@ class FollowUp(Resource):
 
 
 class FollowUpMobile(Resource):
+    @jwt_required
     def get(self, id=None):      
         args = request.args  
         if id:
@@ -102,6 +105,7 @@ class FollowUpMobile(Resource):
 
 class FollowUpMobileSummarized(Resource):
 
+    @jwt_required
     def get(self, id=None):      
         args = request.args  
         if id:

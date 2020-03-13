@@ -15,7 +15,7 @@ export default (state = initialState, action) => {
         case GET_HEALTHFACILITY_SUCCESS:
             return {
                 ...state,
-                healthFacilitiesList: action.payload
+                healthFacilitiesList: action.payload.data
             }
         
         case GET_HEALTHFACILITY_REQ:

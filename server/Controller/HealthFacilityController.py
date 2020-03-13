@@ -3,6 +3,7 @@ import json
 
 from flask import request
 from flask_restful import Resource, abort
+from flask_jwt_extended import jwt_required
 from Controller.Helpers import _get_request_body
 
 # Project modules
@@ -15,6 +16,7 @@ class HealthFacility(Resource):
 
     # Get all health facilities
     @staticmethod
+    @jwt_required
     def get(name=None):      
         args = request.args  
         if name:
@@ -39,6 +41,7 @@ class HealthFacility(Resource):
 
     # Create a new hf
     @staticmethod
+    @jwt_required
     def post():
         logging.debug('Received request: POST /health_facility')
         hf_data = _get_request_body()
@@ -46,6 +49,7 @@ class HealthFacility(Resource):
         return response_body, 201
 
     @staticmethod
+    @jwt_required
     def put(name=None):
         # validate inputs
         if not name:
@@ -60,6 +64,7 @@ class HealthFacility(Resource):
             return update_res
 
     @staticmethod
+    @jwt_required
     def delete(name=None):
         # validate inputs
         if name:
@@ -76,6 +81,7 @@ class HealthFacility(Resource):
 class HealthFacilityList(Resource):
 
     # return list of health facility names
+    @jwt_required
     def get(self):
         hfs = healthFacilityManager.read_all()
         if not hfs:

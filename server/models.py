@@ -5,6 +5,7 @@ from jsonschema.exceptions import SchemaError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
 import enum
+from sqlalchemy import UniqueConstraint
 
 # To add a table to db, make a new class
 # create a migration: flask db migrate
@@ -32,23 +33,14 @@ class TrafficLightEnum(enum.Enum):
     RED_UP = 'RED_UP'
     RED_DOWN = 'RED_DOWN'
 
-# use as enum for later
-class UrineTestEnum(enum.Enum):
-    LEUC_PLUS = 'leuc +'
-    LEUC_PLUS_PLUS = 'leuc ++'
-    LEUC_PLUS_PLUS_PLUS = 'leuc +++'
-    NIT_PLUS = 'nit +'
-    NIT_PLUS_PLUS = 'nit ++'
-    NIT_PLUS_PLUS_PLUS= 'nit +++'
-    GLU_PLUS = 'glu +'
-    GLU_PLUS_PLUS = 'glu ++'
-    GLU_PLUS_PLUS_PLUS = 'glu +++'
-    PRO_PLUS = 'pro +'
-    PRO_PLUS_PLUS = 'pro ++'
-    PRO_PLUS_PLUS_PLUS = 'pro +++'
-    BLOOD_PLUS = 'blood +'
-    BLOOD_PLUS_PLUS = 'blood ++'
-    BLOOD_PLUS_PLUS_PLUS = 'blood +++'
+class frequencyUnitEnum(enum.Enum):
+    MINUTES = 'MINUTES'
+    HOURS = 'HOURS'
+    DAYS = 'DAYS'
+    WEEKS = 'WEEKS'
+    MONTHS = 'MONTHS'
+    YEARS = 'YEARS'
+
 
 ######################
 ### HELPER CLASSES ###
@@ -118,6 +110,7 @@ class Referral(db.Model):
 
 class HealthFacility(db.Model):
     __tablename__ = 'healthfacility'
+    # To Do: should probably have a unique id as primary key here, in addition to facility name
     healthFacilityName = db.Column(db.String(50), primary_key=True)
 
 
@@ -132,8 +125,7 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    dob = db.Column(db.Date)
-
+    dob = db.Column(db.String(50))
     villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
     # villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
@@ -254,7 +246,7 @@ class Reading(db.Model):
 class FollowUp(db.Model):
     __tablename__ = 'followup'
     id = db.Column(db.Integer, primary_key=True)
-    followUpAction = db.Column(db.Text)
+    followupInstructions = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
     dateAssessed = db.Column(db.String(100), nullable=False)
@@ -262,9 +254,12 @@ class FollowUp(db.Model):
     specialInvestigations = db.Column(db.Text)
     medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
     followupNeeded = db.Column(db.Boolean)
-    dateReviewNeeded = db.Column(db.Date)
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
+    followupFrequencyValue = db.Column(db.Float)
+    followupFrequencyUnit = db.Column(db.Enum(frequencyUnitEnum))
+    dateFollowupNeededTill = db.Column(db.String(50))
+
 
 
 class Village(db.Model):
@@ -281,6 +276,12 @@ class urineTest(db.Model):
     urineTestBlood = db.Column(db.String(5))
     #urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
     readingId = db.Column(db.ForeignKey('reading.readingId'))
+
+class PatientFacility(db.Model):
+    id = db.Column(db.String(50), primary_key=True)
+    patientId = db.Column(db.ForeignKey('patient.patientId'), nullable=False)
+    healthFacilityName = db.Column(db.ForeignKey('healthfacility.healthFacilityName'), nullable=False)
+    db.UniqueConstraint('patientId', 'healthFacilityName', name='no_duplicate_patient_facility')
 
 ######################
 ###    SCHEMAS     ###
@@ -314,6 +315,7 @@ class HealthFacilitySchema(ma.ModelSchema):
         model = HealthFacility
 
 class FollowUpSchema(ma.ModelSchema):
+    followupFrequencyUnit = EnumField(frequencyUnitEnum, by_value=True)
     healthcareWorker = fields.Nested(UserSchema)
     class Meta:
         include_fk = True
@@ -331,6 +333,10 @@ class urineTestSchema(ma.ModelSchema):
         include_fk = True
         model = urineTest
 
+class PatientFacilitySchema(ma.ModelSchema):
+    class Meta:
+        include_fk = True
+        model = PatientFacility
 
 user_schema = {
     "type": "object",

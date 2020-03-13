@@ -8,7 +8,6 @@ import { getCurrentUser } from '../../actions/users';
 import * as io from 'socket.io-client';
 import * as RTCMultiConnection from 'rtcmulticonnection'
 
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import './session.css'
@@ -83,13 +82,9 @@ class Session extends Component {
   componentDidMount() {
     console.log("in component did mount")
 
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get statistics
-        return
-      }
-      
-    })
+    if (!this.props.user.isLoggedIn) {
+      this.props.getCurrentUser()
+    }
     
     this.config(true);
 
@@ -309,13 +304,11 @@ const mapStateToProps = ({ chat, user }) => ({
     user : user.currentUser
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      getCurrentUser,
-    },
-    dispatch
-  )
+const mapDispatchToProps = dispatch => ({
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  }
+})
 
 export default connect(
     mapStateToProps,
