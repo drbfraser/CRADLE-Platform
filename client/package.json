@@ -21,6 +21,7 @@
     "crypto-random-string": "^3.0.1",
     "formik": "^2.0.6",
     "jquery": "^3.4.1",
+    "jwt-decode": "^2.2.0",
     "material-table": "^1.50.0",
     "react": "16.9.0",
     "react-chartjs-2": "^2.8.0",

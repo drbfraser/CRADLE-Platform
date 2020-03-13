@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatients, getPatient } from '../../actions/patients'
+import { getPatients, getPatientsRequested } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
 import PatientTable from './referralTable'
 import PatientSummary from '../patientPage/patientSummary'
@@ -13,15 +12,12 @@ class ReferralPage extends Component {
   }
 
   componentDidMount = () => {
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get patients
-        return
-      }      
-      if (this.props.patients.patientsList.length === 0) {
-        this.props.getPatients()
-      }
-    })
+    if (!this.props.user.isLoggedIn) {
+      this.props.getCurrentUser()
+    }
+    if (this.props.patients.patientsList.length === 0) {
+      this.props.getPatients()
+    }
   }
 
   static filterReferrals(patientsList) {
@@ -80,15 +76,16 @@ const mapStateToProps = ({ patients, user }) => ({
   user : user.currentUser
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      getPatients,
-      getCurrentUser,
-      getPatient
-    },
-    dispatch
-  )
+const mapDispatchToProps = dispatch => ({
+  getPatients: () => {
+    dispatch(getPatientsRequested())
+    dispatch(getPatients())
+  },
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  }
+})
+  
 
 export default connect(
   mapStateToProps,

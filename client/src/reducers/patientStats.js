@@ -17,7 +17,7 @@ export default (state = initialState, action) => {
             //console.log(action.payload)
             return {
                 ...state,
-                selectedPatientStatsList: action.payload
+                selectedPatientStatsList: action.payload.data
             }
 
         case GET_SELECTEDPATIENTSTATS_REQUESTED:

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getPatient } from '../../actions/patients'
+import { getPatient, getPatientRequested } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
 import PatientSummary from './patientSummary';
 
@@ -13,14 +12,10 @@ class PatientSummaryContainer extends Component {
     }
 
     componentDidMount() {
-        this.props.getCurrentUser().then((err) => {
-            if (err !== undefined) {
-              
-                this.props.getPatient(this.props.match.params.id);
-
-                return
-            }
-        });
+        if (!this.props.user.isLoggedIn) {
+            this.props.getCurrentUser()
+        }
+        this.props.getPatient(this.props.match.params.id);
     }
 
     backBtnCallback = () => {
@@ -51,14 +46,16 @@ const mapStateToProps = ({ patients, user }) => ({
     user : user.currentUser,
   })
   
-  const mapDispatchToProps = dispatch =>
-    bindActionCreators(
-      {
-        getPatient,
-        getCurrentUser,
-      },
-      dispatch
-    )
+  const mapDispatchToProps = dispatch => ({
+    getPatient: (patientId) => {
+      dispatch(getPatientRequested())
+      dispatch(getPatient(patientId))
+    },
+    getCurrentUser: () => {
+      dispatch(getCurrentUser())
+    }
+  })
+    
   
   export default connect(
     mapStateToProps,

@@ -1,25 +1,26 @@
 import React, {Component} from 'react';
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { userPostFetch } from '../../actions/users'
+import { registerUser, registerUserDefault } from '../../actions/users'
 import { getCurrentUser } from '../../actions/users'
-import { getHealthFacilityList } from '../../actions/healthFacilities'
+import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
 import { Button,
   Divider, Form, Select,
   Message
 } from 'semantic-ui-react'
 import { Paper } from '@material-ui/core';
 
-class Signup extends Component {
-  state = {
-    user: {
-      email: "",
-      password: "",
-      firstName: "",
-      healthFacilityName: "",
-      role: "VHT" // default value
-    }
+const initState = {
+  user: {
+    email: "",
+    password: "",
+    firstName: "",
+    healthFacilityName: "",
+    role: "VHT" // default value
   }
+}
+
+class Signup extends Component {
+  state = initState
 
   handleChange = event => {
     this.setState({ user: {
@@ -36,26 +37,20 @@ class Signup extends Component {
   handleSubmit = event => {
     event.preventDefault()
     console.log('submitted!')
-    this.props.userPostFetch(this.state.user).then( () => {
-      // reset fields
-      if (this.props.registerStatus.error === false) {
-          this.setState({
-            user: {
-              email: "",
-              password: "",
-              firstName: "",
-              role: "VHT" // default value
-          }
-        })
-      }
-    })
+    this.props.registerUser(this.state.user)
+    // TODO: think of better way to reset fields than using timer
   }
-
-  
 
   componentDidMount = () => {
     this.props.getCurrentUser()
     this.props.getHealthFacilityList()
+  }
+
+  static getDerivedStateFromProps = (props, state) => {
+    if (props.registerStatus.userCreated) {
+      props.registerUserDefault()
+      return initState
+    }
   }
 
   render() {
@@ -162,15 +157,22 @@ const mapStateToProps = ({ user, healthFacilities }) => ({
   healthFacilityList: healthFacilities.healthFacilitiesList
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      userPostFetch,
-      getCurrentUser,
-      getHealthFacilityList
-    },
-    dispatch
-  )
+const mapDispatchToProps = dispatch => ({
+  getHealthFacilityList: () => {
+    dispatch(getHealthFacilityListRequested())
+    dispatch(getHealthFacilityList())
+  },
+  registerUser: user => {
+    dispatch(registerUser(user))
+  },
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  },
+  registerUserDefault: () => {
+    dispatch(registerUserDefault())
+  }
+})
+  
 
 export default connect(
   mapStateToProps,

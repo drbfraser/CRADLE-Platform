@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 
 const Home = props => {
   return (
-    props.currentUser ? 
+    Object.keys(props.currentUser.currentUser).length ? 
       <Redirect to="/patients" /> : <Redirect to="/login" />
   )
 }

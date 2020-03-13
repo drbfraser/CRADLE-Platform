@@ -48,7 +48,7 @@ class Config(object):
     
     # JWT_SECRET_KEY= os.environ.get('SECRET')
     JWT_SECRET_KEY = 'very secret'
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=1) 
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(seconds=60*15)
 
 class JSONEncoder(json.JSONEncoder):
 

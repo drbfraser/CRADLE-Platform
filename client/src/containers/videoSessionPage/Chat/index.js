@@ -9,7 +9,6 @@ import { getCurrentUser } from '../../../actions/users';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 // import Fab from '@material-ui/core/Fab';

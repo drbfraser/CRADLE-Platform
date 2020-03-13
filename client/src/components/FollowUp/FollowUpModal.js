@@ -21,6 +21,7 @@ import {
 import Switch from '@material-ui/core/Switch';
 
 import { updateFollowUp, setReadingId, createFollowUp } from '../../actions/referrals';
+import { getPatients } from '../../actions/patients'
 
 const followupFollowupFrequencyUnitUnit = [
     {key:'min', text:'Minutes', value:'MINUTES'},
@@ -300,16 +301,19 @@ class FollowUpModal extends Component {
 }
 
 const mapStateToProps = ({}) => ({})
-
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(
+  
+const mapDispatchToProps = dispatch => ({
+    createFollowUp: data => {
+        dispatch(createFollowUp(data))
+    },
+    ...bindActionCreators(
         {
             updateFollowUp,
-            createFollowUp,
-            setReadingId
+            setReadingId,
         },
-            dispatch
+        dispatch
     )
+})
 
 export default connect(
     mapStateToProps,
