@@ -1,6 +1,6 @@
 import logging
 import json
-
+import uuid 
 from flask import request
 from flask_restful import Resource, abort
 from datetime import date, datetime
@@ -11,6 +11,7 @@ from Manager.PatientManagerNew import PatientManager as PatientManagerNew
 from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 from Validation import PatientValidation
 from Manager.UserManager import UserManager
+from Manager.PatientFacilityManager import PatientFacilityManager
 from Manager.urineTestManager import urineTestManager
 
 from flask_jwt_extended import (create_access_token, create_refresh_token,
@@ -18,10 +19,11 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 userManager = UserManager()
+patientFacilityManager = PatientFacilityManager()
+
+
 urineTestManager = urineTestManager()
 decoding_error = 'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
-
-
 
 def abort_if_body_empty(request_body):
     if request_body is None:
@@ -71,6 +73,7 @@ class PatientAll(Resource):
 
     # Get list of all patients
     @staticmethod
+    @jwt_required
     def get():
         logging.debug('Received request: GET /patient')
 
@@ -80,6 +83,7 @@ class PatientAll(Resource):
         return patients
 
     # Create a new patient
+    @jwt_required
     def post(self):
         logging.debug('Received request: POST /patient')
         try:
@@ -103,6 +107,7 @@ class PatientAll(Resource):
         return response_body, 201
 
     @staticmethod
+    @jwt_required
     def delete():
         patientManager.delete_all()
         return {}
@@ -114,6 +119,7 @@ class PatientAll(Resource):
 class PatientInfo(Resource):
 
     # Get a single patient
+    @jwt_required
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
         patient = patientManager.read("patientId", patient_id)
@@ -123,6 +129,7 @@ class PatientInfo(Resource):
         return patient
 
     # Update patient info
+    @jwt_required
     def put(self, patient_id):
         logging.debug('Received request: PUT /patient/' + patient_id)
 
@@ -160,6 +167,7 @@ class PatientReading(Resource):
 
 
     # Create a new patient with a reading
+    @jwt_required
     def post(self):
         logging.debug('Received request: POST api/patient/reading')
         try:
@@ -188,6 +196,15 @@ class PatientReading(Resource):
             patient_reading_data['patient']['patientId'],
             patient_reading_data
         )
+
+        # add patient to the facility of the user that took their reading
+        user = userManager.read("id", patient_reading_data['reading']['userId'])
+        userFacility = user['healthFacilityName']
+        patientFacilityManager.add_patient_facility_relationship(
+            patient_reading_data['patient']['patientId'],
+            userFacility
+        )
+
         # associate new reading with patient
         reading_and_patient['message'] = 'Patient reading created successfully!'
 

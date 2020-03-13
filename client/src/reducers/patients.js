@@ -23,7 +23,7 @@ export default (state = initialState, action) => {
     case GET_PATIENTS:
       return {
         ...state,
-        patientsList: action.payload,
+        patientsList: action.payload.data,
         isLoading: false
       }
     
@@ -41,14 +41,13 @@ export default (state = initialState, action) => {
     case GET_PATIENT:
       return {
         ...state,
-        patient: action.payload,
+        patient: action.payload.data,
         isLoading: false
       }
     
     case GET_PATIENT_REQUESTED:
       return {
           ...state,
-          patient: action.payload,
           isLoading: true
       }
 

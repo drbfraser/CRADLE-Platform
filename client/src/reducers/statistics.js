@@ -16,7 +16,7 @@ export default (state = initialState, action) => {
             // console.log(action.payload)
             return {
                 ...state,
-                statisticsList: action.payload
+                statisticsList: action.payload.data
             }
         
         case GET_STATISTICS_REQUESTED:

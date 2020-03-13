@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { userLoginFetch } from '../../actions/users';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import image from './img/splash_screen_4.png'
+import { Redirect } from 'react-router';
 
 const SignupForm = (props) => {
   const formik = useFormik({
@@ -59,6 +59,11 @@ const SignupForm = (props) => {
 class Login extends Component {
 
   render() {
+    if (this.props.isLoggedIn) {
+      return (
+        <Redirect to='/patients' />
+      )
+    }
     return (
       <div className="loginWrapper">
         <div className='subWrapper'>
@@ -75,17 +80,16 @@ class Login extends Component {
 }
 
 const mapStateToProps = ({ user }) => ({
+  isLoggedIn: user.currentUser.isLoggedIn,
   email : user.currentUser.email,
   errorMessage: user.serverLoginErrorMessage
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      userLoginFetch,
-    },
-    dispatch
-  )
+const mapDispatchToProps = dispatch => ({
+  userLoginFetch: user => {
+    dispatch(userLoginFetch(user))
+  }
+})
 
 export default connect(
   mapStateToProps,

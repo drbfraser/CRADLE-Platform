@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users';
 import { getStatistics } from '../../actions/statistics';
@@ -11,14 +10,10 @@ import './index.css'
 class StatisticsPage extends Component {
 
   componentDidMount = () => {
-    this.props.getCurrentUser().then((err) => {
-      if (err !== undefined) {
-        // error from getCurrentUser(), don't get statistics
-        return
-      }
-      this.props.getStatistics()
-      
-    })
+    if (!this.props.user.isLoggedIn) {
+      this.props.getCurrentUser()
+    }
+    this.props.getStatistics()
   }
 
   render() {
@@ -267,14 +262,15 @@ const mapStateToProps = ({ user, statistics }) => ({
     statisticsList: statistics.statisticsList
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      getCurrentUser,
-      getStatistics,
-    },
-    dispatch
-  )
+const mapDispatchToProps = dispatch => ({
+  getStatistics: () => {
+    dispatch(getStatistics())
+  },
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  }
+})
+  
 
 export default connect(
   mapStateToProps,

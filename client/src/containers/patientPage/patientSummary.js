@@ -14,10 +14,10 @@ import {
   Button, Header, Modal, Divider, Form, Select, Input, TextArea
 } from 'semantic-ui-react'
 
+import { updatePatient, getPatients, getPatientsRequested } from '../../actions/patients';
 import { getPrettyDateTime, getMomentDate } from '../../utils';
-import { updatePatient, getPatients } from '../../actions/patients';
 import { getReferrals } from '../../actions/referrals';
-import { getSelectedPatientStats } from '../../actions/statistics';
+import { getSelectedPatientStats, getSelectedPatientStatsRequested } from '../../actions/statistics';
 
 import { Bar, Line } from 'react-chartjs-2';
 import ReferralInfo from './referralInfo';
@@ -144,6 +144,7 @@ class PatientSummary extends Component {
 
   handleBackBtn = () => {
     // go back to patient table
+    this.props.getPatients()
     this.props.callbackFromParent(false)
   }
 
@@ -834,18 +835,32 @@ const mapStateToProps = ({
   selectedPatientStatsList: patientStats.selectedPatientStatsList
 })
       
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
+const mapDispatchToProps = dispatch => ({
+  getPatients: () => {
+    dispatch(getPatientsRequested())
+    dispatch(getPatients())
+  },
+  updatePatient: (patientId, data) => {
+    dispatch(updatePatient(patientId, data))
+  },
+  getSelectedPatientStats: petientId => {
+    dispatch(getSelectedPatientStatsRequested())
+    dispatch(getSelectedPatientStats(petientId))
+  },
+  newReadingPost: data => {
+    dispatch(newReadingPost(data))
+  },
+  getCurrentUser: () => {
+    dispatch(getCurrentUser())
+  },
+  ...bindActionCreators(
     {
-        updatePatient,
-        getPatients,
-        getReferrals,
-        getSelectedPatientStats,
-        getCurrentUser,
-        newReadingPost
-      },
-      dispatch
-    )
+      getReferrals,
+    },
+    dispatch
+  )
+})
+  
     
 export default connect(
   mapStateToProps,
