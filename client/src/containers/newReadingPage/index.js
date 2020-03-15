@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users'
 import { newReadingPost, createReadingDefault } from '../../actions/newReading'
-import PatientInfoForm from './patientInfoForm'
+import PatientInfoForm, { GESTATIONAL_AGE_UNITS } from './patientInfoForm'
 import BpForm from './bpForm'
 import SymptomForm from './symptomForm'
 import UrineTestForm, { initialUrineTests } from './urineTestForm'
@@ -21,6 +21,7 @@ function guid() {
     return v.toString(16)
   })
 }
+
 const initState = {
   patient: {
     patientId: '',
@@ -61,11 +62,6 @@ const initState = {
   },
   showSuccessReading: false,
   hasUrineTest: false
-}
-
-const GESTATIONAL_AGE_UNITS = {
-  WEEKS: 'GESTATIONAL_AGE_UNITS_WEEKS',
-  MONTHS: 'GESTATIONAL_AGE_UNITS_MONTHS'
 }
 
 class NewReadingPage extends Component {
