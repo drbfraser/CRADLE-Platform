@@ -1,6 +1,6 @@
-import { combineReducers } from "redux"
+import { combineReducers } from 'redux'
 
-import { 
+import {
   GET_USERS_REQ,
   GET_USERS_SUCCESS,
   GET_USERS_ERR,
@@ -12,8 +12,8 @@ import {
   DELETE_USERS_SUCCESS,
   DELETE_USERS_ERR,
   REGISTER_USER_DEFAULT
-} from '../actions/users';
-import { getUserFromResponse } from "../utils";
+} from '../actions/users'
+import { getUserFromResponse } from '../utils'
 
 const initialStateUser = {
   currentUser: {}
@@ -26,8 +26,8 @@ const userReducer = (state = initialStateUser, action) => {
     case 'LOGOUT_USER':
       return { isLoggedIn: false }
     case USER_LOGIN_SUCCESS:
-      localStorage.setItem("token", action.payload.data.token);
-      localStorage.setItem("refresh", action.payload.data.refresh);
+      localStorage.setItem('token', action.payload.data.token)
+      localStorage.setItem('refresh', action.payload.data.refresh)
       return {
         ...state,
         ...getUserFromResponse(action.payload.data),
@@ -50,15 +50,15 @@ const userErrorReducer = (state = {}, action) => {
 const registerStatusReducer = (state = {}, action) => {
   switch (action.type) {
     case 'REGISTER_SUCCESS':
-      return { 
-        message : "Success! User has been successfully created", 
-        error : false,
+      return {
+        message: 'Success! User has been successfully created',
+        error: false,
         userCreated: true
       }
     case 'REGISTER_ERROR':
-      return { 
-        message : action.payload, 
-        error : true,
+      return {
+        message: action.payload,
+        error: true,
         userCreated: false
       }
     case REGISTER_USER_DEFAULT:
@@ -80,26 +80,26 @@ const allUsersReducer = (state = {}, action) => {
         isLoading: false,
         updateUserList: false
       }
-    
+
     case GET_USERS_REQ:
       return {
-          ...state,
-          isLoading: true
+        ...state,
+        isLoading: true
       }
 
     case GET_USERS_ERR:
       return {
-          ...state,
-          isLoading: false,
-          updateUserList: false
+        ...state,
+        isLoading: false,
+        updateUserList: false
       }
-    
+
     // TODO: get users list if necessary
     case DELETE_USERS_SUCCESS:
     case UPDATE_USERS_SUCCESS:
       return {
         ...state,
-        updateUserList: true,
+        updateUserList: true
       }
 
     case DELETE_USERS_ERR:
@@ -121,17 +121,17 @@ const allVhtsReducer = (state = {}, action) => {
         vhtList: action.payload.data,
         isLoading: false
       }
-    
+
     case GET_VHTS_REQ:
       return {
-          ...state,
-          isLoading: true
+        ...state,
+        isLoading: true
       }
 
     case GET_VHTS_ERR:
       return {
-          ...state,
-          isLoading: false
+        ...state,
+        isLoading: false
       }
 
     default:
@@ -139,8 +139,10 @@ const allVhtsReducer = (state = {}, action) => {
   }
 }
 
-export default combineReducers({ currentUser: userReducer,
-                                 registerStatus: registerStatusReducer,
-                                 allUsers: allUsersReducer,
-                                 allVhts: allVhtsReducer,
-                                 serverLoginErrorMessage: userErrorReducer})
+export default combineReducers({
+  currentUser: userReducer,
+  registerStatus: registerStatusReducer,
+  allUsers: allUsersReducer,
+  allVhts: allVhtsReducer,
+  serverLoginErrorMessage: userErrorReducer
+})
