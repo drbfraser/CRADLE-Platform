@@ -41,7 +41,7 @@ const userReducer = (state = initialStateUser, action) => {
 const userErrorReducer = (state = {}, action) => {
   switch (action.type) {
     case 'INVALID_USER':
-      return action.payload
+      return action.payload.response.data.message
     default:
       return ''
   }
