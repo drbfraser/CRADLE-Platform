@@ -846,7 +846,6 @@ class PatientSummary extends Component {
                 </Grid>
               ))}
             </Grid>
-
             <Modal
               closeIcon
               onClose={this.closePatientModal}
