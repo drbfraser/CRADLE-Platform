@@ -32,6 +32,7 @@ class PatientTable extends Component {
                 cellStyle: {
                     padding: '0px'
                 },
+                sorting: false,
                 render: rowData =>
                     getTrafficIcon(
                         this.getLatestReading(rowData.readings)
@@ -40,6 +41,7 @@ class PatientTable extends Component {
             },
             {
                 title: 'Last Reading',
+                field: 'lastReading',
                 render: rowData => (
                     <p>
                         {getPrettyDate(
