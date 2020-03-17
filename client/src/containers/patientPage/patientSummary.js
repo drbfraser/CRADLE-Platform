@@ -250,7 +250,7 @@ class PatientSummary extends Component {
                 delete patientData.needsAssessment
                 delete patientData.tableData
                 if (!this.state.hasUrineTest) {
-                    readingData.urineTests = null
+                    delete readingData.urineTests
                 }
 
                 let newData = {

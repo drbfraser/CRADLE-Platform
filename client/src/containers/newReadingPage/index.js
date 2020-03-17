@@ -227,7 +227,7 @@ class NewReadingPage extends Component {
                 let patientData = JSON.parse(JSON.stringify(this.state.patient))
                 let readingData = JSON.parse(JSON.stringify(this.state.reading))
                 if (!this.state.hasUrineTest) {
-                    readingData.urineTests = null
+                    delete readingData.urineTests
                 }
 
                 let newData = {
