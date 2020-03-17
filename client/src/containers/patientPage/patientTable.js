@@ -54,7 +54,7 @@ class PatientTable extends Component {
                     </p>
                 ),
                 customSort: (a, b) => sortPatientsByLastReading(a, b),
-                defaultSort: 'desc'
+                defaultSort: 'asc'
             }
         ],
         data: [],

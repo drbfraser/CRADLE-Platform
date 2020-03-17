@@ -34,7 +34,7 @@ class ReferralTable extends Component {
                     <p>{getPrettyDate(getLatestReferral(rowData.readings))}</p>
                 ),
                 customSort: (a, b) => sortReferralsByDate(a, b),
-                defaultSort: 'desc'
+                defaultSort: 'asc'
             },
             {
                 title: 'Assessment',

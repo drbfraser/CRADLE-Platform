@@ -15,5 +15,5 @@ export const getLatestReferral = readings => {
 }
 
 export const sortReferralsByDate = (a, b) =>
-    getMomentDate(getLatestReferral(a.readings)).valueOf() -
-    getMomentDate(getLatestReferral(b.readings)).valueOf()
+    getMomentDate(getLatestReferral(b.readings)).valueOf() -
+    getMomentDate(getLatestReferral(a.readings)).valueOf()
