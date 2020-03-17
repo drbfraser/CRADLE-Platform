@@ -1,16 +1,16 @@
-import moment from 'moment';
+import moment from 'moment'
 
 export function getPrettyDateTime(dateStr) {
-    return getMomentDate(dateStr).format("DD.MM.YY, h:mm:ss a");
+    return getMomentDate(dateStr).format('MMMM Do YYYY, h:mm:ss a')
 }
 
 export function getPrettyDate(dateStr) {
-    return getMomentDate(dateStr).format("DD.MM.YY");
+    return getMomentDate(dateStr).format('MMMM Do YYYY')
 }
 
 export function getMomentDate(dateS) {
-    dateS = dateS.slice(0,19)
-    return moment(dateS);
+    dateS = dateS && dateS.slice(0, 19)
+    return moment(dateS)
 }
 
 export const getUserFromResponse = response => {

@@ -26,7 +26,7 @@ import {
     getPatients,
     getPatientsRequested
 } from '../../actions/patients'
-import { getPrettyDateTime, getMomentDate } from '../../utils'
+import { getPrettyDate, getPrettyDateTime, getMomentDate } from '../../utils'
 import { getReferrals } from '../../actions/referrals'
 import {
     getSelectedPatientStats,
@@ -672,7 +672,9 @@ class PatientSummary extends Component {
                                         </p>
                                         <p>
                                             <b>Patient Birthday: </b>{' '}
-                                            {this.state.selectedPatient.dob}{' '}
+                                            {getPrettyDate(
+                                                this.state.selectedPatient.dob
+                                            )}{' '}
                                         </p>
                                         <p>
                                             <b>Patient Age: </b>{' '}
