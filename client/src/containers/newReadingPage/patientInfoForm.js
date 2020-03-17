@@ -17,12 +17,22 @@ const pregOptions = [
   { key: 'n', text: 'No', value: false },
 ]
 
+export const GESTATIONAL_AGE_UNITS = {
+  WEEKS: "GESTATIONAL_AGE_UNITS_WEEKS",
+  MONTHS: "GESTATIONAL_AGE_UNITS_MONTHS"
+}
+
+const gestationalAgeUnitOptions = [
+  { key: 'week', text: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
+  { key: 'month', text: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS },
+]
+
 function PatientInfoForm(props) {
   return (
       <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
-          <Header><b>Patient Information</b></Header>
-          <Divider/>
-          <Form.Group widths='equal'>
+          {!props.isEditPage && <Header><b>Patient Information</b></Header>}
+          {!props.isEditPage && <Divider/>}
+          <Form.Group>
             <Form.Field 
               name="patientName"
               value={props.patient.patientName}
@@ -36,7 +46,7 @@ function PatientInfoForm(props) {
               minLength='1'
               required
             />
-            <Form.Field 
+            {!props.isEditPage && <Form.Field 
               name="patientId"
               value={props.patient.patientId}
               control={Input}
@@ -47,7 +57,7 @@ function PatientInfoForm(props) {
               maxLength='15'
               minLength='1'
               required
-            />
+            />}
           </Form.Group>
           <Form.Group widths='equal'>
             <Form.Field 
@@ -68,7 +78,7 @@ function PatientInfoForm(props) {
                label='Birthday'
                type='date'
                placeholder='Birthday'
-               onChange={props.onSelectChange}
+               onChange={props.onChange}
             />
             <Form.Field 
               name="patientSex"
@@ -77,16 +87,18 @@ function PatientInfoForm(props) {
               label='Gender'
               options={sexOptions}
               placeholder='Gender'
-              onChange={props.onSelectChange}
+              onChange={props.onChange}
               required
             />
+          </Form.Group>
+          <Form.Group widths='equal'>
             <Form.Field
               name='isPregnant'
               value={props.patient.isPregnant}
               control={Select}
               label='Pregnant'
               options={pregOptions}
-              onChange={props.onSelectChange}
+              onChange={props.onChange}
               disabled={props.patient.patientSex === 'MALE'}
             />
             <Form.Field 
@@ -94,11 +106,21 @@ function PatientInfoForm(props) {
               value={props.patient.gestationalAgeValue}
               control={Input}
               label='Gestational Age'
-              placeholder='Gestational Age in Weeks'
+              placeholder='Gestational Age'
               type='number'
               min='1'
-              max='60'
+              max={props.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS ? '60' : '13'}
               onChange={props.onChange}
+              disabled={props.patient.patientSex === 'MALE' || !props.patient.isPregnant}
+              required
+            />
+            <Form.Field
+              name="gestationalAgeUnit"
+              value={props.patient.gestationalAgeUnit}
+              control={Select}
+              options={gestationalAgeUnitOptions}
+              onChange={props.onChange}
+              label='Gestational Age Unit'
               disabled={props.patient.patientSex === 'MALE' || !props.patient.isPregnant}
               required
             />
