@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import MaterialTable from 'material-table'
 import { Icon } from 'semantic-ui-react'
-import { getPrettyDate, getMomentDate } from '../../utils'
+import { getPrettyDate } from '../../utils'
+import { getLatestReferral, sortReferralsByDate } from './referralUtils'
 
 class ReferralTable extends Component {
     state = {
@@ -30,17 +31,9 @@ class ReferralTable extends Component {
             {
                 title: 'Date Referred',
                 render: rowData => (
-                    <p>
-                        {getPrettyDate(
-                            this.getLatestReferral(rowData.readings)
-                        )}
-                    </p>
+                    <p>{getPrettyDate(getLatestReferral(rowData.readings))}</p>
                 ),
-                customSort: (a, b) =>
-                    getMomentDate(
-                        this.getLatestReferral(a.readings)
-                    ).valueOf() -
-                    getMomentDate(this.getLatestReferral(b.readings)).valueOf(),
+                customSort: (a, b) => sortReferralsByDate(a, b),
                 defaultSort: 'desc'
             },
             {
@@ -72,20 +65,6 @@ class ReferralTable extends Component {
             drugHistory: '',
             villageNumber: '',
             readings: []
-        }
-    }
-
-    getLatestReferral = readings => {
-        let sortedReadings = readings.sort(
-            (a, b) =>
-                getMomentDate(b.dateTimeTaken).valueOf() -
-                getMomentDate(a.dateTimeTaken).valueOf()
-        )
-
-        if (sortedReadings[0].dateReferred) {
-            return sortedReadings[0].dateReferred
-        } else {
-            return ''
         }
     }
 

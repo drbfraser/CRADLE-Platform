@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
 import MaterialTable from 'material-table'
-import { getPrettyDate, getMomentDate } from '../../utils'
-import { getTrafficIcon } from './patientUtils'
+import { getPrettyDate } from '../../utils'
+import {
+    getTrafficIcon,
+    getLatestReading,
+    getLatestReadingDateTime,
+    sortPatientsByLastReading
+} from './patientUtils'
 
 class PatientTable extends Component {
     state = {
@@ -35,8 +40,7 @@ class PatientTable extends Component {
                 sorting: false,
                 render: rowData =>
                     getTrafficIcon(
-                        this.getLatestReading(rowData.readings)
-                            .trafficLightStatus
+                        getLatestReading(rowData.readings).trafficLightStatus
                     )
             },
             {
@@ -45,17 +49,11 @@ class PatientTable extends Component {
                 render: rowData => (
                     <p>
                         {getPrettyDate(
-                            this.getLatestReadingDateTime(rowData.readings)
+                            getLatestReadingDateTime(rowData.readings)
                         )}
                     </p>
                 ),
-                customSort: (a, b) =>
-                    getMomentDate(
-                        this.getLatestReadingDateTime(a.readings)
-                    ).valueOf() -
-                    getMomentDate(
-                        this.getLatestReadingDateTime(b.readings)
-                    ).valueOf(),
+                customSort: (a, b) => sortPatientsByLastReading(a, b),
                 defaultSort: 'desc'
             }
         ],
@@ -69,19 +67,6 @@ class PatientTable extends Component {
             villageNumber: '',
             readings: []
         }
-    }
-
-    getLatestReading = readings => {
-        let sortedReadings = readings.sort(
-            (a, b) =>
-                getMomentDate(b.dateTimeTaken).valueOf() -
-                getMomentDate(a.dateTimeTaken).valueOf()
-        )
-        return sortedReadings[0]
-    }
-
-    getLatestReadingDateTime = readings => {
-        return this.getLatestReading(readings).dateTimeTaken
     }
 
     render() {

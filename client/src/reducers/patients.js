@@ -11,6 +11,7 @@ import {
     // UPDATE_PATIENT_REQUESTED,
     // UPDATE_PATIENT_ERR
 } from '../actions/patients'
+import { sortPatientsByLastReading } from '../containers/patientPage/patientUtils'
 
 const initialState = {
     patient: {},
@@ -21,9 +22,11 @@ const initialState = {
 export default (state = initialState, action) => {
     switch (action.type) {
         case GET_PATIENTS:
+            const patientsList = action.payload.data
+            patientsList.sort((a, b) => sortPatientsByLastReading(a, b))
             return {
                 ...state,
-                patientsList: action.payload.data,
+                patientsList: patientsList,
                 isLoading: false
             }
 
