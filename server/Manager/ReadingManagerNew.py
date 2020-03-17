@@ -17,16 +17,15 @@ class ReadingManager(Manager):
         
         patient_reading_data['reading']['patientId'] = patient_id
         
-        # creating new reading and saving urine test data on the side for creation later 
-        urineTestData = patient_reading_data['reading']['urineTests']
-        del patient_reading_data['reading']['urineTests'] 
-        reading = self.create(patient_reading_data['reading'])
-
-        # if urine test was done, then create urine test 
-        res = None
-        if urineTestData is not None:
-            res = self.add_urine_test(reading, urineTestData)
-            reading = res
+        # need to save urine test data from reading for urine test creation
+        reading = None
+        if "urineTests" in patient_reading_data['reading']:
+            urineTestData = patient_reading_data['reading']['urineTests']
+            del patient_reading_data['reading']['urineTests'] 
+            reading = self.create(patient_reading_data['reading'])
+            reading = self.add_urine_test(reading, urineTestData)
+        else:
+            reading = self.create(patient_reading_data['reading'])
         
         # return all created data
         return {
