@@ -1119,48 +1119,21 @@ class PatientSummary extends Component {
                                                     required
                                                 />
                                             </Form.Group>
-                                            <SymptomForm
-                                                checkedItems={
-                                                    this.state.checkedItems
-                                                }
-                                                patient={this.state.patient}
-                                                onChange={
-                                                    this.handleCheckedChange
-                                                }
-                                                onOtherChange={
-                                                    this.handleOtherSymptom
-                                                }
-                                            />
-                                            <Form.Group>
-                                                <Form.Checkbox
-                                                    value={
-                                                        this.state.checkedItems
-                                                            .other
-                                                    }
-                                                    widths="3"
-                                                    name="other"
-                                                    label="Other:"
-                                                    onChange={
-                                                        this.handleCheckedChange
-                                                    }
-                                                />
-                                                <Form.TextArea
-                                                    widths="1"
-                                                    name="otherSymptoms"
-                                                    value={
-                                                        this.state.checkedItems
-                                                            .otherSymptoms
-                                                    }
-                                                    onChange={
-                                                        this.handleOtherSymptom
-                                                    }
-                                                    disabled={
-                                                        !this.state.checkedItems
-                                                            .other
-                                                    }
-                                                />
-                                            </Form.Group>
                                         </Paper>
+                                        <div style={{marginTop: '25px'}}>
+                                            <SymptomForm
+                                              checkedItems={
+                                                  this.state.checkedItems
+                                              }
+                                              patient={this.state.patient}
+                                              onChange={
+                                                  this.handleCheckedChange
+                                              }
+                                              onOtherChange={
+                                                  this.handleOtherSymptom
+                                              }
+                                            />
+                                        </div>
                                         <UrineTestForm
                                             reading={this.state.newReading}
                                             onChange={
