@@ -674,16 +674,25 @@ class PatientSummary extends Component {
                                         </p>
                                         <p>
                                             <b>Patient Birthday: </b>{' '}
-                                            {getPrettyDate(
-                                                this.state.selectedPatient.dob
-                                            )}{' '}
+                                            {this.state.selectedPatient.dob ===
+                                                undefined ||
+                                            this.state.selectedPatient.dob ===
+                                                null
+                                                ? 'N/A'
+                                                : getPrettyDate(
+                                                      this.state.selectedPatient
+                                                          .dob
+                                                  )}{' '}
                                         </p>
                                         <p>
                                             <b>Patient Age: </b>{' '}
-                                            {
-                                                this.state.selectedPatient
-                                                    .patientAge
-                                            }{' '}
+                                            {this.state.selectedPatient.dob ===
+                                                undefined ||
+                                            this.state.selectedPatient.dob ===
+                                                null
+                                                ? 'N/A'
+                                                : this.state.selectedPatient
+                                                      .patientAge}{' '}
                                         </p>
                                         <p>
                                             <b>Patient Sex: </b>{' '}
@@ -1128,18 +1137,18 @@ class PatientSummary extends Component {
                                                 />
                                             </Form.Group>
                                         </Paper>
-                                        <div style={{marginTop: '25px'}}>
+                                        <div style={{ marginTop: '25px' }}>
                                             <SymptomForm
-                                              checkedItems={
-                                                  this.state.checkedItems
-                                              }
-                                              patient={this.state.patient}
-                                              onChange={
-                                                  this.handleCheckedChange
-                                              }
-                                              onOtherChange={
-                                                  this.handleOtherSymptom
-                                              }
+                                                checkedItems={
+                                                    this.state.checkedItems
+                                                }
+                                                patient={this.state.patient}
+                                                onChange={
+                                                    this.handleCheckedChange
+                                                }
+                                                onOtherChange={
+                                                    this.handleOtherSymptom
+                                                }
                                             />
                                         </div>
                                         <UrineTestForm
