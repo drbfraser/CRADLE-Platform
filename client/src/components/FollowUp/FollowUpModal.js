@@ -160,7 +160,6 @@ class FollowUpModal extends Component {
     }
 
     render() {
-        // console.log("followUpModal state: ", this.state)
         return (
             <div>
                 <Modal

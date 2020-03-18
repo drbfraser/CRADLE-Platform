@@ -4,14 +4,14 @@ import { Divider, Segment, Header} from 'semantic-ui-react';
 import {followupFrequencyUnitUnit} from '../../components/FollowUp/FollowUpModal'
 
 function FollowUpInfo(props) {
-  let frequencyStr = ""
-    if(props.followUp.followupFrequencyValue != "" &&
+  if (props.followUp) {
+    let frequencyStr = ""
+    if(props.followUp.followupFrequencyValue != null &&
       props.followUp.followupFrequencyUnit != followupFrequencyUnitUnit['none'] &&
       props.followUp.dateFollowupNeededTill != "") {
-      frequencyStr = 'Every' + props.followUp.followupFrequencyValue + props.followUp.followupFrequencyUnit + 'until' + props.followUp.dateFollowupNeededTill
+      frequencyStr = 'Every ' + props.followUp.followupFrequencyValue + ' ' +props.followUp.followupFrequencyUnit.toLowerCase() + ' until ' + props.followUp.dateFollowupNeededTill
     }
-    if (props.followUp) {
-        return (
+    return (
             <Segment>
               <Header size='small'>Follow Up Action:</Header>
               <p>{props.followUp.followUpAction}</p>
