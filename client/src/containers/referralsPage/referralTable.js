@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import MaterialTable from 'material-table'
 import { Icon } from 'semantic-ui-react'
-import { getPrettyDate, getMomentDate } from '../../utils'
+import { getPrettyDate } from '../../utils'
+import { getLatestReferral, sortReferralsByDate } from './referralUtils'
 import { getTrafficIcon, getLatestReading } from '../patientPage/patientUtils'
 
 class ReferralTable extends Component {
@@ -27,7 +28,7 @@ class ReferralTable extends Component {
                 sorting: false
             },
             { title: 'Patient ID', field: 'patientId' },
-            { title: 'Village No.', field: 'villageNumber' },
+            { title: 'Village', field: 'villageNumber' },
             {
                 title: 'Vital Sign',
                 cellStyle: {
@@ -42,18 +43,10 @@ class ReferralTable extends Component {
             {
                 title: 'Date Referred',
                 render: rowData => (
-                    <p>
-                        {getPrettyDate(
-                            this.getLatestReferral(rowData.readings)
-                        )}
-                    </p>
+                    <p>{getPrettyDate(getLatestReferral(rowData.readings))}</p>
                 ),
-                customSort: (a, b) =>
-                    getMomentDate(
-                        this.getLatestReferral(a.readings)
-                    ).valueOf() -
-                    getMomentDate(this.getLatestReferral(b.readings)).valueOf(),
-                defaultSort: 'desc'
+                customSort: (a, b) => sortReferralsByDate(a, b),
+                defaultSort: 'asc'
             },
             {
                 title: 'Assessment',
@@ -84,20 +77,6 @@ class ReferralTable extends Component {
             drugHistory: '',
             villageNumber: '',
             readings: []
-        }
-    }
-
-    getLatestReferral = readings => {
-        let sortedReadings = readings.sort(
-            (a, b) =>
-                getMomentDate(b.dateTimeTaken).valueOf() -
-                getMomentDate(a.dateTimeTaken).valueOf()
-        )
-
-        if (sortedReadings[0].dateReferred) {
-            return sortedReadings[0].dateReferred
-        } else {
-            return ''
         }
     }
 

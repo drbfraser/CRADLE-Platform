@@ -47,3 +47,11 @@ export const getLatestReading = readings => {
     )
     return sortedReadings[0]
 }
+
+export const getLatestReadingDateTime = readings => {
+    return getLatestReading(readings).dateTimeTaken
+}
+
+export const sortPatientsByLastReading = (a, b) =>
+    getMomentDate(getLatestReadingDateTime(b.readings)).valueOf() -
+    getMomentDate(getLatestReadingDateTime(a.readings)).valueOf()

@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
 import MaterialTable from 'material-table'
-import { getPrettyDate, getMomentDate } from '../../utils'
-import { getTrafficIcon, getLatestReading } from './patientUtils'
+import { getPrettyDate } from '../../utils'
+import {
+    getTrafficIcon,
+    getLatestReading,
+    getLatestReadingDateTime,
+    sortPatientsByLastReading
+} from './patientUtils'
 
 class PatientTable extends Component {
     state = {
@@ -32,6 +37,7 @@ class PatientTable extends Component {
                 cellStyle: {
                     padding: '0px'
                 },
+                sorting: false,
                 render: rowData =>
                     getTrafficIcon(
                         getLatestReading(rowData.readings).trafficLightStatus
@@ -39,21 +45,16 @@ class PatientTable extends Component {
             },
             {
                 title: 'Last Reading',
+                field: 'lastReading',
                 render: rowData => (
                     <p>
                         {getPrettyDate(
-                            this.getLatestReadingDateTime(rowData.readings)
+                            getLatestReadingDateTime(rowData.readings)
                         )}
                     </p>
                 ),
-                customSort: (a, b) =>
-                    getMomentDate(
-                        this.getLatestReadingDateTime(a.readings)
-                    ).valueOf() -
-                    getMomentDate(
-                        this.getLatestReadingDateTime(b.readings)
-                    ).valueOf(),
-                defaultSort: 'desc'
+                customSort: (a, b) => sortPatientsByLastReading(a, b),
+                defaultSort: 'asc'
             }
         ],
         data: [],
@@ -66,10 +67,6 @@ class PatientTable extends Component {
             villageNumber: '',
             readings: []
         }
-    }
-
-    getLatestReadingDateTime = readings => {
-        return getLatestReading(readings).dateTimeTaken
     }
 
     render() {
