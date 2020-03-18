@@ -686,10 +686,10 @@ class PatientSummary extends Component {
                                         </p>
                                         <p>
                                             <b>Patient Age: </b>{' '}
-                                            {this.state.selectedPatient.dob ===
-                                                undefined ||
-                                            this.state.selectedPatient.dob ===
-                                                null
+                                            {this.state.selectedPatient
+                                                .patientAge === undefined ||
+                                            this.state.selectedPatient
+                                                .patientAge === null
                                                 ? 'N/A'
                                                 : this.state.selectedPatient
                                                       .patientAge}{' '}
