@@ -42,7 +42,9 @@ import UrineTestForm, {
     urineTestChemicals,
     initialUrineTests
 } from '../newReadingPage/urineTestForm'
-import PatientInfoForm from '../newReadingPage/patientInfoForm'
+import PatientInfoForm, {
+    GESTATIONAL_AGE_UNITS
+} from '../newReadingPage/patientInfoForm'
 import SymptomForm from '../newReadingPage/symptomForm'
 
 const sexOptions = [
@@ -711,7 +713,11 @@ class PatientSummary extends Component {
                                                             .selectedPatient
                                                             .gestationalAgeValue
                                                     }{' '}
-                                                    weeks
+                                                    {this.state.selectedPatient
+                                                        .gestationalAgeUnit ===
+                                                    GESTATIONAL_AGE_UNITS.WEEKS
+                                                        ? 'week(s)'
+                                                        : 'month(s)'}
                                                 </p>
                                             )}
                                         <ExpansionPanel>
