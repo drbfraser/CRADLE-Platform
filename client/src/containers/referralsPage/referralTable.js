@@ -1,51 +1,107 @@
-import React, {Component} from 'react';
-import MaterialTable from 'material-table';
+import React, { Component } from 'react'
+import MaterialTable from 'material-table'
 import { Icon } from 'semantic-ui-react'
-import { getPrettyDate, getMomentDate } from '../../utils';
+import { getPrettyDate, getMomentDate } from '../../utils'
+import { getTrafficIcon, getLatestReading } from '../patientPage/patientUtils'
 
 class ReferralTable extends Component {
-    
     state = {
         columns: [
-        {   title: 'Patient Initials',
-            field: 'patientName',
-            render: rowData => 
-                <p key={"initials" + rowData.tableData.id}
-                   style={{"fontSize": "200%", "fontWeight" : "bold", "textAlign" : "center"}}
-                >{rowData.patientName}</p>,
-            headerStyle : {
-                textAlign: "center"
+            {
+                title: 'Patient Initials',
+                field: 'patientName',
+                render: rowData => (
+                    <p
+                        key={'initials' + rowData.tableData.id}
+                        style={{
+                            fontSize: '200%',
+                            fontWeight: 'bold',
+                            textAlign: 'center'
+                        }}>
+                        {rowData.patientName}
+                    </p>
+                ),
+                headerStyle: {
+                    textAlign: 'center'
+                },
+                sorting: false
             },
-            sorting: false
-        },
-        {   title: 'Patient ID', field: 'patientId' },
-        {   title: 'Village No.', field: 'villageNumber'},
-        {   title: 'Date Referred',
-                render: rowData => <p>{getPrettyDate(this.getLatestReferral(rowData.readings))}</p>,
-            customSort: (a,b) => getMomentDate(this.getLatestReferral(a.readings)).valueOf() - getMomentDate(this.getLatestReferral(b.readings)).valueOf(),
-            defaultSort: 'desc' },
-        {   title: 'Assessment', render: rowData => rowData.needsAssessment ? (<p><Icon name="clock outline" size="large" color="red"/> Pending</p>) :
-                                                                            (<p><Icon name="checkmark" size="large" color="green"/> Complete</p>)},
+            { title: 'Patient ID', field: 'patientId' },
+            { title: 'Village No.', field: 'villageNumber' },
+            {
+                title: 'Vital Sign',
+                cellStyle: {
+                    padding: '0px'
+                },
+                sorting: false,
+                render: rowData =>
+                    getTrafficIcon(
+                        getLatestReading(rowData.readings).trafficLightStatus
+                    )
+            },
+            {
+                title: 'Date Referred',
+                render: rowData => (
+                    <p>
+                        {getPrettyDate(
+                            this.getLatestReferral(rowData.readings)
+                        )}
+                    </p>
+                ),
+                customSort: (a, b) =>
+                    getMomentDate(
+                        this.getLatestReferral(a.readings)
+                    ).valueOf() -
+                    getMomentDate(this.getLatestReferral(b.readings)).valueOf(),
+                defaultSort: 'desc'
+            },
+            {
+                title: 'Assessment',
+                render: rowData =>
+                    rowData.needsAssessment ? (
+                        <p>
+                            <Icon
+                                name="clock outline"
+                                size="large"
+                                color="red"
+                            />{' '}
+                            Pending
+                        </p>
+                    ) : (
+                        <p>
+                            <Icon name="checkmark" size="large" color="green" />{' '}
+                            Complete
+                        </p>
+                    )
+            }
         ],
         data: [],
-        selectedPatient: { patientId: '', patientName: 'Test', 
-                        patientSex: 'F', medicalHistory: '',
-                        drugHistory: '', villageNumber:'', readings: []
-                        }
+        selectedPatient: {
+            patientId: '',
+            patientName: 'Test',
+            patientSex: 'F',
+            medicalHistory: '',
+            drugHistory: '',
+            villageNumber: '',
+            readings: []
+        }
     }
 
-    getLatestReferral = (readings) => {
-        let sortedReadings = readings.sort((a,b) => getMomentDate(b.dateTimeTaken).valueOf() - getMomentDate(a.dateTimeTaken).valueOf())
-        
-        if(sortedReadings[0].dateReferred) {
+    getLatestReferral = readings => {
+        let sortedReadings = readings.sort(
+            (a, b) =>
+                getMomentDate(b.dateTimeTaken).valueOf() -
+                getMomentDate(a.dateTimeTaken).valueOf()
+        )
+
+        if (sortedReadings[0].dateReferred) {
             return sortedReadings[0].dateReferred
         } else {
-            return ""
+            return ''
         }
     }
 
     render() {
-        
         return (
             <MaterialTable
                 title="Referrals"
@@ -55,12 +111,14 @@ class ReferralTable extends Component {
                 options={{
                     rowStyle: rowData => {
                         return {
-                            height: '75px',
+                            height: '75px'
                         }
                     },
                     pageSize: 10
                 }}
-                onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
+                onRowClick={(e, rowData) =>
+                    this.props.callbackFromParent(rowData)
+                }
             />
         )
     }

@@ -3,6 +3,7 @@ import { ReactComponent as GreenTraffic } from './drawable/green.svg'
 import { ReactComponent as YellowTraffic } from './drawable/yellow.svg'
 import { ReactComponent as RedTraffic } from './drawable/red.svg'
 import { Icon } from 'semantic-ui-react'
+import { getMomentDate } from '../../utils'
 
 export const getTrafficIcon = trafficLightStatus => {
     if (trafficLightStatus === 'RED_DOWN') {
@@ -36,4 +37,13 @@ export const getTrafficIcon = trafficLightStatus => {
     } else {
         return <GreenTraffic style={{ height: '65px', width: '65px' }} />
     }
+}
+
+export const getLatestReading = readings => {
+    let sortedReadings = readings.sort(
+        (a, b) =>
+            getMomentDate(b.dateTimeTaken).valueOf() -
+            getMomentDate(a.dateTimeTaken).valueOf()
+    )
+    return sortedReadings[0]
 }
