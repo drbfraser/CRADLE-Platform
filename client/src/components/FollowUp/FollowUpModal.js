@@ -23,7 +23,8 @@ import Switch from '@material-ui/core/Switch';
 import { updateFollowUp, setReadingId, createFollowUp } from '../../actions/referrals';
 import { getPatients } from '../../actions/patients'
 
-const followupFollowupFrequencyUnitUnit = [
+export const followupFrequencyUnitUnit = [
+    {key:'none', text:'N/a', value:'NONE'},
     {key:'min', text:'Minutes', value:'MINUTES'},
     {key:'hour', text:'Hours', value:'HOURS'},
     {key:'day', text:'Days', value:'DAYS'},
@@ -58,8 +59,8 @@ class FollowUpModal extends Component {
                 followupNeeded: false,
                 dateFollowupNeededTill: "",
                 followupInstructions: "",
-                followupFrequencyUnit: "",
-                followupFrequencyValue: "",
+                followupFrequencyUnit: followupFrequencyUnitUnit['none'],
+                followupFrequencyValue: null,
             },
             isOpen: false,
             dateOrCondition: "DATE"
@@ -106,10 +107,9 @@ class FollowUpModal extends Component {
         this.props.setReadingId(this.props.readingId)
     }
 
+
+
     handleChange(e, value) {
-        if (value.name === "untilDateOrCond" && (value.value === "CONDITION" || value.value === "DATE")) {
-            this.setState( {dateOrCondition: value.value} )
-        }
         this.setState({
             'data': {
                 ...this.state.data,
@@ -128,8 +128,8 @@ class FollowUpModal extends Component {
     }
 
     handleDateOrConditionChange = (error, value) => {
-        if (value.value === "CONDITION") {
-            this.setState({untilDate: false})
+        if (value.name === "untilDateOrCond" && (value.value === "CONDITION" || value.value === "DATE")) {
+            this.setState( {dateOrCondition: value.value} )
         }
     }
 
@@ -137,6 +137,10 @@ class FollowUpModal extends Component {
         console.log("submitting follow up info");
         this.state.data.referral = this.props.referralId
         console.log("handle submit state data:  ", this.state.data);
+
+        if (this.state.untilDateOrCond) {
+            delete this.state.untilDateOrCond;
+        }
 
         // update existing followUpInfo
         if (this.props.initialValues) {
@@ -156,7 +160,6 @@ class FollowUpModal extends Component {
     }
 
     render() {
-        // console.log("followUpModal state: ", this.state)
         return (
             <div>
                 <Modal
@@ -235,7 +238,6 @@ class FollowUpModal extends Component {
                                   label='Instructions for Follow up'
                                   placeholder="Instruction for VHT to help patient to remedy their chief complaint"
                                   onChange={this.handleChange}
-                                  required
                                 ></Form.Field>
                                 <Form.Group widths='equal'>
                                     <Form.Field
@@ -247,17 +249,14 @@ class FollowUpModal extends Component {
                                       label='Frequency'
                                       placeholder="Number"
                                       onChange={this.handleChange}
-                                      required
                                     ></Form.Field>
                                     <Form.Field
                                       name="followupFrequencyUnit"
-                                      value={this.state.data.followupFrequencyUnit || ''}
+                                      value={this.state.data.followupFrequencyUnit || 'N/A'}
                                       control={Select}
-                                      options={followupFollowupFrequencyUnitUnit}
+                                      options={followupFrequencyUnitUnit}
                                       label='Frequency Unit'
-                                      // placeholder="FollowupFrequencyUnit for VHT to visit their patient to remedy their chief complaint"
                                       onChange={this.handleChange}
-                                      required
                                     ></Form.Field>
                                 </Form.Group>
                                 <Form.Group>
@@ -267,8 +266,7 @@ class FollowUpModal extends Component {
                                         control={Select}
                                         options={untilDateOrCondition}
                                         label='Until'
-                                        onChange={this.handleChange}
-                                        required
+                                        onChange={this.handleDateOrConditionChange}
                                     ></Form.Field>
                                     <Form.Field
                                       name="dateFollowupNeededTill"
@@ -277,7 +275,7 @@ class FollowUpModal extends Component {
                                       label='Until Date'
                                       disabled={this.state.dateOrCondition === "CONDITION"}
                                       onChange={this.handleChange}
-                                      required
+
                                     ></Form.Field>
                                     <Form.Field
                                       name="dateFollowupNeededTill"
@@ -285,7 +283,6 @@ class FollowUpModal extends Component {
                                       label='Until Condition'
                                       disabled={this.state.dateOrCondition === "DATE"}
                                       onChange={this.handleChange}
-                                      required
                                     ></Form.Field>
                                 </Form.Group>
                             </Form>
