@@ -34,6 +34,7 @@ class TrafficLightEnum(enum.Enum):
     RED_DOWN = 'RED_DOWN'
 
 class frequencyUnitEnum(enum.Enum):
+    NONE = 'None'
     MINUTES = 'MINUTES'
     HOURS = 'HOURS'
     DAYS = 'DAYS'
@@ -257,7 +258,7 @@ class FollowUp(db.Model):
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
     followupFrequencyValue = db.Column(db.Float)
-    followupFrequencyUnit = db.Column(db.Enum(frequencyUnitEnum))
+    followupFrequencyUnit = db.Column(db.Enum(frequencyUnitEnum), nullable=True)
     dateFollowupNeededTill = db.Column(db.String(50))
 
 

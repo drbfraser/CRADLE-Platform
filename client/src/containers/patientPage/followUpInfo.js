@@ -1,8 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Divider, Segment, Header} from 'semantic-ui-react';
+import {followupFrequencyUnitUnit} from '../../components/FollowUp/FollowUpModal'
 
 function FollowUpInfo(props) {
+  let frequencyStr = ""
+    if(props.followUp.followupFrequencyValue != "" &&
+      props.followUp.followupFrequencyUnit != followupFrequencyUnitUnit['none'] &&
+      props.followUp.dateFollowupNeededTill != "") {
+      frequencyStr = 'Every' + props.followUp.followupFrequencyValue + props.followUp.followupFrequencyUnit + 'until' + props.followUp.dateFollowupNeededTill
+    }
     if (props.followUp) {
         return (
             <Segment>
@@ -16,7 +23,7 @@ function FollowUpInfo(props) {
               <p>{props.followUp.treatment}</p>
               <Divider />
               <Header size='small'>Frequency:</Header>
-              <p>Every {props.followUp.followupFrequencyValue} {props.followUp.followupFrequencyUnit.toLowerCase()} until {props.followUp.dateFollowupNeededTill}</p>
+              <p> {frequencyStr} </p>
               <Divider />
               <Header size='small'>Instructions:</Header>
               <p>{props.followUp.followupInstructions}</p>
