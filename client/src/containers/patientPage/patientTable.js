@@ -1,54 +1,78 @@
-import React, {Component} from 'react';
-import MaterialTable from 'material-table';
-import { getPrettyDate, getMomentDate } from '../../utils';
-import { getTrafficIcon } from './patientUtils';
+import React, { Component } from 'react'
+import MaterialTable from 'material-table'
+import { getPrettyDate, getMomentDate } from '../../utils'
+import { getTrafficIcon, getLatestReading } from './patientUtils'
 
 class PatientTable extends Component {
-    
     state = {
         columns: [
-        {   title: 'Patient Initials',
-            field: 'patientName',
-            render: rowData => 
-                <p key={"initials" + rowData.tableData.id}
-                   style={{"fontSize": "200%", "fontWeight" : "bold", "textAlign" : "center"}}
-                >{rowData.patientName}</p>,
-            headerStyle : {
-                textAlign: "center"
+            {
+                title: 'Patient Initials',
+                field: 'patientName',
+                render: rowData => (
+                    <p
+                        key={'initials' + rowData.tableData.id}
+                        style={{
+                            fontSize: '200%',
+                            fontWeight: 'bold',
+                            textAlign: 'center'
+                        }}>
+                        {rowData.patientName}
+                    </p>
+                ),
+                headerStyle: {
+                    textAlign: 'center'
+                },
+                sorting: false
             },
-            sorting: false
-        },
-        {   title: 'Patient ID', field: 'patientId' },
-        {   title: 'Village', field: 'villageNumber'},
-        {   title: 'Vital Sign',
-            cellStyle: {
-                padding: '0px'
+            { title: 'Patient ID', field: 'patientId' },
+            { title: 'Village', field: 'villageNumber' },
+            {
+                title: 'Vital Sign',
+                cellStyle: {
+                    padding: '0px'
+                },
+                render: rowData =>
+                    getTrafficIcon(
+                        getLatestReading(rowData.readings).trafficLightStatus
+                    )
             },
-            render: rowData => getTrafficIcon(this.getLatestReading(rowData.readings).trafficLightStatus),
-        },
-        {   title: 'Last Reading',
-                render: rowData => <p>{getPrettyDate(this.getLatestReadingDateTime(rowData.readings))}</p>,
-            customSort: (a,b) => getMomentDate(this.getLatestReadingDateTime(a.readings)).valueOf() - getMomentDate(this.getLatestReadingDateTime(b.readings)).valueOf(),
-            defaultSort: 'desc' }
+            {
+                title: 'Last Reading',
+                render: rowData => (
+                    <p>
+                        {getPrettyDate(
+                            this.getLatestReadingDateTime(rowData.readings)
+                        )}
+                    </p>
+                ),
+                customSort: (a, b) =>
+                    getMomentDate(
+                        this.getLatestReadingDateTime(a.readings)
+                    ).valueOf() -
+                    getMomentDate(
+                        this.getLatestReadingDateTime(b.readings)
+                    ).valueOf(),
+                defaultSort: 'desc'
+            }
         ],
         data: [],
-        selectedPatient: { patientId: '', patientName: 'Test', 
-                        patientSex: 'F', medicalHistory: '',
-                        drugHistory: '', villageNumber:'', readings: []
-                        }
+        selectedPatient: {
+            patientId: '',
+            patientName: 'Test',
+            patientSex: 'F',
+            medicalHistory: '',
+            drugHistory: '',
+            villageNumber: '',
+            readings: []
+        }
     }
 
-    getLatestReading = (readings) => {
-        let sortedReadings = readings.sort((a,b) => getMomentDate(b.dateTimeTaken).valueOf() - getMomentDate(a.dateTimeTaken).valueOf())
-        return sortedReadings[0]
-    }
-
-    getLatestReadingDateTime = (readings) => {
-        return this.getLatestReading(readings).dateTimeTaken
+    getLatestReadingDateTime = readings => {
+        return getLatestReading(readings).dateTimeTaken
     }
 
     render() {
-        
         return (
             <MaterialTable
                 title="Patients"
@@ -58,12 +82,14 @@ class PatientTable extends Component {
                 options={{
                     rowStyle: rowData => {
                         return {
-                            height: '75px',
+                            height: '75px'
                         }
                     },
                     pageSize: 10
                 }}
-                onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
+                onRowClick={(e, rowData) =>
+                    this.props.callbackFromParent(rowData)
+                }
             />
         )
     }
