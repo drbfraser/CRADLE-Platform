@@ -34,6 +34,7 @@ class TrafficLightEnum(enum.Enum):
     RED_DOWN = 'RED_DOWN'
 
 class frequencyUnitEnum(enum.Enum):
+    NONE = 'None'
     MINUTES = 'MINUTES'
     HOURS = 'HOURS'
     DAYS = 'DAYS'

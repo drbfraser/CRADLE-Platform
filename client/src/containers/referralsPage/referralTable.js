@@ -3,6 +3,7 @@ import MaterialTable from 'material-table'
 import { Icon } from 'semantic-ui-react'
 import { getPrettyDate } from '../../utils'
 import { getLatestReferral, sortReferralsByDate } from './referralUtils'
+import { getTrafficIcon, getLatestReading } from '../patientPage/patientUtils'
 
 class ReferralTable extends Component {
     state = {
@@ -28,6 +29,17 @@ class ReferralTable extends Component {
             },
             { title: 'Patient ID', field: 'patientId' },
             { title: 'Village', field: 'villageNumber' },
+            {
+                title: 'Vital Sign',
+                cellStyle: {
+                    padding: '0px'
+                },
+                sorting: false,
+                render: rowData =>
+                    getTrafficIcon(
+                        getLatestReading(rowData.readings).trafficLightStatus
+                    )
+            },
             {
                 title: 'Date Referred',
                 render: rowData => (
