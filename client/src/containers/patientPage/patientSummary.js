@@ -26,7 +26,7 @@ import {
     getPatients,
     getPatientsRequested
 } from '../../actions/patients'
-import { getPrettyDateTime, getMomentDate } from '../../utils'
+import { getPrettyDate, getPrettyDateTime, getMomentDate } from '../../utils'
 import { getReferrals } from '../../actions/referrals'
 import {
     getSelectedPatientStats,
@@ -42,7 +42,9 @@ import UrineTestForm, {
     urineTestChemicals,
     initialUrineTests
 } from '../newReadingPage/urineTestForm'
-import PatientInfoForm from '../newReadingPage/patientInfoForm'
+import PatientInfoForm, {
+    GESTATIONAL_AGE_UNITS
+} from '../newReadingPage/patientInfoForm'
 import SymptomForm from '../newReadingPage/symptomForm'
 
 const sexOptions = [
@@ -672,7 +674,9 @@ class PatientSummary extends Component {
                                         </p>
                                         <p>
                                             <b>Patient Birthday: </b>{' '}
-                                            {this.state.selectedPatient.dob}{' '}
+                                            {getPrettyDate(
+                                                this.state.selectedPatient.dob
+                                            )}{' '}
                                         </p>
                                         <p>
                                             <b>Patient Age: </b>{' '}
@@ -709,7 +713,11 @@ class PatientSummary extends Component {
                                                             .selectedPatient
                                                             .gestationalAgeValue
                                                     }{' '}
-                                                    weeks
+                                                    {this.state.selectedPatient
+                                                        .gestationalAgeUnit ===
+                                                    GESTATIONAL_AGE_UNITS.WEEKS
+                                                        ? 'week(s)'
+                                                        : 'month(s)'}
                                                 </p>
                                             )}
                                         <ExpansionPanel>

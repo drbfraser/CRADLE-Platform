@@ -44,7 +44,7 @@ class PatientTable extends Component {
                     )
             },
             {
-                title: 'Last Reading',
+                title: 'Date of Last Reading',
                 field: 'lastReading',
                 render: rowData => (
                     <p>
