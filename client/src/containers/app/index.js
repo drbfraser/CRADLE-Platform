@@ -124,7 +124,7 @@ const App = props => {
                 <Toolbar>
                     <img src={AppImg} className="appIcon" />
                     <Typography noWrap style={titleTextStyle}>
-                        Cradle
+                        CRADLE
                     </Typography>
                     {props.user.isLoggedIn && (
                         <div style={{ marginLeft: 'auto', marginRight: 0 }}>
