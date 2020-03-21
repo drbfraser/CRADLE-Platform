@@ -9,13 +9,13 @@ def test_admin_login():
     }
 
     response = requests.post(url, json=payload)
-    resp_body = response.json()
+    resp_json = response.json()
 
-    print(json.dumps(resp_body, indent=4))
+    print(json.dumps(resp_json, indent=4))
     assert response.status_code == 200
-    assert resp_body['token'] is not None
-    assert resp_body['refresh'] is not None
-    assert resp_body['isLoggedIn'] is True
+    assert resp_json['token'] is not None
+    assert resp_json['refresh'] is not None
+    assert resp_json['isLoggedIn'] is True
 
 
 def test_hcw_login():
@@ -25,13 +25,13 @@ def test_hcw_login():
     }
 
     response = requests.post(url, json=payload)
-    resp_body = response.json()
+    resp_json = response.json()
 
-    print(json.dumps(resp_body, indent=4))
+    print(json.dumps(resp_json, indent=4))
     assert response.status_code == 200
-    assert resp_body['token'] is not None
-    assert resp_body['refresh'] is not None
-    assert resp_body['isLoggedIn'] is True
+    assert resp_json['token'] is not None
+    assert resp_json['refresh'] is not None
+    assert resp_json['isLoggedIn'] is True
 
 def test_cho_login():
     payload = {
@@ -40,13 +40,13 @@ def test_cho_login():
     }
 
     response = requests.post(url, json=payload)
-    resp_body = response.json()
+    resp_json = response.json()
 
-    print(json.dumps(resp_body, indent=4))
+    print(json.dumps(resp_json, indent=4))
     assert response.status_code == 200
-    assert resp_body['token'] is not None
-    assert resp_body['refresh'] is not None
-    assert resp_body['isLoggedIn'] is True
+    assert resp_json['token'] is not None
+    assert resp_json['refresh'] is not None
+    assert resp_json['isLoggedIn'] is True
 
 def test_vht_login():
     payload = {
@@ -55,10 +55,10 @@ def test_vht_login():
     }
 
     response = requests.post(url, json=payload)
-    resp_body = response.json()
+    resp_json = response.json()
 
-    print(json.dumps(resp_body, indent=4))
+    print(json.dumps(resp_json, indent=4))
     assert response.status_code == 200
-    assert resp_body['token'] is not None
-    assert resp_body['refresh'] is not None
-    assert resp_body['isLoggedIn'] is True
+    assert resp_json['token'] is not None
+    assert resp_json['refresh'] is not None
+    assert resp_json['isLoggedIn'] is True
