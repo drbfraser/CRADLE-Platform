@@ -31,7 +31,7 @@ export const followupFrequencyUnitUnit = [
     { key: 'year', text: 'Years', value: 'YEARS' }
 ]
 
-const untilDateOrCondition = [
+const untilDateOrOther = [
     { key: 'date', text: 'Date', value: 'DATE' },
     { key: 'other', text: 'Other', value: 'OTHER' }
 ]
@@ -60,7 +60,7 @@ class FollowUpModal extends Component {
                 followupFrequencyValue: null
             },
             isOpen: false,
-            dateOrCondition: 'DATE'
+            dateOrOther: 'DATE'
         }
 
         this.handleChange = this.handleChange.bind(this)
@@ -125,12 +125,12 @@ class FollowUpModal extends Component {
         })
     }
 
-    handleDateOrConditionChange = (error, value) => {
+    handleDateOrOtherChange = (error, value) => {
         if (
-            value.name === 'untilDateOrCond' &&
+            value.name === 'untilDateOrOther' &&
             (value.value === 'OTHER' || value.value === 'DATE')
         ) {
-            this.setState({ dateOrCondition: value.value })
+            this.setState({ dateOrOther: value.value })
         }
     }
 
@@ -139,8 +139,8 @@ class FollowUpModal extends Component {
         this.state.data.referral = this.props.referralId
         console.log('handle submit state data:  ', this.state.data)
 
-        if (this.state.untilDateOrCond) {
-            delete this.state.untilDateOrCond
+        if (this.state.untilDateOrOther) {
+            delete this.state.untilDateOrOther
         }
 
         // update existing followUpInfo
@@ -291,16 +291,16 @@ class FollowUpModal extends Component {
                                         </Form.Group>
                                         <Form.Group>
                                             <Form.Field
-                                                name="untilDateOrCond"
+                                                name="untilDateOrOther"
                                                 value={
-                                                    this.state.dateOrCondition
+                                                    this.state.dateOrOther
                                                 }
                                                 control={Select}
-                                                options={untilDateOrCondition}
+                                                options={untilDateOrOther}
                                                 label="Until:"
                                                 onChange={
                                                     this
-                                                        .handleDateOrConditionChange
+                                                        .handleDateOrOtherChange
                                                 }></Form.Field>
                                             <Form.Field
                                                 name="dateFollowupNeededTill"
@@ -309,7 +309,7 @@ class FollowUpModal extends Component {
                                                 label="Until Date"
                                                 disabled={
                                                     this.state
-                                                        .dateOrCondition ===
+                                                        .dateOrOther ===
                                                     'OTHER'
                                                 }
                                                 onChange={
@@ -321,7 +321,7 @@ class FollowUpModal extends Component {
                                                 label="Other"
                                                 disabled={
                                                     this.state
-                                                        .dateOrCondition ===
+                                                        .dateOrOther ===
                                                     'DATE'
                                                 }
                                                 onChange={
