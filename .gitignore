@@ -133,3 +133,8 @@ ENV/
 .vscode/
 client/src/containers/home/interview.java
 endpoints.md
+
+#----------------------
+assets/
+client/.idea/
+.report
