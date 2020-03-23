@@ -33,7 +33,7 @@ export const followupFrequencyUnitUnit = [
 
 const untilDateOrCondition = [
     { key: 'date', text: 'Date', value: 'DATE' },
-    { key: 'condition', text: 'Condition', value: 'CONDITION' }
+    { key: 'other', text: 'Other', value: 'OTHER' }
 ]
 
 class FollowUpModal extends Component {
@@ -128,7 +128,7 @@ class FollowUpModal extends Component {
     handleDateOrConditionChange = (error, value) => {
         if (
             value.name === 'untilDateOrCond' &&
-            (value.value === 'CONDITION' || value.value === 'DATE')
+            (value.value === 'OTHER' || value.value === 'DATE')
         ) {
             this.setState({ dateOrCondition: value.value })
         }
@@ -297,7 +297,7 @@ class FollowUpModal extends Component {
                                                 }
                                                 control={Select}
                                                 options={untilDateOrCondition}
-                                                label="Until"
+                                                label="Until:"
                                                 onChange={
                                                     this
                                                         .handleDateOrConditionChange
@@ -310,7 +310,7 @@ class FollowUpModal extends Component {
                                                 disabled={
                                                     this.state
                                                         .dateOrCondition ===
-                                                    'CONDITION'
+                                                    'OTHER'
                                                 }
                                                 onChange={
                                                     this.handleChange
@@ -318,7 +318,7 @@ class FollowUpModal extends Component {
                                             <Form.Field
                                                 name="dateFollowupNeededTill"
                                                 control={TextArea}
-                                                label="Until Condition"
+                                                label="Other"
                                                 disabled={
                                                     this.state
                                                         .dateOrCondition ===
