@@ -14,19 +14,19 @@ function FollowUpInfo(props) {
     return (
             <Segment>
               <Header size='small'>Follow Up Action:</Header>
-              <p>{props.followUp.followUpAction}</p>
+              <p>{props.followUp.followUpAction || 'N/A'}</p>
               <Divider />
               <Header size='small'>Diagnosis:</Header>
-              <p>{props.followUp.diagnosis}</p>
+              <p>{props.followUp.diagnosis || 'N/A'}</p>
               <Divider />
               <Header size='small'>Treatment:</Header>
-              <p>{props.followUp.treatment}</p>
+              <p>{props.followUp.treatment || 'N/A'}</p>
               <Divider />
               <Header size='small'>Frequency:</Header>
-              <p> {frequencyStr} </p>
+              <p> {frequencyStr || 'N/A'} </p>
               <Divider />
               <Header size='small'>Instructions:</Header>
-              <p>{props.followUp.followupInstructions}</p>
+              <p>{props.followUp.followupInstructions || 'N/A'}</p>
               <Divider />
               <p><b>Assessed By:</b> Healthcare Worker {props.followUp.healthcareWorkerId}</p>
               <p><b>Date Last Assessed:</b> {props.followUp.dateAssessed}</p>
