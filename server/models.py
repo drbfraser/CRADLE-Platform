@@ -114,6 +114,11 @@ class HealthFacility(db.Model):
     # To Do: should probably have a unique id as primary key here, in addition to facility name
     healthFacilityName = db.Column(db.String(50), primary_key=True)
 
+    # Best practice would be to add column for area code + column for rest of number. 
+    # However, all of our facilites are in Uganda so area code does not change. 
+    # May want to change in the future if system if used in multiple countries
+    healthFacilityPhoneNumber = db.Column(db.String(50))
+
 
 class Patient(db.Model):
     patientId = db.Column(db.String(50), primary_key=True)
