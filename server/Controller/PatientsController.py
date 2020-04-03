@@ -5,6 +5,7 @@ from flask import request
 from flask_restful import Resource, abort
 from datetime import date, datetime
 from Controller.Helpers import _get_request_body
+import time
 
 # Project modules
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
@@ -49,12 +50,9 @@ def abort_if_patient_exists(patient_id):
 
 # input format: yyyy-mm-dd
 # output: age
-# TODO: do this on front end
 def calculate_age_from_dob(patient_data):
-    DAYS_IN_YEAR = 365.2425
-    birthDate = datetime.strptime(patient_data['dob'], '%Y-%m-%d')
-
-    age = int((datetime.now() - birthDate).days / DAYS_IN_YEAR)
+    SECONDS_IN_YEAR = 31557600
+    age = (time.time() - patient_data['dob']) / SECONDS_IN_YEAR
     patient_data['patientAge'] = age
     return patient_data
 
@@ -95,7 +93,8 @@ class PatientAll(Resource):
             return {'HTTP 400': decoding_error}, 400
         patient_data = self._get_request_body()
 
-        patient_data['dob'] = int(patient_data['dob'])
+        # patient_data['dob'] = int(patient_data['dob'])
+        patient_data['dob'] = 888364800
 
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
@@ -105,8 +104,10 @@ class PatientAll(Resource):
             return invalid
 
         # if age is not provided, populate age using dob
-        if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
-            patient_data = calculate_age_from_dob(patient_data)
+        # if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
+        #     patient_data = calculate_age_from_dob(patient_data)
+        age = (time.time() - patient_data['dob']) / 31557600
+        print('======= {}'.format(age))
         response_body = patientManager.create(patient_data)
         return response_body, 201
 
