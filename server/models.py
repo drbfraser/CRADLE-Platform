@@ -91,7 +91,7 @@ class Role(db.Model):
 
 class Referral(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    dateReferred = db.Column(db.String(100), nullable=False) 
+    dateReferred = db.Column(db.String(100), nullable=False)
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
 
@@ -126,7 +126,7 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    dob = db.Column(db.String(50))
+    dob = db.Column(db.Integer)
     villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
     # villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
