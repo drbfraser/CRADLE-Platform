@@ -53,7 +53,7 @@ def abort_if_patient_exists(patient_id):
 def calculate_age_from_dob(patient_data):
     SECONDS_IN_YEAR = 31557600
     age = (time.time() - patient_data['dob']) / SECONDS_IN_YEAR
-    patient_data['patientAge'] = age
+    patient_data['patientAge'] = int(age)
     return patient_data
 
 
@@ -93,8 +93,7 @@ class PatientAll(Resource):
             return {'HTTP 400': decoding_error}, 400
         patient_data = self._get_request_body()
 
-        # patient_data['dob'] = int(patient_data['dob'])
-        patient_data['dob'] = 888364800
+        patient_data['dob'] = int(patient_data['dob'])
 
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
@@ -104,10 +103,8 @@ class PatientAll(Resource):
             return invalid
 
         # if age is not provided, populate age using dob
-        # if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
-        #     patient_data = calculate_age_from_dob(patient_data)
-        age = (time.time() - patient_data['dob']) / 31557600
-        print('======= {}'.format(age))
+        if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
+            patient_data = calculate_age_from_dob(patient_data)
         response_body = patientManager.create(patient_data)
         return response_body, 201
 
