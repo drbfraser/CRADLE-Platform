@@ -1,0 +1,44 @@
+Get all users
+---
+tags:
+  - User
+responses:
+  200:
+    description: A list of all users
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              email:
+                type: string
+                example: admin@admin.com
+              username:
+                type: string
+              roleIds:
+                type: array
+                items: integer
+                example: [3]
+              followups:
+                type: array
+                items: integer
+                example: [1, 2, 3, 4]
+              healthFacilityName:
+                type: string
+                example: H3445
+              firstName:
+                type: string
+                example: Bob
+              vhtList:
+                type: array
+                items: integer
+                example: [1, 2, 3]
+              referrals:
+                type: array
+                items: object
+                example: []
+              id:
+                type: integer
+                example: 1
