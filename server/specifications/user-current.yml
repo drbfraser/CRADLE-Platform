@@ -1,0 +1,35 @@
+Current user
+---
+tags:
+  - User
+responses:
+  200:
+    description: Information of current user
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: cho@cho.com
+            roles:
+              type: array
+              items: string
+              example: [CHO]
+            firstName:
+              type: string
+              example: Bob
+            healthFacilityName:
+              type: string
+              example: H3445
+            isLoggedIn:
+              type: boolean
+              example: true
+            userId:
+              type: integer
+              example: 1
+            vhtList:
+              type: array
+              items: integer
+              example: [1, 2, 3]

@@ -1,0 +1,77 @@
+Edit user
+---
+tags:
+  - User
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          username:
+            type: string
+          email:
+            type: string
+            example: alice@gmail.com
+          healthFacilityName:
+            type: string
+            example: H2555
+          followups:
+            type: array
+            items: integer
+            example: [1, 2, 3, 4]
+          firstName:
+            type: string
+            example: Alice
+          newRoleIds:
+            type: array
+            items: integer
+            example: [2, 3]
+          newVhtIds:
+            type: array
+            items: integer
+            example: []
+responses:
+  200:
+    description: New user information
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            password:
+              type: string
+              example: $2b$12$2YrL9TN6a601L8SSlzPu9OsvR/MfFqsVsEl9fC05VBbvsQ.m5TwQW
+            username:
+              type: string
+            email:
+              type: string
+              example: alice@gmail.com
+            roleIds:
+              type: array
+              items: integer
+              example: [2, 3]
+            firstName:
+              type: string
+              example: Alice
+            healthFacilityName:
+              type: string
+              example: H2555
+            healthFacility:
+              type: string
+              example: H2555
+            vhtList:
+              type: array
+              items: integer
+              example: []
+            referrals:
+              type: array
+              example: []
+            followups:
+              type: array
+              items: integer
+              example: [1, 2, 3, 4]
+            id:
+              type: integer
+              example: 3

@@ -11,10 +11,10 @@ requestBody:
         properties:
           email:
             type: string
-            example: vht@vht.com
+            example: admin@admin.com
           password:
             type: string
-            example: vht123
+            example: admin123
 responses:
   200:
     description: A list of all VHTs
@@ -25,7 +25,7 @@ responses:
           properties:
             email:
               type: string
-              example: vht@vht.com
+              example: admin@admin.com
             roles:
               type: array
               items: string
