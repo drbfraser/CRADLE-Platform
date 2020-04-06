@@ -250,7 +250,7 @@ class FollowUp(db.Model):
     followupInstructions = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
-    dateAssessed = db.Column(db.String(100), nullable=False)
+    dateAssessed = db.Column(db.Integer, nullable=False)
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
     specialInvestigations = db.Column(db.Text)
     medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
@@ -259,7 +259,7 @@ class FollowUp(db.Model):
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
     followupFrequencyValue = db.Column(db.Float)
     followupFrequencyUnit = db.Column(db.Enum(frequencyUnitEnum))
-    dateFollowupNeededTill = db.Column(db.String(50))
+    dateFollowupNeededTill = db.Column(db.Integer)
 
 
 
