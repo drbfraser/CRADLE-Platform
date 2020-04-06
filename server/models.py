@@ -91,7 +91,7 @@ class Role(db.Model):
 
 class Referral(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    dateReferred = db.Column(db.String(100), nullable=False)
+    dateReferred = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
 
@@ -147,10 +147,10 @@ class Reading(db.Model):
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
    
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
-    dateLastSaved = db.Column(db.String(100)) 
-    dateTimeTaken = db.Column(db.String(100))
-    dateUploadedToServer = db.Column(db.String(100))
-    dateRecheckVitalsNeeded = db.Column(db.String(100))
+    dateLastSaved = db.Column(db.Integer)
+    dateTimeTaken = db.Column(db.Integer)
+    dateUploadedToServer = db.Column(db.Integer)
+    dateRecheckVitalsNeeded = db.Column(db.Integer)
 
     gpsLocationOfReading = db.Column(db.String(50))
     retestOfPreviousReadingIds = db.Column(db.String(100))
