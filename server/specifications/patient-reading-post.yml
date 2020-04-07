@@ -101,8 +101,8 @@ requestBody:
                     type: string
                     example: "++"
 responses:
-  201:
-    description: Patient created
+  200:
+    description: Patient and reading created
     content:
       application/json:
         schema:

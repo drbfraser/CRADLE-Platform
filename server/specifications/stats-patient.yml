@@ -1,0 +1,32 @@
+Get patient stats
+---
+tags:
+  - Stats
+responses:
+  200:
+    description: Patient stats
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            bpSystolicReadingsMontly:
+              type: array
+              items: integer
+              example: [[], [], [60], [], [], [], [], [], [], [], [], []]
+            bpDiastolicReadingsMonthly:
+              type: array
+              items: integer
+              example: [[], [], [60], [], [], [], [], [], [], [], [], []]
+            heartRateReadingsMonthly:
+              type: array
+              items: integer
+              example: [[], [], [60], [], [], [], [], [], [], [], [], []]
+            trafficLightCountsFromDay1:
+              type: object
+              example:
+                green: 0
+                yellowUp: 0
+                yellowDown: 2
+                redUp: 0
+                redDown: 0
