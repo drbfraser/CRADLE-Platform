@@ -174,6 +174,7 @@ class PatientReading(Resource):
 
     # Create a new patient with a reading
     @jwt_required
+    @swag_from('../specifications/patient-reading-post.yml', methods=['POST'])
     def post(self):
         logging.debug('Received request: POST api/patient/reading')
         try:

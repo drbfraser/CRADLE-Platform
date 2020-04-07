@@ -1,0 +1,156 @@
+Create a patient with reading
+---
+tags:
+  - Patient
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          patient:
+            type: object
+            properties:
+              isPregnant:
+                type: boolean
+                example: true
+              patientSex:
+                type: string
+                enum: [MALE, FEMALE]
+                example: FEMALE
+              patientAge:
+                type: integer
+                example: 29
+              drugHistory:
+                type: string
+                example: Tylenol
+              dob:
+                type: string
+                example: "1990-03-26"
+              villageNumber:
+                type: string
+                example: 5
+              patientId:
+                type: string
+                example: 191919
+              gestationalAgeValue:
+                type: string
+                example: 7
+              gestationalAgeUnit:
+                type: string
+                enum:
+                  [GESTATIONAL_AGE_UNITS_WEEKS, GESTATIONAL_AGE_UNITS_MONTHS]
+                example: GESTATIONAL_AGE_UNITS_WEEKS
+              zone:
+                type: string
+                example: 1
+              patientName:
+                type: string
+                example: Grace
+              medicalHistory:
+                type: string
+                example: sick
+          reading:
+            type: object
+            properties:
+              userId:
+                type: integer
+                example: 1
+              readingId:
+                type: string
+                example: "9f22ddaa-765d-4517-bf4c-7480e55d2a63"
+              dateTimeTaken:
+                type: string
+                example: "2020-04-07T07:53:34.803Z"
+              bpSystolic:
+                type: integer
+                example: 128
+              bpDiastolic:
+                type: integer
+                example: 140
+              heartRateBPM:
+                type: integer
+                example: 190
+              dateRecheckVitalsNeeded:
+                type: string
+                example: "2020-04-07T07:53:34.803Z"
+              isFlaggedForFollowup:
+                type: boolean
+                example: false
+              symptoms:
+                type: array
+                items: string
+                example: [bleeding, feverish, unwell]
+              urineTests:
+                type: object
+                properties:
+                  urineTestNit:
+                    type: string
+                    example: "-"
+                  urineTestBlood:
+                    type: string
+                    example: "+"
+                  urineTestLeuc:
+                    type: string
+                    example: "-"
+                  urineTestPro:
+                    type: string
+                    example: "+++"
+                  urineTestGlu:
+                    type: string
+                    example: "++"
+responses:
+  201:
+    description: Patient created
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            isPregnant:
+              type: boolean
+              example: true
+            patientSex:
+              type: string
+              enum: [MALE, FEMALE]
+              example: FEMALE
+            patientAge:
+              type: integer
+              example: 29
+            readings:
+              type: array
+              items: string
+              example:
+                [
+                  a5b31bdb-68a6-46e0-bd2c-c39edcdc3fe3,
+                  c46702da-0f59-4e6e-8fb2-f7502273285b,
+                ]
+            drugHistory:
+              type: string
+              example: Tylenol
+            dob:
+              type: string
+              example: "1990-03-26"
+            villageNumber:
+              type: string
+              example: 5
+            patientId:
+              type: string
+              example: 191919
+            gestationalAgeValue:
+              type: string
+              example: 7
+            gestationalAgeUnit:
+              type: string
+              enum: [GESTATIONAL_AGE_UNITS_WEEKS, GESTATIONAL_AGE_UNITS_MONTHS]
+              example: GESTATIONAL_AGE_UNITS_WEEKS
+            zone:
+              type: string
+              example: 1
+            patientName:
+              type: string
+              example: Grace
+            medicalHistory:
+              type: string
+              example: ""
