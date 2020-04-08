@@ -1,10 +1,53 @@
-Get a list of all follow-ups
+Update a follow-up
 ---
 tags:
   - Follow-up
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          diagnosis:
+            type: string
+            example: Cold
+          treatment:
+            type: string
+            example: Inhaler
+          specialInvestigations:
+            type: string
+            example: Gave tylenol
+          medicationPrescribed:
+            type: string
+            example: Tylenol
+          followupNeeded:
+            type: boolean
+            example: true
+          dateFollowupNeededTill:
+            type: string
+            example: "2020-04-07"
+          followupInstructions:
+            type: string
+            example: Check temperature
+          followupFrequencyUnit:
+            type: string
+            example: WEEKS
+          followupFrequencyValue:
+            type: string
+            example: 1
+          referral:
+            type: integer
+            example: 20
 responses:
   200:
-    description: A list of follow-ups
+    description: Updated follow-up
     content:
       application/json:
         schema:
@@ -14,7 +57,7 @@ responses:
             properties:
               referral:
                 type: integer
-                example: 23
+                example: 20
               healthcareWorker:
                 type: object
                 example:
@@ -33,19 +76,19 @@ responses:
                   }
               followupFrequencyUnit:
                 type: string
-                example: MINUTES
+                example: WEEKS
               medicationPrescribed:
                 type:
-                example: hhuh
+                example: Tylenol
               dateFollowupNeededTill:
                 type:
-                example: "2020-03-04"
+                example: "2020-04-07"
               followupInstructions:
                 type:
-                example: hello
+                example: Check temperature
               specialInvestigations:
                 type:
-                example: hehe
+                example: Gave tylenol
               dateAssessed:
                 type:
                 example: "2020-03-18 06:50:06.931191"
@@ -54,13 +97,13 @@ responses:
                 example: 1
               diagnosis:
                 type:
-                example: hoho
+                example: Flu
               treatment:
                 type: string
-                example: haha
+                example: Inhaler
               followupFrequencyValue:
                 type: number
-                example: 3.0
+                example: 2
               id:
                 type: integer
                 example: 1

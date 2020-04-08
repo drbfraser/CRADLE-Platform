@@ -54,6 +54,7 @@ class FollowUp(Resource):
         return response_body, 201
     
     @jwt_required
+    @swag_from('../specifications/followup-put.yml', methods=['PUT'], endpoint='followup_path')
     def put(self, id=None):
         logging.debug('Received request: PUT /follow_up/<id>')
         current_user = get_jwt_identity()
