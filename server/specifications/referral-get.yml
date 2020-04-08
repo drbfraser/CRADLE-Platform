@@ -2,6 +2,12 @@ Get a referral
 ---
 tags:
   - Referral
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
 responses:
   200:
     description: A single referral

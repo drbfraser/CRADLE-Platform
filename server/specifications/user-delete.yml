@@ -2,6 +2,12 @@ Delete user
 ---
 tags:
   - User
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
 responses:
   200:
     description: OK

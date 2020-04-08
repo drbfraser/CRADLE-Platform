@@ -2,6 +2,12 @@ Get patient stats
 ---
 tags:
   - Stats
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
 responses:
   200:
     description: Patient stats

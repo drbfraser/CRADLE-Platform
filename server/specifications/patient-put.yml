@@ -2,6 +2,12 @@ Edit a patient
 ---
 tags:
   - Patient
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
 requestBody:
   required: true
   content:
