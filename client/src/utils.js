@@ -9,10 +9,7 @@ export function getPrettyDate(dateStr) {
 }
 
 export function getMomentDate(dateS) {
-    var date = new Date(dateS*1000)
-    console.log("========" + date)
-    dateS = dateS && dateS.slice(0, 19)
-    return moment(dateS)
+    return moment(dateS*1000)
 }
 
 export const getUserFromResponse = response => {
