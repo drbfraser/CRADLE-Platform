@@ -43,7 +43,8 @@ def init(api):
     api.add_resource(HealthFacility, '/api/health_facility/<string:name>', endpoint='healthfacility_path') # [GET, POST, PUT, DELETE]
     api.add_resource(HealthFacilityList, '/api/health_facility_list') # [GET]
 
-    api.add_resource(FollowUp, '/api/follow_up', '/api/follow_up/<int:id>') # [GET, POST, PUT, DELETE]
+    api.add_resource(FollowUp, '/api/follow_up', endpoint='followup') # [GET, POST, PUT, DELETE]
+    api.add_resource(FollowUp, '/api/follow_up/<int:id>', endpoint='followup_path') # [GET, POST, PUT, DELETE]
     api.add_resource(FollowUpMobile, '/api/mobile/follow_up', '/api/mobile/follow_up/<int:id>') # [GET]
     api.add_resource(FollowUpMobileSummarized, '/api/mobile/summarized/follow_up', '/api/mobile/summarized/follow_up/<int:id>') # [GET]
 
