@@ -82,7 +82,7 @@ def seed():
         db.session.commit()
 
         numOfReadings = random.randint(1,5)
-        dateList = [getRandomDateTest() for i in range(numOfReadings)]
+        dateList = [getRandomDate() for i in range(numOfReadings)]
         dateList.sort()
 
         userId = getRandomUser()
@@ -149,7 +149,7 @@ def getRandomSymptoms():
     symptoms = random.sample(population=symptomsList, k=numOfSymptoms)
     return ', '.join(symptoms)
 
-def getRandomDateTest():
+def getRandomDate():
     """
     This function will return a random datetime between two datetime
     objects.
@@ -160,23 +160,7 @@ def getRandomDateTest():
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = randrange(int_delta)
     new_date = start + timedelta(seconds=random_second)
-    # print(f'======{int(timedelta(days=10).total_seconds())}')
-    # print(f'======{int(new_date.strftime("%s"))} | {new_date.strftime("%Y-%m-%dT%H:%M:%S")}')
     return int(new_date.strftime("%s"))
-
-
-# def getRandomDate():
-#     """
-#     This function will return a random datetime between two datetime
-#     objects.
-#     """
-#     start = d1
-#     end = d2
-#     delta = end - start
-#     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
-#     random_second = randrange(int_delta)
-#     new_date = start + timedelta(seconds=random_second)
-#     return new_date.strftime("%Y-%m-%dT%H:%M:%S")
 
 def getDateTime(dateStr):
     return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
