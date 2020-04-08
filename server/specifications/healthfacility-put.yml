@@ -1,0 +1,41 @@
+Update a health facility
+---
+tags:
+  - Health Facility
+parameters:
+  - in: path
+    name: name
+    required: true
+    schema:
+      type: string
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          healthFacilityName:
+            type: string
+            example: H1111
+responses:
+  200:
+    description: Updated health facility
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              users:
+                type: array
+                items: integer
+                example: []
+              healthFacilityName:
+                type: string
+                example: H1111
+              referrals:
+                type: array
+                items: integer
+                example: []

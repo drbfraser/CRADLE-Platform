@@ -1,0 +1,35 @@
+Create a new health facility
+---
+tags:
+  - Health Facility
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          healthFacilityName:
+            type: string
+            example: H13131
+responses:
+  200:
+    description: New health facility
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              users:
+                type: array
+                items: integer
+                example: []
+              healthFacilityName:
+                type: string
+                example: H13131
+              referrals:
+                type: array
+                items: integer
+                example: []

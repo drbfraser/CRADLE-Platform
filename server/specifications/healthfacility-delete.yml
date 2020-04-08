@@ -1,0 +1,18 @@
+Delete a health facility
+---
+tags:
+  - Health Facility
+parameters:
+  - in: path
+    name: name
+    required: true
+    schema:
+      type: string
+responses:
+  200:
+    description: OK
+    content:
+      application/json:
+        schema:
+          type: object
+          example: {}
