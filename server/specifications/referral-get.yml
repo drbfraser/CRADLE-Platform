@@ -1,0 +1,51 @@
+Get a referral
+---
+tags:
+  - Referral
+responses:
+  200:
+    description: A single referral
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            followUpId:
+              type: integer
+              example: null
+            userId:
+              type: integer
+              example: 3
+            reading:
+              type: string
+              example: "8fd4689c-2895-45ff-b472-b45938ad19cb"
+            comment:
+              type: string
+              example: "She needs help!"
+            dateReferred:
+              type: string
+              example: "2019-11-16T19:36:29"
+            followUp:
+              type: object
+              example: {}
+            actionTaken:
+              type: string
+              example: "i tried to save the patient's life but need help now"
+            users:
+              type: array
+              example: null
+            patientId:
+              type: string
+              example: 48300053727
+            referralHealthFacilityName:
+              type: string
+              example: H5123
+            healthFacility:
+              type: string
+              example: H5123
+            id:
+              type: integer
+              example: 13
+            readingId:
+              type: string
+              example: "8fd4689c-2895-45ff-b472-b45938ad19cb"
