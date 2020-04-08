@@ -9,7 +9,8 @@ export function getPrettyDate(dateStr) {
 }
 
 export function getMomentDate(dateS) {
-    console.log("======" + dateS)
+    var date = new Date(dateS*1000)
+    console.log("========" + date)
     dateS = dateS && dateS.slice(0, 19)
     return moment(dateS)
 }
