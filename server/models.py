@@ -42,6 +42,11 @@ class frequencyUnitEnum(enum.Enum):
     MONTHS = 'MONTHS'
     YEARS = 'YEARS'
 
+class facilityTypeEnum(enum.Enum):
+    HCF_2 = 'HCF_2'
+    HCF_3 = 'HCF_3'
+    HCF_4 = 'HCF_4'
+    HOSPITAL = 'HOSPITAL'
 
 ######################
 ### HELPER CLASSES ###
@@ -113,7 +118,14 @@ class HealthFacility(db.Model):
     __tablename__ = 'healthfacility'
     # To Do: should probably have a unique id as primary key here, in addition to facility name
     healthFacilityName = db.Column(db.String(50), primary_key=True)
+    facilityType = db.Column(db.Enum(facilityTypeEnum))
 
+    # Best practice would be to add column for area code + column for rest of number. 
+    # However, all of our facilites are in Uganda so area code does not change. 
+    # May want to change in the future if system if used in multiple countries
+    healthFacilityPhoneNumber = db.Column(db.String(50))
+    location = db.Column(db.String(50))
+    about = db.Column(db.Text)
 
 class Patient(db.Model):
     patientId = db.Column(db.String(50), primary_key=True)
@@ -242,8 +254,6 @@ class Reading(db.Model):
     urineTests = db.relationship('urineTest', backref=db.backref('reading', lazy=True))
 
 
-
-
 class FollowUp(db.Model):
     __tablename__ = 'followup'
     id = db.Column(db.Integer, primary_key=True)
@@ -311,6 +321,7 @@ class RoleSchema(ma.ModelSchema):
         model = Role
 
 class HealthFacilitySchema(ma.ModelSchema):
+    facilityType = EnumField(facilityTypeEnum, by_value=True)
     class Meta:
         include_fk = True
         model = HealthFacility
