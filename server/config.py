@@ -11,6 +11,7 @@ from flask_jwt_extended import JWTManager
 from environs import Env
 import environs
 from flask_bcrypt import Bcrypt
+from flasgger import Swagger
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -66,6 +67,10 @@ FLASK_APP = 'app.py'
 FLASK_DEBUG=1
 
 app = Flask(__name__, static_folder='../client/build')
+app.config['SWAGGER'] = {
+    'openapi': '3.0.2'
+}
+swagger = Swagger(app)
 
 # Serve React App
 @app.route('/', defaults={'path': ''})

@@ -5,6 +5,7 @@ from flask import request
 from flask_restful import Resource, abort
 from flask_jwt_extended import jwt_required
 from Controller.Helpers import _get_request_body
+from flasgger import swag_from
 
 # Project modules
 from Manager.HealthFacilityManager import HealthFacilityManager
@@ -17,6 +18,8 @@ class HealthFacility(Resource):
     # Get all health facilities
     @staticmethod
     @jwt_required
+    @swag_from('../specifications/healthfacility-get.yml', methods=['GET'], endpoint='healthfacility_path')
+    @swag_from('../specifications/healthfacilities-get.yml', methods=['GET'], endpoint='healthfacility')
     def get(name=None):      
         args = request.args  
         if name:
@@ -42,6 +45,7 @@ class HealthFacility(Resource):
     # Create a new hf
     @staticmethod
     @jwt_required
+    @swag_from('../specifications/healthfacility-post.yml', methods=['POST'], endpoint='healthfacility')
     def post():
         logging.debug('Received request: POST /health_facility')
         hf_data = _get_request_body()
@@ -50,6 +54,7 @@ class HealthFacility(Resource):
 
     @staticmethod
     @jwt_required
+    @swag_from('../specifications/healthfacility-put.yml', methods=['PUT'], endpoint='healthfacility_path')
     def put(name=None):
         # validate inputs
         if not name:
@@ -65,6 +70,8 @@ class HealthFacility(Resource):
 
     @staticmethod
     @jwt_required
+    @swag_from('../specifications/healthfacility-delete.yml', methods=['DELETE'], endpoint='healthfacility_path')
+    @swag_from('../specifications/healthfacilities-delete.yml', methods=['DELETE'], endpoint='healthfacility')
     def delete(name=None):
         # validate inputs
         if name:
@@ -82,6 +89,7 @@ class HealthFacilityList(Resource):
 
     # return list of health facility names
     @jwt_required
+    @swag_from('../specifications/healthfacilitylist-get.yml', methods=['GET'])
     def get(self):
         hfs = healthFacilityManager.read_all()
         if not hfs:

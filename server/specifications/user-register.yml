@@ -1,0 +1,35 @@
+Register a user
+---
+tags:
+  - User
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          email:
+            type: string
+            example: vht@vht.com
+          password:
+            type: string
+            example: vht123
+          firstName:
+            type: string
+            example: Bob
+          healthFacilityName:
+            type: string
+            example: H3445
+          role:
+            type: string
+            enum: [ADMIN, HCW, VHT, CHO]
+            example: VHT
+responses:
+  200:
+    description: OK
+    content:
+      application/json:
+        schema:
+          type: object
+          examples: {}

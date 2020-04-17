@@ -1,0 +1,13 @@
+Get a list of all health facility names
+---
+tags:
+  - Health Facility
+responses:
+  200:
+    description: A list of health facility names
+    content:
+      application/json:
+        schema:
+          type: array
+          items: string
+          example: ["H1233", "H2555", "H3445", "H5123"]

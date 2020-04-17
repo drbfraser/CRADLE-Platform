@@ -7,7 +7,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                     jwt_required, jwt_refresh_token_required, get_jwt_identity)
 from Manager.UserManager import UserManager
 from Manager.RoleManager import RoleManager
-
+from flasgger import swag_from
 
 userManager = UserManager()
 roleManager = RoleManager()
@@ -17,6 +17,7 @@ class UserAll(Resource):
     
     # get all users
     @jwt_required
+    @swag_from('../specifications/user-all.yml', methods=['GET'])
     def get(self):
         logging.debug('Received request: GET user/all')
 
@@ -30,6 +31,7 @@ class UserAllVHT(Resource):
     
     # get all VHT Ids 
     @jwt_required
+    @swag_from('../specifications/user-vhts.yml', methods=['GET'])
     def get(self):
         logging.debug('Received request: GET user/vhts')
 
@@ -44,6 +46,7 @@ class UserApi(Resource):
 
     # Create a new user
     @jwt_required
+    @swag_from('../specifications/user-register.yml', methods=['POST'])
     def post(self):
         # register user endpoint
         data = validate_user(request.get_json())
@@ -80,6 +83,7 @@ class UserApi(Resource):
 class UserAuthApi(Resource):
 
     # login to account
+    @swag_from('../specifications/user-auth.yml', methods=['POST'])
     def post(self):
         data = validate_user(request.get_json())
         if data['ok']:
@@ -124,14 +128,17 @@ class UserAuthApi(Resource):
 # user/auth/refresh_token
 class UserAuthTokenRefreshApi(Resource):
     @jwt_refresh_token_required
+    @swag_from('../specifications/user-auth-refresh.yml', methods=['POST'])
     def post(self):
         current_user = get_jwt_identity()
         new_token = create_access_token(identity=current_user, fresh=False)
         return {'token': new_token}, 200
 
+# user/current
 # Get identity of current user with jwt token
 class UserTokenApi(Resource):
     @jwt_required
+    @swag_from('../specifications/user-current.yml', methods=['GET'])
     def get(self):
         current_user = get_jwt_identity()
         return current_user, 200
@@ -147,6 +154,7 @@ class UserEdit(Resource):
     
     # edit user with id
     @jwt_required
+    @swag_from('../specifications/user-edit.yml', methods=['PUT'])
     def put(self, id):
 
         # validate inputs
@@ -183,6 +191,7 @@ class UserEdit(Resource):
 class UserDelete(Resource):
 
     @jwt_required
+    @swag_from('../specifications/user-delete.yml', methods=['DELETE'])
     def delete(self, id=None):
         current_user = get_jwt_identity()
         if 'ADMIN' in current_user['roles']:

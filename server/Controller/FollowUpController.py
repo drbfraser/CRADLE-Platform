@@ -5,6 +5,7 @@ from flask import request
 from flask_restful import Resource, abort
 from flask_jwt_extended import (jwt_required, get_jwt_identity)
 from Controller.Helpers import _get_request_body
+from flasgger import swag_from
 
 # Project modules
 from Manager.FollowUpManager import FollowUpManager
@@ -18,6 +19,8 @@ class FollowUp(Resource):
     # Get all followups with an ID
     # Get all followups, for a specific referral
     @jwt_required
+    @swag_from('../specifications/followups-get.yml', methods=['GET'], endpoint='followup')
+    @swag_from('../specifications/followup-get.yml', methods=['GET'], endpoint='followup_path')
     def get(self, id=None):      
         args = request.args  
         if id:
@@ -42,6 +45,7 @@ class FollowUp(Resource):
 
     # Create a new follow up
     @jwt_required
+    @swag_from('../specifications/followup-post.yml', methods=['POST'], endpoint='followup')
     def post(self):
         logging.debug('Received request: POST /follow_up')
         current_user = get_jwt_identity()
@@ -50,6 +54,7 @@ class FollowUp(Resource):
         return response_body, 201
     
     @jwt_required
+    @swag_from('../specifications/followup-put.yml', methods=['PUT'], endpoint='followup_path')
     def put(self, id=None):
         logging.debug('Received request: PUT /follow_up/<id>')
         current_user = get_jwt_identity()

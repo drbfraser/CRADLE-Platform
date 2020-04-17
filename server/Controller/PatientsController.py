@@ -16,6 +16,8 @@ from Manager.urineTestManager import urineTestManager
 
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                     jwt_required, jwt_refresh_token_required, get_jwt_identity)
+from flasgger import swag_from
+
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 userManager = UserManager()
@@ -74,6 +76,7 @@ class PatientAll(Resource):
     # Get list of all patients
     @staticmethod
     @jwt_required
+    @swag_from('../specifications/patient-all.yml', methods=['GET'])
     def get():
         logging.debug('Received request: GET /patient')
 
@@ -84,6 +87,7 @@ class PatientAll(Resource):
 
     # Create a new patient
     @jwt_required
+    @swag_from('../specifications/patient-post.yml', methods=['POST'])
     def post(self):
         logging.debug('Received request: POST /patient')
         try:
@@ -120,6 +124,7 @@ class PatientInfo(Resource):
 
     # Get a single patient
     @jwt_required
+    @swag_from('../specifications/patient-get.yml', methods=['GET'])
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
         patient = patientManager.read("patientId", patient_id)
@@ -130,6 +135,7 @@ class PatientInfo(Resource):
 
     # Update patient info
     @jwt_required
+    @swag_from('../specifications/patient-put.yml', methods=['PUT'])
     def put(self, patient_id):
         logging.debug('Received request: PUT /patient/' + patient_id)
 
@@ -168,6 +174,7 @@ class PatientReading(Resource):
 
     # Create a new patient with a reading
     @jwt_required
+    @swag_from('../specifications/patient-reading-post.yml', methods=['POST'])
     def post(self):
         logging.debug('Received request: POST api/patient/reading')
         try:

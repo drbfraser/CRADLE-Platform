@@ -1,0 +1,54 @@
+Login
+---
+tags:
+  - User
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          email:
+            type: string
+            example: admin@admin.com
+          password:
+            type: string
+            example: admin123
+responses:
+  200:
+    description: A list of all VHTs
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: admin@admin.com
+            roles:
+              type: array
+              items: string
+              example: [ADMIN]
+            firstName:
+              type: string
+              example: Bob
+            healthFacilityName:
+              type: string
+              example: H3445
+            isLoggedIn:
+              type: boolean
+              example: true
+            userId:
+              type: integer
+              example: 1
+            vhtList:
+              type: array
+              items: integer
+              example: [1, 2, 3]
+            token:
+              type: string
+              example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1ODU4OTA2NDAsIm5iZiI6MTU4NTg5MDY0MCwianRpIjoiNmRmZDhjNDctOTM4OC00ZDAxLWFkMmEtNDhiYWJjN2MxOGQ5IiwiZXhwIjoxNTg5MTMwNjQwLCJpZGVudGl0eSI6eyJlbWFpbCI6ImFkbWluMTIzQGFkbWluLmNvbSIsInJvbGVzIjpbIkFETUlOIl0sImZpcnN0TmFtZSI6IkFkbWluIiwiaGVhbHRoRmFjaWxpdHlOYW1lIjoiSDM0NDUiLCJpc0xvZ2dlZEluIjp0cnVlLCJ1c2VySWQiOjEsInZodExpc3QiOltdfSwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.5EBGX0QCPeafM1oIKGSfnPXF6sXA3ON5VSyDb8KuGe4
+            refresh:
+              type: string
+              example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1ODU4OTA2NDAsIm5iZiI6MTU4NTg5MDY0MCwianRpIjoiNmE2ZWQxOTktNDVlZS00YjU1LTgyMzgtYzM0M2Y1ZGU1NzY3IiwiZXhwIjoxNTg4NDgyNjQwLCJpZGVudGl0eSI6eyJlbWFpbCI6ImFkbWluMTIzQGFkbWluLmNvbSIsInJvbGVzIjpbIkFETUlOIl0sImZpcnN0TmFtZSI6IkFkbWluIiwiaGVhbHRoRmFjaWxpdHlOYW1lIjoiSDM0NDUiLCJpc0xvZ2dlZEluIjp0cnVlLCJ1c2VySWQiOjEsInZodExpc3QiOltdfSwidHlwZSI6InJlZnJlc2gifQ.opNdzxniSMyVSGrBaR163SFOikdHtymGX9iijF6O8i4
