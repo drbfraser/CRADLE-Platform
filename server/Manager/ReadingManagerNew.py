@@ -18,20 +18,25 @@ class ReadingManager(Manager):
         patient_reading_data['reading']['patientId'] = patient_id
         
         # need to save urine test data from reading for urine test creation
-        reading = None
-        if "urineTests" in patient_reading_data['reading']:
-            urineTestData = patient_reading_data['reading']['urineTests']
-            del patient_reading_data['reading']['urineTests'] 
-            reading = self.create(patient_reading_data['reading'])
-            reading = self.add_urine_test(reading, urineTestData)
-        else:
-            reading = self.create(patient_reading_data['reading'])
+        reading = self.create_reading(patient_reading_data['reading'])
         
         # return all created data
         return {
             'reading': reading,
             'patient': patient
         }
+
+    def create_reading(self, reading):
+        # need to save urine test data from reading for urine test creation
+        created_reading = None
+        if "urineTests" in reading:
+            urineTestData = reading['urineTests']
+            del reading['urineTests'] 
+            created_reading = self.create(reading)
+            created_reading = self.add_urine_test(created_reading, urineTestData)
+        else:
+            created_reading = self.create(reading)
+        return created_reading
 
     def add_urine_test(self, reading, urineTestData):
         # if a urine test already exits for reading, throw an error, otherwise create the urine test reading 

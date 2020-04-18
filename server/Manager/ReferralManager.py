@@ -12,10 +12,12 @@ from Validation.ReferralValidator import ReferralValidator
 
 from Manager.Manager import Manager
 
-from Manager import patientManager, readingManager, healthFacilityManager
+from Manager import patientManager, healthFacilityManager
 from Manager.PatientFacilityManager import PatientFacilityManager
+from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 
 patientFacilityManager = PatientFacilityManager()
+readingManager = ReadingManagerNew()
 validator = ReferralValidator()
 
 class ReferralManager(Manager):
@@ -40,7 +42,7 @@ class ReferralManager(Manager):
         except Exception as e:
             print("reading does not exist yet, creating")
             req_data['reading']['patientId'] = req_data['patient']['patientId']
-            created_reading = readingManager.create(req_data['reading'])
+            created_reading = readingManager.create_reading(req_data['reading'])
             print("created_reading: ")
             pprint(created_reading)
 
