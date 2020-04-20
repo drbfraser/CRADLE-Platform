@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import MaterialTable from 'material-table'
+import MaterialTable, { MTableHeader } from 'material-table'
 import { getPrettyDate } from '../../utils'
 import {
     getTrafficIcon,
@@ -7,6 +7,7 @@ import {
     getLatestReadingDateTime,
     sortPatientsByLastReading
 } from './patientUtils'
+import Switch from '@material-ui/core/Switch'
 
 class PatientTable extends Component {
     state = {
@@ -57,7 +58,7 @@ class PatientTable extends Component {
                 defaultSort: 'asc'
             }
         ],
-        data: [],
+        data: this.props.data,
         selectedPatient: {
             patientId: '',
             patientName: 'Test',
@@ -66,7 +67,34 @@ class PatientTable extends Component {
             drugHistory: '',
             villageNumber: '',
             readings: []
-        }
+        },
+        showReferredPatients: true
+    }
+
+    handleSwitchChange(event) {
+        this.setState({
+            data: this.getPatientsToRender(event.target.checked)
+        })
+    }
+
+    getPatientsToRender(showReffered) {
+        return this.props.data.filter(patient => {
+            let hasReferral = this.patientHasReferral(patient.readings)
+            if (showReffered) {
+                return hasReferral
+            } else {
+                return !hasReferral
+            }
+        })
+    }
+
+    patientHasReferral(readings) {
+        readings.forEach(reading => {
+            if (reading.dateReferred) {
+                return true
+            }
+        })
+        return false
     }
 
     render() {
@@ -75,7 +103,7 @@ class PatientTable extends Component {
                 title="Patients"
                 isLoading={this.props.isLoading}
                 columns={this.state.columns}
-                data={this.props.data}
+                data={this.state.data}
                 options={{
                     rowStyle: rowData => {
                         return {
@@ -87,6 +115,23 @@ class PatientTable extends Component {
                 onRowClick={(e, rowData) =>
                     this.props.callbackFromParent(rowData)
                 }
+                actions={[
+                    {
+                        icon: () => {
+                            return (
+                                <Switch
+                                    defaultChecked={true}
+                                    onChange={this.handleSwitchChange.bind(
+                                        this
+                                    )}
+                                    color="primary"
+                                />
+                            )
+                        },
+                        tooltip: 'Referred Patients',
+                        isFreeAction: true
+                    }
+                ]}
             />
         )
     }
