@@ -49,7 +49,8 @@ class PatientStatsManager():
                         # do traffic light status stuff here 
                         self.get_traffic_light(item, data)
                     else:
-                        date_string = item['dateTimeTaken']
+                        date_string_ts = item['dateTimeTaken']
+                        date_string = datetime.utcfromtimestamp(date_string_ts).strftime('%Y-%m-%d')
                         #make sure to add error checking in here
                         date_object = datetime.strptime(date_string[5:7] , '%m')
                         month = date_object.month

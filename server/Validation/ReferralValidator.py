@@ -18,7 +18,7 @@ class ReferralValidator(object):
         """ 
         print("validating referral")
 
-        string_fields = {'dateReferred', 'comment', 'actionTaken'}
+        string_fields = {'comment', 'actionTaken'}
 
         for key in new_ref:
             if key == "userId":
