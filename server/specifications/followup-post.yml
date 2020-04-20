@@ -1,0 +1,106 @@
+Create a new follow-up
+---
+tags:
+  - Follow-up
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          diagnosis:
+            type: string
+            example: Cold
+          treatment:
+            type: string
+            example: Inhaler
+          specialInvestigations:
+            type: string
+            example: Gave tylenol
+          medicationPrescribed:
+            type: string
+            example: Tylenol
+          followupNeeded:
+            type: boolean
+            example: true
+          dateFollowupNeededTill:
+            type: string
+            example: "2020-04-07"
+          followupInstructions:
+            type: string
+            example: Check temperature
+          followupFrequencyUnit:
+            type: string
+            example: WEEKS
+          followupFrequencyValue:
+            type: string
+            example: 1
+          referral:
+            type: integer
+            example: 20
+responses:
+  200:
+    description: New follow-up
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              referral:
+                type: integer
+                example: 20
+              healthcareWorker:
+                type: object
+                example:
+                  {
+                    roleIds: [3],
+                    referrals: [],
+                    firstName: Admin,
+                    followups: [1, 2, 3, 4],
+                    username: null,
+                    email: "admin123@admin.com",
+                    vhtList: [],
+                    password: "$2b$12$TCICuc8dyTDPw5IIA2J45uHtZZ03KhIISlvxEqnwNWpVK1pwn3dEC",
+                    healthFacility: H3445,
+                    id: 1,
+                    healthFacilityName: H3445,
+                  }
+              followupFrequencyUnit:
+                type: string
+                example: WEEKS
+              medicationPrescribed:
+                type:
+                example: Tylenol
+              dateFollowupNeededTill:
+                type:
+                example: "2020-04-07"
+              followupInstructions:
+                type:
+                example: Check temperature
+              specialInvestigations:
+                type:
+                example: Gave tylenol
+              dateAssessed:
+                type:
+                example: "2020-03-18 06:50:06.931191"
+              healthcareWorkerId:
+                type:
+                example: 1
+              diagnosis:
+                type:
+                example: Cold
+              treatment:
+                type: string
+                example: Inhaler
+              followupFrequencyValue:
+                type: number
+                example: 1
+              id:
+                type: integer
+                example: 1
+              followupNeeded:
+                type: boolean
+                example: true

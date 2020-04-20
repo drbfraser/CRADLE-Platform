@@ -29,6 +29,7 @@ else:
     host = '0.0.0.0'
 
 import models # needs to be after db instance
+app.config['SWAGGER']['openapi'] = '3.0.2'
 
 if '-prod' in sys.argv:
     port = 8040

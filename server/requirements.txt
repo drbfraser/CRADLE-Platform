@@ -21,3 +21,5 @@ pyjwt
 requests
 twilio
 yagmail
+cryptography
+flasgger

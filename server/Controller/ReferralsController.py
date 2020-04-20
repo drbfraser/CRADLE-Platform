@@ -4,6 +4,7 @@ from flask_restful import Resource, abort
 from config import db
 from utils import pprint
 from flask_jwt_extended import jwt_required
+from flasgger import swag_from
 
 # Project modules
 from Manager.ReferralManager import ReferralManager
@@ -40,10 +41,11 @@ def abort_if_referral_exists(referral_id):
 """
 # /referral/<int:id> [GET, PUT]
 class ReferralInfo(Resource):
+    @swag_from('../specifications/referral-get.yml', methods=['GET'])
     def get(self, id):
         referral = abort_if_referral_doesnt_exist(id)
         return referral
-    
+
     def put(self, id=None):
         if not id:
             abort(400, message="id is required")
@@ -70,6 +72,7 @@ class ReferralApi(Resource):
             else, all referrals are returned
     """
     @jwt_required
+    @swag_from('../specifications/referrals-get.yml', methods=['GET'])
     def get(self):
         # NEEDS TESTING and query string validation
         args = request.args

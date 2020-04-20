@@ -1,0 +1,29 @@
+Get a health facility
+---
+tags:
+  - Health Facility
+parameters:
+  - in: path
+    name: name
+    required: true
+    schema:
+      type: string
+responses:
+  200:
+    description: A health facility
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            users:
+              type: array
+              items: integer
+              example: [2, 3]
+            healthFacilityName:
+              type: string
+              example: H5123
+            referrals:
+              type: array
+              items: integer
+              example: [4, 9, 13, 21, 22, 25, 31, 36, 42, 46, 49]

@@ -22,8 +22,16 @@ def seed():
     print('Seeding health facilities...')
 
     healthfacility_schema = HealthFacilitySchema()
+    counter = 0
     for hf in healthFacilityList:
-        hf_schema = { "healthFacilityName" : hf }
+        hf_schema = { 
+            "healthFacilityName" : hf,
+            "healthFacilityPhoneNumber": facilityPhoneNumbers[counter],
+            "facilityType": facilityType[counter],
+            "about": facilityAbout[counter],
+            "location": facilityLocation[counter]
+        }
+        counter += 1
         db.session.add(healthfacility_schema.load(hf_schema))
     db.session.commit()
 
@@ -175,6 +183,10 @@ if __name__ == "__main__":
     usersList = [1,2,3,4]
     villageList = ['1001','1002','1003','1004','1005','1006','1007','1008','1009']
     healthFacilityList = ['H1233', 'H2555', 'H3445', 'H5123']
+    facilityType = ['HCF_2', 'HCF_3', 'HCF_4', 'HOSPITAL']
+    facilityAbout = ['Has minimal resources', 'Can do full checkup', 'Has specialized equipment', 'Urgent requests only']
+    facilityLocation = ['District 1', 'District 2', 'District 3', 'District 4']
+    facilityPhoneNumbers = ['+256-413-837484', '+256-223-927484', '+256-245-748573', '+256-847-0947584']
     symptomsList = ['HEADACHE', 'BLURRED VISION', 'ABDO PAIN', 'BLEEDING', 'FEVERISH']
     sexList = ['FEMALE', 'MALE']
     bpSystolicList = list(np.random.normal(120, 35, 1000).astype(int))

@@ -1,0 +1,15 @@
+This is an example
+---
+tags:
+  - Hello World
+responses:
+  200:
+    description: A message
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "hello, this is flask"

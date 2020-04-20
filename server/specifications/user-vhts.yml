@@ -1,0 +1,20 @@
+Get all VHTs
+---
+tags:
+  - User
+responses:
+  200:
+    description: A list of all VHTs
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              email:
+                type: string
+                example: vht@vht.com
+              id:
+                type: integer
+                example: 3

@@ -1,0 +1,25 @@
+Get a list of all health facilities
+---
+tags:
+  - Health Facility
+responses:
+  200:
+    description: A list of health facilities
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              users:
+                type: array
+                items: integer
+                example: [2, 3]
+              healthFacilityName:
+                type: string
+                example: H5123
+              referrals:
+                type: array
+                items: integer
+                example: [4, 9, 13, 21, 22, 25, 31, 36, 42, 46, 49]

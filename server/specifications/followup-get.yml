@@ -1,0 +1,73 @@
+Get a follow-up
+---
+tags:
+  - Follow-up
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: A follow-up
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            referral:
+              type: integer
+              example: 23
+            healthcareWorker:
+              type: object
+              example:
+                {
+                  roleIds: [3],
+                  referrals: [],
+                  firstName: Admin,
+                  followups: [1, 2, 3, 4],
+                  username: null,
+                  email: "admin123@admin.com",
+                  vhtList: [],
+                  password: "$2b$12$TCICuc8dyTDPw5IIA2J45uHtZZ03KhIISlvxEqnwNWpVK1pwn3dEC",
+                  healthFacility: H3445,
+                  id: 1,
+                  healthFacilityName: H3445,
+                }
+            followupFrequencyUnit:
+              type: string
+              example: MINUTES,
+            medicationPrescribed:
+              type:
+              example: hhuh
+            dateFollowupNeededTill:
+              type:
+              example: "2020-03-04"
+            followupInstructions:
+              type:
+              example: hello
+            specialInvestigations:
+              type:
+              example: hehe
+            dateAssessed:
+              type:
+              example: "2020-03-18 06:50:06.931191"
+            healthcareWorkerId:
+              type:
+              example: 1
+            diagnosis:
+              type:
+              example: hoho
+            treatment:
+              type: string
+              example: haha
+            followupFrequencyValue:
+              type: number
+              example: 3.0
+            id:
+              type: integer
+              example: 1
+            followupNeeded:
+              type: boolean
+              example: true

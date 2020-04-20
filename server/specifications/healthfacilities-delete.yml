@@ -1,0 +1,12 @@
+Delete all health facilities
+---
+tags:
+  - Health Facility
+responses:
+  200:
+    description: OK
+    content:
+      application/json:
+        schema:
+          type: object
+          example: {}

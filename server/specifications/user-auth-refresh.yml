@@ -1,0 +1,15 @@
+Refresh access token
+---
+tags:
+  - User
+responses:
+  200:
+    description: Refreshed access token
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            token:
+              type: string
+              example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1ODU4OTA2NDAsIm5iZiI6MTU4NTg5MDY0MCwianRpIjoiNmRmZDhjNDctOTM4OC00ZDAxLWFkMmEtNDhiYWJjN2MxOGQ5IiwiZXhwIjoxNTg5MTMwNjQwLCJpZGVudGl0eSI6eyJlbWFpbCI6ImFkbWluMTIzQGFkbWluLmNvbSIsInJvbGVzIjpbIkFETUlOIl0sImZpcnN0TmFtZSI6IkFkbWluIiwiaGVhbHRoRmFjaWxpdHlOYW1lIjoiSDM0NDUiLCJpc0xvZ2dlZEluIjp0cnVlLCJ1c2VySWQiOjEsInZodExpc3QiOltdfSwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.5EBGX0QCPeafM1oIKGSfnPXF6sXA3ON5VSyDb8KuGe4
