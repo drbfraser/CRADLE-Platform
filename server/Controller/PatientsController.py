@@ -195,8 +195,8 @@ class PatientReading(Resource):
             return is_invalid_reading
 
         patient_data = patient_reading_data['patient']
-        patient_reading_data['patient']['dob'] = int(patient_reading_data['patient']['dob'])
         if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
+            patient_reading_data['patient']['dob'] = int(patient_reading_data['patient']['dob'])
             patient_reading_data['patient'] = calculate_age_from_dob(patient_data)
 
         # create new reading (and patient if it does not already exist)

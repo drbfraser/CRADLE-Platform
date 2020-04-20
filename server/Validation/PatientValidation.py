@@ -171,13 +171,13 @@ def check_reading_fields(request_body):
     # values that must be of type string
     must_be_string = {
     # 'userId', -- deal with this later
-    'dateTimeTaken',
     'readingId',
     'symptoms'
     }
 
     # values that must be of type int
     must_be_int = {
+    'dateTimeTaken',
     'bpSystolic',
     'bpDiastolic',
     'heartRateBPM'
