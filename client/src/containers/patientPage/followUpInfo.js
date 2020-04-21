@@ -5,12 +5,13 @@ import {followupFrequencyUnitUnit} from '../../components/FollowUp/FollowUpModal
 
 function FollowUpInfo(props) {
   if (props.followUp) {
-    let dateAssessed = String(new Date(parseInt(props.followUp.dateAssessed, 10) *1000))
+    let dateAssessed = String(new Date(parseInt(props.followUp.dateAssessed, 10) * 1000)).substring(0,15)
     let frequencyStr = ""
     if(props.followUp.followupFrequencyValue != null &&
       props.followUp.followupFrequencyUnit != followupFrequencyUnitUnit['none'] &&
-      props.followUp.dateFollowupNeededTill != "") {
-      frequencyStr = 'Every ' + props.followUp.followupFrequencyValue + ' ' +props.followUp.followupFrequencyUnit.toLowerCase() + ' until ' + props.followUp.dateFollowupNeededTill
+      props.followUp.dateFollowupNeededTill != null) {
+      let dateFromTS = String(new Date(parseInt(props.followUp.dateFollowupNeededTill, 10) * 1000)).substring(0,15)
+      frequencyStr = 'Every ' + props.followUp.followupFrequencyValue + ' ' +props.followUp.followupFrequencyUnit.toLowerCase() + ' until ' + dateFromTS
     }
     return (
             <Segment>

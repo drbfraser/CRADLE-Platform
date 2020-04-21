@@ -138,10 +138,14 @@ class FollowUpModal extends Component {
         this.state.data.referral = this.props.referralId
         console.log("handle submit state data:  ", this.state.data);
 
+        if (this.state.dateOrCondition === "DATE") {
+            this.state.data.dateFollowupNeededTill =
+              Date.parse(this.state.data.dateFollowupNeededTill) / 1000  // divide by 1000 to convert ms into s
+        }
+
         if (this.state.untilDateOrCond) {
             delete this.state.untilDateOrCond;
         }
-
         // update existing followUpInfo
         if (this.props.initialValues) {
             this.props.updateFollowUp(this.props.initialValues['id'], this.state.data);
