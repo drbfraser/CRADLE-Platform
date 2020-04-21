@@ -35,6 +35,8 @@ class ReferralValidator(object):
                 self.isString(key, new_ref)
             elif key == "id":
                 self.isString(key, new_ref)
+            elif key == "dateReferred":
+                self.isInt(key, new_ref)
             else:
                 raise Exception(f'{key} is not a valid referral field')
 
