@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import MaterialTable from 'material-table'
+import MaterialTable, { MTableHeader } from 'material-table'
 import { getPrettyDate } from '../../utils'
 import {
     getTrafficIcon,
@@ -7,6 +7,7 @@ import {
     getLatestReadingDateTime,
     sortPatientsByLastReading
 } from './patientUtils'
+import Switch from '@material-ui/core/Switch'
 
 class PatientTable extends Component {
     state = {
@@ -66,16 +67,43 @@ class PatientTable extends Component {
             drugHistory: '',
             villageNumber: '',
             readings: []
-        }
+        },
+        showReferredPatients: false
+    }
+
+    handleSwitchChange(event) {
+        this.setState({
+            showReferredPatients: event.target.checked
+        })
+    }
+
+    getPatientsToRender(showReffered) {
+        return this.props.data.filter(patient => {
+            let hasReferral = this.patientHasReferral(patient.readings)
+            if (showReffered) {
+                return hasReferral
+            } else {
+                return !hasReferral
+            }
+        })
+    }
+
+    patientHasReferral(readings) {
+        return readings.some(reading => {
+            return reading.dateReferred != undefined
+        })
     }
 
     render() {
+        let patientData = this.getPatientsToRender(
+            this.state.showReferredPatients
+        )
         return (
             <MaterialTable
                 title="Patients"
                 isLoading={this.props.isLoading}
                 columns={this.state.columns}
-                data={this.props.data}
+                data={patientData}
                 options={{
                     rowStyle: rowData => {
                         return {
@@ -87,6 +115,24 @@ class PatientTable extends Component {
                 onRowClick={(e, rowData) =>
                     this.props.callbackFromParent(rowData)
                 }
+                actions={[
+                    {
+                        icon: () => {
+                            return (
+                                <Switch
+                                    onChange={this.handleSwitchChange.bind(
+                                        this
+                                    )}
+                                    color="primary"
+                                    checked={this.state.showReferredPatients}
+                                />
+                            )
+                        },
+
+                        tooltip: 'Show referred patients only',
+                        isFreeAction: true
+                    }
+                ]}
             />
         )
     }
