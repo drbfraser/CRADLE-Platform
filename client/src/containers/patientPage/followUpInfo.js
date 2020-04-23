@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Divider, Segment, Header } from 'semantic-ui-react'
 import { followupFrequencyUnitUnit } from '../../components/FollowUp/FollowUpModal'
+import { getPrettyDateTime } from '../../utils'
 
 function FollowUpInfo(props) {
   if (props.followUp) {
@@ -15,23 +16,32 @@ function FollowUpInfo(props) {
     }
     return (
             <Segment>
-              <Header size='small'>Follow Up Action:</Header>
-              <p>{props.followUp.followUpAction}</p>
-              <Divider />
-              <Header size='small'>Diagnosis:</Header>
-              <p>{props.followUp.diagnosis}</p>
-              <Divider />
-              <Header size='small'>Treatment:</Header>
-              <p>{props.followUp.treatment}</p>
-              <Divider />
-              <Header size='small'>Frequency:</Header>
-              <p> {frequencyStr} </p>
-              <Divider />
-              <Header size='small'>Instructions:</Header>
-              <p>{props.followUp.followupInstructions}</p>
-              <Divider />
-              <p><b>Assessed By:</b> Healthcare Worker {props.followUp.healthcareWorkerId}</p>
-              <p><b>Date Last Assessed:</b> {dateAssessed}</p>
+                <Header size="small">Special Investigations + Results:</Header>
+                <p>{props.followUp.specialInvestigations || 'N/A'}</p>
+                <Divider />
+                <Header size="small">Final Diagnosis:</Header>
+                <p>{props.followUp.diagnosis || 'N/A'}</p>
+                <Divider />
+                <Header size="small">Treatment/Operation:</Header>
+                <p>{props.followUp.treatment || 'N/A'}</p>
+                <Divider />
+                <Header size="small">Medication Prescribed:</Header>
+                <p>{props.followUp.medicationPrescribed || 'N/A'}</p>
+                <Divider />
+                <Header size="small">Frequency:</Header>
+                <p> {frequencyStr || 'N/A'} </p>
+                <Divider />
+                <Header size="small">Followup Instructions:</Header>
+                <p>{props.followUp.followupInstructions || 'N/A'}</p>
+                <Divider />
+                <p>
+                    <b>Assessed By:</b> Healthcare Worker{' '}
+                    {props.followUp.healthcareWorkerId}
+                </p>
+                <p>
+                    <b>Date Last Assessed:</b>{' '}
+                    {getPrettyDateTime(props.followUp.dateAssessed)}
+                </p>
             </Segment>
         )
     } else {
