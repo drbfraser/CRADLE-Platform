@@ -68,12 +68,12 @@ class PatientTable extends Component {
             villageNumber: '',
             readings: []
         },
-        showReferredPatients: true
+        showReferredPatients: false
     }
 
     handleSwitchChange(event) {
         this.setState({
-            data: this.getPatientsToRender(event.target.checked)
+            showReferredPatients: event.target.checked
         })
     }
 
@@ -89,21 +89,21 @@ class PatientTable extends Component {
     }
 
     patientHasReferral(readings) {
-        readings.forEach(reading => {
-            if (reading.dateReferred) {
-                return true
-            }
+        return readings.some(reading => {
+            return reading.dateReferred != undefined
         })
-        return false
     }
 
     render() {
+        let patientData = this.getPatientsToRender(
+            this.state.showReferredPatients
+        )
         return (
             <MaterialTable
                 title="Patients"
                 isLoading={this.props.isLoading}
                 columns={this.state.columns}
-                data={this.state.data}
+                data={patientData}
                 options={{
                     rowStyle: rowData => {
                         return {
@@ -120,15 +120,16 @@ class PatientTable extends Component {
                         icon: () => {
                             return (
                                 <Switch
-                                    defaultChecked={true}
                                     onChange={this.handleSwitchChange.bind(
                                         this
                                     )}
                                     color="primary"
+                                    checked={this.state.showReferredPatients}
                                 />
                             )
                         },
-                        tooltip: 'Referred Patients',
+
+                        tooltip: 'Show referred patients only',
                         isFreeAction: true
                     }
                 ]}
