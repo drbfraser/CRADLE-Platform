@@ -49,8 +49,8 @@ def abort_if_patient_exists(patient_id):
         abort(400, message="Patient {} already exists.".format(patient_id))
 
 
-# input format: yyyy-mm-dd
-# output: age
+# input: timestamp (int)
+# output: patient data w/ age populated (int)
 def calculate_age_from_dob(patient_data):
     SECONDS_IN_YEAR = 31557600
     age = (time.time() - patient_data['dob']) / SECONDS_IN_YEAR
