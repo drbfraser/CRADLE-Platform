@@ -209,6 +209,9 @@ class NewReadingPage extends Component {
             this.state.patient.patientAge = null
         }
 
+        if (this.state.patient.dob != null) {
+            this.state.patient.dob = Date.parse(this.state.patient.dob) / 1000
+        }
         var readingID = guid()
 
         var dateTimeTaken = Math.floor(Date.now() / 1000);
