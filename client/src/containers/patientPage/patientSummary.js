@@ -108,8 +108,11 @@ class PatientSummary extends Component {
         console.log('this.props.selectedPatient: ', this.props.selectedPatient)
 
         this.props.getReferrals(this.getReferralIds(this.props.selectedPatient))
-
-        this.props.getSelectedPatientStats(this.props.selectedPatient.patientId)
+        if (this.props.selectedPatient) {
+            this.props.getSelectedPatientStats(
+                this.props.selectedPatient.patientId
+            )
+        }
     }
 
     calculateShockIndex = reading => {

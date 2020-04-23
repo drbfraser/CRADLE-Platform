@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Divider, Segment, Header} from 'semantic-ui-react';
-import {followupFrequencyUnitUnit} from '../../components/FollowUp/FollowUpModal'
+import { Divider, Segment, Header } from 'semantic-ui-react'
+import { followupFrequencyUnitUnit } from '../../components/FollowUp/FollowUpModal'
 
 function FollowUpInfo(props) {
   if (props.followUp) {
@@ -44,4 +44,3 @@ FollowUpInfo.propTypes = {
 }
 
 export default FollowUpInfo
-
