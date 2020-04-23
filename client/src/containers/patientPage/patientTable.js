@@ -58,7 +58,7 @@ class PatientTable extends Component {
                 defaultSort: 'asc'
             }
         ],
-        data: this.props.data,
+        data: [],
         selectedPatient: {
             patientId: '',
             patientName: 'Test',
