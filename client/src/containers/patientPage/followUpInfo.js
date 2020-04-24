@@ -5,23 +5,16 @@ import { followupFrequencyUnitUnit } from '../../components/FollowUp/FollowUpMod
 import { getPrettyDateTime } from '../../utils'
 
 function FollowUpInfo(props) {
-    if (props.followUp) {
-        let frequencyStr = ''
-        if (
-            props.followUp.followupFrequencyValue != null &&
-            props.followUp.followupFrequencyUnit !=
-                followupFrequencyUnitUnit['none'] &&
-            props.followUp.dateFollowupNeededTill != ''
-        ) {
-            frequencyStr =
-                'Every ' +
-                props.followUp.followupFrequencyValue +
-                ' ' +
-                props.followUp.followupFrequencyUnit.toLowerCase() +
-                ' until ' +
-                props.followUp.dateFollowupNeededTill
-        }
-        return (
+  if (props.followUp) {
+    let dateAssessed = String(new Date(parseInt(props.followUp.dateAssessed, 10) * 1000)).substring(0,15)
+    let frequencyStr = ""
+    if(props.followUp.followupFrequencyValue != null &&
+      props.followUp.followupFrequencyUnit != followupFrequencyUnitUnit['none'] &&
+      props.followUp.dateFollowupNeededTill != null) {
+      let dateFromTS = String(new Date(parseInt(props.followUp.dateFollowupNeededTill, 10) * 1000)).substring(0,15)
+      frequencyStr = 'Every ' + props.followUp.followupFrequencyValue + ' ' +props.followUp.followupFrequencyUnit.toLowerCase() + ' until ' + dateFromTS
+    }
+    return (
             <Segment>
                 <Header size="small">Special Investigations + Results:</Header>
                 <p>{props.followUp.specialInvestigations || 'N/A'}</p>

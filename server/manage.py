@@ -3,6 +3,7 @@
 import random
 import string
 import uuid
+import time
 import sys
 import datetime
 import numpy as np
@@ -115,7 +116,7 @@ def seed():
                 referral1 = {
                     "patientId" : patientId,
                     "readingId": readingId,
-                    "dateReferred": (getDateTime(r1['dateTimeTaken']) + timedelta(days=10)).strftime("%Y-%m-%dT%H:%M:%S"),
+                    "dateReferred": r1['dateTimeTaken'] + int(timedelta(days=10).total_seconds()),
                     "referralHealthFacilityName": healthFacilityName,
                     "comment": "She needs help!"
                 }
@@ -158,7 +159,7 @@ def getRandomSymptoms():
 
 def getRandomDate():
     """
-    This function will return a random datetime between two datetime 
+    This function will return a random datetime between two datetime
     objects.
     """
     start = d1
@@ -167,7 +168,7 @@ def getRandomDate():
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = randrange(int_delta)
     new_date = start + timedelta(seconds=random_second)
-    return new_date.strftime("%Y-%m-%dT%H:%M:%S")
+    return int(new_date.strftime("%s"))
 
 def getDateTime(dateStr):
     return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")

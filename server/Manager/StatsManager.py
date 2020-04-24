@@ -54,7 +54,8 @@ class StatsManager():
         month_needed_for_for_traffic_light = today.month - 1
         counter = 0
         for item in table:
-            date_string = item[dateLabel]
+            date_string_ts = item[dateLabel]
+            date_string = datetime.utcfromtimestamp(date_string_ts).strftime('%Y-%m-%d')
             #make sure to add error checking in here
             date_object = datetime.strptime(date_string[5:7] , '%m')
             month = date_object.month
@@ -82,7 +83,8 @@ class StatsManager():
         collected = []
         referrals = referralManager.read_all()
         for item in referrals:
-            date_string = item['dateReferred']
+            date_string_ts = item['dateReferred']
+            date_string = datetime.utcfromtimestamp(date_string_ts).strftime('%Y-%m-%d')
             # make sure to add error checking in here
             date_object = datetime.strptime(date_string[5:7] , '%m')
             month = date_object.month

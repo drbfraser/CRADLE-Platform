@@ -96,7 +96,7 @@ class Role(db.Model):
 
 class Referral(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    dateReferred = db.Column(db.String(100), nullable=False) 
+    dateReferred = db.Column(db.BigInteger, nullable=False)
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
 
@@ -138,7 +138,7 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    dob = db.Column(db.String(50))
+    dob = db.Column(db.BigInteger)
     villageNumber = db.Column(db.String(50))
     # FOREIGN KEYS
     # villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
@@ -159,10 +159,10 @@ class Reading(db.Model):
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
    
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
-    dateLastSaved = db.Column(db.String(100)) 
-    dateTimeTaken = db.Column(db.String(100))
-    dateUploadedToServer = db.Column(db.String(100))
-    dateRecheckVitalsNeeded = db.Column(db.String(100))
+    dateLastSaved = db.Column(db.BigInteger)
+    dateTimeTaken = db.Column(db.BigInteger)
+    dateUploadedToServer = db.Column(db.BigInteger)
+    dateRecheckVitalsNeeded = db.Column(db.BigInteger)
 
     gpsLocationOfReading = db.Column(db.String(50))
     retestOfPreviousReadingIds = db.Column(db.String(100))
@@ -260,7 +260,7 @@ class FollowUp(db.Model):
     followupInstructions = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
-    dateAssessed = db.Column(db.String(100), nullable=False)
+    dateAssessed = db.Column(db.BigInteger, nullable=False)
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
     specialInvestigations = db.Column(db.Text)
     medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
@@ -269,7 +269,7 @@ class FollowUp(db.Model):
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
     followupFrequencyValue = db.Column(db.Float)
     followupFrequencyUnit = db.Column(db.Enum(frequencyUnitEnum))
-    dateFollowupNeededTill = db.Column(db.String(50))
+    dateFollowupNeededTill = db.Column(db.BigInteger)
 
 
 

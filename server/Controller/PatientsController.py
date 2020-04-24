@@ -1,10 +1,11 @@
 import logging
 import json
-import uuid 
+import uuid
 from flask import request
 from flask_restful import Resource, abort
 from datetime import date, datetime
 from Controller.Helpers import _get_request_body
+import time
 
 # Project modules
 from Manager.PatientManagerNew import PatientManager as PatientManagerNew
@@ -23,9 +24,9 @@ readingManager = ReadingManagerNew()
 userManager = UserManager()
 patientFacilityManager = PatientFacilityManager()
 
-
 urineTestManager = urineTestManager()
 decoding_error = 'The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated.'
+
 
 def abort_if_body_empty(request_body):
     if request_body is None:
@@ -47,14 +48,13 @@ def abort_if_patient_exists(patient_id):
     if patient:
         abort(400, message="Patient {} already exists.".format(patient_id))
 
-# input format: yyyy-mm-dd
-# output: age
-def calculate_age_from_dob(patient_data):
-    DAYS_IN_YEAR = 365.2425
-    birthDate = datetime.strptime(patient_data['dob'], '%Y-%m-%d')
 
-    age = int((datetime.now() - birthDate).days / DAYS_IN_YEAR)
-    patient_data['patientAge'] = age
+# input: timestamp (int)
+# output: patient data w/ age populated (int)
+def calculate_age_from_dob(patient_data):
+    SECONDS_IN_YEAR = 31557600
+    age = (time.time() - patient_data['dob']) / SECONDS_IN_YEAR
+    patient_data['patientAge'] = int(age)
     return patient_data
 
 
@@ -93,8 +93,10 @@ class PatientAll(Resource):
         try:
             patient_data = self._get_request_body()
         except:
-            return {'HTTP 400':decoding_error}, 400
+            return {'HTTP 400': decoding_error}, 400
         patient_data = self._get_request_body()
+
+        patient_data['dob'] = int(patient_data['dob'])
 
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
@@ -106,7 +108,6 @@ class PatientAll(Resource):
         # if age is not provided, populate age using dob
         if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
             patient_data = calculate_age_from_dob(patient_data)
-
         response_body = patientManager.create(patient_data)
         return response_body, 201
 
@@ -142,9 +143,9 @@ class PatientInfo(Resource):
         data = _get_request_body()
 
         patient = abort_if_patient_doesnt_exist(patient_id)
-        # invalid = PatientValidation.update_info_invalid(patient_id, data)
-        # if invalid is not None:
-        #     return invalid
+        invalid = PatientValidation.update_info_invalid(patient_id, data)
+        if invalid is not None:
+            return invalid
 
         response_body = patientManager.update("patientId", patient_id, data)
 
@@ -155,7 +156,7 @@ class PatientInfo(Resource):
 # [GET]: Get a patient's information w/ reading information
 # [POST]: Create a new patient with a reading 
 class PatientReading(Resource):
-   # Get a single patient
+    # Get a single patient
     def get(self, patient_id):
         logging.debug('Received request: GET /patient/' + patient_id)
         patient = patientManager.read("patientId", patient_id)
@@ -171,7 +172,6 @@ class PatientReading(Resource):
             abort(404, message="Patient {} doesn't exist.".format(patient_id))
         return patient
 
-
     # Create a new patient with a reading
     @jwt_required
     @swag_from('../specifications/patient-reading-post.yml', methods=['POST'])
@@ -180,7 +180,7 @@ class PatientReading(Resource):
         try:
             patient_reading_data = _get_request_body()
         except:
-            return {'HTTP 400':decoding_error}, 400
+            return {'HTTP 400': decoding_error}, 400
         patient_reading_data = _get_request_body()
         # Ensure all data is valid
         abort_if_body_empty(patient_reading_data)
@@ -196,6 +196,7 @@ class PatientReading(Resource):
 
         patient_data = patient_reading_data['patient']
         if 'dob' in patient_data and patient_data['dob'] and patient_data['patientAge'] is None:
+            patient_reading_data['patient']['dob'] = int(patient_reading_data['patient']['dob'])
             patient_reading_data['patient'] = calculate_age_from_dob(patient_data)
 
         # create new reading (and patient if it does not already exist)
@@ -227,7 +228,7 @@ class PatientAllInformation(Resource):
     def get(self):
         current_user = get_jwt_identity()
         patients_readings_referrals = patientManager.get_patient_with_referral_and_reading(current_user)
-        #patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
+        # patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
 
         if not patients_readings_referrals:
             abort(404, message="No patients currently exist.")

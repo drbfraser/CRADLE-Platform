@@ -40,11 +40,11 @@ const initState = {
     reading: {
         userId: '',
         readingId: '',
-        dateTimeTaken: '',
+        dateTimeTaken: null,
         bpSystolic: '',
         bpDiastolic: '',
         heartRateBPM: '',
-        dateRecheckVitalsNeeded: '',
+        dateRecheckVitalsNeeded: null,
         isFlaggedForFollowup: false,
         symptoms: '',
         urineTests: initialUrineTests
@@ -199,7 +199,6 @@ class NewReadingPage extends Component {
     handleSubmit = event => {
         event.preventDefault()
         console.log('Create new submit')
-
         if (symptom.indexOf('other') >= 0) {
             symptom.pop('other')
             if (this.state.checkedItems.otherSymptoms !== '') {
@@ -210,16 +209,19 @@ class NewReadingPage extends Component {
             this.state.patient.patientAge = null
         }
 
-        var dateTime = new Date()
+        if (this.state.patient.dob != null) {
+            this.state.patient.dob = Date.parse(this.state.patient.dob) / 1000
+        }
         var readingID = guid()
 
+        var dateTimeTaken = Math.floor(Date.now() / 1000);
         this.setState(
             {
                 reading: {
                     ...this.state.reading,
                     userId: this.props.user.userId,
                     readingId: readingID,
-                    dateTimeTaken: dateTime,
+                    dateTimeTaken: dateTimeTaken,
                     symptoms: symptom.toString()
                 }
             },
