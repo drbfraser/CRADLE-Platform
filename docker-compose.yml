@@ -2,10 +2,10 @@ version: '3.7'
 
 services:
   server:
-    build: ./server
+    build: 
+      context: ./
+      dockerfile: ./server/Dockerfile
     command: python app.py
-    volumes:
-      - ./server/:/usr/src/app/
     ports:
       - 5001:5000
     env_file:
