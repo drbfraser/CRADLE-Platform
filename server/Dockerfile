@@ -16,7 +16,7 @@ ENV PYTHONUNBUFFERED 1
 RUN uname -a
 RUN python --version
 RUN pip install --upgrade pip
-COPY ./requirements.txt /usr/src/server/requirements.txt
+COPY ./server/requirements.txt /usr/src/server/requirements.txt
 RUN pip install -r requirements.txt
 
 # copy server app code to container
