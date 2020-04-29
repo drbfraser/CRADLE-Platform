@@ -24,16 +24,12 @@ roleManager = RoleManager()
 from flask_jwt_extended import (create_access_token, create_refresh_token,
 jwt_required, jwt_refresh_token_required, get_jwt_identity)
 
-
-
 class PatientManager(Manager):
     def __init__(self):
         Manager.__init__(self, PatientRepo)
 
 
     def get_patient_with_referral_and_reading(self, current_user):
-        #print(current_user)
-        
         # harcoding for testing purposes
         # get filtered list of patients here, and then query only that list
         patient_list = self.read_all()
@@ -54,7 +50,7 @@ class PatientManager(Manager):
         else:
             patients_query = patient_list
         
-        print(len(patients_query))
+        print("length of patients_query: " + str(len(patients_query)))
 
         if not patients_query:
             return None

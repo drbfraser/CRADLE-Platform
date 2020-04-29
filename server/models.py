@@ -298,57 +298,75 @@ class PatientFacility(db.Model):
 ###    SCHEMAS     ###
 ######################
 
-class UserSchema(ma.ModelSchema):
+class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = User
+        load_instance = True
+        include_relationships = True
 
-class PatientSchema(ma.ModelSchema):
+class PatientSchema(ma.SQLAlchemyAutoSchema):
     patientSex = EnumField(SexEnum, by_value=True)
     class Meta:
         include_fk = True
         model = Patient
+        load_instance = True
+        include_relationships = True
 
-class ReadingSchema(ma.ModelSchema):
+class ReadingSchema(ma.SQLAlchemyAutoSchema):
     trafficLightStatus = EnumField(TrafficLightEnum, by_value=True)
     class Meta:
         include_fk = True
         model = Reading
+        load_instance = True
+        include_relationships = True
     
-class RoleSchema(ma.ModelSchema):
+class RoleSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = Role
+        load_instance = True
+        include_relationships = True
 
-class HealthFacilitySchema(ma.ModelSchema):
+class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
     facilityType = EnumField(facilityTypeEnum, by_value=True)
     class Meta:
         include_fk = True
         model = HealthFacility
+        load_instance = True
+        include_relationships = True
 
-class FollowUpSchema(ma.ModelSchema):
+class FollowUpSchema(ma.SQLAlchemyAutoSchema):
     followupFrequencyUnit = EnumField(frequencyUnitEnum, by_value=True)
     healthcareWorker = fields.Nested(UserSchema)
     class Meta:
         include_fk = True
         model = FollowUp
+        load_instance = True
+        include_relationships = True
 
-class ReferralSchema(ma.ModelSchema):
+class ReferralSchema(ma.SQLAlchemyAutoSchema):
     followUp = fields.Nested(FollowUpSchema)
     class Meta:
         include_fk = True
         model = Referral
+        load_instance = True
+        include_relationships = True
 
-class urineTestSchema(ma.ModelSchema):
+class urineTestSchema(ma.SQLAlchemyAutoSchema):
     # urineTests = fields.Nested(ReadingSchema)
     class Meta:
         include_fk = True
         model = urineTest
+        load_instance = True
+        include_relationships = True
 
-class PatientFacilitySchema(ma.ModelSchema):
+class PatientFacilitySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = PatientFacility
+        load_instance = True
+        include_relationships = True
 
 user_schema = {
     "type": "object",
