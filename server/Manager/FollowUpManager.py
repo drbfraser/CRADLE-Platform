@@ -81,11 +81,11 @@ class FollowUpManager(Manager):
     def mobile_summarize(self, follow_up):
         if not follow_up:
             return None
-
+    
         res = {
             "id": follow_up["id"],
             "diagnosis": follow_up["diagnosis"],
-            "followUpAction": follow_up["followUpAction"],
+            "followUpAction": follow_up["followupInstructions"],
             "treatment": follow_up["treatment"],
             "dateAssessed": follow_up["dateAssessed"],
         }
