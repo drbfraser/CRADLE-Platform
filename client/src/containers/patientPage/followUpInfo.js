@@ -8,12 +8,12 @@ function FollowUpInfo(props) {
   if (props.followUp) {
     let dateAssessed = String(new Date(parseInt(props.followUp.dateAssessed, 10) * 1000)).substring(0,15)
     let frequencyStr = ""
-    if(props.followUp.followupFrequencyValue != null &&
-      props.followUp.followupFrequencyUnit != followupFrequencyUnitUnit['none'] &&
-      props.followUp.dateFollowupNeededTill != null) {
-      let dateFromTS = String(new Date(parseInt(props.followUp.dateFollowupNeededTill, 10) * 1000)).substring(0,15)
-      frequencyStr = 'Every ' + props.followUp.followupFrequencyValue + ' ' +props.followUp.followupFrequencyUnit.toLowerCase() + ' until ' + dateFromTS
-    }
+    // if(props.followUp.followupFrequencyValue != null &&
+    //   props.followUp.followupFrequencyUnit != followupFrequencyUnitUnit['none'] &&
+    //   props.followUp.dateFollowupNeededTill != null) {
+    //   let dateFromTS = String(new Date(parseInt(props.followUp.dateFollowupNeededTill, 10) * 1000)).substring(0,15)
+    //   frequencyStr = 'Every ' + props.followUp.followupFrequencyValue + ' ' +props.followUp.followupFrequencyUnit.toLowerCase() + ' until ' + dateFromTS
+    // }
     return (
             <Segment>
                 <Header size="small">Special Investigations + Results:</Header>
@@ -29,7 +29,7 @@ function FollowUpInfo(props) {
                 <p>{props.followUp.medicationPrescribed || 'N/A'}</p>
                 <Divider />
                 <Header size="small">Frequency:</Header>
-                <p> {frequencyStr || 'N/A'} </p>
+                <p> {'Every ' + props.followUp.followupFrequencyValue + ' ' + props.followUp.followupFrequencyUnit.toLowerCase() + ' until ' + props.followUp.dateFollowupNeededTill || 'N/A'} </p>
                 <Divider />
                 <Header size="small">Followup Instructions:</Header>
                 <p>{props.followUp.followupInstructions || 'N/A'}</p>

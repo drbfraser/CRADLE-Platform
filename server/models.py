@@ -269,7 +269,7 @@ class FollowUp(db.Model):
     healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
     followupFrequencyValue = db.Column(db.Float)
     followupFrequencyUnit = db.Column(db.Enum(frequencyUnitEnum))
-    dateFollowupNeededTill = db.Column(db.BigInteger)
+    dateFollowupNeededTill = db.Column(db.String(50))
 
 
 
