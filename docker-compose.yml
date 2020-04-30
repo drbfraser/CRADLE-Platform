@@ -13,16 +13,20 @@ services:
     environment:
       - PORT=5000
       - IS_DOCKER=1
-  
+    container_name: cradle
+    depends_on: 
+      - db
+
   db:
     image: mysql
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
-      - 3306:3306
+      - 3307:3306
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=cradle
+    container_name: mysql
       
 volumes:
   mysql_data:

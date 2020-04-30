@@ -22,7 +22,7 @@ class Config(object):
     try: 
         db_user = env("DB_USERNAME")
         db_pw = env("DB_PASSWORD")
-        db_ip_address = env("DB_IP_ADDRESS")
+        db_ip_address = env("DB_HOSTNAME")
         db_port = env("DB_PORT")
         db_name = env("DB_NAME")
 
