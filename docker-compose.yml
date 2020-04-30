@@ -5,7 +5,7 @@ services:
     build: 
       context: ./
       dockerfile: ./server/Dockerfile
-    command: python app.py
+    command: gunicorn --bind 0.0.0.0:5000 app:app
     ports:
       - 5001:5000
     env_file:
@@ -30,3 +30,4 @@ services:
       
 volumes:
   mysql_data:
+  cradle_logs:
