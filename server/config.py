@@ -22,16 +22,16 @@ class Config(object):
     try: 
         db_user = env("DB_USERNAME")
         db_pw = env("DB_PASSWORD")
-        db_ip_address = env("DB_HOSTNAME")
+        db_hostname = env("DB_HOSTNAME")
         db_port = env("DB_PORT")
         db_name = env("DB_NAME")
 
     except environs.EnvError:
         print("******************************************************************************************")
-        print("DB_USERNAME, DB_PASSWORD, DB_IP_ADDRESS, DB_PORT, OR DB_NAME environment variable not set")
+        print("DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, OR DB_NAME environment variable not set")
         print("******************************************************************************************")
 
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@{db_ip_address}:{db_port}/{db_name}' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
     
     print("SQLALCHEMY_DATABASE_URI: " + SQLALCHEMY_DATABASE_URI)
 
