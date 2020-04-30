@@ -24,9 +24,8 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - 3307:3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=cradle
+    env_file: 
+      - ./server/.env.prod.db
     container_name: mysql
       
 volumes:
