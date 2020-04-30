@@ -1,7 +1,6 @@
 # file gunicorn.conf.py
 # coding=utf-8
 # Reference: https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
-# TODO: UPDATE the log paths, timeout, and keepalive params afterwards
 import os
 import multiprocessing
 
