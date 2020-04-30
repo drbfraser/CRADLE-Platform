@@ -15,6 +15,13 @@ from models import *
 
 manager = Manager(app)
 
+# USAGE: python manage.py reset_db
+@manager.command
+def reset_db():
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
+
 # USAGE: python manage.py seed
 @manager.command
 def seed():
