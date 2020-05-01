@@ -36,6 +36,7 @@ services:
     depends_on:
         - server
     volumes:
+        - ./client/build:/usr/share/nginx/html
         - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
         - 8001:80
