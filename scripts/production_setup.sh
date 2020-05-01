@@ -36,7 +36,7 @@ git clone https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git crad
 git config --global credential.helper store
 git pull
 
-echo "Spinner up docker containers..."
+echo "Spinning up docker containers..."
 cd /var/www/cradle-platform
 docker-compose -f docker-compose.prod.yml up -d
 
