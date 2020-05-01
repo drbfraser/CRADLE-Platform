@@ -8,8 +8,6 @@ services:
     command: ./prod/wait-for.sh gunicorn -c ./prod/gunicorn.conf.py app:app
     volumes: 
       - cradle_logs:/var/log
-    ports:
-      - 5001:5000
     expose:
       - 5000
     env_file:
@@ -39,7 +37,8 @@ services:
         - ./client/build:/usr/share/nginx/html
         - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
-        - 8001:80
+        - 80:80
+        - 443:443
       
 volumes:
   mysql_data:
