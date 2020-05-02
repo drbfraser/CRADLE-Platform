@@ -138,3 +138,7 @@ endpoints.md
 assets/
 client/.idea/
 .report
+
+# ssl letencrypt certbot files
+**/certbot/conf
+**/certbot/www
