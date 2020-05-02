@@ -13,6 +13,9 @@ services:
     environment:
       - PORT=5000
     container_name: cradle
+    volumes:
+      - ./server:/usr/src/server
+      - ./client:/usr/src/client
     depends_on: 
       - db
 

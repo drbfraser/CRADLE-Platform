@@ -18,10 +18,3 @@ RUN python --version
 RUN pip install --upgrade pip
 COPY ./server/requirements.txt /usr/src/server/requirements.txt
 RUN pip install -r requirements.txt
-
-# copy server app code to container
-COPY ./server /usr/src/server
-
-# TODO: remove after Nginx is set up to serve static files
-# copy client app code to container
-COPY ./client /usr/src/client
