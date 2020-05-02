@@ -20,11 +20,13 @@ services:
     image: mysql
     volumes:
       - mysql_data:/var/lib/mysql
-    ports:
-      - 3307:3306
+    expose: 
+      - 3306
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=cradle
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     container_name: mysql
       
 volumes:
