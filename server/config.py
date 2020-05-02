@@ -31,7 +31,7 @@ class Config(object):
         print("DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, OR DB_NAME environment variable not set")
         print("******************************************************************************************")
 
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}' # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
     
     print("SQLALCHEMY_DATABASE_URI: " + SQLALCHEMY_DATABASE_URI)
 

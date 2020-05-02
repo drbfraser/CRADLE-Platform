@@ -7,7 +7,7 @@ services:
       dockerfile: ./server/Dockerfile
     command: python app.py
     ports:
-      - 5001:5000
+      - 5000:5000
     env_file:
       - ./server/.env
     environment:

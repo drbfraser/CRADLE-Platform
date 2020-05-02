@@ -22,8 +22,8 @@ services:
     image: mysql
     volumes:
       - mysql_data:/var/lib/mysql
-    ports:
-      - 3307:3306
+    expose:
+      - 3306
     env_file: 
       - ./server/.env.prod.db
     container_name: mysql
