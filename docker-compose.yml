@@ -2,12 +2,17 @@ version: '3.7'
 
 services:
   client: 
+    container_name: client
     build: ./client
-    command: npm start
+    command: yarn start
     ports: 
       - 3001:3000
-    container_name: 
-      client
+    volumes:
+      - './client:/usr/src/client'
+      - '/usr/src/client/node_modules'
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
   server:
     build: 
       context: ./

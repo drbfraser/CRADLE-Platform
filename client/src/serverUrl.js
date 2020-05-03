@@ -1,5 +1,5 @@
 console.log("process.env.NODE_ENV", process.env.NODE_ENV);
-
+console.log("test 12345");
 let BASE_URL;
 
 if (process.env.NODE_ENV == "production") {
