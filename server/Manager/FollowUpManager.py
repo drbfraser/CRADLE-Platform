@@ -88,6 +88,12 @@ class FollowUpManager(Manager):
             "followUpAction": follow_up["followupInstructions"],
             "treatment": follow_up["treatment"],
             "dateAssessed": follow_up["dateAssessed"],
+            "followupNeeded": follow_up['followupNeeded'],
+            "medicationPrescribed": follow_up['medicationPrescribed'],
+            "specialInvestigations": follow_up['specialInvestigations'],
+            "followUpNeededTill": follow_up['dateFollowupNeededTill'],
+            "followupFrequencyUnit": follow_up['followupFrequencyUnit'],
+            "followupFrequencyValue": follow_up['followupFrequencyValue']
         }
 
         if 'patient' in follow_up and follow_up['patient']:
