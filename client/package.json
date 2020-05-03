@@ -23,6 +23,7 @@
     "jquery": "^3.4.1",
     "jwt-decode": "^2.2.0",
     "material-table": "^1.50.0",
+    "moment": "2.24.0",
     "react": "16.9.0",
     "react-chartjs-2": "^2.8.0",
     "react-dom": "16.9.0",
@@ -41,6 +42,9 @@
     "sweetalert2-react": "^0.8.3",
     "typeface-roboto": "^0.0.75",
     "yup": "^0.27.0"
+  },
+  "resolutions": {
+    "moment": "2.24.0"
   },
   "browserslist": [
     ">0.2%",
