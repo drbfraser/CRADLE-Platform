@@ -3,14 +3,26 @@ stages:
     - test
     - deploy
 
+workflow:
+    rules:
+        - if: $CI_MERGE_REQUEST_ID
+        - if: $CI_COMMIT_BRANCH == "production"
+        - if: $CI_COMMIT_BRANCH == "staging"
+        - if: $CI_COMMIT_BRANCH == "master" 
+
 before_script:
     - cd /var/www/cradle-platform
     - pwd
     - whoami
-    - git checkout $CI_COMMIT_BRANCH
+    - echo CI_COMMIT_BRANCH:$CI_COMMIT_BRANCH
+    - echo CI_MERGE_REQUEST_SOURCE_BRANCH_NAME:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - BRANCH_NAME="$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+    - if [ -z "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then BRANCH_NAME=$CI_COMMIT_BRANCH; fi
+    - echo BRANCH_NAME:$BRANCH_NAME
+    - git checkout $BRANCH_NAME
     - git branch
     - git fetch
-    - git reset --hard origin/$CI_COMMIT_BRANCH
+    - git reset --hard origin/$BRANCH_NAME
 
 build:
     stage: build
@@ -18,9 +30,10 @@ build:
         - echo "Building project..."
         - docker-compose -f docker-compose.prod.yml up --build --no-start --force-recreate
     rules:
+        - if: $CI_MERGE_REQUEST_ID
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
-        - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
+        - if: $CI_COMMIT_BRANCH == "master" 
         - allow_failure: false
 
 test:
@@ -28,9 +41,10 @@ test:
     script:
         - echo "Running tests..."
     rules:
+        - if: $CI_MERGE_REQUEST_ID
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
-        - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
+        - if: $CI_COMMIT_BRANCH == "master" 
         - allow_failure: false
 
 deploy:
@@ -38,8 +52,9 @@ deploy:
     script: 
         - echo "Deploying project..."
         - docker-compose -f docker-compose.prod.yml up -d
-    only: 
-        - production
-    when: manual
-    allow_failure: false
+    rules:
+        - if: $CI_COMMIT_BRANCH == "production"
+        - if: '$CI_COMMIT_BRANCH == "master"'
+          when: manual 
+        - allow_failure: false
     environment: production
