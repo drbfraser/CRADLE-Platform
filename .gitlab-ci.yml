@@ -1,0 +1,41 @@
+image: docker:latest
+
+services: 
+    - docker:dind
+
+stages:
+    - build
+    - test
+    - deploy
+
+build:
+    stage: build
+    only:
+        - production
+        - staging
+    script:
+        - echo "Building project..."
+        - docker-compose build
+    rules:
+        - allow_failure: false
+
+test:
+    stage: test
+    only: 
+        - production
+        - staging
+    script:
+        - echo "Running tests..."    
+    rules:
+        - allow_failure: false
+
+deploy:
+    stage: deploy
+    only: 
+        - production
+    script: 
+        - echo "Deploying project..."
+    rules:
+        - allow_failure: false
+    environment: production
+    when: manual
