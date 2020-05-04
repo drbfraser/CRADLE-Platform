@@ -11,7 +11,7 @@ stages:
 before_script:
     - cd /var/www/cradle-platform
     - pwd
-    - git checkout $CI_COMMIT_BRANCH
+    - sudo git checkout $CI_COMMIT_BRANCH
     - git branch
 
 build:
