@@ -10,32 +10,29 @@ stages:
 
 build:
     stage: build
-    only:
-        - production
-        - staging
     script:
         - echo "Building project..."
         - docker-compose build
     rules:
+        - if: $CI_COMMIT_BRANCH == "production"
+        - if: $CI_COMMIT_BRANCH == "staging"
         - allow_failure: false
 
 test:
     stage: test
-    only: 
-        - production
-        - staging
     script:
         - echo "Running tests..."    
     rules:
+        - if: $CI_COMMIT_BRANCH == "production"
+        - if: $CI_COMMIT_BRANCH == "staging"
         - allow_failure: false
 
 deploy:
     stage: deploy
-    only: 
-        - production
     script: 
         - echo "Deploying project..."
     rules:
+        - if: $CI_COMMIT_BRANCH == "production"
         - allow_failure: false
+        - when: manual
     environment: production
-    when: manual
