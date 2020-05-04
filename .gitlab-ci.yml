@@ -3,16 +3,17 @@ stages:
     - test
     - deploy
 
+before_script:
+    - cd /var/www/cradle-platform
+    - pwd
+    - whoami
+    - git checkout $CI_COMMIT_BRANCH
+    - git branch
+    - git fetch
+    - git reset --hard origin/$CI_COMMIT_BRANCH
+
 build:
     stage: build
-    before_script:
-        - cd /var/www/cradle-platform
-        - pwd
-        - whoami
-        - git checkout $CI_COMMIT_BRANCH
-        - git branch
-        - git fetch
-        - git reset --hard origin/$CI_COMMIT_BRANCH
     script:
         - echo "Building project..."
         - docker-compose -f docker-compose.prod.yml up --build --no-start
