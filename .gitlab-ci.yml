@@ -17,7 +17,7 @@ build:
     stage: build
     script:
         - echo "Building project..."
-        - docker-compose -f docker-compose -f docker-compose.prod.yml build
+        - docker-compose -f docker-compose.prod.yml build
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
