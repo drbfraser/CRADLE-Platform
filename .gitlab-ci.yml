@@ -13,6 +13,7 @@ before_script:
     - pwd
     - sudo git checkout $CI_COMMIT_BRANCH
     - git branch
+    - git pull
 
 build:
     stage: build
