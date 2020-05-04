@@ -10,7 +10,7 @@ stages:
 
 before_script:
     - cd /var/www/cradle-platform
-    - pwc
+    - pwd
     - git checkout $CI_COMMIT_BRANCH
     - git branch
 
