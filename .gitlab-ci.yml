@@ -1,23 +1,18 @@
-# image: docker:latest
-
-# services: 
-#     - docker:dind
-
 stages:
     - build
     - test
     - deploy
 
-before_script:
-    - cd /var/www/cradle-platform
-    - pwd
-    - whoami
-    - git checkout $CI_COMMIT_BRANCH
-    - git branch
-    - git pull
-
 build:
     stage: build
+    before_script:
+        - cd /var/www/cradle-platform
+        - pwd
+        - whoami
+        - git checkout $CI_COMMIT_BRANCH
+        - git branch
+        - git fetch
+        - git reset --hard origin/$CI_COMMIT_BRANCH
     script:
         - echo "Building project..."
         - docker-compose -f docker-compose.prod.yml up --build --no-start
@@ -39,8 +34,9 @@ deploy:
     stage: deploy
     script: 
         - echo "Deploying project..."
-    rules:
-        - if: $CI_COMMIT_BRANCH == "production"
-        - allow_failure: false
-        - when: manual
+        - docker-compose -f docker-compose.prod.yml up -d
+    only: 
+        - production
+    when: manual
+    allow_failure: false
     environment: production
