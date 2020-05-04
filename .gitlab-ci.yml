@@ -16,10 +16,11 @@ build:
     stage: build
     script:
         - echo "Building project..."
-        - docker-compose -f docker-compose.prod.yml up --build --no-start
+        - docker-compose -f docker-compose.prod.yml up --build --no-start --force-recreate
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
+        - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
         - allow_failure: false
 
 test:
@@ -29,6 +30,7 @@ test:
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
+        - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
         - allow_failure: false
 
 deploy:
