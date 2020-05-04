@@ -1,7 +1,7 @@
-image: docker:latest
+# image: docker:latest
 
-services: 
-    - docker:dind
+# services: 
+#     - docker:dind
 
 stages:
     - build
@@ -9,9 +9,10 @@ stages:
     - deploy
 
 before_script:
-    - echo "Installing python pip and docker-compose"
-    - sudo apt-get install -y python-pip
-    - pip install docker-compose
+    - cd /var/www/cradle-platform
+    - pwc
+    - git checkout $CI_COMMIT_BRANCH
+    - git branch
 
 build:
     stage: build
