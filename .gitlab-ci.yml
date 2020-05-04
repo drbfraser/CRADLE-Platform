@@ -8,6 +8,11 @@ stages:
     - test
     - deploy
 
+before_script:
+    - echo "Installing python pip and docker-compose"
+    - sudo apt-get install -y python-pip
+    - pip install docker-compose
+
 build:
     stage: build
     script:
