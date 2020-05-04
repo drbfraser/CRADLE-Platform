@@ -11,7 +11,8 @@ stages:
 before_script:
     - cd /var/www/cradle-platform
     - pwd
-    - sudo git checkout $CI_COMMIT_BRANCH
+    - whoami
+    - git checkout $CI_COMMIT_BRANCH
     - git branch
     - git pull
 
@@ -19,7 +20,7 @@ build:
     stage: build
     script:
         - echo "Building project..."
-        - docker-compose -f docker-compose.prod.yml build
+        - docker-compose -f docker-compose.prod.yml up --build --no-start
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
