@@ -12,7 +12,7 @@ build:
     stage: build
     script:
         - echo "Building project..."
-        - docker-compose build
+        - docker-compose -f docker-compose -f docker-compose.prod.yml build
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
@@ -21,7 +21,7 @@ build:
 test:
     stage: test
     script:
-        - echo "Running tests..."    
+        - echo "Running tests..."
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
