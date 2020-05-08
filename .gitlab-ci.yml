@@ -15,7 +15,7 @@ before_script:
     - echo BRANCH_NAME:$BRANCH_NAME
     - git checkout $BRANCH_NAME
     - git branch
-    - git fetch
+    - git fetch --all
     - git reset --hard origin/$BRANCH_NAME
 
 build:
@@ -28,7 +28,6 @@ build:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
         - if: $CI_COMMIT_BRANCH == "master" 
-        - allow_failure: false
 
 test:
     stage: test
@@ -39,7 +38,6 @@ test:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "staging"
         - if: $CI_COMMIT_BRANCH == "master" 
-        - allow_failure: false
 
 deploy-prod:
     stage: deploy
@@ -52,7 +50,6 @@ deploy-prod:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "master"
           when: manual 
-        - allow_failure: false
     environment: production
 
 deploy-staging:
@@ -65,5 +62,4 @@ deploy-staging:
         - docker-compose -p "staging" -f docker-compose.staging.yml up -d --force-recreate
     rules:
         - if: '$CI_COMMIT_BRANCH == "master"'
-        - allow_failure: false
     environment: staging
