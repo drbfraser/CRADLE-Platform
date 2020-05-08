@@ -4,13 +4,6 @@ stages:
     - deploy-prod
     - deploy-staging
 
-workflow:
-    rules:
-        - if: $CI_MERGE_REQUEST_ID
-        - if: $CI_COMMIT_BRANCH == "production"
-        - if: $CI_COMMIT_BRANCH == "staging"
-        - if: $CI_COMMIT_BRANCH == "master" 
-
 before_script:
     - cd /var/www/cradle-platform
     - pwd
