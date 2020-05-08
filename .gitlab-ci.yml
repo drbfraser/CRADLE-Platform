@@ -1,7 +1,8 @@
 stages:
     - build
     - test
-    - deploy
+    - deploy-prod
+    - deploy-staging
 
 workflow:
     rules:
@@ -14,6 +15,7 @@ before_script:
     - cd /var/www/cradle-platform
     - pwd
     - whoami
+    - echo CI_MERGE_REQUEST_ID:$CI_MERGE_REQUEST_ID
     - echo CI_COMMIT_BRANCH:$CI_COMMIT_BRANCH
     - echo CI_MERGE_REQUEST_SOURCE_BRANCH_NAME:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
     - BRANCH_NAME="$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
@@ -28,7 +30,7 @@ build:
     stage: build
     script:
         - echo "Building project..."
-        - docker-compose -f docker-compose.prod.yml up --build --no-start --force-recreate
+        - docker-compose -f docker-compose.prod.yml build
     rules:
         - if: $CI_MERGE_REQUEST_ID
         - if: $CI_COMMIT_BRANCH == "production"
@@ -47,14 +49,29 @@ test:
         - if: $CI_COMMIT_BRANCH == "master" 
         - allow_failure: false
 
-deploy:
-    stage: deploy
+deploy-prod:
+    stage: deploy-prod
     script: 
-        - echo "Deploying project..."
-        - docker-compose -f docker-compose.prod.yml up -d
+        - echo "Deploying project to production..."
+        - docker-compose -f docker-compose.prod.yml down
+        - docker volume rm prod_client_build 
+        - docker-compose -p "prod" -f docker-compose.prod.yml up -d --force-recreate
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: '$CI_COMMIT_BRANCH == "master"'
           when: manual 
         - allow_failure: false
     environment: production
+
+deploy-staging:
+    stage: deploy-staging
+    script: 
+        - echo "Deploying project to staging..."
+        - docker-compose -f docker-compose.staging.yml build
+        - docker-compose -f docker-compose.staging.yml down
+        - docker volume rm staging_client_build
+        - docker-compose -p "staging" -f docker-compose.staging.yml up -d --force-recreate
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "master"'
+        - allow_failure: false
+    environment: staging
