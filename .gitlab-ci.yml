@@ -1,8 +1,7 @@
 stages:
     - build
     - test
-    - deploy-prod
-    - deploy-staging
+    - deploy
 
 before_script:
     - cd /var/www/cradle-platform
@@ -43,7 +42,7 @@ test:
         - allow_failure: false
 
 deploy-prod:
-    stage: deploy-prod
+    stage: deploy
     script: 
         - echo "Deploying project to production..."
         - docker-compose -f docker-compose.prod.yml down
@@ -51,13 +50,13 @@ deploy-prod:
         - docker-compose -p "prod" -f docker-compose.prod.yml up -d --force-recreate
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
-        - if: '$CI_COMMIT_BRANCH == "master"'
+        - if: $CI_COMMIT_BRANCH == "master"
           when: manual 
         - allow_failure: false
     environment: production
 
 deploy-staging:
-    stage: deploy-staging
+    stage: deploy
     script: 
         - echo "Deploying project to staging..."
         - docker-compose -f docker-compose.staging.yml build
