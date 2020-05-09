@@ -73,8 +73,7 @@ deploy-staging:
         - echo CI_COMMIT_BRANCH:$CI_COMMIT_BRANCH
         - echo CI_MERGE_REQUEST_SOURCE_BRANCH_NAME:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
         - BRANCH_NAME="$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
-        - # if this job wasn't trigged by a merge request, set the branch name to the commit branch name
-        - if [ -z "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then BRANCH_NAME=$CI_COMMIT_BRANCH; fi
+        - if [ -z "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then BRANCH_NAME=$CI_COMMIT_BRANCH; fi # if this job wasn't trigged by a merge request, set the branch name to the commit branch name
         - echo BRANCH_NAME:$BRANCH_NAME
         - git checkout $BRANCH_NAME
         - git branch
