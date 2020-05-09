@@ -67,7 +67,7 @@ sudo su
 
 11. Fetch all changes from the deploy branch:
 ```shell
-cd /var/www/cradleplatform
+cd /var/www/cradle-platform
 git fetch --all
 git reset --hard origin/deploy
 ```
@@ -77,9 +77,17 @@ git reset --hard origin/deploy
 git log
 ```
 
-13. Rebuild, recreate, and restart docker containers
+13. Ensure that MySQL Container is running
 ```shell
-docker-compose -f docker-compose.prod.yml up --build -d
+bash server/prod/start_db.sh
 ```
 
-14. Navigate to https://cradle.eastus.cloudapp.azure.com/ to view the deployed changes!
+14. Rebuild, recreate, and restart docker containers
+```shell
+docker-compose -f docker-compose.staging.yml down
+docker volume rm <server>_client_build # react build volume needs to be rebuilt every deployment to ensure new changes are deployed
+docker-compose -f docker-compose.staging.yml up --build -d --force-recreate
+```
+Note: `<server>` should be either `prod` or `staging`
+
+15. Navigate to https://cradle.eastus.cloudapp.azure.com/ (prod) or https://cradle.eastus.cloudapp.azure.com:4443/ (staging) to view the deployed changes!
