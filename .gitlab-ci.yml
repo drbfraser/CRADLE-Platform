@@ -39,6 +39,16 @@ test:
         - if: $CI_COMMIT_BRANCH == "staging"
         - if: $CI_COMMIT_BRANCH == "master" 
 
+deploy-general: 
+    stage: deploy
+    script:
+        - echo "Starting MySQL Container"
+        - bash server/prod/start_db.sh
+    rules:
+        - if: $CI_COMMIT_BRANCH == "production"
+        - if: $CI_COMMIT_BRANCH == "master"
+    environment: production
+
 deploy-prod:
     stage: deploy
     script: 
@@ -54,6 +64,20 @@ deploy-prod:
 
 deploy-staging:
     stage: deploy
+    before_script:
+        - cd /var/www/cradle-platform-test
+        - pwd
+        - whoami
+        - echo CI_MERGE_REQUEST_ID:$CI_MERGE_REQUEST_ID
+        - echo CI_COMMIT_BRANCH:$CI_COMMIT_BRANCH
+        - echo CI_MERGE_REQUEST_SOURCE_BRANCH_NAME:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+        - BRANCH_NAME="$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+        - if [ -z "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then BRANCH_NAME=$CI_COMMIT_BRANCH; fi
+        - echo BRANCH_NAME:$BRANCH_NAME
+        - git checkout $BRANCH_NAME
+        - git branch
+        - git fetch --all
+        - git reset --hard origin/$BRANCH_NAME
     script: 
         - echo "Deploying project to staging..."
         - docker-compose -p "staging" -f docker-compose.staging.yml build
