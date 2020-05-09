@@ -9,9 +9,6 @@ services:
       dockerfile: Dockerfile.prod
       args:
         REACT_APP_USE_STAGING_SERVER: 1
-    command: serve -l 3000 -s build
-    ports:
-      - 3000:3000
     volumes:
       - '/usr/src/client/node_modules'
       - type: volume
