@@ -85,5 +85,6 @@ deploy-staging:
         - docker volume rm staging_client_build
         - docker-compose -p "staging" -f docker-compose.staging.yml up -d --force-recreate
     rules:
-        - if: '$CI_COMMIT_BRANCH == "master"'
+        - if: $CI_COMMIT_BRANCH == "master"
+        - if: $CI_COMMIT_BRANCH == "staging"
     environment: staging
