@@ -47,6 +47,7 @@ deploy-general:
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "master"
+        - if: $CI_COMMIT_BRANCH == "staging"
     environment: production
 
 deploy-prod:
