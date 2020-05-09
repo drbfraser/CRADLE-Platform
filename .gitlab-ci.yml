@@ -17,12 +17,13 @@ before_script:
     - git branch
     - git fetch --all
     - git reset --hard origin/$BRANCH_NAME
+    - PROJECT_NAME=prod
 
 build:
     stage: build
     script:
         - echo "Building project..."
-        - docker-compose -f docker-compose.prod.yml build
+        - docker-compose -f docker-compose.${PROJECT_NAME}.yml build
     rules:
         - if: $CI_MERGE_REQUEST_ID
         - if: $CI_COMMIT_BRANCH == "production"
@@ -54,9 +55,8 @@ deploy-prod:
     stage: deploy
     script: 
         - echo "Deploying project to production..."
-        - docker-compose -f docker-compose.prod.yml down
-        - docker volume rm prod_client_build 
-        - docker-compose -f docker-compose.prod.yml up -d --force-recreate
+        - if docker volume inspect "${PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${PROJECT_NAME}.yml down; docker volume rm "${PROJECT_NAME}_client_build"; fi
+        - docker-compose -f docker-compose.${PROJECT_NAME}.yml up -d --force-recreate
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "master"
@@ -80,12 +80,12 @@ deploy-staging:
         - git branch
         - git fetch --all
         - git reset --hard origin/$BRANCH_NAME
+        - PROJECT_NAME=staging
     script: 
         - echo "Deploying project to staging..."
-        - docker-compose -f docker-compose.staging.yml build
-        - docker-compose -f docker-compose.staging.yml down
-        - docker volume rm staging_client_build
-        - docker-compose -f docker-compose.staging.yml up -d --force-recreate
+        - docker-compose -f docker-compose.${PROJECT_NAME}.yml build
+        - if docker volume inspect "${PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${PROJECT_NAME}.yml down; docker volume rm "${PROJECT_NAME}_client_build"; fi
+        - docker-compose -f docker-compose.${PROJECT_NAME}.yml up -d --force-recreate
     rules:
         - if: $CI_COMMIT_BRANCH == "master"
         - if: $CI_COMMIT_BRANCH == "staging"
