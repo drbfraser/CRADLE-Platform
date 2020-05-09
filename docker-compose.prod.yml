@@ -6,9 +6,6 @@ services:
     build: 
       context: ./client
       dockerfile: Dockerfile.prod
-    command: serve -l 5000 -s build
-    ports: 
-      - 3000:5000
     volumes:
       - '/usr/src/client/node_modules'
       - 'client_build:/usr/src/client/build'

@@ -18,6 +18,7 @@ before_script:
     - git fetch --all
     - git reset --hard origin/$BRANCH_NAME
     - PROJECT_NAME=prod
+    - COMPOSE_PROJECT_NAME=$PROJECT_NAME
 
 build:
     stage: build
@@ -80,6 +81,7 @@ deploy-staging:
         - git fetch --all
         - git reset --hard origin/$BRANCH_NAME
         - PROJECT_NAME=staging
+        - COMPOSE_PROJECT_NAME=$PROJECT_NAME
     script: 
         - echo "Deploying project to staging..."
         - docker-compose -f docker-compose.${PROJECT_NAME}.yml build
