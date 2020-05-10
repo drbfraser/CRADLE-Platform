@@ -28,6 +28,7 @@ services:
       - PORT=500
     networks: 
       - db_network
+      - default
 
   # Do not create separate DB containers for prod and testing, use one single MySQL container with two different databases
   # db:
