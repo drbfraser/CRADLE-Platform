@@ -3,6 +3,9 @@ stages:
     - test
     - deploy
 
+variables:
+    GIT_STRATEGY: none
+
 before_script:
     - cd /var/www/cradle-platform
     - pwd
@@ -56,7 +59,7 @@ deploy-prod:
     stage: deploy
     script: 
         - echo "Deploying project to production..."
-        - if docker volume inspect "${COMPOSE_PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${PROJECT_NAME}.yml down; docker volume rm "${COMPOSE_PROJECT_NAME}_client_build"; fi
+        - if docker volume inspect "${COMPOSE_PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml down; docker volume rm "${COMPOSE_PROJECT_NAME}_client_build"; fi
         - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml up -d --force-recreate
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
@@ -85,7 +88,7 @@ deploy-staging:
     script: 
         - echo "Deploying project to staging..."
         - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml build
-        - if docker volume inspect "${COMPOSE_PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${PROJECT_NAME}.yml down; docker volume rm "${COMPOSE_PROJECT_NAME}_client_build"; fi
+        - if docker volume inspect "${COMPOSE_PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml down; docker volume rm "${COMPOSE_PROJECT_NAME}_client_build"; fi
         - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml up -d --force-recreate
     rules:
         - if: $CI_COMMIT_BRANCH == "master"
