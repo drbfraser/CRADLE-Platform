@@ -23,5 +23,5 @@ then
     docker rm mysql
     # create and start mysql docker container 
     echo "Running mysql container"
-    docker run --name mysql -v mysql_data:/var/lib/mysql -p 127.0.0.1:3307:3306 --env-file $db_env_file_path --restart always -d mysql:latest
+    docker run --name mysql -v mysql_data:/var/lib/mysql -p 127.0.0.1:3307:3306 --network db_network --env-file $db_env_file_path --restart always -d mysql:latest
 fi
