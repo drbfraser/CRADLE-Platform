@@ -18,7 +18,7 @@ before_script:
     - echo BRANCH_NAME:$BRANCH_NAME
     - git checkout $BRANCH_NAME
     - git branch
-    - git fetch --all
+    - git fetch
     - git reset --hard origin/$BRANCH_NAME
     - export COMPOSE_PROJECT_NAME=prod
     - export COMPOSE_HTTP_TIMEOUT=180
@@ -81,7 +81,7 @@ deploy-staging:
         - echo BRANCH_NAME:$BRANCH_NAME
         - git checkout $BRANCH_NAME
         - git branch
-        - git fetch --all
+        - git fetch
         - git reset --hard origin/$BRANCH_NAME
         - export COMPOSE_PROJECT_NAME=staging
         - export COMPOSE_HTTP_TIMEOUT=180
