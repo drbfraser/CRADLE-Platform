@@ -22,6 +22,12 @@ def reset_db():
     db.create_all()
     db.session.commit()
 
+# USAGE: python manage.py drop_all_tables
+@manager.command
+def drop_all_tables():
+    db.drop_all()
+    db.session.commit()
+
 # USAGE: python manage.py seed
 @manager.command
 def seed():
