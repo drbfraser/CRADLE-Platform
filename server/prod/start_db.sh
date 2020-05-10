@@ -10,6 +10,10 @@ echo $db_env_file_path
 
 if ! nc -z 127.0.0.1 3307;
 then
+    # create new network for to allow containers to connect to the database's exposing ports if not already existing
+    docker network create db_network
+    # remove any existing mysql container
     docker rm mysql
+    # create and start mysql docker container 
     docker run --name mysql -v mysql_data:/var/lib/mysql -p 127.0.0.1:3307:3306 --env-file $db_env_file_path --restart always -d mysql:latest
 fi
