@@ -76,3 +76,5 @@ volumes:
 
 networks: 
   db_network:
+    external: true
+    name: db_network
