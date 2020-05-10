@@ -27,7 +27,7 @@ services:
     expose:
       - 5000
     env_file:
-      - ./server/.env.prod
+      - ./server/.env.staging
     environment:
       - PORT=5000
     networks: 
