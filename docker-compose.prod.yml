@@ -68,3 +68,6 @@ volumes:
   mysql_data:
   cradle_logs:
   client_build:
+
+networks: 
+  - db_network
