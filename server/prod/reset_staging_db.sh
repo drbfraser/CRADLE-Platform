@@ -4,12 +4,12 @@
 set -e
 
 echo "Dropping all tables..."
-docker exec cradle-staging python manage.py drop_all_tables
+docker exec staging-cradle python manage.py drop_all_tables
 
 echo "Creating the tables..."
-docker exec cradle-staging flask db upgrade
+docker exec staging-cradle flask db upgrade
 
 echo "Seeding database tables"
-docker exec cradle python manage.py seed
+docker exec staging-cradle python manage.py seed
 
 echo "Done."
