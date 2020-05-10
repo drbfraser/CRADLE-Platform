@@ -7,7 +7,7 @@
 set -e
 
 echo "Dropping all tables..."
-python manage.py reset_db
+python manage.py drop_all_tables
 
 echo "Creating the tables..."
 flask db upgrade
