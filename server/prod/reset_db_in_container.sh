@@ -3,11 +3,8 @@
 # This file should only be run in docker containers, using reset_db.sh
 # Confirmation to delete a db will occur in reset_db.sh
 
-# Exit immediately upon any failed command
-set -e
-
 echo "Dropping all tables..."
-python manage.py drop_all_tables
+python manage.py reset_db
 
 echo "Creating the tables..."
 flask db upgrade
