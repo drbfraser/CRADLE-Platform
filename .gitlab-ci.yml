@@ -17,14 +17,14 @@ before_script:
     - git branch
     - git fetch --all
     - git reset --hard origin/$BRANCH_NAME
-    - PROJECT_NAME=prod
-    - COMPOSE_PROJECT_NAME=$PROJECT_NAME
+    - export COMPOSE_PROJECT_NAME=prod
+    - export COMPOSE_HTTP_TIMEOUT=180
 
 build:
     stage: build
     script:
         - echo "Building project..."
-        - docker-compose -f docker-compose.${PROJECT_NAME}.yml build
+        - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml build
     rules:
         - if: $CI_MERGE_REQUEST_ID
         - if: $CI_COMMIT_BRANCH == "production"
@@ -56,8 +56,8 @@ deploy-prod:
     stage: deploy
     script: 
         - echo "Deploying project to production..."
-        - if docker volume inspect "${PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${PROJECT_NAME}.yml down; docker volume rm "${PROJECT_NAME}_client_build"; fi
-        - docker-compose -f docker-compose.${PROJECT_NAME}.yml up -d --force-recreate
+        - if docker volume inspect "${COMPOSE_PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${PROJECT_NAME}.yml down; docker volume rm "${COMPOSE_PROJECT_NAME}_client_build"; fi
+        - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml up -d --force-recreate
     rules:
         - if: $CI_COMMIT_BRANCH == "production"
         - if: $CI_COMMIT_BRANCH == "master"
@@ -80,13 +80,13 @@ deploy-staging:
         - git branch
         - git fetch --all
         - git reset --hard origin/$BRANCH_NAME
-        - PROJECT_NAME=staging
-        - COMPOSE_PROJECT_NAME=$PROJECT_NAME
+        - export COMPOSE_PROJECT_NAME=staging
+        - export COMPOSE_HTTP_TIMEOUT=180
     script: 
         - echo "Deploying project to staging..."
-        - docker-compose -f docker-compose.${PROJECT_NAME}.yml build
-        - if docker volume inspect "${PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${PROJECT_NAME}.yml down; docker volume rm "${PROJECT_NAME}_client_build"; fi
-        - docker-compose -f docker-compose.${PROJECT_NAME}.yml up -d --force-recreate
+        - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml build
+        - if docker volume inspect "${COMPOSE_PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${PROJECT_NAME}.yml down; docker volume rm "${COMPOSE_PROJECT_NAME}_client_build"; fi
+        - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml up -d --force-recreate
     rules:
         - if: $CI_COMMIT_BRANCH == "master"
         - if: $CI_COMMIT_BRANCH == "staging"
