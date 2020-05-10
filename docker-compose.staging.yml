@@ -75,4 +75,4 @@ volumes:
   client_build:
 
 networks: 
-  - db_network
+  db_network:
