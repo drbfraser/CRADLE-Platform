@@ -10,7 +10,7 @@ node_modules
 coverage
 
 # production
-# build
+build
 
 # misc
 .DS_Store
@@ -107,7 +107,7 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.env
+.env*
 .venv
 env/
 venv/
@@ -137,3 +137,7 @@ endpoints.md
 assets/
 client/.idea/
 .report
+
+# ssl letencrypt certbot files
+**/certbot/conf
+**/certbot/www

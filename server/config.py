@@ -22,29 +22,19 @@ class Config(object):
     try: 
         db_user = env("DB_USERNAME")
         db_pw = env("DB_PASSWORD")
+        db_hostname = env("DB_HOSTNAME")
+        db_port = env("DB_PORT")
+        db_name = env("DB_NAME")
 
     except environs.EnvError:
-        print("*******************************************************")
-        print("DB_USERNAME or DB_PASSWORD environment variable not set")
-        print("*******************************************************")
+        print("******************************************************************************************")
+        print("DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, OR DB_NAME environment variable not set")
+        print("******************************************************************************************")
 
-    is_docker = None
-    try:
-        is_docker = env("IS_DOCKER")
-        # db_ip = env("DB_IP")
-    except environs.EnvError:
-        print("is_docker or dp_ip not set")
-    else:
-        print("isdocker: " + str(is_docker))
-
-    if not (is_docker == None):
-        SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@host.docker.internal:3306/cradle' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
-    else:
-        SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@localhost:3306/cradle' # ex: 'mysql+pymysql://root:123456@localhost:3306/mydb'
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}' # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
     
     print("SQLALCHEMY_DATABASE_URI: " + SQLALCHEMY_DATABASE_URI)
 
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'test-cradle.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT_SECRET_KEY= os.environ.get('SECRET')
@@ -72,14 +62,14 @@ app.config['SWAGGER'] = {
 }
 swagger = Swagger(app)
 
-# Serve React App
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
+# Used to Serve React App and static assets if Nginx is not configured
+# @app.route('/', defaults={'path': ''})
+# @app.route('/<path:path>')
+# def serve(path):
+#     if path != "" and os.path.exists(app.static_folder + '/' + path):
+#         return send_from_directory(app.static_folder, path)
+#     else:
+#         return send_from_directory(app.static_folder, 'index.html')
 
 CORS(app)
 api = Api(app)

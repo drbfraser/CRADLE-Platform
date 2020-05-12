@@ -23,3 +23,5 @@ twilio
 yagmail
 cryptography
 flasgger
+gunicorn
+pytest
