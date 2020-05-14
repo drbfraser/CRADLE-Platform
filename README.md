@@ -5,6 +5,8 @@
 React front-end web application and Python back-end web server for the Cradle VSA System, a technological health care system to improve maternal care and reduce preventable maternal deaths in Ugandan villages.
 
 View the React web application here: https://cradle-vsa.github.io/client/build
+View the React web application here: https://cradle.eastus.cloudapp.azure.com/
+
 
 The back-end is in the directory `server/` and the front-end is in the directory `client/`.
 
@@ -34,8 +36,8 @@ The back-end is in the directory `server/` and the front-end is in the directory
 
 Clone the repository and navigate into the directory:
 ```shell
-git clone https://github.com/Cradle-VSA/cradle-vsa.github.io.git
-cd cradle-vsa.github.io/
+git clone https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git
+cd cradle-platform/
 ```
 
 ### Database (MySQL)
@@ -78,6 +80,15 @@ DB_PORT=3306
 DB_NAME=cradle
 EMAIL_USER=student@gmail.ca
 EMAIL_PASSWORD=p4sSw0rd
+```
+
+Note: If using a local MySQL server, set the DB_HOSTNAME to "localhost"
+
+- Create a symbolic link to the `.env` file in the `server` directory in the root directory of the project
+    - This is required as `docker-compose.yml` reads from a .env file in the same directory
+```
+cd cradle-platform # change directory to the root directory of the project
+ln -s server/.env .env # create a symlink if server/.env to .env in the current directory
 ```
 
 This file will be automatically ignored by Git. Do not manually commit it to the repository.
