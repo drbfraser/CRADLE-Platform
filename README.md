@@ -60,14 +60,24 @@ Bye
 
 In the `server/` directory, create a file named `.env` containing your local MySQL root username and password in the following format:
 ```
-DB_USERNAME=MY_MYSQL_DB_USERNAME
-DB_PASSWORD=MY_MYSQL_DB_PASSWORD
+DB_USERNAME=<MY_MYSQL_DB_USERNAME>
+DB_PASSWORD= MY_MYSQL_DB_PASSWORD>
+DB_HOSTNAME=db
+DB_PORT=3306
+DB_NAME=<MY_MYSQL_DB_NAME>
+EMAIL_USER=<MY_EMAIL_ADDRESS>
+EMAIL_PASSWORD=<MY_EMAIL_PASSWORD>
 ```
 
 For example:
 ```
 DB_USERNAME=root
 DB_PASSWORD=123456
+DB_HOSTNAME=db
+DB_PORT=3306
+DB_NAME=cradle
+EMAIL_USER=student@gmail.ca
+EMAIL_PASSWORD=p4sSw0rd
 ```
 
 This file will be automatically ignored by Git. Do not manually commit it to the repository.
