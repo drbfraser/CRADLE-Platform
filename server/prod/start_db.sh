@@ -11,11 +11,10 @@ echo $db_env_file_path
 if ! docker network inspect db_network;
 then
     echo "creating network db_network"
+    # create new network for to allow containers to connect to the database's exposing ports if not already existing
     docker network create db_network
 fi
 
-# create new network for to allow containers to connect to the database's exposing ports if not already existing
-docker network create db_network
 
 if ! nc -z 127.0.0.1 3307;
 then
