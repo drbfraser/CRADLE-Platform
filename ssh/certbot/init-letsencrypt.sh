@@ -8,6 +8,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
+# TODO: update domain name after new domain name is used
 domains=("cradle.eastus.cloudapp.azure.com")
 rsa_key_size=4096
 data_path="./ssh/certbot"

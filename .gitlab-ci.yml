@@ -16,9 +16,9 @@ before_script:
     - BRANCH_NAME="$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
     - if [ -z "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then BRANCH_NAME=$CI_COMMIT_BRANCH; fi
     - echo BRANCH_NAME:$BRANCH_NAME
+    - git fetch --all
     - git checkout $BRANCH_NAME
     - git branch
-    - git fetch
     - git reset --hard origin/$BRANCH_NAME
     - export COMPOSE_PROJECT_NAME=prod
     - export COMPOSE_HTTP_TIMEOUT=180
@@ -44,6 +44,7 @@ test:
         - if: $CI_COMMIT_BRANCH == "staging"
         - if: $CI_COMMIT_BRANCH == "master" 
 
+# all commands to be run when deploying to any server
 deploy-general: 
     stage: deploy
     script:
