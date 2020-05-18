@@ -1,13 +1,14 @@
-import React, { Component } from 'react'
 import MaterialTable, { MTableHeader } from 'material-table'
-import { getPrettyDate } from '../../utils'
+import React, { Component } from 'react'
 import {
-    getTrafficIcon,
     getLatestReading,
     getLatestReadingDateTime,
+    getTrafficIcon,
     sortPatientsByLastReading
 } from './patientUtils'
+
 import Switch from '@material-ui/core/Switch'
+import { getPrettyDate } from '../../utils'
 
 class PatientTable extends Component {
     state = {
@@ -29,7 +30,7 @@ class PatientTable extends Component {
                 headerStyle: {
                     textAlign: 'center'
                 },
-                sorting: false
+                sorting: true
             },
             { title: 'Patient ID', field: 'patientId' },
             { title: 'Village', field: 'villageNumber' },
