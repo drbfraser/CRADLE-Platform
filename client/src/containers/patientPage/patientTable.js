@@ -39,11 +39,23 @@ class PatientTable extends Component {
                 cellStyle: {
                     padding: '0px'
                 },
-                sorting: false,
+                sorting: true,
                 render: rowData =>
                     getTrafficIcon(
                         getLatestReading(rowData.readings).trafficLightStatus
-                    )
+                    ),
+                customSort: (a, b) => {
+                  const leftTrafficLightStatus =
+                      a.readings[0].trafficLightStatus;
+                  const rightTrafficLightStatus =
+                      b.readings[0].trafficLightStatus;
+
+                  const trafficLights = [`GREEN`,`YELLOW_UP`,`YELLOW_DOWN`,`RED_UP`,`RED_DOWN`];
+                  const leftIndex = trafficLights.indexOf(leftTrafficLightStatus);
+                  const rightIndex = trafficLights.indexOf(rightTrafficLightStatus);
+                  
+                  return leftIndex - rightIndex;
+                }
             },
             {
                 title: 'Date of Last Reading',
