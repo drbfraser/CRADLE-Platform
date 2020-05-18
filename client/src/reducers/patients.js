@@ -1,22 +1,23 @@
 // import all the actions here
 
 import {
-    GET_PATIENTS,
-    GET_PATIENTS_REQUESTED,
-    GET_PATIENTS_ERR,
+    ADD_NEW_PATIENT_DONE,
+    ADD_NEW_PATIENT_REQUESTED,
     GET_PATIENT,
+    GET_PATIENTS,
+    GET_PATIENTS_ERR,
+    GET_PATIENTS_REQUESTED,
+    GET_PATIENT_ERR,
     GET_PATIENT_REQUESTED,
-    GET_PATIENT_ERR
-    // UPDATE_PATIENT,
-    // UPDATE_PATIENT_REQUESTED,
-    // UPDATE_PATIENT_ERR
 } from '../actions/patients'
+
 import { sortPatientsByLastReading } from '../containers/patientPage/patientUtils'
 
 const initialState = {
     patient: {},
     patientsList: [],
-    isLoading: true
+    isLoading: true,
+    addedNewPatient: false,
 }
 
 export default (state = initialState, action) => {
@@ -52,6 +53,20 @@ export default (state = initialState, action) => {
             return {
                 ...state,
                 isLoading: true
+            }
+
+        case ADD_NEW_PATIENT_REQUESTED:
+            return {
+                ...state,
+                addedNewPatient: false
+            }
+
+        case ADD_NEW_PATIENT_DONE:
+          const newPatient = action.payload;
+            return {
+                ...state,
+                patientsList: [newPatient, ...patientsList],
+                addedNewPatient: true
             }
 
         case GET_PATIENT_ERR:
