@@ -4,7 +4,8 @@ import {
     getLatestReading,
     getLatestReadingDateTime,
     getTrafficIcon,
-    sortPatientsByLastReading
+    sortPatientsByLastReading,
+    trafficLights,
 } from './patientUtils'
 
 import Switch from '@material-ui/core/Switch'
@@ -30,29 +31,25 @@ class PatientTable extends Component {
                 headerStyle: {
                     textAlign: 'center'
                 },
-                sorting: true
             },
-            { title: 'Patient ID', field: 'patientId' },
+            { title: 'Patient ID', field: 'patientId', customSort: (left, right) => Number(left.patientId) - Number(right.patientId) },
             { title: 'Village', field: 'villageNumber' },
             {
                 title: 'Vital Sign',
                 cellStyle: {
                     padding: '0px'
                 },
-                sorting: true,
                 render: rowData =>
                     getTrafficIcon(
                         getLatestReading(rowData.readings).trafficLightStatus
                     ),
-                customSort: (a, b) => {
-                  const leftTrafficLightStatus =
-                      a.readings[0].trafficLightStatus;
-                  const rightTrafficLightStatus =
-                      b.readings[0].trafficLightStatus;
-
-                  const trafficLights = [`GREEN`,`YELLOW_UP`,`YELLOW_DOWN`,`RED_UP`,`RED_DOWN`];
-                  const leftIndex = trafficLights.indexOf(leftTrafficLightStatus);
-                  const rightIndex = trafficLights.indexOf(rightTrafficLightStatus);
+                customSort: (left, right) => {
+                  const leftIndex = trafficLights.indexOf(
+                      left.readings[0].trafficLightStatus
+                  )
+                  const rightIndex = trafficLights.indexOf(
+                      right.readings[0].trafficLightStatus
+                  )
                   
                   return leftIndex - rightIndex;
                 }
@@ -118,12 +115,13 @@ class PatientTable extends Component {
                 columns={this.state.columns}
                 data={patientData}
                 options={{
+                    pageSize: 10,
                     rowStyle: rowData => {
                         return {
                             height: '75px'
                         }
                     },
-                    pageSize: 10
+                    sorting: true,
                 }}
                 onRowClick={(e, rowData) =>
                     this.props.callbackFromParent(rowData)
