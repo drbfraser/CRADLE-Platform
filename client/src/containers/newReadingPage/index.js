@@ -76,7 +76,6 @@ class NewReadingPage extends Component {
 
     static getDerivedStateFromProps = (props, state) => {
         if (props.newPatientAdded) {
-            console.info(`First if`, props)
             props.createReadingDefault()
             props.afterNewPatientAdded()
             return {
@@ -86,7 +85,6 @@ class NewReadingPage extends Component {
         }
         
         if (props.readingCreated) {
-          console.info(`Second if`, props)
             const newPatient = props.newReadingData.patient
             newPatient.readings.push(props.newReadingData.reading)
             props.addNewPatient(newPatient)
