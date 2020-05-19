@@ -1,8 +1,8 @@
 // import all the actions here
 
 import {
-    ADD_NEW_PATIENT_DONE,
-    ADD_NEW_PATIENT_REQUESTED,
+    ADD_NEW_PATIENT,
+    AFTER_NEW_PATIENT_ADDED,
     GET_PATIENT,
     GET_PATIENTS,
     GET_PATIENTS_ERR,
@@ -17,7 +17,7 @@ const initialState = {
     patient: {},
     patientsList: [],
     isLoading: true,
-    addedNewPatient: false,
+    newPatientAdded: false,
 }
 
 export default (state = initialState, action) => {
@@ -28,51 +28,51 @@ export default (state = initialState, action) => {
             return {
                 ...state,
                 patientsList: patientsList,
-                isLoading: false
+                isLoading: false,
             }
 
         case GET_PATIENTS_REQUESTED:
             return {
                 ...state,
-                isLoading: true
+                isLoading: true,
             }
 
         case GET_PATIENTS_ERR:
             return {
                 ...state,
-                isLoading: false
+                isLoading: false,
             }
         case GET_PATIENT:
             return {
                 ...state,
                 patient: action.payload.data,
-                isLoading: false
+                isLoading: false,
             }
 
         case GET_PATIENT_REQUESTED:
             return {
                 ...state,
-                isLoading: true
+                isLoading: true,
             }
 
-        case ADD_NEW_PATIENT_REQUESTED:
+        case ADD_NEW_PATIENT:
+            const newPatient = action.payload
             return {
                 ...state,
-                addedNewPatient: false
+                patientsList: [newPatient, ...state.patientsList],
+                newPatientAdded: true,
             }
 
-        case ADD_NEW_PATIENT_DONE:
-          const newPatient = action.payload;
+        case AFTER_NEW_PATIENT_ADDED:
             return {
                 ...state,
-                patientsList: [newPatient, ...patientsList],
-                addedNewPatient: true
+                newPatientAdded: false,
             }
 
         case GET_PATIENT_ERR:
             return {
                 ...state,
-                isLoading: false
+                isLoading: false,
             }
 
         default:

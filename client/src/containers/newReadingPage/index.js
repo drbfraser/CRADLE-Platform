@@ -4,7 +4,7 @@ import { Button, Divider, Form } from 'semantic-ui-react'
 import PatientInfoForm, { GESTATIONAL_AGE_UNITS } from './patientInfoForm'
 import React, { Component } from 'react'
 import UrineTestForm, { initialUrineTests } from './urineTestForm'
-import { addNewPatientDone, addNewPatientRequested } from "../../actions/patients"
+import { addNewPatient, afterNewPatientAdded } from '../../actions/patients'
 import { createReadingDefault, newReadingPost } from '../../actions/newReading'
 
 import BpForm from './bpForm'
@@ -75,19 +75,22 @@ class NewReadingPage extends Component {
     }
 
     static getDerivedStateFromProps = (props, state) => {
-        if (props.readingCreated && props.newReadingData) {
+        if (props.newPatientAdded) {
+            console.info(`First if`, props)
+            props.createReadingDefault()
+            props.afterNewPatientAdded()
+            return {
+                ...state,
+                showSuccessReading: true,
+            }
+        }
+        
+        if (props.readingCreated) {
+          console.info(`Second if`, props)
             const newPatient = props.newReadingData.patient
             newPatient.readings.push(props.newReadingData.reading)
             props.addNewPatient(newPatient)
             return state
-        }
-        
-        if (props.readingCreated && props.addedNewPatient) {
-          props.createReadingDefault()
-          return {
-              ...state,
-              showSuccessReading: true,
-          }
         }
     }
 
@@ -320,13 +323,15 @@ const mapStateToProps = ({ user, newReading, patients }) => ({
     createReadingStatusError: newReading.error,
     readingCreated: newReading.readingCreated,
     newReadingData: newReading.message,
-    addedNewPatient: patients.addedNewPatient,
+    newPatientAdded: patients.newPatientAdded,
 })
 
 const mapDispatchToProps = dispatch => ({
     addNewPatient: newPatient => {
-      dispatch(addNewPatientRequested())
-      dispatch(addNewPatientDone(newPatient));
+      dispatch(addNewPatient(newPatient));
+    },
+    afterNewPatientAdded: () => {
+      dispatch(afterNewPatientAdded());
     },
     newReadingPost: data => {
         dispatch(newReadingPost(data))

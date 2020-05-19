@@ -14,8 +14,8 @@ export const UPDATE_PATIENT = 'patient/UPDATE_PATIENT'
 export const UPDATE_PATIENT_REQUESTED  = 'patients/UPDATE_PATIENTS_REQUESTED'
 export const UPDATE_PATIENT_ERR = 'patients/UPDATE_PATIENT_ERR'
 
-export const ADD_NEW_PATIENT_REQUESTED = 'patients/ADD_NEW_PATIENT_REQUESTED'
-export const ADD_NEW_PATIENT_DONE = 'patients/ADD_NEW_PATIENT_DONE'
+export const ADD_NEW_PATIENT = 'patients/ADD_NEW_PATIENT'
+export const AFTER_NEW_PATIENT_ADDED = 'patients/AFTER_NEW_PATIENT_ADDED'
 
 export const getPatient = (patientId) => {
     return requestActionCreator(
@@ -81,13 +81,13 @@ const getPatientOnError = error => ({
     payload: error
 })
 
-export const addNewPatientRequested = () => ({
-    type: ADD_NEW_PATIENT_REQUESTED
+export const addNewPatient = newPatient => ({
+    type: ADD_NEW_PATIENT,
+    payload: newPatient,
 })
 
-export const addNewPatientDone = newPatient => ({
-    type: ADD_NEW_PATIENT_DONE,
-    payload: newPatient,
+export const afterNewPatientAdded = () => ({
+    type: AFTER_NEW_PATIENT_ADDED,
 })
 
 export const getPatientRequested = () => ({
