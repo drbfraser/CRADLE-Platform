@@ -1,6 +1,6 @@
-import { Endpoint, Method } from '../api/constants';
+import { Endpoint, Method } from '../api/constants'
 
-import { requestActionCreator } from './api';
+import { requestActionCreator } from './api'
 
 export const GET_PATIENT = 'patients/GET_PATIENT'
 export const GET_PATIENT_REQUESTED = 'patients/GET_PATIENT_REQUESTED'
@@ -17,14 +17,14 @@ export const UPDATE_PATIENT_ERR = 'patients/UPDATE_PATIENT_ERR'
 export const ADD_NEW_PATIENT = 'patients/ADD_NEW_PATIENT'
 export const AFTER_NEW_PATIENT_ADDED = 'patients/AFTER_NEW_PATIENT_ADDED'
 
-export const getPatient = (patientId) => {
-    return requestActionCreator(
-        Endpoint.PATIENT + Endpoint.READING + '/' + patientId,
-        Method.GET,
-        null, 
-        getPatientOnSuccess,
-        getPatientOnError
-    )
+export const getPatient = patientId => {
+  return requestActionCreator(
+    Endpoint.PATIENT + Endpoint.READING + '/' + patientId,
+    Method.GET,
+    null,
+    getPatientOnSuccess,
+    getPatientOnError
+  )
 }
 
 export const getPatients = () => {
@@ -82,12 +82,12 @@ const getPatientOnError = error => ({
 })
 
 export const addNewPatient = newPatient => ({
-    type: ADD_NEW_PATIENT,
-    payload: newPatient,
+  type: ADD_NEW_PATIENT,
+  payload: newPatient
 })
 
 export const afterNewPatientAdded = () => ({
-    type: AFTER_NEW_PATIENT_ADDED,
+  type: AFTER_NEW_PATIENT_ADDED
 })
 
 export const getPatientRequested = () => ({

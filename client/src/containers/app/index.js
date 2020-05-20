@@ -355,33 +355,28 @@ const App = props => {
         </Drawer>
       ) : null}
 
-            <main
-                className={classes.content}
-                style={{ paddingTop: offsetFromTop }}>
-                <div className={classes.toolbar} />
-                <Switch>
-                    <Route exact path="/" component={Home} />
-                    <Route exact path="/admin" component={AdminPage} />
-                    <Route exact path="/help" component={HelpPage} />
-                    <Route exact path="/patients" component={PatientPage} />
-                    <Route
-                        path="/patient/:id"
-                        component={PatientSummaryContainer}
-                    />
-                    <Route exact path="/signup" component={Signup} />
-                    <Route exact path="/login" component={Login} />
-                    <Route exact path="/stats" component={StatisticsPage} />
-                    <Route exact path="/referrals" component={ReferralsPage} />
-                    <Route exact path="/newreading" component={NewReadingPage} />
-                    <Route exact path="/resources" component={HelpPage} />
-                    <Route exact path="/chat/landing" component={VideoLanding} />
-                    <Route exact path="/chat/session" component={Session} />
-                    <Route exact path="/chat/session/:roomId" component={Session} />
-                    <Route component={PageNotFound} />
-                </Switch>
-            </main>
-        </div>
-    )
+      <main className={classes.content} style={{ paddingTop: offsetFromTop }}>
+        <div className={classes.toolbar} />
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route exact path="/admin" component={AdminPage} />
+          <Route exact path="/help" component={HelpPage} />
+          <Route exact path="/patients" component={PatientPage} />
+          <Route path="/patient/:id" component={PatientSummaryContainer} />
+          <Route exact path="/signup" component={Signup} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/stats" component={StatisticsPage} />
+          <Route exact path="/referrals" component={ReferralsPage} />
+          <Route exact path="/newreading" component={NewReadingPage} />
+          <Route exact path="/resources" component={HelpPage} />
+          <Route exact path="/chat/landing" component={VideoLanding} />
+          <Route exact path="/chat/session" component={Session} />
+          <Route exact path="/chat/session/:roomId" component={Session} />
+          <Route component={PageNotFound} />
+        </Switch>
+      </main>
+    </div>
+  )
 }
 
 const mapStateToProps = ({ user }) => ({

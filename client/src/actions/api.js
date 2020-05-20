@@ -4,7 +4,7 @@ export const requestActionCreator = (
   endpoint,
   method,
   data,
-  onSuccess, 
+  onSuccess,
   onError
 ) => {
   return {
