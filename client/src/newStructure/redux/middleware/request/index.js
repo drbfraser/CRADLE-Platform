@@ -1,4 +1,4 @@
-import BASE_URL from '../serverUrl';
+import { BASE_URL } from '../../../server/utils';
 import { Endpoints } from '../../../server/endpoints';
 import { MAKE_SERVER_REQUEST } from '../../../shared/reducers/utils';
 import { Methods } from '../../../server/methods';
@@ -19,7 +19,7 @@ export const requestMiddleware = () => ({ dispatch }) => (next) => async (
   const decodedToken = token && jwt_decode(token);
   const currentTime = new Date().getTime() / 1000;
   const { endpoint, method, data, onSuccess, onError } = action.payload;
-  
+
   const renewToken =
     decodedToken &&
     currentTime > decodedToken.exp &&
@@ -48,7 +48,7 @@ export const requestMiddleware = () => ({ dispatch }) => (next) => async (
       return;
     }
   }
-  
+
   axios({
     method: method,
     url: BASE_URL + endpoint,
