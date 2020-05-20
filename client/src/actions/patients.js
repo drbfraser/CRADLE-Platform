@@ -29,7 +29,7 @@ export const getPatient = (patientId) => {
 
 export const getPatients = () => {
     return requestActionCreator(
-        Endpoint.PATIENTS_ALLINFO,
+        Endpoint.PATIENTS_ALL_INFO,
         Method.GET,
         null,
         getPatientsOnSuccess,
