@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
 import {
   getPatients,
   getPatientsRequested,
 } from '../../shared/reducers/patients';
 
 import { PatientTable } from './patientTable';
+import React from 'react';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user';
 
-class PatientPageComponent extends Component {
+class PatientPageComponent extends React.Component {
   state = {
     selectedPatient: {
       patientId: ``,
@@ -65,9 +65,7 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(getPatientsRequested());
     dispatch(getPatients());
   },
-  getCurrentUser: () => {
-    dispatch(getCurrentUser());
-  },
+  getCurrentUser: () => dispatch(getCurrentUser()),
 });
 
 export const PatientPage = connect(mapStateToProps, mapDispatchToProps)(PatientPageComponent);

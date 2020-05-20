@@ -5,24 +5,27 @@ import { getUserFromResponse } from '../../utils';
 import { push } from 'connected-react-router';
 import { requestActionCreator } from '../../../actions/api';
 
-export const GET_USERS_SUCCESS = `users/GET_USERS_SUCCESS`;
-export const GET_USERS_REQ = `users/GET_USERS_REQ`;
-export const GET_USERS_ERR = `users/GET_USERS_ERR`;
+const GET_USERS_SUCCESS = `user/GET_USERS_SUCCESS`;
+const GET_USERS_REQ = `user/GET_USERS_REQ`;
+const GET_USERS_ERR = `user/GET_USERS_ERR`;
 
-export const GET_VHTS_SUCCESS = `users/GET_VHTS_SUCCESS`;
-export const GET_VHTS_REQ = `users/GET_VHTS_REQ`;
-export const GET_VHTS_ERR = `users/GET_VHTS_ERR`;
+const GET_VHTS_SUCCESS = `user/GET_VHTS_SUCCESS`;
+const GET_VHTS_REQ = `user/GET_VHTS_REQ`;
+const GET_VHTS_ERR = `user/GET_VHTS_ERR`;
 
-export const UPDATE_USERS_SUCCESS = `users/UPDATE_USERS_SUCCESS`;
-export const UPDATE_USERS_REQ = `users/UPDATE_USERS_REQ`;
-export const UPDATE_USERS_ERR = `users/UPDATE_USERS_ERR`;
+const UPDATE_USERS_SUCCESS = `user/UPDATE_USERS_SUCCESS`;
+const UPDATE_USERS_REQ = `user/UPDATE_USERS_REQ`;
+const UPDATE_USERS_ERR = `user/UPDATE_USERS_ERR`;
 
-export const DELETE_USERS_SUCCESS = `users/DELETE_USERS_SUCCESS`;
-export const DELETE_USERS_REQ = `users/DELETE_USERS_REQ`;
-export const DELETE_USERS_ERR = `users/DELETE_USERS_ERR`;
+const DELETE_USERS_SUCCESS = `user/DELETE_USERS_SUCCESS`;
+const DELETE_USERS_REQ = `user/DELETE_USERS_REQ`;
+const DELETE_USERS_ERR = `user/DELETE_USERS_ERR`;
 
-export const USER_LOGIN_SUCCESS = `USER_LOGIN_SUCCESS`;
-export const REGISTER_USER_DEFAULT = `REGISTER_USER_DEFAULT`;
+const USER_LOGIN_SUCCESS = `user/USER_LOGIN_SUCCESS`;
+const REGISTER_USER_DEFAULT = `user/REGISTER_USER_DEFAULT`;
+
+const LOGIN_USER = `user/LOGIN_USER`;
+export const LOGOUT_USER = `user/LOGOUT_USER`;
 
 export const registerUser = (user) => {
   return requestActionCreator(
@@ -136,7 +139,7 @@ export const deleteUser = (userId) => {
 };
 
 export const logoutUserAction = () => ({
-  type: `LOGOUT_USER`,
+  type: LOGOUT_USER,
 });
 
 export const getUsersRequested = () => ({
@@ -159,19 +162,20 @@ export const registerUserDefault = () => ({
   type: REGISTER_USER_DEFAULT,
 });
 
-const initialStateUser = {
-  currentUser: {},
-};
-
-const currentUserReducer = (state = initialStateUser, action) => {
+const currentUserReducer = (
+  state = {
+    currentUser: {},
+  },
+  action
+) => {
   switch (action.type) {
-    case 'LOGIN_USER':
+    case LOGIN_USER:
       return action.payload.data;
-    case 'LOGOUT_USER':
+    case LOGOUT_USER:
       return { isLoggedIn: false };
     case USER_LOGIN_SUCCESS:
-      localStorage.setItem('token', action.payload.data.token);
-      localStorage.setItem('refresh', action.payload.data.refresh);
+      localStorage.setItem(`token`, action.payload.data.token);
+      localStorage.setItem(`refresh`, action.payload.data.refresh);
       return {
         ...state,
         ...getUserFromResponse(action.payload.data),

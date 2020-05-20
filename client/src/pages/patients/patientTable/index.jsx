@@ -1,17 +1,16 @@
-import React, { Component } from 'react';
 import {
   getLatestReading,
   getPrettyDate,
   getTrafficIcon,
   sortPatientsByLastReading,
 } from '../../../shared/utils';
+import { getLatestReadingDateTime, trafficLights } from './utils';
 
 import MaterialTable from 'material-table';
+import React from 'react';
 import Switch from '@material-ui/core/Switch';
-import { getLatestReadingDateTime } from '../utils';
-import { trafficLights } from './utils';
 
-export class PatientTable extends Component {
+export class PatientTable extends React.Component {
   state = {
     columns: [
       {
