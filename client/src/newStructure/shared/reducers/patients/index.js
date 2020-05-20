@@ -1,6 +1,6 @@
-import { Endpoint, Method } from '../../../api/constants';
-
-import { requestActionCreator } from '../../../actions/api';
+import { Endpoints } from '../../../server/endpoints';
+import { Methods } from '../../../server/methods';
+import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
 
 const GET_PATIENT = `patients/GET_PATIENT`;
@@ -18,51 +18,47 @@ const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
 const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 
 export const getPatient = (patientId) => {
-  return requestActionCreator(
-    `${Endpoint.PATIENT}${Endpoint.READING}/${patientId}`,
-    Method.GET,
-    null,
-    (response) => ({
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.PATIENT}${Endpoints.READING}/${patientId}`,
+    onSuccess: (response) => ({
       type: GET_PATIENT,
       payload: response,
     }),
-    (error) => ({
+    onError: (error) => ({
       type: GET_PATIENT_ERR,
       payload: error,
     })
-  );
+  });
 };
 
 export const getPatients = () => {
-  return requestActionCreator(
-    Endpoint.PATIENTS_ALL_INFO,
-    Method.GET,
-    null,
-    (response) => ({
+  return serverRequestActionCreator({
+    endpoint: Endpoints.PATIENTS_ALL_INFO,
+    onSuccess: (response) => ({
       type: GET_PATIENTS,
       payload: response,
     }),
-    (error) => ({
+    onError: (error) => ({
       type: GET_PATIENTS_ERR,
       payload: error,
     })
-  );
+  });
 };
 
 export const updatePatient = (patientId, data) => {
-  return requestActionCreator(
-    `${Endpoint.PATIENT}/${patientId}`,
-    Method.PUT,
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.PATIENT}/${patientId}`,
+    method: Methods.PUT,
     data,
-    (response) => ({
+    onSuccess: (response) => ({
       type: UPDATE_PATIENT,
       payload: response,
     }),
-    (error) => ({
+    onError: (error) => ({
       type: UPDATE_PATIENT_ERR,
       payload: error,
     })
-  );
+  });
 };
 
 export const getPatientsRequested = () => ({
