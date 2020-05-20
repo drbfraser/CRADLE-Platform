@@ -1,17 +1,17 @@
 .centered-flexbox {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .education-img {
-    max-width: 100%;
+  max-width: 100%;
 }
 
 .margin-top {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .padding-around {
-    padding: 20px;
+  padding: 20px;
 }

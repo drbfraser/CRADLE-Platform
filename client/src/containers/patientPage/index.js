@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { getPatients, getPatientsRequested } from '../../actions/patients'
 import { getCurrentUser } from '../../actions/users'
@@ -6,13 +6,13 @@ import PatientTable from './patientTable'
 
 class PatientPage extends Component {
   state = {
-    selectedPatient: { 
-      patientId: '', 
-      patientName: 'Test', 
-      patientSex: 'F', 
+    selectedPatient: {
+      patientId: '',
+      patientName: 'Test',
+      patientSex: 'F',
       medicalHistory: '',
-      drugHistory: '', 
-      villageNumber:'', 
+      drugHistory: '',
+      villageNumber: '',
       readings: []
     }
   }
@@ -21,14 +21,17 @@ class PatientPage extends Component {
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser()
     }
-    if(!this.props.patients.patientsList || this.props.patients.patientsList.length === 0) {
-      this.props.getPatients();
+    if (
+      !this.props.patients.patientsList ||
+      this.props.patients.patientsList.length === 0
+    ) {
+      this.props.getPatients()
     }
   }
 
-  patientCallback = (selectedPatient) => {
+  patientCallback = selectedPatient => {
     console.log('Received callback: ')
-    this.props.history.push(`/patient/${selectedPatient.patientId}`);
+    this.props.history.push(`/patient/${selectedPatient.patientId}`)
   }
 
   render() {
@@ -39,7 +42,10 @@ class PatientPage extends Component {
 
     return (
       <div>
-          <PatientTable callbackFromParent={this.patientCallback} data={this.props.patients.patientsList} isLoading={this.props.patients.isLoading}></PatientTable>
+        <PatientTable
+          callbackFromParent={this.patientCallback}
+          data={this.props.patients.patientsList}
+          isLoading={this.props.patients.isLoading}></PatientTable>
       </div>
     )
   }
@@ -47,7 +53,7 @@ class PatientPage extends Component {
 
 const mapStateToProps = ({ patients, user }) => ({
   patients: patients,
-  user : user.currentUser
+  user: user.currentUser
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -58,7 +64,7 @@ const mapDispatchToProps = dispatch => ({
   getCurrentUser: () => {
     dispatch(getCurrentUser())
   }
-}) 
+})
 
 export default connect(
   mapStateToProps,
