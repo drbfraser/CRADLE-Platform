@@ -10,7 +10,6 @@ import healthFacilities from './healthFacilities'
 import newReading from './newReading'
 import chat from './chat'
 
-
 const appReducer = combineReducers({
   counter,
   posts,
@@ -28,5 +27,5 @@ export default (state, action) => {
   if (action.type === 'LOGOUT_USER') {
     state = undefined
   }
-  return appReducer(state,action)
+  return appReducer(state, action)
 }
