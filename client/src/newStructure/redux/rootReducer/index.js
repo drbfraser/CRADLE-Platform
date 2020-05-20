@@ -1,7 +1,7 @@
-import { LOGOUT_USER, userReducer } from '../../shared/reducers/user';
-
+import { LOGOUT_USER } from '../../shared/reducers/user/currentUser';
 import { combineReducers } from 'redux';
 import { patientsReducer } from '../../shared/reducers/patients';
+import { userReducer } from '../../shared/reducers/user';
 
 const appReducer = combineReducers({
   user: userReducer,
