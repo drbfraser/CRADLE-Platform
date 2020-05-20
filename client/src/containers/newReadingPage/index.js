@@ -1,16 +1,17 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { getCurrentUser } from '../../actions/users'
-import { newReadingPost, createReadingDefault } from '../../actions/newReading'
-import PatientInfoForm, { GESTATIONAL_AGE_UNITS } from './patientInfoForm'
-import BpForm from './bpForm'
-import SymptomForm from './symptomForm'
-import UrineTestForm, { initialUrineTests } from './urineTestForm'
-import SweetAlert from 'sweetalert2-react'
+import './index.css'
 
 import { Button, Divider, Form } from 'semantic-ui-react'
+import PatientInfoForm, { GESTATIONAL_AGE_UNITS } from './patientInfoForm'
+import React, { Component } from 'react'
+import UrineTestForm, { initialUrineTests } from './urineTestForm'
+import { addNewPatient, afterNewPatientAdded } from '../../actions/patients'
+import { createReadingDefault, newReadingPost } from '../../actions/newReading'
 
-import './index.css'
+import BpForm from './bpForm'
+import SweetAlert from 'sweetalert2-react'
+import SymptomForm from './symptomForm'
+import { connect } from 'react-redux'
+import { getCurrentUser } from '../../actions/users'
 
 var symptom = []
 
@@ -73,15 +74,24 @@ class NewReadingPage extends Component {
     }
   }
 
-  static getDerivedStateFromProps = (props, state) => {
-    if (props.readingCreated) {
-      props.createReadingDefault()
-      return {
-        ...state,
-        showSuccessReading: true
-      }
+    static getDerivedStateFromProps = (props, state) => {
+        if (props.newPatientAdded) {
+            props.createReadingDefault()
+            props.afterNewPatientAdded()
+            return {
+                ...state,
+                showSuccessReading: true,
+            }
+        }
+        
+        if (props.readingCreated) {
+            const newPatient = props.newReadingData.patient
+            newPatient.readings.push(props.newReadingData.reading)
+            props.addNewPatient(newPatient)
+            return state
+        }
     }
-  }
+  
 
   handleChange = event => {
     this.setState({
@@ -306,21 +316,29 @@ class NewReadingPage extends Component {
 }
 
 const mapStateToProps = ({ user, newReading, patients }) => ({
-  user: user.currentUser,
-  createReadingStatusError: newReading.error,
-  readingCreated: newReading.readingCreated
+    user: user.currentUser,
+    createReadingStatusError: newReading.error,
+    readingCreated: newReading.readingCreated,
+    newReadingData: newReading.message,
+    newPatientAdded: patients.newPatientAdded,
 })
 
 const mapDispatchToProps = dispatch => ({
-  newReadingPost: data => {
-    dispatch(newReadingPost(data))
-  },
-  createReadingDefault: () => {
-    dispatch(createReadingDefault())
-  },
-  getCurrentUser: () => {
-    dispatch(getCurrentUser())
-  }
+    addNewPatient: newPatient => {
+      dispatch(addNewPatient(newPatient));
+    },
+    afterNewPatientAdded: () => {
+      dispatch(afterNewPatientAdded());
+    },
+    newReadingPost: data => {
+        dispatch(newReadingPost(data))
+    },
+    createReadingDefault: () => {
+        dispatch(createReadingDefault())
+    },
+    getCurrentUser: () => {
+        dispatch(getCurrentUser())
+    }
 })
 
 export default connect(
