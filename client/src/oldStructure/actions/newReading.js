@@ -1,6 +1,5 @@
-import BASE_URL from '../serverUrl'
-import { getPatients } from './patients'
 import { Endpoint, Method } from '../api/constants'
+
 import { requestActionCreator } from './api'
 
 export const CREATE_READING_SUCCESS = 'CREATE_READING_SUCCESS'
@@ -30,5 +29,3 @@ const createReadingOnError = error => ({
 export const createReadingDefault = () => ({
     type: CREATE_READING_DEFAULT
 })
-
-  

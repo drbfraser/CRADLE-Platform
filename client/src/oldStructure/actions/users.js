@@ -1,9 +1,7 @@
-import { push } from 'connected-react-router'
-import axios from 'axios';
-
-import BASE_URL from '../serverUrl'
-import { requestActionCreator } from './api';
 import { Endpoint, Method } from '../api/constants';
+
+import { push } from 'connected-react-router'
+import { requestActionCreator } from './api';
 
 export const GET_USERS_SUCCESS = 'users/GET_USERS_SUCCESS'
 export const GET_USERS_REQ  = 'users/GET_USERS_REQ'

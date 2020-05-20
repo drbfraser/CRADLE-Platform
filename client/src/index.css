@@ -25,39 +25,39 @@ main {
 }
 
 .loginWrapper {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    height: calc(86vh - 54px);
-    /* height: 100vh; */
-    width: 100vw;
-    justify-content: center;
-    align-items: center; 
-    position: relative;   
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  height: calc(86vh - 54px);
+  /* height: 100vh; */
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
-.loginWrapper > * {
-    min-height: auto !important;
+.loginWrapper>* {
+  min-height: auto !important;
 }
 
 .subWrapper {
-    width: 45%;
-    margin: 0;
+  width: 45%;
+  margin: 0;
 }
 
 .imgStyle {
-    height: 100%;
-    width: 100%;
-    position: relative;
-    left: -25%;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  left: -25%;
 }
 
 .inputStyle {
-    width: 65%;
-    font-size: 20px;
-    border-bottom: solid 1px #000;
-    position: relative;
-    left: 2%;
+  width: 65%;
+  font-size: 20px;
+  border-bottom: solid 1px #000;
+  position: relative;
+  left: 2%;
 }
 
 input {
@@ -86,7 +86,7 @@ input {
 }
 
 input::placeholder {
-    color: rgb(112, 106, 106);
+  color: rgb(112, 106, 106);
 }
 
 

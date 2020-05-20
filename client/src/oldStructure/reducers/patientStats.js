@@ -1,9 +1,9 @@
 // import all the actions here
 
 import {
-    GET_SELECTEDPATIENTSTATS,
-    GET_SELECTEDPATIENTSTATS_REQUESTED,
-    GET_SELECTEDPATIENTSTATS_ERR
+    GET_SELECTED_PATIENTS_STATS,
+    GET_SELECTED_PATIENTS_STATS_ERR,
+    GET_SELECTED_PATIENTS_STATS_REQUESTED
 } from '../actions/statistics';
 
 const initialState = {
@@ -13,20 +13,20 @@ const initialState = {
 export default (state = initialState, action) => {
     switch (action.type) {
 
-        case GET_SELECTEDPATIENTSTATS:
+        case GET_SELECTED_PATIENTS_STATS:
             //console.log(action.payload)
             return {
                 ...state,
                 selectedPatientStatsList: action.payload.data
             }
 
-        case GET_SELECTEDPATIENTSTATS_REQUESTED:
+        case GET_SELECTED_PATIENTS_STATS_REQUESTED:
             return {
                 ...state,
                 isLoading: true
             }
 
-        case GET_SELECTEDPATIENTSTATS_ERR:
+        case GET_SELECTED_PATIENTS_STATS_ERR:
             return {
                 ...state,
                 isLoading: false

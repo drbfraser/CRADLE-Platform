@@ -7,19 +7,18 @@
  *      this function should handle data validation
  */
 
+import { Button, Form, Input, Modal, Select, TextArea } from 'semantic-ui-react'
 import React, { Component } from 'react'
+import {
+    createFollowUp,
+    setReadingId,
+    updateFollowUp
+} from '../../actions/referrals'
+
 import PropTypes from 'prop-types'
+import Switch from '@material-ui/core/Switch'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Button, Modal, Form, TextArea, Input, Select } from 'semantic-ui-react'
-import Switch from '@material-ui/core/Switch'
-
-import {
-    updateFollowUp,
-    setReadingId,
-    createFollowUp
-} from '../../actions/referrals'
-import { getPatients } from '../../actions/patients'
 
 export const followupFrequencyUnitUnit = [
     { key: 'none', text: 'N/a', value: 'NONE' },

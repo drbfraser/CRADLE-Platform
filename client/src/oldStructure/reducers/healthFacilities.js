@@ -1,9 +1,9 @@
 // import all the actions here
 
 import {
-    GET_HEALTHFACILITY_SUCCESS,
-    GET_HEALTHFACILITY_REQ,
-    GET_HEALTHFACILITY_ERR
+    GET_HEALTH_FACILITY_ERR,
+    GET_HEALTH_FACILITY_REQ,
+    GET_HEALTH_FACILITY_SUCCESS
 } from '../actions/healthFacilities';
 
 const initialState = {
@@ -12,19 +12,19 @@ const initialState = {
 
 export default (state = initialState, action) => {
     switch (action.type) {
-        case GET_HEALTHFACILITY_SUCCESS:
+        case GET_HEALTH_FACILITY_SUCCESS:
             return {
                 ...state,
                 healthFacilitiesList: action.payload.data
             }
         
-        case GET_HEALTHFACILITY_REQ:
+        case GET_HEALTH_FACILITY_REQ:
             return {
                 ...state,
                 isLoading: true
             }
 
-        case GET_HEALTHFACILITY_ERR:
+        case GET_HEALTH_FACILITY_ERR:
             return {
                 ...state,
                 isLoading: false

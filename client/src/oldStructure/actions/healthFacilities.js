@@ -1,9 +1,10 @@
-import { requestActionCreator } from './api';
 import { Endpoint, Method } from '../api/constants';
 
-export const GET_HEALTHFACILITY_SUCCESS = 'healthFacility/GET_HEALTHFACILITY_SUCCESS'
-export const GET_HEALTHFACILITY_REQ  = 'healthFacility/GET_HEALTHFACILITY_REQ'
-export const GET_HEALTHFACILITY_ERR = 'healthFacility/GET_HEALTHFACILITY_ERR'
+import { requestActionCreator } from './api';
+
+export const GET_HEALTH_FACILITY_SUCCESS = 'healthFacility/GET_HEALTH_FACILITY_SUCCESS'
+export const GET_HEALTH_FACILITY_REQ  = 'healthFacility/GET_HEALTH_FACILITY_REQ'
+export const GET_HEALTH_FACILITY_ERR = 'healthFacility/GET_HEALTH_FACILITY_ERR'
 
 export const getHealthFacilityList = () => {
     return requestActionCreator(
@@ -16,15 +17,15 @@ export const getHealthFacilityList = () => {
 }
 
 export const getHealthFacilityListRequested = () => ({
-    type: GET_HEALTHFACILITY_REQ
+    type: GET_HEALTH_FACILITY_REQ
 })
 
 const getHealthFacilityListOnSuccess = response => ({
-    type: GET_HEALTHFACILITY_SUCCESS,
+    type: GET_HEALTH_FACILITY_SUCCESS,
     payload: response
 })
 
 const getHealthFacilityListOnError = error => ({
-    type: GET_HEALTHFACILITY_ERR,
+    type: GET_HEALTH_FACILITY_ERR,
     payload: error
 })

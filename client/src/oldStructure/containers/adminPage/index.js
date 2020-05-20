@@ -1,23 +1,30 @@
+import {
+  Button,
+  Dropdown,
+  Form,
+  Header,
+  Icon,
+  Input,
+  Message,
+  Modal,
+  Select
+} from 'semantic-ui-react'
 import React, {Component} from 'react';
-import MaterialTable from 'material-table';
-import { connect } from 'react-redux'
-import { 
+import {
+  deleteUser,
+  deleteUserRequested,
   getCurrentUser,
-  getUsers, 
-  getUsersRequested, 
-  getVhtList, 
-  getVhtsRequested, 
-  updateUser, 
-  deleteUser, 
-  updateUserRequested,
-  deleteUserRequested
+  getUsers,
+  getUsersRequested,
+  getVhtList,
+  getVhtsRequested,
+  updateUser,
+  updateUserRequested
 } from '../../actions/users'
 import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
-import { Button,
-  Header, Icon, Modal,
-  Form, Select,
-  Input, Dropdown, Message
-} from 'semantic-ui-react'
+
+import MaterialTable from 'material-table';
+import { connect } from 'react-redux'
 
 const options = [
   { key: 'vht', text: 'VHT', value: 1 },

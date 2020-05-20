@@ -1,13 +1,14 @@
-import { requestActionCreator } from './api';
 import { Endpoint, Method } from '../api/constants';
+
+import { requestActionCreator } from './api';
 
 export const GET_STATISTICS = 'posts/GET_STATISTICS'
 export const GET_STATISTICS_REQUESTED = 'posts/GET_STATISTICS_REQUESTED'
 export const GET_STATISTICS_ERR = 'posts/GET_POSTS_ERR'
 
-export const GET_SELECTEDPATIENTSTATS = 'posts/GET_SELECTEDPATIENTSTATS'
-export const GET_SELECTEDPATIENTSTATS_REQUESTED = 'posts/GET_SELECTEDPATIENTSTATS_REQUESTED'
-export const GET_SELECTEDPATIENTSTATS_ERR = 'posts/GET_SELECTEDPATIENTSTATS_ERR'
+export const GET_SELECTED_PATIENTS_STATS = 'posts/GET_SELECTED_PATIENTS_STATS'
+export const GET_SELECTED_PATIENTS_STATS_REQUESTED = 'posts/GET_SELECTED_PATIENTS_STATS_REQUESTED'
+export const GET_SELECTED_PATIENTS_STATS_ERR = 'posts/GET_SELECTED_PATIENTS_STATS_ERR'
 
 export const getStatistics = () => {
     return requestActionCreator(
@@ -40,15 +41,15 @@ export const getSelectedPatientStats = (patientId) => {
 }
 
 export const getSelectedPatientStatsRequested = () => ({
-    type: GET_SELECTEDPATIENTSTATS_REQUESTED
+    type: GET_SELECTED_PATIENTS_STATS_REQUESTED
 })
 
 const getSelectedPatientStatsOnSuccess = response => ({
-    type: GET_SELECTEDPATIENTSTATS,
+    type: GET_SELECTED_PATIENTS_STATS,
     payload: response
 })
 
 const getSelectedPatientStatsOnError = error => ({
-    type: GET_SELECTEDPATIENTSTATS_ERR,
+    type: GET_SELECTED_PATIENTS_STATS_ERR,
     payload: error
 })
