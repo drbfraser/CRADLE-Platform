@@ -1,9 +1,17 @@
-import React from 'react'
 import { ReactComponent as GreenTraffic } from './drawable/green.svg'
-import { ReactComponent as YellowTraffic } from './drawable/yellow.svg'
-import { ReactComponent as RedTraffic } from './drawable/red.svg'
 import { Icon } from 'semantic-ui-react'
+import React from 'react'
+import { ReactComponent as RedTraffic } from './drawable/red.svg'
+import { ReactComponent as YellowTraffic } from './drawable/yellow.svg'
 import { getMomentDate } from '../../utils'
+
+export const trafficLights = [
+    `GREEN`,
+    `YELLOW_UP`,
+    `YELLOW_DOWN`,
+    `RED_UP`,
+    `RED_DOWN`,
+];
 
 export const getTrafficIcon = trafficLightStatus => {
     if (trafficLightStatus === 'RED_DOWN') {

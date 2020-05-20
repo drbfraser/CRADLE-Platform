@@ -1,13 +1,15 @@
-import React, { Component } from 'react'
 import MaterialTable, { MTableHeader } from 'material-table'
-import { getPrettyDate } from '../../utils'
+import React, { Component } from 'react'
 import {
-    getTrafficIcon,
     getLatestReading,
     getLatestReadingDateTime,
-    sortPatientsByLastReading
+    getTrafficIcon,
+    sortPatientsByLastReading,
+    trafficLights,
 } from './patientUtils'
+
 import Switch from '@material-ui/core/Switch'
+import { getPrettyDate } from '../../utils'
 
 class PatientTable extends Component {
     state = {
@@ -29,20 +31,28 @@ class PatientTable extends Component {
                 headerStyle: {
                     textAlign: 'center'
                 },
-                sorting: false
             },
-            { title: 'Patient ID', field: 'patientId' },
+            { title: 'Patient ID', field: 'patientId', customSort: (left, right) => Number(left.patientId) - Number(right.patientId) },
             { title: 'Village', field: 'villageNumber' },
             {
                 title: 'Vital Sign',
                 cellStyle: {
                     padding: '0px'
                 },
-                sorting: false,
                 render: rowData =>
                     getTrafficIcon(
                         getLatestReading(rowData.readings).trafficLightStatus
-                    )
+                    ),
+                customSort: (left, right) => {
+                  const leftIndex = trafficLights.indexOf(
+                      left.readings[0].trafficLightStatus
+                  )
+                  const rightIndex = trafficLights.indexOf(
+                      right.readings[0].trafficLightStatus
+                  )
+                  
+                  return leftIndex - rightIndex;
+                }
             },
             {
                 title: 'Date of Last Reading',
@@ -105,12 +115,13 @@ class PatientTable extends Component {
                 columns={this.state.columns}
                 data={patientData}
                 options={{
+                    pageSize: 10,
                     rowStyle: rowData => {
                         return {
                             height: '75px'
                         }
                     },
-                    pageSize: 10
+                    sorting: true,
                 }}
                 onRowClick={(e, rowData) =>
                     this.props.callbackFromParent(rowData)
