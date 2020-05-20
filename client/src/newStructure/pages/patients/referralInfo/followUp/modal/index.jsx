@@ -19,7 +19,7 @@ import {
   createFollowUp,
   setReadingId,
   updateFollowUp,
-} from '../../actions/referrals';
+} from '../../../../../shared/reducers/referrals';
 
 import PropTypes from 'prop-types';
 import React from 'react';
