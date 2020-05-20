@@ -12,17 +12,6 @@ export const getPrettyDate = (dateStr) => {
   return getMomentDate(dateStr).format('MMMM Do YYYY');
 };
 
-export const getUserFromResponse = (response) => {
-  return {
-    email: response.email,
-    roles: response.roles,
-    firstName: response.firstName,
-    healthFacilityName: response.healthFacilityName,
-    userId: response.userId,
-    vhtList: response.vhtList,
-  };
-};
-
 export const getLatestReading = (readings) => {
   let sortedReadings = readings.sort(
     (a, b) =>

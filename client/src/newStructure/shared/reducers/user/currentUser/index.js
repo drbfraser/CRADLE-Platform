@@ -1,7 +1,6 @@
 import { Endpoints } from '../../../../server/endpoints';
 import { INVALID_USER } from '../serverLoginErrorMessage';
 import { Methods } from '../../../../server/methods';
-import { getUserFromResponse } from '../../../utils';
 import { push } from 'connected-react-router';
 
 const USER_LOGIN_SUCCESS = `user/USER_LOGIN_SUCCESS`;
@@ -56,9 +55,17 @@ export const currentUserReducer = (state = initialState, action) => {
     case USER_LOGIN_SUCCESS:
       localStorage.setItem(`token`, action.payload.data.token);
       localStorage.setItem(`refresh`, action.payload.data.refresh);
+      const user = action.payload.data;
       return {
         ...state,
-        ...getUserFromResponse(action.payload.data),
+        ...{
+          email: user.email,
+          roles: user.roles,
+          firstName: user.firstName,
+          healthFacilityName: user.healthFacilityName,
+          userId: user.userId,
+          vhtList: user.vhtList,
+        },
         isLoggedIn: true,
       };
     default:
