@@ -1,5 +1,3 @@
-import './index.css';
-
 import { Bar, Line } from 'react-chartjs-2';
 import { Card, Statistic } from 'semantic-ui-react';
 
