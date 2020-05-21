@@ -1,5 +1,6 @@
 import { LOGOUT_USER } from '../../shared/reducers/user/currentUser';
 import { allPatientsStatisticsReducer } from '../../shared/reducers/allPatientsStatistics';
+import { chatReducer } from '../../pages/videoChat/reducers/chat';
 import { combineReducers } from 'redux';
 import { newReadingStatusReducer } from '../../shared/reducers/newReadingStatus';
 import { patientsReducer } from '../../shared/reducers/patients';
@@ -8,6 +9,7 @@ import { selectedPatientStatisticsReducer } from '../../shared/reducers/selected
 import { userReducer } from '../../shared/reducers/user';
 
 const appReducer = combineReducers({
+  chat: chatReducer,
   newReading: newReadingStatusReducer,
   patients: patientsReducer,
   patientStats: selectedPatientStatisticsReducer,
