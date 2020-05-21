@@ -1,5 +1,3 @@
-import './index.css';
-
 import { Form, Header, Select } from 'semantic-ui-react';
 
 import Paper from '@material-ui/core/Paper';

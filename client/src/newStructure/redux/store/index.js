@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 
-const history = History.createBrowserHistory();
+export const history = History.createBrowserHistory();
 const reducer = connectRouter(history)(rootReducer);
 
 const preloadedState = {};

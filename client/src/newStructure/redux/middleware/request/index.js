@@ -5,7 +5,7 @@ import { Methods } from '../../../server/methods';
 import axios from 'axios';
 import { go } from 'connected-react-router';
 import jwt_decode from 'jwt-decode';
-import { logoutUserAction } from '../actions/users';
+import { logoutUserAction } from '../../../shared/reducers/user/currentUser';
 
 export const requestMiddleware = () => ({ dispatch }) => (next) => async (
   action

@@ -1,5 +1,6 @@
 import { ReactComponent as GreenTraffic } from '../icons/green.svg';
 import { Icon } from 'semantic-ui-react';
+import React from 'react';
 import { ReactComponent as RedTraffic } from '../icons/red.svg';
 import { ReactComponent as YellowTraffic } from '../icons/yellow.svg';
 import moment from 'moment';
@@ -23,6 +24,10 @@ export const getLatestReading = (readings) => {
       getMomentDate(a.dateTimeTaken).valueOf()
   );
   return sortedReadings[0];
+};
+
+export const getLatestReadingDateTime = (readings) => {
+  return getLatestReading(readings).dateTimeTaken;
 };
 
 export const sortPatientsByLastReading = (a, b) =>

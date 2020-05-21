@@ -6,7 +6,7 @@ import {
 import { PatientTable } from './patientTable';
 import React from 'react';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user';
+import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 
 class PatientPageComponent extends React.Component {
   state = {

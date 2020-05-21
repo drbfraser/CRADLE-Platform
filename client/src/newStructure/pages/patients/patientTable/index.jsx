@@ -1,14 +1,15 @@
 import {
   getLatestReading,
+  getLatestReadingDateTime,
   getPrettyDate,
   getTrafficIcon,
   sortPatientsByLastReading,
 } from '../../../shared/utils';
-import { getLatestReadingDateTime, trafficLights } from './utils';
 
 import MaterialTable from 'material-table';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
+import { trafficLights } from './utils';
 
 export class PatientTable extends React.Component {
   state = {

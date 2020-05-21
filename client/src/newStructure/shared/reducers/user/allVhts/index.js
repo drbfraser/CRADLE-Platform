@@ -1,4 +1,5 @@
 import { Endpoints } from '../../../../server/endpoints';
+import { serverRequestActionCreator } from '../../utils';
 
 const GET_VHTS_SUCCESS = `user/GET_VHTS_SUCCESS`;
 const GET_VHTS_REQUEST = `user/GET_VHTS_REQUEST`;

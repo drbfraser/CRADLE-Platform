@@ -2,6 +2,7 @@ import { Endpoints } from '../../../../server/endpoints';
 import { INVALID_USER } from '../serverLoginErrorMessage';
 import { Methods } from '../../../../server/methods';
 import { push } from 'connected-react-router';
+import { serverRequestActionCreator } from '../../utils';
 
 const USER_LOGIN_SUCCESS = `user/USER_LOGIN_SUCCESS`;
 const LOGIN_USER = `user/LOGIN_USER`;
@@ -10,6 +11,14 @@ export const LOGOUT_USER = `user/LOGOUT_USER`;
 export const logoutUserAction = () => ({
   type: LOGOUT_USER,
 });
+
+export const logoutUser = () => {
+  return (dispatch) => {
+    localStorage.removeItem('token');
+    dispatch(logoutUserAction());
+    dispatch(push('/login'));
+  };
+};
 
 export const userLoginFetch = (data) => {
   return serverRequestActionCreator({

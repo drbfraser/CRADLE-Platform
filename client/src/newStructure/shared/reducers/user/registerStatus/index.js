@@ -1,5 +1,6 @@
 import { Endpoints } from '../../../../server/endpoints';
 import { Methods } from '../../../../server/methods';
+import { serverRequestActionCreator } from '../../utils';
 
 const REGISTER_USER_DEFAULT = `user/REGISTER_USER_DEFAULT`;
 const REGISTER_USER_SUCCESS = `user/REGISTER_USER_SUCCESS`;

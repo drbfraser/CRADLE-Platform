@@ -1,4 +1,5 @@
 import { Endpoints } from '../../../server/endpoints';
+import { serverRequestActionCreator } from '../../reducers/utils';
 
 const GET_SELECTED_PATIENT_STATISTICS_REQUESTED = `selectedPatientStatistics/GET_SELECTED_PATIENT_STATISTICS_REQUESTED`;
 const GET_SELECTED_PATIENT_STATISTICS_SUCCESS = `selectedPatientStatistics/GET_SELECTED_PATIENT_STATISTICS_SUCCESS`;

@@ -1,5 +1,6 @@
 import { Endpoints } from '../../../../server/endpoints';
 import { Methods } from '../../../../server/methods';
+import { serverRequestActionCreator } from '../../utils';
 
 const GET_USERS_REQUEST = `user/GET_USERS_REQUEST`;
 const GET_USERS_SUCCESS = `user/GET_USERS_SUCCESS`;
