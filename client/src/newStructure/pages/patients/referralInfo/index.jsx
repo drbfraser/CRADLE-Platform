@@ -4,7 +4,7 @@ import { Icon } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { getPrettyDateTime } from '../utils';
+import { getPrettyDateTime } from '../../../shared/utils';
 
 export const ReferralInfo = ({ referral }) =>
   referral ? (

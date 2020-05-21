@@ -3,7 +3,7 @@ import { Divider, Header, Segment } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { followupFrequencyUnitOptions } from '../utils';
-import { getPrettyDateTime } from '../../../utils';
+import { getPrettyDateTime } from '../../../../../shared/utils';
 
 export const FollowUpInfo = (props) => {
   if (props.followUp) {

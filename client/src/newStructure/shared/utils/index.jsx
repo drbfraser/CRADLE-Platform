@@ -12,6 +12,10 @@ export const getPrettyDate = (dateStr) => {
   return getMomentDate(dateStr).format('MMMM Do YYYY');
 };
 
+export const getPrettyDateTime = (dateStr) => {
+  return getMomentDate(dateStr).format('MMMM Do YYYY, h:mm:ss a');
+};
+
 export const getLatestReading = (readings) => {
   let sortedReadings = readings.sort(
     (a, b) =>
