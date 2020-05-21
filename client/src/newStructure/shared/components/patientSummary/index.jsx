@@ -1,20 +1,12 @@
 import { Bar, Line } from 'react-chartjs-2';
+import { Button, Divider, Form, Header, Input, Modal } from 'semantic-ui-react';
+import { INITIAL_URINE_TESTS, URINE_TEST_CHEMICALS } from '../../utils';
 import {
-  Button,
-  Divider,
-  Form,
-  Header,
-  Input,
-  Modal,
-} from 'semantic-ui-react';
-import PatientInfoForm, {
-  GESTATIONAL_AGE_UNITS,
-} from '../newReadingPage/patientInfoForm';
-import UrineTestForm, {
-  initialUrineTests,
-  urineTestChemicals,
-} from '../newReadingPage/urineTestForm';
-import { getMomentDate, getPrettyDate, getPrettyDateTime, getTrafficIcon } from '../../utils';
+  getMomentDate,
+  getPrettyDate,
+  getPrettyDateTime,
+  getTrafficIcon,
+} from '../../utils';
 import {
   getPatients,
   getPatientsRequested,
@@ -28,20 +20,23 @@ import {
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import { GESTATIONAL_AGE_UNITS } from '../../utils';
 import Grid from '@material-ui/core/Grid';
 import { Icon } from 'semantic-ui-react';
 import Paper from '@material-ui/core/Paper';
+import { PatientInfoForm } from '../form/patientInfo';
 import React from 'react';
 import { ReferralInfo } from './referralInfo';
 import SweetAlert from 'sweetalert2-react';
-import SymptomForm from '../newReadingPage/symptomForm';
+import { SymptomForm } from '../form/symptom';
 import Typography from '@material-ui/core/Typography';
+import { UrineTestForm } from '../form/urineTest';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../reducers/user/currentUser';
 import { getReferrals } from '../../reducers/referrals';
 import { guid } from './utils';
-import { newReadingPost } from '../../actions/newReading';
+import { newReadingPost } from '../../reducers/newReadingStatus';
 
 class PatientSummaryComponent extends React.Component {
   state = {
@@ -60,7 +55,7 @@ class PatientSummaryComponent extends React.Component {
       dateRecheckVitalsNeeded: '',
       isFlaggedForFollowup: false,
       symptoms: '',
-      urineTests: initialUrineTests,
+      urineTests: INITIAL_URINE_TESTS,
     },
     checkedItems: {
       none: true,
@@ -87,7 +82,9 @@ class PatientSummaryComponent extends React.Component {
 
     this.props.getReferrals(this.getReferralIds(this.props.selectedPatient));
     if (this.props.selectedPatient) {
-      this.props.getSelectedPatientStatistics(this.props.selectedPatient.patientId);
+      this.props.getSelectedPatientStatistics(
+        this.props.selectedPatient.patientId
+      );
     }
   };
 
@@ -359,7 +356,7 @@ class PatientSummaryComponent extends React.Component {
       this.setState({
         newReading: {
           ...this.state.newReading,
-          urineTests: initialUrineTests,
+          urineTests: INITIAL_URINE_TESTS,
         },
       });
     }
@@ -828,23 +825,23 @@ class PatientSummaryComponent extends React.Component {
                               <ExpansionPanelDetails>
                                 <Typography>
                                   <p>
-                                    <b>{urineTestChemicals.LEUC}: </b>{' '}
+                                    <b>{URINE_TEST_CHEMICALS.LEUC}: </b>{' '}
                                     {row.urineTests.urineTestLeuc}{' '}
                                   </p>
                                   <p>
-                                    <b>{urineTestChemicals.NIT}: </b>{' '}
+                                    <b>{URINE_TEST_CHEMICALS.NIT}: </b>{' '}
                                     {row.urineTests.urineTestNit}{' '}
                                   </p>
                                   <p>
-                                    <b>{urineTestChemicals.GLU}: </b>{' '}
+                                    <b>{URINE_TEST_CHEMICALS.GLU}: </b>{' '}
                                     {row.urineTests.urineTestGlu}{' '}
                                   </p>
                                   <p>
-                                    <b>{urineTestChemicals.PRO}: </b>{' '}
+                                    <b>{URINE_TEST_CHEMICALS.PRO}: </b>{' '}
                                     {row.urineTests.urineTestPro}{' '}
                                   </p>
                                   <p>
-                                    <b>{urineTestChemicals.BLOOD}: </b>{' '}
+                                    <b>{URINE_TEST_CHEMICALS.BLOOD}: </b>{' '}
                                     {row.urineTests.urineTestBlood}{' '}
                                   </p>
                                 </Typography>

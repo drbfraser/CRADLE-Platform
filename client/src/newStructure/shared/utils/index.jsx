@@ -62,3 +62,24 @@ export const getTrafficIcon = (trafficLightStatus) => {
     return <GreenTraffic style={{ height: '65px', width: '65px' }} />;
   }
 };
+
+export const GESTATIONAL_AGE_UNITS = {
+  WEEKS: `GESTATIONAL_AGE_UNITS_WEEKS`,
+  MONTHS: `GESTATIONAL_AGE_UNITS_MONTHS`,
+};
+
+export const INITIAL_URINE_TESTS = {
+  urineTestNit: ``,
+  urineTestBlood: ``,
+  urineTestLeuc: ``,
+  urineTestPro: ``,
+  urineTestGlu: ``,
+};
+
+export const URINE_TEST_CHEMICALS = {
+  LEUC: `Leukocytes`,
+  NIT: `Nitrites`,
+  GLU: `Glucose`,
+  PRO: `Protein`,
+  BLOOD: `Blood`,
+};
