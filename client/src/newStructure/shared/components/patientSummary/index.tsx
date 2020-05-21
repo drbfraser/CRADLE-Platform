@@ -15,7 +15,7 @@ import {
 import {
   getSelectedPatientStatistics,
   getSelectedPatientStatisticsRequested,
-} from '../../../shared/reducers/selectedPatientStatistics';
+} from '../../reducers/selectedPatientStatistics';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
