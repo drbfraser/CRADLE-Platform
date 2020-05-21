@@ -16,63 +16,63 @@ import { getCurrentUser } from '../../actions/users'
 var symptom = []
 
 function guid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (Math.random() * 16) | 0
-        var v = c === 'x' ? r : (r & 0x3) | 0x8
-        return v.toString(16)
-    })
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = (Math.random() * 16) | 0
+    var v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
 }
 
 const initState = {
-    patient: {
-        patientId: '',
-        patientName: '',
-        patientAge: '',
-        patientSex: 'FEMALE',
-        isPregnant: true,
-        gestationalAgeValue: '',
-        gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
-        zone: '',
-        dob: null,
-        villageNumber: '',
-        drugHistory: '',
-        medicalHistory: ''
-    },
-    reading: {
-        userId: '',
-        readingId: '',
-        dateTimeTaken: null,
-        bpSystolic: '',
-        bpDiastolic: '',
-        heartRateBPM: '',
-        dateRecheckVitalsNeeded: null,
-        isFlaggedForFollowup: false,
-        symptoms: '',
-        urineTests: initialUrineTests
-    },
-    checkedItems: {
-        none: true,
-        headache: false,
-        bleeding: false,
-        blurredVision: false,
-        feverish: false,
-        abdominalPain: false,
-        unwell: false,
-        other: false,
-        otherSymptoms: ''
-    },
-    showSuccessReading: false,
-    hasUrineTest: false
+  patient: {
+    patientId: '',
+    patientName: '',
+    patientAge: '',
+    patientSex: 'FEMALE',
+    isPregnant: true,
+    gestationalAgeValue: '',
+    gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
+    zone: '',
+    dob: null,
+    villageNumber: '',
+    drugHistory: '',
+    medicalHistory: ''
+  },
+  reading: {
+    userId: '',
+    readingId: '',
+    dateTimeTaken: null,
+    bpSystolic: '',
+    bpDiastolic: '',
+    heartRateBPM: '',
+    dateRecheckVitalsNeeded: null,
+    isFlaggedForFollowup: false,
+    symptoms: '',
+    urineTests: initialUrineTests
+  },
+  checkedItems: {
+    none: true,
+    headache: false,
+    bleeding: false,
+    blurredVision: false,
+    feverish: false,
+    abdominalPain: false,
+    unwell: false,
+    other: false,
+    otherSymptoms: ''
+  },
+  showSuccessReading: false,
+  hasUrineTest: false
 }
 
 class NewReadingPage extends Component {
-    state = initState
+  state = initState
 
-    componentDidMount = () => {
-        if (!this.props.user.isLoggedIn) {
-            this.props.getCurrentUser()
-        }
+  componentDidMount = () => {
+    if (!this.props.user.isLoggedIn) {
+      this.props.getCurrentUser()
     }
+  }
 
     static getDerivedStateFromProps = (props, state) => {
         if (props.newPatientAdded) {
@@ -91,229 +91,228 @@ class NewReadingPage extends Component {
             return state
         }
     }
+  
 
-    handleChange = event => {
-        this.setState({
-            patient: {
-                ...this.state.patient,
-                [event.target.name]: event.target.value
-            }
-        })
-    }
+  handleChange = event => {
+    this.setState({
+      patient: {
+        ...this.state.patient,
+        [event.target.name]: event.target.value
+      }
+    })
+  }
 
-    handleSelectChange = (e, value) => {
-        if (value.name === 'patientSex' && value.value === 'MALE') {
-            this.setState({
-                patient: {
-                    ...this.state.patient,
-                    patientSex: 'MALE',
-                    gestationalAgeValue: '',
-                    isPregnant: false
-                }
-            })
-        } else {
-            this.setState({
-                patient: { ...this.state.patient, [value.name]: value.value }
-            })
+  handleSelectChange = (e, value) => {
+    if (value.name === 'patientSex' && value.value === 'MALE') {
+      this.setState({
+        patient: {
+          ...this.state.patient,
+          patientSex: 'MALE',
+          gestationalAgeValue: '',
+          isPregnant: false
         }
+      })
+    } else {
+      this.setState({
+        patient: { ...this.state.patient, [value.name]: value.value }
+      })
     }
+  }
 
-    handleReadingChange = (e, value) => {
-        this.setState({
-            reading: { ...this.state.reading, [value.name]: value.value }
-        })
-    }
+  handleReadingChange = (e, value) => {
+    this.setState({
+      reading: { ...this.state.reading, [value.name]: value.value }
+    })
+  }
 
-    handleUrineTestChange = (e, value) => {
-        this.setState({
-            reading: {
-                ...this.state.reading,
-                urineTests: {
-                    ...this.state.reading.urineTests,
-                    [value.name]: value.value
-                }
-            }
-        })
-    }
-
-    handleUrineTestSwitchChange = e => {
-        this.setState({
-            hasUrineTest: e.target.checked
-        })
-        if (!e.target.checked) {
-            this.setState({
-                reading: {
-                    ...this.state.reading,
-                    urineTests: initialUrineTests
-                }
-            })
+  handleUrineTestChange = (e, value) => {
+    this.setState({
+      reading: {
+        ...this.state.reading,
+        urineTests: {
+          ...this.state.reading.urineTests,
+          [value.name]: value.value
         }
+      }
+    })
+  }
+
+  handleUrineTestSwitchChange = e => {
+    this.setState({
+      hasUrineTest: e.target.checked
+    })
+    if (!e.target.checked) {
+      this.setState({
+        reading: {
+          ...this.state.reading,
+          urineTests: initialUrineTests
+        }
+      })
+    }
+  }
+
+  handleCheckedChange = (e, value) => {
+    // console.log(value.name)
+    // true => false, pop
+    if (value.value) {
+      if (symptom.indexOf(value.name) >= 0) {
+        symptom.pop(value.name)
+      }
+    } else {
+      // false => true, push
+      if (symptom.indexOf(value.name) < 0) {
+        symptom.push(value.name)
+      }
+    }
+    // console.log(symptom)
+    if (value.name !== 'none') {
+      if (symptom.indexOf('none') >= 0) {
+        symptom.pop('none')
+      }
+      this.setState({
+        checkedItems: {
+          ...this.state.checkedItems,
+          [value.name]: !value.value,
+          none: false
+        }
+      })
+    } else {
+      while (symptom.length > 0) {
+        symptom.pop()
+      }
+      this.setState({
+        checkedItems: {
+          none: true,
+          headache: false,
+          bleeding: false,
+          blurredVision: false,
+          feverish: false,
+          abdominalPain: false,
+          unwell: false,
+          other: false,
+          otherSymptoms: ''
+        }
+      })
+    }
+  }
+
+  handleOtherSymptom = event => {
+    //console.log(event.target)
+    this.setState({
+      checkedItems: {
+        ...this.state.checkedItems,
+        [event.target.name]: event.target.value
+      }
+    })
+  }
+
+  handleSubmit = event => {
+    event.preventDefault()
+    console.log('Create new submit')
+    if (symptom.indexOf('other') >= 0) {
+      symptom.pop('other')
+      if (this.state.checkedItems.otherSymptoms !== '') {
+        symptom.push(this.state.checkedItems.otherSymptoms)
+      }
+    }
+    if (this.state.patient.patientAge == '') {
+      this.state.patient.patientAge = null
     }
 
-    handleCheckedChange = (e, value) => {
-        // console.log(value.name)
-        // true => false, pop
-        if (value.value) {
-            if (symptom.indexOf(value.name) >= 0) {
-                symptom.pop(value.name)
-            }
-        } else {
-            // false => true, push
-            if (symptom.indexOf(value.name) < 0) {
-                symptom.push(value.name)
-            }
-        }
-        // console.log(symptom)
-        if (value.name !== 'none') {
-            if (symptom.indexOf('none') >= 0) {
-                symptom.pop('none')
-            }
-            this.setState({
-                checkedItems: {
-                    ...this.state.checkedItems,
-                    [value.name]: !value.value,
-                    none: false
-                }
-            })
-        } else {
-            while (symptom.length > 0) {
-                symptom.pop()
-            }
-            this.setState({
-                checkedItems: {
-                    none: true,
-                    headache: false,
-                    bleeding: false,
-                    blurredVision: false,
-                    feverish: false,
-                    abdominalPain: false,
-                    unwell: false,
-                    other: false,
-                    otherSymptoms: ''
-                }
-            })
-        }
+    if (this.state.patient.dob != null) {
+      this.state.patient.dob = Date.parse(this.state.patient.dob) / 1000
     }
+    var readingID = guid()
 
-    handleOtherSymptom = event => {
-        //console.log(event.target)
-        this.setState({
-            checkedItems: {
-                ...this.state.checkedItems,
-                [event.target.name]: event.target.value
-            }
-        })
-    }
-
-    handleSubmit = event => {
-        event.preventDefault()
-        console.log('Create new submit')
-        if (symptom.indexOf('other') >= 0) {
-            symptom.pop('other')
-            if (this.state.checkedItems.otherSymptoms !== '') {
-                symptom.push(this.state.checkedItems.otherSymptoms)
-            }
+    var dateTimeTaken = Math.floor(Date.now() / 1000)
+    this.setState(
+      {
+        reading: {
+          ...this.state.reading,
+          userId: this.props.user.userId,
+          readingId: readingID,
+          dateTimeTaken: dateTimeTaken,
+          symptoms: symptom.toString()
         }
-        if (this.state.patient.patientAge == '') {
-            this.state.patient.patientAge = null
-        }
-
-        if (this.state.patient.dob != null) {
-            this.state.patient.dob = Date.parse(this.state.patient.dob) / 1000
-        }
-        var readingID = guid()
-
-        var dateTimeTaken = Math.floor(Date.now() / 1000);
-        this.setState(
-            {
-                reading: {
-                    ...this.state.reading,
-                    userId: this.props.user.userId,
-                    readingId: readingID,
-                    dateTimeTaken: dateTimeTaken,
-                    symptoms: symptom.toString()
-                }
-            },
-            function() {
-                let patientData = JSON.parse(JSON.stringify(this.state.patient))
-                let readingData = JSON.parse(JSON.stringify(this.state.reading))
-                if (!this.state.hasUrineTest) {
-                    delete readingData.urineTests
-                }
-
-                let newData = {
-                    patient: patientData,
-                    reading: readingData
-                }
-                console.log(newData)
-                this.props.newReadingPost(newData)
-            }
-        )
-    }
-
-    render() {
-        // don't render page if user is not logged in
-        if (!this.props.user.isLoggedIn) {
-            return <div />
+      },
+      function() {
+        let patientData = JSON.parse(JSON.stringify(this.state.patient))
+        let readingData = JSON.parse(JSON.stringify(this.state.reading))
+        if (!this.state.hasUrineTest) {
+          delete readingData.urineTests
         }
 
-        return (
-            <div
-                style={{
-                    maxWidth: 1200,
-                    marginLeft: 'auto',
-                    marginRight: 'auto'
-                }}>
-                <h1>
-                    <b>Create a new patient and reading:</b>
-                </h1>
-                <Divider />
-                <Form onSubmit={this.handleSubmit}>
-                    <PatientInfoForm
-                        patient={this.state.patient}
-                        onChange={this.handleSelectChange}
-                    />
-                    <div className="leftContainer">
-                        <BpForm
-                            reading={this.state.reading}
-                            onChange={this.handleReadingChange}
-                        />
-                        <SymptomForm
-                            checkedItems={this.state.checkedItems}
-                            patient={this.state.patient}
-                            onChange={this.handleCheckedChange}
-                            onOtherChange={this.handleOtherSymptom}
-                        />
-                    </div>
-                    <div className="rightContainer">
-                        <UrineTestForm
-                            reading={this.state.reading}
-                            onChange={this.handleUrineTestChange}
-                            onSwitchChange={this.handleUrineTestSwitchChange}
-                            hasUrineTest={this.state.hasUrineTest}
-                        />
-                    </div>
+        let newData = {
+          patient: patientData,
+          reading: readingData
+        }
+        console.log(newData)
+        this.props.newReadingPost(newData)
+      }
+    )
+  }
 
-                    <div style={{ clear: 'both' }}></div>
-                    <div className="contentRight">
-                        <Button
-                            style={{ backgroundColor: '#84ced4' }}
-                            type="submit">
-                            Submit
-                        </Button>
-                    </div>
-                </Form>
-
-                <SweetAlert
-                    type="success"
-                    show={this.state.showSuccessReading}
-                    title="Patient Reading Created!"
-                    text="Success! You can view the new reading by going to the Patients tab"
-                    onConfirm={() => this.setState(initState)}
-                />
-            </div>
-        )
+  render() {
+    // don't render page if user is not logged in
+    if (!this.props.user.isLoggedIn) {
+      return <div />
     }
+
+    return (
+      <div
+        style={{
+          maxWidth: 1200,
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }}>
+        <h1>
+          <b>Create a new patient and reading:</b>
+        </h1>
+        <Divider />
+        <Form onSubmit={this.handleSubmit}>
+          <PatientInfoForm
+            patient={this.state.patient}
+            onChange={this.handleSelectChange}
+          />
+          <div className="leftContainer">
+            <BpForm
+              reading={this.state.reading}
+              onChange={this.handleReadingChange}
+            />
+            <SymptomForm
+              checkedItems={this.state.checkedItems}
+              patient={this.state.patient}
+              onChange={this.handleCheckedChange}
+              onOtherChange={this.handleOtherSymptom}
+            />
+          </div>
+          <div className="rightContainer">
+            <UrineTestForm
+              reading={this.state.reading}
+              onChange={this.handleUrineTestChange}
+              onSwitchChange={this.handleUrineTestSwitchChange}
+              hasUrineTest={this.state.hasUrineTest}
+            />
+          </div>
+
+          <div style={{ clear: 'both' }}></div>
+          <div className="contentRight">
+            <Button style={{ backgroundColor: '#84ced4' }} type="submit">
+              Submit
+            </Button>
+          </div>
+        </Form>
+
+        <SweetAlert
+          type="success"
+          show={this.state.showSuccessReading}
+          title="Patient Reading Created!"
+          text="Success! You can view the new reading by going to the Patients tab"
+          onConfirm={() => this.setState(initState)}
+        />
+      </div>
+    )
+  }
 }
 
 const mapStateToProps = ({ user, newReading, patients }) => ({
@@ -343,6 +342,6 @@ const mapDispatchToProps = dispatch => ({
 })
 
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(NewReadingPage)

@@ -1,21 +1,21 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { registerUser, registerUserDefault } from '../../actions/users'
 import { getCurrentUser } from '../../actions/users'
-import { getHealthFacilityList, getHealthFacilityListRequested } from '../../actions/healthFacilities'
-import { Button,
-  Divider, Form, Select,
-  Message
-} from 'semantic-ui-react'
-import { Paper } from '@material-ui/core';
+import {
+  getHealthFacilityList,
+  getHealthFacilityListRequested
+} from '../../actions/healthFacilities'
+import { Button, Divider, Form, Select, Message } from 'semantic-ui-react'
+import { Paper } from '@material-ui/core'
 
 const initState = {
   user: {
-    email: "",
-    password: "",
-    firstName: "",
-    healthFacilityName: "",
-    role: "VHT" // default value
+    email: '',
+    password: '',
+    firstName: '',
+    healthFacilityName: '',
+    role: 'VHT' // default value
   }
 }
 
@@ -23,15 +23,16 @@ class Signup extends Component {
   state = initState
 
   handleChange = event => {
-    this.setState({ user: {
+    this.setState({
+      user: {
         ...this.state.user,
         [event.target.name]: event.target.value
       }
-    });
+    })
   }
 
   handleSelectChange = (e, value) => {
-    this.setState({user: { ...this.state.user, [value.name] : value.value } })
+    this.setState({ user: { ...this.state.user, [value.name]: value.value } })
   }
 
   handleSubmit = event => {
@@ -55,75 +56,91 @@ class Signup extends Component {
 
   render() {
     // only admins can see this page
-    if (this.props.user.roles === undefined || !this.props.user.roles.includes('ADMIN')) {
-      return  <Message warning>
-                <Message.Header>Only Admins can enter this page</Message.Header>
-                <p>Please login with an Admin account</p>
-              </Message>
+    if (
+      this.props.user.roles === undefined ||
+      !this.props.user.roles.includes('ADMIN')
+    ) {
+      return (
+        <Message warning>
+          <Message.Header>Only Admins can enter this page</Message.Header>
+          <p>Please login with an Admin account</p>
+        </Message>
+      )
     }
 
     // construct health facilities list object for dropdown
-    let hfOptions = [];
-    if (this.props.healthFacilityList !== undefined && this.props.healthFacilityList.length > 0) {
+    let hfOptions = []
+    if (
+      this.props.healthFacilityList !== undefined &&
+      this.props.healthFacilityList.length > 0
+    ) {
       for (var i = 0; i < this.props.healthFacilityList.length; i++) {
-        hfOptions.push({'key'  : this.props.healthFacilityList[i],
-                        'text' : this.props.healthFacilityList[i],
-                        'value': this.props.healthFacilityList[i]
-                      })
+        hfOptions.push({
+          key: this.props.healthFacilityList[i],
+          text: this.props.healthFacilityList[i],
+          value: this.props.healthFacilityList[i]
+        })
       }
     }
 
     return (
       <div>
-        {this.props.registerStatus.error &&
-          (<Message negative size="large">
+        {this.props.registerStatus.error && (
+          <Message negative size="large">
             <Message.Header>{this.props.registerStatus.message}</Message.Header>
-          </Message>)
-        }
-        {this.props.registerStatus.error === false &&
-          (<Message success size="large">
+          </Message>
+        )}
+        {this.props.registerStatus.error === false && (
+          <Message success size="large">
             <Message.Header>{this.props.registerStatus.message}</Message.Header>
-          </Message>)
-        }
+          </Message>
+        )}
         <div>
-          <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px", "minWidth" : "500px", "maxWidth" : "750px", "margin": "auto"}}>
+          <Paper
+            style={{
+              padding: '35px 25px',
+              borderRadius: '15px',
+              minWidth: '500px',
+              maxWidth: '750px',
+              margin: 'auto'
+            }}>
             <Form onSubmit={this.handleSubmit}>
               <h1>Create a User</h1>
 
               <label>Email</label>
               <input
                 required
-                name='email'
-                type='email'
+                name="email"
+                type="email"
                 value={this.state.user.email}
                 onChange={this.handleChange}
-                />
-              <br/>
+              />
+              <br />
               <label>First Name</label>
               <input
                 required
                 pattern="[a-zA-Z]*"
-                minLength='2'
-                maxLength='30'
-                name='firstName'
-                type='text'
+                minLength="2"
+                maxLength="30"
+                name="firstName"
+                type="text"
                 value={this.state.user.firstName}
                 onChange={this.handleChange}
-                />
-              <br/>
+              />
+              <br />
               <label>Password</label>
               <input
                 required
-                minLength='5'
-                maxLength='35'
-                type='password'
-                name='password'
+                minLength="5"
+                maxLength="35"
+                type="password"
+                name="password"
                 value={this.state.user.password}
                 onChange={this.handleChange}
-                />
-              <br/>
+              />
+              <br />
               <label>Role</label>
-              <select onChange={this.handleChange} name='role' required>
+              <select onChange={this.handleChange} name="role" required>
                 <option value="VHT">VHT</option>
                 <option value="HCW">HCW</option>
                 <option value="CHO">CHO</option>
@@ -134,14 +151,16 @@ class Signup extends Component {
                 name="healthFacilityName"
                 control={Select}
                 value={this.state.user.healthFacilityName}
-                label='Health Facility'
+                label="Health Facility"
                 options={hfOptions}
-                placeholder='Health Facility'
+                placeholder="Health Facility"
                 onChange={this.handleSelectChange}
               />
               <Divider />
               <div className="flexbox">
-                <Button style={{"backgroundColor" : "#84ced4"}} type='submit'>Submit</Button>
+                <Button style={{ backgroundColor: '#84ced4' }} type="submit">
+                  Submit
+                </Button>
               </div>
             </Form>
           </Paper>
@@ -152,8 +171,8 @@ class Signup extends Component {
 }
 
 const mapStateToProps = ({ user, healthFacilities }) => ({
-  user : user.currentUser,
-  registerStatus : user.registerStatus,
+  user: user.currentUser,
+  registerStatus: user.registerStatus,
   healthFacilityList: healthFacilities.healthFacilitiesList
 })
 
@@ -172,7 +191,6 @@ const mapDispatchToProps = dispatch => ({
     dispatch(registerUserDefault())
   }
 })
-  
 
 export default connect(
   mapStateToProps,
