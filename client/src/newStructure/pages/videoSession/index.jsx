@@ -1,11 +1,12 @@
+import * as RTCMultiConnection from 'rtcmulticonnection';
 import * as io from 'socket.io-client';
 
-import { RTCMultiConnection, copyToClipboard } from './utils';
 import React, { Component } from 'react';
 
 import $ from 'jquery';
 import { Chat } from './chat';
 import { connect } from 'react-redux';
+import { copyToClipboard } from './utils';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import swal from 'sweetalert';
 
