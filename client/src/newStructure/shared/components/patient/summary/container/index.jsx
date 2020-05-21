@@ -6,7 +6,7 @@ import {
 import PatientSummary from '..';
 import React from 'react';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../../../reducers/user/currentUser';
+import { getCurrentUser } from '../../../../../shared/reducers/user/currentUser';
 
 class PatientSummaryContainerComponent extends React.Component {
   constructor(props) {
