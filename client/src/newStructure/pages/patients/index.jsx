@@ -68,7 +68,7 @@ const mapDispatchToProps = (dispatch) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
 });
 
-export const PatientPage = connect(
+export const PatientsPage = connect(
   mapStateToProps,
   mapDispatchToProps
 )(PatientPageComponent);
