@@ -25,6 +25,11 @@ export class CustomForm extends React.Component {
         type="text"
         onChange={this.handleRoomIdChange}
         placeholder="Enter room ID..."
+        style={{
+          fontFamily: `-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif`,
+          fontSize: 15,
+          paddingLeft: 5,
+        }}
       />
     );
 

@@ -1,4 +1,3 @@
-import './videoChatLanding.css';
 import 'typeface-roboto';
 
 import { Button, Header } from 'semantic-ui-react';
@@ -84,12 +83,19 @@ class VideoChatComponent extends React.Component {
     }
 
     return (
-      <div className="loginOverlay">
-        <div className="loginContainer">
+      <div
+        style={{
+          backgroundColor: `lightblue`,
+          height: `calc(100vh - 70px)`,
+          display: `flex`,
+          justifyContent: `center`,
+          alignItems: `center`,
+          margin: -24,
+        }}>
+        <div>
           <Header as={'h1'}>CradleChat</Header>
 
           <Button
-            className="createRoom"
             onClick={this.createNewRoom}
             style={{ marginRight: '15px', backgroundColor: styles.createRoom }}>
             Create Room
