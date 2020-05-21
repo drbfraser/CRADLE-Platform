@@ -1,3 +1,4 @@
+import { LoginForm } from './form';
 import React from 'react';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
@@ -31,9 +32,7 @@ const mapStateToProps = ({ user }) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  userLoginFetch: (user) => {
-    dispatch(userLoginFetch(user));
-  },
+  userLoginFetch: (user) => dispatch(userLoginFetch(user)),
 });
 
 export const LoginPage = connect(
