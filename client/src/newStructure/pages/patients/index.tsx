@@ -8,7 +8,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 
-class PatientPageComponent extends React.Component {
+interface IProps {
+  getCurrentUser: any;
+  getPatients: any;
+  history: any;
+  patients: any;
+  user: any;
+}
+
+class PatientPageComponent extends React.Component<IProps> {
   state = {
     selectedPatient: {
       patientId: ``,
@@ -33,7 +41,7 @@ class PatientPageComponent extends React.Component {
     }
   };
 
-  patientCallback = (selectedPatient) => {
+  patientCallback = (selectedPatient: any) => {
     console.log(`Received callback: `);
     this.props.history.push(`/patient/${selectedPatient.patientId}`);
   };
