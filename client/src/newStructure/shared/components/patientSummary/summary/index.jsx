@@ -10,7 +10,6 @@ import {
 import PatientInfoForm, {
   GESTATIONAL_AGE_UNITS,
 } from '../newReadingPage/patientInfoForm';
-import React, { Component } from 'react';
 import UrineTestForm, {
   initialUrineTests,
   urineTestChemicals,
@@ -32,7 +31,8 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Grid from '@material-ui/core/Grid';
 import { Icon } from 'semantic-ui-react';
 import Paper from '@material-ui/core/Paper';
-import ReferralInfo from './referralInfo';
+import React from 'react';
+import { ReferralInfo } from './referralInfo';
 import SweetAlert from 'sweetalert2-react';
 import SymptomForm from '../newReadingPage/symptomForm';
 import Typography from '@material-ui/core/Typography';
@@ -40,19 +40,10 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../../reducers/user/currentUser';
 import { getReferrals } from '../../../reducers/referrals';
+import { guid } from './utils';
 import { newReadingPost } from '../../actions/newReading';
 
-var symptom = [];
-
-function guid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0;
-    var v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-
-class PatientSummaryComponent extends Component {
+class PatientSummaryComponent extends React.Component {
   state = {
     displayPatientModal: false,
     selectedPatient: { readings: [] },
@@ -86,6 +77,8 @@ class PatientSummaryComponent extends Component {
     selectedPatientCopy: { readings: [] },
     hasUrineTest: false,
   };
+
+  symptomRef = React.createRef([]);
 
   componentDidMount = () => {
     this.setState({ selectedPatient: this.props.selectedPatient });
@@ -205,10 +198,10 @@ class PatientSummaryComponent extends Component {
   handleReadingSubmit = (event) => {
     event.preventDefault();
 
-    if (symptom.indexOf('other') >= 0) {
-      symptom.pop('other');
+    if (this.symptomRef.current.indexOf('other') >= 0) {
+      this.symptomRef.current.pop('other');
       if (this.state.checkedItems.otherSymptoms !== '') {
-        symptom.push(this.state.checkedItems.otherSymptoms);
+        this.symptomRef.current.push(this.state.checkedItems.otherSymptoms);
       }
     }
 
@@ -222,7 +215,7 @@ class PatientSummaryComponent extends Component {
           userId: this.props.user.userId,
           readingId: readingID,
           dateTimeTaken: dateTime.toJSON(),
-          symptoms: symptom.toString(),
+          symptoms: this.symptomRef.current.toString(),
         },
       },
       function () {
@@ -296,19 +289,19 @@ class PatientSummaryComponent extends Component {
     console.log(value.name);
     // true => false, pop
     if (value.value) {
-      if (symptom.indexOf(value.name) >= 0) {
-        symptom.pop(value.name);
+      if (this.symptomRef.current.indexOf(value.name) >= 0) {
+        this.symptomRef.current.pop(value.name);
       }
     } else {
       // false => true, push
-      if (symptom.indexOf(value.name) < 0) {
-        symptom.push(value.name);
+      if (this.symptomRef.current.indexOf(value.name) < 0) {
+        this.symptomRef.current.push(value.name);
       }
     }
-    console.log(symptom);
+    console.log(this.symptomRef.current);
     if (value.name !== 'none') {
-      if (symptom.indexOf('none') >= 0) {
-        symptom.pop('none');
+      if (this.symptomRef.current.indexOf('none') >= 0) {
+        this.symptomRef.current.pop('none');
       }
       this.setState({
         checkedItems: {
@@ -318,8 +311,8 @@ class PatientSummaryComponent extends Component {
         },
       });
     } else {
-      while (symptom.length > 0) {
-        symptom.pop();
+      while (this.symptomRef.current.length > 0) {
+        this.symptomRef.current.pop();
       }
       this.setState({
         checkedItems: {
