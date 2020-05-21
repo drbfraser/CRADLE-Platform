@@ -14,16 +14,16 @@ import UrineTestForm, {
   initialUrineTests,
   urineTestChemicals,
 } from '../newReadingPage/urineTestForm';
-import { getMomentDate, getPrettyDate, getPrettyDateTime, getTrafficIcon } from '../../../utils';
+import { getMomentDate, getPrettyDate, getPrettyDateTime, getTrafficIcon } from '../../utils';
 import {
   getPatients,
   getPatientsRequested,
   updatePatient,
-} from '../../../reducers/patients';
+} from '../../reducers/patients';
 import {
-  getSelectedPatientStats,
-  getSelectedPatientStatsRequested,
-} from '../../../reducers/statistics';
+  getSelectedPatientStatistics,
+  getSelectedPatientStatisticsRequested,
+} from '../../../shared/reducers/selectedPatientStatistics';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -38,8 +38,8 @@ import SymptomForm from '../newReadingPage/symptomForm';
 import Typography from '@material-ui/core/Typography';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../../reducers/user/currentUser';
-import { getReferrals } from '../../../reducers/referrals';
+import { getCurrentUser } from '../../reducers/user/currentUser';
+import { getReferrals } from '../../reducers/referrals';
 import { guid } from './utils';
 import { newReadingPost } from '../../actions/newReading';
 
@@ -87,7 +87,7 @@ class PatientSummaryComponent extends React.Component {
 
     this.props.getReferrals(this.getReferralIds(this.props.selectedPatient));
     if (this.props.selectedPatient) {
-      this.props.getSelectedPatientStats(this.props.selectedPatient.patientId);
+      this.props.getSelectedPatientStatistics(this.props.selectedPatient.patientId);
     }
   };
 
@@ -997,9 +997,9 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(getPatients());
   },
   updatePatient: (patientId, data) => dispatch(updatePatient(patientId, data)),
-  getSelectedPatientStats: (patientId) => {
-    dispatch(getSelectedPatientStatsRequested());
-    dispatch(getSelectedPatientStats(patientId));
+  getSelectedPatientStatistics: (patientId) => {
+    dispatch(getSelectedPatientStatisticsRequested());
+    dispatch(getSelectedPatientStatistics(patientId));
   },
   newReadingPost: (data) => dispatch(newReadingPost(data)),
   getCurrentUser: () => dispatch(getCurrentUser()),

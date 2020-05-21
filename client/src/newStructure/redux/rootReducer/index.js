@@ -1,11 +1,17 @@
 import { LOGOUT_USER } from '../../shared/reducers/user/currentUser';
+import { allPatientsStatisticsReducer } from '../../shared/reducers/allPatientsStatistics';
 import { combineReducers } from 'redux';
 import { patientsReducer } from '../../shared/reducers/patients';
+import { referralsReducer } from '../../shared/reducers/referrals';
+import { selectedPatientStatisticsReducer } from '../../shared/reducers/selectedPatientStatistics';
 import { userReducer } from '../../shared/reducers/user';
 
 const appReducer = combineReducers({
   user: userReducer,
   patients: patientsReducer,
+  patientStats: selectedPatientStatisticsReducer,
+  referrals: referralsReducer,
+  statistics: allPatientsStatisticsReducer,
 });
 
 export const rootReducer = (state, action) => {
