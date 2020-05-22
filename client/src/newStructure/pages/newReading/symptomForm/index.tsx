@@ -4,9 +4,9 @@ import {
   Form, Header
 } from 'semantic-ui-react';
 
-import './index.css'
+import '../index.css'
 
-function SymptomForm(props) {
+export function SymptomForm(props) {
   // console.log(props)
   return (
     <Paper className='symptomCard' style={{ "padding": "35px 25px", "borderRadius": "15px" }}>
@@ -90,4 +90,3 @@ function SymptomForm(props) {
   )
 }
 
-export default SymptomForm

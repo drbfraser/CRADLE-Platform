@@ -27,7 +27,7 @@ const gestationalAgeUnitOptions = [
   { key: 'month', text: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS },
 ]
 
-function PatientInfoForm(props) {
+export function PatientInfoForm(props) {
   return (
       <Paper style={{"padding" : "35px 25px", "borderRadius" : "15px"}}>
           {!props.isEditPage && <Header><b>Patient Information</b></Header>}
@@ -166,4 +166,3 @@ function PatientInfoForm(props) {
   );
 }
 
-export default PatientInfoForm

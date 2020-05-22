@@ -1,15 +1,15 @@
 import './index.css'
 
 import { Button, Divider, Form } from 'semantic-ui-react'
-import PatientInfoForm, { GESTATIONAL_AGE_UNITS } from './patientInfoForm'
+import {PatientInfoForm, GESTATIONAL_AGE_UNITS } from './patientInfoForm'
 import React, { Component } from 'react'
-import {UrineTestForm, initialUrineTests } from './urineTestForm'
+import {UrineTestForm ,initialUrineTests } from './urineTestForm'
 import { addNewPatient, afterNewPatientAdded } from '../../shared/reducers/patients'
 import { createReadingDefault, newReadingPost } from '../../shared/reducers/newReadingStatus'
 
 import BpForm from './bpForm'
 import SweetAlert from 'sweetalert2-react'
-import SymptomForm from './symptomForm'
+import {SymptomForm} from './symptomForm'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../shared/reducers/user/currentUser'
 

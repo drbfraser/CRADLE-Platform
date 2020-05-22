@@ -3,7 +3,7 @@ import Paper from '@material-ui/core/Paper';
 import Switch from '@material-ui/core/Switch';
 import {Form, Header, Select} from 'semantic-ui-react';
 
-import './index.css'
+import '../index.css'
 
 const resultOptions = [
     { key: 'm', text: '-', value: '-' },
