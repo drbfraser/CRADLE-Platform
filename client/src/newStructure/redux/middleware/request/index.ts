@@ -7,7 +7,7 @@ import jwt_decode from 'jwt-decode';
 import { logoutUserAction } from '../../../shared/reducers/user/currentUser';
 import { replace } from 'connected-react-router';
 
-export const requestMiddleware = () => ({ dispatch }) => (next: any) => async (
+export const requestMiddleware = () => ({ dispatch }: any) => (next: any) => async (
   action: any
 ) => {
   if (action.type !== MAKE_SERVER_REQUEST) {
@@ -15,8 +15,8 @@ export const requestMiddleware = () => ({ dispatch }) => (next: any) => async (
     return;
   }
 
-  let token = localStorage.token;
-  const decodedToken = token && jwt_decode(token);
+  let token = localStorage.getItem(`token`);
+  const decodedToken = token ? jwt_decode<{ exp: number }>(token) : null;
   const currentTime = new Date().getTime() / 1000;
   const { endpoint, method, data, onSuccess, onError } = action.payload;
 

@@ -146,11 +146,13 @@ const AppComponent: React.FC<any> = (props) => {
 
               <IconButton
                 className={classes.toolbarButtonsPadded}
+                {/*@ts-ignore*/}
                 component={Link}
                 to="/help"
                 onClick={() => setActiveItem('Help')}
                 selected={activeItem === 'Help'}
-                color="inherit">
+                color="inherit"
+              >
                 <Icon name="help" size="small" />
               </IconButton>
             </div>
@@ -369,7 +371,7 @@ const AppComponent: React.FC<any> = (props) => {
             path="/chat/session/:roomId"
             component={VideoSessionPage}
           />
-          <Route component={{ NotFoundPage }} />
+          <Route component={NotFoundPage} />
         </Switch>
       </main>
     </div>

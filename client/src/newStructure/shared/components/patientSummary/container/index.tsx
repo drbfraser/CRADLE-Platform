@@ -8,8 +8,18 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../../reducers/user/currentUser';
 
-class PatientSummaryContainerComponent extends React.Component {
-  constructor(props) {
+interface IProps {
+  getCurrentUser: any;
+  getPatient: any;
+  history: any;
+  isLoading: boolean;
+  match: any;
+  patient: any;
+  user: any;
+}
+
+class PatientSummaryContainerComponent extends React.Component<IProps> {
+  constructor(props: IProps) {
     super(props);
     // TO DO: don't fetch patientData everytime, get it from redux if possible.
     this.props.getPatient(this.props.match.params.id);
@@ -44,14 +54,14 @@ class PatientSummaryContainerComponent extends React.Component {
   }
 }
 
-const mapStateToProps = ({ patients, user }) => ({
+const mapStateToProps = ({ patients, user }: any) => ({
   patient: patients.patient,
   isLoading: patients.isLoading,
   user: user.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  getPatient: (patientId) => {
+const mapDispatchToProps = (dispatch: any) => ({
+  getPatient: (patientId: any) => {
     dispatch(getPatientRequested());
     dispatch(getPatient(patientId));
   },

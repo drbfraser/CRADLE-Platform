@@ -31,7 +31,7 @@ export class PatientTable extends React.Component<IProps, IState> {
       {
         title: `Patient Initials`,
         field: `patientName`,
-        render: (rowData) => (
+        render: (rowData: any) => (
           <p
             key={`initials` + rowData.tableData.id}
             style={{
@@ -49,7 +49,7 @@ export class PatientTable extends React.Component<IProps, IState> {
       {
         title: `Patient ID`,
         field: `patientId`,
-        customSort: (left, right) =>
+        customSort: (left: any, right: any) =>
           Number(left.patientId) - Number(right.patientId),
       },
       { title: `Village`, field: `villageNumber` },
@@ -58,9 +58,9 @@ export class PatientTable extends React.Component<IProps, IState> {
         cellStyle: {
           padding: `0px`,
         },
-        render: (rowData) =>
+        render: (rowData: any) =>
           getTrafficIcon(getLatestReading(rowData.readings).trafficLightStatus),
-        customSort: (left, right) => {
+        customSort: (left: any, right: any) => {
           const leftIndex = trafficLights.indexOf(
             left.readings[0].trafficLightStatus
           );
@@ -74,10 +74,10 @@ export class PatientTable extends React.Component<IProps, IState> {
       {
         title: `Date of Last Reading`,
         field: `lastReading`,
-        render: (rowData) => (
+        render: (rowData: any) => (
           <p>{getPrettyDate(getLatestReadingDateTime(rowData.readings))}</p>
         ),
-        customSort: (a, b) => sortPatientsByLastReading(a, b),
+        customSort: (a: any, b: any) => sortPatientsByLastReading(a, b),
         defaultSort: `asc` as `asc`,
       },
     ],
@@ -101,7 +101,7 @@ export class PatientTable extends React.Component<IProps, IState> {
   }
 
   getPatientsToRender(showReffered: any) {
-    return this.props.data.filter((patient) => {
+    return this.props.data.filter((patient: any) => {
       let hasReferral = this.patientHasReferral(patient.readings);
       if (showReffered) {
         return hasReferral;
@@ -112,7 +112,7 @@ export class PatientTable extends React.Component<IProps, IState> {
   }
 
   patientHasReferral(readings: any) {
-    return readings.some((reading) => {
+    return readings.some((reading: any) => {
       return reading.dateReferred != undefined;
     });
   }
@@ -134,7 +134,7 @@ export class PatientTable extends React.Component<IProps, IState> {
           },
           sorting: true,
         }}
-        onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
+        onRowClick={(_, rowData) => this.props.callbackFromParent(rowData)}
         actions={[
           {
             icon: () => {

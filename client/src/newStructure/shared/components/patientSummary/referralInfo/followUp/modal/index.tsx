@@ -29,15 +29,15 @@ import { connect } from 'react-redux';
 import { followupFrequencyUnitOptions } from '../utils';
 import { untilDateOrOther } from './utils';
 
-class FollowUpModalComponent extends React.Component {
-  static propTypes = {
-    initialValues: PropTypes.objectOf(PropTypes.string),
-    updateFollowUp: PropTypes.func.isRequired,
-    referralId: PropTypes.string.isRequired,
-    readingId: PropTypes.string.isRequired,
-  };
+interface IProps {
+  initialValues: PropTypes.objectOf(PropTypes.string),
+  updateFollowUp: any,
+  referralId: string,
+  readingId: string,
+}
 
-  constructor(props) {
+class FollowUpModalComponent extends React.Component<IProps> {
+  constructor(props: IProps) {
     super(props);
 
     this.state = {
