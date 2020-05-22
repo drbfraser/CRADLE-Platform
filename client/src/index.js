@@ -1,26 +1,21 @@
-import React from 'react'
-import { render } from 'react-dom'
-import { Provider } from 'react-redux'
-import { ConnectedRouter } from 'connected-react-router'
-import store, { history } from './store'
-import App from './containers/app'
+import 'sanitize.css/sanitize.css';
+import './index.css';
 
-import 'sanitize.css/sanitize.css'
-import './index.css'
+import store, { history } from './oldStructure/store';
 
-import BASE_URL from './serverUrl'
-
-console.log('API BASE_URL: ' + BASE_URL)
-
-const target = document.querySelector('#root')
+import App from './oldStructure/containers/app';
+import { ConnectedRouter } from 'connected-react-router';
+import React from 'react';
+import { Provider as ReduxProvider } from 'react-redux';
+import { render } from 'react-dom';
 
 render(
-  <Provider store={store}>
+  <ReduxProvider store={store}>
     <ConnectedRouter history={history}>
       <div>
         <App />
       </div>
     </ConnectedRouter>
-  </Provider>,
-  target
-)
+  </ReduxProvider>,
+  document.querySelector('#root')
+);
