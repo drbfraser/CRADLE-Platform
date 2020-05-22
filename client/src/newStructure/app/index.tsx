@@ -64,6 +64,7 @@ const useStyles = makeStyles((theme) => ({
   drawerPaper: {
     /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#3b679e+0,34787e+0,45889f+51,65a6df+100 */
     background: '#3b679e' /* Old browsers */,
+    //@ts-ignore
     background:
     '-moz-linear-gradient(top,  #3b679e 0%, #34787e 0%, #45889f 51%, #65a6df 100%)' /* FF3.6-15 */,
     //@ts-ignore
@@ -148,8 +149,9 @@ const AppComponent: React.FC<any> = (props) => {
 
               <IconButton
                 className={classes.toolbarButtonsPadded}
-                {/*@ts-ignore*/}
+                //@ts-ignore
                 component={Link}
+                //@ts-ignore
                 to="/help"
                 onClick={() => setActiveItem('Help')}
                 selected={activeItem === 'Help'}
