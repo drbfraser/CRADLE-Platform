@@ -12,7 +12,7 @@ export const FollowUpInfo: React.FC<IProps> = (props) => {
   if (props.followUp) {
     const displayFollowUpFrequency =
       props.followUp.followupFrequencyValue !== null &&
-      props.followUp.followupFrequencyUnit !== followupFrequencyUnitOptions[`none`] &&
+      props.followUp.followupFrequencyUnit !== followupFrequencyUnitOptions[0].value &&
       props.followUp.dateFollowupNeededTill !== null;
 
     const frequencyStr = displayFollowUpFrequency

@@ -21,7 +21,6 @@ import {
   updateFollowUp,
 } from '../../../../../reducers/referrals';
 
-import PropTypes from 'prop-types';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
 import { bindActionCreators } from 'redux';
@@ -30,13 +29,22 @@ import { followupFrequencyUnitOptions } from '../utils';
 import { untilDateOrOther } from './utils';
 
 interface IProps {
-  initialValues: PropTypes.objectOf(PropTypes.string),
+  initialValues: { [key: string]: string },
   updateFollowUp: any,
   referralId: string,
   readingId: string,
+  setReadingId: any,
+  createFollowUp: any,
 }
 
-class FollowUpModalComponent extends React.Component<IProps> {
+interface IState {
+  data: any,
+  isOpen: boolean,
+  dateOrOther: string,
+  untilDateOrCond: any,
+}
+
+class FollowUpModalComponent extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
@@ -49,11 +57,12 @@ class FollowUpModalComponent extends React.Component<IProps> {
         followupNeeded: false,
         dateFollowupNeededTill: ``,
         followupInstructions: ``,
-        followupFrequencyUnit: followupFrequencyUnitOptions[`none`],
+        followupFrequencyUnit: followupFrequencyUnitOptions[0],
         followupFrequencyValue: null,
       },
       isOpen: false,
       dateOrOther: `DATE`,
+      untilDateOrCond: undefined
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -99,7 +108,7 @@ class FollowUpModalComponent extends React.Component<IProps> {
     this.props.setReadingId(this.props.readingId);
   }
 
-  handleChange(e, value) {
+  handleChange(_: any, value: any) {
     this.setState({
       data: {
         ...this.state.data,
@@ -108,7 +117,7 @@ class FollowUpModalComponent extends React.Component<IProps> {
     });
   }
 
-  handleSwitchChange(e) {
+  handleSwitchChange(e: any) {
     this.setState({
       data: {
         ...this.state.data,
@@ -117,7 +126,7 @@ class FollowUpModalComponent extends React.Component<IProps> {
     });
   }
 
-  handleDateOrOtherChange = (error, value) => {
+  handleDateOrOtherChange = (_: any, value: any) => {
     if (
       value.name === `untilDateOrOther` &&
       (value.value === `OTHER` || value.value === `DATE`)
@@ -129,13 +138,13 @@ class FollowUpModalComponent extends React.Component<IProps> {
   handleSubmit() {
     this.state.data.referral = this.props.referralId;
 
-    if (this.state.dateOrCondition === `DATE`) {
+    if (this.state.dateOrOther === `DATE`) {
       this.state.data.dateFollowupNeededTill =
         Date.parse(this.state.data.dateFollowupNeededTill) / 1000; // divide by 1000 to convert ms into s
     }
 
     if (this.state.untilDateOrCond) {
-      delete this.state.untilDateOrCond;
+      this.setState({ untilDateOrCond: undefined })
     }
     // update existing followUpInfo
     if (this.props.initialValues) {
@@ -294,10 +303,8 @@ class FollowUpModalComponent extends React.Component<IProps> {
 
 const mapStateToProps = ({}) => ({});
 
-const mapDispatchToProps = (dispatch) => ({
-  createFollowUp: (data) => {
-    dispatch(createFollowUp(data));
-  },
+const mapDispatchToProps = (dispatch: any) => ({
+  createFollowUp: (data: any) => dispatch(createFollowUp(data)),
   ...bindActionCreators(
     {
       updateFollowUp,

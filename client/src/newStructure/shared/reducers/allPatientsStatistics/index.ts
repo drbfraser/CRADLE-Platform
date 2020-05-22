@@ -7,11 +7,11 @@ const GET_STATISTICS_ERROR = `statistics/GET_STATISTICS_ERROR`;
 export const getStatistics = () => {
   return serverRequestActionCreator({
     endpoint: Endpoints.STATS,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: GET_STATISTICS_SUCCESS,
       payload: response,
     }),
-    onError: (error) => ({
+    onError: (error: any) => ({
       type: GET_STATISTICS_ERROR,
       payload: error,
     }),
@@ -24,7 +24,7 @@ const initialState = {
 
 export const allPatientsStatisticsReducer = (
   state = initialState, 
-  action
+  action: any
 ) => {
   switch (action.type) {
     case GET_STATISTICS_SUCCESS:
