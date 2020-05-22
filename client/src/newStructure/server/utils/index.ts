@@ -9,11 +9,13 @@ if (process.env.NODE_ENV == `production`) {
   URL = `https://cradle.eastus.cloudapp.azure.com/api`;
 }
 
-if (parseInt(process.env.REACT_APP_USE_LEGACY_SERVER ?? ``) == 1) {
+//@ts-ignore
+if (process.env.REACT_APP_USE_LEGACY_SERVER == 1) {
   URL = `https://cmpt373.csil.sfu.ca:8048/api`;
 }
 
-if (parseInt(process.env.REACT_APP_USE_STAGING_SERVER ?? ``) == 1) {
+//@ts-ignore
+if (process.env.REACT_APP_USE_STAGING_SERVER == 1) {
   URL = `https://cradle.eastus.cloudapp.azure.com:4443/api`;
 }
 

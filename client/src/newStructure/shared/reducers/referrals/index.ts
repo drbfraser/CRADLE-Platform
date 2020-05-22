@@ -132,8 +132,10 @@ export const referralsReducer = (state = initialState, action: any) => {
         ...state,
         mappedReferrals: {
           ...state.mappedReferrals,
-          [state.readingId ?? ``]: {
-            ...state.mappedReferrals[state.readingId ?? ``],
+          //@ts-ignore
+          [state.readingId]: {
+            //@ts-ignore
+            ...state.mappedReferrals[state.readingId],
             followUp: action.payload.data,
           },
         },
