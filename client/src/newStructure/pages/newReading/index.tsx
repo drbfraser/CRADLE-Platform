@@ -3,7 +3,7 @@ import './index.css'
 import { Button, Divider, Form } from 'semantic-ui-react'
 import PatientInfoForm, { GESTATIONAL_AGE_UNITS } from './patientInfoForm'
 import React, { Component } from 'react'
-import UrineTestForm, { initialUrineTests } from './urineTestForm'
+import {UrineTestForm, initialUrineTests } from './urineTestForm'
 import { addNewPatient, afterNewPatientAdded } from '../../shared/reducers/patients'
 import { createReadingDefault, newReadingPost } from '../../shared/reducers/newReadingStatus'
 

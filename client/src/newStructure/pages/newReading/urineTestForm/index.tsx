@@ -29,7 +29,7 @@ export const initialUrineTests = {
     urineTestGlu: ""
   }
 
-function UrineTestForm(props) {
+export function UrineTestForm(props) {
     return (
         <Paper className='urineTestCard' style={{ 'padding': '35px 25px', 'borderRadius': '15px' }}>
             <Header>
@@ -98,4 +98,3 @@ function UrineTestForm(props) {
     )
 }
 
-export default UrineTestForm
