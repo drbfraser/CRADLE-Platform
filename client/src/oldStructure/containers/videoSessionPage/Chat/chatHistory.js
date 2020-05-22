@@ -17,7 +17,6 @@ export default function(props) {
 }
 
 function ChatMessage(props) {
-  console.log('props: ', props)
 
   return (
     <div className="chatMessage">

@@ -13,7 +13,6 @@ const initialState = {
 export default (state = initialState, action) => {
   switch (action.type) {
     case GET_STATISTICS:
-      // console.log(action.payload)
       return {
         ...state,
         statisticsList: action.payload.data

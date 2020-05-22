@@ -166,7 +166,6 @@ class AdminPage extends Component {
     delete userData['vhtDropdownSelections']
 
     // let userJSON = JSON.stringify( userData, null, 2 )
-    // console.log(userJSON)
 
     this.props.updateUser(userId, userData)
     this.closeUserEditModal()

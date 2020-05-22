@@ -15,7 +15,6 @@ export const getPosts = () => {
     })
 
     return axios.get(BASE_URL + '/hello-world').then(res => {
-      // console.log("hello world res: ", res);
       dispatch({
         type: UPDATE_MSG,
         payload: res.data
@@ -23,7 +22,6 @@ export const getPosts = () => {
     })
 
     // axios.get("https://jsonplaceholder.typicode.com/posts").then((res) => {
-    //     console.log("get posts res: ", res);
     //     dispatch({
     //         type: UPDATE_POSTS,
     //         payload: res.data

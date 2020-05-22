@@ -53,7 +53,6 @@ class VideoSession extends Component {
 
     let thisRoomId = this.getRoomId();
 
-    console.log('opening room with id: ', thisRoomId);
 
     this.connection.open(thisRoomId);
   }
@@ -63,13 +62,11 @@ class VideoSession extends Component {
 
     let thisRoomId = this.getRoomId();
 
-    console.log('joining room with id: ', thisRoomId);
 
     this.connection.join(thisRoomId);
   }
 
   componentDidMount() {
-    console.log('in component did mount');
 
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser();
@@ -81,13 +78,10 @@ class VideoSession extends Component {
       configured: true,
     };
 
-    console.log('isOpener: ', this.props.isOpener);
-    console.log('roomId: ', this.getRoomId());
 
     if (this.props.isOpener) {
       this.openRoom();
 
-      console.log('url: ', this.props.match.url);
 
       copyToClipboard(
         'https://' + `${window.location.hostname + this.props.match.url}`
@@ -117,9 +111,7 @@ class VideoSession extends Component {
   turnOffControls() {
     if ($('video', '#localStream')) {
       $('video', '#localStream').removeAttr('controls');
-      console.log('removed');
     } else {
-      console.log('blah');
     }
   }
 
@@ -150,7 +142,6 @@ class VideoSession extends Component {
       var remoteUserId = event.userid;
       var remoteUserFullName = event.extra.fullName;
 
-      console.log('data connection opened with ' + remoteUserFullName);
 
       this.setState({
         roomStatus: 'Connected',
@@ -158,13 +149,9 @@ class VideoSession extends Component {
     }.bind(this);
 
     this.connection.onstream = function (event) {
-      console.log('onstream: ');
 
-      console.log('state: ', this.state);
 
-      console.log('isRoomJoined: ', this.connection.isRoomJoined);
 
-      console.log('isLocal: ', isLocal);
 
       event.mediaElement.play();
       setTimeout(function () {
@@ -200,14 +187,11 @@ class VideoSession extends Component {
     window.connection = this.connection;
 
     // connection.onmessage = function(event) {
-    //   console.log("received a message: ", event.data);
     // }
 
-    console.log('done config');
   }
 
   componentWillUnmount() {
-    console.log('about to unmount');
 
     // disconnect with all users
     this.connection.getAllParticipants().forEach(function (pid) {
@@ -229,11 +213,9 @@ class VideoSession extends Component {
       return <div />;
     }
 
-    console.log('this.props.isOpener: ', this.props.isOpener);
 
     let roomId = this.getRoomId();
 
-    console.log('connection: ', this.connection);
 
     return (
       <div

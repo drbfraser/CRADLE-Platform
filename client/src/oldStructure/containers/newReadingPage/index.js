@@ -152,7 +152,6 @@ class NewReadingPage extends Component {
   }
 
   handleCheckedChange = (e, value) => {
-    // console.log(value.name)
     // true => false, pop
     if (value.value) {
       if (symptom.indexOf(value.name) >= 0) {
@@ -164,7 +163,6 @@ class NewReadingPage extends Component {
         symptom.push(value.name)
       }
     }
-    // console.log(symptom)
     if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop('none')
@@ -197,7 +195,6 @@ class NewReadingPage extends Component {
   }
 
   handleOtherSymptom = event => {
-    //console.log(event.target)
     this.setState({
       checkedItems: {
         ...this.state.checkedItems,
@@ -208,7 +205,6 @@ class NewReadingPage extends Component {
 
   handleSubmit = event => {
     event.preventDefault()
-    console.log('Create new submit')
     if (symptom.indexOf('other') >= 0) {
       symptom.pop('other')
       if (this.state.checkedItems.otherSymptoms !== '') {
@@ -246,7 +242,6 @@ class NewReadingPage extends Component {
           patient: patientData,
           reading: readingData
         }
-        console.log(newData)
         this.props.newReadingPost(newData)
       }
     )

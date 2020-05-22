@@ -56,14 +56,12 @@ export const getReferrals = referralIds => {
 
     Promise.all(referralPromises)
       .then(results => {
-        console.log('referralPromise results: ', results)
         let referrals = {}
         for (let i in results) {
           let thisReferral = results[i].data
           referrals[thisReferral.readingId] = thisReferral
         }
 
-        console.log('referrals: ', referrals)
 
         dispatch({
           type: GET_REFERRALS,
@@ -71,7 +69,6 @@ export const getReferrals = referralIds => {
         })
       })
       .catch(err => {
-        console.log(err)
         dispatch({
           type: GET_REFERRALS_ERR
         })
@@ -111,7 +108,6 @@ const updateFollowUpOnError = error => ({
 
 export const setReadingId = readingId => {
   return dispatch => {
-    console.log('setting reading id')
     return dispatch({
       type: SET_READING_ID,
       payload: readingId

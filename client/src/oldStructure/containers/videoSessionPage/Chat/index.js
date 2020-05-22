@@ -41,11 +41,9 @@ class Chat extends Component {
   }
 
   appendRemoteMessage(event) {
-    console.log('appending remote message')
 
     let sender = this.getSender(true)
 
-    console.log('event.data: ', event.data)
 
     this.setState(
       {
@@ -66,7 +64,6 @@ class Chat extends Component {
   }
 
   handleSubmit(event) {
-    console.log('submitting input: ', this.state.pendingInput)
 
     let data = {
       msg: this.state.pendingInput,
@@ -96,8 +93,6 @@ class Chat extends Component {
   }
 
   handleChange(event) {
-    console.log('handling change')
-    console.log('event.target.value: ', event.target.value)
 
     this.setState({
       pendingInput: event.target.value
@@ -105,8 +100,6 @@ class Chat extends Component {
   }
 
   handleKeyDown(event) {
-    console.log('keyed down')
-    console.log(event.keyCode)
     // user presses enter
     if (event.keyCode == 13) {
       this.handleSubmit(event)

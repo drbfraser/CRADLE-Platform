@@ -34,7 +34,6 @@ class PatientPageComponent extends React.Component {
   };
 
   patientCallback = (selectedPatient) => {
-    console.log(`Received callback: `);
     this.props.history.push(`/patient/${selectedPatient.patientId}`);
   };
 

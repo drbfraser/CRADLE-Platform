@@ -1,12 +1,3 @@
-console.log('process.env.NODE_ENV', process.env.NODE_ENV)
-console.log(
-  'process.env.REACT_APP_USE_LEGACY_SERVER',
-  process.env.REACT_APP_USE_LEGACY_SERVER
-)
-console.log(
-  'process.env.REACT_APP_USE_STAGING_SERVER',
-  process.env.REACT_APP_USE_STAGING_SERVER
-)
 // set the default API URL to the staging server
 let BASE_URL = 'https://cradle.eastus.cloudapp.azure.com:4443/api'
 if (process.env.NODE_ENV == 'development') {

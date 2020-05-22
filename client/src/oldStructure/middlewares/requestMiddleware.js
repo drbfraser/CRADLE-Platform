@@ -39,7 +39,7 @@ export default function requestMiddleware() {
         localStorage.setItem('token', response.data.token)
         token = localStorage.token
       } catch (error) {
-        console.log(error)
+        console.error(error)
         localStorage.removeItem('token')
         localStorage.removeItem('refresh')
         dispatch(logoutUserAction())
@@ -58,11 +58,10 @@ export default function requestMiddleware() {
       data: data
     })
       .then(res => {
-        console.log('response: ', res)
         dispatch(onSuccess(res))
       })
       .catch(err => {
-        console.log('error: ', err)
+        console.error(err)
         dispatch(onError(err))
       })
   }

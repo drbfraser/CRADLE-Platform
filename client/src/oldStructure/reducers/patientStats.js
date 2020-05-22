@@ -13,7 +13,6 @@ const initialState = {
 export default (state = initialState, action) => {
   switch (action.type) {
         case GET_SELECTED_PATIENTS_STATS:
-            //console.log(action.payload)
             return {
                 ...state,
                 selectedPatientStatsList: action.payload.data

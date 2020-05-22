@@ -102,7 +102,6 @@ class FollowUpModal extends Component {
   }
 
   onOpen() {
-    console.log('on open')
     this.props.setReadingId(this.props.readingId)
   }
 
@@ -134,9 +133,7 @@ class FollowUpModal extends Component {
   }
 
   handleSubmit() {
-    console.log('submitting follow up info')
     this.state.data.referral = this.props.referralId
-    console.log('handle submit state data:  ', this.state.data)
 
     if (this.state.dateOrCondition === 'DATE') {
       this.state.data.dateFollowupNeededTill =

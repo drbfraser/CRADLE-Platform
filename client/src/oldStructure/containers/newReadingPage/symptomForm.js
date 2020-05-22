@@ -5,7 +5,6 @@ import { Form, Header } from 'semantic-ui-react'
 import './index.css'
 
 function SymptomForm(props) {
-  // console.log(props)
   return (
     <Paper
       className="symptomCard"

@@ -37,7 +37,6 @@ class Signup extends Component {
 
   handleSubmit = event => {
     event.preventDefault()
-    console.log('submitted!')
     this.props.registerUser(this.state.user)
     // TODO: think of better way to reset fields than using timer
   }
