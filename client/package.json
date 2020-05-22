@@ -3,17 +3,22 @@
   "scripts": {
     "deploy": "now && now alias",
     "start": "react-scripts start",
+    "start-old": "react-scripts start",
     "now-start": "serve -s ./build",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
+    "build": "react-scripts-ts build",
+    "build-old": "react-scripts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "test-old": "react-scripts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
+    "eject-old": "react-scripts eject",
     "precommit": "pretty-quick --staged"
   },
   "devDependencies": {
     "@types/jwt-decode": "^2.2.1",
     "@types/react-router-dom": "^5.1.5",
     "prettier": "1.18.2",
-    "react-scripts": "2.1.8"
+    "react-scripts": "2.1.8",
+    "react-scripts-ts": "^3.1.0"
   },
   "dependencies": {
     "@material-ui/core": "^4.4.3",
