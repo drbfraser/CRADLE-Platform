@@ -149,12 +149,10 @@ const AppComponent: React.FC<any> = (props) => {
 
               <IconButton
                 className={classes.toolbarButtonsPadded}
-                //@ts-ignore
-                component={Link}
-                //@ts-ignore
-                to="/help"
+                // component={Link}
+                // to="/help"
                 onClick={() => setActiveItem('Help')}
-                selected={activeItem === 'Help'}
+                // selected={activeItem === 'Help'}
                 color="inherit"
               >
                 <Icon name="help" size="small" />
