@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users'
 
@@ -17,7 +17,7 @@ class PageNotFound extends Component {
 
     return (
       <div>
-        <h1 className='headerSize'>404</h1>
+        <h1 className="headerSize">404</h1>
         <h2>Page not found</h2>
       </div>
     )
@@ -25,7 +25,7 @@ class PageNotFound extends Component {
 }
 
 const mapStateToProps = ({ user }) => ({
-  user : user.currentUser
+  user: user.currentUser
 })
 
 const mapDispatchToProps = dispatch => ({

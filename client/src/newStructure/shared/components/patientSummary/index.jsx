@@ -78,7 +78,6 @@ class PatientSummaryComponent extends React.Component {
   componentDidMount = () => {
     this.setState({ selectedPatient: this.props.selectedPatient });
 
-    console.log('this.props.selectedPatient: ', this.props.selectedPatient);
 
     this.props.getReferrals(this.getReferralIds(this.props.selectedPatient));
     if (this.props.selectedPatient) {
@@ -130,7 +129,6 @@ class PatientSummaryComponent extends React.Component {
   };
 
   getReferralIds(selectedPatient) {
-    console.log('selectedPatient: ', selectedPatient);
     let res = [];
     for (let i in selectedPatient.readings) {
       let reading = selectedPatient.readings[i];
@@ -138,7 +136,6 @@ class PatientSummaryComponent extends React.Component {
         res.push(reading.referral);
       }
     }
-    console.log('referralIds', res);
     return res;
   }
 
@@ -234,7 +231,6 @@ class PatientSummaryComponent extends React.Component {
           reading: readingData,
         };
 
-        console.log(newData);
         this.props.newReadingPost(newData);
 
         newData['reading']['trafficLightStatus'] = this.calculateShockIndex(
@@ -283,7 +279,6 @@ class PatientSummaryComponent extends React.Component {
   };
 
   handleCheckedChange = (e, value) => {
-    console.log(value.name);
     // true => false, pop
     if (value.value) {
       if (this.symptomRef.current.indexOf(value.name) >= 0) {
@@ -295,7 +290,6 @@ class PatientSummaryComponent extends React.Component {
         this.symptomRef.current.push(value.name);
       }
     }
-    console.log(this.symptomRef.current);
     if (value.name !== 'none') {
       if (this.symptomRef.current.indexOf('none') >= 0) {
         this.symptomRef.current.pop('none');

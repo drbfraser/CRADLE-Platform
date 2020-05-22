@@ -97,7 +97,6 @@ export const createFollowUp = (data) => {
 
 export const setReadingId = (readingId) => {
   return (dispatch) => {
-    console.log('setting reading id');
     return dispatch({
       type: SET_READING_ID,
       payload: readingId,
