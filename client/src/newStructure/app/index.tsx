@@ -85,11 +85,11 @@ const useStyles = makeStyles((theme) => ({
   itemText: { color: 'white', paddingTop: '8px' },
 }));
 
-const AppComponent = (props) => {
+const AppComponent: React.FC<any> = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState('Patients');
 
-  const getRole = (roles) => {
+  const getRole = (roles: any) => {
     if (roles.includes('ADMIN')) {
       return 'ADMIN';
     } else if (roles.includes('HCW')) {
@@ -104,8 +104,8 @@ const AppComponent = (props) => {
 
   const titleTextStyle = {
     fontFamily: 'Open Sans',
-    fontWeight: 'bold',
-    fontSize: 36,
+    fontWeight: 'bold' as 'bold',
+    fontSize: 36
   };
 
   const sidebarTextStyle = {
@@ -146,7 +146,6 @@ const AppComponent = (props) => {
 
               <IconButton
                 className={classes.toolbarButtonsPadded}
-                button
                 component={Link}
                 to="/help"
                 onClick={() => setActiveItem('Help')}
@@ -180,7 +179,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Reading'}
               onClick={() => setActiveItem('Reading')}>
               <ListItemIcon>
-                <img src={CreateImg} class="center sidebarIcon" />
+                <img src={CreateImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -200,7 +199,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Patients'}
               onClick={() => setActiveItem('Patients')}>
               <ListItemIcon>
-                <img src={PatientsImg} class="center sidebarIcon" />
+                <img src={PatientsImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -218,7 +217,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Referrals'}
               onClick={() => setActiveItem('Referrals')}>
               <ListItemIcon>
-                <img src={ReferralsImg} class="center sidebarIcon" />
+                <img src={ReferralsImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -236,7 +235,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Statistics'}
               onClick={() => setActiveItem('Statistics')}>
               <ListItemIcon>
-                <img src={StatisticsImg} class="center sidebarIcon" />
+                <img src={StatisticsImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -254,9 +253,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Chat'}
               onClick={() => setActiveItem('Chat')}>
               <ListItemIcon>
-                <img src={VideoImg} class="center sidebarIcon" />
-
-                {/* <i className="fas fa-video"></i> */}
+                <img src={VideoImg} style={{ width: `75%` }} />
               </ListItemIcon>
 
               <ListItemText
@@ -277,9 +274,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Resources'}
               onClick={() => setActiveItem('Resources')}>
               <ListItemIcon>
-                <img src={EduImg} class="center sidebarIcon" />
-
-                {/* <i className="fas fa-video"></i> */}
+                <img src={EduImg} style={{ width: `75%` }} />
               </ListItemIcon>
 
               <ListItemText
@@ -296,7 +291,7 @@ const AppComponent = (props) => {
             {props.user.roles.includes('ADMIN') && (
               <div>
                 <ListItem
-                  className={[classes.listItem]}
+                  className={classes.listItem}
                   component={Link}
                   button
                   key="new user"
@@ -337,7 +332,7 @@ const AppComponent = (props) => {
             )}
 
             <ListItem
-              className={[classes.listItem, classes.logout]}
+              className={`${classes.listItem} ${classes.logout}`}
               button
               key="Logout"
               onClick={() => props.logoutUser()}>
@@ -381,11 +376,11 @@ const AppComponent = (props) => {
   );
 };
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user }: any) => ({
   user: user.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
       logoutUser,
