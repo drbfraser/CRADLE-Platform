@@ -2,9 +2,9 @@ import React from 'react';
 import Paper from '@material-ui/core/Paper';
 import {Form, Header, Input} from 'semantic-ui-react';
 
-import './index.css'
+import '../index.css'
 
-function BpForm(props) {
+export function BpForm(props) {
     return (
         <Paper className='bpCard' style={{ "padding": "35px 25px", "borderRadius": "15px" }}>
             <Header><b>Blood Pressure</b></Header>
@@ -60,4 +60,3 @@ function BpForm(props) {
     )
 }
 
-export default BpForm

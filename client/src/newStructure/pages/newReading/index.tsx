@@ -7,7 +7,7 @@ import {UrineTestForm ,initialUrineTests } from './urineTestForm'
 import { addNewPatient, afterNewPatientAdded } from '../../shared/reducers/patients'
 import { createReadingDefault, newReadingPost } from '../../shared/reducers/newReadingStatus'
 
-import BpForm from './bpForm'
+import {BpForm} from './bpForm'
 import SweetAlert from 'sweetalert2-react'
 import {SymptomForm} from './symptomForm'
 import { connect } from 'react-redux'
@@ -65,7 +65,7 @@ const initState = {
     hasUrineTest: false
 }
 
-class NewReadingPage extends React.Component<any>  {
+class NewReadingPageComponent extends React.Component<any>  {
     state = initState
 
     componentDidMount = () => {
@@ -342,7 +342,7 @@ const mapDispatchToProps = dispatch => ({
     }
 })
 
-export default connect(
+export const NewReadingPage= connect(
     mapStateToProps,
     mapDispatchToProps
-)(NewReadingPage)
+)(NewReadingPageComponent)
