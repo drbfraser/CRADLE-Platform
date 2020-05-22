@@ -17,7 +17,8 @@ body {
 }
 
 main {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
+    sans-serif;
 }
 
 .logout:hover {
@@ -36,7 +37,7 @@ main {
   position: relative;
 }
 
-.loginWrapper>* {
+.loginWrapper > * {
   min-height: auto !important;
 }
 
@@ -88,7 +89,6 @@ input {
 input::placeholder {
   color: rgb(112, 106, 106);
 }
-
 
 button:disabled {
   opacity: 0.5;

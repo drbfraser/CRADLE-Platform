@@ -40,7 +40,7 @@ export const requestMiddleware = () => ({ dispatch }) => (next: any) => async (
       localStorage.setItem('token', response.data.token);
       token = localStorage.token;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       localStorage.removeItem('token');
       localStorage.removeItem('refresh');
       dispatch(logoutUserAction());

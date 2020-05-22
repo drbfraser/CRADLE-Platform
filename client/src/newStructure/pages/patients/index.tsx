@@ -41,8 +41,7 @@ class PatientPageComponent extends React.Component<IProps> {
     }
   };
 
-  patientCallback = (selectedPatient: any) => {
-    console.log(`Received callback: `);
+  patientCallback = (selectedPatient) => {
     this.props.history.push(`/patient/${selectedPatient.patientId}`);
   };
 
