@@ -9,8 +9,23 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 
-class VideoChatComponent extends React.Component {
-  constructor(props) {
+interface IProps {
+  getCurrentUser: any;
+  createRoom: any;
+  joinRoom: any;
+  user: any;
+}
+
+interface IState {
+  roomId: any,
+  isOpener: any,
+  name: any,
+  createFormOpen: any,
+  enterFormOpen: any,
+}
+
+class VideoChatComponent extends React.Component<IProps, IState> {
+  constructor(props: any) {
     super(props);
     // initial state here:
     this.state = {
@@ -32,7 +47,7 @@ class VideoChatComponent extends React.Component {
     this.props.joinRoom(this.state.roomId);
   }
 
-  handleRoomIdChange(id) {
+  handleRoomIdChange(id: any) {
     this.setState({ roomId: id });
   }
 
@@ -72,7 +87,7 @@ class VideoChatComponent extends React.Component {
     const styles = {
       createRoom: null,
       enterRoom: null,
-    };
+    } as { [key: string]: any };
 
     if (this.state.createFormOpen) {
       styles.createRoom = '#ababad';
@@ -121,13 +136,13 @@ class VideoChatComponent extends React.Component {
   }
 }
 
-const mapStateToProps = ({ chat, user }) => ({
+const mapStateToProps = ({ chat, user }: any) => ({
   isOpener: chat.isOpener,
   roomId: chat.roomId,
   user: user.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
   ...bindActionCreators(
     {

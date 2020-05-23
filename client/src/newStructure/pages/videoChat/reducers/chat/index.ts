@@ -3,8 +3,8 @@ import { push } from 'connected-react-router';
 const CREATE_ROOM = 'chat/CREATE_ROOM';
 const JOIN_ROOM = 'chat/JOIN_ROOM';
 
-export const createRoom = (roomId) => {
-  return (dispatch) => {
+export const createRoom = (roomId: any) => {
+  return (dispatch: any) => {
     dispatch({
       type: CREATE_ROOM,
       payload: roomId,
@@ -13,8 +13,8 @@ export const createRoom = (roomId) => {
   };
 };
 
-export const joinRoom = (roomId) => {
-  return (dispatch) => {
+export const joinRoom = (roomId: any) => {
+  return (dispatch: any) => {
     dispatch({
       type: JOIN_ROOM,
       payload: roomId,
@@ -29,7 +29,7 @@ const initialState = {
   isOpener: false,
 };
 
-export const chatReducer = (state = initialState, action) => {
+export const chatReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case CREATE_ROOM:
       return {
