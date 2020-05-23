@@ -7,7 +7,7 @@ import {
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { ReferralTable } from './referralTable';
 
-class ReferralPage extends Component {
+class ReferralPageComponent extends Component {
   state = {
     patientsList: []
   };
@@ -91,7 +91,7 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-export const ReferralsPage = connect(
+export const ReferralPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(ReferralPage);
+)(ReferralPageComponent)
