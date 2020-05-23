@@ -7,7 +7,7 @@
       "dom"
     ],
     "allowJs": true,
-    "checkJs": true,
+    "checkJs": false,
     "jsx": "preserve",
     "sourceMap": true,
     "outDir": "./build",
