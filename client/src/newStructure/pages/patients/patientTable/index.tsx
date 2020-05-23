@@ -11,10 +11,11 @@ import React from 'react';
 import Switch from '@material-ui/core/Switch';
 import { TextAlignProperty } from 'csstype';
 import { trafficLights } from './utils';
+import { Patient } from "../../../types";
 
 interface IProps {
   callbackFromParent: any;
-  data: any;
+  data: Array<Patient>;
   isLoading: boolean;
 }
 
@@ -49,9 +50,8 @@ export const PatientTable: React.FC<IProps> = ({
         {
           title: `Patient Initials`,
           field: `patientName`,
-          render: (rowData: any) => (
+          render: (rowData: Patient): JSX.Element => (
             <p
-              key={`initials` + rowData.tableData.id}
               style={{
                 fontSize: `200%`,
                 fontWeight: `bold`,
@@ -67,8 +67,8 @@ export const PatientTable: React.FC<IProps> = ({
         {
           title: `Patient ID`,
           field: `patientId`,
-          customSort: (left: any, right: any) =>
-            Number(left.patientId) - Number(right.patientId)
+          customSort: (patient: Patient, otherPatient: Patient) =>
+            Number(patient.patientId) - Number(otherPatient.patientId)
         },
         { title: `Village`, field: `villageNumber` },
         {

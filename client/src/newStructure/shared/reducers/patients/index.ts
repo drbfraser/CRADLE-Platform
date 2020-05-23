@@ -92,7 +92,7 @@ export const patientsReducer = (state = initialState, action: any) => {
       patientsList.sort((a: any, b: any) => sortPatientsByLastReading(a, b));
       return {
         ...state,
-        patientsList: patientsList,
+        patientsList,
         isLoading: false,
       };
 
