@@ -6,7 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
-const styles = (theme) => ({
+const styles = (theme: any) => ({
   button: {
     margin: theme.spacing.unit,
   },
@@ -15,8 +15,20 @@ const styles = (theme) => ({
   },
 });
 
-class ChatComponent extends React.Component {
-  constructor(props) {
+interface IProps {
+  connection: any;
+  isOpener: any;
+  classes?: any;
+  user?: any;
+}
+
+interface IState {
+  chatHistory: any;
+  pendingInput: any;
+}
+
+class ChatComponent extends React.Component<IProps, IState> {
+  constructor(props: IProps) {
     super(props);
 
     this.state = {
@@ -32,7 +44,7 @@ class ChatComponent extends React.Component {
     this.props.connection.onmessage = this.appendRemoteMessage.bind(this);
   }
 
-  appendRemoteMessage(event) {
+  appendRemoteMessage(event: any) {
     console.log('appending remote message');
 
     let sender = this.getSender(true);
@@ -57,7 +69,7 @@ class ChatComponent extends React.Component {
     );
   }
 
-  handleSubmit(event) {
+  handleSubmit() {
     console.log('submitting input: ', this.state.pendingInput);
 
     let data = {
@@ -87,7 +99,7 @@ class ChatComponent extends React.Component {
     );
   }
 
-  handleChange(event) {
+  handleChange(event: any) {
     console.log('handling change');
     console.log('event.target.value: ', event.target.value);
 
@@ -96,16 +108,16 @@ class ChatComponent extends React.Component {
     });
   }
 
-  handleKeyDown(event) {
+  handleKeyDown(event: any) {
     console.log('keyed down');
     console.log(event.keyCode);
     // user presses enter
     if (event.keyCode == 13) {
-      this.handleSubmit(event);
+      this.handleSubmit();
     }
   }
 
-  getSender(isRemote) {
+  getSender(isRemote?: any) {
     if (isRemote) {
       if (this.props.isOpener) {
         return 'joiner';
@@ -163,8 +175,6 @@ class ChatComponent extends React.Component {
               multiline
               rows="4"
               placeholder="Send a message..."
-              margin="normal"
-              variant="outlined"
               style={{
                 width: '100%',
                 margin: '0',
@@ -180,7 +190,7 @@ class ChatComponent extends React.Component {
   }
 }
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user }: any) => ({
   user: user.currentUser,
 });
 

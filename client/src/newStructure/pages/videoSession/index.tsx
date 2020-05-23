@@ -1,7 +1,7 @@
 import * as RTCMultiConnection from 'rtcmulticonnection';
 import * as io from 'socket.io-client';
 
-import React, { Component } from 'react';
+import React from 'react';
 
 import $ from 'jquery';
 import { Chat } from './chat';
@@ -10,23 +10,43 @@ import { copyToClipboard } from './utils';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import swal from 'sweetalert';
 
+//@ts-ignore
 window.io = io;
 
 const infoDivText = {
-  fontSize: `20px`,
+  fontSize: 20,
   color: `white`,
-  textAlign: `left`,
+  textAlign: `left` as `left`,
 };
 
-class VideoSession extends Component {
-  constructor(props) {
+interface IProps {
+  getCurrentUser: any;
+  isOpener: any;
+  match: any;
+  roomId: any;
+  user: any;
+}
+
+interface IState {
+  localConnected: boolean,
+  remoteConnected: boolean,
+  chatHistory: any,
+  roomStatus: any,
+  configured: boolean,
+}
+
+class VideoSession extends React.Component<IProps, IState> {
+  private connection: any;
+  private predefinedRoomId: any;
+
+  constructor(props: IProps) {
     super(props);
     this.state = {
       localConnected: false,
       remoteConnected: false,
       chatHistory: [],
       roomStatus: 'Joining room, connecting...',
-      configured: false,
+      configured: false
     };
 
     this.config = this.config.bind(this);
@@ -35,7 +55,7 @@ class VideoSession extends Component {
     this.joinRoom = this.joinRoom.bind(this);
 
     this.connection = new RTCMultiConnection();
-    this.predefinedRoomId = React.createRef(`cradle`);
+    this.predefinedRoomId = `cradle`;
   }
 
   getRoomId() {
@@ -44,11 +64,12 @@ class VideoSession extends Component {
     } else if (this.props.match.params.roomId) {
       return this.props.match.params.roomId;
     } else {
-      return this.predefinedRoomId.current;
+      return this.predefinedRoomId;
     }
   }
 
   openRoom() {
+    //@ts-ignore
     this.disabled = true;
 
     let thisRoomId = this.getRoomId();
@@ -59,6 +80,7 @@ class VideoSession extends Component {
   }
 
   joinRoom() {
+    //@ts-ignore
     this.disabled = true;
 
     let thisRoomId = this.getRoomId();
@@ -78,8 +100,8 @@ class VideoSession extends Component {
     this.config(true);
 
     let newState = {
-      configured: true,
-    };
+      configured: true
+    } as { [key: string]: any };
 
     console.log('isOpener: ', this.props.isOpener);
     console.log('roomId: ', this.getRoomId());
@@ -107,7 +129,7 @@ class VideoSession extends Component {
         'Room created, waiting for remote user to join room...';
     }
 
-    this.setState(newState);
+    this.setState(newState as IState);
   }
 
   componentDidUpdate() {
@@ -123,7 +145,7 @@ class VideoSession extends Component {
     }
   }
 
-  config(isLocal) {
+  config(isLocal: any) {
     // this line is VERY_important
     this.connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
@@ -132,12 +154,12 @@ class VideoSession extends Component {
     this.connection.session = {
       audio: true,
       video: true,
-      data: true,
+      data: true
     };
 
     this.connection.sdpConstraints.mandatory = {
       OfferToReceiveAudio: true,
-      OfferToReceiveVideo: true,
+      OfferToReceiveVideo: true
     };
 
     if (isLocal) {
@@ -146,18 +168,19 @@ class VideoSession extends Component {
       this.connection.videosContainer = document.getElementById('remoteStream');
     }
 
-    this.connection.onopen = function (event) {
+    this.connection.onopen = (event: any) => {
+      //@ts-ignore
       var remoteUserId = event.userid;
       var remoteUserFullName = event.extra.fullName;
 
       console.log('data connection opened with ' + remoteUserFullName);
 
       this.setState({
-        roomStatus: 'Connected',
+        roomStatus: 'Connected'
       });
-    }.bind(this);
+    };
 
-    this.connection.onstream = function (event) {
+    this.connection.onstream = (event: any) => {
       console.log('onstream: ');
 
       console.log('state: ', this.state);
@@ -167,7 +190,7 @@ class VideoSession extends Component {
       console.log('isLocal: ', isLocal);
 
       event.mediaElement.play();
-      setTimeout(function () {
+      setTimeout(function() {
         event.mediaElement.play();
       }, 5000);
 
@@ -180,23 +203,26 @@ class VideoSession extends Component {
         videoContainer = document.getElementById('localStream');
 
         this.setState({
-          localConnected: true,
+          localConnected: true
         });
       } else {
         videoContainer = document.getElementById('remoteStream');
 
         this.setState({
-          remoteConnected: true,
+          remoteConnected: true
         });
       }
 
+      // @ts-ignore
       videoContainer.appendChild(event.mediaElement);
 
       event.mediaElement.removeAttribute('controls');
 
+      // @ts-ignore
       window.connection = this.connection;
-    }.bind(this);
-
+    };
+    
+    // @ts-ignore
     window.connection = this.connection;
 
     // connection.onmessage = function(event) {
@@ -210,12 +236,12 @@ class VideoSession extends Component {
     console.log('about to unmount');
 
     // disconnect with all users
-    this.connection.getAllParticipants().forEach(function (pid) {
+    this.connection.getAllParticipants().forEach((pid: any) => {
       this.connection.disconnectWith(pid);
     });
 
     // stop all local cameras
-    this.connection.attachStreams.forEach(function (localStream) {
+    this.connection.attachStreams.forEach(function(localStream: any) {
       localStream.stop();
     });
 
@@ -241,29 +267,29 @@ class VideoSession extends Component {
           height: `calc(100vh - 150px)`,
           width: `100%`,
           backgroundColor: `lightpink`,
-          border: `2px solid black`,
+          border: `2px solid black`
         }}>
         <div
           style={{
             height: `100%`,
-            width: `100%`,
+            width: `100%`
           }}>
           <div
             style={{
               width: `100%`,
               height: `100%`,
               display: `flex`,
-              flexDirection: `row`,
+              flexDirection: `row`
             }}>
             <div
               style={{
                 width: `75%`,
-                height: `100%`,
+                height: `100%`
               }}>
               <div
                 style={{
                   paddingLeft: 10,
-                  position: `absolute`,
+                  position: `absolute`
                 }}>
                 <p style={infoDivText}>Stream Id: {roomId}</p>
                 <p style={infoDivText}>Status: {this.state.roomStatus}</p>
@@ -275,7 +301,7 @@ class VideoSession extends Component {
                   width: `100%`,
                   backgroundColor: `black`,
                   boxSizing: `border-box`,
-                  border: `1px black solid`,
+                  border: `1px black solid`
                 }}></div>
               <div
                 id="localStream"
@@ -287,7 +313,7 @@ class VideoSession extends Component {
                   right: `calc(-100% + 300px + 25px)`,
                   backgroundColor: `black`,
                   borderRadius: 15,
-                  border: `1px white solid`,
+                  border: `1px white solid`
                 }}></div>
             </div>
             <Chat connection={this.connection} isOpener={this.props.isOpener} />
@@ -298,13 +324,13 @@ class VideoSession extends Component {
   }
 }
 
-const mapStateToProps = ({ chat, user }) => ({
+const mapStateToProps = ({ chat, user }: any) => ({
   isOpener: chat.isOpener,
   roomId: chat.roomId,
   user: user.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => {
     dispatch(getCurrentUser());
   },
