@@ -3,7 +3,12 @@ import * as Yup from 'yup';
 import React from 'react';
 import { useFormik } from 'formik';
 
-export const LoginForm = (props) => {
+interface IProps {
+  userLoginFetch?: any;
+  errorMessage?: any;
+}
+
+export const LoginForm: React.FC<IProps> = (props) => {
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -22,7 +27,7 @@ export const LoginForm = (props) => {
   });
   return (
     <form onSubmit={formik.handleSubmit}>
-      <h1 style={{ 'font-size': '50px' }}>Log In</h1>
+      <h1 style={{ fontSize: 50 }}>Log In</h1>
 
       <h2>Email</h2>
       <input
