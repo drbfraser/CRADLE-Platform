@@ -5,78 +5,45 @@ import {
 
 import { PatientTable } from './patientTable';
 import React from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { Patient } from "../../types";
+import { useHistory } from 'react-router-dom';
 
-interface IProps {
-  getCurrentUser: any;
-  getPatients: any;
-  history: any;
-  patients: any;
-  user: any;
-}
+export const PatientPage: React.FC = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const patients = useSelector(({ patients }: any): any => patients);
+  const user = useSelector(({ user }: any): any => user);
 
-class PatientPageComponent extends React.Component<IProps> {
-  state = {
-    selectedPatient: {
-      patientId: ``,
-      patientName: `Test`,
-      patientSex: `F`,
-      medicalHistory: ``,
-      drugHistory: ``,
-      villageNumber: ``,
-      readings: [],
-    },
-  };
-
-  componentDidMount = () => {
-    if (!this.props.user.isLoggedIn) {
-      this.props.getCurrentUser();
+  React.useEffect(() => {
+    if (!user.isLoggedIn) {
+      dispatch(getCurrentUser());
+      return;
     }
+
     if (
-      !this.props.patients.patientsList ||
-      this.props.patients.patientsList.length === 0
+      !patients.patientsList ||
+      patients.patientsList.length === 0
     ) {
-      this.props.getPatients();
+      dispatch(getPatientsRequested());
+      dispatch(getPatients());
     }
-  };
+  }, [dispatch, patients, user]);
 
-  patientCallback = (selectedPatient: any) => {
-    console.log(`Received callback: `);
-    this.props.history.push(`/patient/${selectedPatient.patientId}`);
-  };
+  const patientCallback = (selectedPatient: Patient): void => 
+    history.push(`/patient/${selectedPatient.patientId}`);
 
-  render() {
-    // don't render page if user is not logged in
-    if (!this.props.user.isLoggedIn) {
-      return <div />;
-    }
-
-    return (
-      <div>
-        <PatientTable
-          callbackFromParent={this.patientCallback}
-          data={this.props.patients.patientsList}
-          isLoading={this.props.patients.isLoading}></PatientTable>
-      </div>
-    );
+  // don't render page if user is not logged in
+  if (!user.isLoggedIn) {
+    return <div />;
   }
-}
 
-const mapStateToProps = ({ patients, user }: any) => ({
-  patients: patients,
-  user: user.currentUser,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  getPatients: () => {
-    dispatch(getPatientsRequested());
-    dispatch(getPatients());
-  },
-  getCurrentUser: () => dispatch(getCurrentUser()),
-});
-
-export const PatientsPage = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PatientPageComponent);
+  return (
+    <PatientTable
+      callbackFromParent={patientCallback}
+      data={patients.patientsList}
+      isLoading={patients.isLoading}
+    />
+  );
+};

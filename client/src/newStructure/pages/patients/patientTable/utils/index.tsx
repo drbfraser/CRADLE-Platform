@@ -9,6 +9,7 @@ import {
   sortPatientsByLastReading,
 } from '../../../../shared/utils';
 import { TrafficLightEnum } from '../../../../enums';
+import React from 'react';
 
 
 export const initials: Column<Patient> = {
