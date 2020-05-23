@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../actions/users'
 import { Tab } from 'semantic-ui-react'
-import CommunityWorkerResources from './CommunityWorkerResources'
+import CommunityWorkerResources from './CommunityWorkerResource'
 import HealthWorkerResources from './HealthWorkerResources'
 
 const panes = [
