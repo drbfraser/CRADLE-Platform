@@ -39,3 +39,5 @@ export type Patient = {
   villageNumber: string;
   readings: Array<Reading>;
 };
+
+export type Callback<T, U = void> = (args: T) => U;

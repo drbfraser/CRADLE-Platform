@@ -1,22 +1,13 @@
-import {
-  getLatestReading,
-  getLatestReadingDateTime,
-  getPrettyDate,
-  getTrafficIcon,
-  sortPatientsByLastReading
-} from '../../../shared/utils';
-
 import MaterialTable from 'material-table';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
-import { TextAlignProperty } from 'csstype';
-import { TrafficLightEnum } from '../../../enums';
-import { Patient, Reading } from "../../../types";
+import { Patient, Reading, Callback } from "../../../types";
+import { initials, patientId, village, vitalSign, lastReadingDate } from "./utils";
 
 interface IProps {
-  callbackFromParent: any;
   data: Array<Patient>;
   isLoading: boolean;
+  callbackFromParent: Callback<Patient>;
 }
 
 export const PatientTable: React.FC<IProps> = ({
@@ -40,60 +31,11 @@ export const PatientTable: React.FC<IProps> = ({
       title="Patients"
       isLoading={ isLoading }
       columns={ [
-        {
-          title: `Patient Initials`,
-          field: `patientName`,
-          render: (rowData: Patient): JSX.Element => (
-            <p
-              style={ {
-                fontSize: `200%`,
-                fontWeight: `bold`,
-                textAlign: `center`
-              } }>
-              { rowData.patientName }
-            </p>
-          ),
-          headerStyle: {
-            textAlign: `center` as TextAlignProperty
-          }
-        },
-        {
-          title: `Patient ID`,
-          field: `patientId`,
-          customSort: (patient: Patient, otherPatient: Patient) =>
-            Number(patient.patientId) - Number(otherPatient.patientId)
-        },
-        { title: `Village`, field: `villageNumber` },
-        {
-          title: `Vital Sign`,
-          cellStyle: {
-            padding: `0px`
-          },
-          render: (rowData: Patient) =>
-            getTrafficIcon(
-              getLatestReading(rowData.readings).trafficLightStatus
-            ),
-          customSort: (patient: Patient, otherPatient: Patient) => {
-            const leftIndex = Object.values(TrafficLightEnum).indexOf(
-              patient.readings[0].trafficLightStatus
-            );
-            const rightIndex = Object.values(TrafficLightEnum).indexOf(
-              otherPatient.readings[0].trafficLightStatus
-            );
-
-            return leftIndex - rightIndex;
-          }
-        },
-        {
-          title: `Date of Last Reading`,
-          field: `lastReading`,
-          render: (rowData: Patient) => (
-            <p>{ getPrettyDate(getLatestReadingDateTime(rowData.readings)) }</p>
-          ),
-          customSort: (patient: Patient, otherPatient: Patient) =>
-            sortPatientsByLastReading(patient, otherPatient),
-          defaultSort: `asc` as `asc`
-        }
+        initials,
+        patientId,
+        village,
+        vitalSign,
+        lastReadingDate,
       ] }
       data={patients}
       options={ {
@@ -103,7 +45,7 @@ export const PatientTable: React.FC<IProps> = ({
         }),
         sorting: true
       } }
-      onRowClick={ (_, rowData) => callbackFromParent(rowData) }
+      onRowClick={ (_, rowData: Patient) => callbackFromParent(rowData) }
       actions={ [
         {
           icon: (): React.ReactElement => (
