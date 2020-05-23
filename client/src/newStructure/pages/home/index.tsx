@@ -2,7 +2,11 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-const Home = (props) => {
+interface IProps {
+  currentUser: any;
+}
+
+const Home: React.FC<IProps> = (props) => {
   return Object.keys(props.currentUser.currentUser).length ? (
     <Redirect to="/patients" />
   ) : (
@@ -10,7 +14,7 @@ const Home = (props) => {
   );
 };
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user }: any) => ({
   currentUser: user.currentUser,
 });
 
