@@ -31,7 +31,6 @@ export const LoginForm: React.FC<IProps> = (props) => {
 
       <h2>Email</h2>
       <input
-        name="email"
         placeholder="somebody@example.com"
         {...formik.getFieldProps('email')}
       />
@@ -41,7 +40,6 @@ export const LoginForm: React.FC<IProps> = (props) => {
 
       <h2>Password</h2>
       <input
-        name="password"
         placeholder="********"
         type="password"
         {...formik.getFieldProps('password')}
