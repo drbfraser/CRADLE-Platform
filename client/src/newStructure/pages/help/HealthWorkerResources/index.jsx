@@ -8,7 +8,7 @@ const CLINIC_PDF_POSTER_LINK =
 const HEALTH_WORKER_EDUCATION_VIDEO =
   'https://www.youtube.com/embed/QainNBCHKAg'
 
-export default function HealthWorkerResources() {
+function HealthWorkerResources() {
   return (
     <ResourceTabPage
       posterImgSrc={HEALTH_WORKER_POSTER}
@@ -17,3 +17,4 @@ export default function HealthWorkerResources() {
     />
   )
 }
+export {HealthWorkerResources}

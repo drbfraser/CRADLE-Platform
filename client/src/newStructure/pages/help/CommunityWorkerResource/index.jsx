@@ -8,7 +8,7 @@ const COMMUNITY_PDF_POSTER_LINK =
 const COMMUNITY_WORKER_EDUCATION_VIDEO_LINK =
   'https://www.youtube.com/embed/WvS3L5P4P2c'
 
-export default function HealthWorkerResources() {
+function CommunityWorkerResources() {
   return (
     <ResourceTabPage
       posterImgSrc={COMMUNITY_WORKER_POSTER}
@@ -17,3 +17,4 @@ export default function HealthWorkerResources() {
     />
   )
 }
+export {CommunityWorkerResources}
