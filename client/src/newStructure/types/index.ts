@@ -21,6 +21,7 @@ export type Reading = {
   temporaryFlags: number;
   userHasSelectedNoSymptoms: boolean;
   urineTest: string;
+  dateReferred?: number;
 };
 
 export type Patient = {

@@ -10,8 +10,8 @@ import MaterialTable from 'material-table';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
 import { TextAlignProperty } from 'csstype';
-import { trafficLights } from './utils';
-import { Patient } from "../../../types";
+import { TrafficLightEnum } from '../../../enums';
+import { Patient, Reading } from "../../../types";
 
 interface IProps {
   callbackFromParent: any;
@@ -24,40 +24,33 @@ export const PatientTable: React.FC<IProps> = ({
   data,
   isLoading
 }) => {
-  const [showReferredPatients, setShowReferredPatients] = React.useState<
+  const [showReferredPatientsOnly, setShowReferredPatientsOnly] = React.useState<
     boolean
   >(false);
-
-  const handleSwitchChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => setShowReferredPatients(event.target.checked);
-
-  const patientHasReferral = (readings: any): boolean =>
-    readings.some((reading: any) => {
-      return reading.dateReferred !== undefined;
-    });
-
-  const getPatientsToRender = (): any =>
-    data.filter((patient: any): boolean => {
-      return showReferredPatients && patientHasReferral(patient.readings);
-    });
+  const patients = React.useMemo((): Array<Patient> => 
+    data.filter(({ readings }: Patient): boolean => showReferredPatientsOnly 
+      ? readings.some((reading: Reading): boolean => reading.dateReferred !== undefined)
+      : true
+    ), 
+    [data, showReferredPatientsOnly]
+  );
 
   return (
     <MaterialTable
       title="Patients"
-      isLoading={isLoading}
-      columns={[
+      isLoading={ isLoading }
+      columns={ [
         {
           title: `Patient Initials`,
           field: `patientName`,
           render: (rowData: Patient): JSX.Element => (
             <p
-              style={{
+              style={ {
                 fontSize: `200%`,
                 fontWeight: `bold`,
                 textAlign: `center`
-              }}>
-              {rowData.patientName}
+              } }>
+              { rowData.patientName }
             </p>
           ),
           headerStyle: {
@@ -76,16 +69,16 @@ export const PatientTable: React.FC<IProps> = ({
           cellStyle: {
             padding: `0px`
           },
-          render: (rowData: any) =>
+          render: (rowData: Patient) =>
             getTrafficIcon(
               getLatestReading(rowData.readings).trafficLightStatus
             ),
-          customSort: (left: any, right: any) => {
-            const leftIndex = trafficLights.indexOf(
-              left.readings[0].trafficLightStatus
+          customSort: (patient: Patient, otherPatient: Patient) => {
+            const leftIndex = Object.values(TrafficLightEnum).indexOf(
+              patient.readings[0].trafficLightStatus
             );
-            const rightIndex = trafficLights.indexOf(
-              right.readings[0].trafficLightStatus
+            const rightIndex = Object.values(TrafficLightEnum).indexOf(
+              otherPatient.readings[0].trafficLightStatus
             );
 
             return leftIndex - rightIndex;
@@ -94,38 +87,37 @@ export const PatientTable: React.FC<IProps> = ({
         {
           title: `Date of Last Reading`,
           field: `lastReading`,
-          render: (rowData: any) => (
-            <p>{getPrettyDate(getLatestReadingDateTime(rowData.readings))}</p>
+          render: (rowData: Patient) => (
+            <p>{ getPrettyDate(getLatestReadingDateTime(rowData.readings)) }</p>
           ),
-          customSort: (a: any, b: any) => sortPatientsByLastReading(a, b),
+          customSort: (patient: Patient, otherPatient: Patient) =>
+            sortPatientsByLastReading(patient, otherPatient),
           defaultSort: `asc` as `asc`
         }
-      ]}
-      data={getPatientsToRender()}
-      options={{
+      ] }
+      data={patients}
+      options={ {
         pageSize: 10,
         rowStyle: (): React.CSSProperties => ({
           height: 75
         }),
         sorting: true
-      }}
-      onRowClick={(_, rowData) => callbackFromParent(rowData)}
-      actions={[
+      } }
+      onRowClick={ (_, rowData) => callbackFromParent(rowData) }
+      actions={ [
         {
           icon: (): React.ReactElement => (
             <Switch
-              onChange={handleSwitchChange}
               color="primary"
-              checked={showReferredPatients}
+              checked={ showReferredPatientsOnly }
             />
           ),
           tooltip: `Show referred patients only`,
           isFreeAction: true,
-          onClick: () => {
-            return;
-          }
+          onClick: (): void => 
+            setShowReferredPatientsOnly((showing: boolean): boolean => !showing)
         }
-      ]}
+      ] }
     />
   );
 };
