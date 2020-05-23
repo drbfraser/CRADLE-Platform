@@ -65,7 +65,7 @@ const initState = {
     hasUrineTest: false
 }
 
-class NewReadingPageComponent extends React.Component<any>  {
+class NewReadingPageComponent extends Component  {
     state = initState
 
     componentDidMount = () => {
