@@ -12,18 +12,18 @@ export const getVhtsRequested = () => ({
 export const getVhtList = () => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.VHTS}`,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: GET_VHTS_SUCCESS,
       payload: response,
     }),
-    onError: (error) => ({
+    onError: (error: any) => ({
       type: GET_VHTS_ERROR,
       payload: error,
     }),
   });
 };
 
-export const allVhtsReducer = (state = {}, action) => {
+export const allVhtsReducer = (state = {}, action: any) => {
   switch (action.type) {
     case GET_VHTS_SUCCESS:
       return {

@@ -38,10 +38,41 @@ import { getReferrals } from '../../reducers/referrals';
 import { guid } from './utils';
 import { newReadingPost } from '../../reducers/newReadingStatus';
 
-class PatientSummaryComponent extends React.Component {
+let symptom: Array<any> = [];
+
+interface IProps {
+  selectedPatient: any;
+  getReferrals: any;
+  getSelectedPatientStatistics: any;
+  getPatients: any;
+  callbackFromParent: any;
+  updatePatient: any;
+  user: any;
+  selectedPatientStatsList: any;
+  newReadingPost: any;
+  referrals: any;
+}
+
+class PatientSummaryComponent extends React.Component<IProps> {
   state = {
     displayPatientModal: false,
-    selectedPatient: { readings: [] },
+    selectedPatient: {
+      readings: [], 
+      patientName: ``, 
+      patientId: ``,
+      dob: ``,
+      patientAge: ``,
+      patientSex: ``,
+      isPregnant: ``,
+      gestationalAgeValue: ``,
+      gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
+      drugHistory: ``,
+      medicalHistory: ``,
+      bpSystolic: ``,
+      bpDiastolic: ``,
+      heartRateBPM: ``,
+    },
+    patient: ``,
     showVitals: true,
     showTrafficLights: false,
     displayReadingModal: false,
@@ -73,8 +104,6 @@ class PatientSummaryComponent extends React.Component {
     hasUrineTest: false,
   };
 
-  symptomRef = React.createRef([]);
-
   componentDidMount = () => {
     this.setState({ selectedPatient: this.props.selectedPatient });
 
@@ -88,7 +117,7 @@ class PatientSummaryComponent extends React.Component {
     }
   };
 
-  calculateShockIndex = (reading) => {
+  calculateShockIndex = (reading: any) => {
     const RED_SYSTOLIC = 160;
     const RED_DIASTOLIC = 110;
     const YELLOW_SYSTOLIC = 140;
@@ -100,8 +129,9 @@ class PatientSummaryComponent extends React.Component {
       reading['bpSystolic'] === undefined ||
       reading['bpDiastolic'] === undefined ||
       reading['heartRateBPM'] === undefined
-    )
+    ) {
       return 'NONE';
+    }
 
     const shockIndex = reading['heartRateBPM'] / reading['bpSystolic'];
 
@@ -129,7 +159,7 @@ class PatientSummaryComponent extends React.Component {
     return trafficLight;
   };
 
-  getReferralIds(selectedPatient) {
+  getReferralIds(selectedPatient: any) {
     console.log('selectedPatient: ', selectedPatient);
     let res = [];
     for (let i in selectedPatient.readings) {
@@ -155,7 +185,7 @@ class PatientSummaryComponent extends React.Component {
     this.setState({ displayPatientModal: true });
   };
 
-  closePatientModal = (e, data) => {
+  closePatientModal = (e: any) => {
     if (e === 'formSubmitted') {
       this.setState({ displayPatientModal: false });
     } else {
@@ -176,7 +206,7 @@ class PatientSummaryComponent extends React.Component {
     this.setState({ displayReadingModal: false });
   };
 
-  handleSubmit = (event) => {
+  handleSubmit = (event: any) => {
     event.preventDefault();
     let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient)); // pass by value
     let patientId = patientData.patientId;
@@ -192,13 +222,13 @@ class PatientSummaryComponent extends React.Component {
     this.closePatientModal('formSubmitted');
   };
 
-  handleReadingSubmit = (event) => {
+  handleReadingSubmit = (event: any) => {
     event.preventDefault();
 
-    if (this.symptomRef.current.indexOf('other') >= 0) {
-      this.symptomRef.current.pop('other');
+    if (symptom.indexOf('other') >= 0) {
+      symptom.pop();
       if (this.state.checkedItems.otherSymptoms !== '') {
-        this.symptomRef.current.push(this.state.checkedItems.otherSymptoms);
+        symptom.push(this.state.checkedItems.otherSymptoms);
       }
     }
 
@@ -212,10 +242,10 @@ class PatientSummaryComponent extends React.Component {
           userId: this.props.user.userId,
           readingId: readingID,
           dateTimeTaken: dateTime.toJSON(),
-          symptoms: this.symptomRef.current.toString(),
+          symptoms: symptom.toString(),
         },
       },
-      function () {
+      () => {
         let patientData = JSON.parse(
           JSON.stringify(this.state.selectedPatient)
         );
@@ -256,7 +286,7 @@ class PatientSummaryComponent extends React.Component {
     );
   };
 
-  handleSelectChange = (e, value) => {
+  handleSelectChange = (_: any, value: any) => {
     if (value.name === 'patientSex' && value.value === 'MALE') {
       this.setState({
         selectedPatient: {
@@ -276,29 +306,29 @@ class PatientSummaryComponent extends React.Component {
     }
   };
 
-  handleReadingChange = (e, value) => {
+  handleReadingChange = (_: any, value: any) => {
     this.setState({
       newReading: { ...this.state.newReading, [value.name]: value.value },
     });
   };
 
-  handleCheckedChange = (e, value) => {
+  handleCheckedChange = (_: any, value: any) => {
     console.log(value.name);
     // true => false, pop
     if (value.value) {
-      if (this.symptomRef.current.indexOf(value.name) >= 0) {
-        this.symptomRef.current.pop(value.name);
+      if (symptom.indexOf(value.name) >= 0) {
+        symptom.pop();
       }
     } else {
       // false => true, push
-      if (this.symptomRef.current.indexOf(value.name) < 0) {
-        this.symptomRef.current.push(value.name);
+      if (symptom.indexOf(value.name) < 0) {
+        symptom.push(value.name);
       }
     }
-    console.log(this.symptomRef.current);
+    console.log(symptom);
     if (value.name !== 'none') {
-      if (this.symptomRef.current.indexOf('none') >= 0) {
-        this.symptomRef.current.pop('none');
+      if (symptom.indexOf('none') >= 0) {
+        symptom.pop();
       }
       this.setState({
         checkedItems: {
@@ -308,8 +338,8 @@ class PatientSummaryComponent extends React.Component {
         },
       });
     } else {
-      while (this.symptomRef.current.length > 0) {
-        this.symptomRef.current.pop();
+      while (symptom.length > 0) {
+        symptom.pop();
       }
       this.setState({
         checkedItems: {
@@ -327,7 +357,7 @@ class PatientSummaryComponent extends React.Component {
     }
   };
 
-  handleOtherSymptom = (event) => {
+  handleOtherSymptom = (event: any) => {
     this.setState({
       checkedItems: {
         ...this.state.checkedItems,
@@ -336,7 +366,7 @@ class PatientSummaryComponent extends React.Component {
     });
   };
 
-  handleUrineTestChange = (event, value) => {
+  handleUrineTestChange = (_: any, value: any) => {
     this.setState({
       newReading: {
         ...this.state.newReading,
@@ -348,7 +378,7 @@ class PatientSummaryComponent extends React.Component {
     });
   };
 
-  handleUrineTestSwitchChange = (event) => {
+  handleUrineTestSwitchChange = (event: any) => {
     this.setState({
       hasUrineTest: event.target.checked,
     });
@@ -363,18 +393,18 @@ class PatientSummaryComponent extends React.Component {
   };
 
   createReadings = (
-    readingId,
-    dateTimeTaken,
-    bpDiastolic,
-    bpSystolic,
-    heartRateBPM,
-    symptoms,
-    trafficLightStatus,
-    isReferred,
-    dateReferred,
-    drugHistory,
-    medicalHistory,
-    urineTests
+    readingId: any,
+    dateTimeTaken: any,
+    bpDiastolic: any,
+    bpSystolic: any,
+    heartRateBPM: any,
+    symptoms: any,
+    trafficLightStatus: any,
+    isReferred: any,
+    dateReferred: any,
+    drugHistory: any,
+    medicalHistory: any,
+    urineTests: any
   ) => {
     return {
       readingId,
@@ -392,16 +422,16 @@ class PatientSummaryComponent extends React.Component {
     };
   };
 
-  sortReadings = (readings) => {
+  sortReadings = (readings: any) => {
     let sortedReadings = readings.sort(
-      (a, b) =>
+      (a: any, b: any) =>
         getMomentDate(b.dateTimeTaken).valueOf() -
         getMomentDate(a.dateTimeTaken).valueOf()
     );
     return sortedReadings;
   };
 
-  average = (monthlyArray) => {
+  average = (monthlyArray: any) => {
     if (monthlyArray.length !== 0) {
       var total = 0;
       for (var i = 0; i < monthlyArray.length; i++) {
@@ -420,7 +450,7 @@ class PatientSummaryComponent extends React.Component {
     this.setState({ showVitals: false, showTrafficLights: true });
   };
 
-  createReadingObject = (reading) => {
+  createReadingObject = (reading: any) => {
     const readingId = reading['readingId'];
     const dateTimeTaken = reading['dateTimeTaken'];
     const bpDiastolic = reading['bpDiastolic'];
@@ -587,7 +617,6 @@ class PatientSummaryComponent extends React.Component {
               <Icon name="plus" size="large" />
               <Typography
                 variant="body2"
-                component="body2"
                 style={{
                   lineHeight: '1.5em',
                   padding: '10px',
@@ -769,7 +798,7 @@ class PatientSummaryComponent extends React.Component {
             </Grid>
             <br />
             <Grid container spacing={0}>
-              {readings.map((row) => (
+              {readings.map((row: any) => (
                 <Grid key={row.readingId} xs={12}>
                   <Paper
                     style={{
@@ -788,7 +817,7 @@ class PatientSummaryComponent extends React.Component {
                         Reading
                       </Typography>
 
-                      <Typography variant="subtitle1" component="subtitle1">
+                      <Typography variant="subtitle1">
                         Taken on {getPrettyDateTime(row.dateTimeTaken)}
                       </Typography>
 
@@ -982,23 +1011,23 @@ class PatientSummaryComponent extends React.Component {
   }
 }
 
-const mapStateToProps = ({ user, referrals, patientStats }) => ({
+const mapStateToProps = ({ user, referrals, patientStats }: any) => ({
   user: user.currentUser,
   referrals: referrals.mappedReferrals,
   selectedPatientStatsList: patientStats.selectedPatientStatsList,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getPatients: () => {
     dispatch(getPatientsRequested());
     dispatch(getPatients());
   },
-  updatePatient: (patientId, data) => dispatch(updatePatient(patientId, data)),
-  getSelectedPatientStatistics: (patientId) => {
+  updatePatient: (patientId: any, data: any) => dispatch(updatePatient(patientId, data)),
+  getSelectedPatientStatistics: (patientId: any) => {
     dispatch(getSelectedPatientStatisticsRequested());
     dispatch(getSelectedPatientStatistics(patientId));
   },
-  newReadingPost: (data) => dispatch(newReadingPost(data)),
+  newReadingPost: (data: any) => dispatch(newReadingPost(data)),
   getCurrentUser: () => dispatch(getCurrentUser()),
   ...bindActionCreators(
     {

@@ -18,14 +18,14 @@ const UPDATE_FOLLOW_UP_ERROR = `referrals/UPDATE_FOLLOW_UP_ERROR`;
 
 const SET_READING_ID = `referrals/SET_READING_ID`;
 
-export const getReferral = (referralId) => {
+export const getReferral = (referralId: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.REFERRAL}/${referralId}`,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: GET_REFERRAL,
       payload: response,
     }),
-    onError: (error) => ({
+    onError: (error: any) => ({
       type: GET_REFERRAL_ERROR,
       payload: error,
     }),
@@ -33,7 +33,7 @@ export const getReferral = (referralId) => {
 };
 
 // TODO: create Endpoints /referral to get all referrals for user
-export const getReferrals = (referralIds) => (dispatch) => {
+export const getReferrals = (referralIds: any) => (dispatch: any) => {
   dispatch({
     type: GET_REFERRALS_REQUESTED,
   });
@@ -45,8 +45,8 @@ export const getReferrals = (referralIds) => (dispatch) => {
   }
 
   Promise.all(referralPromises)
-    .then((results) => {
-      let referrals = {};
+    .then((results: any) => {
+      let referrals = {} as { [key: string]: any};
       for (let i in results) {
         let thisReferral = results[i].data;
         referrals[thisReferral.readingId] = thisReferral;
@@ -57,7 +57,7 @@ export const getReferrals = (referralIds) => (dispatch) => {
         payload: referrals,
       });
     })
-    .catch((err) => {
+    .catch((err: any) => {
       console.error(err);
       dispatch({
         type: GET_REFERRALS_ERROR,
@@ -65,17 +65,17 @@ export const getReferrals = (referralIds) => (dispatch) => {
     });
 };
 
-const updateFollowUpOnSuccess = (response) => ({
+const updateFollowUpOnSuccess = (response: any) => ({
   type: UPDATE_FOLLOW_UP_SUCCESS,
   payload: response,
 });
 
-const updateFollowUpOnError = (error) => ({
+const updateFollowUpOnError = (error: any) => ({
   type: UPDATE_FOLLOW_UP_ERROR,
   payload: error,
 });
 
-export const updateFollowUp = (followUpId, data) => {
+export const updateFollowUp = (followUpId: any, data: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.FOLLOW_UP}/${followUpId}`,
     method: Methods.PUT,
@@ -85,7 +85,7 @@ export const updateFollowUp = (followUpId, data) => {
   });
 };
 
-export const createFollowUp = (data) => {
+export const createFollowUp = (data: any) => {
   return serverRequestActionCreator({
     endpoint: Endpoints.FOLLOW_UP,
     method: Methods.POST,
@@ -95,8 +95,8 @@ export const createFollowUp = (data) => {
   });
 };
 
-export const setReadingId = (readingId) => {
-  return (dispatch) => {
+export const setReadingId = (readingId: any) => {
+  return (dispatch: any) => {
     console.log('setting reading id');
     return dispatch({
       type: SET_READING_ID,
@@ -106,12 +106,12 @@ export const setReadingId = (readingId) => {
 };
 
 const initialState = {
-  mappedReferrals: {}, // maps reading id to referral objects
+  mappedReferrals: {} as { [key: string]: any }, // maps reading id to referral objects
   referralId: null,
   readingId: null,
 };
 
-export const referralsReducer = (state = initialState, action) => {
+export const referralsReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case GET_REFERRAL:
       return {
@@ -132,7 +132,9 @@ export const referralsReducer = (state = initialState, action) => {
         ...state,
         mappedReferrals: {
           ...state.mappedReferrals,
+          //@ts-ignore
           [state.readingId]: {
+            //@ts-ignore
             ...state.mappedReferrals[state.readingId],
             followUp: action.payload.data,
           },

@@ -1,15 +1,18 @@
 import { Divider, Header, Segment } from 'semantic-ui-react';
 
-import PropTypes from 'prop-types';
 import React from 'react';
 import { followupFrequencyUnitOptions } from '../utils';
 import { getPrettyDateTime } from '../../../../../utils';
 
-export const FollowUpInfo = (props) => {
+interface IProps {
+  followUp: any;
+}
+
+export const FollowUpInfo: React.FC<IProps> = (props) => {
   if (props.followUp) {
     const displayFollowUpFrequency =
       props.followUp.followupFrequencyValue !== null &&
-      props.followUp.followupFrequencyUnit !== followupFrequencyUnitOptions[`none`] &&
+      props.followUp.followupFrequencyUnit !== followupFrequencyUnitOptions[0].value &&
       props.followUp.dateFollowupNeededTill !== null;
 
     const frequencyStr = displayFollowUpFrequency
@@ -54,7 +57,3 @@ export const FollowUpInfo = (props) => {
 
   return null;
 }
-
-FollowUpInfo.propTypes = PropTypes.shape({
-  followUp: PropTypes.object.isRequired,
-}).isRequired;
