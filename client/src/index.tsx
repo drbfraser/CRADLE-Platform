@@ -1,9 +1,9 @@
 import 'sanitize.css/sanitize.css';
 import './index.css';
 
-import { history, reduxStore } from './redux/store';
+import { history, reduxStore } from './newStructure/redux/store';
 
-import { App } from './app';
+import { App } from './newStructure/app';
 import { ConnectedRouter } from 'connected-react-router';
 import React from 'react';
 import { Provider as ReduxProvider } from 'react-redux';

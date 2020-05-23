@@ -1,0 +1,63 @@
+.session {
+    height: calc(100vh - 150px);
+    width: 100%;
+    background-color: lightpink;
+    border: 2px solid black;
+}
+
+.session-ui {
+    height: 100%;
+    width: 100%;
+}
+
+.topSection {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.streamContainer {
+    width: 75%;
+    height: 100%;
+}
+
+.remoteStream {
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    box-sizing: border-box;
+    border: 1px black solid;
+}
+
+.localStream {
+    height: 200px;
+    width: 300px;
+    position: relative;
+    bottom: 225px;
+    right: calc(-100% + 300px + 25px);
+    background-color: black;
+    border-radius: 15px;
+    border: 1px white solid;
+}
+
+#localStream > video {
+    height: 100%;
+    width: 100%;
+}
+
+#remoteStream > video {
+    height: 100%;
+    width: 100%;
+}
+
+.infoDiv {
+    padding-left: 10px;
+    position: absolute;
+}
+
+.infoDiv > p {
+    font-size: 20px;
+    color: white;
+    text-align: left;
+}
