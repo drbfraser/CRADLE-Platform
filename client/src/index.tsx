@@ -3,7 +3,7 @@ import './index.css';
 
 import { history, reduxStore } from './newStructure/redux/store';
 
-import App from './oldStructure/containers/app';
+import {App} from './newStructure/app';
 import { ConnectedRouter } from 'connected-react-router';
 import React from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
