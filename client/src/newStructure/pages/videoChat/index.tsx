@@ -7,153 +7,102 @@ import { CustomForm } from './customForm';
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import classes from './styles.module.css';
 
 interface IProps {
-  getCurrentUser: any;
   createRoom: any;
   joinRoom: any;
-  user: any;
 }
 
 interface IState {
-  roomId: any,
-  isOpener: any,
-  name: any,
-  createFormOpen: any,
-  enterFormOpen: any,
+  roomId: any;
+  isOpener: any;
+  name: any;
+  createFormOpen: any;
+  enterFormOpen: any;
 }
 
-class VideoChatComponent extends React.Component<IProps, IState> {
-  constructor(props: any) {
-    super(props);
-    // initial state here:
-    this.state = {
-      roomId: null,
-      isOpener: false,
-      name: null,
-      createFormOpen: false,
-      enterFormOpen: false,
-    };
+const Component: React.FC<IProps> = ({ createRoom, joinRoom }) => {
+  const [state, setState] = React.useState<IState>({
+    roomId: null,
+    isOpener: false,
+    name: null,
+    createFormOpen: false,
+    enterFormOpen: false
+  });
 
-    this.handleRoomIdChange = this.handleRoomIdChange.bind(this);
-    this.createNewRoom = this.createNewRoom.bind(this);
-    this.toggleEnterForm = this.toggleEnterForm.bind(this);
-    this.joinExistingRoom = this.joinExistingRoom.bind(this);
-  }
+  const joinExistingRoom = (): void => joinRoom(state.roomId);
 
-  joinExistingRoom() {
-    console.log('this.state.roomId: ', this.state.roomId);
-    this.props.joinRoom(this.state.roomId);
-  }
+  const handleRoomIdChange = (id: any): void =>
+    setState(
+      (currentState: IState): IState => ({ ...currentState, roomId: id })
+    );
 
-  handleRoomIdChange(id: any) {
-    this.setState({ roomId: id });
-  }
-
-  createNewRoom() {
+  const createNewRoom = (): void => {
     let randomString = Math.random()
       .toString(13)
       .replace('0.', '')
       .substring(0, 6);
     console.log('creating new room: ', randomString);
-    this.props.createRoom(randomString);
-  }
+    createRoom(randomString);
+  };
 
-  toggleEnterForm() {
-    this.setState((state) => ({
-      enterFormOpen: !state.enterFormOpen,
-      createFormOpen: false,
-      roomId: null,
-      isOpener: false,
-    }));
-  }
-
-  componentDidMount() {
-    console.log('in component did mount');
-
-    if (!this.props.user.isLoggedIn) {
-      this.props.getCurrentUser();
-    }
-  }
-
-  // after the user has logged in or created the room, set the appropriate state variables and then render the Session Component and pass in these state variables as props
-  render() {
-    // don't render page if user is not logged in
-    if (!this.props.user.isLoggedIn) {
-      return <div />;
-    }
-
-    const styles = {
-      createRoom: null,
-      enterRoom: null,
-    } as { [key: string]: any };
-
-    if (this.state.createFormOpen) {
-      styles.createRoom = '#ababad';
-      styles.enterRoom = null;
-    } else if (this.state.enterFormOpen) {
-      styles.enterRoom = '#ababad';
-      styles.createRoom = null;
-    }
-
-    return (
-      <div
-        style={{
-          backgroundColor: `lightblue`,
-          height: `calc(100vh - 70px)`,
-          display: `flex`,
-          justifyContent: `center`,
-          alignItems: `center`,
-          margin: -24,
-        }}>
-        <div>
-          <Header as={'h1'}>CradleChat</Header>
-
-          <Button
-            onClick={this.createNewRoom}
-            style={{ marginRight: '15px', backgroundColor: styles.createRoom }}>
-            Create Room
-          </Button>
-
-          <Button
-            className="enterRoom"
-            onClick={this.toggleEnterForm}
-            style={{ backgroundColor: styles.enterRoom }}>
-            Join Existing Room
-          </Button>
-
-          {this.state.enterFormOpen && (
-            <CustomForm
-              roomId={''}
-              onRoomIdChange={this.handleRoomIdChange}
-              onSubmit={this.joinExistingRoom}
-            />
-          )}
-        </div>
-      </div>
+  const toggleEnterForm = (): void =>
+    setState(
+      (currentState: IState): IState => ({
+        ...currentState,
+        enterFormOpen: !currentState.enterFormOpen,
+        createFormOpen: false,
+        roomId: null,
+        isOpener: false
+      })
     );
-  }
-}
 
-const mapStateToProps = ({ chat, user }: any) => ({
+  return (
+    <div className={classes.container}>
+      <Header as="h1">CradleChat</Header>
+      <Button
+        className={
+          state.createFormOpen ? classes.createRoom : classes.createRoomHidden
+        }
+        onClick={createNewRoom}>
+        Create Room
+      </Button>
+      <Button
+        className={
+          !state.createFormOpen && state.enterFormOpen
+            ? classes.enterRoom
+            : classes.enterRoomHidden
+        }
+        onClick={toggleEnterForm}
+      >
+        Join Existing Room
+      </Button>
+      {state.enterFormOpen && (
+        <CustomForm
+          onRoomIdChange={handleRoomIdChange}
+          onSubmit={joinExistingRoom}
+        />
+      )}
+    </div>
+  );
+};
+
+const mapStateToProps = ({ chat }: any) => ({
   isOpener: chat.isOpener,
-  roomId: chat.roomId,
-  user: user.currentUser,
+  roomId: chat.roomId
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  getCurrentUser: () => dispatch(getCurrentUser()),
-  ...bindActionCreators(
+const mapDispatchToProps = (dispatch: any) =>
+  bindActionCreators(
     {
       createRoom,
-      joinRoom,
+      joinRoom
     },
     dispatch
-  ),
-});
+  );
 
 export const VideoChatPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(VideoChatComponent);
+)(Component);
