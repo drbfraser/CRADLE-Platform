@@ -80,8 +80,8 @@ export const getPatientRequested = () => ({
 
 const initialState = {
   patient: {},
-  patientsList: [],
-  isLoading: true,
+  patientsList: null,
+  isLoading: false,
   newPatientAdded: false,
 };
 
@@ -122,9 +122,12 @@ export const patientsReducer = (state = initialState, action: any) => {
 
     case ADD_NEW_PATIENT:
       const newPatient = action.payload;
+      const patients = state.patientsList;
+      const currentPatients = patients ? patients : [];
+
       return {
         ...state,
-        patientsList: [newPatient, ...state.patientsList],
+        patientsList: [newPatient, ...currentPatients],
         newPatientAdded: true,
       };
 

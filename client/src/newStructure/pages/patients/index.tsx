@@ -5,46 +5,53 @@ import {
 
 import { PatientTable } from './patientTable';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { connect } from 'react-redux';
 import { Patient } from "../../types";
 import { push } from 'connected-react-router';
 
-export const PatientsPage: React.FC = () => {
-  const dispatch = useDispatch();
-  const patients = useSelector(({ patients }: any): any => patients);
-  const user = useSelector(({ user }: any): any => user);
+interface IProps {
+  fetchingPatients: any;
+  patients: any;
+  user: any;
+  getPatients: any;
+  navigateToPatientPage: any;
+}
 
+const Page: React.FC<IProps> = (props) => {
   React.useEffect(() => {
-    if (!user.isLoggedIn) {
-      dispatch(getCurrentUser());
-      return;
+    if (!props.fetchingPatients && props.patients === null) {
+      props.getPatients();
     }
+  }, [props.fetchingPatients, props.getPatients, props.patients]);
 
-    if (
-      !patients.patientsList ||
-      patients.patientsList.length === 0
-    ) {
-      dispatch(getPatientsRequested());
-      dispatch(getPatients());
-    }
-  }, [dispatch, patients, user]);
-
-  const patientCallback = (selectedPatient: Patient): void => {
-    push(`/patient/${selectedPatient.patientId}`);
-    return;
-  };
-
-  // don't render page if user is not logged in
-  if (!user.isLoggedIn) {
-    return <div />;
-  }
+  const onPatientSelected = ({ patientId }: Patient): void => 
+    props.navigateToPatientPage(patientId);
 
   return (
     <PatientTable
-      callbackFromParent={patientCallback}
-      data={patients.patientsList}
-      isLoading={patients.isLoading}
+      callbackFromParent={onPatientSelected}
+      data={props.patients}
+      isLoading={props.fetchingPatients}
     />
   );
 };
+
+const mapStateToProps = ({ patients, user }: any) => ({
+  fetchingPatients: patients.isLoading,
+  patients: patients.patientsList,
+  user: user.currentUser
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getPatients: () => {
+    dispatch(getPatientsRequested());
+    dispatch(getPatients());
+  },
+  navigateToPatientPage: (patientId: string) =>
+    dispatch(push(`/patient/${patientId}`))
+});
+
+export const PatientsPage = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Page);

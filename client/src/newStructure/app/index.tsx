@@ -37,6 +37,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
+import { PrivateRoute } from './privateRoute';
 
 const drawerWidth = 200;
 
@@ -356,24 +357,24 @@ const AppComponent: React.FC<any> = (props) => {
         <div className={classes.toolbar} />
         <Switch>
           <Route exact path="/" component={HomePage} />
-          <Route exact path="/admin" component={AdminPage} />
-          <Route exact path="/help" component={HelpPage} />
-          <Route exact path="/patients" component={PatientsPage} />
-          <Route path="/patient/:id" component={PatientSummaryContainer} />
-          <Route exact path="/signup" component={SignUpPage} />
+          <PrivateRoute exact path="/admin" component={AdminPage} />
+          <PrivateRoute exact path="/help" component={HelpPage} />
+          <PrivateRoute exact path="/patients" component={PatientsPage} />
+          <PrivateRoute path="/patient/:id" component={PatientSummaryContainer} />
+          <PrivateRoute exact path="/signup" component={SignUpPage} />
           <Route exact path="/login" component={LoginPage} />
-          <Route exact path="/stats" component={StatisticsPage} />
-          <Route exact path="/referrals" component={ReferralsPage} />
-          <Route exact path="/newreading" component={NewReadingPage} />
-          <Route exact path="/resources" component={HelpPage} />
-          <Route exact path="/chat/landing" component={VideoChatPage} />
-          <Route exact path="/chat/session" component={VideoSessionPage} />
-          <Route
+          <PrivateRoute exact path="/stats" component={StatisticsPage} />
+          <PrivateRoute exact path="/referrals" component={ReferralsPage} />
+          <PrivateRoute exact path="/newreading" component={NewReadingPage} />
+          <PrivateRoute exact path="/resources" component={HelpPage} />
+          <PrivateRoute exact path="/chat/landing" component={VideoChatPage} />
+          <PrivateRoute exact path="/chat/session" component={VideoSessionPage} />
+          <PrivateRoute
             exact
             path="/chat/session/:roomId"
             component={VideoSessionPage}
           />
-          <Route component={NotFoundPage} />
+          <PrivateRoute component={NotFoundPage} />
         </Switch>
       </main>
     </div>

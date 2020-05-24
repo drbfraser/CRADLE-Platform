@@ -10,12 +10,13 @@
     "precommit": "pretty-quick --staged"
   },
   "devDependencies": {
+    "@types/jquery": "^3.3.38",
     "@types/jwt-decode": "^2.2.1",
     "@types/react-router-dom": "^5.1.5",
-    "@types/jquery": "^3.3.38",
     "@types/yup": "0.29.0",
     "prettier": "1.18.2",
-    "react-scripts": "2.1.8"
+    "react-scripts": "2.1.8",
+    "redux-devtools-extension": "^2.13.8"
   },
   "dependencies": {
     "@material-ui/core": "^4.4.3",
@@ -37,7 +38,7 @@
     "react-chartjs-2": "^2.8.0",
     "react-dom": "16.9.0",
     "react-moment": "^0.9.6",
-    "react-redux": "5.0.0",
+    "react-redux": "5.1.1",
     "react-router-dom": "5.2.0",
     "redux": "4.0.4",
     "redux-thunk": "2.3.0",

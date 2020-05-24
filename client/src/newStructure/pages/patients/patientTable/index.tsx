@@ -1,11 +1,11 @@
 import MaterialTable from 'material-table';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
-import { Patient, Reading, Callback } from "../../../types";
+import { Patient, Reading, Callback, OrNull } from "../../../types";
 import { initials, patientId, village, vitalSign, lastReadingDate } from "./utils";
 
 interface IProps {
-  data: Array<Patient>;
+  data: OrNull<Array<Patient>>;
   isLoading: boolean;
   callbackFromParent: Callback<Patient>;
 }
@@ -19,10 +19,10 @@ export const PatientTable: React.FC<IProps> = ({
     boolean
   >(false);
   const patients = React.useMemo((): Array<Patient> => 
-    data.filter(({ readings }: Patient): boolean => showReferredPatientsOnly 
+    data ? data.filter(({ readings }: Patient): boolean => showReferredPatientsOnly 
       ? readings.some((reading: Reading): boolean => reading.dateReferred !== undefined)
       : true
-    ), 
+    ) : [], 
     [data, showReferredPatientsOnly]
   );
 

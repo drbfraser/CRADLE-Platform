@@ -8,6 +8,7 @@
     ],
     "allowJs": true,
     "checkJs": false,
+    "downlevelIteration": true,
     "jsx": "preserve",
     "sourceMap": true,
     "outDir": "./build",
