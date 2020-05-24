@@ -13,14 +13,20 @@ import React, {Component} from 'react';
 import {
   deleteUser,
   deleteUserRequested,
-  getCurrentUser,
   getUsers,
   getUsersRequested,
-  getVhtList,
-  getVhtsRequested,
   updateUser,
   updateUserRequested
 } from '../../shared/reducers/user/allUsers'
+import {
+  getCurrentUser,
+
+} from '../../shared/reducers/user/currentUser'
+import{
+  getVhtList,
+  getVhtsRequested
+} from '../../shared/reducers/user/allVhts'
+
 import { getHealthFacilityList, getHealthFacilityListRequested } from '../../shared/reducers/healthFacilities'
 
 import MaterialTable from 'material-table';
