@@ -6,12 +6,12 @@ interface IProps {
   currentUser: any;
 }
 
-const Home: React.FC<IProps> = (props) => {
+const Page: React.FC<IProps> = (props) => {
   return Object.keys(props.currentUser.currentUser).length ? (
     <Redirect to="/patients" />
   ) : (
     <Redirect to="/login" />
-  );
+  );Page
 };
 
 const mapStateToProps = ({ user }: any) => ({
@@ -20,4 +20,4 @@ const mapStateToProps = ({ user }: any) => ({
 
 export const HomePage = connect(
   mapStateToProps
-)(Home);
+)(Page);

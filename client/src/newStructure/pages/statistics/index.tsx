@@ -12,7 +12,7 @@ interface IProps {
   statisticsList: any;
 }
 
-const Component: React.FC<IProps> = ({ getStatistics, statisticsList }) => {
+const Page: React.FC<IProps> = ({ getStatistics, statisticsList }) => {
   const currentMonth = React.useRef<number>(new Date().getMonth());
 
   React.useEffect((): void => {
@@ -60,4 +60,4 @@ const mapDispatchToProps = (dispatch: any) => ({
 export const StatisticsPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Component);
+)(Page);

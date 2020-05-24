@@ -11,9 +11,10 @@ import { gestationalAgeUnitOptions, pregnantOptions, sexOptions } from './utils'
 import { GESTATIONAL_AGE_UNITS } from '../../../utils';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
+import classes from './styles.module.css';
 
 export const PatientInfoForm = (props: any) => (
-  <Paper style={{ padding: `35px 25px`, borderRadius: `15px` }}>
+  <Paper className={classes.container}>
     {!props.isEditPage && (
       <Header>
         <b>Patient Information</b>

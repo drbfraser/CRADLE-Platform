@@ -11,7 +11,7 @@ interface IProps {
   isLoggedIn: boolean;
 }
 
-const Component: React.FC<IProps> = ({ isLoggedIn, ...props }) => {
+const Page: React.FC<IProps> = ({ isLoggedIn, ...props }) => {
   if (isLoggedIn) {
     return <Redirect to="/patients" />;
   }
@@ -42,4 +42,4 @@ const mapDispatchToProps = (dispatch: any) =>
 export const LoginPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Component);
+)(Page);

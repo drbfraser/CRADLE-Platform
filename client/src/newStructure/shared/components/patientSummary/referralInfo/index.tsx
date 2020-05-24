@@ -4,6 +4,7 @@ import { Icon } from 'semantic-ui-react';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { getPrettyDateTime } from '../../../utils';
+import classes from './styles.module.css';
 
 interface IProps {
   readingId: any;
@@ -19,23 +20,23 @@ export const ReferralInfo: React.FC<IProps> = ({ readingId, referral }) =>
       <br />
       <Typography variant="subtitle1">
         <Icon
+          className={classes.icon}
           name="clock outline"
           size="large"
-          style={{ lineHeight: `0.7em` }}
         />
         Referred on {getPrettyDateTime(referral.dateReferred)}
       </Typography>
       <br /> <br />
       <Typography variant="subtitle1">
         <Icon
-          style={{ lineHeight: `0.7em` }}
+          className={classes.icon}
           name="building outline"
           size="large"
         />
         Referred to {referral.referralHealthFacilityName}
       </Typography>
       {!referral.followUp && (
-        <div style={{ padding: `10px 0` }}>
+        <div className={classes.comment}>
           <Typography variant="h6" component="h6">
             Comment:
           </Typography>
@@ -53,7 +54,7 @@ export const ReferralInfo: React.FC<IProps> = ({ readingId, referral }) =>
       />
     </>
   ) : (
-    <div style={{ padding: `80px 0px` }}>
+    <div className={classes.noReferral}>
       <Typography variant="h4" component="h4">
         No Referral
       </Typography>

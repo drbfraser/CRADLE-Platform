@@ -5,17 +5,10 @@ import React from 'react';
 import Switch from '@material-ui/core/Switch';
 import { URINE_TEST_CHEMICALS } from '../../../utils';
 import { resultOptions } from './utils';
+import classes from './styles.module.css';
 
 export const UrineTestForm = (props: any) => (
-  <Paper
-    style={{
-      borderRadius: '15px',
-      float: `right`,
-      margin: `15px 0`,
-      padding: '35px 25px',
-      minWidth: 450,
-      width: `100%`,
-    }}>
+  <Paper className={classes.container}>
     <Header>
       <b>Urine Test</b>
       <Switch

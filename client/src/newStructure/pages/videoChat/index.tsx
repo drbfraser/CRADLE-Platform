@@ -22,7 +22,7 @@ interface IState {
   enterFormOpen: any;
 }
 
-const Component: React.FC<IProps> = ({ createRoom, joinRoom }) => {
+const Page: React.FC<IProps> = ({ createRoom, joinRoom }) => {
   const [state, setState] = React.useState<IState>({
     roomId: null,
     isOpener: false,
@@ -105,4 +105,4 @@ const mapDispatchToProps = (dispatch: any) =>
 export const VideoChatPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Component);
+)(Page);

@@ -6,10 +6,8 @@ import {
 import { PatientSummary } from '..';
 import React from 'react';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../../reducers/user/currentUser';
 
 interface IProps {
-  getCurrentUser: any;
   getPatient: any;
   history: any;
   isLoading: boolean;
@@ -18,40 +16,24 @@ interface IProps {
   user: any;
 }
 
-class PatientSummaryContainerComponent extends React.Component<IProps> {
-  constructor(props: IProps) {
-    super(props);
-    // TO DO: don't fetch patientData everytime, get it from redux if possible.
-    this.props.getPatient(this.props.match.params.id);
+const Component: React.FC<IProps> = (props) => {
+  React.useEffect((): void => {
+    // TODO: don't fetch patientData everytime, get it from redux if possible.
+    props.getPatient(props.match.params.id);
+  }, []);
+
+  const backBtnCallback = (): void => props.history.goBack();
+
+  if (props.isLoading) {
+    return <div>Loading...</div>;
   }
 
-  componentDidMount() {
-    if (!this.props.user.isLoggedIn) {
-      this.props.getCurrentUser();
-    }
-    this.props.getPatient(this.props.match.params.id);
-  }
-
-  backBtnCallback = () => {
-    this.props.history.goBack();
-  };
-
-  render() {
-    if (!this.props.user.isLoggedIn) {
-      return <div />;
-    }
-
-    if (this.props.isLoading) {
-      return <div>Loading...</div>;
-    }
-
-    return (
-      <PatientSummary
-        callbackFromParent={this.backBtnCallback}
-        selectedPatient={this.props.patient}
-      />
-    );
-  }
+  return (
+    <PatientSummary
+      callbackFromParent={backBtnCallback}
+      selectedPatient={props.patient}
+    />
+  );
 }
 
 const mapStateToProps = ({ patients, user }: any) => ({
@@ -65,10 +47,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getPatientRequested());
     dispatch(getPatient(patientId));
   },
-  getCurrentUser: () => dispatch(getCurrentUser()),
 });
 
 export const PatientSummaryContainer = connect(
   mapStateToProps,
   mapDispatchToProps
-)(PatientSummaryContainerComponent);
+)(Component);

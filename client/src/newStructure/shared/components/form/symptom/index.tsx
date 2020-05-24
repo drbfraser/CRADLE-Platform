@@ -2,91 +2,95 @@ import { Form, Header } from 'semantic-ui-react';
 
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
+import classes from './styles.module.css';
 
-export const SymptomForm = (props: any) => (
-  <Paper
-    style={{
-      padding: `35px 25px`,
-      borderRadius: `15px`,
-      width: `100%`,
-      minWidth: 450,
-      float: `left`,
-    }}>
+interface IProps {
+  checkedItems: any;
+  onChange: any;
+  onOtherChange: any;
+}
+
+export const SymptomForm: React.FC<IProps> = ({
+  checkedItems,
+  onChange,
+  onOtherChange
+}) => (
+  <Paper className={classes.container}>
     <Header>
       <b>Symptoms</b>
     </Header>
     <div>
       <Form.Checkbox
-        checked={props.checkedItems.none}
-        value={props.checkedItems.none}
+        checked={checkedItems.none}
+        value={checkedItems.none}
         name="none"
         label="None (patient healthy)"
-        onChange={props.onChange}
+        onChange={onChange}
       />
       <Form.Group widths="equal">
         <Form.Checkbox
-          checked={props.checkedItems.headache}
-          value={props.checkedItems.headache}
+          checked={checkedItems.headache}
+          value={checkedItems.headache}
           name="headache"
           label="Headache"
-          onChange={props.onChange}
+          onChange={onChange}
         />
         <Form.Checkbox
-          checked={props.checkedItems.bleeding}
-          value={props.checkedItems.bleeding}
+          checked={checkedItems.bleeding}
+          value={checkedItems.bleeding}
           name="bleeding"
           label="Bleeding"
-          onChange={props.onChange}
+          onChange={onChange}
         />
       </Form.Group>
       <Form.Group widths="equal">
         <Form.Checkbox
-          checked={props.checkedItems.blurredVision}
-          value={props.checkedItems.blurredVision}
+          checked={checkedItems.blurredVision}
+          value={checkedItems.blurredVision}
           name="blurredVision"
           label="Blurred vision"
-          onChange={props.onChange}
+          onChange={onChange}
         />
         <Form.Checkbox
-          checked={props.checkedItems.feverish}
-          value={props.checkedItems.feverish}
+          checked={checkedItems.feverish}
+          value={checkedItems.feverish}
           name="feverish"
           label="Feverish"
-          onChange={props.onChange}
+          onChange={onChange}
         />
       </Form.Group>
       <Form.Group widths="equal">
         <Form.Checkbox
-          checked={props.checkedItems.abdominalPain}
-          value={props.checkedItems.abdominalPain}
+          checked={checkedItems.abdominalPain}
+          value={checkedItems.abdominalPain}
           name="abdominalPain"
           label="Abdominal pain"
-          onChange={props.onChange}
+          onChange={onChange}
         />
         <Form.Checkbox
-          checked={props.checkedItems.unwell}
-          value={props.checkedItems.unwell}
+          checked={checkedItems.unwell}
+          value={checkedItems.unwell}
           name="unwell"
           label="Unwell"
-          onChange={props.onChange}
+          onChange={onChange}
         />
       </Form.Group>
       <Form.Group>
         <Form.Checkbox
-          checked={props.checkedItems.other}
-          value={props.checkedItems.other}
+          checked={checkedItems.other}
+          value={checkedItems.other}
           widths="3"
           name="other"
           label="Other:"
-          onChange={props.onChange}
+          onChange={onChange}
         />
         <Form.TextArea
-          checked={props.checkedItems.otherSymptoms}
+          checked={checkedItems.otherSymptoms}
           widths="1"
           name="otherSymptoms"
-          value={props.checkedItems.otherSymptoms}
-          onChange={props.onOtherChange}
-          disabled={!props.checkedItems.other}
+          value={checkedItems.otherSymptoms}
+          onChange={onOtherChange}
+          disabled={!checkedItems.other}
         />
       </Form.Group>
     </div>

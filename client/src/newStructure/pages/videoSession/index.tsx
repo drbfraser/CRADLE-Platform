@@ -27,7 +27,7 @@ interface IState {
   configured: boolean;
 }
 
-export const Component: React.FC<IProps> = props => {
+export const Page: React.FC<IProps> = props => {
   const connection = React.useRef<typeof RTCMultiConnection>(
     new RTCMultiConnection()
   );
@@ -120,4 +120,4 @@ const mapStateToProps = ({ chat, user }: any) => ({
   user: user.currentUser
 });
 
-export const VideoSessionPage = connect(mapStateToProps)(Component);
+export const VideoSessionPage = connect(mapStateToProps)(Page);
