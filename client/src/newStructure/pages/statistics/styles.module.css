@@ -1,5 +1,6 @@
 .container {
-  padding: 0 5%;
+  padding-inline-start: 5%;
+  padding-inline-end: 5%;
 }
 
 .center {
@@ -8,11 +9,19 @@
   align-items: center;
 }
 
-.headerSize {
+.header-size {
   font-size: 40px;
 }
 
-.statSubBox {
+.statistic-group {
+  margin: auto;
+}
+
+.add-lower-padding {
+  padding-block-end: 20px;
+}
+
+.statistic {
   width: 200px;
   padding: 5px 0 5px 10px;
   border: 1px solid rgb(211, 205, 205);
@@ -20,28 +29,28 @@
   box-shadow: 3px 1px rgb(211, 205, 205);
 }
 
-.underlineBlue { 
+.underline-blue { 
   border-bottom: 2px solid #4bc0c0;
 };
 
-.underlinePurple { 
+.underline-purple { 
   border-bottom: 2px solid #9400D3;
 };
 
-.underlineOrange { 
+.underline-orange { 
   border-bottom: 2px solid #FF7F50;
 };
 
-.underlineBlack { 
+.underline-black { 
   border-bottom: 2px solid #15152B;
 };
 
-.verticalWriting {
+.vertical-writing {
   width: 100;
   margin: 0 auto;
   line-height: 16;
 };
 
-.chartBox {
+.chart-box {
   width: 75%;
 };

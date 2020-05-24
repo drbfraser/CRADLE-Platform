@@ -41,13 +41,8 @@ export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
         statisticsList.pregnantWomenReferredPerMonth &&
         statisticsList.womenAssessedPerMonth &&
         statisticsList.pregnantWomenAssessedPerMonth ? (
-          <Statistic.Group
-            style={{
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              paddingBottom: 20
-            }}>
-            <Statistic horizontal className={classes.statSubBox}>
+          <Statistic.Group className={`${classes.statisticGroup} ${classes.addLowerPadding}`}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineBlack}>
                 {statisticsList.womenReferredPerMonth[currentMonth - 1]}
               </Statistic.Value>
@@ -55,7 +50,7 @@ export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
                 WOMEN REFERRED
               </Statistic.Label>
             </Statistic>
-            <Statistic horizontal className={classes.statSubBox}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineBlue}>
                 {statisticsList.pregnantWomenReferredPerMonth[currentMonth - 1]}
               </Statistic.Value>
@@ -63,7 +58,7 @@ export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
                 PREGNANT WOMEN REFERRED
               </Statistic.Label>
             </Statistic>
-            <Statistic horizontal className={classes.statSubBox}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlinePurple}>
                 {statisticsList.womenAssessedPerMonth[currentMonth - 1]}
               </Statistic.Value>
@@ -71,7 +66,7 @@ export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
                 WOMEN ASSESSED
               </Statistic.Label>
             </Statistic>
-            <Statistic horizontal className={classes.statSubBox}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineOrange}>
                 {statisticsList.pregnantWomenAssessedPerMonth[currentMonth - 1]}
               </Statistic.Value>

@@ -1,5 +1,6 @@
 import React from 'react';
 import classes from '../styles.module.css';
+import styles from './styles.module.css';
 import { trafficLightLabels } from './utils';
 import { Card } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
@@ -26,7 +27,7 @@ export const LastMonthTrafficLightsStatistics: React.FC<IProps> = ({
 
   return (
     <div>
-      <h2 style={{ marginBottom: -10 }}>Traffic lights from last month:</h2>
+      <h2 className={styles.header}>Traffic lights from last month:</h2>
       <br />
       <div className={classes.center}>
         <div className={classes.chartBox}>

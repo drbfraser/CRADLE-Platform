@@ -33,13 +33,8 @@ export const GlobalStatistics: React.FC<IProps> = ({
         {statisticsList.readingsPerMonth &&
         statisticsList.referralsPerMonth &&
         statisticsList.assessmentsPerMonth ? (
-          <Statistic.Group
-            style={{
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              paddingBottom: 20
-            }}>
-            <Statistic horizontal className={classes.statSubBox}>
+          <Statistic.Group className={`${classes.statisticGroup} ${classes.addLowerPadding}`}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineBlue}>
                 {statisticsList.readingsPerMonth[currentMonth - 1]}
               </Statistic.Value>
@@ -48,7 +43,7 @@ export const GlobalStatistics: React.FC<IProps> = ({
               </Statistic.Label>
             </Statistic>
 
-            <Statistic horizontal className={classes.statSubBox}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlinePurple}>
                 {statisticsList.referralsPerMonth[currentMonth - 1]}
               </Statistic.Value>
@@ -57,7 +52,7 @@ export const GlobalStatistics: React.FC<IProps> = ({
               </Statistic.Label>
             </Statistic>
 
-            <Statistic horizontal className={classes.statSubBox}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineOrange}>
                 {statisticsList.assessmentsPerMonth[currentMonth - 1]}
               </Statistic.Value>

@@ -20,22 +20,22 @@ export const HealthFacilityStatistics: React.FC<IProps> = ({
         {statisticsList.uniquePeopleAssesedPerMonth ||
         statisticsList.womenAssessedPerMonth ||
         statisticsList.pregnantWomenAssessedPerMonth ? (
-          <Statistic.Group style={{ margin: `0 auto` }}>
-            <Statistic horizontal className={classes.statSubBox}>
+          <Statistic.Group className={classes.statisticGroup}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineBlue}>
                 {statisticsList.uniquePeopleAssesedPerMonth[currentMonth - 1]}
               </Statistic.Value>
               <Statistic.Label>PEOPLE</Statistic.Label>
             </Statistic>
 
-            <Statistic horizontal className={classes.statSubBox}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineBlue}>
                 {statisticsList.womenAssessedPerMonth[currentMonth - 1]}
               </Statistic.Value>
               <Statistic.Label>WOMEN</Statistic.Label>
             </Statistic>
 
-            <Statistic horizontal className={classes.statSubBox}>
+            <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineBlue}>
                 {statisticsList.pregnantWomenAssessedPerMonth[currentMonth - 1]}
               </Statistic.Value>
