@@ -5,7 +5,7 @@ import React from 'react';
 
 import { Chat } from './chat';
 import { connect } from 'react-redux';
-import classes from './styles.module.scss';
+import classes from './styles.module.css';
 import { useSetup } from './hooks';
 
 //@ts-ignore
