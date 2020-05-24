@@ -41,7 +41,7 @@ export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
         statisticsList.pregnantWomenReferredPerMonth &&
         statisticsList.womenAssessedPerMonth &&
         statisticsList.pregnantWomenAssessedPerMonth ? (
-          <Statistic.Group className={`${classes.statisticGroup} ${classes.addLowerPadding}`}>
+          <Statistic.Group className={classes.statisticGroup}>
             <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineBlack}>
                 {statisticsList.womenReferredPerMonth[currentMonth - 1]}

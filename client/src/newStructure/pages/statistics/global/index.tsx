@@ -33,7 +33,7 @@ export const GlobalStatistics: React.FC<IProps> = ({
         {statisticsList.readingsPerMonth &&
         statisticsList.referralsPerMonth &&
         statisticsList.assessmentsPerMonth ? (
-          <Statistic.Group className={`${classes.statisticGroup} ${classes.addLowerPadding}`}>
+          <Statistic.Group className={classes.statisticGroup}>
             <Statistic horizontal className={classes.statistic}>
               <Statistic.Value className={classes.underlineBlue}>
                 {statisticsList.readingsPerMonth[currentMonth - 1]}

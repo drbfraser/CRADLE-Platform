@@ -9,16 +9,12 @@
   align-items: center;
 }
 
-.header-size {
+.headerSize {
   font-size: 40px;
 }
 
-.statistic-group {
+.statisticGroup {
   margin: auto;
-}
-
-.add-lower-padding {
-  padding-block-end: 20px;
 }
 
 .statistic {
@@ -29,28 +25,29 @@
   box-shadow: 3px 1px rgb(211, 205, 205);
 }
 
-.underline-blue { 
+.underlineBlue { 
   border-bottom: 2px solid #4bc0c0;
 };
 
-.underline-purple { 
+.underlinePurple { 
   border-bottom: 2px solid #9400D3;
 };
 
-.underline-orange { 
+.underlineOrange { 
   border-bottom: 2px solid #FF7F50;
 };
 
-.underline-black { 
+.underlineBlack { 
   border-bottom: 2px solid #15152B;
 };
 
-.vertical-writing {
+.verticalWriting {
   width: 100;
   margin: 0 auto;
   line-height: 16;
 };
 
-.chart-box {
+.chartBox {
+  margin-block-start: 20px;
   width: 75%;
 };
