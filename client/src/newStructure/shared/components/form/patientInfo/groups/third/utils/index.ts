@@ -1,10 +1,4 @@
-import { GESTATIONAL_AGE_UNITS } from '../../../../utils';
-
-export const sexOptions = [
-  { key: `m`, text: `Male`, value: `MALE` },
-  { key: `f`, text: `Female`, value: `FEMALE` },
-  { key: `o`, text: `Other`, value: `I` },
-];
+import { GESTATIONAL_AGE_UNITS } from '../../../../../../utils';
 
 export const pregnantOptions = [
   { key: `y`, text: `Yes`, value: true },
