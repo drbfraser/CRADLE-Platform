@@ -1,0 +1,13 @@
+.container {
+  height: calc(100% - 95px);
+  overflow-y: scroll;
+  border-bottom: 2px solid black;
+}
+
+.chatAvatar {
+  height: 50px;
+  margin-left: 10px;
+  width: 50px;
+  border: 1px solid;
+  border-radius: 10px;
+}
