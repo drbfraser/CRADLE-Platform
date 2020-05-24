@@ -15,14 +15,14 @@ export const GlobalStatistics: React.FC<IProps> = ({
   currentMonth,
   statisticsList
 }) => { 
-  const readingsVsReferralsVsAssessment = React.useRef({
+  const readingsVsReferralsVsAssessment = {
     labels: xLabels,
     datasets: [
       readingsPerMonth(statisticsList.readingsPerMonth),
       referralsPerMonth(statisticsList.referralsPerMonth),
       assessmentsPerMonth(statisticsList.assessmentsPerMonth)
     ]
-  });
+  };
   
   return (
   <>
@@ -65,7 +65,7 @@ export const GlobalStatistics: React.FC<IProps> = ({
         <div className={classes.chartBox}>
           <Card fluid>
             <Card.Content>
-              <Line data={readingsVsReferralsVsAssessment.current} />
+              <Line data={readingsVsReferralsVsAssessment} />
             </Card.Content>
           </Card>
         </div>
