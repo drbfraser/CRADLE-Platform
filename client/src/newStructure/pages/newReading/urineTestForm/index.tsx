@@ -29,7 +29,7 @@ export const initialUrineTests = {
     urineTestGlu: ""
   }
 
-export function UrineTestForm(props) {
+export function UrineTestForm(props:any) {
     return (
         <Paper className='urineTestCard' style={{ 'padding': '35px 25px', 'borderRadius': '15px' }}>
             <Header>

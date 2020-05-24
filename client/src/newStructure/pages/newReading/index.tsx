@@ -65,7 +65,7 @@ const initState = {
     hasUrineTest: false
 }
 
-class NewReadingPageComponent extends Component  {
+class NewReadingPageComponent extends Component<any>  {
     state = initState
 
     componentDidMount = () => {
@@ -150,12 +150,12 @@ class NewReadingPageComponent extends Component  {
         }
     }
 
-    handleCheckedChange = (e, value) => {
+    handleCheckedChange = (e, value:any) => {
         // console.log(value.name)
         // true => false, pop
         if (value.value) {
             if (symptom.indexOf(value.name) >= 0) {
-                symptom.pop(value.name)
+                symptom.pop()
             }
         } else {
             // false => true, push
@@ -166,7 +166,7 @@ class NewReadingPageComponent extends Component  {
         // console.log(symptom)
         if (value.name !== 'none') {
             if (symptom.indexOf('none') >= 0) {
-                symptom.pop('none')
+                symptom.pop()
             }
             this.setState({
                 checkedItems: {
@@ -209,7 +209,7 @@ class NewReadingPageComponent extends Component  {
         event.preventDefault()
         console.log('Create new submit')
         if (symptom.indexOf('other') >= 0) {
-            symptom.pop('other')
+            symptom.pop()
             if (this.state.checkedItems.otherSymptoms !== '') {
                 symptom.push(this.state.checkedItems.otherSymptoms)
             }
