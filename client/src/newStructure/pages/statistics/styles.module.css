@@ -1,0 +1,47 @@
+.container {
+  padding: 0 5%;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.headerSize {
+  font-size: 40px;
+}
+
+.statSubBox {
+  width: 200px;
+  padding: 5px 0 5px 10px;
+  border: 1px solid rgb(211, 205, 205);
+  border-radius: 7px;
+  box-shadow: 3px 1px rgb(211, 205, 205);
+}
+
+.underlineBlue { 
+  border-bottom: 2px solid #4bc0c0;
+};
+
+.underlinePurple { 
+  border-bottom: 2px solid #9400D3;
+};
+
+.underlineOrange { 
+  border-bottom: 2px solid #FF7F50;
+};
+
+.underlineBlack { 
+  border-bottom: 2px solid #15152B;
+};
+
+.verticalWriting {
+  width: 100;
+  margin: 0 auto;
+  line-height: 16;
+};
+
+.chartBox {
+  width: 75%;
+};
