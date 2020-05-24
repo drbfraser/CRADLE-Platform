@@ -1,6 +1,6 @@
 import { LoginForm } from './form';
 import React from 'react';
-import { Redirect } from 'react-router';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import image from './img/splash_screen_4.png';
 import { userLoginFetch } from '../../shared/reducers/user/currentUser';

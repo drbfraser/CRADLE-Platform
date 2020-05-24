@@ -8,11 +8,10 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { Patient } from "../../types";
-import { useHistory } from 'react-router-dom';
+import { push } from 'connected-react-router';
 
 export const PatientsPage: React.FC = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
   const patients = useSelector(({ patients }: any): any => patients);
   const user = useSelector(({ user }: any): any => user);
 
@@ -31,8 +30,10 @@ export const PatientsPage: React.FC = () => {
     }
   }, [dispatch, patients, user]);
 
-  const patientCallback = (selectedPatient: Patient): void => 
-    history.push(`/patient/${selectedPatient.patientId}`);
+  const patientCallback = (selectedPatient: Patient): void => {
+    push(`/patient/${selectedPatient.patientId}`);
+    return;
+  };
 
   // don't render page if user is not logged in
   if (!user.isLoggedIn) {
