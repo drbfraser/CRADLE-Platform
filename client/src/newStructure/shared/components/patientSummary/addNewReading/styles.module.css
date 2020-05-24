@@ -1,0 +1,12 @@
+.button {
+  float: right;
+}
+
+.text {
+  line-height: 1.5em;
+  padding: 10px;
+}
+
+.clear {
+  clear: both;
+}
