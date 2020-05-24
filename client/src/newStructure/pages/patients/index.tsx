@@ -10,7 +10,7 @@ import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { Patient } from "../../types";
 import { useHistory } from 'react-router-dom';
 
-export const PatientPage: React.FC = () => {
+export const PatientsPage: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const patients = useSelector(({ patients }: any): any => patients);
