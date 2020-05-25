@@ -1,4 +1,18 @@
-export const untilDateOrOther = [
-  { key: 'date', text: 'Date', value: 'DATE' },
-  { key: 'other', text: 'Other', value: 'OTHER' },
-];
+import { followupFrequencyUnitOptions } from '../../utils';
+
+export const initialState = {
+  data: {
+    diagnosis: ``,
+    treatment: ``,
+    specialInvestigations: ``,
+    medicationPrescribed: ``,
+    followupNeeded: false,
+    dateFollowupNeededTill: ``,
+    followupInstructions: ``,
+    followupFrequencyUnit: followupFrequencyUnitOptions[0],
+    followupFrequencyValue: null,
+  },
+  isOpen: false,
+  dateOrOther: `DATE`,
+  untilDateOrCond: undefined
+};
