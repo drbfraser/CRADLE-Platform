@@ -4,6 +4,7 @@ import Paper from '@material-ui/core/Paper';
 import { SymptomForm } from './form/symptom';
 import { UrineTestForm } from './form/urineTest';
 import { INITIAL_URINE_TESTS } from "../../../../utils";
+import { guid } from "./utils";
 
 interface IProps {
   checkedItems: any;
@@ -13,7 +14,7 @@ interface IProps {
   selectedPatient: any;
   setState: any;
   symptom: any;
-  handleReadingSubmit: any;
+  user: any;
 };
 
 export const NewPatientModal: React.FC<IProps> = ({ 
@@ -24,8 +25,34 @@ export const NewPatientModal: React.FC<IProps> = ({
   selectedPatient, 
   setState, 
   symptom,
-  handleReadingSubmit,
+  user,
 }) => {
+  const handleReadingSubmit = (event: any): void => {
+    event.preventDefault();
+
+    if (symptom.indexOf('other') >= 0) {
+      symptom.pop();
+      if (checkedItems.otherSymptoms !== '') {
+        symptom.push(checkedItems.otherSymptoms);
+      }
+    }
+
+    var dateTime = new Date();
+    var readingID = guid();
+
+    setState((currentState: any): any => ({
+      ...currentState,
+      newReading: {
+        ...currentState.newReading,
+        userId: user.userId,
+        readingId: readingID,
+        dateTimeTaken: dateTime.toJSON(),
+        symptoms: symptom.toString(),
+      },
+      reset: true,
+    }));
+  };
+
   const closeReadingModal = (): void => setState((currentState: any): any => ({
     ...currentState,
     displayReadingModal: false

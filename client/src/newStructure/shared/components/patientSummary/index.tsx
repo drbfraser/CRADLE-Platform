@@ -15,7 +15,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../reducers/user/currentUser';
 import { getReferrals } from '../../reducers/referrals';
-import { calculateShockIndex, getReferralIds, guid, createReading, sortReadings, initialState, IState } from './utils';
+import { createReading, sortReadings, initialState, IState } from './utils';
 import { newReadingPost } from '../../reducers/newReadingStatus';
 import { NoPatientSelected } from './noPatientSelected';
 import { Title } from './title';
@@ -24,6 +24,8 @@ import { Readings } from './readings';
 import { PatientModal } from './modal/patient';
 import { NewPatientModal } from "./modal/newPatient";
 import { SummaryGrid } from "./grid";
+import { useSetup } from "./hooks/setup";
+import { useReset } from "./hooks/reset";
 
 let symptom: Array<any> = [];
 
@@ -42,93 +44,13 @@ interface IProps {
 
 const Component: React.FC<IProps> = (props) => {
   const [state, setState] = React.useState<IState>(initialState);
-
-  React.useEffect((): void => {
-    setState((currentState: IState): IState => ({ ...currentState, selectedPatient: props.selectedPatient }));
-  
-    props.getReferrals(getReferralIds(props.selectedPatient));
-    if (props.selectedPatient) {
-      props.getSelectedPatientStatistics(
-        props.selectedPatient.patientId
-      );
-    }
-  }, [props.getReferrals, props.getSelectedPatientStatistics, props.selectedPatient]);
+  useSetup({ props, setState });
+  useReset({ newReadingPost: props.newReadingPost, state, setState });
 
   const goBackToPatientsPage = (): void => {
     // go back to patient table
     props.getPatients();
     props.callbackFromParent(false);
-  };
-
-  const closeReadingModal = (): void => setState((currentState: IState): IState => ({ 
-    ...currentState, 
-    displayReadingModal: false 
-  }));
-
-  const handleReadingSubmit = (event: any): void => {
-    event.preventDefault();
-
-    if (symptom.indexOf('other') >= 0) {
-      symptom.pop();
-      if (state.checkedItems.otherSymptoms !== '') {
-        symptom.push(state.checkedItems.otherSymptoms);
-      }
-    }
-
-    var dateTime = new Date();
-    var readingID = guid();
-
-    setState((currentState: IState): IState => ({
-      ...currentState,
-      newReading: {
-        ...currentState.newReading,
-        userId: props.user.userId,
-        readingId: readingID,
-        dateTimeTaken: dateTime.toJSON(),
-        symptoms: symptom.toString(),
-      },
-    }));
-
-    // TODO: Call this after state updates
-    () => {
-      let patientData = JSON.parse(
-        JSON.stringify(state.selectedPatient)
-      );
-      let readingData = JSON.parse(JSON.stringify(state.newReading));
-
-      // delete any unnecessary fields
-      delete patientData.readings;
-      delete patientData.needsAssessment;
-      delete patientData.tableData;
-      if (!state.hasUrineTest) {
-        delete readingData.urineTests;
-      }
-
-      let newData = {
-        patient: patientData,
-        reading: readingData,
-      };
-
-      console.log(newData);
-      props.newReadingPost(newData);
-
-      newData['reading']['trafficLightStatus'] = calculateShockIndex(
-        newData['reading']
-      );
-      setState({
-        selectedPatient: {
-          ...state.selectedPatient,
-          readings: [
-            ...state.selectedPatient.readings,
-            newData['reading'],
-          ],
-        },
-        showSuccessReading: true,
-        hasUrineTest: false,
-      });
-      
-      closeReadingModal();
-    }
   };
 
   return (
@@ -161,12 +83,12 @@ const Component: React.FC<IProps> = (props) => {
           <NewPatientModal 
             checkedItems={state.checkedItems}
             displayReadingModal={state.displayReadingModal}
-            handleReadingSubmit={handleReadingSubmit}
             hasUrineTest={state.hasUrineTest}
             newReading={state.newReading}
             selectedPatient={state.selectedPatient}
             setState={setState}
             symptom={symptom}
+            user={props.user}
           />
           <SweetAlert
             type="success"
