@@ -3,7 +3,7 @@ import { FollowUpModal } from './followUp/modal';
 import { Icon } from 'semantic-ui-react';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { getPrettyDateTime } from '../../../utils';
+import { getPrettyDateTime } from '../../../../utils';
 import classes from './styles.module.css';
 
 interface IProps {

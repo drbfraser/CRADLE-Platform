@@ -23,6 +23,7 @@ export type Reading = {
   urineTest: string;
   referral: any;
   dateReferred?: number;
+  urineTests?: any
 };
 
 export type Patient = {

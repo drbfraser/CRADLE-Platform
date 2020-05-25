@@ -1,5 +1,8 @@
 import { TrafficLightEnum } from '../../../../enums';
 import { Patient, Reading } from '../../../../types';
+import {
+  getMomentDate, GESTATIONAL_AGE_UNITS,
+} from '../../../utils';
 
 export const guid = () =>
   `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`.replace(/[xy]/g, (c) => {
@@ -53,77 +56,138 @@ export const calculateShockIndex = (reading: Reading) => {
   return TrafficLightEnum.GREEN;
 };
 
-const average = (data: any): number => data.reduce(
-  (total: number, value: number): number => total + value, 0);
+export const createReading = ({
+  readingId,
+  dateTimeTaken,
+  bpDiastolic,
+  bpSystolic,
+  heartRateBPM,
+  symptoms,
+  trafficLightStatus,
+  isReferred,
+  dateReferred,
+  drugHistory,
+  medicalHistory,
+  urineTests,
+}: any): any => {
+  return {
+    readingId,
+    dateTimeTaken,
+    bpDiastolic,
+    bpSystolic,
+    heartRateBPM,
+    symptoms,
+    trafficLightStatus,
+    isReferred,
+    dateReferred,
+    drugHistory,
+    medicalHistory,
+    urineTests,
+  };
+};
 
-const bpSystolicReadingsMonthly = (data: any): any => data ? ({
-  label: `Systolic`,
-  fill: false,
-  lineTension: 0.1,
-  backgroundColor: `rgba(75, 192, 192, 0.4)`,
-  borderColor: `rgba(75, 192, 192, 1)`,
-  pointRadius: 1,
-  data: Array(12).fill(null).map((
-    _: null,
-    index: number
-  ): number => average(data[index])),
-}) : ({});
+export const sortReadings = (readings: Array<Reading>): Array<Reading> =>
+  readings.sort((reading: Reading, otherReading: Reading) =>
+    getMomentDate(otherReading.dateTimeTaken).valueOf() -
+    getMomentDate(reading.dateTimeTaken).valueOf()
+  );
 
-const bpDiastolicReadingsMonthly = (data: any): any => data ? ({
-  label: `Diastolic`,
-  fill: false,
-  lineTension: 0.1,
-  backgroundColor: `rgba(148, 0, 211, 0.4)`,
-  borderColor: `rgba(148, 0, 211, 1)`,
-  pointRadius: 1,
-  data: Array(12).fill(null).map((
-    _: null,
-    index: number
-  ): number => average(data[index])),
-}) : ({});
-
-const heartRateReadingsMonthly = (data: any): any => data ? ({
-  label: `Diastolic`,
-  fill: false,
-  lineTension: 0.1,
-  backgroundColor: `rgba(255, 127, 80, 0.4)`,
-  borderColor: `rgba(255, 127, 80, 1)`,
-  pointRadius: 1,
-  data: Array(12).fill(null).map((
-    _: null,
-    index: number
-  ): number => average(data[index])),
-}) : ({});
-
-
-interface IArgs {
-  bpSystolicReadingsMonthlyData: any,
-  bpDiastolicReadingsMonthlyData: any,
-  heartRateReadingsMonthlyData: any,
+export interface IState {
+  displayPatientModal: boolean,
+  selectedPatient: {
+    readings: any,
+    patientName: string,
+    patientId: string,
+    dob: string,
+    patientAge: string,
+    patientSex: string,
+    isPregnant: boolean,
+    gestationalAgeValue: string,
+    gestationalAgeUnit: any,
+    drugHistory: string,
+    medicalHistory: string,
+    bpSystolic: string,
+    bpDiastolic: string,
+    heartRateBPM: string,
+  },
+  patient: string,
+  showVitals: boolean,
+  showTrafficLights: boolean,
+  displayReadingModal: boolean,
+  newReading: {
+    userId: string,
+    readingId: string,
+    dateTimeTaken: string,
+    bpSystolic: string,
+    bpDiastolic: string,
+    heartRateBPM: string,
+    dateRecheckVitalsNeeded: string,
+    isFlaggedForFollowup: boolean,
+    symptoms: string,
+    urineTests: any,
+  },
+  checkedItems: {
+    none: boolean,
+    headache: boolean,
+    bleeding: boolean,
+    blurredVision: boolean,
+    feverish: boolean,
+    abdominalPain: boolean,
+    unwell: boolean,
+    other: boolean,
+    otherSymptoms: string,
+  },
+  showSuccessReading: boolean,
+  selectedPatientCopy: { readings: any },
+  hasUrineTest: boolean,
 }
 
-export const vitalsOverTime = ({
-  bpSystolicReadingsMonthlyData,
-  bpDiastolicReadingsMonthlyData,
-  heartRateReadingsMonthlyData,
-}: IArgs): any => ({
-  labels: [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ],
-  datasets: [
-    bpSystolicReadingsMonthly(bpSystolicReadingsMonthlyData),
-    bpDiastolicReadingsMonthly(bpDiastolicReadingsMonthlyData),
-    heartRateReadingsMonthly(heartRateReadingsMonthlyData),
-  ],
-});
+export const initialState: IState = {
+  displayPatientModal: false,
+  selectedPatient: {
+    readings: [],
+    patientName: ``,
+    patientId: ``,
+    dob: ``,
+    patientAge: ``,
+    patientSex: ``,
+    isPregnant: false,
+    gestationalAgeValue: ``,
+    gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
+    drugHistory: ``,
+    medicalHistory: ``,
+    bpSystolic: ``,
+    bpDiastolic: ``,
+    heartRateBPM: ``,
+  },
+  patient: ``,
+  showVitals: true,
+  showTrafficLights: false,
+  displayReadingModal: false,
+  newReading: {
+    userId: '',
+    readingId: '',
+    dateTimeTaken: '',
+    bpSystolic: '',
+    bpDiastolic: '',
+    heartRateBPM: '',
+    dateRecheckVitalsNeeded: '',
+    isFlaggedForFollowup: false,
+    symptoms: '',
+    urineTests: INITIAL_URINE_TESTS,
+  },
+  checkedItems: {
+    none: true,
+    headache: false,
+    bleeding: false,
+    blurredVision: false,
+    feverish: false,
+    abdominalPain: false,
+    unwell: false,
+    other: false,
+    otherSymptoms: '',
+  },
+  showSuccessReading: false,
+  selectedPatientCopy: { readings: [] },
+  hasUrineTest: false,
+};

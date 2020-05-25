@@ -5,7 +5,7 @@ import {
 } from 'semantic-ui-react';
 import React from 'react';
 import { gestationalAgeUnitOptions, pregnantOptions } from './utils';
-import { GESTATIONAL_AGE_UNITS } from '../../../../../utils';
+import { GESTATIONAL_AGE_UNITS } from '../../../../../../../utils';
 
 interface IProps {
   patient: any

@@ -3,7 +3,7 @@ import { Form, Header, Select } from 'semantic-ui-react';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
-import { URINE_TEST_CHEMICALS } from '../../../utils';
+import { URINE_TEST_CHEMICALS } from '../../../../../../utils';
 import { resultOptions } from './utils';
 import classes from './styles.module.css';
 

@@ -2,7 +2,7 @@ import { Divider, Header, Segment } from 'semantic-ui-react';
 
 import React from 'react';
 import { followupFrequencyUnitOptions } from '../utils';
-import { getPrettyDateTime } from '../../../../../utils';
+import { getPrettyDateTime } from '../../../../../../utils';
 
 interface IProps {
   followUp: any;

@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import { getPrettyDate, GESTATIONAL_AGE_UNITS } from '../../../utils';
+import { getPrettyDate, GESTATIONAL_AGE_UNITS } from '../../../../utils';
 import classes from './styles.module.css';
 
 interface IProps {

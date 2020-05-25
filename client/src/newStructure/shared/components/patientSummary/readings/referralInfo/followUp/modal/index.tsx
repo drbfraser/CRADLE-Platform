@@ -19,7 +19,7 @@ import {
   createFollowUp,
   setReadingId,
   updateFollowUp,
-} from '../../../../../reducers/referrals';
+} from '../../../../../../reducers/referrals';
 
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
@@ -44,7 +44,7 @@ interface IState {
   untilDateOrCond: any,
 }
 
-class FollowUpModalComponent extends React.Component<IProps, IState> {
+class Component extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
@@ -317,4 +317,4 @@ const mapDispatchToProps = (dispatch: any) => ({
 export const FollowUpModal = connect(
   mapStateToProps,
   mapDispatchToProps
-)(FollowUpModalComponent);
+)(Component);
