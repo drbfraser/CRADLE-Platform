@@ -224,7 +224,7 @@ class PatientSummary extends Component {
       }
     }
 
-    var dateTime = new Date()
+    var dateTime = Math.floor(Date.now() / 1000)
     var readingID = guid()
 
     this.setState(
@@ -233,8 +233,9 @@ class PatientSummary extends Component {
           ...this.state.newReading,
           userId: this.props.user.userId,
           readingId: readingID,
-          dateTimeTaken: dateTime.toJSON(),
-          symptoms: symptom.toString()
+          dateTimeTaken: dateTime,
+          symptoms: symptom.toString(),
+          dateRecheckVitalsNeeded: null
         }
       },
       function() {
