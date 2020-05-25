@@ -38,6 +38,7 @@ import { connect } from 'react-redux';
 import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
 import { PrivateRoute } from './privateRoute';
+import styles from './styles.module.css';
 
 const drawerWidth = 200;
 
@@ -89,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
   itemText: { color: 'white', paddingTop: '8px' },
 }));
 
-const AppComponent: React.FC<any> = (props) => {
+const Component: React.FC<any> = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState('Patients');
 
@@ -106,18 +107,6 @@ const AppComponent: React.FC<any> = (props) => {
     return '';
   };
 
-  const titleTextStyle = {
-    fontFamily: 'Open Sans',
-    fontWeight: 'bold' as 'bold',
-    fontSize: 36
-  };
-
-  const sidebarTextStyle = {
-    fontFamily: 'Open Sans',
-    fontWeight: 300,
-    fontSize: 18,
-  };
-
   const offsetFromTop = 50;
 
   return (
@@ -126,11 +115,11 @@ const AppComponent: React.FC<any> = (props) => {
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
           <img src={AppImg} className="appIcon" />
-          <Typography noWrap style={titleTextStyle}>
+          <Typography noWrap className={styles.titleText}>
             CRADLE
           </Typography>
           {props.user.isLoggedIn && (
-            <div style={{ marginLeft: 'auto', marginRight: 0 }}>
+            <div className={styles.iconContainer}>
               <IconButton
                 className={classes.toolbarButtons}
                 onClick={() => ''}
@@ -171,10 +160,7 @@ const AppComponent: React.FC<any> = (props) => {
             paper: classes.drawerPaper,
           }}
           anchor="left">
-          <div
-            className={classes.toolbar}
-            style={{ marginTop: offsetFromTop }}
-          />
+          <div className={`${classes.toolbar} ${styles.div}`} ></div>
           <List>
             <ListItem
               className={classes.listItem}
@@ -184,13 +170,13 @@ const AppComponent: React.FC<any> = (props) => {
               selected={activeItem === 'Reading'}
               onClick={() => setActiveItem('Reading')}>
               <ListItemIcon>
-                <img src={CreateImg} style={{ width: `75%` }} />
+                <img src={CreateImg} className={styles.img} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
                 className={classes.itemText}
                 primary={
-                  <Typography style={sidebarTextStyle}>
+                  <Typography className={styles.sidebarText}>
                     Patient &amp; Reading
                   </Typography>
                 }
@@ -204,13 +190,13 @@ const AppComponent: React.FC<any> = (props) => {
               selected={activeItem === 'Patients'}
               onClick={() => setActiveItem('Patients')}>
               <ListItemIcon>
-                <img src={PatientsImg} style={{ width: `75%` }} />
+                <img src={PatientsImg} className={styles.img} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
                 className={classes.itemText}
                 primary={
-                  <Typography style={sidebarTextStyle}>Patients</Typography>
+                  <Typography className={styles.sidebarText}>Patients</Typography>
                 }
               />
             </ListItem>
@@ -222,13 +208,13 @@ const AppComponent: React.FC<any> = (props) => {
               selected={activeItem === 'Referrals'}
               onClick={() => setActiveItem('Referrals')}>
               <ListItemIcon>
-                <img src={ReferralsImg} style={{ width: `75%` }} />
+                <img src={ReferralsImg} className={styles.img} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
                 className={classes.itemText}
                 primary={
-                  <Typography style={sidebarTextStyle}>Referrals</Typography>
+                  <Typography className={styles.sidebarText}>Referrals</Typography>
                 }
               />
             </ListItem>
@@ -240,13 +226,13 @@ const AppComponent: React.FC<any> = (props) => {
               selected={activeItem === 'Statistics'}
               onClick={() => setActiveItem('Statistics')}>
               <ListItemIcon>
-                <img src={StatisticsImg} style={{ width: `75%` }} />
+                <img src={StatisticsImg} className={styles.img} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
                 className={classes.itemText}
                 primary={
-                  <Typography style={sidebarTextStyle}>Statistics</Typography>
+                  <Typography className={styles.sidebarText}>Statistics</Typography>
                 }
               />
             </ListItem>
@@ -258,14 +244,14 @@ const AppComponent: React.FC<any> = (props) => {
               selected={activeItem === 'Chat'}
               onClick={() => setActiveItem('Chat')}>
               <ListItemIcon>
-                <img src={VideoImg} style={{ width: `75%` }} />
+                <img src={VideoImg} className={styles.img} />
               </ListItemIcon>
 
               <ListItemText
                 disableTypography
                 className={classes.itemText}
                 primary={
-                  <Typography style={sidebarTextStyle}>
+                  <Typography className={styles.sidebarText}>
                     Live Video Chat
                   </Typography>
                 }
@@ -279,14 +265,14 @@ const AppComponent: React.FC<any> = (props) => {
               selected={activeItem === 'Resources'}
               onClick={() => setActiveItem('Resources')}>
               <ListItemIcon>
-                <img src={EduImg} style={{ width: `75%` }} />
+                <img src={EduImg} className={styles.img} />
               </ListItemIcon>
 
               <ListItemText
                 disableTypography
                 className={classes.itemText}
                 primary={
-                  <Typography style={sidebarTextStyle}>Resources</Typography>
+                  <Typography className={styles.sidebarText}>Resources</Typography>
                 }
               />
             </ListItem>
@@ -307,7 +293,7 @@ const AppComponent: React.FC<any> = (props) => {
                     disableTypography
                     className={classes.itemText}
                     primary={
-                      <Typography style={sidebarTextStyle}>
+                      <Typography className={styles.sidebarText}>
                         Create New User
                       </Typography>
                     }
@@ -325,7 +311,7 @@ const AppComponent: React.FC<any> = (props) => {
                     disableTypography
                     className={classes.itemText}
                     primary={
-                      <Typography style={sidebarTextStyle}>
+                      <Typography className={styles.sidebarText}>
                         Admin Panel
                       </Typography>
                     }
@@ -345,7 +331,7 @@ const AppComponent: React.FC<any> = (props) => {
                 disableTypography
                 className={classes.itemText}
                 primary={
-                  <Typography style={sidebarTextStyle}>Logout</Typography>
+                  <Typography className={styles.sidebarText}>Logout</Typography>
                 }
               />
             </ListItem>
@@ -353,7 +339,7 @@ const AppComponent: React.FC<any> = (props) => {
         </Drawer>
       ) : null}
 
-      <main className={classes.content} style={{ paddingTop: offsetFromTop }}>
+      <main className={`${classes.content} ${styles.main}`}>
         <div className={classes.toolbar} />
         <Switch>
           <Route exact path="/" component={HomePage} />
@@ -396,4 +382,4 @@ const mapDispatchToProps = (dispatch: any) =>
 export const App = connect(
   mapStateToProps, 
   mapDispatchToProps
-)(AppComponent);
+)(Component);

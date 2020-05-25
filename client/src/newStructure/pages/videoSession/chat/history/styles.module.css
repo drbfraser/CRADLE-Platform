@@ -11,3 +11,22 @@
   border: 1px solid;
   border-radius: 10px;
 }
+
+.messageContainer {
+  display: flex;
+  margin-block-start: 5px;
+  padding-block-end: 5px;
+  border-bottom-style: solid;
+  border-width: 1px;
+  border-color: black;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  margin: 0 10px;
+}
+
+.bold {
+  font-weight: bold;
+}

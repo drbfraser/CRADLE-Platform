@@ -10,18 +10,14 @@ import {
 } from '../../../../shared/utils';
 import { TrafficLightEnum } from '../../../../enums';
 import React from 'react';
+import classes from './styles.module.css';
 
 
 export const initials: Column<Patient> = {
   title: `Patient Initials`,
   field: `patientName`,
   render: (rowData: Patient): JSX.Element => (
-    <p
-      style={ {
-        fontSize: `200%`,
-        fontWeight: `bold`,
-        textAlign: `center`
-      } }>
+    <p className={classes.text}>
       { rowData.patientName }
     </p>
   ),
