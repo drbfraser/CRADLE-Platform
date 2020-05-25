@@ -2,14 +2,15 @@ import React from 'react';
 import { Button, Icon } from 'semantic-ui-react';
 import Typography from '@material-ui/core/Typography';
 import classes from './styles.module.css';
+import { IState } from '../utils';
 
 interface IProps {
-  setState: any;
+  setState: React.Dispatch<React.SetStateAction<IState>>;
 };
 
 export const AddNewReading: React.FC<IProps> = ({ setState }) => {
   const openReadingModal = (): void =>
-    setState((currentState: any): any => ({
+    setState((currentState: IState): IState => ({
       ...currentState,
       displayReadingModal: true
     }));

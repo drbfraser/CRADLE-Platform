@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Form, Modal } from 'semantic-ui-react';
-import { PatientInfoForm } from '../info';
+import { PatientInfoForm } from './info';
 
 interface IProps {
   displayPatientModal: boolean;

@@ -20,7 +20,7 @@ const Component: React.FC<IProps> = (props) => {
   React.useEffect((): void => {
     // TODO: don't fetch patientData everytime, get it from redux if possible.
     props.getPatient(props.match.params.id);
-  }, []);
+  }, [props.getPatient, props.match.params.id]);
 
   const backBtnCallback = (): void => props.history.goBack();
 

@@ -6,13 +6,14 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import classes from './styles.module.css';
 import { TrafficLightEnum } from '../../../../../enums';
+import { IState } from '../../utils';
 
 interface IProps {
   gridClass: string;
   iconClass: string;
   paperClass: string;
   selectedPatientStatsList: any;
-  setState: any;
+  setState: React.Dispatch<React.SetStateAction<IState>>;
   showTrafficLights: boolean;
   showVitals: boolean;
   vitalsOverTime: any;
@@ -45,15 +46,15 @@ export const VitalsOverTime: React.FC<IProps> = ({
     ]} 
     : {};
 
-  const revealVitals = (): void => setState((currentState: any): any => ({
+  const revealVitals = (): void => setState((currentState: IState): IState => ({
     ...currentState,
     showVitals: true,
     showTrafficLights: false,
   }));
 
   const revealTrafficLights = (): void => setState((
-    currentState: any
-  ): any => ({
+    currentState: IState
+  ): IState => ({
     ...currentState,
     showVitals: false,
     showTrafficLights: true,

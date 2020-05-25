@@ -4,11 +4,12 @@ import { MedicalInformation } from './medicalInformation';
 import { VitalsOverTime } from './vitalsOverTime';
 import { vitalsOverTime } from './utils';
 import classes from './styles.module.css';
+import { IState } from '../utils';
 
 interface IProps {
   selectedPatient: any;
   selectedPatientStatsList: any;
-  setState: any;
+  setState: React.Dispatch<React.SetStateAction<IState>>;
   showTrafficLights: boolean;
   showVitals: boolean;
 };

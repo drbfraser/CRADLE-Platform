@@ -3,8 +3,9 @@ import { Button, Form, Header, Input, Modal } from 'semantic-ui-react';
 import Paper from '@material-ui/core/Paper';
 import { SymptomForm } from './form/symptom';
 import { UrineTestForm } from './form/urineTest';
-import { INITIAL_URINE_TESTS } from "../../../../utils";
-import { guid } from "./utils";
+import { INITIAL_URINE_TESTS } from '../../../../utils';
+import { guid } from './utils';
+import { IState } from '../../utils';
 
 interface IProps {
   checkedItems: any;
@@ -12,7 +13,7 @@ interface IProps {
   hasUrineTest: boolean;
   newReading: any;
   selectedPatient: any;
-  setState: any;
+  setState: React.Dispatch<React.SetStateAction<IState>>;
   symptom: any;
   user: any;
 };
@@ -40,7 +41,7 @@ export const NewPatientModal: React.FC<IProps> = ({
     var dateTime = new Date();
     var readingID = guid();
 
-    setState((currentState: any): any => ({
+    setState((currentState: IState): IState => ({
       ...currentState,
       newReading: {
         ...currentState.newReading,
@@ -53,7 +54,7 @@ export const NewPatientModal: React.FC<IProps> = ({
     }));
   };
 
-  const closeReadingModal = (): void => setState((currentState: any): any => ({
+  const closeReadingModal = (): void => setState((currentState: IState): IState => ({
     ...currentState,
     displayReadingModal: false
   }));
@@ -76,7 +77,7 @@ export const NewPatientModal: React.FC<IProps> = ({
       if (symptom.indexOf('none') >= 0) {
         symptom.pop();
       }
-      setState((currentState: any): any => ({
+      setState((currentState: IState): IState => ({
         ...currentState,
         checkedItems: {
           ...currentState.checkedItems,
@@ -88,7 +89,7 @@ export const NewPatientModal: React.FC<IProps> = ({
       while (symptom.length > 0) {
         symptom.pop();
       }
-      setState((currentState: any): any => ({
+      setState((currentState: IState): IState => ({
         ...currentState,
         checkedItems: {
           none: true,
@@ -106,7 +107,7 @@ export const NewPatientModal: React.FC<IProps> = ({
   };
 
   const handleReadingChange = (_: any, value: any): void =>
-    setState((currentState: any): any => ({
+    setState((currentState: IState): IState => ({
       ...currentState,
       newReading: {
         ...currentState.newReading,
@@ -115,7 +116,7 @@ export const NewPatientModal: React.FC<IProps> = ({
     }));
 
   const handleOtherSymptom = (event: any): void =>
-    setState((currentState: any): any => ({
+    setState((currentState: IState): IState => ({
       ...currentState,
       checkedItems: {
         ...currentState.checkedItems,
@@ -124,7 +125,7 @@ export const NewPatientModal: React.FC<IProps> = ({
     }));
 
   const handleUrineTestChange = (_: any, value: any): void =>
-    setState((currentState: any): any => ({
+    setState((currentState: IState): IState => ({
       ...currentState,
       newReading: {
         ...currentState.newReading,
@@ -136,13 +137,13 @@ export const NewPatientModal: React.FC<IProps> = ({
     }));
 
   const handleUrineTestSwitchChange = (event: any): void => {
-    setState((currentState: any): any => ({
+    setState((currentState: IState): IState => ({
       ...currentState,
       hasUrineTest: event.target.checked,
     }));
 
     if (!event.target.checked) {
-      setState((currentState: any): any => ({
+      setState((currentState: IState): IState => ({
         ...currentState,
         newReading: {
           ...currentState.newReading,

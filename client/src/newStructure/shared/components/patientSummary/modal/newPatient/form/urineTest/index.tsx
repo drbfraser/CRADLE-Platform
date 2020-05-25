@@ -7,7 +7,14 @@ import { URINE_TEST_CHEMICALS } from '../../../../../../utils';
 import { resultOptions } from './utils';
 import classes from './styles.module.css';
 
-export const UrineTestForm = (props: any) => (
+interface IProps {
+  reading: any;
+  onChange: any;
+  onSwitchChange: any;
+  hasUrineTest: boolean;
+}
+
+export const UrineTestForm: React.FC<IProps> = (props) => (
   <Paper className={classes.container}>
     <Header>
       <b>Urine Test</b>

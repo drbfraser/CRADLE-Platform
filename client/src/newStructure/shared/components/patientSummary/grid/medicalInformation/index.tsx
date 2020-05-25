@@ -8,13 +8,14 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import { getPrettyDate, GESTATIONAL_AGE_UNITS } from '../../../../utils';
 import classes from './styles.module.css';
+import { IState } from '../../utils';
 
 interface IProps {
   gridClass: string;
   iconClass: string;
   paperClass: string;
   selectedPatient: any;
-  setState: any;
+  setState: React.Dispatch<React.SetStateAction<IState>>;
 };
 
 export const MedicalInformation: React.FC<IProps> = ({ 
@@ -25,7 +26,7 @@ export const MedicalInformation: React.FC<IProps> = ({
   setState, 
 }) => {
   const openPatientModal = (): void =>
-    setState((currentState: any): any => ({
+    setState((currentState: IState): IState => ({
       ...currentState,
       displayPatientModal: true,
       selectedPatientCopy: { ...currentState.selectedPatient },
