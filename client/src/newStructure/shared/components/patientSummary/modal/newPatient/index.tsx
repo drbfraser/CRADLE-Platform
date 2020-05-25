@@ -6,6 +6,7 @@ import { UrineTestForm } from './form/urineTest';
 import { INITIAL_URINE_TESTS } from '../../../../utils';
 import { guid } from './utils';
 import { IState } from '../../utils';
+import classes from './styles.module.css';
 
 interface IProps {
   checkedItems: any;
@@ -166,11 +167,7 @@ export const NewPatientModal: React.FC<IProps> = ({
             { selectedPatient.patientId }
           </Header>
           <Form onSubmit={ handleReadingSubmit }>
-            <Paper
-              style={ {
-                padding: '35px 25px',
-                borderRadius: '15px',
-              } }>
+            <Paper className={classes.paper}>
               <Form.Group widths="equal">
                 <Form.Field
                   name="bpSystolic"
@@ -207,7 +204,7 @@ export const NewPatientModal: React.FC<IProps> = ({
                 />
               </Form.Group>
             </Paper>
-            <div style={ { marginTop: '25px' } }>
+            <div className={classes.symptomFormContainer}>
               <SymptomForm
                 checkedItems={ checkedItems }
                 onChange={ handleCheckedChange }

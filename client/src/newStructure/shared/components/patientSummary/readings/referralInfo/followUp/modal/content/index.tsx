@@ -18,6 +18,7 @@ import React from 'react';
 import Switch from '@material-ui/core/Switch';
 import { IState } from '..';
 import { FollowupForm } from './followup';
+import classes from './styles.module.css';
 
 interface IProps {
   data: any;
@@ -140,12 +141,8 @@ export const Content: React.FC<IProps> = ({
             onChange={ handleChange }
             required
           />
-          <Form.Field style={ { margin: `0px` } }>
-            <label
-              style={ {
-                display: `inline-block`,
-                marginRight: `5px`,
-              } }>
+          <Form.Field className={classes.field}>
+            <label className={classes.label}>
               Follow-up Needed
               </label>
             <Switch
@@ -164,7 +161,7 @@ export const Content: React.FC<IProps> = ({
             handleChange={ handleChange }
             setState={ setState }
           />
-          <Form.Field control={ Button } style={ { marginTop: `10px` } }>
+          <Form.Field control={ Button } className={classes.submit}>
             Submit
           </Form.Field>
         </Form>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Form, Modal } from 'semantic-ui-react';
 import { PatientInfoForm } from './info';
+import classes from './styles.module.css';
 
 interface IProps {
   displayPatientModal: boolean;
@@ -90,7 +91,7 @@ export const PatientModal: React.FC<IProps> = ({
             onChange={ handleSelectChange }
             isEditPage={ true }
           />
-          <Form.Field style={ { marginTop: '10px' } } control={ Button }>
+          <Form.Field className={classes.submit} control={ Button }>
             Submit
           </Form.Field>
         </Form>

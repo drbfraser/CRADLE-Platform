@@ -22,10 +22,11 @@ import { Title } from './title';
 import { AddNewReading } from './addNewReading';
 import { Readings } from './readings';
 import { PatientModal } from './modal/patient';
-import { NewPatientModal } from "./modal/newPatient";
-import { SummaryGrid } from "./grid";
-import { useSetup } from "./hooks/setup";
-import { useReset } from "./hooks/reset";
+import { NewPatientModal } from './modal/newPatient';
+import { SummaryGrid } from './grid';
+import { useSetup } from './hooks/setup';
+import { useReset } from './hooks/reset';
+import classes from './styles.module.css';
 
 let symptom: Array<any> = [];
 
@@ -56,7 +57,7 @@ const Component: React.FC<IProps> = (props) => {
   return (
     <>
       {state.selectedPatient ? (
-        <div style={{ margin: '2.5em 0' }}>
+        <div className={classes.container}>
           <Title 
             patientName={state.selectedPatient.patientName} 
             goBackToPatientsPage={goBackToPatientsPage} 
