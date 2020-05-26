@@ -9,14 +9,14 @@ export const getSelectedPatientStatisticsRequested = () => ({
   type: GET_SELECTED_PATIENT_STATISTICS_REQUESTED,
 });
 
-export const getSelectedPatientStatistics = (patientId) => {
+export const getSelectedPatientStatistics = (patientId: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}${Endpoints.STATS}/${patientId}`,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: GET_SELECTED_PATIENT_STATISTICS_SUCCESS,
       payload: response,
     }),
-    onError: (error) => ({
+    onError: (error: any) => ({
       type: GET_SELECTED_PATIENT_STATISTICS_ERROR,
       payload: error,
     }),
@@ -29,7 +29,7 @@ const initialState = {
 
 export const selectedPatientStatisticsReducer = (
   state = initialState, 
-  action
+  action: any
 ) => {
   switch (action.type) {
     case GET_SELECTED_PATIENT_STATISTICS_SUCCESS:
