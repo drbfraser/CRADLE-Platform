@@ -41,7 +41,7 @@ class PatientPageComponent extends React.Component<IProps> {
     }
   };
 
-  patientCallback = (selectedPatient) => {
+  patientCallback = (selectedPatient: any) => {
     this.props.history.push(`/patient/${selectedPatient.patientId}`);
   };
 
@@ -62,12 +62,12 @@ class PatientPageComponent extends React.Component<IProps> {
   }
 }
 
-const mapStateToProps = ({ patients, user }) => ({
+const mapStateToProps = ({ patients, user }: any) => ({
   patients: patients,
   user: user.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getPatients: () => {
     dispatch(getPatientsRequested());
     dispatch(getPatients());

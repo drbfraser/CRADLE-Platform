@@ -3,7 +3,7 @@ import { Form, Header } from 'semantic-ui-react';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
 
-export const SymptomForm = (props) => (
+export const SymptomForm = (props: any) => (
   <Paper
     style={{
       padding: `35px 25px`,

@@ -8,7 +8,7 @@ const chatAvatar = {
   borderRadius: 10,
 };
 
-export const ChatHistory = (props) => (
+export const ChatHistory: React.FC<any> = (props) => (
   <div
     id="chatHistory"
     style={{
@@ -16,7 +16,7 @@ export const ChatHistory = (props) => (
       overflowY: `scroll`,
       borderBottom: `2px solid black`,
     }}>
-    {props.chatHistory.map((msg) => {
+    {props.chatHistory.map((msg: any) => {
       return (
         <div
           style={{

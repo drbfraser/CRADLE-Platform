@@ -29,7 +29,7 @@ import { connect } from 'react-redux';
 import { followupFrequencyUnitOptions } from '../utils';
 import { untilDateOrOther } from './utils';
 
-class FollowUpModalComponent extends React.Component {
+class FollowUpModalComponent extends React.Component<any, any> {
   static propTypes = {
     initialValues: PropTypes.objectOf(PropTypes.string),
     updateFollowUp: PropTypes.func.isRequired,
@@ -37,7 +37,7 @@ class FollowUpModalComponent extends React.Component {
     readingId: PropTypes.string.isRequired,
   };
 
-  constructor(props) {
+  constructor(props: any) {
     super(props);
 
     this.state = {
@@ -49,7 +49,7 @@ class FollowUpModalComponent extends React.Component {
         followupNeeded: false,
         dateFollowupNeededTill: ``,
         followupInstructions: ``,
-        followupFrequencyUnit: followupFrequencyUnitOptions[`none`],
+        followupFrequencyUnit: followupFrequencyUnitOptions[0],
         followupFrequencyValue: null,
       },
       isOpen: false,
@@ -99,7 +99,7 @@ class FollowUpModalComponent extends React.Component {
     this.props.setReadingId(this.props.readingId);
   }
 
-  handleChange(e, value) {
+  handleChange(_: any, value: any) {
     this.setState({
       data: {
         ...this.state.data,
@@ -108,7 +108,7 @@ class FollowUpModalComponent extends React.Component {
     });
   }
 
-  handleSwitchChange(e) {
+  handleSwitchChange(e: any) {
     this.setState({
       data: {
         ...this.state.data,
@@ -117,7 +117,7 @@ class FollowUpModalComponent extends React.Component {
     });
   }
 
-  handleDateOrOtherChange = (error, value) => {
+  handleDateOrOtherChange = (_: any, value: any) => {
     if (
       value.name === `untilDateOrOther` &&
       (value.value === `OTHER` || value.value === `DATE`)
@@ -135,7 +135,7 @@ class FollowUpModalComponent extends React.Component {
     }
 
     if (this.state.untilDateOrCond) {
-      delete this.state.untilDateOrCond;
+      // delete this.state.untilDateOrCond;
     }
     // update existing followUpInfo
     if (this.props.initialValues) {
@@ -294,8 +294,8 @@ class FollowUpModalComponent extends React.Component {
 
 const mapStateToProps = ({}) => ({});
 
-const mapDispatchToProps = (dispatch) => ({
-  createFollowUp: (data) => {
+const mapDispatchToProps = (dispatch: any) => ({
+  createFollowUp: (data: any) => {
     dispatch(createFollowUp(data));
   },
   ...bindActionCreators(

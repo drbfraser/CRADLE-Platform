@@ -10,16 +10,20 @@ import { copyToClipboard } from './utils';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import swal from 'sweetalert';
 
+// @ts-ignore
 window.io = io;
 
 const infoDivText = {
   fontSize: `20px`,
   color: `white`,
-  textAlign: `left`,
+  textAlign: `left` as `left`,
 };
 
-class VideoSession extends Component {
-  constructor(props) {
+class VideoSession extends Component<any, any> {
+  private connection: any;
+  private predefinedRoomId: string;
+
+  constructor(props: any) {
     super(props);
     this.state = {
       localConnected: false,
@@ -35,7 +39,7 @@ class VideoSession extends Component {
     this.joinRoom = this.joinRoom.bind(this);
 
     this.connection = new RTCMultiConnection();
-    this.predefinedRoomId = React.createRef(`cradle`);
+    this.predefinedRoomId = `cradle`;
   }
 
   getRoomId() {
@@ -44,13 +48,11 @@ class VideoSession extends Component {
     } else if (this.props.match.params.roomId) {
       return this.props.match.params.roomId;
     } else {
-      return this.predefinedRoomId.current;
+      return this.predefinedRoomId;
     }
   }
 
   openRoom() {
-    this.disabled = true;
-
     let thisRoomId = this.getRoomId();
 
 
@@ -58,8 +60,6 @@ class VideoSession extends Component {
   }
 
   joinRoom() {
-    this.disabled = true;
-
     let thisRoomId = this.getRoomId();
 
 
@@ -76,7 +76,7 @@ class VideoSession extends Component {
 
     let newState = {
       configured: true,
-    };
+    } as any;
 
 
     if (this.props.isOpener) {
@@ -115,7 +115,7 @@ class VideoSession extends Component {
     }
   }
 
-  config(isLocal) {
+  config(isLocal: any) {
     // this line is VERY_important
     this.connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
@@ -138,17 +138,13 @@ class VideoSession extends Component {
       this.connection.videosContainer = document.getElementById('remoteStream');
     }
 
-    this.connection.onopen = function (event) {
-      var remoteUserId = event.userid;
-      var remoteUserFullName = event.extra.fullName;
-
-
+    this.connection.onopen = (event: any) => {
       this.setState({
         roomStatus: 'Connected',
       });
-    }.bind(this);
+    };
 
-    this.connection.onstream = function (event) {
+    this.connection.onstream = (event: any) => {
 
 
 
@@ -177,13 +173,15 @@ class VideoSession extends Component {
         });
       }
 
+      //@ts-ignore
       videoContainer.appendChild(event.mediaElement);
 
       event.mediaElement.removeAttribute('controls');
 
+      //@ts-ignore
       window.connection = this.connection;
-    }.bind(this);
-
+    };
+    //@ts-ignore
     window.connection = this.connection;
 
     // connection.onmessage = function(event) {
@@ -194,12 +192,12 @@ class VideoSession extends Component {
   componentWillUnmount() {
 
     // disconnect with all users
-    this.connection.getAllParticipants().forEach(function (pid) {
+    this.connection.getAllParticipants().forEach((pid: any) => {
       this.connection.disconnectWith(pid);
     });
 
     // stop all local cameras
-    this.connection.attachStreams.forEach(function (localStream) {
+    this.connection.attachStreams.forEach((localStream: any) => {
       localStream.stop();
     });
 
@@ -280,13 +278,13 @@ class VideoSession extends Component {
   }
 }
 
-const mapStateToProps = ({ chat, user }) => ({
+const mapStateToProps = ({ chat, user }: any) => ({
   isOpener: chat.isOpener,
   roomId: chat.roomId,
   user: user.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => {
     dispatch(getCurrentUser());
   },

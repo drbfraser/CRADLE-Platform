@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import image from './img/splash_screen_4.png';
 import { userLoginFetch } from '../../shared/reducers/user/currentUser';
 
-class Login extends React.Component {
+class Login extends React.Component<{ isLoggedIn: boolean }> {
   render() {
     if (this.props.isLoggedIn) {
       return <Redirect to="/patients" />;
@@ -25,14 +25,14 @@ class Login extends React.Component {
   }
 }
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user }: any) => ({
   isLoggedIn: user.currentUser.isLoggedIn,
   email: user.currentUser.email,
   errorMessage: user.serverLoginErrorMessage,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  userLoginFetch: (user) => dispatch(userLoginFetch(user)),
+const mapDispatchToProps = (dispatch: any) => ({
+  userLoginFetch: (user: any) => dispatch(userLoginFetch(user)),
 });
 
 export const LoginPage = connect(

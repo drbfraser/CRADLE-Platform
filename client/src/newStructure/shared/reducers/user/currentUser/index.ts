@@ -13,23 +13,23 @@ export const logoutUserAction = () => ({
 });
 
 export const logoutUser = () => {
-  return (dispatch) => {
+  return (dispatch: any) => {
     localStorage.removeItem('token');
     dispatch(logoutUserAction());
     dispatch(push('/login'));
   };
 };
 
-export const userLoginFetch = (data) => {
+export const userLoginFetch = (data: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.AUTH}`,
     method: Methods.POST,
     data,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: USER_LOGIN_SUCCESS,
       payload: response,
     }),
-    onError: (message) => ({
+    onError: (message: any) => ({
       type: INVALID_USER,
       payload: message,
     }),
@@ -39,11 +39,11 @@ export const userLoginFetch = (data) => {
 export const getCurrentUser = () => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.CURRENT}`,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: LOGIN_USER,
       payload: response,
     }),
-    onError: () => (dispatch) => {
+    onError: () => (dispatch: any) => {
       localStorage.removeItem(`token`);
       dispatch(logoutUserAction());
       dispatch(push(`/login`));
@@ -55,7 +55,7 @@ const initialState = {
   currentUser: {},
 };
 
-export const currentUserReducer = (state = initialState, action) => {
+export const currentUserReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case LOGIN_USER:
       return action.payload.data;
