@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@enums": ["./src/newStructure/enums"],
+      "@redux-root-reducer": ["./src/newStructure/redux/rootReducer"],
+      "@redux-store": ["./src/newStructure/redux/store"],
+      "@server-endpoints": ["./src/newStructure/server/endpoints"],
+      "@server-methods": ["./src/newStructure/server/methods"],
+      "@server-utils": ["./src/newStructure/server/utils"],
+      "@types": ["./src/newStructure/types"]
+    }
+  }
+}

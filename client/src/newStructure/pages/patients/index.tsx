@@ -6,18 +6,19 @@ import {
 import { PatientTable } from './patientTable';
 import React from 'react';
 import { connect } from 'react-redux';
-import { Patient } from "../../types";
+import { Patient } from '@types';
 import { push } from 'connected-react-router';
 
 interface IProps {
-  fetchingPatients: any;
-  patients: any;
+  fetchingPatients: boolean;
+  patients: Array<Patient>;
   user: any;
   getPatients: any;
   navigateToPatientPage: any;
 }
 
 const Page: React.FC<IProps> = (props) => {
+  console.log(`user`, props.user);
   React.useEffect(() => {
     if (!props.fetchingPatients && props.patients === null) {
       props.getPatients();
@@ -47,8 +48,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getPatientsRequested());
     dispatch(getPatients());
   },
-  navigateToPatientPage: (patientId: string) =>
-    dispatch(push(`/patient/${patientId}`))
+  navigateToPatientPage: (patientId: string) => dispatch(
+    push(`/patient/${patientId}`)
+  )
 });
 
 export const PatientsPage = connect(

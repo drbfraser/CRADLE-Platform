@@ -5,14 +5,14 @@ import { sortPatientsByLastReading } from '../../utils';
 
 const GET_PATIENT = `patients/GET_PATIENT`;
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
-const GET_PATIENT_ERR = `patients/GET_PATIENT_ERR`;
+const GET_PATIENT_ERROR = `patients/GET_PATIENT_ERROR`;
 
 const GET_PATIENTS = `patients/GET_PATIENTS`;
 const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
-const GET_PATIENTS_ERR = `patient/GET_PATIENTS_ERR`;
+const GET_PATIENTS_ERROR = `patient/GET_PATIENTS_ERROR`;
 
 const UPDATE_PATIENT = `patient/UPDATE_PATIENT`;
-const UPDATE_PATIENT_ERR = `patients/UPDATE_PATIENT_ERR`;
+const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
 
 const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
 const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
@@ -25,7 +25,7 @@ export const getPatient = (patientId: any) => {
       payload: response,
     }),
     onError: (error: any) => ({
-      type: GET_PATIENT_ERR,
+      type: GET_PATIENT_ERROR,
       payload: error,
     })
   });
@@ -39,7 +39,7 @@ export const getPatients = () => {
       payload: response,
     }),
     onError: (error: any) => ({
-      type: GET_PATIENTS_ERR,
+      type: GET_PATIENTS_ERROR,
       payload: error,
     })
   });
@@ -55,7 +55,7 @@ export const updatePatient = (patientId: any, data: any) => {
       payload: response,
     }),
     onError: (error: any) => ({
-      type: UPDATE_PATIENT_ERR,
+      type: UPDATE_PATIENT_ERROR,
       payload: error,
     })
   });
@@ -102,7 +102,7 @@ export const patientsReducer = (state = initialState, action: any) => {
         isLoading: true,
       };
 
-    case GET_PATIENTS_ERR:
+    case GET_PATIENTS_ERROR:
       return {
         ...state,
         isLoading: false,
@@ -137,7 +137,7 @@ export const patientsReducer = (state = initialState, action: any) => {
         newPatientAdded: false,
       };
 
-    case GET_PATIENT_ERR:
+    case GET_PATIENT_ERROR:
       return {
         ...state,
         isLoading: false,

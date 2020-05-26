@@ -1,37 +1,37 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "esnext",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "checkJs": false,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "isolatedModules": true,
     "lib": [
       "es2018",
       "dom"
     ],
-    "allowJs": true,
-    "checkJs": false,
-    "downlevelIteration": true,
-    "jsx": "preserve",
-    "sourceMap": true,
-    "outDir": "./build",
-    "rootDir": "./src",
-    "importHelpers": true,
-    "strict": false,
+    "module": "esnext",
+    "moduleResolution": "node",
     "noImplicitAny": true,
-    "strictNullChecks": true,
+    "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
-    "noImplicitReturns": true,
-    "moduleResolution": "node",
+    "outDir": "./build",
+    "resolveJsonModule": true,
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": false,
+    "strictNullChecks": true,
+    "target": "es5",
     "types": [
       "node",
       "react",
       "react-dom"
     ],
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "noEmit": true
   },
   "exclude": [
@@ -43,6 +43,7 @@
     "jest",
     "src/setupTests.ts"
   ],
+  "extends": "./tsconfig.paths.json",
   "include": [
     "src"
   ]
