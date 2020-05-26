@@ -8,6 +8,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Patient } from '@types';
 import { push } from 'connected-react-router';
+import { ReduxState } from '@redux-root-reducer';
 
 interface IProps {
   fetchingPatients: boolean;
@@ -37,7 +38,7 @@ const Page: React.FC<IProps> = (props) => {
   );
 };
 
-const mapStateToProps = ({ patients, user }: any) => ({
+const mapStateToProps = ({ patients, user }: ReduxState) => ({
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,
   user: user.currentUser

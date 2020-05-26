@@ -8,6 +8,16 @@ import { referralsReducer } from '../../shared/reducers/referrals';
 import { selectedPatientStatisticsReducer } from '../../shared/reducers/selectedPatientStatistics';
 import { userReducer } from '../../shared/reducers/user';
 
+export type ReduxState = {
+  chat: any;
+  newReading: any;
+  patients: any;
+  patientStats: any;
+  referrals: any;
+  statistics: any;
+  user: any;
+};
+
 const appReducer = combineReducers({
   chat: chatReducer,
   newReading: newReadingStatusReducer,
