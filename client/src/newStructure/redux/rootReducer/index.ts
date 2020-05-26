@@ -18,7 +18,7 @@ const appReducer = combineReducers({
   user: userReducer,
 });
 
-export const rootReducer = (state, action) => {
+export const rootReducer = (state: any, action: any) => {
   switch (action.type) {
     case LOGOUT_USER:
       return undefined;

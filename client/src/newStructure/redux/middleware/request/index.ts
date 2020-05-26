@@ -3,12 +3,12 @@ import { Endpoints } from '../../../server/endpoints';
 import { MAKE_SERVER_REQUEST } from '../../../shared/reducers/utils';
 import { Methods } from '../../../server/methods';
 import axios from 'axios';
-import { go } from 'connected-react-router';
 import jwt_decode from 'jwt-decode';
 import { logoutUserAction } from '../../../shared/reducers/user/currentUser';
+import { replace } from 'connected-react-router';
 
-export const requestMiddleware = () => ({ dispatch }) => (next) => async (
-  action
+export const requestMiddleware = () => ({ dispatch }) => (next: any) => async (
+  action: any
 ) => {
   if (action.type !== MAKE_SERVER_REQUEST) {
     next(action);
@@ -44,7 +44,7 @@ export const requestMiddleware = () => ({ dispatch }) => (next) => async (
       localStorage.removeItem('token');
       localStorage.removeItem('refresh');
       dispatch(logoutUserAction());
-      dispatch(go('/login'));
+      dispatch(replace(`/login`));
       return;
     }
   }

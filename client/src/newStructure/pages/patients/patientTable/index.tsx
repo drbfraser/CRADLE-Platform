@@ -9,9 +9,23 @@ import {
 import MaterialTable from 'material-table';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
+import { TextAlignProperty } from 'csstype';
 import { trafficLights } from './utils';
 
-export class PatientTable extends React.Component {
+interface IProps {
+  callbackFromParent: any;
+  data: any;
+  isLoading: boolean;
+}
+
+interface IState {
+  columns: any;
+  data: any;
+  selectedPatient: any;
+  showReferredPatients: any;
+}
+
+export class PatientTable extends React.Component<IProps, IState> {
   state = {
     columns: [
       {
@@ -29,7 +43,7 @@ export class PatientTable extends React.Component {
           </p>
         ),
         headerStyle: {
-          textAlign: `center`,
+          textAlign: `center` as TextAlignProperty,
         },
       },
       {
@@ -64,7 +78,7 @@ export class PatientTable extends React.Component {
           <p>{getPrettyDate(getLatestReadingDateTime(rowData.readings))}</p>
         ),
         customSort: (a, b) => sortPatientsByLastReading(a, b),
-        defaultSort: `asc`,
+        defaultSort: `asc` as `asc`,
       },
     ],
     data: [],
@@ -80,13 +94,13 @@ export class PatientTable extends React.Component {
     showReferredPatients: false,
   };
 
-  handleSwitchChange(event) {
+  handleSwitchChange(event: any) {
     this.setState({
       showReferredPatients: event.target.checked,
     });
   }
 
-  getPatientsToRender(showReffered) {
+  getPatientsToRender(showReffered: any) {
     return this.props.data.filter((patient) => {
       let hasReferral = this.patientHasReferral(patient.readings);
       if (showReffered) {
@@ -97,7 +111,7 @@ export class PatientTable extends React.Component {
     });
   }
 
-  patientHasReferral(readings) {
+  patientHasReferral(readings: any) {
     return readings.some((reading) => {
       return reading.dateReferred != undefined;
     });
@@ -132,9 +146,9 @@ export class PatientTable extends React.Component {
                 />
               );
             },
-
             tooltip: `Show referred patients only`,
             isFreeAction: true,
+            onClick: () => { return; }
           },
         ]}
       />

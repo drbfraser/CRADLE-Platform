@@ -1,21 +1,25 @@
 import 'sanitize.css/sanitize.css';
 import './index.css';
 
-import store, { history } from './oldStructure/store';
+// import { history, reduxStore } from './newStructure/redux/store';
+import reduxStore, {history}  from './oldStructure/store';
+
 
 import App from './oldStructure/containers/app';
+// import {App} from './newStructure/app';
+
 import { ConnectedRouter } from 'connected-react-router';
 import React from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
-import { render } from 'react-dom';
+import  {render}  from 'react-dom';
 
 render(
-  <ReduxProvider store={store}>
+  <ReduxProvider store={reduxStore}>
     <ConnectedRouter history={history}>
       <div>
         <App />
       </div>
     </ConnectedRouter>
   </ReduxProvider>,
-  document.querySelector('#root')
+  document.querySelector(`#root`)
 );
