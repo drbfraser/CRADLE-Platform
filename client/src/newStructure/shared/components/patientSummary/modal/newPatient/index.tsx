@@ -6,7 +6,7 @@ import { UrineTestForm } from './form/urineTest';
 import { INITIAL_URINE_TESTS } from '../../../../utils';
 import { guid } from './utils';
 import { IState } from '../../utils';
-import classes from './styles.module.css';
+import classes from '../styles.module.css';
 
 interface IProps {
   checkedItems: any;
