@@ -7,7 +7,7 @@ import {
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { ReferralTable } from './referralTable';
 
-class ReferralPageComponent extends Component {
+class ReferralPageComponent extends Component<any> {
   state = {
     patientsList: []
   };
