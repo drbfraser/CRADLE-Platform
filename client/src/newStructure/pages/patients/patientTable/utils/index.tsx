@@ -1,5 +1,5 @@
-import { Column } from "material-table";
-import { Patient } from "../../../../types";
+import { Column } from 'material-table';
+import { Patient } from '@types';
 import { TextAlignProperty } from 'csstype';
 import {
   getLatestReading,

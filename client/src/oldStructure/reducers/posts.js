@@ -1,16 +1,16 @@
 // import all the actions here
 
-import { 
-    UPDATE_POSTS,
-    UPDATE_POSTS_REQUESTED,
-    UPDATE_POSTS_ERR,
-    UPDATE_MSG
- } from '../actions/posts';
+import {
+  UPDATE_POSTS,
+  UPDATE_POSTS_REQUESTED,
+  UPDATE_POSTS_ERR,
+  UPDATE_MSG
+} from '../actions/posts'
 
 const initialState = {
-    posts: [],
-    isFetchingPosts: false,
-    msg: ""
+  posts: [],
+  isFetchingPosts: false,
+  msg: ''
 }
 
 export default (state = initialState, action) => {
@@ -21,19 +21,19 @@ export default (state = initialState, action) => {
         posts: action.payload,
         isLoading: false
       }
-    
-    case UPDATE_POSTS_REQUESTED: 
+
+    case UPDATE_POSTS_REQUESTED:
       return {
-          ...state,
-          isLoading: true
+        ...state,
+        isLoading: true
       }
 
     case UPDATE_POSTS_ERR:
       return {
-          ...state,
-          isLoading: false
+        ...state,
+        isLoading: false
       }
-    
+
     case UPDATE_MSG:
       return {
         ...state,

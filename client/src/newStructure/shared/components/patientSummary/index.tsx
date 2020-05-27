@@ -2,8 +2,8 @@ import { Divider } from 'semantic-ui-react';
 import {
   getPatients,
   getPatientsRequested,
-  updatePatient,
 } from '../../reducers/patients';
+import { updatePatient } from '../../reducers/patients';
 import {
   getSelectedPatientStatistics,
   getSelectedPatientStatisticsRequested,
@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 import { getCurrentUser } from '../../reducers/user/currentUser';
 import { getReferrals } from '../../reducers/referrals';
 import { createReading, sortReadings, initialState, IState } from './utils';
-import { newReadingPost } from '../../reducers/newReadingStatus';
+import { addNewReading } from '../../reducers/newReadingStatus';
 import { NoPatientSelected } from './noPatientSelected';
 import { Title } from './title';
 import { AddNewReading } from './addNewReading';
@@ -39,14 +39,14 @@ interface IProps {
   updatePatient: any;
   user: any;
   selectedPatientStatsList: any;
-  newReadingPost: any;
+  addNewReading: any;
   referrals: any;
 }
 
 const Component: React.FC<IProps> = (props) => {
   const [state, setState] = React.useState<IState>(initialState);
   useSetup({ props, setState });
-  useReset({ newReadingPost: props.newReadingPost, state, setState });
+  useReset({ addNewReading: props.addNewReading, state, setState });
 
   const goBackToPatientsPage = (): void => {
     // go back to patient table
@@ -125,11 +125,13 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getSelectedPatientStatisticsRequested());
     dispatch(getSelectedPatientStatistics(patientId));
   },
+  addNewReading: (data: any) => dispatch(addNewReading(data)),
+  getCurrentUser: () => dispatch(getCurrentUser()),
   ...bindActionCreators(
     {
       getCurrentUser,
       getReferrals,
-      newReadingPost,
+      addNewReading,
       updatePatient,
     },
     dispatch

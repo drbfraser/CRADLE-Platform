@@ -6,13 +6,13 @@ import {
 import { PatientTable } from './patientTable';
 import React from 'react';
 import { connect } from 'react-redux';
-import { Patient } from "../../types";
+import { Patient } from '@types';
 import { push } from 'connected-react-router';
+import { ReduxState } from '../../redux/rootReducer';
 
 interface IProps {
-  fetchingPatients: any;
-  patients: any;
-  user: any;
+  fetchingPatients: boolean;
+  patients: Array<Patient>;
   getPatients: any;
   navigateToPatientPage: any;
 }
@@ -36,10 +36,9 @@ const Page: React.FC<IProps> = (props) => {
   );
 };
 
-const mapStateToProps = ({ patients, user }: any) => ({
+const mapStateToProps = ({ patients }: ReduxState) => ({
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,
-  user: user.currentUser
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -47,8 +46,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getPatientsRequested());
     dispatch(getPatients());
   },
-  navigateToPatientPage: (patientId: string) =>
-    dispatch(push(`/patient/${patientId}`))
+  navigateToPatientPage: (patientId: string) => dispatch(
+    push(`/patient/${patientId}`)
+  )
 });
 
 export const PatientsPage = connect(
