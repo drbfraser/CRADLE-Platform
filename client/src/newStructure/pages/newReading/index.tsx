@@ -69,14 +69,28 @@ interface IProps{
     createReadingDefault:any;
     afterNewPatientAdded:any;
     user:any;
-    newReadingPost(newData:any):any;
+   newReadingPost:any;
 }
-// interface IState{
-//     patient:any;
-//     reading:any;
-
-// }
-class NewReadingPageComponent extends Component<IProps>  {
+interface IPatient{
+    patientId: string;
+    patientName: string;
+    patientAge: string;
+    patientSex: string;
+    isPregnant: boolean;
+    gestationalAgeValue: string;
+    gestationalAgeUnit: string;
+    zone: string;
+    dob: any;
+    villageNumber: string;
+    drugHistory: string;
+    medicalHistory: string;
+}
+interface IState{
+    patient:IPatient;
+    reading:any;
+    hasUrineTest:any;
+}
+class NewReadingPageComponent extends Component<IProps,IState>  {
     state = initState
 
     componentDidMount = () => {
@@ -230,11 +244,13 @@ class NewReadingPageComponent extends Component<IProps>  {
         }
 
         if (this.state.patient.dob != null) {
-            this.state.patient.dob = Date.parse(this.state.patient.dob) / 1000
+            this.state.patient.dob = (Date.parse(this.state.patient.dob as any) / 1000) as any;
         }
         var readingID = guid()
 
         var dateTimeTaken = Math.floor(Date.now() / 1000);
+        const that =this;
+
         this.setState(
             {
                 reading: {
@@ -246,9 +262,9 @@ class NewReadingPageComponent extends Component<IProps>  {
                 }
             },
             function() {
-                let patientData = JSON.parse(JSON.stringify(this.state.patient))
-                let readingData = JSON.parse(JSON.stringify(this.state.reading))
-                if (!this.state.hasUrineTest) {
+                let patientData = JSON.parse(JSON.stringify(that.state.patient))
+                let readingData = JSON.parse(JSON.stringify(that.state.reading))
+                if (!that.state.hasUrineTest) {
                     delete readingData.urineTests
                 }
 
@@ -257,7 +273,7 @@ class NewReadingPageComponent extends Component<IProps>  {
                     reading: readingData
                 }
                 console.log(newData)
-                this.props.newReadingPost(newData)
+                that.props.newReadingPost(newData)
             }
         )
     }
