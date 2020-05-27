@@ -40,10 +40,7 @@ var RTCMultiConnection = function (roomid, forceOptions) {
 
     if (typeof global.console.debug === 'undefined') {
       global.console.debug = global.console.info = global.console.error = global.console.log =
-        global.console.log ||
-        function () {
-          console.log(arguments);
-        };
+        global.console.log
     }
 
     if (typeof document === 'undefined') {
@@ -874,19 +871,12 @@ var RTCMultiConnection = function (roomid, forceOptions) {
           }
         }
 
-        if (connection.enableLogs) {
-          console.log("Remote peer's sdp:", message.sdp);
-        }
         return;
       }
 
       if (message.candidate) {
         if (connection.peers[remoteUserId]) {
           connection.peers[remoteUserId].addRemoteCandidate(message);
-        }
-
-        if (connection.enableLogs) {
-          console.log("Remote peer's candidate pairs:", message.candidate);
         }
         return;
       }
@@ -5361,15 +5351,6 @@ var RTCMultiConnection = function (roomid, forceOptions) {
         },
         function (isRoomJoined, error) {
           if (isRoomJoined === true) {
-            if (connection.enableLogs) {
-              console.log(
-                'isRoomJoined: ',
-                isRoomJoined,
-                ' roomid: ',
-                connection.sessionid
-              );
-            }
-
             if (!!connection.peers[connection.sessionid]) {
               // on socket disconnect & reconnect
               return;
@@ -5403,10 +5384,6 @@ var RTCMultiConnection = function (roomid, forceOptions) {
     connection.publicRoomIdentifier = '';
 
     function openRoom(callback) {
-      if (connection.enableLogs) {
-        console.log('Sending open-room signal to socket.io');
-      }
-
       connection.waitingForLocalMedia = false;
       connection.socket.emit(
         'open-room',
@@ -5426,14 +5403,6 @@ var RTCMultiConnection = function (roomid, forceOptions) {
         },
         function (isRoomOpened, error) {
           if (isRoomOpened === true) {
-            if (connection.enableLogs) {
-              console.log(
-                'isRoomOpened: ',
-                isRoomOpened,
-                ' roomid: ',
-                connection.sessionid
-              );
-            }
             callback(isRoomOpened, connection.sessionid);
           }
 
@@ -6866,14 +6835,6 @@ var RTCMultiConnection = function (roomid, forceOptions) {
         _roomid,
         extra
       ) {
-        if (connection.enableLogs) {
-          console.log(
-            'checkPresence.isRoomExist: ',
-            isRoomExist,
-            ' roomid: ',
-            _roomid
-          );
-        }
         callback(isRoomExist, _roomid, extra);
       });
     };

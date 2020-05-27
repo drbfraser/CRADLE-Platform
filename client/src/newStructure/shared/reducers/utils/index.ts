@@ -1,25 +1,39 @@
 import { Method as AxiosMethod } from 'axios';
-import { Methods } from "../../../server/methods";
+import { Methods } from '../../../server/methods';
+import { Callback } from '@types';
 
-export const MAKE_SERVER_REQUEST = `MAKE_SERVER_REQUEST`;
+export enum MakeServerRequestEnum {
+  MAKE_SERVER_REQUEST = 'MAKE_SERVER_REQUEST',
+}
 
-interface IArgs {
+interface IServerRequestActionCreatorArgs<
+  TOnSuccess = Callback<any, any>, 
+  TOnError = Callback<any, any>, 
+  TData = any
+> {
   endpoint: string,
-  onSuccess: any,
-  onError: any,
-  data?: any,
+  onSuccess: TOnSuccess,
+  onError: TOnError,
+  data?: TData,
   method?: AxiosMethod,
 }
 
-export const serverRequestActionCreator = ({
+export type ServerRequestAction = {
+  type: MakeServerRequestEnum,
+  payload: IServerRequestActionCreatorArgs,
+}
+
+export type ServerRequestActionCreator = Callback<IServerRequestActionCreatorArgs, ServerRequestAction>;
+
+export const serverRequestActionCreator: ServerRequestActionCreator = ({
   endpoint,
   onSuccess,
   onError,
   data = null,
   method = Methods.GET,
-}: IArgs) => {
+}) => {
   return {
-    type: MAKE_SERVER_REQUEST,
+    type: MakeServerRequestEnum.MAKE_SERVER_REQUEST,
     payload: {
       endpoint,
       method,

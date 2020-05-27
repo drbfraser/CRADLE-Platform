@@ -1,12 +1,12 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { userLoginFetch } from '../../actions/users';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import { userLoginFetch } from '../../actions/users'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
 import image from './img/splash_screen_4.png'
-import { Redirect } from 'react-router';
+import { Redirect } from 'react-router'
 
-const SignupForm = (props) => {
+const SignupForm = props => {
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -19,60 +19,65 @@ const SignupForm = (props) => {
         .required('Required'),
       email: Yup.string()
         .email('Invalid email address')
-        .required('Required'),
+        .required('Required')
     }),
     onSubmit: values => {
       props.userLoginFetch(values)
-    },
-  });
+    }
+  })
   return (
     <form onSubmit={formik.handleSubmit}>
-      <h1 style={{"font-size" : "50px"}}>Log In</h1>
+      <h1 style={{ 'font-size': '50px' }}>Log In</h1>
 
       <h2>Email</h2>
-      <input name="email"
-             className='inputStyle'
-             placeholder='somebody@example.com'
-             {...formik.getFieldProps('email')} />
+      <input
+        name="email"
+        className="inputStyle"
+        placeholder="somebody@example.com"
+        {...formik.getFieldProps('email')}
+      />
       {formik.touched.email && formik.errors.email ? (
         <div className="formError">{formik.errors.email}</div>
       ) : null}
 
       <h2>Password</h2>
-      <input name="password"
-             className='inputStyle'
-             placeholder='********'
-             type='password'
-             {...formik.getFieldProps('password')} />
+      <input
+        name="password"
+        className="inputStyle"
+        placeholder="********"
+        type="password"
+        {...formik.getFieldProps('password')}
+      />
       {formik.touched.password && formik.errors.password ? (
         <div className="formError">{formik.errors.password}</div>
       ) : null}
 
       {/* Error message from server*/}
-      {props.errorMessage && <div className="formError">{props.errorMessage}</div>}
-      <br/>
-      <button type='submit' className='contant-submit white'>Login</button>
+      {props.errorMessage && (
+        <div className="formError">{props.errorMessage}</div>
+      )}
+      <br />
+      <button type="submit" className="contant-submit white">
+        Login
+      </button>
     </form>
-  );
-};
+  )
+}
 
 class Login extends Component {
-
   render() {
     if (this.props.isLoggedIn) {
-      return (
-        <Redirect to='/patients' />
-      )
+      return <Redirect to="/patients" />
     }
     return (
       <div className="loginWrapper">
-        <div className='subWrapper'>
-          <img src={image} className='imgStyle' ></img>
+        <div className="subWrapper">
+          <img src={image} className="imgStyle"></img>
         </div>
-        <div className='subWrapper'>
-          <div style={{"position" : "relative", "left" : "-10%"}}>
+        <div className="subWrapper">
+          <div style={{ position: 'relative', left: '-10%' }}>
             <SignupForm {...this.props} />
-          </div> 
+          </div>
         </div>
       </div>
     )
@@ -81,7 +86,7 @@ class Login extends Component {
 
 const mapStateToProps = ({ user }) => ({
   isLoggedIn: user.currentUser.isLoggedIn,
-  email : user.currentUser.email,
+  email: user.currentUser.email,
   errorMessage: user.serverLoginErrorMessage
 })
 

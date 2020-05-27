@@ -1,50 +1,69 @@
-import { push } from 'connected-react-router';
+import { push, RouterAction } from 'connected-react-router';
+import { Callback } from '@types';
 
-const CREATE_ROOM = 'chat/CREATE_ROOM';
-const JOIN_ROOM = 'chat/JOIN_ROOM';
+enum ChatActionEnum {
+  CREATE_ROOM = 'chat/CREATE_ROOM',
+  JOIN_ROOM = 'chat/JOIN_ROOM',
+}
 
-export const createRoom = (roomId: any) => {
-  return (dispatch: any) => {
+type ChatActionPayload = { roomId: string };
+
+type ChatAction = 
+ | { type: ChatActionEnum.CREATE_ROOM, payload: ChatActionPayload } 
+ | { type: ChatActionEnum.JOIN_ROOM, payload: ChatActionPayload };
+
+type ChatActionCreator = Callback<
+  string, 
+  Callback<
+    Callback<ChatAction | RouterAction>
+  >
+>;
+
+export const createRoom: ChatActionCreator = (roomId: string) => {
+  return (dispatch: Callback<ChatAction | RouterAction>): void => {
     dispatch({
-      type: CREATE_ROOM,
-      payload: roomId,
+      type: ChatActionEnum.CREATE_ROOM,
+      payload: { roomId },
     });
-    dispatch(push('/chat/session/' + roomId));
+    dispatch(push(`/chat/session/${roomId}`));
   };
 };
 
-export const joinRoom = (roomId: any) => {
-  return (dispatch: any) => {
+export const joinRoom: ChatActionCreator = (roomId: string) => {
+  return (dispatch: Callback<ChatAction | RouterAction>): void => {
     dispatch({
-      type: JOIN_ROOM,
-      payload: roomId,
+      type: ChatActionEnum.JOIN_ROOM,
+      payload: { roomId },
     });
-    dispatch(push('/chat/session/' + roomId));
+    dispatch(push(`/chat/session/${roomId}`));
   };
 };
 
+export type ChatState = {
+  roomId: string;
+  isOpener: boolean;
+};
 
-const initialState = {
+const initialState: ChatState = {
   roomId: ``,
   isOpener: false,
 };
 
-export const chatReducer = (state = initialState, action: any) => {
+export const chatReducer = (state = initialState, action: ChatAction) => {
   switch (action.type) {
-    case CREATE_ROOM:
+    case ChatActionEnum.CREATE_ROOM:
       return {
         ...state,
         isOpener: true,
-        roomId: action.payload,
+        roomId: action.payload.roomId,
       };
 
-    case JOIN_ROOM:
+    case ChatActionEnum.JOIN_ROOM:
       return {
         ...state,
         isOpener: false,
-        roomId: action.payload,
+        roomId: action.payload.roomId,
       };
-
     default:
       return state;
   }

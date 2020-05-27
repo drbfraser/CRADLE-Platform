@@ -43,7 +43,6 @@ const Component: React.FC<IProps> = ({ createRoom, joinRoom }) => {
       .toString(13)
       .replace('0.', '')
       .substring(0, 6);
-    console.log('creating new room: ', randomString);
     createRoom(randomString);
   };
 
