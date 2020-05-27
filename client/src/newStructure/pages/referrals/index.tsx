@@ -7,7 +7,14 @@ import {
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { ReferralTable } from './referralTable';
 
-class ReferralPageComponent extends Component<any> {
+interface IProps{
+  getCurrentUser:any;
+  user:any;
+  patients:any;
+  getPatients:any;
+  history:any;
+}
+class ReferralPageComponent extends Component<IProps> {
   state = {
     patientsList: []
   };
@@ -21,8 +28,8 @@ class ReferralPageComponent extends Component<any> {
     }
   };
 
-  static filterReferrals(patientsList) {
-    const result = patientsList.filter(patient => {
+  static filterReferrals(patientsList:any) {
+    const result = patientsList.filter((patient:any) => {
       if (patient.readings.length === 0) {
         return false;
       }
@@ -38,8 +45,8 @@ class ReferralPageComponent extends Component<any> {
     return result;
   }
 
-  static getDerivedStateFromProps(props, state) {
-    const referredPatients = ReferralPage.filterReferrals(
+  static getDerivedStateFromProps(props:any, state:any) {
+    const referredPatients:any = ReferralPage.filterReferrals(
       props.patients.patientsList
     );
     let newState = {
@@ -50,7 +57,7 @@ class ReferralPageComponent extends Component<any> {
     return newState;
   }
 
-  patientCallback = selectedPatient => {
+  patientCallback = (selectedPatient:any) => {
     console.log('Received callback: ');
     this.props.history.push(`/patient/${selectedPatient.patientId}`);
   };
@@ -76,12 +83,12 @@ class ReferralPageComponent extends Component<any> {
   }
 }
 
-const mapStateToProps = ({ patients, user }) => ({
+const mapStateToProps = ({ patients, user }:any ) => ({
   patients: patients,
   user: user.currentUser
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch:any) => ({
   getPatients: () => {
     dispatch(getPatientsRequested());
     dispatch(getPatients());
