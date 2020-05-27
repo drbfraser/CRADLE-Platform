@@ -24,7 +24,7 @@ import { PatientSummaryContainer } from '../shared/components/patientSummary/con
 import PatientsImg from './img/patients.svg';
 import { PatientsPage } from '../pages/patients';
 import ReferralsImg from './img/referrals.svg';
-import { ReferralsPage } from '../pages/referrals';
+import { ReferralPage } from '../pages/referrals';
 import { SignUpPage } from '../pages/signUp';
 import StatisticsImg from './img/statistics.svg';
 import { StatisticsPage } from '../pages/statistics';

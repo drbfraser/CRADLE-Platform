@@ -49,7 +49,6 @@ class ChatComponent extends React.Component<IProps, IState> {
 
     let sender = this.getSender(true);
 
-    console.log('event.data: ', event.data);
 
     this.setState(
       {
@@ -74,7 +73,7 @@ class ChatComponent extends React.Component<IProps, IState> {
 
     let data = {
       msg: this.state.pendingInput,
-      senderName: this.props.user.firstName,
+      senderName: this.props.user ? this.props.user.firstName : ``,
     };
 
     this.props.connection.send(data);
@@ -85,7 +84,7 @@ class ChatComponent extends React.Component<IProps, IState> {
       {
         pendingInput: '',
         chatHistory: this.state.chatHistory.concat({
-          senderName: this.props.user.firstName,
+          senderName: this.props.user ? this.props.user.firstName : `` ,
           sender: sender,
           text: this.state.pendingInput,
         }),
@@ -117,7 +116,7 @@ class ChatComponent extends React.Component<IProps, IState> {
     }
   }
 
-  getSender(isRemote?: any) {
+  getSender(isRemote?: boolean) {
     if (isRemote) {
       if (this.props.isOpener) {
         return 'joiner';
@@ -156,7 +155,7 @@ class ChatComponent extends React.Component<IProps, IState> {
           <Button
             size="small"
             color="primary"
-            className={classes.button}
+            className={classes ? classes.button : ``}
             style={{
               position: `absolute`,
               right: `15px`,

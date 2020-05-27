@@ -11,33 +11,33 @@ export const GET_SELECTED_PATIENTS_STATS_REQUESTED = 'posts/GET_SELECTED_PATIENT
 export const GET_SELECTED_PATIENTS_STATS_ERR = 'posts/GET_SELECTED_PATIENTS_STATS_ERR'
 
 export const getStatistics = () => {
-    return requestActionCreator(
-        Endpoint.STATS,
-        Method.GET,
-        null,
-        getStatisticsOnSuccess,
-        getStatisticsOnError
-    )
-}   
+  return requestActionCreator(
+    Endpoint.STATS,
+    Method.GET,
+    null,
+    getStatisticsOnSuccess,
+    getStatisticsOnError
+  )
+}
 
 const getStatisticsOnSuccess = response => ({
-    type: GET_STATISTICS,
-    payload: response
+  type: GET_STATISTICS,
+  payload: response
 })
 
 const getStatisticsOnError = error => ({
-    type: GET_STATISTICS_ERR,
-    payload: error
+  type: GET_STATISTICS_ERR,
+  payload: error
 })
 
-export const getSelectedPatientStats = (patientId) => {
-    return requestActionCreator(
-        Endpoint.PATIENT + Endpoint.STATS + '/' + patientId,
-        Method.GET,
-        null,
-        getSelectedPatientStatsOnSuccess,
-        getSelectedPatientStatsOnError
-    )
+export const getSelectedPatientStats = patientId => {
+  return requestActionCreator(
+    Endpoint.PATIENT + Endpoint.STATS + '/' + patientId,
+    Method.GET,
+    null,
+    getSelectedPatientStatsOnSuccess,
+    getSelectedPatientStatsOnError
+  )
 }
 
 export const getSelectedPatientStatsRequested = () => ({

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios'
 
 import BASE_URL from '../serverUrl'
 
@@ -9,31 +9,28 @@ export const UPDATE_MSG = 'posts/UPDATE_MSG'
 
 // TODO: use requsetActionCreator
 export const getPosts = () => {
-    return dispatch => {
+  return dispatch => {
+    dispatch({
+      type: UPDATE_POSTS_REQUESTED
+    })
+
+    return axios.get(BASE_URL + '/hello-world').then(res => {
       dispatch({
-        type: UPDATE_POSTS_REQUESTED
+        type: UPDATE_MSG,
+        payload: res.data
       })
+    })
 
-      
-      return axios.get(BASE_URL + "/hello-world").then(res => {
-        // console.log("hello world res: ", res);
-        dispatch({
-          type: UPDATE_MSG,
-          payload: res.data
-        })
-      })
-
-      // axios.get("https://jsonplaceholder.typicode.com/posts").then((res) => {
-      //     console.log("get posts res: ", res);
-      //     dispatch({
-      //         type: UPDATE_POSTS,
-      //         payload: res.data
-      //     })
-      // }).catch(err => {
-      //     console.err(err);
-      //     dispatch({
-      //         type: UPDATE_POSTS_ERR
-      //     })
-      // })
-    }
+    // axios.get("https://jsonplaceholder.typicode.com/posts").then((res) => {
+    //     dispatch({
+    //         type: UPDATE_POSTS,
+    //         payload: res.data
+    //     })
+    // }).catch(err => {
+    //     console.err(err);
+    //     dispatch({
+    //         type: UPDATE_POSTS_ERR
+    //     })
+    // })
   }
+}

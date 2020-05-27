@@ -55,6 +55,7 @@ interface IProps {
 
 class PatientSummaryComponent extends React.Component<IProps> {
   state = {
+    patient: ``,
     displayPatientModal: false,
     selectedPatient: {
       readings: [], 
@@ -72,7 +73,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
       bpDiastolic: ``,
       heartRateBPM: ``,
     },
-    patient: ``,
     showVitals: true,
     showTrafficLights: false,
     displayReadingModal: false,
@@ -107,7 +107,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
   componentDidMount = () => {
     this.setState({ selectedPatient: this.props.selectedPatient });
 
-    console.log('this.props.selectedPatient: ', this.props.selectedPatient);
 
     this.props.getReferrals(this.getReferralIds(this.props.selectedPatient));
     if (this.props.selectedPatient) {
@@ -160,7 +159,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
   };
 
   getReferralIds(selectedPatient: any) {
-    console.log('selectedPatient: ', selectedPatient);
     let res = [];
     for (let i in selectedPatient.readings) {
       let reading = selectedPatient.readings[i];
@@ -168,7 +166,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
         res.push(reading.referral);
       }
     }
-    console.log('referralIds', res);
     return res;
   }
 
@@ -185,7 +182,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
     this.setState({ displayPatientModal: true });
   };
 
-  closePatientModal = (e: any) => {
+  closePatientModal = (e: any, _?: any) => {
     if (e === 'formSubmitted') {
       this.setState({ displayPatientModal: false });
     } else {
@@ -264,7 +261,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
           reading: readingData,
         };
 
-        console.log(newData);
         this.props.addNewReading(newData);
 
         newData['reading']['trafficLightStatus'] = this.calculateShockIndex(
@@ -404,7 +400,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
     dateReferred: any,
     drugHistory: any,
     medicalHistory: any,
-    urineTests: any
+    urineTests: any,
   ) => {
     return {
       readingId,

@@ -15,8 +15,8 @@ export const requestMiddleware = () => ({ dispatch }: any) => (next: any) => asy
     return;
   }
 
-  let token = localStorage.getItem(`token`);
-  const decodedToken = token ? jwt_decode<{ exp: number }>(token) : null;
+  let token = localStorage.token;
+  const decodedToken: { exp: number } = token && jwt_decode(token);
   const currentTime = new Date().getTime() / 1000;
   const { endpoint, method, data, onSuccess, onError } = action.payload;
 
@@ -40,7 +40,7 @@ export const requestMiddleware = () => ({ dispatch }: any) => (next: any) => asy
       localStorage.setItem('token', response.data.token);
       token = localStorage.token;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       localStorage.removeItem('token');
       localStorage.removeItem('refresh');
       dispatch(logoutUserAction());
