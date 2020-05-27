@@ -7,14 +7,24 @@ import {
   getLatestReading,
   getPrettyDate
 } from '../../../shared/utils';
+interface IProps {
+  callbackFromParent: any;
+  data: any;
+  isLoading: boolean;
+}
 
-export class ReferralTable extends Component {
+interface IState {
+  columns: any;
+  data: any;
+  selectedPatient: any;
+}
+export class ReferralTable extends Component<IProps,IState> {
   state = {
     columns: [
       {
         title: 'Patient Initials',
         field: 'patientName',
-        render: rowData => (
+        render: (rowData:any) => (
           <p
             key={'initials' + rowData.tableData.id}
             style={{
@@ -38,20 +48,20 @@ export class ReferralTable extends Component {
           padding: '0px'
         },
         sorting: false,
-        render: rowData =>
+        render: (rowData:any) =>
           getTrafficIcon(getLatestReading(rowData.readings).trafficLightStatus)
       },
       {
         title: 'Date Referred',
-        render: rowData => (
+        render: (rowData:any) => (
           <p>{getPrettyDate(getLatestReferral(rowData.readings))}</p>
         ),
-        customSort: (a, b) => sortReferralsByDate(a, b),
+        customSort: (a:any, b:any) => sortReferralsByDate(a, b),
         defaultSort: 'asc'
       },
       {
         title: 'Assessment',
-        render: rowData =>
+        render: (rowData:any) =>
           rowData.needsAssessment ? (
             <p>
               <Icon name="clock outline" size="large" color="red" /> Pending
@@ -80,15 +90,15 @@ export class ReferralTable extends Component {
       <MaterialTable
         title="Referrals"
         isLoading={this.props.isLoading}
-        columns={this.state.columns}
+        columns={this.state.columns as any}
         data={this.props.data}
         options={{
-          rowStyle: rowData => {
+          pageSize: 10,
+          rowStyle: (rowDat:any) => {
             return {
               height: '75px'
             };
           },
-          pageSize: 10
         }}
         onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
       />
