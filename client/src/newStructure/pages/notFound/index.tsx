@@ -2,7 +2,12 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../shared/reducers/user/currentUser'
 
-class NotFoundPageComponent extends Component {
+interface IProps {
+  user:any;
+  getCurrentUser:any;
+
+}
+class NotFoundPageComponent extends Component<IProps> {
   componentDidMount = () => {
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser()
@@ -24,11 +29,11 @@ class NotFoundPageComponent extends Component {
   }
 }
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user }:any) => ({
   user: user.currentUser
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch:any) => ({
   getCurrentUser: () => {
     dispatch(getCurrentUser())
   }
