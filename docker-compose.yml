@@ -6,7 +6,7 @@ services:
     build: ./client
     command: yarn start
     ports: 
-      - 3000
+      - 3000:3000
     volumes:
       - './client:/usr/src/client'
       - '/usr/src/client/node_modules'
