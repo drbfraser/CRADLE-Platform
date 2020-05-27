@@ -38,13 +38,33 @@ const options = [
   { key: 'admin', text: 'ADMIN', value: 3 },
   { key: 'cho', text: 'CHO', value: 4 }
 ]
-
-class AdminPageComponent extends Component {
+interface IProps {
+  user:any;
+  updateUser:any;
+  deleteUser:any;
+  getCurrentUser:any;
+  usersList:any;
+  healthFacilityList:any
+  getUsers:any;
+  getHealthFacilityList:any;
+  getVhtList:any;
+  vhtList:any;
+  isLoading:any;
+}
+interface IStates {
+  columns:any;
+  data:any;
+  roleMapping:any;
+  displayUserEditModal:any;
+  displayConfirmDeleteModal: any;
+  selectedUser:any;
+}
+class AdminPageComponent extends Component<IProps, IStates> {
   state = {
     columns: [
       {
         title: 'Actions',
-        render: rowData => {
+        render: (rowData:any) => {
           if (rowData.email === 'admin@admin.com') {
             return <div></div>
           }
@@ -74,7 +94,7 @@ class AdminPageComponent extends Component {
       {
         title: 'Roles',
         field: 'roleIds',
-        render: rowData => <p>{this.getRoles(rowData.roleIds)}</p>
+        render: (rowData:any) => <p>{this.getRoles(rowData.roleIds)}</p>
       }
     ],
     data: [],
@@ -84,17 +104,20 @@ class AdminPageComponent extends Component {
     selectedUser: {
       dropdownSelections: [],
       vhtDropdownSelections: [],
-      roleIds: []
+      roleIds: [],
+      firstName:"",
+      email:"",
+      healthFacilityName:"",
     }
-  }
+  };
 
-  handleSelectChange = (e, value) => {
+  handleSelectChange = (e:any, value:any) => {
     this.setState({
       selectedUser: { ...this.state.selectedUser, [value.name]: value.value }
     })
   }
 
-  handleDropdownChange = (e, value) => {
+  handleDropdownChange = (e:any, value:any) => {
     this.setState({
       selectedUser: {
         ...this.state.selectedUser,
@@ -103,7 +126,7 @@ class AdminPageComponent extends Component {
     })
   }
 
-  handleVhtDropdownChange = (e, value) => {
+  handleVhtDropdownChange = (e:any, value:any) => {
     this.setState({
       selectedUser: {
         ...this.state.selectedUser,
@@ -112,7 +135,7 @@ class AdminPageComponent extends Component {
     })
   }
 
-  openUserEditModal = rowData => {
+  openUserEditModal = (rowData:any) => {
     this.setState({
       displayUserEditModal: true,
       selectedUser: {
@@ -134,7 +157,7 @@ class AdminPageComponent extends Component {
     })
   }
 
-  openConfirmDeleteModal = rowData => {
+  openConfirmDeleteModal = (rowData:any) => {
     this.setState({
       displayConfirmDeleteModal: true,
       selectedUser: { ...rowData }
@@ -152,7 +175,7 @@ class AdminPageComponent extends Component {
     })
   }
 
-  handleSubmit = event => {
+  handleSubmit = (event:any) => {
     event.preventDefault()
     let userData = JSON.parse(JSON.stringify(this.state.selectedUser)) // pass by value
     let userId = userData.id
@@ -177,7 +200,7 @@ class AdminPageComponent extends Component {
     this.closeUserEditModal()
   }
 
-  handleDelete = event => {
+  handleDelete = (event:any) => {
     event.preventDefault()
     let userData = JSON.parse(JSON.stringify(this.state.selectedUser)) // pass by value
     let userId = userData.id
@@ -197,14 +220,14 @@ class AdminPageComponent extends Component {
     this.props.getVhtList()
   }
 
-  static getDerivedStateFromProps = (props, state) => {
+  static getDerivedStateFromProps = (props:any, state:any) => {
     if (props.updateUserList) {
       props.getUsers()
     }
     return state
   }
 
-  getRoles = roleIds => {
+  getRoles = (roleIds:any) => {
     var roleStr = ''
     if (roleIds.length === 1) {
       return this.state.roleMapping[roleIds[0]]
@@ -216,7 +239,7 @@ class AdminPageComponent extends Component {
     return roleStr
   }
 
-  getRolesArray = roleIds => {
+  getRolesArray = (roleIds:any) => {
     var roles = []
 
     if (roleIds.length === 1) {
@@ -395,7 +418,7 @@ class AdminPageComponent extends Component {
   }
 }
 
-const mapStateToProps = ({ user, healthFacilities }) => ({
+const mapStateToProps = ({ user, healthFacilities }:any) => ({
   user: user.currentUser,
   isLoading: user.allUsers.isLoading,
   updateUserList: user.allUsers.updateUserList,
@@ -404,7 +427,7 @@ const mapStateToProps = ({ user, healthFacilities }) => ({
   healthFacilityList: healthFacilities.healthFacilitiesList
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch:any) => ({
   getHealthFacilityList: () => {
     dispatch(getHealthFacilityListRequested())
     dispatch(getHealthFacilityList())
@@ -417,11 +440,11 @@ const mapDispatchToProps = dispatch => ({
     dispatch(getVhtsRequested())
     dispatch(getVhtList())
   },
-  updateUser: (userId, userData) => {
+  updateUser: (userId:any, userData:any) => {
     dispatch(updateUserRequested())
     dispatch(updateUser(userId, userData))
   },
-  deleteUser: userId => {
+  deleteUser: (userId:any) => {
     dispatch(deleteUserRequested())
     dispatch(deleteUser(userId))
   },
