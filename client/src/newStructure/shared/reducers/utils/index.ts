@@ -1,5 +1,5 @@
 import { Method as AxiosMethod } from 'axios';
-import { Methods } from '@server-methods';
+import { Methods } from '../../../server/methods';
 import { Callback } from '@types';
 
 export enum MakeServerRequestEnum {

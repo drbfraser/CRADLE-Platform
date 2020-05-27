@@ -8,7 +8,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Patient } from '@types';
 import { push } from 'connected-react-router';
-import { ReduxState } from '@redux-root-reducer';
+import { ReduxState } from '../../redux/rootReducer';
 
 interface IProps {
   fetchingPatients: boolean;

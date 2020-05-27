@@ -1,5 +1,5 @@
-import { Endpoints } from '@server-endpoints';
-import { Methods } from '@server-methods';
+import { Endpoints } from '../../../server/endpoints';
+import { Methods } from '../../../server/methods';
 import { serverRequestActionCreator, ServerRequestAction } from '../utils';
 import { OrNull, Patient, Callback } from '@types';
 
