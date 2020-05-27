@@ -21,11 +21,11 @@ export const getUsersRequested = () => ({
 export const getUsers = () => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.ALL}`,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: GET_USERS_SUCCESS,
       payload: response,
     }),
-    onError: (error) => ({
+    onError: (error: any) => ({
       type: GET_USERS_ERROR,
       payload: error,
     }),
@@ -36,16 +36,16 @@ export const updateUserRequested = () => ({
   type: UPDATE_USER_REQUEST,
 });
 
-export const updateUser = (userId, data) => {
+export const updateUser = (userId: any, data: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.EDIT}/${userId}}`,
     method: Methods.PUT,
     data,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: UPDATE_USER_SUCCESS,
       payload: response,
     }),
-    onError: (error) => ({
+    onError: (error: any) => ({
       type: UPDATE_USER_ERROR,
       payload: error,
     }),
@@ -56,21 +56,21 @@ export const deleteUserRequested = () => ({
   type: DELETE_USER_REQUEST,
 });
 
-export const deleteUser = (userId) => {
+export const deleteUser = (userId: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.DELETE}/${userId}}`,
     method: Methods.DELETE,
     onSuccess: () => ({
       type: DELETE_USER_SUCCESS,
     }),
-    onError: (message) => ({
+    onError: (message: any) => ({
       type: DELETE_USER_ERROR,
       payload: message,
     }),
   });
 };
 
-export const allUsersReducer = (state = {}, action) => {
+export const allUsersReducer = (state = {}, action: any) => {
   switch (action.type) {
     case GET_USERS_SUCCESS:
       return {

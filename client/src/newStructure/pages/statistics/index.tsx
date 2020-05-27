@@ -6,7 +6,14 @@ import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { getStatistics } from '../../shared/reducers/allPatientsStatistics';
 
-class StatisticsPageComponent extends React.Component {
+interface IProps { 
+  getCurrentUser: any; 
+  getStatistics: any; 
+  statisticsList: any;
+  user: any;
+}
+
+class StatisticsPageComponent extends React.Component<IProps> {
   componentDidMount = () => {
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser();
@@ -67,7 +74,7 @@ class StatisticsPageComponent extends React.Component {
 
     const centerize = {
       display: `flex`,
-      flexDirection: `column`,
+      flexDirection: `column` as `column`,
       alignItems: `center`,
     };
 
@@ -400,12 +407,12 @@ class StatisticsPageComponent extends React.Component {
   }
 }
 
-const mapStateToProps = ({ user, statistics }) => ({
+const mapStateToProps = ({ user, statistics }: any) => ({
   user: user.currentUser,
   statisticsList: statistics.statisticsList,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getStatistics: () => {
     dispatch(getStatistics());
   },

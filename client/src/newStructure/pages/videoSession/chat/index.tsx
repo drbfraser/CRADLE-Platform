@@ -6,7 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 
-const styles = (theme) => ({
+const styles = (theme: any) => ({
   button: {
     margin: theme.spacing.unit,
   },
@@ -15,8 +15,15 @@ const styles = (theme) => ({
   },
 });
 
-class ChatComponent extends React.Component {
-  constructor(props) {
+interface IProps {
+  connection: any;
+  isOpener: boolean;
+  classes?: any;
+  user?: any;
+}
+
+class ChatComponent extends React.Component<IProps, any> {
+  constructor(props: any) {
     super(props);
 
     this.state = {
@@ -32,7 +39,7 @@ class ChatComponent extends React.Component {
     this.props.connection.onmessage = this.appendRemoteMessage.bind(this);
   }
 
-  appendRemoteMessage(event) {
+  appendRemoteMessage(event: any) {
 
     let sender = this.getSender(true);
 
@@ -55,11 +62,11 @@ class ChatComponent extends React.Component {
     );
   }
 
-  handleSubmit(event) {
+  handleSubmit() {
 
     let data = {
       msg: this.state.pendingInput,
-      senderName: this.props.user.firstName,
+      senderName: this.props.user ? this.props.user.firstName : ``,
     };
 
     this.props.connection.send(data);
@@ -70,7 +77,7 @@ class ChatComponent extends React.Component {
       {
         pendingInput: '',
         chatHistory: this.state.chatHistory.concat({
-          senderName: this.props.user.firstName,
+          senderName: this.props.user ? this.props.user.firstName : `` ,
           sender: sender,
           text: this.state.pendingInput,
         }),
@@ -84,21 +91,21 @@ class ChatComponent extends React.Component {
     );
   }
 
-  handleChange(event) {
+  handleChange(event: any) {
 
     this.setState({
       pendingInput: event.target.value,
     });
   }
 
-  handleKeyDown(event) {
+  handleKeyDown(event: any) {
     // user presses enter
     if (event.keyCode == 13) {
-      this.handleSubmit(event);
+      this.handleSubmit();
     }
   }
 
-  getSender(isRemote) {
+  getSender(isRemote?: boolean) {
     if (isRemote) {
       if (this.props.isOpener) {
         return 'joiner';
@@ -137,7 +144,7 @@ class ChatComponent extends React.Component {
           <Button
             size="small"
             color="primary"
-            className={classes.button}
+            className={classes ? classes.button : ``}
             style={{
               position: `absolute`,
               right: `15px`,
@@ -156,8 +163,6 @@ class ChatComponent extends React.Component {
               multiline
               rows="4"
               placeholder="Send a message..."
-              margin="normal"
-              variant="outlined"
               style={{
                 width: '100%',
                 margin: '0',
@@ -173,7 +178,7 @@ class ChatComponent extends React.Component {
   }
 }
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user }: any) => ({
   user: user.currentUser,
 });
 

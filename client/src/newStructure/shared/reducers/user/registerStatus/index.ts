@@ -10,7 +10,7 @@ export const registerUserDefault = () => ({
   type: REGISTER_USER_DEFAULT,
 });
 
-export const registerUser = (data) => {
+export const registerUser = (data: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.REGISTER}`,
     method: Methods.POST,
@@ -18,14 +18,14 @@ export const registerUser = (data) => {
     onSuccess: () => ({
       type: REGISTER_USER_SUCCESS,
     }),
-    onError: (message) => ({
+    onError: (message: any) => ({
       type: REGISTER_USER_ERROR,
       payload: message,
     }),
   });
 };
 
-export const registerStatusReducer = (state = {}, action) => {
+export const registerStatusReducer = (state = {}, action: any) => {
   switch (action.type) {
     case REGISTER_USER_SUCCESS:
       return {

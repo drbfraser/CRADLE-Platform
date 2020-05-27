@@ -5,36 +5,36 @@ import { ReactComponent as RedTraffic } from '../icons/red.svg';
 import { ReactComponent as YellowTraffic } from '../icons/yellow.svg';
 import moment from 'moment';
 
-export const getMomentDate = (dateS) => {
+export const getMomentDate = (dateS: any) => {
   return moment(dateS * 1000);
 };
 
-export const getPrettyDate = (dateStr) => {
+export const getPrettyDate = (dateStr: any) => {
   return getMomentDate(dateStr).format('MMMM Do YYYY');
 };
 
-export const getPrettyDateTime = (dateStr) => {
+export const getPrettyDateTime = (dateStr: any) => {
   return getMomentDate(dateStr).format('MMMM Do YYYY, h:mm:ss a');
 };
 
-export const getLatestReading = (readings) => {
+export const getLatestReading = (readings: any) => {
   let sortedReadings = readings.sort(
-    (a, b) =>
+    (a: any, b: any) =>
       getMomentDate(b.dateTimeTaken).valueOf() -
       getMomentDate(a.dateTimeTaken).valueOf()
   );
   return sortedReadings[0];
 };
 
-export const getLatestReadingDateTime = (readings) => {
+export const getLatestReadingDateTime = (readings: any) => {
   return getLatestReading(readings).dateTimeTaken;
 };
 
-export const sortPatientsByLastReading = (a, b) =>
+export const sortPatientsByLastReading = (a: any, b: any) =>
   getMomentDate(getLatestReadingDateTime(b.readings)).valueOf() -
   getMomentDate(getLatestReadingDateTime(a.readings)).valueOf();
 
-export const getTrafficIcon = (trafficLightStatus) => {
+export const getTrafficIcon = (trafficLightStatus: any) => {
   if (trafficLightStatus === 'RED_DOWN') {
     return (
       <div>

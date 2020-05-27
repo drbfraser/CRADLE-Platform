@@ -17,14 +17,14 @@ const UPDATE_PATIENT_ERR = `patients/UPDATE_PATIENT_ERR`;
 const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
 const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 
-export const getPatient = (patientId) => {
+export const getPatient = (patientId: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}${Endpoints.READING}/${patientId}`,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: GET_PATIENT,
       payload: response,
     }),
-    onError: (error) => ({
+    onError: (error: any) => ({
       type: GET_PATIENT_ERR,
       payload: error,
     })
@@ -34,27 +34,27 @@ export const getPatient = (patientId) => {
 export const getPatients = () => {
   return serverRequestActionCreator({
     endpoint: Endpoints.PATIENTS_ALL_INFO,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: GET_PATIENTS,
       payload: response,
     }),
-    onError: (error) => ({
+    onError: (error: any) => ({
       type: GET_PATIENTS_ERR,
       payload: error,
     })
   });
 };
 
-export const updatePatient = (patientId, data) => {
+export const updatePatient = (patientId: any, data: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}/${patientId}`,
     method: Methods.PUT,
     data,
-    onSuccess: (response) => ({
+    onSuccess: (response: any) => ({
       type: UPDATE_PATIENT,
       payload: response,
     }),
-    onError: (error) => ({
+    onError: (error: any) => ({
       type: UPDATE_PATIENT_ERR,
       payload: error,
     })
@@ -65,7 +65,7 @@ export const getPatientsRequested = () => ({
   type: GET_PATIENTS_REQUESTED,
 });
 
-export const addNewPatient = (newPatient) => ({
+export const addNewPatient = (newPatient: any) => ({
   type: ADD_NEW_PATIENT,
   payload: newPatient,
 });
@@ -85,11 +85,11 @@ const initialState = {
   newPatientAdded: false,
 };
 
-export const patientsReducer = (state = initialState, action) => {
+export const patientsReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case GET_PATIENTS:
       const patientsList = action.payload.data;
-      patientsList.sort((a, b) => sortPatientsByLastReading(a, b));
+      patientsList.sort((a: any, b: any) => sortPatientsByLastReading(a, b));
       return {
         ...state,
         patientsList: patientsList,

@@ -6,7 +6,7 @@ import Switch from '@material-ui/core/Switch';
 import { URINE_TEST_CHEMICALS } from '../../../utils';
 import { resultOptions } from './utils';
 
-export const UrineTestForm = (props) => (
+export const UrineTestForm = (props: any) => (
   <Paper
     style={{
       borderRadius: '15px',
