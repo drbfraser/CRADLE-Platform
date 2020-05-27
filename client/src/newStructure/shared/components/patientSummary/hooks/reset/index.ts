@@ -3,12 +3,12 @@ import { IState } from '../../utils';
 import { calculateShockIndex } from './utils';
 
 interface IArgs {
-  newReadingPost: any;
+  addNewReading: any;
   state: IState;
   setState: React.Dispatch<React.SetStateAction<IState>>;
 }
 
-export const useReset = ({ newReadingPost, state, setState }: IArgs): void => {
+export const useReset = ({ addNewReading, state, setState }: IArgs): void => {
   React.useEffect((): void => {
     if (state.reset) {
       let patientData = JSON.parse(
@@ -30,7 +30,7 @@ export const useReset = ({ newReadingPost, state, setState }: IArgs): void => {
       };
 
       console.log(newData);
-      newReadingPost(newData);
+      addNewReading(newData);
 
       newData['reading']['trafficLightStatus'] = calculateShockIndex(
         newData['reading']
@@ -54,5 +54,5 @@ export const useReset = ({ newReadingPost, state, setState }: IArgs): void => {
         displayReadingModal: false
       }));
     }
-  }, [newReadingPost, state, setState]);
+  }, [addNewReading, state, setState]);
 };
