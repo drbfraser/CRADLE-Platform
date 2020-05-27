@@ -15,8 +15,8 @@ export const requestMiddleware = () => ({ dispatch }: any) => (next: any) => asy
     return;
   }
 
-  let token = localStorage.token;
-  const decodedToken: { exp: number } = token && jwt_decode(token);
+  let token = localStorage.getItem(`token`);
+  const decodedToken = token ? jwt_decode<{ exp: number }>(token) : null;
   const currentTime = new Date().getTime() / 1000;
   const { endpoint, method, data, onSuccess, onError } = action.payload;
 

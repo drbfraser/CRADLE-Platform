@@ -173,11 +173,6 @@ class VideoSession extends React.Component<IProps, IState> {
     };
 
     this.connection.onstream = (event: any) => {
-      console.log('onstream: ');
-
-
-
-
       event.mediaElement.play();
       setTimeout(function() {
         event.mediaElement.play();

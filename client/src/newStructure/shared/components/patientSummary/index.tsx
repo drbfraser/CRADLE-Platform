@@ -309,7 +309,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
   };
 
   handleCheckedChange = (_: any, value: any) => {
-    console.log(value.name);
     // true => false, pop
     if (value.value) {
       if (symptom.indexOf(value.name) >= 0) {
@@ -321,7 +320,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
         symptom.push(value.name);
       }
     }
-    console.log(symptom);
     if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop();
@@ -400,7 +398,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
     dateReferred: any,
     drugHistory: any,
     medicalHistory: any,
-    urineTests: any,
+    urineTests: any
   ) => {
     return {
       readingId,
