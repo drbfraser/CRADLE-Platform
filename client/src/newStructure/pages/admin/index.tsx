@@ -8,8 +8,8 @@ import {
   Message,
   Modal,
   Select
-} from 'semantic-ui-react'
-import React, {Component} from 'react';
+} from 'semantic-ui-react';
+import React, { Component } from 'react';
 import {
   deleteUser,
   deleteUserRequested,
@@ -17,56 +17,65 @@ import {
   getUsersRequested,
   updateUser,
   updateUserRequested
-} from '../../shared/reducers/user/allUsers'
+} from '../../shared/reducers/user/allUsers';
+import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import {
-  getCurrentUser,
-
-} from '../../shared/reducers/user/currentUser'
-import{
   getVhtList,
   getVhtsRequested
-} from '../../shared/reducers/user/allVhts'
+} from '../../shared/reducers/user/allVhts';
 
-import { getHealthFacilityList, getHealthFacilityListRequested } from '../../shared/reducers/healthFacilities'
+import {
+  getHealthFacilityList,
+  getHealthFacilityListRequested
+} from '../../shared/reducers/healthFacilities';
 
 import MaterialTable from 'material-table';
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
 
 const options = [
   { key: 'vht', text: 'VHT', value: 1 },
   { key: 'hcw', text: 'HCW', value: 2 },
   { key: 'admin', text: 'ADMIN', value: 3 },
   { key: 'cho', text: 'CHO', value: 4 }
-]
+];
 interface IProps {
-  user:any;
-  updateUser:any;
-  deleteUser:any;
-  getCurrentUser:any;
-  usersList:any;
-  healthFacilityList:any
-  getUsers:any;
-  getHealthFacilityList:any;
-  getVhtList:any;
-  vhtList:any;
-  isLoading:any;
+  user: any;
+  updateUser: any;
+  deleteUser: any;
+  getCurrentUser: any;
+  usersList: any;
+  healthFacilityList: any;
+  getUsers: any;
+  getHealthFacilityList: any;
+  getVhtList: any;
+  vhtList: any;
+  isLoading: any;
 }
 interface IStates {
-  columns:any;
-  data:any;
-  roleMapping:any;
-  displayUserEditModal:any;
+  columns: any;
+  data: any;
+  roleMapping: { [index: string]: string };
+  displayUserEditModal: any;
   displayConfirmDeleteModal: any;
-  selectedUser:any;
+  selectedUser: ISelectedUser;
+}
+
+interface ISelectedUser {
+  dropdownSelections: any;
+  vhtDropdownSelections: any;
+  roleIds: any;
+  firstName: string;
+  email: string;
+  healthFacilityName: string;
 }
 class AdminPageComponent extends Component<IProps, IStates> {
   state = {
     columns: [
       {
         title: 'Actions',
-        render: (rowData:any) => {
+        render: (rowData: any) => {
           if (rowData.email === 'admin@admin.com') {
-            return <div></div>
+            return <div></div>;
           }
           return (
             rowData.email !== this.props.user.email && (
@@ -85,7 +94,7 @@ class AdminPageComponent extends Component<IProps, IStates> {
                 />
               </span>
             )
-          )
+          );
         }
       },
       { title: 'First Name', field: 'firstName', sorting: false },
@@ -94,48 +103,48 @@ class AdminPageComponent extends Component<IProps, IStates> {
       {
         title: 'Roles',
         field: 'roleIds',
-        render: (rowData:any) => <p>{this.getRoles(rowData.roleIds)}</p>
+        render: (rowData: any) => <p>{this.getRoles(rowData.roleIds)}</p>
       }
     ],
     data: [],
-    roleMapping: { 1: 'VHT', 2: 'HCW', 3: 'ADMIN', 4: 'CHO' },
+    roleMapping: { 1: 'VHT', 2: 'HCW', 3: 'ADMIN', 4: 'CHO' } as  { [key: string]: any },
     displayUserEditModal: false,
     displayConfirmDeleteModal: false,
     selectedUser: {
       dropdownSelections: [],
       vhtDropdownSelections: [],
       roleIds: [],
-      firstName:"",
-      email:"",
-      healthFacilityName:"",
+      firstName: '',
+      email: '',
+      healthFacilityName: ''
     }
   };
 
-  handleSelectChange = (e:any, value:any) => {
+  handleSelectChange = (e: any, value: any) => {
     this.setState({
       selectedUser: { ...this.state.selectedUser, [value.name]: value.value }
-    })
-  }
+    });
+  };
 
-  handleDropdownChange = (e:any, value:any) => {
+  handleDropdownChange = (e: any, value: any) => {
     this.setState({
       selectedUser: {
         ...this.state.selectedUser,
         dropdownSelections: value.value
       }
-    })
-  }
+    });
+  };
 
-  handleVhtDropdownChange = (e:any, value:any) => {
+  handleVhtDropdownChange = (e: any, value: any) => {
     this.setState({
       selectedUser: {
         ...this.state.selectedUser,
         vhtDropdownSelections: value.value
       }
-    })
-  }
+    });
+  };
 
-  openUserEditModal = (rowData:any) => {
+  openUserEditModal = (rowData: any) => {
     this.setState({
       displayUserEditModal: true,
       selectedUser: {
@@ -143,8 +152,8 @@ class AdminPageComponent extends Component<IProps, IStates> {
         dropdownSelections: rowData.roleIds,
         vhtDropdownSelections: rowData.vhtList
       }
-    })
-  }
+    });
+  };
 
   closeUserEditModal = () => {
     this.setState({
@@ -153,16 +162,16 @@ class AdminPageComponent extends Component<IProps, IStates> {
         dropdownSelections: [],
         vhtDropdownSelections: [],
         roleIds: []
-      }
-    })
-  }
+      } as any
+    });
+  };
 
-  openConfirmDeleteModal = (rowData:any) => {
+  openConfirmDeleteModal = (rowData: any) => {
     this.setState({
       displayConfirmDeleteModal: true,
       selectedUser: { ...rowData }
-    })
-  }
+    });
+  };
 
   closeConfirmDeleteModal = () => {
     this.setState({
@@ -171,93 +180,93 @@ class AdminPageComponent extends Component<IProps, IStates> {
         dropdownSelections: [],
         vhtDropdownSelections: [],
         roleIds: []
-      }
-    })
-  }
+      } as any
+    });
+  };
 
-  handleSubmit = (event:any) => {
-    event.preventDefault()
-    let userData = JSON.parse(JSON.stringify(this.state.selectedUser)) // pass by value
-    let userId = userData.id
+  handleSubmit = (event: any) => {
+    event.preventDefault();
+    let userData = JSON.parse(JSON.stringify(this.state.selectedUser)); // pass by value
+    let userId = userData.id;
 
     // delete any uncessary user fields
-    delete userData['referrals']
-    delete userData['roleIds']
-    delete userData['id']
-    delete userData['tableData']
-    delete userData['healthFacility']
-    delete userData['vhtList']
+    delete userData['referrals'];
+    delete userData['roleIds'];
+    delete userData['id'];
+    delete userData['tableData'];
+    delete userData['healthFacility'];
+    delete userData['vhtList'];
 
-    userData['newRoleIds'] = userData['dropdownSelections']
-    delete userData['dropdownSelections']
+    userData['newRoleIds'] = userData['dropdownSelections'];
+    delete userData['dropdownSelections'];
 
-    userData['newVhtIds'] = userData['vhtDropdownSelections']
-    delete userData['vhtDropdownSelections']
+    userData['newVhtIds'] = userData['vhtDropdownSelections'];
+    delete userData['vhtDropdownSelections'];
 
     // let userJSON = JSON.stringify( userData, null, 2 )
 
-    this.props.updateUser(userId, userData)
-    this.closeUserEditModal()
-  }
+    this.props.updateUser(userId, userData);
+    this.closeUserEditModal();
+  };
 
-  handleDelete = (event:any) => {
-    event.preventDefault()
-    let userData = JSON.parse(JSON.stringify(this.state.selectedUser)) // pass by value
-    let userId = userData.id
+  handleDelete = (event: any) => {
+    event.preventDefault();
+    let userData = JSON.parse(JSON.stringify(this.state.selectedUser)); // pass by value
+    let userId = userData.id;
 
-    this.props.deleteUser(userId)
-    this.closeConfirmDeleteModal()
-  }
+    this.props.deleteUser(userId);
+    this.closeConfirmDeleteModal();
+  };
 
   componentDidMount = () => {
     if (!this.props.user.isLoggedIn) {
-      this.props.getCurrentUser()
+      this.props.getCurrentUser();
     }
     if (!this.props.usersList || !this.props.healthFacilityList) {
-      this.props.getUsers()
-      this.props.getHealthFacilityList()
+      this.props.getUsers();
+      this.props.getHealthFacilityList();
     }
-    this.props.getVhtList()
-  }
+    this.props.getVhtList();
+  };
 
-  static getDerivedStateFromProps = (props:any, state:any) => {
+  static getDerivedStateFromProps = (props: any, state: any) => {
     if (props.updateUserList) {
-      props.getUsers()
+      props.getUsers();
     }
-    return state
-  }
+    return state;
+  };
 
-  getRoles = (roleIds:any) => {
-    var roleStr = ''
+  getRoles = (roleIds: any) => {
+    var roleStr = '';
     if (roleIds.length === 1) {
-      return this.state.roleMapping[roleIds[0]]
+      return this.state.roleMapping[roleIds[0]];
     }
 
     for (var i = 0; i < roleIds.length; i++) {
-      roleStr += this.state.roleMapping[roleIds[i]] + '\n'
+      roleStr += this.state.roleMapping[roleIds[i]] + '\n';
     }
-    return roleStr
-  }
+    return roleStr;
+  };
 
-  getRolesArray = (roleIds:any) => {
-    var roles = []
+  getRolesArray = (roleIds: any) => {
+    var roles = [];
 
     if (roleIds.length === 1) {
-      var roleName = this.state.roleMapping[roleIds[0]]
-      roles.push(roleName)
-      return [...roles]
+      var roleName = this.state.roleMapping[roleIds[0]];
+      roles.push(roleName);
+      return [...roles];
     }
 
     for (var i = 0; i < roleIds.length; i++) {
-      roles.push(this.state.roleMapping[roleIds[i]])
+      roles.push(this.state.roleMapping[roleIds[i]]);
     }
 
-    return [...roles]
-  }
+    return [...roles];
+  };
 
   render() {
     // construct health facilities list object for dropdown
-    let hfOptions = []
+    let hfOptions = [];
 
     if (
       this.props.healthFacilityList !== undefined &&
@@ -268,18 +277,18 @@ class AdminPageComponent extends Component<IProps, IStates> {
           key: this.props.healthFacilityList[i],
           text: this.props.healthFacilityList[i],
           value: this.props.healthFacilityList[i]
-        })
+        });
       }
     }
 
-    let vhtOptions = []
+    let vhtOptions = [];
     if (this.props.vhtList !== undefined && this.props.vhtList.length > 0) {
       for (var j = 0; j < this.props.vhtList.length; j++) {
         vhtOptions.push({
           key: this.props.vhtList[j].id,
           text: this.props.vhtList[j].email,
           value: this.props.vhtList[j].id
-        })
+        });
       }
     }
 
@@ -293,7 +302,7 @@ class AdminPageComponent extends Component<IProps, IStates> {
           <Message.Header>Only Admins can enter this page</Message.Header>
           <p>Please login with an Admin account</p>
         </Message>
-      )
+      );
     }
 
     return (
@@ -308,7 +317,7 @@ class AdminPageComponent extends Component<IProps, IStates> {
             rowStyle: rowData => {
               return {
                 height: '75px'
-              }
+              };
             },
             pageSize: 10
           }}
@@ -414,46 +423,46 @@ class AdminPageComponent extends Component<IProps, IStates> {
           </Modal.Actions>
         </Modal>
       </div>
-    )
+    );
   }
 }
 
-const mapStateToProps = ({ user, healthFacilities }:any) => ({
+const mapStateToProps = ({ user, healthFacilities }: any) => ({
   user: user.currentUser,
   isLoading: user.allUsers.isLoading,
   updateUserList: user.allUsers.updateUserList,
   usersList: user.allUsers.usersList,
   vhtList: user.allVhts.vhtList,
   healthFacilityList: healthFacilities.healthFacilitiesList
-})
+});
 
-const mapDispatchToProps = (dispatch:any) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getHealthFacilityList: () => {
-    dispatch(getHealthFacilityListRequested())
-    dispatch(getHealthFacilityList())
+    dispatch(getHealthFacilityListRequested());
+    dispatch(getHealthFacilityList());
   },
   getUsers: () => {
-    dispatch(getUsersRequested())
-    dispatch(getUsers())
+    dispatch(getUsersRequested());
+    dispatch(getUsers());
   },
   getVhtList: () => {
-    dispatch(getVhtsRequested())
-    dispatch(getVhtList())
+    dispatch(getVhtsRequested());
+    dispatch(getVhtList());
   },
-  updateUser: (userId:any, userData:any) => {
-    dispatch(updateUserRequested())
-    dispatch(updateUser(userId, userData))
+  updateUser: (userId: any, userData: any) => {
+    dispatch(updateUserRequested());
+    dispatch(updateUser(userId, userData));
   },
-  deleteUser: (userId:any) => {
-    dispatch(deleteUserRequested())
-    dispatch(deleteUser(userId))
+  deleteUser: (userId: any) => {
+    dispatch(deleteUserRequested());
+    dispatch(deleteUser(userId));
   },
   getCurrentUser: () => {
-    dispatch(getCurrentUser())
+    dispatch(getCurrentUser());
   }
-})
+});
 
 export const AdminPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(AdminPageComponent)
+)(AdminPageComponent);
