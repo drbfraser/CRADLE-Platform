@@ -10,8 +10,8 @@ import {
 import {
   getPatients,
   getPatientsRequested,
-  updatePatient,
 } from '../../reducers/patients';
+import { updatePatient } from '../../reducers/patients';
 import {
   getSelectedPatientStatistics,
   getSelectedPatientStatisticsRequested,
@@ -36,7 +36,7 @@ import { connect } from 'react-redux';
 import { getCurrentUser } from '../../reducers/user/currentUser';
 import { getReferrals } from '../../reducers/referrals';
 import { guid } from './utils';
-import { newReadingPost } from '../../reducers/newReadingStatus';
+import { addNewReading } from '../../reducers/newReadingStatus';
 
 let symptom: Array<any> = [];
 
@@ -49,7 +49,7 @@ interface IProps {
   updatePatient: any;
   user: any;
   selectedPatientStatsList: any;
-  newReadingPost: any;
+  addNewReading: any;
   referrals: any;
 }
 
@@ -265,7 +265,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
         };
 
         console.log(newData);
-        this.props.newReadingPost(newData);
+        this.props.addNewReading(newData);
 
         newData['reading']['trafficLightStatus'] = this.calculateShockIndex(
           newData['reading']
@@ -1027,7 +1027,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getSelectedPatientStatisticsRequested());
     dispatch(getSelectedPatientStatistics(patientId));
   },
-  newReadingPost: (data: any) => dispatch(newReadingPost(data)),
+  addNewReading: (data: any) => dispatch(addNewReading(data)),
   getCurrentUser: () => dispatch(getCurrentUser()),
   ...bindActionCreators(
     {

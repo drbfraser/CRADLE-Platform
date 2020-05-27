@@ -1,4 +1,4 @@
-import { SexEnum, TrafficLightEnum, GestationalAgeUnitEnum } from '../enums';
+import { SexEnum, TrafficLightEnum, GestationalAgeUnitEnum, RoleEnum } from '../enums';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -60,4 +60,10 @@ export type Patient = {
 
 export type User = {
   email: string;
+  firstName: string;
+  healthFacilityName: string;
+  isLoggedIn: boolean;
+  roles: Array<RoleEnum>;
+  userId: number;
+  vhtList: Array<string>;
 }

@@ -1,6 +1,6 @@
 import { BASE_URL } from '../../../server/utils';
 import { Endpoints } from '../../../server/endpoints';
-import { MAKE_SERVER_REQUEST } from '../../../shared/reducers/utils';
+import { MakeServerRequestEnum } from '../../../shared/reducers/utils';
 import { Methods } from '../../../server/methods';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
@@ -10,7 +10,7 @@ import { replace } from 'connected-react-router';
 export const requestMiddleware = () => ({ dispatch }: any) => (next: any) => async (
   action: any
 ) => {
-  if (action.type !== MAKE_SERVER_REQUEST) {
+  if (action.type !== MakeServerRequestEnum.MAKE_SERVER_REQUEST) {
     next(action);
     return;
   }

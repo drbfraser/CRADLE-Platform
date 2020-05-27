@@ -13,13 +13,11 @@ import { ReduxState } from '@redux-root-reducer';
 interface IProps {
   fetchingPatients: boolean;
   patients: Array<Patient>;
-  user: any;
   getPatients: any;
   navigateToPatientPage: any;
 }
 
 const Page: React.FC<IProps> = (props) => {
-  console.log(`user`, props.user);
   React.useEffect(() => {
     if (!props.fetchingPatients && props.patients === null) {
       props.getPatients();
@@ -38,10 +36,9 @@ const Page: React.FC<IProps> = (props) => {
   );
 };
 
-const mapStateToProps = ({ patients, user }: ReduxState) => ({
+const mapStateToProps = ({ patients }: ReduxState) => ({
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,
-  user: user.currentUser
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

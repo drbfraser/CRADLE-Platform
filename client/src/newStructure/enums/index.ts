@@ -22,3 +22,10 @@ export enum GestationalAgeUnitEnum {
   WEEKS = 'GESTATIONAL_AGE_UNITS_WEEKS',
   MONTHS = 'GESTATIONAL_AGE_UNITS_MONTHS',
 }
+
+export enum RoleEnum {
+  VHT = 'VHT',
+  HCW = 'HCW',
+  ADMIN = 'ADMIN',
+  CHO = 'CHO',
+}
