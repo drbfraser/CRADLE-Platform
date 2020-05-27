@@ -30,8 +30,11 @@ export const HEALTH_FACILITY_WORKER_EDUCATION_VIDEO_LINK =
   'https://www.youtube.com/embed/QainNBCHKAg'
 
 const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />
-
-class HelpPageComponent extends Component {
+interface IProps{
+  user:any;
+  getCurrentUser:any;
+}
+class HelpPageComponent extends Component<IProps> {
   componentDidMount = () => {
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser()
@@ -52,11 +55,11 @@ class HelpPageComponent extends Component {
   }
 }
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user }:any) => ({
   user: user.currentUser
 })
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch:any) => ({
   getCurrentUser: () => {
     dispatch(getCurrentUser())
   }
