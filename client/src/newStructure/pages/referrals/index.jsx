@@ -91,7 +91,7 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-export const ReferralPage = connect(
+export const ReferralsPage = connect(
   mapStateToProps,
   mapDispatchToProps
 )(ReferralPageComponent)

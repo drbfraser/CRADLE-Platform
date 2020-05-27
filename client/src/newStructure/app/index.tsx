@@ -80,11 +80,11 @@ const Component: React.FC<IProps> = (props) => {
   );
 };
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user }: any) => ({
   user: user.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
       logoutUser,
