@@ -1,8 +1,8 @@
 import MaterialTable from 'material-table';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
-import { Patient, Reading, Callback, OrNull } from "../../../types";
-import { initials, patientId, village, vitalSign, lastReadingDate } from "./utils";
+import { Patient, Reading, Callback, OrNull } from '@types';
+import { initials, patientId, village, vitalSign, lastReadingDate } from './utils';
 
 interface IProps {
   data: OrNull<Array<Patient>>;
@@ -20,7 +20,7 @@ export const PatientTable: React.FC<IProps> = ({
   >(false);
   const patients = React.useMemo((): Array<Patient> => 
     data ? data.filter(({ readings }: Patient): boolean => showReferredPatientsOnly 
-      ? readings.some((reading: Reading): boolean => reading.dateReferred !== undefined)
+      ? readings.some((reading: Reading): boolean => Boolean(reading.dateReferred))
       : true
     ) : [], 
     [data, showReferredPatientsOnly]

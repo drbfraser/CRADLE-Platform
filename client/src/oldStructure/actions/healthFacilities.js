@@ -7,13 +7,13 @@ export const GET_HEALTH_FACILITY_REQ  = 'healthFacility/GET_HEALTH_FACILITY_REQ'
 export const GET_HEALTH_FACILITY_ERR = 'healthFacility/GET_HEALTH_FACILITY_ERR'
 
 export const getHealthFacilityList = () => {
-    return requestActionCreator(
-        Endpoint.HEALTH_FACILITY_LIST,
-        Method.GET,
-        null,
-        getHealthFacilityListOnSuccess,
-        getHealthFacilityListOnError
-    )
+  return requestActionCreator(
+    Endpoint.HEALTH_FACILITY_LIST,
+    Method.GET,
+    null,
+    getHealthFacilityListOnSuccess,
+    getHealthFacilityListOnError
+  )
 }
 
 export const getHealthFacilityListRequested = () => ({
