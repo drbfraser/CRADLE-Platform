@@ -1,47 +1,69 @@
-import { SexEnum, TrafficLightEnum } from "../enums"
-
-export type Reading = {
-  readingId: string;
-  bpSystolic: number;
-  bpDiastolic: number;
-  heartRateBPM: number;
-  symptoms: string;
-  trafficLightStatus: TrafficLightEnum;
-  dateLastSaved: number;
-  dateTimeTaken: number;
-  dateUploadedToServer: number;
-  dateRecheckVitalsNeeded: number;
-  gpsLocationOfReading: string;
-  retestOfPreviousReadingIds: string;
-  isFlaggedForFollowup: boolean;
-  appVersion: string;
-  deviceInfo: string;
-  totalOcrSeconds: number;
-  manuallyChangeOcrResults: number;
-  temporaryFlags: number;
-  userHasSelectedNoSymptoms: boolean;
-  urineTest: string;
-  dateReferred?: number;
-};
-
-export type Patient = {
-  patientId: string;
-  patientName: string;
-  patientAge: number;
-  patientSex: SexEnum;
-  isPregnant: boolean;
-  gestationalAgeUnit: string;
-  gestationalAgeValue: string;
-  medicalHistory: string;
-  drugHistory: string;
-  zone: string;
-  dob: number;
-  villageNumber: string;
-  readings: Array<Reading>;
-};
+import { SexEnum, TrafficLightEnum, GestationalAgeUnitEnum, RoleEnum } from '../enums';
 
 export type Callback<T, U = void> = (args: T) => U;
 
 export type OrNull<T> = T | null;
 
 export type OrUndefined<T> = T | undefined;
+
+export type Reading = {
+  appVersion: OrNull<string>;
+  bpDiastolic: number;
+  bpSystolic: number;
+  dateLastSaved: OrNull<number>;
+  dateRecheckVitalsNeeded: OrNull<number>;
+  dateTimeTaken: OrNull<number>;
+  dateUploadedToServer: OrNull<number>;
+  deviceInfo: OrNull<string>;
+  gpsLocationOfReading: OrNull<string>;
+  heartRateBPM: number;
+  isFlaggedForFollowup: OrNull<boolean>;
+  manuallyChangeOcrResults: OrNull<number>;
+  patient: string;
+  patientId: string;
+  readingId: string;
+  referral: OrNull<string>;
+  retestOfPreviousReadingIds: OrNull<string>;
+  symptoms: string;
+  temporaryFlags: OrNull<number>;
+  totalOcrSeconds: OrNull<number>;
+  trafficLightStatus: TrafficLightEnum;
+  urineTest: OrNull<string>;
+  urineTests: OrNull<string>;
+  userHasSelectedNoSymptoms: OrNull<boolean>;
+  userId: number;
+  comment?: string;
+  dateReferred?: number;
+};
+
+export type PatientTableData = {
+  id: number;
+};
+
+export type Patient = {
+  dob: OrNull<number>;
+  drugHistory: OrNull<string>;
+  gestationalAgeUnit: GestationalAgeUnitEnum;
+  gestationalAgeValue: string;
+  isPregnant: boolean;
+  medicalHistory: OrNull<string>;
+  needsAssessment: boolean;
+  patientAge: number;
+  patientId: string;
+  patientName: string;
+  patientSex: SexEnum;
+  villageNumber: string;
+  readings: Array<Reading>;
+  tableData: PatientTableData;
+  zone: OrNull<string>;
+};
+
+export type User = {
+  email: string;
+  firstName: string;
+  healthFacilityName: string;
+  isLoggedIn: boolean;
+  roles: Array<RoleEnum>;
+  userId: number;
+  vhtList: Array<string>;
+}

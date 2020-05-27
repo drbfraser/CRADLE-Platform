@@ -8,7 +8,7 @@ import classes from './styles.module.css';
 
 interface IProps {
   connection: any;
-  isOpener: any;
+  isOpener: boolean;
   classes?: any;
   user?: any;
 }

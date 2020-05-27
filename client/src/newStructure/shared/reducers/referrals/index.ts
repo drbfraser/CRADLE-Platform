@@ -97,7 +97,6 @@ export const createFollowUp = (data: any) => {
 
 export const setReadingId = (readingId: any) => {
   return (dispatch: any) => {
-    console.log('setting reading id');
     return dispatch({
       type: SET_READING_ID,
       payload: readingId,
@@ -107,8 +106,8 @@ export const setReadingId = (readingId: any) => {
 
 const initialState = {
   mappedReferrals: {} as { [key: string]: any }, // maps reading id to referral objects
-  referralId: null,
-  readingId: null,
+  referralId: ``,
+  readingId: ``,
 };
 
 export const referralsReducer = (state = initialState, action: any) => {
