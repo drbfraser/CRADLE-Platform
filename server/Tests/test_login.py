@@ -62,3 +62,16 @@ def test_vht_login():
     assert resp_json['token'] is not None
     assert resp_json['refresh'] is not None
     assert resp_json['isLoggedIn'] is True
+
+def test_invalid_login():
+    payload = {
+        'email': 'admin123@admin.com',
+        'password': 'wrongPassword'
+    }
+
+    response = requests.post(url, json=payload)
+    resp_json = response.json()
+
+    print(json.dumps(resp_json, indent=4))
+    assert response.status_code == 401
+    assert resp_json['message'] == 'Invalid email or password'
