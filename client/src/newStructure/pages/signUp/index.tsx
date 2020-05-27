@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import {
   registerUser,
@@ -21,11 +21,19 @@ const initState = {
     role: 'VHT' // default value
   }
 };
+interface IProp{
+  registerUser:any;
+  getCurrentUser:any;
+  getHealthFacilityList:any;
+  user:any;
+  healthFacilityList:any;
+  registerStatus:any;
+}
 
-class SignupComponent extends Component {
+class SignupComponent extends React.Component<IProp> {
   state = initState;
 
-  handleChange = event => {
+  handleChange = (event:any) => {
     this.setState({
       user: {
         ...this.state.user,
@@ -34,11 +42,11 @@ class SignupComponent extends Component {
     });
   };
 
-  handleSelectChange = (e, value) => {
+  handleSelectChange = (e:any, value:any) => {
     this.setState({ user: { ...this.state.user, [value.name]: value.value } });
   };
 
-  handleSubmit = event => {
+  handleSubmit = (event:any) => {
     event.preventDefault();
     this.props.registerUser(this.state.user);
     // TODO: think of better way to reset fields than using timer
@@ -49,7 +57,7 @@ class SignupComponent extends Component {
     this.props.getHealthFacilityList();
   };
 
-  static getDerivedStateFromProps = (props, state) => {
+  static getDerivedStateFromProps = (props:any, state:any) => {
     if (props.registerStatus.userCreated) {
       props.registerUserDefault();
       return initState;
@@ -122,8 +130,8 @@ class SignupComponent extends Component {
               <input
                 required
                 pattern="[a-zA-Z]*"
-                minLength="2"
-                maxLength="30"
+                minLength={2}
+                maxLength={30}
                 name="firstName"
                 type="text"
                 value={this.state.user.firstName}
@@ -133,8 +141,8 @@ class SignupComponent extends Component {
               <label>Password</label>
               <input
                 required
-                minLength="5"
-                maxLength="35"
+                minLength={5}
+                maxLength={35}
                 type="password"
                 name="password"
                 value={this.state.user.password}
@@ -172,18 +180,18 @@ class SignupComponent extends Component {
   }
 }
 
-const mapStateToProps = ({ user, healthFacilities }) => ({
+const mapStateToProps = ({ user, healthFacilities }:any) => ({
   user: user.currentUser,
   registerStatus: user.registerStatus,
   healthFacilityList: healthFacilities.healthFacilitiesList
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch:any) => ({
   getHealthFacilityList: () => {
     dispatch(getHealthFacilityListRequested());
     dispatch(getHealthFacilityList());
   },
-  registerUser: user => {
+  registerUser: (user:any) => {
     dispatch(registerUser(user));
   },
   getCurrentUser: () => {
@@ -197,4 +205,4 @@ const mapDispatchToProps = dispatch => ({
 export const Signup = connect(
   mapStateToProps,
   mapDispatchToProps
-)(SignupComponent);
+)(SignupComponent as any);
