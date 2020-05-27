@@ -24,7 +24,7 @@ import { PatientSummaryContainer } from '../shared/components/patientSummary/con
 import PatientsImg from './img/patients.svg';
 import { PatientsPage } from '../pages/patients';
 import ReferralsImg from './img/referrals.svg';
-import { ReferralsPage } from '../pages/referrals';
+import { ReferralPage } from '../pages/referrals';
 import { SignUpPage } from '../pages/signUp';
 import StatisticsImg from './img/statistics.svg';
 import { StatisticsPage } from '../pages/statistics';
@@ -89,11 +89,11 @@ const useStyles = makeStyles((theme) => ({
   itemText: { color: 'white', paddingTop: '8px' },
 }));
 
-const AppComponent: React.FC<any> = (props) => {
+const AppComponent = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState('Patients');
 
-  const getRole = (roles: any) => {
+  const getRole = (roles) => {
     if (roles.includes('ADMIN')) {
       return 'ADMIN';
     } else if (roles.includes('HCW')) {
@@ -108,7 +108,7 @@ const AppComponent: React.FC<any> = (props) => {
 
   const titleTextStyle = {
     fontFamily: 'Open Sans',
-    fontWeight: 'bold' as 'bold',
+    fontWeight: 'bold',
     fontSize: 36
   };
 
@@ -381,11 +381,11 @@ const AppComponent: React.FC<any> = (props) => {
   );
 };
 
-const mapStateToProps = ({ user }: any) => ({
+const mapStateToProps = ({ user }) => ({
   user: user.currentUser,
 });
 
-const mapDispatchToProps = (dispatch: any) =>
+const mapDispatchToProps = (dispatch) =>
   bindActionCreators(
     {
       logoutUser,

@@ -10,8 +10,8 @@ import {
 import {
   getPatients,
   getPatientsRequested,
-  updatePatient,
 } from '../../reducers/patients';
+import { updatePatient } from '../../reducers/patients';
 import {
   getSelectedPatientStatistics,
   getSelectedPatientStatisticsRequested,
@@ -36,7 +36,7 @@ import { connect } from 'react-redux';
 import { getCurrentUser } from '../../reducers/user/currentUser';
 import { getReferrals } from '../../reducers/referrals';
 import { guid } from './utils';
-import { newReadingPost } from '../../reducers/newReadingStatus';
+import { addNewReading } from '../../reducers/newReadingStatus';
 
 let symptom: Array<any> = [];
 
@@ -49,12 +49,13 @@ interface IProps {
   updatePatient: any;
   user: any;
   selectedPatientStatsList: any;
-  newReadingPost: any;
+  addNewReading: any;
   referrals: any;
 }
 
 class PatientSummaryComponent extends React.Component<IProps> {
   state = {
+    patient: ``,
     displayPatientModal: false,
     selectedPatient: {
       readings: [], 
@@ -72,7 +73,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
       bpDiastolic: ``,
       heartRateBPM: ``,
     },
-    patient: ``,
     showVitals: true,
     showTrafficLights: false,
     displayReadingModal: false,
@@ -107,7 +107,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
   componentDidMount = () => {
     this.setState({ selectedPatient: this.props.selectedPatient });
 
-    console.log('this.props.selectedPatient: ', this.props.selectedPatient);
 
     this.props.getReferrals(this.getReferralIds(this.props.selectedPatient));
     if (this.props.selectedPatient) {
@@ -160,7 +159,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
   };
 
   getReferralIds(selectedPatient: any) {
-    console.log('selectedPatient: ', selectedPatient);
     let res = [];
     for (let i in selectedPatient.readings) {
       let reading = selectedPatient.readings[i];
@@ -168,7 +166,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
         res.push(reading.referral);
       }
     }
-    console.log('referralIds', res);
     return res;
   }
 
@@ -185,7 +182,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
     this.setState({ displayPatientModal: true });
   };
 
-  closePatientModal = (e: any) => {
+  closePatientModal = (e: any, _?: any) => {
     if (e === 'formSubmitted') {
       this.setState({ displayPatientModal: false });
     } else {
@@ -264,8 +261,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
           reading: readingData,
         };
 
-        console.log(newData);
-        this.props.newReadingPost(newData);
+        this.props.addNewReading(newData);
 
         newData['reading']['trafficLightStatus'] = this.calculateShockIndex(
           newData['reading']
@@ -313,7 +309,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
   };
 
   handleCheckedChange = (_: any, value: any) => {
-    console.log(value.name);
     // true => false, pop
     if (value.value) {
       if (symptom.indexOf(value.name) >= 0) {
@@ -325,7 +320,6 @@ class PatientSummaryComponent extends React.Component<IProps> {
         symptom.push(value.name);
       }
     }
-    console.log(symptom);
     if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop();
@@ -1027,7 +1021,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getSelectedPatientStatisticsRequested());
     dispatch(getSelectedPatientStatistics(patientId));
   },
-  newReadingPost: (data: any) => dispatch(newReadingPost(data)),
+  addNewReading: (data: any) => dispatch(addNewReading(data)),
   getCurrentUser: () => dispatch(getCurrentUser()),
   ...bindActionCreators(
     {

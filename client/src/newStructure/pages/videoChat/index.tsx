@@ -43,7 +43,6 @@ class VideoChatComponent extends React.Component<IProps, IState> {
   }
 
   joinExistingRoom() {
-    console.log('this.state.roomId: ', this.state.roomId);
     this.props.joinRoom(this.state.roomId);
   }
 
@@ -56,12 +55,11 @@ class VideoChatComponent extends React.Component<IProps, IState> {
       .toString(13)
       .replace('0.', '')
       .substring(0, 6);
-    console.log('creating new room: ', randomString);
     this.props.createRoom(randomString);
   }
 
   toggleEnterForm() {
-    this.setState((state) => ({
+    this.setState((state: any) => ({
       enterFormOpen: !state.enterFormOpen,
       createFormOpen: false,
       roomId: null,
@@ -70,8 +68,6 @@ class VideoChatComponent extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    console.log('in component did mount');
-
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser();
     }

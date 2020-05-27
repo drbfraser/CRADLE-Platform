@@ -2,11 +2,11 @@ import React from 'react'
 import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 
-
 const Home = props => {
-  return (
-    Object.keys(props.currentUser.currentUser).length ? 
-      <Redirect to="/patients" /> : <Redirect to="/login" />
+  return Object.keys(props.currentUser.currentUser).length ? (
+    <Redirect to="/patients" />
+  ) : (
+    <Redirect to="/login" />
   )
 }
 
@@ -14,10 +14,7 @@ const mapStateToProps = ({ user }) => ({
   currentUser: user.currentUser
 })
 
-
-export default connect(
-  mapStateToProps
-)(Home)
+export default connect(mapStateToProps)(Home)
 
 // const Home = props => (
 //   <div className="content-box">

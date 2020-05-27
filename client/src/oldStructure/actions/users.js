@@ -4,19 +4,19 @@ import { push } from 'connected-react-router'
 import { requestActionCreator } from './api';
 
 export const GET_USERS_SUCCESS = 'users/GET_USERS_SUCCESS'
-export const GET_USERS_REQ  = 'users/GET_USERS_REQ'
+export const GET_USERS_REQ = 'users/GET_USERS_REQ'
 export const GET_USERS_ERR = 'users/GET_USERS_ERR'
 
 export const GET_VHTS_SUCCESS = 'users/GET_VHTS_SUCCESS'
-export const GET_VHTS_REQ  = 'users/GET_VHTS_REQ'
+export const GET_VHTS_REQ = 'users/GET_VHTS_REQ'
 export const GET_VHTS_ERR = 'users/GET_VHTS_ERR'
 
 export const UPDATE_USERS_SUCCESS = 'users/UPDATE_USERS_SUCCESS'
-export const UPDATE_USERS_REQ  = 'users/UPDATE_USERS_REQ'
+export const UPDATE_USERS_REQ = 'users/UPDATE_USERS_REQ'
 export const UPDATE_USERS_ERR = 'users/UPDATE_USERS_ERR'
 
 export const DELETE_USERS_SUCCESS = 'users/DELETE_USERS_SUCCESS'
-export const DELETE_USERS_REQ  = 'users/DELETE_USERS_REQ'
+export const DELETE_USERS_REQ = 'users/DELETE_USERS_REQ'
 export const DELETE_USERS_ERR = 'users/DELETE_USERS_ERR'
 
 export const USER_LOGIN_SUCCESS = 'USER_LOGIN_SUCCESS'
@@ -82,7 +82,7 @@ export const updateUser = (userId, data) => {
   )
 }
 
-export const deleteUser = (userId) => {
+export const deleteUser = userId => {
   return requestActionCreator(
     Endpoint.USER + Endpoint.DELETE + '/' + userId,
     Method.DELETE,
@@ -94,7 +94,7 @@ export const deleteUser = (userId) => {
 
 export const logoutUser = () => {
   return dispatch => {
-    localStorage.removeItem("token")
+    localStorage.removeItem('token')
     dispatch(logoutUserAction())
     dispatch(push('/login'))
   }
@@ -110,15 +110,15 @@ const loginUser = response => ({
 })
 
 const registerSuccess = () => ({
-  type: 'REGISTER_SUCCESS',
+  type: 'REGISTER_SUCCESS'
 })
 
-const registerError = (message) => ({
+const registerError = message => ({
   type: 'REGISTER_ERROR',
   payload: message
 })
 
-const invalidUser = (message) => ({
+const invalidUser = message => ({
   type: 'INVALID_USER',
   payload: message
 })
@@ -157,10 +157,10 @@ export const getVhtsRequested = () => ({
 })
 
 const deleteUserOnSuccess = () => ({
-  type: DELETE_USERS_SUCCESS,
+  type: DELETE_USERS_SUCCESS
 })
 
-const deleteUserOnError = (message) => ({
+const deleteUserOnError = message => ({
   type: DELETE_USERS_ERR,
   payload: message
 })
@@ -169,7 +169,7 @@ export const deleteUserRequested = () => ({
   type: DELETE_USERS_REQ
 })
 
-export const updateUserRequested = () =>( {
+export const updateUserRequested = () => ({
   type: UPDATE_USERS_REQ
 })
 

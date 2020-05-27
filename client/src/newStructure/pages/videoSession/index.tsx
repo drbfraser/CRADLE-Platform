@@ -74,7 +74,6 @@ class VideoSession extends React.Component<IProps, IState> {
 
     let thisRoomId = this.getRoomId();
 
-    console.log('opening room with id: ', thisRoomId);
 
     this.connection.open(thisRoomId);
   }
@@ -85,13 +84,11 @@ class VideoSession extends React.Component<IProps, IState> {
 
     let thisRoomId = this.getRoomId();
 
-    console.log('joining room with id: ', thisRoomId);
 
     this.connection.join(thisRoomId);
   }
 
   componentDidMount() {
-    console.log('in component did mount');
 
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser();
@@ -103,13 +100,10 @@ class VideoSession extends React.Component<IProps, IState> {
       configured: true
     } as { [key: string]: any };
 
-    console.log('isOpener: ', this.props.isOpener);
-    console.log('roomId: ', this.getRoomId());
 
     if (this.props.isOpener) {
       this.openRoom();
 
-      console.log('url: ', this.props.match.url);
 
       copyToClipboard(
         'https://' + `${window.location.hostname + this.props.match.url}`
@@ -139,9 +133,7 @@ class VideoSession extends React.Component<IProps, IState> {
   turnOffControls() {
     if ($('video', '#localStream')) {
       $('video', '#localStream').removeAttr('controls');
-      console.log('removed');
     } else {
-      console.log('blah');
     }
   }
 
@@ -181,14 +173,6 @@ class VideoSession extends React.Component<IProps, IState> {
     };
 
     this.connection.onstream = (event: any) => {
-      console.log('onstream: ');
-
-      console.log('state: ', this.state);
-
-      console.log('isRoomJoined: ', this.connection.isRoomJoined);
-
-      console.log('isLocal: ', isLocal);
-
       event.mediaElement.play();
       setTimeout(function() {
         event.mediaElement.play();
@@ -226,14 +210,11 @@ class VideoSession extends React.Component<IProps, IState> {
     window.connection = this.connection;
 
     // connection.onmessage = function(event) {
-    //   console.log("received a message: ", event.data);
     // }
 
-    console.log('done config');
   }
 
   componentWillUnmount() {
-    console.log('about to unmount');
 
     // disconnect with all users
     this.connection.getAllParticipants().forEach((pid: any) => {
@@ -255,11 +236,9 @@ class VideoSession extends React.Component<IProps, IState> {
       return <div />;
     }
 
-    console.log('this.props.isOpener: ', this.props.isOpener);
 
     let roomId = this.getRoomId();
 
-    console.log('connection: ', this.connection);
 
     return (
       <div
