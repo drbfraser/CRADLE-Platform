@@ -2,7 +2,7 @@ import { Endpoint, Method } from '../api/constants';
 
 import { requestActionCreator } from './api';
 
-export const GET_HEALTH_FACILITY_SUCCESS = 'healthFacility/GET_HEsUCCESS'
+export const GET_HEALTH_FACILITY_SUCCESS = 'healthFacility/GET_HEALTH_FACILITY_SUCCESS'
 export const GET_HEALTH_FACILITY_REQ  = 'healthFacility/GET_HEALTH_FACILITY_REQ'
 export const GET_HEALTH_FACILITY_ERR = 'healthFacility/GET_HEALTH_FACILITY_ERR'
 
