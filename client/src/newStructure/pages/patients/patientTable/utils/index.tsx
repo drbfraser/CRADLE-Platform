@@ -8,7 +8,7 @@ import {
   getPrettyDate,
   sortPatientsByLastReading,
 } from '../../../../shared/utils';
-import { TrafficLightEnum } from '@enums';
+import { TrafficLightEnum } from '../../../../enums';
 import React from 'react';
 
 

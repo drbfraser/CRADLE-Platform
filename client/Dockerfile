@@ -13,8 +13,5 @@ ENV PATH /usr/src/client/node_modules/.bin:$PATH
 # add app
 COPY . ./
 
-# add typescript to devDependencies
-RUN yarn add --dev typescript
-
 # install all dependencies
 RUN npm install

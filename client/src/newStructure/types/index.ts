@@ -1,4 +1,4 @@
-import { SexEnum, TrafficLightEnum, GestationalAgeUnitEnum, RoleEnum } from '@enums';
+import { SexEnum, TrafficLightEnum, GestationalAgeUnitEnum, RoleEnum } from '../enums';
 
 export type Callback<T, U = void> = (args: T) => U;
 
