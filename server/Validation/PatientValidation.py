@@ -40,6 +40,28 @@ from Manager import patientManager
     Village number should exist
 """
 
+# helper method that makes sure all required keys and values are in request body
+def check_if_required_keys_present(request_body, required_keys):
+    for key in required_keys:
+        if key not in request_body:
+            print('Missing key: ' + key)
+            return {'HTTP 400': 'The request body key {' + key + '} is required.'}, 400
+        if request_body.get(key) == "" or request_body.get(key) is None:
+            print('Missing value for: ' + key)
+            return {'HTTP 400': 'The request body value for the key {' + key + '} is required.'}, 400
+    return None
+
+# helper method that makes sure that expected string types are in fact strings/ints (depending on critera)
+def check_if_values_string_or_int(request_body, must_be_string, must_be_int):
+    for key in request_body:
+        if must_be_string is not None and key in must_be_string and request_body.get(key) is not None:
+            if not isinstance((request_body.get(key)), str):
+                return {'HTTP 400': 'The value for key {' + key + '} is must be a string.'}, 400
+        if must_be_int is not None and key in must_be_int and request_body.get(key) is not None:
+            if not isinstance(int(request_body.get(key)), int):
+                return {'HTTP 400': 'The value for key {' + key + '} is must be an int.'}, 400
+        # add other type checks here once they're confirmed 
+    return None
 
 def check_patient_fields(request_body):
   
@@ -56,16 +78,9 @@ def check_patient_fields(request_body):
     'patientSex'
     }
 
-    # todo: repeated code -- pull this out as a funciton that all necessary functions can use 
-    # make sure all required keys and values are in request body
-    for key in required_keys:
-        if key not in request_body:
-            print('Missing key: ' + key)
-            return {'HTTP 400': 'The request body key {' + key + '} is required.'}, 400
-        if request_body.get(key) == "" or request_body.get(key) is None:
-            print('Missing value for: ' + key)
-            return {'HTTP 400': 'The request body value for the key {' + key + '} is required.'}, 400
-
+    required_keys_present_message = check_if_required_keys_present(request_body, required_keys)
+    if required_keys_present_message is not None:
+        return required_keys_present_message
     
     # values that must be of type string
     must_be_string = {
@@ -159,14 +174,9 @@ def check_reading_fields(request_body):
     'isFlaggedForFollowup',
     }
 
-    # make sure all required keys and values are in request body
-    for key in required_keys:
-        if key not in request_body:
-            print('Missing key: ' + key)
-            return {'HTTP 400': 'The request body key {' + key + '} is required.'}, 400
-        if request_body.get(key) == "" or request_body.get(key) is None:
-            print('Missing value for: ' + key)
-            return {'HTTP 400': 'The request body value for the key {' + key + '} is required.'}, 400
+    required_keys_present_message = check_if_required_keys_present(request_body, required_keys)
+    if required_keys_present_message is not None:
+        return required_keys_present_message
 
     # values that must be of type string
     must_be_string = {
@@ -183,35 +193,30 @@ def check_reading_fields(request_body):
     'heartRateBPM'
     }
         
-    # todo: repeated code -- pull this out as a funciton that all necessary functions can use 
-    # making sure that expected string types are infact strings / ints (depending on critera)
-    for key in request_body:
-        if key in must_be_string and request_body.get(key) is not None:
-            if not isinstance((request_body.get(key)), str):
-                return {'HTTP 400': 'The value for key {' + key + '} is must be a string.'}, 400
-        if key in must_be_int and request_body.get(key) is not None:
-            if not isinstance(int(request_body.get(key)), int):
-                return {'HTTP 400': 'The value for key {' + key + '} is must be an int.'}, 400
-        # add other type checks here once they're confirmed 
-   
+    values_string_or_int_message = check_if_values_string_or_int(request_body, must_be_string, must_be_int)
+    if values_string_or_int_message is not None:
+        return values_string_or_int_message
 
-# Todo:  only being used in one function, merging this code with new validation code, clean up
-def create_body_invalid(request_body):
-    """Validates whether a request has all required values and constraints.
-    To Do: Merge this with check_patient_fields
-() function above
+def update_info_invalid(patient_id, request_body):
+    required_keys = {
+    'patientName',
+    'villageNumber'
+    }
 
-    :param request_body: JSON request body
-    :return: The error for Flask to return, or None if no error is found
-    """
-    if request_body is None:
-        return {'HTTP 400': 'The request body cannot be empty.'}, 400
-    if request_body.get('patientId') == "":
-        return {'HTTP 400': 'The request body field patientId is required.'}, 400
-    # if request_body.get('patientAge') == "":
-    #     return {'HTTP 400': 'The request body field patientAge is required.'}, 400
-    if request_body.get('patientSex') == "":
-        return {'HTTP 400': 'The request body field patientSex is required.'}, 400
+    required_keys_present_message = check_if_required_keys_present(request_body, required_keys)
+    if required_keys_present_message is not None:
+        return required_keys_present_message
+
+    # values that must be of type int
+    must_be_int = {
+    'patientAge',
+    'villageNumber',
+    'gestationalAgeValue'
+    }
+        
+    values_string_or_int_message = check_if_values_string_or_int(request_body, None, must_be_int)
+    if values_string_or_int_message is not None:
+        return values_string_or_int_message
 
     return None
 

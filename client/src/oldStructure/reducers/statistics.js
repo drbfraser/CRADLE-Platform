@@ -1,37 +1,36 @@
 // import all the actions here
 
 import {
-    GET_STATISTICS,
-    GET_STATISTICS_REQUESTED,
-    GET_STATISTICS_ERR
-} from '../actions/statistics';
+  GET_STATISTICS,
+  GET_STATISTICS_REQUESTED,
+  GET_STATISTICS_ERR
+} from '../actions/statistics'
 
 const initialState = {
-    statisticsList: [],
+  statisticsList: []
 }
 
 export default (state = initialState, action) => {
-    switch (action.type) {
-        case GET_STATISTICS:
-            // console.log(action.payload)
-            return {
-                ...state,
-                statisticsList: action.payload.data
-            }
-        
-        case GET_STATISTICS_REQUESTED:
-            return {
-                ...state,
-                isLoading: true
-            }
+  switch (action.type) {
+    case GET_STATISTICS:
+      return {
+        ...state,
+        statisticsList: action.payload.data
+      }
 
-        case GET_STATISTICS_ERR:
-            return {
-                ...state,
-                isLoading: false
-            }
+    case GET_STATISTICS_REQUESTED:
+      return {
+        ...state,
+        isLoading: true
+      }
 
-        default:
-            return state
-    }
+    case GET_STATISTICS_ERR:
+      return {
+        ...state,
+        isLoading: false
+      }
+
+    default:
+      return state
+  }
 }

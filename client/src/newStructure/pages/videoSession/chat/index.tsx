@@ -17,7 +17,7 @@ const styles = (theme: any) => ({
 
 interface IProps {
   connection: any;
-  isOpener: any;
+  isOpener: boolean;
   classes?: any;
   user?: any;
 }
@@ -45,11 +45,9 @@ class ChatComponent extends React.Component<IProps, IState> {
   }
 
   appendRemoteMessage(event: any) {
-    console.log('appending remote message');
 
     let sender = this.getSender(true);
 
-    console.log('event.data: ', event.data);
 
     this.setState(
       {
@@ -70,11 +68,10 @@ class ChatComponent extends React.Component<IProps, IState> {
   }
 
   handleSubmit() {
-    console.log('submitting input: ', this.state.pendingInput);
 
     let data = {
       msg: this.state.pendingInput,
-      senderName: this.props.user.firstName,
+      senderName: this.props.user ? this.props.user.firstName : ``,
     };
 
     this.props.connection.send(data);
@@ -85,7 +82,7 @@ class ChatComponent extends React.Component<IProps, IState> {
       {
         pendingInput: '',
         chatHistory: this.state.chatHistory.concat({
-          senderName: this.props.user.firstName,
+          senderName: this.props.user ? this.props.user.firstName : `` ,
           sender: sender,
           text: this.state.pendingInput,
         }),
@@ -100,8 +97,6 @@ class ChatComponent extends React.Component<IProps, IState> {
   }
 
   handleChange(event: any) {
-    console.log('handling change');
-    console.log('event.target.value: ', event.target.value);
 
     this.setState({
       pendingInput: event.target.value,
@@ -109,15 +104,13 @@ class ChatComponent extends React.Component<IProps, IState> {
   }
 
   handleKeyDown(event: any) {
-    console.log('keyed down');
-    console.log(event.keyCode);
     // user presses enter
     if (event.keyCode == 13) {
       this.handleSubmit();
     }
   }
 
-  getSender(isRemote?: any) {
+  getSender(isRemote?: boolean) {
     if (isRemote) {
       if (this.props.isOpener) {
         return 'joiner';
@@ -156,7 +149,7 @@ class ChatComponent extends React.Component<IProps, IState> {
           <Button
             size="small"
             color="primary"
-            className={classes.button}
+            className={classes ? classes.button : ``}
             style={{
               position: `absolute`,
               right: `15px`,
