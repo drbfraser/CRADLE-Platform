@@ -95,14 +95,14 @@ export const clearPatientsRequestOutcome = (): PatientsAction => ({
   type: PatientsActionEnum.CLEAR_REQUEST_OUTCOME,
 });
 
-export type PatientsState = {
+export type PatientsV2State = {
   error: boolean,
   loading: boolean;
   message: OrNull<string>,
   patients: OrNull<Array<Patient>>,
 };
 
-const initialState: PatientsState = {
+const initialState: PatientsV2State = {
   error: false,
   loading: false,
   message: null,

@@ -1,5 +1,5 @@
-import { Endpoints } from '../../../server/endpoints';
-import { Methods } from '../../../server/methods';
+import { Endpoints } from '@server-endpoints';
+import { Methods } from '@server-methods';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
 
@@ -78,7 +78,14 @@ export const getPatientRequested = () => ({
   type: GET_PATIENT_REQUESTED,
 });
 
-const initialState = {
+export type PatientsState = {
+  patient: any;
+  patientsList: any;
+  isLoading: boolean;
+  newPatientAdded: boolean;
+};
+
+const initialState: PatientsState = {
   patient: {},
   patientsList: null,
   isLoading: false,

@@ -3,19 +3,19 @@ import { allPatientsStatisticsReducer } from '../../shared/reducers/allPatientsS
 import { chatReducer, ChatState } from '../../pages/videoChat/reducers/chat';
 import { combineReducers } from 'redux';
 import { newReadingStatusReducer, NewReadingStatusState } from '../../shared/reducers/newReadingStatus';
-import { patientsReducer } from '../../shared/reducers/patients';
+import { patientsReducer, PatientsState } from '../../shared/reducers/patients';
 import { referralsReducer } from '../../shared/reducers/referrals';
 import { selectedPatientStatisticsReducer } from '../../shared/reducers/selectedPatientStatistics';
 import { userReducer } from '../../shared/reducers/user';
-import { PatientsState, patientsReducerV2 } from '../../shared/reducers/patientsV2';
+import { PatientsV2State, patientsReducerV2 } from '../../shared/reducers/patientsV2';
 import { PatientState, patientReducer } from '../../shared/reducers/patient';
 
 export type ReduxState = {
   chat: ChatState;
   newReadingStatus: NewReadingStatusState;
   patient: PatientState;
-  patients: any;
-  patientsV2: PatientsState;
+  patients: PatientsState;
+  patientsV2: PatientsV2State;
   patientStats: any;
   referrals: any;
   statistics: any;
