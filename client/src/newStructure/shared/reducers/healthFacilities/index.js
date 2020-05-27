@@ -38,7 +38,7 @@ const initialState = {
 statisticsList: []
 }
 
-export default (state = initialState, action) => {
+export const healthFacility =  (state = initialState, action) => {
   switch (action.type) {
       case GET_HEALTH_FACILITY_SUCCESS:
           return {
