@@ -194,7 +194,7 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-export const Signup = connect(
+export const SignUpPage = connect(
   mapStateToProps,
   mapDispatchToProps
 )(SignupComponent);

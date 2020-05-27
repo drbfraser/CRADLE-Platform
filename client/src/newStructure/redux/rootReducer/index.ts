@@ -7,6 +7,7 @@ import { patientsReducer } from '../../shared/reducers/patients';
 import { referralsReducer } from '../../shared/reducers/referrals';
 import { selectedPatientStatisticsReducer } from '../../shared/reducers/selectedPatientStatistics';
 import { userReducer } from '../../shared/reducers/user';
+import {healthFacility} from '../../shared/reducers/healthFacilities'
 
 const appReducer = combineReducers({
   chat: chatReducer,
@@ -16,6 +17,7 @@ const appReducer = combineReducers({
   referrals: referralsReducer,
   statistics: allPatientsStatisticsReducer,
   user: userReducer,
+  healthFacilities:healthFacility
 });
 
 export const rootReducer = (state: any, action: any) => {
