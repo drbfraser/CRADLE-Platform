@@ -18,13 +18,13 @@ interface IState {
   data: any;
   selectedPatient: any;
 }
-export class ReferralTable extends Component<IProps,IState> {
+export class ReferralTable extends Component<IProps, IState> {
   state = {
     columns: [
       {
         title: 'Patient Initials',
         field: 'patientName',
-        render: (rowData:any) => (
+        render: (rowData: any) => (
           <p
             key={'initials' + rowData.tableData.id}
             style={{
@@ -48,20 +48,20 @@ export class ReferralTable extends Component<IProps,IState> {
           padding: '0px'
         },
         sorting: false,
-        render: (rowData:any) =>
+        render: (rowData: any) =>
           getTrafficIcon(getLatestReading(rowData.readings).trafficLightStatus)
       },
       {
         title: 'Date Referred',
-        render: (rowData:any) => (
+        render: (rowData: any) => (
           <p>{getPrettyDate(getLatestReferral(rowData.readings))}</p>
         ),
-        customSort: (a:any, b:any) => sortReferralsByDate(a, b),
+        customSort: (a: any, b: any) => sortReferralsByDate(a, b),
         defaultSort: 'asc'
       },
       {
         title: 'Assessment',
-        render: (rowData:any) =>
+        render: (rowData: any) =>
           rowData.needsAssessment ? (
             <p>
               <Icon name="clock outline" size="large" color="red" /> Pending
@@ -94,11 +94,11 @@ export class ReferralTable extends Component<IProps,IState> {
         data={this.props.data}
         options={{
           pageSize: 10,
-          rowStyle: (rowDat:any) => {
+          rowStyle: (rowDat: any) => {
             return {
               height: '75px'
             };
-          },
+          }
         }}
         onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
       />
