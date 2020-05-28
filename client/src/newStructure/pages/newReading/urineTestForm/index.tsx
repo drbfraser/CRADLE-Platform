@@ -27,8 +27,12 @@ export const initialUrineTests = {
   urineTestPro: '',
   urineTestGlu: ''
 };
-
-export function UrineTestForm(props: any) {
+interface IProps {
+  hasUrineTest:any;
+  onSwitchChange:any
+  onChange:any;
+}
+export function UrineTestForm(props: IProps) {
   return (
     <Paper
       className="urineTestCard"
