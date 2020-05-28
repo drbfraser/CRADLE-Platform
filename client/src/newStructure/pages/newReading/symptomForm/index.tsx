@@ -3,8 +3,12 @@ import Paper from '@material-ui/core/Paper';
 import { Form, Header } from 'semantic-ui-react';
 
 import '../index.css';
-
-export function SymptomForm(props: any) {
+interface IProps{
+  checkedItems:any;
+  onChange:any;
+  onOtherChange:any
+}
+export function SymptomForm(props: IProps) {
   return (
     <Paper
       className="symptomCard"
