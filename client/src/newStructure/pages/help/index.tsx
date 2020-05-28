@@ -4,6 +4,7 @@ import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { Tab } from 'semantic-ui-react';
 import { CommunityWorkerResources } from './CommunityWorkerResource';
 import { HealthWorkerResources } from './HealthWorkerResources';
+import { User } from '@types';
 
 const panes = [
   {
@@ -31,7 +32,7 @@ export const HEALTH_FACILITY_WORKER_EDUCATION_VIDEO_LINK =
 
 const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />;
 interface IProps {
-  user: any;
+  user: User;
   getCurrentUser: any;
 }
 class HelpPageComponent extends Component<IProps> {
