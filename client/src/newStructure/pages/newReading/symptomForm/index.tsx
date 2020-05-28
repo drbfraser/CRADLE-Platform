@@ -3,10 +3,10 @@ import Paper from '@material-ui/core/Paper';
 import { Form, Header } from 'semantic-ui-react';
 
 import '../index.css';
-interface IProps{
-  checkedItems:any;
-  onChange:any;
-  onOtherChange:any
+interface IProps {
+  checkedItems: any;
+  onChange: any;
+  onOtherChange: any;
 }
 export function SymptomForm(props: IProps) {
   return (

@@ -1,10 +1,14 @@
 import React from 'react';
 import Paper from '@material-ui/core/Paper';
 import { Form, Header, Input } from 'semantic-ui-react';
-
+import { Reading } from '@types';
 import '../index.css';
 
-export function BpForm(props: any) {
+interface IProps {
+  reading: Reading;
+  onChange: any;
+}
+export function BpForm(props: IProps) {
   return (
     <Paper
       className="bpCard"
