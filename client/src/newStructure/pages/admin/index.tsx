@@ -113,7 +113,7 @@ class AdminPageComponent extends Component<IProps, IStates> {
     selectedUser: {
       dropdownSelections: [],
       vhtDropdownSelections: [],
-      roleIds: [],
+      roleIds: [] as Array<string>,
       firstName: '',
       email: '',
       healthFacilityName: ''
@@ -236,7 +236,7 @@ class AdminPageComponent extends Component<IProps, IStates> {
     return state;
   };
 
-  getRoles = (roleIds: any) => {
+  getRoles = (roleIds: Array<string>) => {
     var roleStr = '';
     if (roleIds.length === 1) {
       return this.state.roleMapping[roleIds[0]];
@@ -248,7 +248,7 @@ class AdminPageComponent extends Component<IProps, IStates> {
     return roleStr;
   };
 
-  getRolesArray = (roleIds: any) => {
+  getRolesArray = (roleIds: Array<string>) => {
     var roles = [];
 
     if (roleIds.length === 1) {
@@ -373,7 +373,7 @@ class AdminPageComponent extends Component<IProps, IStates> {
                   />
                 </Form.Group>
 
-                {this.state.selectedUser.roleIds.includes(4) && (
+                {this.state.selectedUser.roleIds.includes('4') && (
                   <Form.Group>
                     <Form.Field label="VHT Supervising">
                       <div></div>
