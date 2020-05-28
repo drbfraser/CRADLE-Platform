@@ -11,7 +11,7 @@ import {
 } from '../../shared/reducers/healthFacilities';
 import { Button, Divider, Form, Select, Message } from 'semantic-ui-react';
 import { Paper } from '@material-ui/core';
-
+import { User } from '@types';
 const initState = {
   user: {
     email: '',
@@ -25,8 +25,8 @@ interface IProp {
   registerUser: any;
   getCurrentUser: any;
   getHealthFacilityList: any;
-  user: any;
-  healthFacilityList: any;
+  user: User;
+  healthFacilityList: string[];
   registerStatus: any;
 }
 
