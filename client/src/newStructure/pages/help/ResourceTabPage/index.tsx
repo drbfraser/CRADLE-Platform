@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import '../index.css'
 
-function ResourceTabPage(props) {
+function ResourceTabPage(props:any) {
   return (
     <div>
       <img className="education-img" src={props.posterImgSrc} />
@@ -16,9 +16,9 @@ function ResourceTabPage(props) {
           width="1080"
           height="730"
           src={props.videoUrl}
-          frameborder="0"
+          frameBorder="0"
           allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen></iframe>
+          allowFullScreen></iframe>
       </div>
     </div>
   )
