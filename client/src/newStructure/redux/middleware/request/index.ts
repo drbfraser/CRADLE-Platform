@@ -1,6 +1,6 @@
 import { BASE_URL } from '../../../server/utils';
 import { Endpoints } from '../../../server/endpoints';
-import { MAKE_SERVER_REQUEST } from '../../../shared/reducers/utils';
+import { MakeServerRequestEnum } from '../../../shared/reducers/utils';
 import { Methods } from '../../../server/methods';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
@@ -10,13 +10,13 @@ import { replace } from 'connected-react-router';
 export const requestMiddleware = () => ({ dispatch }: any) => (next: any) => async (
   action: any
 ) => {
-  if (action.type !== MAKE_SERVER_REQUEST) {
+  if (action.type !== MakeServerRequestEnum.MAKE_SERVER_REQUEST) {
     next(action);
     return;
   }
 
-  let token = localStorage.token;
-  const decodedToken: { exp: number } = token && jwt_decode(token);
+  let token = localStorage.getItem(`token`);
+  const decodedToken = token ? jwt_decode<{ exp: number }>(token) : null;
   const currentTime = new Date().getTime() / 1000;
   const { endpoint, method, data, onSuccess, onError } = action.payload;
 

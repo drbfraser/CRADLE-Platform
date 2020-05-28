@@ -6,65 +6,39 @@ import {
 import { PatientTable } from './patientTable';
 import React from 'react';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { Patient } from '@types';
+import { push } from 'connected-react-router';
+import { ReduxState } from '../../redux/rootReducer';
 
 interface IProps {
-  getCurrentUser: any;
+  fetchingPatients: boolean;
+  patients: Array<Patient>;
   getPatients: any;
-  history: any;
-  patients: any;
-  user: any;
+  navigateToPatientPage: any;
 }
 
-class PatientPageComponent extends React.Component<IProps> {
-  state = {
-    selectedPatient: {
-      patientId: ``,
-      patientName: `Test`,
-      patientSex: `F`,
-      medicalHistory: ``,
-      drugHistory: ``,
-      villageNumber: ``,
-      readings: [],
-    },
-  };
-
-  componentDidMount = () => {
-    if (!this.props.user.isLoggedIn) {
-      this.props.getCurrentUser();
+const Page: React.FC<IProps> = (props) => {
+  React.useEffect(() => {
+    if (!props.fetchingPatients && props.patients === null) {
+      props.getPatients();
     }
-    if (
-      !this.props.patients.patientsList ||
-      this.props.patients.patientsList.length === 0
-    ) {
-      this.props.getPatients();
-    }
-  };
+  }, [props.fetchingPatients, props.getPatients, props.patients]);
 
-  patientCallback = (selectedPatient: any) => {
-    this.props.history.push(`/patient/${selectedPatient.patientId}`);
-  };
+  const onPatientSelected = ({ patientId }: Patient): void => 
+    props.navigateToPatientPage(patientId);
 
-  render() {
-    // don't render page if user is not logged in
-    if (!this.props.user.isLoggedIn) {
-      return <div />;
-    }
+  return (
+    <PatientTable
+      callbackFromParent={onPatientSelected}
+      data={props.patients}
+      isLoading={props.fetchingPatients}
+    />
+  );
+};
 
-    return (
-      <div>
-        <PatientTable
-          callbackFromParent={this.patientCallback}
-          data={this.props.patients.patientsList}
-          isLoading={this.props.patients.isLoading}></PatientTable>
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = ({ patients, user }: any) => ({
-  patients: patients,
-  user: user.currentUser,
+const mapStateToProps = ({ patients }: ReduxState) => ({
+  fetchingPatients: patients.isLoading,
+  patients: patients.patientsList,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -72,10 +46,12 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getPatientsRequested());
     dispatch(getPatients());
   },
-  getCurrentUser: () => dispatch(getCurrentUser()),
+  navigateToPatientPage: (patientId: string) => dispatch(
+    push(`/patient/${patientId}`)
+  )
 });
 
 export const PatientsPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(PatientPageComponent);
+)(Page);

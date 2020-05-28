@@ -1,21 +1,14 @@
 import * as History from 'history';
 
-import { applyMiddleware, compose, createStore } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
+import { applyMiddleware, createStore } from 'redux';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 
 import { requestMiddleware } from '../middleware/request';
 import { rootReducer } from '../rootReducer';
 import thunk from 'redux-thunk';
 
-const enhancersToCompose = [];
-if (process.env.NODE_ENV === `development`) {
-  // @ts-ignore
-  const devToolsExtension = window.__REDUX_DEVTOOLS_EXTENSION__;
-  
-  if (typeof devToolsExtension === `function`) {
-    enhancersToCompose.push(devToolsExtension());
-  }
-}
+const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 25 });
 
 export const history = History.createBrowserHistory();
 const reducer = connectRouter(history)(rootReducer);
@@ -27,13 +20,9 @@ const middleware = [
   routerMiddleware(history), 
   requestMiddleware()
 ];
-const enhancer = compose(
-  applyMiddleware(...middleware), 
-  ...enhancersToCompose
-);
 
 export const reduxStore = createStore(
   reducer,
   preloadedState,
-  enhancer
+  composeEnhancers(applyMiddleware(...middleware))
 );

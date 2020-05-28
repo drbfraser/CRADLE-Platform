@@ -4,6 +4,7 @@ import React from 'react';
 import { ReactComponent as RedTraffic } from '../icons/red.svg';
 import { ReactComponent as YellowTraffic } from '../icons/yellow.svg';
 import moment from 'moment';
+import classes from './styles.module.css';
 
 export const getMomentDate = (dateS: any) => {
   return moment(dateS * 1000);
@@ -38,33 +39,33 @@ export const getTrafficIcon = (trafficLightStatus: any) => {
   if (trafficLightStatus === 'RED_DOWN') {
     return (
       <div>
-        <RedTraffic style={{ height: '65px', width: '65px' }} />
+        <RedTraffic className={classes.trafficLight} />
         <Icon name="arrow down" size="huge" />
       </div>
     );
   } else if (trafficLightStatus === 'RED_UP') {
     return (
       <div>
-        <RedTraffic style={{ height: '65px', width: '65px' }} />
+        <RedTraffic className={classes.trafficLight} />
         <Icon name="arrow up" size="huge" />
       </div>
     );
   } else if (trafficLightStatus === 'YELLOW_UP') {
     return (
       <div>
-        <YellowTraffic style={{ height: '65px', width: '65px' }} />
+        <YellowTraffic className={classes.trafficLight} />
         <Icon name="arrow up" size="huge" />
       </div>
     );
   } else if (trafficLightStatus === 'YELLOW_DOWN') {
     return (
       <div>
-        <YellowTraffic style={{ height: '65px', width: '65px' }} />
+        <YellowTraffic className={classes.trafficLight} />
         <Icon name="arrow down" size="huge" />
       </div>
     );
   } else {
-    return <GreenTraffic style={{ height: '65px', width: '65px' }} />;
+    return <GreenTraffic className={classes.trafficLight} />;
   }
 };
 

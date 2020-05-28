@@ -1,157 +1,65 @@
-import {
-  getLatestReading,
-  getLatestReadingDateTime,
-  getPrettyDate,
-  getTrafficIcon,
-  sortPatientsByLastReading,
-} from '../../../shared/utils';
-
 import MaterialTable from 'material-table';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
-import { TextAlignProperty } from 'csstype';
-import { trafficLights } from './utils';
+import { Patient, Reading, Callback, OrNull } from '@types';
+import { initials, patientId, village, vitalSign, lastReadingDate } from './utils';
 
 interface IProps {
-  callbackFromParent: any;
-  data: any;
+  data: OrNull<Array<Patient>>;
   isLoading: boolean;
+  callbackFromParent: Callback<Patient>;
 }
 
-interface IState {
-  columns: any;
-  data: any;
-  selectedPatient: any;
-  showReferredPatients: any;
-}
+export const PatientTable: React.FC<IProps> = ({
+  callbackFromParent,
+  data,
+  isLoading
+}) => {
+  const [showReferredPatientsOnly, setShowReferredPatientsOnly] = React.useState<
+    boolean
+  >(false);
+  const patients = React.useMemo((): Array<Patient> => 
+    data ? data.filter(({ readings }: Patient): boolean => showReferredPatientsOnly 
+      ? readings.some((reading: Reading): boolean => Boolean(reading.dateReferred))
+      : true
+    ) : [], 
+    [data, showReferredPatientsOnly]
+  );
 
-export class PatientTable extends React.Component<IProps, IState> {
-  state = {
-    columns: [
-      {
-        title: `Patient Initials`,
-        field: `patientName`,
-        render: (rowData: any) => (
-          <p
-            key={`initials` + rowData.tableData.id}
-            style={{
-              fontSize: `200%`,
-              fontWeight: `bold`,
-              textAlign: `center`,
-            }}>
-            {rowData.patientName}
-          </p>
-        ),
-        headerStyle: {
-          textAlign: `center` as TextAlignProperty,
-        },
-      },
-      {
-        title: `Patient ID`,
-        field: `patientId`,
-        customSort: (left: any, right: any) =>
-          Number(left.patientId) - Number(right.patientId),
-      },
-      { title: `Village`, field: `villageNumber` },
-      {
-        title: `Vital Sign`,
-        cellStyle: {
-          padding: `0px`,
-        },
-        render: (rowData: any) =>
-          getTrafficIcon(getLatestReading(rowData.readings).trafficLightStatus),
-        customSort: (left: any, right: any) => {
-          const leftIndex = trafficLights.indexOf(
-            left.readings[0].trafficLightStatus
-          );
-          const rightIndex = trafficLights.indexOf(
-            right.readings[0].trafficLightStatus
-          );
-
-          return leftIndex - rightIndex;
-        },
-      },
-      {
-        title: `Date of Last Reading`,
-        field: `lastReading`,
-        render: (rowData: any) => (
-          <p>{getPrettyDate(getLatestReadingDateTime(rowData.readings))}</p>
-        ),
-        customSort: (a: any, b: any) => sortPatientsByLastReading(a, b),
-        defaultSort: `asc` as `asc`,
-      },
-    ],
-    data: [],
-    selectedPatient: {
-      patientId: ``,
-      patientName: `Test`,
-      patientSex: `F`,
-      medicalHistory: ``,
-      drugHistory: ``,
-      villageNumber: ``,
-      readings: [],
-    },
-    showReferredPatients: false,
-  };
-
-  handleSwitchChange(event: any) {
-    this.setState({
-      showReferredPatients: event.target.checked,
-    });
-  }
-
-  getPatientsToRender(showReffered: any) {
-    return this.props.data.filter((patient: any) => {
-      let hasReferral = this.patientHasReferral(patient.readings);
-      if (showReffered) {
-        return hasReferral;
-      } else {
-        return !hasReferral;
-      }
-    });
-  }
-
-  patientHasReferral(readings: any) {
-    return readings.some((reading: any) => {
-      return reading.dateReferred != undefined;
-    });
-  }
-
-  render() {
-    let patientData = this.getPatientsToRender(this.state.showReferredPatients);
-    return (
-      <MaterialTable
-        title="Patients"
-        isLoading={this.props.isLoading}
-        columns={this.state.columns}
-        data={patientData}
-        options={{
-          pageSize: 10,
-          rowStyle: (rowData) => {
-            return {
-              height: `75px`,
-            };
-          },
-          sorting: true,
-        }}
-        onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
-        actions={[
-          {
-            icon: () => {
-              return (
-                <Switch
-                  onChange={this.handleSwitchChange.bind(this)}
-                  color="primary"
-                  checked={this.state.showReferredPatients}
-                />
-              );
-            },
-            tooltip: `Show referred patients only`,
-            isFreeAction: true,
-            onClick: () => { return; }
-          },
-        ]}
-      />
-    );
-  }
-}
+  return (
+    <MaterialTable
+      title="Patients"
+      isLoading={ isLoading }
+      columns={ [
+        initials,
+        patientId,
+        village,
+        vitalSign,
+        lastReadingDate,
+      ] }
+      data={patients}
+      options={ {
+        pageSize: 10,
+        rowStyle: (): React.CSSProperties => ({
+          height: 75
+        }),
+        sorting: true
+      } }
+      onRowClick={ (_, rowData: Patient) => callbackFromParent(rowData) }
+      actions={ [
+        {
+          icon: (): React.ReactElement => (
+            <Switch
+              color="primary"
+              checked={ showReferredPatientsOnly }
+            />
+          ),
+          tooltip: `Show referred patients only`,
+          isFreeAction: true,
+          onClick: (): void => 
+            setShowReferredPatientsOnly((showing: boolean): boolean => !showing)
+        }
+      ] }
+    />
+  );
+};

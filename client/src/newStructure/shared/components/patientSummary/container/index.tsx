@@ -6,42 +6,34 @@ import {
 import { PatientSummary } from '..';
 import React from 'react';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../../reducers/user/currentUser';
 
-class PatientSummaryContainerComponent extends React.Component<any> {
-  constructor(props: any) {
-    super(props);
-    // TO DO: don't fetch patientData everytime, get it from redux if possible.
-    this.props.getPatient(this.props.match.params.id);
+interface IProps {
+  getPatient: any;
+  history: any;
+  isLoading: boolean;
+  match: any;
+  patient: any;
+  user: any;
+}
+
+const Component: React.FC<IProps> = (props) => {
+  React.useEffect((): void => {
+    // TODO: don't fetch patientData everytime, get it from redux if possible.
+    props.getPatient(props.match.params.id);
+  }, [props.getPatient, props.match.params.id]);
+
+  const backBtnCallback = (): void => props.history.goBack();
+
+  if (props.isLoading) {
+    return <div>Loading...</div>;
   }
 
-  componentDidMount() {
-    if (!this.props.user.isLoggedIn) {
-      this.props.getCurrentUser();
-    }
-    this.props.getPatient(this.props.match.params.id);
-  }
-
-  backBtnCallback = () => {
-    this.props.history.goBack();
-  };
-
-  render() {
-    if (!this.props.user.isLoggedIn) {
-      return <div />;
-    }
-
-    if (this.props.isLoading) {
-      return <div>Loading...</div>;
-    }
-
-    return (
-      <PatientSummary
-        callbackFromParent={this.backBtnCallback}
-        selectedPatient={this.props.patient}
-      />
-    );
-  }
+  return (
+    <PatientSummary
+      callbackFromParent={backBtnCallback}
+      selectedPatient={props.patient}
+    />
+  );
 }
 
 const mapStateToProps = ({ patients, user }: any) => ({
@@ -55,10 +47,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getPatientRequested());
     dispatch(getPatient(patientId));
   },
-  getCurrentUser: () => dispatch(getCurrentUser()),
 });
 
 export const PatientSummaryContainer = connect(
   mapStateToProps,
   mapDispatchToProps
-)(PatientSummaryContainerComponent);
+)(Component);

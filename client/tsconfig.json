@@ -26,12 +26,12 @@
       "react-dom"
     ],
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
+    "noEmit": true,
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true
+    "isolatedModules": true
   },
   "exclude": [
     "node_modules",
@@ -42,6 +42,7 @@
     "jest",
     "src/setupTests.ts"
   ],
+  "extends": "./tsconfig.paths.json",
   "include": [
     "src"
   ]

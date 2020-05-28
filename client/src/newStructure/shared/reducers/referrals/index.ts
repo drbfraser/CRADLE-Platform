@@ -46,7 +46,7 @@ export const getReferrals = (referralIds: any) => (dispatch: any) => {
 
   Promise.all(referralPromises)
     .then((results: any) => {
-      let referrals = {} as any;
+      let referrals = {} as { [key: string]: any};
       for (let i in results) {
         let thisReferral = results[i].data;
         referrals[thisReferral.readingId] = thisReferral;
@@ -131,7 +131,9 @@ export const referralsReducer = (state = initialState, action: any) => {
         ...state,
         mappedReferrals: {
           ...state.mappedReferrals,
+          //@ts-ignore
           [state.readingId]: {
+            //@ts-ignore
             ...state.mappedReferrals[state.readingId],
             followUp: action.payload.data,
           },

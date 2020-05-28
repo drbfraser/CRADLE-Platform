@@ -1,0 +1,9 @@
+.title { 
+  margin: -1.35em 0; 
+  width: 70%; 
+}
+
+.icon {
+  cursor: pointer;
+  line-height: 0.7em;
+}
