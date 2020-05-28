@@ -13,7 +13,7 @@ import {SymptomForm} from './symptomForm'
 import { connect } from 'react-redux'
 import { getCurrentUser } from '../../shared/reducers/user/currentUser'
 
-var symptom = []
+var symptom:any = []
 
 function guid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -37,7 +37,7 @@ const initState = {
         villageNumber: '',
         drugHistory: '',
         medicalHistory: ''
-    },
+    } ,
     reading: {
         userId: '',
         readingId: '',
@@ -64,8 +64,33 @@ const initState = {
     showSuccessReading: false,
     hasUrineTest: false
 }
-
-class NewReadingPageComponent extends Component  {
+interface IProps{
+    getCurrentUser:any;
+    createReadingDefault:any;
+    afterNewPatientAdded:any;
+    user:any;
+   newReadingPost:any;
+}
+interface IPatient{
+    patientId: string;
+    patientName: string;
+    patientAge: string;
+    patientSex: string;
+    isPregnant: boolean;
+    gestationalAgeValue: string;
+    gestationalAgeUnit: string;
+    zone: string;
+    dob: any;
+    villageNumber: string;
+    drugHistory: string;
+    medicalHistory: string;
+}
+interface IState{
+    patient:IPatient;
+    reading:any;
+    hasUrineTest:any;
+}
+class NewReadingPageComponent extends Component<IProps,IState>  {
     state = initState
 
     componentDidMount = () => {
@@ -74,7 +99,7 @@ class NewReadingPageComponent extends Component  {
         }
     }
 
-    static getDerivedStateFromProps = (props, state) => {
+    static getDerivedStateFromProps = (props:any, state:any) => {
         if (props.newPatientAdded) {
             props.createReadingDefault()
             props.afterNewPatientAdded()
@@ -92,7 +117,7 @@ class NewReadingPageComponent extends Component  {
         }
     }
 
-    handleChange = event => {
+    handleChange = (event:any) => {
         this.setState({
             patient: {
                 ...this.state.patient,
@@ -101,7 +126,7 @@ class NewReadingPageComponent extends Component  {
         })
     }
 
-    handleSelectChange = (e, value) => {
+    handleSelectChange = (e:any, value:any) => {
         if (value.name === 'patientSex' && value.value === 'MALE') {
             this.setState({
                 patient: {
@@ -118,13 +143,13 @@ class NewReadingPageComponent extends Component  {
         }
     }
 
-    handleReadingChange = (e, value) => {
+    handleReadingChange = (e:any, value:any) => {
         this.setState({
             reading: { ...this.state.reading, [value.name]: value.value }
         })
     }
 
-    handleUrineTestChange = (e, value) => {
+    handleUrineTestChange = (e:any, value:any) => {
         this.setState({
             reading: {
                 ...this.state.reading,
@@ -136,10 +161,10 @@ class NewReadingPageComponent extends Component  {
         })
     }
 
-    handleUrineTestSwitchChange = e => {
+    handleUrineTestSwitchChange = (e:any) => {
         this.setState({
             hasUrineTest: e.target.checked
-        })
+        } as any)
         if (!e.target.checked) {
             this.setState({
                 reading: {
@@ -150,12 +175,12 @@ class NewReadingPageComponent extends Component  {
         }
     }
 
-    handleCheckedChange = (e, value) => {
+    handleCheckedChange = (e:any, value:any) => {
         // console.log(value.name)
         // true => false, pop
         if (value.value) {
             if (symptom.indexOf(value.name) >= 0) {
-                symptom.pop(value.name)
+                symptom.pop()
             }
         } else {
             // false => true, push
@@ -166,7 +191,7 @@ class NewReadingPageComponent extends Component  {
         // console.log(symptom)
         if (value.name !== 'none') {
             if (symptom.indexOf('none') >= 0) {
-                symptom.pop('none')
+                symptom.pop()
             }
             this.setState({
                 checkedItems: {
@@ -174,7 +199,7 @@ class NewReadingPageComponent extends Component  {
                     [value.name]: !value.value,
                     none: false
                 }
-            })
+            } as any)
         } else {
             while (symptom.length > 0) {
                 symptom.pop()
@@ -191,39 +216,41 @@ class NewReadingPageComponent extends Component  {
                     other: false,
                     otherSymptoms: ''
                 }
-            })
+            } as any)
         }
     }
 
-    handleOtherSymptom = event => {
+    handleOtherSymptom = (event:any) => {
         //console.log(event.target)
         this.setState({
             checkedItems: {
                 ...this.state.checkedItems,
                 [event.target.name]: event.target.value
             }
-        })
+        }as any)
     }
 
-    handleSubmit = event => {
+    handleSubmit = (event:any) => {
         event.preventDefault()
         console.log('Create new submit')
         if (symptom.indexOf('other') >= 0) {
-            symptom.pop('other')
+            symptom.pop()
             if (this.state.checkedItems.otherSymptoms !== '') {
                 symptom.push(this.state.checkedItems.otherSymptoms)
             }
         }
         if (this.state.patient.patientAge == '') {
-            this.state.patient.patientAge = null
+            this.state.patient.patientAge = ""
         }
 
         if (this.state.patient.dob != null) {
-            this.state.patient.dob = Date.parse(this.state.patient.dob) / 1000
+            this.state.patient.dob = (Date.parse(this.state.patient.dob as any) / 1000) as any;
         }
         var readingID = guid()
 
         var dateTimeTaken = Math.floor(Date.now() / 1000);
+        const that =this;
+
         this.setState(
             {
                 reading: {
@@ -235,9 +262,9 @@ class NewReadingPageComponent extends Component  {
                 }
             },
             function() {
-                let patientData = JSON.parse(JSON.stringify(this.state.patient))
-                let readingData = JSON.parse(JSON.stringify(this.state.reading))
-                if (!this.state.hasUrineTest) {
+                let patientData = JSON.parse(JSON.stringify(that.state.patient))
+                let readingData = JSON.parse(JSON.stringify(that.state.reading))
+                if (!that.state.hasUrineTest) {
                     delete readingData.urineTests
                 }
 
@@ -246,7 +273,7 @@ class NewReadingPageComponent extends Component  {
                     reading: readingData
                 }
                 console.log(newData)
-                this.props.newReadingPost(newData)
+                that.props.newReadingPost(newData)
             }
         )
     }
@@ -316,7 +343,7 @@ class NewReadingPageComponent extends Component  {
     }
 }
 
-const mapStateToProps = ({ user, newReading, patients }) => ({
+const mapStateToProps = ({ user, newReading, patients }:any) => ({
     user: user.currentUser,
     createReadingStatusError: newReading.error,
     readingCreated: newReading.readingCreated,
@@ -324,14 +351,14 @@ const mapStateToProps = ({ user, newReading, patients }) => ({
     newPatientAdded: patients.newPatientAdded,
 })
 
-const mapDispatchToProps = dispatch => ({
-    addNewPatient: newPatient => {
+const mapDispatchToProps = (dispatch:any) => ({
+    addNewPatient: (newPatient:any) => {
       dispatch(addNewPatient(newPatient));
     },
     afterNewPatientAdded: () => {
       dispatch(afterNewPatientAdded());
     },
-    newReadingPost: data => {
+    newReadingPost: (data:any) => {
         dispatch(newReadingPost(data))
     },
     createReadingDefault: () => {

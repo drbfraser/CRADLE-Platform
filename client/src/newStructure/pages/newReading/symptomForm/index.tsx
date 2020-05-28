@@ -6,7 +6,7 @@ import {
 
 import '../index.css'
 
-export function SymptomForm(props) {
+export function SymptomForm(props:any) {
   // console.log(props)
   return (
     <Paper className='symptomCard' style={{ "padding": "35px 25px", "borderRadius": "15px" }}>

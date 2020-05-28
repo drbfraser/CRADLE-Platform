@@ -4,7 +4,7 @@ import {Form, Header, Input} from 'semantic-ui-react';
 
 import '../index.css'
 
-export function BpForm(props) {
+export function BpForm(props:any) {
     return (
         <Paper className='bpCard' style={{ "padding": "35px 25px", "borderRadius": "15px" }}>
             <Header><b>Blood Pressure</b></Header>
