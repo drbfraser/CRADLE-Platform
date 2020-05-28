@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { getCurrentUser } from '../../shared/reducers/user/currentUser'
-import { Tab } from 'semantic-ui-react'
-import {CommunityWorkerResources} from './CommunityWorkerResource'
-import {HealthWorkerResources} from './HealthWorkerResources'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { Tab } from 'semantic-ui-react';
+import { CommunityWorkerResources } from './CommunityWorkerResource';
+import { HealthWorkerResources } from './HealthWorkerResources';
 
 const panes = [
   {
@@ -22,50 +22,50 @@ const panes = [
       </Tab.Pane>
     )
   }
-]
+];
 
 export const COMMUNITY_WORKER_EDUCATION_VIDEO_LINK =
-  'https://www.youtube.com/embed/WvS3L5P4P2c'
+  'https://www.youtube.com/embed/WvS3L5P4P2c';
 export const HEALTH_FACILITY_WORKER_EDUCATION_VIDEO_LINK =
-  'https://www.youtube.com/embed/QainNBCHKAg'
+  'https://www.youtube.com/embed/QainNBCHKAg';
 
-const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />
-interface IProps{
-  user:any;
-  getCurrentUser:any;
+const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />;
+interface IProps {
+  user: any;
+  getCurrentUser: any;
 }
 class HelpPageComponent extends Component<IProps> {
   componentDidMount = () => {
     if (!this.props.user.isLoggedIn) {
-      this.props.getCurrentUser()
+      this.props.getCurrentUser();
     }
-  }
+  };
 
   render() {
     // don't render page if user is not logged in
     if (!this.props.user.isLoggedIn) {
-      return <div />
+      return <div />;
     }
 
     return (
       <div>
         <Tab panes={panes} />
       </div>
-    )
+    );
   }
 }
 
-const mapStateToProps = ({ user }:any) => ({
+const mapStateToProps = ({ user }: any) => ({
   user: user.currentUser
-})
+});
 
-const mapDispatchToProps = (dispatch:any) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => {
-    dispatch(getCurrentUser())
+    dispatch(getCurrentUser());
   }
-})
+});
 
 export const HelpPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(HelpPageComponent)
+)(HelpPageComponent);
