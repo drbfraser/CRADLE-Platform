@@ -51,7 +51,7 @@ interface IProps {
   vhtList: any;
   isLoading: any;
 }
-interface IStates {
+interface IState {
   columns: any;
   data: any;
   roleMapping: { [index: string]: string };
@@ -68,7 +68,7 @@ interface ISelectedUser {
   email: string;
   healthFacilityName: string;
 }
-class AdminPageComponent extends Component<IProps, IStates> {
+class AdminPageComponent extends Component<IProps, IState> {
   state = {
     columns: [
       {
