@@ -31,7 +31,7 @@ import {
 
 import MaterialTable from 'material-table';
 import { connect } from 'react-redux';
-import {User} from '@types';
+import {User , VHTS} from '@types';
 
 
 const options = [
@@ -46,10 +46,10 @@ interface IProps {
   deleteUser: any;
   getCurrentUser: any;
   usersList: any;
-  healthFacilityList: any;
+  healthFacilityList: string[];
   getUsers: any;
   getHealthFacilityList: any;
-  getVhtList: any;
+  getVhtList: VHTS;
   vhtList: any;
   isLoading: any;
 }

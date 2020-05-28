@@ -66,3 +66,8 @@ export type User = {
   userId: number;
   vhtList: Array<string>;
 }
+
+export type VHTS = {
+  id:number;
+  email:string;
+}
