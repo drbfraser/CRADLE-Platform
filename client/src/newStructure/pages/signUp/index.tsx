@@ -21,19 +21,19 @@ const initState = {
     role: 'VHT' // default value
   }
 };
-interface IProp{
-  registerUser:any;
-  getCurrentUser:any;
-  getHealthFacilityList:any;
-  user:any;
-  healthFacilityList:any;
-  registerStatus:any;
+interface IProp {
+  registerUser: any;
+  getCurrentUser: any;
+  getHealthFacilityList: any;
+  user: any;
+  healthFacilityList: any;
+  registerStatus: any;
 }
 
 class SignupComponent extends React.Component<IProp> {
   state = initState;
 
-  handleChange = (event:any) => {
+  handleChange = (event: any) => {
     this.setState({
       user: {
         ...this.state.user,
@@ -42,11 +42,11 @@ class SignupComponent extends React.Component<IProp> {
     });
   };
 
-  handleSelectChange = (e:any, value:any) => {
+  handleSelectChange = (e: any, value: any) => {
     this.setState({ user: { ...this.state.user, [value.name]: value.value } });
   };
 
-  handleSubmit = (event:any) => {
+  handleSubmit = (event: any) => {
     event.preventDefault();
     this.props.registerUser(this.state.user);
     // TODO: think of better way to reset fields than using timer
@@ -57,7 +57,7 @@ class SignupComponent extends React.Component<IProp> {
     this.props.getHealthFacilityList();
   };
 
-  static getDerivedStateFromProps = (props:any, state:any) => {
+  static getDerivedStateFromProps = (props: any, state: any) => {
     if (props.registerStatus.userCreated) {
       props.registerUserDefault();
       return initState;
@@ -180,18 +180,18 @@ class SignupComponent extends React.Component<IProp> {
   }
 }
 
-const mapStateToProps = ({ user, healthFacilities }:any) => ({
+const mapStateToProps = ({ user, healthFacilities }: any) => ({
   user: user.currentUser,
   registerStatus: user.registerStatus,
   healthFacilityList: healthFacilities.healthFacilitiesList
 });
 
-const mapDispatchToProps = (dispatch:any) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getHealthFacilityList: () => {
     dispatch(getHealthFacilityListRequested());
     dispatch(getHealthFacilityList());
   },
-  registerUser: (user:any) => {
+  registerUser: (user: any) => {
     dispatch(registerUser(user));
   },
   getCurrentUser: () => {
