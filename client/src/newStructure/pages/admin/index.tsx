@@ -31,6 +31,8 @@ import {
 
 import MaterialTable from 'material-table';
 import { connect } from 'react-redux';
+import {User} from '@types';
+
 
 const options = [
   { key: 'vht', text: 'VHT', value: 1 },
@@ -57,17 +59,9 @@ interface IState {
   roleMapping: { [index: string]: string };
   displayUserEditModal: any;
   displayConfirmDeleteModal: any;
-  selectedUser: ISelectedUser;
+  selectedUser: User;
 }
 
-interface ISelectedUser {
-  dropdownSelections: any;
-  vhtDropdownSelections: any;
-  roleIds: any;
-  firstName: string;
-  email: string;
-  healthFacilityName: string;
-}
 class AdminPageComponent extends Component<IProps, IState> {
   state = {
     columns: [

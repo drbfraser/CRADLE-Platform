@@ -46,7 +46,7 @@ class ReferralPageComponent extends Component<IProps> {
   }
 
   static getDerivedStateFromProps(props: any, state: any) {
-    const referredPatients: any = ReferralPage.filterReferrals(
+    const referredPatients: any = ReferralsPage.filterReferrals(
       props.patients.patientsList
     );
     let newState = {
