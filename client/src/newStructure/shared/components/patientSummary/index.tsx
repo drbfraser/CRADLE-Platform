@@ -10,8 +10,8 @@ import {
 import {
   getPatients,
   getPatientsRequested,
-  updatePatient,
 } from '../../reducers/patients';
+import { updatePatient } from '../../reducers/patients';
 import {
   getSelectedPatientStatistics,
   getSelectedPatientStatisticsRequested,
@@ -36,17 +36,43 @@ import { connect } from 'react-redux';
 import { getCurrentUser } from '../../reducers/user/currentUser';
 import { getReferrals } from '../../reducers/referrals';
 import { guid } from './utils';
-import { newReadingPost } from '../../reducers/newReadingStatus';
+import { addNewReading } from '../../reducers/newReadingStatus';
 
-let symptom: any = [];
+let symptom: Array<any> = [];
 
-class PatientSummaryComponent extends React.Component<any, any> {
+interface IProps {
+  selectedPatient: any;
+  getReferrals: any;
+  getSelectedPatientStatistics: any;
+  getPatients: any;
+  callbackFromParent: any;
+  updatePatient: any;
+  user: any;
+  selectedPatientStatsList: any;
+  addNewReading: any;
+  referrals: any;
+}
+
+class PatientSummaryComponent extends React.Component<IProps> {
   state = {
     patient: ``,
     displayPatientModal: false,
-    selectedPatient: { 
-      readings: [],
-    } as any,
+    selectedPatient: {
+      readings: [], 
+      patientName: ``, 
+      patientId: ``,
+      dob: ``,
+      patientAge: ``,
+      patientSex: ``,
+      isPregnant: ``,
+      gestationalAgeValue: ``,
+      gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
+      drugHistory: ``,
+      medicalHistory: ``,
+      bpSystolic: ``,
+      bpDiastolic: ``,
+      heartRateBPM: ``,
+    },
     showVitals: true,
     showTrafficLights: false,
     displayReadingModal: false,
@@ -102,8 +128,9 @@ class PatientSummaryComponent extends React.Component<any, any> {
       reading['bpSystolic'] === undefined ||
       reading['bpDiastolic'] === undefined ||
       reading['heartRateBPM'] === undefined
-    )
+    ) {
       return 'NONE';
+    }
 
     const shockIndex = reading['heartRateBPM'] / reading['bpSystolic'];
 
@@ -196,7 +223,7 @@ class PatientSummaryComponent extends React.Component<any, any> {
     event.preventDefault();
 
     if (symptom.indexOf('other') >= 0) {
-      symptom.pop('other');
+      symptom.pop();
       if (this.state.checkedItems.otherSymptoms !== '') {
         symptom.push(this.state.checkedItems.otherSymptoms);
       }
@@ -234,7 +261,7 @@ class PatientSummaryComponent extends React.Component<any, any> {
           reading: readingData,
         };
 
-        this.props.newReadingPost(newData);
+        this.props.addNewReading(newData);
 
         newData['reading']['trafficLightStatus'] = this.calculateShockIndex(
           newData['reading']
@@ -285,7 +312,7 @@ class PatientSummaryComponent extends React.Component<any, any> {
     // true => false, pop
     if (value.value) {
       if (symptom.indexOf(value.name) >= 0) {
-        symptom.pop(value.name);
+        symptom.pop();
       }
     } else {
       // false => true, push
@@ -295,7 +322,7 @@ class PatientSummaryComponent extends React.Component<any, any> {
     }
     if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
-        symptom.pop('none');
+        symptom.pop();
       }
       this.setState({
         checkedItems: {
@@ -371,7 +398,7 @@ class PatientSummaryComponent extends React.Component<any, any> {
     dateReferred: any,
     drugHistory: any,
     medicalHistory: any,
-    urineTests: any,
+    urineTests: any
   ) => {
     return {
       readingId,
@@ -994,7 +1021,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getSelectedPatientStatisticsRequested());
     dispatch(getSelectedPatientStatistics(patientId));
   },
-  newReadingPost: (data: any) => dispatch(newReadingPost(data)),
+  addNewReading: (data: any) => dispatch(addNewReading(data)),
   getCurrentUser: () => dispatch(getCurrentUser()),
   ...bindActionCreators(
     {

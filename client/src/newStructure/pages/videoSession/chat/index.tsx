@@ -22,8 +22,13 @@ interface IProps {
   user?: any;
 }
 
-class ChatComponent extends React.Component<IProps, any> {
-  constructor(props: any) {
+interface IState {
+  chatHistory: any;
+  pendingInput: any;
+}
+
+class ChatComponent extends React.Component<IProps, IState> {
+  constructor(props: IProps) {
     super(props);
 
     this.state = {

@@ -1,53 +1,71 @@
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
-import { serverRequestActionCreator } from '../utils';
+import { serverRequestActionCreator, ServerRequestAction } from '../utils';
+import { OrNull } from '@types';
 
-const NEW_READING_DEFAULT = `newReadingStatus/NEW_READING_DEFAULT`;
-const NEW_READING_SUCCESS = `newReadingStatus/NEW_READING_SUCCESS`;
-const NEW_READING_ERROR = `newReadingStatus/NEW_READING_ERROR`;
+enum NewReadingStatusEnum {
+  NEW_READING_STATUS_ERROR = `newReadingStatus/NEW_READING_STATUS_ERROR`,
+  NEW_READING_STATUS_RESET = `newReadingStatus/NEW_READING_STATUS_RESET`,
+  NEW_READING_STATUS_SUCCESS = `newReadingStatus/NEW_READING_STATUS_SUCCESS`,
+}
 
-export const newReadingPost = (data: any) => {
+type NewReadingStatusPayload = { message: string };
+
+type NewReadingStatusAction = 
+ | { type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR, payload: NewReadingStatusPayload } 
+ | { type: NewReadingStatusEnum.NEW_READING_STATUS_RESET }
+ | { type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS, payload: NewReadingStatusPayload };
+
+export const addNewReading = (data: any): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}${Endpoints.READING}`,
     method: Methods.POST,
     data,
-    onSuccess: (response: any) => ({
-      type: NEW_READING_SUCCESS,
-      payload: response,
+    onSuccess: (message: string): NewReadingStatusAction => ({
+      type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS,
+      payload: { message },
     }),
-    onError: (error: any) => ({
-      type: NEW_READING_ERROR,
-      payload: error,
+    onError: (message: string): NewReadingStatusAction => ({
+      type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR,
+      payload: { message },
     }),
   });
 };
 
-export const createReadingDefault = () => ({
-  type: NEW_READING_DEFAULT,
+export const resetNewReadingStatus = (): NewReadingStatusAction => ({
+  type: NewReadingStatusEnum.NEW_READING_STATUS_RESET,
 });
 
+export type NewReadingStatusState = {
+  error: boolean;
+  message: OrNull<string>;
+  readingCreated: boolean;
+};
 
-export const newReadingStatusReducer = (_: any, action: any) => {
+const initialState: NewReadingStatusState = {
+  error: false,
+  message: null,
+  readingCreated: false,
+};
+
+export const newReadingStatusReducer = (state = initialState, action: NewReadingStatusAction) => {
   switch (action.type) {
-    case NEW_READING_SUCCESS:
+    case NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS:
       return {
-        message: action.payload.data,
+        message: action.payload.message,
         error: false,
         readingCreated: true,
       };
 
-    case NEW_READING_ERROR:
+    case NewReadingStatusEnum.NEW_READING_STATUS_ERROR:
       return {
-        message: 'Error! Patient reading not created.',
+        message: `Error! Patient reading not created.`,
         error: true,
         readingCreated: false,
       };
 
-    case NEW_READING_DEFAULT:
+    case NewReadingStatusEnum.NEW_READING_STATUS_RESET:
     default:
-      return {
-        error: false,
-        readingCreated: false,
-      };
+      return state;
   }
 };

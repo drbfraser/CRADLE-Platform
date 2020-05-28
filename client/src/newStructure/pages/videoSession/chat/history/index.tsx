@@ -8,7 +8,11 @@ const chatAvatar = {
   borderRadius: 10,
 };
 
-export const ChatHistory: React.FC<any> = (props) => (
+interface IProps {
+  chatHistory: any;
+}
+
+export const ChatHistory: React.FC<IProps> = (props) => (
   <div
     id="chatHistory"
     style={{

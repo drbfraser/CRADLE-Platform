@@ -21,7 +21,6 @@ import {
   updateFollowUp,
 } from '../../../../../reducers/referrals';
 
-import PropTypes from 'prop-types';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
 import { bindActionCreators } from 'redux';
@@ -29,15 +28,24 @@ import { connect } from 'react-redux';
 import { followupFrequencyUnitOptions } from '../utils';
 import { untilDateOrOther } from './utils';
 
-class FollowUpModalComponent extends React.Component<any, any> {
-  static propTypes = {
-    initialValues: PropTypes.objectOf(PropTypes.string),
-    updateFollowUp: PropTypes.func.isRequired,
-    referralId: PropTypes.string.isRequired,
-    readingId: PropTypes.string.isRequired,
-  };
+interface IProps {
+  initialValues: { [key: string]: string },
+  updateFollowUp: any,
+  referralId: string,
+  readingId: string,
+  setReadingId: any,
+  createFollowUp: any,
+}
 
-  constructor(props: any) {
+interface IState {
+  data: any,
+  isOpen: boolean,
+  dateOrOther: string,
+  untilDateOrCond: any,
+}
+
+class FollowUpModalComponent extends React.Component<IProps, IState> {
+  constructor(props: IProps) {
     super(props);
 
     this.state = {
@@ -54,6 +62,7 @@ class FollowUpModalComponent extends React.Component<any, any> {
       },
       isOpen: false,
       dateOrOther: `DATE`,
+      untilDateOrCond: undefined
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -129,13 +138,13 @@ class FollowUpModalComponent extends React.Component<any, any> {
   handleSubmit() {
     this.state.data.referral = this.props.referralId;
 
-    if (this.state.dateOrCondition === `DATE`) {
+    if (this.state.dateOrOther === `DATE`) {
       this.state.data.dateFollowupNeededTill =
         Date.parse(this.state.data.dateFollowupNeededTill) / 1000; // divide by 1000 to convert ms into s
     }
 
     if (this.state.untilDateOrCond) {
-      // delete this.state.untilDateOrCond;
+      this.setState({ untilDateOrCond: undefined })
     }
     // update existing followUpInfo
     if (this.props.initialValues) {
@@ -295,9 +304,7 @@ class FollowUpModalComponent extends React.Component<any, any> {
 const mapStateToProps = ({}) => ({});
 
 const mapDispatchToProps = (dispatch: any) => ({
-  createFollowUp: (data: any) => {
-    dispatch(createFollowUp(data));
-  },
+  createFollowUp: (data: any) => dispatch(createFollowUp(data)),
   ...bindActionCreators(
     {
       updateFollowUp,

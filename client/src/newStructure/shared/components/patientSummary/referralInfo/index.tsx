@@ -5,9 +5,9 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { getPrettyDateTime } from '../../../utils';
 
-interface IProps { 
-  readingId: any; 
-  referral: any; 
+interface IProps {
+  readingId: any;
+  referral: any;
 }
 
 export const ReferralInfo: React.FC<IProps> = ({ readingId, referral }) =>

@@ -9,7 +9,22 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 
-class VideoChatComponent extends React.Component<any, any> {
+interface IProps {
+  getCurrentUser: any;
+  createRoom: any;
+  joinRoom: any;
+  user: any;
+}
+
+interface IState {
+  roomId: any,
+  isOpener: any,
+  name: any,
+  createFormOpen: any,
+  enterFormOpen: any,
+}
+
+class VideoChatComponent extends React.Component<IProps, IState> {
   constructor(props: any) {
     super(props);
     // initial state here:
@@ -68,7 +83,7 @@ class VideoChatComponent extends React.Component<any, any> {
     const styles = {
       createRoom: null,
       enterRoom: null,
-    } as any;
+    } as { [key: string]: any };
 
     if (this.state.createFormOpen) {
       styles.createRoom = '#ababad';

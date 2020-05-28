@@ -2,19 +2,25 @@ import { Button, Form } from 'semantic-ui-react';
 
 import React from 'react';
 
-export class CustomForm extends React.Component {
-  constructor(props) {
+interface IProps {
+  onRoomIdChange: any;
+  onSubmit: any;
+  roomId: any;
+}
+
+export class CustomForm extends React.Component<IProps> {
+  constructor(props: IProps) {
     super(props);
 
     this.handleRoomIdChange = this.handleRoomIdChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleRoomIdChange(e) {
+  handleRoomIdChange(e: any) {
     this.props.onRoomIdChange(e.target.value);
   }
 
-  handleSubmit(e) {
+  handleSubmit() {
     this.props.onSubmit();
   }
 

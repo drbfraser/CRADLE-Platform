@@ -6,11 +6,11 @@ import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { getStatistics } from '../../shared/reducers/allPatientsStatistics';
 
-interface IProps { 
-  getCurrentUser: any; 
-  getStatistics: any; 
-  statisticsList: any;
+interface IProps {
+  getCurrentUser: any;
+  getStatistics: any;
   user: any;
+  statisticsList: any;
 }
 
 class StatisticsPageComponent extends React.Component<IProps> {
@@ -72,10 +72,10 @@ class StatisticsPageComponent extends React.Component<IProps> {
       data: this.props.statisticsList.referralsPerMonth,
     };
 
-    const centerize = {
+    const center = {
       display: `flex`,
       flexDirection: `column` as `column`,
-      alignItems: `center`,
+      alignItems: `center`
     };
 
     const headerSize = { fontSize: 40 };
@@ -193,7 +193,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
           <div>
             <h2>In the last month, our health facility assessed:</h2>
             <div
-              style={centerize}>
+              style={center}>
               {this.props.statisticsList.uniquePeopleAssesedPerMonth ||
               this.props.statisticsList.womenAssessedPerMonth ||
               this.props.statisticsList.pregnantWomenAssessedPerMonth ? (
@@ -244,7 +244,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
           <h1 style={headerSize}>Global Statistics</h1>
           <div>
             <h2>In the last month, there were:</h2>
-            <div style={centerize}>
+            <div style={center}>
               {this.props.statisticsList.readingsPerMonth &&
               this.props.statisticsList.referralsPerMonth &&
               this.props.statisticsList.assessmentsPerMonth ? (
@@ -306,7 +306,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
           <br />
           <div>
             <h2>A snapshot of all women assessed:</h2>
-            <div style={centerize}>
+            <div style={center}>
               {this.props.statisticsList.womenReferredPerMonth &&
               this.props.statisticsList.pregnantWomenReferredPerMonth &&
               this.props.statisticsList.womenAssessedPerMonth &&
@@ -384,7 +384,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
           <div>
             <h2 style={{ marginBottom: -10 }}>Traffic lights from last month:</h2>
             <br />
-            <div style={centerize}>
+            <div style={center}>
               <div style={chartBox}>
                 <Card fluid>
                   <Card.Content>

@@ -1,11 +1,15 @@
 import { LoginForm } from './form';
 import React from 'react';
-import { Redirect } from 'react-router';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import image from './img/splash_screen_4.png';
 import { userLoginFetch } from '../../shared/reducers/user/currentUser';
 
-class Login extends React.Component<{ isLoggedIn: boolean }> {
+interface IProps {
+  isLoggedIn: boolean;
+}
+
+class Login extends React.Component<IProps> {
   render() {
     if (this.props.isLoggedIn) {
       return <Redirect to="/patients" />;
