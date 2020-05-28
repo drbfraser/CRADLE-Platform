@@ -1,8 +1,8 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import '../index.css'
+import React from 'react';
+import PropTypes from 'prop-types';
+import '../index.css';
 
-function ResourceTabPage(props:any) {
+function ResourceTabPage(props: any) {
   return (
     <div>
       <img className="education-img" src={props.posterImgSrc} />
@@ -21,13 +21,13 @@ function ResourceTabPage(props:any) {
           allowFullScreen></iframe>
       </div>
     </div>
-  )
+  );
 }
 
 ResourceTabPage.propTypes = {
   posterImgSrc: PropTypes.string.isRequired,
   posterImgUrl: PropTypes.string.isRequired,
   videoUrl: PropTypes.string.isRequired
-}
+};
 
-export default ResourceTabPage
+export default ResourceTabPage;
