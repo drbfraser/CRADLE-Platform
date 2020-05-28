@@ -1,8 +1,8 @@
 import { getMomentDate } from '../../../../shared/utils';
 
-export const getLatestReferral = (readings:any) => {
+export const getLatestReferral = (readings: any) => {
   let sortedReadings = readings.sort(
-    (a:any, b:any) =>
+    (a: any, b: any) =>
       getMomentDate(b.dateTimeTaken).valueOf() -
       getMomentDate(a.dateTimeTaken).valueOf()
   );
@@ -14,6 +14,6 @@ export const getLatestReferral = (readings:any) => {
   }
 };
 
-export const sortReferralsByDate = (a:any, b:any) =>
+export const sortReferralsByDate = (a: any, b: any) =>
   getMomentDate(getLatestReferral(b.readings)).valueOf() -
   getMomentDate(getLatestReferral(a.readings)).valueOf();
