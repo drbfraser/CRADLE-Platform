@@ -4,17 +4,17 @@ import { serverRequestActionCreator, ServerRequestAction } from '../utils';
 import { OrNull } from '@types';
 
 enum NewReadingStatusEnum {
+  CLEAR_REQUEST_OUTCOME = `newReadingStatus/CLEAR_REQUEST_OUTCOME`,
   NEW_READING_STATUS_ERROR = `newReadingStatus/NEW_READING_STATUS_ERROR`,
-  NEW_READING_STATUS_RESET = `newReadingStatus/NEW_READING_STATUS_RESET`,
   NEW_READING_STATUS_SUCCESS = `newReadingStatus/NEW_READING_STATUS_SUCCESS`,
 }
 
 type NewReadingStatusPayload = { message: string };
 
 type NewReadingStatusAction = 
- | { type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR, payload: NewReadingStatusPayload } 
- | { type: NewReadingStatusEnum.NEW_READING_STATUS_RESET }
- | { type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS, payload: NewReadingStatusPayload };
+  | { type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR, payload: NewReadingStatusPayload } 
+  | { type: NewReadingStatusEnum.CLEAR_REQUEST_OUTCOME }
+  | { type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS, payload: NewReadingStatusPayload };
 
 export const addNewReading = (data: any): ServerRequestAction => {
   return serverRequestActionCreator({
@@ -33,7 +33,7 @@ export const addNewReading = (data: any): ServerRequestAction => {
 };
 
 export const resetNewReadingStatus = (): NewReadingStatusAction => ({
-  type: NewReadingStatusEnum.NEW_READING_STATUS_RESET,
+  type: NewReadingStatusEnum.CLEAR_REQUEST_OUTCOME,
 });
 
 export type NewReadingStatusState = {
@@ -48,7 +48,10 @@ const initialState: NewReadingStatusState = {
   readingCreated: false,
 };
 
-export const newReadingStatusReducer = (state = initialState, action: NewReadingStatusAction) => {
+export const newReadingStatusReducer = (
+  state = initialState, 
+  action: NewReadingStatusAction
+): NewReadingStatusState => {
   switch (action.type) {
     case NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS:
       return {
@@ -56,15 +59,13 @@ export const newReadingStatusReducer = (state = initialState, action: NewReading
         error: false,
         readingCreated: true,
       };
-
     case NewReadingStatusEnum.NEW_READING_STATUS_ERROR:
       return {
-        message: `Error! Patient reading not created.`,
+        message: action.payload.message,
         error: true,
         readingCreated: false,
       };
-
-    case NewReadingStatusEnum.NEW_READING_STATUS_RESET:
+    case NewReadingStatusEnum.CLEAR_REQUEST_OUTCOME:
     default:
       return state;
   }

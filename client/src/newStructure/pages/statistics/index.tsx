@@ -4,13 +4,13 @@ import { Card, Statistic } from 'semantic-ui-react';
 import React from 'react';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { getStatistics } from '../../shared/reducers/allPatientsStatistics';
+import { getStatistics } from '../../shared/reducers/statistics';
 
 interface IProps {
   getCurrentUser: any;
   getStatistics: any;
   user: any;
-  statisticsList: any;
+  data: any;
 }
 
 class StatisticsPageComponent extends React.Component<IProps> {
@@ -59,7 +59,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
       backgroundColor: 'rgba(75,192,192,0.4)',
       borderColor: 'rgba(75,192,192,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.readingsPerMonth,
+      data: this.props.data.readingsPerMonth,
     };
 
     const referralsPerMonth = {
@@ -69,7 +69,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
       backgroundColor: 'rgba(148,0,211,0.4)',
       borderColor: 'rgba(148,0,211,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.referralsPerMonth,
+      data: this.props.data.referralsPerMonth,
     };
 
     const center = {
@@ -113,7 +113,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
       backgroundColor: 'rgba(255,127,80,0.4)',
       borderColor: 'rgba(255,127,80,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.assessmentsPerMonth,
+      data: this.props.data.assessmentsPerMonth,
     };
 
     const womenReferredPerMonth = {
@@ -123,7 +123,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
       backgroundColor: 'rgba(21,21,43,0.4)',
       borderColor: 'rgba(21,21,43,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.womenReferredPerMonth,
+      data: this.props.data.womenReferredPerMonth,
     };
 
     const pregnantWomenReferredPerMonth = {
@@ -133,7 +133,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
       backgroundColor: 'rgba(75,192,192,0.4)',
       borderColor: 'rgba(75,192,192,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.pregnantWomenReferredPerMonth,
+      data: this.props.data.pregnantWomenReferredPerMonth,
     };
 
     const womenAssessedPerMonth = {
@@ -143,7 +143,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
       backgroundColor: 'rgba(148,0,211,0.4)',
       borderColor: 'rgba(148,0,211,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.womenAssessedPerMonth,
+      data: this.props.data.womenAssessedPerMonth,
     };
 
     const pregnantWomenAssessedPerMonth = {
@@ -153,7 +153,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
       backgroundColor: 'rgba(255,127,80,0.4)',
       borderColor: 'rgba(255,127,80,1)',
       pointRadius: 1,
-      data: this.props.statisticsList.pregnantWomenAssessedPerMonth,
+      data: this.props.data.pregnantWomenAssessedPerMonth,
     };
 
     const readingsVsReferralsVsAssessment = {
@@ -172,14 +172,14 @@ class StatisticsPageComponent extends React.Component<IProps> {
     };
 
     var trafficLight = {};
-    if (this.props.statisticsList.trafficLightStatusLastMonth) {
+    if (this.props.data.trafficLightStatusLastMonth) {
       trafficLight = {
         labels: trafficLightLabels,
         datasets: [
           {
             backgroundColor: ['green', 'yellow', 'yellow', 'red', 'red'],
             data: Object.values(
-              this.props.statisticsList.trafficLightStatusLastMonth
+              this.props.data.trafficLightStatusLastMonth
             ),
           },
         ],
@@ -194,15 +194,15 @@ class StatisticsPageComponent extends React.Component<IProps> {
             <h2>In the last month, our health facility assessed:</h2>
             <div
               style={center}>
-              {this.props.statisticsList.uniquePeopleAssesedPerMonth ||
-              this.props.statisticsList.womenAssessedPerMonth ||
-              this.props.statisticsList.pregnantWomenAssessedPerMonth ? (
+              {this.props.data.uniquePeopleAssesedPerMonth ||
+              this.props.data.womenAssessedPerMonth ||
+              this.props.data.pregnantWomenAssessedPerMonth ? (
                 <Statistic.Group
                   style={{ margin: `0 auto` }}>
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlineBlue}>
                       {
-                        this.props.statisticsList.uniquePeopleAssesedPerMonth[
+                        this.props.data.uniquePeopleAssesedPerMonth[
                           getMonth - 1
                         ]
                       }
@@ -213,7 +213,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlineBlue}>
                       {
-                        this.props.statisticsList.womenAssessedPerMonth[
+                        this.props.data.womenAssessedPerMonth[
                           getMonth - 1
                         ]
                       }
@@ -224,7 +224,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlineBlue}>
                       {
-                        this.props.statisticsList.pregnantWomenAssessedPerMonth[
+                        this.props.data.pregnantWomenAssessedPerMonth[
                           getMonth - 1
                         ]
                       }
@@ -245,9 +245,9 @@ class StatisticsPageComponent extends React.Component<IProps> {
           <div>
             <h2>In the last month, there were:</h2>
             <div style={center}>
-              {this.props.statisticsList.readingsPerMonth &&
-              this.props.statisticsList.referralsPerMonth &&
-              this.props.statisticsList.assessmentsPerMonth ? (
+              {this.props.data.readingsPerMonth &&
+              this.props.data.referralsPerMonth &&
+              this.props.data.assessmentsPerMonth ? (
                 <Statistic.Group
                   style={{
                     marginLeft: 'auto',
@@ -256,7 +256,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
                   }}>
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlineBlue}>
-                      {this.props.statisticsList.readingsPerMonth[getMonth - 1]}
+                      {this.props.data.readingsPerMonth[getMonth - 1]}
                     </Statistic.Value>
                     <Statistic.Label style={verticalWriting}>
                       READINGS TAKEN
@@ -266,7 +266,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlinePurple}>
                       {
-                        this.props.statisticsList.referralsPerMonth[
+                        this.props.data.referralsPerMonth[
                           getMonth - 1
                         ]
                       }
@@ -279,7 +279,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlineOrange}>
                       {
-                        this.props.statisticsList.assessmentsPerMonth[
+                        this.props.data.assessmentsPerMonth[
                           getMonth - 1
                         ]
                       }
@@ -307,10 +307,10 @@ class StatisticsPageComponent extends React.Component<IProps> {
           <div>
             <h2>A snapshot of all women assessed:</h2>
             <div style={center}>
-              {this.props.statisticsList.womenReferredPerMonth &&
-              this.props.statisticsList.pregnantWomenReferredPerMonth &&
-              this.props.statisticsList.womenAssessedPerMonth &&
-              this.props.statisticsList.pregnantWomenAssessedPerMonth ? (
+              {this.props.data.womenReferredPerMonth &&
+              this.props.data.pregnantWomenReferredPerMonth &&
+              this.props.data.womenAssessedPerMonth &&
+              this.props.data.pregnantWomenAssessedPerMonth ? (
                 <Statistic.Group
                   style={{
                     marginLeft: 'auto',
@@ -320,7 +320,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlineBlack}>
                       {
-                        this.props.statisticsList.womenReferredPerMonth[
+                        this.props.data.womenReferredPerMonth[
                           getMonth - 1
                         ]
                       }
@@ -332,7 +332,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlineBlue}>
                       {
-                        this.props.statisticsList.pregnantWomenReferredPerMonth[
+                        this.props.data.pregnantWomenReferredPerMonth[
                           getMonth - 1
                         ]
                       }
@@ -344,7 +344,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlinePurple}>
                       {
-                        this.props.statisticsList.womenAssessedPerMonth[
+                        this.props.data.womenAssessedPerMonth[
                           getMonth - 1
                         ]
                       }
@@ -356,7 +356,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
                   <Statistic horizontal style={statSubBox}>
                     <Statistic.Value style={underlineOrange}>
                       {
-                        this.props.statisticsList.pregnantWomenAssessedPerMonth[
+                        this.props.data.pregnantWomenAssessedPerMonth[
                           getMonth - 1
                         ]
                       }
@@ -409,7 +409,7 @@ class StatisticsPageComponent extends React.Component<IProps> {
 
 const mapStateToProps = ({ user, statistics }: any) => ({
   user: user.currentUser,
-  statisticsList: statistics.statisticsList,
+  data: statistics.data,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

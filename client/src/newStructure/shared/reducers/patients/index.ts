@@ -102,13 +102,11 @@ export const patientsReducer = (state = initialState, action: any) => {
         patientsList,
         isLoading: false,
       };
-
     case GET_PATIENTS_REQUESTED:
       return {
         ...state,
         isLoading: true,
       };
-
     case GET_PATIENTS_ERROR:
       return {
         ...state,
@@ -120,36 +118,29 @@ export const patientsReducer = (state = initialState, action: any) => {
         patient: action.payload.data,
         isLoading: false,
       };
-
     case GET_PATIENT_REQUESTED:
       return {
         ...state,
         isLoading: true,
       };
-
     case ADD_NEW_PATIENT:
       const newPatient = action.payload;
-      const patients = state.patientsList;
-      const currentPatients = patients ? patients : [];
 
       return {
         ...state,
-        patientsList: [newPatient, ...currentPatients],
+        patientsList: [newPatient, ...(state.patientsList ?? [])],
         newPatientAdded: true,
       };
-
     case AFTER_NEW_PATIENT_ADDED:
       return {
         ...state,
         newPatientAdded: false,
       };
-
     case GET_PATIENT_ERROR:
       return {
         ...state,
         isLoading: false,
       };
-
     default:
       return state;
   }

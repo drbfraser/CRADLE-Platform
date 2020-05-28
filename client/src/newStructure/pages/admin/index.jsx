@@ -12,25 +12,21 @@ import {
 import React, {Component} from 'react';
 import {
   deleteUser,
-  deleteUserRequested,
   getUsers,
-  getUsersRequested,
   updateUser,
-  updateUserRequested
 } from '../../shared/reducers/user/allUsers'
 import {
   getCurrentUser,
-
 } from '../../shared/reducers/user/currentUser'
 import{
-  getVhtList,
-  getVhtsRequested
+  getVhts,
 } from '../../shared/reducers/user/allVhts'
 
 import { getHealthFacilityList, getHealthFacilityListRequested } from '../../shared/reducers/healthFacilities'
 
 import MaterialTable from 'material-table';
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux';
 
 const options = [
   { key: 'vht', text: 'VHT', value: 1 },
@@ -190,11 +186,11 @@ class AdminPageComponent extends Component {
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser()
     }
-    if (!this.props.usersList || !this.props.healthFacilityList) {
+    if (!this.props.users || !this.props.healthFacilityList) {
       this.props.getUsers()
       this.props.getHealthFacilityList()
     }
-    this.props.getVhtList()
+    this.props.getVhts()
   }
 
   static getDerivedStateFromProps = (props, state) => {
@@ -280,7 +276,7 @@ class AdminPageComponent extends Component {
           title="Manage Users"
           isLoading={this.props.isLoading}
           columns={this.state.columns}
-          data={this.props.usersList}
+          data={this.props.users}
           options={{
             rowStyle: rowData => {
               return {
@@ -399,35 +395,23 @@ const mapStateToProps = ({ user, healthFacilities }) => ({
   user: user.currentUser,
   isLoading: user.allUsers.isLoading,
   updateUserList: user.allUsers.updateUserList,
-  usersList: user.allUsers.usersList,
+  users: user.allUsers.users,
   vhtList: user.allVhts.vhtList,
   healthFacilityList: healthFacilities.healthFacilitiesList
 })
 
 const mapDispatchToProps = dispatch => ({
+  ...bindActionCreators({
+    deleteUser,
+    getCurrentUser,
+    getUsers,
+    getVhts,
+    updateUser,
+  }),
   getHealthFacilityList: () => {
     dispatch(getHealthFacilityListRequested())
     dispatch(getHealthFacilityList())
   },
-  getUsers: () => {
-    dispatch(getUsersRequested())
-    dispatch(getUsers())
-  },
-  getVhtList: () => {
-    dispatch(getVhtsRequested())
-    dispatch(getVhtList())
-  },
-  updateUser: (userId, userData) => {
-    dispatch(updateUserRequested())
-    dispatch(updateUser(userId, userData))
-  },
-  deleteUser: userId => {
-    dispatch(deleteUserRequested())
-    dispatch(deleteUser(userId))
-  },
-  getCurrentUser: () => {
-    dispatch(getCurrentUser())
-  }
 })
 
 export const AdminPage = connect(

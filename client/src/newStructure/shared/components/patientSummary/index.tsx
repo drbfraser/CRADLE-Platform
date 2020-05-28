@@ -13,9 +13,8 @@ import {
 } from '../../reducers/patients';
 import { updatePatient } from '../../reducers/patients';
 import {
-  getSelectedPatientStatistics,
-  getSelectedPatientStatisticsRequested,
-} from '../../reducers/selectedPatientStatistics';
+  getPatientStatistics,
+} from '../../reducers/patientStatistics';
 
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -43,12 +42,12 @@ let symptom: Array<any> = [];
 interface IProps {
   selectedPatient: any;
   getReferrals: any;
-  getSelectedPatientStatistics: any;
+  getPatientStatistics: any;
   getPatients: any;
   callbackFromParent: any;
   updatePatient: any;
   user: any;
-  selectedPatientStatsList: any;
+  data: any;
   addNewReading: any;
   referrals: any;
 }
@@ -110,7 +109,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
 
     this.props.getReferrals(this.getReferralIds(this.props.selectedPatient));
     if (this.props.selectedPatient) {
-      this.props.getSelectedPatientStatistics(
+      this.props.getPatientStatistics(
         this.props.selectedPatient.patientId
       );
     }
@@ -492,8 +491,8 @@ class PatientSummaryComponent extends React.Component<IProps> {
 
     var bpSystolicReadingsMontly = {};
 
-    if (this.props.selectedPatientStatsList.bpSystolicReadingsMontly) {
-      const bpSystolicReadingsData = this.props.selectedPatientStatsList
+    if (this.props.data.bpSystolicReadingsMontly) {
+      const bpSystolicReadingsData = this.props.data
         .bpSystolicReadingsMontly;
       var averageSystolic = Array(12);
       for (var j = 0; j < 12; j++) {
@@ -512,8 +511,8 @@ class PatientSummaryComponent extends React.Component<IProps> {
     }
 
     var bpDiastolicReadingsMonthly = {};
-    if (this.props.selectedPatientStatsList.bpDiastolicReadingsMonthly) {
-      const bpDiastolicReadingsData = this.props.selectedPatientStatsList
+    if (this.props.data.bpDiastolicReadingsMonthly) {
+      const bpDiastolicReadingsData = this.props.data
         .bpDiastolicReadingsMonthly;
       var averageDiastolic = Array(12);
       for (var l = 0; l < 12; l++) {
@@ -532,8 +531,8 @@ class PatientSummaryComponent extends React.Component<IProps> {
     }
 
     var heartRateReadingsMonthly = {};
-    if (this.props.selectedPatientStatsList.heartRateReadingsMonthly) {
-      const heartRateData = this.props.selectedPatientStatsList
+    if (this.props.data.heartRateReadingsMonthly) {
+      const heartRateData = this.props.data
         .heartRateReadingsMonthly;
       var averageHeartRate = Array(12);
       for (var k = 0; k < 12; k++) {
@@ -574,14 +573,14 @@ class PatientSummaryComponent extends React.Component<IProps> {
     };
 
     var trafficLight = {};
-    if (this.props.selectedPatientStatsList.trafficLightCountsFromDay1) {
+    if (this.props.data.trafficLightCountsFromDay1) {
       trafficLight = {
         labels: ['GREEN', 'YELLOW UP', 'YELLOW DOWN', 'RED UP', 'RED DOWN'],
         datasets: [
           {
             backgroundColor: ['green', 'yellow', 'yellow', 'red', 'red'],
             data: Object.values(
-              this.props.selectedPatientStatsList.trafficLightCountsFromDay1
+              this.props.data.trafficLightCountsFromDay1
             ),
           },
         ],
@@ -1005,10 +1004,10 @@ class PatientSummaryComponent extends React.Component<IProps> {
   }
 }
 
-const mapStateToProps = ({ user, referrals, patientStats }: any) => ({
+const mapStateToProps = ({ user, referrals, patientStatistics }: any) => ({
   user: user.currentUser,
   referrals: referrals.mappedReferrals,
-  selectedPatientStatsList: patientStats.selectedPatientStatsList,
+  data: patientStatistics.data,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1017,14 +1016,11 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getPatients());
   },
   updatePatient: (patientId: any, data: any) => dispatch(updatePatient(patientId, data)),
-  getSelectedPatientStatistics: (patientId: any) => {
-    dispatch(getSelectedPatientStatisticsRequested());
-    dispatch(getSelectedPatientStatistics(patientId));
-  },
   addNewReading: (data: any) => dispatch(addNewReading(data)),
   getCurrentUser: () => dispatch(getCurrentUser()),
   ...bindActionCreators(
     {
+      getPatientStatistics,
       getReferrals,
     },
     dispatch

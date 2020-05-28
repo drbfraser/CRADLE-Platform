@@ -9,8 +9,8 @@ enum ChatActionEnum {
 type ChatActionPayload = { roomId: string };
 
 type ChatAction = 
- | { type: ChatActionEnum.CREATE_ROOM, payload: ChatActionPayload } 
- | { type: ChatActionEnum.JOIN_ROOM, payload: ChatActionPayload };
+  | { type: ChatActionEnum.CREATE_ROOM, payload: ChatActionPayload } 
+  | { type: ChatActionEnum.JOIN_ROOM, payload: ChatActionPayload };
 
 type ChatActionCreator = Callback<
   string, 
@@ -49,7 +49,10 @@ const initialState: ChatState = {
   isOpener: false,
 };
 
-export const chatReducer = (state = initialState, action: ChatAction) => {
+export const chatReducer = (
+  state = initialState, 
+  action: ChatAction
+): ChatState => {
   switch (action.type) {
     case ChatActionEnum.CREATE_ROOM:
       return {
@@ -57,7 +60,6 @@ export const chatReducer = (state = initialState, action: ChatAction) => {
         isOpener: true,
         roomId: action.payload.roomId,
       };
-
     case ChatActionEnum.JOIN_ROOM:
       return {
         ...state,

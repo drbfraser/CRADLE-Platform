@@ -16,49 +16,47 @@ export const getHealthFacilityList = () => {
     onError: (error) => ({
       type: GET_HEALTH_FACILITY_ERR,
       payload: error,
-    }),  })
+    }),  
+  })
 }
 
 export const getHealthFacilityListRequested = () => ({
-    type: GET_HEALTH_FACILITY_REQ
+  type: GET_HEALTH_FACILITY_REQ
 })
 
 const getHealthFacilityListOnSuccess = response => ({
-    type: GET_HEALTH_FACILITY_SUCCESS,
-    payload: response
+  type: GET_HEALTH_FACILITY_SUCCESS,
+  payload: response
 })
 
 const getHealthFacilityListOnError = error => ({
-    type: GET_HEALTH_FACILITY_ERR,
-    payload: error
+  type: GET_HEALTH_FACILITY_ERR,
+  payload: error
 })
 
 
 const initialState = {
-statisticsList: []
+  statisticsList: []
 }
 
-export const healthFacility =  (state = initialState, action) => {
+export const healthFacilitiesReducer =  (state = initialState, action) => {
   switch (action.type) {
-      case GET_HEALTH_FACILITY_SUCCESS:
-          return {
-              ...state,
-              healthFacilitiesList: action.payload.data
-          }
-      
-      case GET_HEALTH_FACILITY_REQ:
-          return {
-              ...state,
-              isLoading: true
-          }
-
-      case GET_HEALTH_FACILITY_ERR:
-          return {
-              ...state,
-              isLoading: false
-          }
-
-  default:
-    return state
-}
+    case GET_HEALTH_FACILITY_SUCCESS:
+      return {
+        ...state,
+        healthFacilitiesList: action.payload.data
+      }
+    case GET_HEALTH_FACILITY_REQ:
+      return {
+        ...state,
+        isLoading: true
+      }
+    case GET_HEALTH_FACILITY_ERR:
+      return {
+        ...state,
+        isLoading: false
+      }
+    default:
+      return state
+  }
 }
