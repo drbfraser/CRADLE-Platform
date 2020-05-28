@@ -16,19 +16,19 @@
   width: 100%;
   margin: 15px 0;
   float: left;
-  min-width : 450px;
+  min-width: 450px;
 }
 
 .urineTestCard {
   margin: 15px 0;
   float: right;
-  min-width : 450px;
+  min-width: 450px;
   width: 100%;
 }
 
 .bpField {
   margin: auto;
-  width : 350px;
+  width: 350px;
   text-align: right;
 }
 
@@ -62,8 +62,8 @@
   width: 49%;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
--webkit-appearance: none; 
-margin: 0; 
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
