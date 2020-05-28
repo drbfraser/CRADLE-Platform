@@ -18,6 +18,7 @@ import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from './symptomForm';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import {Patient ,Reading, User , CheckedItems} from '@types'
 
 var symptom: any = [];
 
@@ -74,27 +75,15 @@ interface IProps {
   getCurrentUser: any;
   createReadingDefault: any;
   afterNewPatientAdded: any;
-  user: any;
+  user: User;
   newReadingPost: any;
 }
-interface IPatient {
-  patientId: string;
-  patientName: string;
-  patientAge: string;
-  patientSex: string;
-  isPregnant: boolean;
-  gestationalAgeValue: string;
-  gestationalAgeUnit: string;
-  zone: string;
-  dob: any;
-  villageNumber: string;
-  drugHistory: string;
-  medicalHistory: string;
-}
+
 interface IState {
-  patient: IPatient;
-  reading: any;
-  hasUrineTest: any;
+  patient: Patient;
+  reading: Reading;
+  hasUrineTest: boolean;
+  checkedItems:CheckedItems;
 }
 class NewReadingPageComponent extends Component<IProps, IState> {
   state = initState;

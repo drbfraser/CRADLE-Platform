@@ -77,7 +77,7 @@ export type VHTS = {
   email: string;
 };
 
-export type checkedItems = {
+export type CheckedItems = {
   none: boolean;
   headache: boolean;
   bleeding: boolean;
