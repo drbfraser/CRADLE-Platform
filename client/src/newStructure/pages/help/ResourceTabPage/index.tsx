@@ -2,7 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import '../index.css';
 
-function ResourceTabPage(props: any) {
+interface IProps{
+  posterImgSrc:string;
+  posterImgUrl:string;
+  videoUrl:string
+}
+function ResourceTabPage(props: IProps) {
   return (
     <div>
       <img className="education-img" src={props.posterImgSrc} />
