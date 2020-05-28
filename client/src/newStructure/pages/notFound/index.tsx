@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-
+import { User } from '@types';
 interface IProps {
-  user: any;
+  user: User;
   getCurrentUser: any;
 }
 class NotFoundPageComponent extends Component<IProps> {
