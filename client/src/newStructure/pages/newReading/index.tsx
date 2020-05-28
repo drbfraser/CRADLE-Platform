@@ -84,6 +84,7 @@ interface IState {
   reading: Reading;
   hasUrineTest: boolean;
   checkedItems:CheckedItems;
+  showSuccessReading:boolean
 }
 class NewReadingPageComponent extends Component<IProps, IState> {
   state = initState;
