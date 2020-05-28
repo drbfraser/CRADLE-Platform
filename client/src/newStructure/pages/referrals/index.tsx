@@ -7,12 +7,12 @@ import {
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { ReferralTable } from './referralTable';
 
-interface IProps{
-  getCurrentUser:any;
-  user:any;
-  patients:any;
-  getPatients:any;
-  history:any;
+interface IProps {
+  getCurrentUser: any;
+  user: any;
+  patients: any;
+  getPatients: any;
+  history: any;
 }
 class ReferralPageComponent extends Component<IProps> {
   state = {
@@ -28,8 +28,8 @@ class ReferralPageComponent extends Component<IProps> {
     }
   };
 
-  static filterReferrals(patientsList:any) {
-    const result = patientsList.filter((patient:any) => {
+  static filterReferrals(patientsList: any) {
+    const result = patientsList.filter((patient: any) => {
       if (patient.readings.length === 0) {
         return false;
       }
@@ -45,8 +45,8 @@ class ReferralPageComponent extends Component<IProps> {
     return result;
   }
 
-  static getDerivedStateFromProps(props:any, state:any) {
-    const referredPatients:any = ReferralPage.filterReferrals(
+  static getDerivedStateFromProps(props: any, state: any) {
+    const referredPatients: any = ReferralPage.filterReferrals(
       props.patients.patientsList
     );
     let newState = {
@@ -57,7 +57,7 @@ class ReferralPageComponent extends Component<IProps> {
     return newState;
   }
 
-  patientCallback = (selectedPatient:any) => {
+  patientCallback = (selectedPatient: any) => {
     console.log('Received callback: ');
     this.props.history.push(`/patient/${selectedPatient.patientId}`);
   };
@@ -83,12 +83,12 @@ class ReferralPageComponent extends Component<IProps> {
   }
 }
 
-const mapStateToProps = ({ patients, user }:any ) => ({
+const mapStateToProps = ({ patients, user }: any) => ({
   patients: patients,
   user: user.currentUser
 });
 
-const mapDispatchToProps = (dispatch:any) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getPatients: () => {
     dispatch(getPatientsRequested());
     dispatch(getPatients());
@@ -101,4 +101,4 @@ const mapDispatchToProps = (dispatch:any) => ({
 export const ReferralPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(ReferralPageComponent)
+)(ReferralPageComponent);
