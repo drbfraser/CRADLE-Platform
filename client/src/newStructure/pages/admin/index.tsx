@@ -31,8 +31,7 @@ import {
 
 import MaterialTable from 'material-table';
 import { connect } from 'react-redux';
-import {User , VHTS} from '@types';
-
+import { User, VHTS } from '@types';
 
 const options = [
   { key: 'vht', text: 'VHT', value: 1 },
@@ -101,7 +100,9 @@ class AdminPageComponent extends Component<IProps, IState> {
       }
     ],
     data: [],
-    roleMapping: { 1: 'VHT', 2: 'HCW', 3: 'ADMIN', 4: 'CHO' } as  { [key: string]: any },
+    roleMapping: { 1: 'VHT', 2: 'HCW', 3: 'ADMIN', 4: 'CHO' } as {
+      [key: string]: any;
+    },
     displayUserEditModal: false,
     displayConfirmDeleteModal: false,
     selectedUser: {
