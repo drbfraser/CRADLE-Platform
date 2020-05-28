@@ -9,7 +9,7 @@ import {
   Input,
   TextArea
 } from 'semantic-ui-react';
-
+import {Patient} from '@types'
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
   { key: 'f', text: 'Female', value: 'FEMALE' },
@@ -31,7 +31,14 @@ const gestationalAgeUnitOptions = [
   { key: 'month', text: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS }
 ];
 
-export function PatientInfoForm(props: any) {
+interface IProps{
+  isEditPage:any;
+  patient:Patient;
+  onChange:any;
+  
+}
+
+export function PatientInfoForm(props: IProps) {
   return (
     <Paper style={{ padding: '35px 25px', borderRadius: '15px' }}>
       {!props.isEditPage && (
