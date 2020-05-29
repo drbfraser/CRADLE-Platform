@@ -47,10 +47,14 @@ export const login = (data: LoginData): ServerRequestAction => {
     endpoint: `${Endpoints.USER}${Endpoints.AUTH}`,
     method: Methods.POST,
     data,
-    onSuccess: ({ data }: { data: User }): CurrentUserAction => ({
-      type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
-      payload: { user: data },
-    }),
+    onSuccess: ({ data }: { data: User }): CurrentUserAction => {
+      localStorage.setItem(`token`, data.token)
+      localStorage.setItem(`refresh`, data.refresh)
+      return {
+        type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
+        payload: { user: data },
+      }
+    },
     onError: (message: string) => ({
       type: CurrentUserActionEnum.LOGIN_USER_ERROR,
       payload: { message },
@@ -114,7 +118,7 @@ export const currentUserReducer = (
         data: action.payload.currentUser, 
       };
     case CurrentUserActionEnum.LOGIN_USER_SUCCESS:
-      return { ...initialState, loggedIn: true };
+      return { ...initialState, data: action.payload.user, loggedIn: true };
     case CurrentUserActionEnum.START_REQUEST:
       return { ...initialState, loading: true };
     default:

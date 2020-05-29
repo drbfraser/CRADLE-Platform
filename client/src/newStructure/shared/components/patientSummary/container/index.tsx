@@ -7,15 +7,16 @@ import { PatientSummary } from '..';
 import React from 'react';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../../reducers/user/currentUser';
+import { ReduxState } from 'src/newStructure/redux/rootReducer';
 
 interface IProps {
   getCurrentUser: any;
   getPatient: any;
   history: any;
   isLoading: boolean;
+  loggedIn: boolean;
   match: any;
   patient: any;
-  user: any;
 }
 
 class PatientSummaryContainerComponent extends React.Component<IProps> {
@@ -26,7 +27,7 @@ class PatientSummaryContainerComponent extends React.Component<IProps> {
   }
 
   componentDidMount() {
-    if (!this.props.user.isLoggedIn) {
+    if (!this.props.loggedIn) {
       this.props.getCurrentUser();
     }
     this.props.getPatient(this.props.match.params.id);
@@ -37,7 +38,7 @@ class PatientSummaryContainerComponent extends React.Component<IProps> {
   };
 
   render() {
-    if (!this.props.user.isLoggedIn) {
+    if (!this.props.loggedIn) {
       return <div />;
     }
 
@@ -54,10 +55,10 @@ class PatientSummaryContainerComponent extends React.Component<IProps> {
   }
 }
 
-const mapStateToProps = ({ patients, user }: any) => ({
+const mapStateToProps = ({ patients, user }: ReduxState) => ({
   patient: patients.patient,
   isLoading: patients.isLoading,
-  user: user.currentUser,
+  loggedIn: user.current.loggedIn,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

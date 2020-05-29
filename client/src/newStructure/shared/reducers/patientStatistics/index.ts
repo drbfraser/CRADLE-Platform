@@ -15,28 +15,24 @@ type PatientStatisticsAction =
   | { type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR, payload: { message: string } }
   | { type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS, payload: { data: any } };
 
-const startRequest = (): PatientStatisticsAction => ({
+export const startRequest = (): PatientStatisticsAction => ({
   type: PatientStatisticsActionEnum.START_REQUEST,
 })
 
-type PatientStatisticsRequest = Callback<Callback<PatientStatisticsAction>, ServerRequestAction>;
+export type PatientStatisticsRequest = Callback<Callback<PatientStatisticsAction>, ServerRequestAction>;
 
-export const getPatientStatistics = (patientId: string): PatientStatisticsRequest => {
-  return (dispatch: Callback<PatientStatisticsAction>): ServerRequestAction => {
-    dispatch(startRequest());
-
-    return serverRequestActionCreator({
-      endpoint: `${Endpoints.PATIENT}${Endpoints.STATS}/${patientId}`,
-      onSuccess: (data: any): PatientStatisticsAction => ({
-        type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS,
-        payload: { data }
-      }),
-      onError: (message: string): PatientStatisticsAction => ({
-        type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR,
-        payload: { message },
-      }),
-    })
-  };
+export const getPatientStatistics = (patientId: string): ServerRequestAction => {
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.PATIENT}${Endpoints.STATS}/${patientId}`,
+    onSuccess: (data: any): PatientStatisticsAction => ({
+      type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS,
+      payload: { data }
+    }),
+    onError: (message: string): PatientStatisticsAction => ({
+      type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR,
+      payload: { message },
+    }),
+  })
 };
 
 export const clearPatientStatisticsRequestOutcome = (): PatientStatisticsAction => ({

@@ -63,7 +63,9 @@ export type User = {
   firstName: string;
   healthFacilityName: string;
   isLoggedIn: boolean;
+  refresh: string;
   roles: Array<RoleEnum>;
+  token: string;
   userId: number;
   vhtList: Array<string>;
 }

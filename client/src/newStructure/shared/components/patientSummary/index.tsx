@@ -36,6 +36,7 @@ import { getCurrentUser } from '../../reducers/user/currentUser';
 import { getReferrals } from '../../reducers/referrals';
 import { guid } from './utils';
 import { addNewReading } from '../../reducers/newReadingStatus';
+import { ReduxState } from 'src/newStructure/redux/rootReducer';
 
 let symptom: Array<any> = [];
 
@@ -1004,8 +1005,8 @@ class PatientSummaryComponent extends React.Component<IProps> {
   }
 }
 
-const mapStateToProps = ({ user, referrals, patientStatistics }: any) => ({
-  user: user.currentUser,
+const mapStateToProps = ({ user, referrals, patientStatistics }: ReduxState) => ({
+  user: user.current.data,
   referrals: referrals.mappedReferrals,
   data: patientStatistics.data,
 });

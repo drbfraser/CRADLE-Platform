@@ -94,6 +94,10 @@ const AppComponent = (props) => {
   const [activeItem, setActiveItem] = useState('Patients');
 
   const getRole = (roles) => {
+    if (!roles) {
+      return '';
+    }
+
     if (roles.includes('ADMIN')) {
       return 'ADMIN';
     } else if (roles.includes('HCW')) {
@@ -129,7 +133,7 @@ const AppComponent = (props) => {
           <Typography noWrap style={titleTextStyle}>
             CRADLE
           </Typography>
-          {props.isLoggedIn && (
+          {props.loggedIn && (
             <div style={{ marginLeft: 'auto', marginRight: 0 }}>
               <IconButton
                 className={classes.toolbarButtons}
@@ -163,7 +167,7 @@ const AppComponent = (props) => {
         </Toolbar>
       </AppBar>
 
-      {props.isLoggedIn ? (
+      {props.loggedIn ? (
         <Drawer
           className={classes.drawer}
           variant="permanent"
@@ -293,7 +297,7 @@ const AppComponent = (props) => {
 
             <Divider />
 
-            {props.user.roles.includes('ADMIN') && (
+            {props.user.roles && props.user.roles.includes('ADMIN') && (
               <div>
                 <ListItem
                   className={classes.listItem}
@@ -382,7 +386,7 @@ const AppComponent = (props) => {
 };
 
 const mapStateToProps = ({ user }) => ({
-  isLoggedIn: user.current.data !== null,
+  loggedIn: user.current.loggedIn,
   user: user.current.data,
 });
 
