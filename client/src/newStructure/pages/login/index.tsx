@@ -5,9 +5,10 @@ import { connect } from 'react-redux';
 import image from './img/splash_screen_4.png';
 import { login } from '../../shared/reducers/user/currentUser';
 import { bindActionCreators } from 'redux';
+import { ReduxState } from 'src/newStructure/redux/rootReducer';
 
 interface IProps {
-  isLoggedIn: boolean;
+  isLoggedIn: any;
 }
 
 class Login extends React.Component<IProps> {
@@ -30,9 +31,9 @@ class Login extends React.Component<IProps> {
   }
 }
 
-const mapStateToProps = ({ user }: any) => ({
-  isLoggedIn: user.currentUser.isLoggedIn,
-  email: user.currentUser.email,
+const mapStateToProps = ({ user }: ReduxState) => ({
+  isLoggedIn: user.currentUser.currentUser,
+  email: user.currentUser.currentUser?.email,
   errorMessage: user.currentUser.message,
 });
 

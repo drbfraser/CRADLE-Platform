@@ -31,51 +31,43 @@ export const logoutUser = (): Callback<Callback<CurrentUserAction |  RouterActio
   };
 };
 
-const startRequest = (): CurrentUserAction => ({
+export const startRequest = (): CurrentUserAction => ({
   type: CurrentUserActionEnum.START_REQUEST
 });
 
-type CurrentUserRequest = Callback<Callback<CurrentUserAction | RouterAction>, ServerRequestAction>;
+// type CurrentUserRequest = Callback<Callback<CurrentUserAction | RouterAction>, ServerRequestAction>;
 
-export const login = (data: any): CurrentUserRequest => {
-  return (dispatch: Callback<CurrentUserAction>): ServerRequestAction => {
-    dispatch(startRequest());
-
-    return serverRequestActionCreator({
-      endpoint: `${Endpoints.USER}${Endpoints.AUTH}`,
-      method: Methods.POST,
-      data,
-      onSuccess: (user: User): CurrentUserAction => ({
-        type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
-        payload: { user },
-      }),
-      onError: (message: string) => ({
-        type: CurrentUserActionEnum.LOGIN_USER_ERROR,
-        payload: { message },
-      }),
-    });
-  }
+export const login = (data: any): ServerRequestAction => {
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.USER}${Endpoints.AUTH}`,
+    method: Methods.POST,
+    data,
+    onSuccess: ({ data }: { data: User }): CurrentUserAction => ({
+      type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
+      payload: { user: data },
+    }),
+    onError: (message: string) => ({
+      type: CurrentUserActionEnum.LOGIN_USER_ERROR,
+      payload: { message },
+    }),
+  });
 };
 
-export const getCurrentUser = (): CurrentUserRequest => {
-  return (dispatch: Callback<CurrentUserAction | RouterAction>): ServerRequestAction => {
-    dispatch(startRequest());
-
-    return serverRequestActionCreator({
-      endpoint: `${Endpoints.USER}${Endpoints.CURRENT}`,
-      onSuccess: (currentUser: User): CurrentUserAction => ({
-        type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
-        payload: { currentUser },
-      }),
-      onError: (message: string): CurrentUserAction => {
-        logoutUser();
-        return {
-          type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR,
-          payload: { message },
-        }
-      },
-    });
-  }
+export const getCurrentUser = (): ServerRequestAction => {
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.USER}${Endpoints.CURRENT}`,
+    onSuccess: (currentUser: User): CurrentUserAction => ({
+      type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
+      payload: { currentUser },
+    }),
+    onError: (message: string): CurrentUserAction => {
+      logoutUser();
+      return {
+        type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR,
+        payload: { message },
+      }
+    },
+  });
 };
 
 export type CurrentUserState = {
@@ -115,7 +107,7 @@ export const currentUserReducer = (
         currentUser: action.payload.currentUser, 
       };
     case CurrentUserActionEnum.LOGIN_USER_SUCCESS:
-      return initialState;
+      return { ...initialState, currentUser: action.payload.user };
     case CurrentUserActionEnum.START_REQUEST:
       return { ...initialState, loading: true };
     default:
