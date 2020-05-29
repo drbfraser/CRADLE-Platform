@@ -37,7 +37,12 @@ export const startRequest = (): CurrentUserAction => ({
 
 export type CurrentUserRequest = Callback<Callback<CurrentUserAction | RouterAction>, ServerRequestAction>;
 
-export const login = (data: any): ServerRequestAction => {
+export type LoginData = {
+  email: string;
+  password: string;
+}
+
+export const login = (data: LoginData): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.AUTH}`,
     method: Methods.POST,
@@ -74,6 +79,7 @@ export type CurrentUserState = {
   data: OrNull<User>;
   error: boolean;
   loading: boolean,
+  loggedIn: boolean,
   message: OrNull<string>;
 }
 
@@ -81,6 +87,7 @@ const initialState: CurrentUserState = {
   data: null,
   error: false,
   loading: false,
+  loggedIn: false,
   message: null,
 };
 
@@ -107,7 +114,7 @@ export const currentUserReducer = (
         data: action.payload.currentUser, 
       };
     case CurrentUserActionEnum.LOGIN_USER_SUCCESS:
-      return initialState;
+      return { ...initialState, loggedIn: true };
     case CurrentUserActionEnum.START_REQUEST:
       return { ...initialState, loading: true };
     default:

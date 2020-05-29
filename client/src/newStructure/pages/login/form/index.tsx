@@ -1,13 +1,14 @@
 import * as Yup from 'yup';
-
 import React from 'react';
 import { useFormik } from 'formik';
 import { OrNull, Callback } from '@types';
 import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
+import { LoginData } from 'src/newStructure/shared/reducers/user/currentUser';
+import classes from './styles.module.css';
 
 interface IProps {
   errorMessage: OrNull<string>;
-  login: Callback<any, ServerRequestAction>;
+  login: Callback<LoginData, ServerRequestAction>;
 }
 
 export const LoginForm: React.FC<IProps> = (props) => {
@@ -23,7 +24,7 @@ export const LoginForm: React.FC<IProps> = (props) => {
         .required('Required'),
       email: Yup.string().email('Invalid email address').required('Required'),
     }),
-    onSubmit: (values) => {
+    onSubmit: (values: LoginData) => {
       props.login(values);
     },
   });
@@ -33,6 +34,7 @@ export const LoginForm: React.FC<IProps> = (props) => {
 
       <h2>Email</h2>
       <input
+        className={classes.inputStyle}
         placeholder="somebody@example.com"
         {...formik.getFieldProps('email')}
       />
@@ -42,6 +44,7 @@ export const LoginForm: React.FC<IProps> = (props) => {
 
       <h2>Password</h2>
       <input
+        className={classes.inputStyle}
         placeholder="********"
         type="password"
         {...formik.getFieldProps('password')}
@@ -53,7 +56,7 @@ export const LoginForm: React.FC<IProps> = (props) => {
         <div>{props.errorMessage}</div>
       )}
       <br />
-      <button type="submit">
+      <button className="contant-submit white" type="submit">
         Login
       </button>
     </form>

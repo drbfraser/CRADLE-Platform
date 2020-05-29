@@ -129,7 +129,7 @@ const AppComponent = (props) => {
           <Typography noWrap style={titleTextStyle}>
             CRADLE
           </Typography>
-          {props.user.isLoggedIn && (
+          {props.isLoggedIn && (
             <div style={{ marginLeft: 'auto', marginRight: 0 }}>
               <IconButton
                 className={classes.toolbarButtons}
@@ -163,7 +163,7 @@ const AppComponent = (props) => {
         </Toolbar>
       </AppBar>
 
-      {props.user.isLoggedIn ? (
+      {props.isLoggedIn ? (
         <Drawer
           className={classes.drawer}
           variant="permanent"
@@ -382,6 +382,7 @@ const AppComponent = (props) => {
 };
 
 const mapStateToProps = ({ user }) => ({
+  isLoggedIn: user.current.data !== null,
   user: user.current.data,
 });
 
