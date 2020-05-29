@@ -1,11 +1,11 @@
 import React from 'react';
 import Paper from '@material-ui/core/Paper';
 import { Form, Header, Input } from 'semantic-ui-react';
-import { Reading } from '../../../types';
+import { PatientNewReadingReading } from '../../../types';
 import '../index.css';
 
 interface IProps {
-  reading: Reading;
+  reading: PatientNewReadingReading;
   onChange: any;
 }
 export function BpForm(props: IProps) {
