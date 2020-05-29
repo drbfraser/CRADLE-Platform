@@ -63,11 +63,12 @@ class SignupComponent extends React.Component<IProp> {
     this.props.getHealthFacilityList();
   };
 
-  static getDerivedStateFromProps = (props: any, state: any) => {
+  static getDerivedStateFromProps = (props: any) => {
     if (props.registerStatus.userCreated) {
       props.registerUserDefault();
       return initState;
     }
+    return null;
   };
 
   render() {
