@@ -1,82 +1,123 @@
 import { Endpoints } from '../../../../server/endpoints';
-import { INVALID_USER } from '../serverLoginErrorMessage';
 import { Methods } from '../../../../server/methods';
-import { push } from 'connected-react-router';
-import { serverRequestActionCreator } from '../../utils';
+import { push, RouterAction } from 'connected-react-router';
+import { serverRequestActionCreator, ServerRequestAction } from '../../utils';
+import { Callback, User, OrNull } from '@types';
 
-const USER_LOGIN_SUCCESS = `user/USER_LOGIN_SUCCESS`;
-const LOGIN_USER = `user/LOGIN_USER`;
-export const LOGOUT_USER = `user/LOGOUT_USER`;
+export enum CurrentUserActionEnum {
+  CLEAR_REQUEST_OUTCOME = 'currentUser/CLEAR_REQUEST_OUTCOME',
+  GET_CURRENT_USER_ERROR = 'currentUser/GET_CURRENT_USER_ERROR',
+  GET_CURRENT_USER_SUCCESS = 'currentUser/GET_CURRENT_USER_SUCCESS',
+  LOGIN_USER_ERROR = 'currentUser/LOGIN_USER_ERROR',
+  LOGIN_USER_SUCCESS = 'currentUser/LOGIN_USER_SUCCESS',
+  LOGOUT_USER = 'currentUser/LOGOUT_USER',
+  START_REQUEST = 'currentUser/START_REQUEST',
+}
 
-export const logoutUserAction = () => ({
-  type: LOGOUT_USER,
-});
+type CurrentUserAction = 
+  | { type: CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME }
+  | { type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR, payload: { message: string } }
+  | { type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS, payload: { currentUser: User } }
+  | { type: CurrentUserActionEnum.LOGIN_USER_ERROR, payload: { message: string } }
+  | { type: CurrentUserActionEnum.LOGIN_USER_SUCCESS, payload: { user: User } }
+  | { type: CurrentUserActionEnum.LOGOUT_USER }
+  | { type: CurrentUserActionEnum.START_REQUEST };
 
-export const logoutUser = () => {
-  return (dispatch: any) => {
+export const logoutUser = (): Callback<Callback<CurrentUserAction |  RouterAction>> => {
+  return (dispatch: Callback<CurrentUserAction |  RouterAction>): void => {
     localStorage.removeItem('token');
-    dispatch(logoutUserAction());
+    dispatch({ type: CurrentUserActionEnum.LOGOUT_USER });
     dispatch(push('/login'));
   };
 };
 
-export const userLoginFetch = (data: any) => {
-  return serverRequestActionCreator({
-    endpoint: `${Endpoints.USER}${Endpoints.AUTH}`,
-    method: Methods.POST,
-    data,
-    onSuccess: (response: any) => ({
-      type: USER_LOGIN_SUCCESS,
-      payload: response,
-    }),
-    onError: (message: any) => ({
-      type: INVALID_USER,
-      payload: message,
-    }),
-  });
+const startRequest = (): CurrentUserAction => ({
+  type: CurrentUserActionEnum.START_REQUEST
+});
+
+type CurrentUserRequest = Callback<Callback<CurrentUserAction | RouterAction>, ServerRequestAction>;
+
+export const login = (data: any): CurrentUserRequest => {
+  return (dispatch: Callback<CurrentUserAction>): ServerRequestAction => {
+    dispatch(startRequest());
+
+    return serverRequestActionCreator({
+      endpoint: `${Endpoints.USER}${Endpoints.AUTH}`,
+      method: Methods.POST,
+      data,
+      onSuccess: (user: User): CurrentUserAction => ({
+        type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
+        payload: { user },
+      }),
+      onError: (message: string) => ({
+        type: CurrentUserActionEnum.LOGIN_USER_ERROR,
+        payload: { message },
+      }),
+    });
+  }
 };
 
-export const getCurrentUser = () => {
-  return serverRequestActionCreator({
-    endpoint: `${Endpoints.USER}${Endpoints.CURRENT}`,
-    onSuccess: (response: any) => ({
-      type: LOGIN_USER,
-      payload: response,
-    }),
-    onError: () => (dispatch: any) => {
-      localStorage.removeItem(`token`);
-      dispatch(logoutUserAction());
-      dispatch(push(`/login`));
-    },
-  });
+export const getCurrentUser = (): CurrentUserRequest => {
+  return (dispatch: Callback<CurrentUserAction | RouterAction>): ServerRequestAction => {
+    dispatch(startRequest());
+
+    return serverRequestActionCreator({
+      endpoint: `${Endpoints.USER}${Endpoints.CURRENT}`,
+      onSuccess: (currentUser: User): CurrentUserAction => ({
+        type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
+        payload: { currentUser },
+      }),
+      onError: (message: string): CurrentUserAction => {
+        logoutUser();
+        return {
+          type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR,
+          payload: { message },
+        }
+      },
+    });
+  }
 };
 
-const initialState = {
-  currentUser: {},
+export type CurrentUserState = {
+  currentUser: OrNull<User>;
+  error: boolean;
+  loading: boolean,
+  message: OrNull<string>;
+}
+
+const initialState: CurrentUserState = {
+  currentUser: null,
+  error: false,
+  loading: false,
+  message: null,
 };
 
-export const currentUserReducer = (state = initialState, action: any) => {
+export const currentUserReducer = (
+  state = initialState, 
+  action: CurrentUserAction
+): CurrentUserState => {
   switch (action.type) {
-    case LOGIN_USER:
-      return action.payload.data;
-    case LOGOUT_USER:
-      return { isLoggedIn: false };
-    case USER_LOGIN_SUCCESS:
-      localStorage.setItem(`token`, action.payload.data.token);
-      localStorage.setItem(`refresh`, action.payload.data.refresh);
-      const user = action.payload.data;
-      return {
-        ...state,
-        ...{
-          email: user.email,
-          roles: user.roles,
-          firstName: user.firstName,
-          healthFacilityName: user.healthFacilityName,
-          userId: user.userId,
-          vhtList: user.vhtList,
-        },
-        isLoggedIn: true,
+    case CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME:
+      return { 
+        ...initialState, 
+        currentUser: state.currentUser, 
       };
+    case CurrentUserActionEnum.GET_CURRENT_USER_ERROR:
+    case CurrentUserActionEnum.LOGIN_USER_ERROR:
+      return { 
+        ...initialState, 
+        error: true, 
+        message: action.payload.message, 
+      };
+    case CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS:
+      return { 
+        ...initialState, 
+        currentUser: action.payload.currentUser, 
+      };
+    case CurrentUserActionEnum.LOGIN_USER_SUCCESS:
+      return initialState;
+    case CurrentUserActionEnum.START_REQUEST:
+      return { ...initialState, loading: true };
     default:
       return state;
   }

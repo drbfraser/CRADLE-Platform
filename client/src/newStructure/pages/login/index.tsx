@@ -3,7 +3,8 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import image from './img/splash_screen_4.png';
-import { userLoginFetch } from '../../shared/reducers/user/currentUser';
+import { login } from '../../shared/reducers/user/currentUser';
+import { bindActionCreators } from 'redux';
 
 interface IProps {
   isLoggedIn: boolean;
@@ -32,12 +33,13 @@ class Login extends React.Component<IProps> {
 const mapStateToProps = ({ user }: any) => ({
   isLoggedIn: user.currentUser.isLoggedIn,
   email: user.currentUser.email,
-  errorMessage: user.serverLoginErrorMessage,
+  errorMessage: user.currentUser.message,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  userLoginFetch: (user: any) => dispatch(userLoginFetch(user)),
-});
+const mapDispatchToProps = (dispatch: any) => bindActionCreators(
+  { login }, 
+  dispatch
+);
 
 export const LoginPage = connect(
   mapStateToProps, 

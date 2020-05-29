@@ -1,4 +1,4 @@
-import { LOGOUT_USER } from '../../shared/reducers/user/currentUser';
+import { CurrentUserActionEnum } from '../../shared/reducers/user/currentUser';
 import { statisticsReducer, StatisticsState } from '../../shared/reducers/statistics';
 import { chatReducer, ChatState } from '../../pages/videoChat/reducers/chat';
 import { combineReducers } from 'redux';
@@ -39,7 +39,7 @@ const appReducer = combineReducers({
 
 export const rootReducer = (state: any, action: any) => {
   switch (action.type) {
-    case LOGOUT_USER:
+    case CurrentUserActionEnum.LOGOUT_USER:
       return undefined;
     default:
       return appReducer(state, action);

@@ -4,7 +4,7 @@ import React from 'react';
 import { useFormik } from 'formik';
 
 interface IProps {
-  userLoginFetch?: any;
+  login?: any;
   errorMessage?: any;
 }
 
@@ -22,7 +22,7 @@ export const LoginForm: React.FC<IProps> = (props) => {
       email: Yup.string().email('Invalid email address').required('Required'),
     }),
     onSubmit: (values) => {
-      props.userLoginFetch(values);
+      props.login(values);
     },
   });
   return (

@@ -183,6 +183,6 @@ const updateUserOnError = error => ({
   payload: error
 })
 
-export const registerUserDefault = () => ({
+export const clearRegisterStatusOutcome = () => ({
   type: REGISTER_USER_DEFAULT
 })

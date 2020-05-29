@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
   registerUser,
-  registerUserDefault
+  clearRegisterStatusOutcome
 } from '../../shared/reducers/user/registerStatus';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import {
@@ -51,7 +51,7 @@ class SignupComponent extends Component {
 
   static getDerivedStateFromProps = (props, state) => {
     if (props.registerStatus.userCreated) {
-      props.registerUserDefault();
+      props.clearRegisterStatusOutcome();
       return initState;
     }
   };
@@ -189,8 +189,8 @@ const mapDispatchToProps = dispatch => ({
   getCurrentUser: () => {
     dispatch(getCurrentUser());
   },
-  registerUserDefault: () => {
-    dispatch(registerUserDefault());
+  clearRegisterStatusOutcome: () => {
+    dispatch(clearRegisterStatusOutcome());
   }
 });
 
