@@ -2,6 +2,7 @@ import React from 'react';
 import Paper from '@material-ui/core/Paper';
 import Switch from '@material-ui/core/Switch';
 import { Form, Header, Select } from 'semantic-ui-react';
+import { PatientNewReadingReading} from '../../../types'
 
 import '../index.css';
 
@@ -31,6 +32,7 @@ interface IProps {
   hasUrineTest: any;
   onSwitchChange: any;
   onChange: any;
+  reading:PatientNewReadingReading;
 }
 export function UrineTestForm(props: IProps) {
   return (

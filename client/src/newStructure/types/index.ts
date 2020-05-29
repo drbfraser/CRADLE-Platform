@@ -95,5 +95,41 @@ export type SelectedUser = {
   healthFacilityName: string;
   dropdownSelections: any[];
   vhtDropdownSelections: any[];
-  roleIds : Array<string>;
+  roleIds: Array<string>;
+};
+
+export type PatientNewReading = {
+  dob: OrNull<number>;
+  drugHistory: OrNull<string>;
+  gestationalAgeUnit: string;
+  gestationalAgeValue: string;
+  isPregnant: boolean;
+  medicalHistory: OrNull<string>;
+  patientAge: string;
+  patientId: string;
+  patientName: string;
+  patientSex: string;
+  villageNumber: string;
+  zone: OrNull<string>;
+};
+
+export type PatientNewReadingReading = {
+  userId: string;
+  readingId: string;
+  dateTimeTaken: OrNull<string>;
+  bpSystolic: string;
+  bpDiastolic: string;
+  heartRateBPM: string;
+  dateRecheckVitalsNeeded: OrNull<string>;
+  isFlaggedForFollowup: boolean;
+  symptoms: string;
+  urineTests: UrineTests;
+};
+
+export type UrineTests = {
+  urineTestNit: string;
+  urineTestBlood: string;
+  urineTestLeuc: string;
+  urineTestPro: string;
+  urineTestGlu: string;
 };
