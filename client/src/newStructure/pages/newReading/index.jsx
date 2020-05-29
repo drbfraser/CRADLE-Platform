@@ -5,7 +5,7 @@ import {PatientInfoForm, GESTATIONAL_AGE_UNITS } from './patientInfoForm'
 import React, { Component } from 'react'
 import {UrineTestForm ,initialUrineTests } from './urineTestForm'
 import { addNewPatient, afterNewPatientAdded } from '../../shared/reducers/patients'
-import { createReadingDefault, addNewReading } from '../../shared/reducers/newReadingStatus'
+import { resetNewReadingStatus, addNewReading } from '../../shared/reducers/newReadingStatus'
 
 import {BpForm} from './bpForm'
 import SweetAlert from 'sweetalert2-react'
@@ -76,7 +76,7 @@ class NewReadingPageComponent extends Component  {
 
     static getDerivedStateFromProps = (props, state) => {
         if (props.newPatientAdded) {
-            props.createReadingDefault()
+            props.resetNewReadingStatus()
             props.afterNewPatientAdded()
             return {
                 ...state,
@@ -334,8 +334,8 @@ const mapDispatchToProps = dispatch => ({
     addNewReading: data => {
         dispatch(addNewReading(data))
     },
-    createReadingDefault: () => {
-        dispatch(createReadingDefault())
+    resetNewReadingStatus: () => {
+        dispatch(resetNewReadingStatus())
     },
     getCurrentUser: () => {
         dispatch(getCurrentUser())
