@@ -6,7 +6,7 @@ import {
 } from '../../shared/reducers/patients';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { ReferralTable } from './referralTable';
-import {User } from '@types';
+import {User } from '../../types';
 
 interface IProps {
   getCurrentUser: any;
