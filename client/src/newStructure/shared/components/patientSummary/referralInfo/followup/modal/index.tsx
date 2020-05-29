@@ -10,7 +10,7 @@
  */
 
 import { Button, Form, Input, Modal, Select, TextArea } from 'semantic-ui-react'
-import React, { Component } from 'react'
+import React from 'react'
 import {
   createFollowUp,
   setReadingId,
@@ -20,6 +20,7 @@ import {
 import Switch from '@material-ui/core/Switch'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { followupFrequencyUnit } from '../utils';
 
 
 const untilDateOrOther = [
@@ -27,14 +28,7 @@ const untilDateOrOther = [
   { key: 'other', text: 'Other', value: 'OTHER' }
 ]
 
-class Component extends Component<any, any> {
-  static propTypes = {
-    initialValues: PropTypes.objectOf(PropTypes.string),
-    updateFollowUp: PropTypes.func.isRequired,
-    referralId: PropTypes.string.isRequired,
-    readingId: PropTypes.string.isRequired
-  }
-
+class Component extends React.Component<any, any> {
   constructor(props) {
     super(props)
 
@@ -47,7 +41,7 @@ class Component extends Component<any, any> {
         followupNeeded: false,
         dateFollowupNeededTill: '',
         followupInstructions: '',
-        followupFrequencyUnit: followupFrequencyUnit['none'],
+        followupFrequencyUnit: followupFrequencyUnit[0],
         followupFrequencyValue: null
       },
       isOpen: false,

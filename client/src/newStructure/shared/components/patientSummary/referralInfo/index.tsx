@@ -1,6 +1,5 @@
 // @ts-nocheck
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import Typography from '@material-ui/core/Typography'
 import { Icon } from 'semantic-ui-react'
 import { getPrettyDateTime } from '../../../utils';
@@ -8,10 +7,6 @@ import { FollowUpModal } from './followup/modal';
 import { FollowUpInfo } from './followup/info';
 
 export default class ReferralInfo extends Component {
-  static propTypes = {
-    referral: PropTypes.object
-  }
-
   render() {
     if (this.props.referral) {
       let ref = this.props.referral

@@ -12,7 +12,7 @@ const followupFrequencyUnit = [
   { key: 'year', text: 'Years', value: 'YEARS' }
 ];
 
-export const FollowUpInfo: React.FC<any> = (props) {
+export const FollowUpInfo: React.FC<any> = (props) => {
   if (props.followUp) {
     let frequencyStr = ''
     if (

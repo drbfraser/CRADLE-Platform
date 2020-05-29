@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import React, { Component } from 'react'
+import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Icon } from 'semantic-ui-react'
@@ -45,6 +45,7 @@ import {
 } from '../form/urineTest';
 import { PatientInfoForm, GESTATIONAL_AGE_UNITS } from '../form/patient';
 import { SymptomForm } from '../form/symptom';
+import { ReduxState } from 'src/newStructure/redux/rootReducer'
 
 var symptom = []
 
@@ -55,7 +56,7 @@ function guid() {
     return v.toString(16)
   })
 }
-class PatientSummary extends Component {
+class Component extends React.Component {
   state = {
     displayPatientModal: false,
     selectedPatient: { readings: [] },
@@ -988,10 +989,10 @@ class PatientSummary extends Component {
   }
 }
 
-const mapStateToProps = ({ user, referrals, patientStats }) => ({
+const mapStateToProps = ({ user, referrals, patientStatistics }: ReduxState) => ({
   user: user.currentUser,
   referrals: referrals.mappedReferrals,
-  selectedPatientStatsList: patientStats.selectedPatientStatsList
+  selectedPatientStatsList: patientStatistics.data ?? {}
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -1020,7 +1021,7 @@ const mapDispatchToProps = dispatch => ({
   )
 })
 
-export default connect(
+export const PatientSummary = connect(
   mapStateToProps,
   mapDispatchToProps
-)(PatientSummary)
+)(Component)
