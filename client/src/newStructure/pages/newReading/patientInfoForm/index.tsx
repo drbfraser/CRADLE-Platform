@@ -9,7 +9,7 @@ import {
   Input,
   TextArea
 } from 'semantic-ui-react';
-import { PatientNewReading } from '../../../types';
+// import { PatientNewReading } from '../../../types';
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
   { key: 'f', text: 'Female', value: 'FEMALE' },
@@ -33,7 +33,7 @@ const gestationalAgeUnitOptions = [
 
 interface IProps {
   isEditPage: any;
-  patient: PatientNewReading;
+  patient: any;
   onChange: any;
 }
 
