@@ -35,7 +35,7 @@ export const startRequest = (): CurrentUserAction => ({
   type: CurrentUserActionEnum.START_REQUEST
 });
 
-// type CurrentUserRequest = Callback<Callback<CurrentUserAction | RouterAction>, ServerRequestAction>;
+export type CurrentUserRequest = Callback<Callback<CurrentUserAction | RouterAction>, ServerRequestAction>;
 
 export const login = (data: any): ServerRequestAction => {
   return serverRequestActionCreator({
