@@ -492,7 +492,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
 
     var bpSystolicReadingsMontly = {};
 
-    if (this.props.data.bpSystolicReadingsMontly) {
+    if (this.props.data && this.props.data.bpSystolicReadingsMontly) {
       const bpSystolicReadingsData = this.props.data
         .bpSystolicReadingsMontly;
       var averageSystolic = Array(12);
@@ -512,7 +512,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
     }
 
     var bpDiastolicReadingsMonthly = {};
-    if (this.props.data.bpDiastolicReadingsMonthly) {
+    if (this.props.data && this.props.data.bpDiastolicReadingsMonthly) {
       const bpDiastolicReadingsData = this.props.data
         .bpDiastolicReadingsMonthly;
       var averageDiastolic = Array(12);
@@ -532,7 +532,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
     }
 
     var heartRateReadingsMonthly = {};
-    if (this.props.data.heartRateReadingsMonthly) {
+    if (this.props.data && this.props.data.heartRateReadingsMonthly) {
       const heartRateData = this.props.data
         .heartRateReadingsMonthly;
       var averageHeartRate = Array(12);
@@ -574,7 +574,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
     };
 
     var trafficLight = {};
-    if (this.props.data.trafficLightCountsFromDay1) {
+    if (this.props.data && this.props.data.trafficLightCountsFromDay1) {
       trafficLight = {
         labels: ['GREEN', 'YELLOW UP', 'YELLOW DOWN', 'RED UP', 'RED DOWN'],
         datasets: [
@@ -591,8 +591,9 @@ class PatientSummaryComponent extends React.Component<IProps> {
     return (
       <div>
         {this.state.selectedPatient ? (
-          <div style={{ margin: '2.5em 0' }}>
-            <h1 style={{ width: '70%', margin: '-1.35em 0' }}>
+          <div>
+            <div style={{ display: `flex`, justifyContent: `space-between` }}>
+            <h1 style={{ width: '70%' }}>
               <Icon
                 style={{
                   cursor: 'pointer',
@@ -604,8 +605,9 @@ class PatientSummaryComponent extends React.Component<IProps> {
               />
               Patient Summary : {this.state.selectedPatient.patientName}
             </h1>
-            <Button
-              style={{ float: 'right' }}
+            <Button 
+              className="ui icon button"
+              style={{ display: `flex`, alignItems: `center` }}
               onClick={() => this.openReadingModal()}
               icon>
               <Icon name="plus" size="large" />
@@ -618,6 +620,7 @@ class PatientSummaryComponent extends React.Component<IProps> {
                 Add New Reading
               </Typography>
             </Button>
+            </div>
             <div style={{ clear: 'both' }}></div>
             <Divider />
             <Grid container direction="row" spacing={4}>
@@ -1016,13 +1019,13 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getPatientsRequested());
     dispatch(getPatients());
   },
-  updatePatient: (patientId: any, data: any) => dispatch(updatePatient(patientId, data)),
-  addNewReading: (data: any) => dispatch(addNewReading(data)),
-  getCurrentUser: () => dispatch(getCurrentUser()),
   ...bindActionCreators(
     {
+      addNewReading,
+      getCurrentUser,
       getPatientStatistics,
       getReferrals,
+      updatePatient,
     },
     dispatch
   ),

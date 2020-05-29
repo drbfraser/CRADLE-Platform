@@ -24,7 +24,7 @@ export type PatientStatisticsRequest = Callback<Callback<PatientStatisticsAction
 export const getPatientStatistics = (patientId: string): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}${Endpoints.STATS}/${patientId}`,
-    onSuccess: (data: any): PatientStatisticsAction => ({
+    onSuccess: ({ data }: any): PatientStatisticsAction => ({
       type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS,
       payload: { data }
     }),
