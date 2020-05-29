@@ -1,7 +1,7 @@
 import React from 'react';
 import Paper from '@material-ui/core/Paper';
 import { Form, Header, Input } from 'semantic-ui-react';
-import { Reading } from '@types';
+import { Reading } from '../../../types';
 import '../index.css';
 
 interface IProps {
