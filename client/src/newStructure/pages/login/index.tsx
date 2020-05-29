@@ -6,14 +6,20 @@ import image from './img/splash_screen_4.png';
 import { login } from '../../shared/reducers/user/currentUser';
 import { bindActionCreators } from 'redux';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { OrNull, Callback } from '@types';
+import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
 
 interface IProps {
-  isLoggedIn: any;
+  errorMessage: OrNull<string>;
+  loggedIn: boolean;
+  login: Callback<any, ServerRequestAction>;
 }
 
 class Login extends React.Component<IProps> {
   render() {
-    if (this.props.isLoggedIn) {
+    const { loggedIn, ...props } = this.props;
+
+    if (this.props.loggedIn) {
       return <Redirect to="/patients" />;
     }
     return (
@@ -23,7 +29,7 @@ class Login extends React.Component<IProps> {
         </div>
         <div className="subWrapper">
           <div style={{ position: 'relative', left: '-10%' }}>
-            <LoginForm {...this.props} />
+            <LoginForm {...props} />
           </div>
         </div>
       </div>
@@ -32,9 +38,9 @@ class Login extends React.Component<IProps> {
 }
 
 const mapStateToProps = ({ user }: ReduxState) => ({
-  isLoggedIn: user.currentUser.currentUser,
-  email: user.currentUser.currentUser?.email,
-  errorMessage: user.currentUser.message,
+  isLoggedIn: user.current.data !== null,
+  email: user.current.data?.email,
+  errorMessage: user.current.message,
 });
 
 const mapDispatchToProps = (dispatch: any) => bindActionCreators(

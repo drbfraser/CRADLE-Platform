@@ -382,7 +382,7 @@ const AppComponent = (props) => {
 };
 
 const mapStateToProps = ({ user }) => ({
-  user: user.currentUser,
+  user: user.current.data,
 });
 
 const mapDispatchToProps = (dispatch) =>

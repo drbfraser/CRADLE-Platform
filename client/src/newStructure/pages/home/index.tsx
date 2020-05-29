@@ -17,7 +17,7 @@ const Home: React.FC<IProps> = (props) => {
 };
 
 const mapStateToProps = ({ user }: ReduxState) => ({
-  currentUser: user.currentUser.currentUser,
+  currentUser: user.current.data,
 });
 
 export const HomePage = connect(

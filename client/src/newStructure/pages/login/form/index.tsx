@@ -2,10 +2,12 @@ import * as Yup from 'yup';
 
 import React from 'react';
 import { useFormik } from 'formik';
+import { OrNull, Callback } from '@types';
+import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
 
 interface IProps {
-  login?: any;
-  errorMessage?: any;
+  errorMessage: OrNull<string>;
+  login: Callback<any, ServerRequestAction>;
 }
 
 export const LoginForm: React.FC<IProps> = (props) => {

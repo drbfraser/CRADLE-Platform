@@ -71,14 +71,14 @@ export const getCurrentUser = (): ServerRequestAction => {
 };
 
 export type CurrentUserState = {
-  currentUser: OrNull<User>;
+  data: OrNull<User>;
   error: boolean;
   loading: boolean,
   message: OrNull<string>;
 }
 
 const initialState: CurrentUserState = {
-  currentUser: null,
+  data: null,
   error: false,
   loading: false,
   message: null,
@@ -92,7 +92,7 @@ export const currentUserReducer = (
     case CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME:
       return { 
         ...initialState, 
-        currentUser: state.currentUser, 
+        data: state.data, 
       };
     case CurrentUserActionEnum.GET_CURRENT_USER_ERROR:
     case CurrentUserActionEnum.LOGIN_USER_ERROR:
@@ -104,10 +104,10 @@ export const currentUserReducer = (
     case CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS:
       return { 
         ...initialState, 
-        currentUser: action.payload.currentUser, 
+        data: action.payload.currentUser, 
       };
     case CurrentUserActionEnum.LOGIN_USER_SUCCESS:
-      return { ...initialState, currentUser: action.payload.user };
+      return initialState;
     case CurrentUserActionEnum.START_REQUEST:
       return { ...initialState, loading: true };
     default:

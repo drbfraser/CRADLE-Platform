@@ -7,12 +7,12 @@ import { registerStatusReducer, RegisterStatusState } from './registerStatus';
 export type UserState = {
   allUsers: AllUsersState;
   allVhts: AllVhtsState;
-  currentUser: CurrentUserState,
+  current: CurrentUserState,
   registerStatus: RegisterStatusState,
 };
 
 export const userReducer = combineReducers({
-  currentUser: currentUserReducer,
+  current: currentUserReducer,
   registerStatus: registerStatusReducer,
   allUsers: allUsersReducer,
   allVhts: allVhtsReducer,
