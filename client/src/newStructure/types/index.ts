@@ -1,4 +1,9 @@
-import { SexEnum, TrafficLightEnum, GestationalAgeUnitEnum, RoleEnum } from '../enums';
+import {
+  SexEnum,
+  TrafficLightEnum,
+  GestationalAgeUnitEnum,
+  RoleEnum
+} from '../enums';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -28,10 +33,9 @@ export type Reading = {
   temporaryFlags: OrNull<number>;
   totalOcrSeconds: OrNull<number>;
   trafficLightStatus: TrafficLightEnum;
-  urineTest: OrNull<string>;
+  userHasSelectedNoSymptoms: boolean;
+  urineTest: string;
   urineTests: OrNull<string>;
-  userHasSelectedNoSymptoms: OrNull<boolean>;
-  userId: number;
   comment?: string;
   dateReferred?: number;
 };
@@ -68,4 +72,66 @@ export type User = {
   token: string;
   userId: number;
   vhtList: Array<string>;
-}
+};
+
+export type VHTS = {
+  id: number;
+  email: string;
+};
+
+export type CheckedItems = {
+  none: boolean;
+  headache: boolean;
+  bleeding: boolean;
+  blurredVision: boolean;
+  feverish: boolean;
+  abdominalPain: boolean;
+  unwell: boolean;
+  other: boolean;
+  otherSymptoms: string;
+};
+
+export type SelectedUser = {
+  email: string;
+  firstName: string;
+  healthFacilityName: string;
+  dropdownSelections: any[];
+  vhtDropdownSelections: any[];
+  roleIds: Array<string>;
+};
+
+export type PatientNewReading = {
+  dob: OrNull<number>;
+  drugHistory: OrNull<string>;
+  gestationalAgeUnit: string;
+  gestationalAgeValue: string;
+  isPregnant: boolean;
+  medicalHistory: OrNull<string>;
+  patientAge: string;
+  patientId: string;
+  patientName: string;
+  patientSex: string;
+  villageNumber: string;
+  zone: OrNull<string>;
+};
+
+export type PatientNewReadingReading = {
+  userId: string;
+  readingId: string;
+  dateTimeTaken: OrNull<string>;
+  bpSystolic: string;
+  bpDiastolic: string;
+  heartRateBPM: string;
+  dateRecheckVitalsNeeded: OrNull<string>;
+  isFlaggedForFollowup: boolean;
+  symptoms: string;
+  urineTests: UrineTests;
+};
+
+export type UrineTests = {
+  urineTestNit: string;
+  urineTestBlood: string;
+  urineTestLeuc: string;
+  urineTestPro: string;
+  urineTestGlu: string;
+};

@@ -14,40 +14,39 @@ interface IProps {
 export const LoginForm: React.FC<IProps> = (props) => {
   const formik = useFormik({
     initialValues: {
-      email: '',
-      password: '',
+      email: ``,
+      password: ``,
     },
     validationSchema: Yup.object({
       password: Yup.string()
-        .max(15, 'Must be 15 characters or less')
-        .min(5, 'Must be at least 5 characters')
-        .required('Required'),
-      email: Yup.string().email('Invalid email address').required('Required'),
+        .max(15, `Must be 15 characters or less`)
+        .min(5, `Must be at least 5 characters`)
+        .required(`Required`),
+      email: Yup.string().email(`Invalid email address`).required(`Required`),
     }),
     onSubmit: (values: LoginData) => {
       props.login(values);
     },
   });
+
   return (
     <form onSubmit={formik.handleSubmit}>
-      <h1 style={{ fontSize: 50 }}>Log In</h1>
-
+      <h1 className={classes.login}>Log In</h1>
       <h2>Email</h2>
       <input
         className={classes.inputStyle}
         placeholder="somebody@example.com"
-        {...formik.getFieldProps('email')}
+        {...formik.getFieldProps(`email`)}
       />
       {formik.touched.email && formik.errors.email ? (
         <div className={classes.formError}>{formik.errors.email}</div>
       ) : null}
-
       <h2>Password</h2>
       <input
         className={classes.inputStyle}
         placeholder="********"
         type="password"
-        {...formik.getFieldProps('password')}
+        {...formik.getFieldProps(`password`)}
       />
       {formik.touched.password && formik.errors.password ? (
         <div className={classes.formError}>{formik.errors.password}</div>

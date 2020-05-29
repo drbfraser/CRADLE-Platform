@@ -1,0 +1,26 @@
+.container {
+  background-color: lightblue;
+  height: calc(100vh - 70px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: -24px;
+}
+
+.createRoomHidden {
+  background: transparent;
+  margin-inline-end: 15px;
+}
+
+.createRoom {
+  composes: createRoomHidden;
+  background: #ababad
+}
+
+.enterRoomHidden {
+  background: transparent;
+}
+
+.enterRoom {
+  background: #ababad
+}

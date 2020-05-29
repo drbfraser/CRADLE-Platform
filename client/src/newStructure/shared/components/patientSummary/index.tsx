@@ -1,12 +1,4 @@
-import { Bar, Line } from 'react-chartjs-2';
-import { Button, Divider, Form, Header, Input, Modal } from 'semantic-ui-react';
-import { INITIAL_URINE_TESTS, URINE_TEST_CHEMICALS } from '../../utils';
-import {
-  getMomentDate,
-  getPrettyDate,
-  getPrettyDateTime,
-  getTrafficIcon,
-} from '../../utils';
+import { Divider, Icon, Button, Grid, Modal, Form, Header, Input } from 'semantic-ui-react';
 import {
   getPatients,
   getPatientsRequested,
@@ -16,20 +8,8 @@ import {
   getPatientStatistics,
 } from '../../reducers/patientStatistics';
 
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import { GESTATIONAL_AGE_UNITS } from '../../utils';
-import Grid from '@material-ui/core/Grid';
-import { Icon } from 'semantic-ui-react';
-import Paper from '@material-ui/core/Paper';
-import { PatientInfoForm } from '../form/patientInfo';
 import React from 'react';
-import { ReferralInfo } from './referralInfo';
 import SweetAlert from 'sweetalert2-react';
-import { SymptomForm } from '../form/symptom';
-import Typography from '@material-ui/core/Typography';
-import { UrineTestForm } from '../form/urineTest';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../reducers/user/currentUser';
@@ -37,6 +17,13 @@ import { getReferrals } from '../../reducers/referrals';
 import { guid } from './utils';
 import { addNewReading } from '../../reducers/newReadingStatus';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { GESTATIONAL_AGE_UNITS, INITIAL_URINE_TESTS, getMomentDate, getPrettyDate, getPrettyDateTime, getTrafficIcon, URINE_TEST_CHEMICALS } from '../../utils';
+import { Typography, Paper, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails } from '@material-ui/core';
+import { Line, Bar } from 'react-chartjs-2';
+import { ReferralInfo } from '../patientSummary/readings/referralInfo';
+import { PatientInfoForm } from '../../../pages/newReading/patientInfoForm';
+import { SymptomForm } from '../../../pages/newReading/symptomForm';
+import { UrineTestForm } from '../../../pages/newReading/urineTestForm';
 
 let symptom: Array<any> = [];
 
@@ -53,7 +40,7 @@ interface IProps {
   referrals: any;
 }
 
-class PatientSummaryComponent extends React.Component<IProps> {
+class Component extends React.Component<IProps> {
   state = {
     patient: ``,
     displayPatientModal: false,
@@ -104,6 +91,17 @@ class PatientSummaryComponent extends React.Component<IProps> {
     hasUrineTest: false,
   };
 
+  getReferralIds(selectedPatient: any) {
+    let res = []
+    for (let i in selectedPatient.readings) {
+      let reading = selectedPatient.readings[i]
+      if (reading.referral != null) {
+        res.push(reading.referral)
+      }
+    }
+    return res
+  }
+
   componentDidMount = () => {
     this.setState({ selectedPatient: this.props.selectedPatient });
 
@@ -117,63 +115,51 @@ class PatientSummaryComponent extends React.Component<IProps> {
   };
 
   calculateShockIndex = (reading: any) => {
-    const RED_SYSTOLIC = 160;
-    const RED_DIASTOLIC = 110;
-    const YELLOW_SYSTOLIC = 140;
-    const YELLOW_DIASTOLIC = 90;
-    const SHOCK_HIGH = 1.7;
-    const SHOCK_MEDIUM = 0.9;
+    const RED_SYSTOLIC = 160
+    const RED_DIASTOLIC = 110
+    const YELLOW_SYSTOLIC = 140
+    const YELLOW_DIASTOLIC = 90
+    const SHOCK_HIGH = 1.7
+    const SHOCK_MEDIUM = 0.9
 
     if (
       reading['bpSystolic'] === undefined ||
       reading['bpDiastolic'] === undefined ||
       reading['heartRateBPM'] === undefined
-    ) {
-      return 'NONE';
-    }
+    )
+      return 'NONE'
 
-    const shockIndex = reading['heartRateBPM'] / reading['bpSystolic'];
+    const shockIndex = reading['heartRateBPM'] / reading['bpSystolic']
 
     const isBpVeryHigh =
       reading['bpSystolic'] >= RED_SYSTOLIC ||
-      reading['bpDiastolic'] >= RED_DIASTOLIC;
+      reading['bpDiastolic'] >= RED_DIASTOLIC
     const isBpHigh =
       reading['bpSystolic'] >= YELLOW_SYSTOLIC ||
-      reading['bpDiastolic'] >= YELLOW_DIASTOLIC;
-    const isSevereShock = shockIndex >= SHOCK_HIGH;
-    const isShock = shockIndex >= SHOCK_MEDIUM;
+      reading['bpDiastolic'] >= YELLOW_DIASTOLIC
+    const isSevereShock = shockIndex >= SHOCK_HIGH
+    const isShock = shockIndex >= SHOCK_MEDIUM
 
-    let trafficLight = '';
+    let trafficLight = ''
     if (isSevereShock) {
-      trafficLight = 'RED_DOWN';
+      trafficLight = 'RED_DOWN'
     } else if (isBpVeryHigh) {
-      trafficLight = 'RED_UP';
+      trafficLight = 'RED_UP'
     } else if (isShock) {
-      trafficLight = 'YELLOW_DOWN';
+      trafficLight = 'YELLOW_DOWN'
     } else if (isBpHigh) {
-      trafficLight = 'YELLOW_UP';
+      trafficLight = 'YELLOW_UP'
     } else {
-      trafficLight = 'GREEN';
+      trafficLight = 'GREEN'
     }
-    return trafficLight;
-  };
-
-  getReferralIds(selectedPatient: any) {
-    let res = [];
-    for (let i in selectedPatient.readings) {
-      let reading = selectedPatient.readings[i];
-      if (reading.referral != null) {
-        res.push(reading.referral);
-      }
-    }
-    return res;
+    return trafficLight
   }
 
-  handleBackBtn = () => {
+  goBackToPatientsPage = (): void => {
     // go back to patient table
     this.props.getPatients();
     this.props.callbackFromParent(false);
-  };
+  }
 
   openPatientModal = () => {
     this.setState({
@@ -472,6 +458,12 @@ class PatientSummaryComponent extends React.Component<IProps> {
       urineTests
     );
   };
+
+  handleBackBtn = () => {
+    // go back to patient table
+    this.props.getPatients()
+    this.props.callbackFromParent(false)
+  }
 
   render() {
     let readings = [];
@@ -1034,4 +1026,4 @@ const mapDispatchToProps = (dispatch: any) => ({
 export const PatientSummary = connect(
   mapStateToProps,
   mapDispatchToProps
-)(PatientSummaryComponent);
+)(Component);

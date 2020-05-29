@@ -16,7 +16,7 @@ interface IProps {
   login: Callback<LoginData, ServerRequestAction>;
 }
 
-class Login extends React.Component<IProps> {
+class Page extends React.Component<IProps> {
   render() {
     const { loggedIn, ...props } = this.props;
 
@@ -49,6 +49,6 @@ const mapDispatchToProps = (dispatch: any) => bindActionCreators(
 );
 
 export const LoginPage = connect(
-  mapStateToProps, 
+  mapStateToProps,
   mapDispatchToProps
-)(Login);
+)(Page);

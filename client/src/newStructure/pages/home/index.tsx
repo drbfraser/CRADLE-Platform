@@ -8,7 +8,7 @@ interface IProps {
   currentUser: OrNull<User>;
 }
 
-const Home: React.FC<IProps> = (props) => {
+const Page: React.FC<IProps> = (props) => {
   return props.currentUser ? (
     <Redirect to="/patients" />
   ) : (
@@ -22,4 +22,4 @@ const mapStateToProps = ({ user }: ReduxState) => ({
 
 export const HomePage = connect(
   mapStateToProps
-)(Home);
+)(Page);
