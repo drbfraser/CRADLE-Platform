@@ -11,7 +11,7 @@ import {
 import {
   createReadingDefault,
   newReadingPost
-} from '../../shared/reducers/newReadingStatus';
+} from '../../shared/reducers/newReadingPost';
 
 import { BpForm } from './bpForm';
 import SweetAlert from 'sweetalert2-react';

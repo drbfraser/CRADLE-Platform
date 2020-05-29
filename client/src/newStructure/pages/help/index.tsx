@@ -30,7 +30,7 @@ export const COMMUNITY_WORKER_EDUCATION_VIDEO_LINK =
 export const HEALTH_FACILITY_WORKER_EDUCATION_VIDEO_LINK =
   'https://www.youtube.com/embed/QainNBCHKAg';
 
-const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />;
+// const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />;
 interface IProps {
   user: User;
   getCurrentUser: any;
