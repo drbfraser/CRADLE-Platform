@@ -11,7 +11,13 @@ import {
 } from '../../shared/reducers/healthFacilities';
 import { Button, Divider, Form, Select, Message } from 'semantic-ui-react';
 import { Paper } from '@material-ui/core';
-import { User } from '@types';
+import { User } from '../../types';
+import {
+  RoleEnum
+} from '../../enums';
+
+
+
 const initState = {
   user: {
     email: '',
@@ -68,7 +74,7 @@ class SignupComponent extends React.Component<IProp> {
     // only admins can see this page
     if (
       this.props.user.roles === undefined ||
-      !this.props.user.roles.includes('ADMIN')
+      !this.props.user.roles.includes(RoleEnum.ADMIN)
     ) {
       return (
         <Message warning>
