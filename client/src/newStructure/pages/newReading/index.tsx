@@ -18,7 +18,7 @@ import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from './symptomForm';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { Patient, Reading, User, CheckedItems } from '@types';
+import { PatientNewReading, PatientNewReadingReading, User, CheckedItems } from '../../types'
 
 var symptom: any = [];
 
@@ -43,7 +43,7 @@ const initState = {
     dob: null,
     villageNumber: '',
     drugHistory: '',
-    medicalHistory: ''
+    medicalHistory: '',
   },
   reading: {
     userId: '',
@@ -80,8 +80,8 @@ interface IProps {
 }
 
 interface IState {
-  patient: Patient;
-  reading: Reading;
+  patient: PatientNewReading;
+  reading: PatientNewReadingReading;
   hasUrineTest: boolean;
   checkedItems: CheckedItems;
   showSuccessReading: boolean;
@@ -252,9 +252,9 @@ class NewReadingPageComponent extends Component<IProps, IState> {
       {
         reading: {
           ...this.state.reading,
-          userId: this.props.user.userId,
+          userId: this.props.user.userId.toString(),
           readingId: readingID,
-          dateTimeTaken: dateTimeTaken,
+          dateTimeTaken: dateTimeTaken.toString(),
           symptoms: symptom.toString()
         }
       },
@@ -296,6 +296,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           <PatientInfoForm
             patient={this.state.patient}
             onChange={this.handleSelectChange}
+            isEditPage=''
           />
           <div className="leftContainer">
             <BpForm
