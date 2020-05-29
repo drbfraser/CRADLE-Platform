@@ -39,7 +39,7 @@ export const LoginForm: React.FC<IProps> = (props) => {
         {...formik.getFieldProps('email')}
       />
       {formik.touched.email && formik.errors.email ? (
-        <div>{formik.errors.email}</div>
+        <div className={classes.formError}>{formik.errors.email}</div>
       ) : null}
 
       <h2>Password</h2>
@@ -50,10 +50,10 @@ export const LoginForm: React.FC<IProps> = (props) => {
         {...formik.getFieldProps('password')}
       />
       {formik.touched.password && formik.errors.password ? (
-        <div>{formik.errors.password}</div>
+        <div className={classes.formError}>{formik.errors.password}</div>
       ) : null}
       {props.errorMessage && (
-        <div>{props.errorMessage}</div>
+        <div className={classes.formError}>{props.errorMessage}</div>
       )}
       <br />
       <button className="contant-submit white" type="submit">
