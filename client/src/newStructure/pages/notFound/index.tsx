@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { User } from '@types';
+import { User } from '../../types';
 interface IProps {
   user: User;
   getCurrentUser: any;
