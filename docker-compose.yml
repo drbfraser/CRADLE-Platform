@@ -2,11 +2,12 @@ version: '3.7'
 
 services:
   client: 
+    stdin_open: true
     container_name: client
     build: ./client
     command: yarn start
     ports: 
-      - 3001:3000
+      - 3000:3000
     volumes:
       - './client:/usr/src/client'
       - '/usr/src/client/node_modules'

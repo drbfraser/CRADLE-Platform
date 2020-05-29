@@ -24,7 +24,7 @@ import { PatientSummaryContainer } from '../shared/components/patientSummary/con
 import PatientsImg from './img/patients.svg';
 import { PatientsPage } from '../pages/patients';
 import ReferralsImg from './img/referrals.svg';
-import { ReferralsPage } from '../pages/referrals';
+import { ReferralPage } from '../pages/referrals';
 import { SignUpPage } from '../pages/signUp';
 import StatisticsImg from './img/statistics.svg';
 import { StatisticsPage } from '../pages/statistics';
@@ -37,6 +37,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
+import { PrivateRoute } from './privateRoute';
 
 const drawerWidth = 200;
 
@@ -64,10 +65,13 @@ const useStyles = makeStyles((theme) => ({
   drawerPaper: {
     /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#3b679e+0,34787e+0,45889f+51,65a6df+100 */
     background: '#3b679e' /* Old browsers */,
+    //@ts-ignore
     background:
-      '-moz-linear-gradient(top,  #3b679e 0%, #34787e 0%, #45889f 51%, #65a6df 100%)' /* FF3.6-15 */,
+    '-moz-linear-gradient(top,  #3b679e 0%, #34787e 0%, #45889f 51%, #65a6df 100%)' /* FF3.6-15 */,
+    //@ts-ignore
     background:
-      '-webkit-linear-gradient(top,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)' /* Chrome10-25,Safari5.1-6 */,
+    '-webkit-linear-gradient(top,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)' /* Chrome10-25,Safari5.1-6 */,
+    //@ts-ignore
     background:
       'linear-gradient(to bottom,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)' /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */,
     filter:
@@ -105,7 +109,7 @@ const AppComponent = (props) => {
   const titleTextStyle = {
     fontFamily: 'Open Sans',
     fontWeight: 'bold',
-    fontSize: 36,
+    fontSize: 36
   };
 
   const sidebarTextStyle = {
@@ -146,12 +150,12 @@ const AppComponent = (props) => {
 
               <IconButton
                 className={classes.toolbarButtonsPadded}
-                button
-                component={Link}
-                to="/help"
+                // component={Link}
+                // to="/help"
                 onClick={() => setActiveItem('Help')}
-                selected={activeItem === 'Help'}
-                color="inherit">
+                // selected={activeItem === 'Help'}
+                color="inherit"
+              >
                 <Icon name="help" size="small" />
               </IconButton>
             </div>
@@ -180,7 +184,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Reading'}
               onClick={() => setActiveItem('Reading')}>
               <ListItemIcon>
-                <img src={CreateImg} class="center sidebarIcon" />
+                <img src={CreateImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -200,7 +204,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Patients'}
               onClick={() => setActiveItem('Patients')}>
               <ListItemIcon>
-                <img src={PatientsImg} class="center sidebarIcon" />
+                <img src={PatientsImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -218,7 +222,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Referrals'}
               onClick={() => setActiveItem('Referrals')}>
               <ListItemIcon>
-                <img src={ReferralsImg} class="center sidebarIcon" />
+                <img src={ReferralsImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -236,7 +240,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Statistics'}
               onClick={() => setActiveItem('Statistics')}>
               <ListItemIcon>
-                <img src={StatisticsImg} class="center sidebarIcon" />
+                <img src={StatisticsImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -254,9 +258,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Chat'}
               onClick={() => setActiveItem('Chat')}>
               <ListItemIcon>
-                <img src={VideoImg} class="center sidebarIcon" />
-
-                {/* <i className="fas fa-video"></i> */}
+                <img src={VideoImg} style={{ width: `75%` }} />
               </ListItemIcon>
 
               <ListItemText
@@ -277,9 +279,7 @@ const AppComponent = (props) => {
               selected={activeItem === 'Resources'}
               onClick={() => setActiveItem('Resources')}>
               <ListItemIcon>
-                <img src={EduImg} class="center sidebarIcon" />
-
-                {/* <i className="fas fa-video"></i> */}
+                <img src={EduImg} style={{ width: `75%` }} />
               </ListItemIcon>
 
               <ListItemText
@@ -296,7 +296,7 @@ const AppComponent = (props) => {
             {props.user.roles.includes('ADMIN') && (
               <div>
                 <ListItem
-                  className={[classes.listItem]}
+                  className={classes.listItem}
                   component={Link}
                   button
                   key="new user"
@@ -337,7 +337,7 @@ const AppComponent = (props) => {
             )}
 
             <ListItem
-              className={[classes.listItem, classes.logout]}
+              className={`${classes.listItem} ${classes.logout}`}
               button
               key="Logout"
               onClick={() => props.logoutUser()}>
@@ -357,14 +357,14 @@ const AppComponent = (props) => {
         <div className={classes.toolbar} />
         <Switch>
           <Route exact path="/" component={HomePage} />
-          <Route exact path="/admin" component={AdminPage} />
-          <Route exact path="/help" component={HelpPage} />
-          <Route exact path="/patients" component={PatientsPage} />
-          <Route path="/patient/:id" component={PatientSummaryContainer} />
-          <Route exact path="/signup" component={SignUpPage} />
+          <PrivateRoute exact path="/admin" component={AdminPage} />
+          <PrivateRoute exact path="/help" component={HelpPage} />
+          <PrivateRoute exact path="/patients" component={PatientsPage} />
+          <PrivateRoute path="/patient/:id" component={PatientSummaryContainer} />
+          <PrivateRoute exact path="/signup" component={SignUpPage} />
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/stats" component={StatisticsPage} />
-          <Route exact path="/referrals" component={ReferralsPage} />
+          <Route exact path="/referrals" component={ReferralPage} />
           <Route exact path="/newreading" component={NewReadingPage} />
           <Route exact path="/resources" component={HelpPage} />
           <Route exact path="/chat/landing" component={VideoChatPage} />
@@ -374,7 +374,7 @@ const AppComponent = (props) => {
             path="/chat/session/:roomId"
             component={VideoSessionPage}
           />
-          <Route component={{ NotFoundPage }} />
+          <PrivateRoute component={NotFoundPage} />
         </Switch>
       </main>
     </div>
