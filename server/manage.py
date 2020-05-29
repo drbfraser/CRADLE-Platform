@@ -16,16 +16,38 @@ manager = Manager(app)
 # USAGE: python manage.py reset_db
 @manager.command
 def reset_db():
-    db.drop_all()
-    db.create_all()
-    db.session.commit()
+    """
+    This command is depreciated and will be removed at a later date. It currently does 
+    nothing except display a warning message.
+
+    The reason this command is depreciated is that by manually constructing the database
+    tables we eliminate the ability for use to use flask's db migration system to manage
+    our database schema for us. At this point in time that doesn't matter to much, if
+    we change the schema we simply delete the current database and rebuild it. We cannot
+    do that once we have actual live data in it so it is pertinant that we practice how
+    to manage a database migration when updating the schema.
+    """
+    print("\n!! THIS COMMAND IS DEPRECIATED !!\n")
+    print("See db.py for an alternative command")
+    print("No changes were made")
+    exit(1)
 
 
 # USAGE: python manage.py drop_all_tables
 @manager.command
 def drop_all_tables():
-    db.drop_all()
-    db.session.commit()
+    """
+    This command is depreciated and will be removed at a later date. It currently does 
+    nothing except display a warning message.
+
+    This command is depreciated for the same reason `reset_db` is. Deleting all tables
+    in this mannor does not delete flask's migration metadata table leaving the database
+    in a corrupted state.
+    """
+    print("\n!! THIS COMMAND IS DEPRECIATED !!\n")
+    print("See db.py for an alternative command")
+    print("No changes were made")
+    exit(1)
 
 
 # USAGE: python manage.py seed
