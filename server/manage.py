@@ -50,6 +50,56 @@ def drop_all_tables():
     exit(1)
 
 
+@manager.command
+def seed_minimal(email="admin123@admin.com", password="admin123"):
+    """
+    Seeds the database with the minimum amount of data required for it to be functional.
+
+    The data inserted into the database is deterministic so it is suitable for testing
+    off of.
+
+    The minimal set of data is as follows:
+
+     - A single health facility named: H0000
+     - The set of predefined user roles
+     - A single admin user
+    """
+    print("Seeding health facility...")
+    hf = {
+        "healthFacilityName": "H0000",
+        "healthFacilityPhoneNumber": "555-555-55555",
+        "facilityType": "HOSPITAL",
+        "about": "Sample health centre",
+        "location": "Sample Location",
+    }
+    hf_schema = HealthFacilitySchema()
+    db.session.add(hf_schema.load(hf))
+    db.session.commit()
+
+    print("Seeding user roles...")
+    role_vht = Role(name="VHT")
+    role_hcw = Role(name="HCW")
+    role_admin = Role(name="ADMIN")
+    role_cho = Role(name="CHO")
+    db.session.add_all([role_vht, role_hcw, role_admin, role_cho])
+    db.session.commit()
+
+    print("Creating admin user...")
+    user = {
+        "email": email,
+        "firstName": "Admin",
+        "password": flask_bcrypt.generate_password_hash(password),
+        "healthFacilityName": hf["healthFacilityName"],
+    }
+    user_schema = UserSchema()
+    role_admin = Role.query.filter_by(name="ADMIN").first()
+    role_admin.users.append(user_schema.load(user, session=db.session))
+    db.session.add(role_admin)
+    db.session.commit()
+
+    print("Finished seeding minimal data set")
+
+
 # USAGE: python manage.py seed
 @manager.command
 def seed():
