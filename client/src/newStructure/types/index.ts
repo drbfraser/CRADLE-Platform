@@ -35,7 +35,7 @@ export type Reading = {
   trafficLightStatus: TrafficLightEnum;
   userHasSelectedNoSymptoms: boolean;
   urineTest: string;
-  urineTests: OrNull<string>;
+  urineTests: any;
   comment?: string;
   dateReferred?: number;
 };
