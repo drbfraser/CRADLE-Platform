@@ -31,7 +31,7 @@ import {
 
 import MaterialTable from 'material-table';
 import { connect } from 'react-redux';
-import { User, VHTS } from '@types';
+import { SelectedUser, VHTS } from '../../types';
 
 const options = [
   { key: 'vht', text: 'VHT', value: 1 },
@@ -48,8 +48,8 @@ interface IProps {
   healthFacilityList: string[];
   getUsers: any;
   getHealthFacilityList: any;
-  getVhtList: VHTS;
-  vhtList: any;
+  getVhtList: any;
+  vhtList: VHTS[];
   isLoading: any;
 }
 interface IState {
@@ -58,7 +58,7 @@ interface IState {
   roleMapping: { [index: string]: string };
   displayUserEditModal: any;
   displayConfirmDeleteModal: any;
-  selectedUser: User;
+  selectedUser: SelectedUser;
 }
 
 class AdminPageComponent extends Component<IProps, IState> {
@@ -117,7 +117,7 @@ class AdminPageComponent extends Component<IProps, IState> {
 
   handleSelectChange = (e: any, value: any) => {
     this.setState({
-      selectedUser: { ...this.state.selectedUser, [value.name]: value.value }
+      selectedUser: { ...this.state.selectedUser, [value.name]: value.value } 
     });
   };
 
@@ -126,7 +126,7 @@ class AdminPageComponent extends Component<IProps, IState> {
       selectedUser: {
         ...this.state.selectedUser,
         dropdownSelections: value.value
-      }
+      } 
     });
   };
 
@@ -135,7 +135,7 @@ class AdminPageComponent extends Component<IProps, IState> {
       selectedUser: {
         ...this.state.selectedUser,
         vhtDropdownSelections: value.value
-      }
+      } 
     });
   };
 

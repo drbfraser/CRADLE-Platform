@@ -88,3 +88,12 @@ export type CheckedItems = {
   other: boolean;
   otherSymptoms: string;
 };
+
+export type SelectedUser = {
+  email: string;
+  firstName: string;
+  healthFacilityName: string;
+  dropdownSelections: any[];
+  vhtDropdownSelections: any[];
+  roleIds : Array<string>;
+};
