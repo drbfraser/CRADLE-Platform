@@ -4,8 +4,7 @@ stages:
   - format
   - deploy
 
-# Frontend Build Job
-build frontend:
+frontend build:
   stage: build
   image: node:10
   tags:
@@ -15,3 +14,46 @@ build frontend:
     - npm install
   script:
     - CI=false yarn build
+
+backend unit tests:
+  stage: test
+  image: python:3.7.6-buster
+  tags:
+    - docker
+  before_script:
+    - cd server
+    - pip install -r requirements.txt
+  script:
+    - python -m pytest Tests
+
+backend system tests:
+  stage: test
+  image: python:3.7.6-buster
+  tags:
+    - docker
+  variables:
+    # Cradle Server Variables
+    DB_USERNAME: "root"
+    DB_PASSWORD: "ci-password"
+    EMAIL_USER: "ci@ci.com"
+    EMAIL_PASSWORD: "ci-password"
+    DB_HOSTNAME: "db"
+    DB_PORT: "3306"
+    DB_NAME: "cradle"
+    PORT: "5000"
+    # MySQL Variables
+    MYSQL_DATABASE: "cradle"
+    MYSQL_ROOT_PASSWORD: "ci-password"
+  services:
+    - mysql:latest
+  before_script:
+    - cd server
+    - pip install -r requirements.txt
+    # Spin up a server instance in the background
+    # Run this first so that the server can warm up whilst we seed the db
+    - python3 app.py &
+    # Build and seed database
+    - python3 db.py rebuild
+    - python3 manage.py seed_test_data
+  script:
+    - python -m pytest SystemTests
