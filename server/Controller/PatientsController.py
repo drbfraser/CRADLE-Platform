@@ -96,7 +96,8 @@ class PatientAll(Resource):
             return {'HTTP 400': decoding_error}, 400
         patient_data = self._get_request_body()
 
-        patient_data['dob'] = int(patient_data['dob'])
+        if 'dob' in patient_data and patient_data['dob'] is not None:
+            patient_data['dob'] = int(patient_data['dob'])
 
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
