@@ -85,19 +85,30 @@ def seed_minimal(email="admin123@admin.com", password="admin123"):
     db.session.commit()
 
     print("Creating admin user...")
-    user = {
-        "email": email,
-        "firstName": "Admin",
-        "password": flask_bcrypt.generate_password_hash(password),
-        "healthFacilityName": hf["healthFacilityName"],
-    }
-    user_schema = UserSchema()
-    role_admin = Role.query.filter_by(name="ADMIN").first()
-    role_admin.users.append(user_schema.load(user, session=db.session))
-    db.session.add(role_admin)
-    db.session.commit()
+    create_user(email, "Admin", password, "H0000", "ADMIN")
 
     print("Finished seeding minimal data set")
+
+
+@manager.command
+def seed_test_data():
+    """
+    Seeds data for testing.
+
+    The data inserted here should be deterministically generated to ease testing.
+    """
+    # Start with a minimal setup.
+    seed_minimal()
+
+    # Add the rest of the users.
+    print("Creating test users...")
+    create_user("hcw@hcw.com", "Brian", "hcw123", "H0000", "HCW")
+    create_user("vht@vht.com", "TestVHT", "vht123", "H0000", "VHT")
+    create_user("cho@cho.com", "TestCHO", "cho123", "H0000", "CHO")
+
+    # TODO: Add more data here
+
+    print("Finished seeding test data")
 
 
 # USAGE: python manage.py seed
@@ -229,6 +240,23 @@ def seed():
                 db.session.commit()
 
     print("Complete!")
+
+
+def create_user(email, name, password, hf_name, role):
+    """
+    Creates a user in the database.
+    """
+    user = {
+        "email": email,
+        "firstName": name,
+        "password": flask_bcrypt.generate_password_hash(password),
+        "healthFacilityName": hf_name,
+    }
+    user_schema = UserSchema()
+    user_role = Role.query.filter_by(name=role).first()
+    user_role.users.append(user_schema.load(user, session=db.session))
+    db.session.add(user_role)
+    db.session.commit()
 
 
 def getRandomInitials():
