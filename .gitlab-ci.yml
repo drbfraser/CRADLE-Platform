@@ -49,7 +49,7 @@ backend system tests:
   before_script:
     # Add mysql client so we can execute queries on the database
     - apt-get update -y
-    - apt-get install mysql-client -y
+    - apt-get install default-mysql-client -y
     - cd server
     - pip install -r requirements.txt
     # Spin up a server instance in the background
