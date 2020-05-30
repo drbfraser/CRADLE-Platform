@@ -4,16 +4,16 @@ stages:
   - format
   - deploy
 
-frontend build:
-  stage: build
-  image: node:10
-  tags:
-    - docker
-  before_script:
-    - cd client
-    - npm install
-  script:
-    - CI=false yarn build
+# frontend build:
+#   stage: build
+#   image: node:10
+#   tags:
+#     - docker
+#   before_script:
+#     - cd client
+#     - npm install
+#   script:
+#     - CI=false yarn build
 
 backend unit tests:
   stage: test
@@ -45,7 +45,7 @@ backend system tests:
     MYSQL_DATABASE: "cradle"
     MYSQL_ROOT_PASSWORD: "ci-password"
   services:
-    - mysql:latest
+    - mysql:5.7
   before_script:
     # Add mysql client so we can execute queries on the database
     - apt-get update -y
