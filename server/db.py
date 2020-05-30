@@ -32,9 +32,7 @@ def upgrade(env):
     Attempts to upgrade the database using flask.
     """
     print("Upgrading database...")
-    result = exec_sh_cmd(
-        env, ["flask", "db", "upgrade"], container="cradle", stderr=None
-    )
+    result = exec_sh_cmd(env, ["flask", "db", "upgrade"], container="cradle")
     print("done")
 
 
