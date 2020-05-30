@@ -14,4 +14,4 @@ build frontend:
     - cd client
     - npm install
   script:
-    - yarn build
+    - CI=false yarn build
