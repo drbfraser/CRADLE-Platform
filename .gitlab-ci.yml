@@ -22,6 +22,7 @@ backend unit tests:
     - docker
   before_script:
     - cd server
+    - pip install --upgrade pip
     - pip install -r requirements.txt
   script:
     - python -m pytest Tests
@@ -51,6 +52,7 @@ backend system tests:
     - apt-get update -y
     - apt-get install default-mysql-client -y
     - cd server
+    - pip install --upgrade pip
     - pip install -r requirements.txt
     # Spin up a server instance in the background
     # Run this first so that the server can warm up whilst we seed the db
@@ -60,3 +62,15 @@ backend system tests:
     - python3 manage.py seed_test_data
   script:
     - python -m pytest SystemTests
+
+backend format:
+  stage: format
+  image: python:3.7.6-buster
+  tags:
+    - docker
+  before_script:
+    - pip install --upgrade pip
+    - pip install black
+  allow_failure: true
+  script:
+    - black --check --exclude 'server/migrations/.*' server 
