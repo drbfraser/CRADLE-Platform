@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -u
 
 MYSQL_IMAGE="mysql:5.7"
 DB_NETWORK="db_network"
@@ -45,7 +46,7 @@ require-env-var "DB_USERNAME"
 require-env-var "DB_PASSWORD"
 require-env-var "DB_HOSTNAME"
 require-env-var "DB_PORT"
-require-evn-var "DB_NAME"
+require-env-var "DB_NAME"
 require-env-var "EMAIL_USER"
 require-env-var "EMAIL_PASSWORD"
 echo "Done!"
@@ -54,20 +55,21 @@ echo ""
 echo "Begining deployment: $DEPLOYMENT_MODE"
 echo ""
 
+echo "Searching for database network..."
+if [[ -z "$(network-id $DB_NETWORK)" ]]; then
+  echo "Not found"
+
+  echo "Creating database network..."
+  docker network create $DB_NETWORK
+  echo "Done!"
+else
+  echo "Found!"
+fi
+echo ""
+
 echo "Searching for database instance..."
 if [[ -z "$(container-id $DB_NAME)" ]]; then
   echo "Not found"
-
-  echo "Searching for database network..."
-  if [[ ! -z "$(network-id $DB_NETWORK)" ]]; then
-    echo "Not found"
-
-    echo "Creating database network..."
-    docker network create $DB_NETWORK
-    echo "Done!"
-  else
-    echo "Found!"
-  fi
 
   echo "Creating a new database instance..."
   docker run \
@@ -75,10 +77,10 @@ if [[ -z "$(container-id $DB_NAME)" ]]; then
     -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
     -e MYSQL_USER=$DB_USERNAME \
     -e MYSQL_PASSWORD=$DB_PASSWORD \
-    -p "$DB_PORT:3306"
+    -p "$DB_PORT:3306" \
     --mount "type=volume,src=$(volume-name),dst=/var/lib/mysql" \
     --network $DB_NETWORK \
-    --detatch \
+    --detach \
     $MYSQL_IMAGE
   echo "Done!"
 else
@@ -98,7 +100,7 @@ fi
 echo ""
 
 echo "Deploying..."
-docker-compose up --force-recreate --detatch
+docker-compose up --force-recreate --detach
 echo "Done!"
 
 echo "Finished deployment: $DEPLOYMENT_MODE!"
