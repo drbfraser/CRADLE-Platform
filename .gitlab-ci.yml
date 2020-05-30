@@ -1,82 +1,17 @@
 stages:
-    - build
-    - test
-    - deploy
+  - build
+  - test
+  - format
+  - deploy
 
-variables:
-    GIT_STRATEGY: none
-
-before_script:
-    - cd /var/www/cradle-platform
-    - pwd
-    - whoami
-    - echo CI_MERGE_REQUEST_ID:$CI_MERGE_REQUEST_ID
-    - echo CI_COMMIT_BRANCH:$CI_COMMIT_BRANCH
-    - echo CI_MERGE_REQUEST_SOURCE_BRANCH_NAME:$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-    - BRANCH_NAME="$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
-    - if [ -z "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then BRANCH_NAME=$CI_COMMIT_BRANCH; fi
-    - echo BRANCH_NAME:$BRANCH_NAME
-    - git fetch --all
-    - git checkout $BRANCH_NAME
-    - git branch
-    - git reset --hard origin/$BRANCH_NAME
-    - export COMPOSE_PROJECT_NAME=prod
-    - export COMPOSE_HTTP_TIMEOUT=180
-
-build:
-    stage: build
-    script:
-        - echo "Building project..."
-        - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml build
-    rules:
-        - if: $CI_MERGE_REQUEST_ID
-        - if: $CI_COMMIT_BRANCH == "production"
-        - if: $CI_COMMIT_BRANCH == "staging"
-        - if: $CI_COMMIT_BRANCH == "master" 
-
-test:
-    stage: test
-    script:
-        - echo "Running tests..."
-    rules:
-        - if: $CI_MERGE_REQUEST_ID
-        - if: $CI_COMMIT_BRANCH == "production"
-        - if: $CI_COMMIT_BRANCH == "staging"
-        - if: $CI_COMMIT_BRANCH == "master" 
-
-# all commands to be run when deploying to any server
-deploy-general: 
-    stage: deploy
-    script:
-        - echo "Starting MySQL Container"
-        - bash server/prod/start_db.sh
-    rules:
-        - if: $CI_COMMIT_BRANCH == "production"
-        - if: $CI_COMMIT_BRANCH == "master"
-        - if: $CI_COMMIT_BRANCH == "staging"
-    environment: production
-
-deploy-prod:
-    stage: deploy
-    script: 
-        - echo "Deploying project to production..."
-        - if docker volume inspect "${COMPOSE_PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml down; docker volume rm "${COMPOSE_PROJECT_NAME}_client_build"; fi
-        - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml up -d --force-recreate
-    rules:
-        - if: $CI_COMMIT_BRANCH == "production"
-        - if: $CI_COMMIT_BRANCH == "master"
-          when: manual 
-    environment: production
-
-deploy-staging:
-    stage: deploy
-    script: 
-        - export COMPOSE_PROJECT_NAME=staging
-        - echo "Deploying project to staging..."
-        - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml build
-        - if docker volume inspect "${COMPOSE_PROJECT_NAME}_client_build" ; then docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml down; docker volume rm "${COMPOSE_PROJECT_NAME}_client_build"; fi
-        - docker-compose -f docker-compose.${COMPOSE_PROJECT_NAME}.yml up -d --force-recreate
-    rules:
-        - if: $CI_COMMIT_BRANCH == "master"
-        - if: $CI_COMMIT_BRANCH == "staging"
-    environment: staging
+# Frontend Build Job
+build frontend:
+  stage: build
+  image: node:10
+  tags:
+    - docker
+  before_script:
+    - cd client
+    - npm install
+  script:
+    - yarn build
