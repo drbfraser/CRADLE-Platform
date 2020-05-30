@@ -9,6 +9,12 @@ frontend build:
   image: node:10
   tags:
     - docker
+  only:
+    refs:
+      - merge_requests
+      - master
+    changes:
+      - client/**/*
   before_script:
     - cd client
     - npm install
@@ -20,6 +26,12 @@ backend unit tests:
   image: python:3.7.6-buster
   tags:
     - docker
+  only:
+    refs:
+      - merge_requests
+      - master
+    changes:
+      - server/**/*
   before_script:
     - cd server
     - pip install --upgrade pip
@@ -32,6 +44,12 @@ backend system tests:
   image: python:3.7.6-buster
   tags:
     - docker
+  only:
+    refs:
+      - merge_requests
+      - master
+    changes:
+      - server/**/*
   variables:
     # Cradle Server Variables
     DB_USERNAME: "root"
@@ -68,9 +86,15 @@ backend format:
   image: python:3.7.6-buster
   tags:
     - docker
+  allow_failure: true
+  only:
+    refs:
+      - merge_requests
+      - master
+    changes:
+      - server/**/*
   before_script:
     - pip install --upgrade pip
     - pip install black
-  allow_failure: true
   script:
     - black --check --exclude 'server/migrations/.*' server 
