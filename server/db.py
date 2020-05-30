@@ -105,6 +105,9 @@ def exec_mysql_stmt(env, stmt, database=None):
     cmd = ["mysql", "-u", db_user, f"-p{db_pass}"]
     if database is not None:
         cmd += ["-D", database]
+    if not is_using_docker(env):
+        db_host = env_var(env, "DB_HOSTNAME")
+        cmd += ["-h", db_host]
     cmd += ["-e", stmt]
     return exec_sh_cmd(env, cmd)
 
@@ -138,6 +141,8 @@ def is_using_docker(env):
     docker and we can access the database directly through mysql commands. Otherwise
     we'll have to execute our commands in a `docker exec` command.
     """
+    if force_local:
+        return False
     db_host = env_var(env, "DB_HOSTNAME")
     non_docker_hostnames = ["localhost", "127.0.0.1"]
     return db_host not in non_docker_hostnames
@@ -162,6 +167,9 @@ def fatal(msg):
     exit(1)
 
 
+force_local = False
+
+
 if __name__ == "__main__":
     env = Env()
     env.read_env()
@@ -180,6 +188,9 @@ if __name__ == "__main__":
         for cmd in commands.keys():
             print(f"  {cmd}")
         exit(1)
+
+    if len(sys.argv) == 3 and sys.argv[2] == "--no-docker":
+        force_local = True
 
     cmd = sys.argv[1]
     try:
