@@ -112,7 +112,7 @@ def exec_mysql_stmt(env, stmt, database=None):
     return exec_sh_cmd(env, cmd)
 
 
-def exec_sh_cmd(env, cmd, container="mysql", stderr=subprocess.DEVNULL):
+def exec_sh_cmd(env, cmd, container="mysql"):
     """
     Executes a shell command.
 
@@ -127,7 +127,7 @@ def exec_sh_cmd(env, cmd, container="mysql", stderr=subprocess.DEVNULL):
     else:
         sh_cmd = cmd
     try:
-        return subprocess.check_output(sh_cmd, stderr=stderr).decode("utf-8")
+        return subprocess.check_output(sh_cmd).decode("utf-8")
     except subprocess.CalledProcessError as err:
         fatal(f"{' '.join(sh_cmd)}\nFailed with exit code {err.returncode}")
 
