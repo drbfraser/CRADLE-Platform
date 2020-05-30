@@ -17,7 +17,7 @@ frontend build:
 
 backend unit tests:
   stage: test
-  image: python:3.7-alpine
+  image: python:3.7.6-buster
   tags:
     - docker
   before_script:
@@ -28,7 +28,7 @@ backend unit tests:
 
 backend system tests:
   stage: test
-  image: python:3.7-alpine
+  image: python:3.7.6-buster
   tags:
     - docker
   variables:
@@ -48,8 +48,8 @@ backend system tests:
     - mysql:latest
   before_script:
     # Add mysql client so we can execute queries on the database
-    - apk update
-    - apk add mysql-client
+    - apt-get update -y
+    - apt-get install mysql-client -y
     - cd server
     - pip install -r requirements.txt
     # Spin up a server instance in the background
