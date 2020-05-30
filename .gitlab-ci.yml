@@ -47,6 +47,9 @@ backend system tests:
   services:
     - mysql:latest
   before_script:
+    # Add mysql client so we can execute queries on the database
+    - apk update
+    - apk add mysql-client
     - cd server
     - pip install -r requirements.txt
     # Spin up a server instance in the background
