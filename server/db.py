@@ -181,7 +181,7 @@ if __name__ == "__main__":
         "create": create_database,
     }
 
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         print("USAGE: python3 db.py COMMAND")
         print()
         print("COMMANDS")
