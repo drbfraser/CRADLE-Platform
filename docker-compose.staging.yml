@@ -7,10 +7,11 @@ services:
     build: 
       context: ./client
       dockerfile: Dockerfile.prod
+      # Forward environment value for the server url.
       args:
-        REACT_APP_USE_STAGING_SERVER: 1
+        - REACT_APP_CUSTOM_URL
     volumes:
-      - '/usr/src/client/node_modules'
+      - /usr/src/client/node_modules
       - type: volume
         source: client_build
         target: /usr/src/client/build
@@ -21,30 +22,26 @@ services:
       context: ./
       dockerfile: ./server/Dockerfile.prod
     command: gunicorn -c ./prod/gunicorn.conf.py app:app
-    volumes: # save the server and pip packages as docker volumes to reduce memory usage of container
+    # Save the server and pip packages as docker volumes to reduce memory usage
+    # of the container.
+    volumes: 
       - cradle_logs:/var/log
       - ./server:/usr/src/server
       - /usr/local/bin/ 
     expose:
       - 5000
-    env_file:
-      - ./server/.env.staging
     environment:
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_HOSTNAME
+      - DB_PORT
+      - DB_NAME
+      - EMAIL_USER
+      - EMAIL_PASSWORD
       - PORT=5000
     networks: 
       - db_network
       - default
-
-  # Do not create separate DB containers for prod and testing, use one single MySQL container with two different databases
-  # db:
-  #   container_name: staging-mysql
-  #   image: mysql
-  #   volumes:
-  #     - mysql_data:/var/lib/mysql
-  #   expose:
-  #     - 3306
-  #   env_file:
-  #     - ./server/.env.prod.db
 
   nginx:
     container_name: staging-nginx
@@ -72,7 +69,6 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
-  mysql_data:
   cradle_logs:
   client_build:
 

@@ -98,3 +98,15 @@ backend format:
     - pip install black
   script:
     - black --check --exclude 'server/migrations/.*' server 
+
+deploy staging:
+  stage: deploy
+  tags:
+    - shell
+  only:
+    refs:
+      - master
+      - staging
+  script:
+    - source /var/cradle/staging.env
+    - ./scripts/deploy.sh
