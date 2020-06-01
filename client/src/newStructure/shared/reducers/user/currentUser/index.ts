@@ -14,17 +14,28 @@ export enum CurrentUserActionEnum {
   START_REQUEST = 'currentUser/START_REQUEST',
 }
 
-type CurrentUserAction = 
+type CurrentUserAction =
   | { type: CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME }
-  | { type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR, payload: { message: string } }
-  | { type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS, payload: { currentUser: User } }
-  | { type: CurrentUserActionEnum.LOGIN_USER_ERROR, payload: { message: string } }
-  | { type: CurrentUserActionEnum.LOGIN_USER_SUCCESS, payload: { user: User } }
+  | {
+      type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR;
+      payload: { message: string };
+    }
+  | {
+      type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS;
+      payload: { currentUser: User };
+    }
+  | {
+      type: CurrentUserActionEnum.LOGIN_USER_ERROR;
+      payload: { message: string };
+    }
+  | { type: CurrentUserActionEnum.LOGIN_USER_SUCCESS; payload: { user: User } }
   | { type: CurrentUserActionEnum.LOGOUT_USER }
   | { type: CurrentUserActionEnum.START_REQUEST };
 
-export const logoutUser = (): Callback<Callback<CurrentUserAction |  RouterAction>> => {
-  return (dispatch: Callback<CurrentUserAction |  RouterAction>): void => {
+export const logoutUser = (): Callback<
+  Callback<CurrentUserAction | RouterAction>
+> => {
+  return (dispatch: Callback<CurrentUserAction | RouterAction>): void => {
     localStorage.removeItem('token');
     dispatch({ type: CurrentUserActionEnum.LOGOUT_USER });
     dispatch(push('/login'));
@@ -32,15 +43,18 @@ export const logoutUser = (): Callback<Callback<CurrentUserAction |  RouterActio
 };
 
 export const startRequest = (): CurrentUserAction => ({
-  type: CurrentUserActionEnum.START_REQUEST
+  type: CurrentUserActionEnum.START_REQUEST,
 });
 
-export type CurrentUserRequest = Callback<Callback<CurrentUserAction | RouterAction>, ServerRequestAction>;
+export type CurrentUserRequest = Callback<
+  Callback<CurrentUserAction | RouterAction>,
+  ServerRequestAction
+>;
 
 export type LoginData = {
   email: string;
   password: string;
-}
+};
 
 export const login = (data: LoginData): ServerRequestAction => {
   return serverRequestActionCreator({
@@ -48,12 +62,12 @@ export const login = (data: LoginData): ServerRequestAction => {
     method: Methods.POST,
     data,
     onSuccess: ({ data }: { data: User }): CurrentUserAction => {
-      localStorage.setItem(`token`, data.token)
-      localStorage.setItem(`refresh`, data.refresh)
+      localStorage.setItem(`token`, data.token);
+      localStorage.setItem(`refresh`, data.refresh);
       return {
         type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
         payload: { user: data },
-      }
+      };
     },
     onError: (message: string) => ({
       type: CurrentUserActionEnum.LOGIN_USER_ERROR,
@@ -65,7 +79,7 @@ export const login = (data: LoginData): ServerRequestAction => {
 export const getCurrentUser = (): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.CURRENT}`,
-    onSuccess: (currentUser: User): CurrentUserAction => ({
+    onSuccess: ({data: currentUser}: {data: User}): CurrentUserAction => ({
       type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
       payload: { currentUser },
     }),
@@ -74,7 +88,7 @@ export const getCurrentUser = (): ServerRequestAction => {
       return {
         type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR,
         payload: { message },
-      }
+      };
     },
   });
 };
@@ -82,10 +96,10 @@ export const getCurrentUser = (): ServerRequestAction => {
 export type CurrentUserState = {
   data: OrNull<User>;
   error: boolean;
-  loading: boolean,
-  loggedIn: boolean,
+  loading: boolean;
+  loggedIn: boolean;
   message: OrNull<string>;
-}
+};
 
 const initialState: CurrentUserState = {
   data: null,
@@ -96,26 +110,27 @@ const initialState: CurrentUserState = {
 };
 
 export const currentUserReducer = (
-  state = initialState, 
+  state = initialState,
   action: CurrentUserAction
 ): CurrentUserState => {
   switch (action.type) {
     case CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME:
-      return { 
-        ...initialState, 
-        data: state.data, 
+      return {
+        ...initialState,
+        data: state.data,
       };
     case CurrentUserActionEnum.GET_CURRENT_USER_ERROR:
     case CurrentUserActionEnum.LOGIN_USER_ERROR:
-      return { 
-        ...initialState, 
-        error: true, 
-        message: action.payload.message, 
+      return {
+        ...initialState,
+        error: true,
+        message: action.payload.message,
       };
     case CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS:
-      return { 
-        ...initialState, 
-        data: action.payload.currentUser, 
+      return {
+        ...initialState,
+        data: action.payload.currentUser,
+        loggedIn: true,
       };
     case CurrentUserActionEnum.LOGIN_USER_SUCCESS:
       return { ...initialState, data: action.payload.user, loggedIn: true };

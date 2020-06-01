@@ -6,24 +6,31 @@ import React, { Component } from 'react';
 import { UrineTestForm, initialUrineTests } from './urineTestForm';
 import {
   addNewPatient,
-  afterNewPatientAdded
+  // afterNewPatientAdded
 } from '../../shared/reducers/patients';
-import {
-  createReadingDefault,
-  newReadingPost
-} from '../../shared/reducers/newReadingPost';
+import { addNewReading } from '../../shared/reducers/newReadingStatus';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogActions from '@material-ui/core/DialogActions';
 
 import { BpForm } from './bpForm';
 import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from './symptomForm';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { PatientNewReading, PatientNewReadingReading,User, CheckedItems } from '../../types'
+import {
+  PatientNewReading,
+  PatientNewReadingReading,
+  User,
+  CheckedItems,
+} from '../../types';
 
 var symptom: any = [];
 
 function guid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     var r = (Math.random() * 16) | 0;
     var v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
@@ -55,7 +62,7 @@ const initState = {
     dateRecheckVitalsNeeded: null,
     isFlaggedForFollowup: false,
     symptoms: '',
-    urineTests: initialUrineTests
+    urineTests: initialUrineTests,
   },
   checkedItems: {
     none: true,
@@ -66,17 +73,16 @@ const initState = {
     abdominalPain: false,
     unwell: false,
     other: false,
-    otherSymptoms: ''
+    otherSymptoms: '',
   },
   showSuccessReading: false,
-  hasUrineTest: false
+  hasUrineTest: false,
 };
 interface IProps {
   getCurrentUser: any;
-  createReadingDefault: any;
   afterNewPatientAdded: any;
   user: User;
-  newReadingPost: any;
+  addNewReading: any;
 }
 
 interface IState {
@@ -96,29 +102,33 @@ class NewReadingPageComponent extends Component<IProps, IState> {
   };
 
   static getDerivedStateFromProps = (props: any, state: any) => {
-    if (props.newPatientAdded) {
-      props.createReadingDefault();
-      props.afterNewPatientAdded();
-      return {
-        ...state,
-        showSuccessReading: true
-      };
-    }
+    // if (props.newPatientAdded) {
+    //   props.afterNewPatientAdded();
+    //   return {
+    //     ...state,
+    //     showSuccessReading: true
+    //   };
+    // }
 
     if (props.readingCreated) {
-      const newPatient = props.newReadingData.patient;
-      newPatient.readings.push(props.newReadingData.reading);
-      props.addNewPatient(newPatient);
-      return state;
+      return {
+        ...state,
+        showSuccessReading: true,
+      };
+      // const newPatient = props.newReadingData.patient;
+      // newPatient.readings.push(props.newReadingData.reading);
+      // props.addNewPatient(newPatient);
+      // return state;
     }
+    return state;
   };
 
   handleChange = (event: any) => {
     this.setState({
       patient: {
         ...this.state.patient,
-        [event.target.name]: event.target.value
-      }
+        [event.target.name]: event.target.value,
+      },
     });
   };
 
@@ -129,19 +139,19 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           ...this.state.patient,
           patientSex: 'MALE',
           gestationalAgeValue: '',
-          isPregnant: false
-        }
+          isPregnant: false,
+        },
       });
     } else {
       this.setState({
-        patient: { ...this.state.patient, [value.name]: value.value }
+        patient: { ...this.state.patient, [value.name]: value.value },
       });
     }
   };
 
   handleReadingChange = (e: any, value: any) => {
     this.setState({
-      reading: { ...this.state.reading, [value.name]: value.value }
+      reading: { ...this.state.reading, [value.name]: value.value },
     });
   };
 
@@ -151,22 +161,22 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         ...this.state.reading,
         urineTests: {
           ...this.state.reading.urineTests,
-          [value.name]: value.value
-        }
-      }
+          [value.name]: value.value,
+        },
+      },
     });
   };
 
   handleUrineTestSwitchChange = (e: any) => {
     this.setState({
-      hasUrineTest: e.target.checked
+      hasUrineTest: e.target.checked,
     } as any);
     if (!e.target.checked) {
       this.setState({
         reading: {
           ...this.state.reading,
-          urineTests: initialUrineTests
-        }
+          urineTests: initialUrineTests,
+        },
       });
     }
   };
@@ -193,8 +203,8 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         checkedItems: {
           ...this.state.checkedItems,
           [value.name]: !value.value,
-          none: false
-        }
+          none: false,
+        },
       } as any);
     } else {
       while (symptom.length > 0) {
@@ -210,8 +220,8 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           abdominalPain: false,
           unwell: false,
           other: false,
-          otherSymptoms: ''
-        }
+          otherSymptoms: '',
+        },
       } as any);
     }
   };
@@ -221,8 +231,8 @@ class NewReadingPageComponent extends Component<IProps, IState> {
     this.setState({
       checkedItems: {
         ...this.state.checkedItems,
-        [event.target.name]: event.target.value
-      }
+        [event.target.name]: event.target.value,
+      },
     } as any);
   };
 
@@ -236,7 +246,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
       }
     }
     if (this.state.patient.patientAge == '') {
-      this.state.patient.patientAge = '';
+      this.state.patient.patientAge = '15';
     }
 
     if (this.state.patient.dob != null) {
@@ -255,10 +265,10 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           userId: this.props.user.userId.toString(),
           readingId: readingID,
           dateTimeTaken: dateTimeTaken.toString(),
-          symptoms: symptom.toString()
-        }
+          symptoms: symptom.toString(),
+        },
       },
-      function() {
+      function () {
         let patientData = JSON.parse(JSON.stringify(that.state.patient));
         let readingData = JSON.parse(JSON.stringify(that.state.reading));
         if (!that.state.hasUrineTest) {
@@ -267,14 +277,16 @@ class NewReadingPageComponent extends Component<IProps, IState> {
 
         let newData = {
           patient: patientData,
-          reading: readingData
+          reading: readingData,
         };
         console.log(newData);
-        that.props.newReadingPost(newData);
+        that.props.addNewReading(newData);
       }
     );
   };
-
+  reset = () => {
+    this.setState(initState);
+  };
   render() {
     // don't render page if user is not logged in
     if (!this.props.user.isLoggedIn) {
@@ -286,7 +298,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         style={{
           maxWidth: 1200,
           marginLeft: 'auto',
-          marginRight: 'auto'
+          marginRight: 'auto',
         }}>
         <h1>
           <b>Create a new patient and reading:</b>
@@ -296,7 +308,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           <PatientInfoForm
             patient={this.state.patient}
             onChange={this.handleSelectChange}
-            isEditPage=''
+            isEditPage=""
           />
           <div className="leftContainer">
             <BpForm
@@ -326,43 +338,60 @@ class NewReadingPageComponent extends Component<IProps, IState> {
             </Button>
           </div>
         </Form>
-
         <SweetAlert
           type="success"
           show={this.state.showSuccessReading}
           title="Patient Reading Created!"
           text="Success! You can view the new reading by going to the Patients tab"
-          onConfirm={() => this.setState(initState)}
+          onConfirm={this.reset}
         />
+        {/* <Dialog
+          open={this.state.showSuccessReading}
+          onClose={this.reset}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description">
+          {
+            <>
+              <DialogTitle>Patient Reading Created!</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  {' '}
+                  Success! You can view the new reading by going to the Patients
+                  tab{' '}
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <button onClick={this.reset}> Ok </button>
+              </DialogActions>
+            </>
+          }
+        </Dialog> */}
       </div>
     );
   }
 }
 
 const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
-  user: user.current.data.data,
+  user: user.current.data,
   createReadingStatusError: newReadingStatus.error,
   readingCreated: newReadingStatus.readingCreated,
   newReadingData: newReadingStatus.message,
-  newPatientAdded: patients.newPatientAdded
+  newPatientAdded: patients.newPatientAdded,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   addNewPatient: (newPatient: any) => {
     dispatch(addNewPatient(newPatient));
   },
-  afterNewPatientAdded: () => {
-    dispatch(afterNewPatientAdded());
-  },
-  newReadingPost: (data: any) => {
-    dispatch(newReadingPost(data));
-  },
-  createReadingDefault: () => {
-    dispatch(createReadingDefault());
+  // afterNewPatientAdded: () => {
+  //   dispatch(afterNewPatientAdded());
+  // },
+  addNewReading: (data: any) => {
+    dispatch(addNewReading(data));
   },
   getCurrentUser: () => {
     dispatch(getCurrentUser());
-  }
+  },
 });
 
 export const NewReadingPage = connect(
