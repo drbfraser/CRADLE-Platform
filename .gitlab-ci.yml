@@ -101,9 +101,11 @@ deploy staging:
   tags:
     - shell
   rules:
-    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH =~ "/master|staging/"'
-      when: on_success
+    # Disable until GitLab is fixed
     - when: never
+    # - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH =~ "/master|staging/"'
+    #   when: on_success
+    # - when: never
   script:
     - source /var/cradle/staging.env
     - ./scripts/deploy.sh
