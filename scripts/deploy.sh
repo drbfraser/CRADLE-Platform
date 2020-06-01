@@ -27,7 +27,7 @@ function volume-name {
   printf "mysql_%s_data" $DEPLOYMENT_MODE
 }
 
-function instnace-already-running {
+function instance-already-running {
   [[ ! -z "$(container-id $CLIENT_CONTAINER_NAME)" ]] || \
   [[ ! -z "$(container-id $SERVER_CONTAINER_NAME)" ]]
 }
