@@ -101,7 +101,7 @@ deploy staging:
   tags:
     - shell
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ "/master|staging/"'
+    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH =~ "/master|staging/"'
       when: on_success
     - when: never
   script:
