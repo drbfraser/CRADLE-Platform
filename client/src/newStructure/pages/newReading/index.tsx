@@ -18,7 +18,7 @@ import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from './symptomForm';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { PatientNewReading, PatientNewReadingReading, User, CheckedItems } from '../../types'
+import { PatientNewReading, PatientNewReadingReading,User, CheckedItems } from '../../types'
 
 var symptom: any = [];
 
@@ -339,11 +339,11 @@ class NewReadingPageComponent extends Component<IProps, IState> {
   }
 }
 
-const mapStateToProps = ({ user, newReading, patients }: any) => ({
-  user: user.currentUser,
-  createReadingStatusError: newReading.error,
-  readingCreated: newReading.readingCreated,
-  newReadingData: newReading.message,
+const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
+  user: user.current.data.data,
+  createReadingStatusError: newReadingStatus.error,
+  readingCreated: newReadingStatus.readingCreated,
+  newReadingData: newReadingStatus.message,
   newPatientAdded: patients.newPatientAdded
 });
 
