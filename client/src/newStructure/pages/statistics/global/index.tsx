@@ -62,8 +62,8 @@ export const GlobalStatistics: React.FC<IProps> = ({
             </Statistic>
           </Statistic.Group>
         ) : null}
-        <div className={classes.chartBox}>
-          <Card fluid>
+        <div className="chart">
+          <Card fluid className="chart">
             <Card.Content>
               <Line data={readingsVsReferralsVsAssessment} />
             </Card.Content>

@@ -22,8 +22,8 @@ export const pregnantWomenAssessedPerMonth = (data: any) => ({
   label: `Total Number of Pregnant Women Referred`,
   fill: false,
   lineTension: 0.1,
-  backgroundColor: `rgba(75,192,192,0.4)`,
-  borderColor: `rgba(75,192,192,1)`,
+  backgroundColor: 'rgba(255,127,80,0.4)',
+  borderColor: 'rgba(255,127,80,1)',
   pointRadius: 1,
   data
 });

@@ -4,7 +4,8 @@ import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { Tab } from 'semantic-ui-react';
 import { CommunityWorkerResources } from './CommunityWorkerResource';
 import { HealthWorkerResources } from './HealthWorkerResources';
-import { User } from '../../types';
+import { bindActionCreators } from 'redux';
+import {ReduxState} from 'src/newStructure/redux/rootReducer';
 
 const panes = [
   {
@@ -13,7 +14,7 @@ const panes = [
       <Tab.Pane>
         <CommunityWorkerResources />
       </Tab.Pane>
-    )
+    ),
   },
   {
     menuItem: 'Health Facility Worker',
@@ -21,8 +22,8 @@ const panes = [
       <Tab.Pane>
         <HealthWorkerResources />
       </Tab.Pane>
-    )
-  }
+    ),
+  },
 ];
 
 export const COMMUNITY_WORKER_EDUCATION_VIDEO_LINK =
@@ -32,19 +33,19 @@ export const HEALTH_FACILITY_WORKER_EDUCATION_VIDEO_LINK =
 
 // const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />;
 interface IProps {
-  user: User;
+  loggedIn:boolean;
   getCurrentUser: any;
 }
 class HelpPageComponent extends Component<IProps> {
   componentDidMount = () => {
-    if (!this.props.user.isLoggedIn) {
+    if (!this.props.loggedIn) {
       this.props.getCurrentUser();
     }
   };
 
   render() {
     // don't render page if user is not logged in
-    if (!this.props.user.isLoggedIn) {
+    if (!this.props.loggedIn) {
       return <div />;
     }
 
@@ -56,14 +57,17 @@ class HelpPageComponent extends Component<IProps> {
   }
 }
 
-const mapStateToProps = ({ user }: any) => ({
-  user: user.currentUser
+const mapStateToProps = ({ user }: ReduxState) => ({
+  loggedIn: user.current.loggedIn,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getCurrentUser: () => {
-    dispatch(getCurrentUser());
-  }
+  ...bindActionCreators(
+    {
+      getCurrentUser,
+    },
+    dispatch
+  ),
 });
 
 export const HelpPage = connect(

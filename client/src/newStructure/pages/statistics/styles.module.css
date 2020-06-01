@@ -1,6 +1,5 @@
 .container {
-  padding-inline-start: 5%;
-  padding-inline-end: 5%;
+  padding: 0 5%;
 }
 
 .center {
@@ -14,7 +13,7 @@
 }
 
 .statisticGroup {
-  margin: auto;
+  margin: 0 auto;
 }
 
 .statistic {
@@ -47,7 +46,6 @@
   line-height: 16;
 };
 
-.chartBox {
-  margin-block-start: 20px;
+.chart {
   width: 75%;
 };

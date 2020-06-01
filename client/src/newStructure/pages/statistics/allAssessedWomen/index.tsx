@@ -77,7 +77,7 @@ export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
           </Statistic.Group>
         ) : null}
         <br />
-        <div className={classes.chartBox}>
+        <div className="chart">
           <Card fluid>
             <Card.Content>
               <Line data={womenReferralsVsAssessed} />

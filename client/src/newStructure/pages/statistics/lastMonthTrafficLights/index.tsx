@@ -30,7 +30,7 @@ export const LastMonthTrafficLightsStatistics: React.FC<IProps> = ({
       <h2 className={styles.header}>Traffic lights from last month:</h2>
       <br />
       <div className={classes.center}>
-        <div className={classes.chartBox}>
+        <div className="chart">
           <Card fluid>
             <Card.Content>
               <Bar

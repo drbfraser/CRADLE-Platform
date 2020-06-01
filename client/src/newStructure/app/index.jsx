@@ -1,6 +1,6 @@
 import { Link, Route, Switch } from 'react-router-dom';
 import React, { useState } from 'react';
-
+import {push} from 'connected-react-router'
 import { AdminPage } from '../pages/admin';
 import AppBar from '@material-ui/core/AppBar';
 import AppImg from './img/app_icon.png';
@@ -156,7 +156,10 @@ const AppComponent = (props) => {
                 className={classes.toolbarButtonsPadded}
                 // component={Link}
                 // to="/help"
-                onClick={() => setActiveItem('Help')}
+                onClick={() => {
+                  setActiveItem('Help');
+                  props.navigateToHelpPage()
+                }}
                 // selected={activeItem === 'Help'}
                 color="inherit"
               >
@@ -390,13 +393,16 @@ const mapStateToProps = ({ user }) => ({
   user: user.current.data,
 });
 
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
+const mapDispatchToProps = (dispatch) =>({
+  ...bindActionCreators(
     {
       logoutUser,
     },
     dispatch
-  );
+  ),
+  navigateToHelpPage : () => dispatch(
+    push(`/help`))
+});
 
 export const App = connect(
   mapStateToProps, 
