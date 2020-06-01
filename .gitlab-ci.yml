@@ -103,6 +103,7 @@ deploy staging:
   rules:
     - if: '$CI_COMMIT_BRANCH =~ "/master|staging/"'
       when: on_success
+    - when: never
   script:
     - source /var/cradle/staging.env
     - ./scripts/deploy.sh
