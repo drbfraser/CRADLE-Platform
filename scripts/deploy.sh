@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -u
 
 MYSQL_IMAGE="mysql:5.7"
 DB_NETWORK="db_network"
@@ -100,7 +99,7 @@ fi
 echo ""
 
 echo "Deploying..."
-docker-compose up --force-recreate --detach
+docker-compose --file $COMPOSE_FILE up --force-recreate --detach
 echo "Done!"
 
 echo "Finished deployment: $DEPLOYMENT_MODE!"

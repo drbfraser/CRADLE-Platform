@@ -4,16 +4,17 @@ stages:
   - format
   - deploy
 
+variables:
+  DEPLOYMENT_BRANCH: "/master|staging|production/"
+
 frontend build:
   stage: build
   image: node:10
   tags:
     - docker
-  only:
-    refs:
-      - merge_requests
-      - master
-    changes:
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - changes:
       - client/**/*
   before_script:
     - cd client
@@ -26,11 +27,9 @@ backend unit tests:
   image: python:3.7.6-buster
   tags:
     - docker
-  only:
-    refs:
-      - merge_requests
-      - master
-    changes:
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - changes:
       - server/**/*
   before_script:
     - cd server
@@ -44,11 +43,9 @@ backend system tests:
   image: python:3.7.6-buster
   tags:
     - docker
-  only:
-    refs:
-      - merge_requests
-      - master
-    changes:
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - changes:
       - server/**/*
   variables:
     # Cradle Server Variables
@@ -87,12 +84,12 @@ backend format:
   tags:
     - docker
   allow_failure: true
-  only:
-    refs:
-      - merge_requests
-      - master
-    changes:
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+      when: always
+    - changes:
       - server/**/*
+      when: always
   before_script:
     - pip install --upgrade pip
     - pip install black
@@ -103,10 +100,9 @@ deploy staging:
   stage: deploy
   tags:
     - shell
-  only:
-    refs:
-      - master
-      - staging
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ "/master|staging/"'
+      when: on_success
   script:
     - source /var/cradle/staging.env
     - ./scripts/deploy.sh
