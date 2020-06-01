@@ -86,6 +86,7 @@ export const updateFollowUp = (followUpId: any, data: any) => {
 };
 
 export const createFollowUp = (data: any) => {
+  console.log("CREATE FOLLOW UP CALLED" ,data)
   return serverRequestActionCreator({
     endpoint: Endpoints.FOLLOW_UP,
     method: Methods.POST,

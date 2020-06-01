@@ -2,6 +2,7 @@ import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
+import {OrNull} from '@types';
 
 const GET_PATIENT = `patients/GET_PATIENT`;
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
@@ -80,7 +81,7 @@ export const getPatientRequested = () => ({
 
 export type PatientsState = {
   patient: any;
-  patientsList: any;
+  patientsList: OrNull<any>;
   isLoading: boolean;
   newPatientAdded: boolean;
 };

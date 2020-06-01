@@ -1,4 +1,4 @@
-export const followupFrequencyUnit = [
+export const followupFrequencyUnitOptions = [
   { key: 'none', text: 'N/a', value: 'NONE' },
   { key: 'min', text: 'Minutes', value: 'MINUTES' },
   { key: 'hour', text: 'Hours', value: 'HOURS' },

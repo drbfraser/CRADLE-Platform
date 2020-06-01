@@ -1,60 +1,53 @@
 // @ts-nocheck
 
-import React from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { Icon } from 'semantic-ui-react'
-import Paper from '@material-ui/core/Paper'
-import Grid from '@material-ui/core/Grid'
-import ExpansionPanel from '@material-ui/core/ExpansionPanel'
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
-import Typography from '@material-ui/core/Typography'
-import SweetAlert from 'sweetalert2-react'
+import React from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { Icon } from 'semantic-ui-react';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Typography from '@material-ui/core/Typography';
+import SweetAlert from 'sweetalert2-react';
 
-import {
-  Button,
-  Header,
-  Modal,
-  Divider,
-  Form,
-  Input,
-} from 'semantic-ui-react'
+import { Button, Header, Modal, Divider, Form, Input } from 'semantic-ui-react';
 
 import {
   updatePatient,
   getPatients,
-  getPatientsRequested
-} from '../../reducers/patients'
-import { getPrettyDate, getPrettyDateTime, getMomentDate } from '../../utils'
+  getPatientsRequested,
+} from '../../reducers/patients';
+import { getPrettyDate, getPrettyDateTime, getMomentDate } from '../../utils';
 import { getReferrals } from '../../reducers/referrals';
 import {
   getPatientStatistics,
-  startRequest
-} from '../../reducers/patientStatistics'
+  startRequest,
+} from '../../reducers/patientStatistics';
 
-import { Bar, Line } from 'react-chartjs-2'
-import ReferralInfo from './referralInfo'
+import { Bar, Line } from 'react-chartjs-2';
+import ReferralInfo from './referralInfo';
 import { getCurrentUser } from '../../reducers/user/currentUser';
 import { newReadingPost } from '../../reducers/newReadingPost';
 import { getTrafficIcon } from './utils';
-import { 
-  UrineTestForm, 
-  urineTestChemicals, 
+import {
+  UrineTestForm,
+  urineTestChemicals,
   initialUrineTests,
 } from '../form/urineTest';
 import { PatientInfoForm, GESTATIONAL_AGE_UNITS } from '../form/patient';
 import { SymptomForm } from '../form/symptom';
-import { ReduxState } from 'src/newStructure/redux/rootReducer'
+import { ReduxState } from 'src/newStructure/redux/rootReducer';
 
-var symptom = []
+var symptom = [];
 
 function guid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = (Math.random() * 16) | 0
-    var v = c === 'x' ? r : (r & 0x3) | 0x8
-    return v.toString(16)
-  })
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = (Math.random() * 16) | 0;
+    var v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 class Component extends React.Component {
   state = {
@@ -73,7 +66,7 @@ class Component extends React.Component {
       dateRecheckVitalsNeeded: '',
       isFlaggedForFollowup: false,
       symptoms: '',
-      urineTests: initialUrineTests
+      urineTests: initialUrineTests,
     },
     checkedItems: {
       none: true,
@@ -84,137 +77,136 @@ class Component extends React.Component {
       abdominalPain: false,
       unwell: false,
       other: false,
-      otherSymptoms: ''
+      otherSymptoms: '',
     },
     showSuccessReading: false,
     selectedPatientCopy: { readings: [] },
-    hasUrineTest: false
-  }
+    hasUrineTest: false,
+  };
 
   componentDidMount = () => {
-    this.setState({ selectedPatient: this.props.selectedPatient })
+    this.setState({ selectedPatient: this.props.selectedPatient });
 
-
-    this.props.getReferrals(this.getReferralIds(this.props.selectedPatient))
+    this.props.getReferrals(this.getReferralIds(this.props.selectedPatient));
     if (this.props.selectedPatient) {
-      this.props.getPatientStatistics(this.props.selectedPatient.patientId)
+      this.props.getPatientStatistics(this.props.selectedPatient.patientId);
     }
-  }
+  };
 
-  calculateShockIndex = reading => {
-    const RED_SYSTOLIC = 160
-    const RED_DIASTOLIC = 110
-    const YELLOW_SYSTOLIC = 140
-    const YELLOW_DIASTOLIC = 90
-    const SHOCK_HIGH = 1.7
-    const SHOCK_MEDIUM = 0.9
+  calculateShockIndex = (reading) => {
+    const RED_SYSTOLIC = 160;
+    const RED_DIASTOLIC = 110;
+    const YELLOW_SYSTOLIC = 140;
+    const YELLOW_DIASTOLIC = 90;
+    const SHOCK_HIGH = 1.7;
+    const SHOCK_MEDIUM = 0.9;
 
     if (
       reading['bpSystolic'] === undefined ||
       reading['bpDiastolic'] === undefined ||
       reading['heartRateBPM'] === undefined
     )
-      return 'NONE'
+      return 'NONE';
 
-    const shockIndex = reading['heartRateBPM'] / reading['bpSystolic']
+    const shockIndex = reading['heartRateBPM'] / reading['bpSystolic'];
 
     const isBpVeryHigh =
       reading['bpSystolic'] >= RED_SYSTOLIC ||
-      reading['bpDiastolic'] >= RED_DIASTOLIC
+      reading['bpDiastolic'] >= RED_DIASTOLIC;
     const isBpHigh =
       reading['bpSystolic'] >= YELLOW_SYSTOLIC ||
-      reading['bpDiastolic'] >= YELLOW_DIASTOLIC
-    const isSevereShock = shockIndex >= SHOCK_HIGH
-    const isShock = shockIndex >= SHOCK_MEDIUM
+      reading['bpDiastolic'] >= YELLOW_DIASTOLIC;
+    const isSevereShock = shockIndex >= SHOCK_HIGH;
+    const isShock = shockIndex >= SHOCK_MEDIUM;
 
-    let trafficLight = ''
+    let trafficLight = '';
     if (isSevereShock) {
-      trafficLight = 'RED_DOWN'
+      trafficLight = 'RED_DOWN';
     } else if (isBpVeryHigh) {
-      trafficLight = 'RED_UP'
+      trafficLight = 'RED_UP';
     } else if (isShock) {
-      trafficLight = 'YELLOW_DOWN'
+      trafficLight = 'YELLOW_DOWN';
     } else if (isBpHigh) {
-      trafficLight = 'YELLOW_UP'
+      trafficLight = 'YELLOW_UP';
     } else {
-      trafficLight = 'GREEN'
+      trafficLight = 'GREEN';
     }
-    return trafficLight
-  }
+    return trafficLight;
+  };
 
   getReferralIds(selectedPatient) {
-    let res = []
+    let res = [];
     for (let i in selectedPatient.readings) {
-      let reading = selectedPatient.readings[i]
+      let reading = selectedPatient.readings[i];
       if (reading.referral != null) {
-        res.push(reading.referral)
+        res.push(reading.referral);
       }
     }
-    return res
+    return res;
   }
 
   handleBackBtn = () => {
     // go back to patient table
-    this.props.getPatients()
-    this.props.callbackFromParent(false)
-  }
+    this.props.getPatients();
+    this.props.callbackFromParent(false);
+  };
 
   openPatientModal = () => {
     this.setState({
-      selectedPatientCopy: { ...this.state.selectedPatient }
-    })
-    this.setState({ displayPatientModal: true })
-  }
+      selectedPatientCopy: { ...this.state.selectedPatient },
+    });
+    this.setState({ displayPatientModal: true });
+  };
 
   closePatientModal = (e, data) => {
     if (e === 'formSubmitted') {
-      this.setState({ displayPatientModal: false })
+      this.setState({ displayPatientModal: false });
     } else {
       // form not submitted
       // display original patient fields
       this.setState({
         selectedPatient: { ...this.state.selectedPatientCopy },
-        displayPatientModal: false
-      })
+        displayPatientModal: false,
+      });
     }
-  }
+  };
 
   openReadingModal = () => {
-    this.setState({ displayReadingModal: true })
-  }
+    this.setState({ displayReadingModal: true });
+  };
 
   closeReadingModal = () => {
-    this.setState({ displayReadingModal: false })
-  }
+    this.setState({ displayReadingModal: false });
+  };
 
-  handleSubmit = event => {
-    event.preventDefault()
-    let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient)) // pass by value
-    let patientId = patientData.patientId
+  handleSubmit = (event) => {
+    event.preventDefault();
+    let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient)); // pass by value
+    let patientId = patientData.patientId;
 
     // delete any unnecessary fields
-    delete patientData.readings
-    delete patientData.needsAssessment
-    delete patientData.tableData
-    delete patientData.patientId
+    delete patientData.readings;
+    delete patientData.needsAssessment;
+    delete patientData.tableData;
+    delete patientData.patientId;
 
     // let patientJSON = JSON.stringify(patientData);
-    this.props.updatePatient(patientId, patientData)
-    this.closePatientModal('formSubmitted')
-  }
+    this.props.updatePatient(patientId, patientData);
+    this.closePatientModal('formSubmitted');
+  };
 
-  handleReadingSubmit = event => {
-    event.preventDefault()
+  handleReadingSubmit = (event) => {
+    event.preventDefault();
 
     if (symptom.indexOf('other') >= 0) {
-      symptom.pop('other')
+      symptom.pop('other');
       if (this.state.checkedItems.otherSymptoms !== '') {
-        symptom.push(this.state.checkedItems.otherSymptoms)
+        symptom.push(this.state.checkedItems.otherSymptoms);
       }
     }
 
-    var dateTime = Math.floor(Date.now() / 1000)
-    var readingID = guid()
+    var dateTime = Math.floor(Date.now() / 1000);
+    var readingID = guid();
 
     this.setState(
       {
@@ -224,46 +216,48 @@ class Component extends React.Component {
           readingId: readingID,
           dateTimeTaken: dateTime,
           symptoms: symptom.toString(),
-          dateRecheckVitalsNeeded: null
-        }
+          dateRecheckVitalsNeeded: null,
+        },
       },
-      function() {
-        let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient))
-        let readingData = JSON.parse(JSON.stringify(this.state.newReading))
+      function () {
+        let patientData = JSON.parse(
+          JSON.stringify(this.state.selectedPatient)
+        );
+        let readingData = JSON.parse(JSON.stringify(this.state.newReading));
 
         // delete any unnecessary fields
-        delete patientData.readings
-        delete patientData.needsAssessment
-        delete patientData.tableData
+        delete patientData.readings;
+        delete patientData.needsAssessment;
+        delete patientData.tableData;
         if (!this.state.hasUrineTest) {
-          delete readingData.urineTests
+          delete readingData.urineTests;
         }
 
         let newData = {
           patient: patientData,
-          reading: readingData
-        }
+          reading: readingData,
+        };
 
-        this.props.newReadingPost(newData)
+        this.props.newReadingPost(newData);
 
         newData['reading']['trafficLightStatus'] = this.calculateShockIndex(
           newData['reading']
-        )
+        );
         this.setState({
           selectedPatient: {
             ...this.state.selectedPatient,
             readings: [
               ...this.state.selectedPatient.readings,
-              newData['reading']
-            ]
+              newData['reading'],
+            ],
           },
           showSuccessReading: true,
-          hasUrineTest: false
-        })
-        this.closeReadingModal()
+          hasUrineTest: false,
+        });
+        this.closeReadingModal();
       }
-    )
-  }
+    );
+  };
 
   handleSelectChange = (e, value) => {
     if (value.name === 'patientSex' && value.value === 'MALE') {
@@ -272,51 +266,51 @@ class Component extends React.Component {
           ...this.state.selectedPatient,
           patientSex: 'MALE',
           gestationalAgeValue: '',
-          isPregnant: false
-        }
-      })
+          isPregnant: false,
+        },
+      });
     } else {
       this.setState({
         selectedPatient: {
           ...this.state.selectedPatient,
-          [value.name]: value.value
-        }
-      })
+          [value.name]: value.value,
+        },
+      });
     }
-  }
+  };
 
   handleReadingChange = (e, value) => {
     this.setState({
-      newReading: { ...this.state.newReading, [value.name]: value.value }
-    })
-  }
+      newReading: { ...this.state.newReading, [value.name]: value.value },
+    });
+  };
 
   handleCheckedChange = (e, value) => {
     // true => false, pop
     if (value.value) {
       if (symptom.indexOf(value.name) >= 0) {
-        symptom.pop(value.name)
+        symptom.pop(value.name);
       }
     } else {
       // false => true, push
       if (symptom.indexOf(value.name) < 0) {
-        symptom.push(value.name)
+        symptom.push(value.name);
       }
     }
     if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
-        symptom.pop('none')
+        symptom.pop('none');
       }
       this.setState({
         checkedItems: {
           ...this.state.checkedItems,
           [value.name]: !value.value,
-          none: false
-        }
-      })
+          none: false,
+        },
+      });
     } else {
       while (symptom.length > 0) {
-        symptom.pop()
+        symptom.pop();
       }
       this.setState({
         checkedItems: {
@@ -328,20 +322,20 @@ class Component extends React.Component {
           abdominalPain: false,
           unwell: false,
           other: false,
-          otherSymptoms: ''
-        }
-      })
+          otherSymptoms: '',
+        },
+      });
     }
-  }
+  };
 
-  handleOtherSymptom = event => {
+  handleOtherSymptom = (event) => {
     this.setState({
       checkedItems: {
         ...this.state.checkedItems,
-        [event.target.name]: event.target.value
-      }
-    })
-  }
+        [event.target.name]: event.target.value,
+      },
+    });
+  };
 
   handleUrineTestChange = (event, value) => {
     this.setState({
@@ -349,25 +343,25 @@ class Component extends React.Component {
         ...this.state.newReading,
         urineTests: {
           ...this.state.newReading.urineTests,
-          [value.name]: value.value
-        }
-      }
-    })
-  }
+          [value.name]: value.value,
+        },
+      },
+    });
+  };
 
-  handleUrineTestSwitchChange = event => {
+  handleUrineTestSwitchChange = (event) => {
     this.setState({
-      hasUrineTest: event.target.checked
-    })
+      hasUrineTest: event.target.checked,
+    });
     if (!event.target.checked) {
       this.setState({
         newReading: {
           ...this.state.newReading,
-          urineTests: initialUrineTests
-        }
-      })
+          urineTests: initialUrineTests,
+        },
+      });
     }
-  }
+  };
 
   createReadings = (
     readingId,
@@ -395,51 +389,51 @@ class Component extends React.Component {
       dateReferred,
       drugHistory,
       medicalHistory,
-      urineTests
-    }
-  }
+      urineTests,
+    };
+  };
 
-  sortReadings = readings => {
+  sortReadings = (readings) => {
     let sortedReadings = readings.sort(
       (a, b) =>
         getMomentDate(b.dateTimeTaken).valueOf() -
         getMomentDate(a.dateTimeTaken).valueOf()
-    )
-    return sortedReadings
-  }
+    );
+    return sortedReadings;
+  };
 
-  average = monthlyArray => {
+  average = (monthlyArray) => {
     if (monthlyArray.length !== 0) {
-      var total = 0
+      var total = 0;
       for (var i = 0; i < monthlyArray.length; i++) {
-        total += monthlyArray[i]
+        total += monthlyArray[i];
       }
-      return total / monthlyArray.length
+      return total / monthlyArray.length;
     }
-    return 0
-  }
+    return 0;
+  };
 
   showVitals = () => {
-    this.setState({ showVitals: true, showTrafficLights: false })
-  }
+    this.setState({ showVitals: true, showTrafficLights: false });
+  };
 
   showTrafficLights = () => {
-    this.setState({ showVitals: false, showTrafficLights: true })
-  }
+    this.setState({ showVitals: false, showTrafficLights: true });
+  };
 
-  createReadingObject = reading => {
-    const readingId = reading['readingId']
-    const dateTimeTaken = reading['dateTimeTaken']
-    const bpDiastolic = reading['bpDiastolic']
-    const bpSystolic = reading['bpSystolic']
-    const heartRateBPM = reading['heartRateBPM']
-    const symptoms = reading['symptoms']
-    const trafficLightStatus = reading['trafficLightStatus']
-    const isReferred = reading['referral'] ? true : false
-    const dateReferred = reading['dateReferred']
-    const medicalHistory = reading['medicalHistory']
-    const drugHistory = reading['drugHistory']
-    const urineTests = reading['urineTests']
+  createReadingObject = (reading) => {
+    const readingId = reading['readingId'];
+    const dateTimeTaken = reading['dateTimeTaken'];
+    const bpDiastolic = reading['bpDiastolic'];
+    const bpSystolic = reading['bpSystolic'];
+    const heartRateBPM = reading['heartRateBPM'];
+    const symptoms = reading['symptoms'];
+    const trafficLightStatus = reading['trafficLightStatus'];
+    const isReferred = reading['referral'] ? true : false;
+    const dateReferred = reading['dateReferred'];
+    const medicalHistory = reading['medicalHistory'];
+    const drugHistory = reading['drugHistory'];
+    const urineTests = reading['urineTests'];
     return this.createReadings(
       readingId,
       dateTimeTaken,
@@ -453,11 +447,11 @@ class Component extends React.Component {
       medicalHistory,
       drugHistory,
       urineTests
-    )
-  }
+    );
+  };
 
   render() {
-    let readings = []
+    let readings = [];
 
     if (
       this.state.selectedPatient.readings !== undefined &&
@@ -466,21 +460,21 @@ class Component extends React.Component {
       for (var i = 0; i < this.state.selectedPatient.readings.length; i++) {
         const reading = this.createReadingObject(
           this.state.selectedPatient.readings[i]
-        )
-        readings.push(reading)
+        );
+        readings.push(reading);
       }
 
-      readings = this.sortReadings(readings)
+      readings = this.sortReadings(readings);
     }
 
-    var bpSystolicReadingsMontly = {}
+    var bpSystolicReadingsMontly = {};
 
     if (this.props.selectedPatientStatsList.bpSystolicReadingsMontly) {
       const bpSystolicReadingsData = this.props.selectedPatientStatsList
-        .bpSystolicReadingsMontly
-      var averageSystolic = Array(12)
+        .bpSystolicReadingsMontly;
+      var averageSystolic = Array(12);
       for (var j = 0; j < 12; j++) {
-        averageSystolic[j] = this.average(bpSystolicReadingsData[j])
+        averageSystolic[j] = this.average(bpSystolicReadingsData[j]);
       }
 
       bpSystolicReadingsMontly = {
@@ -490,17 +484,17 @@ class Component extends React.Component {
         backgroundColor: 'rgba(75,192,192,0.4)',
         borderColor: 'rgba(75,192,192,1)',
         pointRadius: 1,
-        data: averageSystolic
-      }
+        data: averageSystolic,
+      };
     }
 
-    var bpDiastolicReadingsMonthly = {}
+    var bpDiastolicReadingsMonthly = {};
     if (this.props.selectedPatientStatsList.bpDiastolicReadingsMonthly) {
       const bpDiastolicReadingsData = this.props.selectedPatientStatsList
-        .bpDiastolicReadingsMonthly
-      var averageDiastolic = Array(12)
+        .bpDiastolicReadingsMonthly;
+      var averageDiastolic = Array(12);
       for (var l = 0; l < 12; l++) {
-        averageDiastolic[l] = this.average(bpDiastolicReadingsData[l])
+        averageDiastolic[l] = this.average(bpDiastolicReadingsData[l]);
       }
 
       bpDiastolicReadingsMonthly = {
@@ -510,17 +504,17 @@ class Component extends React.Component {
         backgroundColor: 'rgba(148,0,211,0.4)',
         borderColor: 'rgba(148,0,211,1)',
         pointRadius: 1,
-        data: averageDiastolic
-      }
+        data: averageDiastolic,
+      };
     }
 
-    var heartRateReadingsMonthly = {}
+    var heartRateReadingsMonthly = {};
     if (this.props.selectedPatientStatsList.heartRateReadingsMonthly) {
       const heartRateData = this.props.selectedPatientStatsList
-        .heartRateReadingsMonthly
-      var averageHeartRate = Array(12)
+        .heartRateReadingsMonthly;
+      var averageHeartRate = Array(12);
       for (var k = 0; k < 12; k++) {
-        averageHeartRate[k] = this.average(heartRateData[k])
+        averageHeartRate[k] = this.average(heartRateData[k]);
       }
 
       heartRateReadingsMonthly = {
@@ -530,8 +524,8 @@ class Component extends React.Component {
         backgroundColor: 'rgba(255,127,80,0.4)',
         borderColor: 'rgba(255,127,80,1)',
         pointRadius: 1,
-        data: averageHeartRate
-      }
+        data: averageHeartRate,
+      };
     }
 
     const vitalsOverTime = {
@@ -547,16 +541,16 @@ class Component extends React.Component {
         'Sep',
         'Oct',
         'Nov',
-        'Dec'
+        'Dec',
       ],
       datasets: [
         bpSystolicReadingsMontly,
         bpDiastolicReadingsMonthly,
-        heartRateReadingsMonthly
-      ]
-    }
+        heartRateReadingsMonthly,
+      ],
+    };
 
-    var trafficLight = {}
+    var trafficLight = {};
     if (this.props.selectedPatientStatsList.trafficLightCountsFromDay1) {
       trafficLight = {
         labels: ['GREEN', 'YELLOW UP', 'YELLOW DOWN', 'RED UP', 'RED DOWN'],
@@ -565,10 +559,10 @@ class Component extends React.Component {
             backgroundColor: ['green', 'yellow', 'yellow', 'red', 'red'],
             data: Object.values(
               this.props.selectedPatientStatsList.trafficLightCountsFromDay1
-            )
-          }
-        ]
-      }
+            ),
+          },
+        ],
+      };
     }
 
     return (
@@ -579,7 +573,7 @@ class Component extends React.Component {
               <Icon
                 style={{
                   cursor: 'pointer',
-                  'line-height': '0.7em'
+                  'line-height': '0.7em',
                 }}
                 size="large"
                 name="chevron left"
@@ -597,7 +591,7 @@ class Component extends React.Component {
                 component="body2"
                 style={{
                   lineHeight: '1.5em',
-                  padding: '10px'
+                  padding: '10px',
                 }}>
                 Add New Reading
               </Typography>
@@ -610,13 +604,13 @@ class Component extends React.Component {
                 xs={6}
                 style={{
                   minWidth: '500px',
-                  height: '100% !important'
+                  height: '100% !important',
                 }}>
                 <Paper
                   style={{
                     padding: '35px 25px',
                     borderRadius: '15px',
-                    height: '100%'
+                    height: '100%',
                   }}>
                   <Typography variant="h5" component="h3">
                     <Icon
@@ -704,13 +698,13 @@ class Component extends React.Component {
                 xs={6}
                 style={{
                   minWidth: '500px',
-                  height: '100% !important'
+                  height: '100% !important',
                 }}>
                 <Paper
                   style={{
                     padding: '35px 25px 0px',
                     borderRadius: '15px',
-                    height: '100%'
+                    height: '100%',
                   }}>
                   <Typography variant="h5" component="h3">
                     <Icon
@@ -755,18 +749,18 @@ class Component extends React.Component {
                             xAxes: [
                               {
                                 ticks: {
-                                  fontSize: 10
-                                }
-                              }
+                                  fontSize: 10,
+                                },
+                              },
                             ],
                             yAxes: [
                               {
                                 ticks: {
-                                  beginAtZero: true
-                                }
-                              }
-                            ]
-                          }
+                                  beginAtZero: true,
+                                },
+                              },
+                            ],
+                          },
                         }}
                       />
                     </div>
@@ -776,7 +770,7 @@ class Component extends React.Component {
             </Grid>
             <br />
             <Grid container spacing={0}>
-              {readings.map(row => (
+              {readings.map((row) => (
                 <Grid key={row.readingId} xs={12}>
                   <Paper
                     style={{
@@ -784,12 +778,12 @@ class Component extends React.Component {
                       height: 'auto',
                       padding: '45px 50px',
                       borderRadius: '15px',
-                      display: 'flex'
+                      display: 'flex',
                     }}>
                     <div
                       style={{
                         display: 'inline-block',
-                        width: '50%'
+                        width: '50%',
                       }}>
                       <Typography variant="h4" component="h4">
                         Reading
@@ -801,7 +795,7 @@ class Component extends React.Component {
 
                       <div
                         style={{
-                          padding: '25px 50px'
+                          padding: '25px 50px',
                         }}>
                         {getTrafficIcon(row.trafficLightStatus)}
                         <br />
@@ -864,7 +858,7 @@ class Component extends React.Component {
                         display: 'inline-block',
                         width: '50%',
                         float: 'right',
-                        height: '100%'
+                        height: '100%',
                       }}>
                       <div style={{ padding: '0px 50px' }}>
                         <ReferralInfo
@@ -913,7 +907,7 @@ class Component extends React.Component {
                     <Paper
                       style={{
                         padding: '35px 25px',
-                        borderRadius: '15px'
+                        borderRadius: '15px',
                       }}>
                       <Form.Group widths="equal">
                         <Form.Field
@@ -985,43 +979,42 @@ class Component extends React.Component {
           </div>
         )}
       </div>
-    )
+    );
   }
 }
 
-const mapStateToProps = ({ user, referrals, patientStatistics }: ReduxState) => ({
-  user: user.currentUser,
+const mapStateToProps = ({
+  user,
+  referrals,
+  patientStatistics,
+}: ReduxState) => ({
+  user: user.current.data,
   referrals: referrals.mappedReferrals,
-  selectedPatientStatsList: patientStatistics.data ?? {}
-})
+  selectedPatientStatsList: patientStatistics.data ?? {},
+});
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   getPatients: () => {
-    dispatch(getPatientsRequested())
-    dispatch(getPatients())
+    dispatch(getPatientsRequested());
+    dispatch(getPatients());
   },
-  updatePatient: (patientId, data) => {
-    dispatch(updatePatient(patientId, data))
-  },
-  getPatientStatistics: petientId => {
-    dispatch(startRequest())
-    dispatch(getPatientStatistics(petientId))
-  },
-  newReadingPost: data => {
-    dispatch(newReadingPost(data))
-  },
-  getCurrentUser: () => {
-    dispatch(getCurrentUser())
+
+  getPatientStatistics: (petientId) => {
+    dispatch(startRequest());
+    dispatch(getPatientStatistics(petientId));
   },
   ...bindActionCreators(
     {
-      getReferrals
+      getReferrals,
+      getCurrentUser,
+      updatePatient,
+      newReadingPost,
     },
     dispatch
-  )
-})
+  ),
+});
 
 export const PatientSummary = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Component)
+)(Component);

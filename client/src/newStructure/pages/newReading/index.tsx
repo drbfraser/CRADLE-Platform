@@ -8,7 +8,10 @@ import {
   addNewPatient,
   // afterNewPatientAdded
 } from '../../shared/reducers/patients';
-import { addNewReading } from '../../shared/reducers/newReadingStatus';
+import {
+  addNewReading,
+  resetNewReadingStatus,
+} from '../../shared/reducers/newReadingStatus';
 // import Dialog from '@material-ui/core/Dialog';
 // import DialogTitle from '@material-ui/core/DialogTitle';
 // import DialogContent from '@material-ui/core/DialogContent';
@@ -26,6 +29,7 @@ import {
   User,
   CheckedItems,
 } from '../../types';
+import { bindActionCreators } from 'redux';
 
 var symptom: any = [];
 
@@ -111,6 +115,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
     // }
 
     if (props.readingCreated) {
+      props.resetNewReadingStatus()
       return {
         ...state,
         showSuccessReading: true,
@@ -285,7 +290,8 @@ class NewReadingPageComponent extends Component<IProps, IState> {
     );
   };
   reset = () => {
-    this.setState(initState);
+    this.setState({ showSuccessReading: false });
+    // this.setState(initState);
   };
   render() {
     // don't render page if user is not logged in
@@ -380,18 +386,16 @@ const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  addNewPatient: (newPatient: any) => {
-    dispatch(addNewPatient(newPatient));
-  },
-  // afterNewPatientAdded: () => {
-  //   dispatch(afterNewPatientAdded());
-  // },
-  addNewReading: (data: any) => {
-    dispatch(addNewReading(data));
-  },
-  getCurrentUser: () => {
-    dispatch(getCurrentUser());
-  },
+  ...bindActionCreators(
+    {
+      getCurrentUser,
+      addNewReading,
+      addNewPatient,
+      resetNewReadingStatus,
+      // afterNewPatientAdded
+    },
+    dispatch
+  ),
 });
 
 export const NewReadingPage = connect(

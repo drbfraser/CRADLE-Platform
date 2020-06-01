@@ -2,35 +2,38 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
   getPatients,
-  getPatientsRequested
+  getPatientsRequested,
+  PatientsState,
 } from '../../shared/reducers/patients';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { ReferralTable } from './referralTable';
-import {User } from '../../types';
+import { ReduxState } from '../../redux/rootReducer';
 
 interface IProps {
   getCurrentUser: any;
-  user: User;
-  patients: any;
+  user: any;
+  patients: PatientsState;
   getPatients: any;
   history: any;
 }
 class ReferralPageComponent extends Component<IProps> {
   state = {
-    patientsList: []
+    patientsList: [],
   };
 
   componentDidMount = () => {
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser();
     }
-    if (this.props.patients.patientsList.length === 0) {
+    console.log("halo" , this.props.patients)
+    if (this.props.patients.patientsList?.length === 0 || this.props.patients.patientsList === null) {
       this.props.getPatients();
     }
   };
 
   static filterReferrals(patientsList: any) {
-    const result = patientsList.filter((patient: any) => {
+    console.log(patientsList);
+    const result = patientsList?.filter((patient: any) => {
       if (patient.readings.length === 0) {
         return false;
       }
@@ -43,7 +46,7 @@ class ReferralPageComponent extends Component<IProps> {
       }
       return false;
     });
-    return result;
+    return result ? result : [];
   }
 
   static getDerivedStateFromProps(props: any, state: any) {
@@ -52,7 +55,7 @@ class ReferralPageComponent extends Component<IProps> {
     );
     let newState = {
       ...state,
-      patientsList: referredPatients
+      patientsList: referredPatients,
     };
 
     return newState;
@@ -84,9 +87,9 @@ class ReferralPageComponent extends Component<IProps> {
   }
 }
 
-const mapStateToProps = ({ patients, user }: any) => ({
-  patients: patients,
-  user: user.currentUser
+const mapStateToProps = ({ patients, user }: ReduxState) => ({
+  patients,
+  user: user.current.data,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -96,7 +99,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
   getCurrentUser: () => {
     dispatch(getCurrentUser());
-  }
+  },
 });
 
 export const ReferralsPage = connect(

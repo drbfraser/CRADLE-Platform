@@ -9,28 +9,34 @@
  *      this function should handle data validation
  */
 
-import { Button, Form, Input, Modal, Select, TextArea } from 'semantic-ui-react'
-import React from 'react'
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  Select,
+  TextArea,
+} from 'semantic-ui-react';
+import React from 'react';
 import {
   createFollowUp,
   setReadingId,
-  updateFollowUp
+  updateFollowUp,
 } from '../../../../../reducers/referrals';
 
-import Switch from '@material-ui/core/Switch'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { followupFrequencyUnit } from '../utils';
-
+import Switch from '@material-ui/core/Switch';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { followupFrequencyUnitOptions } from '../utils';
 
 const untilDateOrOther = [
   { key: 'date', text: 'Date', value: 'DATE' },
-  { key: 'other', text: 'Other', value: 'OTHER' }
-]
+  { key: 'other', text: 'Other', value: 'OTHER' },
+];
 
 class Component extends React.Component<any, any> {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       data: {
@@ -41,29 +47,29 @@ class Component extends React.Component<any, any> {
         followupNeeded: false,
         dateFollowupNeededTill: '',
         followupInstructions: '',
-        followupFrequencyUnit: followupFrequencyUnit[0],
-        followupFrequencyValue: null
+        followupFrequencyUnit: followupFrequencyUnitOptions[0],
+        followupFrequencyValue: null,
       },
       isOpen: false,
-      dateOrOther: 'DATE'
-    }
+      dateOrOther: 'DATE',
+    };
 
-    this.handleChange = this.handleChange.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleOpen = this.handleOpen.bind(this)
-    this.handleClose = this.handleClose.bind(this)
-    this.onOpen = this.onOpen.bind(this)
-    this.loadInitialValues = this.loadInitialValues.bind(this)
-    this.handleSwitchChange = this.handleSwitchChange.bind(this)
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleOpen = this.handleOpen.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.onOpen = this.onOpen.bind(this);
+    this.loadInitialValues = this.loadInitialValues.bind(this);
+    this.handleSwitchChange = this.handleSwitchChange.bind(this);
 
-    this.loadInitialValues()
+    this.loadInitialValues();
   }
 
   loadInitialValues() {
     if (this.props.initialValues) {
       for (let key in this.state.data) {
         if (key in this.props.initialValues) {
-          this.state.data[key] = this.props.initialValues[key]
+          this.state.data[key] = this.props.initialValues[key];
         }
       }
     }
@@ -72,41 +78,41 @@ class Component extends React.Component<any, any> {
   handleOpen() {
     this.setState(
       {
-        isOpen: true
+        isOpen: true,
       },
       () => {
-        this.loadInitialValues()
-        this.setState(this.state)
+        this.loadInitialValues();
+        this.setState(this.state);
       }
-    )
+    );
   }
 
   handleClose() {
     this.setState({
-      isOpen: false
-    })
+      isOpen: false,
+    });
   }
 
   onOpen() {
-    this.props.setReadingId(this.props.readingId)
+    this.props.setReadingId(this.props.readingId);
   }
 
   handleChange(e, value) {
     this.setState({
       data: {
         ...this.state.data,
-        [value.name]: value.value
-      }
-    })
+        [value.name]: value.value,
+      },
+    });
   }
 
   handleSwitchChange(e) {
     this.setState({
       data: {
         ...this.state.data,
-        followupNeeded: e.target.checked
-      }
-    })
+        followupNeeded: e.target.checked,
+      },
+    });
   }
 
   handleDateOrOtherChange = (error, value) => {
@@ -114,37 +120,47 @@ class Component extends React.Component<any, any> {
       value.name === 'untilDateOrOther' &&
       (value.value === 'OTHER' || value.value === 'DATE')
     ) {
-      this.setState({ dateOrOther: value.value })
+      this.setState({ dateOrOther: value.value });
     }
-  }
+  };
 
   handleSubmit() {
-    this.state.data.referral = this.props.referralId
+    this.state.data.referral = this.props.referralId;
 
     if (this.state.dateOrCondition === 'DATE') {
       this.state.data.dateFollowupNeededTill =
-        Date.parse(this.state.data.dateFollowupNeededTill) / 1000 // divide by 1000 to convert ms into s
+        Date.parse(this.state.data.dateFollowupNeededTill) / 1000; // divide by 1000 to convert ms into s
     }
 
     if (this.state.untilDateOrCond) {
-      delete this.state.untilDateOrCond
+      delete this.state.untilDateOrCond;
     }
     // update existing followUpInfo
     if (this.props.initialValues) {
-      this.props.updateFollowUp(this.props.initialValues['id'], this.state.data)
+      this.props.updateFollowUp(
+        this.props.initialValues['id'],
+        this.state.data
+      );
     } else {
       // create new followUpInfo
-      const followupData = this.state.data
+      const followupData = this.state.data;
       // TODO: remove this once mobile is up to date with the new assessment changes
       // followupData.followUpAction = followupData.specialInvestigations;
 
       if (!followupData.followupNeeded) {
-        delete followupData.dateFollowupNeededTill
+        delete followupData.dateFollowupNeededTill;
       }
-      this.props.createFollowUp(this.state.data)
+      const { followupFrequencyUnit,...data } = this.state.data;
+      console.log("followupfreq" , followupFrequencyUnit === followupFrequencyUnitOptions[0]);
+      this.props.createFollowUp({
+        ...data,
+        ...(followupFrequencyUnit === followupFrequencyUnitOptions[0]
+          ? {}
+          : { followupFrequencyUnit: followupFrequencyUnit.value }),
+      });
     }
 
-    this.handleClose()
+    this.handleClose();
   }
 
   render() {
@@ -207,7 +223,7 @@ class Component extends React.Component<any, any> {
                   <label
                     style={{
                       display: 'inline-block',
-                      marginRight: '5px'
+                      marginRight: '5px',
                     }}>
                     Follow-up Needed
                   </label>
@@ -241,7 +257,7 @@ class Component extends React.Component<any, any> {
                         name="followupFrequencyUnit"
                         value={this.state.data.followupFrequencyUnit || 'N/A'}
                         control={Select}
-                        options={followupFrequencyUnit}
+                        options={followupFrequencyUnitOptions}
                         label="Frequency Unit"
                         onChange={this.handleChange}></Form.Field>
                     </Form.Group>
@@ -277,24 +293,22 @@ class Component extends React.Component<any, any> {
           </Modal.Content>
         </Modal>
       </div>
-    )
+    );
   }
 }
 
-const mapStateToProps = ({}) => ({})
+const mapStateToProps = ({}) => ({});
 
-const mapDispatchToProps = dispatch => ({
-  createFollowUp: data => {
-    dispatch(createFollowUp(data))
-  },
+const mapDispatchToProps = (dispatch) => ({
   ...bindActionCreators(
     {
       updateFollowUp,
-      setReadingId
+      setReadingId,
+      createFollowUp,
     },
     dispatch
-  )
-})
+  ),
+});
 
 export const FollowUpModal = connect(
   mapStateToProps,
