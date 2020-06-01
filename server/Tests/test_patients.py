@@ -76,6 +76,7 @@ def getRandomSymtoms():
     symptoms = ['headache', 'body pain', 'feverish', 'bleeding']
     return symptoms[random.randint(0,3)]
 
+auth_header = get_authorization_header()
 ##############################################################
 #                     SUCCESS CODE 201 TESTS                 #
 ##############################################################
@@ -92,7 +93,7 @@ def test_pass_create_patient():
         "patientSex": patientSex
     }
 
-    response = requests.post(url, json=data, headers=get_authorization_header())
+    response = requests.post(url, json=data, headers=auth_header)
     response_body = response.json()
     
     assert response.status_code == 201
@@ -114,7 +115,7 @@ def test_pass_create_patient2():
         "patientSex": patientSex
     }
 
-    response = requests.post(url, json=data, headers=get_authorization_header())
+    response = requests.post(url, json=data, headers=auth_header)
     response_body = json.loads(response.text)
     
     assert response.status_code == 201
@@ -159,7 +160,7 @@ def test_pass_create_patient_reading():
         'reading': reading  
     }
     
-    response = requests.post(url, json=data, headers=get_authorization_header())
+    response = requests.post(url, json=data, headers=auth_header)
     response_body = json.loads(response.text)
     
     assert response.status_code == 201
@@ -210,7 +211,7 @@ def test_fail_create_patient_reading():
         'reading': reading  
     }
 
-    response = requests.post(url, json=data, headers=get_authorization_header())
+    response = requests.post(url, json=data, headers=auth_header)
     assert response.status_code == 400
 
 def test_fail_create_patient_duplicate():
@@ -228,7 +229,6 @@ def test_fail_create_patient_duplicate():
         "patientSex": patientSex
     }
 
-    auth_header = get_authorization_header()
     response = requests.post(url, json=data, headers=auth_header)
     response = requests.post(url, json=data, headers=auth_header)
 
@@ -247,5 +247,5 @@ def test_fail_create_patient_missing_fields():
         "patientSex": patientSex
     }
 
-    response = requests.post(url, json=data, headers=get_authorization_header())
+    response = requests.post(url, json=data, headers=auth_header)
     assert response.status_code == 400
