@@ -1,8 +1,6 @@
 import { Endpoints } from '../../../../server/endpoints';
 import { serverRequestActionCreator, ServerRequestAction } from '../../utils';
-import { User, Callback, OrNull } from '@types';
-
-const GET_VHTS_REQUEST = `user/GET_VHTS_REQUEST`;
+import { VHT, OrNull } from '@types';
 
 enum AllVhtsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'allVhts/CLEAR_REQUEST_OUTCOME',
@@ -13,36 +11,30 @@ enum AllVhtsActionEnum {
 
 type AllVhtsAction =
   | { type: AllVhtsActionEnum.CLEAR_REQUEST_OUTCOME }
-  | { type: AllVhtsActionEnum.GET_VHTS_ERROR, payload: { message: string } }
-  | { type: AllVhtsActionEnum.GET_VHTS_SUCCESS, payload: { vhts: Array<User> } }
+  | { type: AllVhtsActionEnum.GET_VHTS_ERROR; payload: { message: string } }
+  | { type: AllVhtsActionEnum.GET_VHTS_SUCCESS; payload: { vhts: Array<VHT> } }
   | { type: AllVhtsActionEnum.START_REQUEST };
 
-export const getVhtsRequested = () => ({
-  type: GET_VHTS_REQUEST,
-});
+// const startRequest = (): AllVhtsAction => ({
+//   type: AllVhtsActionEnum.START_REQUEST,
+// });
 
-const startRequest = (): AllVhtsAction => ({
-  type: AllVhtsActionEnum.START_REQUEST,
-});
+// type AllVhtsRequest = Callback<Callback<AllVhtsAction>, ServerRequestAction>;
 
-type AllVhtsRequest = Callback<Callback<AllVhtsAction>, ServerRequestAction>;
-
-export const getVhts = (): AllVhtsRequest => {
-  return (dispatch: Callback<AllVhtsAction>): ServerRequestAction => {
-    dispatch(startRequest());
-
-    return serverRequestActionCreator({
-      endpoint: `${Endpoints.USER}${Endpoints.VHTS}`,
-      onSuccess: (vhts: Array<User>): AllVhtsAction => ({
+export const getVhts = (): ServerRequestAction => {
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.USER}${Endpoints.VHTS}`,
+    onSuccess: ({data:vhts}: {data:Array<VHT>}): AllVhtsAction => {
+      return {
         type: AllVhtsActionEnum.GET_VHTS_SUCCESS,
         payload: { vhts },
-      }),
-      onError: (message: string): AllVhtsAction => ({
-        type: AllVhtsActionEnum.GET_VHTS_ERROR,
-        payload: { message },
-      }),
-    })
-  };
+      };
+    },
+    onError: (message: string): AllVhtsAction => ({
+      type: AllVhtsActionEnum.GET_VHTS_ERROR,
+      payload: { message },
+    }),
+  });
 };
 
 export const clearAllVhtsRequestOutcome = () => ({
@@ -53,27 +45,27 @@ export type AllVhtsState = {
   error: boolean;
   loading: boolean;
   message: OrNull<string>;
-  vhts: OrNull<Array<User>>;
-}
+  data: OrNull<Array<VHT>>;
+};
 
 const initialState: AllVhtsState = {
   error: false,
   loading: false,
   message: null,
-  vhts: null,
-}
+  data: null,
+};
 
 export const allVhtsReducer = (
-  state = initialState, 
+  state = initialState,
   action: AllVhtsAction
 ): AllVhtsState => {
   switch (action.type) {
     case AllVhtsActionEnum.CLEAR_REQUEST_OUTCOME:
-      return { ...initialState, vhts: state.vhts };
+      return { ...initialState, data: state.data };
     case AllVhtsActionEnum.GET_VHTS_SUCCESS:
       return {
         ...initialState,
-        vhts: action.payload.vhts,
+        data: action.payload.vhts,
       };
     case AllVhtsActionEnum.START_REQUEST:
       return {
@@ -83,7 +75,7 @@ export const allVhtsReducer = (
     case AllVhtsActionEnum.GET_VHTS_SUCCESS:
       return {
         ...initialState,
-        vhts: action.payload.vhts,
+        data: action.payload.vhts,
       };
     case AllVhtsActionEnum.GET_VHTS_ERROR:
       return {

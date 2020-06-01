@@ -71,10 +71,10 @@ export type User = {
   roles: Array<RoleEnum>;
   token: string;
   userId: number;
-  vhtList: Array<string>;
+  vhtList: Array<VHT>;
 };
 
-export type VHTS = {
+export type VHT = {
   id: number;
   email: string;
 };
