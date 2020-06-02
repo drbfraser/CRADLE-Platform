@@ -83,6 +83,16 @@ if [[ -z "$(container-id $DB_NAME)" ]]; then
     --detach \
     $MYSQL_IMAGE
   echo "Done!"
+
+  echo "Adding MySQL User: $DB_USERNAME"
+  docker exec $DB_CONTAINER_NAME \
+    mysql -u root -p$MYSQL_ROOT_PASSWORD \
+    -e "CREATE USER '$DB_USERNAME'@* IDENTIFIED BY '$DB_PASSWORD';"
+  
+  docker exec $DB_CONTAINER_NAME \
+    mysql -u root -p$MYSQL_ROOT_PASSWORD \
+    -e "GRANT ALL PRIVILEGES ON * . * TO '$DB_USERNAME'@*;"
+  echo "Done!"
 else
   echo "Found!"
 fi
