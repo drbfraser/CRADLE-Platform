@@ -2,21 +2,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   registerUser,
-  clearRegisterStatusOutcome
+  clearRegisterStatusOutcome,
 } from '../../shared/reducers/user/registerStatus';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import {
   getHealthFacilityList,
-  getHealthFacilityListRequested
+  getHealthFacilityListRequested,
 } from '../../shared/reducers/healthFacilities';
 import { Button, Divider, Form, Select, Message } from 'semantic-ui-react';
 import { Paper } from '@material-ui/core';
 import { User } from '../../types';
-import {
-  RoleEnum
-} from '../../enums';
-
-
+import { RoleEnum } from '../../enums';
+import { bindActionCreators } from 'redux';
+import { ReduxState } from 'src/newStructure/redux/rootReducer';
 
 const initState = {
   user: {
@@ -24,8 +22,8 @@ const initState = {
     password: '',
     firstName: '',
     healthFacilityName: '',
-    role: 'VHT' // default value
-  }
+    role: 'VHT', // default value
+  },
 };
 interface IProp {
   registerUser: any;
@@ -43,8 +41,8 @@ class SignupComponent extends React.Component<IProp> {
     this.setState({
       user: {
         ...this.state.user,
-        [event.target.name]: event.target.value
-      }
+        [event.target.name]: event.target.value,
+      },
     });
   };
 
@@ -95,7 +93,7 @@ class SignupComponent extends React.Component<IProp> {
         hfOptions.push({
           key: this.props.healthFacilityList[i],
           text: this.props.healthFacilityList[i],
-          value: this.props.healthFacilityList[i]
+          value: this.props.healthFacilityList[i],
         });
       }
     }
@@ -119,7 +117,7 @@ class SignupComponent extends React.Component<IProp> {
               borderRadius: '15px',
               minWidth: '500px',
               maxWidth: '750px',
-              margin: 'auto'
+              margin: 'auto',
             }}>
             <Form onSubmit={this.handleSubmit}>
               <h1>Create a User</h1>
@@ -187,10 +185,10 @@ class SignupComponent extends React.Component<IProp> {
   }
 }
 
-const mapStateToProps = ({ user, healthFacilities }: any) => ({
-  user: user.currentUser,
+const mapStateToProps = ({ user, healthFacilities }: ReduxState) => ({
+  user: user.current.data,
   registerStatus: user.registerStatus,
-  healthFacilityList: healthFacilities.healthFacilitiesList
+  healthFacilityList: healthFacilities.healthFacilitiesList,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -198,18 +196,17 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(getHealthFacilityListRequested());
     dispatch(getHealthFacilityList());
   },
-  registerUser: (user: any) => {
-    dispatch(registerUser(user));
-  },
-  getCurrentUser: () => {
-    dispatch(getCurrentUser());
-  },
-  clearRegisterStatusOutcome: () => {
-    dispatch(clearRegisterStatusOutcome());
-  }
+  ...bindActionCreators(
+    {
+      registerUser,
+      getCurrentUser,
+      clearRegisterStatusOutcome,
+    },
+    dispatch
+  ),
 });
 
 export const SignUpPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(SignupComponent as any);
+)(SignupComponent);
