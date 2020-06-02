@@ -5,7 +5,7 @@
 # complete functionality. Instead will need to reference `manage.py` for commands to
 # populate a database with sample data.
 #
-# USAGE: python3 db.py COMMAND
+# USAGE: python3 db.py COMMAND [--no-docker]
 #
 # COMMANDS:
 #   rebuild            - Rebuilds the database from scratch erasing all data

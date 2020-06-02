@@ -68,7 +68,7 @@ fi
 echo ""
 
 echo "Searching for database instance..."
-if [[ -z "$(container-id $DB_NAME)" ]]; then
+if [[ -z "$(container-id $DB_CONTAINER_NAME)" ]]; then
   echo "Not found"
 
   echo "Creating a new database instance..."
@@ -84,14 +84,32 @@ if [[ -z "$(container-id $DB_NAME)" ]]; then
     $MYSQL_IMAGE
   echo "Done!"
 
-  echo "Adding MySQL User: $DB_USERNAME"
+  echo "Waiting for database to startup..."
+  sleep 10
+  echo "Done!"
+
+  echo "Adding MySQL user: $DB_USERNAME..."
   docker exec $DB_CONTAINER_NAME \
     mysql -u root -p$MYSQL_ROOT_PASSWORD \
-    -e "CREATE USER '$DB_USERNAME'@* IDENTIFIED BY '$DB_PASSWORD';"
+    -e "CREATE USER IF NOT EXISTS '$DB_USERNAME'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
+
+  docker exec $DB_CONTAINER_NAME \
+    mysql -u root -p$MYSQL_ROOT_PASSWORD \
+    -e "CREATE USER IF NOT EXISTS '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD';"
   
   docker exec $DB_CONTAINER_NAME \
     mysql -u root -p$MYSQL_ROOT_PASSWORD \
-    -e "GRANT ALL PRIVILEGES ON * . * TO '$DB_USERNAME'@*;"
+    -e "GRANT ALL PRIVILEGES ON * . * TO '$DB_USERNAME'@'localhost';"
+
+  docker exec $DB_CONTAINER_NAME \
+    mysql -u root -p$MYSQL_ROOT_PASSWORD \
+    -e "GRANT ALL PRIVILEGES ON * . * TO '$DB_USERNAME'@'%';"
+  echo "Done!"
+
+  echo "Creating $DB_NAME database..."
+  docker exec $DB_CONTAINER_NAME \
+    mysql -u $DB_USERNAME -p$DB_PASSWORD \
+    -e "CREATE DATABASE $DB_NAME;"
   echo "Done!"
 else
   echo "Found!"
@@ -102,7 +120,7 @@ echo "Searching for existing containers..."
 if instance-already-running; then
   echo "Found"
   echo "Tearing down existing instances..."
-  docker-compose --file $COMPOSE_FILE down
+  docker-compose --file $COMPOSE_FILE down --rmi local
   echo "Done!"
 else
   echo "Not found, ready for a new deployment"
@@ -110,7 +128,7 @@ fi
 echo ""
 
 echo "Deploying..."
-docker-compose --file $COMPOSE_FILE up --force-recreate --detach
+docker-compose --file $COMPOSE_FILE up --build --renew-anon-volumes --force-recreate --detach
 echo "Done!"
 
 echo "Finished deployment: $DEPLOYMENT_MODE!"

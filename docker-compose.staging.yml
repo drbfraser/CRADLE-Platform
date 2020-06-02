@@ -7,9 +7,6 @@ services:
     build: 
       context: ./client
       dockerfile: Dockerfile.prod
-      # Forward environment value for the server url.
-      args:
-        - REACT_APP_CUSTOM_URL
     volumes:
       - /usr/src/client/node_modules
       - type: volume
@@ -31,6 +28,7 @@ services:
     expose:
       - 5000
     environment:
+      - DB_CONTAINER_NAME
       - DB_USERNAME
       - DB_PASSWORD
       - DB_HOSTNAME
@@ -38,7 +36,6 @@ services:
       - DB_NAME
       - EMAIL_USER
       - EMAIL_PASSWORD
-      - REACT_APP_CUSTOM_URL=cmpt373-lockdown.cs.surrey.sfu.ca
       - PORT=5000
     networks: 
       - db_network
