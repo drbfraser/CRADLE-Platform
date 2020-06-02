@@ -32,7 +32,7 @@ def upgrade(env):
     Attempts to upgrade the database using flask.
     """
     print("Upgrading database...")
-    result = exec_sh_cmd(env, ["flask", "db", "upgrade"], container="cradle")
+    exec_sh_cmd(env, ["flask", "db", "upgrade"], container="cradle")
     print("done")
 
 
@@ -56,7 +56,7 @@ def create_database(env):
     if has_database(env):
         print("already exists")
         return
-    result = exec_mysql_stmt(env, f"CREATE DATABASE {db_name};")
+    exec_mysql_stmt(env, f"CREATE DATABASE {db_name};")
     print("done")
 
 
@@ -69,7 +69,7 @@ def drop_database(env):
     if not has_database(env):
         print("doesn't exist")
         return
-    result = exec_mysql_stmt(env, f"DROP DATABASE {db_name};")
+    exec_mysql_stmt(env, f"DROP DATABASE {db_name};")
     print("done")
 
 
@@ -110,7 +110,7 @@ def exec_mysql_stmt(env, stmt, database=None):
     return exec_sh_cmd(env, cmd)
 
 
-def exec_sh_cmd(env, cmd, container="mysql"):
+def exec_sh_cmd(env, cmd, container=None):
     """
     Executes a shell command.
 
@@ -121,6 +121,8 @@ def exec_sh_cmd(env, cmd, container="mysql"):
     """
     sh_cmd = []
     if is_using_docker(env):
+        if container is None:
+            container = env_var(env, "DB_CONTAINER_NAME")
         sh_cmd = ["docker", "exec", container] + cmd
     else:
         sh_cmd = cmd

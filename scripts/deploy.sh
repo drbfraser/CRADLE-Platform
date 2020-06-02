@@ -37,6 +37,7 @@ echo "Checking environment variables..."
 require-env-var "DEPLOYMENT_MODE"
 require-env-var "CLIENT_CONTAINER_NAME"
 require-env-var "SERVER_CONTAINER_NAME"
+require-env-var "DB_CONTAINER_NAME"
 require-env-var "MYSQL_ROOT_PASSWORD"
 require-env-var "COMPOSE_FILE"
 
@@ -72,7 +73,7 @@ if [[ -z "$(container-id $DB_NAME)" ]]; then
 
   echo "Creating a new database instance..."
   docker run \
-    --name $DB_NAME \
+    --name $DB_CONTAINER_NAME \
     -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
     -e MYSQL_USER=$DB_USERNAME \
     -e MYSQL_PASSWORD=$DB_PASSWORD \
