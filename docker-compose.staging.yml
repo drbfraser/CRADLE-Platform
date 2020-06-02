@@ -38,6 +38,7 @@ services:
       - DB_NAME
       - EMAIL_USER
       - EMAIL_PASSWORD
+      - REACT_APP_CUSTOM_URL=cmpt373-lockdown.cs.surrey.sfu.ca
       - PORT=5000
     networks: 
       - db_network
