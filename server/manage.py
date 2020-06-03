@@ -134,6 +134,17 @@ def seed():
         }
         counter += 1
         db.session.add(healthfacility_schema.load(hf_schema))
+
+    # This extra health facility is added to satisfy a foreign key contraint
+    # when making deterministic referral data and make tests pass.
+    hf = {
+        "healthFacilityName": "H0000",
+        "healthFacilityPhoneNumber": "555-555-55555",
+        "facilityType": "HOSPITAL",
+        "about": "Sample health centre",
+        "location": "Sample Location",
+    }
+    db.session.add(healthfacility_schema.load(hf))
     db.session.commit()
 
     # SEED roles
