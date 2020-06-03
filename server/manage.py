@@ -108,6 +108,9 @@ def seed_test_data():
     create_user("vht@vht.com", "TestVHT", "vht123", "H0000", "VHT")
     create_user("cho@cho.com", "TestCHO", "cho123", "H0000", "CHO")
 
+    print("Creating test patiens, readings, referrals...")
+    create_patient_reading_referral("400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001")
+    create_patient_reading_referral("204652", "def-456-fg3-fh5k", 2, "BB", 40, "FEMALE", "1002", True, "GESTATIONAL_AGE_UNITS_WEEKS", "22")
     # TODO: Add more data here
 
     print("Finished seeding test data")
@@ -240,6 +243,11 @@ def seed():
                 }
                 db.session.add(referral_schema.load(referral1))
                 db.session.commit()
+    
+    # These specific patients are added to align with seed_test_data()'s seeded data.
+    # This is to make sure tests will pass no matter what seeding method is used.
+    create_patient_reading_referral("400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001")
+    create_patient_reading_referral("204652", "def-456-fg3-fh5k", 2, "BB", 40, "FEMALE", "1002", True, "GESTATIONAL_AGE_UNITS_WEEKS", "22")
 
     print("Complete!")
 
@@ -258,6 +266,63 @@ def create_user(email, name, password, hf_name, role):
     user_role = Role.query.filter_by(name=role).first()
     user_role.users.append(user_schema.load(user, session=db.session))
     db.session.add(user_role)
+    db.session.commit()
+
+def create_patient_reading_referral(patientId, readingId, userId, 
+                                    name, age, sex, villageNum, 
+                                    isPregnant=False, gestAgeUnit=None, gestAgeValue=None):
+    """
+    Creates a patient in the database.
+    """
+    if (isPregnant):
+        patient = {
+            "patientId": patientId,
+            "patientName": name,
+            "patientAge": age,
+            "gestationalAgeUnit": gestAgeUnit,
+            "gestationalAgeValue": gestAgeValue,
+            "villageNumber": villageNum,
+            "patientSex": sex,
+            "isPregnant": "true",
+        }
+    else:
+        patient = {
+            "patientId": patientId,
+            "patientName": name,
+            "patientAge": age,
+            "villageNumber": villageNum,
+            "patientSex": sex,
+            "isPregnant": "false",
+        }
+
+    reading = {
+        "userId": userId,
+        "patientId": patientId,
+        "dateTimeTaken": 1551447833,
+        "readingId": readingId,
+        "bpSystolic": 50,
+        "bpDiastolic": 60,
+        "heartRateBPM": 70,
+        "symptoms": "FEVERISH",
+    }
+
+    # health facility name based on one defined in seed_minimal()
+    referral = {
+        "patientId": patientId,
+        "readingId": readingId,
+        "dateReferred": reading["dateTimeTaken"]
+        + int(timedelta(days=10).total_seconds()),
+        "referralHealthFacilityName": "H0000",
+        "comment": "They need help!",
+    }
+
+    patient_schema = PatientSchema()
+    reading_schema = ReadingSchema()
+    referral_schema = ReferralSchema()
+
+    db.session.add(patient_schema.load(patient))
+    db.session.add(reading_schema.load(reading))
+    db.session.add(referral_schema.load(referral))
     db.session.commit()
 
 

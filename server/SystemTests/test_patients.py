@@ -171,18 +171,18 @@ def test_pass_create_patient_reading():
     assert response_body['reading']['bpDiastolic'] == bpDiastolic
     assert response_body['reading']['heartRateBPM'] == hr
 
-# TODO: add way to make sure patient exists in db first. Wait until test db with deterministic data is is implemented 
-# def test_get_patient():
-#      # replace hardcoded id
-#      url = base_url + '/api/patient/48300028807'
-#      response = requests.get(url)
-#      response_body = response.json()
+def test_get_patient():
 
-#      # testing the 3 required fields of a patient
-#      assert response_body['patientId'] == "48300028807" 
-#      assert response_body['patientName'] == "YV"
-#      assert response_body['patientSex'] == 'FEMALE'
-#      assert response.status_code == 200
+    # hardcoded id 204652 based on deterministic patient data seeded in test database
+    url = base_url + '/api/patient/204652'
+    response = requests.get(url, headers=auth_header)
+    response_body = response.json()
+    
+    # testing the 3 required fields of a patient
+    assert response_body['patientId'] == "204652"
+    assert response_body['patientName'] == "BB"
+    assert response_body['patientSex'] == 'FEMALE'
+    assert response.status_code == 200
 
 # ##############################################################
 #                      ERROR CODE 400 TESTS                    #
