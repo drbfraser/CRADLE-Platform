@@ -108,3 +108,4 @@ def test_update_info_invalid_succeeds():
     patient_id = 45464
     result = PatientValidation.update_info_invalid(patient_id, patient_request_body_missing_fields)
     assert result[1] == 400
+    
