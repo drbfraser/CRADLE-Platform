@@ -50,6 +50,7 @@ def drop_all_tables():
     exit(1)
 
 
+# USAGE: python manage.py seed_minimal
 @manager.command
 def seed_minimal(email="admin123@admin.com", password="admin123"):
     """
@@ -90,6 +91,7 @@ def seed_minimal(email="admin123@admin.com", password="admin123"):
     print("Finished seeding minimal data set")
 
 
+# USAGE: python manage.py seed_test_data
 @manager.command
 def seed_test_data():
     """
