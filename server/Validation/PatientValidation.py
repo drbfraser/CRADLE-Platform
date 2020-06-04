@@ -1,8 +1,5 @@
 # This module provides functions to validate the request data for a Patient.
 
-from Manager import patientManager
-from Manager import patientManager
-
 """
     Description: validates request for creating a new patient, will also be using this to help validate new patient with a reading
 
