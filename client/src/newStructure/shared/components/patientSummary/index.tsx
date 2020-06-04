@@ -1,44 +1,42 @@
 // @ts-nocheck
 
-import React from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { Icon } from 'semantic-ui-react';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import Typography from '@material-ui/core/Typography';
-import SweetAlert from 'sweetalert2-react';
-
-import { Button, Header, Modal, Divider, Form, Input } from 'semantic-ui-react';
-
+import { Bar, Line } from 'react-chartjs-2';
+import { Button, Divider, Form, Header, Input, Modal } from 'semantic-ui-react';
+import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from '../form/patient';
 import {
-  updatePatient,
-  getPatients,
-  getPatientsRequested,
-} from '../../reducers/patients';
-import { getPrettyDate, getPrettyDateTime, getMomentDate } from '../../utils';
-import { getReferrals } from '../../reducers/referrals';
+  UrineTestForm,
+  initialUrineTests,
+  urineTestChemicals,
+} from '../form/urineTest';
+import { getMomentDate, getPrettyDate, getPrettyDateTime } from '../../utils';
 import {
   getPatientStatistics,
   startRequest,
 } from '../../reducers/patientStatistics';
-
-import { Bar, Line } from 'react-chartjs-2';
-import ReferralInfo from './referralInfo';
-import { getCurrentUser } from '../../reducers/user/currentUser';
-import { newReadingPost } from '../../reducers/newReadingPost';
-import { getTrafficIcon } from './utils';
 import {
-  UrineTestForm,
-  urineTestChemicals,
-  initialUrineTests,
-} from '../form/urineTest';
-import { PatientInfoForm, GESTATIONAL_AGE_UNITS } from '../form/patient';
-import { SymptomForm } from '../form/symptom';
+  getPatients,
+  getPatientsRequested,
+  updatePatient,
+} from '../../reducers/patients';
+
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import Grid from '@material-ui/core/Grid';
+import { Icon } from 'semantic-ui-react';
+import Paper from '@material-ui/core/Paper';
+import React from 'react';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import ReferralInfo from './referralInfo';
+import SweetAlert from 'sweetalert2-react';
+import { SymptomForm } from '../form/symptom';
+import Typography from '@material-ui/core/Typography';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../reducers/user/currentUser';
+import { getReferrals } from '../../reducers/referrals';
+import { getTrafficIcon } from './utils';
+import { newReadingPost } from '../../reducers/newReadingPost';
 
 var symptom = [];
 
@@ -49,6 +47,8 @@ function guid() {
     return v.toString(16);
   });
 }
+
+
 class Component extends React.Component {
   state = {
     displayPatientModal: false,
@@ -91,6 +91,12 @@ class Component extends React.Component {
     if (this.props.selectedPatient) {
       this.props.getPatientStatistics(this.props.selectedPatient.patientId);
     }
+  };
+
+  static getDerivedStateFromProps = (props: any, state: any) => {
+    console.log(`props`, JSON.stringify(props, null, 2));
+    console.log(`state`, JSON.stringify(state, null, 2));
+    return state;
   };
 
   calculateShockIndex = (reading) => {

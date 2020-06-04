@@ -1,35 +1,36 @@
 import './index.css';
 
 import { Button, Divider, Form } from 'semantic-ui-react';
-import { PatientInfoForm, GESTATIONAL_AGE_UNITS } from './patientInfoForm';
+import {
+  CheckedItems,
+  PatientNewReading,
+  PatientNewReadingReading,
+  User,
+} from '../../types';
+import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from './patientInfoForm';
 import React, { Component } from 'react';
 import { UrineTestForm, initialUrineTests } from './urineTestForm';
-import {
-  addNewPatient,
-  // afterNewPatientAdded
-} from '../../shared/reducers/patients';
 import {
   addNewReading,
   resetNewReadingStatus,
 } from '../../shared/reducers/newReadingStatus';
+
+import { BpForm } from './bpForm';
+import SweetAlert from 'sweetalert2-react';
+import { SymptomForm } from './symptomForm';
+import {
+  addNewPatient
+} from '../../shared/reducers/patients';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+
 // import Dialog from '@material-ui/core/Dialog';
 // import DialogTitle from '@material-ui/core/DialogTitle';
 // import DialogContent from '@material-ui/core/DialogContent';
 // import DialogContentText from '@material-ui/core/DialogContentText';
 // import DialogActions from '@material-ui/core/DialogActions';
 
-import { BpForm } from './bpForm';
-import SweetAlert from 'sweetalert2-react';
-import { SymptomForm } from './symptomForm';
-import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import {
-  PatientNewReading,
-  PatientNewReadingReading,
-  User,
-  CheckedItems,
-} from '../../types';
-import { bindActionCreators } from 'redux';
 
 var symptom: any = [];
 
@@ -289,10 +290,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
       }
     );
   };
-  reset = () => {
-    this.setState({ showSuccessReading: false });
-    // this.setState(initState);
-  };
+
   render() {
     // don't render page if user is not logged in
     if (!this.props.user.isLoggedIn) {
@@ -349,29 +347,8 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           show={this.state.showSuccessReading}
           title="Patient Reading Created!"
           text="Success! You can view the new reading by going to the Patients tab"
-          onConfirm={this.reset}
+          onConfirm={() => this.setState(initState)}
         />
-        {/* <Dialog
-          open={this.state.showSuccessReading}
-          onClose={this.reset}
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description">
-          {
-            <>
-              <DialogTitle>Patient Reading Created!</DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  {' '}
-                  Success! You can view the new reading by going to the Patients
-                  tab{' '}
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <button onClick={this.reset}> Ok </button>
-              </DialogActions>
-            </>
-          }
-        </Dialog> */}
       </div>
     );
   }
