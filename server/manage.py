@@ -108,9 +108,22 @@ def seed_test_data():
     create_user("vht@vht.com", "TestVHT", "vht123", "H0000", "VHT")
     create_user("cho@cho.com", "TestCHO", "cho123", "H0000", "CHO")
 
-    print("Creating test patiens, readings, referrals...")
-    create_patient_reading_referral("400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001")
-    create_patient_reading_referral("204652", "def-456-fg3-fh5k", 2, "BB", 40, "FEMALE", "1002", True, "GESTATIONAL_AGE_UNITS_WEEKS", "22")
+    print("Creating test patients, readings, referrals...")
+    create_patient_reading_referral(
+        "400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001"
+    )
+    create_patient_reading_referral(
+        "204652",
+        "def-456-fg3-fh5k",
+        2,
+        "BB",
+        40,
+        "FEMALE",
+        "1002",
+        True,
+        "GESTATIONAL_AGE_UNITS_WEEKS",
+        "22",
+    )
     # TODO: Add more data here
 
     print("Finished seeding test data")
@@ -254,11 +267,24 @@ def seed():
                 }
                 db.session.add(referral_schema.load(referral1))
                 db.session.commit()
-    
+
     # These specific patients are added to align with seed_test_data()'s seeded data.
     # This is to make sure tests will pass no matter what seeding method is used.
-    create_patient_reading_referral("400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001")
-    create_patient_reading_referral("204652", "def-456-fg3-fh5k", 2, "BB", 40, "FEMALE", "1002", True, "GESTATIONAL_AGE_UNITS_WEEKS", "22")
+    create_patient_reading_referral(
+        "400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001"
+    )
+    create_patient_reading_referral(
+        "204652",
+        "def-456-fg3-fh5k",
+        2,
+        "BB",
+        40,
+        "FEMALE",
+        "1002",
+        True,
+        "GESTATIONAL_AGE_UNITS_WEEKS",
+        "22",
+    )
 
     print("Complete!")
 
@@ -279,13 +305,23 @@ def create_user(email, name, password, hf_name, role):
     db.session.add(user_role)
     db.session.commit()
 
-def create_patient_reading_referral(patientId, readingId, userId, 
-                                    name, age, sex, villageNum, 
-                                    isPregnant=False, gestAgeUnit=None, gestAgeValue=None):
+
+def create_patient_reading_referral(
+    patientId,
+    readingId,
+    userId,
+    name,
+    age,
+    sex,
+    villageNum,
+    isPregnant=False,
+    gestAgeUnit=None,
+    gestAgeValue=None,
+):
     """
     Creates a patient in the database.
     """
-    if (isPregnant):
+    if isPregnant:
         patient = {
             "patientId": patientId,
             "patientName": name,
