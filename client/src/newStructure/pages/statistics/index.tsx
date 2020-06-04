@@ -1,14 +1,15 @@
+import "./index.css"
+
+import { AllAssessedWomenStatsitics } from './allAssessedWomen';
+import { GlobalStatistics } from './global';
+import { HealthFacilityStatistics } from './healthFacility';
+import { LastMonthTrafficLightsStatistics } from './lastMonthTrafficLights';
 import React from 'react';
+import { ReduxState } from '../../../newStructure/redux/rootReducer';
+import { bindActionCreators } from 'redux';
+import classes from './styles.module.css';
 import { connect } from 'react-redux';
 import { getStatistics } from '../../shared/reducers/statistics';
-import { HealthFacilityStatistics } from './healthFacility';
-import { GlobalStatistics } from './global';
-import { AllAssessedWomenStatsitics } from './allAssessedWomen';
-import { LastMonthTrafficLightsStatistics } from './lastMonthTrafficLights';
-import classes from './styles.module.css';
-import { bindActionCreators } from 'redux';
-import { ReduxState } from '../../../newStructure/redux/rootReducer';
-import "./index.css"
 interface IProps {
   getStatistics: any;
   statisticsList: any;
@@ -33,7 +34,6 @@ const Page: React.FC<IProps> = ({ getStatistics, statisticsList }) => {
         currentMonth={currentMonth.current}
         statisticsList={statisticsList}
       />
-      <br />
       <br />
       <br />
       <AllAssessedWomenStatsitics

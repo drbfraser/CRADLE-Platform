@@ -1,14 +1,15 @@
-import React from 'react';
-import classes from '../styles.module.css';
-import { Line } from 'react-chartjs-2';
 import { Card, Statistic } from 'semantic-ui-react';
-import { xLabels } from '../utils';
 import {
-  womenReferredPerMonth,
+  pregnantWomenAssessedPerMonth,
   pregnantWomenReferredPerMonth,
   womenAssessedPerMonth,
-  pregnantWomenAssessedPerMonth
+  womenReferredPerMonth
 } from './utils';
+
+import { Line } from 'react-chartjs-2';
+import React from 'react';
+import classes from '../styles.module.css';
+import { xLabels } from '../utils';
 
 interface IProps {
   currentMonth: number;
@@ -76,7 +77,6 @@ export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
             </Statistic>
           </Statistic.Group>
         ) : null}
-        <br />
         <div className="chart">
           <Card fluid>
             <Card.Content>
