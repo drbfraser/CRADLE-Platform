@@ -1,5 +1,3 @@
-
-# this seeds the database with seed command below
 import random
 import string
 import uuid
@@ -18,70 +16,141 @@ manager = Manager(app)
 # USAGE: python manage.py reset_db
 @manager.command
 def reset_db():
-    db.drop_all()
-    db.create_all()
-    db.session.commit()
+    """
+    This command is depreciated and will be removed at a later date. It currently does 
+    nothing except display a warning message.
+
+    The reason this command is depreciated is that by manually constructing the database
+    tables we eliminate the ability for use to use flask's db migration system to manage
+    our database schema for us. At this point in time that doesn't matter to much, if
+    we change the schema we simply delete the current database and rebuild it. We cannot
+    do that once we have actual live data in it so it is pertinant that we practice how
+    to manage a database migration when updating the schema.
+    """
+    print("\n!! THIS COMMAND IS DEPRECIATED !!\n")
+    print("See db.py for an alternative command")
+    print("No changes were made")
+    exit(1)
+
 
 # USAGE: python manage.py drop_all_tables
 @manager.command
 def drop_all_tables():
-    db.drop_all()
+    """
+    This command is depreciated and will be removed at a later date. It currently does 
+    nothing except display a warning message.
+
+    This command is depreciated for the same reason `reset_db` is. Deleting all tables
+    in this mannor does not delete flask's migration metadata table leaving the database
+    in a corrupted state.
+    """
+    print("\n!! THIS COMMAND IS DEPRECIATED !!\n")
+    print("See db.py for an alternative command")
+    print("No changes were made")
+    exit(1)
+
+
+# USAGE: python manage.py seed_minimal
+@manager.command
+def seed_minimal(email="admin123@admin.com", password="admin123"):
+    """
+    Seeds the database with the minimum amount of data required for it to be functional.
+
+    The data inserted into the database is deterministic so it is suitable for testing
+    off of.
+
+    The minimal set of data is as follows:
+
+     - A single health facility named: H0000
+     - The set of predefined user roles
+     - A single admin user
+    """
+    print("Seeding health facility...")
+    hf = {
+        "healthFacilityName": "H0000",
+        "healthFacilityPhoneNumber": "555-555-55555",
+        "facilityType": "HOSPITAL",
+        "about": "Sample health centre",
+        "location": "Sample Location",
+    }
+    hf_schema = HealthFacilitySchema()
+    db.session.add(hf_schema.load(hf))
     db.session.commit()
+
+    print("Seeding user roles...")
+    role_vht = Role(name="VHT")
+    role_hcw = Role(name="HCW")
+    role_admin = Role(name="ADMIN")
+    role_cho = Role(name="CHO")
+    db.session.add_all([role_vht, role_hcw, role_admin, role_cho])
+    db.session.commit()
+
+    print("Creating admin user...")
+    create_user(email, "Admin", password, "H0000", "ADMIN")
+
+    print("Finished seeding minimal data set")
+
+
+# USAGE: python manage.py seed_test_data
+@manager.command
+def seed_test_data():
+    """
+    Seeds data for testing.
+
+    The data inserted here should be deterministically generated to ease testing.
+    """
+    # Start with a minimal setup.
+    seed_minimal()
+
+    # Add the rest of the users.
+    print("Creating test users...")
+    create_user("hcw@hcw.com", "Brian", "hcw123", "H0000", "HCW")
+    create_user("vht@vht.com", "TestVHT", "vht123", "H0000", "VHT")
+    create_user("cho@cho.com", "TestCHO", "cho123", "H0000", "CHO")
+
+    print("Creating test patients, readings, referrals...")
+    create_patient_reading_referral(
+        "400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001"
+    )
+    create_patient_reading_referral(
+        "204652",
+        "def-456-fg3-fh5k",
+        2,
+        "BB",
+        40,
+        "FEMALE",
+        "1002",
+        True,
+        "GESTATIONAL_AGE_UNITS_WEEKS",
+        "22",
+    )
+    # TODO: Add more data here
+
+    print("Finished seeding minimal test data")
+
 
 # USAGE: python manage.py seed
 @manager.command
 def seed():
     # SEED health facilities
-    print('Seeding health facilities...')
+    print("Seeding health facilities...")
 
     healthfacility_schema = HealthFacilitySchema()
     counter = 0
     for hf in healthFacilityList:
-        hf_schema = { 
-            "healthFacilityName" : hf,
+        hf_schema = {
+            "healthFacilityName": hf,
             "healthFacilityPhoneNumber": facilityPhoneNumbers[counter],
             "facilityType": facilityType[counter],
             "about": facilityAbout[counter],
-            "location": facilityLocation[counter]
+            "location": facilityLocation[counter],
         }
         counter += 1
         db.session.add(healthfacility_schema.load(hf_schema))
-    db.session.commit()
 
-    # SEED roles
-    role1 = Role(name='VHT')
-    role2 = Role(name='HCW')
-    role3 = Role(name='ADMIN')
-    role4 = Role(name='CHO')
+    seed_test_data()
 
-    print('Seeding roles...')
-    db.session.add_all([role1,role2,role3,role4])
-    db.session.commit()
-
-    role_admin = Role.query.filter_by(name='ADMIN').first()
-    role_hcw = Role.query.filter_by(name='HCW').first()
-    role_vht = Role.query.filter_by(name='VHT').first()
-    role_cho = Role.query.filter_by(name='CHO').first()
-
-    user_schema = UserSchema()
-    u0 = { 'email' : 'admin123@admin.com', 'firstName': 'Admin', 'password': flask_bcrypt.generate_password_hash('admin123'), "healthFacilityName": getRandomHealthFacilityName() }
-    u1 = { 'email' : 'hcw@hcw.com', 'firstName': 'Brian', 'password': flask_bcrypt.generate_password_hash('hcw123'), "healthFacilityName": getRandomHealthFacilityName() }
-    u2 = { 'email' : 'vht@vht.com', 'firstName' : 'TestVHT','password': flask_bcrypt.generate_password_hash('vht123'), "healthFacilityName": getRandomHealthFacilityName() }
-    u3 = { 'email' : 'cho@cho.com', 'firstName' : 'TestCHO','password': flask_bcrypt.generate_password_hash('cho123'), "healthFacilityName": getRandomHealthFacilityName() }
-    role_admin.users.append(user_schema.load(u0, session=db.session))
-    role_hcw.users.append(user_schema.load(u1, session=db.session))
-    role_vht.users.append(user_schema.load(u2, session=db.session))
-    role_cho.users.append(user_schema.load(u3, session=db.session))
-
-    print('Seeding users...')
-    db.session.add(role_admin)
-    db.session.add(role_hcw)
-    db.session.add(role_vht)
-    db.session.add(role_cho)
-    db.session.commit()
-
-
-    print('Seeding Patients with readings and referrals...')
+    print("Seeding Patients with readings and referrals...")
     # seed patients with readings and referrals
     patient_schema = PatientSchema()
     reading_schema = ReadingSchema()
@@ -89,20 +158,20 @@ def seed():
     for patientId in patientList:
 
         # get random patient
-        p1 = { 
+        p1 = {
             "patientId": patientId,
             "patientName": getRandomInitials(),
-            "patientAge":getRandomAge(),
-            "gestationalAgeUnit":"GESTATIONAL_AGE_UNITS_WEEKS",
-            "gestationalAgeValue":"51",
+            "patientAge": getRandomAge(),
+            "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+            "gestationalAgeValue": "51",
             "villageNumber": getRandomVillage(),
             "patientSex": "FEMALE",
-            "isPregnant":"true"
+            "isPregnant": "true",
         }
         db.session.add(patient_schema.load(p1))
         db.session.commit()
 
-        numOfReadings = random.randint(1,5)
+        numOfReadings = random.randint(1, 5)
         dateList = [getRandomDate() for i in range(numOfReadings)]
         dateList.sort()
 
@@ -112,9 +181,9 @@ def seed():
             healthFacilityName = getRandomHealthFacilityName()
 
             # get random reading(s) for patient
-            r1 =  {
-                "userId" : userId,
-                "patientId" : patientId,
+            r1 = {
+                "userId": userId,
+                "patientId": patientId,
                 "dateTimeTaken": dateList[i],
                 "readingId": readingId,
                 "bpSystolic": getRandomBpSystolic(),
@@ -125,50 +194,147 @@ def seed():
             db.session.add(reading_schema.load(r1))
             db.session.commit()
 
-            if i == numOfReadings-1 and random.choice([True, False]):
+            if i == numOfReadings - 1 and random.choice([True, False]):
                 referral1 = {
-                    "patientId" : patientId,
+                    "patientId": patientId,
                     "readingId": readingId,
-                    "dateReferred": r1['dateTimeTaken'] + int(timedelta(days=10).total_seconds()),
+                    "dateReferred": r1["dateTimeTaken"]
+                    + int(timedelta(days=10).total_seconds()),
                     "referralHealthFacilityName": healthFacilityName,
-                    "comment": "She needs help!"
+                    "comment": "She needs help!",
                 }
                 db.session.add(referral_schema.load(referral1))
                 db.session.commit()
 
-    print('Complete!')
+    print("Complete!")
+
+
+def create_user(email, name, password, hf_name, role):
+    """
+    Creates a user in the database.
+    """
+    user = {
+        "email": email,
+        "firstName": name,
+        "password": flask_bcrypt.generate_password_hash(password),
+        "healthFacilityName": hf_name,
+    }
+    user_schema = UserSchema()
+    user_role = Role.query.filter_by(name=role).first()
+    user_role.users.append(user_schema.load(user, session=db.session))
+    db.session.add(user_role)
+    db.session.commit()
+
+
+def create_patient_reading_referral(
+    patientId,
+    readingId,
+    userId,
+    name,
+    age,
+    sex,
+    villageNum,
+    isPregnant=False,
+    gestAgeUnit=None,
+    gestAgeValue=None,
+):
+    """
+    Creates a patient in the database.
+    """
+    if isPregnant:
+        patient = {
+            "patientId": patientId,
+            "patientName": name,
+            "patientAge": age,
+            "gestationalAgeUnit": gestAgeUnit,
+            "gestationalAgeValue": gestAgeValue,
+            "villageNumber": villageNum,
+            "patientSex": sex,
+            "isPregnant": "true",
+        }
+    else:
+        patient = {
+            "patientId": patientId,
+            "patientName": name,
+            "patientAge": age,
+            "villageNumber": villageNum,
+            "patientSex": sex,
+            "isPregnant": "false",
+        }
+
+    reading = {
+        "userId": userId,
+        "patientId": patientId,
+        "dateTimeTaken": 1551447833,
+        "readingId": readingId,
+        "bpSystolic": 50,
+        "bpDiastolic": 60,
+        "heartRateBPM": 70,
+        "symptoms": "FEVERISH",
+    }
+
+    # health facility name based on one defined in seed_minimal()
+    referral = {
+        "patientId": patientId,
+        "readingId": readingId,
+        "dateReferred": reading["dateTimeTaken"]
+        + int(timedelta(days=10).total_seconds()),
+        "referralHealthFacilityName": "H0000",
+        "comment": "They need help!",
+    }
+
+    patient_schema = PatientSchema()
+    reading_schema = ReadingSchema()
+    referral_schema = ReferralSchema()
+
+    db.session.add(patient_schema.load(patient))
+    db.session.add(reading_schema.load(reading))
+    db.session.add(referral_schema.load(referral))
+    db.session.commit()
+
 
 def getRandomInitials():
-    return (random.choice(string.ascii_letters) + random.choice(string.ascii_letters)).upper()
+    return (
+        random.choice(string.ascii_letters) + random.choice(string.ascii_letters)
+    ).upper()
+
 
 def getRandomVillage():
     return random.choice(villageList)
 
+
 def getRandomAge():
-    return random.randint(20,40)
+    return random.randint(20, 40)
+
 
 def getRandomBpSystolic():
     return random.choice(bpSystolicList)
 
+
 def getRandomBpDiastolic():
     return random.choice(bpDiastolicList)
+
 
 def getRandomHeartRateBPM():
     return random.choice(heartRateList)
 
+
 def getRandomHealthFacilityName():
     return random.choice(healthFacilityList)
+
 
 def getRandomUser():
     return random.choice(usersList)
 
+
 def getRandomSymptoms():
-    numOfSymptoms = random.randint(0,4)
+    numOfSymptoms = random.randint(0, 4)
     if numOfSymptoms == 0:
-        return ''
-    
+        return ""
+
     symptoms = random.sample(population=symptomsList, k=numOfSymptoms)
-    return ', '.join(symptoms)
+    return ", ".join(symptoms)
+
 
 def getRandomDate():
     """
@@ -183,8 +349,10 @@ def getRandomDate():
     new_date = start + timedelta(seconds=random_second)
     return int(new_date.strftime("%s"))
 
+
 def getDateTime(dateStr):
     return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
+
 
 if __name__ == "__main__":
     NUM_OF_PATIENTS = 100
@@ -193,20 +361,40 @@ if __name__ == "__main__":
     random.shuffle(patientList)
     patientList = list(map(str, patientList))
 
-    usersList = [1,2,3,4]
-    villageList = ['1001','1002','1003','1004','1005','1006','1007','1008','1009']
-    healthFacilityList = ['H1233', 'H2555', 'H3445', 'H5123']
-    facilityType = ['HCF_2', 'HCF_3', 'HCF_4', 'HOSPITAL']
-    facilityAbout = ['Has minimal resources', 'Can do full checkup', 'Has specialized equipment', 'Urgent requests only']
-    facilityLocation = ['District 1', 'District 2', 'District 3', 'District 4']
-    facilityPhoneNumbers = ['+256-413-837484', '+256-223-927484', '+256-245-748573', '+256-847-0947584']
-    symptomsList = ['HEADACHE', 'BLURRED VISION', 'ABDO PAIN', 'BLEEDING', 'FEVERISH']
-    sexList = ['FEMALE', 'MALE']
+    usersList = [1, 2, 3, 4]
+    villageList = [
+        "1001",
+        "1002",
+        "1003",
+        "1004",
+        "1005",
+        "1006",
+        "1007",
+        "1008",
+        "1009",
+    ]
+    healthFacilityList = ["H1233", "H2555", "H3445", "H5123"]
+    facilityType = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
+    facilityAbout = [
+        "Has minimal resources",
+        "Can do full checkup",
+        "Has specialized equipment",
+        "Urgent requests only",
+    ]
+    facilityLocation = ["District 1", "District 2", "District 3", "District 4"]
+    facilityPhoneNumbers = [
+        "+256-413-837484",
+        "+256-223-927484",
+        "+256-245-748573",
+        "+256-847-0947584",
+    ]
+    symptomsList = ["HEADACHE", "BLURRED VISION", "ABDO PAIN", "BLEEDING", "FEVERISH"]
+    sexList = ["FEMALE", "MALE"]
     bpSystolicList = list(np.random.normal(120, 35, 1000).astype(int))
     bpDiastolicList = list(np.random.normal(80, 25, 1000).astype(int))
-    heartRateList = list(np.random.normal(60,17,1000).astype(int))
+    heartRateList = list(np.random.normal(60, 17, 1000).astype(int))
 
-    d1 = datetime.strptime('1/1/2019 12:01 AM', '%m/%d/%Y %I:%M %p')
-    #d2 = datetime.strptime('12/31/2019 11:59 PM', '%m/%d/%Y %I:%M %p')
-    d2 = datetime.strptime('11/11/2019 11:59 PM', '%m/%d/%Y %I:%M %p')
+    d1 = datetime.strptime("1/1/2019 12:01 AM", "%m/%d/%Y %I:%M %p")
+    # d2 = datetime.strptime('12/31/2019 11:59 PM', '%m/%d/%Y %I:%M %p')
+    d2 = datetime.strptime("11/11/2019 11:59 PM", "%m/%d/%Y %I:%M %p")
     manager.run()
