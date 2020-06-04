@@ -1,8 +1,9 @@
+import { Callback, OrNull, ServerError, User } from '@types';
+import { RouterAction, push } from 'connected-react-router';
+import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
+
 import { Endpoints } from '../../../../server/endpoints';
 import { Methods } from '../../../../server/methods';
-import { push, RouterAction } from 'connected-react-router';
-import { serverRequestActionCreator, ServerRequestAction } from '../../utils';
-import { Callback, User, OrNull } from '@types';
 
 export enum CurrentUserActionEnum {
   CLEAR_REQUEST_OUTCOME = 'currentUser/CLEAR_REQUEST_OUTCOME',
@@ -69,10 +70,13 @@ export const login = (data: LoginData): ServerRequestAction => {
         payload: { user: data },
       };
     },
-    onError: (message: string) => ({
-      type: CurrentUserActionEnum.LOGIN_USER_ERROR,
-      payload: { message },
-    }),
+    onError: (error: ServerError) => {
+      console.error(error);
+      return {
+        type: CurrentUserActionEnum.LOGIN_USER_ERROR,
+        payload: { message: error.message },
+      }
+    },
   });
 };
 
