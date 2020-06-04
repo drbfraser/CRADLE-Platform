@@ -126,7 +126,7 @@ def seed_test_data():
     )
     # TODO: Add more data here
 
-    print("Finished seeding test data")
+    print("Finished seeding minimal test data")
 
 
 # USAGE: python manage.py seed
@@ -148,69 +148,7 @@ def seed():
         counter += 1
         db.session.add(healthfacility_schema.load(hf_schema))
 
-    # This extra health facility is added to satisfy a foreign key contraint
-    # when making deterministic referral data and make tests pass.
-    hf = {
-        "healthFacilityName": "H0000",
-        "healthFacilityPhoneNumber": "555-555-55555",
-        "facilityType": "HOSPITAL",
-        "about": "Sample health centre",
-        "location": "Sample Location",
-    }
-    db.session.add(healthfacility_schema.load(hf))
-    db.session.commit()
-
-    # SEED roles
-    role1 = Role(name="VHT")
-    role2 = Role(name="HCW")
-    role3 = Role(name="ADMIN")
-    role4 = Role(name="CHO")
-
-    print("Seeding roles...")
-    db.session.add_all([role1, role2, role3, role4])
-    db.session.commit()
-
-    role_admin = Role.query.filter_by(name="ADMIN").first()
-    role_hcw = Role.query.filter_by(name="HCW").first()
-    role_vht = Role.query.filter_by(name="VHT").first()
-    role_cho = Role.query.filter_by(name="CHO").first()
-
-    user_schema = UserSchema()
-    u0 = {
-        "email": "admin123@admin.com",
-        "firstName": "Admin",
-        "password": flask_bcrypt.generate_password_hash("admin123"),
-        "healthFacilityName": getRandomHealthFacilityName(),
-    }
-    u1 = {
-        "email": "hcw@hcw.com",
-        "firstName": "Brian",
-        "password": flask_bcrypt.generate_password_hash("hcw123"),
-        "healthFacilityName": getRandomHealthFacilityName(),
-    }
-    u2 = {
-        "email": "vht@vht.com",
-        "firstName": "TestVHT",
-        "password": flask_bcrypt.generate_password_hash("vht123"),
-        "healthFacilityName": getRandomHealthFacilityName(),
-    }
-    u3 = {
-        "email": "cho@cho.com",
-        "firstName": "TestCHO",
-        "password": flask_bcrypt.generate_password_hash("cho123"),
-        "healthFacilityName": getRandomHealthFacilityName(),
-    }
-    role_admin.users.append(user_schema.load(u0, session=db.session))
-    role_hcw.users.append(user_schema.load(u1, session=db.session))
-    role_vht.users.append(user_schema.load(u2, session=db.session))
-    role_cho.users.append(user_schema.load(u3, session=db.session))
-
-    print("Seeding users...")
-    db.session.add(role_admin)
-    db.session.add(role_hcw)
-    db.session.add(role_vht)
-    db.session.add(role_cho)
-    db.session.commit()
+    seed_test_data()
 
     print("Seeding Patients with readings and referrals...")
     # seed patients with readings and referrals
@@ -267,24 +205,6 @@ def seed():
                 }
                 db.session.add(referral_schema.load(referral1))
                 db.session.commit()
-
-    # These specific patients are added to align with seed_test_data()'s seeded data.
-    # This is to make sure tests will pass no matter what seeding method is used.
-    create_patient_reading_referral(
-        "400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001"
-    )
-    create_patient_reading_referral(
-        "204652",
-        "def-456-fg3-fh5k",
-        2,
-        "BB",
-        40,
-        "FEMALE",
-        "1002",
-        True,
-        "GESTATIONAL_AGE_UNITS_WEEKS",
-        "22",
-    )
 
     print("Complete!")
 
