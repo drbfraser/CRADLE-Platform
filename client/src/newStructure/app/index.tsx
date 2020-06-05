@@ -42,6 +42,7 @@ import { connect } from 'react-redux';
 import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
 import { routesNames } from './toolbar/utils';
+import {Pathname} from 'history';
 
 const drawerWidth = 200;
 const useStyles = makeStyles((theme) => ({
@@ -97,7 +98,7 @@ interface IProps {
   logoutUser: () => void;
   navigateToHelpPage: () => void;
   user: OrNull<User>;
-  pathName: string;
+  pathName: Pathname;
 }
 
 const Component: React.FC<IProps> = (props) => {
@@ -408,10 +409,10 @@ const Component: React.FC<IProps> = (props) => {
   );
 };
 
-const mapStateToProps = ({ user , location }: ReduxState) => ({
+const mapStateToProps = ({ user , router }: ReduxState) => ({
   loggedIn: user.current.loggedIn,
   user: user.current.data,
-  pathName: location.pathname,
+  pathName: router.location.pathname,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) =>({
