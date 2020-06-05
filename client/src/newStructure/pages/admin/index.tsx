@@ -26,7 +26,7 @@ import {
 
 import MaterialTable from 'material-table';
 import { connect } from 'react-redux';
-import {  VHT } from '../../types';
+import { VHT } from '../../types';
 import { bindActionCreators } from 'redux';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
 
@@ -181,7 +181,7 @@ class AdminPageComponent extends Component<IProps, IState> {
   handleSubmit = (event: any) => {
     event.preventDefault();
     let userData = JSON.parse(JSON.stringify(this.state.selectedUser)); // pass by value
-    
+
     let userId = userData.id;
 
     // delete any uncessary user fields
@@ -199,7 +199,7 @@ class AdminPageComponent extends Component<IProps, IState> {
     delete userData['vhtDropdownSelections'];
 
     // let userJSON = JSON.stringify( userData, null, 2 )
-    
+
     this.props.updateUser(userId, userData);
     this.closeUserEditModal();
   };
@@ -234,7 +234,6 @@ class AdminPageComponent extends Component<IProps, IState> {
   };
 
   getRoles = (roleIds: Array<string>) => {
-    console.log("ROLE ID  " +roleIds )
     var roleStr = '';
     if (roleIds.length === 1) {
       return this.state.roleMapping[roleIds[0]];
