@@ -70,7 +70,7 @@ export const updateUser = (
     onError: (message: string): AllUsersAction => ({
       type: AllUsersActionEnum.UPDATE_USER_ERROR,
       payload: { message },
-    })
+    }),
   });
 };
 
@@ -148,11 +148,9 @@ export const allUsersReducer = (
         ...initialState,
         updatedUserList: true,
         data:
-          state.data?.map(
-            (user: User): User =>
-              user.userId === action.payload.updatedUser.userId
-                ? action.payload.updatedUser
-                : user
+          state.data?.filter(
+            ({ userId }: User): boolean =>
+              userId !== action.payload.updatedUser.userId
           ) ?? null,
       };
     default:
