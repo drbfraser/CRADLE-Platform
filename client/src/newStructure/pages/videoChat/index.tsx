@@ -6,8 +6,8 @@ import { createRoom, joinRoom } from './reducers/chat';
 import { CustomForm } from './customForm';
 import React from 'react';
 import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import classes from './styles.module.css';
+import { connect } from 'react-redux';
 
 interface IProps {
   createRoom: any;
@@ -59,30 +59,32 @@ const Page: React.FC<IProps> = ({ createRoom, joinRoom }) => {
 
   return (
     <div className={classes.container}>
-      <Header as="h1">CradleChat</Header>
-      <Button
-        className={
-          state.createFormOpen ? classes.createRoom : classes.createRoomHidden
-        }
-        onClick={createNewRoom}>
-        Create Room
-      </Button>
-      <Button
-        className={
-          !state.createFormOpen && state.enterFormOpen
-            ? classes.enterRoom
-            : classes.enterRoomHidden
-        }
-        onClick={toggleEnterForm}
-      >
-        Join Existing Room
-      </Button>
-      {state.enterFormOpen && (
-        <CustomForm
-          onRoomIdChange={handleRoomIdChange}
-          onSubmit={joinExistingRoom}
-        />
-      )}
+      <div className={classes.content}>
+        <Header as="h1">CradleChat</Header>
+        <Button
+          className={
+            state.createFormOpen ? classes.createRoom : classes.createRoomHidden
+          }
+          onClick={createNewRoom}>
+          Create Room
+        </Button>
+        <Button
+          className={
+            !state.createFormOpen && state.enterFormOpen
+              ? classes.enterRoom
+              : classes.enterRoomHidden
+          }
+          onClick={toggleEnterForm}
+        >
+          Join Existing Room
+        </Button>
+        {state.enterFormOpen && (
+          <CustomForm
+            onRoomIdChange={handleRoomIdChange}
+            onSubmit={joinExistingRoom}
+          />
+        )}
+      </div>
     </div>
   );
 };

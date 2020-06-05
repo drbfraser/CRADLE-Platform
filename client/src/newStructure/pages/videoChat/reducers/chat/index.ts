@@ -1,4 +1,5 @@
-import { push, RouterAction } from 'connected-react-router';
+import { RouterAction, push } from 'connected-react-router';
+
 import { Callback } from '@types';
 
 enum ChatActionEnum {
@@ -56,13 +57,11 @@ export const chatReducer = (
   switch (action.type) {
     case ChatActionEnum.CREATE_ROOM:
       return {
-        ...state,
         isOpener: true,
         roomId: action.payload.roomId,
       };
     case ChatActionEnum.JOIN_ROOM:
       return {
-        ...state,
         isOpener: false,
         roomId: action.payload.roomId,
       };
