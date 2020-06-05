@@ -15,7 +15,7 @@ import { User } from '../../types';
 import { RoleEnum } from '../../enums';
 import { bindActionCreators } from 'redux';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
-
+import './index.css';
 const initState = {
   user: {
     email: '',
@@ -63,7 +63,9 @@ class SignupComponent extends React.Component<IProp> {
 
   static getDerivedStateFromProps = (props: any) => {
     if (props.registerStatus.userCreated) {
-      props.clearRegisterStatusOutcome();
+      setTimeout(function () {
+        props.clearRegisterStatusOutcome();
+      }, 3000);
       return initState;
     }
     return null;
@@ -100,16 +102,6 @@ class SignupComponent extends React.Component<IProp> {
 
     return (
       <div>
-        {this.props.registerStatus.error && (
-          <Message negative size="large">
-            <Message.Header>{this.props.registerStatus.message}</Message.Header>
-          </Message>
-        )}
-        {this.props.registerStatus.error === false && (
-          <Message success size="large">
-            <Message.Header>{this.props.registerStatus.message}</Message.Header>
-          </Message>
-        )}
         <div>
           <Paper
             style={{
@@ -180,6 +172,20 @@ class SignupComponent extends React.Component<IProp> {
             </Form>
           </Paper>
         </div>
+        {this.props.registerStatus.error && (
+          <Message negative size="large">
+            <Message.Header>{this.props.registerStatus.message}</Message.Header>
+          </Message>
+        )}
+
+        {this.props.registerStatus.error === false &&
+          this.props.registerStatus.userCreated === true && (
+            <Message success size="large">
+              <Message.Header>
+                {this.props.registerStatus.message}
+              </Message.Header>
+            </Message>
+          )}
       </div>
     );
   }
