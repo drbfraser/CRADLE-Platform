@@ -11,7 +11,8 @@ export const getRole = (roles: any) => {
   return ``;
 };
 
-export const routesNames = {
+type RoutesNames = { [key: string]: string };
+export const routesNames: RoutesNames = {
   newreading: 'Reading',
   patients: 'Patients',
   admin: 'Admin',
