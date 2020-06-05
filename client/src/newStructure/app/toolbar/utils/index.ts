@@ -10,3 +10,14 @@ export const getRole = (roles: any) => {
   }
   return ``;
 };
+
+export const routesNames = {
+  newreading: 'Reading',
+  patients: 'Patients',
+  admin: 'Admin',
+  help: 'Help',
+  signup: 'Signup',
+  referrals: 'Referrals',
+  resources: 'Resources',
+  [`chat/landing`]: 'Chat',
+};

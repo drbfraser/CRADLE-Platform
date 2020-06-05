@@ -1,6 +1,6 @@
 import { Link, Route, Switch } from 'react-router-dom';
-import React, { useState } from 'react';
-import {push} from 'connected-react-router'
+import React, { useState , useEffect} from 'react';
+import { push } from 'connected-react-router';
 import { AdminPage } from '../pages/admin';
 import AppBar from '@material-ui/core/AppBar';
 import AppImg from './img/app_icon.png';
@@ -38,9 +38,9 @@ import { connect } from 'react-redux';
 import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
 import { PrivateRoute } from './privateRoute';
+import { routesNames } from './toolbar/utils';
 
 const drawerWidth = 200;
-
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -67,10 +67,10 @@ const useStyles = makeStyles((theme) => ({
     background: '#3b679e' /* Old browsers */,
     //@ts-ignore
     background:
-    '-moz-linear-gradient(top,  #3b679e 0%, #34787e 0%, #45889f 51%, #65a6df 100%)' /* FF3.6-15 */,
+      '-moz-linear-gradient(top,  #3b679e 0%, #34787e 0%, #45889f 51%, #65a6df 100%)' /* FF3.6-15 */,
     //@ts-ignore
     background:
-    '-webkit-linear-gradient(top,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)' /* Chrome10-25,Safari5.1-6 */,
+      '-webkit-linear-gradient(top,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)' /* Chrome10-25,Safari5.1-6 */,
     //@ts-ignore
     background:
       'linear-gradient(to bottom,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)' /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */,
@@ -91,7 +91,12 @@ const useStyles = makeStyles((theme) => ({
 
 const AppComponent = (props) => {
   const classes = useStyles();
-  const [activeItem, setActiveItem] = useState('Patients');
+  const [activeItem, setActiveItem] = useState(null);
+
+  useEffect(() => {
+    let pathNameRoute = props.pathName.replace('/', '');
+    setActiveItem(routesNames[pathNameRoute]);
+  }, [props.pathName]);
 
   const getRole = (roles) => {
     if (!roles) {
@@ -113,7 +118,7 @@ const AppComponent = (props) => {
   const titleTextStyle = {
     fontFamily: 'Open Sans',
     fontWeight: 'bold',
-    fontSize: 36
+    fontSize: 36,
   };
 
   const sidebarTextStyle = {
@@ -158,11 +163,10 @@ const AppComponent = (props) => {
                 // to="/help"
                 onClick={() => {
                   setActiveItem('Help');
-                  props.navigateToHelpPage()
+                  props.navigateToHelpPage();
                 }}
                 // selected={activeItem === 'Help'}
-                color="inherit"
-              >
+                color="inherit">
                 <Icon name="help" size="small" />
               </IconButton>
             </div>
@@ -367,7 +371,10 @@ const AppComponent = (props) => {
           <PrivateRoute exact path="/admin" component={AdminPage} />
           <PrivateRoute exact path="/help" component={HelpPage} />
           <PrivateRoute exact path="/patients" component={PatientsPage} />
-          <PrivateRoute path="/patient/:id" component={PatientSummaryContainer} />
+          <PrivateRoute
+            path="/patient/:id"
+            component={PatientSummaryContainer}
+          />
           <PrivateRoute exact path="/signup" component={SignUpPage} />
           <Route exact path="/login" component={LoginPage} />
           <PrivateRoute exact path="/stats" component={StatisticsPage} />
@@ -375,7 +382,11 @@ const AppComponent = (props) => {
           <PrivateRoute exact path="/newreading" component={NewReadingPage} />
           <PrivateRoute exact path="/resources" component={HelpPage} />
           <PrivateRoute exact path="/chat/landing" component={VideoChatPage} />
-          <PrivateRoute exact path="/chat/session" component={VideoSessionPage} />
+          <PrivateRoute
+            exact
+            path="/chat/session"
+            component={VideoSessionPage}
+          />
           <PrivateRoute
             exact
             path="/chat/session/:roomId"
@@ -388,23 +399,20 @@ const AppComponent = (props) => {
   );
 };
 
-const mapStateToProps = ({ user }) => ({
+const mapStateToProps = ({ user, router }) => ({
   loggedIn: user.current.loggedIn,
   user: user.current.data,
+  pathName: router.location.pathname,
 });
 
-const mapDispatchToProps = (dispatch) =>({
+const mapDispatchToProps = (dispatch) => ({
   ...bindActionCreators(
     {
       logoutUser,
     },
     dispatch
   ),
-  navigateToHelpPage : () => dispatch(
-    push(`/help`))
+  navigateToHelpPage: () => dispatch(push(`/help`)),
 });
 
-export const App = connect(
-  mapStateToProps, 
-  mapDispatchToProps
-)(AppComponent);
+export const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
