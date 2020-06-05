@@ -10,7 +10,7 @@ enum AllUsersActionEnum {
   GET_USERS_SUCCESS = 'users/GET_USERS_SUCCESS',
   GET_USERS_ERROR = 'users/GET_USERS_ERROR',
   START_REQUEST = 'users/START_REQUEST',
-  UPDATE_USER_SUCCESS = 'users/UPDATE_USER_SUCCESS',
+  UPDATE_USER_SUCCESS = 'users/UPDATE_USERS_SUCCESS',
   UPDATE_USER_ERROR = 'users/UPDATE_USER_ERROR',
 }
 
@@ -59,10 +59,9 @@ export const updateUser = (
   userId: string,
   updatedUser: User
 ): ServerRequestAction => {
-  console.log("USER ID" , userId)
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.USER}${Endpoints.EDIT}/${userId}}`,
-    data: updateUser,
+    endpoint: `${Endpoints.USER}${Endpoints.EDIT}/${userId}`,
+    data: updatedUser,
     method: Methods.PUT,
     onSuccess: (): AllUsersAction => ({
       type: AllUsersActionEnum.UPDATE_USER_SUCCESS,
@@ -71,13 +70,13 @@ export const updateUser = (
     onError: (message: string): AllUsersAction => ({
       type: AllUsersActionEnum.UPDATE_USER_ERROR,
       payload: { message },
-    }),
+    })
   });
 };
 
 export const deleteUser = (userId: number): ServerRequestAction => {
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.USER}${Endpoints.DELETE}/${userId}}`,
+    endpoint: `${Endpoints.USER}${Endpoints.DELETE}/${userId}`,
     method: Methods.DELETE,
     onSuccess: (): AllUsersAction => ({
       type: AllUsersActionEnum.DELETE_USER_SUCCESS,

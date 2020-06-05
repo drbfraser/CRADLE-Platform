@@ -199,8 +199,8 @@ class AdminPageComponent extends Component<IProps, IState> {
     delete userData['vhtDropdownSelections'];
 
     // let userJSON = JSON.stringify( userData, null, 2 )
-
-    this.props.updateUser(userId.toString(), userData);
+    
+    this.props.updateUser(userId, userData);
     this.closeUserEditModal();
   };
 
@@ -234,6 +234,7 @@ class AdminPageComponent extends Component<IProps, IState> {
   };
 
   getRoles = (roleIds: Array<string>) => {
+    console.log("ROLE ID  " +roleIds )
     var roleStr = '';
     if (roleIds.length === 1) {
       return this.state.roleMapping[roleIds[0]];
