@@ -253,3 +253,26 @@ class PatientAllInformation(Resource):
             abort(404, message="No patients currently exist.")
         else:
             return patients_readings_referrals
+
+# URI: api/patient/allinfo/:search
+# [GET]: Get a list of ALL patients and their information (info, readings, referrals) 
+#        if they match search criteria 
+#        For now search criteria could be: 
+#           a portion/full match of the patient's id 
+#           a portion/full match of the patient's initials
+class PatientAllInformationGlobalSearch(Resource):
+
+    # get all patient information (patientinfo, readings, and referrals)
+    @jwt_required
+    def get(self, search):
+        current_user = get_jwt_identity()
+        patients_readings_referrals = patientManager.get_patient_with_referral_and_reading(
+            current_user,
+            search
+        )
+        # patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
+
+        if not patients_readings_referrals:
+            abort(404, message="No patients currently exist.")
+        else:
+            return patients_readings_referrals

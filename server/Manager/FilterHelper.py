@@ -22,7 +22,7 @@ def filtered_list_hcw(patients, referrals, users, userId):
         if r['referralHealthFacilityName'] == facilityName:  
             if(r['patientId'] not in patient_id_list):
                 patient_id_list.append(r['patientId'])
-      
+
     # finding patients that have relationship to facility that current user is from
     args = {
     "healthFacilityName": facilityName}
