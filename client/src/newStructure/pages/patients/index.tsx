@@ -3,18 +3,20 @@ import {
   getPatientsRequested,
 } from '../../shared/reducers/patients';
 
+import { Patient } from '@types';
 import { PatientTable } from './patientTable';
 import React from 'react';
-import { connect } from 'react-redux';
-import { Patient } from '@types';
-import { push } from 'connected-react-router';
 import { ReduxState } from '../../redux/rootReducer';
+import { RoleEnum } from '../../enums';
+import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 interface IProps {
   fetchingPatients: boolean;
   patients: Array<Patient>;
   getPatients: any;
   navigateToPatientPage: any;
+  userIsHealthWorker?: boolean; 
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -32,11 +34,13 @@ const Page: React.FC<IProps> = (props) => {
       callbackFromParent={onPatientSelected}
       data={props.patients}
       isLoading={props.fetchingPatients}
+      showGlobalSearch={props.userIsHealthWorker}
     />
   );
 };
 
-const mapStateToProps = ({ patients }: ReduxState) => ({
+const mapStateToProps = ({ patients, user }: ReduxState) => ({
+  userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,
 });

@@ -1,30 +1,41 @@
+import { Callback, OrNull, Patient, Reading } from '@types';
+import { initials, lastReadingDate, patientId, village, vitalSign } from './utils';
+
 import MaterialTable from 'material-table';
 import React from 'react';
-import Switch from '@material-ui/core/Switch';
-import { Patient, Reading, Callback, OrNull } from '@types';
-import { initials, patientId, village, vitalSign, lastReadingDate } from './utils';
+import { useActions } from './hooks/actions';
 
 interface IProps {
   data: OrNull<Array<Patient>>;
   isLoading: boolean;
   callbackFromParent: Callback<Patient>;
+  showGlobalSearch?: boolean; 
 }
 
 export const PatientTable: React.FC<IProps> = ({
   callbackFromParent,
   data,
-  isLoading
+  isLoading,
+  showGlobalSearch,
 }) => {
-  const [showReferredPatientsOnly, setShowReferredPatientsOnly] = React.useState<
+  const [globalSearch, setGlobalSearch] = React.useState(false);
+  const [showReferredPatients, setShowReferredPatients] = React.useState<
     boolean
   >(false);
   const patients = React.useMemo((): Array<Patient> => 
-    data ? data.filter(({ readings }: Patient): boolean => showReferredPatientsOnly 
+    data ? data.filter(({ readings }: Patient): boolean => showReferredPatients 
       ? readings.some((reading: Reading): boolean => Boolean(reading.dateReferred))
       : true
     ) : [], 
-    [data, showReferredPatientsOnly]
+    [data, showReferredPatients]
   );
+  const actions = useActions({
+    showReferredPatients,
+    toggleGlobalSearch: setGlobalSearch,
+    toggleShowReferredPatients: setShowReferredPatients,
+    usingGlobalSearch: globalSearch,
+    showGlobalSearchAction: showGlobalSearch,
+  });
 
   return (
     <MaterialTable
@@ -46,20 +57,7 @@ export const PatientTable: React.FC<IProps> = ({
         sorting: true
       } }
       onRowClick={ (_, rowData: Patient) => callbackFromParent(rowData) }
-      actions={ [
-        {
-          icon: (): React.ReactElement => (
-            <Switch
-              color="primary"
-              checked={ showReferredPatientsOnly }
-            />
-          ),
-          tooltip: `Show referred patients only`,
-          isFreeAction: true,
-          onClick: (): void => 
-            setShowReferredPatientsOnly((showing: boolean): boolean => !showing)
-        }
-      ] }
+      actions={actions}
     />
   );
 };
