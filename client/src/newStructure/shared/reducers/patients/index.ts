@@ -2,6 +2,7 @@ import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
+import {OrNull} from '@types';
 
 const GET_PATIENT = `patients/GET_PATIENT`;
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
@@ -80,7 +81,7 @@ export const getPatientRequested = () => ({
 
 export type PatientsState = {
   patient: any;
-  patientsList: any;
+  patientsList: OrNull<any>;
   isLoading: boolean;
   newPatientAdded: boolean;
 };
@@ -102,13 +103,11 @@ export const patientsReducer = (state = initialState, action: any) => {
         patientsList,
         isLoading: false,
       };
-
     case GET_PATIENTS_REQUESTED:
       return {
         ...state,
         isLoading: true,
       };
-
     case GET_PATIENTS_ERROR:
       return {
         ...state,
@@ -120,36 +119,29 @@ export const patientsReducer = (state = initialState, action: any) => {
         patient: action.payload.data,
         isLoading: false,
       };
-
     case GET_PATIENT_REQUESTED:
       return {
         ...state,
         isLoading: true,
       };
-
     case ADD_NEW_PATIENT:
       const newPatient = action.payload;
-      const patients = state.patientsList;
-      const currentPatients = patients ? patients : [];
 
       return {
         ...state,
-        patientsList: [newPatient, ...currentPatients],
+        patientsList: [newPatient, ...(state.patientsList ?? [])],
         newPatientAdded: true,
       };
-
     case AFTER_NEW_PATIENT_ADDED:
       return {
         ...state,
         newPatientAdded: false,
       };
-
     case GET_PATIENT_ERROR:
       return {
         ...state,
         isLoading: false,
       };
-
     default:
       return state;
   }

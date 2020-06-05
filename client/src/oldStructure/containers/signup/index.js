@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { registerUser, registerUserDefault } from '../../actions/users'
+import { registerUser, clearRegisterStatusOutcome } from '../../actions/users'
 import { getCurrentUser } from '../../actions/users'
 import {
   getHealthFacilityList,
@@ -48,7 +48,7 @@ class Signup extends Component {
 
   static getDerivedStateFromProps = (props, state) => {
     if (props.registerStatus.userCreated) {
-      props.registerUserDefault()
+      props.clearRegisterStatusOutcome()
       return initState
     }
   }
@@ -186,8 +186,8 @@ const mapDispatchToProps = dispatch => ({
   getCurrentUser: () => {
     dispatch(getCurrentUser())
   },
-  registerUserDefault: () => {
-    dispatch(registerUserDefault())
+  clearRegisterStatusOutcome: () => {
+    dispatch(clearRegisterStatusOutcome())
   }
 })
 

@@ -86,6 +86,7 @@ export const updateFollowUp = (followUpId: any, data: any) => {
 };
 
 export const createFollowUp = (data: any) => {
+  console.log("CREATE FOLLOW UP CALLED" ,data)
   return serverRequestActionCreator({
     endpoint: Endpoints.FOLLOW_UP,
     method: Methods.POST,
@@ -104,13 +105,26 @@ export const setReadingId = (readingId: any) => {
   };
 };
 
-const initialState = {
-  mappedReferrals: {} as { [key: string]: any }, // maps reading id to referral objects
+export type ReferralsState = {
+  isLoading: boolean,
+  mappedReferrals: { [key: string]: any },
+  referral: any,
+  referralId: string;
+  readingId: string;
+}
+
+const initialState: ReferralsState = {
+  isLoading: false,
+  mappedReferrals: {}, // maps reading id to referral objects
+  referral: {},
   referralId: ``,
   readingId: ``,
 };
 
-export const referralsReducer = (state = initialState, action: any) => {
+export const referralsReducer = (
+  state = initialState, 
+  action: any
+): ReferralsState => {
   switch (action.type) {
     case GET_REFERRAL:
       return {
@@ -131,9 +145,7 @@ export const referralsReducer = (state = initialState, action: any) => {
         ...state,
         mappedReferrals: {
           ...state.mappedReferrals,
-          //@ts-ignore
           [state.readingId]: {
-            //@ts-ignore
             ...state.mappedReferrals[state.readingId],
             followUp: action.payload.data,
           },

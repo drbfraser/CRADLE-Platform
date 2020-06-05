@@ -1,10 +1,33 @@
-import { SexEnum, TrafficLightEnum, GestationalAgeUnitEnum, RoleEnum } from '../enums';
+import {
+  GestationalAgeUnitEnum,
+  RoleEnum,
+  SexEnum,
+  TrafficLightEnum
+} from '../enums';
+
+import { Method as AxiosMethod } from 'axios';
 
 export type Callback<T, U = void> = (args: T) => U;
 
 export type OrNull<T> = T | null;
 
 export type OrUndefined<T> = T | undefined;
+
+export type ServerError = {
+  message: string,
+  name: string,
+  stack: string,
+  config: {
+    url: string,
+    method: AxiosMethod,
+    data: string,
+    headers: {
+      Accept: `application/json`,
+      'Content-Type': `application/json`,
+      Authorization?: string,
+    },
+  }
+};
 
 export type Reading = {
   appVersion: OrNull<string>;
@@ -28,10 +51,9 @@ export type Reading = {
   temporaryFlags: OrNull<number>;
   totalOcrSeconds: OrNull<number>;
   trafficLightStatus: TrafficLightEnum;
-  urineTest: OrNull<string>;
-  urineTests: OrNull<string>;
-  userHasSelectedNoSymptoms: OrNull<boolean>;
-  userId: number;
+  userHasSelectedNoSymptoms: boolean;
+  urineTest: string;
+  urineTests: any;
   comment?: string;
   dateReferred?: number;
 };
@@ -63,7 +85,71 @@ export type User = {
   firstName: string;
   healthFacilityName: string;
   isLoggedIn: boolean;
+  refresh: string;
   roles: Array<RoleEnum>;
+  token: string;
   userId: number;
-  vhtList: Array<string>;
-}
+  vhtList: Array<VHT>;
+};
+
+export type VHT = {
+  id: number;
+  email: string;
+};
+
+export type CheckedItems = {
+  none: boolean;
+  headache: boolean;
+  bleeding: boolean;
+  blurredVision: boolean;
+  feverish: boolean;
+  abdominalPain: boolean;
+  unwell: boolean;
+  other: boolean;
+  otherSymptoms: string;
+};
+
+export type SelectedUser = {
+  email: string;
+  firstName: string;
+  healthFacilityName: string;
+  dropdownSelections: any[];
+  vhtDropdownSelections: any[];
+  roleIds: Array<string>;
+};
+
+export type PatientNewReading = {
+  dob: OrNull<number>;
+  drugHistory: OrNull<string>;
+  gestationalAgeUnit: string;
+  gestationalAgeValue: string;
+  isPregnant: boolean;
+  medicalHistory: OrNull<string>;
+  patientAge: string;
+  patientId: string;
+  patientName: string;
+  patientSex: string;
+  villageNumber: string;
+  zone: OrNull<string>;
+};
+
+export type PatientNewReadingReading = {
+  userId: string;
+  readingId: string;
+  dateTimeTaken: OrNull<string>;
+  bpSystolic: string;
+  bpDiastolic: string;
+  heartRateBPM: string;
+  dateRecheckVitalsNeeded: OrNull<string>;
+  isFlaggedForFollowup: boolean;
+  symptoms: string;
+  urineTests: UrineTests;
+};
+
+export type UrineTests = {
+  urineTestNit: string;
+  urineTestBlood: string;
+  urineTestLeuc: string;
+  urineTestPro: string;
+  urineTestGlu: string;
+};

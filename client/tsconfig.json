@@ -25,10 +25,10 @@
       "react",
       "react-dom"
     ],
+    "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true

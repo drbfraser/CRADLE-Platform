@@ -4,7 +4,7 @@ import { MakeServerRequestEnum } from '../../../shared/reducers/utils';
 import { Methods } from '../../../server/methods';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
-import { logoutUserAction } from '../../../shared/reducers/user/currentUser';
+import { logoutUser } from '../../../shared/reducers/user/currentUser';
 import { replace } from 'connected-react-router';
 
 export const requestMiddleware = () => ({ dispatch }: any) => (next: any) => async (
@@ -43,7 +43,7 @@ export const requestMiddleware = () => ({ dispatch }: any) => (next: any) => asy
       console.error(error);
       localStorage.removeItem('token');
       localStorage.removeItem('refresh');
-      dispatch(logoutUserAction());
+      dispatch(logoutUser());
       dispatch(replace(`/login`));
       return;
     }

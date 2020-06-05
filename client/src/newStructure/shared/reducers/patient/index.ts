@@ -17,7 +17,9 @@ type PatientAction =
   | { type: PatientActionEnum.GET_PATIENT_SUCCESS, payload: { patient: Patient } }
   | { type: PatientActionEnum.START_REQUEST }
 
-const startRequest = (): PatientAction => ({ type: PatientActionEnum.START_REQUEST }); 
+const startRequest = (): PatientAction => ({ 
+  type: PatientActionEnum.START_REQUEST 
+}); 
 
 type PatientRequest = Callback<Callback<PatientAction>, ServerRequestAction>;
 
@@ -60,7 +62,7 @@ const initialState: PatientState = {
 export const patientReducer = (
   state = initialState, 
   action: PatientAction
-) => {
+): PatientState => {
   switch (action.type) {
     case PatientActionEnum.START_REQUEST:
       return { ...state, loading: true };

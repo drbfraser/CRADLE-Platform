@@ -1,177 +1,134 @@
-import $ from 'jquery';
-import Button from '@material-ui/core/Button';
-import { ChatHistory } from './history';
-import Input from '@material-ui/core/Input';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withStyles } from '@material-ui/core/styles';
+import { OrNull, User } from '@types';
 
-const styles = (theme: any) => ({
-  button: {
-    margin: theme.spacing.unit,
-  },
-  input: {
-    display: 'none',
-  },
-});
+import $ from 'jquery'
+import Button from '@material-ui/core/Button'
+import { ChatHistory } from './history';
+import Input from '@material-ui/core/Input'
+import React from 'react';
+import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import classes from './styles.module.css';
+import { connect } from 'react-redux'
 
 interface IProps {
   connection: any;
   isOpener: boolean;
-  classes?: any;
-  user?: any;
+  user: OrNull<User>
 }
 
 interface IState {
-  chatHistory: any;
-  pendingInput: any;
+  chatHistory: Array<any>;
+  pendingInput: string;
 }
 
-class ChatComponent extends React.Component<IProps, IState> {
+class Component extends React.Component<IProps, IState> {
   constructor(props: IProps) {
-    super(props);
+    super(props)
 
     this.state = {
       chatHistory: [], // array of message objects
-      pendingInput: '',
-    };
+      pendingInput: ``
+    }
 
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.getSender = this.getSender.bind(this);
-
-    this.props.connection.onmessage = this.appendRemoteMessage.bind(this);
+    this.props.connection.onmessage = this.appendRemoteMessage;
   }
 
-  appendRemoteMessage(event: any) {
-
-    let sender = this.getSender(true);
-
+  appendRemoteMessage = (event: any): void => {
+    console.log(event);
+    let sender = this.getSender(true)
 
     this.setState(
       {
-        pendingInput: '',
+        pendingInput: ``,
         chatHistory: this.state.chatHistory.concat({
           senderName: event.data.senderName,
           sender: sender,
-          text: event.data.msg,
-        }),
+          text: event.data.msg
+        })
       },
-      function () {
+      () => {
         // scroll to the bottom of chat
         $('#chatHistory').scrollTop(
           $('#chatHistory')[0].scrollHeight - $('#chatHistory')[0].clientHeight
-        );
+        )
       }
-    );
-  }
+    )
+  };
 
-  handleSubmit() {
+  handleSubmit = (): void => {
 
     let data = {
       msg: this.state.pendingInput,
-      senderName: this.props.user ? this.props.user.firstName : ``,
-    };
+      senderName: this.props.user?.firstName
+    }
 
-    this.props.connection.send(data);
+    this.props.connection.send(data)
 
-    let sender = this.getSender();
+    let sender = this.getSender()
 
     this.setState(
       {
         pendingInput: '',
         chatHistory: this.state.chatHistory.concat({
-          senderName: this.props.user ? this.props.user.firstName : `` ,
+          senderName: this.props.user?.firstName,
           sender: sender,
-          text: this.state.pendingInput,
-        }),
+          text: this.state.pendingInput
+        })
       },
-      function () {
+      function() {
         // scroll to the bottom of chat
         $('#chatHistory').scrollTop(
           $('#chatHistory')[0].scrollHeight - $('#chatHistory')[0].clientHeight
-        );
+        )
       }
-    );
+    )
   }
 
-  handleChange(event: any) {
-
+  handleChange = (event: any): void =>
     this.setState({
-      pendingInput: event.target.value,
+      pendingInput: event.target.value
     });
-  }
 
-  handleKeyDown(event: any) {
-    // user presses enter
+  handleKeyDown = (event: any): void => {
+    // User presses enter
     if (event.keyCode == 13) {
       this.handleSubmit();
     }
   }
 
-  getSender(isRemote?: boolean) {
+  getSender = (isRemote?: boolean): string => {
     if (isRemote) {
       if (this.props.isOpener) {
-        return 'joiner';
+        return `joiner`
       } else {
-        return 'opener';
+        return `opener`
       }
     } else {
       if (this.props.isOpener) {
-        return 'opener';
+        return `opener`
       } else {
-        return 'joiner';
+        return `joiner`
       }
     }
   }
 
   render() {
-    const { classes } = this.props;
-
     return (
-      <div
-        style={{
-          height: `100%`,
-          width: `25%`,
-          borderLeft: `1px solid black`,
-          backgroundColor: `white`,
-        }}>
+      <div className={classes.container}>
         <ChatHistory chatHistory={this.state.chatHistory} />
-        <div
-          style={{
-            height: 95,
-            width: `100%`,
-            paddingLeft: 10,
-            paddingRight: 10,
-            boxShadow: `0px -1px 100px 1px rgba(50, 50, 50, 0.75)`,
-          }}>
+        <div className={classes.wrapper}>
           <Button
             size="small"
             color="primary"
-            className={classes ? classes.button : ``}
-            style={{
-              position: `absolute`,
-              right: `15px`,
-              padding: `0`,
-              fontSize: `10px`,
-              marginRight: `0`,
-            }}>
+            className={classes.button}>
             Send
           </Button>
-
-          <form
-            id="chatForm"
-            style={{ paddingRight: 35 }}>
+          <form className={classes.form} id="chatForm">
             <Input
+              className={classes.input}
               id="outlined-multiline-static"
               multiline
               rows="4"
               placeholder="Send a message..."
-              style={{
-                width: '100%',
-                margin: '0',
-              }}
               onChange={this.handleChange}
               onKeyDown={this.handleKeyDown}
               value={this.state.pendingInput}
@@ -179,15 +136,15 @@ class ChatComponent extends React.Component<IProps, IState> {
           </form>
         </div>
       </div>
-    );
+    )
   }
 }
 
-const mapStateToProps = ({ user }: any) => ({
-  user: user.currentUser,
-});
+const mapStateToProps = ({ user }: ReduxState) => ({
+  user: user.current.data
+})
 
 export const Chat = connect(
   mapStateToProps,
   null
-)(withStyles(styles)(ChatComponent));
+)(Component);

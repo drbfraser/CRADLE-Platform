@@ -1,115 +1,159 @@
 import { Endpoints } from '../../../../server/endpoints';
 import { Methods } from '../../../../server/methods';
-import { serverRequestActionCreator } from '../../utils';
+import { serverRequestActionCreator, ServerRequestAction } from '../../utils';
+import { User, OrNull } from '@types';
 
-const GET_USERS_REQUEST = `user/GET_USERS_REQUEST`;
-const GET_USERS_SUCCESS = `user/GET_USERS_SUCCESS`;
-const GET_USERS_ERROR = `user/GET_USERS_ERROR`;
+enum AllUsersActionEnum {
+  CLEAR_REQUEST_OUTCOME = 'users/CLEAR_REQUEST_OUTCOME',
+  DELETE_USER_SUCCESS = 'users/DELETE_USER_SUCCESS',
+  DELETE_USER_ERROR = 'users/DELETE_USER_ERROR',
+  GET_USERS_SUCCESS = 'users/GET_USERS_SUCCESS',
+  GET_USERS_ERROR = 'users/GET_USERS_ERROR',
+  START_REQUEST = 'users/START_REQUEST',
+  UPDATE_USER_SUCCESS = 'users/UPDATE_USERS_SUCCESS',
+  UPDATE_USER_ERROR = 'users/UPDATE_USER_ERROR',
+}
 
-const UPDATE_USER_REQUEST = `user/UPDATE_USER_REQUEST`;
-const UPDATE_USER_SUCCESS = `user/UPDATE_USER_SUCCESS`;
-const UPDATE_USER_ERROR = `user/UPDATE_USER_ERROR`;
+type ErrorPayload = { message: string };
 
-const DELETE_USER_REQUEST = `user/DELETE_USERS_REQUEST`;
-const DELETE_USER_SUCCESS = `user/DELETE_USER_SUCCESS`;
-const DELETE_USER_ERROR = `user/DELETE_USER_ERROR`;
+type AllUsersAction =
+  | { type: AllUsersActionEnum.CLEAR_REQUEST_OUTCOME }
+  | {
+      type: AllUsersActionEnum.DELETE_USER_SUCCESS;
+      payload: { deletedUserId: number };
+    }
+  | { type: AllUsersActionEnum.DELETE_USER_ERROR; payload: ErrorPayload }
+  | {
+      type: AllUsersActionEnum.GET_USERS_SUCCESS;
+      payload: { users: Array<User> };
+    }
+  | { type: AllUsersActionEnum.GET_USERS_ERROR; payload: ErrorPayload }
+  | { type: AllUsersActionEnum.START_REQUEST }
+  | {
+      type: AllUsersActionEnum.UPDATE_USER_SUCCESS;
+      payload: { updatedUser: User };
+    }
+  | { type: AllUsersActionEnum.UPDATE_USER_ERROR; payload: ErrorPayload };
 
-export const getUsersRequested = () => ({
-  type: GET_USERS_REQUEST,
-});
+// const startRequest = (): AllUsersAction => ({
+// type: AllUsersActionEnum.START_REQUEST,
+// });
 
-export const getUsers = () => {
+// type AllUsersRequest = Callback<Callback<AllUsersAction>, ServerRequestAction>;
+
+export const getUsers = (): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.ALL}`,
-    onSuccess: (response: any) => ({
-      type: GET_USERS_SUCCESS,
-      payload: response,
+    onSuccess: ({ data: users }: { data: Array<User> }): AllUsersAction => ({
+      type: AllUsersActionEnum.GET_USERS_SUCCESS,
+      payload: { users },
     }),
-    onError: (error: any) => ({
-      type: GET_USERS_ERROR,
-      payload: error,
+    onError: (message: string): AllUsersAction => ({
+      type: AllUsersActionEnum.GET_USERS_ERROR,
+      payload: { message },
     }),
   });
 };
 
-export const updateUserRequested = () => ({
-  type: UPDATE_USER_REQUEST,
-});
-
-export const updateUser = (userId: any, data: any) => {
+export const updateUser = (
+  userId: string,
+  updatedUser: any
+): ServerRequestAction => {
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.USER}${Endpoints.EDIT}/${userId}}`,
+    endpoint: `${Endpoints.USER}${Endpoints.EDIT}/${userId}`,
+    data: updatedUser,
     method: Methods.PUT,
-    data,
-    onSuccess: (response: any) => ({
-      type: UPDATE_USER_SUCCESS,
-      payload: response,
+    onSuccess: (): AllUsersAction => ({
+      type: AllUsersActionEnum.UPDATE_USER_SUCCESS,
+      payload: { updatedUser: { ...updatedUser, roleIds: updatedUser.newRoleIds, vhtIds: updatedUser.newVhtIds, userId } }    }),
+    onError: (message: string): AllUsersAction => ({
+      type: AllUsersActionEnum.UPDATE_USER_ERROR,
+      payload: { message },
+    })
+  });
+};
+
+export const deleteUser = (userId: number): ServerRequestAction => {
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.USER}${Endpoints.DELETE}/${userId}`,
+    method: Methods.DELETE,
+    onSuccess: (): AllUsersAction => ({
+      type: AllUsersActionEnum.DELETE_USER_SUCCESS,
+      payload: { deletedUserId: userId },
     }),
-    onError: (error: any) => ({
-      type: UPDATE_USER_ERROR,
-      payload: error,
+    onError: (message: string): AllUsersAction => ({
+      type: AllUsersActionEnum.UPDATE_USER_ERROR,
+      payload: { message },
     }),
   });
 };
 
-export const deleteUserRequested = () => ({
-  type: DELETE_USER_REQUEST,
+export const clearAllUsersRequestOutcome = (): AllUsersAction => ({
+  type: AllUsersActionEnum.CLEAR_REQUEST_OUTCOME,
 });
 
-export const deleteUser = (userId: any) => {
-  return serverRequestActionCreator({
-    endpoint: `${Endpoints.USER}${Endpoints.DELETE}/${userId}}`,
-    method: Methods.DELETE,
-    onSuccess: () => ({
-      type: DELETE_USER_SUCCESS,
-    }),
-    onError: (message: any) => ({
-      type: DELETE_USER_ERROR,
-      payload: message,
-    }),
-  });
+export type AllUsersState = {
+  error: boolean;
+  loading: boolean;
+  message: OrNull<string>;
+  updatedUserList: boolean;
+  data: OrNull<Array<User>>;
+  fetched: boolean;
 };
 
-export const allUsersReducer = (state = {}, action: any) => {
+const initialState: AllUsersState = {
+  error: false,
+  loading: false,
+  message: null,
+  updatedUserList: false,
+  data: null,
+  fetched: false,
+};
+
+export const allUsersReducer = (
+  state = initialState,
+  action: AllUsersAction
+): AllUsersState => {
   switch (action.type) {
-    case GET_USERS_SUCCESS:
+    case AllUsersActionEnum.CLEAR_REQUEST_OUTCOME:
+      return { ...initialState, data: state.data };
+    case AllUsersActionEnum.DELETE_USER_ERROR:
+      return { ...initialState, error: true, message: action.payload.message };
+    case AllUsersActionEnum.DELETE_USER_SUCCESS:
       return {
-        ...state,
-        usersList: action.payload.data,
-        isLoading: false,
-        updateUserList: false,
+        ...initialState,
+        updatedUserList: true,
+        data:
+          state.data?.filter(
+            ({ userId }: User): boolean =>
+              userId !== action.payload.deletedUserId
+          ) ?? null,
       };
-
-    case GET_USERS_REQUEST:
+    case AllUsersActionEnum.GET_USERS_ERROR:
+      return { ...initialState, error: true, message: action.payload.message };
+    case AllUsersActionEnum.GET_USERS_SUCCESS:
       return {
-        ...state,
-        isLoading: true,
-      
-      
+        ...initialState,
+        updatedUserList: true,
+        data: action.payload.users,
+        fetched: true,
       };
-
-    case GET_USERS_ERROR:
+    case AllUsersActionEnum.START_REQUEST:
+      return { ...initialState, data: state.data, loading: true };
+    case AllUsersActionEnum.UPDATE_USER_ERROR:
+      return { ...initialState, error: true, message: action.payload.message };
+    case AllUsersActionEnum.UPDATE_USER_SUCCESS:
       return {
-        ...state,
-        isLoading: false,
-        updateUserList: false,
+        ...initialState,
+        updatedUserList: true,
+        data:
+          state.data?.map(
+            (user: User): User =>
+              user.userId === action.payload.updatedUser.userId 
+                ? action.payload.updatedUser
+                : user
+          ) ?? null,
       };
-
-    // TODO: get users list if necessary
-    case DELETE_USER_SUCCESS:
-    case UPDATE_USER_SUCCESS:
-      return {
-        ...state,
-        updateUserList: true,
-      };
-
-    case UPDATE_USER_ERROR:
-    case DELETE_USER_ERROR:
-      return {
-        ...state,
-        updateUserList: false,
-      };
-
     default:
       return state;
   }

@@ -251,7 +251,7 @@ class StatisticsPage extends Component {
               ) : (
                 <div></div>
               )}
-              <div className="chartBox">
+              <div className="chart">
                 <Card fluid>
                   <Card.Content>
                     <Line ref="chart" data={readingsVsReferralsVsAssessment} />
@@ -329,7 +329,7 @@ class StatisticsPage extends Component {
                 <div></div>
               )}
               <br />
-              <div className="chartBox">
+              <div className="chart">
                 <Card fluid>
                   <Card.Content>
                     <Line ref="chart" data={womenReferralsVsAssessed} />
@@ -344,7 +344,7 @@ class StatisticsPage extends Component {
             <h2 className="setBottomHeight">Traffic lights from last month:</h2>
             <br />
             <div className="centerize">
-              <div className="chartBox">
+              <div className="chart">
                 <Card fluid>
                   <Card.Content>
                     <Bar

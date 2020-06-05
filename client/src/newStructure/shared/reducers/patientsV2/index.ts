@@ -4,8 +4,6 @@ import { serverRequestActionCreator, ServerRequestAction } from '../utils';
 import { OrNull, Patient, Callback } from '@types';
 
 enum PatientsActionEnum {
-  ADD_PATIENT_ERROR = `patients/ADD_PATIENT_ERROR`,
-  ADD_PATIENT_SUCCESS = `patients/ADD_PATIENT_SUCCESS`,
   CLEAR_REQUEST_OUTCOME = `patients/CLEAR_REQUEST_OUTCOME`,
   GET_PATIENTS_ERROR = `patients/GET_PATIENTS_ERROR`,
   GET_PATIENTS_SUCCESS = `patients/GET_PATIENTS_SUCCESS`,
@@ -17,8 +15,6 @@ enum PatientsActionEnum {
 type PatientsActionPayload = { message: string };
 
 type PatientsAction = 
-  | { type: PatientsActionEnum.ADD_PATIENT_ERROR, payload: PatientsActionPayload }
-  | { type: PatientsActionEnum.ADD_PATIENT_SUCCESS, payload: { newPatient: Patient } }
   | { type: PatientsActionEnum.CLEAR_REQUEST_OUTCOME }
   | { type: PatientsActionEnum.GET_PATIENTS_ERROR, payload: PatientsActionPayload }
   | { type: PatientsActionEnum.GET_PATIENTS_SUCCESS, payload: { patients: Array<Patient> } }
@@ -29,26 +25,6 @@ type PatientsAction =
 const startRequest = (): PatientsAction => ({ type: PatientsActionEnum.START_REQUEST }); 
 
 type PatientsRequest = Callback<Callback<PatientsAction>, ServerRequestAction>;
-
-export const addPatient = (newPatient: Patient): PatientsRequest => {
-  return (dispatch: Callback<PatientsAction>): ServerRequestAction => {
-    dispatch(startRequest());
-
-    return serverRequestActionCreator({
-      endpoint: `Add patient endpoint goes here`,
-      method: Methods.POST,
-      data: newPatient,
-      onSuccess: (): PatientsAction => ({
-        type: PatientsActionEnum.ADD_PATIENT_SUCCESS,
-        payload: { newPatient },
-      }),
-      onError: (message: string): PatientsAction => ({
-        type: PatientsActionEnum.ADD_PATIENT_ERROR,
-        payload: { message },
-      })
-    })
-  };
-};
 
 export const getPatients = (): PatientsRequest => {
   return (dispatch: Callback<PatientsAction>): ServerRequestAction => {
@@ -112,22 +88,10 @@ const initialState: PatientsV2State = {
 export const patientsReducerV2 = (
   state = initialState, 
   action: PatientsAction
-) => {
+): PatientsV2State => {
   switch (action.type) {
     case PatientsActionEnum.START_REQUEST:
       return { ...state, loading: true };
-    case PatientsActionEnum.ADD_PATIENT_ERROR:
-      return { 
-        ...state,
-        error: true,
-        loading: false, 
-        message: action.payload.message, 
-      };
-    case PatientsActionEnum.ADD_PATIENT_SUCCESS:
-      return { 
-        ...initialState,
-        patients: [action.payload.newPatient, ...(state.patients ?? [])], 
-      };
     case PatientsActionEnum.GET_PATIENTS_ERROR:
       return { 
         ...state,

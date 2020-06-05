@@ -1,42 +1,66 @@
-import { LOGOUT_USER } from '../../shared/reducers/user/currentUser';
-import { allPatientsStatisticsReducer } from '../../shared/reducers/allPatientsStatistics';
-import { chatReducer, ChatState } from '../../pages/videoChat/reducers/chat';
-import { combineReducers } from 'redux';
-import { newReadingStatusReducer, NewReadingStatusState } from '../../shared/reducers/newReadingStatus';
-import { patientsReducer, PatientsState } from '../../shared/reducers/patients';
-import { referralsReducer } from '../../shared/reducers/referrals';
-import { selectedPatientStatisticsReducer } from '../../shared/reducers/selectedPatientStatistics';
-import { userReducer } from '../../shared/reducers/user';
-import { PatientsV2State, patientsReducerV2 } from '../../shared/reducers/patientsV2';
+import { ChatState, chatReducer } from '../../pages/videoChat/reducers/chat';
+import {
+  HealthFacilitiesState,
+  healthFacilitiesReducer,
+} from '../../shared/reducers/healthFacilities';
+import {
+  NewReadingStatusState,
+  newReadingStatusReducer,
+} from '../../shared/reducers/newReadingStatus';
 import { PatientState, patientReducer } from '../../shared/reducers/patient';
+import {
+  PatientStatisticsState,
+  patientStatisticsReducer,
+} from '../../shared/reducers/patientStatistics';
+import { PatientsState, patientsReducer } from '../../shared/reducers/patients';
+import {
+  PatientsV2State,
+  patientsReducerV2,
+} from '../../shared/reducers/patientsV2';
+import {
+  ReferralsState,
+  referralsReducer,
+} from '../../shared/reducers/referrals';
+import {
+  StatisticsState,
+  statisticsReducer,
+} from '../../shared/reducers/statistics';
+import { UserState, userReducer } from '../../shared/reducers/user';
+
+import { CurrentUserActionEnum } from '../../shared/reducers/user/currentUser';
+import { combineReducers } from 'redux';
+import { RouterState } from 'connected-react-router';
 
 export type ReduxState = {
   chat: ChatState;
+  healthFacilities: HealthFacilitiesState;
   newReadingStatus: NewReadingStatusState;
   patient: PatientState;
   patients: PatientsState;
   patientsV2: PatientsV2State;
-  patientStats: any;
-  referrals: any;
-  statistics: any;
-  user: any;
+  patientStatistics: PatientStatisticsState;
+  referrals: ReferralsState;
+  statistics: StatisticsState;
+  user: UserState;
+  router: RouterState;
 };
 
 const appReducer = combineReducers({
   chat: chatReducer,
+  healthFacilities: healthFacilitiesReducer,
   newReadingStatus: newReadingStatusReducer,
   patient: patientReducer,
   patients: patientsReducer,
   patientsV2: patientsReducerV2,
-  patientStats: selectedPatientStatisticsReducer,
+  patientStatistics: patientStatisticsReducer,
   referrals: referralsReducer,
-  statistics: allPatientsStatisticsReducer,
+  statistics: statisticsReducer,
   user: userReducer,
 });
 
 export const rootReducer = (state: any, action: any) => {
   switch (action.type) {
-    case LOGOUT_USER:
+    case CurrentUserActionEnum.LOGOUT_USER:
       return undefined;
     default:
       return appReducer(state, action);

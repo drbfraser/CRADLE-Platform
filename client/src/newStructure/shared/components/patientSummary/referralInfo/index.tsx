@@ -1,61 +1,65 @@
-import { FollowUpInfo } from './followUp/info';
-import { FollowUpModal } from './followUp/modal';
-import { Icon } from 'semantic-ui-react';
-import React from 'react';
-import Typography from '@material-ui/core/Typography';
+// @ts-nocheck
+import React, { Component } from 'react'
+import Typography from '@material-ui/core/Typography'
+import { Icon } from 'semantic-ui-react'
 import { getPrettyDateTime } from '../../../utils';
+import { FollowUpModal } from './followup/modal';
+import { FollowUpInfo } from './followup/info';
 
-interface IProps {
-  readingId: any;
-  referral: any;
-}
-
-export const ReferralInfo: React.FC<IProps> = ({ readingId, referral }) =>
-  referral ? (
-    <>
-      <Typography variant="h4" component="h4">
-        {referral.followUp ? `Referral Assessed` : `Referral Pending`}
-      </Typography>
-      <br />
-      <Typography variant="subtitle1">
-        <Icon
-          name="clock outline"
-          size="large"
-          style={{ lineHeight: `0.7em` }}
-        />
-        Referred on {getPrettyDateTime(referral.dateReferred)}
-      </Typography>
-      <br /> <br />
-      <Typography variant="subtitle1">
-        <Icon
-          style={{ lineHeight: `0.7em` }}
-          name="building outline"
-          size="large"
-        />
-        Referred to {referral.referralHealthFacilityName}
-      </Typography>
-      {!referral.followUp && (
-        <div style={{ padding: `10px 0` }}>
-          <Typography variant="h6" component="h6">
-            Comment:
+export default class ReferralInfo extends Component {
+  render() {
+    if (this.props.referral) {
+      let ref = this.props.referral
+      return (
+        <div>
+          <Typography variant="h4" component="h4">
+            {ref.followUp ? 'Referral Assessed' : 'Referral Pending'}
           </Typography>
-          <Typography variant="subtitle1">
-            {referral.comment}
+          <br />
+          <Typography variant="subtitle1" component="subtitle1">
+            <Icon
+              name="clock outline"
+              size="large"
+              style={{ 'line-height': '0.7em' }}
+            />
+            Referred on {getPrettyDateTime(ref.dateReferred)}
+          </Typography>
+          <br /> <br />
+          <Typography variant="subtitle1" component="subtitle1">
+            <Icon
+              style={{ 'line-height': '0.7em' }}
+              name="building outline"
+              size="large"
+            />
+            Referred to {ref.referralHealthFacilityName}
+          </Typography>
+          {!ref.followUp && (
+            <div style={{ padding: '10px 0' }}>
+              <Typography variant="h6" component="h6">
+                Comment:
+              </Typography>
+              <Typography variant="subtitle1" component="subtitle1">
+                {ref.comment}
+              </Typography>
+            </div>
+          )}
+          <br />
+          <FollowUpInfo followUp={ref.followUp} />
+          <FollowUpModal
+            readingId={this.props.readingId}
+            referralId={ref.id}
+            initialValues={ref.followUp}
+          />
+        </div>
+      )
+    } else {
+      return (
+        <div style={{ padding: '80px 0px' }}>
+          <Typography variant="h4" component="h4">
+            No Referral
           </Typography>
         </div>
-      )}
-      <br />
-      <FollowUpInfo followUp={referral.followUp} />
-      <FollowUpModal
-        readingId={readingId}
-        referralId={referral.id}
-        initialValues={referral.followUp}
-      />
-    </>
-  ) : (
-    <div style={{ padding: `80px 0px` }}>
-      <Typography variant="h4" component="h4">
-        No Referral
-      </Typography>
-    </div>
-  );
+      )
+    }
+  }
+}
