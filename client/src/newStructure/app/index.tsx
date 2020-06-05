@@ -1,6 +1,8 @@
+import { Dispatch, bindActionCreators } from 'redux';
 import { Link, Route, Switch } from 'react-router-dom';
 import React, { useState , useEffect} from 'react';
 import { push } from 'connected-react-router';
+import { OrNull, User } from '@types';
 import { AdminPage } from '../pages/admin';
 import AppBar from '@material-ui/core/AppBar';
 import AppImg from './img/app_icon.png';
@@ -23,8 +25,11 @@ import { NotFoundPage } from '../pages/notFound';
 import { PatientSummaryContainer } from '../shared/components/patientSummary/container';
 import PatientsImg from './img/patients.svg';
 import { PatientsPage } from '../pages/patients';
+import { PrivateRoute } from './privateRoute';
+import { ReduxState } from '../redux/rootReducer';
 import ReferralsImg from './img/referrals.svg';
 import { ReferralsPage } from '../pages/referrals';
+import { RoleEnum } from '../enums';
 import { SignUpPage } from '../pages/signUp';
 import StatisticsImg from './img/statistics.svg';
 import { StatisticsPage } from '../pages/statistics';
@@ -33,11 +38,9 @@ import Typography from '@material-ui/core/Typography';
 import { VideoChatPage } from '../pages/videoChat';
 import VideoImg from './img/video-solid.svg';
 import { VideoSessionPage } from '../pages/videoSession';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
-import { PrivateRoute } from './privateRoute';
 import { routesNames } from './toolbar/utils';
 
 const drawerWidth = 200;
@@ -89,40 +92,48 @@ const useStyles = makeStyles((theme) => ({
   itemText: { color: 'white', paddingTop: '8px' },
 }));
 
-const AppComponent = (props) => {
-  const classes = useStyles();
-  const [activeItem, setActiveItem] = useState(null);
+interface IProps {
+  loggedIn: boolean;
+  logoutUser: () => void;
+  navigateToHelpPage: () => void;
+  user: OrNull<User>;
+  pathName: string;
+}
 
+const Component: React.FC<IProps> = (props) => {
+  const classes = useStyles();
+  const [activeItem, setActiveItem] = useState<OrNull<string>>(null);
+  
   useEffect(() => {
-    let pathNameRoute = props.pathName.replace('/', '');
+    const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
   }, [props.pathName]);
 
-  const getRole = (roles) => {
+  const getRole = (roles?: Array<RoleEnum>): string => {
     if (!roles) {
-      return '';
+      return ``;
     }
 
-    if (roles.includes('ADMIN')) {
-      return 'ADMIN';
-    } else if (roles.includes('HCW')) {
-      return 'Healthcare Worker';
-    } else if (roles.includes('CHO')) {
-      return 'CHO';
-    } else if (roles.includes('VHT')) {
-      return 'VHT';
+    if (roles.includes(RoleEnum.ADMIN)) {
+      return `ADMIN`;
+    } else if (roles.includes(RoleEnum.HCW)) {
+      return `Healthcare Worker`;
+    } else if (roles.includes(RoleEnum.CHO)) {
+      return `CHO`;
+    } else if (roles.includes(RoleEnum.VHT)) {
+      return `VHT`;
     }
-    return '';
+    return ``;
   };
 
   const titleTextStyle = {
-    fontFamily: 'Open Sans',
-    fontWeight: 'bold',
-    fontSize: 36,
+    fontFamily: `Open Sans`,
+    fontWeight: `bold` as `bold`,
+    fontSize: 36
   };
 
   const sidebarTextStyle = {
-    fontFamily: 'Open Sans',
+    fontFamily: `Open Sans`,
     fontWeight: 300,
     fontSize: 18,
   };
@@ -147,11 +158,11 @@ const AppComponent = (props) => {
                 <Icon name="user circle" size="large" />
                 <div>
                   <Typography variant="body1" noWrap>
-                    {props.user.firstName} ({getRole(props.user.roles)})
+                    {props.user?.firstName} ({getRole(props.user?.roles)})
                   </Typography>
-                  {props.user.healthFacilityName && (
+                  {props.user?.healthFacilityName && (
                     <Typography variant="body2" noWrap>
-                      Healthcare Facility: {props.user.healthFacilityName}
+                      Healthcare Facility: {props.user?.healthFacilityName}
                     </Typography>
                   )}
                 </div>
@@ -159,14 +170,12 @@ const AppComponent = (props) => {
 
               <IconButton
                 className={classes.toolbarButtonsPadded}
-                // component={Link}
-                // to="/help"
                 onClick={() => {
                   setActiveItem('Help');
                   props.navigateToHelpPage();
                 }}
-                // selected={activeItem === 'Help'}
-                color="inherit">
+                color="inherit"
+              >
                 <Icon name="help" size="small" />
               </IconButton>
             </div>
@@ -304,7 +313,7 @@ const AppComponent = (props) => {
 
             <Divider />
 
-            {props.user.roles && props.user.roles.includes('ADMIN') && (
+            {props.user?.roles.includes(RoleEnum.ADMIN) && (
               <div>
                 <ListItem
                   className={classes.listItem}
@@ -399,13 +408,13 @@ const AppComponent = (props) => {
   );
 };
 
-const mapStateToProps = ({ user, router }) => ({
+const mapStateToProps = ({ user , location }: ReduxState) => ({
   loggedIn: user.current.loggedIn,
   user: user.current.data,
-  pathName: router.location.pathname,
+  pathName: location.pathname,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch) =>({
   ...bindActionCreators(
     {
       logoutUser,
@@ -415,4 +424,7 @@ const mapDispatchToProps = (dispatch) => ({
   navigateToHelpPage: () => dispatch(push(`/help`)),
 });
 
-export const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
+export const App = connect(
+  mapStateToProps, 
+  mapDispatchToProps
+)(Component);

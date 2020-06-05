@@ -1,21 +1,23 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import './index.css';
+
+import { Button, Divider, Form, Message, Select } from 'semantic-ui-react';
 import {
-  registerUser,
   clearRegisterStatusOutcome,
+  registerUser,
 } from '../../shared/reducers/user/registerStatus';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import {
   getHealthFacilityList,
   getHealthFacilityListRequested,
 } from '../../shared/reducers/healthFacilities';
-import { Button, Divider, Form, Select, Message } from 'semantic-ui-react';
+
 import { Paper } from '@material-ui/core';
-import { User } from '../../types';
-import { RoleEnum } from '../../enums';
-import { bindActionCreators } from 'redux';
+import React from 'react';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
-import './index.css';
+import { RoleEnum } from '../../enums';
+import { User } from '../../types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 const initState = {
   user: {
     email: '',
@@ -194,7 +196,7 @@ class SignupComponent extends React.Component<IProp> {
 const mapStateToProps = ({ user, healthFacilities }: ReduxState) => ({
   user: user.current.data,
   registerStatus: user.registerStatus,
-  healthFacilityList: healthFacilities.healthFacilitiesList,
+  healthFacilityList: healthFacilities.data,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

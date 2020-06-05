@@ -11,24 +11,23 @@ import {
 } from 'semantic-ui-react';
 import React, { Component } from 'react';
 import {
+  clearAllUsersRequestOutcome,
   deleteUser,
   getUsers,
   updateUser,
-  clearAllUsersRequestOutcome,
 } from '../../shared/reducers/user/allUsers';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { getVhts } from '../../shared/reducers/user/allVhts';
-
 import {
   getHealthFacilityList,
   getHealthFacilityListRequested,
 } from '../../shared/reducers/healthFacilities';
 
 import MaterialTable from 'material-table';
-import { connect } from 'react-redux';
+import { ReduxState } from 'src/newStructure/redux/rootReducer';
 import { VHT } from '../../types';
 import { bindActionCreators } from 'redux';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { getVhts } from '../../shared/reducers/user/allVhts';
 
 const options = [
   { key: 'vht', text: 'VHT', value: 1 },
@@ -431,7 +430,7 @@ const mapStateToProps = ({ user, healthFacilities }: ReduxState) => ({
   updateUserList: user.allUsers.updatedUserList,
   users: user.allUsers.data,
   vhtList: user.allVhts.data,
-  healthFacilityList: healthFacilities.healthFacilitiesList,
+  healthFacilityList: healthFacilities.data,
   fetched: user.allUsers.fetched,
 });
 
