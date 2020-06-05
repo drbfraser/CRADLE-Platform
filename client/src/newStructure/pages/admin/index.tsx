@@ -26,7 +26,7 @@ import {
 
 import MaterialTable from 'material-table';
 import { connect } from 'react-redux';
-import {  VHT } from '../../types';
+import { VHT } from '../../types';
 import { bindActionCreators } from 'redux';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
 
@@ -181,7 +181,7 @@ class AdminPageComponent extends Component<IProps, IState> {
   handleSubmit = (event: any) => {
     event.preventDefault();
     let userData = JSON.parse(JSON.stringify(this.state.selectedUser)); // pass by value
-    
+
     let userId = userData.id;
 
     // delete any uncessary user fields
@@ -200,7 +200,7 @@ class AdminPageComponent extends Component<IProps, IState> {
 
     // let userJSON = JSON.stringify( userData, null, 2 )
 
-    this.props.updateUser(userId.toString(), userData);
+    this.props.updateUser(userId, userData);
     this.closeUserEditModal();
   };
 
