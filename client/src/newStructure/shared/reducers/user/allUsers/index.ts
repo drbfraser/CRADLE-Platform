@@ -57,7 +57,7 @@ export const getUsers = (): ServerRequestAction => {
 
 export const updateUser = (
   userId: string,
-  updatedUser: User
+  updatedUser: any
 ): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.EDIT}/${userId}`,
@@ -65,12 +65,11 @@ export const updateUser = (
     method: Methods.PUT,
     onSuccess: (): AllUsersAction => ({
       type: AllUsersActionEnum.UPDATE_USER_SUCCESS,
-      payload: { updatedUser },
-    }),
+      payload: { updatedUser: { ...updatedUser, roleIds: updatedUser.newRoleIds, vhtIds: updatedUser.newVhtIds, userId } }    }),
     onError: (message: string): AllUsersAction => ({
       type: AllUsersActionEnum.UPDATE_USER_ERROR,
       payload: { message },
-    }),
+    })
   });
 };
 
@@ -148,9 +147,11 @@ export const allUsersReducer = (
         ...initialState,
         updatedUserList: true,
         data:
-          state.data?.filter(
-            ({ userId }: User): boolean =>
-              userId !== action.payload.updatedUser.userId
+          state.data?.map(
+            (user: User): User =>
+              user.userId === action.payload.updatedUser.userId 
+                ? action.payload.updatedUser
+                : user
           ) ?? null,
       };
     default:
