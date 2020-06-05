@@ -23,8 +23,11 @@
 }
 
 .header {
+  color: #ffffff;
+  font-size: 20px;
   padding-inline-start: 10px;
   position: absolute;
+  text-align: left;
 }
 
 .text {

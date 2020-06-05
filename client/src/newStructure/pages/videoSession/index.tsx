@@ -209,8 +209,8 @@ class Session extends Component {
                 <p>Stream Id: {this.getRoomId()}</p>
                 <p>Status: {this.state.roomStatus}</p>
               </div>
-              <div className={classes.remoteStream}></div>
-              <div className={classes.localStream}></div>
+              <div className={classes.remoteStream} id="remoteStream"></div>
+              <div className={classes.localStream} id="localStream"></div>
             </div>
             <Chat connection={connection} isOpener={this.props.isOpener} />
           </div>
