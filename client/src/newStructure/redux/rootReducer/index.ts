@@ -1,25 +1,26 @@
-import { CurrentUserActionEnum } from '../../shared/reducers/user/currentUser';
-import { statisticsReducer, StatisticsState } from '../../shared/reducers/statistics';
-import { chatReducer, ChatState } from '../../pages/videoChat/reducers/chat';
-import { combineReducers } from 'redux';
-import { newReadingStatusReducer, NewReadingStatusState } from '../../shared/reducers/newReadingStatus';
-import { patientsReducer, PatientsState } from '../../shared/reducers/patients';
-import { referralsReducer } from '../../shared/reducers/referrals';
-import { patientStatisticsReducer, PatientStatisticsState } from '../../shared/reducers/patientStatistics';
-import { userReducer, UserState } from '../../shared/reducers/user';
-import { PatientsV2State, patientsReducerV2 } from '../../shared/reducers/patientsV2';
+import { ChatState, chatReducer } from '../../pages/videoChat/reducers/chat';
+import { HealthFacilitiesState, healthFacilitiesReducer } from '../../shared/reducers/healthFacilities';
+import { NewReadingStatusState, newReadingStatusReducer } from '../../shared/reducers/newReadingStatus';
 import { PatientState, patientReducer } from '../../shared/reducers/patient';
-import { healthFacilitiesReducer } from '../../shared/reducers/healthFacilities';
+import { PatientStatisticsState, patientStatisticsReducer } from '../../shared/reducers/patientStatistics';
+import { PatientsState, patientsReducer } from '../../shared/reducers/patients';
+import { PatientsV2State, patientsReducerV2 } from '../../shared/reducers/patientsV2';
+import { ReferralsState, referralsReducer } from '../../shared/reducers/referrals';
+import { StatisticsState, statisticsReducer } from '../../shared/reducers/statistics';
+import { UserState, userReducer } from '../../shared/reducers/user';
+
+import { CurrentUserActionEnum } from '../../shared/reducers/user/currentUser';
+import { combineReducers } from 'redux';
 
 export type ReduxState = {
   chat: ChatState;
-  healthFacilities: any;
+  healthFacilities: HealthFacilitiesState;
   newReadingStatus: NewReadingStatusState;
   patient: PatientState;
   patients: PatientsState;
   patientsV2: PatientsV2State;
   patientStatistics: PatientStatisticsState;
-  referrals: any;
+  referrals: ReferralsState;
   statistics: StatisticsState;
   user: UserState;
 };
