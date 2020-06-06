@@ -3,27 +3,71 @@
 # Cradle development manager script. Specifically designed for docker environments with
 # limited support for manual environments.
 #
+# Note: this script is executable, so on unix systems you may run the script directly
+# instead of through the python command (e.g., `./cradle.py up`).
+#
+# For how to debug frontend dependency issues, see the end of this comment.
+#
+# This script requires certian environment variables to be defined. They can be defined
+# as regular env variabels or as apart of a `.env` file. By default, the script will
+# look for `server/.env` to load environment variables. A sample `server/.env` file 
+# which outlines the required env variables is as follows:
+#
+#   DB_USERNAME=admin
+#   DB_PASSWORD=password
+#   EMAIL_USER=sample_user@gmail.com
+#   EMAIL_PASSWORD=password
+#   DB_HOSTNAME=db
+#   DB_PORT=3306
+#   DB_NAME=cradle
+#
+# Some notes on these values:
+#   * DB_USERNAME may be anything except `root` which sometimes causes problems
+#   * DB_PASSWORD can be anything except empty
+#   * EMAIL_USER must be an email, doesn't need to be your actual email though
+#   * EMAIL_PASSWORD can be anything except empty
+#   * DB_HOSTNAME must be `db` if using docker or it must be `localhost` if using a
+#     manual setup
+#   * DB_PORT should be 3306
+#   * DB_NAME can be anything except empty
+# 
+#
 # Common commands are outlined here, for more usage information run:
 #
 #   python cradle.py --help
+#
 #
 # Starting containers:
 #
 #   python cradle.py up
 #
-# If you want to run the containers in the background the add the `-d` flag:
+# The `up` command is what you will be using the most to build and run the project. It
+# will handle setting up a new database instance if one does not already exist so you
+# don't need to worry about setting that stuff up. An optional `--build` flag can be
+# passed to the command to rebuild docker images. Try adding this flag if you are 
+# dealing with frontend dependency issues. The `-d` flag may be used to run the program
+# in the background. You probably don't want to use this during development but it is
+# there if you want it.
 #
-#   python cradle.py up -d
 #
-#
-# Stopping containers (only relevent if running containers in the background):
+# Stopping containers:
 #
 #   python cradle.py down
+#
+# If running containers in a detached state (i.e., in the background) this command can
+# be used to stop and remove them. You only need to run this command if you started the
+# containers using the `-d` flag.
 #
 #
 # Rebuilding the database:
 #
 #   python cradle.py rebuild
+#
+# This command deletes the contents of the database and rebuilds it to a usable state.
+# This involves adding the required tables and seeding the database with sample data.
+# Note that this does not clean out any docker caches which may be the cause of 
+# frontend dependency issues. If dealing with such issues this is not the command you
+# are looking for, instead try the `prune` command listed below.
 #
 #
 # The "purge all the things and rebuild from scratch" command:
@@ -36,6 +80,26 @@
 # will handle rebuilding the containers and setting up the database to be useable. It
 # will take quite a while for this to happen but it is the only command you need to
 # run to get back up and running after resetting everything.
+#
+#
+# Debugging frontend dependency issues:
+#
+# If adding a new dependency you will need to include the `--build` flag for the `up`
+# command:
+#
+#   python cradle.py up --build
+#
+# There is no guarantee that this will actually fix your problem, though it's best to
+# try this first as the alternative will take a considerable amount of time to run.
+# The alternative is to prune everything and start fresh:
+#
+#   docker system prune --all --volumes
+#   python cradle.py up
+#
+# This is assuming you don't have any information stored in docker volumes which you
+# want to keep. If you do then it's up to you how you go about pruning your system.
+# The `--build` flag is not required here as all containers will be rebuilt after a
+# prune anyway.
 
 import argparse
 import os
@@ -350,12 +414,15 @@ def parse_env_file(filename):
     Parses an environment variable file returning a dictionary containing the key-value
     pairs listed in the file.
     """
-    with (open(filename, "r")) as fh:
-        return dict(
-            tuple(map(lambda s: s.strip(), line.split("=")))
-            for line in fh.readlines()
-            if not line.strip().startswith("#")
-        )
+    try:
+        with (open(filename, "r")) as fh:
+            return dict(
+                tuple(map(lambda s: s.strip(), line.split("=")))
+                for line in fh.readlines()
+                if not line.strip().startswith("#")
+            )
+    except FileNotFoundError:
+        fatal(f"unable to source env file '{filename}': file not found")
 
 
 def fatal(msg):
