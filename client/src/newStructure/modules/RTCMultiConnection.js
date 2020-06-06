@@ -40,7 +40,7 @@ var RTCMultiConnection = function (roomid, forceOptions) {
 
     if (typeof global.console.debug === 'undefined') {
       global.console.debug = global.console.info = global.console.error = global.console.log =
-        global.console.log
+        global.console.log;
     }
 
     if (typeof document === 'undefined') {

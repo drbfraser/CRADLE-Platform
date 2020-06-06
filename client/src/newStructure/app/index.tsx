@@ -1,6 +1,6 @@
 import { Dispatch, bindActionCreators } from 'redux';
 import { Link, Route, Switch } from 'react-router-dom';
-import React, { useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { push } from 'connected-react-router';
 import { OrNull, User } from '@types';
 import { AdminPage } from '../pages/admin';
@@ -42,7 +42,7 @@ import { connect } from 'react-redux';
 import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
 import { routesNames } from './toolbar/utils';
-import {Pathname} from 'history';
+import { Pathname } from 'history';
 
 const drawerWidth = 200;
 const useStyles = makeStyles((theme) => ({
@@ -104,7 +104,7 @@ interface IProps {
 const Component: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState<OrNull<string>>(null);
-  
+
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
@@ -130,7 +130,7 @@ const Component: React.FC<IProps> = (props) => {
   const titleTextStyle = {
     fontFamily: `Open Sans`,
     fontWeight: `bold` as `bold`,
-    fontSize: 36
+    fontSize: 36,
   };
 
   const sidebarTextStyle = {
@@ -175,8 +175,7 @@ const Component: React.FC<IProps> = (props) => {
                   setActiveItem('Help');
                   props.navigateToHelpPage();
                 }}
-                color="inherit"
-              >
+                color="inherit">
                 <Icon name="help" size="small" />
               </IconButton>
             </div>
@@ -409,13 +408,13 @@ const Component: React.FC<IProps> = (props) => {
   );
 };
 
-const mapStateToProps = ({ user , router }: ReduxState) => ({
+const mapStateToProps = ({ user, router }: ReduxState) => ({
   loggedIn: user.current.loggedIn,
   user: user.current.data,
   pathName: router.location.pathname,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) =>({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   ...bindActionCreators(
     {
       logoutUser,
@@ -425,7 +424,4 @@ const mapDispatchToProps = (dispatch: Dispatch) =>({
   navigateToHelpPage: () => dispatch(push(`/help`)),
 });
 
-export const App = connect(
-  mapStateToProps, 
-  mapDispatchToProps
-)(Component);
+export const App = connect(mapStateToProps, mapDispatchToProps)(Component);
