@@ -75,6 +75,21 @@ def filtered_list_cho(patients, readings, vhtList, userId):
 
     return patient_filtered_list
 
+# Performs a global search using either patient id or patient initials
+def filtered_global_search(patients, search):
+    print("Search parameter defined proceed with search...")
+    patient_filtered_list = []
+    # get all patients that either have a partial or full match
+    # of their patient id or initials with the given search value
+    for patient in patients:
+        if search in patient['patientId']:
+            patient_filtered_list.append(patient) 
+        elif search in patient['patientName']:
+            patient_filtered_list.append(patient) 
+
+    # now we have all patients matching the search critieria
+    return patient_filtered_list
+
 
 
 

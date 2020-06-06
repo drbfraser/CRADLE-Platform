@@ -18,7 +18,7 @@ from Manager.UserManager import UserManager
 userManager = UserManager()
 referralManager = ReferralManager()
 readingManager = ReadingManager()
-from Manager.FilterHelper import filtered_list_hcw, filtered_list_vht, filtered_list_cho
+from Manager.FilterHelper import filtered_list_hcw, filtered_list_vht, filtered_list_cho, filtered_global_search
 from Manager.RoleManager import RoleManager
 roleManager = RoleManager()
 from flask_jwt_extended import (create_access_token, create_refresh_token,
@@ -29,7 +29,7 @@ class PatientManager(Manager):
         Manager.__init__(self, PatientRepo)
 
 
-    def get_patient_with_referral_and_reading(self, current_user, search):
+    def get_patient_with_referral_and_reading(self, current_user, search = None):
         # harcoding for testing purposes
         # get filtered list of patients here, and then query only that list
         patient_list = self.read_all()
@@ -42,18 +42,7 @@ class PatientManager(Manager):
         elif 'HCW' in current_user['roles'] and not search:
             patients_query = filtered_list_hcw(patient_list, ref_list, user_list, current_user['userId'])
         elif 'HCW' in current_user['roles']:
-            print("Search parameter defined proceed with search...")
-            patient_filtered_list = []
-            # get all patients that either have a partial or full match
-            # of their patient id or initials with the given search value
-            for patient in patient_list:
-                if search in patient['patientId']:
-                    patient_filtered_list.append(patient) 
-                elif search in patient['patientName']:
-                    patient_filtered_list.append(patient) 
-
-            # now we have all patients matching the search critieria
-            patients_query = patient_filtered_list
+            patients_query = filtered_global_search(patient_list, search)
         elif 'CHO' in current_user['roles']:
             patients_query = filtered_list_cho(patient_list, readings_list, current_user['vhtList'], current_user['userId'])
         elif 'VHT' in current_user['roles']:
