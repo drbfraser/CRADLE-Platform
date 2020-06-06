@@ -45,6 +45,8 @@ export const useData = ({ data, resetToPatientsBeforeSearch }: IArgs): IUseData 
   );
   const [resetPatientsBeforeSearch, setResetPatientsBeforeSearch] = React.useState<boolean>(false);
 
+  // Resets the patient data in the table to what is was
+  // before the global search was enabled
   React.useEffect((): void => {
     if (!globalSearch && patientsBeforeSearch) {
       resetToPatientsBeforeSearch(patientsBeforeSearch);
@@ -52,6 +54,8 @@ export const useData = ({ data, resetToPatientsBeforeSearch }: IArgs): IUseData 
     }
   }, [globalSearch, patientsBeforeSearch, resetToPatientsBeforeSearch]);
   
+  // Resets patientsBeforeSearch so it can be populated just before
+  // the next global search is done
   React.useEffect((): void => {
     if (resetPatientsBeforeSearch) {
       setPatientsBeforeSearch(null);

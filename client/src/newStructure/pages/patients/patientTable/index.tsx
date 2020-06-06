@@ -68,6 +68,8 @@ export const PatientTable: React.FC<IProps> = ({
             return;
           }
           
+          // Update patientsBeforeSearch to current patients
+          // Useful to reset patients to before global search state
           if (!patientsBeforeSearch) {
             setPatientsBeforeSearch(patients);
           }
