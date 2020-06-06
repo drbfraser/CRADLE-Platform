@@ -1,8 +1,9 @@
+import {OrNull, Patient} from '@types';
+
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
-import {OrNull} from '@types';
 
 const GET_PATIENT = `patients/GET_PATIENT`;
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
@@ -18,6 +19,8 @@ const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
 const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
 const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 
+const RESET_TO_PATIENTS_BEFORE_SEARCH = `patients/RESET_TO_PATIENTS_BEFORE_SEARCH`;
+
 export const getPatient = (patientId: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}${Endpoints.READING}/${patientId}`,
@@ -32,9 +35,11 @@ export const getPatient = (patientId: any) => {
   });
 };
 
-export const getPatients = () => {
+export const getPatients = (search?: string) => {
   return serverRequestActionCreator({
-    endpoint: Endpoints.PATIENTS_ALL_INFO,
+    endpoint: search 
+      ? `${Endpoints.PATIENTS_ALL_INFO}/${search}` 
+      : Endpoints.PATIENTS_ALL_INFO,
     onSuccess: (response: any) => ({
       type: GET_PATIENTS,
       payload: response,
@@ -61,6 +66,11 @@ export const updatePatient = (patientId: any, data: any) => {
     })
   });
 };
+
+export const resetToPatientsBeforeSearch = (patients: Array<Patient>) => ({
+  type: RESET_TO_PATIENTS_BEFORE_SEARCH,
+  payload: { patients },
+});
 
 export const getPatientsRequested = () => ({
   type: GET_PATIENTS_REQUESTED,
@@ -142,6 +152,11 @@ export const patientsReducer = (state = initialState, action: any) => {
         ...state,
         isLoading: false,
       };
+    case RESET_TO_PATIENTS_BEFORE_SEARCH: 
+      return {
+        ...state,
+        patientsList: action.payload.patients,
+      }
     default:
       return state;
   }

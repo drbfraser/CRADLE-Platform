@@ -37,7 +37,7 @@ export const useActions = ({
         {
           icon: `public`,
           iconProps: { color: usingGlobalSearch ? `primary` : `inherit` },
-          tooltip: usingGlobalSearch ? `Default search` : `Use global search`,
+          tooltip: usingGlobalSearch ? `Use default search` : `Use global search`,
           isFreeAction: true,
           onClick: () => {
             toggleGlobalSearch((global: boolean): boolean => !global);

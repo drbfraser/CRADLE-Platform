@@ -1,14 +1,18 @@
-import { Callback, OrNull, Patient, Reading } from '@types';
+import { Callback, OrNull, OrUndefined, Patient } from '@types';
 import { initials, lastReadingDate, patientId, village, vitalSign } from './utils';
 
 import MaterialTable from 'material-table';
 import React from 'react';
+import debounce from 'lodash/debounce';
 import { useActions } from './hooks/actions';
+import { useData } from './hooks/data';
 
 interface IProps {
   data: OrNull<Array<Patient>>;
   isLoading: boolean;
   callbackFromParent: Callback<Patient>;
+  getPatients: Callback<OrUndefined<string>>;
+  resetToPatientsBeforeSearch: Callback<Array<Patient>>;
   showGlobalSearch?: boolean; 
 }
 
@@ -16,19 +20,21 @@ export const PatientTable: React.FC<IProps> = ({
   callbackFromParent,
   data,
   isLoading,
+  getPatients,
+  resetToPatientsBeforeSearch,
   showGlobalSearch,
 }) => {
-  const [globalSearch, setGlobalSearch] = React.useState(false);
-  const [showReferredPatients, setShowReferredPatients] = React.useState<
-    boolean
-  >(false);
-  const patients = React.useMemo((): Array<Patient> => 
-    data ? data.filter(({ readings }: Patient): boolean => showReferredPatients 
-      ? readings.some((reading: Reading): boolean => Boolean(reading.dateReferred))
-      : true
-    ) : [], 
-    [data, showReferredPatients]
-  );
+  const {
+    debounceInterval,
+    globalSearch,
+    setGlobalSearch,
+    patients,
+    patientsBeforeSearch,
+    setPatientsBeforeSearch,
+    showReferredPatients,
+    setShowReferredPatients,
+  } = useData({ data, resetToPatientsBeforeSearch });
+  
   const actions = useActions({
     showReferredPatients,
     toggleGlobalSearch: setGlobalSearch,
@@ -36,6 +42,13 @@ export const PatientTable: React.FC<IProps> = ({
     usingGlobalSearch: globalSearch,
     showGlobalSearchAction: showGlobalSearch,
   });
+
+  // Debounce get patients to prevent multiple server requests
+  // Only send request after user has stopped typing for debounceInterval milliseconds
+  const debouncedGetPatients = React.useCallback(
+    debounce(getPatients, debounceInterval),
+    [debounceInterval, getPatients]
+  );
 
   return (
     <MaterialTable
@@ -49,7 +62,22 @@ export const PatientTable: React.FC<IProps> = ({
         lastReadingDate,
       ] }
       data={patients}
+      onSearchChange={globalSearch 
+        ? (searchText?: string): void => {
+          if (!searchText) {
+            return;
+          }
+          
+          if (!patientsBeforeSearch) {
+            setPatientsBeforeSearch(patients);
+          }
+          
+          debouncedGetPatients(searchText);
+        }
+        : undefined
+      }
       options={ {
+        debounceInterval,
         pageSize: 10,
         rowStyle: (): React.CSSProperties => ({
           height: 75

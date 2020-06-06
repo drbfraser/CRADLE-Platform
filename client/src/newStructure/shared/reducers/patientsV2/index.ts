@@ -1,7 +1,8 @@
+import { Callback, OrNull, Patient } from '@types';
+import { ServerRequestAction, serverRequestActionCreator } from '../utils';
+
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
-import { serverRequestActionCreator, ServerRequestAction } from '../utils';
-import { OrNull, Patient, Callback } from '@types';
 
 enum PatientsActionEnum {
   CLEAR_REQUEST_OUTCOME = `patients/CLEAR_REQUEST_OUTCOME`,
@@ -10,6 +11,7 @@ enum PatientsActionEnum {
   START_REQUEST = `patients/START_REQUEST`,
   UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`,
   UPDATE_PATIENT_SUCCESS = `patients/UPDATE_PATIENT_SUCCESS`,
+  RESET_TO_PATIENTS_BEFORE_SEARCH = `patients/RESET_TO_PATIENTS_BEFORE_SEARCH`,
 }
 
 type PatientsActionPayload = { message: string };
@@ -20,18 +22,21 @@ type PatientsAction =
   | { type: PatientsActionEnum.GET_PATIENTS_SUCCESS, payload: { patients: Array<Patient> } }
   | { type: PatientsActionEnum.START_REQUEST }
   | { type: PatientsActionEnum.UPDATE_PATIENT_ERROR, payload: PatientsActionPayload }
-  | { type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS, payload: { updatedPatient: Patient } };
+  | { type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS, payload: { updatedPatient: Patient } }
+  | { type: PatientsActionEnum.RESET_TO_PATIENTS_BEFORE_SEARCH, payload: { patients: Array<Patient> } };
 
 const startRequest = (): PatientsAction => ({ type: PatientsActionEnum.START_REQUEST }); 
 
 type PatientsRequest = Callback<Callback<PatientsAction>, ServerRequestAction>;
 
-export const getPatients = (): PatientsRequest => {
+export const getPatients = (search?: string): PatientsRequest => {
   return (dispatch: Callback<PatientsAction>): ServerRequestAction => {
     dispatch(startRequest());
 
     return serverRequestActionCreator({
-      endpoint: Endpoints.PATIENTS_ALL_INFO,
+      endpoint: search 
+        ? `${Endpoints.PATIENTS_ALL_INFO}/${search}` 
+        : Endpoints.PATIENTS_ALL_INFO,
       onSuccess: (response: { data: Array<Patient> }): PatientsAction => ({
         type: PatientsActionEnum.GET_PATIENTS_SUCCESS,
         payload: { patients: response.data },
@@ -66,6 +71,11 @@ export const updatePatient = (
     })
   };
 };
+
+export const resetToPatientsBeforeSearch = (patients: Array<Patient>): PatientsAction => ({
+  type: PatientsActionEnum.RESET_TO_PATIENTS_BEFORE_SEARCH,
+  payload: { patients },
+});
 
 export const clearPatientsRequestOutcome = (): PatientsAction => ({
   type: PatientsActionEnum.CLEAR_REQUEST_OUTCOME,
@@ -124,6 +134,8 @@ export const patientsReducerV2 = (
       };
     case PatientsActionEnum.CLEAR_REQUEST_OUTCOME:
       return { ...initialState, patients: state.patients };
+    case PatientsActionEnum.RESET_TO_PATIENTS_BEFORE_SEARCH:
+      return { ...initialState, patients: action.payload.patients };
     default:
       return state;
   }
