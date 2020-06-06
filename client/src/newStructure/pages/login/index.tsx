@@ -43,12 +43,7 @@ const mapStateToProps = ({ user }: ReduxState) => ({
   errorMessage: user.current.message,
 });
 
-const mapDispatchToProps = (dispatch: any) => bindActionCreators(
-  { login }, 
-  dispatch
-);
+const mapDispatchToProps = (dispatch: any) =>
+  bindActionCreators({ login }, dispatch);
 
-export const LoginPage = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Page);
+export const LoginPage = connect(mapStateToProps, mapDispatchToProps)(Page);

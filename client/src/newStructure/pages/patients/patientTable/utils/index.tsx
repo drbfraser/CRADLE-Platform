@@ -12,25 +12,22 @@ import { TrafficLightEnum } from '../../../../enums';
 import React from 'react';
 import classes from './styles.module.css';
 
-
 export const initials: Column<Patient> = {
   title: `Patient Initials`,
   field: `patientName`,
   render: (rowData: Patient): JSX.Element => (
-    <p className={classes.text}>
-      { rowData.patientName }
-    </p>
+    <p className={classes.text}>{rowData.patientName}</p>
   ),
   headerStyle: {
-    textAlign: `center` as TextAlignProperty
-  }
+    textAlign: `center` as TextAlignProperty,
+  },
 };
 
 export const patientId: Column<Patient> = {
   title: `Patient ID`,
   field: `patientId`,
   customSort: (patient: Patient, otherPatient: Patient) =>
-    Number(patient.patientId) - Number(otherPatient.patientId)
+    Number(patient.patientId) - Number(otherPatient.patientId),
 };
 
 export const village: Column<Patient> = {
@@ -41,12 +38,10 @@ export const village: Column<Patient> = {
 export const vitalSign: Column<Patient> = {
   title: `Vital Sign`,
   cellStyle: {
-    padding: `0px`
+    padding: `0px`,
   },
   render: (rowData: Patient) =>
-    getTrafficIcon(
-      getLatestReading(rowData.readings).trafficLightStatus
-    ),
+    getTrafficIcon(getLatestReading(rowData.readings).trafficLightStatus),
   customSort: (patient: Patient, otherPatient: Patient) => {
     const leftIndex = Object.values(TrafficLightEnum).indexOf(
       patient.readings[0].trafficLightStatus
@@ -56,16 +51,16 @@ export const vitalSign: Column<Patient> = {
     );
 
     return leftIndex - rightIndex;
-  }
+  },
 };
 
 export const lastReadingDate = {
   title: `Date of Last Reading`,
   field: `lastReading`,
   render: (rowData: Patient) => (
-    <p>{ getPrettyDate(getLatestReadingDateTime(rowData.readings)) }</p>
+    <p>{getPrettyDate(getLatestReadingDateTime(rowData.readings))}</p>
   ),
   customSort: (patient: Patient, otherPatient: Patient) =>
     sortPatientsByLastReading(patient, otherPatient),
-  defaultSort: `asc` as `asc`
+  defaultSort: `asc` as `asc`,
 };
