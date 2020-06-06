@@ -1,5 +1,10 @@
 import React from 'react';
-import { Drawer, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
+import {
+  Drawer,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from '@material-ui/core';
 import { List, ListItem, Divider } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import CreateImg from './img/create.svg';
@@ -21,178 +26,180 @@ interface IProps {
   user: any;
   logoutUser: any;
   setActiveItem: React.Dispatch<React.SetStateAction<string>>;
-};
+}
 
-export const NavigationDrawer: React.FC<IProps> = ({ 
-  activeItem, 
-  user, 
-  logoutUser, 
+export const NavigationDrawer: React.FC<IProps> = ({
+  activeItem,
+  user,
+  logoutUser,
   setActiveItem,
   ...styles
 }) => {
-  const updateActiveItem = (item: string): (() => void) => 
-    (): void => setActiveItem(item);
-    
+  const updateActiveItem = (item: string): (() => void) => (): void =>
+    setActiveItem(item);
+
   return user.isLoggedIn ? (
     <Drawer
-      className={ styles.drawer }
+      className={styles.drawer}
       variant="permanent"
-      classes={ {
+      classes={{
         paper: styles.drawerPaper,
-      } }
+      }}
       anchor="left">
-      <div className={ `${styles.toolbar} ${classes.div}` } ></div>
+      <div className={`${styles.toolbar} ${classes.div}`}></div>
       <List>
         <ListItem
-          className={ styles.listItem }
+          className={styles.listItem}
           button
-          component={ Link }
+          component={Link}
           to="/newreading"
-          selected={ activeItem === `Reading` }
-          onClick={ updateActiveItem(`Reading`) }>
+          selected={activeItem === `Reading`}
+          onClick={updateActiveItem(`Reading`)}>
           <ListItemIcon>
-            <img src={ CreateImg } className={ classes.img } />
+            <img src={CreateImg} className={classes.img} />
           </ListItemIcon>
           <ListItemText
             disableTypography
-            className={ styles.itemText }
+            className={styles.itemText}
             primary={
-              <Typography className={ classes.sidebarText }>
+              <Typography className={classes.sidebarText}>
                 Patient &amp; Reading
               </Typography>
             }
           />
         </ListItem>
         <ListItem
-          className={ styles.listItem }
+          className={styles.listItem}
           button
-          component={ Link }
+          component={Link}
           to="/patients"
-          selected={ activeItem === `Patients` }
-          onClick={ updateActiveItem(`Patients`) }>
+          selected={activeItem === `Patients`}
+          onClick={updateActiveItem(`Patients`)}>
           <ListItemIcon>
-            <img src={ PatientsImg } className={ classes.img } />
+            <img src={PatientsImg} className={classes.img} />
           </ListItemIcon>
           <ListItemText
             disableTypography={true}
-            className={ styles.itemText }
+            className={styles.itemText}
             primary={
-              <Typography className={ classes.sidebarText }>Patients</Typography>
+              <Typography className={classes.sidebarText}>Patients</Typography>
             }
           />
         </ListItem>
         <ListItem
-          className={ styles.listItem }
+          className={styles.listItem}
           button
-          component={ Link }
+          component={Link}
           to="/referrals"
-          selected={ activeItem === `Referrals` }
-          onClick={ updateActiveItem(`Referrals`) }>
+          selected={activeItem === `Referrals`}
+          onClick={updateActiveItem(`Referrals`)}>
           <ListItemIcon>
-            <img src={ ReferralsImg } className={ classes.img } />
+            <img src={ReferralsImg} className={classes.img} />
           </ListItemIcon>
           <ListItemText
             disableTypography
-            className={ styles.itemText }
+            className={styles.itemText}
             primary={
-              <Typography className={ classes.sidebarText }>Referrals</Typography>
+              <Typography className={classes.sidebarText}>Referrals</Typography>
             }
           />
         </ListItem>
         <ListItem
-          className={ styles.listItem }
+          className={styles.listItem}
           button
-          component={ Link }
+          component={Link}
           to="/stats"
-          selected={ activeItem === `Statistics` }
-          onClick={ updateActiveItem(`Statistics`) }>
+          selected={activeItem === `Statistics`}
+          onClick={updateActiveItem(`Statistics`)}>
           <ListItemIcon>
-            <img src={ StatisticsImg } className={ classes.img } />
+            <img src={StatisticsImg} className={classes.img} />
           </ListItemIcon>
           <ListItemText
             disableTypography
-            className={ styles.itemText }
+            className={styles.itemText}
             primary={
-              <Typography className={ classes.sidebarText }>Statistics</Typography>
+              <Typography className={classes.sidebarText}>
+                Statistics
+              </Typography>
             }
           />
         </ListItem>
         <ListItem
-          className={ styles.listItem }
+          className={styles.listItem}
           button
-          component={ Link }
+          component={Link}
           to="/chat/landing"
-          selected={ activeItem === `Chat` }
-          onClick={ updateActiveItem(`Chat`) }>
+          selected={activeItem === `Chat`}
+          onClick={updateActiveItem(`Chat`)}>
           <ListItemIcon>
-            <img src={ VideoImg } className={ classes.img } />
+            <img src={VideoImg} className={classes.img} />
           </ListItemIcon>
 
           <ListItemText
             disableTypography
-            className={ styles.itemText }
+            className={styles.itemText}
             primary={
-              <Typography className={ classes.sidebarText }>
+              <Typography className={classes.sidebarText}>
                 Live Video Chat
               </Typography>
             }
           />
         </ListItem>
         <ListItem
-          className={ styles.listItem }
+          className={styles.listItem}
           button
-          component={ Link }
+          component={Link}
           to="/resources"
-          selected={ activeItem === `Resources` }
-          onClick={ updateActiveItem(`Resources`) }>
+          selected={activeItem === `Resources`}
+          onClick={updateActiveItem(`Resources`)}>
           <ListItemIcon>
-            <img src={ EduImg } className={ classes.img } />
+            <img src={EduImg} className={classes.img} />
           </ListItemIcon>
 
           <ListItemText
             disableTypography
-            className={ styles.itemText }
+            className={styles.itemText}
             primary={
-              <Typography className={ classes.sidebarText }>Resources</Typography>
+              <Typography className={classes.sidebarText}>Resources</Typography>
             }
           />
         </ListItem>
 
         <Divider />
 
-        { user.roles.includes(`ADMIN`) && (
+        {user.roles.includes(`ADMIN`) && (
           <div>
             <ListItem
-              className={ styles.listItem }
-              component={ Link }
+              className={styles.listItem}
+              component={Link}
               button
               key="new user"
               to="/signup"
-              selected={ activeItem === `Signup` }
-              onClick={ updateActiveItem(`Signup`) }>
+              selected={activeItem === `Signup`}
+              onClick={updateActiveItem(`Signup`)}>
               <ListItemText
                 disableTypography
-                className={ styles.itemText }
+                className={styles.itemText}
                 primary={
-                  <Typography className={ classes.sidebarText }>
+                  <Typography className={classes.sidebarText}>
                     Create New User
                   </Typography>
                 }
               />
             </ListItem>
             <ListItem
-              className={ styles.listItem }
-              component={ Link }
+              className={styles.listItem}
+              component={Link}
               button
               key="new user"
               to="/admin"
-              selected={ activeItem === `Admin` }
-              onClick={ updateActiveItem(`Admin`) }>
+              selected={activeItem === `Admin`}
+              onClick={updateActiveItem(`Admin`)}>
               <ListItemText
                 disableTypography
-                className={ styles.itemText }
+                className={styles.itemText}
                 primary={
-                  <Typography className={ classes.sidebarText }>
+                  <Typography className={classes.sidebarText}>
                     Admin Panel
                   </Typography>
                 }
@@ -200,22 +207,21 @@ export const NavigationDrawer: React.FC<IProps> = ({
             </ListItem>
             <Divider />
           </div>
-        ) }
+        )}
         <ListItem
-          className={ `${styles.listItem} ${styles.logout}` }
+          className={`${styles.listItem} ${styles.logout}`}
           button={true}
           key="Logout"
-          onClick={logoutUser}
-        >
+          onClick={logoutUser}>
           <ListItemText
             disableTypography
-            className={ styles.itemText }
+            className={styles.itemText}
             primary={
-              <Typography className={ classes.sidebarText }>Logout</Typography>
+              <Typography className={classes.sidebarText}>Logout</Typography>
             }
           />
         </ListItem>
       </List>
     </Drawer>
-  ) : null
+  ) : null;
 };
