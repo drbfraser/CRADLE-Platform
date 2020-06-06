@@ -1,4 +1,4 @@
-import "./index.css"
+import './index.css';
 
 import { AllAssessedWomenStatsitics } from './allAssessedWomen';
 import { GlobalStatistics } from './global';

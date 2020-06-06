@@ -5,7 +5,7 @@ export const readingsPerMonth = (data: any) => ({
   backgroundColor: `rgba(75,192,192,0.4)`,
   borderColor: `rgba(75,192,192,1)`,
   pointRadius: 1,
-  data
+  data,
 });
 
 export const referralsPerMonth = (data: any) => ({
@@ -15,7 +15,7 @@ export const referralsPerMonth = (data: any) => ({
   backgroundColor: `rgba(148,0,211,0.4)`,
   borderColor: `rgba(148,0,211,1)`,
   pointRadius: 1,
-  data
+  data,
 });
 
 export const assessmentsPerMonth = (data: any) => ({
@@ -25,5 +25,5 @@ export const assessmentsPerMonth = (data: any) => ({
   backgroundColor: `rgba(255,127,80,0.4)`,
   borderColor: `rgba(255,127,80,1)`,
   pointRadius: 1,
-  data
+  data,
 });

@@ -7,9 +7,9 @@ import jwt_decode from 'jwt-decode';
 import { logoutUser } from '../../../shared/reducers/user/currentUser';
 import { replace } from 'connected-react-router';
 
-export const requestMiddleware = () => ({ dispatch }: any) => (next: any) => async (
-  action: any
-) => {
+export const requestMiddleware = () => ({ dispatch }: any) => (
+  next: any
+) => async (action: any) => {
   if (action.type !== MakeServerRequestEnum.MAKE_SERVER_REQUEST) {
     next(action);
     return;

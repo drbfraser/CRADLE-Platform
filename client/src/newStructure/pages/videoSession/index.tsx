@@ -14,20 +14,20 @@ import classes from './styles.module.css';
 import { connect } from 'react-redux';
 import swal from 'sweetalert';
 
-window.io = io
+window.io = io;
 
 const connection = new RTCMultiConnection();
 
-const styles = theme => ({
+const styles = (theme) => ({
   button: {
-    margin: theme.spacing.unit
+    margin: theme.spacing.unit,
   },
   input: {
-    display: 'none'
-  }
-})
+    display: 'none',
+  },
+});
 
-var predefinedRoomId = 'cradle'
+var predefinedRoomId = 'cradle';
 
 class Session extends Component {
   state = {
@@ -35,168 +35,157 @@ class Session extends Component {
     remoteConnected: false,
     chatHistory: [],
     roomStatus: 'Joining room, connecting...',
-    configured: false
+    configured: false,
   };
 
   getRoomId = () => {
     if (this.props.roomId) {
-      return this.props.roomId
+      return this.props.roomId;
     } else if (this.props.match.params.roomId) {
-      return this.props.match.params.roomId
+      return this.props.match.params.roomId;
     } else {
-      return predefinedRoomId
+      return predefinedRoomId;
     }
   };
 
   openRoom = () => {
-    this.disabled = true
+    this.disabled = true;
 
-    let thisRoomId = this.getRoomId()
+    let thisRoomId = this.getRoomId();
 
-
-    connection.open(thisRoomId)
+    connection.open(thisRoomId);
   };
 
   joinRoom = () => {
-    this.disabled = true
+    this.disabled = true;
 
-    let thisRoomId = this.getRoomId()
+    let thisRoomId = this.getRoomId();
 
-
-    connection.join(thisRoomId)
+    connection.join(thisRoomId);
   };
 
   componentDidMount = () => {
-    this.config(true)
+    this.config(true);
 
     let newState = {
-      configured: true
-    }
-
+      configured: true,
+    };
 
     if (this.props.isOpener) {
-      this.openRoom()
-
+      this.openRoom();
 
       copyToClipboard(
         'https://' + `${window.location.hostname + this.props.match.url}`
-      )
+      );
 
       swal(
         'Room Link Copied to Clipboard',
         'Paste and send your room URL to your patient',
         'success'
-      )
+      );
     } else {
-      this.joinRoom()
+      this.joinRoom();
     }
 
     if (this.props.isOpener) {
       newState['roomStatus'] =
-        'Room created, waiting for remote user to join room...'
+        'Room created, waiting for remote user to join room...';
     }
 
-    this.setState(newState)
+    this.setState(newState);
   };
 
   componentDidUpdate = () => this.turnOffControls();
 
   turnOffControls = () => {
     if ($('video', '#localStream')) {
-      $('video', '#localStream').removeAttr('controls')
+      $('video', '#localStream').removeAttr('controls');
     }
   };
 
   config = (isLocal) => {
     // this line is VERY_important
-    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/'
+    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
     // all below lines are optional; however recommended.
 
     connection.session = {
       audio: true,
       video: true,
-      data: true
-    }
+      data: true,
+    };
 
     connection.sdpConstraints.mandatory = {
       OfferToReceiveAudio: true,
-      OfferToReceiveVideo: true
-    }
+      OfferToReceiveVideo: true,
+    };
 
     if (isLocal) {
-      connection.videosContainer = document.getElementById('localStream')
+      connection.videosContainer = document.getElementById('localStream');
     } else {
-      connection.videosContainer = document.getElementById('remoteStream')
+      connection.videosContainer = document.getElementById('remoteStream');
     }
 
-    connection.onopen = function(event) {
-      var remoteUserId = event.userid
-      var remoteUserFullName = event.extra.fullName
-
+    connection.onopen = function (event) {
+      var remoteUserId = event.userid;
+      var remoteUserFullName = event.extra.fullName;
 
       this.setState({
-        roomStatus: 'Connected'
-      })
-    }.bind(this)
+        roomStatus: 'Connected',
+      });
+    }.bind(this);
 
-    connection.onstream = function(event) {
+    connection.onstream = function (event) {
+      event.mediaElement.play();
+      setTimeout(function () {
+        event.mediaElement.play();
+      }, 5000);
 
-
-
-
-      event.mediaElement.play()
-      setTimeout(function() {
-        event.mediaElement.play()
-      }, 5000)
-
-      var videoContainer
+      var videoContainer;
 
       // the first time this function is called it is from the local stream,
       // the 2nd time this function is called is because of the remote stream
 
       if (!this.state.localConnected) {
-        videoContainer = document.getElementById('localStream')
+        videoContainer = document.getElementById('localStream');
 
         this.setState({
-          localConnected: true
-        })
+          localConnected: true,
+        });
       } else {
-        videoContainer = document.getElementById('remoteStream')
+        videoContainer = document.getElementById('remoteStream');
 
         this.setState({
-          remoteConnected: true
-        })
+          remoteConnected: true,
+        });
       }
 
-      videoContainer.appendChild(event.mediaElement)
+      videoContainer.appendChild(event.mediaElement);
 
-      event.mediaElement.removeAttribute('controls')
+      event.mediaElement.removeAttribute('controls');
 
-      window.connection = connection
-    }.bind(this)
+      window.connection = connection;
+    }.bind(this);
 
-    window.connection = connection
+    window.connection = connection;
 
     // connection.onmessage = function(event) {
     // }
-
   };
 
   componentWillUnmount = () => {
-
     // disconnect with all users
-    connection.getAllParticipants().forEach(function(pid) {
-      connection.disconnectWith(pid)
-    })
+    connection.getAllParticipants().forEach(function (pid) {
+      connection.disconnectWith(pid);
+    });
 
     // stop all local cameras
-    connection.attachStreams.forEach(function(localStream) {
-      localStream.stop()
-    })
+    connection.attachStreams.forEach(function (localStream) {
+      localStream.stop();
+    });
 
     // close socket.io connection
-    connection.closeSocket()
+    connection.closeSocket();
   };
 
   render() {
@@ -216,34 +205,31 @@ class Session extends Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 
-const copyToClipboard = str => {
-  const el = document.createElement('textarea') // Create a <textarea> element
-  el.value = str // Set its value to the string that you want copied
-  el.setAttribute('readonly', '') // Make it readonly to be tamper-proof
-  el.style.position = 'absolute'
-  el.style.left = '-9999px' // Move outside the screen to make it invisible
-  document.body.appendChild(el) // Append the <textarea> element to the HTML document
+const copyToClipboard = (str) => {
+  const el = document.createElement('textarea'); // Create a <textarea> element
+  el.value = str; // Set its value to the string that you want copied
+  el.setAttribute('readonly', ''); // Make it readonly to be tamper-proof
+  el.style.position = 'absolute';
+  el.style.left = '-9999px'; // Move outside the screen to make it invisible
+  document.body.appendChild(el); // Append the <textarea> element to the HTML document
   const selected =
     document.getSelection().rangeCount > 0 // Check if there is any content selected previously
       ? document.getSelection().getRangeAt(0) // Store selection if found
-      : false // Mark as false to know no selection existed before
-  el.select() // Select the <textarea> content
-  document.execCommand('copy') // Copy - only works as a result of a user action (e.g. click events)
-  document.body.removeChild(el) // Remove the <textarea> element
+      : false; // Mark as false to know no selection existed before
+  el.select(); // Select the <textarea> content
+  document.execCommand('copy'); // Copy - only works as a result of a user action (e.g. click events)
+  document.body.removeChild(el); // Remove the <textarea> element
   if (selected) {
     // If a selection existed before copying
-    document.getSelection().removeAllRanges() // Unselect everything on the HTML document
-    document.getSelection().addRange(selected) // Restore the original selection
+    document.getSelection().removeAllRanges(); // Unselect everything on the HTML document
+    document.getSelection().addRange(selected); // Restore the original selection
   }
-}
+};
 
 const mapStateToProps = ({ chat }: ReduxState) => ({ ...chat });
 
-export const VideoSessionPage = connect(
-  mapStateToProps,
-  null
-)(Session)
+export const VideoSessionPage = connect(mapStateToProps, null)(Session);

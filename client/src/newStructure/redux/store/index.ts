@@ -15,11 +15,7 @@ const reducer = connectRouter(history)(rootReducer);
 
 const preloadedState = {};
 
-const middleware = [
-  thunk, 
-  routerMiddleware(history), 
-  requestMiddleware()
-];
+const middleware = [thunk, routerMiddleware(history), requestMiddleware()];
 
 export const reduxStore = createStore(
   reducer,
