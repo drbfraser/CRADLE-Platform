@@ -26,7 +26,7 @@ export const useData = ({ data, resetToPatientsBeforeSearch }: IArgs): IUseData 
   >(false);
 
   const defaultInterval = React.useRef<number>(200);
-  const globalSearchInterval = React.useRef<number>(defaultInterval.current * 10);
+  const globalSearchInterval = React.useRef<number>(1250);
   const debounceInterval = React.useMemo<number>(
     (): number => globalSearch ? globalSearchInterval.current : defaultInterval.current, 
     [globalSearch]
