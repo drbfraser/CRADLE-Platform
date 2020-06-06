@@ -7,23 +7,26 @@ export enum MakeServerRequestEnum {
 }
 
 interface IServerRequestActionCreatorArgs<
-  TOnSuccess = Callback<any, any>, 
-  TOnError = Callback<any, any>, 
+  TOnSuccess = Callback<any, any>,
+  TOnError = Callback<any, any>,
   TData = any
 > {
-  endpoint: string,
-  onSuccess: TOnSuccess,
-  onError: TOnError,
-  data?: TData,
-  method?: AxiosMethod,
+  endpoint: string;
+  onSuccess: TOnSuccess;
+  onError: TOnError;
+  data?: TData;
+  method?: AxiosMethod;
 }
 
 export type ServerRequestAction = {
-  type: MakeServerRequestEnum,
-  payload: IServerRequestActionCreatorArgs,
-}
+  type: MakeServerRequestEnum;
+  payload: IServerRequestActionCreatorArgs;
+};
 
-export type ServerRequestActionCreator = Callback<IServerRequestActionCreatorArgs, ServerRequestAction>;
+export type ServerRequestActionCreator = Callback<
+  IServerRequestActionCreatorArgs,
+  ServerRequestAction
+>;
 
 export const serverRequestActionCreator: ServerRequestActionCreator = ({
   endpoint,

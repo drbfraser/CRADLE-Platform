@@ -1,7 +1,7 @@
 // @ts-nocheck
-import React, { Component } from 'react'
-import Typography from '@material-ui/core/Typography'
-import { Icon } from 'semantic-ui-react'
+import React, { Component } from 'react';
+import Typography from '@material-ui/core/Typography';
+import { Icon } from 'semantic-ui-react';
 import { getPrettyDateTime } from '../../../utils';
 import { FollowUpModal } from './followup/modal';
 import { FollowUpInfo } from './followup/info';
@@ -9,7 +9,7 @@ import { FollowUpInfo } from './followup/info';
 export default class ReferralInfo extends Component {
   render() {
     if (this.props.referral) {
-      let ref = this.props.referral
+      let ref = this.props.referral;
       return (
         <div>
           <Typography variant="h4" component="h4">
@@ -51,7 +51,7 @@ export default class ReferralInfo extends Component {
             initialValues={ref.followUp}
           />
         </div>
-      )
+      );
     } else {
       return (
         <div style={{ padding: '80px 0px' }}>
@@ -59,7 +59,7 @@ export default class ReferralInfo extends Component {
             No Referral
           </Typography>
         </div>
-      )
+      );
     }
   }
 }

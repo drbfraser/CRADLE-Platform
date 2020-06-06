@@ -29,7 +29,7 @@ type StatisticsAction =
 export const getStatistics = (): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: Endpoints.STATS,
-    onSuccess: ({data}: any): StatisticsAction => ({
+    onSuccess: ({ data }: any): StatisticsAction => ({
       type: StatisticsActionEnum.GET_STATISTICS_SUCCESS,
       payload: { data },
     }),

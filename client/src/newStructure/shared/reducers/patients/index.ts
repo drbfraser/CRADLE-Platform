@@ -2,7 +2,7 @@ import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
-import {OrNull} from '@types';
+import { OrNull } from '@types';
 
 const GET_PATIENT = `patients/GET_PATIENT`;
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
@@ -28,7 +28,7 @@ export const getPatient = (patientId: any) => {
     onError: (error: any) => ({
       type: GET_PATIENT_ERROR,
       payload: error,
-    })
+    }),
   });
 };
 
@@ -42,7 +42,7 @@ export const getPatients = () => {
     onError: (error: any) => ({
       type: GET_PATIENTS_ERROR,
       payload: error,
-    })
+    }),
   });
 };
 
@@ -58,7 +58,7 @@ export const updatePatient = (patientId: any, data: any) => {
     onError: (error: any) => ({
       type: UPDATE_PATIENT_ERROR,
       payload: error,
-    })
+    }),
   });
 };
 

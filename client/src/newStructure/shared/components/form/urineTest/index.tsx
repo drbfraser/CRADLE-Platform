@@ -1,31 +1,31 @@
-import React from 'react'
-import Paper from '@material-ui/core/Paper'
-import Switch from '@material-ui/core/Switch'
-import { Form, Header, Select } from 'semantic-ui-react'
+import React from 'react';
+import Paper from '@material-ui/core/Paper';
+import Switch from '@material-ui/core/Switch';
+import { Form, Header, Select } from 'semantic-ui-react';
 import classes from '../styles.module.css';
 
 const resultOptions = [
   { key: 'm', text: '-', value: '-' },
   { key: 'p', text: '+', value: '+' },
   { key: 'pp', text: '++', value: '++' },
-  { key: 'ppp', text: '+++', value: '+++' }
-]
+  { key: 'ppp', text: '+++', value: '+++' },
+];
 
 export const urineTestChemicals = {
   LEUC: 'Leukocytes',
   NIT: 'Nitrites',
   GLU: 'Glucose',
   PRO: 'Protein',
-  BLOOD: 'Blood'
-}
+  BLOOD: 'Blood',
+};
 
 export const initialUrineTests = {
   urineTestNit: '',
   urineTestBlood: '',
   urineTestLeuc: '',
   urineTestPro: '',
-  urineTestGlu: ''
-}
+  urineTestGlu: '',
+};
 
 export const UrineTestForm: React.FC<any> = (props) => {
   return (
@@ -101,5 +101,5 @@ export const UrineTestForm: React.FC<any> = (props) => {
         </div>
       )}
     </Paper>
-  )
+  );
 };

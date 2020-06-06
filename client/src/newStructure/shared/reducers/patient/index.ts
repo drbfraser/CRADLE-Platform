@@ -11,15 +11,18 @@ enum PatientActionEnum {
 
 type PatientActionPayload = { message: string };
 
-type PatientAction = 
+type PatientAction =
   | { type: PatientActionEnum.CLEAR_REQUEST_OUTCOME }
-  | { type: PatientActionEnum.GET_PATIENT_ERROR, payload: PatientActionPayload }
-  | { type: PatientActionEnum.GET_PATIENT_SUCCESS, payload: { patient: Patient } }
-  | { type: PatientActionEnum.START_REQUEST }
+  | { type: PatientActionEnum.GET_PATIENT_ERROR; payload: PatientActionPayload }
+  | {
+      type: PatientActionEnum.GET_PATIENT_SUCCESS;
+      payload: { patient: Patient };
+    }
+  | { type: PatientActionEnum.START_REQUEST };
 
-const startRequest = (): PatientAction => ({ 
-  type: PatientActionEnum.START_REQUEST 
-}); 
+const startRequest = (): PatientAction => ({
+  type: PatientActionEnum.START_REQUEST,
+});
 
 type PatientRequest = Callback<Callback<PatientAction>, ServerRequestAction>;
 
@@ -36,8 +39,8 @@ export const getPatient = (patientId: string): PatientRequest => {
       onError: (message: string): PatientAction => ({
         type: PatientActionEnum.GET_PATIENT_ERROR,
         payload: { message },
-      })
-    })
+      }),
+    });
   };
 };
 
@@ -46,10 +49,10 @@ export const clearPatientRequestOutcome = (): PatientAction => ({
 });
 
 export type PatientState = {
-  error: boolean,
+  error: boolean;
   loading: boolean;
-  message: OrNull<string>,
-  patient: OrNull<Patient>,
+  message: OrNull<string>;
+  patient: OrNull<Patient>;
 };
 
 const initialState: PatientState = {
@@ -60,23 +63,23 @@ const initialState: PatientState = {
 };
 
 export const patientReducer = (
-  state = initialState, 
+  state = initialState,
   action: PatientAction
 ): PatientState => {
   switch (action.type) {
     case PatientActionEnum.START_REQUEST:
       return { ...state, loading: true };
     case PatientActionEnum.GET_PATIENT_ERROR:
-      return { 
+      return {
         ...state,
         error: true,
-        loading: false, 
-        message: action.payload.message, 
+        loading: false,
+        message: action.payload.message,
       };
     case PatientActionEnum.GET_PATIENT_SUCCESS:
-      return { 
+      return {
         ...initialState,
-        patient: action.payload.patient, 
+        patient: action.payload.patient,
       };
     case PatientActionEnum.CLEAR_REQUEST_OUTCOME:
       return { ...initialState, patient: state.patient };
