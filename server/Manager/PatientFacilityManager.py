@@ -23,3 +23,4 @@ class PatientFacilityManager(Manager):
         except IntegrityError:
             # caught duplicte entry
             logging.debug('Duplicate entry for patient belonging to a facility')
+            raise Exception("This patient already belongs to this facility")
