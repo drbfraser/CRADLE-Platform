@@ -10,6 +10,7 @@ import { useData } from './hooks/data';
 interface IProps {
   data: OrNull<Array<Patient>>;
   isLoading: boolean;
+  addPatientToHealthFacility: Callback<Patient>;
   callbackFromParent: Callback<Patient>;
   getPatients: Callback<OrUndefined<string>>;
   resetToPatientsBeforeSearch: Callback<Array<Patient>>;
@@ -20,6 +21,7 @@ export const PatientTable: React.FC<IProps> = ({
   callbackFromParent,
   data,
   isLoading,
+  addPatientToHealthFacility,
   getPatients,
   resetToPatientsBeforeSearch,
   showGlobalSearch,
@@ -35,13 +37,20 @@ export const PatientTable: React.FC<IProps> = ({
     setShowReferredPatients,
   } = useData({ data, resetToPatientsBeforeSearch });
   
-  const actions = useActions({
+  const { actions, setSearching } = useActions({
     showReferredPatients,
+    addPatientToHealthFacility,
     toggleGlobalSearch: setGlobalSearch,
     toggleShowReferredPatients: setShowReferredPatients,
     usingGlobalSearch: globalSearch,
     showGlobalSearchAction: showGlobalSearch,
   });
+
+  React.useEffect((): void => {
+    if (globalSearch && isLoading) {
+      setSearching(true);
+    }
+  }, [globalSearch, isLoading, setSearching]);
 
   // Debounce get patients to prevent multiple server requests
   // Only send request after user has stopped typing for debounceInterval milliseconds
@@ -79,6 +88,8 @@ export const PatientTable: React.FC<IProps> = ({
         : undefined
       }
       options={ {
+        actionsCellStyle: { padding: `0 1rem` },
+        actionsColumnIndex: -1,
         debounceInterval,
         pageSize: 10,
         rowStyle: (): React.CSSProperties => ({

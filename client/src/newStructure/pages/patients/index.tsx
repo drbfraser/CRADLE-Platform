@@ -1,5 +1,6 @@
 import { Callback, Patient } from '@types';
 import {
+  addPatientToHealthFacility,
   getPatients,
   getPatientsRequested,
   resetToPatientsBeforeSearch,
@@ -34,6 +35,7 @@ const Page: React.FC<IProps> = (props) => {
 
   return (
     <PatientTable
+      addPatientToHealthFacility={addPatientToHealthFacility}
       callbackFromParent={onPatientSelected}
       data={props.patients}
       isLoading={props.fetchingPatients}

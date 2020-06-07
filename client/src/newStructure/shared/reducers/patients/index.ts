@@ -19,6 +19,9 @@ const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
 const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
 const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 
+const ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`;
+const ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`;
+
 const RESET_TO_PATIENTS_BEFORE_SEARCH = `patients/RESET_TO_PATIENTS_BEFORE_SEARCH`;
 
 export const getPatient = (patientId: any) => {
@@ -62,6 +65,22 @@ export const updatePatient = (patientId: any, data: any) => {
     }),
     onError: (error: any) => ({
       type: UPDATE_PATIENT_ERROR,
+      payload: error,
+    })
+  });
+};
+
+export const addPatientToHealthFacility = (addedPatient: Patient) => {
+  return serverRequestActionCreator({
+    endpoint: `adding patient to health facility endpoint goes here...`,
+    method: Methods.PUT,
+    data: addedPatient.patientId,
+    onSuccess: () => ({
+      type: ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
+      payload: { addedPatient },
+    }),
+    onError: (error: any) => ({
+      type: ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
       payload: error,
     })
   });
@@ -157,6 +176,19 @@ export const patientsReducer = (state = initialState, action: any) => {
         ...state,
         patientsList: action.payload.patients,
       }
+    case ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        patientList: patientsList 
+          ? [action.payload.addedPatient, ...state.patientsList] 
+          : [action.payload.addedPatient]
+      }
+    case ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+      };
     default:
       return state;
   }

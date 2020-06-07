@@ -11,6 +11,8 @@ enum PatientsActionEnum {
   START_REQUEST = `patients/START_REQUEST`,
   UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`,
   UPDATE_PATIENT_SUCCESS = `patients/UPDATE_PATIENT_SUCCESS`,
+  ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`,
+  ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`,
   RESET_TO_PATIENTS_BEFORE_SEARCH = `patients/RESET_TO_PATIENTS_BEFORE_SEARCH`,
 }
 
@@ -23,6 +25,8 @@ type PatientsAction =
   | { type: PatientsActionEnum.START_REQUEST }
   | { type: PatientsActionEnum.UPDATE_PATIENT_ERROR, payload: PatientsActionPayload }
   | { type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS, payload: { updatedPatient: Patient } }
+  | { type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS, payload: { addedPatient: Patient } }
+  | { type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR, payload: PatientsActionPayload }
   | { type: PatientsActionEnum.RESET_TO_PATIENTS_BEFORE_SEARCH, payload: { patients: Array<Patient> } };
 
 const startRequest = (): PatientsAction => ({ type: PatientsActionEnum.START_REQUEST }); 
@@ -69,6 +73,26 @@ export const updatePatient = (
         payload: { message },
       })
     })
+  };
+};
+
+export const addPatientToHealthFacility = (patient: Patient): PatientsRequest => {
+  return (dispatch: Callback<PatientsAction>): ServerRequestAction => {
+    dispatch(startRequest());
+  
+    return serverRequestActionCreator({
+      endpoint: `adding patient to health facility endpoint goes here...`,
+      method: Methods.PUT,
+      data: patient.patientId,
+      onSuccess: () => ({
+        type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
+        payload: { patient },
+      }),
+      onError: (error: any) => ({
+        type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
+        payload: error,
+      })
+    });
   };
 };
 
@@ -132,6 +156,13 @@ export const patientsReducerV2 = (
           : patient
         ) ?? [], 
       };
+    case PatientsActionEnum.UPDATE_PATIENT_SUCCESS:
+      return { ...state, loading: false };
+    case PatientsActionEnum.UPDATE_PATIENT_ERROR:
+    case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
+      return { ...state, error: true, loading: false, message: action.payload.message };
+    case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
+      return { ...state, loading: false, patients: [action.payload.addedPatient, ...(state.patients ?? [])] };
     case PatientsActionEnum.CLEAR_REQUEST_OUTCOME:
       return { ...initialState, patients: state.patients };
     case PatientsActionEnum.RESET_TO_PATIENTS_BEFORE_SEARCH:
