@@ -8,10 +8,13 @@ enum NewReadingStatusEnum {
   NEW_READING_STATUS_SUCCESS = `newReadingStatus/NEW_READING_STATUS_SUCCESS`,
 }
 type NewReadingStatusPayload = { message: string };
-type NewReadingStatusAction = 
-  | { type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR } 
+type NewReadingStatusAction =
+  | { type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR }
   | { type: NewReadingStatusEnum.CLEAR_REQUEST_OUTCOME }
-  | { type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS, payload: NewReadingStatusPayload };
+  | {
+      type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS;
+      payload: NewReadingStatusPayload;
+    };
 export const addNewReading = (data: any): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}${Endpoints.READING}`,
@@ -40,7 +43,7 @@ const initialState: NewReadingStatusState = {
   readingCreated: false,
 };
 export const newReadingStatusReducer = (
-  state = initialState, 
+  state = initialState,
   action: NewReadingStatusAction
 ): NewReadingStatusState => {
   switch (action.type) {
@@ -48,7 +51,7 @@ export const newReadingStatusReducer = (
       return {
         ...initialState,
         message: action.payload.message,
-        readingCreated: true
+        readingCreated: true,
       };
     case NewReadingStatusEnum.NEW_READING_STATUS_ERROR:
       return {

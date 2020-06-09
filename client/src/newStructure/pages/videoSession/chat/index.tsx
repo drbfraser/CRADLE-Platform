@@ -1,18 +1,18 @@
 import { OrNull, User } from '@types';
 
-import $ from 'jquery'
-import Button from '@material-ui/core/Button'
+import $ from 'jquery';
+import Button from '@material-ui/core/Button';
 import { ChatHistory } from './history';
-import Input from '@material-ui/core/Input'
+import Input from '@material-ui/core/Input';
 import React from 'react';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
 import classes from './styles.module.css';
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
 
 interface IProps {
   connection: any;
   isOpener: boolean;
-  user: OrNull<User>
+  user: OrNull<User>;
 }
 
 interface IState {
@@ -22,19 +22,19 @@ interface IState {
 
 class Component extends React.Component<IProps, IState> {
   constructor(props: IProps) {
-    super(props)
+    super(props);
 
     this.state = {
       chatHistory: [], // array of message objects
-      pendingInput: ``
-    }
+      pendingInput: ``,
+    };
 
     this.props.connection.onmessage = this.appendRemoteMessage;
   }
 
   appendRemoteMessage = (event: any): void => {
     console.log(event);
-    let sender = this.getSender(true)
+    let sender = this.getSender(true);
 
     this.setState(
       {
@@ -42,28 +42,27 @@ class Component extends React.Component<IProps, IState> {
         chatHistory: this.state.chatHistory.concat({
           senderName: event.data.senderName,
           sender: sender,
-          text: event.data.msg
-        })
+          text: event.data.msg,
+        }),
       },
       () => {
         // scroll to the bottom of chat
         $('#chatHistory').scrollTop(
           $('#chatHistory')[0].scrollHeight - $('#chatHistory')[0].clientHeight
-        )
+        );
       }
-    )
+    );
   };
 
   handleSubmit = (): void => {
-
     let data = {
       msg: this.state.pendingInput,
-      senderName: this.props.user?.firstName
-    }
+      senderName: this.props.user?.firstName,
+    };
 
-    this.props.connection.send(data)
+    this.props.connection.send(data);
 
-    let sender = this.getSender()
+    let sender = this.getSender();
 
     this.setState(
       {
@@ -71,21 +70,21 @@ class Component extends React.Component<IProps, IState> {
         chatHistory: this.state.chatHistory.concat({
           senderName: this.props.user?.firstName,
           sender: sender,
-          text: this.state.pendingInput
-        })
+          text: this.state.pendingInput,
+        }),
       },
-      function() {
+      function () {
         // scroll to the bottom of chat
         $('#chatHistory').scrollTop(
           $('#chatHistory')[0].scrollHeight - $('#chatHistory')[0].clientHeight
-        )
+        );
       }
-    )
-  }
+    );
+  };
 
   handleChange = (event: any): void =>
     this.setState({
-      pendingInput: event.target.value
+      pendingInput: event.target.value,
     });
 
   handleKeyDown = (event: any): void => {
@@ -93,33 +92,30 @@ class Component extends React.Component<IProps, IState> {
     if (event.keyCode == 13) {
       this.handleSubmit();
     }
-  }
+  };
 
   getSender = (isRemote?: boolean): string => {
     if (isRemote) {
       if (this.props.isOpener) {
-        return `joiner`
+        return `joiner`;
       } else {
-        return `opener`
+        return `opener`;
       }
     } else {
       if (this.props.isOpener) {
-        return `opener`
+        return `opener`;
       } else {
-        return `joiner`
+        return `joiner`;
       }
     }
-  }
+  };
 
   render() {
     return (
       <div className={classes.container}>
         <ChatHistory chatHistory={this.state.chatHistory} />
         <div className={classes.wrapper}>
-          <Button
-            size="small"
-            color="primary"
-            className={classes.button}>
+          <Button size="small" color="primary" className={classes.button}>
             Send
           </Button>
           <form className={classes.form} id="chatForm">
@@ -136,15 +132,12 @@ class Component extends React.Component<IProps, IState> {
           </form>
         </div>
       </div>
-    )
+    );
   }
 }
 
 const mapStateToProps = ({ user }: ReduxState) => ({
-  user: user.current.data
-})
+  user: user.current.data,
+});
 
-export const Chat = connect(
-  mapStateToProps,
-  null
-)(Component);
+export const Chat = connect(mapStateToProps, null)(Component);

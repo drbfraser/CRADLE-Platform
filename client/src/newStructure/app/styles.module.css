@@ -1,16 +1,16 @@
 .titleText {
   font-family: Open Sans;
   font-weight: bold;
-  font-size: 36px
-};
+  font-size: 36px;
+}
 
 .sidebarText {
   font-family: Open Sans;
   font-weight: 300px;
   font-size: 18px;
-};
+}
 
-.iconContainer { 
+.iconContainer {
   margin-left: auto;
   margin-right: 0;
 }

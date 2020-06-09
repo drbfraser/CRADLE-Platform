@@ -18,7 +18,7 @@ export const useSetup = ({
   url,
   joinRoom,
   openRoom,
-  onRoomCreated
+  onRoomCreated,
 }: IArgs): void => {
   React.useEffect((): (() => void) => {
     config(configArgs);
@@ -51,7 +51,7 @@ export const useSetup = ({
       });
 
       // stop all local cameras
-      configArgs.connection.current.attachStreams.forEach(function(
+      configArgs.connection.current.attachStreams.forEach(function (
         localStream: any
       ) {
         localStream.stop();

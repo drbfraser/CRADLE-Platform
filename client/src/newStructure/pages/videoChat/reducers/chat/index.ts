@@ -9,15 +9,13 @@ enum ChatActionEnum {
 
 type ChatActionPayload = { roomId: string };
 
-type ChatAction = 
-  | { type: ChatActionEnum.CREATE_ROOM, payload: ChatActionPayload } 
-  | { type: ChatActionEnum.JOIN_ROOM, payload: ChatActionPayload };
+type ChatAction =
+  | { type: ChatActionEnum.CREATE_ROOM; payload: ChatActionPayload }
+  | { type: ChatActionEnum.JOIN_ROOM; payload: ChatActionPayload };
 
 type ChatActionCreator = Callback<
-  string, 
-  Callback<
-    Callback<ChatAction | RouterAction>
-  >
+  string,
+  Callback<Callback<ChatAction | RouterAction>>
 >;
 
 export const createRoom: ChatActionCreator = (roomId: string) => {
@@ -51,7 +49,7 @@ const initialState: ChatState = {
 };
 
 export const chatReducer = (
-  state = initialState, 
+  state = initialState,
   action: ChatAction
 ): ChatState => {
   switch (action.type) {

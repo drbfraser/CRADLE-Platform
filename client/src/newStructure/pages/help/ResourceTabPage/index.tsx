@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import '../index.css';
 
-interface IProps{
-  posterImgSrc:string;
-  posterImgUrl:string;
-  videoUrl:string
+interface IProps {
+  posterImgSrc: string;
+  posterImgUrl: string;
+  videoUrl: string;
 }
 function ResourceTabPage(props: IProps) {
   return (
@@ -32,7 +32,7 @@ function ResourceTabPage(props: IProps) {
 ResourceTabPage.propTypes = {
   posterImgSrc: PropTypes.string.isRequired,
   posterImgUrl: PropTypes.string.isRequired,
-  videoUrl: PropTypes.string.isRequired
+  videoUrl: PropTypes.string.isRequired,
 };
 
 export default ResourceTabPage;

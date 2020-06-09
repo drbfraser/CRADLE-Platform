@@ -18,9 +18,7 @@ import {
 import { BpForm } from './bpForm';
 import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from './symptomForm';
-import {
-  addNewPatient
-} from '../../shared/reducers/patients';
+import { addNewPatient } from '../../shared/reducers/patients';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
@@ -30,7 +28,6 @@ import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 // import DialogContent from '@material-ui/core/DialogContent';
 // import DialogContentText from '@material-ui/core/DialogContentText';
 // import DialogActions from '@material-ui/core/DialogActions';
-
 
 var symptom: any = [];
 
@@ -116,7 +113,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
     // }
 
     if (props.readingCreated) {
-      props.resetNewReadingStatus()
+      props.resetNewReadingStatus();
       return {
         ...state,
         showSuccessReading: true,

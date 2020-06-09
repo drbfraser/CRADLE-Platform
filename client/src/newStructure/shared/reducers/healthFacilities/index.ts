@@ -4,13 +4,16 @@ import { Endpoints } from '../../../server/endpoints';
 
 enum HealthFacilitiesActionEnum {
   GET_HEALTH_FACILITY_SUCCESS = 'healthFacility/GET_HEALTH_FACILITY_SUCCESS',
-  GET_HEALTH_FACILITY_REQUEST  = 'healthFacility/GET_HEALTH_FACILITY_REQUEST',
+  GET_HEALTH_FACILITY_REQUEST = 'healthFacility/GET_HEALTH_FACILITY_REQUEST',
   GET_HEALTH_FACILITY_ERROR = 'healthFacility/GET_HEALTH_FACILITY_ERROR',
 }
 
-type HealthFacilitiesAction = 
-  | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_SUCCESS, payload: { data: any } }
-  | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUEST  }
+type HealthFacilitiesAction =
+  | {
+      type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_SUCCESS;
+      payload: { data: any };
+    }
+  | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUEST }
   | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_ERROR };
 
 export const getHealthFacilityList = (): ServerRequestAction => {
@@ -25,12 +28,12 @@ export const getHealthFacilityList = (): ServerRequestAction => {
       return {
         type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_ERROR,
       };
-    },  
-  })
-}
+    },
+  });
+};
 
 export const getHealthFacilityListRequested = (): HealthFacilitiesAction => ({
-  type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUEST
+  type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUEST,
 });
 
 export type HealthFacilitiesState = {
@@ -43,27 +46,27 @@ const initialState: HealthFacilitiesState = {
   isLoading: false,
 };
 
-export const healthFacilitiesReducer =  (
-  state = initialState, 
+export const healthFacilitiesReducer = (
+  state = initialState,
   action: HealthFacilitiesAction
 ): HealthFacilitiesState => {
   switch (action.type) {
     case HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_SUCCESS:
       return {
         ...initialState,
-        data: action.payload.data
+        data: action.payload.data,
       };
     case HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUEST:
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
       };
     case HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_ERROR:
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
       };
     default:
       return state;
   }
-}
+};

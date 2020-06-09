@@ -150,8 +150,11 @@ class Component extends React.Component<any, any> {
       if (!followupData.followupNeeded) {
         delete followupData.dateFollowupNeededTill;
       }
-      const { followupFrequencyUnit,...data } = this.state.data;
-      console.log("followupfreq" , followupFrequencyUnit === followupFrequencyUnitOptions[0]);
+      const { followupFrequencyUnit, ...data } = this.state.data;
+      console.log(
+        'followupfreq',
+        followupFrequencyUnit === followupFrequencyUnitOptions[0]
+      );
       this.props.createFollowUp({
         ...data,
         ...(followupFrequencyUnit === followupFrequencyUnitOptions[0]

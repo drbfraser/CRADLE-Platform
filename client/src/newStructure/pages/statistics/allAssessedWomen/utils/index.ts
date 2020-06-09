@@ -5,7 +5,7 @@ export const womenReferredPerMonth = (data: any) => ({
   backgroundColor: `rgba(21,21,43,0.4)`,
   borderColor: `rgba(21,21,43,1)`,
   pointRadius: 1,
-  data
+  data,
 });
 
 export const pregnantWomenReferredPerMonth = (data: any) => ({
@@ -15,7 +15,7 @@ export const pregnantWomenReferredPerMonth = (data: any) => ({
   backgroundColor: `rgba(75,192,192,0.4)`,
   borderColor: `rgba(75,192,192,1)`,
   pointRadius: 1,
-  data
+  data,
 });
 
 export const pregnantWomenAssessedPerMonth = (data: any) => ({
@@ -25,7 +25,7 @@ export const pregnantWomenAssessedPerMonth = (data: any) => ({
   backgroundColor: 'rgba(255,127,80,0.4)',
   borderColor: 'rgba(255,127,80,1)',
   pointRadius: 1,
-  data
+  data,
 });
 
 export const womenAssessedPerMonth = (data: any) => ({
@@ -35,5 +35,5 @@ export const womenAssessedPerMonth = (data: any) => ({
   backgroundColor: `rgba(148,0,211,0.4)`,
   borderColor: `rgba(148,0,211,1)`,
   pointRadius: 1,
-  data
+  data,
 });

@@ -25,8 +25,11 @@ class ReferralPageComponent extends Component<IProps> {
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser();
     }
-    console.log("halo" , this.props.patients)
-    if (this.props.patients.patientsList?.length === 0 || this.props.patients.patientsList === null) {
+    console.log('halo', this.props.patients);
+    if (
+      this.props.patients.patientsList?.length === 0 ||
+      this.props.patients.patientsList === null
+    ) {
       this.props.getPatients();
     }
   };

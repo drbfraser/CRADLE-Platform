@@ -10,5 +10,5 @@ export const xLabels = [
   `Sep`,
   `Oct`,
   `Nov`,
-  `Dec`
+  `Dec`,
 ];

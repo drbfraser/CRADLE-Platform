@@ -10,20 +10,19 @@ interface IProps {
 }
 
 export const LastMonthTrafficLightsStatistics: React.FC<IProps> = ({
-  statisticsList
+  statisticsList,
 }) => {
-  const trafficLight = 
-    statisticsList.trafficLightStatusLastMonth
-      ? {
-          labels: trafficLightLabels,
-          datasets: [
-            {
-              backgroundColor: [`green`, `yellow`, `yellow`, `red`, `red`],
-              data: Object.values(statisticsList.trafficLightStatusLastMonth)
-            }
-          ]
-        }
-      : {};
+  const trafficLight = statisticsList.trafficLightStatusLastMonth
+    ? {
+        labels: trafficLightLabels,
+        datasets: [
+          {
+            backgroundColor: [`green`, `yellow`, `yellow`, `red`, `red`],
+            data: Object.values(statisticsList.trafficLightStatusLastMonth),
+          },
+        ],
+      }
+    : {};
 
   return (
     <div>
@@ -36,7 +35,7 @@ export const LastMonthTrafficLightsStatistics: React.FC<IProps> = ({
                 data={trafficLight}
                 options={{
                   legend: { display: false },
-                  scales: { yAxes: [{ ticks: { beginAtZero: true } }] }
+                  scales: { yAxes: [{ ticks: { beginAtZero: true } }] },
                 }}
               />
             </Card.Content>

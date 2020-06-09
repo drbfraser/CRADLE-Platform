@@ -25,28 +25,28 @@
   box-shadow: 3px 1px rgb(211, 205, 205);
 }
 
-.underlineBlue { 
+.underlineBlue {
   border-bottom: 2px solid #4bc0c0;
-};
+}
 
-.underlinePurple { 
-  border-bottom: 2px solid #9400D3;
-};
+.underlinePurple {
+  border-bottom: 2px solid #9400d3;
+}
 
-.underlineOrange { 
-  border-bottom: 2px solid #FF7F50;
-};
+.underlineOrange {
+  border-bottom: 2px solid #ff7f50;
+}
 
-.underlineBlack { 
-  border-bottom: 2px solid #15152B;
-};
+.underlineBlack {
+  border-bottom: 2px solid #15152b;
+}
 
 .verticalWriting {
   width: 100;
   margin: 0 auto;
   line-height: 16;
-};
+}
 
 .chart {
   width: 75%;
-};
+}
