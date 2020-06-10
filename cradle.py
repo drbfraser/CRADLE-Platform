@@ -175,7 +175,7 @@ def rebuild_database(args):
         elif len(volume_list) > 1:
             fatal("multiple possible volumes found, please delete it manually")
         volume_name = volume_list[0]
-        exec_sh_cmd(["docker", "volume", "rm", volume_name])
+        exec_sh_cmd(["docker", "volume", "rm", volume_name], local=True)
     else:
         if using_docker() and mysql_container(required=False) is None:
             should_stop_containers = True
