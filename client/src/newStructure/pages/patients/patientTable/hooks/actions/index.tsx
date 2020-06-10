@@ -26,6 +26,7 @@ export const useActions = ({
   usingGlobalSearch,
   showGlobalSearchAction, 
 }: IArgs): IUseActions => {
+  const [added, setAdded] = React.useState<boolean>(false);
   const [searching, setSearching] = React.useState<boolean>(false);
 
   React.useEffect((): void => {
@@ -59,9 +60,11 @@ export const useActions = ({
   } as Action<Patient>;
 
   const addPatientAction = {
-    icon: 'add',
+    icon: added ? `remove` : `add`,
+    tooltip: `${added ? `Remove from` : `Add to`} health facility`,
     onClick: (_: any, patient: Patient): void => {
       addPatientToHealthFacility(patient);
+      setAdded((currentlyAdded: boolean): boolean => !currentlyAdded);
     },
   } as Action<Patient>;
   
