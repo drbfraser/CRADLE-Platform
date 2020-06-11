@@ -33,7 +33,7 @@ services:
       - db
 
   db:
-    image: mysql:latest
+    image: mysql:5.7
     volumes:
       - mysql_data:/var/lib/mysql
     ports: 
