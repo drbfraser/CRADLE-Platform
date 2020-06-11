@@ -182,7 +182,7 @@ def rebuild_database(args):
         verbose_log("Removing MySQL volume")
         exec_sh_cmd(["docker", "volume", "rm", volume_name], local=True)
 
-    # Startup containers if they is not already running.
+    # Startup containers if they are not already running.
     if using_docker() and mysql_container(required=False) is None:
         should_stop_containers = True
         verbose_log("Database container is not running")
