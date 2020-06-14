@@ -10,7 +10,7 @@
 #
 # This script requires certian environment variables to be defined. They can be defined
 # as regular env variabels or as apart of a `.env` file. By default, the script will
-# look for `server/.env` to load environment variables. A sample `server/.env` file 
+# look for `server/.env` to load environment variables. A sample `server/.env` file
 # which outlines the required env variables is as follows:
 #
 #   DB_USERNAME=admin
@@ -30,7 +30,7 @@
 #     manual setup
 #   * DB_PORT should be 3306
 #   * DB_NAME can be anything except empty
-# 
+#
 #
 # Common commands are outlined here, for more usage information run:
 #
@@ -44,7 +44,7 @@
 # The `up` command is what you will be using the most to build and run the project. It
 # will handle setting up a new database instance if one does not already exist so you
 # don't need to worry about setting that stuff up. An optional `--build` flag can be
-# passed to the command to rebuild docker images. Try adding this flag if you are 
+# passed to the command to rebuild docker images. Try adding this flag if you are
 # dealing with frontend dependency issues. The `-d` flag may be used to run the program
 # in the background. You probably don't want to use this during development but it is
 # there if you want it.
@@ -65,7 +65,7 @@
 #
 # This command deletes the contents of the database and rebuilds it to a usable state.
 # This involves adding the required tables and seeding the database with sample data.
-# Note that this does not clean out any docker caches which may be the cause of 
+# Note that this does not clean out any docker caches which may be the cause of
 # frontend dependency issues. If dealing with such issues this is not the command you
 # are looking for, instead try the `prune` command listed below.
 #
@@ -166,6 +166,8 @@ def rebuild_database(args):
     """
     verbose_log("Tearing down and rebuilding database")
     should_stop_containers = False
+
+    # Delete the database's volume if prompted to.
     if args.delete_volume:
         if not using_docker():
             fatal("`--delete-volume` flag is only valid in docker environments")
@@ -175,19 +177,24 @@ def rebuild_database(args):
         elif len(volume_list) > 1:
             fatal("multiple possible volumes found, please delete it manually")
         volume_name = volume_list[0]
-        exec_sh_cmd(["docker", "volume", "rm", volume_name])
-    else:
-        if using_docker() and mysql_container(required=False) is None:
-            should_stop_containers = True
-            verbose_log("Database container is not running")
-            dict_args = dict(
-                vars(args), **{"build": False, "detach": True, "service": None}
-            )
-            compose_up(argparse.Namespace(**dict_args))
-            verbose_log("Sleeping for a bit to let the containers warm up")
-            time.sleep(5)
+        verbose_log("Removing containers")
+        compose_down(args)
+        verbose_log("Removing MySQL volume")
+        exec_sh_cmd(["docker", "volume", "rm", volume_name], local=True)
+
+    # Startup containers if they are not already running.
+    if using_docker() and mysql_container(required=False) is None:
+        should_stop_containers = True
+        verbose_log("Database container is not running")
+        dict_args = dict(
+            vars(args), **{"build": False, "detach": True, "service": None}
+        )
+        compose_up(argparse.Namespace(**dict_args))
+        verbose_log("Sleeping for a bit to let the containers warm up")
+        time.sleep(5)
         drop_database()
 
+    # Create and seed the database.
     create_database()
     upgrade_database()
     seed_database(args.seed_cmd)
