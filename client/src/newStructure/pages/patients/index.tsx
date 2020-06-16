@@ -28,7 +28,7 @@ const Page: React.FC<IProps> = (props) => {
     }
   }, [props.fetchingPatients, props.getPatients, props.patients]);
 
-  const onPatientSelected = ({ patientId }: Patient | GlobalSearchPatient): void => 
+  const onPatientSelected = ({ patientId }: Patient): void => 
     props.navigateToPatientPage(patientId);
 
   return (

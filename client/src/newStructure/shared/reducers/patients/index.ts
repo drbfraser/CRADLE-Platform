@@ -128,17 +128,17 @@ const initialState: PatientsState = {
 export const patientsReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case GET_PATIENTS:
-      const patientsList = action.payload.data;
-      patientsList.sort((a: any, b: any) => sortPatientsByLastReading(a, b));
       return {
         ...state,
-        patientsList,
+        patientsList: action.payload.data
+          .sort((a: any, b: any) => sortPatientsByLastReading(a, b)),
         isLoading: false,
       };
     case GET_GLOBAL_SEARCH_PATIENTS:
       return {
         ...state,
-        globalSearchPatientsList: action.payload.data,
+        globalSearchPatientsList: action.payload.data
+          .sort((a: any, b: any) => sortPatientsByLastReading(a, b)),
         isLoading: false,
       };
     case GET_PATIENTS_REQUESTED:
@@ -189,7 +189,7 @@ export const patientsReducer = (state = initialState, action: any) => {
       return {
         ...state,
         isLoading: false,
-        patientList: patientsList 
+        patientList: state.patientsList 
           ? [action.payload.addedPatient, ...state.patientsList] 
           : [action.payload.addedPatient]
       }

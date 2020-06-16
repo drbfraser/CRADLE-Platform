@@ -11,7 +11,7 @@ interface IUseData {
   debounceInterval: number;
   globalSearch: boolean;
   setGlobalSearch: Callback<Callback<boolean, boolean>>;
-  patients: Array<Patient | GlobalSearchPatient>;
+  patients: Array<Patient> | Array<GlobalSearchPatient>;
   showReferredPatients: boolean;
   setShowReferredPatients: Callback<Callback<boolean, boolean>>;
 };
@@ -30,14 +30,20 @@ export const useData = ({ data, globalSearchData }: IArgs): IUseData => {
     [globalSearch]
   );
 
-  const patients = React.useMemo<Array<Patient | GlobalSearchPatient>>(
-    (): Array<Patient | GlobalSearchPatient> => {
-      const dataToUse = globalSearch ? globalSearchData : data;
+  const filter = React.useCallback(
+    <T extends { readings: Array<Reading>}>(data: OrNull<Array<T>>) => {
+      return (data ?? []).filter(({ readings }: T): boolean => {
+        if (showReferredPatients) {
+          return readings.some((reading: Reading): boolean => Boolean(reading.dateReferred));  
+        }
 
-      return dataToUse ? (dataToUse).filter(({ readings }: Patient | GlobalSearchPatient): boolean => showReferredPatients 
-        ? readings.some((reading: Reading): boolean => Boolean(reading.dateReferred))
-        : true
-      ) : [];
+        return true;
+      });
+  }, [showReferredPatients]);
+
+  const patients = React.useMemo<Array<Patient> | Array<GlobalSearchPatient>>(
+    (): Array<Patient> | Array<GlobalSearchPatient> => {
+      return globalSearch ? filter(globalSearchData) : filter(data);
     }, 
     [data, globalSearchData, globalSearch, showReferredPatients]
   );

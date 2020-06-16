@@ -7,6 +7,7 @@ import {
   sortPatientsByLastReading,
 } from '../../../../shared/utils';
 
+import { Button } from '@material-ui/core';
 import { Column } from 'material-table';
 import React from 'react';
 import { TextAlignProperty } from 'csstype';
@@ -64,7 +65,7 @@ export const vitalSign: Column<Patient | GlobalSearchPatient> = {
   }
 };
 
-export const lastReadingDate = {
+export const lastReadingDate: Column<Patient | GlobalSearchPatient> = {
   title: `Date of Last Reading`,
   field: `lastReading`,
   render: (rowData: Patient | GlobalSearchPatient) => (
@@ -75,4 +76,13 @@ export const lastReadingDate = {
     otherPatient: Patient | GlobalSearchPatient
   ) => sortPatientsByLastReading(patient, otherPatient),
   defaultSort: `asc` as `asc`
+};
+
+export const state: Column<Patient | GlobalSearchPatient> = {
+  title: `State`,
+  field: `state`,
+  render: ({ state }: GlobalSearchPatient) => (
+    <Button variant="contained">Add</Button>
+  ),
+  sorting: false,
 };

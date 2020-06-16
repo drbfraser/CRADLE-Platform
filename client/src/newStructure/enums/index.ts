@@ -29,3 +29,9 @@ export enum RoleEnum {
   ADMIN = 'ADMIN',
   CHO = 'CHO',
 }
+
+export enum AddedStateEnum {
+  ADD = 'Add',
+  ADDED = 'Added',
+  JUST_ADDED = 'Just added'
+}

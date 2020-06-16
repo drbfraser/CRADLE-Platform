@@ -24,7 +24,7 @@ type PatientsAction =
   | { type: PatientsActionEnum.GET_PATIENTS_ERROR, payload: PatientsActionPayload }
   | { type: PatientsActionEnum.GET_PATIENTS_SUCCESS, payload: { patients: Array<Patient> } }
   | { type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR, payload: PatientsActionPayload }
-  | { type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS, payload: { patients: Array<Patient> } }
+  | { type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS, payload: { patients: Array<GlobalSearchPatient> } }
   | { type: PatientsActionEnum.START_REQUEST }
   | { type: PatientsActionEnum.UPDATE_PATIENT_ERROR, payload: PatientsActionPayload }
   | { type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS, payload: { updatedPatient: Patient } }
@@ -43,12 +43,12 @@ export const getPatients = (search?: string): PatientsRequest => {
       endpoint: search 
         ? `${Endpoints.PATIENTS_ALL_INFO}/${search}` 
         : Endpoints.PATIENTS_ALL_INFO,
-      onSuccess: (response: { data: Array<Patient> }): PatientsAction => search ? ({
+      onSuccess: (response: { data: Array<Patient> | Array<GlobalSearchPatient> }): PatientsAction => search ? ({
         type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS,
-        payload: { patients: response.data },
+        payload: { patients: response.data as Array<GlobalSearchPatient> },
       }) : ({
         type: PatientsActionEnum.GET_PATIENTS_SUCCESS,
-        payload: { patients: response.data },
+        payload: { patients: response.data as Array<Patient> },
       }),
       onError: (message: string): PatientsAction => search ? ({
         type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR,

@@ -1,8 +1,9 @@
 import {
+  AddedStateEnum,
   GestationalAgeUnitEnum,
   RoleEnum,
   SexEnum,
-  TrafficLightEnum
+  TrafficLightEnum,
 } from '../enums';
 
 import { Method as AxiosMethod } from 'axios';
@@ -86,6 +87,7 @@ export type GlobalSearchPatient = {
   villageNumber: string;
   readings: Array<Reading>;
   tableData: PatientTableData;
+  state: AddedStateEnum;
 };
 
 export type User = {

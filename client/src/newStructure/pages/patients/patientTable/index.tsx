@@ -1,7 +1,7 @@
 import { Callback, GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
-import { initials, lastReadingDate, patientId, village, vitalSign } from './utils';
+import MaterialTable, { Column } from 'material-table';
+import { initials, lastReadingDate, patientId, state, village, vitalSign } from './utils';
 
-import MaterialTable from 'material-table';
 import React from 'react';
 import debounce from 'lodash/debounce';
 import { useActions } from './hooks/actions';
@@ -11,7 +11,7 @@ interface IProps {
   data: OrNull<Array<Patient>>;
   globalSearchData: OrNull<Array<GlobalSearchPatient>>;
   isLoading: boolean;
-  callbackFromParent: Callback<Patient | GlobalSearchPatient>;
+  callbackFromParent: Callback<Patient>;
   getPatients: Callback<OrUndefined<string>>;
   showGlobalSearch?: boolean; 
 }
@@ -41,6 +41,22 @@ export const PatientTable: React.FC<IProps> = ({
     showGlobalSearchAction: showGlobalSearch,
   });
 
+  const columns = React.useMemo<Array<Column<Patient | GlobalSearchPatient>>>(() => {
+    const allColumns = [
+      initials,
+      patientId,
+      village,
+      vitalSign,
+      lastReadingDate,
+    ];
+
+    if (globalSearch) {
+      allColumns.push(state);
+    }
+
+    return allColumns;
+  }, [globalSearch]);
+
   React.useEffect((): void => {
     if (globalSearch && isLoading) {
       setSearching(true);
@@ -58,13 +74,7 @@ export const PatientTable: React.FC<IProps> = ({
     <MaterialTable
       title="Patients"
       isLoading={ isLoading }
-      columns={ [
-        initials,
-        patientId,
-        village,
-        vitalSign,
-        lastReadingDate,
-      ] }
+      columns={columns}
       data={patients}
       onSearchChange={globalSearch 
         ? (searchText?: string): void => {
@@ -86,7 +96,7 @@ export const PatientTable: React.FC<IProps> = ({
       } }
       onRowClick={ globalSearch 
         ? undefined 
-        : (_, rowData: Patient | GlobalSearchPatient) => callbackFromParent(rowData) 
+        : (_, rowData: Patient) => callbackFromParent(rowData) 
       }
       actions={actions}
     />
