@@ -1,24 +1,22 @@
-import { Callback, OrNull, Patient, Reading } from '@types';
+import { Callback, GlobalSearchPatient, OrNull, Patient, Reading } from '@types';
 
 import React from 'react';
 
 interface IArgs {
   data: OrNull<Array<Patient>>;
-  resetToPatientsBeforeSearch: Callback<Array<Patient>>;
+  globalSearchData: OrNull<Array<GlobalSearchPatient>>;
 }
 
 interface IUseData {
   debounceInterval: number;
   globalSearch: boolean;
   setGlobalSearch: Callback<Callback<boolean, boolean>>;
-  patients: Array<Patient>;
-  patientsBeforeSearch: OrNull<Array<Patient>>;
-  setPatientsBeforeSearch: Callback<Array<Patient>>;
+  patients: Array<Patient | GlobalSearchPatient>;
   showReferredPatients: boolean;
   setShowReferredPatients: Callback<Callback<boolean, boolean>>;
 };
 
-export const useData = ({ data, resetToPatientsBeforeSearch }: IArgs): IUseData => {
+export const useData = ({ data, globalSearchData }: IArgs): IUseData => {
   const [globalSearch, setGlobalSearch] = React.useState(false);
 
   const [showReferredPatients, setShowReferredPatients] = React.useState<
@@ -32,44 +30,23 @@ export const useData = ({ data, resetToPatientsBeforeSearch }: IArgs): IUseData 
     [globalSearch]
   );
 
-  const patients = React.useMemo<Array<Patient>>((): Array<Patient> => 
-    data ? data.filter(({ readings }: Patient): boolean => showReferredPatients 
-      ? readings.some((reading: Reading): boolean => Boolean(reading.dateReferred))
-      : true
-    ) : [], 
-    [data, showReferredPatients]
-  );
-  
-  const [patientsBeforeSearch, setPatientsBeforeSearch] = React.useState<OrNull<Array<Patient>>>(
-    null
-  );
-  const [resetPatientsBeforeSearch, setResetPatientsBeforeSearch] = React.useState<boolean>(false);
+  const patients = React.useMemo<Array<Patient | GlobalSearchPatient>>(
+    (): Array<Patient | GlobalSearchPatient> => {
+      const dataToUse = globalSearch ? globalSearchData : data;
 
-  // Resets the patient data in the table to what is was
-  // before the global search was enabled
-  React.useEffect((): void => {
-    if (!globalSearch && patientsBeforeSearch) {
-      resetToPatientsBeforeSearch(patientsBeforeSearch);
-      setResetPatientsBeforeSearch(true);
-    }
-  }, [globalSearch, patientsBeforeSearch, resetToPatientsBeforeSearch]);
-  
-  // Resets patientsBeforeSearch so it can be populated just before
-  // the next global search is done
-  React.useEffect((): void => {
-    if (resetPatientsBeforeSearch) {
-      setPatientsBeforeSearch(null);
-      setResetPatientsBeforeSearch(false);
-    }
-  }, [resetPatientsBeforeSearch]);
+      return dataToUse ? (dataToUse).filter(({ readings }: Patient | GlobalSearchPatient): boolean => showReferredPatients 
+        ? readings.some((reading: Reading): boolean => Boolean(reading.dateReferred))
+        : true
+      ) : [];
+    }, 
+    [data, globalSearchData, globalSearch, showReferredPatients]
+  );
 
   return {
     debounceInterval,
     globalSearch,
     setGlobalSearch,
     patients,
-    patientsBeforeSearch,
-    setPatientsBeforeSearch,
     showReferredPatients,
     setShowReferredPatients,
   };

@@ -1,13 +1,21 @@
+import Autocomplete, { AutocompleteRenderInputParams } from '@material-ui/lab/Autocomplete';
+
 import { Action } from 'material-table';
 import { Callback } from '@types';
 import { Patient } from '@types';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
+import { useStyles } from './styles';
+
+enum SearchFilterEnum {
+  LOCAL_SEARCH = 'Local search',
+  GLOBAL_SEARCH = 'Global search',
+}
 
 interface IArgs {
   showReferredPatients: boolean;
-  addPatientToHealthFacility: Callback<Patient>;
-  toggleGlobalSearch: Callback<Callback<boolean, boolean>>;
+  toggleGlobalSearch: React.Dispatch<React.SetStateAction<boolean>>;
   toggleShowReferredPatients: Callback<Callback<boolean, boolean>>;
   usingGlobalSearch: boolean;
   showGlobalSearchAction?: boolean;
@@ -20,14 +28,13 @@ interface IUseActions {
 
 export const useActions = ({ 
   showReferredPatients, 
-  addPatientToHealthFacility,
   toggleGlobalSearch,
   toggleShowReferredPatients,
   usingGlobalSearch,
   showGlobalSearchAction, 
 }: IArgs): IUseActions => {
-  const [added, setAdded] = React.useState<boolean>(false);
-  const [searching, setSearching] = React.useState<boolean>(false);
+  const classes = useStyles();
+  const [, setSearching] = React.useState<boolean>(false);
 
   React.useEffect((): void => {
     if (!usingGlobalSearch) {
@@ -50,24 +57,25 @@ export const useActions = ({
   }), [showReferredPatients, toggleShowReferredPatients]);
 
   const globalSearchAction =  {
-    icon: `public`,
-    iconProps: { color: usingGlobalSearch ? `primary` : `inherit` },
-    tooltip: usingGlobalSearch ? `Use default search` : `Use global search`,
-    isFreeAction: true,
-    onClick: (): void => toggleGlobalSearch(
-      (global: boolean): boolean => !global
+    icon: (): React.ReactElement => (
+      <Autocomplete
+        autoComplete={true}
+        autoHighlight={true}
+        classes={{ root: classes.dropdown }}
+        defaultValue={Object.values(SearchFilterEnum)[0]}
+        disableClearable={true}
+        getOptionLabel={(option: string): string => option}
+        getOptionSelected={(option: string, selected: string): boolean => option === selected}
+        options={Object.values(SearchFilterEnum)}
+        renderInput={(params: AutocompleteRenderInputParams): JSX.Element => <TextField {...params} label="Search filter" variant="outlined" />}
+        onChange={(_: any, value: string): void => {
+          toggleGlobalSearch(value === SearchFilterEnum.GLOBAL_SEARCH);
+        }}
+      />
     ),
+    isFreeAction: true,
   } as Action<Patient>;
 
-  const addPatientAction = {
-    icon: added ? `remove` : `add`,
-    tooltip: `${added ? `Remove from` : `Add to`} health facility`,
-    onClick: (_: any, patient: Patient): void => {
-      addPatientToHealthFacility(patient);
-      setAdded((currentlyAdded: boolean): boolean => !currentlyAdded);
-    },
-  } as Action<Patient>;
-  
   return {
     actions: React.useMemo((): any => {
       const actions: Array<Action<Patient>> = [toggleReferredPatientsAction];
@@ -76,14 +84,8 @@ export const useActions = ({
         actions.push(globalSearchAction);
       }
 
-      if (searching) {
-        actions.push(addPatientAction);
-      }
-    
       return actions;
       }, [
-          addPatientAction,
-          searching,
           showGlobalSearchAction, 
           toggleReferredPatientsAction, 
         ]

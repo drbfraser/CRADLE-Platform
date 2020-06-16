@@ -1,9 +1,7 @@
-import { Callback, Patient } from '@types';
+import { GlobalSearchPatient, OrNull, Patient } from '@types';
 import {
-  addPatientToHealthFacility,
   getPatients,
   getPatientsRequested,
-  resetToPatientsBeforeSearch,
 } from '../../shared/reducers/patients';
 
 import { PatientTable } from './patientTable';
@@ -16,11 +14,11 @@ import { push } from 'connected-react-router';
 
 interface IProps {
   fetchingPatients: boolean;
-  patients: Array<Patient>;
+  patients: OrNull<Array<Patient>>;
+  globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
   getPatients: (search?: string) => void,
   navigateToPatientPage: any;
   userIsHealthWorker?: boolean; 
-  resetToPatientsBeforeSearch: Callback<Array<Patient>>;
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -30,18 +28,17 @@ const Page: React.FC<IProps> = (props) => {
     }
   }, [props.fetchingPatients, props.getPatients, props.patients]);
 
-  const onPatientSelected = ({ patientId }: Patient): void => 
+  const onPatientSelected = ({ patientId }: Patient | GlobalSearchPatient): void => 
     props.navigateToPatientPage(patientId);
 
   return (
     <PatientTable
-      addPatientToHealthFacility={addPatientToHealthFacility}
       callbackFromParent={onPatientSelected}
       data={props.patients}
+      globalSearchData={props.globalSearchPatients}
       isLoading={props.fetchingPatients}
       showGlobalSearch={props.userIsHealthWorker}
       getPatients={props.getPatients}
-      resetToPatientsBeforeSearch={props.resetToPatientsBeforeSearch}
     />
   );
 };
@@ -50,11 +47,11 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
   userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,
+  globalSearchPatients: patients.globalSearchPatientsList,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   ...bindActionCreators({
-    resetToPatientsBeforeSearch
   }, dispatch),
   getPatients: (search?: string): void => {
     dispatch(getPatientsRequested());

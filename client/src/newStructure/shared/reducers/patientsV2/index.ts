@@ -1,4 +1,4 @@
-import { Callback, OrNull, Patient } from '@types';
+import { Callback, GlobalSearchPatient, OrNull, Patient } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Endpoints } from '../../../server/endpoints';
@@ -8,12 +8,13 @@ enum PatientsActionEnum {
   CLEAR_REQUEST_OUTCOME = `patients/CLEAR_REQUEST_OUTCOME`,
   GET_PATIENTS_ERROR = `patients/GET_PATIENTS_ERROR`,
   GET_PATIENTS_SUCCESS = `patients/GET_PATIENTS_SUCCESS`,
+  GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patients/GET_GLOBAL_SEARCH_PATIENTS_ERROR`,
+  GET_GLOBAL_SEARCH_PATIENTS_SUCCESS = `patients/GET_GLOBAL_SEARCH_PATIENTS_SUCCESS`,
   START_REQUEST = `patients/START_REQUEST`,
   UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`,
   UPDATE_PATIENT_SUCCESS = `patients/UPDATE_PATIENT_SUCCESS`,
   ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`,
   ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`,
-  RESET_TO_PATIENTS_BEFORE_SEARCH = `patients/RESET_TO_PATIENTS_BEFORE_SEARCH`,
 }
 
 type PatientsActionPayload = { message: string };
@@ -22,12 +23,13 @@ type PatientsAction =
   | { type: PatientsActionEnum.CLEAR_REQUEST_OUTCOME }
   | { type: PatientsActionEnum.GET_PATIENTS_ERROR, payload: PatientsActionPayload }
   | { type: PatientsActionEnum.GET_PATIENTS_SUCCESS, payload: { patients: Array<Patient> } }
+  | { type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR, payload: PatientsActionPayload }
+  | { type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS, payload: { patients: Array<Patient> } }
   | { type: PatientsActionEnum.START_REQUEST }
   | { type: PatientsActionEnum.UPDATE_PATIENT_ERROR, payload: PatientsActionPayload }
   | { type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS, payload: { updatedPatient: Patient } }
   | { type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS, payload: { addedPatient: Patient } }
-  | { type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR, payload: PatientsActionPayload }
-  | { type: PatientsActionEnum.RESET_TO_PATIENTS_BEFORE_SEARCH, payload: { patients: Array<Patient> } };
+  | { type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR, payload: PatientsActionPayload };
 
 const startRequest = (): PatientsAction => ({ type: PatientsActionEnum.START_REQUEST }); 
 
@@ -41,11 +43,17 @@ export const getPatients = (search?: string): PatientsRequest => {
       endpoint: search 
         ? `${Endpoints.PATIENTS_ALL_INFO}/${search}` 
         : Endpoints.PATIENTS_ALL_INFO,
-      onSuccess: (response: { data: Array<Patient> }): PatientsAction => ({
+      onSuccess: (response: { data: Array<Patient> }): PatientsAction => search ? ({
+        type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS,
+        payload: { patients: response.data },
+      }) : ({
         type: PatientsActionEnum.GET_PATIENTS_SUCCESS,
         payload: { patients: response.data },
       }),
-      onError: (message: string): PatientsAction => ({
+      onError: (message: string): PatientsAction => search ? ({
+        type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR,
+        payload: { message },
+      }) : ({
         type: PatientsActionEnum.GET_PATIENTS_ERROR,
         payload: { message },
       })
@@ -96,27 +104,26 @@ export const addPatientToHealthFacility = (patient: Patient): PatientsRequest =>
   };
 };
 
-export const resetToPatientsBeforeSearch = (patients: Array<Patient>): PatientsAction => ({
-  type: PatientsActionEnum.RESET_TO_PATIENTS_BEFORE_SEARCH,
-  payload: { patients },
-});
-
 export const clearPatientsRequestOutcome = (): PatientsAction => ({
   type: PatientsActionEnum.CLEAR_REQUEST_OUTCOME,
 });
 
 export type PatientsV2State = {
   error: boolean,
+  globalSearchError: boolean,
   loading: boolean;
   message: OrNull<string>,
   patients: OrNull<Array<Patient>>,
+  globalSearchPatients: OrNull<Array<GlobalSearchPatient>>,
 };
 
 const initialState: PatientsV2State = {
   error: false,
+  globalSearchError: false,
   loading: false,
   message: null,
   patients: null,
+  globalSearchPatients: null,
 };
 
 export const patientsReducerV2 = (
@@ -137,6 +144,18 @@ export const patientsReducerV2 = (
       return { 
         ...initialState,
         patients: action.payload.patients, 
+      };
+    case PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR:
+      return { 
+        ...state,
+        globalSearchError: true,
+        loading: false, 
+        message: action.payload.message, 
+      };
+    case PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS:
+      return { 
+        ...initialState,
+        globalSearchPatients: action.payload.patients, 
       };
     case PatientsActionEnum.UPDATE_PATIENT_ERROR:
       return { 
@@ -165,8 +184,6 @@ export const patientsReducerV2 = (
       return { ...state, loading: false, patients: [action.payload.addedPatient, ...(state.patients ?? [])] };
     case PatientsActionEnum.CLEAR_REQUEST_OUTCOME:
       return { ...initialState, patients: state.patients };
-    case PatientsActionEnum.RESET_TO_PATIENTS_BEFORE_SEARCH:
-      return { ...initialState, patients: action.payload.patients };
     default:
       return state;
   }

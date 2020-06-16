@@ -10,8 +10,10 @@ const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
 const GET_PATIENT_ERROR = `patients/GET_PATIENT_ERROR`;
 
 const GET_PATIENTS = `patients/GET_PATIENTS`;
+const GET_GLOBAL_SEARCH_PATIENTS = `patients/GET_GLOBAL_SEARCH_PATIENTS`;
 const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
 const GET_PATIENTS_ERROR = `patient/GET_PATIENTS_ERROR`;
+const GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patient/GET_GLOBAL_SEARCH_PATIENTS_ERROR`;
 
 const UPDATE_PATIENT = `patient/UPDATE_PATIENT`;
 const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
@@ -21,8 +23,6 @@ const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 
 const ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`;
-
-const RESET_TO_PATIENTS_BEFORE_SEARCH = `patients/RESET_TO_PATIENTS_BEFORE_SEARCH`;
 
 export const getPatient = (patientId: any) => {
   return serverRequestActionCreator({
@@ -43,11 +43,17 @@ export const getPatients = (search?: string) => {
     endpoint: search 
       ? `${Endpoints.PATIENTS_ALL_INFO}/${search}` 
       : Endpoints.PATIENTS_ALL_INFO,
-    onSuccess: (response: any) => ({
+    onSuccess: (response: any) => search ? ({
+      type: GET_GLOBAL_SEARCH_PATIENTS,
+      payload: response,
+    }) : ({
       type: GET_PATIENTS,
       payload: response,
     }),
-    onError: (error: any) => ({
+    onError: (error: any) =>search ? ({
+      type: GET_GLOBAL_SEARCH_PATIENTS_ERROR,
+      payload: error,
+    }) : ({
       type: GET_PATIENTS_ERROR,
       payload: error,
     })
@@ -86,11 +92,6 @@ export const addPatientToHealthFacility = (addedPatient: Patient) => {
   });
 };
 
-export const resetToPatientsBeforeSearch = (patients: Array<Patient>) => ({
-  type: RESET_TO_PATIENTS_BEFORE_SEARCH,
-  payload: { patients },
-});
-
 export const getPatientsRequested = () => ({
   type: GET_PATIENTS_REQUESTED,
 });
@@ -110,6 +111,7 @@ export const getPatientRequested = () => ({
 
 export type PatientsState = {
   patient: any;
+  globalSearchPatientsList: OrNull<any>;
   patientsList: OrNull<any>;
   isLoading: boolean;
   newPatientAdded: boolean;
@@ -117,6 +119,7 @@ export type PatientsState = {
 
 const initialState: PatientsState = {
   patient: {},
+  globalSearchPatientsList: null,
   patientsList: null,
   isLoading: false,
   newPatientAdded: false,
@@ -132,12 +135,23 @@ export const patientsReducer = (state = initialState, action: any) => {
         patientsList,
         isLoading: false,
       };
+    case GET_GLOBAL_SEARCH_PATIENTS:
+      return {
+        ...state,
+        globalSearchPatientsList: action.payload.data,
+        isLoading: false,
+      };
     case GET_PATIENTS_REQUESTED:
       return {
         ...state,
         isLoading: true,
       };
     case GET_PATIENTS_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+      };
+    case GET_GLOBAL_SEARCH_PATIENTS_ERROR:
       return {
         ...state,
         isLoading: false,
@@ -171,11 +185,6 @@ export const patientsReducer = (state = initialState, action: any) => {
         ...state,
         isLoading: false,
       };
-    case RESET_TO_PATIENTS_BEFORE_SEARCH: 
-      return {
-        ...state,
-        patientsList: action.payload.patients,
-      }
     case ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
       return {
         ...state,

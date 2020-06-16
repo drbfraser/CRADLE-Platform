@@ -1,22 +1,22 @@
-import { Column } from 'material-table';
-import { Patient } from '@types';
-import { TextAlignProperty } from 'csstype';
+import { GlobalSearchPatient, Patient } from '@types';
 import {
   getLatestReading,
-  getTrafficIcon,
   getLatestReadingDateTime,
   getPrettyDate,
+  getTrafficIcon,
   sortPatientsByLastReading,
 } from '../../../../shared/utils';
-import { TrafficLightEnum } from '../../../../enums';
+
+import { Column } from 'material-table';
 import React from 'react';
+import { TextAlignProperty } from 'csstype';
+import { TrafficLightEnum } from '../../../../enums';
 import classes from './styles.module.css';
 
-
-export const initials: Column<Patient> = {
+export const initials: Column<Patient | GlobalSearchPatient> = {
   title: `Patient Initials`,
   field: `patientName`,
-  render: (rowData: Patient): JSX.Element => (
+  render: (rowData: Patient | GlobalSearchPatient): JSX.Element => (
     <p className={classes.text}>
       { rowData.patientName }
     </p>
@@ -26,28 +26,33 @@ export const initials: Column<Patient> = {
   }
 };
 
-export const patientId: Column<Patient> = {
+export const patientId: Column<Patient | GlobalSearchPatient> = {
   title: `Patient ID`,
   field: `patientId`,
-  customSort: (patient: Patient, otherPatient: Patient) =>
-    Number(patient.patientId) - Number(otherPatient.patientId)
+  customSort: (
+    patient: Patient | GlobalSearchPatient, 
+    otherPatient: Patient | GlobalSearchPatient
+  ) => Number(patient.patientId) - Number(otherPatient.patientId)
 };
 
-export const village: Column<Patient> = {
+export const village: Column<Patient | GlobalSearchPatient> = {
   title: `Village`,
   field: `villageNumber`,
 };
 
-export const vitalSign: Column<Patient> = {
+export const vitalSign: Column<Patient | GlobalSearchPatient> = {
   title: `Vital Sign`,
   cellStyle: {
     padding: `0px`
   },
-  render: (rowData: Patient) =>
+  render: (rowData: Patient | GlobalSearchPatient) =>
     getTrafficIcon(
       getLatestReading(rowData.readings).trafficLightStatus
     ),
-  customSort: (patient: Patient, otherPatient: Patient) => {
+  customSort: (
+    patient: Patient | GlobalSearchPatient, 
+    otherPatient: Patient | GlobalSearchPatient
+  ) => {
     const leftIndex = Object.values(TrafficLightEnum).indexOf(
       patient.readings[0].trafficLightStatus
     );
@@ -62,10 +67,12 @@ export const vitalSign: Column<Patient> = {
 export const lastReadingDate = {
   title: `Date of Last Reading`,
   field: `lastReading`,
-  render: (rowData: Patient) => (
+  render: (rowData: Patient | GlobalSearchPatient) => (
     <p>{ getPrettyDate(getLatestReadingDateTime(rowData.readings)) }</p>
   ),
-  customSort: (patient: Patient, otherPatient: Patient) =>
-    sortPatientsByLastReading(patient, otherPatient),
+  customSort: (
+    patient: Patient | GlobalSearchPatient, 
+    otherPatient: Patient | GlobalSearchPatient
+  ) => sortPatientsByLastReading(patient, otherPatient),
   defaultSort: `asc` as `asc`
 };

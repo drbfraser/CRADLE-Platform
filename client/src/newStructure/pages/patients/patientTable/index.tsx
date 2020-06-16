@@ -1,4 +1,4 @@
-import { Callback, OrNull, OrUndefined, Patient } from '@types';
+import { Callback, GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
 import { initials, lastReadingDate, patientId, village, vitalSign } from './utils';
 
 import MaterialTable from 'material-table';
@@ -9,21 +9,19 @@ import { useData } from './hooks/data';
 
 interface IProps {
   data: OrNull<Array<Patient>>;
+  globalSearchData: OrNull<Array<GlobalSearchPatient>>;
   isLoading: boolean;
-  addPatientToHealthFacility: Callback<Patient>;
-  callbackFromParent: Callback<Patient>;
+  callbackFromParent: Callback<Patient | GlobalSearchPatient>;
   getPatients: Callback<OrUndefined<string>>;
-  resetToPatientsBeforeSearch: Callback<Array<Patient>>;
   showGlobalSearch?: boolean; 
 }
 
 export const PatientTable: React.FC<IProps> = ({
   callbackFromParent,
   data,
+  globalSearchData,
   isLoading,
-  addPatientToHealthFacility,
   getPatients,
-  resetToPatientsBeforeSearch,
   showGlobalSearch,
 }) => {
   const {
@@ -31,15 +29,12 @@ export const PatientTable: React.FC<IProps> = ({
     globalSearch,
     setGlobalSearch,
     patients,
-    patientsBeforeSearch,
-    setPatientsBeforeSearch,
     showReferredPatients,
     setShowReferredPatients,
-  } = useData({ data, resetToPatientsBeforeSearch });
+  } = useData({ data, globalSearchData });
   
   const { actions, setSearching } = useActions({
     showReferredPatients,
-    addPatientToHealthFacility,
     toggleGlobalSearch: setGlobalSearch,
     toggleShowReferredPatients: setShowReferredPatients,
     usingGlobalSearch: globalSearch,
@@ -73,17 +68,9 @@ export const PatientTable: React.FC<IProps> = ({
       data={patients}
       onSearchChange={globalSearch 
         ? (searchText?: string): void => {
-          if (!searchText) {
-            return;
+          if (searchText) {
+            debouncedGetPatients(searchText);
           }
-          
-          // Update patientsBeforeSearch to current patients
-          // Useful to reset patients to before global search state
-          if (!patientsBeforeSearch) {
-            setPatientsBeforeSearch(patients);
-          }
-          
-          debouncedGetPatients(searchText);
         }
         : undefined
       }
@@ -97,7 +84,10 @@ export const PatientTable: React.FC<IProps> = ({
         }),
         sorting: true
       } }
-      onRowClick={ (_, rowData: Patient) => callbackFromParent(rowData) }
+      onRowClick={ globalSearch 
+        ? undefined 
+        : (_, rowData: Patient | GlobalSearchPatient) => callbackFromParent(rowData) 
+      }
       actions={actions}
     />
   );

@@ -80,6 +80,14 @@ export type Patient = {
   zone: OrNull<string>;
 };
 
+export type GlobalSearchPatient = {
+  patientName: string;
+  patientId: string;
+  villageNumber: string;
+  readings: Array<Reading>;
+  tableData: PatientTableData;
+};
+
 export type User = {
   email: string;
   firstName: string;
