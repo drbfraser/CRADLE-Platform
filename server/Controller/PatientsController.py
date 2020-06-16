@@ -266,11 +266,10 @@ class PatientAllInformationGlobalSearch(Resource):
     @jwt_required
     def get(self, search):
         current_user = get_jwt_identity()
-        patients_readings_referrals = patientManager.get_patient_with_referral_and_reading(
+        patients_readings_referrals = patientManager.get_global_search_patients(
             current_user,
             search
         )
-        # patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
 
         if not patients_readings_referrals:
             abort(404, message="No patients currently exist.")

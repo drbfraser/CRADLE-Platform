@@ -86,7 +86,6 @@ export type GlobalSearchPatient = {
   patientId: string;
   villageNumber: string;
   readings: Array<Reading>;
-  tableData: PatientTableData;
   state: AddedStateEnum;
 };
 

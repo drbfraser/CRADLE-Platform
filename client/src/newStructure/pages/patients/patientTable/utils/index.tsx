@@ -82,7 +82,7 @@ export const state: Column<Patient | GlobalSearchPatient> = {
   title: `State`,
   field: `state`,
   render: ({ state }: GlobalSearchPatient) => (
-    <Button variant="contained">Add</Button>
+    <Button variant="contained">{state}</Button>
   ),
   sorting: false,
 };

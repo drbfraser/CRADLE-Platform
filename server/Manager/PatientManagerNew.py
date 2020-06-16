@@ -28,6 +28,45 @@ class PatientManager(Manager):
     def __init__(self):
         Manager.__init__(self, PatientRepo)
 
+    def get_global_search_patients(self, current_user, search):
+        patient_list = self.read_all()
+
+        # Only works for health workers currently
+        if 'HCW' in current_user['roles']:
+            patients_query = filtered_global_search(patient_list, current_user['healthFacilityName'], search)
+            result_json_arr = []
+            for patient in patients_query:
+                global_search_patient = { 
+                    'patientName': patient['patientName'],
+                    'patientId': patient['patientId'],
+                    'villageNumber': patient['villageNumber'],
+                    'readings': patient['readings'],
+                    'state': patient['state'],
+                }
+                if global_search_patient["readings"]:
+                    readings_arr = []
+                    for reading in global_search_patient["readings"]:
+                        # build the reading json to add to array
+                        reading_json = { 'dateReferred': None }
+                        reading_data = readingManager.read("readingId", reading)
+                    
+                        # add referral if exists in reading
+                        if reading_data["referral"]:
+                            top_ref = referralManager.read("id", reading_data["referral"])
+                            reading_json['dateReferred'] = top_ref["dateReferred"]
+                        
+                        # add reading dateReferred data to array
+                        readings_arr.append(reading_json)
+
+                    # add reading key to global_search_patient key
+                    global_search_patient['readings'] = readings_arr
+
+                    # add to result array 
+                    result_json_arr.append(global_search_patient)
+            
+            return result_json_arr
+        else:
+            return None
 
     def get_patient_with_referral_and_reading(self, current_user, search = None):
         # harcoding for testing purposes
@@ -39,10 +78,8 @@ class PatientManager(Manager):
 
         if 'ADMIN' in current_user['roles']:
             patients_query = self.read_all()
-        elif 'HCW' in current_user['roles'] and not search:
-            patients_query = filtered_list_hcw(patient_list, ref_list, user_list, current_user['userId'])
         elif 'HCW' in current_user['roles']:
-            patients_query = filtered_global_search(patient_list, search)
+            patients_query = filtered_list_hcw(patient_list, ref_list, user_list, current_user['userId'])
         elif 'CHO' in current_user['roles']:
             patients_query = filtered_list_cho(patient_list, readings_list, current_user['vhtList'], current_user['userId'])
         elif 'VHT' in current_user['roles']:
