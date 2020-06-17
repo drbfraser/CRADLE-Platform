@@ -275,3 +275,17 @@ class PatientAllInformationGlobalSearch(Resource):
             abort(404, message="No patients currently exist.")
         else:
             return patients_readings_referrals
+            
+# URI: api/patient/facility
+# [POST]: Add patient to a facility 
+class PatientFacility(Resource):
+    @jwt_required
+    def post(self, patient_id):
+        patient = patientManager.read("patientId", patient_id)
+        if(patient): 
+            current_user = get_jwt_identity()
+            user_health_facility = current_user["healthFacilityName"]
+            patientFacilityManager.add_patient_facility_relationship(patient_id, user_health_facility)
+            return {"message": "patient has been added to facility successfully"}, 200
+        else:
+            abort(404, message="This patient does not exist.")

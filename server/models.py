@@ -292,7 +292,7 @@ class PatientFacility(db.Model):
     id = db.Column(db.String(50), primary_key=True)
     patientId = db.Column(db.ForeignKey('patient.patientId'), nullable=False)
     healthFacilityName = db.Column(db.ForeignKey('healthfacility.healthFacilityName'), nullable=False)
-    db.UniqueConstraint('patientId', 'healthFacilityName', name='no_duplicate_patient_facility')
+    __table_args__ = (db.UniqueConstraint('patientId', 'healthFacilityName'), )
 
 ######################
 ###    SCHEMAS     ###
