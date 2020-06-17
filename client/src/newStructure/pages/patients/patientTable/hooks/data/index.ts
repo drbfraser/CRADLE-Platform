@@ -24,7 +24,7 @@ export const useData = ({ data, globalSearchData }: IArgs): IUseData => {
   >(false);
 
   const defaultInterval = React.useRef<number>(200);
-  const globalSearchInterval = React.useRef<number>(1250);
+  const globalSearchInterval = React.useRef<number>(1000);
   const debounceInterval = React.useMemo<number>(
     (): number => globalSearch ? globalSearchInterval.current : defaultInterval.current, 
     [globalSearch]
