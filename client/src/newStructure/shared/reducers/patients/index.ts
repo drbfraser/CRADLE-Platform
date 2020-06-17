@@ -1,7 +1,8 @@
-import {OrNull, Patient} from '@types';
+import {GlobalSearchPatient, OrNull} from '@types';
 
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
+import { PatientStateEnum } from '../../../enums';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
 
@@ -21,6 +22,7 @@ const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
 const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
 const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 
+const ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`;
 
@@ -76,7 +78,12 @@ export const updatePatient = (patientId: any, data: any) => {
   });
 };
 
-export const addPatientToHealthFacility = (addedPatient: Patient) => {
+export const addPatientToHealthFacilityRequested = (patient: GlobalSearchPatient) => ({
+  type: ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED,
+  payload: { patient },
+});
+
+export const addPatientToHealthFacility = (addedPatient: GlobalSearchPatient) => {
   return serverRequestActionCreator({
     endpoint: `adding patient to health facility endpoint goes here...`,
     method: Methods.PUT,
@@ -185,13 +192,26 @@ export const patientsReducer = (state = initialState, action: any) => {
         ...state,
         isLoading: false,
       };
+    case ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED:
+      return {
+        ...state,
+        globalSearchPatientsList: (state.globalSearchPatientsList ?? []).map(
+            (patient: any): any => patient.patientId === action.payload.patient.patientId 
+              ? { ...action.payload.patient, state: PatientStateEnum.ADDING } 
+              : patient
+          ),
+        isLoading: true,
+      };
     case ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
       return {
         ...state,
         isLoading: false,
-        patientList: state.patientsList 
-          ? [action.payload.addedPatient, ...state.patientsList] 
-          : [action.payload.addedPatient]
+        globalSearchPatientsList: (state.globalSearchPatientsList ?? []).map(
+          (patient: any): any => patient.patientId === action.payload.addedPatient.patientId 
+            ? { ...patient, state: PatientStateEnum.ADDED } 
+            : patient
+        ),
+        patientList: [action.payload.addedPatient, ...(state.patientsList ?? [])],
       }
     case ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
       return {

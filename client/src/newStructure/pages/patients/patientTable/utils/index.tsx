@@ -1,4 +1,5 @@
 import { GlobalSearchPatient, Patient } from '@types';
+import { PatientStateEnum, TrafficLightEnum } from '../../../../enums';
 import {
   getLatestReading,
   getLatestReadingDateTime,
@@ -7,11 +8,10 @@ import {
   sortPatientsByLastReading,
 } from '../../../../shared/utils';
 
-import { Button } from '@material-ui/core';
 import { Column } from 'material-table';
 import React from 'react';
 import { TextAlignProperty } from 'csstype';
-import { TrafficLightEnum } from '../../../../enums';
+import Typography from '@material-ui/core/Typography';
 import classes from './styles.module.css';
 
 export const initials: Column<Patient | GlobalSearchPatient> = {
@@ -82,7 +82,11 @@ export const state: Column<Patient | GlobalSearchPatient> = {
   title: `State`,
   field: `state`,
   render: ({ state }: GlobalSearchPatient) => (
-    <Button variant="contained">{state}</Button>
+    <Typography 
+      variant="body1"
+    >
+      {`${state === PatientStateEnum.ADD ? `Click row to add` : state}`}
+    </Typography>
   ),
   sorting: false,
 };

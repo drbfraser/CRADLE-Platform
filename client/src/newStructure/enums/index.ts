@@ -30,8 +30,9 @@ export enum RoleEnum {
   CHO = 'CHO',
 }
 
-export enum AddedStateEnum {
+export enum PatientStateEnum {
   ADD = 'Add',
   ADDED = 'Added',
+  ADDING = 'Adding...',
   JUST_ADDED = 'Just added'
 }

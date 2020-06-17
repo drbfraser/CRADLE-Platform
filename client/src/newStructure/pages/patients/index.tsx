@@ -1,5 +1,8 @@
 import { GlobalSearchPatient, OrNull, Patient } from '@types';
+import { PatientStateEnum, RoleEnum } from '../../enums';
 import {
+  addPatientToHealthFacility,
+  addPatientToHealthFacilityRequested,
   getPatients,
   getPatientsRequested,
 } from '../../shared/reducers/patients';
@@ -7,7 +10,6 @@ import {
 import { PatientTable } from './patientTable';
 import React from 'react';
 import { ReduxState } from '../../redux/rootReducer';
-import { RoleEnum } from '../../enums';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -17,6 +19,7 @@ interface IProps {
   patients: OrNull<Array<Patient>>;
   globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
   getPatients: (search?: string) => void,
+  addPatientToHealthFacility: (patient: GlobalSearchPatient) => void,
   navigateToPatientPage: any;
   userIsHealthWorker?: boolean; 
 }
@@ -31,9 +34,18 @@ const Page: React.FC<IProps> = (props) => {
   const onPatientSelected = ({ patientId }: Patient): void => 
     props.navigateToPatientPage(patientId);
 
+  const onGlobalSearchPatientSelected = (patient: GlobalSearchPatient): void => {
+    if (patient.state !== PatientStateEnum.ADD) {
+      alert(`Patient already added!`);
+    } else {
+      props.addPatientToHealthFacility(patient);
+    }
+  };
+
   return (
     <PatientTable
-      callbackFromParent={onPatientSelected}
+      onPatientSelected={onPatientSelected}
+      onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
       data={props.patients}
       globalSearchData={props.globalSearchPatients}
       isLoading={props.fetchingPatients}
@@ -56,6 +68,10 @@ const mapDispatchToProps = (dispatch: any) => ({
   getPatients: (search?: string): void => {
     dispatch(getPatientsRequested());
     dispatch(getPatients(search));
+  },
+  addPatientToHealthFacility: (patient: GlobalSearchPatient): void => {
+    dispatch(addPatientToHealthFacilityRequested(patient));
+    dispatch(addPatientToHealthFacility(patient));
   },
   navigateToPatientPage: (patientId: string) => dispatch(
     push(`/patient/${patientId}`)

@@ -11,13 +11,15 @@ interface IProps {
   data: OrNull<Array<Patient>>;
   globalSearchData: OrNull<Array<GlobalSearchPatient>>;
   isLoading: boolean;
-  callbackFromParent: Callback<Patient>;
+  onPatientSelected: Callback<Patient>;
+  onGlobalSearchPatientSelected: Callback<GlobalSearchPatient>;
   getPatients: Callback<OrUndefined<string>>;
   showGlobalSearch?: boolean; 
 }
 
 export const PatientTable: React.FC<IProps> = ({
-  callbackFromParent,
+  onPatientSelected,
+  onGlobalSearchPatientSelected,
   data,
   globalSearchData,
   isLoading,
@@ -95,8 +97,8 @@ export const PatientTable: React.FC<IProps> = ({
         sorting: true
       } }
       onRowClick={ globalSearch 
-        ? undefined 
-        : (_, rowData: Patient) => callbackFromParent(rowData) 
+        ? (_, rowData: GlobalSearchPatient) => onGlobalSearchPatientSelected(rowData)  
+        : (_, rowData: Patient) => onPatientSelected(rowData) 
       }
       actions={actions}
     />

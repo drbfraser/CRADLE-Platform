@@ -3,6 +3,7 @@ import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
+import { PatientStateEnum } from '../../../enums';
 
 enum PatientsActionEnum {
   CLEAR_REQUEST_OUTCOME = `patients/CLEAR_REQUEST_OUTCOME`,
@@ -13,6 +14,7 @@ enum PatientsActionEnum {
   START_REQUEST = `patients/START_REQUEST`,
   UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`,
   UPDATE_PATIENT_SUCCESS = `patients/UPDATE_PATIENT_SUCCESS`,
+  ADDING_PATIENT_TO_HEALTH_FACILITY = `patients/ADDING_PATIENT_TO_HEALTH_FACILITY`,
   ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`,
   ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`,
 }
@@ -28,6 +30,7 @@ type PatientsAction =
   | { type: PatientsActionEnum.START_REQUEST }
   | { type: PatientsActionEnum.UPDATE_PATIENT_ERROR, payload: PatientsActionPayload }
   | { type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS, payload: { updatedPatient: Patient } }
+  | { type: PatientsActionEnum.ADDING_PATIENT_TO_HEALTH_FACILITY, payload: { patient: GlobalSearchPatient } }
   | { type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS, payload: { addedPatient: Patient } }
   | { type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR, payload: PatientsActionPayload };
 
@@ -83,6 +86,13 @@ export const updatePatient = (
     })
   };
 };
+
+export const addingPatientToHealthFacility = (
+  patient: GlobalSearchPatient
+): PatientsAction => ({
+  type: PatientsActionEnum.ADDING_PATIENT_TO_HEALTH_FACILITY,
+  payload: { patient },
+});
 
 export const addPatientToHealthFacility = (patient: Patient): PatientsRequest => {
   return (dispatch: Callback<PatientsAction>): ServerRequestAction => {
@@ -177,11 +187,33 @@ export const patientsReducerV2 = (
       };
     case PatientsActionEnum.UPDATE_PATIENT_SUCCESS:
       return { ...state, loading: false };
+    case PatientsActionEnum.ADDING_PATIENT_TO_HEALTH_FACILITY:
+      return { 
+        ...state, 
+        globalSearchPatients: (state.globalSearchPatients ?? []).map(
+          (
+            patient: GlobalSearchPatient
+          ): GlobalSearchPatient => patient.patientId === action.payload.patient.patientId 
+            ? { ...action.payload.patient, state: PatientStateEnum.ADDING } 
+            : patient
+        ), 
+      };
     case PatientsActionEnum.UPDATE_PATIENT_ERROR:
     case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
       return { ...state, error: true, loading: false, message: action.payload.message };
     case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
-      return { ...state, loading: false, patients: [action.payload.addedPatient, ...(state.patients ?? [])] };
+      return { 
+        ...state, 
+        loading: false, 
+        patients: [action.payload.addedPatient, ...(state.patients ?? [])],
+        globalSearchPatients: (state.globalSearchPatients ?? []).map(
+          (
+            patient: GlobalSearchPatient
+          ): GlobalSearchPatient => patient.patientId === action.payload.addedPatient.patientId 
+            ? { ...patient, state: PatientStateEnum.JUST_ADDED } 
+            : patient
+        ),  
+      };
     case PatientsActionEnum.CLEAR_REQUEST_OUTCOME:
       return { ...initialState, patients: state.patients };
     default:
