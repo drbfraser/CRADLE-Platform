@@ -57,6 +57,6 @@ export const vitalSign: Column<Patient | GlobalSearchPatient> = {
       otherPatient.readings[0].trafficLightStatus
     );
 
-    return leftIndex - rightIndex;
+    return rightIndex - leftIndex;
   }
 };
