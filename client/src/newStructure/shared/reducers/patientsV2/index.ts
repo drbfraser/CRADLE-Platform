@@ -94,24 +94,20 @@ export const addingPatientToHealthFacility = (
   payload: { patient },
 });
 
-export const addPatientToHealthFacility = (patient: Patient): PatientsRequest => {
-  return (dispatch: Callback<PatientsAction>): ServerRequestAction => {
-    dispatch(startRequest());
-  
-    return serverRequestActionCreator({
-      endpoint: `adding patient to health facility endpoint goes here...`,
-      method: Methods.PUT,
-      data: patient.patientId,
-      onSuccess: () => ({
-        type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
-        payload: { patient },
-      }),
-      onError: (error: any) => ({
-        type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
-        payload: error,
-      })
-    });
-  };
+export const addPatientToHealthFacility = (patient: Patient): ServerRequestAction => {
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.PATIENT_FACILITY}/${patient.patientId}`,
+    method: Methods.POST,
+    data: patient.patientId,
+    onSuccess: () => ({
+      type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
+      payload: { patient },
+    }),
+    onError: (error: any) => ({
+      type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
+      payload: error,
+    })
+  });
 };
 
 export const clearPatientsRequestOutcome = (): PatientsAction => ({
@@ -122,6 +118,7 @@ export type PatientsV2State = {
   error: boolean,
   globalSearchError: boolean,
   loading: boolean;
+  addingFromGlobalSearch: boolean;
   message: OrNull<string>,
   patients: OrNull<Array<Patient>>,
   globalSearchPatients: OrNull<Array<GlobalSearchPatient>>,
@@ -131,6 +128,7 @@ const initialState: PatientsV2State = {
   error: false,
   globalSearchError: false,
   loading: false,
+  addingFromGlobalSearch: false,
   message: null,
   patients: null,
   globalSearchPatients: null,
@@ -197,14 +195,15 @@ export const patientsReducerV2 = (
             ? { ...action.payload.patient, state: PatientStateEnum.ADDING } 
             : patient
         ), 
+        addingFromGlobalSearch: true,
       };
     case PatientsActionEnum.UPDATE_PATIENT_ERROR:
     case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
-      return { ...state, error: true, loading: false, message: action.payload.message };
+      return { ...state, error: true, addingFromGlobalSearch: false, message: action.payload.message };
     case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
       return { 
         ...state, 
-        loading: false, 
+        addingFromGlobalSearch: false, 
         patients: [action.payload.addedPatient, ...(state.patients ?? [])],
         globalSearchPatients: (state.globalSearchPatients ?? []).map(
           (

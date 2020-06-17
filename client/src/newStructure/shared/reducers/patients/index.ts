@@ -85,8 +85,8 @@ export const addPatientToHealthFacilityRequested = (patient: GlobalSearchPatient
 
 export const addPatientToHealthFacility = (addedPatient: GlobalSearchPatient) => {
   return serverRequestActionCreator({
-    endpoint: `adding patient to health facility endpoint goes here...`,
-    method: Methods.PUT,
+    endpoint: `${Endpoints.PATIENT_FACILITY}/${addedPatient.patientId}`,
+    method: Methods.POST,
     data: addedPatient.patientId,
     onSuccess: () => ({
       type: ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
@@ -121,6 +121,7 @@ export type PatientsState = {
   globalSearchPatientsList: OrNull<any>;
   patientsList: OrNull<any>;
   isLoading: boolean;
+  addingFromGlobalSearch: boolean;
   newPatientAdded: boolean;
 };
 
@@ -129,6 +130,7 @@ const initialState: PatientsState = {
   globalSearchPatientsList: null,
   patientsList: null,
   isLoading: false,
+  addingFromGlobalSearch: false,
   newPatientAdded: false,
 };
 
@@ -200,23 +202,23 @@ export const patientsReducer = (state = initialState, action: any) => {
               ? { ...action.payload.patient, state: PatientStateEnum.ADDING } 
               : patient
           ),
-        isLoading: true,
+        addingFromGlobalSearch: true,
       };
     case ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
       return {
         ...state,
-        isLoading: false,
+        addingFromGlobalSearch: false,
         globalSearchPatientsList: (state.globalSearchPatientsList ?? []).map(
           (patient: any): any => patient.patientId === action.payload.addedPatient.patientId 
-            ? { ...patient, state: PatientStateEnum.ADDED } 
+            ? { ...patient, state: PatientStateEnum.JUST_ADDED } 
             : patient
         ),
-        patientList: [action.payload.addedPatient, ...(state.patientsList ?? [])],
+        patientsList: [action.payload.addedPatient, ...(state.patientsList ?? [])],
       }
     case ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
       return {
         ...state,
-        isLoading: false,
+        addingFromGlobalSearch: false,
       };
     default:
       return state;

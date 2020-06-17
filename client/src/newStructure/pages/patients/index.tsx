@@ -15,6 +15,7 @@ import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
 interface IProps {
+  addingFromGlobalSearch: boolean;
   fetchingPatients: boolean;
   patients: OrNull<Array<Patient>>;
   globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
@@ -48,7 +49,7 @@ const Page: React.FC<IProps> = (props) => {
       onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
       data={props.patients}
       globalSearchData={props.globalSearchPatients}
-      isLoading={props.fetchingPatients}
+      isLoading={props.fetchingPatients || props.addingFromGlobalSearch}
       showGlobalSearch={props.userIsHealthWorker}
       getPatients={props.getPatients}
     />
@@ -56,6 +57,7 @@ const Page: React.FC<IProps> = (props) => {
 };
 
 const mapStateToProps = ({ patients, user }: ReduxState) => ({
+  addingFromGlobalSearch: patients.addingFromGlobalSearch,
   userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,

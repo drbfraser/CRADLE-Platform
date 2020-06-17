@@ -2,6 +2,7 @@ export const Endpoints = {
   PATIENT: `/patient`,
   PATIENTS_ALL_INFO: `/patient/allinfo`,
   REFERRAL: `/referral`,
+  PATIENT_FACILITY: `/patient/facility`,
   FOLLOW_UP: `/follow_up`,
   HEALTH_FACILITY_LIST: `/health_facility_list`,
   STATS: `/stats`,
