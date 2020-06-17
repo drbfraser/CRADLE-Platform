@@ -254,12 +254,13 @@ class PatientAllInformation(Resource):
         else:
             return patients_readings_referrals
 
+
 # URI: api/patient/global/<string:search>
-# [GET]: Get a list of ALL patients and their basic information 
-#        (information necessary for the patient page) 
-#        if they match search criteria 
-#        For now search criteria could be: 
-#           a portion/full match of the patient's id 
+# [GET]: Get a list of ALL patients and their basic information
+#        (information necessary for the patient page)
+#        if they match search criteria
+#        For now search criteria could be:
+#           a portion/full match of the patient's id
 #           a portion/full match of the patient's initials
 class PatientGlobalSearch(Resource):
 
@@ -267,9 +268,16 @@ class PatientGlobalSearch(Resource):
     @jwt_required
     def get(self, search):
         current_user = get_jwt_identity()
+
+        # Only works for health workers currently
+        if "HCW" not in current_user["roles"]:
+            return (
+                {"message": "Unauthorized, please try again as a Health Care Worker"},
+                401,
+            )
+
         patients_readings_referrals = patientManager.get_global_search_patients(
-            current_user,
-            search
+            current_user, search
         )
 
         if not patients_readings_referrals:
@@ -277,8 +285,9 @@ class PatientGlobalSearch(Resource):
         else:
             return patients_readings_referrals
 
+
 # URI: api/patient/facility
-# [POST]: Add patient to a facility 
+# [POST]: Add patient to a facility
 
 # URI: /api/patient/facility/<string:patient_id>
 # [POST]: Add patient to a facility
