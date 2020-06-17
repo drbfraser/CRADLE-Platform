@@ -19,6 +19,7 @@ userManager = UserManager()
 referralManager = ReferralManager()
 readingManager = ReadingManager()
 from Manager.FilterHelper import filtered_list_hcw, filtered_list_vht, filtered_list_cho, filtered_global_search
+from Manager.GlobalSearchHelper import to_global_search_patient
 from Manager.RoleManager import RoleManager
 roleManager = RoleManager()
 from flask_jwt_extended import (create_access_token, create_refresh_token,
@@ -36,34 +37,8 @@ class PatientManager(Manager):
             patients_query = filtered_global_search(patient_list, current_user['healthFacilityName'], search)
             result_json_arr = []
             for patient in patients_query:
-                global_search_patient = { 
-                    'patientName': patient['patientName'],
-                    'patientId': patient['patientId'],
-                    'villageNumber': patient['villageNumber'],
-                    'readings': patient['readings'],
-                    'state': patient['state'],
-                }
-                if global_search_patient["readings"]:
-                    readings_arr = []
-                    for reading in global_search_patient["readings"]:
-                        # build the reading json to add to array
-                        reading_json = { 'dateReferred': None }
-                        reading_data = readingManager.read("readingId", reading)
-                    
-                        # add referral if exists in reading
-                        if reading_data["referral"]:
-                            top_ref = referralManager.read("id", reading_data["referral"])
-                            reading_json['dateReferred'] = top_ref["dateReferred"]
-                        
-                        # add reading dateReferred data to array
-                        readings_arr.append(reading_json)
-
-                    # add reading key to global_search_patient key
-                    global_search_patient['readings'] = readings_arr
-
-                    # add to result array 
-                    result_json_arr.append(global_search_patient)
-            
+                global_search_patient = to_global_search_patient(patient)
+                result_json_arr.append(global_search_patient)
             return result_json_arr
         else:
             return None

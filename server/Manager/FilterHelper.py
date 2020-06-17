@@ -77,17 +77,16 @@ def filtered_list_cho(patients, readings, vhtList, userId):
 
 # Performs a global search using either patient id or patient initials
 def filtered_global_search(patients, healthFacilityName, search):
-    print("Search parameter defined proceed with search...")
-
-    # find patients that have relationship to health facility that current user is from
-    print("Finding patients in health facility " + healthFacilityName)
+    # Fetch all patients created in the health facility the current user belongs to
     args = {
         "healthFacilityName": healthFacilityName
     }
     patients_created_at_facility = patientFacilityManager.search(args)
 
-    print("Patients found:")
-    print(patients_created_at_facility)
+    # Populate patient ids for patients created at facility
+    patient_ids = []
+    for patient_created in patients_created_at_facility:
+        patient_ids.append(patient_created['patientId'])
 
     # get all patients that either have a partial or full match
     # of their patient id or initials with the given search value
@@ -96,7 +95,7 @@ def filtered_global_search(patients, healthFacilityName, search):
         # Confirm that patient matches search criteria
         if search in patient['patientId'] or search in patient['patientName']:
             # If patient already added to health facility indicate in state as added
-            if patient in patients_created_at_facility:
+            if patient['patientId'] in patient_ids:
                 patient['state'] = "Added"
             # If patient not added to health facility indicate in state as add
             else:
