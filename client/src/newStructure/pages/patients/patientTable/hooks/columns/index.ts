@@ -1,5 +1,6 @@
 import { GlobalSearchPatient, Patient } from '@types';
-import { initials, lastReadingDate, patientId, state, village, vitalSign } from './utils';
+import { initials, patientId, village, vitalSign } from '../../../../../shared/components/table/columns';
+import { lastReadingDate, state } from './utils';
 
 import { Column } from 'material-table';
 import React from 'react';

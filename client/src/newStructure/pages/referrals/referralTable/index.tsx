@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
-import {
-  getLatestReading,
-  getPrettyDate,
-  getTrafficIcon,
-} from '../../../shared/utils';
-import { getLatestReferral, sortReferralsByDate } from './utils';
+import { assessment, dateReferred } from './utils';
+import { initials, patientId, village, vitalSign } from '../../../shared/components/table/columns';
 
-import { Icon } from 'semantic-ui-react';
 import MaterialTable from 'material-table';
+
 interface IProps {
   callbackFromParent: any;
   data: any;
@@ -19,60 +15,16 @@ interface IState {
   data: any;
   selectedPatient: any;
 }
+
 export class ReferralTable extends Component<IProps, IState> {
   state = {
     columns: [
-      {
-        title: 'Patient Initials',
-        field: 'patientName',
-        render: (rowData: any) => (
-          <p
-            key={'initials' + rowData.tableData.id}
-            style={{
-              fontSize: '200%',
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}>
-            {rowData.patientName}
-          </p>
-        ),
-        headerStyle: {
-          textAlign: 'center',
-        },
-        sorting: false,
-      },
-      { title: 'Patient ID', field: 'patientId' },
-      { title: 'Village', field: 'villageNumber' },
-      {
-        title: 'Vital Sign',
-        cellStyle: {
-          padding: '0px',
-        },
-        sorting: false,
-        render: (rowData: any) =>
-          getTrafficIcon(getLatestReading(rowData.readings).trafficLightStatus),
-      },
-      {
-        title: 'Date Referred',
-        render: (rowData: any) => (
-          <p>{getPrettyDate(getLatestReferral(rowData.readings))}</p>
-        ),
-        customSort: (a: any, b: any) => sortReferralsByDate(a, b),
-        defaultSort: 'asc',
-      },
-      {
-        title: 'Assessment',
-        render: (rowData: any) =>
-          rowData.needsAssessment ? (
-            <p>
-              <Icon name="clock outline" size="large" color="red" /> Pending
-            </p>
-          ) : (
-            <p>
-              <Icon name="checkmark" size="large" color="green" /> Complete
-            </p>
-          ),
-      },
+      initials,
+      patientId,
+      village,
+      vitalSign,
+      dateReferred,
+      assessment,
     ],
     data: [],
     selectedPatient: {
