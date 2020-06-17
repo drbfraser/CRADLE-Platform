@@ -254,7 +254,7 @@ class PatientAllInformation(Resource):
         else:
             return patients_readings_referrals
 
-# URI: api/patient/allinfo/:search
+# URI: api/patient/allinfo/<string:search>
 # [GET]: Get a list of ALL patients and their information (info, readings, referrals) 
 #        if they match search criteria 
 #        For now search criteria could be: 
@@ -275,7 +275,7 @@ class PatientAllInformationGlobalSearch(Resource):
             abort(404, message="No patients currently exist.")
         else:
             return patients_readings_referrals
-            
+
 # URI: api/patient/facility
 # [POST]: Add patient to a facility 
 class PatientFacility(Resource):
