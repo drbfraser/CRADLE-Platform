@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import MaterialTable from 'material-table';
-import { Icon } from 'semantic-ui-react';
-import { getLatestReferral, sortReferralsByDate } from './utils';
 import {
-  getTrafficIcon,
   getLatestReading,
   getPrettyDate,
+  getTrafficIcon,
 } from '../../../shared/utils';
+import { getLatestReferral, sortReferralsByDate } from './utils';
+
+import { Icon } from 'semantic-ui-react';
+import MaterialTable from 'material-table';
 interface IProps {
   callbackFromParent: any;
   data: any;
@@ -99,6 +100,8 @@ export class ReferralTable extends Component<IProps, IState> {
               height: '75px',
             };
           },
+          searchFieldVariant: `outlined`,
+          searchFieldStyle: { marginBlockStart: `1rem` },
         }}
         onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
       />
