@@ -52,6 +52,8 @@ export class ReferralTable extends Component<IProps, IState> {
               height: '75px',
             };
           },
+          searchFieldVariant: `outlined`,
+          searchFieldStyle: { marginBlockStart: `1rem` },
         }}
         onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
       />

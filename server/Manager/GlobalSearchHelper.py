@@ -35,4 +35,4 @@ def to_global_search_patient(patient):
         # add reading key to global_search_patient key
         global_search_patient['readings'] = readings_arr
 
-        return global_search_patient
+    return global_search_patient
