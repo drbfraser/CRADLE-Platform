@@ -4,6 +4,8 @@
 
 React front-end web application and Python back-end web server for the Cradle VSA System, a technological health care system to improve maternal care and reduce preventable maternal deaths in Ugandan villages.
 
+> Issue tracking is managed via JIRA at: https://icradle.atlassian.net
+
 View the React web application here: https://cradle-vsa.github.io/client/build
 View the React web application here: https://cradle.eastus.cloudapp.azure.com/
 
