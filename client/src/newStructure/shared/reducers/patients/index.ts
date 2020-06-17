@@ -43,7 +43,7 @@ export const getPatient = (patientId: any) => {
 export const getPatients = (search?: string) => {
   return serverRequestActionCreator({
     endpoint: search 
-      ? `${Endpoints.PATIENTS_ALL_INFO}/${search}` 
+      ? `${Endpoints.PATIENTS_GLOBAL_SEARCH}/${search}` 
       : Endpoints.PATIENTS_ALL_INFO,
     onSuccess: (response: any) => search ? ({
       type: GET_GLOBAL_SEARCH_PATIENTS,

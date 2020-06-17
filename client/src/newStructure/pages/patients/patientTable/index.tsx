@@ -89,7 +89,7 @@ export const PatientTable: React.FC<IProps> = ({
           height: 75,
         }),
         searchFieldVariant: `outlined`,
-        searchFieldStyle: { marginBlockStart: `0.25rem` },
+        searchFieldStyle: { marginBlockStart: `1rem` },
         sorting: true
       } }
       onRowClick={ globalSearch 

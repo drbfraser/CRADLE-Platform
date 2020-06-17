@@ -24,10 +24,11 @@ export const useActions = ({
     isFreeAction: true,
     onClick: (): void => { return; }
   };
-
+  
   const globalSearchAction =  {
     icon: ActionEnum.GLOBAL_SEARCH,
     isFreeAction: true,
+    onClick: (): void => { return; }
   } as Action<Patient>;
 
   return React.useMemo<Array<Action<Patient>>>((): Array<Action<Patient>> => {

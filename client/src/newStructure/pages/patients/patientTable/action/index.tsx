@@ -30,6 +30,7 @@ export const Action: React.FC<IProps> = ({
   if (action === ActionEnum.TOGGLE_REFERRED) {
     return (
       <Tooltip 
+        className={classes.toggle}
         title={showReferredPatients ? `Show all patients` : `Show referred patients`}
       >
         <Switch

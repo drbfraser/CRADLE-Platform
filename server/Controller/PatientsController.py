@@ -254,7 +254,7 @@ class PatientAllInformation(Resource):
         else:
             return patients_readings_referrals
 
-# URI: api/patient/allinfo/<string:search>
+# URI: api/patient/global/<string:search>
 # [GET]: Get a list of ALL patients and their basic information 
 #        (information necessary for the patient page) 
 #        if they match search criteria 
