@@ -185,7 +185,6 @@ class Reading(db.Model):
     heartRateBPM = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
-
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
     dateLastSaved = db.Column(db.BigInteger)
     dateTimeTaken = db.Column(db.BigInteger)

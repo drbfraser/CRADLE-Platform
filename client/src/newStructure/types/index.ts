@@ -1,5 +1,6 @@
 import {
   GestationalAgeUnitEnum,
+  PatientStateEnum,
   RoleEnum,
   SexEnum,
   TrafficLightEnum,
@@ -78,6 +79,14 @@ export type Patient = {
   readings: Array<Reading>;
   tableData: PatientTableData;
   zone: OrNull<string>;
+};
+
+export type GlobalSearchPatient = {
+  patientName: string;
+  patientId: string;
+  villageNumber: string;
+  readings: Array<Reading>;
+  state: PatientStateEnum;
 };
 
 export type User = {

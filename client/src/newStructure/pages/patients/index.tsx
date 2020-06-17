@@ -1,20 +1,28 @@
+import { GlobalSearchPatient, OrNull, Patient } from '@types';
+import { PatientStateEnum, RoleEnum } from '../../enums';
 import {
+  addPatientToHealthFacility,
+  addPatientToHealthFacilityRequested,
   getPatients,
   getPatientsRequested,
 } from '../../shared/reducers/patients';
 
 import { PatientTable } from './patientTable';
 import React from 'react';
-import { connect } from 'react-redux';
-import { Patient } from '@types';
-import { push } from 'connected-react-router';
 import { ReduxState } from '../../redux/rootReducer';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 interface IProps {
+  addingFromGlobalSearch: boolean;
   fetchingPatients: boolean;
-  patients: Array<Patient>;
-  getPatients: any;
+  patients: OrNull<Array<Patient>>;
+  globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
+  getPatients: (search?: string) => void,
+  addPatientToHealthFacility: (patient: GlobalSearchPatient) => void,
   navigateToPatientPage: any;
+  userIsHealthWorker?: boolean; 
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -27,24 +35,45 @@ const Page: React.FC<IProps> = (props) => {
   const onPatientSelected = ({ patientId }: Patient): void =>
     props.navigateToPatientPage(patientId);
 
+  const onGlobalSearchPatientSelected = (patient: GlobalSearchPatient): void => {
+    if (patient.state !== PatientStateEnum.ADD) {
+      alert(`Patient already added!`);
+    } else {
+      props.addPatientToHealthFacility(patient);
+    }
+  };
+
   return (
     <PatientTable
-      callbackFromParent={onPatientSelected}
+      onPatientSelected={onPatientSelected}
+      onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
       data={props.patients}
-      isLoading={props.fetchingPatients}
+      globalSearchData={props.globalSearchPatients}
+      isLoading={props.fetchingPatients || props.addingFromGlobalSearch}
+      showGlobalSearch={props.userIsHealthWorker}
+      getPatients={props.getPatients}
     />
   );
 };
 
-const mapStateToProps = ({ patients }: ReduxState) => ({
+const mapStateToProps = ({ patients, user }: ReduxState) => ({
+  addingFromGlobalSearch: patients.addingFromGlobalSearch,
+  userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,
+  globalSearchPatients: patients.globalSearchPatientsList,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getPatients: () => {
+  ...bindActionCreators({
+  }, dispatch),
+  getPatients: (search?: string): void => {
     dispatch(getPatientsRequested());
-    dispatch(getPatients());
+    dispatch(getPatients(search));
+  },
+  addPatientToHealthFacility: (patient: GlobalSearchPatient): void => {
+    dispatch(addPatientToHealthFacilityRequested(patient));
+    dispatch(addPatientToHealthFacility(patient));
   },
   navigateToPatientPage: (patientId: string) =>
     dispatch(push(`/patient/${patientId}`)),

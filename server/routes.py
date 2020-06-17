@@ -37,6 +37,10 @@ def init(api):
 
     api.add_resource(PatientAllInformation, "/api/patient/allinfo")  # [GET]
     api.add_resource(
+        PatientGlobalSearch, 
+        "/api/patient/global/<string:search>"
+    )  # [GET]
+    api.add_resource(
         PatientReading,
         "/api/patient/reading/<string:patient_id>",
         "/api/patient/reading",

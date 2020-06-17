@@ -1,71 +1,102 @@
-import MaterialTable from 'material-table';
+import { Callback, GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
+import MaterialTable, { MTableActions } from 'material-table';
+
+import { Action } from './action';
 import React from 'react';
-import Switch from '@material-ui/core/Switch';
-import { Patient, Reading, Callback, OrNull } from '@types';
-import {
-  initials,
-  patientId,
-  village,
-  vitalSign,
-  lastReadingDate,
-} from './utils';
+import debounce from 'lodash/debounce';
+import { useActions } from './hooks/actions';
+import { useColumns } from './hooks/columns';
+import { useData } from './hooks/data';
+import { useStyles } from './styles';
 
 interface IProps {
   data: OrNull<Array<Patient>>;
+  globalSearchData: OrNull<Array<GlobalSearchPatient>>;
   isLoading: boolean;
-  callbackFromParent: Callback<Patient>;
+  onPatientSelected: Callback<Patient>;
+  onGlobalSearchPatientSelected: Callback<GlobalSearchPatient>;
+  getPatients: Callback<OrUndefined<string>>;
+  showGlobalSearch?: boolean; 
 }
 
 export const PatientTable: React.FC<IProps> = ({
-  callbackFromParent,
+  onPatientSelected,
+  onGlobalSearchPatientSelected,
   data,
+  globalSearchData,
   isLoading,
+  getPatients,
+  showGlobalSearch,
 }) => {
-  const [
-    showReferredPatientsOnly,
-    setShowReferredPatientsOnly,
-  ] = React.useState<boolean>(false);
-  const patients = React.useMemo(
-    (): Array<Patient> =>
-      data
-        ? data.filter(({ readings }: Patient): boolean =>
-            showReferredPatientsOnly
-              ? readings.some((reading: Reading): boolean =>
-                  Boolean(reading.dateReferred)
-                )
-              : true
-          )
-        : [],
-    [data, showReferredPatientsOnly]
+  const classes = useStyles();
+
+  const {
+    debounceInterval,
+    globalSearch,
+    setGlobalSearch,
+    patients,
+    showReferredPatients,
+    setShowReferredPatients,
+  } = useData({ data, globalSearchData });
+  
+  const actions = useActions({ showGlobalSearch });
+
+  const columns = useColumns({ globalSearch });
+
+  // Debounce get patients to prevent multiple server requests
+  // Only send request after user has stopped typing for debounceInterval milliseconds
+  const debouncedGetPatients = React.useCallback(
+    debounce(getPatients, debounceInterval),
+    [debounceInterval, getPatients]
   );
 
   return (
     <MaterialTable
+      components={{
+        Actions: props => (
+          <div className={classes.actionsContainer}>
+            <MTableActions {...props}/>
+          </div>
+        ),
+        Action: props => (
+          <Action 
+            action={props.action.icon}
+            globalSearch={globalSearch}
+            showReferredPatients={showReferredPatients} 
+            toggleGlobalSearch={setGlobalSearch} 
+            toggleShowReferredPatients={setShowReferredPatients} 
+          />
+        )
+      }}
       title="Patients"
-      isLoading={isLoading}
-      columns={[initials, patientId, village, vitalSign, lastReadingDate]}
+      isLoading={ isLoading }
+      columns={columns}
       data={patients}
-      options={{
+      onSearchChange={globalSearch 
+        ? (searchText?: string): void => {
+          if (searchText) {
+            debouncedGetPatients(searchText);
+          }
+        }
+        : undefined
+      }
+      options={ {
+        actionsCellStyle: { padding: `0 1rem` },
+        actionsColumnIndex: -1,
+        debounceInterval,
         pageSize: 10,
         rowStyle: (): React.CSSProperties => ({
           height: 75,
         }),
-        sorting: true,
-      }}
-      onRowClick={(_, rowData: Patient) => callbackFromParent(rowData)}
-      actions={[
-        {
-          icon: (): React.ReactElement => (
-            <Switch color="primary" checked={showReferredPatientsOnly} />
-          ),
-          tooltip: `Show referred patients only`,
-          isFreeAction: true,
-          onClick: (): void =>
-            setShowReferredPatientsOnly(
-              (showing: boolean): boolean => !showing
-            ),
-        },
-      ]}
+        searchFieldVariant: `outlined`,
+        searchFieldStyle: { marginBlockStart: `1rem` },
+        sorting: true
+      } }
+      onRowClick={ globalSearch 
+        ? (_, rowData: GlobalSearchPatient) => onGlobalSearchPatientSelected(rowData)  
+        : (_, rowData: Patient) => onPatientSelected(rowData) 
+      }
+      actions={actions}
     />
   );
 };
