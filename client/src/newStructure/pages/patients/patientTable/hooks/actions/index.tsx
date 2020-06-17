@@ -8,6 +8,13 @@ import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
 import { useStyles } from './styles';
 
+export enum ActionEnum {
+  GLOBAL_SEARCH,
+  TOGGLE_REFERRED,
+}
+
+export type Actions = { [key in ActionEnum]: Action<Patient> };
+
 enum SearchFilterEnum {
   LOCAL_SEARCH = 'Local search',
   GLOBAL_SEARCH = 'Global search',
@@ -17,30 +24,16 @@ interface IArgs {
   showReferredPatients: boolean;
   toggleGlobalSearch: React.Dispatch<React.SetStateAction<boolean>>;
   toggleShowReferredPatients: Callback<Callback<boolean, boolean>>;
-  usingGlobalSearch: boolean;
   showGlobalSearchAction?: boolean;
 };
-
-interface IUseActions {
-  actions: Array<Action<Patient>>;
-  setSearching: React.Dispatch<React.SetStateAction<boolean>>;
-}
 
 export const useActions = ({ 
   showReferredPatients, 
   toggleGlobalSearch,
   toggleShowReferredPatients,
-  usingGlobalSearch,
   showGlobalSearchAction, 
-}: IArgs): IUseActions => {
+}: IArgs): Actions => {
   const classes = useStyles();
-  const [, setSearching] = React.useState<boolean>(false);
-
-  React.useEffect((): void => {
-    if (!usingGlobalSearch) {
-      setSearching(false);
-    }
-  }, [usingGlobalSearch]);
 
   const toggleReferredPatientsAction = React.useMemo<Action<Patient>>(() => ({
     icon: (): React.ReactElement => (
@@ -77,19 +70,7 @@ export const useActions = ({
   } as Action<Patient>;
 
   return {
-    actions: React.useMemo((): any => {
-      const actions: Array<Action<Patient>> = [toggleReferredPatientsAction];
-
-      if (showGlobalSearchAction) {
-        actions.push(globalSearchAction);
-      }
-
-      return actions;
-      }, [
-          showGlobalSearchAction, 
-          toggleReferredPatientsAction, 
-        ]
-    ), 
-    setSearching,
+    [ActionEnum.TOGGLE_REFERRED]: toggleReferredPatientsAction,
+    [ActionEnum.GLOBAL_SEARCH]: globalSearchAction,
   };
 };

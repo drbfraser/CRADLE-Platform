@@ -1,10 +1,10 @@
+import { ActionEnum, useActions } from './hooks/actions';
 import { Callback, GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
-import MaterialTable, { Column } from 'material-table';
-import { initials, lastReadingDate, patientId, state, village, vitalSign } from './utils';
 
+import MaterialTable from 'material-table';
 import React from 'react';
 import debounce from 'lodash/debounce';
-import { useActions } from './hooks/actions';
+import { useColumns } from './hooks/columns';
 import { useData } from './hooks/data';
 
 interface IProps {
@@ -35,35 +35,14 @@ export const PatientTable: React.FC<IProps> = ({
     setShowReferredPatients,
   } = useData({ data, globalSearchData });
   
-  const { actions, setSearching } = useActions({
+  const actions = useActions({
     showReferredPatients,
     toggleGlobalSearch: setGlobalSearch,
     toggleShowReferredPatients: setShowReferredPatients,
-    usingGlobalSearch: globalSearch,
     showGlobalSearchAction: showGlobalSearch,
   });
 
-  const columns = React.useMemo<Array<Column<Patient | GlobalSearchPatient>>>(() => {
-    const allColumns = [
-      initials,
-      patientId,
-      village,
-      vitalSign,
-      lastReadingDate,
-    ];
-
-    if (globalSearch) {
-      allColumns.push(state);
-    }
-
-    return allColumns;
-  }, [globalSearch]);
-
-  React.useEffect((): void => {
-    if (globalSearch && isLoading) {
-      setSearching(true);
-    }
-  }, [globalSearch, isLoading, setSearching]);
+  const columns = useColumns({ globalSearch });
 
   // Debounce get patients to prevent multiple server requests
   // Only send request after user has stopped typing for debounceInterval milliseconds
@@ -74,6 +53,20 @@ export const PatientTable: React.FC<IProps> = ({
 
   return (
     <MaterialTable
+      components={{
+        Actions: props => {
+          return globalSearch ? (
+            <>
+              {actions[ActionEnum.GLOBAL_SEARCH]?.icon ?? null}
+              {actions[ActionEnum.TOGGLE_REFERRED]?.icon ?? null}
+            </>
+          ) : (
+            <>
+              {actions[ActionEnum.TOGGLE_REFERRED]?.icon ?? null}
+            </>
+          );
+        }
+      }}
       title="Patients"
       isLoading={ isLoading }
       columns={columns}
@@ -100,7 +93,7 @@ export const PatientTable: React.FC<IProps> = ({
         ? (_, rowData: GlobalSearchPatient) => onGlobalSearchPatientSelected(rowData)  
         : (_, rowData: Patient) => onPatientSelected(rowData) 
       }
-      actions={actions}
+      actions={Object.values(actions)}
     />
   );
 };

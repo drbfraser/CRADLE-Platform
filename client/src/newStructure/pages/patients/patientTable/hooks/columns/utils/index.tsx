@@ -1,12 +1,12 @@
 import { GlobalSearchPatient, Patient } from '@types';
-import { PatientStateEnum, TrafficLightEnum } from '../../../../enums';
+import { PatientStateEnum, TrafficLightEnum } from '../../../../../../enums';
 import {
   getLatestReading,
   getLatestReadingDateTime,
   getPrettyDate,
   getTrafficIcon,
   sortPatientsByLastReading,
-} from '../../../../shared/utils';
+} from '../../../../../../shared/utils';
 
 import { Column } from 'material-table';
 import React from 'react';
