@@ -13,8 +13,6 @@ export enum ActionEnum {
   TOGGLE_REFERRED,
 }
 
-export type Actions = { [key in ActionEnum]: Action<Patient> };
-
 enum SearchFilterEnum {
   LOCAL_SEARCH = 'Local search',
   GLOBAL_SEARCH = 'Global search',
@@ -32,9 +30,8 @@ export const useActions = ({
   toggleGlobalSearch,
   toggleShowReferredPatients,
   showGlobalSearchAction, 
-}: IArgs): Actions => {
+}: IArgs): Array<Action<Patient>> => {
   const classes = useStyles();
-
   const toggleReferredPatientsAction = React.useMemo<Action<Patient>>(() => ({
     icon: (): React.ReactElement => (
       <Switch
@@ -69,8 +66,15 @@ export const useActions = ({
     isFreeAction: true,
   } as Action<Patient>;
 
-  return {
-    [ActionEnum.TOGGLE_REFERRED]: toggleReferredPatientsAction,
-    [ActionEnum.GLOBAL_SEARCH]: globalSearchAction,
-  };
+  return React.useMemo<Array<Action<Patient>>>((): Array<Action<Patient>> => {
+    const actionsMap = new Map<ActionEnum, Action<Patient>>();
+    
+    if (showGlobalSearchAction) {
+      actionsMap.set(ActionEnum.GLOBAL_SEARCH, globalSearchAction);
+    }
+
+    actionsMap.set(ActionEnum.TOGGLE_REFERRED, toggleReferredPatientsAction);
+    
+    return Array.from(actionsMap.values());
+  }, [showGlobalSearchAction]);
 };

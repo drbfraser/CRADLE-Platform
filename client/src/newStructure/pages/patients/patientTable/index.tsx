@@ -1,9 +1,9 @@
-import { ActionEnum, useActions } from './hooks/actions';
 import { Callback, GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
 
 import MaterialTable from 'material-table';
 import React from 'react';
 import debounce from 'lodash/debounce';
+import { useActions } from './hooks/actions';
 import { useColumns } from './hooks/columns';
 import { useData } from './hooks/data';
 
@@ -53,20 +53,6 @@ export const PatientTable: React.FC<IProps> = ({
 
   return (
     <MaterialTable
-      components={{
-        Actions: props => {
-          return globalSearch ? (
-            <>
-              {actions[ActionEnum.GLOBAL_SEARCH]?.icon ?? null}
-              {actions[ActionEnum.TOGGLE_REFERRED]?.icon ?? null}
-            </>
-          ) : (
-            <>
-              {actions[ActionEnum.TOGGLE_REFERRED]?.icon ?? null}
-            </>
-          );
-        }
-      }}
       title="Patients"
       isLoading={ isLoading }
       columns={columns}
@@ -87,13 +73,15 @@ export const PatientTable: React.FC<IProps> = ({
         rowStyle: (): React.CSSProperties => ({
           height: 75,
         }),
+        searchFieldVariant: `outlined`,
+        searchFieldStyle: { marginBlockStart: `0.25rem` },
         sorting: true
       } }
       onRowClick={ globalSearch 
         ? (_, rowData: GlobalSearchPatient) => onGlobalSearchPatientSelected(rowData)  
         : (_, rowData: Patient) => onPatientSelected(rowData) 
       }
-      actions={Object.values(actions)}
+      actions={actions}
     />
   );
 };
