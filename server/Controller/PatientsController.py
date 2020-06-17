@@ -255,12 +255,13 @@ class PatientAllInformation(Resource):
             return patients_readings_referrals
 
 # URI: api/patient/allinfo/<string:search>
-# [GET]: Get a list of ALL patients and their information (info, readings, referrals) 
+# [GET]: Get a list of ALL patients and their basic information 
+#        (information necessary for the patient page) 
 #        if they match search criteria 
 #        For now search criteria could be: 
 #           a portion/full match of the patient's id 
 #           a portion/full match of the patient's initials
-class PatientAllInformationGlobalSearch(Resource):
+class PatientGlobalSearch(Resource):
 
     # get all patient information (patientinfo, readings, and referrals)
     @jwt_required

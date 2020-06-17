@@ -1,11 +1,13 @@
 import { Callback, GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
+import MaterialTable, { MTableActions } from 'material-table';
 
-import MaterialTable from 'material-table';
+import { Action } from './action';
 import React from 'react';
 import debounce from 'lodash/debounce';
 import { useActions } from './hooks/actions';
 import { useColumns } from './hooks/columns';
 import { useData } from './hooks/data';
+import { useStyles } from './styles';
 
 interface IProps {
   data: OrNull<Array<Patient>>;
@@ -26,6 +28,8 @@ export const PatientTable: React.FC<IProps> = ({
   getPatients,
   showGlobalSearch,
 }) => {
+  const classes = useStyles();
+
   const {
     debounceInterval,
     globalSearch,
@@ -35,12 +39,7 @@ export const PatientTable: React.FC<IProps> = ({
     setShowReferredPatients,
   } = useData({ data, globalSearchData });
   
-  const actions = useActions({
-    showReferredPatients,
-    toggleGlobalSearch: setGlobalSearch,
-    toggleShowReferredPatients: setShowReferredPatients,
-    showGlobalSearchAction: showGlobalSearch,
-  });
+  const actions = useActions({ showGlobalSearch });
 
   const columns = useColumns({ globalSearch });
 
@@ -53,6 +52,22 @@ export const PatientTable: React.FC<IProps> = ({
 
   return (
     <MaterialTable
+      components={{
+        Actions: props => (
+          <div className={classes.actionsContainer}>
+            <MTableActions {...props}/>
+          </div>
+        ),
+        Action: props => (
+          <Action 
+            action={props.action.icon}
+            globalSearch={globalSearch}
+            showReferredPatients={showReferredPatients} 
+            toggleGlobalSearch={setGlobalSearch} 
+            toggleShowReferredPatients={setShowReferredPatients} 
+          />
+        )
+      }}
       title="Patients"
       isLoading={ isLoading }
       columns={columns}
