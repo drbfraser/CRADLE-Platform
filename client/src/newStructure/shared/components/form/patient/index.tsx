@@ -1,5 +1,5 @@
-import React from 'react'
-import Paper from '@material-ui/core/Paper'
+import React from 'react';
+import Paper from '@material-ui/core/Paper';
 import classes from '../styles.module.css';
 
 import {
@@ -8,29 +8,29 @@ import {
   Divider,
   Select,
   Input,
-  TextArea
-} from 'semantic-ui-react'
+  TextArea,
+} from 'semantic-ui-react';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
   { key: 'f', text: 'Female', value: 'FEMALE' },
-  { key: 'o', text: 'Other', value: 'I' }
-]
+  { key: 'o', text: 'Other', value: 'I' },
+];
 
 const pregOptions = [
   { key: 'y', text: 'Yes', value: true },
-  { key: 'n', text: 'No', value: false }
-]
+  { key: 'n', text: 'No', value: false },
+];
 
 export const GESTATIONAL_AGE_UNITS = {
   WEEKS: 'GESTATIONAL_AGE_UNITS_WEEKS',
-  MONTHS: 'GESTATIONAL_AGE_UNITS_MONTHS'
-}
+  MONTHS: 'GESTATIONAL_AGE_UNITS_MONTHS',
+};
 
 const gestationalAgeUnitOptions = [
   { key: 'week', text: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
-  { key: 'month', text: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS }
-]
+  { key: 'month', text: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS },
+];
 
 export const PatientInfoForm: React.FC<any> = (props) => {
   return (
@@ -194,5 +194,5 @@ export const PatientInfoForm: React.FC<any> = (props) => {
         onChange={props.onChange}
       />
     </Paper>
-  )
+  );
 };

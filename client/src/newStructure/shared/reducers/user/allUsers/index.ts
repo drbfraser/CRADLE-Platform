@@ -65,11 +65,19 @@ export const updateUser = (
     method: Methods.PUT,
     onSuccess: (): AllUsersAction => ({
       type: AllUsersActionEnum.UPDATE_USER_SUCCESS,
-      payload: { updatedUser: { ...updatedUser, roleIds: updatedUser.newRoleIds, vhtIds: updatedUser.newVhtIds, userId } }    }),
+      payload: {
+        updatedUser: {
+          ...updatedUser,
+          roleIds: updatedUser.newRoleIds,
+          vhtIds: updatedUser.newVhtIds,
+          userId,
+        },
+      },
+    }),
     onError: (message: string): AllUsersAction => ({
       type: AllUsersActionEnum.UPDATE_USER_ERROR,
       payload: { message },
-    })
+    }),
   });
 };
 
@@ -149,7 +157,7 @@ export const allUsersReducer = (
         data:
           state.data?.map(
             (user: User): User =>
-              user.userId === action.payload.updatedUser.userId 
+              user.userId === action.payload.updatedUser.userId
                 ? action.payload.updatedUser
                 : user
           ) ?? null,

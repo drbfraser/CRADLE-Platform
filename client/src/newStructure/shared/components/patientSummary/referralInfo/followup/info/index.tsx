@@ -1,5 +1,5 @@
-import React from 'react'
-import { Divider, Segment, Header } from 'semantic-ui-react'
+import React from 'react';
+import { Divider, Segment, Header } from 'semantic-ui-react';
 import { getPrettyDateTime } from '../../../../../utils';
 
 const followupFrequencyUnit = [
@@ -9,16 +9,15 @@ const followupFrequencyUnit = [
   { key: 'day', text: 'Days', value: 'DAYS' },
   { key: 'week', text: 'Weeks', value: 'WEEKS' },
   { key: 'month', text: 'Months', value: 'MONTHS' },
-  { key: 'year', text: 'Years', value: 'YEARS' }
+  { key: 'year', text: 'Years', value: 'YEARS' },
 ];
 
 export const FollowUpInfo: React.FC<any> = (props) => {
   if (props.followUp) {
-    let frequencyStr = ''
+    let frequencyStr = '';
     if (
       props.followUp.followupFrequencyValue != null &&
-      props.followUp.followupFrequencyUnit !=
-        followupFrequencyUnit[0] &&
+      props.followUp.followupFrequencyUnit != followupFrequencyUnit[0] &&
       props.followUp.dateFollowupNeededTill != null
     ) {
       frequencyStr =
@@ -27,7 +26,7 @@ export const FollowUpInfo: React.FC<any> = (props) => {
         ' ' +
         props.followUp.followupFrequencyUnit.toLowerCase() +
         ' until ' +
-        props.followUp.dateFollowupNeededTill
+        props.followUp.dateFollowupNeededTill;
     }
     return (
       <Segment>
@@ -58,8 +57,8 @@ export const FollowUpInfo: React.FC<any> = (props) => {
           {getPrettyDateTime(props.followUp.dateAssessed)}
         </p>
       </Segment>
-    )
+    );
   } else {
-    return null
+    return null;
   }
 };

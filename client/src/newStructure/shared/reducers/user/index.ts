@@ -7,8 +7,8 @@ import { registerStatusReducer, RegisterStatusState } from './registerStatus';
 export type UserState = {
   allUsers: AllUsersState;
   allVhts: AllVhtsState;
-  current: CurrentUserState,
-  registerStatus: RegisterStatusState,
+  current: CurrentUserState;
+  registerStatus: RegisterStatusState;
 };
 
 export const userReducer = combineReducers({

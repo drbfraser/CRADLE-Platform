@@ -9,7 +9,7 @@ interface IProps {
 }
 
 export const CustomForm: React.FC<IProps> = ({ onRoomIdChange, onSubmit }) => {
-  const handleRoomIdChange = (e: React.ChangeEvent<HTMLInputElement>): void => 
+  const handleRoomIdChange = (e: React.ChangeEvent<HTMLInputElement>): void =>
     onRoomIdChange(e.target.value);
 
   const handleSubmit = (): void => onSubmit();

@@ -28,7 +28,7 @@ const Page: React.FC<IProps> = ({ createRoom, joinRoom }) => {
     isOpener: false,
     name: null,
     createFormOpen: false,
-    enterFormOpen: false
+    enterFormOpen: false,
   });
 
   const joinExistingRoom = (): void => joinRoom(state.roomId);
@@ -53,7 +53,7 @@ const Page: React.FC<IProps> = ({ createRoom, joinRoom }) => {
         enterFormOpen: !currentState.enterFormOpen,
         createFormOpen: false,
         roomId: null,
-        isOpener: false
+        isOpener: false,
       })
     );
 
@@ -74,8 +74,7 @@ const Page: React.FC<IProps> = ({ createRoom, joinRoom }) => {
               ? classes.enterRoom
               : classes.enterRoomHidden
           }
-          onClick={toggleEnterForm}
-        >
+          onClick={toggleEnterForm}>
           Join Existing Room
         </Button>
         {state.enterFormOpen && (
@@ -91,19 +90,16 @@ const Page: React.FC<IProps> = ({ createRoom, joinRoom }) => {
 
 const mapStateToProps = ({ chat }: any) => ({
   isOpener: chat.isOpener,
-  roomId: chat.roomId
+  roomId: chat.roomId,
 });
 
 const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
       createRoom,
-      joinRoom
+      joinRoom,
     },
     dispatch
   );
 
-export const VideoChatPage = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Page);
+export const VideoChatPage = connect(mapStateToProps, mapDispatchToProps)(Page);

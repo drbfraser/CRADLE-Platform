@@ -3,7 +3,7 @@ import {
   pregnantWomenAssessedPerMonth,
   pregnantWomenReferredPerMonth,
   womenAssessedPerMonth,
-  womenReferredPerMonth
+  womenReferredPerMonth,
 } from './utils';
 
 import { Line } from 'react-chartjs-2';
@@ -18,7 +18,7 @@ interface IProps {
 
 export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
   currentMonth,
-  statisticsList
+  statisticsList,
 }) => {
   const womenReferralsVsAssessed = {
     labels: xLabels,
@@ -30,8 +30,8 @@ export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
       womenAssessedPerMonth(statisticsList.womenAssessedPerMonth),
       pregnantWomenAssessedPerMonth(
         statisticsList.pregnantWomenAssessedPerMonth
-      )
-    ]
+      ),
+    ],
   };
 
   return (

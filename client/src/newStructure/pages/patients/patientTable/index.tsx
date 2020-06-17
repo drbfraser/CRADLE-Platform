@@ -85,7 +85,7 @@ export const PatientTable: React.FC<IProps> = ({
         debounceInterval,
         pageSize: 10,
         rowStyle: (): React.CSSProperties => ({
-          height: 75
+          height: 75,
         }),
         sorting: true
       } }

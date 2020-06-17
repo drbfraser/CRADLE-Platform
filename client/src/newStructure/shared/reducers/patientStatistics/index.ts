@@ -9,30 +9,41 @@ enum PatientStatisticsActionEnum {
   GET_PATIENT_STATISTICS_SUCCESS = 'patientStatistics/GET_PATIENT_STATISTICS_SUCCESS',
 }
 
-type PatientStatisticsAction = 
+type PatientStatisticsAction =
   | { type: PatientStatisticsActionEnum.CLEAR_REQUEST_OUTCOME }
   | { type: PatientStatisticsActionEnum.START_REQUEST }
-  | { type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR, payload: { message: string } }
-  | { type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS, payload: { data: any } };
+  | {
+      type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR;
+      payload: { message: string };
+    }
+  | {
+      type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS;
+      payload: { data: any };
+    };
 
 export const startRequest = (): PatientStatisticsAction => ({
   type: PatientStatisticsActionEnum.START_REQUEST,
-})
+});
 
-export type PatientStatisticsRequest = Callback<Callback<PatientStatisticsAction>, ServerRequestAction>;
+export type PatientStatisticsRequest = Callback<
+  Callback<PatientStatisticsAction>,
+  ServerRequestAction
+>;
 
-export const getPatientStatistics = (patientId: string): ServerRequestAction => {
+export const getPatientStatistics = (
+  patientId: string
+): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}${Endpoints.STATS}/${patientId}`,
     onSuccess: ({ data }: any): PatientStatisticsAction => ({
       type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS,
-      payload: { data }
+      payload: { data },
     }),
     onError: (message: string): PatientStatisticsAction => ({
       type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR,
       payload: { message },
     }),
-  })
+  });
 };
 
 export const clearPatientStatisticsRequestOutcome = (): PatientStatisticsAction => ({
@@ -41,10 +52,10 @@ export const clearPatientStatisticsRequestOutcome = (): PatientStatisticsAction 
 
 export type PatientStatisticsState = {
   data: OrNull<any>;
-  error: boolean,
-  loading: boolean,
-  message: OrNull<string>,
-}
+  error: boolean;
+  loading: boolean;
+  message: OrNull<string>;
+};
 
 const initialState: PatientStatisticsState = {
   data: null,
@@ -54,7 +65,7 @@ const initialState: PatientStatisticsState = {
 };
 
 export const patientStatisticsReducer = (
-  state = initialState, 
+  state = initialState,
   action: PatientStatisticsAction
 ): PatientStatisticsState => {
   switch (action.type) {

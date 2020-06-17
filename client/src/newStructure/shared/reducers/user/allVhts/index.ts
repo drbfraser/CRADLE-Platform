@@ -24,7 +24,7 @@ type AllVhtsAction =
 export const getVhts = (): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.VHTS}`,
-    onSuccess: ({data:vhts}: {data:Array<VHT>}): AllVhtsAction => {
+    onSuccess: ({ data: vhts }: { data: Array<VHT> }): AllVhtsAction => {
       return {
         type: AllVhtsActionEnum.GET_VHTS_SUCCESS,
         payload: { vhts },

@@ -15,19 +15,19 @@ export type OrNull<T> = T | null;
 export type OrUndefined<T> = T | undefined;
 
 export type ServerError = {
-  message: string,
-  name: string,
-  stack: string,
+  message: string;
+  name: string;
+  stack: string;
   config: {
-    url: string,
-    method: AxiosMethod,
-    data: string,
+    url: string;
+    method: AxiosMethod;
+    data: string;
     headers: {
-      Accept: `application/json`,
-      'Content-Type': `application/json`,
-      Authorization?: string,
-    },
-  }
+      Accept: `application/json`;
+      'Content-Type': `application/json`;
+      Authorization?: string;
+    };
+  };
 };
 
 export type Reading = {

@@ -36,7 +36,7 @@ export const getPatient = (patientId: any) => {
     onError: (error: any) => ({
       type: GET_PATIENT_ERROR,
       payload: error,
-    })
+    }),
   });
 };
 
@@ -58,7 +58,7 @@ export const getPatients = (search?: string) => {
     }) : ({
       type: GET_PATIENTS_ERROR,
       payload: error,
-    })
+    }),
   });
 };
 
@@ -74,7 +74,7 @@ export const updatePatient = (patientId: any, data: any) => {
     onError: (error: any) => ({
       type: UPDATE_PATIENT_ERROR,
       payload: error,
-    })
+    }),
   });
 };
 

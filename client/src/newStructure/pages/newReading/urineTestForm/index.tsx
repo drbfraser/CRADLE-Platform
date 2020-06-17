@@ -2,7 +2,7 @@ import React from 'react';
 import Paper from '@material-ui/core/Paper';
 import Switch from '@material-ui/core/Switch';
 import { Form, Header, Select } from 'semantic-ui-react';
-import { PatientNewReadingReading} from '../../../types'
+import { PatientNewReadingReading } from '../../../types';
 
 import '../index.css';
 
@@ -10,7 +10,7 @@ const resultOptions = [
   { key: 'm', text: '-', value: '-' },
   { key: 'p', text: '+', value: '+' },
   { key: 'pp', text: '++', value: '++' },
-  { key: 'ppp', text: '+++', value: '+++' }
+  { key: 'ppp', text: '+++', value: '+++' },
 ];
 
 export const urineTestChemicals = {
@@ -18,7 +18,7 @@ export const urineTestChemicals = {
   NIT: 'Nitrites',
   GLU: 'Glucose',
   PRO: 'Protein',
-  BLOOD: 'Blood'
+  BLOOD: 'Blood',
 };
 
 export const initialUrineTests = {
@@ -26,13 +26,13 @@ export const initialUrineTests = {
   urineTestBlood: '',
   urineTestLeuc: '',
   urineTestPro: '',
-  urineTestGlu: ''
+  urineTestGlu: '',
 };
 interface IProps {
   hasUrineTest: any;
   onSwitchChange: any;
   onChange: any;
-  reading:PatientNewReadingReading;
+  reading: PatientNewReadingReading;
 }
 export function UrineTestForm(props: IProps) {
   return (

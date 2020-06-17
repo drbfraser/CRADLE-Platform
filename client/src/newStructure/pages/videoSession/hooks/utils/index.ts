@@ -1,11 +1,11 @@
 export interface IConfigArgs {
-  connection: any, 
-  isLocal: boolean, 
-  localConnected: boolean, 
-  onConnected: () => void,
-  onLocalConnected: () => void,
-  onRemoteConnected: () => void,
-};
+  connection: any;
+  isLocal: boolean;
+  localConnected: boolean;
+  onConnected: () => void;
+  onLocalConnected: () => void;
+  onRemoteConnected: () => void;
+}
 
 export const config = ({
   connection,
@@ -22,11 +22,11 @@ export const config = ({
   connection.session = {
     audio: true,
     video: true,
-    data: true
+    data: true,
   };
   connection.sdpConstraints.mandatory = {
     OfferToReceiveAudio: true,
-    OfferToReceiveVideo: true
+    OfferToReceiveVideo: true,
   };
 
   if (isLocal) {
@@ -39,7 +39,7 @@ export const config = ({
 
   connection.onstream = (event: any) => {
     event.mediaElement.play();
-    setTimeout(function() {
+    setTimeout(function () {
       event.mediaElement.play();
     }, 5000);
 
@@ -76,20 +76,20 @@ export const copyToClipboard = (str: any) => {
   el.style.left = '-9999px'; // Move outside the screen to make it invisible
   document.body.appendChild(el); // Append the <textarea> element to the HTML document
   const selected =
-   // @ts-ignore
-   document.getSelection().rangeCount > 0 // Check if there is any content selected previously
-   // @ts-ignore
-   ? document.getSelection().getRangeAt(0) // Store selection if found
-   : false; // Mark as false to know no selection existed before
-   el.select(); // Select the <textarea> content
-   document.execCommand('copy'); // Copy - only works as a result of a user action (e.g. click events)
-   document.body.removeChild(el); // Remove the <textarea> element
-   
-   if (selected) {
-     // If a selection existed before copying
-     // @ts-ignore
-     document.getSelection().removeAllRanges(); // Unselect everything on the HTML document
-     // @ts-ignore
+    // @ts-ignore
+    document.getSelection().rangeCount > 0 // Check if there is any content selected previously
+      ? // @ts-ignore
+        document.getSelection()?.getRangeAt(0) // Store selection if found
+      : false; // Mark as false to know no selection existed before
+  el.select(); // Select the <textarea> content
+  document.execCommand('copy'); // Copy - only works as a result of a user action (e.g. click events)
+  document.body.removeChild(el); // Remove the <textarea> element
+
+  if (selected) {
+    // If a selection existed before copying
+    // @ts-ignore
+    document.getSelection().removeAllRanges(); // Unselect everything on the HTML document
+    // @ts-ignore
     document.getSelection().addRange(selected); // Restore the original selection
   }
 };

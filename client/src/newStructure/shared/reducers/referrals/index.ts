@@ -46,7 +46,7 @@ export const getReferrals = (referralIds: any) => (dispatch: any) => {
 
   Promise.all(referralPromises)
     .then((results: any) => {
-      let referrals = {} as { [key: string]: any};
+      let referrals = {} as { [key: string]: any };
       for (let i in results) {
         let thisReferral = results[i].data;
         referrals[thisReferral.readingId] = thisReferral;
@@ -86,7 +86,7 @@ export const updateFollowUp = (followUpId: any, data: any) => {
 };
 
 export const createFollowUp = (data: any) => {
-  console.log("CREATE FOLLOW UP CALLED" ,data)
+  console.log('CREATE FOLLOW UP CALLED', data);
   return serverRequestActionCreator({
     endpoint: Endpoints.FOLLOW_UP,
     method: Methods.POST,
@@ -106,12 +106,12 @@ export const setReadingId = (readingId: any) => {
 };
 
 export type ReferralsState = {
-  isLoading: boolean,
-  mappedReferrals: { [key: string]: any },
-  referral: any,
+  isLoading: boolean;
+  mappedReferrals: { [key: string]: any };
+  referral: any;
   referralId: string;
   readingId: string;
-}
+};
 
 const initialState: ReferralsState = {
   isLoading: false,
@@ -122,7 +122,7 @@ const initialState: ReferralsState = {
 };
 
 export const referralsReducer = (
-  state = initialState, 
+  state = initialState,
   action: any
 ): ReferralsState => {
   switch (action.type) {

@@ -5,7 +5,7 @@ import { Tab } from 'semantic-ui-react';
 import { CommunityWorkerResources } from './CommunityWorkerResource';
 import { HealthWorkerResources } from './HealthWorkerResources';
 import { bindActionCreators } from 'redux';
-import {ReduxState} from 'src/newStructure/redux/rootReducer';
+import { ReduxState } from 'src/newStructure/redux/rootReducer';
 
 const panes = [
   {
@@ -33,7 +33,7 @@ export const HEALTH_FACILITY_WORKER_EDUCATION_VIDEO_LINK =
 
 // const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />;
 interface IProps {
-  loggedIn:boolean;
+  loggedIn: boolean;
   getCurrentUser: any;
 }
 class HelpPageComponent extends Component<IProps> {

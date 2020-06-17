@@ -5,7 +5,7 @@ import { getLatestReferral, sortReferralsByDate } from './utils';
 import {
   getTrafficIcon,
   getLatestReading,
-  getPrettyDate
+  getPrettyDate,
 } from '../../../shared/utils';
 interface IProps {
   callbackFromParent: any;
@@ -30,26 +30,26 @@ export class ReferralTable extends Component<IProps, IState> {
             style={{
               fontSize: '200%',
               fontWeight: 'bold',
-              textAlign: 'center'
+              textAlign: 'center',
             }}>
             {rowData.patientName}
           </p>
         ),
         headerStyle: {
-          textAlign: 'center'
+          textAlign: 'center',
         },
-        sorting: false
+        sorting: false,
       },
       { title: 'Patient ID', field: 'patientId' },
       { title: 'Village', field: 'villageNumber' },
       {
         title: 'Vital Sign',
         cellStyle: {
-          padding: '0px'
+          padding: '0px',
         },
         sorting: false,
         render: (rowData: any) =>
-          getTrafficIcon(getLatestReading(rowData.readings).trafficLightStatus)
+          getTrafficIcon(getLatestReading(rowData.readings).trafficLightStatus),
       },
       {
         title: 'Date Referred',
@@ -57,7 +57,7 @@ export class ReferralTable extends Component<IProps, IState> {
           <p>{getPrettyDate(getLatestReferral(rowData.readings))}</p>
         ),
         customSort: (a: any, b: any) => sortReferralsByDate(a, b),
-        defaultSort: 'asc'
+        defaultSort: 'asc',
       },
       {
         title: 'Assessment',
@@ -70,8 +70,8 @@ export class ReferralTable extends Component<IProps, IState> {
             <p>
               <Icon name="checkmark" size="large" color="green" /> Complete
             </p>
-          )
-      }
+          ),
+      },
     ],
     data: [],
     selectedPatient: {
@@ -81,8 +81,8 @@ export class ReferralTable extends Component<IProps, IState> {
       medicalHistory: '',
       drugHistory: '',
       villageNumber: '',
-      readings: []
-    }
+      readings: [],
+    },
   };
 
   render() {
@@ -96,9 +96,9 @@ export class ReferralTable extends Component<IProps, IState> {
           pageSize: 10,
           rowStyle: (rowDat: any) => {
             return {
-              height: '75px'
+              height: '75px',
             };
-          }
+          },
         }}
         onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
       />

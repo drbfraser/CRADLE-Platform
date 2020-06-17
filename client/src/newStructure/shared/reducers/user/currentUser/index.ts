@@ -75,7 +75,7 @@ export const login = (data: LoginData): ServerRequestAction => {
       return {
         type: CurrentUserActionEnum.LOGIN_USER_ERROR,
         payload: { message: error.message },
-      }
+      };
     },
   });
 };
@@ -83,7 +83,7 @@ export const login = (data: LoginData): ServerRequestAction => {
 export const getCurrentUser = (): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.USER}${Endpoints.CURRENT}`,
-    onSuccess: ({data: currentUser}: {data: User}): CurrentUserAction => ({
+    onSuccess: ({ data: currentUser }: { data: User }): CurrentUserAction => ({
       type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
       payload: { currentUser },
     }),

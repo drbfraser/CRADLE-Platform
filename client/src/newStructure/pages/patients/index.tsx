@@ -32,7 +32,7 @@ const Page: React.FC<IProps> = (props) => {
     }
   }, [props.fetchingPatients, props.getPatients, props.patients]);
 
-  const onPatientSelected = ({ patientId }: Patient): void => 
+  const onPatientSelected = ({ patientId }: Patient): void =>
     props.navigateToPatientPage(patientId);
 
   const onGlobalSearchPatientSelected = (patient: GlobalSearchPatient): void => {
@@ -75,12 +75,8 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(addPatientToHealthFacilityRequested(patient));
     dispatch(addPatientToHealthFacility(patient));
   },
-  navigateToPatientPage: (patientId: string) => dispatch(
-    push(`/patient/${patientId}`)
-  )
+  navigateToPatientPage: (patientId: string) =>
+    dispatch(push(`/patient/${patientId}`)),
 });
 
-export const PatientsPage = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Page);
+export const PatientsPage = connect(mapStateToProps, mapDispatchToProps)(Page);

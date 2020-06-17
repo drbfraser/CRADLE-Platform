@@ -21,7 +21,7 @@ enum PatientsActionEnum {
 
 type PatientsActionPayload = { message: string };
 
-type PatientsAction = 
+type PatientsAction =
   | { type: PatientsActionEnum.CLEAR_REQUEST_OUTCOME }
   | { type: PatientsActionEnum.GET_PATIENTS_ERROR, payload: PatientsActionPayload }
   | { type: PatientsActionEnum.GET_PATIENTS_SUCCESS, payload: { patients: Array<Patient> } }
@@ -34,7 +34,9 @@ type PatientsAction =
   | { type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS, payload: { addedPatient: Patient } }
   | { type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR, payload: PatientsActionPayload };
 
-const startRequest = (): PatientsAction => ({ type: PatientsActionEnum.START_REQUEST }); 
+const startRequest = (): PatientsAction => ({
+  type: PatientsActionEnum.START_REQUEST,
+});
 
 type PatientsRequest = Callback<Callback<PatientsAction>, ServerRequestAction>;
 
@@ -59,13 +61,13 @@ export const getPatients = (search?: string): PatientsRequest => {
       }) : ({
         type: PatientsActionEnum.GET_PATIENTS_ERROR,
         payload: { message },
-      })
-    })
+      }),
+    });
   };
 };
 
 export const updatePatient = (
-  patientId: string, 
+  patientId: string,
   updatedPatient: Patient
 ): PatientsRequest => {
   return (dispatch: Callback<PatientsAction>): ServerRequestAction => {
@@ -82,8 +84,8 @@ export const updatePatient = (
       onError: (message: string): PatientsAction => ({
         type: PatientsActionEnum.UPDATE_PATIENT_ERROR,
         payload: { message },
-      })
-    })
+      }),
+    });
   };
 };
 
@@ -135,23 +137,23 @@ const initialState: PatientsV2State = {
 };
 
 export const patientsReducerV2 = (
-  state = initialState, 
+  state = initialState,
   action: PatientsAction
 ): PatientsV2State => {
   switch (action.type) {
     case PatientsActionEnum.START_REQUEST:
       return { ...state, loading: true };
     case PatientsActionEnum.GET_PATIENTS_ERROR:
-      return { 
+      return {
         ...state,
         error: true,
-        loading: false, 
-        message: action.payload.message, 
+        loading: false,
+        message: action.payload.message,
       };
     case PatientsActionEnum.GET_PATIENTS_SUCCESS:
-      return { 
+      return {
         ...initialState,
-        patients: action.payload.patients, 
+        patients: action.payload.patients,
       };
     case PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR:
       return { 
@@ -166,22 +168,23 @@ export const patientsReducerV2 = (
         globalSearchPatients: action.payload.patients, 
       };
     case PatientsActionEnum.UPDATE_PATIENT_ERROR:
-      return { 
+      return {
         ...state,
         error: true,
-        loading: false, 
-        message: action.payload.message, 
+        loading: false,
+        message: action.payload.message,
       };
     case PatientsActionEnum.UPDATE_PATIENT_SUCCESS:
-      return { 
+      return {
         ...initialState,
         message: `Patient successfully updated!`,
-        patients: state.patients?.map((
-          patient: Patient
-        ): Patient => patient.patientId === action.payload.updatedPatient.patientId 
-          ? action.payload.updatedPatient 
-          : patient
-        ) ?? [], 
+        patients:
+          state.patients?.map(
+            (patient: Patient): Patient =>
+              patient.patientId === action.payload.updatedPatient.patientId
+                ? action.payload.updatedPatient
+                : patient
+          ) ?? [],
       };
     case PatientsActionEnum.UPDATE_PATIENT_SUCCESS:
       return { ...state, loading: false };

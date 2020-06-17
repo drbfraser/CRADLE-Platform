@@ -8,7 +8,9 @@ import { bindActionCreators } from 'redux';
 import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
 
 interface IProps {
-  component: React.ComponentType<RouteComponentProps<any>> | React.ComponentType<any>;
+  component:
+    | React.ComponentType<RouteComponentProps<any>>
+    | React.ComponentType<any>;
   user: OrNull<User>;
   getCurrentUser: () => ServerRequestAction;
   exact?: boolean;
@@ -33,12 +35,10 @@ const mapStateToProps = ({ user }: ReduxState) => ({
   user: user.current.data,
 });
 
-const mapDispatchToProps = (dispatch: any) => bindActionCreators(
-  { getCurrentUser }, 
-  dispatch
-);
+const mapDispatchToProps = (dispatch: any) =>
+  bindActionCreators({ getCurrentUser }, dispatch);
 
 export const PrivateRoute = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(Component);

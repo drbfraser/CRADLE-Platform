@@ -48,7 +48,6 @@ function guid() {
   });
 }
 
-
 class Component extends React.Component {
   state = {
     displayPatientModal: false,

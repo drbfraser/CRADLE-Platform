@@ -10,7 +10,7 @@ interface IProps {
 
 export const HealthFacilityStatistics: React.FC<IProps> = ({
   currentMonth,
-  statisticsList
+  statisticsList,
 }) => (
   <>
     <h1 className={classes.headerSize}>Our Health Facility’s Statistics</h1>

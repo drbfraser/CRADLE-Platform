@@ -5,5 +5,5 @@ export const followupFrequencyUnitOptions = [
   { key: 'day', text: 'Days', value: 'DAYS' },
   { key: 'week', text: 'Weeks', value: 'WEEKS' },
   { key: 'month', text: 'Months', value: 'MONTHS' },
-  { key: 'year', text: 'Years', value: 'YEARS' }
+  { key: 'year', text: 'Years', value: 'YEARS' },
 ];
