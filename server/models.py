@@ -15,54 +15,62 @@ from sqlalchemy import UniqueConstraint
 ### ENUMS CLASSES ###
 #####################
 class RoleEnum(enum.Enum):
-    VHT = 'VHT'
-    HCW = 'HCW'
-    ADMIN = 'ADMIN'
-    CHO = 'CHO'
+    VHT = "VHT"
+    HCW = "HCW"
+    ADMIN = "ADMIN"
+    CHO = "CHO"
+
 
 class SexEnum(enum.Enum):
-    MALE = 'MALE'
-    FEMALE = 'FEMALE'
-    OTHER = 'OTHER'
+    MALE = "MALE"
+    FEMALE = "FEMALE"
+    OTHER = "OTHER"
+
 
 class TrafficLightEnum(enum.Enum):
-    NONE = 'NONE'
-    GREEN = 'GREEN'
-    YELLOW_UP = 'YELLOW_UP'
-    YELLOW_DOWN = 'YELLOW_DOWN'
-    RED_UP = 'RED_UP'
-    RED_DOWN = 'RED_DOWN'
+    NONE = "NONE"
+    GREEN = "GREEN"
+    YELLOW_UP = "YELLOW_UP"
+    YELLOW_DOWN = "YELLOW_DOWN"
+    RED_UP = "RED_UP"
+    RED_DOWN = "RED_DOWN"
+
 
 class frequencyUnitEnum(enum.Enum):
-    NONE = 'None'
-    MINUTES = 'MINUTES'
-    HOURS = 'HOURS'
-    DAYS = 'DAYS'
-    WEEKS = 'WEEKS'
-    MONTHS = 'MONTHS'
-    YEARS = 'YEARS'
+    NONE = "None"
+    MINUTES = "MINUTES"
+    HOURS = "HOURS"
+    DAYS = "DAYS"
+    WEEKS = "WEEKS"
+    MONTHS = "MONTHS"
+    YEARS = "YEARS"
+
 
 class facilityTypeEnum(enum.Enum):
-    HCF_2 = 'HCF_2'
-    HCF_3 = 'HCF_3'
-    HCF_4 = 'HCF_4'
-    HOSPITAL = 'HOSPITAL'
+    HCF_2 = "HCF_2"
+    HCF_3 = "HCF_3"
+    HCF_4 = "HCF_4"
+    HOSPITAL = "HOSPITAL"
+
 
 ######################
 ### HELPER CLASSES ###
 ######################
-userRole = db.Table('userrole',
-    db.Column('id', db.Integer, primary_key=True),
-    
+userRole = db.Table(
+    "userrole",
+    db.Column("id", db.Integer, primary_key=True),
     # FOREIGN KEYS
-    db.Column('userId', db.Integer, db.ForeignKey('user.id')),
-    db.Column('roleId', db.Integer, db.ForeignKey('role.id'))
+    db.Column("userId", db.Integer, db.ForeignKey("user.id")),
+    db.Column("roleId", db.Integer, db.ForeignKey("role.id")),
 )
 
-supervises = db.Table('supervises',
-    db.Column('choId', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True),
-    db.Column('vhtId', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE')),
-    db.UniqueConstraint('choId', 'vhtId', name='unique_supervise')
+supervises = db.Table(
+    "supervises",
+    db.Column(
+        "choId", db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"), index=True
+    ),
+    db.Column("vhtId", db.Integer, db.ForeignKey("user.id", ondelete="CASCADE")),
+    db.UniqueConstraint("choId", "vhtId", name="unique_supervise"),
 )
 
 #####################
@@ -76,23 +84,33 @@ class User(db.Model):
     password = db.Column(db.String(128))
 
     # FOREIGN KEYS
-    healthFacilityName = db.Column(db.String(50), db.ForeignKey('healthfacility.healthFacilityName'), nullable=True)
+    healthFacilityName = db.Column(
+        db.String(50), db.ForeignKey("healthfacility.healthFacilityName"), nullable=True
+    )
 
     # RELATIONSHIPS
-    healthFacility = db.relationship('HealthFacility', backref=db.backref('users', lazy=True))
-    roleIds = db.relationship('Role', secondary=userRole, backref=db.backref('users', lazy=True))
-    referrals = db.relationship('Referral', backref=db.backref('users', lazy=True))
-    vhtList = db.relationship('User',
-                              secondary = supervises,
-                              primaryjoin = id==supervises.c.choId,
-                              secondaryjoin = id==supervises.c.vhtId)
+    healthFacility = db.relationship(
+        "HealthFacility", backref=db.backref("users", lazy=True)
+    )
+    roleIds = db.relationship(
+        "Role", secondary=userRole, backref=db.backref("users", lazy=True)
+    )
+    referrals = db.relationship("Referral", backref=db.backref("users", lazy=True))
+    vhtList = db.relationship(
+        "User",
+        secondary=supervises,
+        primaryjoin=id == supervises.c.choId,
+        secondaryjoin=id == supervises.c.vhtId,
+    )
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return "<User {}>".format(self.username)
+
 
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Enum(RoleEnum), nullable=False)
+
 
 class Referral(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -101,31 +119,41 @@ class Referral(db.Model):
     actionTaken = db.Column(db.Text)
 
     # FOREIGN KEYS
-    userId = db.Column(db.Integer, db.ForeignKey('user.id'))
-    patientId = db.Column(db.String(50), db.ForeignKey('patient.patientId'))
+    userId = db.Column(db.Integer, db.ForeignKey("user.id"))
+    patientId = db.Column(db.String(50), db.ForeignKey("patient.patientId"))
 
-    referralHealthFacilityName = db.Column(db.String(50), db.ForeignKey('healthfacility.healthFacilityName'))
-    readingId = db.Column(db.String(50), db.ForeignKey('reading.readingId'))
-    followUpId = db.Column(db.Integer, db.ForeignKey('followup.id'))
+    referralHealthFacilityName = db.Column(
+        db.String(50), db.ForeignKey("healthfacility.healthFacilityName")
+    )
+    readingId = db.Column(db.String(50), db.ForeignKey("reading.readingId"))
+    followUpId = db.Column(db.Integer, db.ForeignKey("followup.id"))
 
     # RELATIONSHIPS
-    healthFacility = db.relationship('HealthFacility', backref=db.backref('referrals', lazy=True))
-    reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
-    followUp = db.relationship('FollowUp', backref=db.backref('referral', lazy=True, uselist=False, cascade="save-update"))
-    
+    healthFacility = db.relationship(
+        "HealthFacility", backref=db.backref("referrals", lazy=True)
+    )
+    reading = db.relationship(
+        "Reading", backref=db.backref("referral", lazy=True, uselist=False)
+    )
+    followUp = db.relationship(
+        "FollowUp",
+        backref=db.backref("referral", lazy=True, uselist=False, cascade="save-update"),
+    )
+
 
 class HealthFacility(db.Model):
-    __tablename__ = 'healthfacility'
+    __tablename__ = "healthfacility"
     # To Do: should probably have a unique id as primary key here, in addition to facility name
     healthFacilityName = db.Column(db.String(50), primary_key=True)
     facilityType = db.Column(db.Enum(facilityTypeEnum))
 
-    # Best practice would be to add column for area code + column for rest of number. 
-    # However, all of our facilites are in Uganda so area code does not change. 
+    # Best practice would be to add column for area code + column for rest of number.
+    # However, all of our facilites are in Uganda so area code does not change.
     # May want to change in the future if system if used in multiple countries
     healthFacilityPhoneNumber = db.Column(db.String(50))
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
+
 
 class Patient(db.Model):
     patientId = db.Column(db.String(50), primary_key=True)
@@ -157,7 +185,7 @@ class Reading(db.Model):
     heartRateBPM = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
-   
+
     # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
     dateLastSaved = db.Column(db.BigInteger)
     dateTimeTaken = db.Column(db.BigInteger)
@@ -177,9 +205,10 @@ class Reading(db.Model):
     # so need some sort of way to map it over manually when saving data
     urineTest = db.Column(db.String(50))
 
-
     # FOREIGN KEYS
-    userId = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
+    userId = db.Column(
+        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+    )
 
     # @hybrid_property
     def getTrafficLight(self):
@@ -190,15 +219,23 @@ class Reading(db.Model):
         SHOCK_HIGH = 1.7
         SHOCK_MEDIUM = 0.9
 
-        if self.bpSystolic == None or self.bpDiastolic == None or self.heartRateBPM == None:
+        if (
+            self.bpSystolic == None
+            or self.bpDiastolic == None
+            or self.heartRateBPM == None
+        ):
             return TrafficLightEnum.NONE.name
-        
+
         shockIndex = self.heartRateBPM / self.bpSystolic
 
-        isBpVeryHigh = (self.bpSystolic >= RED_SYSTOLIC) or (self.bpDiastolic >= RED_DIASTOLIC)
-        isBpHigh = (self.bpSystolic >= YELLOW_SYSTOLIC) or (self.bpDiastolic >= YELLOW_DIASTOLIC)
-        isSevereShock = (shockIndex >= SHOCK_HIGH)
-        isShock = (shockIndex >= SHOCK_MEDIUM)
+        isBpVeryHigh = (self.bpSystolic >= RED_SYSTOLIC) or (
+            self.bpDiastolic >= RED_DIASTOLIC
+        )
+        isBpHigh = (self.bpSystolic >= YELLOW_SYSTOLIC) or (
+            self.bpDiastolic >= YELLOW_DIASTOLIC
+        )
+        isSevereShock = shockIndex >= SHOCK_HIGH
+        isShock = shockIndex >= SHOCK_MEDIUM
 
         if isSevereShock:
             trafficLight = TrafficLightEnum.RED_DOWN.name
@@ -213,15 +250,32 @@ class Reading(db.Model):
 
         return trafficLight
 
-    def __init__(self, userId, patientId, readingId, bpSystolic,
-                 bpDiastolic,heartRateBPM,symptoms,
-                 trafficLightStatus=None,dateLastSaved=None,
-                 dateTimeTaken=None,dateUploadedToServer=None,
-                 dateRecheckVitalsNeeded=None, gpsLocationOfReading=None,
-                 retestOfPreviousReadingIds=None, isFlaggedForFollowup=None, appVersion=None,
-                 deviceInfo=None, totalOcrSeconds=None, manuallyChangeOcrResults=None,
-                 temporaryFlags=None, userHasSelectedNoSymptoms=None, urineTest=None):
-        self.userId = userId     
+    def __init__(
+        self,
+        userId,
+        patientId,
+        readingId,
+        bpSystolic,
+        bpDiastolic,
+        heartRateBPM,
+        symptoms,
+        trafficLightStatus=None,
+        dateLastSaved=None,
+        dateTimeTaken=None,
+        dateUploadedToServer=None,
+        dateRecheckVitalsNeeded=None,
+        gpsLocationOfReading=None,
+        retestOfPreviousReadingIds=None,
+        isFlaggedForFollowup=None,
+        appVersion=None,
+        deviceInfo=None,
+        totalOcrSeconds=None,
+        manuallyChangeOcrResults=None,
+        temporaryFlags=None,
+        userHasSelectedNoSymptoms=None,
+        urineTest=None,
+    ):
+        self.userId = userId
         self.patientId = patientId
         self.readingId = readingId
         self.bpSystolic = bpSystolic
@@ -244,18 +298,18 @@ class Reading(db.Model):
         self.userHasSelectedNoSymptoms = userHasSelectedNoSymptoms
         self.urineTest = urineTest
 
-
-
     # FOREIGN KEYS
-    patientId = db.Column(db.String(50), db.ForeignKey('patient.patientId'), nullable=False)
+    patientId = db.Column(
+        db.String(50), db.ForeignKey("patient.patientId"), nullable=False
+    )
 
     # RELATIONSHIPS
-    patient = db.relationship('Patient', backref=db.backref('readings', lazy=True))
-    urineTests = db.relationship('urineTest', backref=db.backref('reading', lazy=True))
+    patient = db.relationship("Patient", backref=db.backref("readings", lazy=True))
+    urineTests = db.relationship("urineTest", backref=db.backref("reading", lazy=True))
 
 
 class FollowUp(db.Model):
-    __tablename__ = 'followup'
+    __tablename__ = "followup"
     id = db.Column(db.Integer, primary_key=True)
     followupInstructions = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
@@ -263,19 +317,20 @@ class FollowUp(db.Model):
     dateAssessed = db.Column(db.BigInteger, nullable=False)
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
     specialInvestigations = db.Column(db.Text)
-    medicationPrescribed = db.Column(db.Text) # those medication names can get pretty long ...
+    medicationPrescribed = db.Column(
+        db.Text
+    )  # those medication names can get pretty long ...
     followupNeeded = db.Column(db.Boolean)
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
-    healthcareWorker = db.relationship(User, backref=db.backref('followups', lazy=True))
+    healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
     followupFrequencyValue = db.Column(db.Float)
     followupFrequencyUnit = db.Column(db.Enum(frequencyUnitEnum))
     dateFollowupNeededTill = db.Column(db.String(50))
 
 
-
 class Village(db.Model):
     villageNumber = db.Column(db.String(50), primary_key=True)
-    zoneNumber    = db.Column(db.String(50))
+    zoneNumber = db.Column(db.String(50))
 
 
 class urineTest(db.Model):
@@ -285,18 +340,23 @@ class urineTest(db.Model):
     urineTestGlu = db.Column(db.String(5))
     urineTestPro = db.Column(db.String(5))
     urineTestBlood = db.Column(db.String(5))
-    #urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
-    readingId = db.Column(db.ForeignKey('reading.readingId'))
+    # urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
+    readingId = db.Column(db.ForeignKey("reading.readingId"))
+
 
 class PatientFacility(db.Model):
     id = db.Column(db.String(50), primary_key=True)
-    patientId = db.Column(db.ForeignKey('patient.patientId'), nullable=False)
-    healthFacilityName = db.Column(db.ForeignKey('healthfacility.healthFacilityName'), nullable=False)
-    db.UniqueConstraint('patientId', 'healthFacilityName', name='no_duplicate_patient_facility')
+    patientId = db.Column(db.ForeignKey("patient.patientId"), nullable=False)
+    healthFacilityName = db.Column(
+        db.ForeignKey("healthfacility.healthFacilityName"), nullable=False
+    )
+    __table_args__ = (db.UniqueConstraint("patientId", "healthFacilityName"),)
+
 
 ######################
 ###    SCHEMAS     ###
 ######################
+
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -305,22 +365,27 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+
 class PatientSchema(ma.SQLAlchemyAutoSchema):
     patientSex = EnumField(SexEnum, by_value=True)
+
     class Meta:
         include_fk = True
         model = Patient
         load_instance = True
         include_relationships = True
 
+
 class ReadingSchema(ma.SQLAlchemyAutoSchema):
     trafficLightStatus = EnumField(TrafficLightEnum, by_value=True)
+
     class Meta:
         include_fk = True
         model = Reading
         load_instance = True
         include_relationships = True
-    
+
+
 class RoleSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
@@ -328,30 +393,37 @@ class RoleSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+
 class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
     facilityType = EnumField(facilityTypeEnum, by_value=True)
+
     class Meta:
         include_fk = True
         model = HealthFacility
         load_instance = True
         include_relationships = True
 
+
 class FollowUpSchema(ma.SQLAlchemyAutoSchema):
     followupFrequencyUnit = EnumField(frequencyUnitEnum, by_value=True)
     healthcareWorker = fields.Nested(UserSchema)
+
     class Meta:
         include_fk = True
         model = FollowUp
         load_instance = True
         include_relationships = True
 
+
 class ReferralSchema(ma.SQLAlchemyAutoSchema):
     followUp = fields.Nested(FollowUpSchema)
+
     class Meta:
         include_fk = True
         model = Referral
         load_instance = True
         include_relationships = True
+
 
 class urineTestSchema(ma.SQLAlchemyAutoSchema):
     # urineTests = fields.Nested(ReadingSchema)
@@ -361,6 +433,7 @@ class urineTestSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+
 class PatientFacilitySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
@@ -368,32 +441,19 @@ class PatientFacilitySchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+
 user_schema = {
     "type": "object",
     "properties": {
-        "username": {
-            "type": "string",
-        },
-        "email": {
-            "type": "string",
-            "format": "email"
-        },
-        "firstName": {
-            "type": "string",
-        },
-        "role": {
-            "type": "string",
-        },
-        "healthFacilityName": {
-            "type": "string",
-        },
-        "password": {
-            "type": "string",
-            "minLength": 5
-        },
+        "username": {"type": "string",},
+        "email": {"type": "string", "format": "email"},
+        "firstName": {"type": "string",},
+        "role": {"type": "string",},
+        "healthFacilityName": {"type": "string",},
+        "password": {"type": "string", "minLength": 5},
     },
     "required": ["email", "password"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 
@@ -401,7 +461,7 @@ def validate_user(data):
     try:
         validate(data, user_schema)
     except ValidationError as e:
-        return {'ok': False, 'message': e}
+        return {"ok": False, "message": e}
     except SchemaError as e:
-        return {'ok': False, 'message': e}
-    return {'ok': True, 'data': data}
+        return {"ok": False, "message": e}
+    return {"ok": True, "data": data}
