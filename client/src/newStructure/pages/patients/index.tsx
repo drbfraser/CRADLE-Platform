@@ -25,7 +25,12 @@ interface IProps {
   userIsHealthWorker?: boolean;
 }
 
-const Page: React.FC<IProps> = ({ fetchingPatients, patients, getPatients, ...props }) => {
+const Page: React.FC<IProps> = ({
+  fetchingPatients,
+  patients,
+  getPatients,
+  ...props
+}) => {
   React.useEffect(() => {
     if (!fetchingPatients && patients === null) {
       getPatients();

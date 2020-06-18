@@ -196,7 +196,11 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Reading'}
               onClick={() => setActiveItem('Reading')}>
               <ListItemIcon>
-                <img alt="Create Patient And Reading" src={CreateImg} style={{ width: `75%` }} />
+                <img
+                  alt="Create Patient And Reading"
+                  src={CreateImg}
+                  style={{ width: `75%` }}
+                />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -216,7 +220,11 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Patients'}
               onClick={() => setActiveItem('Patients')}>
               <ListItemIcon>
-                <img alt="Patients" src={PatientsImg} style={{ width: `75%` }} />
+                <img
+                  alt="Patients"
+                  src={PatientsImg}
+                  style={{ width: `75%` }}
+                />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -234,7 +242,11 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Referrals'}
               onClick={() => setActiveItem('Referrals')}>
               <ListItemIcon>
-                <img alt="Referrals" src={ReferralsImg} style={{ width: `75%` }} />
+                <img
+                  alt="Referrals"
+                  src={ReferralsImg}
+                  style={{ width: `75%` }}
+                />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -252,7 +264,11 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Statistics'}
               onClick={() => setActiveItem('Statistics')}>
               <ListItemIcon>
-                <img alt="Statistics" src={StatisticsImg} style={{ width: `75%` }} />
+                <img
+                  alt="Statistics"
+                  src={StatisticsImg}
+                  style={{ width: `75%` }}
+                />
               </ListItemIcon>
               <ListItemText
                 disableTypography

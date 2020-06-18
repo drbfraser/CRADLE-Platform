@@ -10,9 +10,17 @@ export const ChatHistory: React.FC<IProps> = (props) => (
     {props.chatHistory.map((msg: any, index: number) => (
       <div className={classes.messageContainer} key={index}>
         {msg.sender === `opener` ? (
-          <img alt="doctor.png" src="/images/doctor.png" className={classes.chatAvatar} />
+          <img
+            alt="doctor.png"
+            src="/images/doctor.png"
+            className={classes.chatAvatar}
+          />
         ) : (
-          <img alt="girl-doctor" src="/images/girl-doctor.png" className={classes.chatAvatar} />
+          <img
+            alt="girl-doctor"
+            src="/images/girl-doctor.png"
+            className={classes.chatAvatar}
+          />
         )}
         <div className={classes.text}>
           <span className={classes.bold}>{msg.senderName}</span>
