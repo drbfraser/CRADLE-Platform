@@ -1,14 +1,16 @@
-import React from 'react';
-import Paper from '@material-ui/core/Paper';
-import { Form, Header, Input } from 'semantic-ui-react';
-import { PatientNewReadingReading } from '../../../types';
 import '../index.css';
+
+import { Form, Header, Input } from 'semantic-ui-react';
+
+import Paper from '@material-ui/core/Paper';
+import { PatientNewReadingReading } from '../../../types';
+import React from 'react';
 
 interface IProps {
   reading: PatientNewReadingReading;
   onChange: any;
 }
-export function BpForm(props: IProps) {
+export function BpForm(props: IProps): JSX.Element {
   return (
     <Paper
       className="bpCard"

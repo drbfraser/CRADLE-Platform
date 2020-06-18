@@ -189,11 +189,9 @@ export const patientsReducer = (state = initialState, action: any) => {
         isLoading: true,
       };
     case ADD_NEW_PATIENT:
-      const newPatient = action.payload;
-
       return {
         ...state,
-        patientsList: [newPatient, ...(state.patientsList ?? [])],
+        patientsList: [action.payload, ...(state.patientsList ?? [])],
         newPatientAdded: true,
       };
     case AFTER_NEW_PATIENT_ADDED:

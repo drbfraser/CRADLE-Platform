@@ -1,18 +1,19 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import '../index.css';
+
+import PropTypes from 'prop-types';
+import React from 'react';
 
 interface IProps {
   posterImgSrc: string;
   posterImgUrl: string;
   videoUrl: string;
 }
-function ResourceTabPage(props: IProps) {
+function ResourceTabPage(props: IProps): JSX.Element {
   return (
     <div>
       <img className="education-img" src={props.posterImgSrc} />
       <p>
-        <a href={props.posterImgUrl} target="_blank">
+        <a href={props.posterImgUrl} rel="noreferrer" target="_blank">
           Click to view/download PDF
         </a>
       </p>

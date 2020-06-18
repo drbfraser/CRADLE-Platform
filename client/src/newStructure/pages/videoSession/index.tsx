@@ -6,10 +6,8 @@ import * as io from 'socket.io-client';
 import React, { Component } from 'react';
 
 import $ from 'jquery';
-import { Button } from 'semantic-ui-react';
 import { Chat } from './chat';
 import { ReduxState } from '../../redux/rootReducer';
-import { bindActionCreators } from 'redux';
 import classes from './styles.module.css';
 import { connect } from 'react-redux';
 import swal from 'sweetalert';
@@ -18,16 +16,7 @@ window.io = io;
 
 const connection = new RTCMultiConnection();
 
-const styles = (theme) => ({
-  button: {
-    margin: theme.spacing.unit,
-  },
-  input: {
-    display: 'none',
-  },
-});
-
-var predefinedRoomId = 'cradle';
+const predefinedRoomId = 'cradle';
 
 class Session extends Component {
   state = {
@@ -51,7 +40,7 @@ class Session extends Component {
   openRoom = () => {
     this.disabled = true;
 
-    let thisRoomId = this.getRoomId();
+    const thisRoomId = this.getRoomId();
 
     connection.open(thisRoomId);
   };
@@ -59,7 +48,7 @@ class Session extends Component {
   joinRoom = () => {
     this.disabled = true;
 
-    let thisRoomId = this.getRoomId();
+    const thisRoomId = this.getRoomId();
 
     connection.join(thisRoomId);
   };
@@ -67,7 +56,7 @@ class Session extends Component {
   componentDidMount = () => {
     this.config(true);
 
-    let newState = {
+    const newState = {
       configured: true,
     };
 
@@ -126,9 +115,9 @@ class Session extends Component {
       connection.videosContainer = document.getElementById('remoteStream');
     }
 
-    connection.onopen = function (event) {
-      var remoteUserId = event.userid;
-      var remoteUserFullName = event.extra.fullName;
+    connection.onopen = function (): void {
+      // const remoteUserId = event.userid;
+      // const remoteUserFullName = event.extra.fullName;
 
       this.setState({
         roomStatus: 'Connected',
@@ -141,7 +130,7 @@ class Session extends Component {
         event.mediaElement.play();
       }, 5000);
 
-      var videoContainer;
+      let videoContainer;
 
       // the first time this function is called it is from the local stream,
       // the 2nd time this function is called is because of the remote stream

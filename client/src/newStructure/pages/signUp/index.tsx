@@ -18,6 +18,7 @@ import { User } from '../../types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+
 const initState = {
   user: {
     email: '',
@@ -88,12 +89,12 @@ class SignupComponent extends React.Component<IProp> {
     }
 
     // construct health facilities list object for dropdown
-    let hfOptions = [];
+    const hfOptions = [];
     if (
       this.props.healthFacilityList !== undefined &&
       this.props.healthFacilityList.length > 0
     ) {
-      for (var i = 0; i < this.props.healthFacilityList.length; i++) {
+      for (let i = 0; i < this.props.healthFacilityList.length; i++) {
         hfOptions.push({
           key: this.props.healthFacilityList[i],
           text: this.props.healthFacilityList[i],

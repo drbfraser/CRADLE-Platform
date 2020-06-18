@@ -29,12 +29,12 @@ import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 // import DialogContentText from '@material-ui/core/DialogContentText';
 // import DialogActions from '@material-ui/core/DialogActions';
 
-var symptom: any = [];
+const symptom: any = [];
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0;
-    var v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -249,17 +249,20 @@ class NewReadingPageComponent extends Component<IProps, IState> {
       }
     }
     if (this.state.patient.patientAge == '') {
-      this.state.patient.patientAge = '15';
+      this.setState({ patient: { ...this.state.patient, patientAge: `15` } });
     }
 
     if (this.state.patient.dob != null) {
-      this.state.patient.dob = (Date.parse(this.state.patient.dob as any) /
-        1000) as any;
+      this.setState({
+        patient: {
+          ...this.state.patient,
+          dob: Date.parse(this.state.patient.dob as any) / 1000,
+        },
+      });
     }
-    var readingID = guid();
+    const readingID = guid();
 
-    var dateTimeTaken = Math.floor(Date.now() / 1000);
-    const that = this;
+    const dateTimeTaken = Math.floor(Date.now() / 1000);
 
     this.setState(
       {
@@ -271,19 +274,19 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           symptoms: symptom.toString(),
         },
       },
-      function () {
-        let patientData = JSON.parse(JSON.stringify(that.state.patient));
-        let readingData = JSON.parse(JSON.stringify(that.state.reading));
-        if (!that.state.hasUrineTest) {
+      (): void => {
+        const patientData = JSON.parse(JSON.stringify(this.state.patient));
+        const readingData = JSON.parse(JSON.stringify(this.state.reading));
+        if (!this.state.hasUrineTest) {
           delete readingData.urineTests;
         }
 
-        let newData = {
+        const newData = {
           patient: patientData,
           reading: readingData,
         };
         console.log(newData);
-        that.props.addNewReading(newData);
+        this.props.addNewReading(newData);
       }
     );
   };

@@ -39,7 +39,7 @@ const Page: React.FC<IProps> = ({ createRoom, joinRoom }) => {
     );
 
   const createNewRoom = (): void => {
-    let randomString = Math.random()
+    const randomString = Math.random()
       .toString(13)
       .replace('0.', '')
       .substring(0, 6);

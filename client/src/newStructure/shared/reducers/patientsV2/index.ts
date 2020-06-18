@@ -225,8 +225,6 @@ export const patientsReducerV2 = (
                 : patient
           ) ?? [],
       };
-    case PatientsActionEnum.UPDATE_PATIENT_SUCCESS:
-      return { ...state, loading: false };
     case PatientsActionEnum.ADDING_PATIENT_TO_HEALTH_FACILITY:
       return {
         ...state,
@@ -238,7 +236,6 @@ export const patientsReducerV2 = (
         ),
         addingFromGlobalSearch: true,
       };
-    case PatientsActionEnum.UPDATE_PATIENT_ERROR:
     case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
       return {
         ...state,

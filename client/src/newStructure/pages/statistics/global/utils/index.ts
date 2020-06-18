@@ -1,4 +1,4 @@
-export const readingsPerMonth = (data: any) => ({
+export const readingsPerMonth = (data: any): any => ({
   label: `Total Number of Readings`,
   fill: false,
   lineTension: 0.1,
@@ -8,7 +8,7 @@ export const readingsPerMonth = (data: any) => ({
   data,
 });
 
-export const referralsPerMonth = (data: any) => ({
+export const referralsPerMonth = (data: any): any => ({
   label: `Total Number of Referrals`,
   fill: false,
   lineTension: 0.1,
@@ -18,7 +18,7 @@ export const referralsPerMonth = (data: any) => ({
   data,
 });
 
-export const assessmentsPerMonth = (data: any) => ({
+export const assessmentsPerMonth = (data: any): any => ({
   label: `Total Number of Assesments`,
   fill: false,
   lineTension: 0.1,

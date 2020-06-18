@@ -6,7 +6,7 @@ import { Icon } from 'semantic-ui-react';
 import React from 'react';
 
 const getLatestReferral = (readings: Array<Reading>): number | string => {
-  let sortedReadings = readings.sort((a: Reading, b: Reading): number => {
+  const sortedReadings = readings.sort((a: Reading, b: Reading): number => {
     return (
       getMomentDate(b.dateTimeTaken).valueOf() -
       getMomentDate(a.dateTimeTaken).valueOf()

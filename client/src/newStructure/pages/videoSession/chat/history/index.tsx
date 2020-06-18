@@ -7,8 +7,8 @@ interface IProps {
 
 export const ChatHistory: React.FC<IProps> = (props) => (
   <div id="chatHistory" className={classes.container}>
-    {props.chatHistory.map((msg: any) => (
-      <div className={classes.messageContainer}>
+    {props.chatHistory.map((msg: any, index: number) => (
+      <div className={classes.messageContainer} key={index}>
         {msg.sender == `opener` ? (
           <img src="/images/doctor.png" className={classes.chatAvatar} />
         ) : (

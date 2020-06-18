@@ -1,16 +1,18 @@
-import React from 'react';
-import Paper from '@material-ui/core/Paper';
+import '../index.css';
+
 import { Form, Header } from 'semantic-ui-react';
+
+import Paper from '@material-ui/core/Paper';
+import React from 'react';
 // import { PatientNewReading } from '../../../types';
 
-import '../index.css';
 interface IProps {
   checkedItems: any;
   onChange: any;
   onOtherChange: any;
   patient: any;
 }
-export function SymptomForm(props: IProps) {
+export function SymptomForm(props: IProps): JSX.Element {
   return (
     <Paper
       className="symptomCard"

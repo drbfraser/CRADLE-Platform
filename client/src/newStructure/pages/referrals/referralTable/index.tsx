@@ -43,7 +43,7 @@ export class ReferralTable extends Component<IProps, IState> {
     },
   };
 
-  render() {
+  render(): JSX.Element {
     return (
       <MaterialTable
         title="Referrals"
@@ -52,7 +52,7 @@ export class ReferralTable extends Component<IProps, IState> {
         data={this.props.data}
         options={{
           pageSize: 10,
-          rowStyle: (rowDat: any) => {
+          rowStyle: () => {
             return {
               height: '75px',
             };
