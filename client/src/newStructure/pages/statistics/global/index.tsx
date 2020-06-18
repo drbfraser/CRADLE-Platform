@@ -1,14 +1,14 @@
 import { Card, Statistic } from 'semantic-ui-react';
-import { Line } from 'react-chartjs-2';
+import {
+  assessmentsPerMonth,
+  readingsPerMonth,
+  referralsPerMonth,
+} from './utils';
 
+import { Line } from 'react-chartjs-2';
 import React from 'react';
 import classes from '../styles.module.css';
 import { xLabels } from '../utils';
-import {
-  readingsPerMonth,
-  referralsPerMonth,
-  assessmentsPerMonth,
-} from './utils';
 
 interface IProps {
   currentMonth: number;

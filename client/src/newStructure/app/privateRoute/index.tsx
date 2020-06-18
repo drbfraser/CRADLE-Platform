@@ -1,11 +1,12 @@
+import { OrNull, User } from '@types';
+import { Route, RouteComponentProps } from 'react-router-dom';
+
 import React from 'react';
+import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { Route, RouteComponentProps } from 'react-router-dom';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
-import { OrNull, User } from '@types';
-import { bindActionCreators } from 'redux';
-import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
 
 interface IProps {
   component:

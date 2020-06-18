@@ -28,8 +28,8 @@ import {
 import { UserState, userReducer } from '../../shared/reducers/user';
 
 import { CurrentUserActionEnum } from '../../shared/reducers/user/currentUser';
-import { combineReducers } from 'redux';
 import { RouterState } from 'connected-react-router';
+import { combineReducers } from 'redux';
 
 export type ReduxState = {
   chat: ChatState;

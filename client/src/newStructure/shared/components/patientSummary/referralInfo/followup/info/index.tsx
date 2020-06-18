@@ -1,5 +1,6 @@
+import { Divider, Header, Segment } from 'semantic-ui-react';
+
 import React from 'react';
-import { Divider, Segment, Header } from 'semantic-ui-react';
 import { getPrettyDateTime } from '../../../../../utils';
 
 const followupFrequencyUnit = [

@@ -1,10 +1,12 @@
 import * as Yup from 'yup';
-import React from 'react';
-import { useFormik } from 'formik';
-import { OrNull, Callback } from '@types';
-import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
+
+import { Callback, OrNull } from '@types';
+
 import { LoginData } from 'src/newStructure/shared/reducers/user/currentUser';
+import React from 'react';
+import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
 import classes from './styles.module.css';
+import { useFormik } from 'formik';
 
 interface IProps {
   errorMessage: OrNull<string>;

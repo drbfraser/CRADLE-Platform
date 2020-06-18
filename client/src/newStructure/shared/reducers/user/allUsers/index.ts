@@ -1,7 +1,8 @@
+import { OrNull, User } from '@types';
+import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
+
 import { Endpoints } from '../../../../server/endpoints';
 import { Methods } from '../../../../server/methods';
-import { serverRequestActionCreator, ServerRequestAction } from '../../utils';
-import { User, OrNull } from '@types';
 
 enum AllUsersActionEnum {
   CLEAR_REQUEST_OUTCOME = 'users/CLEAR_REQUEST_OUTCOME',

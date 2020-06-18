@@ -1,8 +1,9 @@
+import { OrNull, User } from '@types';
+
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
-import { OrNull, User } from '@types';
+import { connect } from 'react-redux';
 
 interface IProps {
   currentUser: OrNull<User>;

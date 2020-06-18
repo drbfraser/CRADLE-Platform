@@ -1,9 +1,9 @@
 import * as History from 'history';
 
-import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 import { applyMiddleware, createStore } from 'redux';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 
+import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 import { requestMiddleware } from '../middleware/request';
 import { rootReducer } from '../rootReducer';
 import thunk from 'redux-thunk';
