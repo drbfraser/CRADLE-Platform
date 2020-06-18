@@ -89,7 +89,7 @@ class Component extends React.Component<IProps, IState> {
 
   handleKeyDown = (event: any): void => {
     // User presses enter
-    if (event.keyCode == 13) {
+    if (event.keyCode === 13) {
       this.handleSubmit();
     }
   };

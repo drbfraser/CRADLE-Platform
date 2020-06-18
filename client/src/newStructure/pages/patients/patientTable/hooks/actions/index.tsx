@@ -45,5 +45,5 @@ export const useActions = ({
     actions.push(toggleReferredPatientsAction);
 
     return actions;
-  }, [showGlobalSearch]);
+  }, [globalSearchAction, showGlobalSearch, toggleReferredPatientsAction]);
 };

@@ -27,7 +27,7 @@ class Page extends React.Component<IProps> {
     return (
       <div className={classes.loginWrapper}>
         <div className={classes.subWrapper}>
-          <img src={image} className={classes.imgStyle}></img>
+          <img alt="logo" src={image} className={classes.imgStyle}></img>
         </div>
         <div className={classes.subWrapper}>
           <div style={{ position: 'relative', left: '-10%' }}>

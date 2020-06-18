@@ -56,7 +56,7 @@ export const useData = ({ data, globalSearchData }: IArgs): IUseData => {
     Array<Patient> | Array<GlobalSearchPatient>
   >((): Array<Patient> | Array<GlobalSearchPatient> => {
     return globalSearch ? filter(globalSearchData) : filter(data);
-  }, [data, globalSearchData, globalSearch, showReferredPatients]);
+  }, [data, filter, globalSearchData, globalSearch]);
 
   return {
     debounceInterval,

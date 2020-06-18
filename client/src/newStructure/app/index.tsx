@@ -138,7 +138,7 @@ const Component: React.FC<IProps> = (props) => {
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
-          <img src={AppImg} className="appIcon" />
+          <img alt="appIcon" src={AppImg} className="appIcon" />
           <Typography noWrap style={titleTextStyle}>
             CRADLE
           </Typography>
@@ -196,7 +196,7 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Reading'}
               onClick={() => setActiveItem('Reading')}>
               <ListItemIcon>
-                <img src={CreateImg} style={{ width: `75%` }} />
+                <img alt="Create Patient And Reading" src={CreateImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -216,7 +216,7 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Patients'}
               onClick={() => setActiveItem('Patients')}>
               <ListItemIcon>
-                <img src={PatientsImg} style={{ width: `75%` }} />
+                <img alt="Patients" src={PatientsImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -234,7 +234,7 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Referrals'}
               onClick={() => setActiveItem('Referrals')}>
               <ListItemIcon>
-                <img src={ReferralsImg} style={{ width: `75%` }} />
+                <img alt="Referrals" src={ReferralsImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -252,7 +252,7 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Statistics'}
               onClick={() => setActiveItem('Statistics')}>
               <ListItemIcon>
-                <img src={StatisticsImg} style={{ width: `75%` }} />
+                <img alt="Statistics" src={StatisticsImg} style={{ width: `75%` }} />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -270,7 +270,7 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Chat'}
               onClick={() => setActiveItem('Chat')}>
               <ListItemIcon>
-                <img src={VideoImg} style={{ width: `75%` }} />
+                <img alt="Video" src={VideoImg} style={{ width: `75%` }} />
               </ListItemIcon>
 
               <ListItemText
@@ -291,7 +291,7 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Resources'}
               onClick={() => setActiveItem('Resources')}>
               <ListItemIcon>
-                <img src={EduImg} style={{ width: `75%` }} />
+                <img alt="Education" src={EduImg} style={{ width: `75%` }} />
               </ListItemIcon>
 
               <ListItemText

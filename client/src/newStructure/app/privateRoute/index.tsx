@@ -23,7 +23,7 @@ const Component: React.FC<IProps> = ({ user, getCurrentUser, ...props }) => {
     if (!user) {
       getCurrentUser();
     }
-  }, []);
+  }, [getCurrentUser, user]);
 
   if (user) {
     return <Route {...props} />;

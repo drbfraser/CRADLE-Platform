@@ -25,12 +25,12 @@ interface IProps {
   userIsHealthWorker?: boolean;
 }
 
-const Page: React.FC<IProps> = (props) => {
+const Page: React.FC<IProps> = ({ fetchingPatients, patients, getPatients, ...props }) => {
   React.useEffect(() => {
-    if (!props.fetchingPatients && props.patients === null) {
-      props.getPatients();
+    if (!fetchingPatients && patients === null) {
+      getPatients();
     }
-  }, [props.fetchingPatients, props.getPatients, props.patients]);
+  }, [fetchingPatients, getPatients, patients]);
 
   const onPatientSelected = ({ patientId }: Patient): void =>
     props.navigateToPatientPage(patientId);
@@ -49,11 +49,11 @@ const Page: React.FC<IProps> = (props) => {
     <PatientTable
       onPatientSelected={onPatientSelected}
       onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
-      data={props.patients}
+      data={patients}
       globalSearchData={props.globalSearchPatients}
-      isLoading={props.fetchingPatients || props.addingFromGlobalSearch}
+      isLoading={fetchingPatients || props.addingFromGlobalSearch}
       showGlobalSearch={props.userIsHealthWorker}
-      getPatients={props.getPatients}
+      getPatients={getPatients}
     />
   );
 };

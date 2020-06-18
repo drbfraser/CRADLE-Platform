@@ -64,7 +64,7 @@ class Session extends Component {
       this.openRoom();
 
       copyToClipboard(
-        'https://' + `${window.location.hostname + this.props.match.url}`
+        `https://${window.location.hostname + this.props.match.url}`
       );
 
       swal(
