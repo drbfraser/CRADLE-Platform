@@ -1,4 +1,11 @@
 {
+  "name": "icradle",
+  "description": "Cradle web platform",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git"
+  },
   "private": true,
   "husky": {
     "hooks": {
