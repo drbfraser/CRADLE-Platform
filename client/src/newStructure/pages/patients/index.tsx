@@ -19,10 +19,10 @@ interface IProps {
   fetchingPatients: boolean;
   patients: OrNull<Array<Patient>>;
   globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
-  getPatients: (search?: string) => void,
-  addPatientToHealthFacility: (patient: GlobalSearchPatient) => void,
+  getPatients: (search?: string) => void;
+  addPatientToHealthFacility: (patient: GlobalSearchPatient) => void;
   navigateToPatientPage: any;
-  userIsHealthWorker?: boolean; 
+  userIsHealthWorker?: boolean;
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -35,7 +35,9 @@ const Page: React.FC<IProps> = (props) => {
   const onPatientSelected = ({ patientId }: Patient): void =>
     props.navigateToPatientPage(patientId);
 
-  const onGlobalSearchPatientSelected = (patient: GlobalSearchPatient): void => {
+  const onGlobalSearchPatientSelected = (
+    patient: GlobalSearchPatient
+  ): void => {
     if (patient.state !== PatientStateEnum.ADD) {
       alert(`Patient already added!`);
     } else {
@@ -65,8 +67,7 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  ...bindActionCreators({
-  }, dispatch),
+  ...bindActionCreators({}, dispatch),
   getPatients: (search?: string): void => {
     dispatch(getPatientsRequested());
     dispatch(getPatients(search));

@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { assessment, dateReferred } from './utils';
-import { initials, patientId, village, vitalSign } from '../../../shared/components/table/columns';
+import {
+  initials,
+  patientId,
+  village,
+  vitalSign,
+} from '../../../shared/components/table/columns';
 
 import MaterialTable from 'material-table';
 

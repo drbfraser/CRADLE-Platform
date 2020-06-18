@@ -20,6 +20,4 @@ const mapStateToProps = ({ user }: ReduxState) => ({
   currentUser: user.current.data,
 });
 
-export const HomePage = connect(
-  mapStateToProps
-)(Page);
+export const HomePage = connect(mapStateToProps)(Page);
