@@ -8,6 +8,7 @@ import json
 import jwt
 import requests
 
+
 class SMS(Resource):
 
     # /api/sms [POST]
@@ -18,7 +19,7 @@ class SMS(Resource):
         print(json.dumps(req, indent=2, sort_keys=True))
 
         # get json string from sms body
-        body = req['Body']
+        body = req["Body"]
 
         try:
             body_json = json.loads(body)
@@ -28,15 +29,15 @@ class SMS(Resource):
         body_json = json.dumps(body_json, indent=2, sort_keys=True)
 
         # call local endpoint
-        req = requests.post('http://localhost:8080/api/referral', data=body_json)
+        req = requests.post("http://localhost:8080/api/referral", data=body_json)
 
         resp = MessagingResponse()
         if req.status_code == 201:
-            print('Referral Success')
+            print("Referral Success")
             resp.message("Referral has been sent!")
         else:
-            print('Referral Error')
+            print("Referral Error")
             resp.message("Error! Referral has not been sent. Please try again.")
 
         # Start our TwiML response
-        return Response(str(resp), mimetype='text/xml')
+        return Response(str(resp), mimetype="text/xml")

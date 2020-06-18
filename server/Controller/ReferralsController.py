@@ -14,12 +14,14 @@ from Controller.Helpers import _get_request_body
 referralManager = ReferralManager()
 validator = ReferralValidator()
 
+
 def abort_if_referral_doesnt_exist(referral_id):
     referral = referralManager.read("id", referral_id)
     if referral is None:
         abort(404, message="Referral {} doesn't exist".format(referral_id))
     else:
         return referral
+
 
 def abort_if_referrals_doesnt_exist():
     referrals = referralManager.read_all()
@@ -28,10 +30,12 @@ def abort_if_referrals_doesnt_exist():
     else:
         return referrals
 
+
 def abort_if_referral_exists(referral_id):
     referral = referralManager.read("id", referral_id)
     if referral:
         abort(400, message="Referral {} already exists".format(referral_id))
+
 
 """ Returns a single referral matching the inputted id
     urlParams:
@@ -41,7 +45,7 @@ def abort_if_referral_exists(referral_id):
 """
 # /referral/<int:id> [GET, PUT]
 class ReferralInfo(Resource):
-    @swag_from('../specifications/referral-get.yml', methods=['GET'])
+    @swag_from("../specifications/referral-get.yml", methods=["GET"])
     def get(self, id):
         referral = abort_if_referral_doesnt_exist(id)
         return referral
@@ -58,6 +62,7 @@ class ReferralInfo(Resource):
         else:
             return update_res
 
+
 # /referral [GET, POST]
 class ReferralApi(Resource):
 
@@ -71,8 +76,9 @@ class ReferralApi(Resource):
             all referrals that match the given query params are return
             else, all referrals are returned
     """
+
     @jwt_required
-    @swag_from('../specifications/referrals-get.yml', methods=['GET'])
+    @swag_from("../specifications/referrals-get.yml", methods=["GET"])
     def get(self):
         # NEEDS TESTING and query string validation
         args = request.args
@@ -84,8 +90,7 @@ class ReferralApi(Resource):
         else:
             referrals = referralManager.search(args)
         return referrals
-            
-    
+
     """ Creates a new Referral
         JSON Request Body Example: 
         {
@@ -113,6 +118,7 @@ class ReferralApi(Resource):
         Returns: 
             newly created referral object
     """
+
     @jwt_required
     def post(self):
         req_data = _get_request_body()
