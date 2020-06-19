@@ -211,7 +211,7 @@ class PatientReading(Resource):
         if (
             "dob" in patient_data
             and patient_data["dob"]
-            and patient_data["patientAge"] is None
+            and ("patientAge" not in patient_data or patient_data["patientAge"] == "")
         ):
             patient_reading_data["patient"]["dob"] = int(
                 patient_reading_data["patient"]["dob"]
