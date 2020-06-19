@@ -3,8 +3,13 @@ from flask import request, jsonify
 from flask_restful import Resource, abort
 from models import validate_user, User, UserSchema, Role
 from config import db, flask_bcrypt
-from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                    jwt_required, jwt_refresh_token_required, get_jwt_identity)
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    jwt_required,
+    jwt_refresh_token_required,
+    get_jwt_identity,
+)
 from Manager.UserManager import UserManager
 from Manager.RoleManager import RoleManager
 from flasgger import swag_from
@@ -14,26 +19,27 @@ roleManager = RoleManager()
 
 # user/all [POST]
 class UserAll(Resource):
-    
+
     # get all users
     @jwt_required
-    @swag_from('../specifications/user-all.yml', methods=['GET'])
+    @swag_from("../specifications/user-all.yml", methods=["GET"])
     def get(self):
-        logging.debug('Received request: GET user/all')
+        logging.debug("Received request: GET user/all")
 
         users = userManager.read_all_no_password()
         if users is None:
             abort(404, message="No users currently exist.")
         return users
 
+
 # user/vhts [GET]
 class UserAllVHT(Resource):
-    
-    # get all VHT Ids 
+
+    # get all VHT Ids
     @jwt_required
-    @swag_from('../specifications/user-vhts.yml', methods=['GET'])
+    @swag_from("../specifications/user-vhts.yml", methods=["GET"])
     def get(self):
-        logging.debug('Received request: GET user/vhts')
+        logging.debug("Received request: GET user/vhts")
 
         vhtId_list = userManager.read_all_vhts()
         if vhtId_list is None:
@@ -46,115 +52,122 @@ class UserApi(Resource):
 
     # Create a new user
     @jwt_required
-    @swag_from('../specifications/user-register.yml', methods=['POST'])
+    @swag_from("../specifications/user-register.yml", methods=["POST"])
     def post(self):
         # register user endpoint
         data = validate_user(request.get_json())
-        if data['ok']:
-            data = data['data']
+        if data["ok"]:
+            data = data["data"]
 
             # check if user exists
-            user = User.query.filter_by(email=data['email']).first()
+            user = User.query.filter_by(email=data["email"]).first()
             if user:
-                return { "message" : "Email has already been taken"}, 400
+                return {"message": "Email has already been taken"}, 400
 
             # get password
-            data['password'] = flask_bcrypt.generate_password_hash(data['password'])
+            data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
             # find the role of the user
-            role = Role.query.filter_by(name=data['role']).first()
-            del data['role']
-            
+            role = Role.query.filter_by(name=data["role"]).first()
+            del data["role"]
+
             # Add a new patient to db
             user_schema = UserSchema()
             new_user = user_schema.load(data, session=db.session)
 
-            role.users.append(new_user) # add new user to their role
+            role.users.append(new_user)  # add new user to their role
 
-            db.session.add(role) # add user and role
+            db.session.add(role)  # add user and role
             db.session.commit()
 
             return {}, 200
         else:
-            return {'message': 'Please check the fields'}, 400
+            return {"message": "Please check the fields"}, 400
 
 
 # user/auth [POST]
 class UserAuthApi(Resource):
 
     # login to account
-    @swag_from('../specifications/user-auth.yml', methods=['POST'])
+    @swag_from("../specifications/user-auth.yml", methods=["POST"])
     def post(self):
         data = validate_user(request.get_json())
-        if data['ok']:
-            data = data['data']
+        if data["ok"]:
+            data = data["data"]
 
-            user = User.query.filter_by(email=data['email']).first()
+            user = User.query.filter_by(email=data["email"]).first()
 
-            if user and flask_bcrypt.check_password_hash(user.password, data['password']):
-                del data['password']
+            if user and flask_bcrypt.check_password_hash(
+                user.password, data["password"]
+            ):
+                del data["password"]
 
                 # setup any extra user params
                 roles = []
                 if user.roleIds:
                     for role in user.roleIds:
                         roles.append(role.name.name)
-                
-                data['roles'] = roles
-                data['firstName'] = user.firstName
-                data['healthFacilityName'] = user.healthFacilityName
-                data['isLoggedIn'] = True
-                data['userId'] = user.id
+
+                data["roles"] = roles
+                data["firstName"] = user.firstName
+                data["healthFacilityName"] = user.healthFacilityName
+                data["isLoggedIn"] = True
+                data["userId"] = user.id
 
                 vhtList = []
-                data['vhtList'] = []
-                if 'CHO' in roles:
+                data["vhtList"] = []
+                if "CHO" in roles:
                     if user.vhtList:
                         for user in user.vhtList:
                             vhtList.append(user.id)
-                        data['vhtList'] = vhtList
+                        data["vhtList"] = vhtList
 
                 access_token = create_access_token(identity=data)
                 refresh_token = create_refresh_token(identity=data)
-                data['token'] = access_token
-                data['refresh'] = refresh_token
+                data["token"] = access_token
+                data["refresh"] = refresh_token
 
                 return data, 200
             else:
-                return {'message': 'Invalid email or password'}, 401
+                return {"message": "Invalid email or password"}, 401
         else:
-            return {'message': 'Bad request parameters: {}'.format(data['message'])}, 400
+            return (
+                {"message": "Bad request parameters: {}".format(data["message"])},
+                400,
+            )
+
 
 # user/auth/refresh_token
 class UserAuthTokenRefreshApi(Resource):
     @jwt_refresh_token_required
-    @swag_from('../specifications/user-auth-refresh.yml', methods=['POST'])
+    @swag_from("../specifications/user-auth-refresh.yml", methods=["POST"])
     def post(self):
         current_user = get_jwt_identity()
         new_token = create_access_token(identity=current_user, fresh=False)
-        return {'token': new_token}, 200
+        return {"token": new_token}, 200
+
 
 # user/current
 # Get identity of current user with jwt token
 class UserTokenApi(Resource):
     @jwt_required
-    @swag_from('../specifications/user-current.yml', methods=['GET'])
+    @swag_from("../specifications/user-current.yml", methods=["GET"])
     def get(self):
         current_user = get_jwt_identity()
         return current_user, 200
 
+
 # user/edit/<int:id> [PUT]
 class UserEdit(Resource):
-
     @staticmethod
     def _get_request_body():
         raw_req_body = request.get_json(force=True)
-        print('Request body: ' + json.dumps(raw_req_body, indent=2, sort_keys=True))
+        print("Request body: " + json.dumps(raw_req_body, indent=2, sort_keys=True))
         return raw_req_body
-    
+
     # edit user with id
     @jwt_required
-    @swag_from('../specifications/user-edit.yml', methods=['PUT'])
+    @swag_from("../specifications/user-edit.yml", methods=["PUT"])
     def put(self, id):
 
         # validate inputs
@@ -162,23 +175,23 @@ class UserEdit(Resource):
             abort(400, message="User ID is required")
 
         new_user = UserEdit._get_request_body()
-        
-        newVhtIds = new_user.get('newVhtIds')
+
+        newVhtIds = new_user.get("newVhtIds")
         if newVhtIds is not None:
             # add vht to CHO's vht list
-            roleManager.add_vht_to_supervise(id, new_user['newVhtIds'])
-            new_user.pop('newVhtIds', None)
+            roleManager.add_vht_to_supervise(id, new_user["newVhtIds"])
+            new_user.pop("newVhtIds", None)
 
-        newRoleIds = new_user.get('newRoleIds')
+        newRoleIds = new_user.get("newRoleIds")
         if newRoleIds is not None:
             # add user to role
-            roleManager.add_user_to_role(id, new_user['newRoleIds'])
-            new_user.pop('newRoleIds', None)
+            roleManager.add_user_to_role(id, new_user["newRoleIds"])
+            new_user.pop("newRoleIds", None)
 
         # update user password
-        new_passwords = new_user.get('new_password')
+        new_passwords = new_user.get("new_password")
         if new_passwords is not None:
-            userManager.update(id, new_user['new_password'])
+            userManager.update(id, new_user["new_password"])
 
         update_res = userManager.update("id", id, new_user)
 
@@ -187,21 +200,21 @@ class UserEdit(Resource):
         else:
             return update_res
 
+
 # user/delete/<int:id>
 class UserDelete(Resource):
-
     @jwt_required
-    @swag_from('../specifications/user-delete.yml', methods=['DELETE'])
+    @swag_from("../specifications/user-delete.yml", methods=["DELETE"])
     def delete(self, id=None):
         current_user = get_jwt_identity()
-        if 'ADMIN' in current_user['roles']:
+        if "ADMIN" in current_user["roles"]:
             if id:
-                logging.debug('Received request: DELETE /user/delete/<id>')
+                logging.debug("Received request: DELETE /user/delete/<id>")
                 del_res = userManager.delete("id", id)
                 if not del_res:
                     abort(400, message=f'No user exists with id "{id}"')
             else:
-                abort(400, message='No id supplied for user delete')
+                abort(400, message="No id supplied for user delete")
         else:
-            abort(400, message='Only Admins can delete users') 
+            abort(400, message="Only Admins can delete users")
         return {}

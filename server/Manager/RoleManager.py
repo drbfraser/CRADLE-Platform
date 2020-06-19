@@ -4,8 +4,7 @@ from config import db
 from models import Role, User
 
 
-class RoleManager():
-
+class RoleManager:
     def get_role_names(self, role_ids):
         roles = []
         for role_id in role_ids:
