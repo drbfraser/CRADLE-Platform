@@ -248,9 +248,6 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         symptom.push(this.state.checkedItems.otherSymptoms);
       }
     }
-    if (this.state.patient.patientAge == '') {
-      this.state.patient.patientAge = '15';
-    }
 
     if (this.state.patient.dob != null) {
       this.state.patient.dob = (Date.parse(this.state.patient.dob as any) /
