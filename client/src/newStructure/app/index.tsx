@@ -99,7 +99,7 @@ const useStyles = makeStyles((theme) => ({
   itemText: { color: 'white', paddingTop: '8px' },
   menu: {
     marginRight: theme.spacing(2),
-    left: '210px !important',
+    left: '195px !important',
   },
 }));
 
@@ -115,6 +115,7 @@ const Component: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState<OrNull<string>>(null);
   const [statsOpen, setOpenStats] = useState(true);
+  const [ anchorEl, setAnchor]  = useState<any>(null);
 
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
@@ -124,8 +125,9 @@ const Component: React.FC<IProps> = (props) => {
     }
   }, [props.pathName]);
 
-  const onMouseOver = () => {
+  const onMouseOver = (event:any) => {
     setOpenStats(true);
+    setAnchor(event.currentTarget)
   };
 
   // const onStatsClick = () => {
@@ -134,6 +136,7 @@ const Component: React.FC<IProps> = (props) => {
 
   const handleClose = () => {
     setOpenStats(false);
+    setAnchor(null);
   };
 
   const getRole = (roles?: Array<RoleEnum>): string => {
@@ -281,10 +284,9 @@ const Component: React.FC<IProps> = (props) => {
             <ListItem
               className={classes.listItem}
               button
-              onMouseOver={onMouseOver}
-              // onMouseLeave={handleClose}
+              onMouseEnter={onMouseOver}
+              onMouseLeave={handleClose}
               // onClick={onStatsClick} //  need this for tablets
-              // onClick={() => setActiveItem('Statistics')}
             >
               <ListItemIcon>
                 <img src={StatisticsImg} style={{ width: `75%` }} />
@@ -293,13 +295,14 @@ const Component: React.FC<IProps> = (props) => {
                 disableTypography
                 className={classes.itemText}
                 primary={
-                  <Typography style={sidebarTextStyle}>Statistics</Typography>
+                  <Typography style={sidebarTextStyle}>Analytics</Typography>
                 }
               />{' '}
               <Menu
                 className={classes.menu}
                 id="simple-menu"
                 keepMounted
+                anchorEl={anchorEl}
                 open={statsOpen}
                 onClose={handleClose}
                 PaperProps={{
