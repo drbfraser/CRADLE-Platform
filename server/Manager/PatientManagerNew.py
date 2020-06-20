@@ -56,8 +56,9 @@ class PatientManager(Manager):
         return result_json_arr
 
     def get_patient_with_referral_and_reading(self, current_user, search=None):
-        # harcoding for testing purposes
-        # get filtered list of patients here, and then query only that list
+        # TO DO: Extract this code into a function
+        # Would be nice to let role based authorization/behavior happen elsewhere
+        # Will also allow us to only read the tables we need for that user
         patient_list = self.read_all()
         if patient_list is None:
             return None
@@ -65,8 +66,6 @@ class PatientManager(Manager):
         readings_list = readingManager.read_all()
         user_list = userManager.read_all()
 
-        # TO DO: Extract this code into a function
-        # Would be nice to let role based authorization/behavior happen elsewhere 
         if "ADMIN" in current_user["roles"]:
             patients_query = self.read_all()
         elif "HCW" in current_user["roles"]:
