@@ -43,6 +43,7 @@ import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
 import { routesNames } from './toolbar/utils';
 import { Pathname } from 'history';
+import Collapse from '@material-ui/core/Collapse';
 
 const drawerWidth = 200;
 const useStyles = makeStyles((theme) => ({
@@ -104,11 +105,17 @@ interface IProps {
 const Component: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState<OrNull<string>>(null);
+  const [statsOpen, setOpenStats] = useState(true);
 
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
+    setOpenStats(!statsOpen)
   }, [props.pathName]);
+
+  const handleStatsClick = () =>{
+    setOpenStats(!statsOpen)
+  }
 
   const getRole = (roles?: Array<RoleEnum>): string => {
     if (!roles) {
@@ -258,7 +265,9 @@ const Component: React.FC<IProps> = (props) => {
               component={Link}
               to="/stats"
               selected={activeItem === 'Statistics'}
-              onClick={() => setActiveItem('Statistics')}>
+              onClick={handleStatsClick}
+              // onClick={() => setActiveItem('Statistics')}
+              >
               <ListItemIcon>
                 <img src={StatisticsImg} style={{ width: `75%` }} />
               </ListItemIcon>
@@ -270,6 +279,13 @@ const Component: React.FC<IProps> = (props) => {
                 }
               />
             </ListItem>
+            <Collapse in={statsOpen} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItem button>
+                  <ListItemText primary="Starred" />
+                </ListItem>
+              </List>
+            </Collapse>
             <ListItem
               className={classes.listItem}
               button
