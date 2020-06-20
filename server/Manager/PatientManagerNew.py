@@ -59,10 +59,14 @@ class PatientManager(Manager):
         # harcoding for testing purposes
         # get filtered list of patients here, and then query only that list
         patient_list = self.read_all()
+        if patient_list is None:
+            return None
         ref_list = referralManager.read_all()
         readings_list = readingManager.read_all()
         user_list = userManager.read_all()
 
+        # TO DO: Extract this code into a function
+        # Would be nice to let role based authorization/behavior happen elsewhere 
         if "ADMIN" in current_user["roles"]:
             patients_query = self.read_all()
         elif "HCW" in current_user["roles"]:
