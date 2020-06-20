@@ -43,9 +43,9 @@ import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
 import { routesNames } from './toolbar/utils';
 import { Pathname } from 'history';
-import Collapse from '@material-ui/core/Collapse';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import './styles.module.css';
 const drawerWidth = 200;
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -93,6 +93,11 @@ const useStyles = makeStyles((theme) => ({
   listItem: { flexDirection: 'column', margin: '10px 0px 10px 0px' },
   logout: { marginTop: '20px', bottom: 0 },
   itemText: { color: 'white', paddingTop: '8px' },
+  menu: {
+    marginRight: theme.spacing(2),
+    left: '210px !important',
+    borderRadius: '25px !important',
+  },
 }));
 
 interface IProps {
@@ -118,9 +123,8 @@ const Component: React.FC<IProps> = (props) => {
     setOpenStats(!statsOpen);
   };
 
- 
   const handleClose = () => {
-    statsOpen ? setOpenStats(false) :setOpenStats(true);
+    statsOpen ? setOpenStats(false) : setOpenStats(true);
   };
 
   const getRole = (roles?: Array<RoleEnum>): string => {
@@ -283,24 +287,24 @@ const Component: React.FC<IProps> = (props) => {
                 primary={
                   <Typography style={sidebarTextStyle}>Statistics</Typography>
                 }
-              />
+              />{' '}
               <Menu
+                className={classes.menu}
                 id="simple-menu"
                 keepMounted
                 open={statsOpen}
-                onClose={handleClose}>
+                onClose={handleClose}
+                PaperProps={{
+                  style: {
+                    left: '100px !important',
+                    width: '20ch',
+                  },
+                }}>
                 <MenuItem onClick={handleClose}>Profile</MenuItem>
                 <MenuItem onClick={handleClose}>My account</MenuItem>
                 <MenuItem onClick={handleClose}>Logout</MenuItem>
               </Menu>
             </ListItem>
-            {/* <Collapse in={statsOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItem button>
-                  <ListItemText primary="Starred" />
-                </ListItem>
-              </List>
-            </Collapse> */}
             <ListItem
               className={classes.listItem}
               button
