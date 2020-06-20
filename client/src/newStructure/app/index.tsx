@@ -116,17 +116,21 @@ const Component: React.FC<IProps> = (props) => {
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
-    if(statsOpen){
-      setOpenStats(false)
+    if (statsOpen) {
+      setOpenStats(false);
     }
   }, [props.pathName]);
 
-  const handleStatsClick = () => {
+  const onMouseOver = () => {
     setOpenStats(true);
   };
 
+  // const onStatsClick = () => {
+  //   setOpenStats(!statsOpen);
+  // };
+
   const handleClose = () => {
-    setOpenStats(false) 
+    setOpenStats(false);
   };
 
   const getRole = (roles?: Array<RoleEnum>): string => {
@@ -274,9 +278,9 @@ const Component: React.FC<IProps> = (props) => {
             <ListItem
               className={classes.listItem}
               button
-              onMouseOver={handleStatsClick}
-              onMouseLeave={handleClose}
-              onClick={handleStatsClick}
+              onMouseOver={onMouseOver}
+              // onMouseLeave={handleClose}
+              // onClick={onStatsClick} //  need this for tablets
               // onClick={() => setActiveItem('Statistics')}
             >
               <ListItemIcon>
@@ -297,12 +301,14 @@ const Component: React.FC<IProps> = (props) => {
                 onClose={handleClose}
                 PaperProps={{
                   style: {
-                    left: '100px !important',
                     width: '20ch',
+                    borderRadius: "25px"
                   },
                 }}>
                 <MenuItem onClick={handleClose}>Covid-19 Collection</MenuItem>
-                <MenuItem onClick={() => setActiveItem('Statistics')}>Statistics</MenuItem>
+                <MenuItem onClick={() => setActiveItem('Statistics')}>
+                  Statistics
+                </MenuItem>
               </Menu>
             </ListItem>
             <ListItem
