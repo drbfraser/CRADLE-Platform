@@ -33,6 +33,7 @@ import { RoleEnum } from '../enums';
 import { SignUpPage } from '../pages/signUp';
 import StatisticsImg from './img/statistics.svg';
 import { StatisticsPage } from '../pages/statistics';
+import {CovidCollection} from '../pages/statistics/covidCollection'
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { VideoChatPage } from '../pages/videoChat';
@@ -92,8 +93,8 @@ const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
   listItem: { flexDirection: 'column', margin: '10px 0px 10px 0px' },
   listItemInner: {
-    border:'5px solid #F9FAFC',
-    borderRadius:'15px'
+    border: '5px solid #F9FAFC',
+    borderRadius: '15px',
   },
   logout: { marginTop: '20px', bottom: 0 },
   itemText: { color: 'white', paddingTop: '8px' },
@@ -115,7 +116,7 @@ const Component: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState<OrNull<string>>(null);
   const [statsOpen, setOpenStats] = useState(true);
-  const [ anchorEl, setAnchor]  = useState<any>(null);
+  const [anchorEl, setAnchor] = useState<any>(null);
 
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
@@ -125,9 +126,9 @@ const Component: React.FC<IProps> = (props) => {
     }
   }, [props.pathName]);
 
-  const onMouseOver = (event:any) => {
+  const onMouseOver = (event: any) => {
     setOpenStats(true);
-    setAnchor(event.currentTarget)
+    setAnchor(event.currentTarget);
   };
 
   // const onStatsClick = () => {
@@ -319,9 +320,9 @@ const Component: React.FC<IProps> = (props) => {
                     className={classes.listItemInner}
                     button
                     component={Link}
-                    to="/stats"
+                    to="/covidCollection"
                     selected={activeItem === 'Statistics'}
-                    onClick={() => setActiveItem('Statistics')}>
+                    onClick={() => setActiveItem('covidCollection')}>
                     <ListItemIcon>
                       <img src={StatisticsImg} style={{ width: `65%` }} />
                     </ListItemIcon>
@@ -480,6 +481,7 @@ const Component: React.FC<IProps> = (props) => {
           <PrivateRoute exact path="/referrals" component={ReferralsPage} />
           <PrivateRoute exact path="/newreading" component={NewReadingPage} />
           <PrivateRoute exact path="/resources" component={HelpPage} />
+          <PrivateRoute exact path="/covidCollection" component={CovidCollection}/>
           <PrivateRoute exact path="/chat/landing" component={VideoChatPage} />
           <PrivateRoute
             exact
