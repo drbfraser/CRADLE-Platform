@@ -44,7 +44,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { routesNames } from './toolbar/utils';
 import { Pathname } from 'history';
 import Collapse from '@material-ui/core/Collapse';
-
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 const drawerWidth = 200;
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -110,12 +111,17 @@ const Component: React.FC<IProps> = (props) => {
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
-    setOpenStats(!statsOpen)
+    setOpenStats(!statsOpen);
   }, [props.pathName]);
 
-  const handleStatsClick = () =>{
-    setOpenStats(!statsOpen)
-  }
+  const handleStatsClick = () => {
+    setOpenStats(!statsOpen);
+  };
+
+ 
+  const handleClose = () => {
+    statsOpen ? setOpenStats(false) :setOpenStats(true);
+  };
 
   const getRole = (roles?: Array<RoleEnum>): string => {
     if (!roles) {
@@ -267,7 +273,7 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Statistics'}
               onClick={handleStatsClick}
               // onClick={() => setActiveItem('Statistics')}
-              >
+            >
               <ListItemIcon>
                 <img src={StatisticsImg} style={{ width: `75%` }} />
               </ListItemIcon>
@@ -278,14 +284,23 @@ const Component: React.FC<IProps> = (props) => {
                   <Typography style={sidebarTextStyle}>Statistics</Typography>
                 }
               />
+              <Menu
+                id="simple-menu"
+                keepMounted
+                open={statsOpen}
+                onClose={handleClose}>
+                <MenuItem onClick={handleClose}>Profile</MenuItem>
+                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleClose}>Logout</MenuItem>
+              </Menu>
             </ListItem>
-            <Collapse in={statsOpen} timeout="auto" unmountOnExit>
+            {/* <Collapse in={statsOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button>
                   <ListItemText primary="Starred" />
                 </ListItem>
               </List>
-            </Collapse>
+            </Collapse> */}
             <ListItem
               className={classes.listItem}
               button
