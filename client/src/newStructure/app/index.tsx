@@ -131,9 +131,9 @@ const Component: React.FC<IProps> = (props) => {
     setAnchor(event.currentTarget);
   };
 
-  // const onStatsClick = () => {
-  //   setOpenStats(!statsOpen);
-  // };
+  const onStatsClick = () => {
+    setOpenStats(!statsOpen);
+  };
 
   const handleClose = () => {
     setOpenStats(false);
@@ -287,7 +287,7 @@ const Component: React.FC<IProps> = (props) => {
               button
               onMouseEnter={onMouseOver}
               onMouseLeave={handleClose}
-              // onClick={onStatsClick} //  need this for tablets
+              onClick={onStatsClick} //  need this for tablets
             >
               <ListItemIcon>
                 <img src={StatisticsImg} style={{ width: `75%` }} />
