@@ -116,15 +116,17 @@ const Component: React.FC<IProps> = (props) => {
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
-    setOpenStats(!statsOpen);
+    if(statsOpen){
+      setOpenStats(false)
+    }
   }, [props.pathName]);
 
   const handleStatsClick = () => {
-    setOpenStats(!statsOpen);
+    setOpenStats(true);
   };
 
   const handleClose = () => {
-    statsOpen ? setOpenStats(false) : setOpenStats(true);
+    setOpenStats(false) 
   };
 
   const getRole = (roles?: Array<RoleEnum>): string => {
@@ -272,9 +274,8 @@ const Component: React.FC<IProps> = (props) => {
             <ListItem
               className={classes.listItem}
               button
-              component={Link}
-              to="/stats"
-              selected={activeItem === 'Statistics'}
+              onMouseOver={handleStatsClick}
+              onMouseLeave={handleClose}
               onClick={handleStatsClick}
               // onClick={() => setActiveItem('Statistics')}
             >
@@ -300,9 +301,8 @@ const Component: React.FC<IProps> = (props) => {
                     width: '20ch',
                   },
                 }}>
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-                <MenuItem onClick={handleClose}>Logout</MenuItem>
+                <MenuItem onClick={handleClose}>Covid-19 Collection</MenuItem>
+                <MenuItem onClick={() => setActiveItem('Statistics')}>Statistics</MenuItem>
               </Menu>
             </ListItem>
             <ListItem
