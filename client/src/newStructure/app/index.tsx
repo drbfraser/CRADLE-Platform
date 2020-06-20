@@ -91,12 +91,15 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: theme.mixins.toolbar,
   listItem: { flexDirection: 'column', margin: '10px 0px 10px 0px' },
+  listItemInner: {
+    border:'5px solid #F9FAFC',
+    borderRadius:'15px'
+  },
   logout: { marginTop: '20px', bottom: 0 },
   itemText: { color: 'white', paddingTop: '8px' },
   menu: {
     marginRight: theme.spacing(2),
     left: '210px !important',
-    borderRadius: '25px !important',
   },
 }));
 
@@ -301,13 +304,56 @@ const Component: React.FC<IProps> = (props) => {
                 onClose={handleClose}
                 PaperProps={{
                   style: {
-                    width: '20ch',
-                    borderRadius: "25px"
+                    width: '35ch',
+                    borderRadius: '15px',
+                    backgroundImage:
+                      'linear-gradient( #64b1c6 , rgb(114, 193, 212))',
+                    color: '#F9FAFC',
                   },
                 }}>
-                <MenuItem onClick={handleClose}>Covid-19 Collection</MenuItem>
-                <MenuItem onClick={() => setActiveItem('Statistics')}>
-                  Statistics
+                <MenuItem onClick={handleClose}>
+                  <ListItem
+                    className={classes.listItemInner}
+                    button
+                    component={Link}
+                    to="/stats"
+                    selected={activeItem === 'Statistics'}
+                    onClick={() => setActiveItem('Statistics')}>
+                    <ListItemIcon>
+                      <img src={StatisticsImg} style={{ width: `65%` }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      disableTypography
+                      className={classes.itemText}
+                      primary={
+                        <Typography style={sidebarTextStyle}>
+                          Covid-19 Collection
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
+                </MenuItem>
+                <MenuItem>
+                  <ListItem
+                    className={classes.listItemInner}
+                    button
+                    component={Link}
+                    to="/stats"
+                    selected={activeItem === 'Statistics'}
+                    onClick={() => setActiveItem('Statistics')}>
+                    <ListItemIcon>
+                      <img src={StatisticsImg} style={{ width: `65%` }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      disableTypography
+                      className={classes.itemText}
+                      primary={
+                        <Typography style={sidebarTextStyle}>
+                          Statistics
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
                 </MenuItem>
               </Menu>
             </ListItem>
