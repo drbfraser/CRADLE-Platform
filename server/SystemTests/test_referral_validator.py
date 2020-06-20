@@ -4,6 +4,7 @@ from Validation.ReferralValidator import ReferralValidator
 
 validator = ReferralValidator()
 
+
 def test_validate_passes():
     try:
         sample_referral = {
@@ -14,11 +15,12 @@ def test_validate_passes():
             "userId": "1",
             "patientId": "204652",
             "referralHealthFacilityName": "H0000",
-            "readingId": "abc-123-de2-a74a"
+            "readingId": "abc-123-de2-a74a",
         }
         validator.validate(sample_referral)
     except Exception as e:
         pytest.fail("Test failed. Unexpected exception: {0}".format(e))
+
 
 def test_validate_fails():
     with pytest.raises(Exception):
@@ -32,9 +34,10 @@ def test_validate_fails():
             "userId": "1",
             "patientId": "204652",
             "referralHealthFacilityName": "H0000",
-            "readingId": "abc-123-de2-a74a"
+            "readingId": "abc-123-de2-a74a",
         }
         validator.validate(sample_referral)
+
 
 def test_is_string_passes():
     try:
@@ -46,11 +49,12 @@ def test_is_string_passes():
             "userId": "1",
             "patientId": "204652",
             "referralHealthFacilityName": "H0000",
-            "readingId": "abc-123-de2-a74a"
+            "readingId": "abc-123-de2-a74a",
         }
-        validator.isString('comment', sample_referral)
+        validator.isString("comment", sample_referral)
     except Exception as e:
         pytest.fail("Test failed. Unexpected exception: {0}".format(e))
+
 
 def test_is_string_fails():
     with pytest.raises(Exception):
@@ -62,9 +66,10 @@ def test_is_string_fails():
             "userId": "1",
             "patientId": "204652",
             "referralHealthFacilityName": "H0000",
-            "readingId": "abc-123-de2-a74a"
+            "readingId": "abc-123-de2-a74a",
         }
-        validator.isString('dateReferred', sample_referral)
+        validator.isString("dateReferred", sample_referral)
+
 
 def test_is_int_passes():
     try:
@@ -76,11 +81,12 @@ def test_is_int_passes():
             "userId": "1",
             "patientId": "204652",
             "referralHealthFacilityName": "H0000",
-            "readingId": "abc-123-de2-a74a"
+            "readingId": "abc-123-de2-a74a",
         }
-        validator.isInt('dateReferred', sample_referral)
+        validator.isInt("dateReferred", sample_referral)
     except Exception as e:
         pytest.fail("Test failed. Unexpected exception: {0}".format(e))
+
 
 def test_is_int_fails():
     with pytest.raises(Exception):
@@ -92,9 +98,10 @@ def test_is_int_fails():
             "userId": "1",
             "patientId": "204652",
             "referralHealthFacilityName": "H0000",
-            "readingId": "abc-123-de2-a74a"
+            "readingId": "abc-123-de2-a74a",
         }
-        validator.isInt('comment', sample_referral)
+        validator.isInt("comment", sample_referral)
+
 
 def test_exists_passes():
     try:
@@ -102,9 +109,11 @@ def test_exists_passes():
     except Exception as e:
         pytest.fail("Test failed. Unexpected exception: {0}".format(e))
 
+
 def test_exists_fails():
     with pytest.raises(Exception):
         validator.exists(Patient, "patientId", "nonExistantId")
+
 
 def test_is_enforce_required_passes():
     try:
@@ -116,11 +125,12 @@ def test_is_enforce_required_passes():
             "userId": "1",
             "patientId": "204652",
             "referralHealthFacilityName": "H0000",
-            "readingId": "abc-123-de2-a74a"
+            "readingId": "abc-123-de2-a74a",
         }
         validator.enforce_required(sample_referral)
     except Exception as e:
         pytest.fail("Test failed. Unexpected exception: {0}".format(e))
+
 
 def test_is_enforce_required_fails():
     with pytest.raises(Exception):
@@ -132,6 +142,6 @@ def test_is_enforce_required_fails():
             "actionTaken": "Sent to hospital",
             "userId": "1",
             "referralHealthFacilityName": "H0000",
-            "readingId": "abc-123-de2-a74a"
+            "readingId": "abc-123-de2-a74a",
         }
         validator.isInt(sample_referral)
