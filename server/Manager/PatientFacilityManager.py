@@ -23,6 +23,6 @@ class PatientFacilityManager(Manager):
             }
             self.create(patient_facility_to_insert)
         except IntegrityError:
-            # caught duplicte entry
-            logging.debug("Duplicate entry for patient belonging to a facility")
-            raise Exception("This patient already belongs to this facility")
+            # caught duplicte entry or facility that does not exist 
+            logging.debug("Duplicate entry, or facility does not exist")
+            raise Exception("This patient either already belongs to this facility, or the facility does not exist")
