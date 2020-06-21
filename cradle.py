@@ -192,7 +192,9 @@ def rebuild_database(args):
         compose_up(argparse.Namespace(**dict_args))
         verbose_log("Sleeping for a bit to let the containers warm up")
         time.sleep(5)
-        drop_database()
+
+    # Drop the database.
+    drop_database()
 
     # Create and seed the database.
     create_database()
@@ -232,7 +234,7 @@ def create_database():
 def drop_database():
     db_name = env.get("DB_NAME", required=True)
     verbose_log(f"Dropping database {db_name}")
-    exec_mysql_stmt(f"DROP DATABASE `{db_name}`;")
+    exec_mysql_stmt(f"DROP DATABASE IF EXISTS `{db_name}`;")
 
 
 def upgrade_database():
@@ -252,12 +254,12 @@ def seed_database(seed_cmd="seed"):
     """
     verbose_log(f"Seeding database with management command: {seed_cmd}")
     server_name = None
-    manage_script = "manage.py"
+    local_manage_script = "manage.py"
     if using_docker():
         server_name = server_container()
     else:
-        manage_script = "server/manage.py"
-    exec_sh_cmd(["python", manage_script, seed_cmd], container=server_name)
+        local_manage_script = manage_script
+    exec_sh_cmd(["python", local_manage_script, seed_cmd], container=server_name)
 
 
 def exec_mysql_stmt(stmt, database=None):
@@ -459,6 +461,7 @@ class NegateAction(argparse.Action):
 # Global State
 #
 env = None
+manage_script = None
 verbose = False
 docker_override = None
 fail_on_error = True
@@ -477,6 +480,13 @@ if __name__ == "__main__":
         help="environment file to load (default: server/.env)",
         metavar="PATH",
         default="server/.env",
+    )
+    parser.add_argument(
+        "--manage-script",
+        type=str,
+        help="path to manage.py script for seeding (default: server/manage.py)",
+        metavar="PATH",
+        default="server/manage.py"
     )
     parser.add_argument(
         "--docker",
@@ -557,5 +567,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     verbose = not args.quiet
     docker_override = args.force_docker
+    manage_script = args.manage_script
     env = Env(args.env_file)
     args.func(args)
