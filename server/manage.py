@@ -373,6 +373,5 @@ if __name__ == "__main__":
     heartRateList = list(np.random.normal(60, 17, 1000).astype(int))
 
     d1 = datetime.strptime("1/1/2019 12:01 AM", "%m/%d/%Y %I:%M %p")
-    # d2 = datetime.strptime('12/31/2019 11:59 PM', '%m/%d/%Y %I:%M %p')
-    d2 = datetime.strptime("11/11/2019 11:59 PM", "%m/%d/%Y %I:%M %p")
+    d2 = datetime.today().replace(microsecond=0)
     manager.run()
