@@ -29,45 +29,45 @@ def get_authorization_header(email, password):
 base_url = "http://localhost:5000"
 
 
-def getRandomPatientId():
+def get_random_patient_id():
     return str(random.randint(48300000000, 48300099999))
 
 
-def getRandomGender():
+def get_random_gender():
     GENDER_LIST = ["MALE", "FEMALE"]
     return GENDER_LIST[random.randint(0, 1)]
 
 
-def getRanomdUUID():
+def get_random_UUID():
     return str(uuid.uuid4())
 
 
-def getRandomUserId():
+def get_random_user_id():
     return random.randint(1, 4)
 
 
-def getGreenTrafficLight():
+def get_green_traffic_light():
     systolic = 126
     diastolic = 75
     hr = 84
     return {"bpSystolic": systolic, "bpDiastolic": diastolic, "hr": hr}
 
 
-def getYellowUpTrafficLight():
+def get_yellow_up_traffic_light():
     systolic = 141
     diastolic = 83
     hr = 50
     return {"bpSystolic": systolic, "bpDiastolic": diastolic, "hr": hr}
 
 
-def getRedUpTrafficLight():
+def get_red_up_traffic_light():
     systolic = 112
     diastolic = 130
     hr = 99
     return {"bpSystolic": systolic, "bpDiastolic": diastolic, "hr": hr}
 
 
-def getRandomSymtoms():
+def get_random_symptoms():
     symptoms = ["headache", "body pain", "feverish", "bleeding"]
     return symptoms[random.randint(0, 3)]
 
@@ -77,77 +77,77 @@ auth_header = get_authorization_header("admin123@admin.com", "admin123")
 #                     SUCCESS CODE 201 TESTS                 #
 ##############################################################
 def test_pass_create_patient():
-    patientId = getRandomPatientId()
-    patientName = getRandomInitials()
-    patientSex = "FEMALE"
+    patient_id = get_random_patient_id()
+    patient_name = getRandomInitials()
+    patient_sex = "FEMALE"
 
     url = base_url + "/api/patient"
 
     data = {
-        "patientId": patientId,
-        "patientName": patientName,
-        "patientSex": patientSex,
+        "patientId": patient_id,
+        "patientName": patient_name,
+        "patientSex": patient_sex,
     }
 
     response = requests.post(url, json=data, headers=auth_header)
     response_body = response.json()
 
     assert response.status_code == 201
-    assert response_body["patientId"] == patientId
-    assert response_body["patientName"] == patientName
-    assert response_body["patientSex"] == patientSex
+    assert response_body["patientId"] == patient_id
+    assert response_body["patientName"] == patient_name
+    assert response_body["patientSex"] == patient_sex
 
 
-def test_pass_create_patient2():
-    patientId = getRandomPatientId()
-    patientName = getRandomInitials()
-    patientSex = "MALE"
+def test_pass_create_patient_2():
+    patient_id = get_random_patient_id()
+    patient_name = getRandomInitials()
+    patient_sex = "MALE"
 
     url = base_url + "/api/patient"
 
     data = {
-        "patientId": patientId,
-        "patientName": patientName,
-        "patientSex": patientSex,
+        "patientId": patient_id,
+        "patientName": patient_name,
+        "patientSex": patient_sex,
     }
 
     response = requests.post(url, json=data, headers=auth_header)
     response_body = json.loads(response.text)
 
     assert response.status_code == 201
-    assert response_body["patientId"] == patientId
-    assert response_body["patientName"] == patientName
-    assert response_body["patientSex"] == patientSex
+    assert response_body["patientId"] == patient_id
+    assert response_body["patientName"] == patient_name
+    assert response_body["patientSex"] == patient_sex
 
 
 def test_pass_create_patient_reading():
-    patientId = getRandomPatientId()
-    patientName = getRandomInitials()
-    patientSex = getRandomGender()
-    readingId = getRanomdUUID()
+    patient_id = get_random_patient_id()
+    patient_name = getRandomInitials()
+    patient_sex = get_random_gender()
+    reading_id = get_random_UUID()
 
-    vitals = getGreenTrafficLight()
-    bpSystolic = vitals["bpSystolic"]
-    bpDiastolic = vitals["bpDiastolic"]
+    vitals = get_green_traffic_light()
+    bp_systolic = vitals["bpSystolic"]
+    bp_diastolic = vitals["bpDiastolic"]
     hr = vitals["hr"]
-    dateTimeTaken = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
-    userId = getRandomUserId()
+    date_time_taken = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
+    user_id = get_random_user_id()
 
     url = base_url + "/api/patient/reading"
 
     patient = {
-        "patientId": patientId,
-        "patientName": patientName,
-        "patientSex": patientSex,
+        "patientId": patient_id,
+        "patientName": patient_name,
+        "patientSex": patient_sex,
     }
 
     reading = {
-        "readingId": readingId,
-        "bpSystolic": bpSystolic,
-        "bpDiastolic": bpDiastolic,
+        "readingId": reading_id,
+        "bpSystolic": bp_systolic,
+        "bpDiastolic": bp_diastolic,
         "heartRateBPM": hr,
-        "dateTimeTaken": dateTimeTaken,
-        "userId": userId,
+        "dateTimeTaken": date_time_taken,
+        "userId": user_id,
         "isFlaggedForFollowup": "false",
         "symptoms": "heache",
     }
@@ -157,11 +157,11 @@ def test_pass_create_patient_reading():
     response_body = json.loads(response.text)
 
     assert response.status_code == 201
-    assert response_body["patient"]["patientId"] == patientId
-    assert response_body["patient"]["patientName"] == patientName
-    assert response_body["patient"]["patientSex"] == patientSex
-    assert response_body["reading"]["bpSystolic"] == bpSystolic
-    assert response_body["reading"]["bpDiastolic"] == bpDiastolic
+    assert response_body["patient"]["patientId"] == patient_id
+    assert response_body["patient"]["patientName"] == patient_name
+    assert response_body["patient"]["patientSex"] == patient_sex
+    assert response_body["reading"]["bpSystolic"] == bp_systolic
+    assert response_body["reading"]["bpDiastolic"] == bp_diastolic
     assert response_body["reading"]["heartRateBPM"] == hr
 
 
@@ -186,21 +186,21 @@ def test_get_patient():
 
 def test_fail_create_patient_reading():
     # should fail because missing some reading information
-    patientId = getRandomPatientId()
-    patientName = getRandomInitials()
-    patientSex = getRandomGender()
-    readingId = getRanomdUUID()
+    patient_id = get_random_patient_id()
+    patient_name = getRandomInitials()
+    patient_sex = get_random_gender()
+    reading_id = get_random_UUID()
 
     url = base_url + "/api/patient/reading"
 
     patient = {
-        "patientId": patientId,
-        "patientName": patientName,
-        "patientSex": patientSex,
+        "patientId": patient_id,
+        "patientName": patient_name,
+        "patientSex": patient_sex,
     }
 
     reading = {
-        "readingId": readingId,
+        "readingId": reading_id,
     }
     data = {"patient": patient, "reading": reading}
 
@@ -211,16 +211,16 @@ def test_fail_create_patient_reading():
 def test_fail_create_patient_duplicate():
     # should fail because we are creating a duplicate patient
 
-    patientId = getRandomPatientId()
-    patientName = getRandomInitials()
-    patientSex = "MALE"
+    patient_id = get_random_patient_id()
+    patient_name = getRandomInitials()
+    patient_sex = "MALE"
 
     url = base_url + "/api/patient"
 
     data = {
-        "patientId": patientId,
-        "patientName": patientName,
-        "patientSex": patientSex,
+        "patientId": patient_id,
+        "patientName": patient_name,
+        "patientSex": patient_sex,
     }
 
     response = requests.post(url, json=data, headers=auth_header)
@@ -230,14 +230,14 @@ def test_fail_create_patient_duplicate():
 
 
 def test_fail_create_patient_missing_fields():
-    # should fail because we are missing patientName
+    # should fail because we are missing patient_name
 
-    patientId = getRandomPatientId()
-    patientSex = "FEMALE"
+    patient_id = get_random_patient_id()
+    patient_sex = "FEMALE"
 
     url = base_url + "/api/patient"
 
-    data = {"patientId": patientId, "patientSex": patientSex}
+    data = {"patientId": patient_id, "patientSex": patient_sex}
 
     response = requests.post(url, json=data, headers=auth_header)
     assert response.status_code == 400
@@ -248,9 +248,9 @@ auth_header_hcw = get_authorization_header("hcw@hcw.com", "hcw123")
 
 
 def test_pass_create_relationship():
-    # has to be exisiting patient in seeded data
-    patientId = "400260"
-    url = base_url + "/api/patient/facility/" + patientId
+    # has to be existing patient in seeded data
+    patient_id = "400260"
+    url = base_url + "/api/patient/facility/" + patient_id
     response = requests.post(url, headers=auth_header_hcw)
     assert response.status_code == 201
     response_body = response.json()
@@ -258,10 +258,10 @@ def test_pass_create_relationship():
 
 
 def test_fail_duplicate_relationship():
-    # has to be exisiting patient in seeded data
-    patientId = "204652"
-    url = base_url + "/api/patient/facility/" + patientId
-    # should fail because we're calling the api twice, with same patientId
+    # has to be existing patient in seeded data
+    patient_id = "204652"
+    url = base_url + "/api/patient/facility/" + patient_id
+    # should fail because we're calling the api twice, with same patient_id
     requests.post(url, headers=auth_header_hcw)
     response = requests.post(url, headers=auth_header_hcw)
     response_body = response.json()
@@ -271,8 +271,8 @@ def test_fail_duplicate_relationship():
 
 def test_fail_invalid_patient_id():
     # should fail because we're passing a patient id that does not exist
-    patientId = "92837483"
-    url = base_url + "/api/patient/facility/" + str(patientId)
+    patient_id = "92837483"
+    url = base_url + "/api/patient/facility/" + patient_id
     response = requests.post(url, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 404
