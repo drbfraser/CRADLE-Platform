@@ -15,11 +15,12 @@ from flasgger import Swagger
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 class Config(object):
     env = Env()
     env.read_env()
 
-    try: 
+    try:
         db_user = env("DB_USERNAME")
         db_pw = env("DB_PASSWORD")
         db_hostname = env("DB_HOSTNAME")
@@ -27,22 +28,28 @@ class Config(object):
         db_name = env("DB_NAME")
 
     except environs.EnvError:
-        print("******************************************************************************************")
-        print("DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, OR DB_NAME environment variable not set")
-        print("******************************************************************************************")
+        print(
+            "******************************************************************************************"
+        )
+        print(
+            "DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, OR DB_NAME environment variable not set"
+        )
+        print(
+            "******************************************************************************************"
+        )
 
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}' # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
-    
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
+
     print("SQLALCHEMY_DATABASE_URI: " + SQLALCHEMY_DATABASE_URI)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
+
     # JWT_SECRET_KEY= os.environ.get('SECRET')
-    JWT_SECRET_KEY = 'very secret'
+    JWT_SECRET_KEY = "very secret"
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
 
-class JSONEncoder(json.JSONEncoder):
 
+class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
             return str(o)
@@ -53,13 +60,11 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-FLASK_APP = 'app.py'
-FLASK_DEBUG=1
+FLASK_APP = "app.py"
+FLASK_DEBUG = 1
 
-app = Flask(__name__, static_folder='../client/build')
-app.config['SWAGGER'] = {
-    'openapi': '3.0.2'
-}
+app = Flask(__name__, static_folder="../client/build")
+app.config["SWAGGER"] = {"openapi": "3.0.2"}
 swagger = Swagger(app)
 
 # Used to Serve React App and static assets if Nginx is not configured

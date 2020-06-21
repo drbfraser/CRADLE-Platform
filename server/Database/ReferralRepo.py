@@ -3,18 +3,17 @@ from config import db
 
 from .Database import Database
 
+
 class ReferralRepo(Database):
     def __init__(self):
-        super(ReferralRepo, self).__init__(
-            table=Referral,
-            schema=ReferralSchema
-        )
-        
+        super(ReferralRepo, self).__init__(table=Referral, schema=ReferralSchema)
+
     """
     description:
         removes association with previous FollowUp,
         then creates association with new FollowUp
     """
+
     def update(self, key, value, new_data):
         if "followUpId" in new_data:
             search_dict = {}

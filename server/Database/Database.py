@@ -17,27 +17,30 @@ Usage:
 import collections
 from config import db
 
+
 class Database:
     def __init__(self, table, schema):
         self.table = table
         self.schema = schema
-    
+
     """
         Description: 
             converts a SQLAlchemy object to a python dict
     """
+
     def model_to_dict(self, model):
         if not model:
             return None
         if isinstance(model, collections.Mapping):  # Local database stub
             return model
         return self.schema().dump(model)
-    
+
     """
         Description: 
             converts a list of SQLAlchemy objects to a python list containing
             python dicts, with key value pairs of SQLAlchemy object
     """
+
     def models_to_list(self, models):
         return self.schema(many=True).dump(models)
 
@@ -51,12 +54,13 @@ class Database:
         Return: 
             [dict] containing the key value pairs of the newly inserted row
     """
+
     def create(self, new_data):
         new_entry = self.schema().load(new_data, session=db.session)
         db.session.add(new_entry)
         db.session.commit()
         return self.model_to_dict(new_entry)
-    
+
     """
         Description: 
             read single record in table
@@ -68,6 +72,7 @@ class Database:
             record 
             - None is returned if query has no matches
     """
+
     def read(self, key, value):
         search_dict = {}
         search_dict[key] = value
@@ -81,6 +86,7 @@ class Database:
             - [list] containing dicts corresponding to all records
             - None is returned if query has no matches
     """
+
     def read_all(self):
         all_entries = self.table.query.all()
         if all_entries:
@@ -99,6 +105,7 @@ class Database:
             - [dict] containing the key value pairs of updated record
             - None is returned if query has no matches
     """
+
     def update(self, key, value, new_data):
         search_dict = {}
         search_dict[key] = value
@@ -124,6 +131,7 @@ class Database:
             - True if match is found and record is deleted
             - False is returned if query has no matches
     """
+
     def delete(self, key, value):
         search_dict = {}
         search_dict[key] = value
@@ -140,10 +148,11 @@ class Database:
         Return: 
             - [int] number of records deleted
     """
+
     def delete_all(self):
         count = db.session.query(self.table).delete()
         db.session.commit()
-        print(f'Deleted {count} {type(self.table).__name__}')
+        print(f"Deleted {count} {type(self.table).__name__}")
         return count
 
     """
@@ -155,6 +164,7 @@ class Database:
         Return: 
             - [list] containing the python dicts of all matching records
     """
+
     def search(self, search_dict):
         all_entries = self.table.query.filter_by(**search_dict)
         return self.models_to_list(all_entries)

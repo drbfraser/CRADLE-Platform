@@ -4,6 +4,8 @@ from flask_jwt_extended import jwt_required
 from flasgger import swag_from
 
 statsManager = StatsManager()
+
+
 class AllStats(Resource):
     """ 
         Description: returns a json object with the following:
@@ -19,8 +21,7 @@ class AllStats(Resource):
     # TO DO: NEED TO RETURN JSON IN NICER FORMAT
     # GET api/stats
     @jwt_required
-    @swag_from('../specifications/stats-all.yml', methods=['GET'])
+    @swag_from("../specifications/stats-all.yml", methods=["GET"])
     def get(self):
         stats = statsManager.put_data_together()
         return stats
-
