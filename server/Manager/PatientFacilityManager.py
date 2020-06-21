@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from Database.PatientFacilityRepo import PatientFacilityRepo
 from Manager.Manager import Manager
 from Manager.UserManager import UserManager
+from flask_restful import abort
 
 userManager = UserManager()
 
@@ -23,6 +24,6 @@ class PatientFacilityManager(Manager):
             }
             self.create(patient_facility_to_insert)
         except IntegrityError:
-            # caught duplicte entry or facility that does not exist 
-            logging.debug("Duplicate entry, or facility does not exist")
-            raise Exception("This patient either already belongs to this facility, or the facility does not exist")
+            # caught duplicte entry
+            logging.debug("Duplicate entry")
+            abort(409, message="Duplicate entry")
