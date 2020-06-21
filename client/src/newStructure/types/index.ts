@@ -71,7 +71,7 @@ export type Patient = {
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
   needsAssessment: boolean;
-  patientAge: number;
+  patientAge: OrNull<number>;
   patientId: string;
   patientName: string;
   patientSex: SexEnum;
@@ -134,7 +134,7 @@ export type PatientNewReading = {
   gestationalAgeValue: string;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
-  patientAge: string;
+  patientAge: OrNull<string>;
   patientId: string;
   patientName: string;
   patientSex: string;

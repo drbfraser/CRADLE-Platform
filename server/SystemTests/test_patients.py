@@ -3,6 +3,7 @@ import requests
 import json
 import random
 import string
+import time
 import uuid
 from datetime import datetime
 from manage import getRandomInitials
@@ -26,7 +27,9 @@ def get_authorization_header():
     return auth
 
 
-base_url = "http://localhost:5000"
+BASE_URL = "http://localhost:5000"
+# date equivalent to Jan 1, 2000
+EPOCH_BIRTHDATE = 946684800
 
 
 def getRandomPatientId():
@@ -81,7 +84,7 @@ def test_pass_create_patient():
     patientName = getRandomInitials()
     patientSex = "FEMALE"
 
-    url = base_url + "/api/patient"
+    url = BASE_URL + "/api/patient"
 
     data = {
         "patientId": patientId,
@@ -103,7 +106,7 @@ def test_pass_create_patient2():
     patientName = getRandomInitials()
     patientSex = "MALE"
 
-    url = base_url + "/api/patient"
+    url = BASE_URL + "/api/patient"
 
     data = {
         "patientId": patientId,
@@ -118,6 +121,91 @@ def test_pass_create_patient2():
     assert response_body["patientId"] == patientId
     assert response_body["patientName"] == patientName
     assert response_body["patientSex"] == patientSex
+    assert response_body["dob"] == None
+    assert response_body["patientAge"] == None
+
+
+def test_pass_create_patient_with_dob_no_age():
+    patientId = getRandomPatientId()
+    patientName = getRandomInitials()
+    patientSex = "MALE"
+
+    url = BASE_URL + "/api/patient"
+
+    data = {
+        "patientId": patientId,
+        "patientName": patientName,
+        "patientSex": patientSex,
+        # dob equivalent to Jan 1, 2000
+        "dob": EPOCH_BIRTHDATE,
+    }
+
+    # calculates age from Jan 1, 2000 birthdate
+    SECONDS_IN_YEAR = 31557600
+    age_in_database = (time.time() - EPOCH_BIRTHDATE) / SECONDS_IN_YEAR
+
+    response = requests.post(url, json=data, headers=auth_header)
+    response_body = json.loads(response.text)
+
+    assert response.status_code == 201
+    assert response_body["patientId"] == patientId
+    assert response_body["patientName"] == patientName
+    assert response_body["patientSex"] == patientSex
+    assert response_body["dob"] == EPOCH_BIRTHDATE
+    assert response_body["patientAge"] == int(age_in_database)
+
+
+def test_pass_create_patient_reading_with_dob_no_age():
+    patientId = getRandomPatientId()
+    patientName = getRandomInitials()
+    patientSex = getRandomGender()
+    readingId = getRanomdUUID()
+
+    vitals = getGreenTrafficLight()
+    bpSystolic = vitals["bpSystolic"]
+    bpDiastolic = vitals["bpDiastolic"]
+    hr = vitals["hr"]
+    dateTimeTaken = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
+    userId = getRandomUserId()
+
+    url = BASE_URL + "/api/patient/reading"
+
+    patient = {
+        "patientId": patientId,
+        "patientName": patientName,
+        "patientSex": patientSex,
+        # dob equivalent to Jan 1, 2000
+        "dob": EPOCH_BIRTHDATE,
+    }
+
+    # calculates age from Jan 1, 2000 birthdate
+    SECONDS_IN_YEAR = 31557600
+    age_in_database = (time.time() - EPOCH_BIRTHDATE) / SECONDS_IN_YEAR
+
+    reading = {
+        "readingId": readingId,
+        "bpSystolic": bpSystolic,
+        "bpDiastolic": bpDiastolic,
+        "heartRateBPM": hr,
+        "dateTimeTaken": dateTimeTaken,
+        "userId": userId,
+        "isFlaggedForFollowup": "false",
+        "symptoms": "heache",
+    }
+    data = {"patient": patient, "reading": reading}
+
+    response = requests.post(url, json=data, headers=auth_header)
+    response_body = json.loads(response.text)
+
+    assert response.status_code == 201
+    assert response_body["patient"]["patientId"] == patientId
+    assert response_body["patient"]["patientName"] == patientName
+    assert response_body["patient"]["patientSex"] == patientSex
+    assert response_body["reading"]["bpSystolic"] == bpSystolic
+    assert response_body["reading"]["bpDiastolic"] == bpDiastolic
+    assert response_body["reading"]["heartRateBPM"] == hr
+    assert response_body["patient"]["dob"] == EPOCH_BIRTHDATE
+    assert response_body["patient"]["patientAge"] == int(age_in_database)
 
 
 def test_pass_create_patient_reading():
@@ -133,7 +221,7 @@ def test_pass_create_patient_reading():
     dateTimeTaken = int((datetime.now() - datetime(1970, 1, 1)).total_seconds())
     userId = getRandomUserId()
 
-    url = base_url + "/api/patient/reading"
+    url = BASE_URL + "/api/patient/reading"
 
     patient = {
         "patientId": patientId,
@@ -163,12 +251,14 @@ def test_pass_create_patient_reading():
     assert response_body["reading"]["bpSystolic"] == bpSystolic
     assert response_body["reading"]["bpDiastolic"] == bpDiastolic
     assert response_body["reading"]["heartRateBPM"] == hr
+    assert response_body["patient"]["dob"] == None
+    assert response_body["patient"]["patientAge"] == None
 
 
 def test_get_patient():
 
     # hardcoded id 204652 based on deterministic patient data seeded in test database
-    url = base_url + "/api/patient/204652"
+    url = BASE_URL + "/api/patient/204652"
     response = requests.get(url, headers=auth_header)
     response_body = response.json()
 
@@ -191,7 +281,7 @@ def test_fail_create_patient_reading():
     patientSex = getRandomGender()
     readingId = getRanomdUUID()
 
-    url = base_url + "/api/patient/reading"
+    url = BASE_URL + "/api/patient/reading"
 
     patient = {
         "patientId": patientId,
@@ -215,7 +305,7 @@ def test_fail_create_patient_duplicate():
     patientName = getRandomInitials()
     patientSex = "MALE"
 
-    url = base_url + "/api/patient"
+    url = BASE_URL + "/api/patient"
 
     data = {
         "patientId": patientId,
@@ -235,7 +325,7 @@ def test_fail_create_patient_missing_fields():
     patientId = getRandomPatientId()
     patientSex = "FEMALE"
 
-    url = base_url + "/api/patient"
+    url = BASE_URL + "/api/patient"
 
     data = {"patientId": patientId, "patientSex": patientSex}
 
