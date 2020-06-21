@@ -43,7 +43,7 @@ const initState = {
   patient: {
     patientId: '',
     patientName: '',
-    patientAge: '',
+    patientAge: null,
     patientSex: 'FEMALE',
     isPregnant: true,
     gestationalAgeValue: '',
@@ -248,8 +248,8 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         symptom.push(this.state.checkedItems.otherSymptoms);
       }
     }
-    if (this.state.patient.patientAge === '') {
-      this.setState({ patient: { ...this.state.patient, patientAge: `15` } });
+    if (this.state.patient.patientAge == '') {
+      this.setState({ patient: { ...this.state.patient, patientAge: null } });
     }
 
     if (this.state.patient.dob !== null) {
