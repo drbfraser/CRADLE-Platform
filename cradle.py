@@ -192,7 +192,9 @@ def rebuild_database(args):
         compose_up(argparse.Namespace(**dict_args))
         verbose_log("Sleeping for a bit to let the containers warm up")
         time.sleep(5)
-        drop_database()
+
+    # Drop the database.
+    drop_database()
 
     # Create and seed the database.
     create_database()
@@ -232,7 +234,7 @@ def create_database():
 def drop_database():
     db_name = env.get("DB_NAME", required=True)
     verbose_log(f"Dropping database {db_name}")
-    exec_mysql_stmt(f"DROP DATABASE `{db_name}`;")
+    exec_mysql_stmt(f"DROP DATABASE IF EXISTS `{db_name}`;")
 
 
 def upgrade_database():
