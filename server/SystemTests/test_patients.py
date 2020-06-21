@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime
 from manage import getRandomInitials
 
+
 def get_login_token(email, password):
     url = "http://localhost:5000/api/user/auth"
     payload = {"email": email, "password": password}
@@ -241,22 +242,25 @@ def test_fail_create_patient_missing_fields():
     response = requests.post(url, json=data, headers=auth_header)
     assert response.status_code == 400
 
+
 # Testing create patient facility relationship API
 auth_header_hcw = get_authorization_header("hcw@hcw.com", "hcw123")
 
+
 def test_pass_create_relationship():
-    # has to be exisiting patient in seeded data 
-    patientId = "400260" 
-    url = base_url + "/api/patient/facility/" + patientId 
+    # has to be exisiting patient in seeded data
+    patientId = "400260"
+    url = base_url + "/api/patient/facility/" + patientId
     response = requests.post(url, headers=auth_header_hcw)
     assert response.status_code == 201
     response_body = response.json()
     assert response_body["message"] == "patient has been added to facility successfully"
 
+
 def test_fail_duplicate_relationship():
     # has to be exisiting patient in seeded data
-    patientId = "204652"  
-    url = base_url + "/api/patient/facility/" + patientId 
+    patientId = "204652"
+    url = base_url + "/api/patient/facility/" + patientId
     # should fail because we're calling the api twice, with same patientId
     requests.post(url, headers=auth_header_hcw)
     response = requests.post(url, headers=auth_header_hcw)
@@ -264,12 +268,12 @@ def test_fail_duplicate_relationship():
     assert response.status_code == 409
     assert response_body["message"] == "Duplicate entry"
 
+
 def test_fail_invalid_patient_id():
-    # should fail because we're passing a patient id that does not exist 
-    patientId = "92837483"  
-    url = base_url + "/api/patient/facility/" + str(patientId) 
+    # should fail because we're passing a patient id that does not exist
+    patientId = "92837483"
+    url = base_url + "/api/patient/facility/" + str(patientId)
     response = requests.post(url, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 404
     assert response_body["message"] == "This patient does not exist."
-
