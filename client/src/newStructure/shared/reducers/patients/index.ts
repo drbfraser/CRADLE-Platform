@@ -84,10 +84,12 @@ export const addPatientToHealthFacilityRequested = (patient: GlobalSearchPatient
 });
 
 export const addPatientToHealthFacility = (addedPatient: GlobalSearchPatient) => {
+  const { patientId } = addedPatient;
+
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENT_FACILITY}/${addedPatient.patientId}`,
+    endpoint: Endpoints.PATIENT_FACILITY,
     method: Methods.POST,
-    data: addedPatient.patientId,
+    data: { patientId },
     onSuccess: () => ({
       type: ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
       payload: { addedPatient },

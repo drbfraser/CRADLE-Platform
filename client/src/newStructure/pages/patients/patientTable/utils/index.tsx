@@ -1,12 +1,8 @@
 import { GlobalSearchPatient, Patient } from '@types';
-import {
-  getLatestReadingDateTime,
-  getPrettyDate,
-  sortPatientsByLastReading,
-} from '../../../../../../shared/utils';
+import { getLatestReadingDateTime, getPrettyDate, sortPatientsByLastReading } from '../../../../shared/utils';
 
 import { Column } from 'material-table';
-import { PatientStateEnum } from '../../../../../../enums';
+import { PatientStateEnum } from '../../../../enums';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 

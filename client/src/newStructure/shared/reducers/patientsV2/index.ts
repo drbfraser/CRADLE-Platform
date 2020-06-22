@@ -97,10 +97,11 @@ export const addingPatientToHealthFacility = (
 });
 
 export const addPatientToHealthFacility = (patient: Patient): ServerRequestAction => {
+  const { patientId } = patient;
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENT_FACILITY}/${patient.patientId}`,
+    endpoint: Endpoints.PATIENT_FACILITY,
     method: Methods.POST,
-    data: patient.patientId,
+    data: { patientId },
     onSuccess: () => ({
       type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
       payload: { patient },

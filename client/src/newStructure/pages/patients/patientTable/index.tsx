@@ -1,11 +1,12 @@
 import { Callback, GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
 import MaterialTable, { MTableActions } from 'material-table';
+import { initials, patientId, village, vitalSign } from '../../../shared/components/table/columns';
 
 import { Action } from './action';
 import React from 'react';
 import debounce from 'lodash/debounce';
+import { lastReadingDate } from './utils';
 import { useActions } from './hooks/actions';
-import { useColumns } from './hooks/columns';
 import { useData } from './hooks/data';
 import { useStyles } from './styles';
 
@@ -39,9 +40,11 @@ export const PatientTable: React.FC<IProps> = ({
     setShowReferredPatients,
   } = useData({ data, globalSearchData });
   
-  const actions = useActions({ showGlobalSearch });
-
-  const columns = useColumns({ globalSearch });
+  const actions = useActions({ 
+    globalSearch, 
+    patientsExist: patients.length !== 0,
+    showGlobalSearch, 
+  });
 
   // Debounce get patients to prevent multiple server requests
   // Only send request after user has stopped typing for debounceInterval milliseconds
@@ -61,16 +64,24 @@ export const PatientTable: React.FC<IProps> = ({
         Action: props => (
           <Action 
             action={props.action.icon}
+            data={props.data}
             globalSearch={globalSearch}
             showReferredPatients={showReferredPatients} 
             toggleGlobalSearch={setGlobalSearch} 
             toggleShowReferredPatients={setShowReferredPatients} 
+            onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
           />
         )
       }}
       title="Patients"
       isLoading={ isLoading }
-      columns={columns}
+      columns={[
+        initials,
+        patientId,
+        village,
+        vitalSign,
+        lastReadingDate,
+      ]}
       data={patients}
       onSearchChange={globalSearch 
         ? (searchText?: string): void => {
@@ -81,7 +92,7 @@ export const PatientTable: React.FC<IProps> = ({
         : undefined
       }
       options={ {
-        actionsCellStyle: { padding: `0 1rem` },
+        actionsCellStyle: { minWidth: 100, padding: `0 1rem` },
         actionsColumnIndex: -1,
         debounceInterval,
         pageSize: 10,
@@ -93,8 +104,8 @@ export const PatientTable: React.FC<IProps> = ({
         sorting: true
       } }
       onRowClick={ globalSearch 
-        ? (_, rowData: GlobalSearchPatient) => onGlobalSearchPatientSelected(rowData)  
-        : (_, rowData: Patient) => onPatientSelected(rowData) 
+        ? undefined  
+        : (_, patient: Patient) => onPatientSelected(patient) 
       }
       actions={actions}
     />
