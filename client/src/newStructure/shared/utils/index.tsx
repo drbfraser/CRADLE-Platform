@@ -18,6 +18,10 @@ export const getPrettyDateTime = (dateStr: any) => {
   return getMomentDate(dateStr).format('MMMM Do YYYY, h:mm:ss a');
 };
 
+export const getPrettyDateUTC = (dateStr: any) => {
+  return getMomentDate(dateStr).utc().format('MMMM Do YYYY');
+};
+
 export const getLatestReading = (readings: any) => {
   let sortedReadings = readings.sort(
     (a: any, b: any) =>
