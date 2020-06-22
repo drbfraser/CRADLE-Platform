@@ -289,17 +289,24 @@ class PatientGlobalSearch(Resource):
 # URI: api/patient/facility
 # [POST]: Add patient to a facility
 
-# URI: /api/patient/facility/<string:patient_id>
+# URI: /api/patient/facility
 # [POST]: Add patient to a facility
 class PatientFacility(Resource):
     @jwt_required
-    def post(self, patient_id):
-        patient = patientManager.read("patientId", patient_id)
+    def post(self):
+        try:
+            request_body = _get_request_body()
+        except:
+            return {"HTTP 400": decoding_error}, 400
+        if not request_body["patientId"]:
+            return {"HTTP 400": "Patient Id is empty." }, 400
+        # to do, check if patient exists in add patient facility function instead 
+        patient = patientManager.read("patientId", request_body["patientId"])
         if patient:
             current_user = get_jwt_identity()
             user_health_facility = current_user["healthFacilityName"]
             patientFacilityManager.add_patient_facility_relationship(
-                patient_id, user_health_facility
+                request_body["patientId"], user_health_facility
             )
             return {"message": "patient has been added to facility successfully"}, 201
         else:
