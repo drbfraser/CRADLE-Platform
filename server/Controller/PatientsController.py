@@ -299,8 +299,8 @@ class PatientFacility(Resource):
         except:
             return {"HTTP 400": decoding_error}, 400
         if not request_body["patientId"]:
-            return {"HTTP 400": "Patient Id is empty." }, 400
-        # to do, check if patient exists in add patient facility function instead 
+            return {"HTTP 400": "Patient Id is empty."}, 400
+        # to do, check if patient exists in add patient facility function instead
         patient = patientManager.read("patientId", request_body["patientId"])
         if patient:
             current_user = get_jwt_identity()

@@ -352,9 +352,9 @@ def test_fail_duplicate_relationship():
     # has to be existing patient in seeded data
     patient_id = "204652"
     data = {"patientId": patient_id}
-    url = BASE_URL + "/api/patient/facility" 
+    url = BASE_URL + "/api/patient/facility"
     # should fail because we're calling the api twice, with same patient_id
-    requests.post(url,json=data, headers=auth_header_hcw)
+    requests.post(url, json=data, headers=auth_header_hcw)
     response = requests.post(url, json=data, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 409
@@ -365,7 +365,7 @@ def test_fail_invalid_patient_id():
     # should fail because we're passing a patient id that does not exist
     patient_id = "92837483"
     data = {"patientId": patient_id}
-    url = BASE_URL + "/api/patient/facility" 
+    url = BASE_URL + "/api/patient/facility"
     response = requests.post(url, json=data, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 404
