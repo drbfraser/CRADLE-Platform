@@ -8,7 +8,7 @@ import {
   initialUrineTests,
   urineTestChemicals,
 } from '../form/urineTest';
-import { getMomentDate, getPrettyDate, getPrettyDateTime } from '../../utils';
+import { getMomentDate, getPrettyDate, getPrettyDateTime, getPrettyDateUTC } from '../../utils';
 import {
   getPatientStatistics,
   startRequest,
@@ -635,7 +635,7 @@ class Component extends React.Component {
                       {this.state.selectedPatient.dob === undefined ||
                       this.state.selectedPatient.dob === null
                         ? 'N/A'
-                        : getPrettyDate(this.state.selectedPatient.dob)}{' '}
+                        : getPrettyDateUTC(this.state.selectedPatient.dob)}{' '}
                     </p>
                     <p>
                       <b>Patient Age: </b>{' '}
