@@ -301,6 +301,6 @@ class PatientFacility(Resource):
             patientFacilityManager.add_patient_facility_relationship(
                 patient_id, user_health_facility
             )
-            return {"message": "patient has been added to facility successfully"}, 200
+            return {"message": "patient has been added to facility successfully"}, 201
         else:
             abort(404, message="This patient does not exist.")
