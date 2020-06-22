@@ -250,7 +250,7 @@ class PatientAllInformation(Resource):
         # patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
 
         if not patients_readings_referrals:
-            abort(404, message="No patients currently exist.")
+            return []
         else:
             return patients_readings_referrals
 
