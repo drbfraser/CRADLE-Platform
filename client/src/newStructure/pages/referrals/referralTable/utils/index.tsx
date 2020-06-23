@@ -6,12 +6,12 @@ import { Icon } from 'semantic-ui-react';
 import React from 'react';
 
 const getLatestReferral = (readings: Array<Reading>): number | string => {
-  let sortedReadings = readings.sort(
-    (a: Reading, b: Reading): number => {
-      return getMomentDate(b.dateTimeTaken).valueOf() -
-        getMomentDate(a.dateTimeTaken).valueOf();
-    }
-  );
+  const sortedReadings = readings.sort((a: Reading, b: Reading): number => {
+    return (
+      getMomentDate(b.dateTimeTaken).valueOf() -
+      getMomentDate(a.dateTimeTaken).valueOf()
+    );
+  });
 
   return sortedReadings[0].dateReferred ?? ``;
 };
@@ -22,8 +22,10 @@ export const dateReferred: Column<Patient> = {
     <p>{getPrettyDate(getLatestReferral(rowData.readings))}</p>
   ),
   customSort: (a: Patient, b: Patient): number => {
-    return getMomentDate(getLatestReferral(b.readings)).valueOf() -
-      getMomentDate(getLatestReferral(a.readings)).valueOf();
+    return (
+      getMomentDate(getLatestReferral(b.readings)).valueOf() -
+      getMomentDate(getLatestReferral(a.readings)).valueOf()
+    );
   },
   defaultSort: `asc`,
 };

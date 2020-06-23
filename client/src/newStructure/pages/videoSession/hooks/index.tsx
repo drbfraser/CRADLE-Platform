@@ -1,7 +1,8 @@
-import React from 'react';
-import { config, IConfigArgs, copyToClipboard } from './utils';
-import swal from 'sweetalert';
+import { IConfigArgs, config, copyToClipboard } from './utils';
+
 import $ from 'jquery';
+import React from 'react';
+import swal from 'sweetalert';
 
 interface IArgs {
   configArgs: IConfigArgs;

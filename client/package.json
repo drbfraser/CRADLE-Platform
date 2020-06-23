@@ -1,5 +1,18 @@
 {
+  "name": "icradle",
+  "description": "Cradle web platform",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git"
+  },
   "private": true,
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run format",
+      "pre-push": "npm run format"
+    }
+  },
   "scripts": {
     "deploy": "now && now alias",
     "start": "react-scripts start",
@@ -7,7 +20,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "precommit": "pretty-quick --staged"
+    "prettier": "prettier --write 'src/**/*.{ts,tsx}'",
+    "prettier:check": "prettier --check 'src/**/*.{ts,tsx}'",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "npm run lint --fix",
+    "format": "npm run prettier && npm run lint:fix"
   },
   "devDependencies": {
     "@types/jest": "^25.2.3",
@@ -20,6 +37,13 @@
     "@types/react-redux": "^7.1.9",
     "@types/react-router-dom": "^5.1.5",
     "@types/yup": "0.29.0",
+    "@typescript-eslint/eslint-plugin": "^3.3.0",
+    "@typescript-eslint/parser": "^3.3.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-react": "^1.1.7",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.0",
+    "husky": "^4.2.5",
     "prettier": "^2.0.5",
     "react-scripts": "3.4.1",
     "redux-devtools-extension": "^2.13.8",

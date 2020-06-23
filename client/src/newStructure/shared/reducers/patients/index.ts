@@ -1,4 +1,4 @@
-import {GlobalSearchPatient, OrNull} from '@types';
+import { GlobalSearchPatient, OrNull } from '@types';
 
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
@@ -42,23 +42,29 @@ export const getPatient = (patientId: any) => {
 
 export const getPatients = (search?: string) => {
   return serverRequestActionCreator({
-    endpoint: search 
-      ? `${Endpoints.PATIENTS_GLOBAL_SEARCH}/${search}` 
+    endpoint: search
+      ? `${Endpoints.PATIENTS_GLOBAL_SEARCH}/${search}`
       : Endpoints.PATIENTS_ALL_INFO,
-    onSuccess: (response: any) => search ? ({
-      type: GET_GLOBAL_SEARCH_PATIENTS,
-      payload: response,
-    }) : ({
-      type: GET_PATIENTS,
-      payload: response,
-    }),
-    onError: (error: any) =>search ? ({
-      type: GET_GLOBAL_SEARCH_PATIENTS_ERROR,
-      payload: error,
-    }) : ({
-      type: GET_PATIENTS_ERROR,
-      payload: error,
-    }),
+    onSuccess: (response: any) =>
+      search
+        ? {
+            type: GET_GLOBAL_SEARCH_PATIENTS,
+            payload: response,
+          }
+        : {
+            type: GET_PATIENTS,
+            payload: response,
+          },
+    onError: (error: any) =>
+      search
+        ? {
+            type: GET_GLOBAL_SEARCH_PATIENTS_ERROR,
+            payload: error,
+          }
+        : {
+            type: GET_PATIENTS_ERROR,
+            payload: error,
+          },
   });
 };
 
@@ -78,12 +84,16 @@ export const updatePatient = (patientId: any, data: any) => {
   });
 };
 
-export const addPatientToHealthFacilityRequested = (patient: GlobalSearchPatient) => ({
+export const addPatientToHealthFacilityRequested = (
+  patient: GlobalSearchPatient
+) => ({
   type: ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED,
   payload: { patient },
 });
 
-export const addPatientToHealthFacility = (addedPatient: GlobalSearchPatient) => {
+export const addPatientToHealthFacility = (
+  addedPatient: GlobalSearchPatient
+) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT_FACILITY}/${addedPatient.patientId}`,
     method: Methods.POST,
@@ -95,7 +105,7 @@ export const addPatientToHealthFacility = (addedPatient: GlobalSearchPatient) =>
     onError: (error: any) => ({
       type: ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
       payload: error,
-    })
+    }),
   });
 };
 
@@ -139,15 +149,17 @@ export const patientsReducer = (state = initialState, action: any) => {
     case GET_PATIENTS:
       return {
         ...state,
-        patientsList: action.payload.data
-          .sort((a: any, b: any) => sortPatientsByLastReading(a, b)),
+        patientsList: action.payload.data.sort((a: any, b: any) =>
+          sortPatientsByLastReading(a, b)
+        ),
         isLoading: false,
       };
     case GET_GLOBAL_SEARCH_PATIENTS:
       return {
         ...state,
-        globalSearchPatientsList: action.payload.data
-          .sort((a: any, b: any) => sortPatientsByLastReading(a, b)),
+        globalSearchPatientsList: action.payload.data.sort((a: any, b: any) =>
+          sortPatientsByLastReading(a, b)
+        ),
         isLoading: false,
       };
     case GET_PATIENTS_REQUESTED:
@@ -177,11 +189,9 @@ export const patientsReducer = (state = initialState, action: any) => {
         isLoading: true,
       };
     case ADD_NEW_PATIENT:
-      const newPatient = action.payload;
-
       return {
         ...state,
-        patientsList: [newPatient, ...(state.patientsList ?? [])],
+        patientsList: [action.payload, ...(state.patientsList ?? [])],
         newPatientAdded: true,
       };
     case AFTER_NEW_PATIENT_ADDED:
@@ -197,24 +207,31 @@ export const patientsReducer = (state = initialState, action: any) => {
     case ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED:
       return {
         ...state,
-        globalSearchPatientsList: (state.globalSearchPatientsList ?? []).map(
-            (patient: any): any => patient.patientId === action.payload.patient.patientId 
-              ? { ...action.payload.patient, state: PatientStateEnum.ADDING } 
-              : patient
-          ),
+        globalSearchPatientsList: (
+          state.globalSearchPatientsList ?? []
+        ).map((patient: any): any =>
+          patient.patientId === action.payload.patient.patientId
+            ? { ...action.payload.patient, state: PatientStateEnum.ADDING }
+            : patient
+        ),
         addingFromGlobalSearch: true,
       };
     case ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
       return {
         ...state,
         addingFromGlobalSearch: false,
-        globalSearchPatientsList: (state.globalSearchPatientsList ?? []).map(
-          (patient: any): any => patient.patientId === action.payload.addedPatient.patientId 
-            ? { ...patient, state: PatientStateEnum.JUST_ADDED } 
+        globalSearchPatientsList: (
+          state.globalSearchPatientsList ?? []
+        ).map((patient: any): any =>
+          patient.patientId === action.payload.addedPatient.patientId
+            ? { ...patient, state: PatientStateEnum.JUST_ADDED }
             : patient
         ),
-        patientsList: [action.payload.addedPatient, ...(state.patientsList ?? [])],
-      }
+        patientsList: [
+          action.payload.addedPatient,
+          ...(state.patientsList ?? []),
+        ],
+      };
     case ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
       return {
         ...state,

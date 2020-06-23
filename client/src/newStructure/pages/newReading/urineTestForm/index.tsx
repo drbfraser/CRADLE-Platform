@@ -1,10 +1,11 @@
-import React from 'react';
-import Paper from '@material-ui/core/Paper';
-import Switch from '@material-ui/core/Switch';
-import { Form, Header, Select } from 'semantic-ui-react';
-import { PatientNewReadingReading } from '../../../types';
-
 import '../index.css';
+
+import { Form, Header, Select } from 'semantic-ui-react';
+
+import Paper from '@material-ui/core/Paper';
+import { PatientNewReadingReading } from '../../../types';
+import React from 'react';
+import Switch from '@material-ui/core/Switch';
 
 const resultOptions = [
   { key: 'm', text: '-', value: '-' },
@@ -34,7 +35,7 @@ interface IProps {
   onChange: any;
   reading: PatientNewReadingReading;
 }
-export function UrineTestForm(props: IProps) {
+export function UrineTestForm(props: IProps): JSX.Element {
   return (
     <Paper
       className="urineTestCard"

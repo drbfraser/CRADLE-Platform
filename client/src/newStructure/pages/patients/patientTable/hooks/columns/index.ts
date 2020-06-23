@@ -1,5 +1,10 @@
 import { GlobalSearchPatient, Patient } from '@types';
-import { initials, patientId, village, vitalSign } from '../../../../../shared/components/table/columns';
+import {
+  initials,
+  patientId,
+  village,
+  vitalSign,
+} from '../../../../../shared/components/table/columns';
 import { lastReadingDate, state } from './utils';
 
 import { Column } from 'material-table';
@@ -9,7 +14,9 @@ interface IArgs {
   globalSearch: boolean;
 }
 
-export const useColumns = ({ globalSearch }: IArgs): Array<Column<Patient | GlobalSearchPatient>> => {
+export const useColumns = ({
+  globalSearch,
+}: IArgs): Array<Column<Patient | GlobalSearchPatient>> => {
   return React.useMemo<Array<Column<Patient | GlobalSearchPatient>>>(() => {
     const allColumns = [
       initials,

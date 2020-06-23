@@ -1,7 +1,8 @@
-import React from 'react';
-import Paper from '@material-ui/core/Paper';
-import Switch from '@material-ui/core/Switch';
 import { Form, Header, Select } from 'semantic-ui-react';
+
+import Paper from '@material-ui/core/Paper';
+import React from 'react';
+import Switch from '@material-ui/core/Switch';
 import classes from '../styles.module.css';
 
 const resultOptions = [

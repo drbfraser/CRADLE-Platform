@@ -1,15 +1,16 @@
-import React from 'react';
+import { Divider, List, ListItem } from 'semantic-ui-react';
 import {
   Drawer,
   ListItemIcon,
   ListItemText,
   Typography,
 } from '@material-ui/core';
-import { List, ListItem, Divider } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
+
 import CreateImg from './img/create.svg';
 import EduImg from './img/graduation-cap-solid.svg';
+import { Link } from 'react-router-dom';
 import PatientsImg from './img/patients.svg';
+import React from 'react';
 import ReferralsImg from './img/referrals.svg';
 import StatisticsImg from './img/statistics.svg';
 import VideoImg from './img/video-solid.svg';

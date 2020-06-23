@@ -1,6 +1,5 @@
-import { Statistic } from 'semantic-ui-react';
-
 import React from 'react';
+import { Statistic } from 'semantic-ui-react';
 import classes from '../styles.module.css';
 
 interface IProps {

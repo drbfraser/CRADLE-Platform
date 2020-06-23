@@ -1,8 +1,8 @@
 import { Dispatch, bindActionCreators } from 'redux';
 import { Link, Route, Switch } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-import { push } from 'connected-react-router';
 import { OrNull, User } from '@types';
+import React, { useEffect, useState } from 'react';
+
 import { AdminPage } from '../pages/admin';
 import AppBar from '@material-ui/core/AppBar';
 import AppImg from './img/app_icon.png';
@@ -22,6 +22,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { LoginPage } from '../pages/login';
 import { NewReadingPage } from '../pages/newReading';
 import { NotFoundPage } from '../pages/notFound';
+import { Pathname } from 'history';
 import { PatientSummaryContainer } from '../shared/components/patientSummary/container';
 import PatientsImg from './img/patients.svg';
 import { PatientsPage } from '../pages/patients';
@@ -41,8 +42,8 @@ import { VideoSessionPage } from '../pages/videoSession';
 import { connect } from 'react-redux';
 import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
+import { push } from 'connected-react-router';
 import { routesNames } from './toolbar/utils';
-import { Pathname } from 'history';
 
 const drawerWidth = 200;
 const useStyles = makeStyles((theme) => ({
@@ -68,19 +69,10 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: {
     /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#3b679e+0,34787e+0,45889f+51,65a6df+100 */
-    background: '#3b679e' /* Old browsers */,
-    //@ts-ignore
     background:
-      '-moz-linear-gradient(top,  #3b679e 0%, #34787e 0%, #45889f 51%, #65a6df 100%)' /* FF3.6-15 */,
-    //@ts-ignore
-    background:
-      '-webkit-linear-gradient(top,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)' /* Chrome10-25,Safari5.1-6 */,
-    //@ts-ignore
-    background:
-      'linear-gradient(to bottom,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)' /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */,
+      'linear-gradient(to bottom,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)',
     filter:
       "progid:DXImageTransform.Microsoft.gradient( startColorstr='#3b679e', endColorstr='#65a6df',GradientType=0 )" /* IE6-9 */,
-
     width: drawerWidth,
   },
   content: {
@@ -146,7 +138,7 @@ const Component: React.FC<IProps> = (props) => {
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
-          <img src={AppImg} className="appIcon" />
+          <img alt="appIcon" src={AppImg} className="appIcon" />
           <Typography noWrap style={titleTextStyle}>
             CRADLE
           </Typography>
@@ -204,7 +196,11 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Reading'}
               onClick={() => setActiveItem('Reading')}>
               <ListItemIcon>
-                <img src={CreateImg} style={{ width: `75%` }} />
+                <img
+                  alt="Create Patient And Reading"
+                  src={CreateImg}
+                  style={{ width: `75%` }}
+                />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -224,7 +220,11 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Patients'}
               onClick={() => setActiveItem('Patients')}>
               <ListItemIcon>
-                <img src={PatientsImg} style={{ width: `75%` }} />
+                <img
+                  alt="Patients"
+                  src={PatientsImg}
+                  style={{ width: `75%` }}
+                />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -242,7 +242,11 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Referrals'}
               onClick={() => setActiveItem('Referrals')}>
               <ListItemIcon>
-                <img src={ReferralsImg} style={{ width: `75%` }} />
+                <img
+                  alt="Referrals"
+                  src={ReferralsImg}
+                  style={{ width: `75%` }}
+                />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -260,7 +264,11 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Statistics'}
               onClick={() => setActiveItem('Statistics')}>
               <ListItemIcon>
-                <img src={StatisticsImg} style={{ width: `75%` }} />
+                <img
+                  alt="Statistics"
+                  src={StatisticsImg}
+                  style={{ width: `75%` }}
+                />
               </ListItemIcon>
               <ListItemText
                 disableTypography
@@ -278,7 +286,7 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Chat'}
               onClick={() => setActiveItem('Chat')}>
               <ListItemIcon>
-                <img src={VideoImg} style={{ width: `75%` }} />
+                <img alt="Video" src={VideoImg} style={{ width: `75%` }} />
               </ListItemIcon>
 
               <ListItemText
@@ -299,7 +307,7 @@ const Component: React.FC<IProps> = (props) => {
               selected={activeItem === 'Resources'}
               onClick={() => setActiveItem('Resources')}>
               <ListItemIcon>
-                <img src={EduImg} style={{ width: `75%` }} />
+                <img alt="Education" src={EduImg} style={{ width: `75%` }} />
               </ListItemIcon>
 
               <ListItemText

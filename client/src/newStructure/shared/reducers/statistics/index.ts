@@ -1,5 +1,6 @@
+import { ServerRequestAction, serverRequestActionCreator } from '../utils';
+
 import { Endpoints } from '../../../server/endpoints';
-import { serverRequestActionCreator, ServerRequestAction } from '../utils';
 import { OrNull } from '@types';
 
 enum StatisticsActionEnum {

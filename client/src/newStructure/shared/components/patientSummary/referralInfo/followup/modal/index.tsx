@@ -17,13 +17,13 @@ import {
   Select,
   TextArea,
 } from 'semantic-ui-react';
-import React from 'react';
 import {
   createFollowUp,
   setReadingId,
   updateFollowUp,
 } from '../../../../../reducers/referrals';
 
+import React from 'react';
 import Switch from '@material-ui/core/Switch';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -67,9 +67,11 @@ class Component extends React.Component<any, any> {
 
   loadInitialValues() {
     if (this.props.initialValues) {
-      for (let key in this.state.data) {
+      for (const key in this.state.data) {
         if (key in this.props.initialValues) {
-          this.state.data[key] = this.props.initialValues[key];
+          this.setState({
+            data: { ...this.state.data, [key]: this.props.initialValues[key] },
+          });
         }
       }
     }
@@ -125,11 +127,19 @@ class Component extends React.Component<any, any> {
   };
 
   handleSubmit() {
-    this.state.data.referral = this.props.referralId;
+    this.setState({
+      data: { ...this.state.data, referral: this.props.referralId },
+    });
 
     if (this.state.dateOrCondition === 'DATE') {
-      this.state.data.dateFollowupNeededTill =
-        Date.parse(this.state.data.dateFollowupNeededTill) / 1000; // divide by 1000 to convert ms into s
+      // divide by 1000 to convert ms into s
+      this.setState({
+        data: {
+          ...this.state.data,
+          dateFollowupNeededTill:
+            Date.parse(this.state.data.dateFollowupNeededTill) / 1000,
+        },
+      });
     }
 
     if (this.state.untilDateOrCond) {
@@ -300,7 +310,7 @@ class Component extends React.Component<any, any> {
   }
 }
 
-const mapStateToProps = ({}) => ({});
+const mapStateToProps = () => ({});
 
 const mapDispatchToProps = (dispatch) => ({
   ...bindActionCreators(

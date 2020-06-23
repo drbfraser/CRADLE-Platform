@@ -10,6 +10,7 @@ import { bindActionCreators } from 'redux';
 import classes from './styles.module.css';
 import { connect } from 'react-redux';
 import { getStatistics } from '../../shared/reducers/statistics';
+
 interface IProps {
   getStatistics: any;
   statisticsList: any;

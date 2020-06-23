@@ -55,8 +55,7 @@ export const config = ({
       onRemoteConnected();
     }
 
-    // @ts-ignore
-    videoContainer.appendChild(event.mediaElement);
+    videoContainer?.appendChild(event.mediaElement);
 
     event.mediaElement.removeAttribute('controls');
 

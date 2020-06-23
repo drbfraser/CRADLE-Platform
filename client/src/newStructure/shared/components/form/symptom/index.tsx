@@ -1,6 +1,7 @@
-import React from 'react';
-import Paper from '@material-ui/core/Paper';
 import { Form, Header } from 'semantic-ui-react';
+
+import Paper from '@material-ui/core/Paper';
+import React from 'react';
 import classes from '../styles.module.css';
 
 export const SymptomForm: React.FC<any> = (props) => {

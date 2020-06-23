@@ -1,4 +1,4 @@
-export const womenReferredPerMonth = (data: any) => ({
+export const womenReferredPerMonth = (data: any): any => ({
   label: `Total Number of Women Referred`,
   fill: false,
   lineTension: 0.1,
@@ -8,7 +8,7 @@ export const womenReferredPerMonth = (data: any) => ({
   data,
 });
 
-export const pregnantWomenReferredPerMonth = (data: any) => ({
+export const pregnantWomenReferredPerMonth = (data: any): any => ({
   label: `Total Number of Pregnant Women Referred`,
   fill: false,
   lineTension: 0.1,
@@ -18,7 +18,7 @@ export const pregnantWomenReferredPerMonth = (data: any) => ({
   data,
 });
 
-export const pregnantWomenAssessedPerMonth = (data: any) => ({
+export const pregnantWomenAssessedPerMonth = (data: any): any => ({
   label: `Total Number of Pregnant Women Referred`,
   fill: false,
   lineTension: 0.1,
@@ -28,7 +28,7 @@ export const pregnantWomenAssessedPerMonth = (data: any) => ({
   data,
 });
 
-export const womenAssessedPerMonth = (data: any) => ({
+export const womenAssessedPerMonth = (data: any): any => ({
   label: `Total Number of Women Assessed`,
   fill: false,
   lineTension: 0.1,
