@@ -17,9 +17,10 @@ import {
   Button,
   FormControlLabel,
   Checkbox,
-  FormLabel ,
+  FormLabel,
   RadioGroup,
-  Radio
+  Radio,
+  MenuItem,
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -36,6 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dialogField: {
       margin: theme.spacing(2),
+      minWidth:'22ch'
     },
   })
 );
@@ -45,6 +47,14 @@ const Page: React.FC<any> = (props) => {
   const [valueR, setValueR] = React.useState('female');
   const [houseHoldNum, setHouseHoldNum] = React.useState('');
   const [totalPeople, setTotalPeople] = React.useState('10');
+  const [openD, setOpenD] = React.useState(false);
+  const handleCloseDropDown = () => {
+    setOpenD(false);
+  };
+
+  const handleOpenDropDown = () => {
+    setOpenD(true);
+  };
   const [columns] = React.useState<any>([
     { title: 'Id', field: 'id' },
     { title: 'Name', field: 'name' },
@@ -65,6 +75,42 @@ const Page: React.FC<any> = (props) => {
   const handleChangeR = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValueR((event.target as HTMLInputElement).value);
   };
+  const status = [
+    {
+      label: 'Recovered',
+      src:
+        'https://cdn3.vectorstock.com/i/1000x1000/09/82/check-icon-vector-10850982.jpg',
+      link: ' ',
+      value: 'rec',
+    },
+    {
+      label: 'Deceased',
+      src:
+        'https://media.istockphoto.com/vectors/red-x-mark-icon-cross-symbol-vector-id692279886?k=6&m=692279886&s=170667a&w=0&h=PkTBYGVXGx0evEEjCMePs5suU12XTqUSlqaQdll87o0=',
+      link: ' ',
+      value: 'dec',
+    },
+    {
+      label: 'Suspected',
+      src:
+        'https://lh3.googleusercontent.com/proxy/iYC9_Nk1Qlh3y9zfTj6KpsD8Bi-zTTFvobKjjOH8XQglq1dNuTX12PkqsqIBHNGgkJgslpx5yjwR1lbl2p9cR7CMRcr5NKc',
+      link: ' ',
+      value: 'sus',
+    },
+    {
+      label: 'Test Result Positive',
+      src: 'https://storage.needpix.com/rsynced_images/blood-2667009_1280.png',
+      link: ' ',
+      value: 'pos',
+    },
+    {
+      label: 'Test Result Negative',
+      src: 'https://storage.needpix.com/rsynced_images/blood-2667006_1280.png',
+      link: ' ',
+      value: 'neg',
+    },
+  ];
+
   const [data] = React.useState<any>([
     {
       id: '111222',
@@ -292,16 +338,19 @@ const Page: React.FC<any> = (props) => {
           <FormControl className={classes.dialogField}>
             <InputLabel htmlFor="component-simple">Status</InputLabel>
             <Select
-              native
+              open={openD}
+              onClose={handleCloseDropDown}
+              onOpen={handleOpenDropDown}
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={houseHoldNum}
               onChange={handleChangeHouseHold}>
-              <option value={'10'}>Suspected</option>
-              <option value={'20'}>Recovered</option>
-              <option value={'30'}>Deceased</option>
-              <option value={'40'}>Tested Positive</option>
-              <option value={'50'}>Tested Negative</option>
+              {status.map((option, key) => (
+                <MenuItem value={option.src} key={key} style={{width:'22ch'}}>
+                  <img src={option.src} style={{ width: `15%` }}/>
+                  {option.label}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </DialogContent>
