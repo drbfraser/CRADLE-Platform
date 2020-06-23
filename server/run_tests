@@ -1,4 +1,4 @@
-# usage: ./run_tests (make sure server is running)
+# usage: ./run_tests (make sure server is running first)
 #!/bin/bash
 
 # Exit immediately upon any failed command
