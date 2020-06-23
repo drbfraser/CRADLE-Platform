@@ -5,6 +5,7 @@ import {
   addPatientToHealthFacilityRequested,
   getPatients,
   getPatientsRequested,
+  toggleGlobalSearch,
 } from '../../shared/reducers/patients';
 
 import { PatientTable } from './patientTable';
@@ -16,11 +17,13 @@ import { push } from 'connected-react-router';
 
 interface IProps {
   addingFromGlobalSearch: boolean;
+  globalSearch: boolean;
   fetchingPatients: boolean;
   patients: OrNull<Array<Patient>>;
   globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
   getPatients: (search?: string) => void;
   addPatientToHealthFacility: (patient: GlobalSearchPatient) => void;
+  toggleGlobalSearch: (globalSearch: boolean) => void;
   navigateToPatientPage: any;
   userIsHealthWorker?: boolean;
 }
@@ -52,6 +55,8 @@ const Page: React.FC<IProps> = ({
 
   return (
     <PatientTable
+      globalSearch={props.globalSearch}
+      toggleGlobalSearch={props.toggleGlobalSearch}
       onPatientSelected={onPatientSelected}
       onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
       data={patients}
@@ -68,11 +73,12 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
   userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,
+  globalSearch: patients.globalSearch,
   globalSearchPatients: patients.globalSearchPatientsList,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  ...bindActionCreators({}, dispatch),
+  ...bindActionCreators({ toggleGlobalSearch }, dispatch),
   getPatients: (search?: string): void => {
     dispatch(getPatientsRequested());
     dispatch(getPatients(search));

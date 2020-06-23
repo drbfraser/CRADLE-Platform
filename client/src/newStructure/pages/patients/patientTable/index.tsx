@@ -19,10 +19,12 @@ import { useStyles } from './styles';
 interface IProps {
   data: OrNull<Array<Patient>>;
   globalSearchData: OrNull<Array<GlobalSearchPatient>>;
+  globalSearch: boolean;
   isLoading: boolean;
+  getPatients: Callback<OrUndefined<string>>;
   onPatientSelected: Callback<Patient>;
   onGlobalSearchPatientSelected: Callback<GlobalSearchPatient>;
-  getPatients: Callback<OrUndefined<string>>;
+  toggleGlobalSearch: Callback<boolean>;
   showGlobalSearch?: boolean;
 }
 
@@ -31,20 +33,20 @@ export const PatientTable: React.FC<IProps> = ({
   onGlobalSearchPatientSelected,
   data,
   globalSearchData,
+  globalSearch,
   isLoading,
   getPatients,
   showGlobalSearch,
+  toggleGlobalSearch,
 }) => {
   const classes = useStyles();
 
   const {
     debounceInterval,
-    globalSearch,
-    setGlobalSearch,
     patients,
     showReferredPatients,
     setShowReferredPatients,
-  } = useData({ data, globalSearchData });
+  } = useData({ data, globalSearch, globalSearchData });
   
   const actions = useActions({ 
     globalSearch, 
@@ -73,7 +75,7 @@ export const PatientTable: React.FC<IProps> = ({
             data={props.data}
             globalSearch={globalSearch}
             showReferredPatients={showReferredPatients} 
-            toggleGlobalSearch={setGlobalSearch} 
+            toggleGlobalSearch={toggleGlobalSearch} 
             toggleShowReferredPatients={setShowReferredPatients} 
             onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
           />

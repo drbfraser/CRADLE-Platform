@@ -8,7 +8,7 @@ import {
   initialUrineTests,
   urineTestChemicals,
 } from '../form/urineTest';
-import { getMomentDate, getPrettyDate, getPrettyDateTime, getPrettyDateUTC } from '../../utils';
+import { getMomentDate, getPrettyDateTime, getPrettyDateUTC } from '../../utils';
 import {
   getPatientStatistics,
   startRequest,
@@ -152,7 +152,10 @@ class Component extends React.Component {
 
   handleBackBtn = () => {
     // go back to patient table
-    this.props.getPatients();
+    // for now skip fetching if user was in global search
+    if (!this.props.globalSearch) {
+      this.props.getPatients();
+    }
     this.props.callbackFromParent(false);
   };
 
@@ -991,7 +994,9 @@ const mapStateToProps = ({
   user,
   referrals,
   patientStatistics,
+  patients,
 }: ReduxState) => ({
+  globalSearch: patients.globalSearch,
   user: user.current.data,
   referrals: referrals.mappedReferrals,
   selectedPatientStatsList: patientStatistics.data ?? {},

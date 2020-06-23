@@ -16,7 +16,7 @@ interface IProps {
   action: ActionEnum;
   data: GlobalSearchPatient;
   showReferredPatients: boolean;
-  toggleGlobalSearch: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleGlobalSearch: Callback<boolean>;
   toggleShowReferredPatients: React.Dispatch<React.SetStateAction<boolean>>;
   onGlobalSearchPatientSelected: Callback<GlobalSearchPatient>;
   globalSearch?: boolean;
@@ -87,7 +87,10 @@ export const Action: React.FC<IProps> = ({
             <Fab 
               color="primary"
               size="medium"
-              onClick={(): void => onGlobalSearchPatientSelected(data)}
+              onClick={(event: React.MouseEvent<HTMLButtonElement>): void => {
+                event.stopPropagation();
+                onGlobalSearchPatientSelected(data);
+              }}
             >
               <AddIcon />
             </Fab>
@@ -102,7 +105,8 @@ export const Action: React.FC<IProps> = ({
               classes={{ root: classes.justAdded }} 
               color="inherit"
               size="medium" 
-              onClick={(): void => {
+              onClick={(event: React.MouseEvent<HTMLButtonElement>): void => {
+                event.stopPropagation();
                 alert(`This patient has just been added!`);
               }}
             >
