@@ -370,3 +370,14 @@ def test_fail_invalid_patient_id():
     response_body = response.json()
     assert response.status_code == 404
     assert response_body["message"] == "This patient does not exist."
+
+
+def test_fail_empty_patient_id():
+    # should fail because we're passing a patient id that does not exist
+    patient_id = ""
+    data = {"patientId": patient_id}
+    url = BASE_URL + "/api/patient/facility"
+    response = requests.post(url, json=data, headers=auth_header_hcw)
+    response_body = response.json()
+    assert response.status_code == 400
+    assert response_body["HTTP 400"] == "Patient Id is empty."
