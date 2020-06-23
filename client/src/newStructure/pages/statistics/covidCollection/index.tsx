@@ -304,6 +304,24 @@ const Page: React.FC<any> = (props) => {
             />
           </FormControl>
           <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-simple">Status</InputLabel>
+            <Select
+              open={openD}
+              onClose={handleCloseDropDown}
+              onOpen={handleOpenDropDown}
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={houseHoldNum}
+              onChange={handleChangeHouseHold}>
+              {status.map((option, key) => (
+                <MenuItem value={option.src} key={key} style={{width:'22ch'}}>
+                  <img src={option.src} style={{ width: `15%` }}/>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl className={classes.dialogField}>
             <FormControlLabel
               control={<Checkbox checked={true} name="Pregnant" />}
               label="Pregnant"
@@ -334,24 +352,6 @@ const Page: React.FC<any> = (props) => {
                 label="(Disabled option)"
               />
             </RadioGroup>
-          </FormControl>
-          <FormControl className={classes.dialogField}>
-            <InputLabel htmlFor="component-simple">Status</InputLabel>
-            <Select
-              open={openD}
-              onClose={handleCloseDropDown}
-              onOpen={handleOpenDropDown}
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={houseHoldNum}
-              onChange={handleChangeHouseHold}>
-              {status.map((option, key) => (
-                <MenuItem value={option.src} key={key} style={{width:'22ch'}}>
-                  <img src={option.src} style={{ width: `15%` }}/>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
           </FormControl>
         </DialogContent>
         <DialogActions>
