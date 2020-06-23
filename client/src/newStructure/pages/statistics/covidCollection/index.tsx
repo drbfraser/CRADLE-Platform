@@ -10,13 +10,16 @@ import {
   InputLabel,
   Input,
   Select,
-  Dialog ,
+  Dialog,
   DialogActions,
-  DialogContent ,
-  DialogContentText ,
-  DialogTitle ,
-  TextField,
-  Button
+  DialogContent,
+  DialogTitle,
+  Button,
+  FormControlLabel,
+  Checkbox,
+  FormLabel ,
+  RadioGroup,
+  Radio
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -27,11 +30,19 @@ const useStyles = makeStyles((theme: Theme) =>
         width: '75ch',
       },
     },
+    dialogContent: {
+      margin: theme.spacing(1),
+      marginTop: '10px',
+    },
+    dialogField: {
+      margin: theme.spacing(2),
+    },
   })
 );
 
 const Page: React.FC<any> = (props) => {
   const classes = useStyles();
+  const [valueR, setValueR] = React.useState('female');
   const [houseHoldNum, setHouseHoldNum] = React.useState('');
   const [totalPeople, setTotalPeople] = React.useState('10');
   const [columns] = React.useState<any>([
@@ -51,6 +62,9 @@ const Page: React.FC<any> = (props) => {
     },
   ]);
 
+  const handleChangeR = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValueR((event.target as HTMLInputElement).value);
+  };
   const [data] = React.useState<any>([
     {
       id: '111222',
@@ -99,10 +113,6 @@ const Page: React.FC<any> = (props) => {
     setHouseHoldNum(event.target.value as string);
   };
   const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = () => {
     setOpen(false);
@@ -168,52 +178,145 @@ const Page: React.FC<any> = (props) => {
               paddingRight: '0px !important',
               paddingLeft: '0px !important',
             },
-            actionsColumnIndex: -1
-
+            actionsColumnIndex: -1,
           }}
           actions={[
             {
               icon: 'edit',
-              tooltip: 'Save User',
-              onClick: (event, rowData) => handleClickOpen
+              tooltip: 'Edit User',
+              onClick: (event, rowData) => setOpen(true),
             },
             {
               icon: 'delete',
               tooltip: 'Delete User',
-              onClick: (event, rowData) => {}
-            }
+              onClick: (event, rowData) => {},
+            },
           ]}
         />
-
       </Paper>
       <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="form-dialog-title">
-          <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              To subscribe to this website, please enter your email address
-              here. We will send updates occasionally.
-            </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Email Address"
-              type="email"
-              fullWidth
+        maxWidth="sm"
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Individual Information</DialogTitle>
+        <DialogContent className={classes.dialogContent}>
+          <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-disabled">Initials</InputLabel>
+            <Input
+              id="component-disabled"
+              value={totalPeople}
+              onChange={handleChangeTotalNumber}
             />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleClose} color="primary">
-              Subscribe
-            </Button>
-          </DialogActions>
-        </Dialog>
+          </FormControl>
+          <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-disabled">Age</InputLabel>
+            <Input
+              id="component-disabled"
+              value={totalPeople}
+              onChange={handleChangeTotalNumber}
+            />
+          </FormControl>
+          <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-disabled">DOB</InputLabel>
+            <Input
+              id="component-disabled"
+              value={totalPeople}
+              onChange={handleChangeTotalNumber}
+            />
+          </FormControl>
+          <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-disabled">Zone Numebr</InputLabel>
+            <Input
+              id="component-disabled"
+              value={totalPeople}
+              onChange={handleChangeTotalNumber}
+            />
+          </FormControl>
+          <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-disabled">Village Numebr</InputLabel>
+            <Input
+              id="component-disabled"
+              value={totalPeople}
+              onChange={handleChangeTotalNumber}
+            />
+          </FormControl>
+          <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-disabled">@Station</InputLabel>
+            <Input
+              id="component-disabled"
+              value={totalPeople}
+              onChange={handleChangeTotalNumber}
+            />
+          </FormControl>
+          <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-disabled">M/F</InputLabel>
+            <Input
+              id="component-disabled"
+              value={totalPeople}
+              onChange={handleChangeTotalNumber}
+            />
+          </FormControl>
+          <FormControl className={classes.dialogField}>
+            <FormControlLabel
+              control={<Checkbox checked={true} name="Pregnant" />}
+              label="Pregnant"
+            />
+          </FormControl>
+          <FormControl component="fieldset" className={classes.dialogField}>
+            <FormLabel component="legend">Gender</FormLabel>
+            <RadioGroup
+              aria-label="gender"
+              name="gender1"
+              value={valueR}
+              onChange={handleChangeR}>
+              <FormControlLabel
+                value="female"
+                control={<Radio />}
+                label="Female"
+              />
+              <FormControlLabel value="male" control={<Radio />} label="Male" />
+              <FormControlLabel
+                value="other"
+                control={<Radio />}
+                label="Other"
+              />
+              <FormControlLabel
+                value="disabled"
+                disabled
+                control={<Radio />}
+                label="(Disabled option)"
+              />
+            </RadioGroup>
+          </FormControl>
+          <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-simple">Status</InputLabel>
+            <Select
+              native
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={houseHoldNum}
+              onChange={handleChangeHouseHold}>
+              <option value={'10'}>Suspected</option>
+              <option value={'20'}>Recovered</option>
+              <option value={'30'}>Deceased</option>
+              <option value={'40'}>Tested Positive</option>
+              <option value={'50'}>Tested Negative</option>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleClose} color="primary">
+            Transfer
+          </Button>
+          <Button onClick={handleClose} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
