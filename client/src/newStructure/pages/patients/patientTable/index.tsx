@@ -5,114 +5,105 @@ import {
   OrUndefined,
   Patient,
 } from '@types';
-import MaterialTable, { MTableActions } from 'material-table';
-import { initials, patientId, village, vitalSign } from '../../../shared/components/table/columns';
+import {
+  initials,
+  patientId,
+  village,
+  vitalSign,
+} from '../../../shared/components/table/columns';
+import { lastReadingDate, options } from './utils';
 
 import { Action } from './action';
+import { Actions } from './components/actions';
+import MaterialTable from 'material-table';
 import React from 'react';
-import debounce from 'lodash/debounce';
-import { lastReadingDate } from './utils';
 import { useActions } from './hooks/actions';
 import { useData } from './hooks/data';
-import { useStyles } from './styles';
+import { useLocalization } from './hooks/localization';
+import { useSearchChange } from './hooks/search/change';
+import { useSearchFocus } from './hooks/search/focus';
+import { useUpdatePageNumber } from './hooks/updatePageNumber';
 
 interface IProps {
   data: OrNull<Array<Patient>>;
   globalSearchData: OrNull<Array<GlobalSearchPatient>>;
   globalSearch: boolean;
+  globalSearchPageNumber: number;
   isLoading: boolean;
   getPatients: Callback<OrUndefined<string>>;
   onPatientSelected: Callback<Patient>;
   onGlobalSearchPatientSelected: Callback<GlobalSearchPatient>;
   toggleGlobalSearch: Callback<boolean>;
+  updateGlobalSearchPageNumber: Callback<number>;
   showGlobalSearch?: boolean;
 }
 
-export const PatientTable: React.FC<IProps> = ({
-  onPatientSelected,
-  onGlobalSearchPatientSelected,
-  data,
-  globalSearchData,
-  globalSearch,
-  isLoading,
-  getPatients,
-  showGlobalSearch,
-  toggleGlobalSearch,
-}) => {
-  const classes = useStyles();
-
+export const PatientTable: React.FC<IProps> = (props) => {
   const {
     debounceInterval,
     patients,
     showReferredPatients,
     setShowReferredPatients,
-  } = useData({ data, globalSearch, globalSearchData });
-  
-  const actions = useActions({ 
-    globalSearch, 
-    patientsExist: patients.length !== 0,
-    showGlobalSearch, 
+  } = useData({
+    data: props.data,
+    globalSearch: props.globalSearch,
+    globalSearchData: props.globalSearchData,
   });
 
-  // Debounce get patients to prevent multiple server requests
-  // Only send request after user has stopped typing for debounceInterval milliseconds
-  const debouncedGetPatients = React.useCallback(
-    debounce(getPatients, debounceInterval),
-    [debounceInterval, getPatients]
-  );
+  const actions = useActions({
+    globalSearch: props.globalSearch,
+    patientsExist: patients.length !== 0,
+    showGlobalSearch: props.showGlobalSearch,
+  });
+
+  const localization = useLocalization(props.globalSearch);
+
+  const onSearchChange = useSearchChange({
+    debounceInterval,
+    globalSearch: props.globalSearch,
+    getPatients: props.getPatients,
+  });
+
+  useSearchFocus(props.globalSearch);
+
+  const onChangePage = useUpdatePageNumber({
+    globalSearch: props.globalSearch,
+    update: props.updateGlobalSearchPageNumber,
+  });
+
+  const handleRowClick = (_: any, patient: Patient): void => {
+    props.onPatientSelected(patient);
+  };
 
   return (
     <MaterialTable
       components={{
-        Actions: (props) => (
-          <div className={classes.actionsContainer}>
-            <MTableActions {...props} />
-          </div>
-        ),
-        Action: (props) => (
+        Actions: (actionsProps) => <Actions {...actionsProps} />,
+        Action: ({ action, data }) => (
           <Action
-            action={props.action.icon}
-            data={props.data}
-            globalSearch={globalSearch}
-            showReferredPatients={showReferredPatients} 
-            toggleGlobalSearch={toggleGlobalSearch} 
-            toggleShowReferredPatients={setShowReferredPatients} 
-            onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
+            action={action.icon}
+            data={data}
+            globalSearch={props.globalSearch}
+            showReferredPatients={showReferredPatients}
+            toggleGlobalSearch={props.toggleGlobalSearch}
+            toggleShowReferredPatients={setShowReferredPatients}
+            onGlobalSearchPatientSelected={props.onGlobalSearchPatientSelected}
           />
         ),
       }}
+      localization={localization}
       title="Patients"
-      isLoading={ isLoading }
-      columns={[
-        initials,
-        patientId,
-        village,
-        vitalSign,
-        lastReadingDate,
-      ]}
+      isLoading={props.isLoading}
+      columns={[initials, patientId, village, vitalSign, lastReadingDate]}
       data={patients}
-      onSearchChange={
-        globalSearch
-          ? (searchText?: string): void => {
-              if (searchText) {
-                debouncedGetPatients(searchText);
-              }
-            }
-          : undefined
-      }
-      options={ {
-        actionsCellStyle: { minWidth: 100, padding: `0 1rem` },
-        actionsColumnIndex: -1,
+      onChangePage={onChangePage}
+      onSearchChange={onSearchChange}
+      options={options({
         debounceInterval,
-        pageSize: 10,
-        rowStyle: (): React.CSSProperties => ({
-          height: 75,
-        }),
-        searchFieldVariant: `outlined`,
-        searchFieldStyle: { marginBlockStart: `1rem` },
-        sorting: true
-      } }
-      onRowClick={(_, patient: Patient) => onPatientSelected(patient)}
+        globalSearch: props.globalSearch,
+        globalSearchPageNumber: props.globalSearchPageNumber,
+      })}
+      onRowClick={handleRowClick}
       actions={actions}
     />
   );

@@ -1,10 +1,12 @@
+import { Column, Options } from 'material-table';
 import { GlobalSearchPatient, Patient } from '@types';
-import { getLatestReadingDateTime, getPrettyDate, sortPatientsByLastReading } from '../../../../shared/utils';
+import {
+  getLatestReadingDateTime,
+  getPrettyDate,
+  sortPatientsByLastReading,
+} from '../../../../shared/utils';
 
-import { Column } from 'material-table';
-import { PatientStateEnum } from '../../../../enums';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
 
 export const lastReadingDate: Column<Patient | GlobalSearchPatient> = {
   title: `Date of Last Reading`,
@@ -19,13 +21,27 @@ export const lastReadingDate: Column<Patient | GlobalSearchPatient> = {
   defaultSort: `asc` as `asc`,
 };
 
-export const state: Column<Patient | GlobalSearchPatient> = {
-  title: `State`,
-  field: `state`,
-  render: ({ state }: GlobalSearchPatient) => (
-    <Typography variant="body1">
-      {`${state === PatientStateEnum.ADD ? `Click row to add` : state}`}
-    </Typography>
-  ),
-  sorting: false,
-};
+interface IOptionsArgs {
+  debounceInterval: number;
+  globalSearch: boolean;
+  globalSearchPageNumber: number;
+}
+
+export const options = ({
+  debounceInterval,
+  globalSearch,
+  globalSearchPageNumber,
+}: IOptionsArgs): Options => ({
+  actionsCellStyle: { minWidth: 100, padding: `0 1rem` },
+  actionsColumnIndex: -1,
+  debounceInterval,
+  initialPage: globalSearch ? globalSearchPageNumber : 0,
+  pageSize: 10,
+  rowStyle: (): React.CSSProperties => ({
+    height: 75,
+  }),
+  searchAutoFocus: globalSearch,
+  searchFieldVariant: `outlined`,
+  searchFieldStyle: { marginBlockStart: `1rem` },
+  sorting: true,
+});
