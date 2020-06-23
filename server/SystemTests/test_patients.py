@@ -379,6 +379,5 @@ def test_fail_empty_patient_id():
     url = BASE_URL + "/api/patient/facility"
     response = requests.post(url, json=data, headers=auth_header_hcw)
     response_body = response.json()
-    print(response_body)
     assert response.status_code == 400
     assert response_body["HTTP 400"] == "Patient Id is empty."
