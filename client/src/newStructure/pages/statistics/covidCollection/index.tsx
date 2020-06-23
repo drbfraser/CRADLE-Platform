@@ -32,13 +32,16 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
     dialogContent: {
-      margin: theme.spacing(1),
-      marginTop: '10px',
+      marginLeft:'10%',
+      marginRight:'5%'
     },
     dialogField: {
       margin: theme.spacing(2),
       minWidth:'22ch'
     },
+    dialogTitle:{
+      textAlign: 'center'
+    }
   })
 );
 
@@ -245,7 +248,7 @@ const Page: React.FC<any> = (props) => {
         open={open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Individual Information</DialogTitle>
+        <DialogTitle id="form-dialog-title" className={classes.dialogTitle}>Individual Information</DialogTitle>
         <DialogContent className={classes.dialogContent}>
           <FormControl className={classes.dialogField}>
             <InputLabel htmlFor="component-disabled">Initials</InputLabel>
@@ -289,14 +292,6 @@ const Page: React.FC<any> = (props) => {
           </FormControl>
           <FormControl className={classes.dialogField}>
             <InputLabel htmlFor="component-disabled">@Station</InputLabel>
-            <Input
-              id="component-disabled"
-              value={totalPeople}
-              onChange={handleChangeTotalNumber}
-            />
-          </FormControl>
-          <FormControl className={classes.dialogField}>
-            <InputLabel htmlFor="component-disabled">M/F</InputLabel>
             <Input
               id="component-disabled"
               value={totalPeople}
