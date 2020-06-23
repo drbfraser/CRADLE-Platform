@@ -33,18 +33,19 @@ export const Action: React.FC<IProps> = ({
 }) => {
   const classes = useStyles();
 
-  const handleClick = (): void => 
+  const handleClick = (): void =>
     toggleShowReferredPatients((showing: boolean): boolean => !showing);
-  
+
   if (action === ActionEnum.TOGGLE_REFERRED) {
     return (
-      <Tooltip 
+      <Tooltip
         className={classes.toggle}
-        title={showReferredPatients ? `Show all patients` : `Show referred patients`}
-      >
+        title={
+          showReferredPatients ? `Show all patients` : `Show referred patients`
+        }>
         <Switch
           color="primary"
-          checked={ showReferredPatients }
+          checked={showReferredPatients}
           onClick={handleClick}
         />
       </Tooltip>
@@ -57,12 +58,20 @@ export const Action: React.FC<IProps> = ({
         autoComplete={true}
         autoHighlight={true}
         classes={{ root: classes.dropdown }}
-        value={globalSearch ? SearchFilterEnum.GLOBAL_SEARCH : SearchFilterEnum.LOCAL_SEARCH}
+        value={
+          globalSearch
+            ? SearchFilterEnum.GLOBAL_SEARCH
+            : SearchFilterEnum.LOCAL_SEARCH
+        }
         disableClearable={true}
         getOptionLabel={(option: string): string => option}
-        getOptionSelected={(option: string, selected: string): boolean => option === selected}
+        getOptionSelected={(option: string, selected: string): boolean =>
+          option === selected
+        }
         options={Object.values(SearchFilterEnum)}
-        renderInput={(params: AutocompleteRenderInputParams): JSX.Element => <TextField {...params} label="Search filter" variant="outlined" />}
+        renderInput={(params: AutocompleteRenderInputParams): JSX.Element => (
+          <TextField {...params} label="Search filter" variant="outlined" />
+        )}
         onChange={(_: any, value: string): void => {
           toggleGlobalSearch(value === SearchFilterEnum.GLOBAL_SEARCH);
         }}

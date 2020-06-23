@@ -1,6 +1,7 @@
+import { Callback, OrNull, Patient } from '@types';
+import { ServerRequestAction, serverRequestActionCreator } from '../utils';
+
 import { Endpoints } from '../../../server/endpoints';
-import { serverRequestActionCreator, ServerRequestAction } from '../utils';
-import { OrNull, Patient, Callback } from '@types';
 
 enum PatientActionEnum {
   CLEAR_REQUEST_OUTCOME = `patient/CLEAR_REQUEST_OUTCOME`,

@@ -1,11 +1,12 @@
 // @ts-nocheck
 
-import React from 'react';
-import { connect } from 'react-redux';
 import { getPatient, getPatientRequested } from '../../../reducers/patients';
-import { getCurrentUser } from '../../../reducers/user/currentUser';
+
 import { PatientSummary } from '..';
+import React from 'react';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../../reducers/user/currentUser';
 
 class Component extends React.Component {
   constructor(props) {

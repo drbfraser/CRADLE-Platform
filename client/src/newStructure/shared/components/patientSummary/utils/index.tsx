@@ -42,7 +42,7 @@ export const getTrafficIcon = (trafficLightStatus) => {
 };
 
 export const getLatestReading = (readings) => {
-  let sortedReadings = readings.sort(
+  const sortedReadings = readings.sort(
     (a, b) =>
       getMomentDate(b.dateTimeTaken).valueOf() -
       getMomentDate(a.dateTimeTaken).valueOf()

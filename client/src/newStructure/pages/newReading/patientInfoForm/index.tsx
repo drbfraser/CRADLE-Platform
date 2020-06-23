@@ -1,14 +1,15 @@
-import React from 'react';
-import Paper from '@material-ui/core/Paper';
-
 import {
+  Divider,
   Form,
   Header,
-  Divider,
-  Select,
   Input,
+  Select,
   TextArea,
 } from 'semantic-ui-react';
+
+import Paper from '@material-ui/core/Paper';
+import React from 'react';
+
 // import { PatientNewReading } from '../../../types';
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },
@@ -37,7 +38,7 @@ interface IProps {
   onChange: any;
 }
 
-export function PatientInfoForm(props: IProps) {
+export function PatientInfoForm(props: IProps): JSX.Element {
   return (
     <Paper style={{ padding: '35px 25px', borderRadius: '15px' }}>
       {!props.isEditPage && (

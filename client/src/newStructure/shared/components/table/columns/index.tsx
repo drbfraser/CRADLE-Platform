@@ -1,8 +1,5 @@
 import { GlobalSearchPatient, Patient } from '@types';
-import {
-  getLatestReading,
-  getTrafficIcon,
-} from '../../../utils';
+import { getLatestReading, getTrafficIcon } from '../../../utils';
 
 import { Column } from 'material-table';
 import React from 'react';
@@ -14,22 +11,20 @@ export const initials: Column<Patient | GlobalSearchPatient> = {
   title: `Patient Initials`,
   field: `patientName`,
   render: (rowData: Patient | GlobalSearchPatient): JSX.Element => (
-    <p className={classes.text}>
-      { rowData.patientName }
-    </p>
+    <p className={classes.text}>{rowData.patientName}</p>
   ),
   headerStyle: {
-    textAlign: `center` as TextAlignProperty
-  }
+    textAlign: `center` as TextAlignProperty,
+  },
 };
 
 export const patientId: Column<Patient | GlobalSearchPatient> = {
   title: `Patient ID`,
   field: `patientId`,
   customSort: (
-    patient: Patient | GlobalSearchPatient, 
+    patient: Patient | GlobalSearchPatient,
     otherPatient: Patient | GlobalSearchPatient
-  ) => Number(patient.patientId) - Number(otherPatient.patientId)
+  ) => Number(patient.patientId) - Number(otherPatient.patientId),
 };
 
 export const village: Column<Patient | GlobalSearchPatient> = {
@@ -40,14 +35,12 @@ export const village: Column<Patient | GlobalSearchPatient> = {
 export const vitalSign: Column<Patient | GlobalSearchPatient> = {
   title: `Vital Sign`,
   cellStyle: {
-    padding: `0px`
+    padding: `0px`,
   },
   render: (rowData: Patient | GlobalSearchPatient) =>
-    getTrafficIcon(
-      getLatestReading(rowData.readings).trafficLightStatus
-    ),
+    getTrafficIcon(getLatestReading(rowData.readings).trafficLightStatus),
   customSort: (
-    patient: Patient | GlobalSearchPatient, 
+    patient: Patient | GlobalSearchPatient,
     otherPatient: Patient | GlobalSearchPatient
   ) => {
     const leftIndex = Object.values(TrafficLightEnum).indexOf(
@@ -58,5 +51,5 @@ export const vitalSign: Column<Patient | GlobalSearchPatient> = {
     );
 
     return rightIndex - leftIndex;
-  }
+  },
 };

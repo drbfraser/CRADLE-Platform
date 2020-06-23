@@ -38,17 +38,17 @@ export const getReferrals = (referralIds: any) => (dispatch: any) => {
     type: GET_REFERRALS_REQUESTED,
   });
 
-  let referralPromises = [];
-  for (let i in referralIds) {
-    let referralId = referralIds[i];
+  const referralPromises = [];
+  for (const i in referralIds) {
+    const referralId = referralIds[i];
     referralPromises.push(axios.get(BASE_URL + `/referral/${referralId}`));
   }
 
   Promise.all(referralPromises)
     .then((results: any) => {
-      let referrals = {} as { [key: string]: any };
-      for (let i in results) {
-        let thisReferral = results[i].data;
+      const referrals = {} as { [key: string]: any };
+      for (const i in results) {
+        const thisReferral = results[i].data;
         referrals[thisReferral.readingId] = thisReferral;
       }
 

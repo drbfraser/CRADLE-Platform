@@ -18,7 +18,7 @@ interface IArgs {
   globalSearch: boolean;
   patientsExist: boolean;
   showGlobalSearch?: boolean;
-};
+}
 
 export const useActions = ({ 
   globalSearch,
@@ -28,13 +28,17 @@ export const useActions = ({
   const toggleReferredPatientsAction = {
     icon: ActionEnum.TOGGLE_REFERRED,
     isFreeAction: true,
-    onClick: (): void => { return; }
+    onClick: (): void => {
+      return;
+    },
   };
-  
-  const globalSearchAction =  {
+
+  const globalSearchAction = {
     icon: ActionEnum.GLOBAL_SEARCH,
     isFreeAction: true,
-    onClick: (): void => { return; }
+    onClick: (): void => {
+      return;
+    },
   } as Action<Patient>;
 
   const addGlobalSearchPatient =  {
@@ -44,7 +48,7 @@ export const useActions = ({
 
   return React.useMemo<Array<Action<Patient | GlobalSearchPatient>>>((): Array<Action<Patient | GlobalSearchPatient>> => {
     const actions = [];
-    
+
     if (showGlobalSearch) {
       actions.push(globalSearchAction);
     }
@@ -54,7 +58,7 @@ export const useActions = ({
     }
 
     actions.push(toggleReferredPatientsAction);
-    
+
     return actions;
   }, [
       addGlobalSearchPatient, 

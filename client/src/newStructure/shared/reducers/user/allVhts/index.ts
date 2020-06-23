@@ -1,6 +1,7 @@
+import { OrNull, VHT } from '@types';
+import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
+
 import { Endpoints } from '../../../../server/endpoints';
-import { serverRequestActionCreator, ServerRequestAction } from '../../utils';
-import { VHT, OrNull } from '@types';
 
 enum AllVhtsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'allVhts/CLEAR_REQUEST_OUTCOME',
@@ -71,11 +72,6 @@ export const allVhtsReducer = (
       return {
         ...initialState,
         loading: true,
-      };
-    case AllVhtsActionEnum.GET_VHTS_SUCCESS:
-      return {
-        ...initialState,
-        data: action.payload.vhts,
       };
     case AllVhtsActionEnum.GET_VHTS_ERROR:
       return {

@@ -1,6 +1,7 @@
-import { Endpoints } from '../../../server/endpoints';
-import { serverRequestActionCreator, ServerRequestAction } from '../utils';
 import { Callback, OrNull } from '@types';
+import { ServerRequestAction, serverRequestActionCreator } from '../utils';
+
+import { Endpoints } from '../../../server/endpoints';
 
 enum PatientStatisticsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'patientStatistics/CLEAR_REQUEST_OUTCOME',
