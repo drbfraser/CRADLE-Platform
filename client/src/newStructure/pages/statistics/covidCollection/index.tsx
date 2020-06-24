@@ -51,6 +51,14 @@ const Page: React.FC<any> = (props) => {
   const [valueR, setValueR] = React.useState('female');
   const [houseHoldNum, setHouseHoldNum] = React.useState('');
   const [totalPeople, setTotalPeople] = React.useState('5');
+  const [openDT, setOpenDT] = React.useState(false);
+  const handleCloseDropDownT = () => {
+    setOpenDT(false);
+  };
+
+  const handleOpenDropDownT = () => {
+    setOpenDT(true);
+  };
   const [openD, setOpenD] = React.useState(false);
   const handleCloseDropDown = () => {
     setOpenD(false);
@@ -79,6 +87,34 @@ const Page: React.FC<any> = (props) => {
   const handleChangeR = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValueR((event.target as HTMLInputElement).value);
   };
+  const houseHoldNumbers = [{
+    label: '1124',
+  },
+  {
+    label: '2124',
+  },
+  {
+    label: '33124',
+  },
+  {
+    label: '112124',
+  },
+  {
+    label: '112222',
+  },
+  {
+    label: '114434',
+  },
+  {
+    label: '11212',
+  },
+  {
+    label: '122124',
+  },
+  {
+    label: '112554',
+  },
+]
   const status = [
     {
       label: 'Recovered',
@@ -163,11 +199,19 @@ const Page: React.FC<any> = (props) => {
     setHouseHoldNum(event.target.value as string);
   };
   const [open, setOpen] = React.useState(false);
+  const [openT, setOpenT] = React.useState(false);
+
   const [personInit, setPersonInit] = React.useState('45454');
   const handlePersonInit = (event: React.ChangeEvent<{ value: unknown }>) => {
     setPersonInit(event.target.value as string);
   };
 
+  const openTransfer = () => {
+    setOpenT(true);
+  };
+  const handleCloseT = () => {
+    setOpenT(false);
+  };
   const handleClose = () => {
     setOpen(false);
   };
@@ -240,12 +284,12 @@ const Page: React.FC<any> = (props) => {
             {
               icon: 'edit',
               tooltip: 'Edit User',
-              onClick: (event, rowData:any) => {
+              onClick: (event, rowData: any) => {
                 setOpen(true);
                 setPersonInit(rowData.id);
               },
             },
-            {  
+            {
               icon: 'delete',
               tooltip: 'Delete User',
               onClick: (event, rowData) => {},
@@ -377,11 +421,46 @@ const Page: React.FC<any> = (props) => {
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={openTransfer} color="primary">
             Transfer
           </Button>
           <Button onClick={handleClose} color="primary">
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    
+      <Dialog
+        maxWidth="sm"
+        open={openT}
+        onClose={handleCloseT}
+        aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title" className={classes.dialogTitle}>
+          Transfer Individual x To 
+        </DialogTitle>
+        <DialogContent>
+          <FormControl className={classes.dialogField}>
+            <InputLabel htmlFor="component-simple">House Hold Number</InputLabel>
+            <Select
+              open={openDT}
+              onClose={handleCloseDropDownT}
+              onOpen={handleOpenDropDownT}
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              >
+              {houseHoldNumbers.map((option, key) => (
+                <MenuItem
+                  key={key}
+                  style={{ width: '20ch' }}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseT} color="primary">
+            Trasnfer
           </Button>
         </DialogActions>
       </Dialog>
