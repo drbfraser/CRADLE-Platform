@@ -79,6 +79,7 @@ class FollowUp(Resource):
             return update_res
 
     @jwt_required
+    @swag_from("../specifications/followup-delete.yml", methods=["DELETE"])
     def delete(self, id=None):
         # validate inputs
         if id:
