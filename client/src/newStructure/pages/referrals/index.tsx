@@ -1,13 +1,14 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
+  PatientsState,
   getPatients,
   getPatientsRequested,
-  PatientsState,
 } from '../../shared/reducers/patients';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { ReferralTable } from './referralTable';
+import React, { Component } from 'react';
+
 import { ReduxState } from '../../redux/rootReducer';
+import { ReferralTable } from './referralTable';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 
 interface IProps {
   getCurrentUser: any;
@@ -42,7 +43,7 @@ class ReferralPageComponent extends Component<IProps> {
       }
 
       // check if patient has a referral
-      for (var i = 0; i < patient.readings.length; i++) {
+      for (let i = 0; i < patient.readings.length; i++) {
         if (patient.readings[i].referral != null) {
           return true;
         }
@@ -56,7 +57,7 @@ class ReferralPageComponent extends Component<IProps> {
     const referredPatients: any = ReferralsPage.filterReferrals(
       props.patients.patientsList
     );
-    let newState = {
+    const newState = {
       ...state,
       patientsList: referredPatients,
     };

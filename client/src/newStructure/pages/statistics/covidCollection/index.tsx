@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { ReduxState } from '../../../redux/rootReducer';
 import MaterialTable from 'material-table';
 import {
   Divider,
@@ -46,7 +45,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Page: React.FC<any> = (props) => {
+const Page: React.FC<any> = () => {
   const classes = useStyles();
   const [valueR, setValueR] = React.useState('female');
   const [houseHoldNum, setHouseHoldNum] = React.useState('');
@@ -87,34 +86,35 @@ const Page: React.FC<any> = (props) => {
   const handleChangeR = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValueR((event.target as HTMLInputElement).value);
   };
-  const houseHoldNumbers = [{
-    label: '1124',
-  },
-  {
-    label: '2124',
-  },
-  {
-    label: '33124',
-  },
-  {
-    label: '112124',
-  },
-  {
-    label: '112222',
-  },
-  {
-    label: '114434',
-  },
-  {
-    label: '11212',
-  },
-  {
-    label: '122124',
-  },
-  {
-    label: '112554',
-  },
-]
+  const houseHoldNumbers = [
+    {
+      label: '1124',
+    },
+    {
+      label: '2124',
+    },
+    {
+      label: '33124',
+    },
+    {
+      label: '112124',
+    },
+    {
+      label: '112222',
+    },
+    {
+      label: '114434',
+    },
+    {
+      label: '11212',
+    },
+    {
+      label: '122124',
+    },
+    {
+      label: '112554',
+    },
+  ];
   const status = [
     {
       label: 'Recovered',
@@ -285,6 +285,7 @@ const Page: React.FC<any> = (props) => {
               icon: 'edit',
               tooltip: 'Edit User',
               onClick: (event, rowData: any) => {
+                console.log(event);
                 setOpen(true);
                 setPersonInit(rowData.id);
               },
@@ -292,7 +293,11 @@ const Page: React.FC<any> = (props) => {
             {
               icon: 'delete',
               tooltip: 'Delete User',
-              onClick: (event, rowData) => {},
+              onClick: (event, rowData) => {
+                console.log(event);
+                setOpen(true);
+                setPersonInit(rowData.id);
+              },
             },
           ]}
         />
@@ -429,29 +434,28 @@ const Page: React.FC<any> = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
-    
+
       <Dialog
         maxWidth="sm"
         open={openT}
         onClose={handleCloseT}
         aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title" className={classes.dialogTitle}>
-          Transfer Individual x To 
+          Transfer Individual x To
         </DialogTitle>
         <DialogContent>
           <FormControl className={classes.dialogField}>
-            <InputLabel htmlFor="component-simple">House Hold Number</InputLabel>
+            <InputLabel htmlFor="component-simple">
+              House Hold Number
+            </InputLabel>
             <Select
               open={openDT}
               onClose={handleCloseDropDownT}
               onOpen={handleOpenDropDownT}
               labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              >
+              id="demo-simple-select">
               {houseHoldNumbers.map((option, key) => (
-                <MenuItem
-                  key={key}
-                  style={{ width: '20ch' }}>
+                <MenuItem key={key} style={{ width: '20ch' }}>
                   {option.label}
                 </MenuItem>
               ))}
@@ -468,9 +472,9 @@ const Page: React.FC<any> = (props) => {
   );
 };
 
-const mapStateToProps = ({ patients }: ReduxState) => ({});
+const mapStateToProps = () => ({});
 
-const mapDispatchToProps = (dispatch: any) => ({});
+const mapDispatchToProps = () => ({});
 export const CovidCollection = connect(
   mapStateToProps,
   mapDispatchToProps

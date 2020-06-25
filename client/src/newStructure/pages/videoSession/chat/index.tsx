@@ -34,7 +34,7 @@ class Component extends React.Component<IProps, IState> {
 
   appendRemoteMessage = (event: any): void => {
     console.log(event);
-    let sender = this.getSender(true);
+    const sender = this.getSender(true);
 
     this.setState(
       {
@@ -55,14 +55,14 @@ class Component extends React.Component<IProps, IState> {
   };
 
   handleSubmit = (): void => {
-    let data = {
+    const data = {
       msg: this.state.pendingInput,
       senderName: this.props.user?.firstName,
     };
 
     this.props.connection.send(data);
 
-    let sender = this.getSender();
+    const sender = this.getSender();
 
     this.setState(
       {
@@ -89,7 +89,7 @@ class Component extends React.Component<IProps, IState> {
 
   handleKeyDown = (event: any): void => {
     // User presses enter
-    if (event.keyCode == 13) {
+    if (event.keyCode === 13) {
       this.handleSubmit();
     }
   };

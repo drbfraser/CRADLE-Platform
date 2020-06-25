@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { Tab } from 'semantic-ui-react';
+
 import { CommunityWorkerResources } from './CommunityWorkerResource';
 import { HealthWorkerResources } from './HealthWorkerResources';
-import { bindActionCreators } from 'redux';
+import { CovidHelp } from './CovidHelp';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { Tab } from 'semantic-ui-react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 
 const panes = [
   {
@@ -21,6 +23,14 @@ const panes = [
     render: () => (
       <Tab.Pane>
         <HealthWorkerResources />
+      </Tab.Pane>
+    ),
+  },
+  {
+    menuItem: 'Covid-19 Help',
+    render: () => (
+      <Tab.Pane>
+        <CovidHelp />
       </Tab.Pane>
     ),
   },

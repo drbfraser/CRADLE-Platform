@@ -3,8 +3,8 @@ import { Icon } from 'semantic-ui-react';
 import React from 'react';
 import { ReactComponent as RedTraffic } from '../icons/red.svg';
 import { ReactComponent as YellowTraffic } from '../icons/yellow.svg';
-import moment from 'moment';
 import classes from './styles.module.css';
+import moment from 'moment';
 
 export const getMomentDate = (dateS: any) => {
   return moment(dateS * 1000);
@@ -18,8 +18,12 @@ export const getPrettyDateTime = (dateStr: any) => {
   return getMomentDate(dateStr).format('MMMM Do YYYY, h:mm:ss a');
 };
 
+export const getPrettyDateUTC = (dateStr: any) => {
+  return getMomentDate(dateStr).utc().format('MMMM Do YYYY');
+};
+
 export const getLatestReading = (readings: any) => {
-  let sortedReadings = readings.sort(
+  const sortedReadings = readings.sort(
     (a: any, b: any) =>
       getMomentDate(b.dateTimeTaken).valueOf() -
       getMomentDate(a.dateTimeTaken).valueOf()

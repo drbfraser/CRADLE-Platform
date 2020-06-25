@@ -1,4 +1,5 @@
 import './index.css';
+import React from 'react';
 
 import { Button, Divider, Form } from 'semantic-ui-react';
 import {
@@ -8,7 +9,7 @@ import {
   User,
 } from '../../types';
 import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from './patientInfoForm';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { UrineTestForm, initialUrineTests } from './urineTestForm';
 import {
   addNewReading,
@@ -22,19 +23,18 @@ import { addNewPatient } from '../../shared/reducers/patients';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-
 // import Dialog from '@material-ui/core/Dialog';
 // import DialogTitle from '@material-ui/core/DialogTitle';
 // import DialogContent from '@material-ui/core/DialogContent';
 // import DialogContentText from '@material-ui/core/DialogContentText';
 // import DialogActions from '@material-ui/core/DialogActions';
 
-var symptom: any = [];
+const symptom: any = [];
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0;
-    var v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -43,7 +43,7 @@ const initState = {
   patient: {
     patientId: '',
     patientName: '',
-    patientAge: '',
+    patientAge: null,
     patientSex: 'FEMALE',
     isPregnant: true,
     gestationalAgeValue: '',
@@ -94,6 +94,7 @@ interface IState {
   checkedItems: CheckedItems;
   showSuccessReading: boolean;
 }
+
 class NewReadingPageComponent extends Component<IProps, IState> {
   state = initState;
 
@@ -248,18 +249,21 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         symptom.push(this.state.checkedItems.otherSymptoms);
       }
     }
-    if (this.state.patient.patientAge == '') {
-      this.state.patient.patientAge = '15';
+    if (this.state.patient.patientAge === ``) {
+      this.setState({ patient: { ...this.state.patient, patientAge: null } });
     }
 
-    if (this.state.patient.dob != null) {
-      this.state.patient.dob = (Date.parse(this.state.patient.dob as any) /
-        1000) as any;
+    if (this.state.patient.dob !== null) {
+      this.setState({
+        patient: {
+          ...this.state.patient,
+          dob: Date.parse(this.state.patient.dob as any) / 1000,
+        },
+      });
     }
-    var readingID = guid();
+    const readingID = guid();
 
-    var dateTimeTaken = Math.floor(Date.now() / 1000);
-    const that = this;
+    const dateTimeTaken = Math.floor(Date.now() / 1000);
 
     this.setState(
       {
@@ -271,19 +275,19 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           symptoms: symptom.toString(),
         },
       },
-      function () {
-        let patientData = JSON.parse(JSON.stringify(that.state.patient));
-        let readingData = JSON.parse(JSON.stringify(that.state.reading));
-        if (!that.state.hasUrineTest) {
+      (): void => {
+        const patientData = JSON.parse(JSON.stringify(this.state.patient));
+        const readingData = JSON.parse(JSON.stringify(this.state.reading));
+        if (!this.state.hasUrineTest) {
           delete readingData.urineTests;
         }
 
-        let newData = {
+        const newData = {
           patient: patientData,
           reading: readingData,
         };
         console.log(newData);
-        that.props.addNewReading(newData);
+        this.props.addNewReading(newData);
       }
     );
   };

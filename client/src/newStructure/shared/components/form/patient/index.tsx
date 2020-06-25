@@ -1,15 +1,15 @@
-import React from 'react';
-import Paper from '@material-ui/core/Paper';
-import classes from '../styles.module.css';
-
 import {
+  Divider,
   Form,
   Header,
-  Divider,
-  Select,
   Input,
+  Select,
   TextArea,
 } from 'semantic-ui-react';
+
+import Paper from '@material-ui/core/Paper';
+import React from 'react';
+import classes from '../styles.module.css';
 
 const sexOptions = [
   { key: 'm', text: 'Male', value: 'MALE' },

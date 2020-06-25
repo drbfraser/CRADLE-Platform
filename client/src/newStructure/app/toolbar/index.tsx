@@ -1,9 +1,10 @@
-import React from 'react';
-import { Toolbar, Typography, IconButton } from '@material-ui/core';
-import { Icon } from 'semantic-ui-react';
-import { getRole } from './utils';
+import { IconButton, Toolbar, Typography } from '@material-ui/core';
+
 import AppImg from './img/app_icon.png';
+import { Icon } from 'semantic-ui-react';
+import React from 'react';
 import classes from '../styles.module.css';
+import { getRole } from './utils';
 
 interface IProps {
   setActiveItem: React.Dispatch<React.SetStateAction<string>>;

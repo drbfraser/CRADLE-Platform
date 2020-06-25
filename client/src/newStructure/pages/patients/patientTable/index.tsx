@@ -1,4 +1,10 @@
-import { Callback, GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
+import {
+  Callback,
+  GlobalSearchPatient,
+  OrNull,
+  OrUndefined,
+  Patient,
+} from '@types';
 import MaterialTable, { MTableActions } from 'material-table';
 
 import { Action } from './action';
@@ -16,7 +22,7 @@ interface IProps {
   onPatientSelected: Callback<Patient>;
   onGlobalSearchPatientSelected: Callback<GlobalSearchPatient>;
   getPatients: Callback<OrUndefined<string>>;
-  showGlobalSearch?: boolean; 
+  showGlobalSearch?: boolean;
 }
 
 export const PatientTable: React.FC<IProps> = ({
@@ -38,7 +44,7 @@ export const PatientTable: React.FC<IProps> = ({
     showReferredPatients,
     setShowReferredPatients,
   } = useData({ data, globalSearchData });
-  
+
   const actions = useActions({ showGlobalSearch });
 
   const columns = useColumns({ globalSearch });
@@ -53,34 +59,35 @@ export const PatientTable: React.FC<IProps> = ({
   return (
     <MaterialTable
       components={{
-        Actions: props => (
+        Actions: (props) => (
           <div className={classes.actionsContainer}>
-            <MTableActions {...props}/>
+            <MTableActions {...props} />
           </div>
         ),
-        Action: props => (
-          <Action 
+        Action: (props) => (
+          <Action
             action={props.action.icon}
             globalSearch={globalSearch}
-            showReferredPatients={showReferredPatients} 
-            toggleGlobalSearch={setGlobalSearch} 
-            toggleShowReferredPatients={setShowReferredPatients} 
+            showReferredPatients={showReferredPatients}
+            toggleGlobalSearch={setGlobalSearch}
+            toggleShowReferredPatients={setShowReferredPatients}
           />
-        )
+        ),
       }}
       title="Patients"
-      isLoading={ isLoading }
+      isLoading={isLoading}
       columns={columns}
       data={patients}
-      onSearchChange={globalSearch 
-        ? (searchText?: string): void => {
-          if (searchText) {
-            debouncedGetPatients(searchText);
-          }
-        }
-        : undefined
+      onSearchChange={
+        globalSearch
+          ? (searchText?: string): void => {
+              if (searchText) {
+                debouncedGetPatients(searchText);
+              }
+            }
+          : undefined
       }
-      options={ {
+      options={{
         actionsCellStyle: { padding: `0 1rem` },
         actionsColumnIndex: -1,
         debounceInterval,
@@ -90,11 +97,13 @@ export const PatientTable: React.FC<IProps> = ({
         }),
         searchFieldVariant: `outlined`,
         searchFieldStyle: { marginBlockStart: `1rem` },
-        sorting: true
-      } }
-      onRowClick={ globalSearch 
-        ? (_, rowData: GlobalSearchPatient) => onGlobalSearchPatientSelected(rowData)  
-        : (_, rowData: Patient) => onPatientSelected(rowData) 
+        sorting: true,
+      }}
+      onRowClick={
+        globalSearch
+          ? (_, rowData: GlobalSearchPatient) =>
+              onGlobalSearchPatientSelected(rowData)
+          : (_, rowData: Patient) => onPatientSelected(rowData)
       }
       actions={actions}
     />

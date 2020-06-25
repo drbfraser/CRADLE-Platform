@@ -1,5 +1,5 @@
 from flask_restful import abort
-from datetime import datetime
+from datetime import datetime, date
 from Manager.Manager import Manager
 from Manager.ReadingManagerNew import ReadingManager  # reading data
 from Manager import patientManager
@@ -9,7 +9,7 @@ readingManager = ReadingManager()
 
 # TO DO: Add error checking
 # TO DO: Update init
-# TO DO: Condense ret object
+# TO DO: Clean up and refactor similar to stats manager once we have client requirements
 class PatientStatsManager:
     def get_traffic_light(self, item, data):
         yellow_up_index = 1
@@ -50,15 +50,13 @@ class PatientStatsManager:
                     # do traffic light status stuff here
                     self.get_traffic_light(item, data)
                 else:
-                    date_string_ts = item["dateTimeTaken"]
-                    date_string = datetime.utcfromtimestamp(date_string_ts).strftime(
-                        "%Y-%m-%d"
-                    )
-                    # make sure to add error checking in here
-                    date_object = datetime.strptime(date_string[5:7], "%m")
-                    month = date_object.month
-                    print(month)
-                    data[month - 1].append(item[dataNeeded])
+                    date_unix_ts = item["dateTimeTaken"]
+                    date_object = date.fromtimestamp(date_unix_ts)
+                    item_month = date_object.month
+                    item_year = date_object.year
+                    current_year = date.today().year
+                    if current_year == item_year:
+                        data[item_month - 1].append(item[dataNeeded])
 
         return data
 

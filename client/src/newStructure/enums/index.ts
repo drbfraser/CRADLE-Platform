@@ -34,5 +34,5 @@ export enum PatientStateEnum {
   ADD = 'Add',
   ADDED = 'Added',
   ADDING = 'Adding...',
-  JUST_ADDED = 'Just added'
+  JUST_ADDED = 'Just added',
 }

@@ -114,7 +114,7 @@ class PatientAll(Resource):
         if (
             "dob" in patient_data
             and patient_data["dob"]
-            and patient_data["patientAge"] is None
+            and ("patientAge" not in patient_data or patient_data["patientAge"] is None)
         ):
             patient_data = calculate_age_from_dob(patient_data)
         response_body = patientManager.create(patient_data)
@@ -211,7 +211,7 @@ class PatientReading(Resource):
         if (
             "dob" in patient_data
             and patient_data["dob"]
-            and patient_data["patientAge"] is None
+            and ("patientAge" not in patient_data or patient_data["patientAge"] is None)
         ):
             patient_reading_data["patient"]["dob"] = int(
                 patient_reading_data["patient"]["dob"]
@@ -250,7 +250,7 @@ class PatientAllInformation(Resource):
         # patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
 
         if not patients_readings_referrals:
-            abort(404, message="No patients currently exist.")
+            return []
         else:
             return patients_readings_referrals
 
@@ -301,6 +301,6 @@ class PatientFacility(Resource):
             patientFacilityManager.add_patient_facility_relationship(
                 patient_id, user_health_facility
             )
-            return {"message": "patient has been added to facility successfully"}, 200
+            return {"message": "patient has been added to facility successfully"}, 201
         else:
             abort(404, message="This patient does not exist.")

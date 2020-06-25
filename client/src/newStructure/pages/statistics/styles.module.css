@@ -42,9 +42,9 @@
 }
 
 .verticalWriting {
-  width: 100;
+  width: 100px;
   margin: 0 auto;
-  line-height: 16;
+  line-height: 16px;
 }
 
 .chart {

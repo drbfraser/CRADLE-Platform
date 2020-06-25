@@ -15,7 +15,6 @@ from Controller.FollowUpController import (
     FollowUpMobileSummarized,
 )
 from Controller.StatsController import *
-from Controller.PatientStatsController import *
 from Controller.SMSController import *
 from Controller.PasswordResetController import *
 

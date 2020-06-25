@@ -179,9 +179,9 @@ class AdminPageComponent extends Component<IProps, IState> {
 
   handleSubmit = (event: any) => {
     event.preventDefault();
-    let userData = JSON.parse(JSON.stringify(this.state.selectedUser)); // pass by value
+    const userData = JSON.parse(JSON.stringify(this.state.selectedUser)); // pass by value
 
-    let userId = userData.id;
+    const userId = userData.id;
 
     // delete any uncessary user fields
     delete userData['referrals'];
@@ -205,8 +205,8 @@ class AdminPageComponent extends Component<IProps, IState> {
 
   handleDelete = (event: any) => {
     event.preventDefault();
-    let userData = JSON.parse(JSON.stringify(this.state.selectedUser)); // pass by value
-    let userId = userData.id;
+    const userData = JSON.parse(JSON.stringify(this.state.selectedUser)); // pass by value
+    const userId = userData.id;
 
     this.props.deleteUser(userId);
     this.closeConfirmDeleteModal();
@@ -233,27 +233,27 @@ class AdminPageComponent extends Component<IProps, IState> {
   };
 
   getRoles = (roleIds: Array<string>) => {
-    var roleStr = '';
+    let roleStr = '';
     if (roleIds.length === 1) {
       return this.state.roleMapping[roleIds[0]];
     }
 
-    for (var i = 0; i < roleIds.length; i++) {
+    for (let i = 0; i < roleIds.length; i++) {
       roleStr += this.state.roleMapping[roleIds[i]] + '\n';
     }
     return roleStr;
   };
 
   getRolesArray = (roleIds: Array<string>) => {
-    var roles = [];
+    const roles = [];
 
     if (roleIds.length === 1) {
-      var roleName = this.state.roleMapping[roleIds[0]];
+      const roleName = this.state.roleMapping[roleIds[0]];
       roles.push(roleName);
       return [...roles];
     }
 
-    for (var i = 0; i < roleIds.length; i++) {
+    for (let i = 0; i < roleIds.length; i++) {
       roles.push(this.state.roleMapping[roleIds[i]]);
     }
 
@@ -262,13 +262,13 @@ class AdminPageComponent extends Component<IProps, IState> {
 
   render() {
     // construct health facilities list object for dropdown
-    let hfOptions = [];
+    const hfOptions = [];
 
     if (
       this.props.healthFacilityList !== undefined &&
       this.props.healthFacilityList.length > 0
     ) {
-      for (var i = 0; i < this.props.healthFacilityList.length; i++) {
+      for (let i = 0; i < this.props.healthFacilityList.length; i++) {
         hfOptions.push({
           key: this.props.healthFacilityList[i],
           text: this.props.healthFacilityList[i],
@@ -277,9 +277,9 @@ class AdminPageComponent extends Component<IProps, IState> {
       }
     }
 
-    let vhtOptions = [];
+    const vhtOptions = [];
     if (this.props.vhtList?.length > 0) {
-      for (var j = 0; j < this.props.vhtList.length; j++) {
+      for (let j = 0; j < this.props.vhtList.length; j++) {
         vhtOptions.push({
           key: this.props.vhtList[j].id,
           text: this.props.vhtList[j].email,
@@ -310,7 +310,7 @@ class AdminPageComponent extends Component<IProps, IState> {
           columns={this.state.columns}
           data={this.props.users || []}
           options={{
-            rowStyle: (rowData) => {
+            rowStyle: () => {
               return {
                 height: '75px',
               };

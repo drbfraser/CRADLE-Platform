@@ -8,7 +8,11 @@ import {
   initialUrineTests,
   urineTestChemicals,
 } from '../form/urineTest';
-import { getMomentDate, getPrettyDate, getPrettyDateTime } from '../../utils';
+import {
+  getMomentDate,
+  getPrettyDateTime,
+  getPrettyDateUTC,
+} from '../../utils';
 import {
   getPatientStatistics,
   startRequest,
@@ -38,12 +42,12 @@ import { getReferrals } from '../../reducers/referrals';
 import { getTrafficIcon } from './utils';
 import { newReadingPost } from '../../reducers/newReadingPost';
 
-var symptom = [];
+const symptom = [];
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0;
-    var v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -140,9 +144,9 @@ class Component extends React.Component {
   };
 
   getReferralIds(selectedPatient) {
-    let res = [];
-    for (let i in selectedPatient.readings) {
-      let reading = selectedPatient.readings[i];
+    const res = [];
+    for (const i in selectedPatient.readings) {
+      const reading = selectedPatient.readings[i];
       if (reading.referral != null) {
         res.push(reading.referral);
       }
@@ -163,7 +167,7 @@ class Component extends React.Component {
     this.setState({ displayPatientModal: true });
   };
 
-  closePatientModal = (e, data) => {
+  closePatientModal = (e) => {
     if (e === 'formSubmitted') {
       this.setState({ displayPatientModal: false });
     } else {
@@ -186,8 +190,8 @@ class Component extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    let patientData = JSON.parse(JSON.stringify(this.state.selectedPatient)); // pass by value
-    let patientId = patientData.patientId;
+    const patientData = JSON.parse(JSON.stringify(this.state.selectedPatient)); // pass by value
+    const patientId = patientData.patientId;
 
     // delete any unnecessary fields
     delete patientData.readings;
@@ -210,8 +214,8 @@ class Component extends React.Component {
       }
     }
 
-    var dateTime = Math.floor(Date.now() / 1000);
-    var readingID = guid();
+    const dateTime = Math.floor(Date.now() / 1000);
+    const readingID = guid();
 
     this.setState(
       {
@@ -225,10 +229,10 @@ class Component extends React.Component {
         },
       },
       function () {
-        let patientData = JSON.parse(
+        const patientData = JSON.parse(
           JSON.stringify(this.state.selectedPatient)
         );
-        let readingData = JSON.parse(JSON.stringify(this.state.newReading));
+        const readingData = JSON.parse(JSON.stringify(this.state.newReading));
 
         // delete any unnecessary fields
         delete patientData.readings;
@@ -238,7 +242,7 @@ class Component extends React.Component {
           delete readingData.urineTests;
         }
 
-        let newData = {
+        const newData = {
           patient: patientData,
           reading: readingData,
         };
@@ -399,7 +403,7 @@ class Component extends React.Component {
   };
 
   sortReadings = (readings) => {
-    let sortedReadings = readings.sort(
+    const sortedReadings = readings.sort(
       (a, b) =>
         getMomentDate(b.dateTimeTaken).valueOf() -
         getMomentDate(a.dateTimeTaken).valueOf()
@@ -409,8 +413,8 @@ class Component extends React.Component {
 
   average = (monthlyArray) => {
     if (monthlyArray.length !== 0) {
-      var total = 0;
-      for (var i = 0; i < monthlyArray.length; i++) {
+      let total = 0;
+      for (let i = 0; i < monthlyArray.length; i++) {
         total += monthlyArray[i];
       }
       return total / monthlyArray.length;
@@ -462,7 +466,7 @@ class Component extends React.Component {
       this.state.selectedPatient.readings !== undefined &&
       this.state.selectedPatient.readings.length > 0
     ) {
-      for (var i = 0; i < this.state.selectedPatient.readings.length; i++) {
+      for (let i = 0; i < this.state.selectedPatient.readings.length; i++) {
         const reading = this.createReadingObject(
           this.state.selectedPatient.readings[i]
         );
@@ -472,13 +476,13 @@ class Component extends React.Component {
       readings = this.sortReadings(readings);
     }
 
-    var bpSystolicReadingsMontly = {};
+    let bpSystolicReadingsMontly = {};
 
     if (this.props.selectedPatientStatsList.bpSystolicReadingsMontly) {
       const bpSystolicReadingsData = this.props.selectedPatientStatsList
         .bpSystolicReadingsMontly;
-      var averageSystolic = Array(12);
-      for (var j = 0; j < 12; j++) {
+      const averageSystolic = Array(12);
+      for (let j = 0; j < 12; j++) {
         averageSystolic[j] = this.average(bpSystolicReadingsData[j]);
       }
 
@@ -493,12 +497,12 @@ class Component extends React.Component {
       };
     }
 
-    var bpDiastolicReadingsMonthly = {};
+    let bpDiastolicReadingsMonthly = {};
     if (this.props.selectedPatientStatsList.bpDiastolicReadingsMonthly) {
       const bpDiastolicReadingsData = this.props.selectedPatientStatsList
         .bpDiastolicReadingsMonthly;
-      var averageDiastolic = Array(12);
-      for (var l = 0; l < 12; l++) {
+      const averageDiastolic = Array(12);
+      for (let l = 0; l < 12; l++) {
         averageDiastolic[l] = this.average(bpDiastolicReadingsData[l]);
       }
 
@@ -513,12 +517,12 @@ class Component extends React.Component {
       };
     }
 
-    var heartRateReadingsMonthly = {};
+    let heartRateReadingsMonthly = {};
     if (this.props.selectedPatientStatsList.heartRateReadingsMonthly) {
       const heartRateData = this.props.selectedPatientStatsList
         .heartRateReadingsMonthly;
-      var averageHeartRate = Array(12);
-      for (var k = 0; k < 12; k++) {
+      const averageHeartRate = Array(12);
+      for (let k = 0; k < 12; k++) {
         averageHeartRate[k] = this.average(heartRateData[k]);
       }
 
@@ -555,7 +559,7 @@ class Component extends React.Component {
       ],
     };
 
-    var trafficLight = {};
+    let trafficLight = {};
     if (this.props.selectedPatientStatsList.trafficLightCountsFromDay1) {
       trafficLight = {
         labels: ['GREEN', 'YELLOW UP', 'YELLOW DOWN', 'RED UP', 'RED DOWN'],
@@ -635,7 +639,7 @@ class Component extends React.Component {
                       {this.state.selectedPatient.dob === undefined ||
                       this.state.selectedPatient.dob === null
                         ? 'N/A'
-                        : getPrettyDate(this.state.selectedPatient.dob)}{' '}
+                        : getPrettyDateUTC(this.state.selectedPatient.dob)}{' '}
                     </p>
                     <p>
                       <b>Patient Age: </b>{' '}
@@ -737,7 +741,7 @@ class Component extends React.Component {
                   {this.state.showVitals && (
                     <div>
                       <h4 style={{ margin: '0' }}>Average Vitals Over Time:</h4>
-                      <Line ref="chart" data={vitalsOverTime} />
+                      <Line data={vitalsOverTime} />
                     </div>
                   )}
                   {this.state.showTrafficLights && (
@@ -746,7 +750,6 @@ class Component extends React.Component {
                         Traffic Lights From All Readings:
                       </h4>
                       <Bar
-                        ref="chart"
                         data={trafficLight}
                         options={{
                           legend: { display: false },

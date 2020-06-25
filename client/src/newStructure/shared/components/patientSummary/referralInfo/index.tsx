@@ -1,15 +1,16 @@
 // @ts-nocheck
 import React, { Component } from 'react';
-import Typography from '@material-ui/core/Typography';
-import { Icon } from 'semantic-ui-react';
-import { getPrettyDateTime } from '../../../utils';
-import { FollowUpModal } from './followup/modal';
+
 import { FollowUpInfo } from './followup/info';
+import { FollowUpModal } from './followup/modal';
+import { Icon } from 'semantic-ui-react';
+import Typography from '@material-ui/core/Typography';
+import { getPrettyDateTime } from '../../../utils';
 
 export default class ReferralInfo extends Component {
   render() {
     if (this.props.referral) {
-      let ref = this.props.referral;
+      const ref = this.props.referral;
       return (
         <div>
           <Typography variant="h4" component="h4">

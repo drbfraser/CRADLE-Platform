@@ -1,209 +1,239 @@
-from datetime import datetime
+from datetime import datetime, date
 from Manager.Manager import Manager
 from Manager.PatientManagerNew import PatientManager  # patient data
 from Manager.ReadingManagerNew import ReadingManager  # reading data
 from Manager.ReferralManager import ReferralManager  # referral data
+from Manager.FollowUpManager import FollowUpManager  # assessment data
 import json
+from models import Reading, ReadingSchema
 
 patientManager = PatientManager()
 referralManager = ReferralManager()
 readingManager = ReadingManager()
+followupManager = FollowUpManager()
 
 
 # TO DO: NEED TO ADD ERROR CHECKING
 # add init
 class StatsManager:
-    def get_traffic_light(self, item, data):
+
+    """ 
+        Description: Helper function that converts from unixtimestamp to date objects and returns necessary date components
+            Parameters: 
+                record: the row in the db that is being converted
+                dateLabel: how date is recorded in that table e.g dateTime vs dateReferred
+    """
+
+    def calculate_dates_helper(self, record, dateLabel):
+        date_unix_ts = record[dateLabel]
+        date_obj = date.fromtimestamp(date_unix_ts)
+        record_month = date_obj.month
+        record_year = date_obj.year
+        current_year = date.today().year
+        return {
+            "record_month": record_month,
+            "record_year": record_year,
+            "current_year": current_year,
+        }
+
+    """ 
+        Description: Helper function that indentifies traffic light status and increments it's corresponding counter
+            Parameters: 
+                record: the row in the db that is being checked
+                data: the array that holds the traffic light counters
+    """
+
+    def calculate_traffic_light_helper(self, record, data):
         yellow_up_index = 1
         yellow_down_index = 2
         red_up_index = 3
         red_down_index = 4
         green_index = 0
 
-        if item["trafficLightStatus"] == "YELLOW_UP":
+        if record["trafficLightStatus"] == "YELLOW_UP":
             data[yellow_up_index] += 1
-        if item["trafficLightStatus"] == "YELLOW_DOWN":
+        if record["trafficLightStatus"] == "YELLOW_DOWN":
             data[yellow_down_index] += 1
-        if item["trafficLightStatus"] == "RED_UP":
+        if record["trafficLightStatus"] == "RED_UP":
             data[red_up_index] += 1
-        if item["trafficLightStatus"] == "RED_DOWN":
+        if record["trafficLightStatus"] == "RED_DOWN":
             data[red_down_index] += 1
-        if item["trafficLightStatus"] == "GREEN":
+        if record["trafficLightStatus"] == "GREEN":
             data[green_index] += 1
 
     """ 
-        Description: can get either the total number of readings, or referrals, or assessments per month:
-        Can also get number of traffic lights in the last month
+        Description: calculates total number of readings, or referrals, or assessments per month for a given year (e.g 2020)
             Parameters: 
-                Table: which table to look through 
-                category: e.g readings, referrals
-                dateLabel: how date is recorded in that category e.g dateTime vs dateReferred
-        """
-
-    def get_data(self, table, dateLabel, category):
-        if category != "trafficLight":
-            data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-        else:
-            data = [0, 0, 0, 0, 0]
-
-        today = datetime.today()
-        month_needed_for_for_traffic_light = today.month - 1
-        counter = 0
-        for item in table:
-            date_string_ts = item[dateLabel]
-            date_string = datetime.utcfromtimestamp(date_string_ts).strftime("%Y-%m-%d")
-            # make sure to add error checking in here
-            date_object = datetime.strptime(date_string[5:7], "%m")
-            month = date_object.month
-            if category == "reading" or category == "referral":
-                data[month - 1] += 1
-            elif category == "assessment":  # counting number of assessments done
-                if item["followUpId"] is not None:
-                    data[month - 1] += 1
-            elif (
-                category == "trafficLight"
-                and month == month_needed_for_for_traffic_light
-            ):
-                # get traffic light data
-                self.get_traffic_light(item, data)
-
-        return data
-
-    """ 
-        Description: can get either the total number of pregnant patients that were referred,
-        total number of pregnant women that were referred and followed up, total number of women referred,
-        or total number of women assessed
-            Parameters: 
-                category: referred vs assesed           
+                Table: which table to look through e.g reading table
+                dateLabel: how date is recorded in that table e.g dateTime vs dateReferred
     """
 
-    def get_unique_counts(self, category):
+    def calculate_yearly_data(self, table, dateLabel):
         data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        collected = []
-        referrals = referralManager.read_all()
-        for item in referrals:
-            date_string_ts = item["dateReferred"]
-            date_string = datetime.utcfromtimestamp(date_string_ts).strftime("%Y-%m-%d")
-            # make sure to add error checking in here
-            date_object = datetime.strptime(date_string[5:7], "%m")
-            month = date_object.month
-            patient_id = item["patientId"]
-            patient = patientManager.read("patientId", patient_id)
-
-            # checking if referral was for a pregnant patient
-            if category == "pregReferrals" and patient not in collected:
-                if patient["isPregnant"] == 1:
-                    data[month - 1] += 1
-                    collected.append(patient)
-
-            # checking how many pregnant women were assessed
-            if category == "pregAssessment":
-                if (
-                    item["followUpId"] is not None
-                    and patient["isPregnant"] == 1
-                    and patient not in collected
-                ):
-                    data[month - 1] += 1
-                    collected.append(patient)
-
-            # checking how many women were referred
-            if category == "womenReferred" and patient not in collected:
-                if patient["patientSex"] == "FEMALE":
-                    data[month - 1] += 1
-                    collected.append(patient)
-
-            # checking referrals for women that were assessed
-            if category == "womenAssessed":
-                if (
-                    item["followUpId"] is not None
-                    and patient["patientSex"] == "FEMALE"
-                    and patient not in collected
-                ):
-                    data[month - 1] += 1
-                    collected.append(patient)
-
-            # checking unique people
-            if category == "uniquePeopleAssessed":
-                if item["followUpId"] is not None and patient not in collected:
-                    data[month - 1] += 1
-                    collected.append(patient)
+        if table:
+            for record in table:
+                dates = self.calculate_dates_helper(record, dateLabel)
+                if dates["record_year"] == dates["current_year"]:
+                    data[dates["record_month"] - 1] += 1
         return data
 
     """ 
-        Description: puts a json object together with the following:
-            total number of readings per month
-            total number of referrals per month
-            total number of assessments done (patients that were followed up) per month
-            total number of referrals made for pregnant patients per month
-            total number of referrals made for pregnant patients that were followed up per month
-            total number of referrals made for women
-            total number of assessments made for women
-            total traffic light numbers for the last month
-            each quantity is of an array, each index in the array refers to that index-1 month
+        Description: calculates total number of each type of traffic light for the last month
+            Parameters: 
+                Table: which table to look through e.g reading table
     """
+
+    def calculate_month_traffic_light_data(self, table):
+        data = [0, 0, 0, 0, 0]
+        month_data_needed_for = date.today().month - 1
+        if table:
+            for record in table:
+                dates = self.calculate_dates_helper(record, "dateTimeTaken")
+                if dates["record_year"] == dates["current_year"]:
+                    if dates["record_month"] == month_data_needed_for:
+                        self.calculate_traffic_light_helper(record, data)
+        return data
+
+    """ 
+        Description: calculates unique number of unique women referrals, and unique pregnant women referrals
+            Parameters: 
+                Table: which table to look through e.g reading table          
+    """
+
+    def calculate_unique_women_referrals(self, table):
+        # so that we don't have to loop through table 2 times
+        unique_pregnant_women_referrals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        unique_women_referrals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        collected_pregnant_patients = []
+        collected_women_patients = []
+        if table:
+            for record in table:
+                dates = self.calculate_dates_helper(record, "dateReferred")
+                if dates["record_year"] != dates["current_year"]:
+                    continue
+                patient = patientManager.read("patientId", record["patientId"])
+
+                # checking for referrals for women (unique)
+                if (
+                    patient["patientSex"] == "FEMALE"
+                    and patient not in collected_women_patients
+                ):
+                    unique_women_referrals[dates["record_month"] - 1] += 1
+                    collected_women_patients.append(patient)
+
+                # checking for referrals for pregnant women (unique)
+                if (
+                    patient["isPregnant"] == 1
+                    and patient not in collected_pregnant_patients
+                ):
+                    unique_pregnant_women_referrals[dates["record_month"] - 1] += 1
+                    collected_pregnant_patients.append(patient)
+
+        return {
+            "uniqueWomenReferred": unique_women_referrals,
+            "uniquePregnantWomenReferred": unique_pregnant_women_referrals,
+        }
+
+    """ 
+        Description: calculates unique number of unique women assessments, unique pregnant women assessments, and unique patient assessments
+        Parameters: 
+                Table: which table to look through e.g assessment table          
+    """
+
+    def calculate_unique_patient_assessment_count(self, table):
+        # so that we don't have to loop through table 3 times
+        unique_women_assessed = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        unique_pregnant_women_assessed = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        unique_people_assessed = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        collected_women_assessed = []
+        collected_pregnant_women_assessed = []
+        collected_patients_assessed = []
+        if table:
+            for record in table:
+                referral = referralManager.read("id", record["referral"])
+                dates = self.calculate_dates_helper(record, "dateAssessed")
+                if dates["record_year"] != dates["current_year"]:
+                    continue
+                patient = patientManager.read("patientId", referral["patientId"])
+                # women that were assessed (unique)
+                if (
+                    patient["patientSex"] == "FEMALE"
+                    and patient not in collected_women_assessed
+                ):
+                    unique_women_assessed[dates["record_month"] - 1] += 1
+                    collected_women_assessed.append(patient)
+
+                # pregnant women that were assessed (unique)
+                if (
+                    patient["isPregnant"] == 1
+                    and patient not in collected_pregnant_women_assessed
+                ):
+                    unique_pregnant_women_assessed[dates["record_month"] - 1] += 1
+                    collected_pregnant_women_assessed.append(patient)
+
+                # checking people that were assessed (unique)
+                if patient not in collected_patients_assessed:
+                    unique_people_assessed[dates["record_month"] - 1] += 1
+                    collected_patients_assessed.append(patient)
+
+        return {
+            "uniqueWomenAssessed": unique_women_assessed,
+            "uniquePregnantWomenAssesed": unique_pregnant_women_assessed,
+            "uniquePeopleAssessed": unique_people_assessed,
+        }
 
     def put_data_together(self):
-        print("putting data together")
         readings = readingManager.read_all()
         referrals = referralManager.read_all()
+        assessments = followupManager.read_all()
         data_to_return = {}
 
         # getting readings per month
-        readings_per_month = self.get_data(readings, "dateTimeTaken", "reading")
+        readings_per_month = self.calculate_yearly_data(readings, "dateTimeTaken")
         data_to_return["readingsPerMonth"] = readings_per_month
 
         # getting number of referrals per month
-        referrals_per_month = self.get_data(referrals, "dateReferred", "referral")
+        referrals_per_month = self.calculate_yearly_data(referrals, "dateReferred")
         data_to_return["referralsPerMonth"] = referrals_per_month
 
         # getting number of assessments per month
-        assessments_per_month = self.get_data(referrals, "dateReferred", "assessment")
+        assessments_per_month = self.calculate_yearly_data(assessments, "dateAssessed")
         data_to_return["assessmentsPerMonth"] = assessments_per_month
 
-        # getting number of pregnant women that were referred
-        pregnant_referrals_per_month = self.get_unique_counts("pregReferrals")
-        data_to_return["pregnantWomenReferredPerMonth"] = pregnant_referrals_per_month
+        # getting number of unique women and pregnant women referrals per month
+        women_referrals_per_month = self.calculate_unique_women_referrals(referrals)
+        data_to_return["pregnantWomenReferredPerMonth"] = women_referrals_per_month[
+            "uniquePregnantWomenReferred"
+        ]
+        data_to_return["womenReferredPerMonth"] = women_referrals_per_month[
+            "uniqueWomenReferred"
+        ]
 
-        # getting number of number pregnant women assessed
-        pregnant_assessments_per_month = self.get_unique_counts("pregAssessment")
-        data_to_return["pregnantWomenAssessedPerMonth"] = pregnant_assessments_per_month
-
-        # getting number of women referred per month
-        women_referrals_per_month = self.get_unique_counts("womenReferred")
-        data_to_return["womenReferredPerMonth"] = women_referrals_per_month
-
-        # getting number of women assessed per month
-        women_assessments_per_month = self.get_unique_counts("womenAssessed")
-        data_to_return["womenAssessedPerMonth"] = women_assessments_per_month
-
-        # getting unique number of people assessed per month
-        unique_people_assessed_per_month = self.get_unique_counts(
-            "uniquePeopleAssessed"
+        # getting unique patient (women, pregnant women, all) assessments per month
+        unique_patient_assessments = self.calculate_unique_patient_assessment_count(
+            assessments
         )
-        data_to_return["uniquePeopleAssesedPerMonth"] = unique_people_assessed_per_month
+        data_to_return["uniquePeopleAssesedPerMonth"] = unique_patient_assessments[
+            "uniquePeopleAssessed"
+        ]
+        data_to_return["womenAssessedPerMonth"] = unique_patient_assessments[
+            "uniqueWomenAssessed"
+        ]
+        data_to_return["pregnantWomenAssessedPerMonth"] = unique_patient_assessments[
+            "uniquePregnantWomenAssesed"
+        ]
 
-        # getting traffic light data for the last month
-        # sorry to the person who has to read the magic numbers below
-        traffic_light_data_last_month = self.get_data(
-            readings, "dateTimeTaken", "trafficLight"
+        # getting traffic light data for last month
+        traffic_light_data_last_month = self.calculate_month_traffic_light_data(
+            readings
         )
         data_to_return["trafficLightStatusLastMonth"] = {}
-        data_to_return["trafficLightStatusLastMonth"][
-            "green"
-        ] = traffic_light_data_last_month[0]
-        data_to_return["trafficLightStatusLastMonth"][
-            "yellowUp"
-        ] = traffic_light_data_last_month[1]
-        data_to_return["trafficLightStatusLastMonth"][
-            "yellowDown"
-        ] = traffic_light_data_last_month[2]
-        data_to_return["trafficLightStatusLastMonth"][
-            "redUp"
-        ] = traffic_light_data_last_month[3]
-        data_to_return["trafficLightStatusLastMonth"][
-            "redDown"
-        ] = traffic_light_data_last_month[4]
+        lights = ["green", "yellowUp", "yellowDown", "redUp", "redDown"]
+        index = 0
+        for light in lights:
+            data_to_return["trafficLightStatusLastMonth"][
+                light
+            ] = traffic_light_data_last_month[index]
+            index += 1
 
-        # returning stats in json format
         return json.loads(json.dumps(data_to_return))

@@ -1,4 +1,4 @@
-export const getRole = (roles: any) => {
+export const getRole = (roles: Array<string>): string => {
   if (roles.includes(`ADMIN`)) {
     return `ADMIN`;
   } else if (roles.includes(`HCW`)) {
