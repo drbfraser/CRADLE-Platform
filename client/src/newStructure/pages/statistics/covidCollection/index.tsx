@@ -133,7 +133,7 @@ const Page: React.FC<any> = () => {
     {
       label: 'Suspected',
       src:
-      'https://images.vexels.com/media/users/3/152864/isolated/preview/2e095de08301a57890aad6898ad8ba4c-yellow-circle-question-mark-icon-by-vexels.png',
+        'https://images.vexels.com/media/users/3/152864/isolated/preview/2e095de08301a57890aad6898ad8ba4c-yellow-circle-question-mark-icon-by-vexels.png',
       link: ' ',
       value: 'sus',
     },
@@ -154,15 +154,15 @@ const Page: React.FC<any> = () => {
   const [data] = React.useState<any>([
     {
       id: 'SS',
-      name: 'Kabab I am Suspected',
+      name: 'I am Suspected',
       birthYear: 1987,
       birthCity: 63,
       imageUrlStatus:
-      'https://images.vexels.com/media/users/3/152864/isolated/preview/2e095de08301a57890aad6898ad8ba4c-yellow-circle-question-mark-icon-by-vexels.png',
+        'https://images.vexels.com/media/users/3/152864/isolated/preview/2e095de08301a57890aad6898ad8ba4c-yellow-circle-question-mark-icon-by-vexels.png',
     },
     {
       id: 'RR',
-      name: 'Kabab I am Recovered',
+      name: 'I am Recovered',
       birthYear: 2017,
       birthCity: 34,
       imageUrlStatus:
@@ -170,7 +170,7 @@ const Page: React.FC<any> = () => {
     },
     {
       id: 'DD',
-      name: 'Kabab I am Dead',
+      name: 'I am Passed A',
       birthYear: 2017,
       birthCity: 34,
       imageUrlStatus:
@@ -178,7 +178,7 @@ const Page: React.FC<any> = () => {
     },
     {
       id: 'TP',
-      name: 'Kabab I am Tested Positive',
+      name: 'I am Tested Positive',
       birthYear: 2017,
       birthCity: 34,
       imageUrlStatus:
@@ -186,7 +186,7 @@ const Page: React.FC<any> = () => {
     },
     {
       id: 'TN',
-      name: 'Kabab I am Tested Negative',
+      name: 'I am Tested Negative',
       birthYear: 2017,
       birthCity: 34,
       imageUrlStatus:
