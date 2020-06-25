@@ -340,8 +340,9 @@ auth_header_hcw = get_authorization_header("hcw@hcw.com", "hcw123")
 def test_pass_create_relationship():
     # has to be existing patient in seeded data
     patient_id = "400260"
-    url = BASE_URL + "/api/patient/facility/" + patient_id
-    response = requests.post(url, headers=auth_header_hcw)
+    data = {"patientId": patient_id}
+    url = BASE_URL + "/api/patient/facility"
+    response = requests.post(url, json=data, headers=auth_header_hcw)
     assert response.status_code == 201
     response_body = response.json()
     assert response_body["message"] == "patient has been added to facility successfully"
@@ -350,10 +351,11 @@ def test_pass_create_relationship():
 def test_fail_duplicate_relationship():
     # has to be existing patient in seeded data
     patient_id = "204652"
-    url = BASE_URL + "/api/patient/facility/" + patient_id
+    data = {"patientId": patient_id}
+    url = BASE_URL + "/api/patient/facility"
     # should fail because we're calling the api twice, with same patient_id
-    requests.post(url, headers=auth_header_hcw)
-    response = requests.post(url, headers=auth_header_hcw)
+    requests.post(url, json=data, headers=auth_header_hcw)
+    response = requests.post(url, json=data, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 409
     assert response_body["message"] == "Duplicate entry"
@@ -362,8 +364,20 @@ def test_fail_duplicate_relationship():
 def test_fail_invalid_patient_id():
     # should fail because we're passing a patient id that does not exist
     patient_id = "92837483"
-    url = BASE_URL + "/api/patient/facility/" + patient_id
-    response = requests.post(url, headers=auth_header_hcw)
+    data = {"patientId": patient_id}
+    url = BASE_URL + "/api/patient/facility"
+    response = requests.post(url, json=data, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 404
     assert response_body["message"] == "This patient does not exist."
+
+
+def test_fail_empty_patient_id():
+    # should fail because we're passing a patient id that does not exist
+    patient_id = ""
+    data = {"patientId": patient_id}
+    url = BASE_URL + "/api/patient/facility"
+    response = requests.post(url, json=data, headers=auth_header_hcw)
+    response_body = response.json()
+    assert response.status_code == 400
+    assert response_body["HTTP 400"] == "Patient Id is empty."

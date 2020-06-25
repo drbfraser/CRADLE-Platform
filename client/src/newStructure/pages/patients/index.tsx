@@ -1,10 +1,12 @@
-import { GlobalSearchPatient, OrNull, Patient } from '@types';
+import { Callback, GlobalSearchPatient, OrNull, Patient } from '@types';
 import { PatientStateEnum, RoleEnum } from '../../enums';
 import {
   addPatientToHealthFacility,
   addPatientToHealthFacilityRequested,
   getPatients,
   getPatientsRequested,
+  toggleGlobalSearch,
+  updateGlobalSearchPageNumber,
 } from '../../shared/reducers/patients';
 
 import { PatientTable } from './patientTable';
@@ -16,11 +18,15 @@ import { push } from 'connected-react-router';
 
 interface IProps {
   addingFromGlobalSearch: boolean;
+  globalSearch: boolean;
+  globalSearchPageNumber: number;
   fetchingPatients: boolean;
   patients: OrNull<Array<Patient>>;
   globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
-  getPatients: (search?: string) => void;
-  addPatientToHealthFacility: (patient: GlobalSearchPatient) => void;
+  getPatients: (searchText?: string) => void;
+  addPatientToHealthFacility: Callback<GlobalSearchPatient>;
+  toggleGlobalSearch: Callback<boolean>;
+  updateGlobalSearchPageNumber: Callback<number>;
   navigateToPatientPage: any;
   userIsHealthWorker?: boolean;
 }
@@ -52,6 +58,9 @@ const Page: React.FC<IProps> = ({
 
   return (
     <PatientTable
+      globalSearch={props.globalSearch}
+      globalSearchPageNumber={props.globalSearchPageNumber}
+      toggleGlobalSearch={props.toggleGlobalSearch}
       onPatientSelected={onPatientSelected}
       onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
       data={patients}
@@ -59,6 +68,7 @@ const Page: React.FC<IProps> = ({
       isLoading={fetchingPatients || props.addingFromGlobalSearch}
       showGlobalSearch={props.userIsHealthWorker}
       getPatients={getPatients}
+      updateGlobalSearchPageNumber={props.updateGlobalSearchPageNumber}
     />
   );
 };
@@ -68,11 +78,16 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
   userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,
+  globalSearch: patients.globalSearch,
+  globalSearchPageNumber: patients.globalSearchPageNumber,
   globalSearchPatients: patients.globalSearchPatientsList,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  ...bindActionCreators({}, dispatch),
+  ...bindActionCreators(
+    { toggleGlobalSearch, updateGlobalSearchPageNumber },
+    dispatch
+  ),
   getPatients: (search?: string): void => {
     dispatch(getPatientsRequested());
     dispatch(getPatients(search));

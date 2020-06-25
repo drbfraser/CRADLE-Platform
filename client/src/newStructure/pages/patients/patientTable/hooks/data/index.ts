@@ -10,21 +10,22 @@ import React from 'react';
 
 interface IArgs {
   data: OrNull<Array<Patient>>;
+  globalSearch: boolean;
   globalSearchData: OrNull<Array<GlobalSearchPatient>>;
 }
 
 interface IUseData {
   debounceInterval: number;
-  globalSearch: boolean;
-  setGlobalSearch: Callback<Callback<boolean, boolean>>;
   patients: Array<Patient> | Array<GlobalSearchPatient>;
   showReferredPatients: boolean;
   setShowReferredPatients: Callback<Callback<boolean, boolean>>;
 }
 
-export const useData = ({ data, globalSearchData }: IArgs): IUseData => {
-  const [globalSearch, setGlobalSearch] = React.useState(false);
-
+export const useData = ({
+  data,
+  globalSearch,
+  globalSearchData,
+}: IArgs): IUseData => {
   const [showReferredPatients, setShowReferredPatients] = React.useState<
     boolean
   >(false);
@@ -60,8 +61,6 @@ export const useData = ({ data, globalSearchData }: IArgs): IUseData => {
 
   return {
     debounceInterval,
-    globalSearch,
-    setGlobalSearch,
     patients,
     showReferredPatients,
     setShowReferredPatients,
