@@ -133,7 +133,7 @@ const Page: React.FC<any> = () => {
     {
       label: 'Suspected',
       src:
-        'https://lh3.googleusercontent.com/proxy/iYC9_Nk1Qlh3y9zfTj6KpsD8Bi-zTTFvobKjjOH8XQglq1dNuTX12PkqsqIBHNGgkJgslpx5yjwR1lbl2p9cR7CMRcr5NKc',
+      'https://images.vexels.com/media/users/3/152864/isolated/preview/2e095de08301a57890aad6898ad8ba4c-yellow-circle-question-mark-icon-by-vexels.png',
       link: ' ',
       value: 'sus',
     },
@@ -158,7 +158,7 @@ const Page: React.FC<any> = () => {
       birthYear: 1987,
       birthCity: 63,
       imageUrlStatus:
-        'https://lh3.googleusercontent.com/proxy/iYC9_Nk1Qlh3y9zfTj6KpsD8Bi-zTTFvobKjjOH8XQglq1dNuTX12PkqsqIBHNGgkJgslpx5yjwR1lbl2p9cR7CMRcr5NKc',
+      'https://images.vexels.com/media/users/3/152864/isolated/preview/2e095de08301a57890aad6898ad8ba4c-yellow-circle-question-mark-icon-by-vexels.png',
     },
     {
       id: 'RR',
