@@ -1,4 +1,5 @@
 import './index.css';
+import React from 'react';
 
 import { Button, Divider, Form } from 'semantic-ui-react';
 import {
@@ -8,7 +9,7 @@ import {
   User,
 } from '../../types';
 import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from './patientInfoForm';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { UrineTestForm, initialUrineTests } from './urineTestForm';
 import {
   addNewReading,
@@ -22,7 +23,6 @@ import { addNewPatient } from '../../shared/reducers/patients';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-
 // import Dialog from '@material-ui/core/Dialog';
 // import DialogTitle from '@material-ui/core/DialogTitle';
 // import DialogContent from '@material-ui/core/DialogContent';
@@ -94,6 +94,7 @@ interface IState {
   checkedItems: CheckedItems;
   showSuccessReading: boolean;
 }
+
 class NewReadingPageComponent extends Component<IProps, IState> {
   state = initState;
 
