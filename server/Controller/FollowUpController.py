@@ -94,6 +94,7 @@ class FollowUp(Resource):
 
 class FollowUpMobile(Resource):
     @jwt_required
+    @swag_from("../specifications/mobile-followup.yml", methods=["GET"])
     def get(self, id=None):
         args = request.args
         if id:
@@ -119,6 +120,7 @@ class FollowUpMobile(Resource):
 
 class FollowUpMobileSummarized(Resource):
     @jwt_required
+    @swag_from("../specifications/mobile-followup-summarized.yml", methods=["GET"])
     def get(self, id=None):
         args = request.args
         if id:
