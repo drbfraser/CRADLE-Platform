@@ -1,5 +1,7 @@
 import { ActionEnum, SearchFilterEnum } from '../hooks/actions';
-import Autocomplete, { AutocompleteRenderInputParams } from '@material-ui/lab/Autocomplete';
+import Autocomplete, {
+  AutocompleteRenderInputParams,
+} from '@material-ui/lab/Autocomplete';
 import { Callback, GlobalSearchPatient } from '@types';
 
 import AddIcon from '@material-ui/icons/Add';
@@ -22,8 +24,8 @@ interface IProps {
   globalSearch?: boolean;
 }
 
-export const Action: React.FC<IProps> = ({ 
-  action, 
+export const Action: React.FC<IProps> = ({
+  action,
   data,
   showReferredPatients,
   toggleGlobalSearch,
@@ -84,14 +86,13 @@ export const Action: React.FC<IProps> = ({
       case PatientStateEnum.ADD:
         return (
           <Tooltip title="Add" placement="left">
-            <Fab 
+            <Fab
               color="primary"
               size="medium"
               onClick={(event: React.MouseEvent<HTMLButtonElement>): void => {
                 event.stopPropagation();
                 onGlobalSearchPatientSelected(data);
-              }}
-            >
+              }}>
               <AddIcon />
             </Fab>
           </Tooltip>
@@ -101,15 +102,14 @@ export const Action: React.FC<IProps> = ({
       case PatientStateEnum.JUST_ADDED:
         return (
           <Tooltip title="Just added" placement="left">
-            <Fab 
-              classes={{ root: classes.justAdded }} 
+            <Fab
+              classes={{ root: classes.justAdded }}
               color="inherit"
-              size="medium" 
+              size="medium"
               onClick={(event: React.MouseEvent<HTMLButtonElement>): void => {
                 event.stopPropagation();
                 alert(`This patient has just been added!`);
-              }}
-            >
+              }}>
               <CheckIcon />
             </Fab>
           </Tooltip>
@@ -120,9 +120,7 @@ export const Action: React.FC<IProps> = ({
   };
 
   if (action === ActionEnum.ADD_GLOBAL_SEARCH_PATIENT) {
-    return globalSearch ? (
-      renderAction(data.state)
-    ) : null;
+    return globalSearch ? renderAction(data.state) : null;
   }
 
   return null;

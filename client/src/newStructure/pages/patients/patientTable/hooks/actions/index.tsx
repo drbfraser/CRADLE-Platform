@@ -20,11 +20,11 @@ interface IArgs {
   showGlobalSearch?: boolean;
 }
 
-export const useActions = ({ 
+export const useActions = ({
   globalSearch,
   patientsExist,
-  showGlobalSearch, 
-}: IArgs): Array<Action<Patient| GlobalSearchPatient>> => {
+  showGlobalSearch,
+}: IArgs): Array<Action<Patient | GlobalSearchPatient>> => {
   const toggleReferredPatientsAction = {
     icon: ActionEnum.TOGGLE_REFERRED,
     isFreeAction: true,
@@ -41,18 +41,22 @@ export const useActions = ({
     },
   } as Action<Patient>;
 
-  const addGlobalSearchPatient =  {
+  const addGlobalSearchPatient = {
     icon: ActionEnum.ADD_GLOBAL_SEARCH_PATIENT,
-    onClick: (): void => { return; }
+    onClick: (): void => {
+      return;
+    },
   } as Action<GlobalSearchPatient>;
 
-  return React.useMemo<Array<Action<Patient | GlobalSearchPatient>>>((): Array<Action<Patient | GlobalSearchPatient>> => {
+  return React.useMemo<Array<Action<Patient | GlobalSearchPatient>>>((): Array<
+    Action<Patient | GlobalSearchPatient>
+  > => {
     const actions = [];
 
     if (showGlobalSearch) {
       actions.push(globalSearchAction);
     }
-    
+
     if (globalSearch && patientsExist) {
       actions.push(addGlobalSearchPatient);
     }
@@ -61,11 +65,11 @@ export const useActions = ({
 
     return actions;
   }, [
-      addGlobalSearchPatient, 
-      globalSearch, 
-      globalSearchAction, 
-      patientsExist,
-      showGlobalSearch, 
-      toggleReferredPatientsAction
-    ]);
+    addGlobalSearchPatient,
+    globalSearch,
+    globalSearchAction,
+    patientsExist,
+    showGlobalSearch,
+    toggleReferredPatientsAction,
+  ]);
 };

@@ -21,7 +21,11 @@ interface IUseData {
   setShowReferredPatients: Callback<Callback<boolean, boolean>>;
 }
 
-export const useData = ({ data, globalSearch, globalSearchData }: IArgs): IUseData => {
+export const useData = ({
+  data,
+  globalSearch,
+  globalSearchData,
+}: IArgs): IUseData => {
   const [showReferredPatients, setShowReferredPatients] = React.useState<
     boolean
   >(false);

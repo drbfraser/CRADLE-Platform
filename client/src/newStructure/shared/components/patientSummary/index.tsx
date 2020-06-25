@@ -8,7 +8,11 @@ import {
   initialUrineTests,
   urineTestChemicals,
 } from '../form/urineTest';
-import { getMomentDate, getPrettyDateTime, getPrettyDateUTC } from '../../utils';
+import {
+  getMomentDate,
+  getPrettyDateTime,
+  getPrettyDateUTC,
+} from '../../utils';
 import {
   getPatientStatistics,
   startRequest,
