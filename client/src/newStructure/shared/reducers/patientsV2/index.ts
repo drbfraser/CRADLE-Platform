@@ -11,6 +11,8 @@ enum PatientsActionEnum {
   GET_PATIENTS_SUCCESS = `patients/GET_PATIENTS_SUCCESS`,
   GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patients/GET_GLOBAL_SEARCH_PATIENTS_ERROR`,
   GET_GLOBAL_SEARCH_PATIENTS_SUCCESS = `patients/GET_GLOBAL_SEARCH_PATIENTS_SUCCESS`,
+  TOGGLE_GLOBAL_SEARCH = `patients/TOGGLE_GLOBAL_SEARCH`,
+  UPDATE_GLOBAL_SEARCH_PAGE_NUMBER = `patients/UPDATE_GLOBAL_SEARCH_PAGE_NUMBER`,
   START_REQUEST = `patients/START_REQUEST`,
   UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`,
   UPDATE_PATIENT_SUCCESS = `patients/UPDATE_PATIENT_SUCCESS`,
@@ -39,6 +41,14 @@ type PatientsAction =
       type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS;
       payload: { patients: Array<GlobalSearchPatient> };
     }
+  | {
+      type: PatientsActionEnum.TOGGLE_GLOBAL_SEARCH;
+      payload: { globalSearch: boolean };
+    }
+  | {
+      type: PatientsActionEnum.UPDATE_GLOBAL_SEARCH_PAGE_NUMBER;
+      payload: { globalSearchPageNumber: number };
+    }
   | { type: PatientsActionEnum.START_REQUEST }
   | {
       type: PatientsActionEnum.UPDATE_PATIENT_ERROR;
@@ -66,6 +76,18 @@ const startRequest = (): PatientsAction => ({
 });
 
 type PatientsRequest = Callback<Callback<PatientsAction>, ServerRequestAction>;
+
+export const toggleGlobalSearch = (globalSearch: boolean): PatientsAction => ({
+  type: PatientsActionEnum.TOGGLE_GLOBAL_SEARCH,
+  payload: { globalSearch },
+});
+
+export const updateGlobalSearchPageNumber = (
+  globalSearchPageNumber: number
+): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_GLOBAL_SEARCH_PAGE_NUMBER,
+  payload: { globalSearchPageNumber },
+});
 
 export const getPatients = (search?: string): PatientsRequest => {
   return (dispatch: Callback<PatientsAction>): ServerRequestAction => {
@@ -136,10 +158,11 @@ export const addingPatientToHealthFacility = (
 export const addPatientToHealthFacility = (
   patient: Patient
 ): ServerRequestAction => {
+  const { patientId } = patient;
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENT_FACILITY}/${patient.patientId}`,
+    endpoint: Endpoints.PATIENT_FACILITY,
     method: Methods.POST,
-    data: patient.patientId,
+    data: { patientId },
     onSuccess: () => ({
       type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
       payload: { patient },
@@ -158,6 +181,8 @@ export const clearPatientsRequestOutcome = (): PatientsAction => ({
 export type PatientsV2State = {
   error: boolean;
   globalSearchError: boolean;
+  globalSearch: boolean;
+  globalSearchPageNumber: number;
   loading: boolean;
   addingFromGlobalSearch: boolean;
   message: OrNull<string>;
@@ -168,6 +193,8 @@ export type PatientsV2State = {
 const initialState: PatientsV2State = {
   error: false,
   globalSearchError: false,
+  globalSearch: false,
+  globalSearchPageNumber: 0,
   loading: false,
   addingFromGlobalSearch: false,
   message: null,
@@ -180,6 +207,13 @@ export const patientsReducerV2 = (
   action: PatientsAction
 ): PatientsV2State => {
   switch (action.type) {
+    case PatientsActionEnum.TOGGLE_GLOBAL_SEARCH:
+      return { ...state, globalSearch: action.payload.globalSearch };
+    case PatientsActionEnum.UPDATE_GLOBAL_SEARCH_PAGE_NUMBER:
+      return {
+        ...state,
+        globalSearchPageNumber: action.payload.globalSearchPageNumber,
+      };
     case PatientsActionEnum.START_REQUEST:
       return { ...state, loading: true };
     case PatientsActionEnum.GET_PATIENTS_ERROR:

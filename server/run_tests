@@ -1,0 +1,16 @@
+# usage: ./run_tests (make sure server is running first)
+#!/bin/bash
+
+# Exit immediately upon any failed command
+set -e
+
+echo "Resetting database..."
+python3 manage.py reset_db
+
+echo "Seeding with seed_test_data..."
+python3 manage.py seed_test_data
+
+echo "Running tests..."
+python3 -m pytest
+
+echo "Done."

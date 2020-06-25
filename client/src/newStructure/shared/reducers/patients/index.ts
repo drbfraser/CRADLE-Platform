@@ -12,6 +12,8 @@ const GET_PATIENT_ERROR = `patients/GET_PATIENT_ERROR`;
 
 const GET_PATIENTS = `patients/GET_PATIENTS`;
 const GET_GLOBAL_SEARCH_PATIENTS = `patients/GET_GLOBAL_SEARCH_PATIENTS`;
+const TOGGLE_GLOBAL_SEARCH = `patients/TOGGLE_GLOBAL_SEARCH`;
+const UPDATE_GLOBAL_SEARCH_PAGE_NUMBER = `patients/UPDATE_GLOBAL_SEARCH_PAGE_NUMBER`;
 const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
 const GET_PATIENTS_ERROR = `patient/GET_PATIENTS_ERROR`;
 const GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patient/GET_GLOBAL_SEARCH_PATIENTS_ERROR`;
@@ -25,6 +27,16 @@ const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`;
+
+export const toggleGlobalSearch = (globalSearch: boolean) => ({
+  type: TOGGLE_GLOBAL_SEARCH,
+  payload: { globalSearch },
+});
+
+export const updateGlobalSearchPageNumber = (pageNumber: number) => ({
+  type: UPDATE_GLOBAL_SEARCH_PAGE_NUMBER,
+  payload: { pageNumber },
+});
 
 export const getPatient = (patientId: any) => {
   return serverRequestActionCreator({
@@ -94,10 +106,12 @@ export const addPatientToHealthFacilityRequested = (
 export const addPatientToHealthFacility = (
   addedPatient: GlobalSearchPatient
 ) => {
+  const { patientId } = addedPatient;
+
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENT_FACILITY}/${addedPatient.patientId}`,
+    endpoint: Endpoints.PATIENT_FACILITY,
     method: Methods.POST,
-    data: addedPatient.patientId,
+    data: { patientId },
     onSuccess: () => ({
       type: ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
       payload: { addedPatient },
@@ -128,6 +142,8 @@ export const getPatientRequested = () => ({
 
 export type PatientsState = {
   patient: any;
+  globalSearch: boolean;
+  globalSearchPageNumber: number;
   globalSearchPatientsList: OrNull<any>;
   patientsList: OrNull<any>;
   isLoading: boolean;
@@ -137,6 +153,8 @@ export type PatientsState = {
 
 const initialState: PatientsState = {
   patient: {},
+  globalSearch: false,
+  globalSearchPageNumber: 0,
   globalSearchPatientsList: null,
   patientsList: null,
   isLoading: false,
@@ -236,6 +254,16 @@ export const patientsReducer = (state = initialState, action: any) => {
       return {
         ...state,
         addingFromGlobalSearch: false,
+      };
+    case TOGGLE_GLOBAL_SEARCH:
+      return {
+        ...state,
+        globalSearch: action.payload.globalSearch,
+      };
+    case UPDATE_GLOBAL_SEARCH_PAGE_NUMBER:
+      return {
+        ...state,
+        globalSearchPageNumber: action.payload.pageNumber,
       };
     default:
       return state;
