@@ -47,7 +47,7 @@ class Component extends React.Component<any, any> {
         followupNeeded: false,
         dateFollowupNeededTill: '',
         followupInstructions: '',
-        followupFrequencyUnit: followupFrequencyUnitOptions[0],
+        followupFrequencyUnit: followupFrequencyUnitOptions[0].value,
         followupFrequencyValue: null,
       },
       isOpen: false,
@@ -66,15 +66,14 @@ class Component extends React.Component<any, any> {
   }
 
   loadInitialValues() {
-    if (this.props.initialValues) {
-      for (const key in this.state.data) {
-        if (key in this.props.initialValues) {
-          this.setState({
-            data: { ...this.state.data, [key]: this.props.initialValues[key] },
-          });
+    this.setState({
+      data: Object.keys(this.state.data).reduce((values, key) => {
+        if (this.props.initialValues && this.props.initialValues[key]) {
+          values[key] = this.props.initialValues[key];
         }
-      }
-    }
+        return values;
+      }, {}),
+    });
   }
 
   handleOpen() {
@@ -84,7 +83,6 @@ class Component extends React.Component<any, any> {
       },
       () => {
         this.loadInitialValues();
-        this.setState(this.state);
       }
     );
   }
@@ -127,50 +125,47 @@ class Component extends React.Component<any, any> {
   };
 
   handleSubmit() {
-    this.setState({
-      data: { ...this.state.data, referral: this.props.referralId },
-    });
+    const followupData = this.state.data;
+    followupData.referral = this.props.referralId;
 
     if (this.state.dateOrCondition === 'DATE') {
       // divide by 1000 to convert ms into s
-      this.setState({
-        data: {
-          ...this.state.data,
-          dateFollowupNeededTill:
-            Date.parse(this.state.data.dateFollowupNeededTill) / 1000,
-        },
-      });
+      followupData.dateFollowupNeededTill =
+        Date.parse(this.state.data.dateFollowupNeededTill) / 1000;
     }
 
     if (this.state.untilDateOrCond) {
       delete this.state.untilDateOrCond;
     }
+
+    const {
+      followupFrequencyUnit,
+      followupFrequencyValue,
+      ...data
+    } = followupData;
+    const followup = {
+      ...data,
+      ...(followupFrequencyUnit === followupFrequencyUnitOptions[0].value
+        ? {}
+        : {
+            followupFrequencyUnit,
+            followupFrequencyValue: followupFrequencyValue || 0,
+          }),
+    };
+
     // update existing followUpInfo
     if (this.props.initialValues) {
-      this.props.updateFollowUp(
-        this.props.initialValues['id'],
-        this.state.data
-      );
+      this.props.updateFollowUp(this.props.initialValues['id'], followup);
     } else {
       // create new followUpInfo
-      const followupData = this.state.data;
       // TODO: remove this once mobile is up to date with the new assessment changes
       // followupData.followUpAction = followupData.specialInvestigations;
 
       if (!followupData.followupNeeded) {
         delete followupData.dateFollowupNeededTill;
       }
-      const { followupFrequencyUnit, ...data } = this.state.data;
-      console.log(
-        'followupfreq',
-        followupFrequencyUnit === followupFrequencyUnitOptions[0]
-      );
-      this.props.createFollowUp({
-        ...data,
-        ...(followupFrequencyUnit === followupFrequencyUnitOptions[0]
-          ? {}
-          : { followupFrequencyUnit: followupFrequencyUnit.value }),
-      });
+
+      this.props.createFollowUp(followup);
     }
 
     this.handleClose();
