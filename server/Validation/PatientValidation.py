@@ -55,9 +55,8 @@ def check_if_required_keys_present(request_body, required_keys):
             )
     return None
 
-
 # helper method that makes sure that expected string types are in fact strings/ints (depending on critera)
-def check_if_values_string_or_int(request_body, must_be_string, must_be_int):
+def check_if_values_string_int_array(request_body, must_be_string, must_be_int,must_be_array):
     for key in request_body:
         if (
             must_be_string is not None
@@ -79,8 +78,23 @@ def check_if_values_string_or_int(request_body, must_be_string, must_be_int):
             and request_body.get(key) is not None
         ):
             if not isinstance(int(request_body.get(key)), int):
+                
                 return (
                     {"HTTP 400": "The value for key {" + key + "} is must be an int."},
+                    400,
+                )
+        if (
+            must_be_array is not None
+            and key in must_be_array
+            and request_body.get(key) is not None
+        ):
+            if not isinstance((request_body.get(key)), list):
+                return (
+                    {
+                        "HTTP 400": "The value for key {"
+                        + key
+                        + "} is must be a array."
+                    },
                     400,
                 )
         # add other type checks here once they're confirmed
@@ -208,17 +222,20 @@ def check_reading_fields(request_body):
     must_be_string = {
         # 'userId', -- deal with this later
         "readingId",
+    }
+    # must be of type array
+    must_be_array = {
         "symptoms",
     }
-
     # values that must be of type int
     must_be_int = {"dateTimeTaken", "bpSystolic", "bpDiastolic", "heartRateBPM"}
 
-    values_string_or_int_message = check_if_values_string_or_int(
-        request_body, must_be_string, must_be_int
+    values_string_or_int_array_message = check_if_values_string_int_array(
+        request_body, must_be_string, must_be_int, must_be_array
     )
-    if values_string_or_int_message is not None:
-        return values_string_or_int_message
+
+    if values_string_or_int_array_message is not None:
+        return values_string_or_int_array_message
 
 
 def update_info_invalid(patient_id, request_body):
@@ -233,10 +250,9 @@ def update_info_invalid(patient_id, request_body):
     # values that must be of type int
     must_be_int = {"patientAge", "villageNumber", "gestationalAgeValue"}
 
-    values_string_or_int_message = check_if_values_string_or_int(
-        request_body, None, must_be_int
+    values_string_or_int_message = check_if_values_string_int_array(
+        request_body, None, must_be_int,None
     )
     if values_string_or_int_message is not None:
         return values_string_or_int_message
-
     return None

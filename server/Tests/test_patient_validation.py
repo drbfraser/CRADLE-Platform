@@ -68,7 +68,7 @@ def test_check_if_required_keys_present_with_missing_keys():
 def test_check_if_values_string_or_int_succeeds_with_int():
     must_be_int = {"patientAge", "villageNumber", "gestationalAgeValue"}
     result = PatientValidation.check_if_values_string_or_int(
-        patient_request_body, None, must_be_int
+        patient_request_body, None, must_be_int,None
     )
     assert result is None
 
@@ -83,7 +83,7 @@ def test_check_if_values_string_or_int_succeeds_with_string_and_int():
 
     must_be_int = {"patientAge", "villageNumber", "gestationalAgeValue"}
     result = PatientValidation.check_if_values_string_or_int(
-        patient_request_body, must_be_string, must_be_int
+        patient_request_body, must_be_string, must_be_int,None
     )
     assert result is None
 

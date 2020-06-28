@@ -22,7 +22,7 @@ class ReadingManager(Manager):
 
         # need to save urine test data from reading for urine test creation
         reading = self.create_reading(patient_reading_data["reading"])
-
+        #clearlogging.debug(reading["patient"])
         # return all created data
         return {"reading": reading, "patient": patient}
 
