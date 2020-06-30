@@ -96,12 +96,6 @@ class Component extends React.Component {
     }
   };
 
-  static getDerivedStateFromProps = (props: any, state: any) => {
-    console.log(`props`, JSON.stringify(props, null, 2));
-    console.log(`state`, JSON.stringify(state, null, 2));
-    return state;
-  };
-
   calculateShockIndex = (reading) => {
     const RED_SYSTOLIC = 160;
     const RED_DIASTOLIC = 110;
