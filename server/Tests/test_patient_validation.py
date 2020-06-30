@@ -32,7 +32,7 @@ reading_request_body = {
     "heartRateBPM": 10,
     "dateRecheckVitalsNeeded": "2019-09-25T19:15:38.032-07:00[America/Vancouver]",
     "isFlaggedForFollowup": False,
-    "symptoms": "Headache,Blurred vision,Bleeding,sleepy",
+    "symptoms": ["Headache","Blurred vision","Bleeding","sleepy"]
 }
 
 reading_request_body_missing_fields = {
@@ -65,15 +65,21 @@ def test_check_if_required_keys_present_with_missing_keys():
     assert invalid_code[1] == 400
 
 
-def test_check_if_values_string_or_int_succeeds_with_int():
+def test_check_if_values_string_int_array_succeeds_with_int():
     must_be_int = {"patientAge", "villageNumber", "gestationalAgeValue"}
-    result = PatientValidation.check_if_values_string_or_int(
+    result = PatientValidation.check_if_values_string_int_array(
         patient_request_body, None, must_be_int,None
     )
     assert result is None
 
+def test_check_if_values_string_int_array_succeeds_with_array():
+    must_be_array = {"symptoms"}
+    result = PatientValidation.check_if_values_string_int_array(
+        reading_request_body,None,None,must_be_array
+    )
+    assert result is None
 
-def test_check_if_values_string_or_int_succeeds_with_string_and_int():
+def test_check_if_values_string_int_array_succeeds_with_string_and_int():
     must_be_string = {
         "patientName",
         "gestationalAgeUnit",
@@ -82,7 +88,7 @@ def test_check_if_values_string_or_int_succeeds_with_string_and_int():
     }
 
     must_be_int = {"patientAge", "villageNumber", "gestationalAgeValue"}
-    result = PatientValidation.check_if_values_string_or_int(
+    result = PatientValidation.check_if_values_string_int_array(
         patient_request_body, must_be_string, must_be_int,None
     )
     assert result is None

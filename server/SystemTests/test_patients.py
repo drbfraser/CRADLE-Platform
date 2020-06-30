@@ -190,7 +190,7 @@ def test_pass_create_patient_reading_with_dob_no_age():
         "dateTimeTaken": date_time_taken,
         "userId": user_id,
         "isFlaggedForFollowup": "false",
-        "symptoms": "heache",
+        "symptoms": None,
     }
     data = {"patient": patient, "reading": reading}
 
@@ -237,7 +237,7 @@ def test_pass_create_patient_reading():
         "dateTimeTaken": date_time_taken,
         "userId": user_id,
         "isFlaggedForFollowup": "false",
-        "symptoms": "heache",
+        "symptoms":None,
     }
     data = {"patient": patient, "reading": reading}
 
