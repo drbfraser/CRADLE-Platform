@@ -182,6 +182,7 @@ def test_pass_create_patient_reading_with_dob_no_age():
     SECONDS_IN_YEAR = 31557600
     age_in_database = (time.time() - EPOCH_BIRTHDATE) / SECONDS_IN_YEAR
 
+    symptoms = ["bleeding","feverish","unwell"]
     reading = {
         "readingId": reading_id,
         "bpSystolic": bp_systolic,
@@ -190,10 +191,10 @@ def test_pass_create_patient_reading_with_dob_no_age():
         "dateTimeTaken": date_time_taken,
         "userId": user_id,
         "isFlaggedForFollowup": "false",
-        "symptoms": None,
+        "symptoms": json.dumps(symptoms)
     }
     data = {"patient": patient, "reading": reading}
-
+    
     response = requests.post(url, json=data, headers=auth_header)
     response_body = json.loads(response.text)
 
