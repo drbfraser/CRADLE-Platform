@@ -36,6 +36,7 @@
 
     Village number should exist
 """
+import logging
 
 # helper method that makes sure all required keys and values are in request body
 def check_if_required_keys_present(request_body, required_keys):
@@ -233,6 +234,8 @@ def check_reading_fields(request_body):
     values_string_or_int_array_message = check_if_values_string_int_array(
         request_body, must_be_string, must_be_int, must_be_array
     )
+    logging.getLogger().info("bugg")
+    
 
     if values_string_or_int_array_message is not None:
         return values_string_or_int_array_message

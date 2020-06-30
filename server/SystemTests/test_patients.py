@@ -5,9 +5,9 @@ import random
 import string
 import time
 import uuid
+import logging
 from datetime import datetime
 from manage import getRandomInitials
-
 
 def get_login_token(email, password):
     url = "http://localhost:5000/api/user/auth"
@@ -197,7 +197,6 @@ def test_pass_create_patient_reading_with_dob_no_age():
     
     response = requests.post(url, json=data, headers=auth_header)
     response_body = json.loads(response.text)
-
     assert response.status_code == 201
     assert response_body["patient"]["patientId"] == patient_id
     assert response_body["patient"]["patientName"] == patient_name
@@ -229,7 +228,7 @@ def test_pass_create_patient_reading():
         "patientName": patient_name,
         "patientSex": patient_sex,
     }
-
+    symptoms = ["bleeding"]
     reading = {
         "readingId": reading_id,
         "bpSystolic": bp_systolic,
@@ -238,7 +237,7 @@ def test_pass_create_patient_reading():
         "dateTimeTaken": date_time_taken,
         "userId": user_id,
         "isFlaggedForFollowup": "false",
-        "symptoms":None,
+        "symptoms":json.dumps(symptoms),
     }
     data = {"patient": patient, "reading": reading}
 
