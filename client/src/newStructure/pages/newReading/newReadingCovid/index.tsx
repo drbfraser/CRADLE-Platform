@@ -19,7 +19,7 @@ import {
 } from '@material-ui/core';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { UrineTestForm } from '../urineTestForm';
-import {Demographics } from './demographic'
+import { Demographics } from './demographic';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -103,11 +103,7 @@ const Page: React.FC<any> = () => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === 0 ? (
-        <Demographics></Demographics>
-      ) : (
-        ''
-      )}
+      {activeStep === 0 ? <Demographics></Demographics> : ''}
       {activeStep === 1 ? (
         <Paper
           style={{
