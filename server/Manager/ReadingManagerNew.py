@@ -21,8 +21,6 @@ class ReadingManager(Manager):
         patient_reading_data["reading"]["patientId"] = patient_id        
         # get the symptoms array 
         symptomArray = patient_reading_data["reading"]["symptoms"]
-        # convert it into a string for the db
-        patient_reading_data["reading"]["symptoms"] = ','.join(symptomArray)
         # need to save urine test data from reading for urine test creation
         reading = self.create_reading(patient_reading_data["reading"])
         #clearlogging.debug(reading["patient"])
@@ -43,6 +41,7 @@ class ReadingManager(Manager):
             created_reading = self.add_urine_test(created_reading, urineTestData)
         else:
             created_reading = self.create(reading)
+        created_reading["symptoms"] = symptomArray
         return created_reading
 
     def add_urine_test(self, reading, urineTestData):
