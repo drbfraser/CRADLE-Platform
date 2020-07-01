@@ -89,7 +89,6 @@ def check_if_values_string_int_array(request_body, must_be_string, must_be_int,m
             and request_body.get(key) is not None
         ):
             if not isinstance((request_body.get(key)), list):
-                print("not an instance")
                 return (
                     {
                         "HTTP 400": "The value for key {"
