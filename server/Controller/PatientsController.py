@@ -175,7 +175,7 @@ class PatientReading(Resource):
         for reading in patient["readings"]:
             new_reading = readingManager.get_reading_json_from_reading(reading)
             new_readings_array.append(new_reading)
-        
+
         patient["readings"] = new_readings_array
         return patient
 

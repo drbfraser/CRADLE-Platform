@@ -9,6 +9,7 @@ import logging
 from datetime import datetime
 from manage import getRandomInitials
 
+
 def get_login_token(email, password):
     url = "http://localhost:5000/api/user/auth"
     payload = {"email": email, "password": password}
@@ -190,10 +191,10 @@ def test_pass_create_patient_reading_with_dob_no_age():
         "dateTimeTaken": date_time_taken,
         "userId": user_id,
         "isFlaggedForFollowup": "false",
-        "symptoms": ["bleeding","feverish","unwell"]
+        "symptoms": ["bleeding", "feverish", "unwell"],
     }
     data = {"patient": patient, "reading": reading}
-    
+
     response = requests.post(url, json=data, headers=auth_header)
     response_body = json.loads(response.text)
     assert response.status_code == 201
@@ -235,7 +236,7 @@ def test_pass_create_patient_reading():
         "dateTimeTaken": date_time_taken,
         "userId": user_id,
         "isFlaggedForFollowup": "false",
-        "symptoms": ["bleeding"]
+        "symptoms": ["bleeding"],
     }
     data = {"patient": patient, "reading": reading}
 
