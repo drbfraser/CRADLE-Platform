@@ -90,11 +90,12 @@ def check_if_values_string_int_array(request_body, must_be_string, must_be_int,m
             and request_body.get(key) is not None
         ):
             if not isinstance((request_body.get(key)), list):
+                print("not an instance")
                 return (
                     {
                         "HTTP 400": "The value for key {"
                         + key
-                        + "} is must be a array."
+                        + "}  must be a array."
                     },
                     400,
                 )
@@ -233,10 +234,8 @@ def check_reading_fields(request_body):
 
     values_string_or_int_array_message = check_if_values_string_int_array(
         request_body, must_be_string, must_be_int, must_be_array
-    )
-    logging.getLogger().info("bugg")
+    )    
     
-
     if values_string_or_int_array_message is not None:
         return values_string_or_int_array_message
 

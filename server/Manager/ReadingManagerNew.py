@@ -18,8 +18,11 @@ class ReadingManager(Manager):
         if patient is None:
             patient = patientManager.create(patient_reading_data["patient"])
 
-        patient_reading_data["reading"]["patientId"] = patient_id
-
+        patient_reading_data["reading"]["patientId"] = patient_id        
+        # get the symptoms array 
+        symptomArray = patient_reading_data["reading"]["symptoms"]
+        # convert it into a string for the db
+        patient_reading_data["reading"]["symptoms"] = ','.join(symptomArray)
         # need to save urine test data from reading for urine test creation
         reading = self.create_reading(patient_reading_data["reading"])
         #clearlogging.debug(reading["patient"])
