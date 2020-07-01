@@ -36,7 +36,6 @@
 
     Village number should exist
 """
-import logging
 
 # helper method that makes sure all required keys and values are in request body
 def check_if_required_keys_present(request_body, required_keys):
@@ -56,7 +55,8 @@ def check_if_required_keys_present(request_body, required_keys):
             )
     return None
 
-# helper method that makes sure that expected string types are in fact strings/ints (depending on critera)
+# helper method that makes sure that expected string types are 
+# in fact strings/ints/string (depending on critera)
 def check_if_values_string_int_array(request_body, must_be_string, must_be_int,must_be_array):
     for key in request_body:
         if (
@@ -79,7 +79,6 @@ def check_if_values_string_int_array(request_body, must_be_string, must_be_int,m
             and request_body.get(key) is not None
         ):
             if not isinstance(int(request_body.get(key)), int):
-                
                 return (
                     {"HTTP 400": "The value for key {" + key + "} is must be an int."},
                     400,
@@ -257,4 +256,5 @@ def update_info_invalid(patient_id, request_body):
     )
     if values_string_or_int_message is not None:
         return values_string_or_int_message
+
     return None

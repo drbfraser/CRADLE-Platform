@@ -32,6 +32,10 @@ class ReadingManager(Manager):
     def create_reading(self, reading):
         # need to save urine test data from reading for urine test creation
         created_reading = None
+                # get the symptoms array 
+        symptomArray = reading["symptoms"]
+        # convert it into a string for the db
+        reading["symptoms"] = ','.join(symptomArray)
         if "urineTests" in reading:
             urineTestData = reading["urineTests"]
             del reading["urineTests"]
@@ -54,3 +58,12 @@ class ReadingManager(Manager):
         else:
             logging.debug("urine test not created")
             raise ValueError("A urine test already exists for this reading")
+    
+    # do all the common stuff here for example changing symptom from string to array
+    def get_reading_json_from_reading(self,reading):
+        reading_json = self.read("readingId", reading)
+        symtoms = reading_json["symptoms"]
+        #convert the symptoms into an array 
+        reading_json["symptoms"] = symtoms.split(',')
+        reading_json["urineTests"] = urineTestManager.read("readingId", reading)
+        return reading_json
