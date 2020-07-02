@@ -13,9 +13,9 @@ import {
   Button,
 } from '@material-ui/core';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { UrineTestForm } from '../urineTestForm';
 import { Demographics } from './demographic';
 import { Symptoms } from './symptoms';
+import {VitalSignAssessment} from "./vitalSignAssessment";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -102,71 +102,7 @@ const Page: React.FC<any> = () => {
       {activeStep === 0 ? <Demographics></Demographics> : ''}
       {activeStep === 1 ? <Symptoms></Symptoms> : ''}
       {activeStep === 2 ? (
-        <div>
-          <Paper
-            style={{
-              padding: '35px 25px',
-              marginTop: '2%',
-              borderRadius: '15px',
-            }}>
-            <h1>
-              <b>Vital Sign Assessment</b>
-            </h1>
-
-            <form className={classes.root} noValidate autoComplete="off">
-              <FormControl className={classes.formField}>
-                <InputLabel required htmlFor="component-simple">
-                  Systolic
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel required htmlFor="component-outlined">
-                  Diastolic
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel required htmlFor="component-outlined">
-                  Hear Rate
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="component-outlined">
-                  Raspiratory Rate
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="component-outlined">
-                  Oxygen Saturation
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="component-outlined">
-                  Temperature
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="component-outlined">
-                  Raspiratory Rate
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-            </form>
-          </Paper>
-          <div style={{ marginTop: '2%' }}>
-            <UrineTestForm
-              reading={'' as any}
-              onChange={'' as any}
-              onSwitchChange={'' as any}
-              hasUrineTest={'' as any}
-            />
-          </div>
-        </div>
+        <VitalSignAssessment></VitalSignAssessment>
       ) : (
         ''
       )}
