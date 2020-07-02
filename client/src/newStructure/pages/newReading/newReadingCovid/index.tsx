@@ -2,10 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   Divider,
-  FormControl,
-  Input,
-  InputLabel,
-  Paper,
   Stepper,
   Step,
   StepLabel,
@@ -16,6 +12,7 @@ import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { Demographics } from './demographic';
 import { Symptoms } from './symptoms';
 import { VitalSignAssessment } from './vitalSignAssessment';
+import { Assessment } from './assessment';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -27,14 +24,6 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: theme.spacing(2),
       minWidth: '22ch',
     },
-    formFieldDM: {
-      margin: theme.spacing(2),
-      minWidth: '48ch',
-      minHeight: '15ch',
-    },
-    formControl: {
-      margin: theme.spacing(3),
-    },
     backButton: {
       margin: theme.spacing(2),
     },
@@ -45,14 +34,6 @@ const useStyles = makeStyles((theme: Theme) =>
     instructions: {
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1),
-    },
-    formFieldWide: {
-      margin: theme.spacing(2),
-      minWidth: '56ch',
-    },
-    formFieldSWide: {
-      margin: theme.spacing(2),
-      minWidth: '36ch',
     },
   })
 );
@@ -102,69 +83,7 @@ const Page: React.FC<any> = () => {
       {activeStep === 0 ? <Demographics></Demographics> : ''}
       {activeStep === 1 ? <Symptoms></Symptoms> : ''}
       {activeStep === 2 ? <VitalSignAssessment></VitalSignAssessment> : ''}
-      {activeStep === 3 ? (
-        <Paper
-          style={{
-            padding: '35px 25px',
-            marginTop: '2%',
-            borderRadius: '15px',
-          }}>
-          <h1>
-            <b>Assessment</b>
-          </h1>
-
-          <form className={classes.root} noValidate autoComplete="off">
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel required htmlFor="component-simple">
-                Special Inestigation + Results (if avaulable)
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel required htmlFor="component-outlined">
-                Final Diagnosis
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel required htmlFor="component-outlined">
-                Treatment/Operation
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel required htmlFor="component-outlined">
-                Medication Prescribed
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel htmlFor="component-outlined">Frequesncy</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel htmlFor="component-outlined">
-                Frequency Unit
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldSWide}>
-              <InputLabel htmlFor="component-outlined">Until</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldSWide}>
-              <InputLabel htmlFor="component-outlined">Until Date</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldSWide}>
-              <InputLabel htmlFor="component-outlined">Other</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-          </form>
-        </Paper>
-      ) : (
-        ''
-      )}
+      {activeStep === 3 ? <Assessment></Assessment> : ''}
       <div>
         {activeStep === steps.length ? (
           <div>
