@@ -169,16 +169,14 @@ class PatientReading(Resource):
     def get(self, patient_id):
         logging.debug("Received request: GET /patient/" + patient_id)
         patient = patientManager.read("patientId", patient_id)
-
-        new_readings = []
-        for reading in patient["readings"]:
-            new_reading = readingManager.read("readingId", reading)
-            new_reading["urineTests"] = urineTestManager.read("readingId", reading)
-            new_readings.append(new_reading)
-        patient["readings"] = new_readings
-
         if patient is None:
             abort(404, message="Patient {} doesn't exist.".format(patient_id))
+        new_readings_array = []
+        for reading in patient["readings"]:
+            new_reading = readingManager.get_reading_json_from_reading(reading)
+            new_readings_array.append(new_reading)
+
+        patient["readings"] = new_readings_array
         return patient
 
     # Create a new patient with a reading
