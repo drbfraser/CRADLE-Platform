@@ -34,7 +34,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Page: React.FC<any> = () => {
+interface IProps {
+  patient: any;
+}
+
+const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
 
   return (
@@ -53,21 +57,21 @@ const Page: React.FC<any> = () => {
           <InputLabel required htmlFor="component-simple">
             Patient Initials
           </InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.patientInitial} />
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel required htmlFor="component-outlined">
             ID
           </InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.id} />
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel htmlFor="component-outlined">Age</InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.age} />
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel htmlFor="component-outlined">Birthday</InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.birthday} />
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel required htmlFor="component-outlined">
@@ -92,13 +96,13 @@ const Page: React.FC<any> = () => {
           <InputLabel htmlFor="component-outlined">
             House Hold Number
           </InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.household} />
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel required htmlFor="component-outlined">
             Gestational Age
           </InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.gestationalAge} />
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel required htmlFor="component-outlined">
@@ -114,19 +118,19 @@ const Page: React.FC<any> = () => {
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel htmlFor="component-outlined">Zone</InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.zone} />
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel htmlFor="component-outlined">Village</InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.villiage} />
         </FormControl>
         <FormControl className={classes.formFieldDM}>
           <InputLabel htmlFor="component-outlined">Drug History</InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.drugHistory} />
         </FormControl>
         <FormControl className={classes.formFieldDM}>
           <InputLabel htmlFor="component-outlined">Medical History</InputLabel>
-          <Input id="component-outlined" />
+          <Input id="component-outlined" value={props.patient.medicalHistory} />
         </FormControl>
       </form>
     </Paper>
