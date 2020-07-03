@@ -80,7 +80,7 @@ const Page: React.FC<any> = () => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === 0 ? <Demographics></Demographics> : ''}
+      {activeStep === 0 ? <Demographics patient={''}></Demographics> : ''}
       {activeStep === 1 ? <Symptoms></Symptoms> : ''}
       {activeStep === 2 ? <VitalSignAssessment></VitalSignAssessment> : ''}
       {activeStep === 3 ? <Assessment></Assessment> : ''}
