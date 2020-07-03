@@ -2,13 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   FormControl,
-  Input,
-  InputLabel,
   FormControlLabel,
   Checkbox,
   Paper,
   FormGroup,
   FormLabel,
+  TextField,
 } from '@material-ui/core';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -120,8 +119,14 @@ const Page: React.FC<any> = () => {
       </FormControl>
       <FormControl component="fieldset" className={classes.formControl}>
         <FormControl className={classes.formFieldDM}>
-          <InputLabel htmlFor="component-outlined">Others</InputLabel>
-          <Input id="component-outlined" />
+          <TextField
+            id="outlined-multiline-static"
+            label="Multiline"
+            multiline
+            rows={4}
+            defaultValue="Others"
+            variant="outlined"
+          />
         </FormControl>
       </FormControl>
     </Paper>

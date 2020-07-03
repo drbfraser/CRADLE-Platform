@@ -9,6 +9,7 @@ import {
   FormControlLabel,
   Checkbox,
   Paper,
+  TextField,
 } from '@material-ui/core';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 
@@ -63,6 +64,8 @@ const Page: React.FC<IProps> = (props) => {
             id="component-outlined"
             value={props.patient.patientInitial}
             onChange={onChangeData}
+            required={true}
+            type={'text'}
           />
         </FormControl>
         <FormControl className={classes.formField}>
@@ -73,6 +76,8 @@ const Page: React.FC<IProps> = (props) => {
             id="component-outlined"
             value={props.patient.id}
             onChange={onChangeData}
+            required={true}
+            type={'text'}
           />
         </FormControl>
         <FormControl className={classes.formField}>
@@ -81,14 +86,21 @@ const Page: React.FC<IProps> = (props) => {
             id="component-outlined"
             value={props.patient.age}
             onChange={onChangeData}
+            type={'number'}
+            inputProps={{ inputProps: { min: 0, max: 10 } }}
           />
         </FormControl>
         <FormControl className={classes.formField}>
-          <InputLabel htmlFor="component-outlined">Birthday</InputLabel>
-          <Input
-            id="component-outlined"
+          <TextField
+            id="date"
+            label="Birthday"
+            type="date"
+            defaultValue="2017-05-24"
             value={props.patient.birthday}
             onChange={onChangeData}
+            InputLabelProps={{
+              shrink: true,
+            }}
           />
         </FormControl>
         <FormControl className={classes.formField}>
