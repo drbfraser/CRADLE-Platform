@@ -1,6 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { FormControl, Input, InputLabel, Paper ,InputAdornment} from '@material-ui/core';
+import {
+  FormControl,
+  Input,
+  InputLabel,
+  Paper,
+  InputAdornment,
+} from '@material-ui/core';
 import { UrineTestForm } from '../../urineTestForm';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import FavoriteIcon from '@material-ui/icons/Favorite';
@@ -15,8 +21,7 @@ const useStyles = makeStyles((theme: Theme) =>
     formField: {
       margin: theme.spacing(2),
       minWidth: '22ch',
-        display: 'block'
-
+      display: 'block',
     },
 
     formFieldDM: {
@@ -45,39 +50,45 @@ const Page: React.FC<any> = () => {
         </h1>
 
         <form className={classes.root} noValidate autoComplete="off">
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="input-with-icon-adornment">Systolic</InputLabel>
-                <Input
-                    id="input-with-icon-adornment"
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <FavoriteIcon />
-                      </InputAdornment>
-                    }
-                />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="input-with-icon-adornment">Diastolic</InputLabel>
-                <Input
-                    id="input-with-icon-adornment"
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <FavoriteBorderIcon />
-                      </InputAdornment>
-                    }
-                />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="input-with-icon-adornment">Heart Rate</InputLabel>
-                <Input
-                    id="input-with-icon-adornment"
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <FavoriteIcon />
-                      </InputAdornment>
-                    }
-                />
-              </FormControl>
+          <FormControl className={classes.formField}>
+            <InputLabel htmlFor="input-with-icon-adornment">
+              Systolic
+            </InputLabel>
+            <Input
+              id="input-with-icon-adornment"
+              startAdornment={
+                <InputAdornment position="start">
+                  <FavoriteIcon />
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+          <FormControl className={classes.formField}>
+            <InputLabel htmlFor="input-with-icon-adornment">
+              Diastolic
+            </InputLabel>
+            <Input
+              id="input-with-icon-adornment"
+              startAdornment={
+                <InputAdornment position="start">
+                  <FavoriteBorderIcon />
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+          <FormControl className={classes.formField}>
+            <InputLabel htmlFor="input-with-icon-adornment">
+              Heart Rate
+            </InputLabel>
+            <Input
+              id="input-with-icon-adornment"
+              startAdornment={
+                <InputAdornment position="start">
+                  <FavoriteIcon />
+                </InputAdornment>
+              }
+            />
+          </FormControl>
           <FormControl className={classes.formField}>
             <InputLabel htmlFor="component-outlined">
               Raspiratory Rate
