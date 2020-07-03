@@ -38,12 +38,13 @@ const useStyles = makeStyles((theme: Theme) =>
 const Page: React.FC<any> = () => {
   const classes = useStyles();
   return (
-    <div>
+    <div style={{ display: 'flex' }}>
       <Paper
         style={{
           padding: '35px 25px',
           marginTop: '2%',
           borderRadius: '15px',
+          width: '45%',
         }}>
         <h1>
           <b>Vital Sign Assessment</b>
@@ -81,39 +82,54 @@ const Page: React.FC<any> = () => {
               Heart Rate
             </InputLabel>
             <Input
-              id="input-with-icon-adornment"
-              startAdornment={
-                <InputAdornment position="start">
-                  <FavoriteIcon />
-                </InputAdornment>
-              }
+              id="standard-adornment-weight"
+              endAdornment={<InputAdornment position="end">BPM</InputAdornment>}
+              aria-describedby="standard-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
             />
           </FormControl>
           <FormControl className={classes.formField}>
             <InputLabel htmlFor="component-outlined">
               Raspiratory Rate
             </InputLabel>
-            <Input id="component-outlined" />
+            <Input
+              id="standard-adornment-weight"
+              endAdornment={<InputAdornment position="end">BPM</InputAdornment>}
+              aria-describedby="standard-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
+            />
           </FormControl>
           <FormControl className={classes.formField}>
             <InputLabel htmlFor="component-outlined">
               Oxygen Saturation
             </InputLabel>
-            <Input id="component-outlined" />
+            <Input
+              id="standard-adornment-weight"
+              endAdornment={<InputAdornment position="end">%</InputAdornment>}
+              aria-describedby="standard-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
+            />
           </FormControl>
           <FormControl className={classes.formField}>
             <InputLabel htmlFor="component-outlined">Temperature</InputLabel>
-            <Input id="component-outlined" />
-          </FormControl>
-          <FormControl className={classes.formField}>
-            <InputLabel htmlFor="component-outlined">
-              Raspiratory Rate
-            </InputLabel>
-            <Input id="component-outlined" />
+            <Input
+              id="standard-adornment-weight"
+              endAdornment={<InputAdornment position="end">°C</InputAdornment>}
+              aria-describedby="standard-weight-helper-text"
+              inputProps={{
+                'aria-label': 'weight',
+              }}
+            />
           </FormControl>
         </form>
       </Paper>
-      <div style={{ marginTop: '2%' }}>
+      <div style={{ marginTop: '2%', width: '45%', marginLeft: '5%' }}>
         <UrineTestForm
           reading={'' as any}
           onChange={'' as any}
