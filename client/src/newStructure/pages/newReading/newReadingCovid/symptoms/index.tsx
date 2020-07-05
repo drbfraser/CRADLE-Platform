@@ -37,28 +37,26 @@ const useStyles = makeStyles((theme: Theme) =>
 const Page: React.FC<any> = () => {
   const classes = useStyles();
   const [state, setState] = React.useState({
-    none : false,
-    headache : false,
-    bleeding : false,
-    blurredVision : false,
-    feverish : false,
-    abdominalPain : false,
-    unwell : false,
-    cough:false,
-    shortnessBreath:false,
-    soreThroat:false,
-    muscleAche:false,
-    fatigue:false,
-    lossOfSense:false,
-    lossOfTaste:false,
-    lossOfSmell:false,
+    none: false,
+    headache: false,
+    bleeding: false,
+    blurredVision: false,
+    feverish: false,
+    abdominalPain: false,
+    unwell: false,
+    cough: false,
+    shortnessBreath: false,
+    soreThroat: false,
+    muscleAche: false,
+    fatigue: false,
+    lossOfSense: false,
+    lossOfTaste: false,
+    lossOfSmell: false,
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setState({ ...state, [event.target.name]: event.target.checked });
   };
-
-
 
   return (
     <Paper
@@ -75,32 +73,74 @@ const Page: React.FC<any> = () => {
         <FormLabel component="legend">Regular</FormLabel>
         <FormGroup>
           <FormControlLabel
-            control={<Checkbox checked={state.none} name="none" onChange={handleChange} />}
+            control={
+              <Checkbox
+                checked={state.none}
+                name="none"
+                onChange={handleChange}
+              />
+            }
             label="None (Patient healthy)"
           />
           <FormControlLabel
-            control={<Checkbox checked={state.headache} name="headache" onChange={handleChange} />}
+            control={
+              <Checkbox
+                checked={state.headache}
+                name="headache"
+                onChange={handleChange}
+              />
+            }
             label="Headache"
           />
           <FormControlLabel
-            control={<Checkbox checked={state.blurredVision} name="blurredVision" onChange={handleChange} />}
+            control={
+              <Checkbox
+                checked={state.blurredVision}
+                name="blurredVision"
+                onChange={handleChange}
+              />
+            }
             label="Blurred Vission"
           />
           <FormControlLabel
-            control={<Checkbox checked={state.abdominalPain} name="abdominalPain" onChange={handleChange} />}
+            control={
+              <Checkbox
+                checked={state.abdominalPain}
+                name="abdominalPain"
+                onChange={handleChange}
+              />
+            }
             label="Abdominal Pain"
           />
         </FormGroup>
         <FormControlLabel
-          control={<Checkbox checked={state.bleeding} name="bleeding" onChange={handleChange} />}
+          control={
+            <Checkbox
+              checked={state.bleeding}
+              name="bleeding"
+              onChange={handleChange}
+            />
+          }
           label="Bleeding"
         />
         <FormControlLabel
-          control={<Checkbox checked={state.feverish} name="feverish" onChange={handleChange} />}
+          control={
+            <Checkbox
+              checked={state.feverish}
+              name="feverish"
+              onChange={handleChange}
+            />
+          }
           label="Feverish"
         />
         <FormControlLabel
-          control={<Checkbox checked={state.unwell} name="unwell" onChange={handleChange} />}
+          control={
+            <Checkbox
+              checked={state.unwell}
+              name="unwell"
+              onChange={handleChange}
+            />
+          }
           label="Unwell"
         />
       </FormControl>
@@ -108,36 +148,84 @@ const Page: React.FC<any> = () => {
         <FormLabel component="legend">Covid</FormLabel>
         <FormGroup>
           <FormControlLabel
-            control={<Checkbox checked={state.cough} name="cough" onChange={handleChange} />}
+            control={
+              <Checkbox
+                checked={state.cough}
+                name="cough"
+                onChange={handleChange}
+              />
+            }
             label="Cough"
           />
           <FormControlLabel
-            control={<Checkbox checked={state.shortnessBreath} name="shortnessBreath" onChange={handleChange} />}
+            control={
+              <Checkbox
+                checked={state.shortnessBreath}
+                name="shortnessBreath"
+                onChange={handleChange}
+              />
+            }
             label="Shortness of Breath"
           />
           <FormControlLabel
-            control={<Checkbox checked={state.soreThroat} name="soreThroat" onChange={handleChange} />}
+            control={
+              <Checkbox
+                checked={state.soreThroat}
+                name="soreThroat"
+                onChange={handleChange}
+              />
+            }
             label="Sore Throat"
           />
           <FormControlLabel
-            control={<Checkbox checked={state.muscleAche} name="muscleAche" onChange={handleChange} />}
+            control={
+              <Checkbox
+                checked={state.muscleAche}
+                name="muscleAche"
+                onChange={handleChange}
+              />
+            }
             label="Muscle ache"
           />
         </FormGroup>
         <FormControlLabel
-          control={<Checkbox checked={state.fatigue} name="fatigue" onChange={handleChange} />}
+          control={
+            <Checkbox
+              checked={state.fatigue}
+              name="fatigue"
+              onChange={handleChange}
+            />
+          }
           label="Fatigue"
         />
         <FormControlLabel
-          control={<Checkbox checked={state.lossOfSense} name="lossOfSense" onChange={handleChange} />}
+          control={
+            <Checkbox
+              checked={state.lossOfSense}
+              name="lossOfSense"
+              onChange={handleChange}
+            />
+          }
           label="Loss of sense"
         />
         <FormControlLabel
-          control={<Checkbox checked={state.lossOfTaste} name="lossOfTaste" onChange={handleChange} />}
+          control={
+            <Checkbox
+              checked={state.lossOfTaste}
+              name="lossOfTaste"
+              onChange={handleChange}
+            />
+          }
           label="Loss of taste"
         />
         <FormControlLabel
-          control={<Checkbox checked={state.lossOfSmell} name="lossOfSmell" onChange={handleChange} />}
+          control={
+            <Checkbox
+              checked={state.lossOfSmell}
+              name="lossOfSmell"
+              onChange={handleChange}
+            />
+          }
           label="Loss of smell"
         />
       </FormControl>
