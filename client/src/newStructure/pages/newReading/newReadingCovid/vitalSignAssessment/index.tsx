@@ -37,6 +37,18 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Page: React.FC<any> = () => {
   const classes = useStyles();
+  const [state, setState] = React.useState({
+    bpSystolic: '',
+    bpDiastolic: '',
+    heartRateBPM: '',
+    raspiratoryRate: '',
+    oxygenSaturation: '',
+    temperature: '',
+  });
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, [event.target.name]: event.target.value });
+    console.log('VITALS', state);
+  };
   return (
     <div style={{ display: 'flex' }}>
       <Paper
@@ -56,6 +68,9 @@ const Page: React.FC<any> = () => {
               Systolic
             </InputLabel>
             <Input
+              onChange={handleChange}
+              name={'bpSystolic'}
+              value={state.bpSystolic}
               id="input-with-icon-adornment"
               startAdornment={
                 <InputAdornment position="start">
@@ -69,6 +84,9 @@ const Page: React.FC<any> = () => {
               Diastolic
             </InputLabel>
             <Input
+              onChange={handleChange}
+              name={'bpDiastolic'}
+              value={state.bpDiastolic}
               id="input-with-icon-adornment"
               startAdornment={
                 <InputAdornment position="start">
@@ -82,6 +100,9 @@ const Page: React.FC<any> = () => {
               Heart Rate
             </InputLabel>
             <Input
+              onChange={handleChange}
+              name={'heartRateBPM'}
+              value={state.heartRateBPM}
               id="standard-adornment-weight"
               endAdornment={<InputAdornment position="end">BPM</InputAdornment>}
               aria-describedby="standard-weight-helper-text"
@@ -95,6 +116,9 @@ const Page: React.FC<any> = () => {
               Raspiratory Rate
             </InputLabel>
             <Input
+              onChange={handleChange}
+              name={'raspiratoryRate'}
+              value={state.raspiratoryRate}
               id="standard-adornment-weight"
               endAdornment={<InputAdornment position="end">BPM</InputAdornment>}
               aria-describedby="standard-weight-helper-text"
@@ -108,6 +132,9 @@ const Page: React.FC<any> = () => {
               Oxygen Saturation
             </InputLabel>
             <Input
+              onChange={handleChange}
+              name={'oxygenSaturation'}
+              value={state.oxygenSaturation}
               id="standard-adornment-weight"
               endAdornment={<InputAdornment position="end">%</InputAdornment>}
               aria-describedby="standard-weight-helper-text"
@@ -119,6 +146,9 @@ const Page: React.FC<any> = () => {
           <FormControl className={classes.formField}>
             <InputLabel htmlFor="component-outlined">Temperature</InputLabel>
             <Input
+              onChange={handleChange}
+              name={'temperature'}
+              value={state.temperature}
               id="standard-adornment-weight"
               endAdornment={<InputAdornment position="end">°C</InputAdornment>}
               aria-describedby="standard-weight-helper-text"

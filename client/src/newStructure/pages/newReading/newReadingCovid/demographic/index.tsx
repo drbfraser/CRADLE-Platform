@@ -41,6 +41,21 @@ interface IProps {
 
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
+  // const [state, setState] = React.useState({
+  //   patientName:"",
+  //   patientId:"",
+  //   patientAge:"",
+  //   dob: new Date(),
+  //   patientSex:"",
+  //   isPregnant:"",
+  //   gestationalAgeValue : "",
+  //   gestationalAgeUnit: "",
+  //   zone: "",
+  //   villageNumber: "",
+  //   drugHistory: "",
+  //   medicalHistory: "",
+  // });
+
   const onChangeData = (): void => {
     console.log('use state');
   };
