@@ -55,6 +55,13 @@ def check_if_required_keys_present(request_body, required_keys):
             )
     return None
 
+# helper method that checks gestational age isn't over 43 weeks/10 months
+def check_gestational_age_under_limit(request_body):
+    if request_body.get("gestationalAgeUnit") == "GESTATIONAL_AGE_UNITS_WEEKS" and int(request_body.get("gestationalAgeValue")) > 43:
+        return "Gestation age is greater than 43 weeks."
+    if request_body.get("gestationalAgeUnit") == "GESTATIONAL_AGE_UNITS_MONTHS" and int(request_body.get("gestationalAgeValue")) > 10:
+        return "Gestation age is greater than 10 months."
+    return None
 
 # helper method that makes sure that expected string types are in fact strings/ints (depending on critera)
 def check_if_values_string_or_int(request_body, must_be_string, must_be_int):
@@ -105,8 +112,16 @@ def check_patient_fields(request_body):
     required_keys_present_message = check_if_required_keys_present(
         request_body, required_keys
     )
+
     if required_keys_present_message is not None:
         return required_keys_present_message
+
+    gestational_age_message = None
+    if request_body.get("patientSex") == "FEMALE" and request_body.get("isPregnant") == True:
+        gestational_age_message = check_gestational_age_under_limit(request_body)
+
+    if gestational_age_message is not None:
+        return gestational_age_message
 
     # values that must be of type string
     must_be_string = {
