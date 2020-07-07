@@ -7,7 +7,7 @@ import {
   Paper,
   InputAdornment,
 } from '@material-ui/core';
-import { UrineTestForm } from '../../urineTestForm';
+import { initialUrineTests, UrineTestForm } from '../../urineTestForm';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
@@ -44,11 +44,53 @@ const Page: React.FC<any> = () => {
     raspiratoryRate: '',
     oxygenSaturation: '',
     temperature: '',
+    hasUrineTest: false,
+    reading: {
+      userId: '',
+      readingId: '',
+      dateTimeTaken: null,
+      bpSystolic: '',
+      bpDiastolic: '',
+      heartRateBPM: '',
+      dateRecheckVitalsNeeded: null,
+      isFlaggedForFollowup: false,
+      symptoms: '',
+      urineTests: initialUrineTests,
+    },
   });
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setState({ ...state, [event.target.name]: event.target.value });
     console.log('VITALS', state);
   };
+  const handleUrineTestChange = (e: any, value: any) => {
+    setState({
+      ...state,
+      reading: {
+        ...state.reading,
+        urineTests: {
+          ...state.reading.urineTests,
+          [value.name]: value.value,
+        },
+      },
+    });
+  };
+
+  const handleUrineTestSwitchChange = (e: any) => {
+    console.log(e.target.checked);
+    setState({
+      hasUrineTest: e.target.checked,
+    } as any);
+    if (!e.target.checked) {
+      setState({
+        ...state,
+        reading: {
+          ...state.reading,
+          urineTests: initialUrineTests,
+        },
+      });
+    }
+  };
+
   return (
     <div style={{ display: 'flex' }}>
       <Paper
@@ -161,10 +203,10 @@ const Page: React.FC<any> = () => {
       </Paper>
       <div style={{ marginTop: '2%', width: '45%', marginLeft: '5%' }}>
         <UrineTestForm
-          reading={'' as any}
-          onChange={'' as any}
-          onSwitchChange={'' as any}
-          hasUrineTest={'' as any}
+          reading={state.reading}
+          onChange={handleUrineTestChange}
+          onSwitchChange={handleUrineTestSwitchChange}
+          hasUrineTest={state.hasUrineTest}
         />
       </div>
     </div>
