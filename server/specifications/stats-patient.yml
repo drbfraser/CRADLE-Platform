@@ -18,21 +18,31 @@ responses:
           properties:
             bpSystolicReadingsMontly:
               type: array
-              items: integer
+              items: array of integers
               example: [[], [], [60], [], [], [], [], [], [], [], [], []]
             bpDiastolicReadingsMonthly:
               type: array
-              items: integer
+              items: array of integers
               example: [[], [], [60], [], [], [], [], [], [], [], [], []]
             heartRateReadingsMonthly:
               type: array
-              items: integer
+              items: array of integers
               example: [[], [], [60], [], [], [], [], [], [], [], [], []]
             trafficLightCountsFromDay1:
               type: object
-              example:
-                green: 0
-                yellowUp: 0
-                yellowDown: 2
-                redUp: 0
-                redDown: 0
+              properties:
+                green:
+                  type: integer
+                  example: 0
+                yellowUp:
+                  type: integer
+                  example: 0
+                yellowDown:
+                  type: integer
+                  example: 2
+                redUp:
+                  type: integer
+                  example: 0
+                redDown:
+                  type: integer
+                  example: 0
