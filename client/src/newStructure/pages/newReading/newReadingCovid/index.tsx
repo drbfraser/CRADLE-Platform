@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import {
   Divider,
@@ -13,6 +13,17 @@ import { Demographics } from './demographic';
 import { Symptoms } from './symptoms';
 import { VitalSignAssessment } from './vitalSignAssessment';
 import { Assessment } from './assessment';
+import { bindActionCreators } from 'redux';
+import { getCurrentUser } from '../../../shared/reducers/user/currentUser';
+import {
+  addNewReading,
+  resetNewReadingStatus,
+} from '../../../shared/reducers/newReadingStatus';
+import { addNewPatient } from '../../../shared/reducers/patients';
+import { User } from '@types';
+import { GESTATIONAL_AGE_UNITS } from '../patientInfoForm';
+import { initialUrineTests } from '../urineTestForm';
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -45,11 +56,87 @@ function getSteps() {
     'Assessment',
   ];
 }
-
-const Page: React.FC<any> = () => {
+interface IProps {
+  getCurrentUser: any;
+  afterNewPatientAdded: any;
+  user: User;
+  addNewReading: any;
+}
+// interface IState {
+//     patient: PatientNewReading;
+//     reading: PatientNewReadingReading;
+//     hasUrineTest: boolean;
+//     checkedItems: CheckedItems;
+//     showSuccessReading: boolean;
+// }
+const initState = {
+  patient: {
+    household: '',
+    patientInitial: '',
+    patientId: '',
+    patientName: '',
+    patientAge: null,
+    patientSex: 'FEMALE',
+    isPregnant: true,
+    gestationalAgeValue: '',
+    gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
+    zone: '',
+    dob: null,
+    villageNumber: '',
+    drugHistory: '',
+    medicalHistory: '',
+  },
+  reading: {
+    userId: '',
+    readingId: '',
+    dateTimeTaken: null,
+    bpSystolic: '',
+    bpDiastolic: '',
+    heartRateBPM: '',
+    dateRecheckVitalsNeeded: null,
+    isFlaggedForFollowup: false,
+    symptoms: '',
+    urineTests: initialUrineTests,
+  },
+  checkedItems: {
+    none: true,
+    headache: false,
+    bleeding: false,
+    blurredVision: false,
+    feverish: false,
+    abdominalPain: false,
+    unwell: false,
+    other: false,
+    otherSymptoms: '',
+  },
+  showSuccessReading: false,
+  hasUrineTest: false,
+};
+const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
+  const [state, setState] = React.useState(initState);
   const steps = getSteps();
+
+  useEffect(() => {
+    if (!props.user.isLoggedIn) {
+      props.getCurrentUser();
+    }
+  });
+  const handlDemoGraphicChange = (e: any) => {
+    // if the sex is male disable preg and gestational
+    //
+    console.log('name', e.target.value);
+    console.log('value', e.target.name);
+    setState({
+      ...state,
+      patient: {
+        ...state.patient,
+        [e.target.name]: e.target.value,
+      },
+    });
+    console.log('value', state);
+  };
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -80,7 +167,13 @@ const Page: React.FC<any> = () => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === 0 ? <Demographics patient={''}></Demographics> : ''}
+      {activeStep === 0 ? (
+        <Demographics
+          patient={state.patient}
+          onChange={handlDemoGraphicChange}></Demographics>
+      ) : (
+        ''
+      )}
       {activeStep === 1 ? <Symptoms></Symptoms> : ''}
       {activeStep === 2 ? <VitalSignAssessment></VitalSignAssessment> : ''}
       {activeStep === 3 ? <Assessment></Assessment> : ''}
@@ -115,10 +208,26 @@ const Page: React.FC<any> = () => {
     </div>
   );
 };
+const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
+  user: user.current.data,
+  createReadingStatusError: newReadingStatus.error,
+  readingCreated: newReadingStatus.readingCreated,
+  newReadingData: newReadingStatus.message,
+  newPatientAdded: patients.newPatientAdded,
+});
 
-const mapStateToProps = () => ({});
-
-const mapDispatchToProps = () => ({});
+const mapDispatchToProps = (dispatch: any) => ({
+  ...bindActionCreators(
+    {
+      getCurrentUser,
+      addNewReading,
+      addNewPatient,
+      resetNewReadingStatus,
+      // afterNewPatientAdded
+    },
+    dispatch
+  ),
+});
 export const NewReadingCovid = connect(
   mapStateToProps,
   mapDispatchToProps

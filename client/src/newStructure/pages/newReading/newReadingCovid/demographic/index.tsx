@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 
 import {
   FormControl,
@@ -12,6 +11,7 @@ import {
   TextField,
 } from '@material-ui/core';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { GESTATIONAL_AGE_UNITS } from '../../patientInfoForm';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,28 +37,12 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface IProps {
   patient: any;
+  onChange: any;
 }
 
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
-  // const [state, setState] = React.useState({
-  //   patientName:"",
-  //   patientId:"",
-  //   patientAge:"",
-  //   dob: new Date(),
-  //   patientSex:"",
-  //   isPregnant:"",
-  //   gestationalAgeValue : "",
-  //   gestationalAgeUnit: "",
-  //   zone: "",
-  //   villageNumber: "",
-  //   drugHistory: "",
-  //   medicalHistory: "",
-  // });
 
-  const onChangeData = (): void => {
-    console.log('use state');
-  };
   return (
     <Paper
       style={{
@@ -77,8 +61,9 @@ const Page: React.FC<IProps> = (props) => {
           </InputLabel>
           <Input
             id="component-outlined"
+            name="patientInitial"
             value={props.patient.patientInitial}
-            onChange={onChangeData}
+            onChange={props.onChange}
             required={true}
             type={'text'}
           />
@@ -89,8 +74,9 @@ const Page: React.FC<IProps> = (props) => {
           </InputLabel>
           <Input
             id="component-outlined"
-            value={props.patient.id}
-            onChange={onChangeData}
+            name="patientId"
+            value={props.patient.patientId}
+            onChange={props.onChange}
             required={true}
             type={'text'}
           />
@@ -99,8 +85,9 @@ const Page: React.FC<IProps> = (props) => {
           <InputLabel htmlFor="component-outlined">Age</InputLabel>
           <Input
             id="component-outlined"
-            value={props.patient.age}
-            onChange={onChangeData}
+            name="patientAge"
+            value={props.patient.patientAge}
+            onChange={props.onChange}
             type={'number'}
             inputProps={{ inputProps: { min: 0, max: 10 } }}
           />
@@ -111,8 +98,9 @@ const Page: React.FC<IProps> = (props) => {
             label="Birthday"
             type="date"
             defaultValue="2017-05-24"
-            value={props.patient.birthday}
-            onChange={onChangeData}
+            name="dob"
+            value={props.patient.dob}
+            onChange={props.onChange}
             InputLabelProps={{
               shrink: true,
             }}
@@ -124,16 +112,25 @@ const Page: React.FC<IProps> = (props) => {
           </InputLabel>
           <Select
             native
+            name="patientSex"
+            value={props.patient.patientSex}
+            onChange={props.onChange}
             labelId="demo-simple-select-label"
             id="demo-simple-select">
-            <option value={'10'}>Male</option>
-            <option value={'20'}>Female</option>
-            <option value={'30'}>Other</option>
+            <option value={'MALE'}>Male</option>
+            <option value={'FEMALE'}>Female</option>
+            <option value={'OTHER'}>Other</option>
           </Select>
         </FormControl>
         <FormControl className={classes.formField}>
           <FormControlLabel
-            control={<Checkbox checked={true} name="Pregnant" />}
+            control={
+              <Checkbox
+                checked={props.patient.isPregnant}
+                onChange={props.onChange}
+                name="isPregnant"
+              />
+            }
             label="Pregnant"
           />
         </FormControl>
@@ -143,8 +140,9 @@ const Page: React.FC<IProps> = (props) => {
           </InputLabel>
           <Input
             id="component-outlined"
+            name="household"
             value={props.patient.household}
-            onChange={onChangeData}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formField}>
@@ -153,8 +151,9 @@ const Page: React.FC<IProps> = (props) => {
           </InputLabel>
           <Input
             id="component-outlined"
-            value={props.patient.gestationalAge}
-            onChange={onChangeData}
+            name="gestationalAgeValue"
+            value={props.patient.gestationalAgeValue}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formField}>
@@ -163,42 +162,49 @@ const Page: React.FC<IProps> = (props) => {
           </InputLabel>
           <Select
             native
+            name="gestationalAgeUnit"
+            value={props.patient.gestationalAgeUnit}
+            onChange={props.onChange}
             labelId="demo-simple-select-label"
             id="demo-simple-select">
-            <option value={'10'}>Weeks</option>
-            <option value={'20'}>Months</option>
+            <option value={GESTATIONAL_AGE_UNITS.WEEKS}>Weeks</option>
+            <option value={GESTATIONAL_AGE_UNITS.MONTHS}>Months</option>
           </Select>
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel htmlFor="component-outlined">Zone</InputLabel>
           <Input
             id="component-outlined"
+            name="zone"
             value={props.patient.zone}
-            onChange={onChangeData}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel htmlFor="component-outlined">Village</InputLabel>
           <Input
             id="component-outlined"
-            value={props.patient.villiage}
-            onChange={onChangeData}
+            name="villageNumber"
+            value={props.patient.villageNumber}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldDM}>
           <InputLabel htmlFor="component-outlined">Drug History</InputLabel>
           <Input
             id="component-outlined"
+            name="drugHistory"
             value={props.patient.drugHistory}
-            onChange={onChangeData}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldDM}>
           <InputLabel htmlFor="component-outlined">Medical History</InputLabel>
           <Input
             id="component-outlined"
+            name="medicalHistory"
             value={props.patient.medicalHistory}
-            onChange={onChangeData}
+            onChange={props.onChange}
           />
         </FormControl>
       </form>
@@ -206,7 +212,4 @@ const Page: React.FC<IProps> = (props) => {
   );
 };
 
-const mapStateToProps = () => ({});
-
-const mapDispatchToProps = () => ({});
-export const Demographics = connect(mapStateToProps, mapDispatchToProps)(Page);
+export const Demographics = Page;
