@@ -33,30 +33,12 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
-const Page: React.FC<any> = () => {
+interface IProps {
+  symptoms: any;
+  onChange: any;
+}
+const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
-  const [state, setState] = React.useState({
-    none: false,
-    headache: false,
-    bleeding: false,
-    blurredVision: false,
-    feverish: false,
-    abdominalPain: false,
-    unwell: false,
-    cough: false,
-    shortnessBreath: false,
-    soreThroat: false,
-    muscleAche: false,
-    fatigue: false,
-    lossOfSense: false,
-    lossOfTaste: false,
-    lossOfSmell: false,
-  });
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setState({ ...state, [event.target.name]: event.target.checked });
-  };
 
   return (
     <Paper
@@ -75,9 +57,9 @@ const Page: React.FC<any> = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.none}
+                checked={props.symptoms.none}
                 name="none"
-                onChange={handleChange}
+                onChange={props.onChange}
               />
             }
             label="None (Patient healthy)"
@@ -85,9 +67,10 @@ const Page: React.FC<any> = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.headache}
+                disabled={props.symptoms.none}
+                checked={props.symptoms.headache}
                 name="headache"
-                onChange={handleChange}
+                onChange={props.onChange}
               />
             }
             label="Headache"
@@ -95,9 +78,10 @@ const Page: React.FC<any> = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.blurredVision}
+                disabled={props.symptoms.none}
+                checked={props.symptoms.blurredVision}
                 name="blurredVision"
-                onChange={handleChange}
+                onChange={props.onChange}
               />
             }
             label="Blurred Vission"
@@ -105,9 +89,10 @@ const Page: React.FC<any> = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.abdominalPain}
+                disabled={props.symptoms.none}
+                checked={props.symptoms.abdominalPain}
                 name="abdominalPain"
-                onChange={handleChange}
+                onChange={props.onChange}
               />
             }
             label="Abdominal Pain"
@@ -116,9 +101,10 @@ const Page: React.FC<any> = () => {
         <FormControlLabel
           control={
             <Checkbox
-              checked={state.bleeding}
+              disabled={props.symptoms.none}
+              checked={props.symptoms.bleeding}
               name="bleeding"
-              onChange={handleChange}
+              onChange={props.onChange}
             />
           }
           label="Bleeding"
@@ -126,9 +112,10 @@ const Page: React.FC<any> = () => {
         <FormControlLabel
           control={
             <Checkbox
-              checked={state.feverish}
+              disabled={props.symptoms.none}
+              checked={props.symptoms.feverish}
               name="feverish"
-              onChange={handleChange}
+              onChange={props.onChange}
             />
           }
           label="Feverish"
@@ -136,9 +123,10 @@ const Page: React.FC<any> = () => {
         <FormControlLabel
           control={
             <Checkbox
-              checked={state.unwell}
+              disabled={props.symptoms.none}
+              checked={props.symptoms.unwell}
               name="unwell"
-              onChange={handleChange}
+              onChange={props.onChange}
             />
           }
           label="Unwell"
@@ -150,9 +138,10 @@ const Page: React.FC<any> = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.cough}
+                disabled={props.symptoms.none}
+                checked={props.symptoms.cough}
                 name="cough"
-                onChange={handleChange}
+                onChange={props.onChange}
               />
             }
             label="Cough"
@@ -160,9 +149,10 @@ const Page: React.FC<any> = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.shortnessBreath}
+                disabled={props.symptoms.none}
+                checked={props.symptoms.shortnessBreath}
                 name="shortnessBreath"
-                onChange={handleChange}
+                onChange={props.onChange}
               />
             }
             label="Shortness of Breath"
@@ -170,9 +160,10 @@ const Page: React.FC<any> = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.soreThroat}
+                disabled={props.symptoms.none}
+                checked={props.symptoms.soreThroat}
                 name="soreThroat"
-                onChange={handleChange}
+                onChange={props.onChange}
               />
             }
             label="Sore Throat"
@@ -180,9 +171,10 @@ const Page: React.FC<any> = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={state.muscleAche}
+                disabled={props.symptoms.none}
+                checked={props.symptoms.muscleAche}
                 name="muscleAche"
-                onChange={handleChange}
+                onChange={props.onChange}
               />
             }
             label="Muscle ache"
@@ -191,9 +183,10 @@ const Page: React.FC<any> = () => {
         <FormControlLabel
           control={
             <Checkbox
-              checked={state.fatigue}
+              disabled={props.symptoms.none}
+              checked={props.symptoms.fatigue}
               name="fatigue"
-              onChange={handleChange}
+              onChange={props.onChange}
             />
           }
           label="Fatigue"
@@ -201,9 +194,10 @@ const Page: React.FC<any> = () => {
         <FormControlLabel
           control={
             <Checkbox
-              checked={state.lossOfSense}
+              disabled={props.symptoms.none}
+              checked={props.symptoms.lossOfSense}
               name="lossOfSense"
-              onChange={handleChange}
+              onChange={props.onChange}
             />
           }
           label="Loss of sense"
@@ -211,9 +205,10 @@ const Page: React.FC<any> = () => {
         <FormControlLabel
           control={
             <Checkbox
-              checked={state.lossOfTaste}
+              disabled={props.symptoms.none}
+              checked={props.symptoms.lossOfTaste}
               name="lossOfTaste"
-              onChange={handleChange}
+              onChange={props.onChange}
             />
           }
           label="Loss of taste"
@@ -221,9 +216,10 @@ const Page: React.FC<any> = () => {
         <FormControlLabel
           control={
             <Checkbox
-              checked={state.lossOfSmell}
+              disabled={props.symptoms.none}
+              checked={props.symptoms.lossOfSmell}
               name="lossOfSmell"
-              onChange={handleChange}
+              onChange={props.onChange}
             />
           }
           label="Loss of smell"
@@ -232,12 +228,16 @@ const Page: React.FC<any> = () => {
       <FormControl component="fieldset" className={classes.formControl}>
         <FormControl className={classes.formFieldDM}>
           <TextField
+            disabled={props.symptoms.none}
             id="outlined-multiline-static"
             label="Others"
             multiline
             rows={4}
             defaultValue="Others"
+            name={'otherSymptoms'}
+            value={props.symptoms.otherSymptoms}
             variant="outlined"
+            onChange={props.onChange}
           />
         </FormControl>
       </FormControl>

@@ -98,7 +98,7 @@ const initState = {
     symptoms: '',
     urineTests: initialUrineTests,
   },
-  checkedItems: {
+  symptoms: {
     none: true,
     headache: false,
     bleeding: false,
@@ -107,6 +107,14 @@ const initState = {
     abdominalPain: false,
     unwell: false,
     other: false,
+    cough: false,
+    shortnessBreath: false,
+    soreThroat: false,
+    muscleAche: false,
+    fatigue: false,
+    lossOfSense: false,
+    lossOfTaste: false,
+    lossOfSmell: false,
     otherSymptoms: '',
   },
   showSuccessReading: false,
@@ -137,7 +145,31 @@ const Page: React.FC<IProps> = (props) => {
     });
     console.log('value', state);
   };
-
+  const handlSymptomsChange = (e: any) => {
+    if (e.target.name === 'none' && e.target.checked) {
+      setState({
+        ...state,
+        symptoms: initState.symptoms,
+      });
+    }
+    if (e.target.name === 'otherSymptoms') {
+      setState({
+        ...state,
+        symptoms: {
+          ...state.symptoms,
+          [e.target.name]: e.target.value,
+        },
+      });
+    } else {
+      setState({
+        ...state,
+        symptoms: {
+          ...state.symptoms,
+          [e.target.name]: e.target.checked,
+        },
+      });
+    }
+  };
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -174,7 +206,13 @@ const Page: React.FC<IProps> = (props) => {
       ) : (
         ''
       )}
-      {activeStep === 1 ? <Symptoms></Symptoms> : ''}
+      {activeStep === 1 ? (
+        <Symptoms
+          symptoms={state.symptoms}
+          onChange={handlSymptomsChange}></Symptoms>
+      ) : (
+        ''
+      )}
       {activeStep === 2 ? <VitalSignAssessment></VitalSignAssessment> : ''}
       {activeStep === 3 ? <Assessment></Assessment> : ''}
       <div>
