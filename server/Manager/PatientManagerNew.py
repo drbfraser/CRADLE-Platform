@@ -101,12 +101,8 @@ class PatientManager(Manager):
                 needs_assessment = False
                 for reading in patient["readings"]:
                     # build the reading json to add to array
-                    reading_json = readingManager.read("readingId", reading)
-
-                    reading_json["urineTests"] = urineTestManager.read(
-                        "readingId", reading
-                    )
-
+                    # reading_json = readingManager.read("readingId", reading)
+                    reading_json = readingManager.get_reading_json_from_reading(reading)
                     # add referral if exists in reading
                     if reading_json["referral"]:
 

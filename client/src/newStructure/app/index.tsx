@@ -21,6 +21,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { LoginPage } from '../pages/login';
 import { NewReadingPage } from '../pages/newReading';
+// import { NewReadingCovid } from '../pages/newReading/newReadingCovid';
 import { NotFoundPage } from '../pages/notFound';
 import { Pathname } from 'history';
 import { PatientSummaryContainer } from '../shared/components/patientSummary/container';
@@ -34,6 +35,7 @@ import { RoleEnum } from '../enums';
 import { SignUpPage } from '../pages/signUp';
 import StatisticsImg from './img/statistics.svg';
 import { StatisticsPage } from '../pages/statistics';
+import { CovidCollection } from '../pages/statistics/covidCollection';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { VideoChatPage } from '../pages/videoChat';
@@ -44,6 +46,9 @@ import { logoutUser } from '../shared/reducers/user/currentUser';
 import { makeStyles } from '@material-ui/core/styles';
 import { push } from 'connected-react-router';
 import { routesNames } from './toolbar/utils';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import './styles.module.css';
 
 const drawerWidth = 200;
 const useStyles = makeStyles((theme) => ({
@@ -81,8 +86,16 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: theme.mixins.toolbar,
   listItem: { flexDirection: 'column', margin: '10px 0px 10px 0px' },
+  listItemInner: {
+    border: '5px solid #F9FAFC',
+    borderRadius: '15px',
+  },
   logout: { marginTop: '20px', bottom: 0 },
   itemText: { color: 'white', paddingTop: '8px' },
+  menu: {
+    marginRight: theme.spacing(2),
+    left: '195px !important',
+  },
 }));
 
 interface IProps {
@@ -96,11 +109,30 @@ interface IProps {
 const Component: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeItem, setActiveItem] = useState<OrNull<string>>(null);
+  const [statsOpen, setOpenStats] = useState(true);
+  const [anchorEl, setAnchor] = useState<any>(null);
 
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
+    if (statsOpen) {
+      setOpenStats(false);
+    }
   }, [props.pathName]);
+
+  const onMouseOver = (event: any) => {
+    setOpenStats(true);
+    setAnchor(event.currentTarget);
+  };
+
+  const onStatsClick = () => {
+    setOpenStats(!statsOpen);
+  };
+
+  const handleClose = () => {
+    setOpenStats(false);
+    setAnchor(null);
+  };
 
   const getRole = (roles?: Array<RoleEnum>): string => {
     if (!roles) {
@@ -259,10 +291,10 @@ const Component: React.FC<IProps> = (props) => {
             <ListItem
               className={classes.listItem}
               button
-              component={Link}
-              to="/stats"
-              selected={activeItem === 'Statistics'}
-              onClick={() => setActiveItem('Statistics')}>
+              onMouseEnter={onMouseOver}
+              onMouseLeave={handleClose}
+              onClick={onStatsClick} //  need this for tablets
+            >
               <ListItemIcon>
                 <img
                   alt="Statistics"
@@ -274,9 +306,70 @@ const Component: React.FC<IProps> = (props) => {
                 disableTypography
                 className={classes.itemText}
                 primary={
-                  <Typography style={sidebarTextStyle}>Statistics</Typography>
+                  <Typography style={sidebarTextStyle}>Analytics</Typography>
                 }
-              />
+              />{' '}
+              <Menu
+                className={classes.menu}
+                id="simple-menu"
+                keepMounted
+                anchorEl={anchorEl}
+                open={statsOpen}
+                onClose={handleClose}
+                PaperProps={{
+                  style: {
+                    width: '35ch',
+                    borderRadius: '15px',
+                    backgroundImage:
+                      'linear-gradient( #64b1c6 , rgb(114, 193, 212))',
+                    color: '#F9FAFC',
+                  },
+                }}>
+                <MenuItem onClick={handleClose}>
+                  <ListItem
+                    className={classes.listItemInner}
+                    button
+                    component={Link}
+                    to="/covidCollection"
+                    selected={activeItem === 'Statistics'}
+                    onClick={() => setActiveItem('covidCollection')}>
+                    <ListItemIcon>
+                      <img src={StatisticsImg} style={{ width: `65%` }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      disableTypography
+                      className={classes.itemText}
+                      primary={
+                        <Typography style={sidebarTextStyle}>
+                          Covid-19 Collection
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
+                </MenuItem>
+                <MenuItem>
+                  <ListItem
+                    className={classes.listItemInner}
+                    button
+                    component={Link}
+                    to="/stats"
+                    selected={activeItem === 'Statistics'}
+                    onClick={() => setActiveItem('Statistics')}>
+                    <ListItemIcon>
+                      <img src={StatisticsImg} style={{ width: `65%` }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      disableTypography
+                      className={classes.itemText}
+                      primary={
+                        <Typography style={sidebarTextStyle}>
+                          Statistics
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
+                </MenuItem>
+              </Menu>
             </ListItem>
             <ListItem
               className={classes.listItem}
@@ -398,6 +491,11 @@ const Component: React.FC<IProps> = (props) => {
           <PrivateRoute exact path="/referrals" component={ReferralsPage} />
           <PrivateRoute exact path="/newreading" component={NewReadingPage} />
           <PrivateRoute exact path="/resources" component={HelpPage} />
+          <PrivateRoute
+            exact
+            path="/covidCollection"
+            component={CovidCollection}
+          />
           <PrivateRoute exact path="/chat/landing" component={VideoChatPage} />
           <PrivateRoute
             exact
