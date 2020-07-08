@@ -75,7 +75,7 @@ const initState = {
     patientInitial: '',
     patientId: '',
     patientName: '',
-    patientAge: null,
+    patientAge: 0,
     patientSex: 'FEMALE',
     isPregnant: true,
     gestationalAgeValue: '',
@@ -131,18 +131,48 @@ const Page: React.FC<IProps> = (props) => {
       props.getCurrentUser();
     }
   });
+
+  const getAgeBasedOnDOB = (value: string) => {
+    const year: string = value.substr(0, value.indexOf('-'));
+    const yearNow: number = new Date().getUTCFullYear();
+    return yearNow - +year;
+  };
   const handlDemoGraphicChange = (e: any) => {
     // if the sex is male disable preg and gestational
     //
     console.log('name', e.target.value);
     console.log('value', e.target.name);
-    setState({
-      ...state,
-      patient: {
-        ...state.patient,
-        [e.target.name]: e.target.value,
-      },
-    });
+    if (e.target.name === 'patientSex' && e.target.name === 'MALE') {
+      setState({
+        ...state,
+        patient: {
+          ...state.patient,
+          [e.target.name]: e.target.value,
+          gestationalAgeValue: '',
+          isPregnant: false,
+        },
+      });
+    }
+    if (e.target.name === 'dob') {
+      const calculatedAge: number = getAgeBasedOnDOB(e.target.value);
+      setState({
+        ...state,
+        patient: {
+          ...state.patient,
+          [e.target.name]: e.target.value,
+          patientAge: calculatedAge,
+        },
+      });
+    } else {
+      setState({
+        ...state,
+        patient: {
+          ...state.patient,
+          [e.target.name]: e.target.value,
+        },
+      });
+    }
+
     console.log('value', state);
   };
   const handlSymptomsChange = (e: any) => {

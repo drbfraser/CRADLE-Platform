@@ -82,17 +82,6 @@ const Page: React.FC<IProps> = (props) => {
           />
         </FormControl>
         <FormControl className={classes.formField}>
-          <InputLabel htmlFor="component-outlined">Age</InputLabel>
-          <Input
-            id="component-outlined"
-            name="patientAge"
-            value={props.patient.patientAge}
-            onChange={props.onChange}
-            type={'number'}
-            inputProps={{ inputProps: { min: 0, max: 10 } }}
-          />
-        </FormControl>
-        <FormControl className={classes.formField}>
           <TextField
             id="date"
             label="Birthday"
@@ -104,6 +93,17 @@ const Page: React.FC<IProps> = (props) => {
             InputLabelProps={{
               shrink: true,
             }}
+          />
+        </FormControl>
+        <FormControl className={classes.formField}>
+          <InputLabel htmlFor="component-outlined">Age</InputLabel>
+          <Input
+            id="component-outlined"
+            name="patientAge"
+            value={props.patient.patientAge}
+            onChange={props.onChange}
+            type={'number'}
+            inputProps={{ inputProps: { min: 0, max: 10 } }}
           />
         </FormControl>
         <FormControl className={classes.formField}>
@@ -126,6 +126,7 @@ const Page: React.FC<IProps> = (props) => {
           <FormControlLabel
             control={
               <Checkbox
+                disabled={props.patient.patientSex === 'MALE'}
                 checked={props.patient.isPregnant}
                 onChange={props.onChange}
                 name="isPregnant"
@@ -150,6 +151,7 @@ const Page: React.FC<IProps> = (props) => {
             Gestational Age
           </InputLabel>
           <Input
+            disabled={props.patient.patientSex === 'MALE'}
             id="component-outlined"
             name="gestationalAgeValue"
             value={props.patient.gestationalAgeValue}
@@ -162,6 +164,7 @@ const Page: React.FC<IProps> = (props) => {
           </InputLabel>
           <Select
             native
+            disabled={props.patient.patientSex === 'MALE'}
             name="gestationalAgeUnit"
             value={props.patient.gestationalAgeUnit}
             onChange={props.onChange}
