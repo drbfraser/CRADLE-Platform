@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { FormControl, Paper, TextField } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
@@ -27,14 +26,17 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-function replaceAll(string: string, search: string, replace: string) {
-  return string.split(search).join(replace);
+// function replaceAll(string: string, search: string, replace: string) {
+//   return string.split(search).join(replace);
+// }
+interface IProps {
+  assessment: any;
+  onChange: any;
 }
-const Page: React.FC<any> = () => {
+const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
-  const stringDate = new Date().toLocaleDateString();
-  const defaultDate = replaceAll(stringDate, '/', '-');
-  console.log(defaultDate);
+  // const stringDate = new Date().toLocaleDateString();
+  // const defaultDate = replaceAll(stringDate, '/', '-');
   return (
     <Paper
       style={{
@@ -50,11 +52,14 @@ const Page: React.FC<any> = () => {
         <FormControl className={classes.formFieldWide}>
           <TextField
             id="outlined-multiline-static"
-            label="Special Inestigation + Results (if avaulable)"
+            label="Special Investigation + Results (if avaulable)"
             multiline
             rows={2}
             defaultValue="..."
             variant="outlined"
+            name={'specialInvestigations'}
+            value={props.assessment.specialInvestigations}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldWide}>
@@ -65,6 +70,9 @@ const Page: React.FC<any> = () => {
             rows={2}
             defaultValue="..."
             variant="outlined"
+            name={'finalDiagnosis'}
+            value={props.assessment.finalDiagnosis}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldWide}>
@@ -75,6 +83,9 @@ const Page: React.FC<any> = () => {
             rows={2}
             defaultValue="..."
             variant="outlined"
+            name={'treatmentOP'}
+            value={props.assessment.treatmentOP}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldWide}>
@@ -85,6 +96,9 @@ const Page: React.FC<any> = () => {
             rows={2}
             defaultValue="..."
             variant="outlined"
+            name={'medPrescribed'}
+            value={props.assessment.medPrescribed}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldWide}>
@@ -93,6 +107,9 @@ const Page: React.FC<any> = () => {
             label="Frequesncy"
             defaultValue="..."
             variant="outlined"
+            name={'frequency'}
+            value={props.assessment.frequency}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldWide}>
@@ -102,6 +119,9 @@ const Page: React.FC<any> = () => {
             select
             defaultValue="..."
             variant="outlined"
+            name={'frequencyUnit'}
+            value={props.assessment.frequencyUnit}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldSWide}>
@@ -111,6 +131,9 @@ const Page: React.FC<any> = () => {
             select
             defaultValue="..."
             variant="outlined"
+            name={'until'}
+            value={props.assessment.until}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldSWide}>
@@ -120,6 +143,9 @@ const Page: React.FC<any> = () => {
             defaultValue="2020-06-06"
             type="date"
             variant="outlined"
+            name={'untilDate'}
+            value={props.assessment.untilDate}
+            onChange={props.onChange}
           />
         </FormControl>
         <FormControl className={classes.formFieldSWide}>
@@ -128,6 +154,9 @@ const Page: React.FC<any> = () => {
             label="Other"
             defaultValue="..."
             variant="outlined"
+            name={'other'}
+            value={props.assessment.other}
+            onChange={props.onChange}
           />
         </FormControl>
       </form>
@@ -135,8 +164,4 @@ const Page: React.FC<any> = () => {
   );
 };
 
-const mapStateToProps = () => ({});
-
-const mapDispatchToProps = () => ({});
-
-export const Assessment = connect(mapStateToProps, mapDispatchToProps)(Page);
+export const Assessment = Page;

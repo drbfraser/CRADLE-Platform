@@ -24,6 +24,8 @@ import { User } from '@types';
 import { initialUrineTests } from '../urineTestForm';
 import { useNewPatient } from './demographic/hooks';
 import { useNewSymptoms } from './symptoms/hooks';
+import { useNewVitals } from './vitalSignAssessment/hooks';
+import { useNewAssessment } from './assessment/hooks';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -76,17 +78,6 @@ const initState = {
     symptoms: '',
     urineTests: initialUrineTests,
   },
-  vitals: {
-    dateTimeTaken: null,
-    bpSystolic: '',
-    bpDiastolic: '',
-    heartRateBPM: '',
-    raspiratoryRate: '',
-    oxygenSaturation: '',
-    temperature: '',
-    dateRecheckVitalsNeeded: null,
-    isFlaggedForFollowup: false,
-  },
   showSuccessReading: false,
   hasUrineTest: false,
 };
@@ -96,6 +87,8 @@ const Page: React.FC<IProps> = (props) => {
   const [state, setState] = React.useState(initState);
   const { patient, handleChangePatient } = useNewPatient();
   const { symptoms, handleChangeSymptoms } = useNewSymptoms();
+  const { vitals, handleChangeVitals } = useNewVitals();
+  const { assessment, handleChangeAssessment } = useNewAssessment();
   //make use state hook for each field group
   const steps = getSteps();
 
@@ -134,15 +127,6 @@ const Page: React.FC<IProps> = (props) => {
     }
   };
 
-  const handlVitals = (e: any) => {
-    setState({
-      ...state,
-      vitals: {
-        ...state.vitals,
-        [e.target.name]: e.target.value,
-      },
-    });
-  };
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -188,10 +172,10 @@ const Page: React.FC<IProps> = (props) => {
       )}
       {activeStep === 2 ? (
         <VitalSignAssessment
-          vitals={state.vitals}
+          vitals={vitals}
           hasUrineTest={state.hasUrineTest}
           reading={state.reading}
-          onChange={handlVitals}
+          onChange={handleChangeVitals}
           handleUrineTestChange={handleUrineTestChange}
           handleUrineTestSwitchChange={
             handleUrineTestSwitchChange
@@ -199,7 +183,13 @@ const Page: React.FC<IProps> = (props) => {
       ) : (
         ''
       )}
-      {activeStep === 3 ? <Assessment></Assessment> : ''}
+      {activeStep === 3 ? (
+        <Assessment
+          assessment={assessment}
+          onChange={handleChangeAssessment}></Assessment>
+      ) : (
+        ''
+      )}
       <div>
         {activeStep === steps.length ? (
           <div>
