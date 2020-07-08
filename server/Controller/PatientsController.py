@@ -201,11 +201,11 @@ class PatientReading(Resource):
         )
 
         if is_invalid_patient is not None:
-            return is_invalid_patient
+            return {"HTTP 400": is_invalid_patient}, 400
 
         # validate with new reading validator
         if is_invalid_reading is not None:
-            return is_invalid_reading
+            return {"HTTP 400": is_invalid_reading}, 400
 
         patient_data = patient_reading_data["patient"]
         if (

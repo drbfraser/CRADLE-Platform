@@ -121,6 +121,7 @@ def check_patient_fields(request_body):
         gestational_age_message = check_gestational_age_under_limit(request_body)
 
     if gestational_age_message is not None:
+        print("Invalid gestation age: " + gestational_age_message)
         return gestational_age_message
 
     # values that must be of type string

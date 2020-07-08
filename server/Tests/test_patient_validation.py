@@ -5,7 +5,7 @@ patient_request_body = {
     "patientName": "BF",
     "patientAge": 49,
     "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
-    "gestationalAgeValue": "45",
+    "gestationalAgeValue": "40",
     "villageNumber": "1251515",
     "patientSex": "FEMALE",
     "isPregnant": "true",
@@ -17,10 +17,40 @@ patient_request_body = {
 patient_request_body_missing_fields = {
     "patientAge": 49,
     "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
-    "gestationalAgeValue": "45",
+    "gestationalAgeValue": "40",
     "villageNumber": "1251515",
     "patientSex": "FEMALE",
     "isPregnant": "true",
+}
+
+# max gestation age weeks is 43
+patient_request_body_gestation_weeks_over_limit = {
+    "patientId": "51253242034",
+    "patientName": "BF",
+    "patientAge": 49,
+    "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+    "gestationalAgeValue": "44",
+    "villageNumber": "1251515",
+    "patientSex": "FEMALE",
+    "isPregnant": "true",
+    "block": "15",
+    "medicalHistory": "pre-diabetic",
+    "drugHistory": "",
+}
+
+# max gestation age months is 10
+patient_request_body_gestation_months_over_limit = {
+    "patientId": "51253242034",
+    "patientName": "BF",
+    "patientAge": 49,
+    "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_MONTHS",
+    "gestationalAgeValue": "11",
+    "villageNumber": "1251515",
+    "patientSex": "FEMALE",
+    "isPregnant": "true",
+    "block": "15",
+    "medicalHistory": "pre-diabetic",
+    "drugHistory": "",
 }
 
 reading_request_body = {
@@ -120,3 +150,15 @@ def test_update_info_invalid_succeeds():
         patient_id, patient_request_body_missing_fields
     )
     assert result[1] == 400
+
+def check_gestational_age_under_limit_for_weeks():
+    message = PatientValidation.check_gestational_age_under_limit(patient_request_body_gestation_weeks_over_limit)
+    assert message == "Gestation age is greater than 43 weeks."
+
+def check_gestational_age_under_limit_for_weeks():
+    message = PatientValidation.check_gestational_age_under_limit(patient_request_body_gestation_months_over_limit)
+    assert message == "Gestation age is greater than 10 months."
+
+def check_gestational_age_under_limit_with_valid_gestation_age():
+    message = PatientValidation.check_gestational_age_under_limit(patient_request_body)
+    assert message == None
