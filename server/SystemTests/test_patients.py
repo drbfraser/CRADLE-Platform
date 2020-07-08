@@ -382,6 +382,7 @@ def test_fail_empty_patient_id():
     assert response.status_code == 400
     assert response_body["HTTP 400"] == "Patient Id is empty."
 
+
 def test_fail_create_patient_invalid_gestational_age_weeks():
     # should fail because max gestational age for weeks is 43
     patient_id = get_random_patient_id()
@@ -398,7 +399,7 @@ def test_fail_create_patient_invalid_gestational_age_weeks():
         "patientSex": patient_sex,
         "isPregnant": True,
         "gestationalAgeUnit": patient_gest_age_unit,
-        "gestationalAgeValue": patient_gest_age
+        "gestationalAgeValue": patient_gest_age,
     }
 
     response = requests.post(url, json=data, headers=auth_header)
@@ -406,6 +407,7 @@ def test_fail_create_patient_invalid_gestational_age_weeks():
 
     assert response.status_code == 400
     assert response_body["HTTP 400"] == "Gestation age is greater than 43 weeks."
+
 
 def test_fail_create_patient_invalid_gestational_age_months():
     # should fail because max gestational age for months is 10
@@ -423,7 +425,7 @@ def test_fail_create_patient_invalid_gestational_age_months():
         "patientSex": patient_sex,
         "isPregnant": True,
         "gestationalAgeUnit": patient_gest_age_unit,
-        "gestationalAgeValue": patient_gest_age
+        "gestationalAgeValue": patient_gest_age,
     }
 
     response = requests.post(url, json=data, headers=auth_header)

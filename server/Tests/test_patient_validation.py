@@ -151,13 +151,20 @@ def test_update_info_invalid_succeeds():
     )
     assert result[1] == 400
 
-def check_gestational_age_under_limit_for_weeks():
-    message = PatientValidation.check_gestational_age_under_limit(patient_request_body_gestation_weeks_over_limit)
-    assert message == "Gestation age is greater than 43 weeks."
 
 def check_gestational_age_under_limit_for_weeks():
-    message = PatientValidation.check_gestational_age_under_limit(patient_request_body_gestation_months_over_limit)
+    message = PatientValidation.check_gestational_age_under_limit(
+        patient_request_body_gestation_weeks_over_limit
+    )
+    assert message == "Gestation age is greater than 43 weeks."
+
+
+def check_gestational_age_under_limit_for_weeks():
+    message = PatientValidation.check_gestational_age_under_limit(
+        patient_request_body_gestation_months_over_limit
+    )
     assert message == "Gestation age is greater than 10 months."
+
 
 def check_gestational_age_under_limit_with_valid_gestation_age():
     message = PatientValidation.check_gestational_age_under_limit(patient_request_body)
