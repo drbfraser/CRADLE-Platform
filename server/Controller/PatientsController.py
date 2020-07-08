@@ -108,7 +108,7 @@ class PatientAll(Resource):
         abort_if_patient_exists(patient_data["patientId"])
         invalid = PatientValidation.check_patient_fields(patient_data)
         if invalid is not None:
-            return invalid
+            return {"HTTP 400": invalid}, 400
 
         # if age is not provided, populate age using dob
         if (
