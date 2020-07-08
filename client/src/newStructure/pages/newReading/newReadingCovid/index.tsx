@@ -23,6 +23,7 @@ import { addNewPatient } from '../../../shared/reducers/patients';
 import { User } from '@types';
 import { initialUrineTests } from '../urineTestForm';
 import { useNewPatient } from './demographic/hooks';
+import { useNewSymptoms } from './symptoms/hooks';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -86,25 +87,6 @@ const initState = {
     dateRecheckVitalsNeeded: null,
     isFlaggedForFollowup: false,
   },
-  symptoms: {
-    none: true,
-    headache: false,
-    bleeding: false,
-    blurredVision: false,
-    feverish: false,
-    abdominalPain: false,
-    unwell: false,
-    other: false,
-    cough: false,
-    shortnessBreath: false,
-    soreThroat: false,
-    muscleAche: false,
-    fatigue: false,
-    lossOfSense: false,
-    lossOfTaste: false,
-    lossOfSmell: false,
-    otherSymptoms: '',
-  },
   showSuccessReading: false,
   hasUrineTest: false,
 };
@@ -113,6 +95,7 @@ const Page: React.FC<IProps> = (props) => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [state, setState] = React.useState(initState);
   const { patient, handleChangePatient } = useNewPatient();
+  const { symptoms, handleChangeSymptoms } = useNewSymptoms();
   //make use state hook for each field group
   const steps = getSteps();
 
@@ -146,31 +129,6 @@ const Page: React.FC<IProps> = (props) => {
         reading: {
           ...state.reading,
           urineTests: initialUrineTests,
-        },
-      });
-    }
-  };
-  const handlSymptomsChange = (e: any) => {
-    if (e.target.name === 'none' && e.target.checked) {
-      setState({
-        ...state,
-        symptoms: initState.symptoms,
-      });
-    }
-    if (e.target.name === 'otherSymptoms') {
-      setState({
-        ...state,
-        symptoms: {
-          ...state.symptoms,
-          [e.target.name]: e.target.value,
-        },
-      });
-    } else {
-      setState({
-        ...state,
-        symptoms: {
-          ...state.symptoms,
-          [e.target.name]: e.target.checked,
         },
       });
     }
@@ -223,8 +181,8 @@ const Page: React.FC<IProps> = (props) => {
       )}
       {activeStep === 1 ? (
         <Symptoms
-          symptoms={state.symptoms}
-          onChange={handlSymptomsChange}></Symptoms>
+          symptoms={symptoms}
+          onChange={handleChangeSymptoms}></Symptoms>
       ) : (
         ''
       )}
