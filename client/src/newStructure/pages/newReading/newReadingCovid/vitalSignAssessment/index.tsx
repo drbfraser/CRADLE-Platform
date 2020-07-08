@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import {
   FormControl,
   Input,
@@ -7,7 +6,7 @@ import {
   Paper,
   InputAdornment,
 } from '@material-ui/core';
-import { initialUrineTests, UrineTestForm } from '../../urineTestForm';
+import { UrineTestForm } from '../../urineTestForm';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
@@ -34,62 +33,16 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
-const Page: React.FC<any> = () => {
+interface IProps {
+  vitals: any;
+  reading: any;
+  onChange: any;
+  handleUrineTestChange: any;
+  handleUrineTestSwitchChange: any;
+  hasUrineTest: boolean;
+}
+const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
-  const [state, setState] = React.useState({
-    bpSystolic: '',
-    bpDiastolic: '',
-    heartRateBPM: '',
-    raspiratoryRate: '',
-    oxygenSaturation: '',
-    temperature: '',
-    hasUrineTest: false,
-    reading: {
-      userId: '',
-      readingId: '',
-      dateTimeTaken: null,
-      bpSystolic: '',
-      bpDiastolic: '',
-      heartRateBPM: '',
-      dateRecheckVitalsNeeded: null,
-      isFlaggedForFollowup: false,
-      symptoms: '',
-      urineTests: initialUrineTests,
-    },
-  });
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setState({ ...state, [event.target.name]: event.target.value });
-    console.log('VITALS', state);
-  };
-  const handleUrineTestChange = (e: any, value: any) => {
-    setState({
-      ...state,
-      reading: {
-        ...state.reading,
-        urineTests: {
-          ...state.reading.urineTests,
-          [value.name]: value.value,
-        },
-      },
-    });
-  };
-
-  const handleUrineTestSwitchChange = (e: any) => {
-    console.log(e.target.checked);
-    setState({
-      hasUrineTest: e.target.checked,
-    } as any);
-    if (!e.target.checked) {
-      setState({
-        ...state,
-        reading: {
-          ...state.reading,
-          urineTests: initialUrineTests,
-        },
-      });
-    }
-  };
 
   return (
     <div style={{ display: 'flex' }}>
@@ -110,9 +63,9 @@ const Page: React.FC<any> = () => {
               Systolic
             </InputLabel>
             <Input
-              onChange={handleChange}
+              onChange={props.onChange}
               name={'bpSystolic'}
-              value={state.bpSystolic}
+              value={props.vitals.bpSystolic}
               id="input-with-icon-adornment"
               startAdornment={
                 <InputAdornment position="start">
@@ -126,9 +79,9 @@ const Page: React.FC<any> = () => {
               Diastolic
             </InputLabel>
             <Input
-              onChange={handleChange}
+              onChange={props.onChange}
               name={'bpDiastolic'}
-              value={state.bpDiastolic}
+              value={props.vitals.bpDiastolic}
               id="input-with-icon-adornment"
               startAdornment={
                 <InputAdornment position="start">
@@ -142,9 +95,9 @@ const Page: React.FC<any> = () => {
               Heart Rate
             </InputLabel>
             <Input
-              onChange={handleChange}
+              onChange={props.onChange}
               name={'heartRateBPM'}
-              value={state.heartRateBPM}
+              value={props.vitals.heartRateBPM}
               id="standard-adornment-weight"
               endAdornment={<InputAdornment position="end">BPM</InputAdornment>}
               aria-describedby="standard-weight-helper-text"
@@ -158,9 +111,9 @@ const Page: React.FC<any> = () => {
               Raspiratory Rate
             </InputLabel>
             <Input
-              onChange={handleChange}
+              onChange={props.onChange}
               name={'raspiratoryRate'}
-              value={state.raspiratoryRate}
+              value={props.vitals.raspiratoryRate}
               id="standard-adornment-weight"
               endAdornment={<InputAdornment position="end">BPM</InputAdornment>}
               aria-describedby="standard-weight-helper-text"
@@ -174,9 +127,9 @@ const Page: React.FC<any> = () => {
               Oxygen Saturation
             </InputLabel>
             <Input
-              onChange={handleChange}
+              onChange={props.onChange}
               name={'oxygenSaturation'}
-              value={state.oxygenSaturation}
+              value={props.vitals.oxygenSaturation}
               id="standard-adornment-weight"
               endAdornment={<InputAdornment position="end">%</InputAdornment>}
               aria-describedby="standard-weight-helper-text"
@@ -188,9 +141,9 @@ const Page: React.FC<any> = () => {
           <FormControl className={classes.formField}>
             <InputLabel htmlFor="component-outlined">Temperature</InputLabel>
             <Input
-              onChange={handleChange}
+              onChange={props.onChange}
               name={'temperature'}
-              value={state.temperature}
+              value={props.vitals.temperature}
               id="standard-adornment-weight"
               endAdornment={<InputAdornment position="end">°C</InputAdornment>}
               aria-describedby="standard-weight-helper-text"
@@ -203,20 +156,14 @@ const Page: React.FC<any> = () => {
       </Paper>
       <div style={{ marginTop: '2%', width: '45%', marginLeft: '5%' }}>
         <UrineTestForm
-          reading={state.reading}
-          onChange={handleUrineTestChange}
-          onSwitchChange={handleUrineTestSwitchChange}
-          hasUrineTest={state.hasUrineTest}
+          reading={props.reading}
+          onChange={props.handleUrineTestChange}
+          onSwitchChange={props.handleUrineTestSwitchChange}
+          hasUrineTest={props.hasUrineTest}
         />
       </div>
     </div>
   );
 };
 
-const mapStateToProps = () => ({});
-
-const mapDispatchToProps = () => ({});
-export const VitalSignAssessment = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Page);
+export const VitalSignAssessment = Page;

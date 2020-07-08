@@ -62,13 +62,7 @@ interface IProps {
   user: User;
   addNewReading: any;
 }
-// interface IState {
-//     patient: PatientNewReading;
-//     reading: PatientNewReadingReading;
-//     hasUrineTest: boolean;
-//     checkedItems: CheckedItems;
-//     showSuccessReading: boolean;
-// }
+
 const initState = {
   patient: {
     household: '',
@@ -97,6 +91,17 @@ const initState = {
     isFlaggedForFollowup: false,
     symptoms: '',
     urineTests: initialUrineTests,
+  },
+  vitals: {
+    dateTimeTaken: null,
+    bpSystolic: '',
+    bpDiastolic: '',
+    heartRateBPM: '',
+    raspiratoryRate: '',
+    oxygenSaturation: '',
+    temperature: '',
+    dateRecheckVitalsNeeded: null,
+    isFlaggedForFollowup: false,
   },
   symptoms: {
     none: true,
@@ -137,6 +142,35 @@ const Page: React.FC<IProps> = (props) => {
     const yearNow: number = new Date().getUTCFullYear();
     return yearNow - +year;
   };
+  const handleUrineTestChange = (e: any, value: any) => {
+    setState({
+      ...state,
+      reading: {
+        ...state.reading,
+        urineTests: {
+          ...state.reading.urineTests,
+          [value.name]: value.value,
+        },
+      },
+    });
+  };
+
+  const handleUrineTestSwitchChange = (e: any) => {
+    console.log(e.target.checked);
+    setState({
+      hasUrineTest: e.target.checked,
+    } as any);
+    if (!e.target.checked) {
+      setState({
+        ...state,
+        reading: {
+          ...state.reading,
+          urineTests: initialUrineTests,
+        },
+      });
+    }
+  };
+
   const handlDemoGraphicChange = (e: any) => {
     // if the sex is male disable preg and gestational
     //
@@ -200,6 +234,16 @@ const Page: React.FC<IProps> = (props) => {
       });
     }
   };
+
+  const handlVitals = (e: any) => {
+    setState({
+      ...state,
+      vitals: {
+        ...state.vitals,
+        [e.target.name]: e.target.value,
+      },
+    });
+  };
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -243,7 +287,19 @@ const Page: React.FC<IProps> = (props) => {
       ) : (
         ''
       )}
-      {activeStep === 2 ? <VitalSignAssessment></VitalSignAssessment> : ''}
+      {activeStep === 2 ? (
+        <VitalSignAssessment
+          vitals={state.vitals}
+          hasUrineTest={state.hasUrineTest}
+          reading={state.reading}
+          onChange={handlVitals}
+          handleUrineTestChange={handleUrineTestChange}
+          handleUrineTestSwitchChange={
+            handleUrineTestSwitchChange
+          }></VitalSignAssessment>
+      ) : (
+        ''
+      )}
       {activeStep === 3 ? <Assessment></Assessment> : ''}
       <div>
         {activeStep === steps.length ? (
