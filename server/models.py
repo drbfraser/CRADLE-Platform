@@ -1,4 +1,5 @@
 from config import db, ma
+from utils import get_current_time
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from jsonschema.exceptions import SchemaError
@@ -168,11 +169,12 @@ class Patient(db.Model):
     zone = db.Column(db.String(20))
     dob = db.Column(db.BigInteger)
     villageNumber = db.Column(db.String(50))
-    # FOREIGN KEYS
-    # villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
-
-    # RELATIONSHIPS
-    # village = db.relationship('Village', backref=db.backref('patients', lazy=True))
+    lastEdited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
