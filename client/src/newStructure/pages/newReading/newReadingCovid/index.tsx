@@ -21,9 +21,8 @@ import {
 } from '../../../shared/reducers/newReadingStatus';
 import { addNewPatient } from '../../../shared/reducers/patients';
 import { User } from '@types';
-import { GESTATIONAL_AGE_UNITS } from '../patientInfoForm';
 import { initialUrineTests } from '../urineTestForm';
-
+import { useNewPatient } from './demographic/hooks';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -64,22 +63,6 @@ interface IProps {
 }
 
 const initState = {
-  patient: {
-    household: '',
-    patientInitial: '',
-    patientId: '',
-    patientName: '',
-    patientAge: 0,
-    patientSex: 'FEMALE',
-    isPregnant: true,
-    gestationalAgeValue: '',
-    gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
-    zone: '',
-    dob: null,
-    villageNumber: '',
-    drugHistory: '',
-    medicalHistory: '',
-  },
   reading: {
     userId: '',
     readingId: '',
@@ -129,6 +112,8 @@ const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const [state, setState] = React.useState(initState);
+  const { patient, handleChangePatient } = useNewPatient();
+  //make use state hook for each field group
   const steps = getSteps();
 
   useEffect(() => {
@@ -137,11 +122,6 @@ const Page: React.FC<IProps> = (props) => {
     }
   });
 
-  const getAgeBasedOnDOB = (value: string) => {
-    const year: string = value.substr(0, value.indexOf('-'));
-    const yearNow: number = new Date().getUTCFullYear();
-    return yearNow - +year;
-  };
   const handleUrineTestChange = (e: any, value: any) => {
     setState({
       ...state,
@@ -169,45 +149,6 @@ const Page: React.FC<IProps> = (props) => {
         },
       });
     }
-  };
-
-  const handlDemoGraphicChange = (e: any) => {
-    // if the sex is male disable preg and gestational
-    //
-    console.log('name', e.target.value);
-    console.log('value', e.target.name);
-    if (e.target.name === 'patientSex' && e.target.name === 'MALE') {
-      setState({
-        ...state,
-        patient: {
-          ...state.patient,
-          [e.target.name]: e.target.value,
-          gestationalAgeValue: '',
-          isPregnant: false,
-        },
-      });
-    }
-    if (e.target.name === 'dob') {
-      const calculatedAge: number = getAgeBasedOnDOB(e.target.value);
-      setState({
-        ...state,
-        patient: {
-          ...state.patient,
-          [e.target.name]: e.target.value,
-          patientAge: calculatedAge,
-        },
-      });
-    } else {
-      setState({
-        ...state,
-        patient: {
-          ...state.patient,
-          [e.target.name]: e.target.value,
-        },
-      });
-    }
-
-    console.log('value', state);
   };
   const handlSymptomsChange = (e: any) => {
     if (e.target.name === 'none' && e.target.checked) {
@@ -275,8 +216,8 @@ const Page: React.FC<IProps> = (props) => {
       </Stepper>
       {activeStep === 0 ? (
         <Demographics
-          patient={state.patient}
-          onChange={handlDemoGraphicChange}></Demographics>
+          patient={patient}
+          onChange={handleChangePatient}></Demographics>
       ) : (
         ''
       )}
