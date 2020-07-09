@@ -10,6 +10,7 @@ import {
   Paper,
   TextField,
 } from '@material-ui/core';
+
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { GESTATIONAL_AGE_UNITS } from '../../patientInfoForm';
 
@@ -54,56 +55,67 @@ const Page: React.FC<IProps> = (props) => {
         <b>Collect Basic Demographic</b>
       </h1>
 
-      <form className={classes.root} noValidate autoComplete="off">
+      <form className={classes.root} autoComplete="off">
         <FormControl className={classes.formField}>
-          <InputLabel required htmlFor="component-simple">
-            Patient Initials
-          </InputLabel>
-          <Input
+          <TextField
+            error={props.patient.patientInitialError}
+            label={'Patient Initials'}
             id="component-outlined"
             name="patientInitial"
             value={props.patient.patientInitial}
             onChange={props.onChange}
             required={true}
             type={'text'}
+            helperText={
+              props.patient.patientInitialError ? 'Must Be 1-4 letters.' : ''
+            }
           />
         </FormControl>
         <FormControl className={classes.formField}>
-          <InputLabel required htmlFor="component-outlined">
-            ID
-          </InputLabel>
-          <Input
-            id="component-outlined"
+          <TextField
+            error={props.patient.patientIdError}
+            label={'Patient ID'}
             name="patientId"
             value={props.patient.patientId}
             onChange={props.onChange}
             required={true}
             type={'text'}
+            helperText={
+              props.patient.patientIdError ? 'Id is too long or too short.' : ''
+            }
           />
         </FormControl>
         <FormControl className={classes.formField}>
           <TextField
+            error={props.patient.dobError}
             id="date"
             label="Birthday"
             type="date"
-            defaultValue="2017-05-24"
+            defaultValue="2004-01-01"
             name="dob"
             value={props.patient.dob}
             onChange={props.onChange}
             InputLabelProps={{
               shrink: true,
             }}
+            helperText={
+              props.patient.dobError ? 'Must be between 15 - 65.' : ''
+            }
           />
         </FormControl>
         <FormControl className={classes.formField}>
-          <InputLabel htmlFor="component-outlined">Age</InputLabel>
-          <Input
+          <TextField
+            disabled={props.patient.dob}
+            error={props.patient.patientAgeError}
+            label={'Patient Age'}
             id="component-outlined"
             name="patientAge"
             value={props.patient.patientAge}
             onChange={props.onChange}
             type={'number'}
-            inputProps={{ inputProps: { min: 0, max: 10 } }}
+            helperText={
+              props.patient.patientAgeError ? 'Must be between 15 - 65.' : ''
+            }
           />
         </FormControl>
         <FormControl className={classes.formField}>
