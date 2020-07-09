@@ -1,7 +1,6 @@
-import { GlobalSearchPatient, OrNull } from '@types';
-
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
+import { OrNull } from '@types';
 import { PatientStateEnum } from '../../../enums';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
@@ -14,6 +13,10 @@ const GET_PATIENTS = `patients/GET_PATIENTS`;
 const GET_GLOBAL_SEARCH_PATIENTS = `patients/GET_GLOBAL_SEARCH_PATIENTS`;
 const TOGGLE_GLOBAL_SEARCH = `patients/TOGGLE_GLOBAL_SEARCH`;
 const UPDATE_GLOBAL_SEARCH_PAGE_NUMBER = `patients/UPDATE_GLOBAL_SEARCH_PAGE_NUMBER`;
+const UPDATE_PATIENTS_TABLE_SEARCH_TEXT = `patients/UPDATE_PATIENTS_TABLE_SEARCH_TEXT`;
+const UPDATE_SELECTED_PATIENT_STATE = `patients/UPDATE_SELECTED_PATIENT_STATE`;
+const TOGGLE_SHOW_REFERRED_PATIENTS = `patients/TOGGLE_SHOW_REFERRED_PATIENTS`;
+const SORT_PATIENTS = `patients/SORT_PATIENTS`;
 const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
 const GET_PATIENTS_ERROR = `patient/GET_PATIENTS_ERROR`;
 const GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patient/GET_GLOBAL_SEARCH_PATIENTS_ERROR`;
@@ -36,6 +39,25 @@ export const toggleGlobalSearch = (globalSearch: boolean) => ({
 export const updateGlobalSearchPageNumber = (pageNumber: number) => ({
   type: UPDATE_GLOBAL_SEARCH_PAGE_NUMBER,
   payload: { pageNumber },
+});
+
+export const updatePatientsTableSearchText = (searchText?: string) => ({
+  type: UPDATE_PATIENTS_TABLE_SEARCH_TEXT,
+  payload: { searchText },
+});
+
+export const updateSelectedPatientState = (state?: PatientStateEnum) => ({
+  type: UPDATE_SELECTED_PATIENT_STATE,
+  payload: { state },
+});
+
+export const toggleShowReferredPatients = () => ({
+  type: TOGGLE_SHOW_REFERRED_PATIENTS,
+});
+
+export const sortPatients = (sortedPatients: Array<any>) => ({
+  type: SORT_PATIENTS,
+  payload: { sortedPatients },
 });
 
 export const getPatient = (patientId: any) => {
@@ -96,25 +118,19 @@ export const updatePatient = (patientId: any, data: any) => {
   });
 };
 
-export const addPatientToHealthFacilityRequested = (
-  patient: GlobalSearchPatient
-) => ({
+export const addPatientToHealthFacilityRequested = (patientId: string) => ({
   type: ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED,
-  payload: { patient },
+  payload: { patientId },
 });
 
-export const addPatientToHealthFacility = (
-  addedPatient: GlobalSearchPatient
-) => {
-  const { patientId } = addedPatient;
-
+export const addPatientToHealthFacility = (patientId: string) => {
   return serverRequestActionCreator({
     endpoint: Endpoints.PATIENT_FACILITY,
     method: Methods.POST,
     data: { patientId },
     onSuccess: () => ({
       type: ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
-      payload: { addedPatient },
+      payload: { patientId },
     }),
     onError: (error: any) => ({
       type: ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
@@ -149,6 +165,9 @@ export type PatientsState = {
   isLoading: boolean;
   addingFromGlobalSearch: boolean;
   newPatientAdded: boolean;
+  selectedPatientState?: PatientStateEnum;
+  patientsTableSearchText?: string;
+  showReferredPatients?: boolean;
 };
 
 const initialState: PatientsState = {
@@ -160,9 +179,15 @@ const initialState: PatientsState = {
   isLoading: false,
   addingFromGlobalSearch: false,
   newPatientAdded: false,
+  selectedPatientState: undefined,
+  patientsTableSearchText: undefined,
+  showReferredPatients: undefined,
 };
 
 export const patientsReducer = (state = initialState, action: any) => {
+  let patientToAdd = null;
+  let updatedPatients = [];
+
   switch (action.type) {
     case GET_PATIENTS:
       return {
@@ -228,27 +253,33 @@ export const patientsReducer = (state = initialState, action: any) => {
         globalSearchPatientsList: (
           state.globalSearchPatientsList ?? []
         ).map((patient: any): any =>
-          patient.patientId === action.payload.patient.patientId
-            ? { ...action.payload.patient, state: PatientStateEnum.ADDING }
+          patient.patientId === action.payload.patientId
+            ? { ...patient, state: PatientStateEnum.ADDING }
             : patient
         ),
         addingFromGlobalSearch: true,
       };
     case ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
+      updatedPatients = (state.globalSearchPatientsList ?? []).map(
+        (patient: any): any => {
+          if (patient.patientId === action.payload.patientId) {
+            patientToAdd = { ...patient, state: PatientStateEnum.JUST_ADDED };
+            return patientToAdd;
+          }
+          return patient;
+        }
+      );
+      if (patientToAdd === null && state.globalSearchPatientsList !== null) {
+        throw new Error(`Unknown patient id: ${action.payload.patientId}`);
+      }
       return {
         ...state,
         addingFromGlobalSearch: false,
-        globalSearchPatientsList: (
-          state.globalSearchPatientsList ?? []
-        ).map((patient: any): any =>
-          patient.patientId === action.payload.addedPatient.patientId
-            ? { ...patient, state: PatientStateEnum.JUST_ADDED }
-            : patient
-        ),
-        patientsList: [
-          action.payload.addedPatient,
-          ...(state.patientsList ?? []),
-        ],
+        globalSearchPatientsList: updatedPatients,
+        patientsList:
+          patientToAdd && state.patientsList
+            ? [patientToAdd, ...state.patientsList]
+            : state.patientsList,
       };
     case ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
       return {
@@ -265,6 +296,31 @@ export const patientsReducer = (state = initialState, action: any) => {
         ...state,
         globalSearchPageNumber: action.payload.pageNumber,
       };
+    case UPDATE_PATIENTS_TABLE_SEARCH_TEXT:
+      return {
+        ...state,
+        patientsTableSearchText: action.payload.searchText,
+      };
+    case UPDATE_SELECTED_PATIENT_STATE:
+      return {
+        ...state,
+        selectedPatientState: action.payload.state,
+      };
+    case TOGGLE_SHOW_REFERRED_PATIENTS:
+      return {
+        ...state,
+        showReferredPatients: !state.showReferredPatients,
+      };
+    case SORT_PATIENTS:
+      return state.globalSearch
+        ? {
+            ...state,
+            globalSearchPatientsList: action.payload.sortedPatients,
+          }
+        : {
+            ...state,
+            patientsList: action.payload.sortedPatients,
+          };
     default:
       return state;
   }

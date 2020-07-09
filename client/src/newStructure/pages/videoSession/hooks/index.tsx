@@ -42,7 +42,6 @@ export const useSetup = ({
 
     if ($('video', '#localStream')) {
       $('video', '#localStream').removeAttr('controls');
-      console.log('removed');
     }
 
     return (): void => {

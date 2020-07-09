@@ -14,10 +14,6 @@ import {
 } from '../../shared/reducers/patientStatistics';
 import { PatientsState, patientsReducer } from '../../shared/reducers/patients';
 import {
-  PatientsV2State,
-  patientsReducerV2,
-} from '../../shared/reducers/patientsV2';
-import {
   ReferralsState,
   referralsReducer,
 } from '../../shared/reducers/referrals';
@@ -37,7 +33,6 @@ export type ReduxState = {
   newReadingStatus: NewReadingStatusState;
   patient: PatientState;
   patients: PatientsState;
-  patientsV2: PatientsV2State;
   patientStatistics: PatientStatisticsState;
   referrals: ReferralsState;
   statistics: StatisticsState;
@@ -51,7 +46,6 @@ const appReducer = combineReducers({
   newReadingStatus: newReadingStatusReducer,
   patient: patientReducer,
   patients: patientsReducer,
-  patientsV2: patientsReducerV2,
   patientStatistics: patientStatisticsReducer,
   referrals: referralsReducer,
   statistics: statisticsReducer,

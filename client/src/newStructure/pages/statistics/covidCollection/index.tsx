@@ -1,27 +1,28 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import MaterialTable from 'material-table';
 import {
-  Divider,
-  Paper,
-  FormControl,
-  InputLabel,
-  Input,
-  Select,
+  Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Button,
+  Divider,
+  FormControl,
   FormControlLabel,
-  Checkbox,
   FormLabel,
-  RadioGroup,
-  Radio,
-  MenuItem,
   IconButton,
+  Input,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Radio,
+  RadioGroup,
+  Select,
 } from '@material-ui/core';
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
+
+import MaterialTable from 'material-table';
+import React from 'react';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -76,6 +77,7 @@ const Page: React.FC<any> = () => {
       field: 'imageUrlStatus',
       render: (rowData: any) => (
         <img
+          alt="Status"
           src={rowData.imageUrlStatus}
           style={{ width: 40, borderRadius: '50%' }}
         />
@@ -306,6 +308,7 @@ const Page: React.FC<any> = () => {
           style={{ marginLeft: '92%' }}
           onClick={openDialog}>
           <img
+            alt="Add"
             style={{ width: '4ch', borderRadius: '50%', padding: '2px 2px' }}
             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAYFBMVEUxr5H///8TqYno9PEprY4eq4vy+fcirI36/fwzsJLm8+/a7+o7s5a039PQ6+TG595swqyp2s2ByrdavKRNuZ93xbAApIBDtpq/5NqZ1MSGzLqT0cGn18rg8ey44dZkwKlyiOAyAAAII0lEQVR4nO3d6ZaqOBAA4BATAoKyX2xxef+3HNBuFWQJUJVAmPo358w0fpN9JxZ2OLYXHC5FHCZp7vsucX0/T5MwLi6HwLMd9O8TxL9tX08/WepSyoVgjJHPKP9ZCE6pm2TF7bpD/BVYQu8WJz7nogH7jlLKuZvENw/pl2AIvSh0BR+01Z1cuPcIQwkttE8xoXwM7oPJKYlvNvAvAhXuDyGbqHsrWRiBFks4oXO7z+W9kPcbXB0LJTxmAoT3h+TZEeiXgQjtKKVwvF8kzS8gRRJA6J0JYPJ9BHfPAJXrbKEXCoHBe4QQ99mZdabwmIBnz3owmsw0zhIe78g+COMMoRfiFL9vIw9nlMfJQjtW5HsYaTy5Xp0odC6I9UtbCBFN7ARMEx5TrtRXBU+nFccpQkdlBn0HE/GUZJwgDJjaDPoOIU4KhHZGNfmqoNnoGmesMPB1JeAzhB/gCgstJbAWvEAU7jVUod/B0z2WMCDaE/ARjI3JqSOEP0tIwGfwHwShEy4HWBLv0k2jrHCX661DmyFy2ekqSaHnL6MIvoP5kuMNOWEwanpXTcjWN1LCSGc3pjvoAUp4WSawJEYwwgW1Es2QaTWGhcVygVJduEFhsdQs+gw6SBwSLjiLPmMwow4IL0sHlsSB6qZfuNBmoh4DjUavMFgDsCT2Nv19Qm95HZn2YH0duB7hbnF90a5gfk83vFvo5GsBlsS8ezDVLQzhhkuMtgfc/0IRjhcCNoQs8XZt4SVwxO5msUsYAA54aVdF4AHW1byrQu0Q7iHLIO2qB3aQrRHrmIHrEKYrFKZjhLDjCTXCrnFGq/AI2xtVJOwoim1C2wf9sDIh8duWbdqEGfDEoTKhyOSEJ+j+tjIhoS3ri99CB3zqV52Q8O/e27cwXrOQxcNC4Hq0CoVCwr+2MzSFDmhb/wyVQpY282lTiDExo1JI+KVfaGOsMCkVEtFoFBtC+GqGKBc2Kpu60EOZPFQrJLw+WKsLQ5SJC8VCVh/v14QILUUVioWNFqMmvOPMPakWsnuX8Ig0AaxaSOhnIn4KASeG6h9ULWRJuxByXqgWyoW1ua8PIVIp1CH8rE7fQg9tw4x6IRHXFuHZKOH5W2i7WF/TISTuq3f6EkZ4q706hO+V4ZcwR/uYFuF7fvhPiNXaV6FD+G71/4QZ4mKhFiHL6kIHc8+FFuFr2u1XeDNQeKsJ0fozVegR/o0wnkLQ5cKv0CMkbPchPKBufdIk5IcPIc7sxV/oSsPwLbRx95VoEhJmv4Qn3P15uoT89BLGhqZh/BKifkefkLh/QrTpi9/QJqTXXyHiwOn5IV3CxxCqEqJ2aIhG4aO9qIR4o/tnaBM+CiLBnIL6DX1C4T2EqOOKKvQJq/EFQW8NdQqrFpHgTea/QqMwqYTQe7y+Q5+w2gdGrCv6oRGNQn4thegVjVbhqRQW6Ad8NQrFTynEnEd8hkYhy0ohwiaoRugUJhZxsPtsWoXEdYiN/xWdQmoT+cFh18mXwfjXdVPH/t/UPyldsqhHAtnGouvky3Dsuw4lOfuJf1H+tA0PyEG2seg8+aIjpHOeOJCLtBDzOuOxIV2CxYUUsum9UmFBpBv8dQpZTKQn9FcqDEki+a+uVFj6UsOFKZHeg7FSYU6kR/grFfpEuuP9v1BpyAtHDJ1WKhxhXKnQNV7ob6AuNb89NL9PY36/1PyxhfTa2kqF8QbG+ObP05g/12b+fKn5c97mr1uYv/Zk/vrhBtaAzV/HN38vhvn7aczfE2X+vrYN7E00f3+p+XuEzd/nvYG9+uaftzD/zIz55542cHbN/POH5p8hNf8c8AbOcpt/Ht/8OxU2cC+G+XebGHg/zd8ln9u5Ywhz6nsZ90Rt4K4v8+9rM//OvQ3cm4jX/V7K3ZcbuL/U/DtoN3CPsPl3QW/gPm/z72TfwL36OB0bxW8jnOsfab5vgZFN1QpZ//sWKEMMtW+UNJ+W3d47M+a/FbTy956a1Uyr0AHPpipftJJ5swv+nWOF7661vA+4ybfzVvv+IZN+/9CS3t0uF8resPyqRzuF5r9DuoG3ZDfwHjBoUVzkm86gzwQu813uDbytbjk5+jEFsGB519GqPmHZ8K+FyPyek4M9QstbjbDv4GCfEL4PjhNt/W1JoXVYA5Eeeg39QvTNtQDxNTEzTojyei5odDeEkkKrWHZGpe3d7TFC62fJqdgxnhgnXHJGHcyickIrWmpGpQOVjLRwqY3GQDMxRmgFbHndG8Z6G/qRQstbXB+V+ZJ3PEgKrV2Oflx4VIhc9poOWaHlhEuqUnnYPVyaKlxUqyEkWokJQisgyyiMsnXMeKG1T5eQjDztuklkvrCaKtaejBIdtTlC66i5ThX+mBw6RWjZmc4ODs3aFl9ghZZ1ErqSUYixCThNaDmxltLIRCzdCM4UlqVRQ6XK09bFMySh5USKs6pg0ZQEnC4sa5yzwqzK+Hl0DTNbWI43QkVGJsLr8M9BEJbF8Q64uNLpo/dpBRBCWBoTZCOjySzfbGGZVzPEOkeIeekHIrSsa+HiFEjunmeUP0BhWa9GKXhmZTS/TK4/PwNEWMYx5oAJyTjPZmfP34ASlp2AU8hAkOVfud8mNu8tAScsY3eYjSz/+zACvQsWVFiGfYpdKqYpGadufAMpfB8BLaziGoWu4KMmkRnjwr1HAFXnV2AIq/BuceJzLgadjAnO3SS+YV3iiyWswr6efrLEpZQL0aSWMCE4pW6SFTcP8xJmTOEzHNsLDpciDpM0932XuL6fp0kYF5dD4NlwdWZX/Ac8LYLGLaC/DQAAAABJRU5ErkJggg=="
           />
@@ -383,7 +386,11 @@ const Page: React.FC<any> = () => {
                   value={option.src}
                   key={key}
                   style={{ width: '22ch' }}>
-                  <img src={option.src} style={{ width: `15%` }} />
+                  <img
+                    alt={option.label}
+                    src={option.src}
+                    style={{ width: `15%` }}
+                  />
                   {option.label}
                 </MenuItem>
               ))}
