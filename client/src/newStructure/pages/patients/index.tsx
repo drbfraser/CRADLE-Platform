@@ -1,12 +1,22 @@
-import { Callback, GlobalSearchPatient, OrNull, Patient } from '@types';
+import {
+  Callback,
+  GlobalSearchPatient,
+  OrNull,
+  OrUndefined,
+  Patient,
+} from '@types';
 import { PatientStateEnum, RoleEnum } from '../../enums';
 import {
   addPatientToHealthFacility,
   addPatientToHealthFacilityRequested,
   getPatients,
   getPatientsRequested,
+  sortPatients,
   toggleGlobalSearch,
+  toggleShowReferredPatients,
   updateGlobalSearchPageNumber,
+  updatePatientsTableSearchText,
+  updateSelectedPatientState,
 } from '../../shared/reducers/patients';
 
 import { PatientTable } from './patientTable';
@@ -20,13 +30,19 @@ interface IProps {
   addingFromGlobalSearch: boolean;
   globalSearch: boolean;
   globalSearchPageNumber: number;
+  patientsTableSearchText?: string;
+  showReferredPatients?: boolean;
   fetchingPatients: boolean;
   patients: OrNull<Array<Patient>>;
   globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
   getPatients: (searchText?: string) => void;
-  addPatientToHealthFacility: Callback<GlobalSearchPatient>;
+  addPatientToHealthFacility: Callback<string>;
+  sortPatients: Callback<OrNull<Array<Patient>>>;
   toggleGlobalSearch: Callback<boolean>;
   updateGlobalSearchPageNumber: Callback<number>;
+  updatePatientsTableSearchText: Callback<OrUndefined<string>>;
+  updateSelectedPatientState: Callback<OrUndefined<PatientStateEnum>>;
+  toggleShowReferredPatients: () => void;
   navigateToPatientPage: any;
   userIsHealthWorker?: boolean;
 }
@@ -46,20 +62,16 @@ const Page: React.FC<IProps> = ({
   const onPatientSelected = ({ patientId }: Patient): void =>
     props.navigateToPatientPage(patientId);
 
-  const onGlobalSearchPatientSelected = (
-    patient: GlobalSearchPatient
-  ): void => {
-    if (patient.state !== PatientStateEnum.ADD) {
-      alert(`Patient already added!`);
-    } else {
-      props.addPatientToHealthFacility(patient);
-    }
+  const onGlobalSearchPatientSelected = (patientId: string): void => {
+    props.addPatientToHealthFacility(patientId);
   };
 
   return (
     <PatientTable
       globalSearch={props.globalSearch}
       globalSearchPageNumber={props.globalSearchPageNumber}
+      patientsTableSearchText={props.patientsTableSearchText}
+      showReferredPatients={props.showReferredPatients}
       toggleGlobalSearch={props.toggleGlobalSearch}
       onPatientSelected={onPatientSelected}
       onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
@@ -69,6 +81,10 @@ const Page: React.FC<IProps> = ({
       showGlobalSearch={props.userIsHealthWorker}
       getPatients={getPatients}
       updateGlobalSearchPageNumber={props.updateGlobalSearchPageNumber}
+      updatePatientsTableSearchText={props.updatePatientsTableSearchText}
+      updateSelectedPatientState={props.updateSelectedPatientState}
+      toggleShowReferredPatients={props.toggleShowReferredPatients}
+      sortPatients={props.sortPatients}
     />
   );
 };
@@ -80,21 +96,30 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
   patients: patients.patientsList,
   globalSearch: patients.globalSearch,
   globalSearchPageNumber: patients.globalSearchPageNumber,
+  patientsTableSearchText: patients.patientsTableSearchText,
   globalSearchPatients: patients.globalSearchPatientsList,
+  showReferredPatients: patients.showReferredPatients,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   ...bindActionCreators(
-    { toggleGlobalSearch, updateGlobalSearchPageNumber },
+    {
+      toggleGlobalSearch,
+      updateGlobalSearchPageNumber,
+      updatePatientsTableSearchText,
+      updateSelectedPatientState,
+      toggleShowReferredPatients,
+      sortPatients,
+    },
     dispatch
   ),
   getPatients: (search?: string): void => {
     dispatch(getPatientsRequested());
     dispatch(getPatients(search));
   },
-  addPatientToHealthFacility: (patient: GlobalSearchPatient): void => {
-    dispatch(addPatientToHealthFacilityRequested(patient));
-    dispatch(addPatientToHealthFacility(patient));
+  addPatientToHealthFacility: (patientId: string): void => {
+    dispatch(addPatientToHealthFacilityRequested(patientId));
+    dispatch(addPatientToHealthFacility(patientId));
   },
   navigateToPatientPage: (patientId: string) =>
     dispatch(push(`/patient/${patientId}`)),

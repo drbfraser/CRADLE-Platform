@@ -1,14 +1,5 @@
 // @ts-nocheck
 
-/**
- * Description: Modal reponsible for the the UI to create and update
- *      the Follow Up info for Referrals
- * Props:
- *  initialValues [JSON]: initial values of to insert into the form
- *  handleSubmit(state) [required]: function that is called when the user submits form
- *      this function should handle data validation
- */
-
 import {
   Button,
   Form,
@@ -18,12 +9,28 @@ import {
   TextArea,
 } from 'semantic-ui-react';
 import {
+  addPatientToHealthFacility,
+  addPatientToHealthFacilityRequested,
+  updateSelectedPatientState,
+} from '../../../../../reducers/patients';
+import {
   createFollowUp,
   setReadingId,
   updateFollowUp,
 } from '../../../../../reducers/referrals';
 
+/**
+ * Description: Modal reponsible for the the UI to create and update
+ *      the Follow Up info for Referrals
+ * Props:
+ *  initialValues [JSON]: initial values of to insert into the form
+ *  handleSubmit(state) [required]: function that is called when the user submits form
+ *      this function should handle data validation
+ */
+import { AddPatientPrompt } from '../../../../addPatientPrompt';
+import { PatientStateEnum } from '../../../../../../enums';
 import React from 'react';
+import { ReduxState } from '../../../../../../redux/rootReducer';
 import Switch from '@material-ui/core/Switch';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -39,6 +46,11 @@ class Component extends React.Component<any, any> {
     super(props);
 
     this.state = {
+      actionAfterAdding: () => {
+        return;
+      },
+      promptMessage: ``,
+      showPrompt: false,
       data: {
         diagnosis: '',
         treatment: '',
@@ -65,6 +77,33 @@ class Component extends React.Component<any, any> {
     this.loadInitialValues();
   }
 
+  // * Handles closing the prompt
+  hidePrompt = () => {
+    this.setState({ showPrompt: false });
+  };
+
+  // * Handles confirming that the patient has been added to the health facility
+  // * before proceeding with the action
+  onAddPatientRequired = (actionAfterAdding, promptMessage) => {
+    const onAddPatient = () => {
+      this.props.updateSelectedPatientState(undefined);
+      this.props.addPatientToHealthFacility(
+        this.props.selectedPatient.patientId
+      );
+      actionAfterAdding();
+    };
+
+    if (this.props.selectedPatientState === PatientStateEnum.ADD) {
+      this.setState({
+        promptMessage,
+        showPrompt: true,
+        actionAfterAdding: onAddPatient,
+      });
+    } else {
+      actionAfterAdding();
+    }
+  };
+
   loadInitialValues() {
     this.setState({
       data: Object.keys(this.state.data).reduce((values, key) => {
@@ -77,14 +116,16 @@ class Component extends React.Component<any, any> {
   }
 
   handleOpen() {
-    this.setState(
-      {
-        isOpen: true,
-      },
-      () => {
-        this.loadInitialValues();
-      }
-    );
+    this.onAddPatientRequired((): void => {
+      this.setState(
+        {
+          isOpen: true,
+        },
+        () => {
+          this.loadInitialValues();
+        }
+      );
+    }, `You haven't added this patient to your health facility. You need to do that before you can add/edit an assessment. Would like to add this patient?`);
   }
 
   handleClose() {
@@ -174,6 +215,13 @@ class Component extends React.Component<any, any> {
   render() {
     return (
       <div>
+        <AddPatientPrompt
+          addPatient={this.state.actionAfterAdding}
+          closeDialog={this.hidePrompt}
+          show={this.state.showPrompt}
+          message={this.state.promptMessage}
+          positiveText="Yes"
+        />
         <Modal
           trigger={
             <Button
@@ -305,14 +353,22 @@ class Component extends React.Component<any, any> {
   }
 }
 
-const mapStateToProps = () => ({});
+const mapStateToProps = ({ patients }: ReduxState) => ({
+  selectedPatient: patients.patient,
+  selectedPatientState: patients.selectedPatientState,
+});
 
 const mapDispatchToProps = (dispatch) => ({
+  addPatientToHealthFacility: (patient: GlobalSearchPatient): void => {
+    dispatch(addPatientToHealthFacilityRequested(patient));
+    dispatch(addPatientToHealthFacility(patient));
+  },
   ...bindActionCreators(
     {
       updateFollowUp,
       setReadingId,
       createFollowUp,
+      updateSelectedPatientState,
     },
     dispatch
   ),

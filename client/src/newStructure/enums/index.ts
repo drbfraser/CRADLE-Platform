@@ -10,12 +10,12 @@ export enum GestationalAgeUnitDisplayEnum {
 }
 
 export enum TrafficLightEnum {
-  NONE = 'NONE',
-  GREEN = 'GREEN',
-  YELLOW_UP = 'YELLOW_UP',
-  YELLOW_DOWN = 'YELLOW_DOWN',
-  RED_UP = 'RED_UP',
   RED_DOWN = 'RED_DOWN',
+  RED_UP = 'RED_UP',
+  YELLOW_DOWN = 'YELLOW_DOWN',
+  YELLOW_UP = 'YELLOW_UP',
+  GREEN = 'GREEN',
+  NONE = 'NONE',
 }
 
 export enum GestationalAgeUnitEnum {
@@ -35,4 +35,9 @@ export enum PatientStateEnum {
   ADDED = 'Added',
   ADDING = 'Adding...',
   JUST_ADDED = 'Just added',
+}
+
+export enum SortOrderEnum {
+  ASC = 'asc',
+  DESC = 'desc',
 }

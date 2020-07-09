@@ -186,7 +186,6 @@ class NewReadingPageComponent extends Component<IProps, IState> {
   };
 
   handleCheckedChange = (e: any, value: any) => {
-    // console.log(value.name)
     // true => false, pop
     if (value.value) {
       if (symptom.indexOf(value.name) >= 0) {
@@ -198,7 +197,6 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         symptom.push(value.name);
       }
     }
-    // console.log(symptom)
     if (value.name !== 'none') {
       if (symptom.indexOf('none') >= 0) {
         symptom.pop();
@@ -231,7 +229,6 @@ class NewReadingPageComponent extends Component<IProps, IState> {
   };
 
   handleOtherSymptom = (event: any) => {
-    //console.log(event.target)
     this.setState({
       checkedItems: {
         ...this.state.checkedItems,
@@ -242,7 +239,6 @@ class NewReadingPageComponent extends Component<IProps, IState> {
 
   handleSubmit = (event: any) => {
     event.preventDefault();
-    console.log('Create new submit');
     if (symptom.indexOf('other') >= 0) {
       symptom.pop();
       if (this.state.checkedItems.otherSymptoms !== '') {
@@ -286,7 +282,6 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           patient: patientData,
           reading: readingData,
         };
-        console.log(newData);
         this.props.addNewReading(newData);
       }
     );
