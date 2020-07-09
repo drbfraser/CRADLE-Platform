@@ -19,8 +19,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     formField: {
       margin: theme.spacing(2),
-      minWidth: '22ch',
-      display: 'block',
+      minWidth: '26ch',
+      width: '90%',
     },
 
     formFieldDM: {

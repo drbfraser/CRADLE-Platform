@@ -43,19 +43,34 @@ export const useNewPatient = () => {
     const errors: any = validateInput(e.target.name, e.target.value);
     const name = e.target.name;
 
-    if (name === 'patientSex' && name === 'MALE') {
-      setPatient({
-        ...patient,
-        [name]: e.target.value,
-        gestationalAgeValue: '',
-        isPregnant: false,
-      });
+    if (name === 'patientSex') {
+      if (e.target.value === 'MALE') {
+        setPatient({
+          ...patient,
+          [name]: e.target.value,
+          gestationalAgeValue: '',
+          isPregnant: false,
+        });
+      } else {
+        setPatient({
+          ...patient,
+          [name]: e.target.value,
+        });
+      }
     }
     if (name === 'isPregnant') {
-      setPatient({
-        ...patient,
-        [name]: e.target.checked,
-      });
+      if (e.target.checked) {
+        setPatient({
+          ...patient,
+          [name]: e.target.checked,
+        });
+      } else {
+        setPatient({
+          ...patient,
+          [name]: e.target.checked,
+          gestationalAgeValue: '',
+        });
+      }
     }
     if (name === 'dob') {
       const calculatedAge: number = getAgeBasedOnDOB(e.target.value);
@@ -119,6 +134,7 @@ export const useNewPatient = () => {
         gestationalAgeValueError: gestationalAgeValueError,
       });
     }
+    console.log('DATA', patient);
   };
   return { patient, handleChangePatient };
 };

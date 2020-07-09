@@ -26,10 +26,12 @@ const useStyles = makeStyles((theme: Theme) =>
     formFieldWide: {
       margin: theme.spacing(2),
       minWidth: '56ch',
+      width: '46.5%',
     },
     formFieldSWide: {
       margin: theme.spacing(2),
       minWidth: '36ch',
+      width: '30%',
     },
   })
 );
