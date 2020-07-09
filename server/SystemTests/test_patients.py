@@ -381,6 +381,7 @@ def test_fail_empty_patient_id():
     assert response.status_code == 400
     assert response_body["HTTP 400"] == "Patient Id is empty."
 
+
 # Testing global search API
 def test_pass_search_partial_patient_id():
     partial_patient_id = "483"
@@ -391,6 +392,7 @@ def test_pass_search_partial_patient_id():
     expected_matching_patients = 6
     assert len(response_body) == expected_matching_patients
 
+
 def test_pass_search_partial_initials():
     partial_patient_initials = "A"
     url = BASE_URL + "/api/patient/global/" + partial_patient_initials
@@ -398,9 +400,13 @@ def test_pass_search_partial_initials():
     response_body = response.json()
     assert response.status_code == 200
     expected_matching_patients = 1
-    # cannot determine exact amount because we are creating patients with random initials in some tests 
-    # to-do: change existing tests make them enter non-random data 
-    assert len(response_body) > expected_matching_patients or len(response_body) == expected_matching_patients
+    # cannot determine exact amount because we are creating patients with random initials in some tests
+    # to-do: change existing tests make them enter non-random data
+    assert (
+        len(response_body) > expected_matching_patients
+        or len(response_body) == expected_matching_patients
+    )
+
 
 def test_pass_search_full_patient_id():
     full_patient_id = "204652"
@@ -411,6 +417,7 @@ def test_pass_search_full_patient_id():
     expected_matching_patients = 1
     assert len(response_body) == expected_matching_patients
 
+
 def test_pass_search_full_initials():
     full_patient_initials = "BB"
     url = BASE_URL + "/api/patient/global/" + full_patient_initials
@@ -420,13 +427,18 @@ def test_pass_search_full_initials():
     expected_matching_patients = 1
     assert len(response_body) == expected_matching_patients
 
+
 def test_no_id_matches():
     full_patient_id = "9872"
     url = BASE_URL + "/api/patient/global/" + full_patient_id
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 404
-    assert response_body["message"] == "No patients matching the search criteria currently exist."
+    assert (
+        response_body["message"]
+        == "No patients matching the search criteria currently exist."
+    )
+
 
 def test_no_initials_matches():
     full_initials = "CCC"
@@ -434,7 +446,7 @@ def test_no_initials_matches():
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 404
-    assert response_body["message"] == "No patients matching the search criteria currently exist."
-    
-    
-    
+    assert (
+        response_body["message"]
+        == "No patients matching the search criteria currently exist."
+    )
