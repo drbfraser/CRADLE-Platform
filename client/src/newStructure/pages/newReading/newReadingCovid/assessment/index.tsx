@@ -1,5 +1,12 @@
 import React from 'react';
-import { FormControl, Paper, TextField } from '@material-ui/core';
+import {
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  MenuItem,
+  Paper,
+  TextField,
+} from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -35,6 +42,15 @@ interface IProps {
 }
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
+  const followupFrequencyUnitUnit = [
+    { label: 'N/a', value: 'NONE' },
+    { label: 'Minutes', value: 'MINUTES' },
+    { label: 'Hours', value: 'HOURS' },
+    { label: 'Days', value: 'DAYS' },
+    { label: 'Weeks', value: 'WEEKS' },
+    { label: 'Months', value: 'MONTHS' },
+    { label: 'Years', value: 'YEARS' },
+  ];
   // const stringDate = new Date().toLocaleDateString();
   // const defaultDate = replaceAll(stringDate, '/', '-');
   return (
@@ -46,6 +62,17 @@ const Page: React.FC<IProps> = (props) => {
       }}>
       <h1>
         <b>Assessment</b>
+        <FormControlLabel
+          style={{ display: 'flex', float: 'right' }}
+          control={
+            <Checkbox
+              name={'enabled'}
+              checked={props.assessment.enabled}
+              onChange={props.onChange}
+            />
+          }
+          label="Follow-up Needed"
+        />
       </h1>
 
       <form className={classes.root} noValidate autoComplete="off">
@@ -103,6 +130,7 @@ const Page: React.FC<IProps> = (props) => {
         </FormControl>
         <FormControl className={classes.formFieldWide}>
           <TextField
+            disabled={!props.assessment.enabled}
             id="outlined-multiline-static"
             label="Frequesncy"
             defaultValue="..."
@@ -114,18 +142,24 @@ const Page: React.FC<IProps> = (props) => {
         </FormControl>
         <FormControl className={classes.formFieldWide}>
           <TextField
+            disabled={!props.assessment.enabled}
+            variant="outlined"
             id="outlined-multiline-static"
             label="Frequency Unit"
             select
-            defaultValue="..."
-            variant="outlined"
             name={'frequencyUnit'}
             value={props.assessment.frequencyUnit}
-            onChange={props.onChange}
-          />
+            onChange={props.onChange}>
+            {followupFrequencyUnitUnit.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
         </FormControl>
         <FormControl className={classes.formFieldSWide}>
           <TextField
+            disabled={!props.assessment.enabled}
             id="outlined-multiline-static"
             label="Until"
             select
@@ -133,11 +167,20 @@ const Page: React.FC<IProps> = (props) => {
             variant="outlined"
             name={'until'}
             value={props.assessment.until}
-            onChange={props.onChange}
-          />
+            onChange={props.onChange}>
+            <MenuItem key={'date'} value={'date'}>
+              {'Date'}
+            </MenuItem>
+            <MenuItem key={'other'} value={'other'}>
+              {'Other'}
+            </MenuItem>
+          </TextField>
         </FormControl>
         <FormControl className={classes.formFieldSWide}>
           <TextField
+            disabled={
+              !props.assessment.enabled || props.assessment.until !== 'date'
+            }
             label="Until Date"
             type="date"
             defaultValue="2017-05-24"
@@ -152,6 +195,9 @@ const Page: React.FC<IProps> = (props) => {
         </FormControl>
         <FormControl className={classes.formFieldSWide}>
           <TextField
+            disabled={
+              !props.assessment.enabled || props.assessment.until !== 'other'
+            }
             id="outlined-multiline-static"
             label="Other"
             defaultValue="..."

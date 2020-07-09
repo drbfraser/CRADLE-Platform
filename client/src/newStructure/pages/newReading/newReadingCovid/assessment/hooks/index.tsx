@@ -13,10 +13,17 @@ export const useNewAssessment = () => {
     other: '',
   });
   const handleChangeAssessment = (e: any) => {
-    setAssessment({
-      ...assessment,
-      [e.target.name]: e.target.value,
-    });
+    if (e.target.name == 'enabled') {
+      setAssessment({
+        ...assessment,
+        [e.target.name]: e.target.checked,
+      });
+    } else {
+      setAssessment({
+        ...assessment,
+        [e.target.name]: e.target.value,
+      });
+    }
   };
   return { assessment, handleChangeAssessment };
 };
