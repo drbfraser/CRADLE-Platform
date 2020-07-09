@@ -10,7 +10,7 @@ export const useNewPatient = () => {
     patientName: '',
     patientAge: 0,
     patientSex: 'FEMALE',
-    isPregnant: true,
+    isPregnant: false,
     gestationalAgeValue: '',
     gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
     zone: '',
@@ -40,6 +40,7 @@ export const useNewPatient = () => {
   };
 
   const handleChangePatient = (e: any) => {
+    console.log(e.currentTarget.value);
     const errors: any = validateInput(e.target.name, e.target.value);
 
     if (e.target.name === 'patientSex' && e.target.name === 'MALE') {
@@ -50,6 +51,12 @@ export const useNewPatient = () => {
         isPregnant: false,
       });
     }
+    if (e.target.name === 'isPregnant') {
+      setPatient({
+        ...patient,
+        [e.target.name]: e.target.checked,
+      });
+    }
     if (e.target.name === 'dob') {
       const calculatedAge: number = getAgeBasedOnDOB(e.target.value);
       setPatient({
@@ -58,13 +65,31 @@ export const useNewPatient = () => {
         patientAge: calculatedAge,
         dobError: errors.dobError,
       });
-    } else {
+    }
+    if (e.target.name == 'patientInitial') {
       setPatient({
         ...patient,
         [e.target.name]: e.target.value,
         patientInitialError: errors.patientInitialError,
+      });
+    }
+    if (e.target.name == 'patientId') {
+      setPatient({
+        ...patient,
+        [e.target.name]: e.target.value,
         patientIdError: errors.patientIdError,
+      });
+    }
+    if (e.target.name == 'patientAge') {
+      setPatient({
+        ...patient,
+        [e.target.name]: e.target.value,
         patientAgeError: errors.patientAgeError,
+      });
+    } else {
+      setPatient({
+        ...patient,
+        [e.target.name]: e.target.value,
       });
     }
   };

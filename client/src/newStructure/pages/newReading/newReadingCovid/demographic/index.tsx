@@ -163,7 +163,9 @@ const Page: React.FC<IProps> = (props) => {
             Gestational Age
           </InputLabel>
           <Input
-            disabled={props.patient.patientSex === 'MALE'}
+            disabled={
+              props.patient.patientSex === 'MALE' || !props.patient.isPregnant
+            }
             id="component-outlined"
             name="gestationalAgeValue"
             value={props.patient.gestationalAgeValue}
@@ -176,7 +178,9 @@ const Page: React.FC<IProps> = (props) => {
           </InputLabel>
           <Select
             native
-            disabled={props.patient.patientSex === 'MALE'}
+            disabled={
+              props.patient.patientSex === 'MALE' || !props.patient.isPregnant
+            }
             name="gestationalAgeUnit"
             value={props.patient.gestationalAgeUnit}
             onChange={props.onChange}
