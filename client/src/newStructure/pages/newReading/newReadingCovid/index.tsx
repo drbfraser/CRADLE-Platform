@@ -21,11 +21,11 @@ import {
 } from '../../../shared/reducers/newReadingStatus';
 import { addNewPatient } from '../../../shared/reducers/patients';
 import { User } from '@types';
-import { initialUrineTests } from '../urineTestForm';
 import { useNewPatient } from './demographic/hooks';
 import { useNewSymptoms } from './symptoms/hooks';
 import { useNewVitals } from './vitalSignAssessment/hooks';
 import { useNewAssessment } from './assessment/hooks';
+import { useNewUrineTest } from './urineTestAssessment/hooks';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -65,31 +65,30 @@ interface IProps {
   addNewReading: any;
 }
 
-const initState = {
-  reading: {
-    userId: '',
-    readingId: '',
-    dateTimeTaken: null,
-    bpSystolic: '',
-    bpDiastolic: '',
-    heartRateBPM: '',
-    dateRecheckVitalsNeeded: null,
-    isFlaggedForFollowup: false,
-    symptoms: '',
-    urineTests: initialUrineTests,
-  },
-  showSuccessReading: false,
-  hasUrineTest: false,
-};
+// const initState = {
+//   reading: {
+//     userId: '',
+//     readingId: '',
+//     dateTimeTaken: null,
+//     bpSystolic: '',
+//     bpDiastolic: '',
+//     heartRateBPM: '',
+//     dateRecheckVitalsNeeded: null,
+//     isFlaggedForFollowup: false,
+//     symptoms: '',
+//     urineTests: initialUrineTests,
+//   },
+//   showSuccessReading: false,
+//   hasUrineTest: false,
+// };
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
-  const [state, setState] = React.useState(initState);
   const { patient, handleChangePatient } = useNewPatient();
   const { symptoms, handleChangeSymptoms } = useNewSymptoms();
   const { vitals, handleChangeVitals } = useNewVitals();
   const { assessment, handleChangeAssessment } = useNewAssessment();
-  //make use state hook for each field group
+  const { urineTest, handleChangeUrineTest } = useNewUrineTest();
   const steps = getSteps();
 
   useEffect(() => {
@@ -97,35 +96,6 @@ const Page: React.FC<IProps> = (props) => {
       props.getCurrentUser();
     }
   });
-
-  const handleUrineTestChange = (e: any, value: any) => {
-    setState({
-      ...state,
-      reading: {
-        ...state.reading,
-        urineTests: {
-          ...state.reading.urineTests,
-          [value.name]: value.value,
-        },
-      },
-    });
-  };
-
-  const handleUrineTestSwitchChange = (e: any) => {
-    console.log(e.target.checked);
-    setState({
-      hasUrineTest: e.target.checked,
-    } as any);
-    if (!e.target.checked) {
-      setState({
-        ...state,
-        reading: {
-          ...state.reading,
-          urineTests: initialUrineTests,
-        },
-      });
-    }
-  };
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -173,13 +143,9 @@ const Page: React.FC<IProps> = (props) => {
       {activeStep === 2 ? (
         <VitalSignAssessment
           vitals={vitals}
-          hasUrineTest={state.hasUrineTest}
-          reading={state.reading}
           onChange={handleChangeVitals}
-          handleUrineTestChange={handleUrineTestChange}
-          handleUrineTestSwitchChange={
-            handleUrineTestSwitchChange
-          }></VitalSignAssessment>
+          urineTest={urineTest}
+          urineTetsOnChange={handleChangeUrineTest}></VitalSignAssessment>
       ) : (
         ''
       )}

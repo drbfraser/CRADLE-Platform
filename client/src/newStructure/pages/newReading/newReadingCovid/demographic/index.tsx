@@ -160,20 +160,6 @@ const Page: React.FC<IProps> = (props) => {
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel required htmlFor="component-outlined">
-            Gestational Age
-          </InputLabel>
-          <Input
-            disabled={
-              props.patient.patientSex === 'MALE' || !props.patient.isPregnant
-            }
-            id="component-outlined"
-            name="gestationalAgeValue"
-            value={props.patient.gestationalAgeValue}
-            onChange={props.onChange}
-          />
-        </FormControl>
-        <FormControl className={classes.formField}>
-          <InputLabel required htmlFor="component-outlined">
             Gestational Age Unit
           </InputLabel>
           <Select
@@ -189,6 +175,25 @@ const Page: React.FC<IProps> = (props) => {
             <option value={GESTATIONAL_AGE_UNITS.WEEKS}>Weeks</option>
             <option value={GESTATIONAL_AGE_UNITS.MONTHS}>Months</option>
           </Select>
+        </FormControl>
+        <FormControl className={classes.formField}>
+          <TextField
+            error={props.patient.gestationalAgeValueError}
+            label={'Gestational Age'}
+            disabled={
+              props.patient.patientSex === 'MALE' || !props.patient.isPregnant
+            }
+            id="component-outlined"
+            name="gestationalAgeValue"
+            type={'number'}
+            value={props.patient.gestationalAgeValue}
+            onChange={props.onChange}
+            helperText={
+              props.patient.gestationalAgeValueError
+                ? 'Value too large or too small.'
+                : ''
+            }
+          />
         </FormControl>
         <FormControl className={classes.formField}>
           <InputLabel htmlFor="component-outlined">Zone</InputLabel>

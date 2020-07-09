@@ -138,10 +138,12 @@ const Page: React.FC<IProps> = (props) => {
         </FormControl>
         <FormControl className={classes.formFieldSWide}>
           <TextField
-            id="outlined-multiline-static"
             label="Until Date"
-            defaultValue="2020-06-06"
             type="date"
+            defaultValue="2017-05-24"
+            InputLabelProps={{
+              shrink: true,
+            }}
             variant="outlined"
             name={'untilDate'}
             value={props.assessment.untilDate}

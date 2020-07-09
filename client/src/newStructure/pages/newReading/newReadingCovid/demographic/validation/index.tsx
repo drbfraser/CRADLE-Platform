@@ -18,9 +18,7 @@ export const validateInput = (name: any, value: any) => {
     drugHistoryError: false,
     medicalHistoryError: false,
   };
-  if (!value) {
-    return false;
-  }
+
   const year: string = value.substr(0, value.indexOf('-'));
   const yearNow: number = new Date().getUTCFullYear();
   const age = yearNow - +year;
@@ -45,6 +43,7 @@ export const validateInput = (name: any, value: any) => {
         patientError.patientAgeError = true;
       }
       break;
+
     default:
       break;
   }

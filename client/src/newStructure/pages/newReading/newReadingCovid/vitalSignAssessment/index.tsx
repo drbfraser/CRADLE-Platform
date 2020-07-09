@@ -6,10 +6,10 @@ import {
   Paper,
   InputAdornment,
 } from '@material-ui/core';
-import { UrineTestForm } from '../../urineTestForm';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
+import { UrineTest } from '../urineTestAssessment';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -35,11 +35,9 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 interface IProps {
   vitals: any;
-  reading: any;
   onChange: any;
-  handleUrineTestChange: any;
-  handleUrineTestSwitchChange: any;
-  hasUrineTest: boolean;
+  urineTest: any;
+  urineTetsOnChange: any;
 }
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
@@ -154,13 +152,11 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
         </form>
       </Paper>
+
       <div style={{ marginTop: '2%', width: '45%', marginLeft: '5%' }}>
-        <UrineTestForm
-          reading={props.reading}
-          onChange={props.handleUrineTestChange}
-          onSwitchChange={props.handleUrineTestSwitchChange}
-          hasUrineTest={props.hasUrineTest}
-        />
+        <UrineTest
+          urineTest={props.urineTest}
+          onChange={props.urineTetsOnChange}></UrineTest>
       </div>
     </div>
   );
