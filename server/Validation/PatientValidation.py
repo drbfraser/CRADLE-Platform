@@ -71,8 +71,6 @@ def check_gestational_age_under_limit(request_body):
     return None
 
 
-# helper method that makes sure that expected string types are in fact strings/ints (depending on critera)
-def check_if_values_string_or_int(request_body, must_be_string, must_be_int):
 # helper method that makes sure that expected string types are
 # in fact strings/ints/string (depending on critera)
 def check_if_values_string_int_array(
