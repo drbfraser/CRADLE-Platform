@@ -6,11 +6,7 @@ export const useNewAssessment = () => {
     finalDiagnosis: '',
     treatmentOP: '',
     medPrescribed: '',
-    frequency: '',
-    frequencyUnit: '',
-    until: '',
-    untilDate: '',
-    other: '',
+    InstructionFollow: '',
   });
   const handleChangeAssessment = (e: any) => {
     if (e.target.name == 'enabled') {

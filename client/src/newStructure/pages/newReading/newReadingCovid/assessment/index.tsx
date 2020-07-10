@@ -3,7 +3,6 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  MenuItem,
   Paper,
   TextField,
 } from '@material-ui/core';
@@ -33,6 +32,11 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: '36ch',
       width: '30%',
     },
+    formFieldWideEnd: {
+      margin: theme.spacing(2),
+      minWidth: '36ch',
+      width: '96%',
+    },
   })
 );
 // function replaceAll(string: string, search: string, replace: string) {
@@ -44,17 +48,6 @@ interface IProps {
 }
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
-  const followupFrequencyUnitUnit = [
-    { label: 'N/a', value: 'NONE' },
-    { label: 'Minutes', value: 'MINUTES' },
-    { label: 'Hours', value: 'HOURS' },
-    { label: 'Days', value: 'DAYS' },
-    { label: 'Weeks', value: 'WEEKS' },
-    { label: 'Months', value: 'MONTHS' },
-    { label: 'Years', value: 'YEARS' },
-  ];
-  // const stringDate = new Date().toLocaleDateString();
-  // const defaultDate = replaceAll(stringDate, '/', '-');
   return (
     <Paper
       style={{
@@ -130,82 +123,15 @@ const Page: React.FC<IProps> = (props) => {
             onChange={props.onChange}
           />
         </FormControl>
-        <FormControl className={classes.formFieldWide}>
+        <FormControl className={classes.formFieldWideEnd}>
           <TextField
             disabled={!props.assessment.enabled}
             id="outlined-multiline-static"
-            label="Frequesncy"
+            label="Instructions for Follow up"
             defaultValue="..."
             variant="outlined"
-            name={'frequency'}
-            value={props.assessment.frequency}
-            onChange={props.onChange}
-          />
-        </FormControl>
-        <FormControl className={classes.formFieldWide}>
-          <TextField
-            disabled={!props.assessment.enabled}
-            variant="outlined"
-            id="outlined-multiline-static"
-            label="Frequency Unit"
-            select
-            name={'frequencyUnit'}
-            value={props.assessment.frequencyUnit}
-            onChange={props.onChange}>
-            {followupFrequencyUnitUnit.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-        </FormControl>
-        <FormControl className={classes.formFieldSWide}>
-          <TextField
-            disabled={!props.assessment.enabled}
-            id="outlined-multiline-static"
-            label="Until"
-            select
-            defaultValue="..."
-            variant="outlined"
-            name={'until'}
-            value={props.assessment.until}
-            onChange={props.onChange}>
-            <MenuItem key={'date'} value={'date'}>
-              {'Date'}
-            </MenuItem>
-            <MenuItem key={'other'} value={'other'}>
-              {'Other'}
-            </MenuItem>
-          </TextField>
-        </FormControl>
-        <FormControl className={classes.formFieldSWide}>
-          <TextField
-            disabled={
-              !props.assessment.enabled || props.assessment.until !== 'date'
-            }
-            label="Until Date"
-            type="date"
-            defaultValue="2017-05-24"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            variant="outlined"
-            name={'untilDate'}
-            value={props.assessment.untilDate}
-            onChange={props.onChange}
-          />
-        </FormControl>
-        <FormControl className={classes.formFieldSWide}>
-          <TextField
-            disabled={
-              !props.assessment.enabled || props.assessment.until !== 'other'
-            }
-            id="outlined-multiline-static"
-            label="Other"
-            defaultValue="..."
-            variant="outlined"
-            name={'other'}
-            value={props.assessment.other}
+            name={'InstructionFollow'}
+            value={props.assessment.InstructionFollow}
             onChange={props.onChange}
           />
         </FormControl>
