@@ -78,6 +78,38 @@ backend system tests:
   script:
     - python -m pytest SystemTests
 
+frontend lint:
+  stage: format
+  image: node:10
+  tags:
+    - docker
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+      when: always
+    - changes:
+      - client/**/*
+      when: always
+  before_script:
+    - npm install eslint --global
+  script:
+    - eslint "client/src/**/*.{ts,tsx}"
+
+frontend format:
+  stage: format
+  image: node:10
+  tags:
+    - docker
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+      when: always
+    - changes:
+      - client/**/*
+      when: always
+  before_script:
+    - npm install prettier --global
+  script:
+    - prettier --check "./client/src/**/*.(ts|tsx)"
+
 backend format:
   stage: format
   image: python:3.7.6-buster
@@ -93,7 +125,7 @@ backend format:
     - pip install --upgrade pip
     - pip install black
   script:
-    - black --check --exclude 'server/migrations/.*' server 
+    - black --check --exclude 'server/migrations/.*' server
 
 deploy staging:
   stage: deploy
