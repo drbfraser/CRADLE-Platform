@@ -228,7 +228,9 @@ class Component extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    const patientData = JSON.parse(JSON.stringify(this.state.selectedPatient)); // pass by value
+
+    // pass by value
+    const patientData = JSON.parse(JSON.stringify(this.state.selectedPatient));
     const patientId = patientData.patientId;
 
     // delete any unnecessary fields
@@ -237,7 +239,6 @@ class Component extends React.Component {
     delete patientData.tableData;
     delete patientData.patientId;
 
-    // let patientJSON = JSON.stringify(patientData);
     this.props.updatePatient(patientId, patientData);
     this.closePatientModal('formSubmitted');
   };
@@ -262,7 +263,7 @@ class Component extends React.Component {
           userId: this.props.user.userId,
           readingId: readingID,
           dateTimeTaken: dateTime,
-          symptoms: symptom.toString(),
+          symptoms: symptom,
           dateRecheckVitalsNeeded: null,
         },
       },
@@ -862,7 +863,18 @@ class Component extends React.Component {
                           <b>Heart Rate (BPM): </b> {row.heartRateBPM}{' '}
                         </p>
                         <p>
-                          <b>Symptoms: </b> {row.symptoms}{' '}
+                          <b>Symptoms</b>
+                          <div
+                            style={{
+                              display: `flex`,
+                              flexDirection: `column`,
+                            }}>
+                            {row.symptoms.map(
+                              (symptom): JSX.Element => (
+                                <span key={symptom}>{symptom}</span>
+                              )
+                            )}
+                          </div>
                         </p>
                         {row.urineTests && (
                           <div>
