@@ -211,12 +211,12 @@ class Reading(db.Model):
     urineTests = db.relationship("UrineTest", backref=db.backref("reading", lazy=True))
 
     def get_traffic_light(self):
-        RED_SYSTOLIC = 160
-        RED_DIASTOLIC = 110
-        YELLOW_SYSTOLIC = 140
-        YELLOW_DIASTOLIC = 90
-        SHOCK_HIGH = 1.7
-        SHOCK_MEDIUM = 0.9
+        red_systolic = 160
+        red_diastolic = 110
+        yellow_systolic = 140
+        yellow_diastolic = 90
+        shock_high = 1.7
+        shock_medium = 0.9
 
         if (
             self.bpSystolic is None
@@ -225,29 +225,29 @@ class Reading(db.Model):
         ):
             return TrafficLightEnum.NONE.name
 
-        shockIndex = self.heartRateBPM / self.bpSystolic
+        shock_index = self.heartRateBPM / self.bpSystolic
 
-        isBpVeryHigh = (self.bpSystolic >= RED_SYSTOLIC) or (
-            self.bpDiastolic >= RED_DIASTOLIC
+        is_bp_very_high = (self.bpSystolic >= red_systolic) or (
+            self.bpDiastolic >= red_diastolic
         )
-        isBpHigh = (self.bpSystolic >= YELLOW_SYSTOLIC) or (
-            self.bpDiastolic >= YELLOW_DIASTOLIC
+        is_bp_high = (self.bpSystolic >= yellow_systolic) or (
+            self.bpDiastolic >= yellow_diastolic
         )
-        isSevereShock = shockIndex >= SHOCK_HIGH
-        isShock = shockIndex >= SHOCK_MEDIUM
+        is_severe_shock = shock_index >= shock_high
+        is_shock = shock_index >= shock_medium
 
-        if isSevereShock:
-            trafficLight = TrafficLightEnum.RED_DOWN.name
-        elif isBpVeryHigh:
-            trafficLight = TrafficLightEnum.RED_UP.name
-        elif isShock:
-            trafficLight = TrafficLightEnum.YELLOW_DOWN.name
-        elif isBpHigh:
-            trafficLight = TrafficLightEnum.YELLOW_UP.name
+        if is_severe_shock:
+            traffic_light = TrafficLightEnum.RED_DOWN.name
+        elif is_bp_very_high:
+            traffic_light = TrafficLightEnum.RED_UP.name
+        elif is_shock:
+            traffic_light = TrafficLightEnum.YELLOW_DOWN.name
+        elif is_bp_high:
+            traffic_light = TrafficLightEnum.YELLOW_UP.name
         else:
-            trafficLight = TrafficLightEnum.GREEN.name
+            traffic_light = TrafficLightEnum.GREEN.name
 
-        return trafficLight
+        return traffic_light
 
 
 class FollowUp(db.Model):
