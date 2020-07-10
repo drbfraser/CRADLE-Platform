@@ -25,6 +25,10 @@
       "react",
       "react-dom"
     ],
+    "typeRoots": [
+      "./src/newStructure/modules",
+      "./node_modules/@types"
+    ],
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "skipLibCheck": true,

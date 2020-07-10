@@ -9,28 +9,35 @@ import {
   urineTestChemicals,
 } from '../form/urineTest';
 import {
+  addPatientToHealthFacility,
+  addPatientToHealthFacilityRequested,
+  getPatients,
+  getPatientsRequested,
+  updatePatient,
+  updateSelectedPatientState,
+} from '../../reducers/patients';
+import {
   getMomentDate,
   getPrettyDateTime,
   getPrettyDateUTC,
+  monthsToWeeks,
+  weeksToMonths,
 } from '../../utils';
 import {
   getPatientStatistics,
   startRequest,
 } from '../../reducers/patientStatistics';
-import {
-  getPatients,
-  getPatientsRequested,
-  updatePatient,
-} from '../../reducers/patients';
 
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import { AddPatientPrompt } from '../addPatientPrompt';
 import Grid from '@material-ui/core/Grid';
 import { Icon } from 'semantic-ui-react';
 import Paper from '@material-ui/core/Paper';
+import { PatientStateEnum } from '../../../enums';
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { ReduxState } from '../../../redux/rootReducer';
 import ReferralInfo from './referralInfo';
 import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from '../form/symptom';
@@ -54,9 +61,14 @@ function guid() {
 
 class Component extends React.Component {
   state = {
+    actionAfterAdding: () => {
+      return;
+    },
+    promptMessage: ``,
     displayPatientModal: false,
     selectedPatient: { readings: [] },
     showVitals: true,
+    showPrompt: false,
     showTrafficLights: false,
     displayReadingModal: false,
     newReading: {
@@ -93,6 +105,33 @@ class Component extends React.Component {
     this.props.getReferrals(this.getReferralIds(this.props.selectedPatient));
     if (this.props.selectedPatient) {
       this.props.getPatientStatistics(this.props.selectedPatient.patientId);
+    }
+  };
+
+  // * Handles closing the prompt
+  hidePrompt = () => {
+    this.setState({ showPrompt: false });
+  };
+
+  // * Handles confirming that the patient has been added to the health facility
+  // * before proceeding with the action
+  onAddPatientRequired = (actionAfterAdding, promptMessage) => {
+    const onAddPatient = () => {
+      this.props.updateSelectedPatientState(undefined);
+      this.props.addPatientToHealthFacility(
+        this.props.selectedPatient.patientId
+      );
+      actionAfterAdding();
+    };
+
+    if (this.props.selectedPatientState === PatientStateEnum.ADD) {
+      this.setState({
+        promptMessage,
+        showPrompt: true,
+        actionAfterAdding: onAddPatient,
+      });
+    } else {
+      actionAfterAdding();
     }
   };
 
@@ -158,10 +197,12 @@ class Component extends React.Component {
   };
 
   openPatientModal = () => {
-    this.setState({
-      selectedPatientCopy: { ...this.state.selectedPatient },
-    });
-    this.setState({ displayPatientModal: true });
+    this.onAddPatientRequired((): void => {
+      this.setState({
+        selectedPatientCopy: { ...this.state.selectedPatient },
+      });
+      this.setState({ displayPatientModal: true });
+    }, `You haven't added this patient to your health facility. You need to do that before you can edit this patient. Would like to add this patient?`);
   };
 
   closePatientModal = (e) => {
@@ -178,7 +219,9 @@ class Component extends React.Component {
   };
 
   openReadingModal = () => {
-    this.setState({ displayReadingModal: true });
+    this.onAddPatientRequired(() => {
+      this.setState({ displayReadingModal: true });
+    }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
 
   closeReadingModal = () => {
@@ -187,7 +230,9 @@ class Component extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    const patientData = JSON.parse(JSON.stringify(this.state.selectedPatient)); // pass by value
+
+    // pass by value
+    const patientData = JSON.parse(JSON.stringify(this.state.selectedPatient));
     const patientId = patientData.patientId;
 
     // delete any unnecessary fields
@@ -196,7 +241,6 @@ class Component extends React.Component {
     delete patientData.tableData;
     delete patientData.patientId;
 
-    // let patientJSON = JSON.stringify(patientData);
     this.props.updatePatient(patientId, patientData);
     this.closePatientModal('formSubmitted');
   };
@@ -221,7 +265,7 @@ class Component extends React.Component {
           userId: this.props.user.userId,
           readingId: readingID,
           dateTimeTaken: dateTime,
-          symptoms: symptom.toString(),
+          symptoms: symptom,
           dateRecheckVitalsNeeded: null,
         },
       },
@@ -275,6 +319,31 @@ class Component extends React.Component {
           isPregnant: false,
         },
       });
+    } else if (value.name === `gestationalAgeUnit`) {
+      this.setState(
+        {
+          selectedPatient: {
+            ...this.state.selectedPatient,
+            [value.name]: value.value,
+          },
+        },
+        (): void => {
+          this.setState({
+            selectedPatient: {
+              ...this.state.selectedPatient,
+              gestationalAgeValue:
+                this.state.selectedPatient.gestationalAgeUnit ===
+                GESTATIONAL_AGE_UNITS.WEEKS
+                  ? monthsToWeeks(
+                      this.state.selectedPatient.gestationalAgeValue
+                    )
+                  : weeksToMonths(
+                      this.state.selectedPatient.gestationalAgeValue
+                    ),
+            },
+          });
+        }
+      );
     } else {
       this.setState({
         selectedPatient: {
@@ -573,13 +642,20 @@ class Component extends React.Component {
 
     return (
       <div>
+        <AddPatientPrompt
+          addPatient={this.state.actionAfterAdding}
+          closeDialog={this.hidePrompt}
+          show={this.state.showPrompt}
+          message={this.state.promptMessage}
+          positiveText="Yes"
+        />
         {this.state.selectedPatient ? (
           <div style={{ margin: '2.5em 0' }}>
             <h1 style={{ width: '70%', margin: '-1.35em 0' }}>
               <Icon
                 style={{
                   cursor: 'pointer',
-                  'line-height': '0.7em',
+                  lineHeight: '0.7em',
                 }}
                 size="large"
                 name="chevron left"
@@ -594,7 +670,6 @@ class Component extends React.Component {
               <Icon name="plus" size="large" />
               <Typography
                 variant="body2"
-                component="body2"
                 style={{
                   lineHeight: '1.5em',
                   padding: '10px',
@@ -620,7 +695,7 @@ class Component extends React.Component {
                   }}>
                   <Typography variant="h5" component="h3">
                     <Icon
-                      style={{ 'line-height': '0.7em' }}
+                      style={{ lineHeight: '0.7em' }}
                       name="address card outline"
                       size="large"
                     />
@@ -666,32 +741,32 @@ class Component extends React.Component {
                             : 'month(s)'}
                         </p>
                       )}
-                    <ExpansionPanel>
-                      <ExpansionPanelSummary
+                    <Accordion>
+                      <AccordionSummary
                         expandIcon={<Icon name="chevron down" />}
                         aria-controls="panel1a-content"
                         id="panel1a-header">
                         <Typography>Drug History</Typography>
-                      </ExpansionPanelSummary>
-                      <ExpansionPanelDetails>
+                      </AccordionSummary>
+                      <AccordionDetails>
                         <Typography>
                           {this.state.selectedPatient.drugHistory}
                         </Typography>
-                      </ExpansionPanelDetails>
-                    </ExpansionPanel>
-                    <ExpansionPanel>
-                      <ExpansionPanelSummary
+                      </AccordionDetails>
+                    </Accordion>
+                    <Accordion>
+                      <AccordionSummary
                         expandIcon={<Icon name="chevron down" />}
                         aria-controls="panel1a-content"
                         id="panel1a-header">
                         <Typography>Medical History</Typography>
-                      </ExpansionPanelSummary>
-                      <ExpansionPanelDetails>
+                      </AccordionSummary>
+                      <AccordionDetails>
                         <Typography>
                           {this.state.selectedPatient.medicalHistory}
                         </Typography>
-                      </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                      </AccordionDetails>
+                    </Accordion>
                     <Divider />
                     <Button onClick={() => this.openPatientModal()}>
                       Edit Patient
@@ -714,7 +789,7 @@ class Component extends React.Component {
                   }}>
                   <Typography variant="h5" component="h3">
                     <Icon
-                      style={{ 'line-height': '0.7em' }}
+                      style={{ lineHeight: '0.7em' }}
                       name="heartbeat"
                       size="large"
                     />
@@ -774,9 +849,9 @@ class Component extends React.Component {
               </Grid>
             </Grid>
             <br />
-            <Grid container spacing={0}>
+            <Grid container={true} spacing={0}>
               {readings.map((row) => (
-                <Grid key={row.readingId} xs={12}>
+                <Grid key={row.readingId} item={true} xs={12}>
                   <Paper
                     style={{
                       marginBottom: '35px',
@@ -794,7 +869,7 @@ class Component extends React.Component {
                         Reading
                       </Typography>
 
-                      <Typography variant="subtitle1" component="subtitle1">
+                      <Typography variant="subtitle1">
                         Taken on {getPrettyDateTime(row.dateTimeTaken)}
                       </Typography>
 
@@ -815,20 +890,31 @@ class Component extends React.Component {
                           <b>Heart Rate (BPM): </b> {row.heartRateBPM}{' '}
                         </p>
                         <p>
-                          <b>Symptoms: </b> {row.symptoms}{' '}
+                          <b>Symptoms</b>
+                          <div
+                            style={{
+                              display: `flex`,
+                              flexDirection: `column`,
+                            }}>
+                            {row.symptoms.map(
+                              (symptom): JSX.Element => (
+                                <span key={symptom}>{symptom}</span>
+                              )
+                            )}
+                          </div>
                         </p>
                         {row.urineTests && (
                           <div>
-                            <ExpansionPanel>
-                              <ExpansionPanelSummary
+                            <Accordion>
+                              <AccordionSummary
                                 expandIcon={<Icon name="chevron down" />}
                                 aria-controls="panel1a-content"
                                 id="panel1a-header">
                                 <Typography>
                                   <b>Urine Tests Result</b>
                                 </Typography>
-                              </ExpansionPanelSummary>
-                              <ExpansionPanelDetails>
+                              </AccordionSummary>
+                              <AccordionDetails>
                                 <Typography>
                                   <p>
                                     <b>{urineTestChemicals.LEUC}: </b>{' '}
@@ -851,8 +937,8 @@ class Component extends React.Component {
                                     {row.urineTests.urineTestBlood}{' '}
                                   </p>
                                 </Typography>
-                              </ExpansionPanelDetails>
-                            </ExpansionPanel>
+                              </AccordionDetails>
+                            </Accordion>
                           </div>
                         )}
                       </div>
@@ -998,6 +1084,8 @@ const mapStateToProps = ({
   user: user.current.data,
   referrals: referrals.mappedReferrals,
   selectedPatientStatsList: patientStatistics.data ?? {},
+  selectedPatientState: patients.selectedPatientState,
+  selectedPatient: patients.patient,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -1005,7 +1093,10 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(getPatientsRequested());
     dispatch(getPatients());
   },
-
+  addPatientToHealthFacility: (patient: GlobalSearchPatient): void => {
+    dispatch(addPatientToHealthFacilityRequested(patient));
+    dispatch(addPatientToHealthFacility(patient));
+  },
   getPatientStatistics: (petientId) => {
     dispatch(startRequest());
     dispatch(getPatientStatistics(petientId));
@@ -1016,6 +1107,7 @@ const mapDispatchToProps = (dispatch) => ({
       getCurrentUser,
       updatePatient,
       newReadingPost,
+      updateSelectedPatientState,
     },
     dispatch
   ),

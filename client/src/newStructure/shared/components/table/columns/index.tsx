@@ -10,6 +10,7 @@ import classes from './styles.module.css';
 export const initials: Column<Patient | GlobalSearchPatient> = {
   title: `Patient Initials`,
   field: `patientName`,
+  searchable: true,
   render: (rowData: Patient | GlobalSearchPatient): JSX.Element => (
     <p className={classes.text}>{rowData.patientName}</p>
   ),
@@ -25,11 +26,13 @@ export const patientId: Column<Patient | GlobalSearchPatient> = {
     patient: Patient | GlobalSearchPatient,
     otherPatient: Patient | GlobalSearchPatient
   ) => Number(patient.patientId) - Number(otherPatient.patientId),
+  searchable: true,
 };
 
 export const village: Column<Patient | GlobalSearchPatient> = {
   title: `Village`,
   field: `villageNumber`,
+  searchable: false,
 };
 
 export const vitalSign: Column<Patient | GlobalSearchPatient> = {
@@ -52,4 +55,5 @@ export const vitalSign: Column<Patient | GlobalSearchPatient> = {
 
     return rightIndex - leftIndex;
   },
+  searchable: false,
 };

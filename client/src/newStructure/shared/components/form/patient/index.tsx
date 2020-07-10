@@ -6,6 +6,10 @@ import {
   Select,
   TextArea,
 } from 'semantic-ui-react';
+import {
+  gestationalAgeValueMonthOptions,
+  gestationalAgeValueWeekOptions,
+} from '../../../utils';
 
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
@@ -118,21 +122,18 @@ export const PatientInfoForm: React.FC<any> = (props) => {
           onChange={props.onChange}
           disabled={props.patient.patientSex === 'MALE'}
         />
-        <Form.Field
-          className={classes.input}
+        <Form.Dropdown
           name="gestationalAgeValue"
           value={props.patient.gestationalAgeValue}
-          control={Input}
-          label="Gestational Age"
-          placeholder="Gestational Age"
-          type="number"
-          min="1"
-          max={
+          control={Select}
+          options={
             props.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
-              ? '60'
-              : '13'
+              ? gestationalAgeValueWeekOptions
+              : gestationalAgeValueMonthOptions
           }
+          search={true}
           onChange={props.onChange}
+          label="Gestational Age"
           disabled={
             props.patient.patientSex === 'MALE' || !props.patient.isPregnant
           }
