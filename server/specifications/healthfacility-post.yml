@@ -33,3 +33,17 @@ responses:
                 type: array
                 items: integer
                 example: []
+              healthFacilityPhoneNumber:
+                type: string
+                example: null
+              location:
+                type: string
+                example: null
+              facilityType:
+                type: string
+                enum: [HCF_2, HCF_3, HCF_4, HOSPITAL]
+                example: null
+              about:
+                type: string | Null
+                example: null
+                

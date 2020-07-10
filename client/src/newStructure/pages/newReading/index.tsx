@@ -1,5 +1,4 @@
 import './index.css';
-import React from 'react';
 
 import { Button, Divider, Form } from 'semantic-ui-react';
 import {
@@ -9,25 +8,22 @@ import {
   User,
 } from '../../types';
 import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from './patientInfoForm';
-import { Component } from 'react';
 import { UrineTestForm, initialUrineTests } from './urineTestForm';
 import {
   addNewReading,
   resetNewReadingStatus,
 } from '../../shared/reducers/newReadingStatus';
+import { monthsToWeeks, weeksToMonths } from '../../shared/utils';
 
 import { BpForm } from './bpForm';
+import { Component } from 'react';
+import React from 'react';
 import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from './symptomForm';
 import { addNewPatient } from '../../shared/reducers/patients';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-// import Dialog from '@material-ui/core/Dialog';
-// import DialogTitle from '@material-ui/core/DialogTitle';
-// import DialogContent from '@material-ui/core/DialogContent';
-// import DialogContentText from '@material-ui/core/DialogContentText';
-// import DialogActions from '@material-ui/core/DialogActions';
 
 const symptom: any = [];
 
@@ -46,7 +42,7 @@ const initState = {
     patientAge: null,
     patientSex: 'FEMALE',
     isPregnant: true,
-    gestationalAgeValue: '',
+    gestationalAgeValue: '1',
     gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
     zone: '',
     dob: null,
@@ -146,6 +142,27 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           isPregnant: false,
         },
       });
+    } else if (value.name === `gestationalAgeUnit`) {
+      this.setState(
+        {
+          patient: {
+            ...this.state.patient,
+            [value.name]: value.value,
+          },
+        },
+        (): void => {
+          this.setState({
+            patient: {
+              ...this.state.patient,
+              gestationalAgeValue:
+                this.state.patient.gestationalAgeUnit ===
+                GESTATIONAL_AGE_UNITS.WEEKS
+                  ? monthsToWeeks(this.state.patient.gestationalAgeValue)
+                  : weeksToMonths(this.state.patient.gestationalAgeValue),
+            },
+          });
+        }
+      );
     } else {
       this.setState({
         patient: { ...this.state.patient, [value.name]: value.value },
@@ -268,7 +285,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           userId: this.props.user.userId.toString(),
           readingId: readingID,
           dateTimeTaken: dateTimeTaken.toString(),
-          symptoms: symptom.toString(),
+          symptoms: symptom,
         },
       },
       (): void => {

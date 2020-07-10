@@ -93,3 +93,37 @@ export const URINE_TEST_CHEMICALS = {
   PRO: `Protein`,
   BLOOD: `Blood`,
 };
+
+export const monthsToWeeks = (value: string): string => {
+  return `${Number(value) * 4}`;
+};
+
+export const weeksToMonths = (value: string): string => {
+  const rawValue = Math.floor(Number(value) / 4);
+  return `${Math.max(1, rawValue)}`;
+};
+
+enum GestationLimitsEnum {
+  WEEKS = 43,
+  MONTHS = 10,
+}
+
+export const gestationalAgeValueWeekOptions = new Array(
+  GestationLimitsEnum.WEEKS
+)
+  .fill(null)
+  .map((_: null, index: number) => ({
+    key: `${index + 1}`,
+    text: `${index + 1}`,
+    value: `${index + 1}`,
+  }));
+
+export const gestationalAgeValueMonthOptions = new Array(
+  GestationLimitsEnum.MONTHS
+)
+  .fill(null)
+  .map((_: null, index: number) => ({
+    key: `${index + 1}`,
+    text: `${index + 1}`,
+    value: `${index + 1}`,
+  }));
