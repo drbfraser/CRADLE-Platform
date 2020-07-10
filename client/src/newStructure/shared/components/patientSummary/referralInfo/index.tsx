@@ -17,18 +17,18 @@ export default class ReferralInfo extends Component {
             {ref.followUp ? 'Referral Assessed' : 'Referral Pending'}
           </Typography>
           <br />
-          <Typography variant="subtitle1" component="subtitle1">
+          <Typography variant="subtitle1">
             <Icon
               name="clock outline"
               size="large"
-              style={{ 'line-height': '0.7em' }}
+              style={{ lineHeight: '0.7em' }}
             />
             Referred on {getPrettyDateTime(ref.dateReferred)}
           </Typography>
           <br /> <br />
-          <Typography variant="subtitle1" component="subtitle1">
+          <Typography variant="subtitle1">
             <Icon
-              style={{ 'line-height': '0.7em' }}
+              style={{ lineHeight: '0.7em' }}
               name="building outline"
               size="large"
             />
@@ -39,9 +39,7 @@ export default class ReferralInfo extends Component {
               <Typography variant="h6" component="h6">
                 Comment:
               </Typography>
-              <Typography variant="subtitle1" component="subtitle1">
-                {ref.comment}
-              </Typography>
+              <Typography variant="subtitle1">{ref.comment}</Typography>
             </div>
           )}
           <br />

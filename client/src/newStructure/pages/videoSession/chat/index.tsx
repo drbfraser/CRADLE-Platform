@@ -33,7 +33,6 @@ class Component extends React.Component<IProps, IState> {
   }
 
   appendRemoteMessage = (event: any): void => {
-    console.log(event);
     const sender = this.getSender(true);
 
     this.setState(

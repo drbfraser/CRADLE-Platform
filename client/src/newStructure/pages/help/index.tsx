@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { CommunityWorkerResources } from './CommunityWorkerResource';
 import { HealthWorkerResources } from './HealthWorkerResources';
+import { CovidHelp } from './CovidHelp';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
 import { Tab } from 'semantic-ui-react';
 import { bindActionCreators } from 'redux';
@@ -22,6 +23,14 @@ const panes = [
     render: () => (
       <Tab.Pane>
         <HealthWorkerResources />
+      </Tab.Pane>
+    ),
+  },
+  {
+    menuItem: 'Covid-19 Help',
+    render: () => (
+      <Tab.Pane>
+        <CovidHelp />
       </Tab.Pane>
     ),
   },
