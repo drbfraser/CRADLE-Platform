@@ -1,5 +1,4 @@
 import './index.css';
-import React from 'react';
 
 import { Button, Divider, Form } from 'semantic-ui-react';
 import {
@@ -9,7 +8,6 @@ import {
   User,
 } from '../../types';
 import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from './patientInfoForm';
-import { Component } from 'react';
 import { UrineTestForm, initialUrineTests } from './urineTestForm';
 import {
   addNewReading,
@@ -17,12 +15,15 @@ import {
 } from '../../shared/reducers/newReadingStatus';
 
 import { BpForm } from './bpForm';
+import { Component } from 'react';
+import React from 'react';
 import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from './symptomForm';
 import { addNewPatient } from '../../shared/reducers/patients';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+
 // import Dialog from '@material-ui/core/Dialog';
 // import DialogTitle from '@material-ui/core/DialogTitle';
 // import DialogContent from '@material-ui/core/DialogContent';
@@ -268,7 +269,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           userId: this.props.user.userId.toString(),
           readingId: readingID,
           dateTimeTaken: dateTimeTaken.toString(),
-          symptoms: symptom.toString(),
+          symptoms: symptom,
         },
       },
       (): void => {
