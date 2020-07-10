@@ -83,7 +83,6 @@ backend format:
   image: python:3.7.6-buster
   tags:
     - docker
-  allow_failure: true
   rules:
     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
       when: always
