@@ -20,6 +20,8 @@ import {
   getMomentDate,
   getPrettyDateTime,
   getPrettyDateUTC,
+  monthsToWeeks,
+  weeksToMonths,
 } from '../../utils';
 import {
   getPatientStatistics,
@@ -317,6 +319,31 @@ class Component extends React.Component {
           isPregnant: false,
         },
       });
+    } else if (value.name === `gestationalAgeUnit`) {
+      this.setState(
+        {
+          selectedPatient: {
+            ...this.state.selectedPatient,
+            [value.name]: value.value,
+          },
+        },
+        (): void => {
+          this.setState({
+            selectedPatient: {
+              ...this.state.selectedPatient,
+              gestationalAgeValue:
+                this.state.selectedPatient.gestationalAgeUnit ===
+                GESTATIONAL_AGE_UNITS.WEEKS
+                  ? monthsToWeeks(
+                      this.state.selectedPatient.gestationalAgeValue
+                    )
+                  : weeksToMonths(
+                      this.state.selectedPatient.gestationalAgeValue
+                    ),
+            },
+          });
+        }
+      );
     } else {
       this.setState({
         selectedPatient: {
