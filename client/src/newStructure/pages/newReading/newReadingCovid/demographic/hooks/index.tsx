@@ -14,10 +14,11 @@ export const useNewPatient = () => {
     gestationalAgeValue: '',
     gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
     zone: '',
-    dob: null,
+    dob: '2004-01-01',
     villageNumber: '',
     drugHistory: '',
     medicalHistory: '',
+    dobOrAge: 'left',
     householdError: false,
     patientInitialError: false,
     patientIdError: false,
@@ -42,6 +43,7 @@ export const useNewPatient = () => {
   const handleChangePatient = (e: any) => {
     const errors: any = validateInput(e.target.name, e.target.value);
     const name = e.target.name;
+    console.log(name, e.target.value);
 
     if (name === 'patientSex') {
       if (e.target.value === 'MALE') {
@@ -73,7 +75,8 @@ export const useNewPatient = () => {
       }
     }
     if (name === 'dob') {
-      const calculatedAge: number = getAgeBasedOnDOB(e.target.value);
+      const dob = e.target.value ? e.target.value : patient.dob;
+      const calculatedAge: number = getAgeBasedOnDOB(dob);
       setPatient({
         ...patient,
         [name]: e.target.value,
@@ -110,6 +113,12 @@ export const useNewPatient = () => {
       });
     }
     if (name == 'gestationalAgeUnit') {
+      setPatient({
+        ...patient,
+        [name]: e.target.value,
+      });
+    }
+    if (name == 'dobOrAge') {
       setPatient({
         ...patient,
         [name]: e.target.value,

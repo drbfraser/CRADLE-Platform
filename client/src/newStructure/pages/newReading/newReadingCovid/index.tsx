@@ -174,6 +174,7 @@ const Page: React.FC<IProps> = (props) => {
                 Back
               </Button>
               <Button
+                disabled={!patient.patientId}
                 className={classes.nextButton}
                 variant="contained"
                 color="primary"

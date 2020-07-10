@@ -67,7 +67,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'leukocytes'}
               onChange={props.onChange}
               required>
-              <MenuItem value={'m'}>-</MenuItem>
+              <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>
@@ -83,7 +83,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'nitrites'}
               onChange={props.onChange}
               required>
-              <MenuItem value={'m'}>-</MenuItem>
+              <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>
@@ -99,7 +99,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'glucose'}
               onChange={props.onChange}
               required>
-              <MenuItem value={'m'}>-</MenuItem>
+              <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>
@@ -115,7 +115,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'protein'}
               onChange={props.onChange}
               required>
-              <MenuItem value={'m'}>-</MenuItem>
+              <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>
@@ -131,7 +131,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'blood'}
               onChange={props.onChange}
               required>
-              <MenuItem value={'m'}>-</MenuItem>
+              <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>

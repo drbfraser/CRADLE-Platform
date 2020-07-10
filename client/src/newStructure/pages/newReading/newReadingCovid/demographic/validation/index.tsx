@@ -18,10 +18,12 @@ export const validateInput = (name: any, value: any) => {
     drugHistoryError: false,
     medicalHistoryError: false,
   };
-
-  const year: string = value.substr(0, value.indexOf('-'));
-  const yearNow: number = new Date().getUTCFullYear();
-  const age = yearNow - +year;
+  let age = 15;
+  if (name === 'dob') {
+    const year: string = value.substr(0, value.indexOf('-'));
+    const yearNow: number = new Date().getUTCFullYear();
+    age = yearNow - +year;
+  }
   switch (name) {
     case 'patientInitial':
       if (value.length > 4 || hasNumber(value) || value.length == 0) {
