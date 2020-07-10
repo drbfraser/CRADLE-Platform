@@ -1,4 +1,4 @@
-Get a follow-up for mobile
+Get a complete follow-up for mobile
 ---
 tags:
   - Mobile
@@ -10,7 +10,7 @@ parameters:
       type: integer
 responses:
   200:
-    description: A follow-up for mobile
+    description: Get a complete follow-up for mobile
     content:
       application/json:
         schema:
