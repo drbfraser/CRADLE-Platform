@@ -11,10 +11,22 @@ export const useNewUrineTest = () => {
   });
   const handleChangeUrineTest = (e: any) => {
     if (e.target.name == 'enabled') {
-      setUrineTest({
-        ...urineTest,
-        [e.target.name]: e.target.checked,
-      });
+      if (!e.target.checked) {
+        setUrineTest({
+          ...urineTest,
+          [e.target.name]: e.target.checked,
+          leukocytes: '',
+          blood: '',
+          protein: '',
+          glucose: '',
+          nitrites: '',
+        });
+      } else {
+        setUrineTest({
+          ...urineTest,
+          [e.target.name]: e.target.checked,
+        });
+      }
     } else {
       setUrineTest({
         ...urineTest,

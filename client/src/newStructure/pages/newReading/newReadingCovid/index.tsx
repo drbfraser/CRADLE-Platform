@@ -162,7 +162,7 @@ const Page: React.FC<IProps> = (props) => {
             <Typography className={classes.instructions}>
               All steps completed
             </Typography>
-            <Button onClick={handleReset}>Reset</Button>
+            <Button onClick={handleReset}>Create New Patient/Reading</Button>
           </div>
         ) : (
           <div>
@@ -179,7 +179,7 @@ const Page: React.FC<IProps> = (props) => {
                 variant="contained"
                 color="primary"
                 onClick={handleNext}>
-                {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
               </Button>
             </div>
           </div>
