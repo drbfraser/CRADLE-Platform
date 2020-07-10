@@ -193,24 +193,10 @@ class Reading(db.Model):
     heartRateBPM = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
-    dateLastSaved = db.Column(db.BigInteger)
     dateTimeTaken = db.Column(db.BigInteger)
-    dateUploadedToServer = db.Column(db.BigInteger)
     dateRecheckVitalsNeeded = db.Column(db.BigInteger)
-
-    gpsLocationOfReading = db.Column(db.String(50))
     retestOfPreviousReadingIds = db.Column(db.String(100))
     isFlaggedForFollowup = db.Column(db.Boolean)
-    appVersion = db.Column(db.String(50))
-    deviceInfo = db.Column(db.String(50))
-    totalOcrSeconds = db.Column(db.Float)
-    manuallyChangeOcrResults = db.Column(db.Integer)
-    temporaryFlags = db.Column(db.Integer)
-    userHasSelectedNoSymptoms = db.Column(db.Boolean)
-    # change this to enum (currently cumbersome because currently system saves data
-    # straight from json, values look like 'g ++' and we cannot have enums with that
-    # name) so need some sort of way to map it over manually when saving data
-    urineTest = db.Column(db.String(50))
 
     # FOREIGN KEYS
     userId = db.Column(
@@ -224,7 +210,6 @@ class Reading(db.Model):
     patient = db.relationship("Patient", backref=db.backref("readings", lazy=True))
     urineTests = db.relationship("UrineTest", backref=db.backref("reading", lazy=True))
 
-    # @hybrid_property
     def get_traffic_light(self):
         RED_SYSTOLIC = 160
         RED_DIASTOLIC = 110
@@ -263,54 +248,6 @@ class Reading(db.Model):
             trafficLight = TrafficLightEnum.GREEN.name
 
         return trafficLight
-
-    def __init__(
-        self,
-        userId,
-        patientId,
-        readingId,
-        bpSystolic,
-        bpDiastolic,
-        heartRateBPM,
-        symptoms,
-        trafficLightStatus=None,
-        dateLastSaved=None,
-        dateTimeTaken=None,
-        dateUploadedToServer=None,
-        dateRecheckVitalsNeeded=None,
-        gpsLocationOfReading=None,
-        retestOfPreviousReadingIds=None,
-        isFlaggedForFollowup=None,
-        appVersion=None,
-        deviceInfo=None,
-        totalOcrSeconds=None,
-        manuallyChangeOcrResults=None,
-        temporaryFlags=None,
-        userHasSelectedNoSymptoms=None,
-        urineTest=None,
-    ):
-        self.userId = userId
-        self.patientId = patientId
-        self.readingId = readingId
-        self.bpSystolic = bpSystolic
-        self.bpDiastolic = bpDiastolic
-        self.heartRateBPM = heartRateBPM
-        self.symptoms = symptoms
-        self.trafficLightStatus = self.get_traffic_light()
-        self.dateTimeTaken = dateTimeTaken
-        self.dateLastSaved = dateLastSaved
-        self.dateUploadedToServer = dateUploadedToServer
-        self.dateRecheckVitalsNeeded = dateRecheckVitalsNeeded
-        self.gpsLocationOfReading = gpsLocationOfReading
-        self.retestOfPreviousReadingIds = retestOfPreviousReadingIds
-        self.isFlaggedForFollowup = isFlaggedForFollowup
-        self.appVersion = appVersion
-        self.deviceInfo = deviceInfo
-        self.totalOcrSeconds = totalOcrSeconds
-        self.manuallyChangeOcrResults = manuallyChangeOcrResults
-        self.temporaryFlags = temporaryFlags
-        self.userHasSelectedNoSymptoms = userHasSelectedNoSymptoms
-        self.urineTest = urineTest
 
 
 class FollowUp(db.Model):
