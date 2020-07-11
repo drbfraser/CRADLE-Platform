@@ -133,6 +133,8 @@ ENV/
 client/src/containers/home/interview.java
 endpoints.md
 
+**/.idea/
+
 #----------------------
 assets/
 client/.idea/
