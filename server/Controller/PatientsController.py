@@ -108,7 +108,7 @@ class PatientAll(Resource):
         abort_if_patient_exists(patient_data["patientId"])
         invalid = PatientValidation.check_patient_fields(patient_data)
         if invalid is not None:
-            return invalid
+            return {"HTTP 400": invalid}, 400
 
         # if age is not provided, populate age using dob
         if (
@@ -199,11 +199,11 @@ class PatientReading(Resource):
         )
 
         if is_invalid_patient is not None:
-            return is_invalid_patient
+            return {"HTTP 400": is_invalid_patient}, 400
 
         # validate with new reading validator
         if is_invalid_reading is not None:
-            return is_invalid_reading
+            return {"HTTP 400": is_invalid_reading}, 400
 
         patient_data = patient_reading_data["patient"]
         if (

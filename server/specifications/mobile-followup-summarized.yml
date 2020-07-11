@@ -1,0 +1,85 @@
+Get a summarized follow-up for mobile
+---
+tags:
+  - Mobile
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: Get a summarized follow-up for mobile
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            diagnosis:
+              type: string | Null
+              example: "Has internal bleeding"
+            treatment:
+              type: string | Null
+              example: "One dose of Tylenol everyday"
+            dateAssessed:
+              type: Unix timestamp
+              example: 1573902253
+            followupNeeded:
+              type: boolean | Null
+              example: false
+            followUpNeeded:
+              type: boolean | Null
+              example: true
+            medicationPrescribed:
+              type: string | Null
+              example: "Tylenol"
+            specialInvestigations:
+              type: string | Null
+              example: "See about the chronic headaches"
+            dateFollowupNeededTill:
+              type: Unix timestamp | Null
+              example: 1262304000
+            followupFrequencyValue:
+              type: float | Null
+              example: 3.0
+            followupFrequencyUnit:
+              type: string | Null
+              enum: [NONE, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS]
+              example: MINUTES
+            patient:
+              type: object
+              properties:
+                drugHistory:
+                  type: string | Null
+                  example: "Antibiotics"
+                medicalHistory:
+                  type: string | Null
+                  example: "has heart conditions"
+                patientId:
+                  type: string
+                  example: 48300058906
+            readingId:
+              type: string
+              example: 5b0fa177-6e35-42eb-b97b-8eb76ad70d82
+            referredBy:
+              type: string | Null
+              example: null
+            healthFacility:
+              type: object
+              properties:
+                healthcareWorker:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    email:
+                      type: string
+                      example: "admin123@admin.com"
+                name:
+                  type: string
+                  example: "H1001"
