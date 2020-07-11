@@ -450,6 +450,8 @@ def test_no_initials_matches():
         response_body["message"]
         == "No patients matching the search criteria currently exist."
     )
+
+
 def test_fail_create_patient_invalid_gestational_age_weeks():
     # should fail because max gestational age for weeks is 43
     patient_id = get_random_patient_id()
