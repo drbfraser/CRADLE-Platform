@@ -90,12 +90,10 @@ frontend lint:
       - client/**/*
       when: always
   before_script:
-    - npm install eslint --global
-    - npm install eslint-plugin-react --global
-    - npm install eslint-plugin-prettier --global
-    - npm install @typescript-eslint/eslint-plugin --global
+    - cd client
+    - npm install
   script:
-    - eslint "client/src/**/*.{ts,tsx}"
+    - ./node_modules/.bin/eslint "client/src/**/*.{ts,tsx}"
 
 frontend format:
   stage: format
@@ -111,7 +109,7 @@ frontend format:
   before_script:
     - npm install prettier --global
   script:
-    - prettier --check "./client/src/**/*.(ts|tsx)"
+    - prettier --check "client/src/**/*.{ts,tsx}"
 
 backend format:
   stage: format
