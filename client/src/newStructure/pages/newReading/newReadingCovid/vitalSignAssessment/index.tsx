@@ -5,10 +5,9 @@ import {
   InputLabel,
   Paper,
   InputAdornment,
+  TextField,
 } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import { UrineTest } from '../urineTestAssessment';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -57,34 +56,30 @@ const Page: React.FC<IProps> = (props) => {
 
         <form className={classes.root} noValidate autoComplete="off">
           <FormControl className={classes.formField}>
-            <InputLabel htmlFor="input-with-icon-adornment">
-              Systolic
-            </InputLabel>
-            <Input
+            <TextField
+              error={props.vitals.bpSystolicError}
+              label={'Systolic'}
               onChange={props.onChange}
               name={'bpSystolic'}
               value={props.vitals.bpSystolic}
-              id="input-with-icon-adornment"
-              startAdornment={
-                <InputAdornment position="start">
-                  <FavoriteIcon />
-                </InputAdornment>
+              variant="outlined"
+              type="number"
+              helperText={
+                props.vitals.bpSystolicError ? 'Must be between 50 - 300.' : ''
               }
             />
           </FormControl>
           <FormControl className={classes.formField}>
-            <InputLabel htmlFor="input-with-icon-adornment">
-              Diastolic
-            </InputLabel>
-            <Input
+            <TextField
+              error={props.vitals.bpDiastolicError}
+              label={'Diastolic'}
               onChange={props.onChange}
               name={'bpDiastolic'}
               value={props.vitals.bpDiastolic}
-              id="input-with-icon-adornment"
-              startAdornment={
-                <InputAdornment position="start">
-                  <FavoriteBorderIcon />
-                </InputAdornment>
+              variant="outlined"
+              type="number"
+              helperText={
+                props.vitals.bpDiastolicError ? 'Must be between 50 - 300.' : ''
               }
             />
           </FormControl>

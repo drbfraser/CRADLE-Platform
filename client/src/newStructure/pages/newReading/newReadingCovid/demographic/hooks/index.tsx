@@ -43,7 +43,7 @@ export const useNewPatient = () => {
   const handleChangePatient = (e: any) => {
     const errors: any = validateInput(e.target.name, e.target.value);
     const name = e.target.name;
-    console.log(name, e.target.value);
+    console.log(e.target, e.target.value);
 
     if (name === 'patientSex') {
       if (e.target.value === 'MALE') {

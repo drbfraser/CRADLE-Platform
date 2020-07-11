@@ -101,14 +101,14 @@ const Page: React.FC<IProps> = (props) => {
         <ToggleButtonGroup
           className={classes.formField}
           size="medium"
-          value={props.patient.dobOrAge}
           exclusive
+          value={props.patient.dobOrAge}
           onChange={props.onChange}>
           <ToggleButton value="left" name={'dobOrAge'}>
             Birthday
           </ToggleButton>
           <ToggleButton value="right" name={'dobOrAge'}>
-            Age
+            Date
           </ToggleButton>
         </ToggleButtonGroup>
         <FormControl className={classes.formField}>
