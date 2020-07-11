@@ -56,7 +56,7 @@ class FollowUp(Resource):
         logging.debug("Received request: POST /follow_up")
         current_user = get_jwt_identity()
         follow_up_data = _get_request_body()
-        response_body = followUpManager.create(follow_up_data, current_user)
+        response_body = followUpManager.create_for_user(follow_up_data, current_user)
         return response_body, 201
 
     @jwt_required

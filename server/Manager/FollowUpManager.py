@@ -1,8 +1,10 @@
+from config import db
 from Database.FollowUpRepo import FollowUpRepo
 from Manager.Manager import Manager
 from Manager import referralManager
 from Manager import patientManager
-from utils import get_current_time, pprint
+from models import FollowUp
+from utils import get_current_time
 
 
 class FollowUpManager(Manager):
@@ -124,6 +126,30 @@ class FollowUpManager(Manager):
             res["healthFacility"] = None
 
         return res
+
+    def create_for_user(self, data: dict, user: dict) -> dict:
+        """
+        Creates a new follow up by inserting a row into the database and marking the
+        associated referral (if any) as `assessed`.
+
+        :param data: A dictionary containing followup information
+        :param user: A dictionary containing information about the user that created
+                     this followup
+        :return: The new follow up that was inserted into the database
+        """
+        data["dateAssessed"] = get_current_time()
+        data["healthcareWorkerId"] = user["userId"]
+        repo: FollowUpRepo = self.database
+        followup: FollowUp = repo.create_from_dict(data)
+
+        # If the followup's reading has an associated referral, mark that as assessed
+        reading = followup.reading
+        referral = reading.referral
+        if referral:
+            referral.isAssessed = True
+            db.session.commit()
+
+        return repo.model_to_dict(followup)
 
     def create(self, data, user):
 

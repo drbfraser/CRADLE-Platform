@@ -107,7 +107,7 @@ class PatientManager(Manager):
                     if reading_json["referral"]:
 
                         top_ref = referralManager.read("id", reading_json["referral"])
-                        if not top_ref["followUp"]:
+                        if not top_ref["isAssessed"]:
                             needs_assessment = True
 
                         reading_json["comment"] = top_ref["comment"]

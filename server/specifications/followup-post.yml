@@ -9,37 +9,27 @@ requestBody:
       schema:
         type: object
         properties:
-          diagnosis:
-            type: string | Null
-            example: Asthma
-          treatment:
-            type: string | Null
-            example: Inhaler
-          specialInvestigations:
-            type: string | Null
-            example: Investigate chronic fatigue
-          medicationPrescribed:
-            type: string | Null
-            example: Tylenol
-          followupNeeded:
-            type: boolean | Null
-            example: true
-          dateFollowupNeededTill:
-            type: Unix timestamp | Null
-            example: 1262304000
           followupInstructions:
             type: string | Null
-            example: Check temperature
-          followupFrequencyUnit:
+            example: Do x, y, and z.
+          specialInvestigations:
             type: string | Null
-            enum: [NONE, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS]
-            example: WEEKS
-          followupFrequencyValue:
-            type: float | Null
-            example: 3.0
-          referral:
-            type: integer | Null
-            example: 20
+            example: Investigate chronic fatigue.
+          diagnosis:
+            type: string | Null
+            example: Patient has x, y, and z.
+          treatment:
+            type: string | Null
+            example: Patient should do x, y, and z.
+          medicationPrescribed:
+            type: string | Null
+            example: x, y, and z
+          followupNeeded:
+            type: boolean
+            example: true
+          readingId:
+            type: uuid
+            example: 4cb6386d-9c12-4ee8-a855-6823dbd137ca
 responses:
   200:
     description: New follow-up
