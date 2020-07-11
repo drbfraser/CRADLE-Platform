@@ -93,7 +93,7 @@ frontend lint:
     - cd client
     - npm install
   script:
-    - ./node_modules/.bin/eslint "client/src/**/*.{ts,tsx}"
+    - ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
 
 frontend format:
   stage: format
