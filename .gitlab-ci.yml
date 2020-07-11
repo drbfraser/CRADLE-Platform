@@ -91,6 +91,9 @@ frontend lint:
       when: always
   before_script:
     - npm install eslint --global
+    - npm install eslint-plugin-react --global
+    - npm install eslint-plugin-prettier --global
+    - npm install @typescript-eslint/eslint-plugin --global
   script:
     - eslint "client/src/**/*.{ts,tsx}"
 
