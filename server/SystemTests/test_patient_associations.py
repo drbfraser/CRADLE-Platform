@@ -2,6 +2,7 @@ from Manager.PatientAssociationsManager import (
     PatientAssociationsManager,
     patients_for_user,
     patients_at_facility,
+    has_association,
 )
 
 
@@ -102,3 +103,31 @@ def test_associate_by_id_creates_association(
     manager.associate_by_id(p.patientId, f.healthFacilityName, u.id)
 
     assert patients_for_user(u) == [p]
+
+
+def test_has_association(patient_factory, facility_factory, user_factory):
+    u1 = user_factory.create(email="u1@a")
+    u2 = user_factory.create(email="u2@a")
+
+    f1 = facility_factory.create(healthFacilityName="F1")
+    f2 = facility_factory.create(healthFacilityName="F2")
+
+    p1 = patient_factory.create(patientId="8901")
+    p2 = patient_factory.create(patientId="8902")
+
+    manager = PatientAssociationsManager()
+    manager.associate(p1, f1, u1)
+    manager.associate(p2, f2, u2)
+
+    assert has_association(patient=p1, facility=f1, user=u1)
+    assert has_association(patient=p2, facility=f2, user=u2)
+    assert not has_association(patient=p1, facility=f2, user=u1)
+    assert not has_association(patient=p2, facility=f2, user=u1)
+
+    assert has_association(patient=p1, facility=f1)
+    assert has_association(patient=p1, user=u1)
+    assert has_association(facility=f1, user=u1)
+
+    assert not has_association(patient=p2, facility=f1)
+    assert not has_association(facility=f2, user=u1)
+    assert not has_association(patient=p1, user=u2)
