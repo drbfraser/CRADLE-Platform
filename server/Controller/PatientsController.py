@@ -12,7 +12,7 @@ from Manager.PatientManagerNew import PatientManager as PatientManagerNew
 from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 from Validation import PatientValidation
 from Manager.UserManager import UserManager
-from Manager.PatientFacilityManager import PatientFacilityManager
+from Manager.PatientAssociationsManager import PatientAssociationsManager
 from Manager.urineTestManager import urineTestManager
 
 from flask_jwt_extended import (
@@ -27,7 +27,7 @@ from flasgger import swag_from
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 userManager = UserManager()
-patientFacilityManager = PatientFacilityManager()
+patientFacilityManager = PatientAssociationsManager()
 
 urineTestManager = urineTestManager()
 decoding_error = "The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated."

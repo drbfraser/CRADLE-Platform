@@ -45,6 +45,16 @@ class Database:
     def models_to_list(self, models):
         return self.schema(many=True).dump(models)
 
+    @staticmethod
+    def add(model: Any):
+        """
+        Inserts a new model into the database and commits the changes.
+
+        :param model: A model
+        """
+        db.session.add(model)
+        db.session.commit()
+
     """
         Description: 
             create new record in table, using new_data

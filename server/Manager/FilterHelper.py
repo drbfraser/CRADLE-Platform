@@ -1,6 +1,6 @@
-from Manager.PatientFacilityManager import PatientFacilityManager
+from Manager.PatientAssociationsManager import PatientAssociationsManager
 
-patientFacilityManager = PatientFacilityManager()
+patientFacilityManager = PatientAssociationsManager()
 # todo: should probably refactor all of this into one function b/c there's some code reuse
 # todo: when cleaning up code, can use search insted of manually finding
 def filtered_list_hcw(patients, referrals, users, userId):

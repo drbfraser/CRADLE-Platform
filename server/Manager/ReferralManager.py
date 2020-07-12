@@ -13,10 +13,9 @@ from Validation.ReferralValidator import ReferralValidator
 from Manager.Manager import Manager
 
 from Manager import patientManager, healthFacilityManager
-from Manager.PatientFacilityManager import PatientFacilityManager
+from Manager.PatientAssociationsManager import PatientAssociationsManager
 from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 
-patientFacilityManager = PatientFacilityManager()
 readingManager = ReadingManagerNew()
 validator = ReferralValidator()
 
@@ -62,9 +61,9 @@ class ReferralManager(Manager):
             pprint(created_hf)
 
         # add patient facility relationship
-        patientFacilityManager.add_patient_facility_relationship(
-            req_data["patient"]["patientId"], req_data["healthFacilityName"]
-        )
+        # PatientAssociationsManager().add_patient_facility_relationship(
+        #     req_data["patient"]["patientId"], req_data["healthFacilityName"]
+        # )
 
         def build_ref_dict(ref_json):
             ref_dict = {}
