@@ -1,33 +1,27 @@
-import logging
 import json
-import uuid
-from flask import request
-from flask_restful import Resource, abort
-from datetime import date, datetime
-from Controller.Helpers import _get_request_body
+import logging
 import time
 
-# Project modules
-from Manager.PatientManagerNew import PatientManager as PatientManagerNew
-from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
-from Validation import PatientValidation
-from Manager.UserManager import UserManager
-from Manager.PatientAssociationsManager import PatientAssociationsManager
-from Manager.urineTestManager import urineTestManager
-
+from flasgger import swag_from
+from flask import request
 from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
     jwt_required,
-    jwt_refresh_token_required,
     get_jwt_identity,
 )
-from flasgger import swag_from
+from flask_restful import Resource, abort
+from sqlalchemy.exc import IntegrityError
+
+from Controller.Helpers import _get_request_body
+from Manager.PatientAssociationsManager import PatientAssociationsManager
+from Manager.PatientManagerNew import PatientManager as PatientManagerNew
+from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
+from Manager.UserManager import UserManager
+from Manager.urineTestManager import urineTestManager
+from Validation import PatientValidation
 
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 userManager = UserManager()
-patientFacilityManager = PatientAssociationsManager()
 
 urineTestManager = urineTestManager()
 decoding_error = "The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated."
@@ -222,11 +216,16 @@ class PatientReading(Resource):
         )
 
         # add patient to the facility of the user that took their reading
-        user = userManager.read("id", patient_reading_data["reading"]["userId"])
-        userFacility = user["healthFacilityName"]
-        patientFacilityManager.add_patient_facility_relationship(
-            patient_reading_data["patient"]["patientId"], userFacility
-        )
+        user_id = patient_reading_data["reading"]["userId"]
+        user = userManager.database.select_one(id=user_id)
+        facility_name = user.healthFacilityName
+        patient_id = patient_reading_data["patient"]["patientId"]
+        try:
+            PatientAssociationsManager().associate_by_id(
+                patient_id, facility_name, user_id
+            )
+        except IntegrityError:
+            abort(409, message="Duplicate entry")
 
         # associate new reading with patient
         reading_and_patient["message"] = "Patient reading created successfully!"
@@ -302,10 +301,15 @@ class PatientFacility(Resource):
         patient = patientManager.read("patientId", request_body["patientId"])
         if patient:
             current_user = get_jwt_identity()
-            user_health_facility = current_user["healthFacilityName"]
-            patientFacilityManager.add_patient_facility_relationship(
-                request_body["patientId"], user_health_facility
-            )
+            user_id = current_user["userId"]
+            facility_name = current_user["healthFacilityName"]
+            patient_id = patient["patientId"]
+            try:
+                PatientAssociationsManager().associate_by_id(
+                    patient_id, facility_name, user_id
+                )
+            except IntegrityError:
+                abort(409, message="Duplicate entry")
             return {"message": "patient has been added to facility successfully"}, 201
         else:
             abort(404, message="This patient does not exist.")
