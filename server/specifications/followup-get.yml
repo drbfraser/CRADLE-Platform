@@ -64,7 +64,7 @@ responses:
               type: string | Null
               example: Tylenol
             dateFollowupNeededTill:
-              type: Unix timestamp | Null
+              type: string | Null
               example: 1262304000
             followupInstructions:
               type: string | Null
@@ -74,7 +74,7 @@ responses:
               example: Investigate chronic fatigue
             dateAssessed:
               type: Unix timestamp
-              example: 1262304000
+              example: 1593649727
             healthcareWorkerId:
               type: integer
               example: 1
