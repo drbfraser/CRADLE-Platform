@@ -110,6 +110,7 @@ def user_factory(database) -> factory.UserFactory:
 def facility_factory(database) -> factory.HealthFacilityFactory:
     yield from __make_factory(database, factory.HealthFacilityFactory)
 
+
 #
 # Generic Maker Functions
 #

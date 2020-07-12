@@ -158,9 +158,7 @@ class FollowUpFactory(ModelFactory):
 class UserFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super(UserFactory, self).__init__(
-            db,
-            password="password",
-            healthFacilityName="H0000"
+            db, password="password", healthFacilityName="H0000"
         )
 
     def create(self, **kwargs) -> Any:
