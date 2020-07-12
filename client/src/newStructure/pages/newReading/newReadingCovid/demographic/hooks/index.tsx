@@ -18,7 +18,7 @@ export const useNewPatient = () => {
     villageNumber: '',
     drugHistory: '',
     medicalHistory: '',
-    dobOrAge: 'left',
+    dobOrAge: false,
     householdError: false,
     patientInitialError: false,
     patientIdError: false,
@@ -121,7 +121,7 @@ export const useNewPatient = () => {
     if (name == 'dobOrAge') {
       setPatient({
         ...patient,
-        [name]: e.target.value,
+        [name]: e.target.checked,
       });
     }
     if (name == 'gestationalAgeValue') {

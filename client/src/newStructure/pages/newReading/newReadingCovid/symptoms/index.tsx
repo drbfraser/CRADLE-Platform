@@ -6,7 +6,6 @@ import {
   Checkbox,
   Paper,
   FormGroup,
-  FormLabel,
   TextField,
 } from '@material-ui/core';
 
@@ -52,7 +51,6 @@ const Page: React.FC<IProps> = (props) => {
       </h1>
 
       <FormControl component="fieldset" className={classes.formControl}>
-        <FormLabel component="legend">Regular</FormLabel>
         <FormGroup>
           <FormControlLabel
             control={
@@ -67,7 +65,6 @@ const Page: React.FC<IProps> = (props) => {
           <FormControlLabel
             control={
               <Checkbox
-                disabled={props.symptoms.none}
                 checked={props.symptoms.headache}
                 name="headache"
                 onChange={props.onChange}
@@ -78,7 +75,6 @@ const Page: React.FC<IProps> = (props) => {
           <FormControlLabel
             control={
               <Checkbox
-                disabled={props.symptoms.none}
                 checked={props.symptoms.blurredVision}
                 name="blurredVision"
                 onChange={props.onChange}
@@ -89,7 +85,6 @@ const Page: React.FC<IProps> = (props) => {
           <FormControlLabel
             control={
               <Checkbox
-                disabled={props.symptoms.none}
                 checked={props.symptoms.abdominalPain}
                 name="abdominalPain"
                 onChange={props.onChange}
@@ -101,7 +96,6 @@ const Page: React.FC<IProps> = (props) => {
         <FormControlLabel
           control={
             <Checkbox
-              disabled={props.symptoms.none}
               checked={props.symptoms.bleeding}
               name="bleeding"
               onChange={props.onChange}
@@ -112,7 +106,6 @@ const Page: React.FC<IProps> = (props) => {
         <FormControlLabel
           control={
             <Checkbox
-              disabled={props.symptoms.none}
               checked={props.symptoms.feverish}
               name="feverish"
               onChange={props.onChange}
@@ -123,7 +116,6 @@ const Page: React.FC<IProps> = (props) => {
         <FormControlLabel
           control={
             <Checkbox
-              disabled={props.symptoms.none}
               checked={props.symptoms.unwell}
               name="unwell"
               onChange={props.onChange}
@@ -133,12 +125,10 @@ const Page: React.FC<IProps> = (props) => {
         />
       </FormControl>
       <FormControl component="fieldset" className={classes.formControl}>
-        <FormLabel component="legend">Covid</FormLabel>
         <FormGroup>
           <FormControlLabel
             control={
               <Checkbox
-                disabled={props.symptoms.none}
                 checked={props.symptoms.cough}
                 name="cough"
                 onChange={props.onChange}
@@ -149,7 +139,6 @@ const Page: React.FC<IProps> = (props) => {
           <FormControlLabel
             control={
               <Checkbox
-                disabled={props.symptoms.none}
                 checked={props.symptoms.shortnessBreath}
                 name="shortnessBreath"
                 onChange={props.onChange}
@@ -160,7 +149,6 @@ const Page: React.FC<IProps> = (props) => {
           <FormControlLabel
             control={
               <Checkbox
-                disabled={props.symptoms.none}
                 checked={props.symptoms.soreThroat}
                 name="soreThroat"
                 onChange={props.onChange}
@@ -171,7 +159,6 @@ const Page: React.FC<IProps> = (props) => {
           <FormControlLabel
             control={
               <Checkbox
-                disabled={props.symptoms.none}
                 checked={props.symptoms.muscleAche}
                 name="muscleAche"
                 onChange={props.onChange}
@@ -183,7 +170,6 @@ const Page: React.FC<IProps> = (props) => {
         <FormControlLabel
           control={
             <Checkbox
-              disabled={props.symptoms.none}
               checked={props.symptoms.fatigue}
               name="fatigue"
               onChange={props.onChange}
@@ -194,7 +180,6 @@ const Page: React.FC<IProps> = (props) => {
         <FormControlLabel
           control={
             <Checkbox
-              disabled={props.symptoms.none}
               checked={props.symptoms.lossOfSense}
               name="lossOfSense"
               onChange={props.onChange}
@@ -205,7 +190,6 @@ const Page: React.FC<IProps> = (props) => {
         <FormControlLabel
           control={
             <Checkbox
-              disabled={props.symptoms.none}
               checked={props.symptoms.lossOfTaste}
               name="lossOfTaste"
               onChange={props.onChange}
@@ -216,7 +200,6 @@ const Page: React.FC<IProps> = (props) => {
         <FormControlLabel
           control={
             <Checkbox
-              disabled={props.symptoms.none}
               checked={props.symptoms.lossOfSmell}
               name="lossOfSmell"
               onChange={props.onChange}
@@ -228,7 +211,6 @@ const Page: React.FC<IProps> = (props) => {
       <FormControl component="fieldset" className={classes.formControl}>
         <FormControl className={classes.formFieldDM}>
           <TextField
-            disabled={props.symptoms.none}
             id="outlined-multiline-static"
             label="Others"
             multiline

@@ -7,11 +7,12 @@ import {
   Paper,
   TextField,
   MenuItem,
+  Switch,
+  Grid,
 } from '@material-ui/core';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { GESTATIONAL_AGE_UNITS } from '../../patientInfoForm';
-import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -98,22 +99,23 @@ const Page: React.FC<IProps> = (props) => {
             type={'text'}
           />
         </FormControl>
-        <ToggleButtonGroup
-          className={classes.formField}
-          size="medium"
-          exclusive
-          value={props.patient.dobOrAge}
-          onChange={props.onChange}>
-          <ToggleButton value="left" name={'dobOrAge'}>
-            Birthday
-          </ToggleButton>
-          <ToggleButton value="right" name={'dobOrAge'}>
-            Date
-          </ToggleButton>
-        </ToggleButtonGroup>
+        <FormControl className={classes.formField}>
+          <Grid component="label" container alignItems="center" spacing={1}>
+            <Grid item>Birthday</Grid>
+            <Grid item>
+              <Switch
+                checked={props.patient.dobOrAge}
+                onChange={props.onChange}
+                name="dobOrAge"
+                inputProps={{ 'aria-label': 'secondary checkbox' }}
+              />
+            </Grid>
+            <Grid item>Date</Grid>
+          </Grid>
+        </FormControl>
         <FormControl className={classes.formField}>
           <TextField
-            disabled={props.patient.dobOrAge !== 'left'}
+            disabled={props.patient.dobOrAge}
             error={props.patient.dobError}
             id="date"
             label="Birthday"
@@ -133,7 +135,7 @@ const Page: React.FC<IProps> = (props) => {
         </FormControl>
         <FormControl className={classes.formField}>
           <TextField
-            disabled={props.patient.dobOrAge !== 'right'}
+            disabled={!props.patient.dobOrAge}
             error={props.patient.patientAgeError}
             label={'Patient Age'}
             id="component-outlined"

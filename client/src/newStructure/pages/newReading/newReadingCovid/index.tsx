@@ -99,6 +99,10 @@ const Page: React.FC<IProps> = (props) => {
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+
+    if (activeStep === steps.length - 1) {
+      //submitting needs to be handle here
+    }
   };
 
   const handleBack = () => {
