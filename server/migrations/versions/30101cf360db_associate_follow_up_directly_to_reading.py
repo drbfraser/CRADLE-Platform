@@ -1,8 +1,8 @@
 """associate follow up directly to reading
 
-Revision ID: 9f9c3a766f68
+Revision ID: 30101cf360db
 Revises: e5396a8c62db
-Create Date: 2020-07-11 14:29:52.694034
+Create Date: 2020-07-11 19:09:20.648049
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "9f9c3a766f68"
+revision = "30101cf360db"
 down_revision = "e5396a8c62db"
 branch_labels = None
 depends_on = None
@@ -25,9 +25,7 @@ def upgrade():
     op.drop_column("followup", "followupFrequencyValue")
     op.drop_column("followup", "followupFrequencyUnit")
     op.drop_column("followup", "dateFollowupNeededTill")
-    op.add_column(
-        "referral", sa.Column("isAssessed", sa.Boolean(), nullable=False, default=0)
-    )
+    op.add_column("referral", sa.Column("isAssessed", sa.Boolean(), nullable=False))
     op.drop_constraint("referral_ibfk_1", "referral", type_="foreignkey")
     op.drop_column("referral", "followUpId")
     # ### end Alembic commands ###
