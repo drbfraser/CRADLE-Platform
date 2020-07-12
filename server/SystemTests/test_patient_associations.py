@@ -43,6 +43,11 @@ def test_patients_for_user_doesnt_return_duplicate_patients(
     assert patients_for_user(u) == [p]
 
 
+def test_patients_for_user_returns_empty_list_if_no_associations(user_factory):
+    u = user_factory.create(email="u@a")
+    assert patients_for_user(u) == []
+
+
 def test_patients_at_facility_only_returns_patients_associated_with_facility(
     patient_factory, facility_factory, user_factory
 ):
@@ -79,3 +84,21 @@ def test_patients_at_facility_doesnt_return_duplicate_patients(
     manager.associate(p, f, u2)
 
     assert patients_at_facility(f) == [p]
+
+
+def test_patients_at_facility_returns_empty_list_if_no_associations(facility_factory):
+    f = facility_factory.create(healthFacilityName="F")
+    assert patients_at_facility(f) == []
+
+
+def test_associate_by_id_creates_association(
+    patient_factory, facility_factory, user_factory
+):
+    u = user_factory.create(email="u@a")
+    f = facility_factory.create(healthFacilityName="F")
+    p = patient_factory.create(patientId="8900")
+
+    manager = PatientAssociationsManager()
+    manager.associate_by_id(p.patientId, f.healthFacilityName, u.id)
+
+    assert patients_for_user(u) == [p]

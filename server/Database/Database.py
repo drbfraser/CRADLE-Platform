@@ -171,3 +171,16 @@ class Database:
         """
         all_entries = self.table.query.filter_by(**search_dict)
         return self.models_to_list(all_entries)
+
+    def select_one(self, **kwargs) -> Optional[Any]:
+        """
+        Queries the database returning the model which has columns which match the given
+        keyword arguments.
+
+        In the event that multiple rows are returned by the query, a
+        ``sqlalchemy.orm.exc.MultipleResultsFound`` exception is raised.
+
+        :param kwargs: Keyword arguments used to filter the query
+        :return: A model or ``None`` if the query didn't return any rows
+        """
+        return self.table.query.filter_by(**kwargs).one_or_none()
