@@ -1,8 +1,6 @@
 import React from 'react';
 import {
   FormControl,
-  Input,
-  InputLabel,
   Paper,
   InputAdornment,
   TextField,
@@ -84,65 +82,85 @@ const Page: React.FC<IProps> = (props) => {
             />
           </FormControl>
           <FormControl className={classes.formField}>
-            <InputLabel htmlFor="input-with-icon-adornment">
-              Heart Rate
-            </InputLabel>
-            <Input
+            <TextField
+              error={props.vitals.heartRateBPMError}
+              label={'Heart Rate'}
               onChange={props.onChange}
               name={'heartRateBPM'}
               value={props.vitals.heartRateBPM}
-              id="standard-adornment-weight"
-              endAdornment={<InputAdornment position="end">BPM</InputAdornment>}
-              aria-describedby="standard-weight-helper-text"
-              inputProps={{
-                'aria-label': 'weight',
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">BPM</InputAdornment>
+                ),
               }}
+              variant="outlined"
+              type="number"
+              helperText={
+                props.vitals.heartRateBPMError
+                  ? 'Must be between 50 - 300.'
+                  : ''
+              }
             />
           </FormControl>
           <FormControl className={classes.formField}>
-            <InputLabel htmlFor="component-outlined">
-              Raspiratory Rate
-            </InputLabel>
-            <Input
+            <TextField
+              error={props.vitals.heartRateBPMError}
+              label={'Raspiratory Rate'}
               onChange={props.onChange}
               name={'raspiratoryRate'}
               value={props.vitals.raspiratoryRate}
-              id="standard-adornment-weight"
-              endAdornment={<InputAdornment position="end">BPM</InputAdornment>}
-              aria-describedby="standard-weight-helper-text"
-              inputProps={{
-                'aria-label': 'weight',
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">BPM</InputAdornment>
+                ),
               }}
+              variant="outlined"
+              type="number"
+              helperText={
+                props.vitals.heartRateBPMError
+                  ? 'Must be between 50 - 300.'
+                  : ''
+              }
             />
           </FormControl>
           <FormControl className={classes.formField}>
-            <InputLabel htmlFor="component-outlined">
-              Oxygen Saturation
-            </InputLabel>
-            <Input
+            <TextField
+              error={props.vitals.heartRateBPMError}
+              label={'Oxygen Saturation'}
               onChange={props.onChange}
               name={'oxygenSaturation'}
               value={props.vitals.oxygenSaturation}
-              id="standard-adornment-weight"
-              endAdornment={<InputAdornment position="end">%</InputAdornment>}
-              aria-describedby="standard-weight-helper-text"
-              inputProps={{
-                'aria-label': 'weight',
+              InputProps={{
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
               }}
+              variant="outlined"
+              type="number"
+              helperText={
+                props.vitals.heartRateBPMError
+                  ? 'Must be between 50 - 300.'
+                  : ''
+              }
             />
           </FormControl>
           <FormControl className={classes.formField}>
-            <InputLabel htmlFor="component-outlined">Temperature</InputLabel>
-            <Input
+            <TextField
+              error={props.vitals.heartRateBPMError}
+              label={'Temperature'}
               onChange={props.onChange}
               name={'temperature'}
               value={props.vitals.temperature}
-              id="standard-adornment-weight"
-              endAdornment={<InputAdornment position="end">°C</InputAdornment>}
-              aria-describedby="standard-weight-helper-text"
-              inputProps={{
-                'aria-label': 'weight',
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">°C</InputAdornment>
+                ),
               }}
+              variant="outlined"
+              type="number"
+              helperText={
+                props.vitals.heartRateBPMError
+                  ? 'Must be between 50 - 300.'
+                  : ''
+              }
             />
           </FormControl>
         </form>
