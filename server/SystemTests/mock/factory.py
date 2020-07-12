@@ -78,7 +78,7 @@ class PatientFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.PatientRepoNew import PatientRepo
 
-        return PatientRepo().create_from_dict(dict(**kwargs))
+        return PatientRepo().create_model(dict(**kwargs))
 
 
 class ReadingFactory(ModelFactory):
@@ -107,7 +107,7 @@ class ReadingFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.ReadingRepoNew import ReadingRepo
 
-        return ReadingRepo().create_from_dict(dict(**kwargs))
+        return ReadingRepo().create_model(dict(**kwargs))
 
 
 class ReferralFactory(ModelFactory):
@@ -130,7 +130,7 @@ class ReferralFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.ReferralRepo import ReferralRepo
 
-        return ReferralRepo().create_from_dict(dict(**kwargs))
+        return ReferralRepo().create_model(dict(**kwargs))
 
 
 class FollowUpFactory(ModelFactory):
@@ -152,7 +152,7 @@ class FollowUpFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.FollowUpRepo import FollowUpRepo
 
-        return FollowUpRepo().create_from_dict(dict(**kwargs))
+        return FollowUpRepo().create_model(dict(**kwargs))
 
 
 class UserFactory(ModelFactory):
@@ -176,7 +176,7 @@ class UserFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.UserRepo import UserRepo
 
-        return UserRepo().create_from_dict(dict(**kwargs))
+        return UserRepo().create_model(dict(**kwargs))
 
 
 class HealthFacilityFactory(ModelFactory):
@@ -196,4 +196,4 @@ class HealthFacilityFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.HealthFacilityRepoNew import HealthFacilityRepo
 
-        return HealthFacilityRepo().create_from_dict(dict(**kwargs))
+        return HealthFacilityRepo().create_model(dict(**kwargs))

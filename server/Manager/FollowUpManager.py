@@ -140,7 +140,7 @@ class FollowUpManager(Manager):
         data["dateAssessed"] = get_current_time()
         data["healthcareWorkerId"] = user["userId"]
         repo: FollowUpRepo = self.database
-        followup: FollowUp = repo.create_from_dict(data)
+        followup: FollowUp = repo.create_model(data)
 
         # If the followup's reading has an associated referral, mark that as assessed
         reading = followup.reading
