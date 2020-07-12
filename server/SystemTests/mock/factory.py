@@ -7,12 +7,12 @@ class ModelFactory:
     The base factory class for managing test models.
 
     Models constructed by this class are committed to the database just like usual.
-    However, they are tracked my the factory which created them and are deleted once
+    However, they are tracked by the factory which created them and are deleted once
     they are no longer needed. Factories are designed to be supplied to test functions
     via test fixtures which will trigger the factory to cleanup once the test has
     finished.
 
-    Implementors must implement the ``_do_create` method which handles creating a model
+    Implementors must implement the ``_do_create`` method which handles creating a model
     and inserting it into the database.
     """
 
