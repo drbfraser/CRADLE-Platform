@@ -41,12 +41,14 @@ export const useNewSymptoms = () => {
         lossOfSense: false,
         lossOfTaste: false,
         lossOfSmell: false,
+        otherSymptoms: '',
       });
     } else {
       if (e.target.name === 'otherSymptoms') {
         setSymptoms({
           ...symptoms,
           [e.target.name]: e.target.value,
+          none: false,
         });
       } else {
         setSymptoms({
