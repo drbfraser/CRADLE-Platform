@@ -9,7 +9,7 @@
   "private": true,
   "husky": {
     "hooks": {
-      "pre-commit": "npm run format",
+      "pre-commit": "npm run format:fix",
       "pre-push": "npm run format"
     }
   },
@@ -24,7 +24,8 @@
     "prettier:check": "prettier --check \"src/**/*.{ts,tsx}\"",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "npm run lint --fix",
-    "format": "npm run prettier && npm run lint:fix"
+    "format": "npm run prettier && npm run lint",
+    "format:fix": "npm run prettier && npm run lint:fix"
   },
   "devDependencies": {
     "@types/jest": "^25.2.3",

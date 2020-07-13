@@ -4,7 +4,8 @@ import {
   FormControl,
   Paper,
   Checkbox,
-  MenuItem, TextField,
+  MenuItem,
+  TextField,
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -59,13 +60,13 @@ const Page: React.FC<IProps> = (props) => {
         <FormControl className={classes.formField}>
           <FormControl className={classes.formField}>
             <TextField
-                disabled={!props.urineTest.enabled}
-                label={'Leukocytes'}
-                value={props.urineTest.leukocytes}
-                name={'leukocytes'}
-                onChange={props.onChange}
-                required
-                variant="outlined">
+              disabled={!props.urineTest.enabled}
+              label={'Leukocytes'}
+              value={props.urineTest.leukocytes}
+              name={'leukocytes'}
+              onChange={props.onChange}
+              required
+              variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
@@ -74,13 +75,13 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-                label={'Nitrites'}
-                disabled={!props.urineTest.enabled}
-                value={props.urineTest.nitrites}
-                name={'nitrites'}
-                onChange={props.onChange}
-                required
-                variant="outlined">
+              label={'Nitrites'}
+              disabled={!props.urineTest.enabled}
+              value={props.urineTest.nitrites}
+              name={'nitrites'}
+              onChange={props.onChange}
+              required
+              variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
@@ -89,13 +90,13 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-                label={'Glucose'}
-                disabled={!props.urineTest.enabled}
-                value={props.urineTest.glucose}
-                name={'glucose'}
-                onChange={props.onChange}
-                required
-                variant="outlined">
+              label={'Glucose'}
+              disabled={!props.urineTest.enabled}
+              value={props.urineTest.glucose}
+              name={'glucose'}
+              onChange={props.onChange}
+              required
+              variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
@@ -104,13 +105,13 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-                label={'Protein'}
-                disabled={!props.urineTest.enabled}
-                value={props.urineTest.protein}
-                name={'protein'}
-                onChange={props.onChange}
-                required
-                variant="outlined">
+              label={'Protein'}
+              disabled={!props.urineTest.enabled}
+              value={props.urineTest.protein}
+              name={'protein'}
+              onChange={props.onChange}
+              required
+              variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
@@ -119,13 +120,13 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-                label={'Blood'}
-                disabled={!props.urineTest.enabled}
-                value={props.urineTest.blood}
-                name={'blood'}
-                onChange={props.onChange}
-                required
-                variant="outlined">
+              label={'Blood'}
+              disabled={!props.urineTest.enabled}
+              value={props.urineTest.blood}
+              name={'blood'}
+              onChange={props.onChange}
+              required
+              variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
