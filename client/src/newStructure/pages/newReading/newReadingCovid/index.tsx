@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Divider,
@@ -26,6 +26,7 @@ import { useNewSymptoms } from './symptoms/hooks';
 import { useNewVitals } from './vitalSignAssessment/hooks';
 import { useNewAssessment } from './assessment/hooks';
 import { useNewUrineTest } from './urineTestAssessment/hooks';
+import AlertDialog from './alertDialog';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -89,6 +90,8 @@ const Page: React.FC<IProps> = (props) => {
   const { vitals, handleChangeVitals } = useNewVitals();
   const { assessment, handleChangeAssessment } = useNewAssessment();
   const { urineTest, handleChangeUrineTest } = useNewUrineTest();
+  const [isPatientCreated, setIsPatientCreated] = useState(false);
+  const [isShowDialog, setIsShowDialog] = useState(false);
   const steps = getSteps();
 
   useEffect(() => {
@@ -104,6 +107,14 @@ const Page: React.FC<IProps> = (props) => {
       //submitting needs to be handle here
     }
   };
+  const handleCreatePatient = () => {
+    // create patient call
+    setIsPatientCreated(true);
+    setIsShowDialog(true);
+  };
+  const handleDialogClose = () => {
+    setIsShowDialog(false);
+  };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -112,6 +123,7 @@ const Page: React.FC<IProps> = (props) => {
   const handleReset = () => {
     setActiveStep(0);
   };
+  console.log('isPatientCreated', isPatientCreated);
   return (
     <div
       style={{
@@ -172,19 +184,31 @@ const Page: React.FC<IProps> = (props) => {
           <div>
             <div>
               <Button
-                disabled={activeStep === 0}
+                disabled={activeStep === 0 || activeStep == 1}
                 onClick={handleBack}
                 className={classes.backButton}>
                 Back
               </Button>
               <Button
-                disabled={!patient.patientId}
+                disabled={!isPatientCreated}
                 className={classes.nextButton}
                 variant="contained"
                 color="primary"
                 onClick={handleNext}>
                 {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
               </Button>
+              <Button
+                disabled={!patient.patientId}
+                style={{ display: isPatientCreated ? 'none' : '' }}
+                className={classes.nextButton}
+                variant="contained"
+                color="primary"
+                onClick={handleCreatePatient}>
+                Create
+              </Button>
+              <AlertDialog
+                open={isShowDialog}
+                handleDialogClose={handleDialogClose}></AlertDialog>
             </div>
           </div>
         )}

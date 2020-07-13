@@ -110,7 +110,7 @@ const Page: React.FC<IProps> = (props) => {
                 inputProps={{ 'aria-label': 'secondary checkbox' }}
               />
             </Grid>
-            <Grid item>Date</Grid>
+            <Grid item>Age</Grid>
           </Grid>
         </FormControl>
         <FormControl className={classes.formField}>
