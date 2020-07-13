@@ -84,47 +84,47 @@ export const useNewPatient = () => {
         dobError: errors.dobError,
       });
     }
-    if (name == 'patientInitial') {
+    if (name === 'patientInitial') {
       setPatient({
         ...patient,
         [name]: e.target.value,
         patientInitialError: errors.patientInitialError,
       });
     }
-    if (name == 'patientId') {
+    if (name === 'patientId') {
       setPatient({
         ...patient,
         [name]: e.target.value,
         patientIdError: errors.patientIdError,
       });
     }
-    if (name == 'patientAge') {
+    if (name === 'patientAge') {
       setPatient({
         ...patient,
         [name]: e.target.value,
         patientAgeError: errors.patientAgeError,
       });
     }
-    if (name == 'household') {
+    if (name === 'household') {
       setPatient({
         ...patient,
         [name]: e.target.value,
         // error check for household?
       });
     }
-    if (name == 'gestationalAgeUnit') {
+    if (name === 'gestationalAgeUnit') {
       setPatient({
         ...patient,
         [name]: e.target.value,
       });
     }
-    if (name == 'dobOrAge') {
+    if (name === 'dobOrAge') {
       setPatient({
         ...patient,
         [name]: e.target.checked,
       });
     }
-    if (name == 'gestationalAgeValue') {
+    if (name === 'gestationalAgeValue') {
       let gestationalAgeValueError = false;
       if (e.target.value === GESTATIONAL_AGE_UNITS.WEEKS) {
         if (e.target.value > 60 || e.target.value < 1) {
