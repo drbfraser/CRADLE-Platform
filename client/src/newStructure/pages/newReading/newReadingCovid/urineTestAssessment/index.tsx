@@ -4,9 +4,7 @@ import {
   FormControl,
   Paper,
   Checkbox,
-  InputLabel,
-  Select,
-  MenuItem,
+  MenuItem, TextField,
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -60,84 +58,79 @@ const Page: React.FC<IProps> = (props) => {
       <form className={classes.root} autoComplete="off">
         <FormControl className={classes.formField}>
           <FormControl className={classes.formField}>
-            <InputLabel id="demo-simple-select-label">Leukocytes</InputLabel>
-            <Select
-              disabled={!props.urineTest.enabled}
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={props.urineTest.leukocytes}
-              name={'leukocytes'}
-              onChange={props.onChange}
-              required>
+            <TextField
+                disabled={!props.urineTest.enabled}
+                label={'Leukocytes'}
+                value={props.urineTest.leukocytes}
+                name={'leukocytes'}
+                onChange={props.onChange}
+                required
+                variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>
-            </Select>
+            </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
-            <InputLabel id="demo-simple-select-label">Nitrites</InputLabel>
-            <Select
-              disabled={!props.urineTest.enabled}
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={props.urineTest.nitrites}
-              name={'nitrites'}
-              onChange={props.onChange}
-              required>
+            <TextField
+                label={'Nitrites'}
+                disabled={!props.urineTest.enabled}
+                value={props.urineTest.nitrites}
+                name={'nitrites'}
+                onChange={props.onChange}
+                required
+                variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>
-            </Select>
+            </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
-            <InputLabel id="demo-simple-select-label">Glucose</InputLabel>
-            <Select
-              disabled={!props.urineTest.enabled}
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={props.urineTest.glucose}
-              name={'glucose'}
-              onChange={props.onChange}
-              required>
+            <TextField
+                label={'Glucose'}
+                disabled={!props.urineTest.enabled}
+                value={props.urineTest.glucose}
+                name={'glucose'}
+                onChange={props.onChange}
+                required
+                variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>
-            </Select>
+            </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
-            <InputLabel id="demo-simple-select-label">Protein</InputLabel>
-            <Select
-              disabled={!props.urineTest.enabled}
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={props.urineTest.protein}
-              name={'protein'}
-              onChange={props.onChange}
-              required>
+            <TextField
+                label={'Protein'}
+                disabled={!props.urineTest.enabled}
+                value={props.urineTest.protein}
+                name={'protein'}
+                onChange={props.onChange}
+                required
+                variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>
-            </Select>
+            </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
-            <InputLabel id="demo-simple-select-label">Blood</InputLabel>
-            <Select
-              disabled={!props.urineTest.enabled}
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={props.urineTest.blood}
-              name={'blood'}
-              onChange={props.onChange}
-              required>
+            <TextField
+                label={'Blood'}
+                disabled={!props.urineTest.enabled}
+                value={props.urineTest.blood}
+                name={'blood'}
+                onChange={props.onChange}
+                required
+                variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
               <MenuItem value={'pp'}>++</MenuItem>
               <MenuItem value={'ppp'}>+++</MenuItem>
-            </Select>
+            </TextField>
           </FormControl>
         </FormControl>
       </form>
