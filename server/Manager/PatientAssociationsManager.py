@@ -105,8 +105,7 @@ def patients_for_user(user: User) -> List[Patient]:
     :param user: A ``User`` model
     :return: A list of patients
     """
-    associations = PatientAssociations.query.filter_by(userId=user.id).all()
-    patients = [a.patient for a in associations]
+    patients = [a.patient for a in user.associations]
     return list(dict.fromkeys(patients))
 
 
@@ -117,8 +116,5 @@ def patients_at_facility(facility: HealthFacility) -> List[Patient]:
     :param facility: A ``HealthFacility`` model
     :return: A list of patients
     """
-    associations = PatientAssociations.query.filter_by(
-        healthFacilityName=facility.healthFacilityName
-    ).all()
-    patients = [a.patient for a in associations]
+    patients = [a.patient for a in facility.associations]
     return list(dict.fromkeys(patients))
