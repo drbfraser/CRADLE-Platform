@@ -19,10 +19,10 @@ export default function SubmissionDialog(props: IProps) {
         onClose={props.handleDialogClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">{'Summary '}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'Submitted!!'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            chicken : kabab: water earth air wind
+            Patient and Reading Created Successfully
           </DialogContentText>
         </DialogContent>
         <DialogActions>

@@ -105,16 +105,15 @@ const Page: React.FC<IProps> = (props) => {
   });
 
   const handleNext = () => {
-    if (activeStep === steps.length) {
-      //submitting needs to be handle here
-      setIsShowDialogsubmission(true);
-    }
     if (activeStep === 0) {
       setIsPatientCreated(true);
       setIsShowDialog(true);
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
+  };
+  const handleSubmit = () => {
+    setIsShowDialogsubmission(true);
   };
 
   const handleDialogClose = () => {
@@ -123,6 +122,7 @@ const Page: React.FC<IProps> = (props) => {
   };
   const handleDialogCloseSubmission = () => {
     setIsShowDialogsubmission(false);
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
@@ -216,7 +216,9 @@ const Page: React.FC<IProps> = (props) => {
                 className={classes.nextButton}
                 variant="contained"
                 color="primary"
-                onClick={handleNext}>
+                onClick={
+                  activeStep === steps.length - 1 ? handleSubmit : handleNext
+                }>
                 {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
               </Button>
               <Button

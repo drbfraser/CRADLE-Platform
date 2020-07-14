@@ -19,12 +19,11 @@ export default function AlertDialog(props: IProps) {
         onClose={props.handleDialogClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">
-          {'The Id is already used or Nah '}
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'The Id is Valid'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            WOW look at u go, u put one ID and beep bip bop CS god
+            This pop will will be used to inform the user if they are using a
+            duplicated ID
           </DialogContentText>
         </DialogContent>
         <DialogActions>

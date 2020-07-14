@@ -55,8 +55,8 @@ const Page: React.FC<IProps> = (props) => {
         <form className={classes.root} noValidate autoComplete="off">
           <FormControl className={classes.formField}>
             <TextField
-              required
               error={props.vitals.bpSystolicError}
+              required
               label={'Systolic'}
               onChange={props.onChange}
               name={'bpSystolic'}
@@ -70,8 +70,8 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-              required
               error={props.vitals.bpDiastolicError}
+              required
               label={'Diastolic'}
               onChange={props.onChange}
               name={'bpDiastolic'}
@@ -85,8 +85,8 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-              required
               error={props.vitals.heartRateBPMError}
+              required
               label={'Heart Rate'}
               onChange={props.onChange}
               name={'heartRateBPM'}
@@ -107,7 +107,7 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-              error={props.vitals.heartRateBPMError}
+              // error={props.vitals.heartRateBPMError}
               label={'Respiratory Rate'}
               onChange={props.onChange}
               name={'respiratoryRate'}
@@ -119,16 +119,16 @@ const Page: React.FC<IProps> = (props) => {
               }}
               variant="outlined"
               type="number"
-              helperText={
-                props.vitals.heartRateBPMError
-                  ? 'Must be between 50 - 300.'
-                  : ''
-              }
+              // helperText={
+              //   props.vitals.heartRateBPMError
+              //     ? 'Must be between 50 - 300.'
+              //     : ''
+              // }
             />
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-              error={props.vitals.heartRateBPMError}
+              // error={props.vitals.heartRateBPMError}
               label={'Oxygen Saturation'}
               onChange={props.onChange}
               name={'oxygenSaturation'}
@@ -138,16 +138,16 @@ const Page: React.FC<IProps> = (props) => {
               }}
               variant="outlined"
               type="number"
-              helperText={
-                props.vitals.heartRateBPMError
-                  ? 'Must be between 50 - 300.'
-                  : ''
-              }
+              // helperText={
+              //   props.vitals.heartRateBPMError
+              //     ? 'Must be between 50 - 300.'
+              //     : ''
+              // }
             />
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-              error={props.vitals.heartRateBPMError}
+              // error={props.vitals.heartRateBPMError}
               label={'Temperature'}
               onChange={props.onChange}
               name={'temperature'}
@@ -159,11 +159,11 @@ const Page: React.FC<IProps> = (props) => {
               }}
               variant="outlined"
               type="number"
-              helperText={
-                props.vitals.heartRateBPMError
-                  ? 'Must be between 50 - 300.'
-                  : ''
-              }
+              // helperText={
+              //   props.vitals.heartRateBPMError
+              //     ? 'Must be between 50 - 300.'
+              //     : ''
+              // }
             />
           </FormControl>
         </form>

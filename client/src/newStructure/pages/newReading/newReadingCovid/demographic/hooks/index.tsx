@@ -143,6 +143,17 @@ export const useNewPatient = () => {
         gestationalAgeValueError: gestationalAgeValueError,
       });
     }
+    if (
+      name === 'zone' ||
+      name === 'villageNumber' ||
+      name === 'drugHistory' ||
+      name === 'medicalHistory'
+    ) {
+      setPatient({
+        ...patient,
+        [name]: e.target.value,
+      });
+    }
     console.log('DATA', patient);
   };
   return { patient, handleChangePatient };

@@ -3,6 +3,7 @@ import React from 'react';
 import { Paper, TextField } from '@material-ui/core';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { GESTATIONAL_AGE_UNITS } from '../../patientInfoForm';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -110,7 +111,11 @@ const Page: React.FC<IProps> = (props) => {
           disabled={true}
           label="Gestational Age"
           variant="outlined"
-          value={props.patient.gestationalAgeUnit}
+          value={
+            props.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
+              ? 'Weeks'
+              : 'Months'
+          }
         />
         <TextField
           disabled={true}
