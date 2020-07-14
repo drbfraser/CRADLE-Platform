@@ -27,8 +27,8 @@ import { useNewVitals } from './vitalSignAssessment/hooks';
 import { useNewAssessment } from './assessment/hooks';
 import { useNewUrineTest } from './urineTestAssessment/hooks';
 import AlertDialog from './alertDialog';
-import SubmissionDialog from "./submissionDialog";
-import {ConfirmationPage} from "./confirmationPage";
+import SubmissionDialog from './submissionDialog';
+import { ConfirmationPage } from './confirmationPage';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -59,7 +59,7 @@ function getSteps() {
     'Collect symptoms',
     'Vitals sign assessment',
     'Assessment',
-    'Confirmation'
+    'Confirmation',
   ];
 }
 interface IProps {
@@ -105,31 +105,25 @@ const Page: React.FC<IProps> = (props) => {
   });
 
   const handleNext = () => {
-
     if (activeStep === steps.length) {
       //submitting needs to be handle here
-        setIsShowDialogsubmission(true)
-
+      setIsShowDialogsubmission(true);
     }
-    if(activeStep === 0){
-        setIsPatientCreated(true);
-        setIsShowDialog(true);
-
-    }else{
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-
+    if (activeStep === 0) {
+      setIsPatientCreated(true);
+      setIsShowDialog(true);
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
 
   const handleDialogClose = () => {
     setIsShowDialog(false);
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
-    const handleDialogCloseSubmission = () => {
-        setIsShowDialogsubmission(false);
-
-    };
+  const handleDialogCloseSubmission = () => {
+    setIsShowDialogsubmission(false);
+  };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -188,15 +182,15 @@ const Page: React.FC<IProps> = (props) => {
         ''
       )}
       {activeStep === 4 ? (
-            <ConfirmationPage
-                patient={patient}
-                symptoms={symptoms}
-                vitals={vitals}
-                assessment={assessment}
-                urineTest={urineTest}></ConfirmationPage>
-        ) : (
-            ''
-        )}
+        <ConfirmationPage
+          patient={patient}
+          symptoms={symptoms}
+          vitals={vitals}
+          assessment={assessment}
+          urineTest={urineTest}></ConfirmationPage>
+      ) : (
+        ''
+      )}
       <div>
         {activeStep === steps.length ? (
           <div>
@@ -209,13 +203,15 @@ const Page: React.FC<IProps> = (props) => {
           <div>
             <div>
               <Button
-                disabled={activeStep === 0 }
+                disabled={activeStep === 0}
                 onClick={handleBack}
                 className={classes.backButton}>
                 Back
               </Button>
               <Button
-                style={{display: steps.length - 2 === activeStep ? "none":""}}
+                style={{
+                  display: steps.length - 2 === activeStep ? 'none' : '',
+                }}
                 disabled={!patient.patientId}
                 className={classes.nextButton}
                 variant="contained"
@@ -223,20 +219,24 @@ const Page: React.FC<IProps> = (props) => {
                 onClick={handleNext}>
                 {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
               </Button>
-                <Button
-                    style={{display: steps.length - 2 !== activeStep ? "none":""}}
-                    className={classes.nextButton}
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNext}>
-                    Confirm
-                </Button>
+              <Button
+                style={{
+                  display: steps.length - 2 !== activeStep ? 'none' : '',
+                }}
+                className={classes.nextButton}
+                variant="contained"
+                color="primary"
+                onClick={handleNext}>
+                Confirm
+              </Button>
               <AlertDialog
                 open={isShowDialog}
                 handleDialogClose={handleDialogClose}></AlertDialog>
-                <SubmissionDialog
-                    open={isShowDialogSubmission}
-                    handleDialogClose={handleDialogCloseSubmission}></SubmissionDialog>
+              <SubmissionDialog
+                open={isShowDialogSubmission}
+                handleDialogClose={
+                  handleDialogCloseSubmission
+                }></SubmissionDialog>
             </div>
           </div>
         )}

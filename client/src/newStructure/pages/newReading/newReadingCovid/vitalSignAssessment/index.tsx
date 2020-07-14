@@ -49,7 +49,7 @@ const Page: React.FC<IProps> = (props) => {
           width: '45%',
         }}>
         <h1>
-          <b >Vital Sign Assessment</b>
+          <b>Vital Sign Assessment</b>
         </h1>
 
         <form className={classes.root} noValidate autoComplete="off">
@@ -110,8 +110,8 @@ const Page: React.FC<IProps> = (props) => {
               error={props.vitals.heartRateBPMError}
               label={'Respiratory Rate'}
               onChange={props.onChange}
-              name={'raspiratoryRate'}
-              value={props.vitals.raspiratoryRate}
+              name={'respiratoryRate'}
+              value={props.vitals.respiratoryRate}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">BPM</InputAdornment>

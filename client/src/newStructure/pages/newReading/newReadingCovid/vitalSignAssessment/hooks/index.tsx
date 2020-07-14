@@ -9,7 +9,7 @@ export const useNewVitals = () => {
     bpSystolicError: false,
     bpDiastolicError: false,
     heartRateBPMError: false,
-    raspiratoryRate: '',
+    respiratoryRate: '',
     oxygenSaturation: '',
     temperature: '',
     dateRecheckVitalsNeeded: null,
