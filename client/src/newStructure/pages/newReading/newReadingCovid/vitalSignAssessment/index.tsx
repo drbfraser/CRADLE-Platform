@@ -169,7 +169,7 @@ const Page: React.FC<IProps> = (props) => {
         </form>
       </Paper>
 
-      <div style={{ marginTop: '2%', width: '45%', marginLeft: '5%' }}>
+      <div style={{ marginTop: '2%', width: '50%', marginLeft: '5%' }}>
         <UrineTest
           urineTest={props.urineTest}
           onChange={props.urineTetsOnChange}></UrineTest>
