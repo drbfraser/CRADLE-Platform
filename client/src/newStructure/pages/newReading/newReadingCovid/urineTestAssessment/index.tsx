@@ -54,7 +54,7 @@ const Page: React.FC<IProps> = (props) => {
           inputProps={{ 'aria-label': 'primary checkbox' }}
         />
       </h1>
-      <h3 hidden={props.urineTest.enabled}>Urine Test Will Not Be Submitted</h3>
+      <h3 hidden={props.urineTest.enabled} style={{color:'#9E9E9E' , fontSize:'14px' }}>Urine Test Will Not Be Submitted</h3>
 
       <form className={classes.root} autoComplete="off">
         <FormControl className={classes.formField}>

@@ -49,12 +49,13 @@ const Page: React.FC<IProps> = (props) => {
           width: '45%',
         }}>
         <h1>
-          <b>Vital Sign Assessment</b>
+          <b >Vital Sign Assessment</b>
         </h1>
 
         <form className={classes.root} noValidate autoComplete="off">
           <FormControl className={classes.formField}>
             <TextField
+              required
               error={props.vitals.bpSystolicError}
               label={'Systolic'}
               onChange={props.onChange}
@@ -69,6 +70,7 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
+              required
               error={props.vitals.bpDiastolicError}
               label={'Diastolic'}
               onChange={props.onChange}
@@ -83,6 +85,7 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
+              required
               error={props.vitals.heartRateBPMError}
               label={'Heart Rate'}
               onChange={props.onChange}
@@ -105,7 +108,7 @@ const Page: React.FC<IProps> = (props) => {
           <FormControl className={classes.formField}>
             <TextField
               error={props.vitals.heartRateBPMError}
-              label={'Raspiratory Rate'}
+              label={'Respiratory Rate'}
               onChange={props.onChange}
               name={'raspiratoryRate'}
               value={props.vitals.raspiratoryRate}

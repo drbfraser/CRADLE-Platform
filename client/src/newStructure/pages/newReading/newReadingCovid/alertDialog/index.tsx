@@ -20,7 +20,7 @@ export default function AlertDialog(props: IProps) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">
-          {'Patient Created Successfully'}
+          {'The Id is already used or Nah '}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -29,7 +29,7 @@ export default function AlertDialog(props: IProps) {
         </DialogContent>
         <DialogActions>
           <Button onClick={props.handleDialogClose} color="primary">
-            OK
+            Ok!
           </Button>
         </DialogActions>
       </Dialog>
