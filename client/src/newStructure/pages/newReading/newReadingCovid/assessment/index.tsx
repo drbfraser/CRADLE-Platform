@@ -113,7 +113,7 @@ const Page: React.FC<IProps> = (props) => {
         <FormControl className={classes.formFieldWide}>
           <TextField
             id="outlined-multiline-static"
-            label="Medication Prescribed"
+            label="Medication Prescribed (include dose and frequency)"
             multiline
             rows={2}
             defaultValue="..."
