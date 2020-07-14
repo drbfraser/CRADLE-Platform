@@ -166,6 +166,7 @@ class PatientInfo(Resource):
 # [POST]: Create a new patient with a reading
 class PatientReading(Resource):
     # Get a single patient
+    @jwt_required
     def get(self, patient_id):
         logging.debug("Received request: GET /patient/" + patient_id)
         patient = patientManager.read("patientId", patient_id)
