@@ -28,6 +28,7 @@ import { useNewAssessment } from './assessment/hooks';
 import { useNewUrineTest } from './urineTestAssessment/hooks';
 import AlertDialog from './alertDialog';
 import SubmissionDialog from "./submissionDialog";
+import {ConfirmationPage} from "./confirmationPage";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -58,6 +59,7 @@ function getSteps() {
     'Collect symptoms',
     'Vitals sign assessment',
     'Assessment',
+    'Confirmation'
   ];
 }
 interface IProps {
@@ -185,6 +187,16 @@ const Page: React.FC<IProps> = (props) => {
       ) : (
         ''
       )}
+      {activeStep === 4 ? (
+            <ConfirmationPage
+                patient={patient}
+                symptoms={symptoms}
+                vitals={vitals}
+                assessment={assessment}
+                urineTest={urineTest}></ConfirmationPage>
+        ) : (
+            ''
+        )}
       <div>
         {activeStep === steps.length ? (
           <div>
@@ -203,6 +215,7 @@ const Page: React.FC<IProps> = (props) => {
                 Back
               </Button>
               <Button
+                style={{display: steps.length - 2 === activeStep ? "none":""}}
                 disabled={!patient.patientId}
                 className={classes.nextButton}
                 variant="contained"
@@ -210,6 +223,14 @@ const Page: React.FC<IProps> = (props) => {
                 onClick={handleNext}>
                 {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
               </Button>
+                <Button
+                    style={{display: steps.length - 2 !== activeStep ? "none":""}}
+                    className={classes.nextButton}
+                    variant="contained"
+                    color="primary"
+                    onClick={handleNext}>
+                    Confirm
+                </Button>
               <AlertDialog
                 open={isShowDialog}
                 handleDialogClose={handleDialogClose}></AlertDialog>
