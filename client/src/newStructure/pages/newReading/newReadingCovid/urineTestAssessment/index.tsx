@@ -70,6 +70,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'leukocytes'}
               onChange={props.onChange}
               required
+              select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
@@ -85,6 +86,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'nitrites'}
               onChange={props.onChange}
               required
+              select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
@@ -100,6 +102,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'glucose'}
               onChange={props.onChange}
               required
+              select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
@@ -115,6 +118,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'protein'}
               onChange={props.onChange}
               required
+              select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>
@@ -130,6 +134,7 @@ const Page: React.FC<IProps> = (props) => {
               name={'blood'}
               onChange={props.onChange}
               required
+              select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
               <MenuItem value={'p'}>+</MenuItem>

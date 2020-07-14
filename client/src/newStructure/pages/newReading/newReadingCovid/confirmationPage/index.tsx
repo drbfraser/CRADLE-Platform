@@ -51,6 +51,21 @@ const Page: React.FC<IProps> = (props) => {
     setSymptomsString(stringValue);
   }, []);
 
+  const getUrineSign = (key: string) => {
+    if (key === 'm') {
+      return '-';
+    }
+    if (key === 'p') {
+      return '+';
+    }
+    if (key === 'pp') {
+      return '++';
+    }
+    if (key === 'ppp') {
+      return '+++';
+    }
+    return '';
+  };
   return (
     <Paper
       style={{
@@ -200,7 +215,7 @@ const Page: React.FC<IProps> = (props) => {
           className={classes.formFieldDM}
           label="leukocytes"
           variant="outlined"
-          value={props.urineTest.leukocytes}
+          value={getUrineSign(props.urineTest.leukocytes)}
         />
         <TextField
           disabled={true}
@@ -214,7 +229,7 @@ const Page: React.FC<IProps> = (props) => {
           className={classes.formFieldDM}
           label="blood"
           variant="outlined"
-          value={props.urineTest.blood}
+          value={getUrineSign(props.urineTest.blood)}
         />
         <TextField
           disabled={true}
@@ -228,7 +243,7 @@ const Page: React.FC<IProps> = (props) => {
           className={classes.formFieldDM}
           label="protein"
           variant="outlined"
-          value={props.urineTest.protein}
+          value={getUrineSign(props.urineTest.protein)}
         />
         <TextField
           disabled={true}
@@ -242,7 +257,7 @@ const Page: React.FC<IProps> = (props) => {
           className={classes.formFieldDM}
           label="glucose"
           variant="outlined"
-          value={props.urineTest.glucose}
+          value={getUrineSign(props.urineTest.glucose)}
         />
         <TextField
           disabled={true}
@@ -256,7 +271,7 @@ const Page: React.FC<IProps> = (props) => {
           className={classes.formFieldDM}
           label="nitrites"
           variant="outlined"
-          value={props.urineTest.nitrites}
+          value={getUrineSign(props.urineTest.nitrites)}
         />
         <TextField
           disabled={true}
