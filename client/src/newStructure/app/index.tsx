@@ -249,28 +249,6 @@ const Component: React.FC<IProps> = (props) => {
                 className={classes.listItem}
                 button
                 component={Link}
-                to="/patients"
-                selected={activeItem === 'Patients'}
-                onClick={() => setActiveItem('Patients')}>
-                <ListItemIcon>
-                  <img
-                    alt="Patients"
-                    src={PatientsImg}
-                    style={{ width: `75%` }}
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.itemText}
-                  primary={
-                    <Typography style={sidebarTextStyle}>Patients</Typography>
-                  }
-                />
-              </ListItem>
-              <ListItem
-                className={classes.listItem}
-                button
-                component={Link}
                 to="/referrals"
                 selected={activeItem === 'Referrals'}
                 onClick={() => setActiveItem('Referrals')}>
@@ -286,6 +264,28 @@ const Component: React.FC<IProps> = (props) => {
                   className={classes.itemText}
                   primary={
                     <Typography style={sidebarTextStyle}>Referrals</Typography>
+                  }
+                />
+              </ListItem>
+              <ListItem
+                className={classes.listItem}
+                button
+                component={Link}
+                to="/patients"
+                selected={activeItem === 'Patients'}
+                onClick={() => setActiveItem('Patients')}>
+                <ListItemIcon>
+                  <img
+                    alt="Patients"
+                    src={PatientsImg}
+                    style={{ width: `75%` }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  disableTypography
+                  className={classes.itemText}
+                  primary={
+                    <Typography style={sidebarTextStyle}>Patients</Typography>
                   }
                 />
               </ListItem>
@@ -487,6 +487,7 @@ const Component: React.FC<IProps> = (props) => {
             <Route exact path="/" component={HomePage} />
             <PrivateRoute exact path="/admin" component={AdminPage} />
             <PrivateRoute exact path="/help" component={HelpPage} />
+            <PrivateRoute exact path="/referrals" component={ReferralsPage} />
             <PrivateRoute exact path="/patients" component={PatientsPage} />
             <PrivateRoute
               path="/patient/:id"
@@ -495,7 +496,6 @@ const Component: React.FC<IProps> = (props) => {
             <PrivateRoute exact path="/signup" component={SignUpPage} />
             <Route exact path="/login" component={LoginPage} />
             <PrivateRoute exact path="/stats" component={StatisticsPage} />
-            <PrivateRoute exact path="/referrals" component={ReferralsPage} />
             <PrivateRoute exact path="/newreading" component={NewReadingPage} />
             <PrivateRoute exact path="/resources" component={HelpPage} />
             <PrivateRoute
