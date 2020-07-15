@@ -282,8 +282,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
     ) {
       const gestDate = new Date();
       gestDate.setDate(
-        gestDate.getDate() -
-          (this.state.patient.gestationalAgeValue as any) * 7
+        gestDate.getDate() - (this.state.patient.gestationalAgeValue as any) * 7
       );
       this.setState({
         patient: {

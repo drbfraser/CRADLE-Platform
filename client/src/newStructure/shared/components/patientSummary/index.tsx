@@ -247,10 +247,9 @@ class Component extends React.Component {
     ) {
       const gestDate = new Date();
       gestDate.setDate(
-        gestDate.getDate() -
-          (patientData.gestationalAgeValue as any) * 7
+        gestDate.getDate() - (patientData.gestationalAgeValue as any) * 7
       );
-      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000
+      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000;
     }
 
     if (
@@ -261,7 +260,7 @@ class Component extends React.Component {
       gestDate.setMonth(
         gestDate.getMonth() - (patientData.gestationalAgeValue as any)
       );
-      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000
+      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000;
     }
 
     this.props.updatePatient(patientId, patientData);
