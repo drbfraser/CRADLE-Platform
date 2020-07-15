@@ -117,16 +117,19 @@ const Component: React.FC<IProps> = (props) => {
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
-    setOpenStats(false);
+    if (statsOpen) {
+      setOpenStats(false);
+    }
   }, [props.pathName]);
 
-  const onMouseOver = (event: any) => {
-    setOpenStats(true);
-    setAnchor(event.currentTarget);
-  };
+  // const onMouseOver = (event: any) => {
+  //   setOpenStats(true);
+  //   setAnchor(event.currentTarget);
+  // };
 
-  const onStatsClick = () => {
+  const onStatsClick = (event: any) => {
     setOpenStats(!statsOpen);
+    setAnchor(event.currentTarget);
   };
 
   const handleClose = () => {
@@ -292,7 +295,7 @@ const Component: React.FC<IProps> = (props) => {
               <ListItem
                 className={classes.listItem}
                 button
-                onMouseEnter={onMouseOver}
+                // onMouseEnter={onMouseOver}
                 onMouseLeave={handleClose}
                 onClick={onStatsClick} //  need this for tablets
               >
