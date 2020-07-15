@@ -43,6 +43,7 @@ const initState = {
     patientSex: 'FEMALE',
     isPregnant: true,
     gestationalAgeValue: '1',
+    gestationalTimestamp: null,
     gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
     zone: '',
     dob: null,
@@ -274,6 +275,29 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         },
       });
     }
+
+    if (this.state.patient.isPregnant === true && this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS) {
+      let gestDate = new Date();
+      gestDate.setDate(gestDate.getDate() - (parseInt(this.state.patient.gestationalAgeValue) * 7));
+      this.setState({
+        patient: {
+          ...this.state.patient,
+          gestationalTimestamp: Date.parse(gestDate as any) / 1000,
+        },
+      });
+    }
+
+    if (this.state.patient.isPregnant === true && this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS) {
+      let gestDate = new Date();
+      gestDate.setDate(gestDate.getMonth() - parseInt(this.state.patient.gestationalAgeValue));
+      this.setState({
+        patient: {
+          ...this.state.patient,
+          gestationalTimestamp: Date.parse(gestDate as any) / 1000,
+        },
+      });
+    }
+
     const readingID = guid();
 
     const dateTimeTaken = Math.floor(Date.now() / 1000);
