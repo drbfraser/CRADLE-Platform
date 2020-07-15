@@ -276,9 +276,15 @@ class NewReadingPageComponent extends Component<IProps, IState> {
       });
     }
 
-    if (this.state.patient.isPregnant === true && this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS) {
-      let gestDate = new Date();
-      gestDate.setDate(gestDate.getDate() - (parseInt(this.state.patient.gestationalAgeValue) * 7));
+    if (
+      this.state.patient.isPregnant === true &&
+      this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
+    ) {
+      const gestDate = new Date();
+      gestDate.setDate(
+        gestDate.getDate() -
+          (this.state.patient.gestationalAgeValue as any) * 7
+      );
       this.setState({
         patient: {
           ...this.state.patient,
@@ -287,9 +293,14 @@ class NewReadingPageComponent extends Component<IProps, IState> {
       });
     }
 
-    if (this.state.patient.isPregnant === true && this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS) {
-      let gestDate = new Date();
-      gestDate.setDate(gestDate.getMonth() - parseInt(this.state.patient.gestationalAgeValue));
+    if (
+      this.state.patient.isPregnant === true &&
+      this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS
+    ) {
+      const gestDate = new Date();
+      gestDate.setMonth(
+        gestDate.getMonth() - (this.state.patient.gestationalAgeValue as any)
+      );
       this.setState({
         patient: {
           ...this.state.patient,

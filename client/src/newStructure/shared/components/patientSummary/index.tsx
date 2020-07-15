@@ -241,6 +241,29 @@ class Component extends React.Component {
     delete patientData.tableData;
     delete patientData.patientId;
 
+    if (
+      patientData.isPregnant === true &&
+      patientData.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
+    ) {
+      const gestDate = new Date();
+      gestDate.setDate(
+        gestDate.getDate() -
+          (patientData.gestationalAgeValue as any) * 7
+      );
+      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000
+    }
+
+    if (
+      patientData.isPregnant === true &&
+      patientData.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS
+    ) {
+      const gestDate = new Date();
+      gestDate.setMonth(
+        gestDate.getMonth() - (patientData.gestationalAgeValue as any)
+      );
+      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000
+    }
+
     this.props.updatePatient(patientId, patientData);
     this.closePatientModal('formSubmitted');
   };
