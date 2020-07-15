@@ -25,7 +25,7 @@ ENV PATH /usr/src/client/node_modules/.bin:$PATH
 COPY . ./
 
 # install dependencies
-RUN npm ci
+RUN npm install
 
 # generate react build
 RUN npm run build

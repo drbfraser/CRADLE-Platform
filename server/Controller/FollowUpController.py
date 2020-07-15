@@ -79,7 +79,11 @@ class FollowUp(Resource):
             return update_res
 
     @jwt_required
-    @swag_from("../specifications/followup-delete.yml", methods=["DELETE"], endpoint="followup_path")
+    @swag_from(
+        "../specifications/followup-delete.yml",
+        methods=["DELETE"],
+        endpoint="followup_path",
+    )
     def delete(self, id=None):
         # validate inputs
         if id:
@@ -95,6 +99,7 @@ class FollowUp(Resource):
 
 class FollowUpMobile(Resource):
     @jwt_required
+    @swag_from("../specifications/mobile-followup.yml", methods=["GET"])
     def get(self, id=None):
         args = request.args
         if id:
@@ -120,6 +125,7 @@ class FollowUpMobile(Resource):
 
 class FollowUpMobileSummarized(Resource):
     @jwt_required
+    @swag_from("../specifications/mobile-followup-summarized.yml", methods=["GET"])
     def get(self, id=None):
         args = request.args
         if id:

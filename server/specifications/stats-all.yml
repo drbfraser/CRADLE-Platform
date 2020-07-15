@@ -44,9 +44,19 @@ responses:
               example: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0]
             trafficLightStatusLastMonth:
               type: object
-              example:
-                green: 22
-                yellowUp: 12
-                yellowDown: 2
-                redUp: 11
-                redDown: 0
+              properties:
+                green:
+                  type: integer
+                  example: 22
+                yellowUp:
+                  type: integer
+                  example: 12
+                yellowDown:
+                  type: integer
+                  example: 2
+                redUp:
+                  type: integer
+                  example: 11
+                redDown:
+                  type: integer
+                  example: 0

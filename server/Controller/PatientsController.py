@@ -108,7 +108,7 @@ class PatientAll(Resource):
         abort_if_patient_exists(patient_data["patientId"])
         invalid = PatientValidation.check_patient_fields(patient_data)
         if invalid is not None:
-            return invalid
+            return {"HTTP 400": invalid}, 400
 
         # if age is not provided, populate age using dob
         if (
@@ -166,19 +166,18 @@ class PatientInfo(Resource):
 # [POST]: Create a new patient with a reading
 class PatientReading(Resource):
     # Get a single patient
+    @jwt_required
     def get(self, patient_id):
         logging.debug("Received request: GET /patient/" + patient_id)
         patient = patientManager.read("patientId", patient_id)
-
-        new_readings = []
-        for reading in patient["readings"]:
-            new_reading = readingManager.read("readingId", reading)
-            new_reading["urineTests"] = urineTestManager.read("readingId", reading)
-            new_readings.append(new_reading)
-        patient["readings"] = new_readings
-
         if patient is None:
             abort(404, message="Patient {} doesn't exist.".format(patient_id))
+        new_readings_array = []
+        for reading in patient["readings"]:
+            new_reading = readingManager.get_reading_json_from_reading(reading)
+            new_readings_array.append(new_reading)
+
+        patient["readings"] = new_readings_array
         return patient
 
     # Create a new patient with a reading
@@ -201,11 +200,11 @@ class PatientReading(Resource):
         )
 
         if is_invalid_patient is not None:
-            return is_invalid_patient
+            return {"HTTP 400": is_invalid_patient}, 400
 
         # validate with new reading validator
         if is_invalid_reading is not None:
-            return is_invalid_reading
+            return {"HTTP 400": is_invalid_reading}, 400
 
         patient_data = patient_reading_data["patient"]
         if (

@@ -1,19 +1,21 @@
 from config import db, ma
+import enum
 from jsonschema import validate
-from jsonschema.exceptions import ValidationError
 from jsonschema.exceptions import SchemaError
+from jsonschema.exceptions import ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
-import enum
-from sqlalchemy import UniqueConstraint
+from utils import get_current_time
 
 # To add a table to db, make a new class
 # create a migration: flask db migrate
 # apply the migration: flask db upgrade
 
-#####################
-### ENUMS CLASSES ###
-#####################
+#
+# ENUMS CLASSES
+#
+
+
 class RoleEnum(enum.Enum):
     VHT = "VHT"
     HCW = "HCW"
@@ -36,7 +38,7 @@ class TrafficLightEnum(enum.Enum):
     RED_DOWN = "RED_DOWN"
 
 
-class frequencyUnitEnum(enum.Enum):
+class FrequencyUnitEnum(enum.Enum):
     NONE = "None"
     MINUTES = "MINUTES"
     HOURS = "HOURS"
@@ -46,16 +48,18 @@ class frequencyUnitEnum(enum.Enum):
     YEARS = "YEARS"
 
 
-class facilityTypeEnum(enum.Enum):
+class FacilityTypeEnum(enum.Enum):
     HCF_2 = "HCF_2"
     HCF_3 = "HCF_3"
     HCF_4 = "HCF_4"
     HOSPITAL = "HOSPITAL"
 
 
-######################
-### HELPER CLASSES ###
-######################
+#
+# HELPER CLASSES
+#
+
+
 userRole = db.Table(
     "userrole",
     db.Column("id", db.Integer, primary_key=True),
@@ -73,9 +77,12 @@ supervises = db.Table(
     db.UniqueConstraint("choId", "vhtId", name="unique_supervise"),
 )
 
-#####################
-### MODEL CLASSES ###
-#####################
+
+#
+# MODEL CLASSES
+#
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     firstName = db.Column(db.String(25))
@@ -143,12 +150,12 @@ class Referral(db.Model):
 
 class HealthFacility(db.Model):
     __tablename__ = "healthfacility"
-    # To Do: should probably have a unique id as primary key here, in addition to facility name
+    # TODO: should probably have a unique id as primary key here, in addition to facility name
     healthFacilityName = db.Column(db.String(50), primary_key=True)
-    facilityType = db.Column(db.Enum(facilityTypeEnum))
+    facilityType = db.Column(db.Enum(FacilityTypeEnum))
 
     # Best practice would be to add column for area code + column for rest of number.
-    # However, all of our facilites are in Uganda so area code does not change.
+    # However, all of our facilities are in Uganda so area code does not change.
     # May want to change in the future if system if used in multiple countries
     healthFacilityPhoneNumber = db.Column(db.String(50))
     location = db.Column(db.String(50))
@@ -168,11 +175,12 @@ class Patient(db.Model):
     zone = db.Column(db.String(20))
     dob = db.Column(db.BigInteger)
     villageNumber = db.Column(db.String(50))
-    # FOREIGN KEYS
-    # villageNumber = db.Column(db.String(50), db.ForeignKey('village.villageNumber'))
-
-    # RELATIONSHIPS
-    # village = db.relationship('Village', backref=db.backref('patients', lazy=True))
+    lastEdited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
@@ -185,126 +193,61 @@ class Reading(db.Model):
     heartRateBPM = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
-    # date ex: 2019-09-25T19:00:16.683-07:00[America/Vancouver]
-    dateLastSaved = db.Column(db.BigInteger)
     dateTimeTaken = db.Column(db.BigInteger)
-    dateUploadedToServer = db.Column(db.BigInteger)
     dateRecheckVitalsNeeded = db.Column(db.BigInteger)
-
-    gpsLocationOfReading = db.Column(db.String(50))
     retestOfPreviousReadingIds = db.Column(db.String(100))
     isFlaggedForFollowup = db.Column(db.Boolean)
-    appVersion = db.Column(db.String(50))
-    deviceInfo = db.Column(db.String(50))
-    totalOcrSeconds = db.Column(db.Float)
-    manuallyChangeOcrResults = db.Column(db.Integer)
-    temporaryFlags = db.Column(db.Integer)
-    userHasSelectedNoSymptoms = db.Column(db.Boolean)
-    # change this to enum (currently cumbersome because currently system saves data straight from json, values look like 'g ++' and we cannot have enums with that name)
-    # so need some sort of way to map it over manually when saving data
-    urineTest = db.Column(db.String(50))
 
     # FOREIGN KEYS
     userId = db.Column(
         db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
-
-    # @hybrid_property
-    def getTrafficLight(self):
-        RED_SYSTOLIC = 160
-        RED_DIASTOLIC = 110
-        YELLOW_SYSTOLIC = 140
-        YELLOW_DIASTOLIC = 90
-        SHOCK_HIGH = 1.7
-        SHOCK_MEDIUM = 0.9
-
-        if (
-            self.bpSystolic == None
-            or self.bpDiastolic == None
-            or self.heartRateBPM == None
-        ):
-            return TrafficLightEnum.NONE.name
-
-        shockIndex = self.heartRateBPM / self.bpSystolic
-
-        isBpVeryHigh = (self.bpSystolic >= RED_SYSTOLIC) or (
-            self.bpDiastolic >= RED_DIASTOLIC
-        )
-        isBpHigh = (self.bpSystolic >= YELLOW_SYSTOLIC) or (
-            self.bpDiastolic >= YELLOW_DIASTOLIC
-        )
-        isSevereShock = shockIndex >= SHOCK_HIGH
-        isShock = shockIndex >= SHOCK_MEDIUM
-
-        if isSevereShock:
-            trafficLight = TrafficLightEnum.RED_DOWN.name
-        elif isBpVeryHigh:
-            trafficLight = TrafficLightEnum.RED_UP.name
-        elif isShock:
-            trafficLight = TrafficLightEnum.YELLOW_DOWN.name
-        elif isBpHigh:
-            trafficLight = TrafficLightEnum.YELLOW_UP.name
-        else:
-            trafficLight = TrafficLightEnum.GREEN.name
-
-        return trafficLight
-
-    def __init__(
-        self,
-        userId,
-        patientId,
-        readingId,
-        bpSystolic,
-        bpDiastolic,
-        heartRateBPM,
-        symptoms,
-        trafficLightStatus=None,
-        dateLastSaved=None,
-        dateTimeTaken=None,
-        dateUploadedToServer=None,
-        dateRecheckVitalsNeeded=None,
-        gpsLocationOfReading=None,
-        retestOfPreviousReadingIds=None,
-        isFlaggedForFollowup=None,
-        appVersion=None,
-        deviceInfo=None,
-        totalOcrSeconds=None,
-        manuallyChangeOcrResults=None,
-        temporaryFlags=None,
-        userHasSelectedNoSymptoms=None,
-        urineTest=None,
-    ):
-        self.userId = userId
-        self.patientId = patientId
-        self.readingId = readingId
-        self.bpSystolic = bpSystolic
-        self.bpDiastolic = bpDiastolic
-        self.heartRateBPM = heartRateBPM
-        self.symptoms = symptoms
-        self.trafficLightStatus = self.getTrafficLight()
-        self.dateTimeTaken = dateTimeTaken
-        self.dateLastSaved = dateLastSaved
-        self.dateUploadedToServer = dateUploadedToServer
-        self.dateRecheckVitalsNeeded = dateRecheckVitalsNeeded
-        self.gpsLocationOfReading = gpsLocationOfReading
-        self.retestOfPreviousReadingIds = retestOfPreviousReadingIds
-        self.isFlaggedForFollowup = isFlaggedForFollowup
-        self.appVersion = appVersion
-        self.deviceInfo = deviceInfo
-        self.totalOcrSeconds = totalOcrSeconds
-        self.manuallyChangeOcrResults = manuallyChangeOcrResults
-        self.temporaryFlags = temporaryFlags
-        self.userHasSelectedNoSymptoms = userHasSelectedNoSymptoms
-        self.urineTest = urineTest
-
-    # FOREIGN KEYS
     patientId = db.Column(
         db.String(50), db.ForeignKey("patient.patientId"), nullable=False
     )
 
     # RELATIONSHIPS
     patient = db.relationship("Patient", backref=db.backref("readings", lazy=True))
-    urineTests = db.relationship("urineTest", backref=db.backref("reading", lazy=True))
+    urineTests = db.relationship("UrineTest", backref=db.backref("reading", lazy=True))
+
+    def get_traffic_light(self):
+        red_systolic = 160
+        red_diastolic = 110
+        yellow_systolic = 140
+        yellow_diastolic = 90
+        shock_high = 1.7
+        shock_medium = 0.9
+
+        if (
+            self.bpSystolic is None
+            or self.bpDiastolic is None
+            or self.heartRateBPM is None
+        ):
+            return TrafficLightEnum.NONE.name
+
+        shock_index = self.heartRateBPM / self.bpSystolic
+
+        is_bp_very_high = (self.bpSystolic >= red_systolic) or (
+            self.bpDiastolic >= red_diastolic
+        )
+        is_bp_high = (self.bpSystolic >= yellow_systolic) or (
+            self.bpDiastolic >= yellow_diastolic
+        )
+        is_severe_shock = shock_index >= shock_high
+        is_shock = shock_index >= shock_medium
+
+        if is_severe_shock:
+            traffic_light = TrafficLightEnum.RED_DOWN.name
+        elif is_bp_very_high:
+            traffic_light = TrafficLightEnum.RED_UP.name
+        elif is_shock:
+            traffic_light = TrafficLightEnum.YELLOW_DOWN.name
+        elif is_bp_high:
+            traffic_light = TrafficLightEnum.YELLOW_UP.name
+        else:
+            traffic_light = TrafficLightEnum.GREEN.name
+
+        return traffic_light
 
 
 class FollowUp(db.Model):
@@ -323,7 +266,7 @@ class FollowUp(db.Model):
     # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
     healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
     followupFrequencyValue = db.Column(db.Float)
-    followupFrequencyUnit = db.Column(db.Enum(frequencyUnitEnum))
+    followupFrequencyUnit = db.Column(db.Enum(FrequencyUnitEnum))
     dateFollowupNeededTill = db.Column(db.String(50))
 
 
@@ -332,7 +275,7 @@ class Village(db.Model):
     zoneNumber = db.Column(db.String(50))
 
 
-class urineTest(db.Model):
+class UrineTest(db.Model):
     Id = db.Column(db.String(50), primary_key=True)
     urineTestLeuc = db.Column(db.String(5))
     urineTestNit = db.Column(db.String(5))
@@ -352,9 +295,9 @@ class PatientFacility(db.Model):
     __table_args__ = (db.UniqueConstraint("patientId", "healthFacilityName"),)
 
 
-######################
-###    SCHEMAS     ###
-######################
+#
+# SCHEMAS
+#
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
@@ -394,7 +337,7 @@ class RoleSchema(ma.SQLAlchemyAutoSchema):
 
 
 class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
-    facilityType = EnumField(facilityTypeEnum, by_value=True)
+    facilityType = EnumField(FacilityTypeEnum, by_value=True)
 
     class Meta:
         include_fk = True
@@ -404,7 +347,7 @@ class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
 
 
 class FollowUpSchema(ma.SQLAlchemyAutoSchema):
-    followupFrequencyUnit = EnumField(frequencyUnitEnum, by_value=True)
+    followupFrequencyUnit = EnumField(FrequencyUnitEnum, by_value=True)
     healthcareWorker = fields.Nested(UserSchema)
 
     class Meta:
@@ -424,11 +367,11 @@ class ReferralSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-class urineTestSchema(ma.SQLAlchemyAutoSchema):
+class UrineTestSchema(ma.SQLAlchemyAutoSchema):
     # urineTests = fields.Nested(ReadingSchema)
     class Meta:
         include_fk = True
-        model = urineTest
+        model = UrineTest
         load_instance = True
         include_relationships = True
 
@@ -444,11 +387,11 @@ class PatientFacilitySchema(ma.SQLAlchemyAutoSchema):
 user_schema = {
     "type": "object",
     "properties": {
-        "username": {"type": "string",},
+        "username": {"type": "string"},
         "email": {"type": "string", "format": "email"},
-        "firstName": {"type": "string",},
-        "role": {"type": "string",},
-        "healthFacilityName": {"type": "string",},
+        "firstName": {"type": "string"},
+        "role": {"type": "string"},
+        "healthFacilityName": {"type": "string"},
         "password": {"type": "string", "minLength": 5},
     },
     "required": ["email", "password"],

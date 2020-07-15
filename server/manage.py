@@ -1,8 +1,6 @@
 import random
 import string
 import uuid
-import time
-import sys
 import datetime
 import numpy as np
 from random import randrange
@@ -10,6 +8,7 @@ from datetime import timedelta, datetime
 from flask_script import Manager
 from config import app, db, flask_bcrypt
 from models import *
+from Database.ReadingRepoNew import ReadingRepo
 
 manager = Manager(app)
 
@@ -169,8 +168,7 @@ def seed():
                 "heartRateBPM": getRandomHeartRateBPM(),
                 "symptoms": getRandomSymptoms(),
             }
-            db.session.add(reading_schema.load(r1))
-            db.session.commit()
+            ReadingRepo().create(r1)
 
             if i == numOfReadings - 1 and random.choice([True, False]):
                 referral1 = {
@@ -262,11 +260,10 @@ def create_patient_reading_referral(
     }
 
     patient_schema = PatientSchema()
-    reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
 
     db.session.add(patient_schema.load(patient))
-    db.session.add(reading_schema.load(reading))
+    ReadingRepo().create(reading)
     db.session.add(referral_schema.load(referral))
     db.session.commit()
 

@@ -26,7 +26,6 @@ class ReferralPageComponent extends Component<IProps> {
     if (!this.props.user.isLoggedIn) {
       this.props.getCurrentUser();
     }
-    console.log('halo', this.props.patients);
     if (
       this.props.patients.patientsList?.length === 0 ||
       this.props.patients.patientsList === null
@@ -36,7 +35,6 @@ class ReferralPageComponent extends Component<IProps> {
   };
 
   static filterReferrals(patientsList: any) {
-    console.log(patientsList);
     const result = patientsList?.filter((patient: any) => {
       if (patient.readings.length === 0) {
         return false;
@@ -66,7 +64,6 @@ class ReferralPageComponent extends Component<IProps> {
   }
 
   patientCallback = (selectedPatient: any) => {
-    console.log('Received callback: ');
     this.props.history.push(`/patient/${selectedPatient.patientId}`);
   };
 

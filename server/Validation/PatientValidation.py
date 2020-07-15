@@ -56,8 +56,26 @@ def check_if_required_keys_present(request_body, required_keys):
     return None
 
 
-# helper method that makes sure that expected string types are in fact strings/ints (depending on critera)
-def check_if_values_string_or_int(request_body, must_be_string, must_be_int):
+# helper method that checks gestational age isn't over 43 weeks/10 months
+def check_gestational_age_under_limit(request_body):
+    if (
+        request_body.get("gestationalAgeUnit") == "GESTATIONAL_AGE_UNITS_WEEKS"
+        and int(request_body.get("gestationalAgeValue")) > 43
+    ):
+        return "Gestation age is greater than 43 weeks."
+    if (
+        request_body.get("gestationalAgeUnit") == "GESTATIONAL_AGE_UNITS_MONTHS"
+        and int(request_body.get("gestationalAgeValue")) > 10
+    ):
+        return "Gestation age is greater than 10 months."
+    return None
+
+
+# helper method that makes sure that expected string types are
+# in fact strings/ints/string (depending on critera)
+def check_if_values_string_int_array(
+    request_body, must_be_string, must_be_int, must_be_array
+):
     for key in request_body:
         if (
             must_be_string is not None
@@ -83,6 +101,16 @@ def check_if_values_string_or_int(request_body, must_be_string, must_be_int):
                     {"HTTP 400": "The value for key {" + key + "} is must be an int."},
                     400,
                 )
+        if (
+            must_be_array is not None
+            and key in must_be_array
+            and request_body.get(key) is not None
+        ):
+            if not isinstance((request_body.get(key)), list):
+                return (
+                    {"HTTP 400": "The value for key {" + key + "}  must be a array."},
+                    400,
+                )
         # add other type checks here once they're confirmed
     return None
 
@@ -105,8 +133,20 @@ def check_patient_fields(request_body):
     required_keys_present_message = check_if_required_keys_present(
         request_body, required_keys
     )
+
     if required_keys_present_message is not None:
         return required_keys_present_message
+
+    gestational_age_message = None
+    if (
+        request_body.get("patientSex") == "FEMALE"
+        and request_body.get("isPregnant") == True
+    ):
+        gestational_age_message = check_gestational_age_under_limit(request_body)
+
+    if gestational_age_message is not None:
+        print("Invalid gestation age: " + gestational_age_message)
+        return gestational_age_message
 
     # values that must be of type string
     must_be_string = {
@@ -208,17 +248,20 @@ def check_reading_fields(request_body):
     must_be_string = {
         # 'userId', -- deal with this later
         "readingId",
+    }
+    # must be of type array
+    must_be_array = {
         "symptoms",
     }
-
     # values that must be of type int
     must_be_int = {"dateTimeTaken", "bpSystolic", "bpDiastolic", "heartRateBPM"}
 
-    values_string_or_int_message = check_if_values_string_or_int(
-        request_body, must_be_string, must_be_int
+    values_string_or_int_array_message = check_if_values_string_int_array(
+        request_body, must_be_string, must_be_int, must_be_array
     )
-    if values_string_or_int_message is not None:
-        return values_string_or_int_message
+
+    if values_string_or_int_array_message is not None:
+        return values_string_or_int_array_message
 
 
 def update_info_invalid(patient_id, request_body):
@@ -233,8 +276,8 @@ def update_info_invalid(patient_id, request_body):
     # values that must be of type int
     must_be_int = {"patientAge", "villageNumber", "gestationalAgeValue"}
 
-    values_string_or_int_message = check_if_values_string_or_int(
-        request_body, None, must_be_int
+    values_string_or_int_message = check_if_values_string_int_array(
+        request_body, None, must_be_int, None
     )
     if values_string_or_int_message is not None:
         return values_string_or_int_message

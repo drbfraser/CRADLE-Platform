@@ -17,13 +17,25 @@ responses:
           type: object
           properties:
             users:
-              type: array
+              type: array | Null
               items: integer
               example: [2, 3]
             healthFacilityName:
               type: string
               example: H5123
             referrals:
-              type: array
+              type: array | Null
               items: integer
               example: [4, 9, 13, 21, 22, 25, 31, 36, 42, 46, 49]
+            healthFacilityPhoneNumber:
+              type: string | Null
+              example: "555-555-5555"
+            location:
+              type: string | Null
+            facilityType:
+              type: string | Null
+              enum: [HCF_2, HCF_3, HCF_4, HOSPITAL]
+              example: HOSPITAL
+            about:
+              type: string | Null
+              example: Sample health centre
