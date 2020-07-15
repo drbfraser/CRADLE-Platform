@@ -46,7 +46,6 @@ const Page: React.FC<IProps> = (props) => {
       if (value === true) {
         stringValue += key + ', ';
       }
-      console.log(`${key}: ${value}`);
     }
     setSymptomsString(stringValue);
   }, []);

@@ -21,13 +21,23 @@ export const useNewVitals = () => {
         return true;
       }
     }
+    if (name === 'bpDiastolic') {
+      if (value < 30 || value > 200) {
+        return true;
+      }
+    }
+    if (name === 'heartRateBPM') {
+      if (value < 30 || value > 250) {
+        return true;
+      }
+    }
     return false;
   };
   const handleChangeVitals = (e: any) => {
     const name = e.target.name;
     const value = e.target.value;
     const validation = validate(name, value);
-    console.log(validation);
+    console.log('validation', validation);
     // sys 50-300
     // 30-200 di
     // 30-250 hear
@@ -39,40 +49,44 @@ export const useNewVitals = () => {
       });
     }
     if (name === 'bpDiastolic') {
-      if (value < 30 || value > 200) {
-        setVitals({
-          ...vitals,
-          [e.target.name]: e.target.value,
-          bpDiastolicError: true,
-        });
-      } else {
-        setVitals({
-          ...vitals,
-          [e.target.name]: e.target.value,
-        });
-      }
+      setVitals({
+        ...vitals,
+        [e.target.name]: e.target.value,
+        bpDiastolicError: validation,
+      });
     }
     if (name === 'heartRateBPM') {
-      if (value < 30 || value > 250) {
-        setVitals({
-          ...vitals,
-          [e.target.name]: e.target.value,
-          heartRateBPMError: true,
-        });
-      } else {
-        setVitals({
-          ...vitals,
-          [e.target.name]: e.target.value,
-        });
-      }
-    } else {
+      setVitals({
+        ...vitals,
+        [e.target.name]: e.target.value,
+        heartRateBPMError: validation,
+      });
+    }
+    if (name === 'respiratoryRate') {
+      //add validation here
+      setVitals({
+        ...vitals,
+        [e.target.name]: e.target.value,
+      });
+    }
+    if (name === 'oxygenSaturation') {
+      //add validation here
+
+      setVitals({
+        ...vitals,
+        [e.target.name]: e.target.value,
+      });
+    }
+    if (name === 'temperature') {
+      //add validation here
+
       setVitals({
         ...vitals,
         [e.target.name]: e.target.value,
       });
     }
 
-    console.log(vitals);
+    console.log('vitals', vitals);
   };
   return { vitals, handleChangeVitals };
 };

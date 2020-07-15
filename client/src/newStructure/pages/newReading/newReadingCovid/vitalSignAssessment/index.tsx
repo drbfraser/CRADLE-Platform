@@ -38,6 +38,7 @@ interface IProps {
 }
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
+  console.log(props.vitals.bpSystolicError);
 
   return (
     <div style={{ display: 'flex' }}>
@@ -51,7 +52,6 @@ const Page: React.FC<IProps> = (props) => {
         <h1>
           <b>Vital Sign Assessment</b>
         </h1>
-
         <form className={classes.root} noValidate autoComplete="off">
           <FormControl className={classes.formField}>
             <TextField

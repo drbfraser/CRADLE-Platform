@@ -43,7 +43,6 @@ export const useNewPatient = () => {
   const handleChangePatient = (e: any) => {
     const errors: any = validateInput(e.target.name, e.target.value);
     const name = e.target.name;
-    console.log(e.target, e.target.value);
 
     if (name === 'patientSex') {
       if (e.target.value === 'MALE') {
@@ -136,7 +135,6 @@ export const useNewPatient = () => {
           gestationalAgeValueError = true;
         }
       }
-      console.log('errors.gestationalAgeValueError', gestationalAgeValueError);
       setPatient({
         ...patient,
         [name]: e.target.value,
@@ -154,7 +152,6 @@ export const useNewPatient = () => {
         [name]: e.target.value,
       });
     }
-    console.log('DATA', patient);
   };
   return { patient, handleChangePatient };
 };
