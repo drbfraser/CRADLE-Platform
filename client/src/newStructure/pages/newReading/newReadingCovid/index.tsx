@@ -125,6 +125,43 @@ const Page: React.FC<IProps> = (props) => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
+  const isRequiredFilled = () => {
+    if (activeStep === 0) {
+      if (
+        !patient.patientId ||
+        !patient.patientInitial ||
+        patient.patientIdError ||
+        patient.patientInitialError
+      ) {
+        return true;
+      }
+    }
+    if (activeStep === 2) {
+      if (
+        !vitals.bpSystolic ||
+        vitals.bpSystolicError ||
+        !vitals.bpSystolic ||
+        vitals.bpSystolicError ||
+        !vitals.heartRateBPM ||
+        vitals.heartRateBPMError
+      ) {
+        return true;
+      }
+      if (urineTest.enabled) {
+        if (
+          !urineTest.blood ||
+          !urineTest.glucose ||
+          !urineTest.protein ||
+          !urineTest.nitrites ||
+          !urineTest.leukocytes
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
@@ -212,7 +249,7 @@ const Page: React.FC<IProps> = (props) => {
                 style={{
                   display: steps.length - 2 === activeStep ? 'none' : '',
                 }}
-                disabled={!patient.patientId}
+                disabled={isRequiredFilled() ? true : false}
                 className={classes.nextButton}
                 variant="contained"
                 color="primary"
