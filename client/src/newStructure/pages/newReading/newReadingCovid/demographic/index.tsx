@@ -151,7 +151,6 @@ const Page: React.FC<IProps> = (props) => {
         </FormControl>
         <FormControl className={classes.formField}>
           <TextField
-            error={props.patient.patientIdError}
             label={'Gender'}
             select
             name="patientSex"
