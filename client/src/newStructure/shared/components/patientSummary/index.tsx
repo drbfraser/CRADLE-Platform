@@ -1,7 +1,15 @@
 // @ts-nocheck
 
 import { Bar, Line } from 'react-chartjs-2';
-import { Button, Divider, Form, Header, Input, Modal, Select } from 'semantic-ui-react';
+import {
+  Button,
+  Divider,
+  Form,
+  Header,
+  Input,
+  Modal,
+  Select,
+} from 'semantic-ui-react';
 import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from '../form/patient';
 import {
   UrineTestForm,
@@ -64,16 +72,19 @@ function guid() {
 }
 
 function getNumOfWeeks(timestamp) {
-  const todaysDate = new Date()
+  const todaysDate = new Date();
   const gestDate = new Date(timestamp * 1000);
-  return Math.round((todaysDate - gestDate) / (7 * 24 * 60 * 60 * 1000))
+  return Math.round((todaysDate - gestDate) / (7 * 24 * 60 * 60 * 1000));
 }
 
 function getNumOfMonths(timestamp) {
-  const todaysDate = new Date()
+  const todaysDate = new Date();
   const gestDate = new Date(timestamp * 1000);
-  return todaysDate.getMonth() - gestDate.getMonth() + 
-   (12 * (todaysDate.getFullYear() - gestDate.getFullYear()))
+  return (
+    todaysDate.getMonth() -
+    gestDate.getMonth() +
+    12 * (todaysDate.getFullYear() - gestDate.getFullYear())
+  );
 }
 
 class Component extends React.Component {
@@ -279,9 +290,9 @@ class Component extends React.Component {
       );
       patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000;
     }
-    delete patientData.gestationalAgeValue
-    delete patientData.gestationalAgeUnit
-    console.log(patientData)
+    delete patientData.gestationalAgeValue;
+    delete patientData.gestationalAgeUnit;
+    console.log(patientData);
     this.props.updatePatient(patientId, patientData);
     this.closePatientModal('formSubmitted');
   };
@@ -353,12 +364,17 @@ class Component extends React.Component {
   handleUnitChange = (e: any, value: any) => {
     if (value.value === 1) {
       this.setState({
-        selectedPatient: { ...this.state.selectedPatient, gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS },
+        selectedPatient: {
+          ...this.state.selectedPatient,
+          gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
+        },
       });
-    }
-    else {
+    } else {
       this.setState({
-        selectedPatient: { ...this.state.selectedPatient, gestationalAgeUnit: GESTATIONAL_AGE_UNITS.MONTHS },
+        selectedPatient: {
+          ...this.state.selectedPatient,
+          gestationalAgeUnit: GESTATIONAL_AGE_UNITS.MONTHS,
+        },
       });
     }
   };
@@ -581,8 +597,14 @@ class Component extends React.Component {
 
   render() {
     let readings = [];
-    if (this.state.selectedPatient.gestationalAgeUnit === undefined)
-      this.state.selectedPatient.gestationalAgeUnit = GESTATIONAL_AGE_UNITS.WEEKS
+    if (this.state.selectedPatient.gestationalAgeUnit === undefined) {
+      this.setState({
+        selectedPatient: {
+          ...this.state.selectedPatient,
+          gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
+        },
+      });
+    }
     if (
       this.state.selectedPatient.readings !== undefined &&
       this.state.selectedPatient.readings.length > 0
@@ -792,15 +814,19 @@ class Component extends React.Component {
                           {/* {getNumOfWeeks(this.state.selectedPatient.gestationalTimestamp)}{' '} */}
                           {this.state.selectedPatient.gestationalAgeUnit ===
                           GESTATIONAL_AGE_UNITS.WEEKS
-                            ? getNumOfWeeks(this.state.selectedPatient.gestationalTimestamp) + ' week(s)'
-                            : getNumOfMonths(this.state.selectedPatient.gestationalTimestamp) + ' month(s)'}
-                            <Form.Field
-                              name="gestationalUnits"
-                              control={Select}
-                              options={unitOptions}
-                              placeholder="Weeks"
-                              onChange={this.handleUnitChange}
-                            />
+                            ? getNumOfWeeks(
+                                this.state.selectedPatient.gestationalTimestamp
+                              ) + ' week(s)'
+                            : getNumOfMonths(
+                                this.state.selectedPatient.gestationalTimestamp
+                              ) + ' month(s)'}
+                          <Form.Field
+                            name="gestationalUnits"
+                            control={Select}
+                            options={unitOptions}
+                            placeholder="Weeks"
+                            onChange={this.handleUnitChange}
+                          />
                         </p>
                       )}
                     <Accordion>

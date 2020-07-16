@@ -328,8 +328,8 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         if (!this.state.hasUrineTest) {
           delete readingData.urineTests;
         }
-        delete patientData.gestationalAgeValue
-        delete patientData.gestationalAgeUnit
+        delete patientData.gestationalAgeValue;
+        delete patientData.gestationalAgeUnit;
 
         const newData = {
           patient: patientData,
