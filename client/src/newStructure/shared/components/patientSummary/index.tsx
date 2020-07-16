@@ -80,11 +80,15 @@ function getNumOfWeeks(timestamp) {
 function getNumOfMonths(timestamp) {
   const todaysDate = new Date();
   const gestDate = new Date(timestamp * 1000);
-  return (
+  const numOfMonths = (
     todaysDate.getMonth() -
     gestDate.getMonth() +
     12 * (todaysDate.getFullYear() - gestDate.getFullYear())
   );
+  if (numOfMonths === 0) {
+    return "< 1"
+  }
+  return numOfMonths;
 }
 
 class Component extends React.Component {
@@ -291,8 +295,6 @@ class Component extends React.Component {
       patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000;
     }
     delete patientData.gestationalAgeValue;
-    delete patientData.gestationalAgeUnit;
-    console.log(patientData);
     this.props.updatePatient(patientId, patientData);
     this.closePatientModal('formSubmitted');
   };
@@ -597,14 +599,7 @@ class Component extends React.Component {
 
   render() {
     let readings = [];
-    if (this.state.selectedPatient.gestationalAgeUnit === undefined) {
-      this.setState({
-        selectedPatient: {
-          ...this.state.selectedPatient,
-          gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
-        },
-      });
-    }
+
     if (
       this.state.selectedPatient.readings !== undefined &&
       this.state.selectedPatient.readings.length > 0
@@ -811,7 +806,6 @@ class Component extends React.Component {
                       this.state.selectedPatient.gestationalTimestamp && (
                         <p>
                           <b>Gestational Age: </b>{' '}
-                          {/* {getNumOfWeeks(this.state.selectedPatient.gestationalTimestamp)}{' '} */}
                           {this.state.selectedPatient.gestationalAgeUnit ===
                           GESTATIONAL_AGE_UNITS.WEEKS
                             ? getNumOfWeeks(
@@ -824,7 +818,8 @@ class Component extends React.Component {
                             name="gestationalUnits"
                             control={Select}
                             options={unitOptions}
-                            placeholder="Weeks"
+                            placeholder={this.state.selectedPatient.gestationalAgeUnit ===
+                              GESTATIONAL_AGE_UNITS.WEEKS ? "Weeks" : "Months"}
                             onChange={this.handleUnitChange}
                           />
                         </p>
