@@ -48,17 +48,26 @@ def patients_for_vht(user: User) -> List[Patient]:
     return patients_for_user(user)
 
 
-def annotated_global_patient_list(user: User) -> List[Tuple[Patient, bool]]:
+def annotated_global_patient_list(
+    user: User, search: str
+) -> List[Tuple[Patient, bool]]:
     """
     Returns the global list of patients where each patient is paired with a boolean that
     is True if the patient is a member of the user's health facility and False if not.
 
     :param user: A user model
+    :param search: A search query
     :return: A list of tuples
     """
+
+    def __normalized_search(query: str, value: str) -> bool:
+        return query.upper() in value.upper()
+
     facility = user.healthFacility
     all_patients = Patient.query.all()
     return [
         (patient, has_association(patient=patient, facility=facility))
         for patient in all_patients
+        if __normalized_search(search, patient.patientId)
+        or __normalized_search(search, patient.patientName)
     ]

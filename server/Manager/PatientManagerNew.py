@@ -20,7 +20,7 @@ class PatientManager(Manager):
             return patient_dict
 
         user = UserRepo().select_one(id=current_user["userId"])
-        pairs = filter.annotated_global_patient_list(user)
+        pairs = filter.annotated_global_patient_list(user, search)
         patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
         return [to_global_search_patient(p) for p in patients_query]
 
