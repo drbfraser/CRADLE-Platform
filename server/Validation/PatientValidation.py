@@ -63,8 +63,8 @@ def check_gestational_age_under_limit(request_body):
     gestation_timestamp = int(request_body.get("gestationalTimestamp"))
     gestation_date = datetime.fromtimestamp(gestation_timestamp)
     today = date.today()
-    num_of_weeks = (today-gestation_date.date()).days//7
-    if (num_of_weeks > 43):
+    num_of_weeks = (today - gestation_date.date()).days // 7
+    if num_of_weeks > 43:
         return "Gestation is greater than 43 weeks/10 months."
     return None
 
