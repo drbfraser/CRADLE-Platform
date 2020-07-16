@@ -276,13 +276,30 @@ class UrineTest(db.Model):
     readingId = db.Column(db.ForeignKey("reading.readingId"))
 
 
-class PatientFacility(db.Model):
-    id = db.Column(db.String(50), primary_key=True)
-    patientId = db.Column(db.ForeignKey("patient.patientId"), nullable=False)
-    healthFacilityName = db.Column(
-        db.ForeignKey("healthfacility.healthFacilityName"), nullable=False
+class PatientAssociations(db.Model):
+    patientId = db.Column(
+        db.ForeignKey(Patient.patientId), nullable=False, primary_key=True
     )
-    __table_args__ = (db.UniqueConstraint("patientId", "healthFacilityName"),)
+    healthFacilityName = db.Column(
+        db.ForeignKey(HealthFacility.healthFacilityName),
+        nullable=False,
+        primary_key=True,
+    )
+    userId = db.Column(db.ForeignKey(User.id), nullable=False, primary_key=True)
+
+    # RELATIONSHIPS
+    patient = db.relationship(
+        "Patient",
+        backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
+    )
+    healthFacility = db.relationship(
+        "HealthFacility",
+        backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
+    )
+    user = db.relationship(
+        "User",
+        backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
+    )
 
 
 #
@@ -365,10 +382,10 @@ class UrineTestSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-class PatientFacilitySchema(ma.SQLAlchemyAutoSchema):
+class PatientAssociationsSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = PatientFacility
+        model = PatientAssociations
         load_instance = True
         include_relationships = True
 

@@ -13,10 +13,9 @@ from Validation.ReferralValidator import ReferralValidator
 from Manager.Manager import Manager
 
 from Manager import patientManager, healthFacilityManager
-from Manager.PatientFacilityManager import PatientFacilityManager
+from Manager.PatientAssociationsManager import PatientAssociationsManager
 from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 
-patientFacilityManager = PatientFacilityManager()
 readingManager = ReadingManagerNew()
 validator = ReferralValidator()
 
@@ -25,7 +24,7 @@ class ReferralManager(Manager):
     def __init__(self):
         Manager.__init__(self, ReferralRepo)
 
-    def create_referral_with_patient_and_reading(self, req_data):
+    def create_referral_with_patient_and_reading(self, req_data, user_id):
         # if the patient is already created, dont create,
         try:
             validator.exists(Patient, "patientId", req_data["patient"]["patientId"])
@@ -62,9 +61,9 @@ class ReferralManager(Manager):
             pprint(created_hf)
 
         # add patient facility relationship
-        patientFacilityManager.add_patient_facility_relationship(
-            req_data["patient"]["patientId"], req_data["healthFacilityName"]
-        )
+        patient_id = req_data["patient"]["patientId"]
+        facility_name = req_data["healthFacilityName"]
+        PatientAssociationsManager().associate_by_id(patient_id, facility_name, user_id)
 
         def build_ref_dict(ref_json):
             ref_dict = {}

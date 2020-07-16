@@ -78,7 +78,7 @@ class PatientFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.PatientRepoNew import PatientRepo
 
-        return PatientRepo().create_from_dict(dict(**kwargs))
+        return PatientRepo().create_model(dict(**kwargs))
 
 
 class ReadingFactory(ModelFactory):
@@ -107,7 +107,7 @@ class ReadingFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.ReadingRepoNew import ReadingRepo
 
-        return ReadingRepo().create_from_dict(dict(**kwargs))
+        return ReadingRepo().create_model(dict(**kwargs))
 
 
 class ReferralFactory(ModelFactory):
@@ -130,7 +130,7 @@ class ReferralFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.ReferralRepo import ReferralRepo
 
-        return ReferralRepo().create_from_dict(dict(**kwargs))
+        return ReferralRepo().create_model(dict(**kwargs))
 
 
 class FollowUpFactory(ModelFactory):
@@ -152,4 +152,46 @@ class FollowUpFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from Database.FollowUpRepo import FollowUpRepo
 
-        return FollowUpRepo().create_from_dict(dict(**kwargs))
+        return FollowUpRepo().create_model(dict(**kwargs))
+
+
+class UserFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super(UserFactory, self).__init__(
+            db, password="password", healthFacilityName="H0000"
+        )
+
+    def create(self, **kwargs) -> Any:
+        """
+        Creates a new user.
+
+        :param kwargs: Keyword arguments
+        :key email: Unique email for the user
+        :return: A ``User`` model
+        """
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        from Database.UserRepo import UserRepo
+
+        return UserRepo().create_model(dict(**kwargs))
+
+
+class HealthFacilityFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super(HealthFacilityFactory, self).__init__(db)
+
+    def create(self, **kwargs) -> Any:
+        """
+        Creates a new health facility.
+
+        :param kwargs: Keyword arguments
+        :key healthFacilityName: Unique health facility name
+        :return: A ``HealthFacility`` model
+        """
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        from Database.HealthFacilityRepoNew import HealthFacilityRepo
+
+        return HealthFacilityRepo().create_model(dict(**kwargs))

@@ -151,6 +151,16 @@ def followup_factory(database) -> factory.FollowUpFactory:
     yield from __make_factory(database, factory.FollowUpFactory)
 
 
+@pytest.fixture
+def user_factory(database) -> factory.UserFactory:
+    yield from __make_factory(database, factory.UserFactory)
+
+
+@pytest.fixture
+def facility_factory(database) -> factory.HealthFacilityFactory:
+    yield from __make_factory(database, factory.HealthFacilityFactory)
+
+
 #
 # Generic Maker Functions
 #
