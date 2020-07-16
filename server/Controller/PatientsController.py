@@ -267,16 +267,8 @@ class PatientGlobalSearch(Resource):
     @jwt_required
     def get(self, search):
         current_user = get_jwt_identity()
-
-        # Only works for health workers currently
-        if "HCW" not in current_user["roles"]:
-            return (
-                {"message": "Unauthorized, please try again as a Health Care Worker"},
-                401,
-            )
-
         patients_readings_referrals = patientManager.get_global_search_patients(
-            current_user, search
+            current_user, search.upper()
         )
 
         if not patients_readings_referrals:
