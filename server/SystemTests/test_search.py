@@ -5,7 +5,6 @@ import random
 from manage import getRandomInitials
 
 
-
 def get_login_token(email, password):
     url = "http://localhost:5000/api/user/auth"
     payload = {"email": email, "password": password}
@@ -27,8 +26,10 @@ def get_authorization_header(email, password):
 BASE_URL = "http://localhost:5000"
 auth_header_hcw = get_authorization_header("hcw@hcw.com", "hcw123")
 
+
 def get_random_patient_id():
     return str(random.randint(48300000000, 48300099999))
+
 
 # Testing global search API
 def test_pass_search_partial_patient_id():
@@ -50,7 +51,7 @@ def test_pass_search_partial_initials():
     expected_matching_patients = 1
     # cannot determine exact amount because we are creating patients with random initials in some tests
     # to-do: change existing tests make them enter non-random data
-    assert (len(response_body) >= expected_matching_patients)
+    assert len(response_body) >= expected_matching_patients
 
 
 def test_pass_search_full_patient_id():
@@ -95,5 +96,3 @@ def test_no_initials_matches():
         response_body["message"]
         == "No patients matching the search criteria currently exist."
     )
-
-
