@@ -1,16 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Divider,
-  FormControl,
-  Input,
-  InputLabel,
-  Select,
-  FormControlLabel,
-  Checkbox,
-  Paper,
-  FormGroup,
-  FormLabel,
   Stepper,
   Step,
   StepLabel,
@@ -18,8 +9,26 @@ import {
   Button,
 } from '@material-ui/core';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { UrineTestForm } from '../urineTestForm';
-
+import { Demographics } from './demographic';
+import { Symptoms } from './symptoms';
+import { VitalSignAssessment } from './vitalSignAssessment';
+import { Assessment } from './assessment';
+import { bindActionCreators } from 'redux';
+import { getCurrentUser } from '../../../shared/reducers/user/currentUser';
+import {
+  addNewReading,
+  resetNewReadingStatus,
+} from '../../../shared/reducers/newReadingStatus';
+import { addNewPatient } from '../../../shared/reducers/patients';
+import { User } from '@types';
+import { useNewPatient } from './demographic/hooks';
+import { useNewSymptoms } from './symptoms/hooks';
+import { useNewVitals } from './vitalSignAssessment/hooks';
+import { useNewAssessment } from './assessment/hooks';
+import { useNewUrineTest } from './urineTestAssessment/hooks';
+import AlertDialog from './alertDialog';
+import SubmissionDialog from './submissionDialog';
+import { ConfirmationPage } from './confirmationPage';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -30,14 +39,6 @@ const useStyles = makeStyles((theme: Theme) =>
     formField: {
       margin: theme.spacing(2),
       minWidth: '22ch',
-    },
-    formFieldDM: {
-      margin: theme.spacing(2),
-      minWidth: '48ch',
-      minHeight: '15ch',
-    },
-    formControl: {
-      margin: theme.spacing(3),
     },
     backButton: {
       margin: theme.spacing(2),
@@ -50,14 +51,6 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1),
     },
-    formFieldWide: {
-      margin: theme.spacing(2),
-      minWidth: '56ch',
-    },
-    formFieldSWide: {
-      margin: theme.spacing(2),
-      minWidth: '36ch',
-    },
   })
 );
 function getSteps() {
@@ -66,16 +59,107 @@ function getSteps() {
     'Collect symptoms',
     'Vitals sign assessment',
     'Assessment',
+    'Confirmation',
   ];
 }
+interface IProps {
+  getCurrentUser: any;
+  afterNewPatientAdded: any;
+  user: User;
+  addNewReading: any;
+}
 
-const Page: React.FC<any> = () => {
+// const initState = {
+//   reading: {
+//     userId: '',
+//     readingId: '',
+//     dateTimeTaken: null,
+//     bpSystolic: '',
+//     bpDiastolic: '',
+//     heartRateBPM: '',
+//     dateRecheckVitalsNeeded: null,
+//     isFlaggedForFollowup: false,
+//     symptoms: '',
+//     urineTests: initialUrineTests,
+//   },
+//   showSuccessReading: false,
+//   hasUrineTest: false,
+// };
+const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
+  const { patient, handleChangePatient } = useNewPatient();
+  const { symptoms, handleChangeSymptoms } = useNewSymptoms();
+  const { vitals, handleChangeVitals } = useNewVitals();
+  const { assessment, handleChangeAssessment } = useNewAssessment();
+  const { urineTest, handleChangeUrineTest } = useNewUrineTest();
+  const [isPatientCreated, setIsPatientCreated] = useState(false);
+  const [isShowDialog, setIsShowDialog] = useState(false);
+  const [isShowDialogSubmission, setIsShowDialogsubmission] = useState(false);
   const steps = getSteps();
 
+  useEffect(() => {
+    if (!props.user.isLoggedIn) {
+      props.getCurrentUser();
+    }
+  });
+
   const handleNext = () => {
+    if (activeStep === 0) {
+      setIsPatientCreated(true);
+      setIsShowDialog(true);
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+  };
+  const handleSubmit = () => {
+    setIsShowDialogsubmission(true);
+  };
+
+  const handleDialogClose = () => {
+    setIsShowDialog(false);
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+  const handleDialogCloseSubmission = () => {
+    setIsShowDialogsubmission(false);
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const isRequiredFilled = () => {
+    if (activeStep === 0) {
+      if (
+        !patient.patientId ||
+        !patient.patientInitial ||
+        patient.patientIdError ||
+        patient.patientInitialError
+      ) {
+        return true;
+      }
+    }
+    if (activeStep === 2) {
+      if (
+        !vitals.bpSystolic ||
+        vitals.bpSystolicError ||
+        !vitals.bpSystolic ||
+        vitals.bpSystolicError ||
+        !vitals.heartRateBPM ||
+        vitals.heartRateBPMError
+      ) {
+        return true;
+      }
+      if (urineTest.enabled) {
+        if (
+          !urineTest.blood ||
+          !urineTest.glucose ||
+          !urineTest.protein ||
+          !urineTest.nitrites ||
+          !urineTest.leukocytes
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
   };
 
   const handleBack = () => {
@@ -85,6 +169,7 @@ const Page: React.FC<any> = () => {
   const handleReset = () => {
     setActiveStep(0);
   };
+  console.log('isPatientCreated', isPatientCreated);
   return (
     <div
       style={{
@@ -104,323 +189,42 @@ const Page: React.FC<any> = () => {
         ))}
       </Stepper>
       {activeStep === 0 ? (
-        <Paper
-          style={{
-            padding: '35px 25px',
-            marginTop: '2%',
-            borderRadius: '15px',
-          }}>
-          <h1>
-            <b>Collect Basic Demographic</b>
-          </h1>
-
-          <form className={classes.root} noValidate autoComplete="off">
-            <FormControl className={classes.formField}>
-              <InputLabel required htmlFor="component-simple">
-                Patient Initials
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <InputLabel required htmlFor="component-outlined">
-                ID
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <InputLabel htmlFor="component-outlined">Age</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <InputLabel htmlFor="component-outlined">Birthday</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <InputLabel required htmlFor="component-outlined">
-                Gender
-              </InputLabel>
-              <Select
-                native
-                labelId="demo-simple-select-label"
-                id="demo-simple-select">
-                <option value={'10'}>Male</option>
-                <option value={'20'}>Female</option>
-                <option value={'30'}>Other</option>
-              </Select>
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <FormControlLabel
-                control={<Checkbox checked={true} name="Pregnant" />}
-                label="Pregnant"
-              />
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <InputLabel htmlFor="component-outlined">
-                House Hold Number
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <InputLabel required htmlFor="component-outlined">
-                Gestational Age
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <InputLabel required htmlFor="component-outlined">
-                Gestational Age Unit
-              </InputLabel>
-              <Select
-                native
-                labelId="demo-simple-select-label"
-                id="demo-simple-select">
-                <option value={'10'}>Weeks</option>
-                <option value={'20'}>Months</option>
-              </Select>
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <InputLabel htmlFor="component-outlined">Zone</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formField}>
-              <InputLabel htmlFor="component-outlined">Village</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldDM}>
-              <InputLabel htmlFor="component-outlined">Drug History</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldDM}>
-              <InputLabel htmlFor="component-outlined">
-                Medical History
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-          </form>
-        </Paper>
+        <Demographics
+          patient={patient}
+          onChange={handleChangePatient}></Demographics>
       ) : (
         ''
       )}
       {activeStep === 1 ? (
-        <Paper
-          style={{
-            padding: '35px 25px',
-            marginTop: '2%',
-            borderRadius: '15px',
-          }}>
-          <h1>
-            <b>Collect Symptoms</b>
-          </h1>
-
-          <FormControl component="fieldset" className={classes.formControl}>
-            <FormLabel component="legend">Regular</FormLabel>
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox checked={true} name="gilad" />}
-                label="None (Patient healthy)"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={false} name="jason" />}
-                label="Headache"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={true} name="antoine" />}
-                label="Blurred Vission"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={true} name="antoine" />}
-                label="Abdominal Pain"
-              />
-            </FormGroup>
-            <FormControlLabel
-              control={<Checkbox checked={true} name="gilad" />}
-              label="Bleeding"
-            />
-            <FormControlLabel
-              control={<Checkbox checked={false} name="jason" />}
-              label="Feverish"
-            />
-            <FormControlLabel
-              control={<Checkbox checked={true} name="antoine" />}
-              label="Unwell"
-            />
-          </FormControl>
-          <FormControl component="fieldset" className={classes.formControl}>
-            <FormLabel component="legend">Covid</FormLabel>
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox checked={false} name="gilad" />}
-                label="Cough"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={false} name="jason" />}
-                label="Shortness of Breath"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={true} name="antoine" />}
-                label="Sore Throat"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={true} name="antoine" />}
-                label="Muscle ache"
-              />
-            </FormGroup>
-            <FormControlLabel
-              control={<Checkbox checked={true} name="gilad" />}
-              label="Fatigue"
-            />
-            <FormControlLabel
-              control={<Checkbox checked={false} name="jason" />}
-              label="Loss of sense"
-            />
-            <FormControlLabel
-              control={<Checkbox checked={false} name="jason" />}
-              label="Loss of taste"
-            />
-            <FormControlLabel
-              control={<Checkbox checked={false} name="jason" />}
-              label="Loss of smell"
-            />
-          </FormControl>
-          <FormControl component="fieldset" className={classes.formControl}>
-            <FormControl className={classes.formFieldDM}>
-              <InputLabel htmlFor="component-outlined">Others</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-          </FormControl>
-        </Paper>
+        <Symptoms
+          symptoms={symptoms}
+          onChange={handleChangeSymptoms}></Symptoms>
       ) : (
         ''
       )}
       {activeStep === 2 ? (
-        <div>
-          <Paper
-            style={{
-              padding: '35px 25px',
-              marginTop: '2%',
-              borderRadius: '15px',
-            }}>
-            <h1>
-              <b>Vital Sign Assessment</b>
-            </h1>
-
-            <form className={classes.root} noValidate autoComplete="off">
-              <FormControl className={classes.formField}>
-                <InputLabel required htmlFor="component-simple">
-                  Systolic
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel required htmlFor="component-outlined">
-                  Diastolic
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel required htmlFor="component-outlined">
-                  Hear Rate
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="component-outlined">
-                  Raspiratory Rate
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="component-outlined">
-                  Oxygen Saturation
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="component-outlined">
-                  Temperature
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-              <FormControl className={classes.formField}>
-                <InputLabel htmlFor="component-outlined">
-                  Raspiratory Rate
-                </InputLabel>
-                <Input id="component-outlined" />
-              </FormControl>
-            </form>
-          </Paper>
-          <div style={{ marginTop: '2%' }}>
-            <UrineTestForm
-              reading={'' as any}
-              onChange={'' as any}
-              onSwitchChange={'' as any}
-              hasUrineTest={'' as any}
-            />
-          </div>
-        </div>
+        <VitalSignAssessment
+          vitals={vitals}
+          onChange={handleChangeVitals}
+          urineTest={urineTest}
+          urineTetsOnChange={handleChangeUrineTest}></VitalSignAssessment>
       ) : (
         ''
       )}
       {activeStep === 3 ? (
-        <Paper
-          style={{
-            padding: '35px 25px',
-            marginTop: '2%',
-            borderRadius: '15px',
-          }}>
-          <h1>
-            <b>Assessment</b>
-          </h1>
-
-          <form className={classes.root} noValidate autoComplete="off">
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel required htmlFor="component-simple">
-                Special Inestigation + Results (if avaulable)
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel required htmlFor="component-outlined">
-                Final Diagnosis
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel required htmlFor="component-outlined">
-                Treatment/Operation
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel required htmlFor="component-outlined">
-                Medication Prescribed
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel htmlFor="component-outlined">Frequesncy</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldWide}>
-              <InputLabel htmlFor="component-outlined">
-                Frequency Unit
-              </InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldSWide}>
-              <InputLabel htmlFor="component-outlined">Until</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldSWide}>
-              <InputLabel htmlFor="component-outlined">Until Date</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-            <FormControl className={classes.formFieldSWide}>
-              <InputLabel htmlFor="component-outlined">Other</InputLabel>
-              <Input id="component-outlined" />
-            </FormControl>
-          </form>
-        </Paper>
+        <Assessment
+          assessment={assessment}
+          onChange={handleChangeAssessment}></Assessment>
+      ) : (
+        ''
+      )}
+      {activeStep === 4 ? (
+        <ConfirmationPage
+          patient={patient}
+          symptoms={symptoms}
+          vitals={vitals}
+          assessment={assessment}
+          urineTest={urineTest}></ConfirmationPage>
       ) : (
         ''
       )}
@@ -430,7 +234,7 @@ const Page: React.FC<any> = () => {
             <Typography className={classes.instructions}>
               All steps completed
             </Typography>
-            <Button onClick={handleReset}>Reset</Button>
+            <Button onClick={handleReset}>Create New Patient/Reading</Button>
           </div>
         ) : (
           <div>
@@ -442,12 +246,36 @@ const Page: React.FC<any> = () => {
                 Back
               </Button>
               <Button
+                style={{
+                  display: steps.length - 2 === activeStep ? 'none' : '',
+                }}
+                disabled={isRequiredFilled() ? true : false}
+                className={classes.nextButton}
+                variant="contained"
+                color="primary"
+                onClick={
+                  activeStep === steps.length - 1 ? handleSubmit : handleNext
+                }>
+                {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+              </Button>
+              <Button
+                style={{
+                  display: steps.length - 2 !== activeStep ? 'none' : '',
+                }}
                 className={classes.nextButton}
                 variant="contained"
                 color="primary"
                 onClick={handleNext}>
-                {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                Confirm
               </Button>
+              <AlertDialog
+                open={isShowDialog}
+                handleDialogClose={handleDialogClose}></AlertDialog>
+              <SubmissionDialog
+                open={isShowDialogSubmission}
+                handleDialogClose={
+                  handleDialogCloseSubmission
+                }></SubmissionDialog>
             </div>
           </div>
         )}
@@ -455,10 +283,26 @@ const Page: React.FC<any> = () => {
     </div>
   );
 };
+const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
+  user: user.current.data,
+  createReadingStatusError: newReadingStatus.error,
+  readingCreated: newReadingStatus.readingCreated,
+  newReadingData: newReadingStatus.message,
+  newPatientAdded: patients.newPatientAdded,
+});
 
-const mapStateToProps = () => ({});
-
-const mapDispatchToProps = () => ({});
+const mapDispatchToProps = (dispatch: any) => ({
+  ...bindActionCreators(
+    {
+      getCurrentUser,
+      addNewReading,
+      addNewPatient,
+      resetNewReadingStatus,
+      // afterNewPatientAdded
+    },
+    dispatch
+  ),
+});
 export const NewReadingCovid = connect(
   mapStateToProps,
   mapDispatchToProps
