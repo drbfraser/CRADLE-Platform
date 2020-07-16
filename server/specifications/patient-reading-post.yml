@@ -40,9 +40,9 @@ requestBody:
               patientId:
                 type: string
                 example: 191919
-              gestationalAgeValue:
-                type: string
-                example: 7
+              gestationalTimestamp:
+                type: Unix timestamp
+                example: 1592339808
               gestationalAgeUnit:
                 type: string
                 enum:
@@ -144,9 +144,9 @@ responses:
             patientId:
               type: string
               example: 191919
-            gestationalAgeValue:
-              type: string
-              example: 7
+            gestationalTimestamp:
+              type: Unix timestamp
+              example: 1592339808
             gestationalAgeUnit:
               type: string
               enum: [GESTATIONAL_AGE_UNITS_WEEKS, GESTATIONAL_AGE_UNITS_MONTHS]
