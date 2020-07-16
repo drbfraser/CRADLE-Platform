@@ -16,6 +16,7 @@ Usage:
 
 import collections
 from config import db
+from typing import Any
 
 
 class Database:
@@ -60,6 +61,23 @@ class Database:
         db.session.add(new_entry)
         db.session.commit()
         return self.model_to_dict(new_entry)
+
+    def create_from_dict(self, new_data: dict) -> Any:
+        """
+        Constructs a model from a dictionary associating column names to values, inserts
+        said model into the database, and then returns the model.
+
+        This method differs from ``create`` in that it returns the actual model instance
+        and not another dictionary. This allows callers to take advantage of the various
+        relations provided by the ORM instead of having to query those object manually.
+
+        :param new_data: A dictionary mapping column names to values
+        :return: A model instance
+        """
+        new_model = self.schema().load(new_data, session=db.session)
+        db.session.add(new_model)
+        db.session.commit()
+        return new_model
 
     """
         Description: 

@@ -38,16 +38,6 @@ class TrafficLightEnum(enum.Enum):
     RED_DOWN = "RED_DOWN"
 
 
-class FrequencyUnitEnum(enum.Enum):
-    NONE = "None"
-    MINUTES = "MINUTES"
-    HOURS = "HOURS"
-    DAYS = "DAYS"
-    WEEKS = "WEEKS"
-    MONTHS = "MONTHS"
-    YEARS = "YEARS"
-
-
 class FacilityTypeEnum(enum.Enum):
     HCF_2 = "HCF_2"
     HCF_3 = "HCF_3"
@@ -124,16 +114,15 @@ class Referral(db.Model):
     dateReferred = db.Column(db.BigInteger, nullable=False)
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
+    isAssessed = db.Column(db.Boolean, nullable=False, default=0)
 
     # FOREIGN KEYS
     userId = db.Column(db.Integer, db.ForeignKey("user.id"))
     patientId = db.Column(db.String(50), db.ForeignKey("patient.patientId"))
-
+    readingId = db.Column(db.String(50), db.ForeignKey("reading.readingId"))
     referralHealthFacilityName = db.Column(
         db.String(50), db.ForeignKey("healthfacility.healthFacilityName")
     )
-    readingId = db.Column(db.String(50), db.ForeignKey("reading.readingId"))
-    followUpId = db.Column(db.Integer, db.ForeignKey("followup.id"))
 
     # RELATIONSHIPS
     healthFacility = db.relationship(
@@ -141,10 +130,6 @@ class Referral(db.Model):
     )
     reading = db.relationship(
         "Reading", backref=db.backref("referral", lazy=True, uselist=False)
-    )
-    followUp = db.relationship(
-        "FollowUp",
-        backref=db.backref("referral", lazy=True, uselist=False, cascade="save-update"),
     )
 
 
@@ -254,20 +239,25 @@ class FollowUp(db.Model):
     __tablename__ = "followup"
     id = db.Column(db.Integer, primary_key=True)
     followupInstructions = db.Column(db.Text)
+    specialInvestigations = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
+    medicationPrescribed = db.Column(db.Text)
     dateAssessed = db.Column(db.BigInteger, nullable=False)
-    healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
-    specialInvestigations = db.Column(db.Text)
-    medicationPrescribed = db.Column(
-        db.Text
-    )  # those medication names can get pretty long ...
     followupNeeded = db.Column(db.Boolean)
-    # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
+
+    # FOREIGN KEYS
+    readingId = db.Column(db.ForeignKey(Reading.readingId), nullable=False)
+    healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
+
+    # RELATIONSHIPS
+    reading = db.relationship(
+        Reading,
+        backref=db.backref(
+            "followup", lazy=True, uselist=False, cascade="all, delete-orphan"
+        ),
+    )
     healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
-    followupFrequencyValue = db.Column(db.Float)
-    followupFrequencyUnit = db.Column(db.Enum(FrequencyUnitEnum))
-    dateFollowupNeededTill = db.Column(db.String(50))
 
 
 class Village(db.Model):
@@ -347,7 +337,6 @@ class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
 
 
 class FollowUpSchema(ma.SQLAlchemyAutoSchema):
-    followupFrequencyUnit = EnumField(FrequencyUnitEnum, by_value=True)
     healthcareWorker = fields.Nested(UserSchema)
 
     class Meta:
