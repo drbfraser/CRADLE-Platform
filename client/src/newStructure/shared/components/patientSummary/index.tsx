@@ -80,13 +80,12 @@ function getNumOfWeeks(timestamp) {
 function getNumOfMonths(timestamp) {
   const todaysDate = new Date();
   const gestDate = new Date(timestamp * 1000);
-  const numOfMonths = (
+  const numOfMonths =
     todaysDate.getMonth() -
     gestDate.getMonth() +
-    12 * (todaysDate.getFullYear() - gestDate.getFullYear())
-  );
+    12 * (todaysDate.getFullYear() - gestDate.getFullYear());
   if (numOfMonths === 0) {
-    return "< 1"
+    return '< 1';
   }
   return numOfMonths;
 }
@@ -818,8 +817,12 @@ class Component extends React.Component {
                             name="gestationalUnits"
                             control={Select}
                             options={unitOptions}
-                            placeholder={this.state.selectedPatient.gestationalAgeUnit ===
-                              GESTATIONAL_AGE_UNITS.WEEKS ? "Weeks" : "Months"}
+                            placeholder={
+                              this.state.selectedPatient.gestationalAgeUnit ===
+                              GESTATIONAL_AGE_UNITS.WEEKS
+                                ? 'Weeks'
+                                : 'Months'
+                            }
                             onChange={this.handleUnitChange}
                           />
                         </p>
