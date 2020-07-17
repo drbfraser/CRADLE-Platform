@@ -85,5 +85,5 @@ jwt = JWTManager(app)
 app.json_encoder = JSONEncoder
 
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+migrate = Migrate(app, db, compare_type=True)
 ma = Marshmallow(app)
