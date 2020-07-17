@@ -6,7 +6,7 @@ import api.util as util
 import data.crud as crud
 import service.view as view
 from data.marshal import marshal
-from models import Patient
+from models import Patient, PatientSchema
 from Manager.PatientStatsManager import PatientStatsManager
 
 
@@ -28,7 +28,8 @@ class Root(Resource):
     def post():
         json = request.get_json(force=True)
         # TODO: Validate request
-        model = Patient(**json)
+        # TODO: Handle converting reading symptoms from an array to a string before load
+        model = PatientSchema().load(json)
         crud.create(model)
         return marshal(model), 201
 
