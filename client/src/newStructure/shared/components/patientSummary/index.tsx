@@ -711,7 +711,9 @@ class Component extends React.Component {
                       {this.state.selectedPatient.dob === undefined ||
                       this.state.selectedPatient.dob === null
                         ? 'N/A'
-                        : getPrettyDateYYYYmmDD(this.state.selectedPatient.dob)}{' '}
+                        : getPrettyDateYYYYmmDD(
+                            this.state.selectedPatient.dob
+                          )}{' '}
                     </p>
                     <p>
                       <b>Patient Age: </b>{' '}

@@ -19,7 +19,7 @@ export const getPrettyDateTime = (dateStr: any) => {
 };
 
 export const getPrettyDateYYYYmmDD = (dateStr: any) => {
-  return moment(String(dateStr)).format('MMMM Do YYYY')
+  return moment(String(dateStr)).format('MMMM Do YYYY');
 };
 
 export const getLatestReading = (readings: any) => {
