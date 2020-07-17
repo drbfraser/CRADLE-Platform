@@ -1,11 +1,14 @@
-from config import db, ma
 import enum
+
 from jsonschema import validate
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
+
+from config import db, ma
 from utils import get_current_time
+
 
 # To add a table to db, make a new class
 # create a migration: flask db migrate
@@ -100,6 +103,10 @@ class User(db.Model):
         secondaryjoin=id == supervises.c.vhtId,
     )
 
+    @staticmethod
+    def schema():
+        return UserSchema
+
     def __repr__(self):
         return "<User {}>".format(self.username)
 
@@ -107,6 +114,10 @@ class User(db.Model):
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Enum(RoleEnum), nullable=False)
+
+    @staticmethod
+    def schema():
+        return RoleSchema
 
 
 class Referral(db.Model):
@@ -132,6 +143,10 @@ class Referral(db.Model):
         "Reading", backref=db.backref("referral", lazy=True, uselist=False)
     )
 
+    @staticmethod
+    def schema():
+        return ReferralSchema
+
 
 class HealthFacility(db.Model):
     __tablename__ = "healthfacility"
@@ -145,6 +160,10 @@ class HealthFacility(db.Model):
     healthFacilityPhoneNumber = db.Column(db.String(50))
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
+
+    @staticmethod
+    def schema():
+        return HealthFacilitySchema
 
 
 class Patient(db.Model):
@@ -169,6 +188,10 @@ class Patient(db.Model):
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
+    @staticmethod
+    def schema():
+        return PatientSchema
 
 
 class Reading(db.Model):
@@ -234,6 +257,10 @@ class Reading(db.Model):
 
         return traffic_light
 
+    @staticmethod
+    def schema():
+        return ReadingSchema
+
 
 class FollowUp(db.Model):
     __tablename__ = "followup"
@@ -259,6 +286,10 @@ class FollowUp(db.Model):
     )
     healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
 
+    @staticmethod
+    def schema():
+        return FollowUpSchema
+
 
 class Village(db.Model):
     villageNumber = db.Column(db.String(50), primary_key=True)
@@ -274,6 +305,10 @@ class UrineTest(db.Model):
     urineTestBlood = db.Column(db.String(5))
     # urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
     readingId = db.Column(db.ForeignKey("reading.readingId"))
+
+    @staticmethod
+    def schema():
+        return UrineTestSchema
 
 
 class PatientAssociations(db.Model):
@@ -300,6 +335,10 @@ class PatientAssociations(db.Model):
         "User",
         backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
     )
+
+    @staticmethod
+    def schema():
+        return PatientAssociationsSchema
 
 
 #

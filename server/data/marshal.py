@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
+from data.crud import M
 from models import Patient, Reading
 
 
@@ -58,3 +59,60 @@ def __strip_none_values(d: Dict[str, Any]):
     remove = [k for k in d if k.startswith("_")]
     for k in remove:
         del d[k]
+
+
+def unmarshal(m: Type[M], d: dict) -> M:
+    """
+    Converts a dictionary into a model instance by loading it from the model's schema.
+
+    Special care is taken for ``Reading`` models (any any thing which contains a nested
+    ``Reading`` model) because their database schema is different from their dictionary
+    representation, most notably the symptoms field. We also use this opportunity to
+    compute the traffic light status for any reading which does not already have it.
+
+    :param m: The type of model to construct
+    :param d: A dictionary mapping columns to values used to construct the model
+    :return: A model
+    """
+    if m is Patient:
+        return __unmarshal_patient(d)
+    elif m is Reading:
+        return __unmarshal_reading(d)
+    else:
+        return __load(m, d)
+
+
+def __load(m: Type[M], d: dict) -> M:
+    schema = m.schema()
+    return schema().load(d)
+
+
+def __unmarshal_patient(d: dict) -> Patient:
+    # Unmarshal any readings found within the patient
+    if d.get("readings") is not None:
+        readings = [__unmarshal_reading(r) for r in d["readings"]]
+        # Delete the entry so that we don't try to unmarshal them again by loading from
+        # the patient schema.
+        del d["readings"]
+    else:
+        readings = []
+
+    # Put the readings back into the patient
+    patient = __load(Patient, d)
+    if readings:
+        patient.readings = readings
+
+    return patient
+
+
+def __unmarshal_reading(d: dict) -> Reading:
+    # Convert "symptoms" from array to string
+    if d.get("symptoms") is not None:
+        d["symptoms"] = ",".join(d["symptoms"])
+    reading = __load(Reading, d)
+
+    # Populate the traffic light attribute if it doesn't exist
+    if reading.trafficLightStatus is None:
+        reading.trafficLightStatus = reading.get_traffic_light()
+
+    return reading

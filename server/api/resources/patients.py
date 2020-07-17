@@ -1,13 +1,13 @@
-from flask import request
 import flask_jwt_extended as jwt
+from flask import request
 from flask_restful import Resource, abort
 
 import api.util as util
 import data.crud as crud
+import data.marshal as marshal
 import service.view as view
-from data.marshal import marshal
-from models import Patient, PatientSchema
 from Manager.PatientStatsManager import PatientStatsManager
+from models import Patient
 
 
 # /api/patients
@@ -21,17 +21,16 @@ class Root(Resource):
             # TODO: Compute simplified view for each patient
             return []
         else:
-            return [marshal(p) for p in patients]
+            return [marshal.marshal(p) for p in patients]
 
     @staticmethod
     @jwt.jwt_required
     def post():
         json = request.get_json(force=True)
         # TODO: Validate request
-        # TODO: Handle converting reading symptoms from an array to a string before load
-        model = PatientSchema().load(json)
+        model = marshal.unmarshal(Patient, json)
         crud.create(model)
-        return marshal(model), 201
+        return marshal.marshal(model), 201
 
 
 # /api/patients/<string:patient_id>
@@ -42,7 +41,7 @@ class SinglePatient(Resource):
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
-        return marshal(patient)
+        return marshal.marshal(patient)
 
 
 # /api/patients/<string:patient_id>/info
@@ -53,7 +52,7 @@ class PatientInfo(Resource):
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
-        return marshal(patient, shallow=True)
+        return marshal.marshal(patient, shallow=True)
 
     @staticmethod
     @jwt.jwt_required
@@ -77,4 +76,4 @@ class PatientReadings(Resource):
     @jwt.jwt_required
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
-        return [marshal(r) for r in patient.readings]
+        return [marshal.marshal(r) for r in patient.readings]
