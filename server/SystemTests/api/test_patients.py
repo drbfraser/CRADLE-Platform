@@ -4,7 +4,7 @@ import data.crud as crud
 from models import Patient, Reading, TrafficLightEnum
 
 
-def test_create_patient_with_nested_readings(api_post):
+def test_create_patient_with_nested_readings(database, api_post):
     patient_id = "5390160146141"
     reading_ids = [
         "65acfe28-b0d6-4a63-a484-eceb3277fb4e",
@@ -12,6 +12,7 @@ def test_create_patient_with_nested_readings(api_post):
     ]
     p = __make_patient(patient_id, reading_ids)
     response = api_post(endpoint="/api/patients", json=p)
+    database.session.commit()
 
     try:
         assert response.status_code == 201
