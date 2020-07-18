@@ -65,7 +65,7 @@ def unmarshal(m: Type[M], d: dict) -> M:
     """
     Converts a dictionary into a model instance by loading it from the model's schema.
 
-    Special care is taken for ``Reading`` models (any any thing which contains a nested
+    Special care is taken for ``Reading`` models (and any thing which contains a nested
     ``Reading`` model) because their database schema is different from their dictionary
     representation, most notably the symptoms field.
 
