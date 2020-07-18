@@ -35,7 +35,7 @@ def patient_view_for_user(user: User) -> List[Patient]:
     if "ADMIN" in roles:
         return admin_patient_view()
     elif "HCW" in roles:
-        return hwc_patient_view(user)
+        return hcw_patient_view(user)
     elif "CHO" in roles:
         return cho_patient_view(user)
     elif "VHT" in roles:
@@ -53,7 +53,7 @@ def admin_patient_view() -> List[Patient]:
     return crud.read_all(Patient)
 
 
-def hwc_patient_view(user: User) -> List[Patient]:
+def hcw_patient_view(user: User) -> List[Patient]:
     """
     Returns the HCW patient view for a given user.
 
