@@ -18,7 +18,7 @@ class Root(Resource):
     def get():
         user = util.current_user()
         patients = view.patient_view_for_user(user)
-        if util.is_simplified_request(request):
+        if util.query_param_bool(request, name="simplified"):
             # TODO: Compute simplified view for each patient
             return []
         else:

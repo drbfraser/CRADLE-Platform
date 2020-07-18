@@ -1,4 +1,6 @@
 """
+Functions for retrieving various subsets of database models.
+
 Different user roles have different requirements on what subset of patients they should
 be able to see. The functions in this module compute these subsets for specific users.
 
@@ -19,7 +21,7 @@ from typing import List
 
 import data.crud as crud
 import service.assoc as assoc
-from models import Patient, User
+from models import Patient, Referral, User
 
 
 def patient_view_for_user(user: User) -> List[Patient]:
@@ -81,3 +83,64 @@ def vht_patient_view(user: User) -> List[Patient]:
     :return: A list of patients
     """
     return assoc.patients_for_user(user)
+
+
+def referral_view_for_user(user: User) -> List[Referral]:
+    """
+    Switches on the role of ``user`` and returns an appropriate list of referrals.
+
+    :param user: The user to get referrals for
+    :return: A list of referrals
+    """
+    roles = [r.name.value for r in user.roleIds]
+    if "ADMIN" in roles:
+        return admin_referral_view()
+    elif "HCW" in roles:
+        return hcw_referral_view(user)
+    elif "CHO" in roles:
+        return cho_patient_view(user)
+    elif "VHT" in roles:
+        return vht_referral_view(user)
+    else:
+        raise ValueError("user does not contain an roles")
+
+
+def admin_referral_view() -> List[Referral]:
+    """
+    Returns the Admin referral view (i.e., all referrals).
+
+    :return: All referrals in the database
+    """
+    return crud.read_all(Referral)
+
+
+def hcw_referral_view(user: User) -> List[Referral]:
+    """
+    Returns the HCW referral view of a given user.
+
+    :param user: The user to get referrals for
+    :return: A list of referrals
+    """
+    return user.healthFacility.referrals
+
+
+def cho_referral_view(user: User) -> List[Referral]:
+    """
+    Returns the CHO referral view of a given user.
+
+    :param user: The user to get referrals for
+    :return: A list of referrals
+    """
+    cho_referrals = user.referrals
+    vht_referrals = [r for vht in user.vhtList for r in vht_referral_view(vht)]
+    return cho_referrals + vht_referrals
+
+
+def vht_referral_view(user: User) -> List[Referral]:
+    """
+    Returns the VHT referral view of a given user.
+
+    :param user: The user to get referrals for
+    :return: A list of referrals
+    """
+    return user.referrals

@@ -10,15 +10,16 @@ import data.crud as crud
 from models import User
 
 
-def is_simplified_request(request: Request) -> bool:
+def query_param_bool(request: Request, name: str) -> bool:
     """
-    Returns true if the URL contains a boolean "simplified" query parameter and that
-    parameter is set to true.
+    Returns true if the request URL contains a boolean query parameter with a given
+    ``name`` who's value is "true".
 
     :param request: A request
-    :return: True if the request contains a "simplified" query parameter
+    :param name: The name of the parameter to check for
+    :return: True if the value for the parameter is "true", otherwise False.
     """
-    return request.args.get("simplified", "false", type=str) == "true"
+    return request.args.get(name, "false", type=str) == "true"
 
 
 def current_user() -> User:

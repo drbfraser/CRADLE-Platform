@@ -142,6 +142,9 @@ class Referral(db.Model):
     reading = db.relationship(
         "Reading", backref=db.backref("referral", lazy=True, uselist=False)
     )
+    patient = db.relationship(
+        "Patient", backref=db.backref("referrals", lazy=True)
+    )
 
     @staticmethod
     def schema():

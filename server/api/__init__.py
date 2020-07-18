@@ -9,6 +9,7 @@ def init_routes(api: Api):
     """
     __init_patients_resources(api)
     __init_readings_resources(api)
+    __init_referral_resources(api)
 
 
 def __init_patients_resources(api: Api):
@@ -26,3 +27,10 @@ def __init_readings_resources(api: Api):
 
     api.add_resource(r.Root, "/api/readings", endpoint="reading_root")
     api.add_resource(r.SingleReading, "/api/readings/<string:reading_id>")
+
+
+def __init_referral_resources(api: Api):
+    import api.resources.referrals as r
+
+    api.add_resource(r.Root, "/api/referrals", endpoint="referral_root")
+    api.add_resource(r.SingleReferral, "/api/referrals/<int:id>")

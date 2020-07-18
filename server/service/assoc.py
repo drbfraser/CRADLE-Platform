@@ -9,6 +9,24 @@ import data.crud as crud
 from models import Patient, PatientAssociations, HealthFacility, User
 
 
+def associate(patient: Patient, facility: HealthFacility, user: User):
+    """
+    Creates a 3-way association between a patient, facility, and user by adding a
+    new row to the database.
+
+    :param patient: A patient
+    :param facility: A facility
+    :param user: A user
+    :except IntegrityError: If an existing entry already exists in the database
+    """
+    association = PatientAssociations(
+        patientId=patient.patientId,
+        healthFacilityName=facility.healthFacilityName,
+        userId=user.id,
+    )
+    crud.create(association)
+
+
 def has_association(
     patient: Patient = None, facility: HealthFacility = None, user: User = None
 ) -> bool:
