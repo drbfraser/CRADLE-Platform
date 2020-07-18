@@ -1,5 +1,5 @@
-import flask_jwt_extended as jwt
 from flask import request
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 import api.util as util
@@ -14,7 +14,7 @@ from models import Patient
 # /api/patients
 class Root(Resource):
     @staticmethod
-    @jwt.jwt_required
+    @jwt_required
     def get():
         user = util.current_user()
         patients = view.patient_view_for_user(user)
@@ -25,7 +25,7 @@ class Root(Resource):
             return [marshal.marshal(p) for p in patients]
 
     @staticmethod
-    @jwt.jwt_required
+    @jwt_required
     def post():
         json = request.get_json(force=True)
         # TODO: Validate request
@@ -38,7 +38,7 @@ class Root(Resource):
 # /api/patients/<string:patient_id>
 class SinglePatient(Resource):
     @staticmethod
-    @jwt.jwt_required
+    @jwt_required
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
@@ -49,7 +49,7 @@ class SinglePatient(Resource):
 # /api/patients/<string:patient_id>/info
 class PatientInfo(Resource):
     @staticmethod
-    @jwt.jwt_required
+    @jwt_required
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
@@ -57,7 +57,7 @@ class PatientInfo(Resource):
         return marshal.marshal(patient, shallow=True)
 
     @staticmethod
-    @jwt.jwt_required
+    @jwt_required
     def put(patient_id: str):
         json = request.get_json(force=True)
         # TODO: Validate
@@ -67,7 +67,7 @@ class PatientInfo(Resource):
 # /api/patients/<string:patient_id>/stats
 class PatientStats(Resource):
     @staticmethod
-    @jwt.jwt_required
+    @jwt_required
     def get(patient_id: str):
         return PatientStatsManager().put_data_together(patient_id)
 
@@ -75,7 +75,7 @@ class PatientStats(Resource):
 # /api/patients/<string:patient_id>/readings
 class PatientReadings(Resource):
     @staticmethod
-    @jwt.jwt_required
+    @jwt_required
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(r) for r in patient.readings]
