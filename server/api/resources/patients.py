@@ -5,6 +5,7 @@ from flask_restful import Resource, abort
 import api.util as util
 import data.crud as crud
 import data.marshal as marshal
+import service.invariant as invariant
 import service.view as view
 from Manager.PatientStatsManager import PatientStatsManager
 from models import Patient
@@ -29,6 +30,7 @@ class Root(Resource):
         json = request.get_json(force=True)
         # TODO: Validate request
         model = marshal.unmarshal(Patient, json)
+        invariant.resolve_reading_invariants(model)
         crud.create(model)
         return marshal.marshal(model), 201
 

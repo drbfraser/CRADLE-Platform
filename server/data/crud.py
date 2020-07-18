@@ -21,19 +21,6 @@ def create(model: M):
     db_session.commit()
 
 
-def create_from_dict(m: M, d: dict) -> M:
-    """
-    Creates a new model from a dictionary and inserts it into the database.
-
-    :param m: Type of the model to create
-    :param d: A dictionary mapping column names to values
-    :return: The created model
-    """
-    model = m(**d)
-    create(model)
-    return model
-
-
 def read(m: Type[M], **kwargs) -> Optional[M]:
     """
     Queries the database for a single object which matches some query parameters defined

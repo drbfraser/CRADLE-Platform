@@ -67,8 +67,12 @@ def unmarshal(m: Type[M], d: dict) -> M:
 
     Special care is taken for ``Reading`` models (any any thing which contains a nested
     ``Reading`` model) because their database schema is different from their dictionary
-    representation, most notably the symptoms field. We also use this opportunity to
-    compute the traffic light status for any reading which does not already have it.
+    representation, most notably the symptoms field.
+
+    For ``Patient`` and ``Reading`` types, the instance returned by this function may
+    not be sound as there are various invariants that must be held for ``Reading``
+    objects. One should call ``service.invariant.resolve_reading_invariants`` on the
+    instance created by this function.
 
     :param m: The type of model to construct
     :param d: A dictionary mapping columns to values used to construct the model
@@ -110,9 +114,4 @@ def __unmarshal_reading(d: dict) -> Reading:
     if d.get("symptoms") is not None:
         d["symptoms"] = ",".join(d["symptoms"])
     reading = __load(Reading, d)
-
-    # Populate the traffic light attribute if it doesn't exist
-    if reading.trafficLightStatus is None:
-        reading.trafficLightStatus = reading.get_traffic_light()
-
     return reading

@@ -8,13 +8,21 @@ def init_routes(api: Api):
     :param api: A ``flask_restful`` ``Api`` object to configure
     """
     __init_patients_resources(api)
+    __init_readings_resources(api)
 
 
 def __init_patients_resources(api: Api):
     import api.resources.patients as r
 
-    api.add_resource(r.Root, "/api/patients")
+    api.add_resource(r.Root, "/api/patients", endpoint="patient_root")
     api.add_resource(r.SinglePatient, "/api/patients/<string:patient_id>")
     api.add_resource(r.PatientInfo, "/api/patients/<string:patient_id>/info")
     api.add_resource(r.PatientStats, "/api/patients/<string:patient_id>/stats")
     api.add_resource(r.PatientReadings, "/api/patients/<string:patient_id>/readings")
+
+
+def __init_readings_resources(api: Api):
+    import api.resources.readings as r
+
+    api.add_resource(r.Root, "/api/readings", endpoint="reading_root")
+    api.add_resource(r.SingleReading, "/api/readings/<string:reading_id>")
