@@ -52,4 +52,5 @@ class SingleReferral(Resource):
         referral = crud.read(Referral, id=referral_id)
         if not referral:
             abort(404, message=f"No referral with id {id}")
+
         return marshal.marshal(referral)
