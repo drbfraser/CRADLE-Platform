@@ -1,3 +1,4 @@
+import sys
 from typing import List, Optional, Type, TypeVar
 
 from data import db_session
@@ -51,7 +52,7 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
     return m.query.filter_by(**kwargs).all()
 
 
-def update(m: Type[M], changes: dict, **kwargs) -> M:
+def update(m: Type[M], changes: dict, **kwargs):
     """
     Applies a series of changes to a model in the database.
 
@@ -74,7 +75,6 @@ def update(m: Type[M], changes: dict, **kwargs) -> M:
     for k, v in changes.items():
         setattr(model, k, v)
     db_session.commit()
-    return model
 
 
 def delete(model: M):
@@ -103,3 +103,22 @@ def delete_by(m: Type[M], **kwargs):
     model = read(m, **kwargs)
     if model:
         delete(model)
+
+
+def find(m: Type[M], *args) -> List[M]:
+    """
+    Queries for all models which match some given criteria.
+
+    Criteria are provided as a series of comparison expressions performed on the static
+    attributes of the model class. For example::
+
+        crud.find(Reading, Reading.dateTimeTaken >= 1595131500)
+
+    See the SQLAlchemy documentation for more info:
+    https://docs.sqlalchemy.org/en/13/orm/query.html#sqlalchemy.orm.query.Query.filter
+
+    :param m: Type of model to find
+    :param args: Query arguments forwarded to ``filter``
+    :return: A list of models which satisfy the criteria
+    """
+    return m.query.filter(*args).all()

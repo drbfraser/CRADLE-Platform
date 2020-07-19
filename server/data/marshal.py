@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Dict, Type
 
 from data.crud import M
-from models import Patient, Reading, Referral
+from models import Patient, Reading, Referral, FollowUp
 
 
 def marshal(obj: Any, shallow=False) -> dict:
@@ -19,6 +19,8 @@ def marshal(obj: Any, shallow=False) -> dict:
         return __marshal_reading(obj, shallow)
     elif isinstance(obj, Referral):
         return __marshal_referral(obj)
+    elif isinstance(obj, FollowUp):
+        return __marshal_followup(obj)
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -49,6 +51,19 @@ def __marshal_referral(r: Referral) -> dict:
     # Remove relationship object
     if d.get("healthFacility"):
         del d["healthFacility"]
+    if d.get("reading"):
+        del d["reading"]
+    return d
+
+
+def __marshal_followup(f: FollowUp) -> dict:
+    d = vars(f).copy()
+    __pre_process(d)
+    # Remove relationship objects
+    if d.get("healthFacility"):
+        del d["healthFacility"]
+    if d.get("reading"):
+        del d["reading"]
     return d
 
 

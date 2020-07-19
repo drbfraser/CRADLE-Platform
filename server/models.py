@@ -180,6 +180,7 @@ class Patient(db.Model):
     zone = db.Column(db.String(20))
     dob = db.Column(db.BigInteger)
     villageNumber = db.Column(db.String(50))
+    created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     lastEdited = db.Column(
         db.BigInteger,
         nullable=False,

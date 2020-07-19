@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 import api.util as util
+import data
 import data.crud as crud
 import data.marshal as marshal
 import service.assoc as assoc
@@ -10,6 +11,7 @@ import service.invariant as invariant
 import service.view as view
 from Manager.PatientStatsManager import PatientStatsManager
 from models import Patient
+from utils import get_current_time
 
 
 # /api/patients
@@ -31,7 +33,14 @@ class Root(Resource):
         json = request.get_json(force=True)
         # TODO: Validate request
         patient = marshal.unmarshal(Patient, json)
+
+        # Resolve invariants and set the creation timestamp for the patient ensuring
+        # that both the created and lastEdited fields have the exact same value.
         invariant.resolve_reading_invariants(patient)
+        creation_time = get_current_time()
+        patient.created = creation_time
+        patient.lastEdited = creation_time
+
         crud.create(patient)
 
         # Associate the patient with the user who created them
@@ -79,6 +88,13 @@ class PatientInfo(Resource):
         json = request.get_json(force=True)
         # TODO: Validate
         crud.update(Patient, json, patientId=patient_id)
+
+        # Update the patient's lastEdited timestamp
+        patient = crud.read(Patient, patientId=patient_id)
+        patient.lastEdited = get_current_time()
+        data.db_session.commit()
+
+        return marshal.marshal(patient)
 
 
 # /api/patients/<string:patient_id>/stats
