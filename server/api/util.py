@@ -28,5 +28,5 @@ def current_user() -> User:
 
     :return:
     """
-    identity = jwt.current_user()
+    identity = jwt.get_jwt_identity()
     return crud.read(User, id=identity["userId"])

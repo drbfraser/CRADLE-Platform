@@ -1,3 +1,5 @@
+import sys
+
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
@@ -5,6 +7,7 @@ from flask_restful import Resource, abort
 import api.util as util
 import data.crud as crud
 import data.marshal as marshal
+import service.assoc as assoc
 import service.invariant as invariant
 import service.view as view
 from Manager.PatientStatsManager import PatientStatsManager
@@ -29,10 +32,26 @@ class Root(Resource):
     def post():
         json = request.get_json(force=True)
         # TODO: Validate request
-        model = marshal.unmarshal(Patient, json)
-        invariant.resolve_reading_invariants(model)
-        crud.create(model)
-        return marshal.marshal(model), 201
+        patient = marshal.unmarshal(Patient, json)
+        invariant.resolve_reading_invariants(patient)
+        crud.create(patient)
+
+        # Associate the patient with the user who created them
+        user = util.current_user()
+        # TODO: If the user is a HCW then we should only associate patient -> facility,
+        #       if they are a VHT, then we should only associate patient -> user
+        assoc.associate(patient, user.healthFacility, user)
+
+        # If the patient has any readings, and those readings have referrals, we
+        # associate the patient with the facilities they were referred to
+        for reading in patient.readings:
+            referral = reading.referral
+            if referral and not assoc.has_association(
+                patient, referral.healthFacility, user
+            ):
+                assoc.associate(patient, referral.healthFacility, user)
+
+        return marshal.marshal(patient), 201
 
 
 # /api/patients/<string:patient_id>
