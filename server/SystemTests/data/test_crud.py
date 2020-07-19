@@ -11,11 +11,10 @@ def test_read(patient_factory):
 def test_update(patient_factory):
     patient_factory.create(patientId="abc", patientName="ABC")
 
-    updated = crud.update(Patient, {"patientName": "CDE"}, patientId="abc")
-    assert updated.patientName == "CDE"
+    crud.update(Patient, {"patientName": "CDE"}, patientId="abc")
 
-    another_query = crud.read(Patient, patientId="abc")
-    assert another_query.patientName == "CDE"
+    query = crud.read(Patient, patientId="abc")
+    assert query.patientName == "CDE"
 
 
 def test_delete(patient_factory):
