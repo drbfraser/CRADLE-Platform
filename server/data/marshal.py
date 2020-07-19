@@ -47,7 +47,8 @@ def __marshal_referral(r: Referral) -> dict:
     d = vars(r).copy()
     __pre_process(d)
     # Remove relationship object
-    del d["healthFacility"]
+    if d.get("healthFacility"):
+        del d["healthFacility"]
     return d
 
 
