@@ -3,9 +3,7 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 import api.util as util
-import data.crud as crud
 import service.view as view
-from models import Patient, Reading, FollowUp
 
 
 class Updates(Resource):

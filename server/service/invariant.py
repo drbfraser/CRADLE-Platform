@@ -1,7 +1,7 @@
 from typing import Union
 
-from models import Patient, Reading
 import data
+from models import Patient, Reading
 
 
 def resolve_reading_invariants(obj: Union[Patient, Reading]):

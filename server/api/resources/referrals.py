@@ -5,8 +5,8 @@ from flask_restful import Resource, abort
 import api.util as util
 import data.crud as crud
 import data.marshal as marshal
-import service.view as view
 import service.assoc as assoc
+import service.view as view
 from models import Referral
 
 

@@ -1,4 +1,3 @@
-import sys
 from typing import List, Optional, Type, TypeVar
 
 from data import db_session
