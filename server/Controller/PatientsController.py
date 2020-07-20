@@ -286,24 +286,27 @@ class PatientGlobalSearch(Resource):
 class PatientFacility(Resource):
     @jwt_required
     def post(self):
+        import api.util as util
+        import data.crud as crud
+        import service.assoc as assoc
+        from models import Patient
+
         try:
             request_body = _get_request_body()
         except:
             return {"HTTP 400": decoding_error}, 400
         if not request_body["patientId"]:
             return {"HTTP 400": "Patient Id is empty."}, 400
-        # to do, check if patient exists in add patient facility function instead
-        patient = patientManager.read("patientId", request_body["patientId"])
+
+        # Emulate old API functionality with new systems, use of /api/associations is
+        # preferred over this method now
+        patient = crud.read(Patient, patientId=request_body["patientId"])
         if patient:
-            current_user = get_jwt_identity()
-            user_id = current_user["userId"]
-            facility_name = current_user["healthFacilityName"]
-            patient_id = patient["patientId"]
-            try:
-                PatientAssociationsManager().associate_by_id(
-                    patient_id, facility_name, user_id
-                )
-            except IntegrityError:
+            user = util.current_user()
+            facility = user.healthFacility
+            if not assoc.has_association(patient, facility, user):
+                assoc.associate(patient, facility, user)
+            else:
                 abort(409, message="Duplicate entry")
             return {"message": "patient has been added to facility successfully"}, 201
         else:
