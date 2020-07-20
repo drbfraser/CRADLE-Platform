@@ -45,18 +45,14 @@ class Root(Resource):
 
         # Associate the patient with the user who created them
         user = util.current_user()
-        # TODO: If the user is a HCW then we should only associate patient -> facility,
-        #       if they are a VHT, then we should only associate patient -> user
-        assoc.associate(patient, user.healthFacility, user)
+        assoc.associate_by_user_role(patient, user)
 
         # If the patient has any readings, and those readings have referrals, we
         # associate the patient with the facilities they were referred to
         for reading in patient.readings:
             referral = reading.referral
-            if referral and not assoc.has_association(
-                patient, referral.healthFacility, user
-            ):
-                assoc.associate(patient, referral.healthFacility, user)
+            if referral and not assoc.has_association(patient, referral.healthFacility):
+                assoc.associate(patient, facility=referral.healthFacility)
 
         return marshal.marshal(patient), 201
 

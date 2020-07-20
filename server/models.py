@@ -314,15 +314,12 @@ class UrineTest(db.Model):
 
 
 class PatientAssociations(db.Model):
-    patientId = db.Column(
-        db.ForeignKey(Patient.patientId), nullable=False, primary_key=True
-    )
+    id = db.Column(db.Integer, primary_key=True)
+    patientId = db.Column(db.ForeignKey(Patient.patientId), nullable=False)
     healthFacilityName = db.Column(
-        db.ForeignKey(HealthFacility.healthFacilityName),
-        nullable=False,
-        primary_key=True,
+        db.ForeignKey(HealthFacility.healthFacilityName), nullable=True,
     )
-    userId = db.Column(db.ForeignKey(User.id), nullable=False, primary_key=True)
+    userId = db.Column(db.ForeignKey(User.id), nullable=True)
 
     # RELATIONSHIPS
     patient = db.relationship(

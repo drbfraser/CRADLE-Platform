@@ -38,8 +38,8 @@ class Root(Resource):
         patient = referral.patient
         facility = referral.healthFacility
         user = referral.user
-        if not assoc.has_association(patient, facility, user):
-            assoc.associate(patient, facility, user)
+        if not assoc.has_association(patient, facility):
+            assoc.associate(patient, facility=facility)
 
         return marshal.marshal(referral), 201
 

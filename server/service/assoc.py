@@ -2,27 +2,54 @@
 The ``service.assoc`` module provides functions for managing associations between
 patients, health facilities, and users.
 """
-
 from typing import List
 
 import data.crud as crud
-from models import Patient, PatientAssociations, HealthFacility, User
+from models import Patient, PatientAssociations, HealthFacility, RoleEnum, User
 
 
-def associate(patient: Patient, facility: HealthFacility, user: User):
+def associate_by_user_role(patient: Patient, user: User):
     """
-    Creates a 3-way association between a patient, facility, and user by adding a
-    new row to the database.
+    Creates a patient association based on a user's role.
+
+    If the user is a HCW, then an association is made between the user's facility
+    (i.e., the one they work at) and the patient. If the user has a different role
+    (e.g., a VHT) then an association is made between the patient and the user.
+
+    For more control over what kind of association is made, use the ``associate``
+    function instead.
+
+    An association won't be created if one already exists between the two parties.
+
+    :param patient: A patient
+    :param user: The user making the association
+    """
+    roles = [r.name for r in user.roleIds]
+    if RoleEnum.HCW in roles:
+        if not has_association(patient, facility=user.healthFacility):
+            associate(patient, facility=user.healthFacility)
+    else:
+        if not has_association(patient, user=user):
+            associate(patient, user=user)
+
+
+def associate(patient: Patient, facility: HealthFacility = None, user: User = None):
+    """
+    Creates an association between a patient and facility, patient and user, or patient,
+    user and facility.
 
     :param patient: A patient
     :param facility: A facility
     :param user: A user
     :except IntegrityError: If an existing entry already exists in the database
     """
+    if not facility and not user:
+        raise ValueError(f"either a facility or user must be provided")
+
     association = PatientAssociations(
         patientId=patient.patientId,
-        healthFacilityName=facility.healthFacilityName,
-        userId=user.id,
+        healthFacilityName=facility.healthFacilityName if facility else None,
+        userId=user.id if user else None,
     )
     crud.create(association)
 
