@@ -75,13 +75,13 @@ def __pre_process(d: Dict[str, Any]):
             d[k] = v.value
 
 
-def __strip_protected_attributes(d: Dict[str, Any]):
+def __strip_none_values(d: Dict[str, Any]):
     remove = [k for k in d if not d[k]]
     for k in remove:
         del d[k]
 
 
-def __strip_none_values(d: Dict[str, Any]):
+def __strip_protected_attributes(d: Dict[str, Any]):
     remove = [k for k in d if k.startswith("_")]
     for k in remove:
         del d[k]
