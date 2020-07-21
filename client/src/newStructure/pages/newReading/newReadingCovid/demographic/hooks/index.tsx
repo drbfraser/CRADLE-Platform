@@ -125,12 +125,12 @@ export const useNewPatient = () => {
     }
     if (name === 'gestationalAgeValue') {
       let gestationalAgeValueError = false;
-      if (e.target.value === GESTATIONAL_AGE_UNITS.WEEKS) {
+      if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS) {
         if (e.target.value > 60 || e.target.value < 1) {
           gestationalAgeValueError = true;
         }
       }
-      if (e.target.value === GESTATIONAL_AGE_UNITS.MONTHS) {
+      if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS) {
         if (e.target.value > 12 || e.target.value < 1) {
           gestationalAgeValueError = true;
         }

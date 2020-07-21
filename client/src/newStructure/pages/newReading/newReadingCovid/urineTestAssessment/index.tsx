@@ -12,16 +12,16 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       '& > *': {
-        margin: theme.spacing(2),
+        margin: theme.spacing(1),
       },
     },
     formField: {
-      margin: theme.spacing(2),
+      margin: theme.spacing(1),
       minWidth: '22ch',
       width: '90%',
     },
     formFieldDM: {
-      margin: theme.spacing(2),
+      margin: theme.spacing(1),
       minWidth: '48ch',
       minHeight: '15ch',
     },
@@ -41,7 +41,7 @@ const Page: React.FC<IProps> = (props) => {
   return (
     <Paper
       style={{
-        padding: '35px 25px',
+        padding: '10px 25px',
         borderRadius: '15px',
         height: '100%',
       }}>

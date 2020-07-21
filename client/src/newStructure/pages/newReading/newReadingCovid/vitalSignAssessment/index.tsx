@@ -11,17 +11,17 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       '& > *': {
-        margin: theme.spacing(2),
+        margin: theme.spacing(1),
       },
     },
     formField: {
-      margin: theme.spacing(2),
+      margin: theme.spacing(1),
       minWidth: '26ch',
       width: '90%',
     },
 
     formFieldDM: {
-      margin: theme.spacing(2),
+      margin: theme.spacing(1),
       minWidth: '48ch',
       minHeight: '15ch',
     },
@@ -44,7 +44,7 @@ const Page: React.FC<IProps> = (props) => {
     <div style={{ display: 'flex' }}>
       <Paper
         style={{
-          padding: '35px 25px',
+          padding: '10px 25px',
           marginTop: '2%',
           borderRadius: '15px',
           width: '45%',
@@ -79,7 +79,7 @@ const Page: React.FC<IProps> = (props) => {
               variant="outlined"
               type="number"
               helperText={
-                props.vitals.bpDiastolicError ? 'Must be between 50 - 300.' : ''
+                props.vitals.bpDiastolicError ? 'Must be between 30 - 200.' : ''
               }
             />
           </FormControl>
@@ -100,7 +100,7 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.heartRateBPMError
-                  ? 'Must be between 50 - 300.'
+                  ? 'Must be between 30 - 250.'
                   : ''
               }
             />
