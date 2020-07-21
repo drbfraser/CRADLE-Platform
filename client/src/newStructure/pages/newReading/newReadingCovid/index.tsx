@@ -53,14 +53,16 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-function getSteps() {
-  return [
-    'Demographic Information',
-    'Symptoms',
-    'Vitals Signs',
-    'Assessments',
-    'Confirmation',
-  ];
+function getSteps(roles: string) {
+  return roles === 'HCW'
+    ? ['Demographic Information', 'Symptoms', 'Vitals Signs', 'Confirmation']
+    : [
+        'Demographic Information',
+        'Symptoms',
+        'Vitals Signs',
+        'Assessments',
+        'Confirmation',
+      ];
 }
 interface IProps {
   getCurrentUser: any;
@@ -96,9 +98,10 @@ const Page: React.FC<IProps> = (props) => {
   const [isPatientCreated, setIsPatientCreated] = useState(false);
   const [isShowDialog, setIsShowDialog] = useState(false);
   const [isShowDialogSubmission, setIsShowDialogsubmission] = useState(false);
-  const steps = getSteps();
+  const steps = getSteps(props.user.roles[0]);
 
   useEffect(() => {
+    console.log('props  => ', props.user);
     if (!props.user.isLoggedIn) {
       props.getCurrentUser();
     }
@@ -211,14 +214,15 @@ const Page: React.FC<IProps> = (props) => {
       ) : (
         ''
       )}
-      {activeStep === 3 ? (
+      {activeStep === 3 && props.user.roles[0] !== 'HCW' ? (
         <Assessment
           assessment={assessment}
           onChange={handleChangeAssessment}></Assessment>
       ) : (
         ''
       )}
-      {activeStep === 4 ? (
+      {activeStep === 4 ||
+      (props.user.roles[0] === 'HCW' && activeStep === 3) ? (
         <ConfirmationPage
           patient={patient}
           symptoms={symptoms}
@@ -262,6 +266,13 @@ const Page: React.FC<IProps> = (props) => {
                 style={{
                   display: steps.length - 2 !== activeStep ? 'none' : '',
                 }}
+                disabled={
+                  props.user.roles[0] === 'HCW'
+                    ? isRequiredFilled()
+                      ? true
+                      : false
+                    : false
+                }
                 className={classes.nextButton}
                 variant="contained"
                 color="primary"
