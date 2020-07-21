@@ -1,7 +1,15 @@
 // @ts-nocheck
 
 import { Bar, Line } from 'react-chartjs-2';
-import { Button, Divider, Form, Header, Input, Modal } from 'semantic-ui-react';
+import {
+  Button,
+  Divider,
+  Form,
+  Header,
+  Input,
+  Modal,
+  Select,
+} from 'semantic-ui-react';
 import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from '../form/patient';
 import {
   UrineTestForm,
@@ -50,6 +58,10 @@ import { getTrafficIcon } from './utils';
 import { newReadingPost } from '../../reducers/newReadingPost';
 
 const symptom = [];
+const unitOptions = [
+  { key: 'weeks', text: 'Weeks', value: 1 },
+  { key: 'months', text: 'Months', value: 2 },
+];
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -57,6 +69,25 @@ function guid() {
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
+}
+
+function getNumOfWeeks(timestamp) {
+  const todaysDate = new Date();
+  const gestDate = new Date(timestamp * 1000);
+  return Math.round((todaysDate - gestDate) / (7 * 24 * 60 * 60 * 1000));
+}
+
+function getNumOfMonths(timestamp) {
+  const todaysDate = new Date();
+  const gestDate = new Date(timestamp * 1000);
+  const numOfMonths =
+    todaysDate.getMonth() -
+    gestDate.getMonth() +
+    12 * (todaysDate.getFullYear() - gestDate.getFullYear());
+  if (numOfMonths === 0) {
+    return '< 1';
+  }
+  return numOfMonths;
 }
 
 class Component extends React.Component {
@@ -241,6 +272,28 @@ class Component extends React.Component {
     delete patientData.tableData;
     delete patientData.patientId;
 
+    if (
+      patientData.isPregnant === true &&
+      patientData.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
+    ) {
+      const gestDate = new Date();
+      gestDate.setDate(
+        gestDate.getDate() - (patientData.gestationalAgeValue as any) * 7
+      );
+      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000;
+    }
+
+    if (
+      patientData.isPregnant === true &&
+      patientData.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS
+    ) {
+      const gestDate = new Date();
+      gestDate.setMonth(
+        gestDate.getMonth() - (patientData.gestationalAgeValue as any)
+      );
+      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000;
+    }
+    delete patientData.gestationalAgeValue;
     this.props.updatePatient(patientId, patientData);
     this.closePatientModal('formSubmitted');
   };
@@ -307,6 +360,24 @@ class Component extends React.Component {
         this.closeReadingModal();
       }
     );
+  };
+
+  handleUnitChange = (e: any, value: any) => {
+    if (value.value === 1) {
+      this.setState({
+        selectedPatient: {
+          ...this.state.selectedPatient,
+          gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
+        },
+      });
+    } else {
+      this.setState({
+        selectedPatient: {
+          ...this.state.selectedPatient,
+          gestationalAgeUnit: GESTATIONAL_AGE_UNITS.MONTHS,
+        },
+      });
+    }
   };
 
   handleSelectChange = (e, value) => {
@@ -731,14 +802,29 @@ class Component extends React.Component {
                       </p>
                     )}
                     {this.state.selectedPatient.isPregnant &&
-                      this.state.selectedPatient.gestationalAgeValue && (
+                      this.state.selectedPatient.gestationalTimestamp && (
                         <p>
                           <b>Gestational Age: </b>{' '}
-                          {this.state.selectedPatient.gestationalAgeValue}{' '}
                           {this.state.selectedPatient.gestationalAgeUnit ===
                           GESTATIONAL_AGE_UNITS.WEEKS
-                            ? 'week(s)'
-                            : 'month(s)'}
+                            ? getNumOfWeeks(
+                                this.state.selectedPatient.gestationalTimestamp
+                              ) + ' week(s)'
+                            : getNumOfMonths(
+                                this.state.selectedPatient.gestationalTimestamp
+                              ) + ' month(s)'}
+                          <Form.Field
+                            name="gestationalUnits"
+                            control={Select}
+                            options={unitOptions}
+                            placeholder={
+                              this.state.selectedPatient.gestationalAgeUnit ===
+                              GESTATIONAL_AGE_UNITS.WEEKS
+                                ? 'Weeks'
+                                : 'Months'
+                            }
+                            onChange={this.handleUnitChange}
+                          />
                         </p>
                       )}
                     <Accordion>

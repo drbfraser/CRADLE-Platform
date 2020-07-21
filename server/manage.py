@@ -99,7 +99,7 @@ def seed_test_data():
         "1002",
         True,
         "GESTATIONAL_AGE_UNITS_WEEKS",
-        "22",
+        1592339808,
     )
     # TODO: Add more data here
 
@@ -140,7 +140,7 @@ def seed():
             "patientName": getRandomInitials(),
             "patientAge": getRandomAge(),
             "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
-            "gestationalAgeValue": "51",
+            "gestationalTimestamp": 1587068710,
             "villageNumber": getRandomVillage(),
             "patientSex": "FEMALE",
             "isPregnant": "true",
@@ -212,7 +212,7 @@ def create_patient_reading_referral(
     villageNum,
     isPregnant=False,
     gestAgeUnit=None,
-    gestAgeValue=None,
+    gestTimestamp=None,
 ):
     """
     Creates a patient in the database.
@@ -223,7 +223,7 @@ def create_patient_reading_referral(
             "patientName": name,
             "patientAge": age,
             "gestationalAgeUnit": gestAgeUnit,
-            "gestationalAgeValue": gestAgeValue,
+            "gestationalTimestamp": gestTimestamp,
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "true",
