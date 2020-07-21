@@ -53,7 +53,7 @@ const Page: React.FC<IProps> = (props) => {
         borderRadius: '15px',
       }}>
       <h1>
-        <b>Collect Basic Demographic</b>
+        <b>Demographics</b>
       </h1>
 
       <form className={classes.root} autoComplete="off">
@@ -90,7 +90,7 @@ const Page: React.FC<IProps> = (props) => {
         </FormControl>
         <FormControl className={classes.formField}>
           <TextField
-            label={'House Hold Number'}
+            label={'Household Number'}
             id="component-outlined"
             name="household"
             value={props.patient.household}
@@ -98,20 +98,6 @@ const Page: React.FC<IProps> = (props) => {
             variant="outlined"
             type={'text'}
           />
-        </FormControl>
-        <FormControl className={classes.formField}>
-          <Grid component="label" container alignItems="center" spacing={1}>
-            <Grid item>Birthday</Grid>
-            <Grid item>
-              <Switch
-                checked={props.patient.dobOrAge}
-                onChange={props.onChange}
-                name="dobOrAge"
-                inputProps={{ 'aria-label': 'secondary checkbox' }}
-              />
-            </Grid>
-            <Grid item>Age</Grid>
-          </Grid>
         </FormControl>
         <FormControl className={classes.formField}>
           <TextField
@@ -132,6 +118,20 @@ const Page: React.FC<IProps> = (props) => {
               props.patient.dobError ? 'Must be between 15 - 65.' : ''
             }
           />
+        </FormControl>
+        <FormControl className={classes.formField}>
+          <Grid component="label" container alignItems="center" spacing={1}>
+            <Grid item>Birthday</Grid>
+            <Grid item>
+              <Switch
+                checked={props.patient.dobOrAge}
+                onChange={props.onChange}
+                name="dobOrAge"
+                inputProps={{ 'aria-label': 'secondary checkbox' }}
+              />
+            </Grid>
+            <Grid item>Age</Grid>
+          </Grid>
         </FormControl>
         <FormControl className={classes.formField}>
           <TextField

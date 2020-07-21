@@ -50,7 +50,7 @@ const Page: React.FC<IProps> = (props) => {
           width: '45%',
         }}>
         <h1>
-          <b>Vital Sign Assessment</b>
+          <b>Vital Signs</b>
         </h1>
         <form className={classes.root} noValidate autoComplete="off">
           <FormControl className={classes.formField}>

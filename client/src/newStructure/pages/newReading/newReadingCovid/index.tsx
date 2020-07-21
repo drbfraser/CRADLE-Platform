@@ -55,10 +55,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 function getSteps() {
   return [
-    'Collect basic demographic info',
-    'Collect symptoms',
-    'Vitals sign assessment',
-    'Assessment',
+    'Demographic Information',
+    'Symptoms',
+    'Vitals Signs',
+    'Assessments',
     'Confirmation',
   ];
 }

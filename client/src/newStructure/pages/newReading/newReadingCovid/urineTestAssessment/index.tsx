@@ -69,7 +69,7 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.leukocytes}
               name={'leukocytes'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
@@ -85,7 +85,7 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.nitrites}
               name={'nitrites'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
@@ -101,7 +101,7 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.glucose}
               name={'glucose'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
@@ -117,7 +117,7 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.protein}
               name={'protein'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>
@@ -133,7 +133,7 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.blood}
               name={'blood'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
               <MenuItem value={'m'}>NAD</MenuItem>

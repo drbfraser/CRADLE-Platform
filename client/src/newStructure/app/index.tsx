@@ -26,8 +26,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { LoginPage } from '../pages/login';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { NewReadingPage } from '../pages/newReading';
-// import { NewReadingCovid } from '../pages/newReading/newReadingCovid';
+// import { NewReadingPage } from '../pages/newReading';
+import { NewReadingCovid } from '../pages/newReading/newReadingCovid';
 import { NotFoundPage } from '../pages/notFound';
 import { Pathname } from 'history';
 import { PatientSummaryContainer } from '../shared/components/patientSummary/container';
@@ -499,7 +499,11 @@ const Component: React.FC<IProps> = (props) => {
             <Route exact path="/login" component={LoginPage} />
             <PrivateRoute exact path="/stats" component={StatisticsPage} />
             <PrivateRoute exact path="/referrals" component={ReferralsPage} />
-            <PrivateRoute exact path="/newreading" component={NewReadingPage} />
+            <PrivateRoute
+              exact
+              path="/newreading"
+              component={NewReadingCovid}
+            />
             <PrivateRoute exact path="/resources" component={HelpPage} />
             <PrivateRoute
               exact

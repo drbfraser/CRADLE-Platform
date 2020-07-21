@@ -47,7 +47,7 @@ const Page: React.FC<IProps> = (props) => {
         borderRadius: '15px',
       }}>
       <h1>
-        <b>Collect Symptoms</b>
+        <b>Symptoms</b>
       </h1>
 
       <FormControl component="fieldset" className={classes.formControl}>
