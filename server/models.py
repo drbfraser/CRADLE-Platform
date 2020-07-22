@@ -174,7 +174,7 @@ class Patient(db.Model):
     patientSex = db.Column(db.Enum(SexEnum), nullable=False)
     isPregnant = db.Column(db.Boolean)
     gestationalAgeUnit = db.Column(db.String(50))
-    gestationalAgeValue = db.Column(db.String(20))
+    gestationalTimestamp = db.Column(db.BigInteger)
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
