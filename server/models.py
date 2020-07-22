@@ -315,24 +315,25 @@ class UrineTest(db.Model):
 
 class PatientAssociations(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    patientId = db.Column(db.ForeignKey(Patient.patientId), nullable=False)
-    healthFacilityName = db.Column(
-        db.ForeignKey(HealthFacility.healthFacilityName), nullable=True,
+    patientId = db.Column(
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"), nullable=False,
     )
-    userId = db.Column(db.ForeignKey(User.id), nullable=True)
+    healthFacilityName = db.Column(
+        db.ForeignKey(HealthFacility.healthFacilityName, ondelete="CASCADE"),
+        nullable=True,
+    )
+    userId = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=True)
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient",
-        backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
+        "Patient", backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     healthFacility = db.relationship(
         "HealthFacility",
-        backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
+        backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     user = db.relationship(
-        "User",
-        backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
+        "User", backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
 
     @staticmethod
