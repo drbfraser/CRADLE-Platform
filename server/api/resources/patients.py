@@ -34,6 +34,9 @@ class Root(Resource):
         # TODO: Validate request
         patient = marshal.unmarshal(Patient, json)
 
+        if crud.read(Patient, patientId=patient.patientId):
+            abort(409, message=f"A patient already exists with id: {patient.patientId}")
+
         # Resolve invariants and set the creation timestamp for the patient ensuring
         # that both the created and lastEdited fields have the exact same value.
         invariant.resolve_reading_invariants(patient)
