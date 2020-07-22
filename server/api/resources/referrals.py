@@ -37,7 +37,6 @@ class Root(Resource):
         # facility they were referred to.
         patient = referral.patient
         facility = referral.healthFacility
-        user = referral.user
         if not assoc.has_association(patient, facility):
             assoc.associate(patient, facility=facility)
 
