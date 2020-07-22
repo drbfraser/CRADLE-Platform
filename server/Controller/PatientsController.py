@@ -53,8 +53,12 @@ def abort_if_patient_exists(patient_id):
 # output: patient data w/ age populated (int)
 def calculate_age_from_dob(patient_data):
     today = date.today()
-    birthday = datetime.strptime(patient_data["dob"], '%Y-%m-%d').date()
-    age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
+    birthday = datetime.strptime(patient_data["dob"], "%Y-%m-%d").date()
+    age = (
+        today.year
+        - birthday.year
+        - ((today.month, today.day) < (birthday.month, birthday.day))
+    )
     patient_data["patientAge"] = int(age)
     return patient_data
 
@@ -95,9 +99,6 @@ class PatientAll(Resource):
         except:
             return {"HTTP 400": decoding_error}, 400
         patient_data = self._get_request_body()
-
-        if "dob" in patient_data and patient_data["dob"] is not None:
-            patient_data["dob"] = int(patient_data["dob"])
 
         # Ensure all data is valid
         abort_if_body_empty(patient_data)

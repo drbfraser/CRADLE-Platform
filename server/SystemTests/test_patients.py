@@ -6,7 +6,7 @@ import string
 import time
 import uuid
 import logging
-from datetime import datetime
+from datetime import date, datetime
 from manage import getRandomInitials
 
 
@@ -29,8 +29,8 @@ def get_authorization_header(email, password):
 
 
 BASE_URL = "http://localhost:5000"
-# date equivalent to Jan 1, 2000
-EPOCH_BIRTHDATE = 946684800
+# date of Jan 1, 2000 in Python's datetime
+BIRTHDATE = datetime.strptime("2000-01-01", "%Y-%m-%d").strftime("%Y-%m-%d")
 
 
 def get_random_patient_id():
@@ -137,13 +137,17 @@ def test_pass_create_patient_with_dob_no_age():
         "patientId": patient_id,
         "patientName": patient_name,
         "patientSex": patient_sex,
-        # dob equivalent to Jan 1, 2000
-        "dob": EPOCH_BIRTHDATE,
+        "dob": BIRTHDATE,
     }
 
     # calculates age from Jan 1, 2000 birthdate
-    SECONDS_IN_YEAR = 31557600
-    age_in_database = (time.time() - EPOCH_BIRTHDATE) / SECONDS_IN_YEAR
+    today = date.today()
+    birthday = datetime.strptime(BIRTHDATE, "%Y-%m-%d").date()
+    age_in_database = (
+        today.year
+        - birthday.year
+        - ((today.month, today.day) < (birthday.month, birthday.day))
+    )
 
     response = requests.post(url, json=data, headers=auth_header)
     response_body = json.loads(response.text)
@@ -152,7 +156,7 @@ def test_pass_create_patient_with_dob_no_age():
     assert response_body["patientId"] == patient_id
     assert response_body["patientName"] == patient_name
     assert response_body["patientSex"] == patient_sex
-    assert response_body["dob"] == EPOCH_BIRTHDATE
+    assert response_body["dob"] == BIRTHDATE
     assert response_body["patientAge"] == int(age_in_database)
 
 
@@ -175,13 +179,17 @@ def test_pass_create_patient_reading_with_dob_no_age():
         "patientId": patient_id,
         "patientName": patient_name,
         "patientSex": patient_sex,
-        # dob equivalent to Jan 1, 2000
-        "dob": EPOCH_BIRTHDATE,
+        "dob": BIRTHDATE,
     }
 
     # calculates age from Jan 1, 2000 birthdate
-    SECONDS_IN_YEAR = 31557600
-    age_in_database = (time.time() - EPOCH_BIRTHDATE) / SECONDS_IN_YEAR
+    today = date.today()
+    birthday = datetime.strptime(BIRTHDATE, "%Y-%m-%d").date()
+    age_in_database = (
+        today.year
+        - birthday.year
+        - ((today.month, today.day) < (birthday.month, birthday.day))
+    )
 
     reading = {
         "readingId": reading_id,
@@ -204,7 +212,7 @@ def test_pass_create_patient_reading_with_dob_no_age():
     assert response_body["reading"]["bpSystolic"] == bp_systolic
     assert response_body["reading"]["bpDiastolic"] == bp_diastolic
     assert response_body["reading"]["heartRateBPM"] == hr
-    assert response_body["patient"]["dob"] == EPOCH_BIRTHDATE
+    assert response_body["patient"]["dob"] == BIRTHDATE
     assert response_body["patient"]["patientAge"] == int(age_in_database)
 
 
@@ -380,76 +388,6 @@ def test_fail_empty_patient_id():
     response_body = response.json()
     assert response.status_code == 400
     assert response_body["HTTP 400"] == "Patient Id is empty."
-
-
-# Testing global search API
-def test_pass_search_partial_patient_id():
-    partial_patient_id = "483"
-    url = BASE_URL + "/api/patient/global/" + partial_patient_id
-    response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
-    assert response.status_code == 200
-    expected_matching_patients = 6
-    assert len(response_body) == expected_matching_patients
-
-
-def test_pass_search_partial_initials():
-    partial_patient_initials = "A"
-    url = BASE_URL + "/api/patient/global/" + partial_patient_initials
-    response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
-    assert response.status_code == 200
-    expected_matching_patients = 1
-    # cannot determine exact amount because we are creating patients with random initials in some tests
-    # to-do: change existing tests make them enter non-random data
-    assert (
-        len(response_body) > expected_matching_patients
-        or len(response_body) == expected_matching_patients
-    )
-
-
-def test_pass_search_full_patient_id():
-    full_patient_id = "204652"
-    url = BASE_URL + "/api/patient/global/" + full_patient_id
-    response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
-    assert response.status_code == 200
-    expected_matching_patients = 1
-    assert len(response_body) == expected_matching_patients
-
-
-def test_pass_search_full_initials():
-    full_patient_initials = "BB"
-    url = BASE_URL + "/api/patient/global/" + full_patient_initials
-    response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
-    assert response.status_code == 200
-    expected_matching_patients = 1
-    assert len(response_body) == expected_matching_patients
-
-
-def test_no_id_matches():
-    full_patient_id = "9872"
-    url = BASE_URL + "/api/patient/global/" + full_patient_id
-    response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
-    assert response.status_code == 404
-    assert (
-        response_body["message"]
-        == "No patients matching the search criteria currently exist."
-    )
-
-
-def test_no_initials_matches():
-    full_initials = "CCC"
-    url = BASE_URL + "/api/patient/global/" + full_initials
-    response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
-    assert response.status_code == 404
-    assert (
-        response_body["message"]
-        == "No patients matching the search criteria currently exist."
-    )
 
 
 def test_fail_create_patient_invalid_gestational_age_weeks():
