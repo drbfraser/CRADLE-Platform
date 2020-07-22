@@ -127,11 +127,7 @@ class Database:
         if found_entry:
             for key in new_data:
                 this_attr = getattr(found_entry, key)
-                this_type = type(this_attr)
-                if this_attr is None:
-                    setattr(found_entry, key, new_data[key])
-                else:
-                    setattr(found_entry, key, this_type(new_data[key]))
+                setattr(found_entry, key, new_data[key])
             db.session.commit()
         return self.model_to_dict(found_entry)
 
