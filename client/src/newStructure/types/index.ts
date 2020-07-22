@@ -132,6 +132,7 @@ export type PatientNewReading = {
   drugHistory: OrNull<string>;
   gestationalAgeUnit: string;
   gestationalAgeValue: string;
+  gestationalTimestamp: OrNull<number>;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
   patientAge: OrNull<string>;

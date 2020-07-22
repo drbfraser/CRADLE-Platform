@@ -453,12 +453,12 @@ def test_no_initials_matches():
 
 
 def test_fail_create_patient_invalid_gestational_age_weeks():
-    # should fail because max gestational age for weeks is 43
+    # should fail because max gestational age is 43 weeks/10 months
     patient_id = get_random_patient_id()
     patient_name = getRandomInitials()
     patient_sex = "FEMALE"
     patient_gest_age_unit = "GESTATIONAL_AGE_UNITS_WEEKS"
-    patient_gest_age = "44"
+    patient_gest_timestamp = 1563311831
 
     url = BASE_URL + "/api/patient"
 
@@ -468,37 +468,11 @@ def test_fail_create_patient_invalid_gestational_age_weeks():
         "patientSex": patient_sex,
         "isPregnant": True,
         "gestationalAgeUnit": patient_gest_age_unit,
-        "gestationalAgeValue": patient_gest_age,
+        "gestationalTimestamp": patient_gest_timestamp,
     }
 
     response = requests.post(url, json=data, headers=auth_header)
     response_body = response.json()
 
     assert response.status_code == 400
-    assert response_body["HTTP 400"] == "Gestation age is greater than 43 weeks."
-
-
-def test_fail_create_patient_invalid_gestational_age_months():
-    # should fail because max gestational age for months is 10
-    patient_id = get_random_patient_id()
-    patient_name = getRandomInitials()
-    patient_sex = "FEMALE"
-    patient_gest_age_unit = "GESTATIONAL_AGE_UNITS_MONTHS"
-    patient_gest_age = "11"
-
-    url = BASE_URL + "/api/patient"
-
-    data = {
-        "patientId": patient_id,
-        "patientName": patient_name,
-        "patientSex": patient_sex,
-        "isPregnant": True,
-        "gestationalAgeUnit": patient_gest_age_unit,
-        "gestationalAgeValue": patient_gest_age,
-    }
-
-    response = requests.post(url, json=data, headers=auth_header)
-    response_body = response.json()
-
-    assert response.status_code == 400
-    assert response_body["HTTP 400"] == "Gestation age is greater than 10 months."
+    assert response_body["HTTP 400"] == "Gestation is greater than 43 weeks/10 months."
