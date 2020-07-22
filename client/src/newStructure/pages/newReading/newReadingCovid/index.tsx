@@ -117,6 +117,20 @@ const Page: React.FC<IProps> = (props) => {
   };
   const handleSubmit = () => {
     setIsShowDialogsubmission(true);
+  //  format Data --> probably another function or component
+  //  if patient !exists
+  //  this.props.addnewPatient(patient)
+  //      handle error
+  //      handle success
+  //    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //  this.props.reading(reading)
+      //      handle error
+      //      handle success
+
+  //    if roleid is not hcw
+  //  this.props.assessment(assessment)
+      //      handle error
+      //      handle success
   };
 
   const handleDialogClose = () => {
