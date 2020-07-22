@@ -15,6 +15,10 @@ class Root(Resource):
         json = request.get_json(force=True)
         # TODO: Validate request
         reading = marshal.unmarshal(Reading, json)
+
+        if crud.read(Reading, readingId=reading.readingId):
+            abort(409, message=f"A reading already exists with id: {reading.readingId}")
+
         invariant.resolve_reading_invariants(reading)
         crud.create(reading)
         return marshal.marshal(reading), 201
