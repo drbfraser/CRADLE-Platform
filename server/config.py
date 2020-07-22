@@ -84,6 +84,6 @@ flask_bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 app.json_encoder = JSONEncoder
 
-db = SQLAlchemy(app)
+db = SQLAlchemy(app, session_options={"expire_on_commit": False})
 migrate = Migrate(app, db)
 ma = Marshmallow(app)
