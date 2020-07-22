@@ -19,7 +19,7 @@ export default function AlertDialog(props: IProps) {
         onClose={props.handleDialogClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">{'The Id is Valid'}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'The ID is Valid'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             This pop will will be used to inform the user if they are using a

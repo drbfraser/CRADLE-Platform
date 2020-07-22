@@ -74,7 +74,7 @@ const Page: React.FC<IProps> = (props) => {
         <FormControl className={classes.formFieldWide}>
           <TextField
             id="outlined-multiline-static"
-            label="Special Investigation + Results (if avaulable)"
+            label="Investigation Results (if available)"
             multiline
             rows={2}
             defaultValue="..."

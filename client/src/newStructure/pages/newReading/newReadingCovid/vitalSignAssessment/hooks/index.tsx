@@ -9,9 +9,11 @@ export const useNewVitals = () => {
     bpSystolicError: false,
     bpDiastolicError: false,
     heartRateBPMError: false,
+    oxygenSaturationError:false,
     respiratoryRate: '',
     oxygenSaturation: '',
     temperature: '',
+    temperatureError:false,
     dateRecheckVitalsNeeded: null,
     isFlaggedForFollowup: false,
   });
@@ -28,6 +30,16 @@ export const useNewVitals = () => {
     }
     if (name === 'heartRateBPM') {
       if (value < 30 || value > 250) {
+        return true;
+      }
+    }
+    if (name === 'oxygenSaturation') {
+      if (value < 50 || value > 100) {
+        return true;
+      }
+    }
+    if (name === 'temperature') {
+      if (value < 30 || value > 45) {
         return true;
       }
     }
@@ -70,19 +82,17 @@ export const useNewVitals = () => {
       });
     }
     if (name === 'oxygenSaturation') {
-      //add validation here
-
       setVitals({
         ...vitals,
         [e.target.name]: e.target.value,
+        oxygenSaturationError:validation,
       });
     }
     if (name === 'temperature') {
-      //add validation here
-
       setVitals({
         ...vitals,
         [e.target.name]: e.target.value,
+        temperatureError:validation
       });
     }
 

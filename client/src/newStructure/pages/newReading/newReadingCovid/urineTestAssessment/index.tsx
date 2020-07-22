@@ -57,7 +57,7 @@ const Page: React.FC<IProps> = (props) => {
       <h3
         hidden={props.urineTest.enabled}
         style={{ color: '#9E9E9E', fontSize: '14px' }}>
-        Urine Test Will Not Be Submitted
+        Urine test will not be submitted
       </h3>
 
       <form className={classes.root} autoComplete="off">
