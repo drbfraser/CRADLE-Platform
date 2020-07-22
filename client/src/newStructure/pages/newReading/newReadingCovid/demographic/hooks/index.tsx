@@ -12,6 +12,7 @@ export const useNewPatient = () => {
     patientSex: 'FEMALE',
     isPregnant: false,
     gestationalAgeValue: '',
+    gestationalAgeValueTimeStamp: 0,
     gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
     zone: '',
     dob: '2004-01-01',
@@ -38,6 +39,19 @@ export const useNewPatient = () => {
     const year: string = value.substr(0, value.indexOf('-'));
     const yearNow: number = new Date().getUTCFullYear();
     return yearNow - +year;
+  };
+
+  const calculateGestationalAgeValue = (value: string) => {
+    const currentDate = new Date();
+    let subtractValue = 0;
+    if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS) {
+      subtractValue = +value * 7;
+      currentDate.setDate(currentDate.getDate() - subtractValue);
+    }
+    if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS) {
+      currentDate.setMonth(currentDate.getMonth() - +value);
+    }
+    return currentDate.getTime() / 1000;
   };
 
   const handleChangePatient = (e: any) => {
@@ -115,6 +129,7 @@ export const useNewPatient = () => {
       setPatient({
         ...patient,
         [name]: e.target.value,
+        gestationalAgeValue: '0',
       });
     }
     if (name === 'dobOrAge') {
@@ -138,6 +153,9 @@ export const useNewPatient = () => {
       setPatient({
         ...patient,
         [name]: e.target.value,
+        gestationalAgeValueTimeStamp: calculateGestationalAgeValue(
+          e.target.value
+        ),
         gestationalAgeValueError: gestationalAgeValueError,
       });
     }

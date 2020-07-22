@@ -180,7 +180,7 @@ const Page: React.FC<IProps> = (props) => {
             error={
               props.patient.patientSex === 'MALE' || !props.patient.isPregnant
                 ? false
-                : props.patient.gestationalAgeUnit ==
+                : props.patient.gestationalAgeUnit ===
                   GESTATIONAL_AGE_UNITS.WEEKS
                 ? props.patient.gestationalAgeValue < 1 ||
                   props.patient.gestationalAgeValue > 60
@@ -203,7 +203,7 @@ const Page: React.FC<IProps> = (props) => {
             value={props.patient.gestationalAgeValue}
             onChange={props.onChange}
             helperText={
-              props.patient.gestationalAgeValueError
+              props.patient.gestationalAgeValueError && props.patient.isPregnant
                 ? 'Value too large or too small.'
                 : ''
             }
