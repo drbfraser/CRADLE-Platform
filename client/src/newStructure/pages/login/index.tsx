@@ -22,7 +22,7 @@ class Page extends React.Component<IProps> {
     const { loggedIn, ...props } = this.props;
 
     if (loggedIn) {
-      return <Redirect to="/patients" />;
+      return <Redirect to="/referrals" />;
     }
     return (
       <div className={classes.loginWrapper}>

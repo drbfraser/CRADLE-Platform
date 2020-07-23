@@ -117,10 +117,8 @@ const Component: React.FC<IProps> = (props) => {
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
-    if (statsOpen) {
-      setOpenStats(false);
-    }
-  }, [props.pathName, statsOpen]);
+    setOpenStats(false);
+  }, [props.pathName]);
 
   const onStatsClick = (event: any) => {
     setOpenStats(!statsOpen);
