@@ -1,18 +1,19 @@
-import { Callback, OrNull } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
+import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
+import { OrNull } from '@types';
 
 enum PatientStatisticsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'patientStatistics/CLEAR_REQUEST_OUTCOME',
-  START_REQUEST = 'patientStatistics/START_REQUEST',
+  GET_PATIENT_STATISTICS_REQUESTED = 'patientStatistics/GET_PATIENT_STATISTICS_REQUESTED',
   GET_PATIENT_STATISTICS_ERROR = 'patientStatistics/GET_PATIENT_STATISTICS_ERROR',
   GET_PATIENT_STATISTICS_SUCCESS = 'patientStatistics/GET_PATIENT_STATISTICS_SUCCESS',
 }
 
 type PatientStatisticsAction =
   | { type: PatientStatisticsActionEnum.CLEAR_REQUEST_OUTCOME }
-  | { type: PatientStatisticsActionEnum.START_REQUEST }
+  | { type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_REQUESTED }
   | {
       type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR;
       payload: { message: string };
@@ -22,29 +23,30 @@ type PatientStatisticsAction =
       payload: { data: any };
     };
 
-export const startRequest = (): PatientStatisticsAction => ({
-  type: PatientStatisticsActionEnum.START_REQUEST,
+const getPatientStatsiticsRequested = (): PatientStatisticsAction => ({
+  type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_REQUESTED,
 });
-
-export type PatientStatisticsRequest = Callback<
-  Callback<PatientStatisticsAction>,
-  ServerRequestAction
->;
 
 export const getPatientStatistics = (
   patientId: string
-): ServerRequestAction => {
-  return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENT}${Endpoints.STATS}/${patientId}`,
-    onSuccess: ({ data }: any): PatientStatisticsAction => ({
-      type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS,
-      payload: { data },
-    }),
-    onError: (message: string): PatientStatisticsAction => ({
-      type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR,
-      payload: { message },
-    }),
-  });
+): ((dispatch: Dispatch) => ServerRequestAction) => {
+  return (dispatch: Dispatch) => {
+    dispatch(getPatientStatsiticsRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: `${Endpoints.PATIENT}${Endpoints.STATS}/${patientId}`,
+        onSuccess: ({ data }: any): PatientStatisticsAction => ({
+          type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS,
+          payload: { data },
+        }),
+        onError: (message: string): PatientStatisticsAction => ({
+          type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR,
+          payload: { message },
+        }),
+      })
+    );
+  };
 };
 
 export const clearPatientStatisticsRequestOutcome = (): PatientStatisticsAction => ({
@@ -79,7 +81,7 @@ export const patientStatisticsReducer = (
         data: action.payload.data,
       };
 
-    case PatientStatisticsActionEnum.START_REQUEST:
+    case PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_REQUESTED:
       return {
         ...initialState,
         loading: true,

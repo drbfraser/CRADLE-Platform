@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 
 import { Callback, OrNull } from '@types';
 
+import { Dispatch } from 'redux';
 import { LoginData } from 'src/newStructure/shared/reducers/user/currentUser';
 import React from 'react';
 import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
@@ -10,7 +11,7 @@ import { useFormik } from 'formik';
 
 interface IProps {
   errorMessage: OrNull<string>;
-  login: Callback<LoginData, ServerRequestAction>;
+  loginUser: Callback<LoginData, Callback<Dispatch, ServerRequestAction>>;
 }
 
 export const LoginForm: React.FC<IProps> = (props) => {
@@ -27,7 +28,7 @@ export const LoginForm: React.FC<IProps> = (props) => {
       email: Yup.string().email(`Invalid email address`).required(`Required`),
     }),
     onSubmit: (values: LoginData) => {
-      props.login(values);
+      props.loginUser(values);
     },
   });
 

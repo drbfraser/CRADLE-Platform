@@ -7,7 +7,6 @@ import {
   NewReadingStatusState,
   newReadingStatusReducer,
 } from '../../shared/reducers/newReadingStatus';
-import { PatientState, patientReducer } from '../../shared/reducers/patient';
 import {
   PatientStatisticsState,
   patientStatisticsReducer,
@@ -31,7 +30,6 @@ export type ReduxState = {
   chat: ChatState;
   healthFacilities: HealthFacilitiesState;
   newReadingStatus: NewReadingStatusState;
-  patient: PatientState;
   patients: PatientsState;
   patientStatistics: PatientStatisticsState;
   referrals: ReferralsState;
@@ -44,7 +42,6 @@ const appReducer = combineReducers({
   chat: chatReducer,
   healthFacilities: healthFacilitiesReducer,
   newReadingStatus: newReadingStatusReducer,
-  patient: patientReducer,
   patients: patientsReducer,
   patientStatistics: patientStatisticsReducer,
   referrals: referralsReducer,

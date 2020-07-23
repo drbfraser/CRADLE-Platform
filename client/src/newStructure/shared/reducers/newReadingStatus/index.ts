@@ -3,6 +3,7 @@ import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
 import { OrNull } from '@types';
+
 enum NewReadingStatusEnum {
   CLEAR_REQUEST_OUTCOME = `newReadingStatus/CLEAR_REQUEST_OUTCOME`,
   NEW_READING_STATUS_ERROR = `newReadingStatus/NEW_READING_STATUS_ERROR`,
@@ -16,6 +17,7 @@ type NewReadingStatusAction =
       type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS;
       payload: NewReadingStatusPayload;
     };
+
 export const addNewReading = (data: any): ServerRequestAction => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}${Endpoints.READING}`,
@@ -30,19 +32,23 @@ export const addNewReading = (data: any): ServerRequestAction => {
     }),
   });
 };
+
 export const resetNewReadingStatus = (): NewReadingStatusAction => ({
   type: NewReadingStatusEnum.CLEAR_REQUEST_OUTCOME,
 });
+
 export type NewReadingStatusState = {
   error: boolean;
   message: OrNull<string>;
   readingCreated: boolean;
 };
+
 const initialState: NewReadingStatusState = {
   error: false,
   message: null,
   readingCreated: false,
 };
+
 export const newReadingStatusReducer = (
   state = initialState,
   action: NewReadingStatusAction

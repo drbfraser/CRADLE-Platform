@@ -1,18 +1,20 @@
 import { OrNull, User } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
+import { Dispatch } from 'redux';
 import { Endpoints } from '../../../../server/endpoints';
 import { Methods } from '../../../../server/methods';
 
 enum RegisterStatusEnum {
   CLEAR_REQUEST_OUTCOME = 'registerStatus/CLEAR_REQUEST_OUTCOME',
+  REGISTER_USER_REQUESTED = 'registerStatus/REGISTER_USER_REQUESTED',
   REGISTER_USER_SUCCESS = 'registerStatus/REGISTER_USER_SUCCESS',
   REGISTER_USER_ERROR = 'registerStatus/REGISTER_USER_ERROR',
-  START_REQUEST = 'registerStatus/START_REQUEST',
 }
 
-type RegisterStatusAction =
+export type RegisterStatusAction =
   | { type: RegisterStatusEnum.CLEAR_REQUEST_OUTCOME }
+  | { type: RegisterStatusEnum.REGISTER_USER_REQUESTED }
   | {
       type: RegisterStatusEnum.REGISTER_USER_SUCCESS;
       payload: { message: string };
@@ -20,29 +22,44 @@ type RegisterStatusAction =
   | {
       type: RegisterStatusEnum.REGISTER_USER_ERROR;
       payload: { message: string };
-    }
-  | { type: RegisterStatusEnum.START_REQUEST };
+    };
 
-export const clearRegisterStatusOutcome = (): RegisterStatusAction => ({
+const clearRegisterStatusOutcome = (): RegisterStatusAction => ({
   type: RegisterStatusEnum.CLEAR_REQUEST_OUTCOME,
 });
 
-// type RegisterUserRequest = Callback<Callback<RegisterStatusAction>, ServerRequestAction>;
+const registerUserRequested = (): RegisterStatusAction => ({
+  type: RegisterStatusEnum.REGISTER_USER_REQUESTED,
+});
 
-export const registerUser = (data: User): ServerRequestAction => {
-  return serverRequestActionCreator({
-    endpoint: `${Endpoints.USER}${Endpoints.REGISTER}`,
-    method: Methods.POST,
-    data,
-    onSuccess: (): RegisterStatusAction => ({
-      type: RegisterStatusEnum.REGISTER_USER_SUCCESS,
-      payload: { message: `User successfully created!` },
-    }),
-    onError: (message: string): RegisterStatusAction => ({
-      type: RegisterStatusEnum.REGISTER_USER_ERROR,
-      payload: { message },
-    }),
-  });
+export const registerUser = (
+  data: User
+): ((dispatch: Dispatch) => ServerRequestAction) => {
+  return (dispatch: Dispatch) => {
+    dispatch(registerUserRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: `${Endpoints.USER}${Endpoints.REGISTER}`,
+        method: Methods.POST,
+        data,
+        onSuccess: (): RegisterStatusAction => {
+          setTimeout(() => {
+            dispatch(clearRegisterStatusOutcome());
+          }, 3000);
+
+          return {
+            type: RegisterStatusEnum.REGISTER_USER_SUCCESS,
+            payload: { message: `User successfully created!` },
+          };
+        },
+        onError: (message: string): RegisterStatusAction => ({
+          type: RegisterStatusEnum.REGISTER_USER_ERROR,
+          payload: { message },
+        }),
+      })
+    );
+  };
 };
 
 export type RegisterStatusState = {
@@ -64,26 +81,31 @@ export const registerStatusReducer = (
   action: RegisterStatusAction
 ): RegisterStatusState => {
   switch (action.type) {
-    case RegisterStatusEnum.CLEAR_REQUEST_OUTCOME:
+    case RegisterStatusEnum.CLEAR_REQUEST_OUTCOME: {
       return initialState;
-    case RegisterStatusEnum.REGISTER_USER_SUCCESS:
+    }
+    case RegisterStatusEnum.REGISTER_USER_REQUESTED: {
+      return {
+        ...initialState,
+        loading: false,
+      };
+    }
+    case RegisterStatusEnum.REGISTER_USER_SUCCESS: {
       return {
         ...initialState,
         message: action.payload.message,
         userCreated: true,
       };
-    case RegisterStatusEnum.REGISTER_USER_ERROR:
+    }
+    case RegisterStatusEnum.REGISTER_USER_ERROR: {
       return {
         ...initialState,
         error: true,
         message: action.payload.message,
       };
-    case RegisterStatusEnum.START_REQUEST:
-      return {
-        ...initialState,
-        loading: false,
-      };
-    default:
+    }
+    default: {
       return state;
+    }
   }
 };

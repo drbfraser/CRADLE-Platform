@@ -1,8 +1,5 @@
-import {
-  PatientsState,
-  getPatients,
-  getPatientsRequested,
-} from '../../shared/reducers/patients';
+import { Dispatch, bindActionCreators } from 'redux';
+import { PatientsState, getPatients } from '../../shared/reducers/patients';
 import React, { Component } from 'react';
 
 import { ReduxState } from '../../redux/rootReducer';
@@ -93,15 +90,15 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
   user: user.current.data,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  getPatients: () => {
-    dispatch(getPatientsRequested());
-    dispatch(getPatients());
-  },
-  getCurrentUser: () => {
-    dispatch(getCurrentUser());
-  },
-});
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return bindActionCreators(
+    {
+      getPatients,
+      getCurrentUser,
+    },
+    dispatch
+  );
+};
 
 export const ReferralsPage = connect(
   mapStateToProps,

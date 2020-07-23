@@ -6,23 +6,30 @@ import { PatientStateEnum } from '../../../enums';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
 
-const GET_PATIENT = `patients/GET_PATIENT`;
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
+const GET_PATIENT_SUCCESS = `patients/GET_PATIENT_SUCCESS`;
 const GET_PATIENT_ERROR = `patients/GET_PATIENT_ERROR`;
 
-const GET_PATIENTS = `patients/GET_PATIENTS`;
-const GET_GLOBAL_SEARCH_PATIENTS = `patients/GET_GLOBAL_SEARCH_PATIENTS`;
-const TOGGLE_GLOBAL_SEARCH = `patients/TOGGLE_GLOBAL_SEARCH`;
-const UPDATE_GLOBAL_SEARCH_PAGE_NUMBER = `patients/UPDATE_GLOBAL_SEARCH_PAGE_NUMBER`;
-const UPDATE_PATIENTS_TABLE_SEARCH_TEXT = `patients/UPDATE_PATIENTS_TABLE_SEARCH_TEXT`;
-const UPDATE_SELECTED_PATIENT_STATE = `patients/UPDATE_SELECTED_PATIENT_STATE`;
-const TOGGLE_SHOW_REFERRED_PATIENTS = `patients/TOGGLE_SHOW_REFERRED_PATIENTS`;
-const SORT_PATIENTS = `patients/SORT_PATIENTS`;
 const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
+const GET_PATIENTS_SUCCESS = `patients/GET_PATIENTS_SUCCESS`;
 const GET_PATIENTS_ERROR = `patient/GET_PATIENTS_ERROR`;
+
+const GET_GLOBAL_SEARCH_PATIENTS_SUCCESS = `patients/GET_GLOBAL_SEARCH_PATIENTS`;
 const GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patient/GET_GLOBAL_SEARCH_PATIENTS_ERROR`;
 
-const UPDATE_PATIENT = `patient/UPDATE_PATIENT`;
+const TOGGLE_GLOBAL_SEARCH = `patients/TOGGLE_GLOBAL_SEARCH`;
+
+const UPDATE_GLOBAL_SEARCH_PAGE_NUMBER = `patients/UPDATE_GLOBAL_SEARCH_PAGE_NUMBER`;
+
+const UPDATE_PATIENTS_TABLE_SEARCH_TEXT = `patients/UPDATE_PATIENTS_TABLE_SEARCH_TEXT`;
+
+const UPDATE_SELECTED_PATIENT_STATE = `patients/UPDATE_SELECTED_PATIENT_STATE`;
+
+const TOGGLE_SHOW_REFERRED_PATIENTS = `patients/TOGGLE_SHOW_REFERRED_PATIENTS`;
+
+const SORT_PATIENTS = `patients/SORT_PATIENTS`;
+
+const UPDATE_PATIENT_SUCCESS = `patient/UPDATE_PATIENT_SUCCESS`;
 const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
 
 const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
@@ -61,46 +68,66 @@ export const sortPatients = (sortedPatients: Array<any>) => ({
   payload: { sortedPatients },
 });
 
-export const getPatient = (patientId: any) => {
-  return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENT}${Endpoints.READING}/${patientId}`,
-    onSuccess: (response: any) => ({
-      type: GET_PATIENT,
-      payload: response,
-    }),
-    onError: (error: any) => ({
-      type: GET_PATIENT_ERROR,
-      payload: error,
-    }),
-  });
+const getPatientRequested = () => ({
+  type: GET_PATIENT_REQUESTED,
+});
+
+export const getPatient = (patientId: string) => {
+  return (dispatch: Dispatch) => {
+    dispatch(getPatientRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: `${Endpoints.PATIENT}${Endpoints.READING}/${patientId}`,
+        onSuccess: (response: any) => ({
+          type: GET_PATIENT_SUCCESS,
+          payload: response,
+        }),
+        onError: (error: any) => ({
+          type: GET_PATIENT_ERROR,
+          payload: error,
+        }),
+      })
+    );
+  };
 };
 
+const getPatientsRequested = () => ({
+  type: GET_PATIENTS_REQUESTED,
+});
+
 export const getPatients = (search?: string) => {
-  return serverRequestActionCreator({
-    endpoint: search
-      ? `${Endpoints.PATIENTS_GLOBAL_SEARCH}/${search}`
-      : Endpoints.PATIENTS_ALL_INFO,
-    onSuccess: (response: any) =>
-      search
-        ? {
-            type: GET_GLOBAL_SEARCH_PATIENTS,
-            payload: response,
-          }
-        : {
-            type: GET_PATIENTS,
-            payload: response,
-          },
-    onError: (error: any) =>
-      search
-        ? {
-            type: GET_GLOBAL_SEARCH_PATIENTS_ERROR,
-            payload: error,
-          }
-        : {
-            type: GET_PATIENTS_ERROR,
-            payload: error,
-          },
-  });
+  return (dispatch: Dispatch) => {
+    dispatch(getPatientsRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: search
+          ? `${Endpoints.PATIENTS_GLOBAL_SEARCH}/${search}`
+          : Endpoints.PATIENTS_ALL_INFO,
+        onSuccess: (response: any) =>
+          search
+            ? {
+                type: GET_GLOBAL_SEARCH_PATIENTS_SUCCESS,
+                payload: response,
+              }
+            : {
+                type: GET_PATIENTS_SUCCESS,
+                payload: response,
+              },
+        onError: (error: any) =>
+          search
+            ? {
+                type: GET_GLOBAL_SEARCH_PATIENTS_ERROR,
+                payload: error,
+              }
+            : {
+                type: GET_PATIENTS_ERROR,
+                payload: error,
+              },
+      })
+    );
+  };
 };
 
 export const updatePatient = (patientId: any, data: any) => {
@@ -109,7 +136,7 @@ export const updatePatient = (patientId: any, data: any) => {
     method: Methods.PUT,
     data,
     onSuccess: (response: any) => ({
-      type: UPDATE_PATIENT,
+      type: UPDATE_PATIENT_SUCCESS,
       payload: response,
     }),
     onError: (error: any) => ({
@@ -146,10 +173,6 @@ export const addPatientToHealthFacility = (patientId: string) => {
   };
 };
 
-export const getPatientsRequested = () => ({
-  type: GET_PATIENTS_REQUESTED,
-});
-
 export const addNewPatient = (newPatient: any) => ({
   type: ADD_NEW_PATIENT,
   payload: newPatient,
@@ -157,10 +180,6 @@ export const addNewPatient = (newPatient: any) => ({
 
 export const afterNewPatientAdded = () => ({
   type: AFTER_NEW_PATIENT_ADDED,
-});
-
-export const getPatientRequested = () => ({
-  type: GET_PATIENT_REQUESTED,
 });
 
 export type PatientsState = {
@@ -196,7 +215,7 @@ export const patientsReducer = (state = initialState, action: any) => {
   let updatedPatients = [];
 
   switch (action.type) {
-    case GET_PATIENTS:
+    case GET_PATIENTS_SUCCESS:
       return {
         ...state,
         patientsList: action.payload.data.sort((a: any, b: any) =>
@@ -204,7 +223,7 @@ export const patientsReducer = (state = initialState, action: any) => {
         ),
         isLoading: false,
       };
-    case GET_GLOBAL_SEARCH_PATIENTS:
+    case GET_GLOBAL_SEARCH_PATIENTS_SUCCESS:
       return {
         ...state,
         globalSearchPatientsList: action.payload.data.sort((a: any, b: any) =>
@@ -227,7 +246,7 @@ export const patientsReducer = (state = initialState, action: any) => {
         ...state,
         isLoading: false,
       };
-    case GET_PATIENT:
+    case GET_PATIENT_SUCCESS:
       return {
         ...state,
         patient: action.payload.data,

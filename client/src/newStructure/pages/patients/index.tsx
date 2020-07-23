@@ -5,11 +5,11 @@ import {
   OrUndefined,
   Patient,
 } from '@types';
+import { Dispatch, bindActionCreators } from 'redux';
 import { PatientStateEnum, RoleEnum } from '../../enums';
 import {
   addPatientToHealthFacility,
   getPatients,
-  getPatientsRequested,
   sortPatients,
   toggleGlobalSearch,
   toggleShowReferredPatients,
@@ -21,7 +21,6 @@ import {
 import { PatientTable } from './patientTable';
 import React from 'react';
 import { ReduxState } from '../../redux/rootReducer';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
@@ -100,25 +99,24 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
   showReferredPatients: patients.showReferredPatients,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  ...bindActionCreators(
-    {
-      addPatientToHealthFacility,
-      toggleGlobalSearch,
-      updateGlobalSearchPageNumber,
-      updatePatientsTableSearchText,
-      updateSelectedPatientState,
-      toggleShowReferredPatients,
-      sortPatients,
-    },
-    dispatch
-  ),
-  getPatients: (search?: string): void => {
-    dispatch(getPatientsRequested());
-    dispatch(getPatients(search));
-  },
-  navigateToPatientPage: (patientId: string) =>
-    dispatch(push(`/patient/${patientId}`)),
-});
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    ...bindActionCreators(
+      {
+        addPatientToHealthFacility,
+        getPatients,
+        toggleGlobalSearch,
+        updateGlobalSearchPageNumber,
+        updatePatientsTableSearchText,
+        updateSelectedPatientState,
+        toggleShowReferredPatients,
+        sortPatients,
+      },
+      dispatch
+    ),
+    navigateToPatientPage: (patientId: string) =>
+      dispatch(push(`/patient/${patientId}`)),
+  };
+};
 
 export const PatientsPage = connect(mapStateToProps, mapDispatchToProps)(Page);

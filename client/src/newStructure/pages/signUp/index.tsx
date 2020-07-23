@@ -1,44 +1,59 @@
 import './index.css';
 
 import { Button, Divider, Form, Message, Select } from 'semantic-ui-react';
+import { Dispatch, bindActionCreators } from 'redux';
+import { OrNull, User } from '../../types';
 import {
-  clearRegisterStatusOutcome,
+  RegisterStatusState,
   registerUser,
 } from '../../shared/reducers/user/registerStatus';
-import {
-  getHealthFacilityList,
-  getHealthFacilityListRequested,
-} from '../../shared/reducers/healthFacilities';
 
 import { Paper } from '@material-ui/core';
 import React from 'react';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
 import { RoleEnum } from '../../enums';
-import { User } from '../../types';
-import { bindActionCreators } from 'redux';
+import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { getHealthFacilityList } from '../../shared/reducers/healthFacilities';
 
 const initState = {
   user: {
-    email: '',
-    password: '',
-    firstName: '',
-    healthFacilityName: '',
-    role: 'VHT', // default value
+    email: ``,
+    password: ``,
+    firstName: ``,
+    healthFacilityName: ``,
+    role: `VHT`, // default value
   },
 };
-interface IProp {
-  registerUser: any;
-  getCurrentUser: any;
-  getHealthFacilityList: any;
-  user: User;
-  healthFacilityList: string[];
-  registerStatus: any;
+interface IProps {
+  loggedIn: boolean;
+  registerUser: (data: User) => (dispatch: Dispatch) => ServerRequestAction;
+  getCurrentUser: () => (dispatch: Dispatch) => ServerRequestAction;
+  getHealthFacilityList: () => (dispatch: Dispatch) => ServerRequestAction;
+  user: OrNull<User>;
+  healthFacilityList: Array<any>;
+  registerStatus: RegisterStatusState;
 }
 
-class SignupComponent extends React.Component<IProp> {
+class SignupComponent extends React.Component<IProps> {
   state = initState;
+
+  componentDidMount = () => {
+    if (!this.props.loggedIn) {
+      this.props.getCurrentUser();
+    }
+    if (
+      !this.props.healthFacilityList ||
+      !this.props.healthFacilityList.length
+    ) {
+      this.props.getHealthFacilityList();
+    }
+  };
+
+  static getDerivedStateFromProps = (props: IProps) => {
+    return props.registerStatus.userCreated ? initState : null;
+  };
 
   handleChange = (event: any) => {
     this.setState({
@@ -55,30 +70,14 @@ class SignupComponent extends React.Component<IProp> {
 
   handleSubmit = (event: any) => {
     event.preventDefault();
-    this.props.registerUser(this.state.user);
-    // TODO: think of better way to reset fields than using timer
-  };
-
-  componentDidMount = () => {
-    this.props.getCurrentUser();
-    this.props.getHealthFacilityList();
-  };
-
-  static getDerivedStateFromProps = (props: any) => {
-    if (props.registerStatus.userCreated) {
-      setTimeout(function () {
-        props.clearRegisterStatusOutcome();
-      }, 3000);
-      return initState;
-    }
-    return null;
+    this.props.registerUser((this.state.user as unknown) as User);
   };
 
   render() {
     // only admins can see this page
     if (
-      this.props.user.roles === undefined ||
-      !this.props.user.roles.includes(RoleEnum.ADMIN)
+      this.props.user?.roles === undefined ||
+      !this.props.user?.roles.includes(RoleEnum.ADMIN)
     ) {
       return (
         <Message warning>
@@ -195,25 +194,22 @@ class SignupComponent extends React.Component<IProp> {
 }
 
 const mapStateToProps = ({ user, healthFacilities }: ReduxState) => ({
+  loggedIn: user.current.loggedIn,
   user: user.current.data,
   registerStatus: user.registerStatus,
   healthFacilityList: healthFacilities.data,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  getHealthFacilityList: () => {
-    dispatch(getHealthFacilityListRequested());
-    dispatch(getHealthFacilityList());
-  },
-  ...bindActionCreators(
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return bindActionCreators(
     {
-      registerUser,
       getCurrentUser,
-      clearRegisterStatusOutcome,
+      getHealthFacilityList,
+      registerUser,
     },
     dispatch
-  ),
-});
+  );
+};
 
 export const SignUpPage = connect(
   mapStateToProps,

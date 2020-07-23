@@ -10,6 +10,7 @@ import {
   Modal,
   Select,
 } from 'semantic-ui-react';
+import { Dispatch, bindActionCreators } from 'redux';
 import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from '../form/patient';
 import {
   UrineTestForm,
@@ -19,7 +20,6 @@ import {
 import {
   addPatientToHealthFacility,
   getPatients,
-  getPatientsRequested,
   updatePatient,
   updateSelectedPatientState,
 } from '../../reducers/patients';
@@ -30,10 +30,6 @@ import {
   monthsToWeeks,
   weeksToMonths,
 } from '../../utils';
-import {
-  getPatientStatistics,
-  startRequest,
-} from '../../reducers/patientStatistics';
 
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
@@ -49,9 +45,9 @@ import ReferralInfo from './referralInfo';
 import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from '../form/symptom';
 import Typography from '@material-ui/core/Typography';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../reducers/user/currentUser';
+import { getPatientStatistics } from '../../reducers/patientStatistics';
 import { getReferrals } from '../../reducers/referrals';
 import { getTrafficIcon } from './utils';
 import { newReadingPost } from '../../reducers/newReadingPost';
@@ -1175,18 +1171,12 @@ const mapStateToProps = ({
   selectedPatient: patients.patient,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  getPatients: () => {
-    dispatch(getPatientsRequested());
-    dispatch(getPatients());
-  },
-  getPatientStatistics: (petientId) => {
-    dispatch(startRequest());
-    dispatch(getPatientStatistics(petientId));
-  },
-  ...bindActionCreators(
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return bindActionCreators(
     {
       addPatientToHealthFacility,
+      getPatients,
+      getPatientStatistics,
       getReferrals,
       getCurrentUser,
       updatePatient,
@@ -1194,8 +1184,8 @@ const mapDispatchToProps = (dispatch) => ({
       updateSelectedPatientState,
     },
     dispatch
-  ),
-});
+  );
+};
 
 export const PatientSummary = connect(
   mapStateToProps,

@@ -1,17 +1,19 @@
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
+import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
 import { OrNull } from '@types';
 
 enum StatisticsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'statistics/CLEAR_REQUEST_OUTCOME',
+  GET_STATISTICS_REQUESTED = 'statistics/GET_STATISTICS_REQUESTED',
   GET_STATISTICS_SUCCESS = 'statistics/GET_STATISTICS_SUCCESS',
   GET_STATISTICS_ERROR = 'statistics/GET_STATISTICS_ERROR',
-  START_REQUEST = 'statistics/START_REQUEST',
 }
 
 type StatisticsAction =
   | { type: StatisticsActionEnum.CLEAR_REQUEST_OUTCOME }
+  | { type: StatisticsActionEnum.GET_STATISTICS_REQUESTED }
   | {
       type: StatisticsActionEnum.GET_STATISTICS_ERROR;
       payload: { message: string };
@@ -19,26 +21,32 @@ type StatisticsAction =
   | {
       type: StatisticsActionEnum.GET_STATISTICS_SUCCESS;
       payload: { data: any };
-    }
-  | { type: StatisticsActionEnum.START_REQUEST };
+    };
 
-// const startRequest = (): StatisticsAction => ({
-//   type: StatisticsActionEnum.START_REQUEST,
-// });
-// type StatisticsRequest = Callback<Callback<StatisticsAction>, ServerRequestAction>;
+const getStatsitcsRequest = (): StatisticsAction => ({
+  type: StatisticsActionEnum.GET_STATISTICS_REQUESTED,
+});
 
-export const getStatistics = (): ServerRequestAction => {
-  return serverRequestActionCreator({
-    endpoint: Endpoints.STATS,
-    onSuccess: ({ data }: any): StatisticsAction => ({
-      type: StatisticsActionEnum.GET_STATISTICS_SUCCESS,
-      payload: { data },
-    }),
-    onError: (message: string): StatisticsAction => ({
-      type: StatisticsActionEnum.GET_STATISTICS_ERROR,
-      payload: { message },
-    }),
-  });
+export const getStatistics = (): ((
+  dispatch: Dispatch
+) => ServerRequestAction) => {
+  return (dispatch: Dispatch) => {
+    dispatch(getStatsitcsRequest());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: Endpoints.STATS,
+        onSuccess: ({ data }: any): StatisticsAction => ({
+          type: StatisticsActionEnum.GET_STATISTICS_SUCCESS,
+          payload: { data },
+        }),
+        onError: (message: string): StatisticsAction => ({
+          type: StatisticsActionEnum.GET_STATISTICS_ERROR,
+          payload: { message },
+        }),
+      })
+    );
+  };
 };
 
 export const clearStatisticsRequestOutcome = (): StatisticsAction => ({
@@ -77,7 +85,7 @@ export const statisticsReducer = (
         error: true,
         message: action.payload.message,
       };
-    case StatisticsActionEnum.START_REQUEST:
+    case StatisticsActionEnum.GET_STATISTICS_REQUESTED:
       return { ...initialState, loading: true };
     default:
       return state;

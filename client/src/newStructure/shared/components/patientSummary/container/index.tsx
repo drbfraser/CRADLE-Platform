@@ -1,12 +1,13 @@
 // @ts-nocheck
 
-import { getPatient, getPatientRequested } from '../../../reducers/patients';
+import { Dispatch, bindActionCreators } from 'redux';
 
 import { PatientSummary } from '..';
 import React from 'react';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../../reducers/user/currentUser';
+import { getPatient } from '../../../reducers/patients';
 
 class Component extends React.Component {
   constructor(props) {
@@ -50,15 +51,15 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
   patient: patients.patient,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  getPatient: (patientId) => {
-    dispatch(getPatientRequested());
-    dispatch(getPatient(patientId));
-  },
-  getCurrentUser: () => {
-    dispatch(getCurrentUser());
-  },
-});
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return bindActionCreators(
+    {
+      getCurrentUser,
+      getPatient,
+    },
+    dispatch
+  );
+};
 
 export const PatientSummaryContainer = connect(
   mapStateToProps,

@@ -9,6 +9,7 @@ import {
   Modal,
   Select,
 } from 'semantic-ui-react';
+import { Dispatch, bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import {
   clearAllUsersRequestOutcome,
@@ -16,17 +17,13 @@ import {
   getUsers,
   updateUser,
 } from '../../shared/reducers/user/allUsers';
-import {
-  getHealthFacilityList,
-  getHealthFacilityListRequested,
-} from '../../shared/reducers/healthFacilities';
 
 import MaterialTable from 'material-table';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
 import { VHT } from '../../types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { getHealthFacilityList } from '../../shared/reducers/healthFacilities';
 import { getVhts } from '../../shared/reducers/user/allVhts';
 
 const options = [
@@ -434,9 +431,10 @@ const mapStateToProps = ({ user, healthFacilities }: ReduxState) => ({
   fetched: user.allUsers.fetched,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  ...bindActionCreators(
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return bindActionCreators(
     {
+      getHealthFacilityList,
       getUsers,
       deleteUser,
       getCurrentUser,
@@ -445,12 +443,8 @@ const mapDispatchToProps = (dispatch: any) => ({
       clearAllUsersRequestOutcome,
     },
     dispatch
-  ),
-  getHealthFacilityList: () => {
-    dispatch(getHealthFacilityListRequested());
-    dispatch(getHealthFacilityList());
-  },
-});
+  );
+};
 
 export const AdminPage = connect(
   mapStateToProps,

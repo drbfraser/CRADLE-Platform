@@ -1,40 +1,49 @@
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
+import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
 
 enum HealthFacilitiesActionEnum {
+  GET_HEALTH_FACILITY_REQUESTED = 'healthFacility/GET_HEALTH_FACILITY_REQUESTED',
   GET_HEALTH_FACILITY_SUCCESS = 'healthFacility/GET_HEALTH_FACILITY_SUCCESS',
-  GET_HEALTH_FACILITY_REQUEST = 'healthFacility/GET_HEALTH_FACILITY_REQUEST',
   GET_HEALTH_FACILITY_ERROR = 'healthFacility/GET_HEALTH_FACILITY_ERROR',
 }
 
 type HealthFacilitiesAction =
+  | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUESTED }
   | {
       type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_SUCCESS;
       payload: { data: any };
     }
-  | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUEST }
   | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_ERROR };
 
-export const getHealthFacilityList = (): ServerRequestAction => {
-  return serverRequestActionCreator({
-    endpoint: Endpoints.HEALTH_FACILITY_LIST,
-    onSuccess: ({ data }: { data: any }): HealthFacilitiesAction => ({
-      type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_SUCCESS,
-      payload: { data },
-    }),
-    onError: (error): HealthFacilitiesAction => {
-      console.error(error);
-      return {
-        type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_ERROR,
-      };
-    },
-  });
-};
-
-export const getHealthFacilityListRequested = (): HealthFacilitiesAction => ({
-  type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUEST,
+const getHealthFacilityListRequested = (): HealthFacilitiesAction => ({
+  type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUESTED,
 });
+
+export const getHealthFacilityList = (): ((
+  dispatch: Dispatch
+) => ServerRequestAction) => {
+  return (dispatch: Dispatch) => {
+    dispatch(getHealthFacilityListRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: Endpoints.HEALTH_FACILITY_LIST,
+        onSuccess: ({ data }: { data: any }): HealthFacilitiesAction => ({
+          type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_SUCCESS,
+          payload: { data },
+        }),
+        onError: (error): HealthFacilitiesAction => {
+          console.error(error);
+          return {
+            type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_ERROR,
+          };
+        },
+      })
+    );
+  };
+};
 
 export type HealthFacilitiesState = {
   isLoading: boolean;
@@ -56,7 +65,7 @@ export const healthFacilitiesReducer = (
         ...initialState,
         data: action.payload.data,
       };
-    case HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUEST:
+    case HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUESTED:
       return {
         ...state,
         isLoading: true,
