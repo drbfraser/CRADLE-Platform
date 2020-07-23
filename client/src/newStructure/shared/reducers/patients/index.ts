@@ -1,3 +1,4 @@
+import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
 import { OrNull } from '@types';
@@ -118,25 +119,31 @@ export const updatePatient = (patientId: any, data: any) => {
   });
 };
 
-export const addPatientToHealthFacilityRequested = (patientId: string) => ({
+const addPatientToHealthFacilityRequested = (patientId: string) => ({
   type: ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED,
   payload: { patientId },
 });
 
 export const addPatientToHealthFacility = (patientId: string) => {
-  return serverRequestActionCreator({
-    endpoint: Endpoints.PATIENT_FACILITY,
-    method: Methods.POST,
-    data: { patientId },
-    onSuccess: () => ({
-      type: ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
-      payload: { patientId },
-    }),
-    onError: (error: any) => ({
-      type: ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
-      payload: error,
-    }),
-  });
+  return (dispatch: Dispatch) => {
+    dispatch(addPatientToHealthFacilityRequested(patientId));
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: Endpoints.PATIENT_FACILITY,
+        method: Methods.POST,
+        data: { patientId },
+        onSuccess: () => ({
+          type: ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
+          payload: { patientId },
+        }),
+        onError: (error: any) => ({
+          type: ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
+          payload: error,
+        }),
+      })
+    );
+  };
 };
 
 export const getPatientsRequested = () => ({

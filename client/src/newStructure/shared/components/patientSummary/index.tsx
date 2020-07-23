@@ -18,7 +18,6 @@ import {
 } from '../form/urineTest';
 import {
   addPatientToHealthFacility,
-  addPatientToHealthFacilityRequested,
   getPatients,
   getPatientsRequested,
   updatePatient,
@@ -1181,16 +1180,13 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(getPatientsRequested());
     dispatch(getPatients());
   },
-  addPatientToHealthFacility: (patient: GlobalSearchPatient): void => {
-    dispatch(addPatientToHealthFacilityRequested(patient));
-    dispatch(addPatientToHealthFacility(patient));
-  },
   getPatientStatistics: (petientId) => {
     dispatch(startRequest());
     dispatch(getPatientStatistics(petientId));
   },
   ...bindActionCreators(
     {
+      addPatientToHealthFacility,
       getReferrals,
       getCurrentUser,
       updatePatient,

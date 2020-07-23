@@ -8,7 +8,6 @@ import {
 import { PatientStateEnum, RoleEnum } from '../../enums';
 import {
   addPatientToHealthFacility,
-  addPatientToHealthFacilityRequested,
   getPatients,
   getPatientsRequested,
   sortPatients,
@@ -104,6 +103,7 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
 const mapDispatchToProps = (dispatch: any) => ({
   ...bindActionCreators(
     {
+      addPatientToHealthFacility,
       toggleGlobalSearch,
       updateGlobalSearchPageNumber,
       updatePatientsTableSearchText,
@@ -116,10 +116,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   getPatients: (search?: string): void => {
     dispatch(getPatientsRequested());
     dispatch(getPatients(search));
-  },
-  addPatientToHealthFacility: (patientId: string): void => {
-    dispatch(addPatientToHealthFacilityRequested(patientId));
-    dispatch(addPatientToHealthFacility(patientId));
   },
   navigateToPatientPage: (patientId: string) =>
     dispatch(push(`/patient/${patientId}`)),

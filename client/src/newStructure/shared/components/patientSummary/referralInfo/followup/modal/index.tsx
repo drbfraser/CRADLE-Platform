@@ -10,7 +10,6 @@ import {
 } from 'semantic-ui-react';
 import {
   addPatientToHealthFacility,
-  addPatientToHealthFacilityRequested,
   updateSelectedPatientState,
 } from '../../../../../reducers/patients';
 import {
@@ -358,21 +357,17 @@ const mapStateToProps = ({ patients }: ReduxState) => ({
   selectedPatientState: patients.selectedPatientState,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  addPatientToHealthFacility: (patient: GlobalSearchPatient): void => {
-    dispatch(addPatientToHealthFacilityRequested(patient));
-    dispatch(addPatientToHealthFacility(patient));
-  },
-  ...bindActionCreators(
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
     {
+      addPatientToHealthFacility,
       updateFollowUp,
       setReadingId,
       createFollowUp,
       updateSelectedPatientState,
     },
     dispatch
-  ),
-});
+  );
 
 export const FollowUpModal = connect(
   mapStateToProps,
