@@ -1,46 +1,43 @@
-import { Dispatch, bindActionCreators } from 'redux';
-import { OrNull, User } from '@types';
-import { Route, RouteComponentProps } from 'react-router-dom';
+import {
+  CurrentUserState,
+  getCurrentUser,
+} from '../../shared/reducers/user/currentUser';
+import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
+import { Loader } from '../../shared/components/loader';
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
-import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
-import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { ReduxState } from '../../redux/rootReducer';
 
 interface IProps {
   component:
     | React.ComponentType<RouteComponentProps<any>>
     | React.ComponentType<any>;
-  user: OrNull<User>;
-  getCurrentUser: () => (dispatch: Dispatch) => ServerRequestAction;
   exact?: boolean;
   path?: string;
 }
 
-const Component: React.FC<IProps> = ({ user, getCurrentUser, ...props }) => {
-  React.useEffect((): void => {
-    if (!user) {
-      getCurrentUser();
+export const PrivateRoute: React.FC<IProps> = (props) => {
+  const currentUser = useSelector(
+    ({ user }: ReduxState): CurrentUserState => {
+      return user.current;
     }
-  }, [getCurrentUser, user]);
+  );
+  const dispatch = useDispatch();
 
-  if (user) {
+  React.useEffect((): void => {
+    if (!currentUser.data) {
+      dispatch(getCurrentUser());
+    }
+  }, [dispatch, currentUser.data]);
+
+  if (currentUser.error) {
+    return <Redirect to="/" />;
+  }
+
+  if (currentUser.loggedIn) {
     return <Route {...props} />;
   }
 
-  return <p>Getting things ready...</p>;
+  return <Loader message="Getting things ready..." show={true} />;
 };
-
-const mapStateToProps = ({ user }: ReduxState) => ({
-  user: user.current.data,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return bindActionCreators({ getCurrentUser }, dispatch);
-};
-
-export const PrivateRoute = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Component);

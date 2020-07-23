@@ -480,37 +480,53 @@ const Component: React.FC<IProps> = (props) => {
         <main className={classes.content} style={{ paddingTop: offsetFromTop }}>
           <div className={classes.toolbar} />
           <Switch>
-            <Route exact path="/" component={HomePage} />
-            <PrivateRoute exact path="/admin" component={AdminPage} />
-            <PrivateRoute exact path="/help" component={HelpPage} />
-            <PrivateRoute exact path="/referrals" component={ReferralsPage} />
-            <PrivateRoute exact path="/patients" component={PatientsPage} />
+            <Route exact={true} path="/" component={HomePage} />
+            <PrivateRoute exact={true} path="/admin" component={AdminPage} />
+            <PrivateRoute exact={true} path="/help" component={HelpPage} />
+            <PrivateRoute
+              exact={true}
+              path="/referrals"
+              component={ReferralsPage}
+            />
+            <PrivateRoute
+              exact={true}
+              path="/patients"
+              component={PatientsPage}
+            />
             <PrivateRoute
               path="/patient/:id"
               component={PatientSummaryContainer}
             />
-            <PrivateRoute exact path="/signup" component={SignUpPage} />
-            <Route exact path="/login" component={LoginPage} />
-            <PrivateRoute exact path="/stats" component={StatisticsPage} />
-            <PrivateRoute exact path="/newreading" component={NewReadingPage} />
-            <PrivateRoute exact path="/resources" component={HelpPage} />
+            <PrivateRoute exact={true} path="/signup" component={SignUpPage} />
+            <Route exact={true} path="/login" component={LoginPage} />
             <PrivateRoute
-              exact
+              exact={true}
+              path="/stats"
+              component={StatisticsPage}
+            />
+            <PrivateRoute
+              exact={true}
+              path="/newreading"
+              component={NewReadingPage}
+            />
+            <PrivateRoute exact={true} path="/resources" component={HelpPage} />
+            <PrivateRoute
+              exact={true}
               path="/covidCollection"
               component={CovidCollection}
             />
             <PrivateRoute
-              exact
+              exact={true}
               path="/chat/landing"
               component={VideoChatPage}
             />
             <PrivateRoute
-              exact
+              exact={true}
               path="/chat/session"
               component={VideoSessionPage}
             />
             <PrivateRoute
-              exact
+              exact={true}
               path="/chat/session/:roomId"
               component={VideoSessionPage}
             />

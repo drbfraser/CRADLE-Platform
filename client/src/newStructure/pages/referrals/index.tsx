@@ -69,18 +69,12 @@ class ReferralPageComponent extends Component<IProps> {
   };
 
   render() {
-    // don't render page if user is not logged in
-    if (!this.props.user.isLoggedIn) {
-      return <div />;
-    }
-
     return (
-      <div>
-        <ReferralTable
-          callbackFromParent={this.patientCallback}
-          data={this.state.patientsList}
-          isLoading={this.props.patients.isLoading}></ReferralTable>
-      </div>
+      <ReferralTable
+        callbackFromParent={this.patientCallback}
+        data={this.state.patientsList}
+        isLoading={this.props.patients.isLoading}
+      />
     );
   }
 }

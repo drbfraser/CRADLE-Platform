@@ -109,11 +109,11 @@ export const getCurrentUser = (): ((
           type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
           payload: { currentUser },
         }),
-        onError: (message: string): CurrentUserAction => {
+        onError: (error: ServerError): CurrentUserAction => {
           logoutUser();
           return {
             type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR,
-            payload: { message },
+            payload: { message: error.message },
           };
         },
       })
