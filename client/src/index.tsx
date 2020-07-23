@@ -13,7 +13,6 @@ import { render } from 'react-dom';
 
 // import App from './oldStructure/containers/app';
 
-
 render(
   <ReduxProvider store={reduxStore}>
     <ConnectedRouter history={history}>
