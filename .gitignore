@@ -143,3 +143,4 @@ client/.idea/
 # ssl letencrypt certbot files
 **/certbot/conf
 **/certbot/www
+client/request.http
