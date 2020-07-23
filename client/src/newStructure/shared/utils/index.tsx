@@ -18,8 +18,8 @@ export const getPrettyDateTime = (dateStr: any) => {
   return getMomentDate(dateStr).format('MMMM Do YYYY, h:mm:ss a');
 };
 
-export const getPrettyDateUTC = (dateStr: any) => {
-  return getMomentDate(dateStr).utc().format('MMMM Do YYYY');
+export const getPrettyDateYYYYmmDD = (dateStr: any) => {
+  return moment(String(dateStr)).format('MMMM Do YYYY');
 };
 
 export const getLatestReading = (readings: any) => {

@@ -1,3 +1,4 @@
+from datetime import date, datetime
 import json
 import logging
 import time
@@ -51,8 +52,13 @@ def abort_if_patient_exists(patient_id):
 # input: timestamp (int)
 # output: patient data w/ age populated (int)
 def calculate_age_from_dob(patient_data):
-    SECONDS_IN_YEAR = 31557600
-    age = (time.time() - patient_data["dob"]) / SECONDS_IN_YEAR
+    today = date.today()
+    birthday = datetime.strptime(patient_data["dob"], "%Y-%m-%d").date()
+    age = (
+        today.year
+        - birthday.year
+        - ((today.month, today.day) < (birthday.month, birthday.day))
+    )
     patient_data["patientAge"] = int(age)
     return patient_data
 
@@ -93,9 +99,6 @@ class PatientAll(Resource):
         except:
             return {"HTTP 400": decoding_error}, 400
         patient_data = self._get_request_body()
-
-        if "dob" in patient_data and patient_data["dob"] is not None:
-            patient_data["dob"] = int(patient_data["dob"])
 
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
@@ -206,9 +209,6 @@ class PatientReading(Resource):
             and patient_data["dob"]
             and ("patientAge" not in patient_data or patient_data["patientAge"] is None)
         ):
-            patient_reading_data["patient"]["dob"] = int(
-                patient_reading_data["patient"]["dob"]
-            )
             patient_reading_data["patient"] = calculate_age_from_dob(patient_data)
 
         # create new reading (and patient if it does not already exist)
