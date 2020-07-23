@@ -120,12 +120,7 @@ const Component: React.FC<IProps> = (props) => {
     if (statsOpen) {
       setOpenStats(false);
     }
-  }, [props.pathName]);
-
-  // const onMouseOver = (event: any) => {
-  //   setOpenStats(true);
-  //   setAnchor(event.currentTarget);
-  // };
+  }, [props.pathName, statsOpen]);
 
   const onStatsClick = (event: any) => {
     setOpenStats(!statsOpen);
