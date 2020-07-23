@@ -5,7 +5,7 @@ from data import db_session
 M = TypeVar("M")
 
 
-def create(model: M):
+def create(model: M, refresh=False):
     """
     Inserts a new model into the database.
 
@@ -16,9 +16,14 @@ def create(model: M):
     Any exceptions thrown by database system are propagated back through this function.
 
     :param model: The model to insert
+    :param refresh: If true, immediately refresh ``model`` populating it with data from
+                    the database; this involves an additional query so only use it if
+                    necessary
     """
     db_session.add(model)
     db_session.commit()
+    if refresh:
+        db_session.refresh(model)
 
 
 def read(m: Type[M], **kwargs) -> Optional[M]:

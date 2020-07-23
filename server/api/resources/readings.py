@@ -20,7 +20,7 @@ class Root(Resource):
             abort(409, message=f"A reading already exists with id: {reading.readingId}")
 
         invariant.resolve_reading_invariants(reading)
-        crud.create(reading)
+        crud.create(reading, refresh=True)
         return marshal.marshal(reading), 201
 
 

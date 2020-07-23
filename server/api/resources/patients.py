@@ -44,7 +44,7 @@ class Root(Resource):
         patient.created = creation_time
         patient.lastEdited = creation_time
 
-        crud.create(patient)
+        crud.create(patient, refresh=True)
 
         # Associate the patient with the user who created them
         user = util.current_user()
