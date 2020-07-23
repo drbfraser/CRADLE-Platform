@@ -17,6 +17,10 @@ export enum CurrentUserActionEnum {
   LOGOUT_USER = 'currentUser/LOGOUT_USER',
 }
 
+export const clearRequestOutcome = (): CurrentUserAction => ({
+  type: CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME,
+});
+
 type CurrentUserAction =
   | { type: CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME }
   | { type: CurrentUserActionEnum.GET_CURRENT_USER_REQUESTED }
@@ -57,6 +61,7 @@ export const loginUser = (
   data: LoginData
 ): ((dispatch: Dispatch) => ServerRequestAction) => {
   return (dispatch: Dispatch) => {
+    dispatch(clearRequestOutcome());
     dispatch(loginUserRequested());
 
     return dispatch(
@@ -73,7 +78,6 @@ export const loginUser = (
           };
         },
         onError: (error: ServerError) => {
-          console.error(error);
           return {
             type: CurrentUserActionEnum.LOGIN_USER_ERROR,
             payload: { message: error.message },

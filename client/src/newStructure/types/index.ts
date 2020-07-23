@@ -6,8 +6,6 @@ import {
   TrafficLightEnum,
 } from '../enums';
 
-import { Method as AxiosMethod } from 'axios';
-
 export type Callback<T, U = void> = (args: T) => U;
 
 export type OrNull<T> = T | null;
@@ -16,18 +14,7 @@ export type OrUndefined<T> = T | undefined;
 
 export type ServerError = {
   message: string;
-  name: string;
-  stack: string;
-  config: {
-    url: string;
-    method: AxiosMethod;
-    data: string;
-    headers: {
-      Accept: `application/json`;
-      'Content-Type': `application/json`;
-      Authorization?: string;
-    };
-  };
+  status: number;
 };
 
 export type Reading = {

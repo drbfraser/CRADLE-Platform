@@ -59,6 +59,16 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
     },
     data: data,
   })
-    .then((res) => dispatch(onSuccess(res)))
-    .catch((err) => dispatch(onError(err)));
+    .then((res) => {
+      return dispatch(onSuccess(res));
+    })
+    .catch((err) => {
+      console.error(err);
+      return dispatch(
+        onError({
+          message: err.response.data.message,
+          status: err.response.status,
+        })
+      );
+    });
 };

@@ -3,6 +3,7 @@ import {
   HealthFacilitiesState,
   healthFacilitiesReducer,
 } from '../../shared/reducers/healthFacilities';
+import { History, createBrowserHistory } from 'history';
 import {
   NewReadingStatusState,
   newReadingStatusReducer,
@@ -25,6 +26,7 @@ import { UserState, userReducer } from '../../shared/reducers/user';
 import { CurrentUserActionEnum } from '../../shared/reducers/user/currentUser';
 import { RouterState } from 'connected-react-router';
 import { combineReducers } from 'redux';
+import { connectRouter } from 'connected-react-router';
 
 export type ReduxState = {
   chat: ChatState;
@@ -38,22 +40,27 @@ export type ReduxState = {
   router: RouterState;
 };
 
-const appReducer = combineReducers({
-  chat: chatReducer,
-  healthFacilities: healthFacilitiesReducer,
-  newReadingStatus: newReadingStatusReducer,
-  patients: patientsReducer,
-  patientStatistics: patientStatisticsReducer,
-  referrals: referralsReducer,
-  statistics: statisticsReducer,
-  user: userReducer,
-});
+const createRootReducer = (history: History) => {
+  return combineReducers({
+    chat: chatReducer,
+    healthFacilities: healthFacilitiesReducer,
+    newReadingStatus: newReadingStatusReducer,
+    patients: patientsReducer,
+    patientStatistics: patientStatisticsReducer,
+    referrals: referralsReducer,
+    router: connectRouter(history),
+    statistics: statisticsReducer,
+    user: userReducer,
+  });
+};
+
+export const history = createBrowserHistory();
 
 export const rootReducer = (state: any, action: any) => {
   switch (action.type) {
     case CurrentUserActionEnum.LOGOUT_USER:
       return undefined;
     default:
-      return appReducer(state, action);
+      return createRootReducer(history)(state, action);
   }
 };
