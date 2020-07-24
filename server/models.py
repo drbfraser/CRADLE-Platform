@@ -180,6 +180,7 @@ class Patient(db.Model):
     zone = db.Column(db.String(20))
     dob = db.Column(db.Date)
     villageNumber = db.Column(db.String(50))
+    householdNumber = db.Column(db.String(50))
     created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     lastEdited = db.Column(
         db.BigInteger,
@@ -201,6 +202,9 @@ class Reading(db.Model):
     bpSystolic = db.Column(db.Integer)
     bpDiastolic = db.Column(db.Integer)
     heartRateBPM = db.Column(db.Integer)
+    respiratoryRate = db.Column(db.Integer)
+    oxygenSaturation = db.Column(db.Integer)
+    temperature = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
     dateTimeTaken = db.Column(db.BigInteger)
