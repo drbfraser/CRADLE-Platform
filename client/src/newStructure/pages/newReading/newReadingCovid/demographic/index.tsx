@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
     formField: {
       margin: theme.spacing(1),
       minWidth: '22ch',
-      width: '30%',
+      width: '31.9%',
     },
       formFieldSplitLeft: {
       margin: theme.spacing(1),
@@ -31,19 +31,25 @@ const useStyles = makeStyles((theme: Theme) =>
     },
       formFieldSplitRight: {
           margin: theme.spacing(1),
-          width: '15%',
+          width: '15.5%',
       },
     formFieldDM: {
       margin: theme.spacing(1),
       minWidth: '48ch',
       minHeight: '15ch',
-      width: '46.5%',
+      width: '48.5%',
     },
     formControl: {
       margin: theme.spacing(3),
     },
-  })
-);
+    toggle: {
+      border: '1px solid #3f51b5 !important',
+      fontWeight: 'bold',
+      color : '#3f51b5 !important',
+    }
+  }));
+
+
 
 interface IProps {
   patient: any;
@@ -157,15 +163,36 @@ const Page: React.FC<IProps> = (props) => {
                 onChange={handleAlignment}
                 aria-label="text alignment"
             >
-                <ToggleButton value="left" aria-label="left aligned" name="dobOrAge">
+                <ToggleButton classes={{selected:classes.toggle}} value="left" aria-label="left aligned" name="dobOrAge">
                     Birthday
                 </ToggleButton>
-                <ToggleButton value="right" aria-label="centered" name="dobOrAge">
+                <ToggleButton classes={{selected:classes.toggle}} value="right" aria-label="centered" name="dobOrAge">
                     Age Estimated
                 </ToggleButton>
             </ToggleButtonGroup>
         </FormControl>
-
+          <FormControl className={classes.formFieldSplitLeft}>
+              <TextField
+                  label={'Zone'}
+                  id="component-outlined"
+                  name="zone"
+                  value={props.patient.zone}
+                  onChange={props.onChange}
+                  variant="outlined"
+                  type={'text'}
+              />
+          </FormControl>
+          <FormControl className={classes.formFieldSplitRight}>
+              <TextField
+                  label={'Village'}
+                  id="component-outlined"
+                  name="villageNumber"
+                  value={props.patient.villageNumber}
+                  onChange={props.onChange}
+                  variant="outlined"
+                  type={'text'}
+              />
+          </FormControl>
         <FormControl className={classes.formFieldSplitLeft}>
           <TextField
             label={'Gender'}
@@ -242,28 +269,7 @@ const Page: React.FC<IProps> = (props) => {
             <MenuItem value={GESTATIONAL_AGE_UNITS.MONTHS}>Months</MenuItem>
           </TextField>
         </FormControl>
-        <FormControl className={classes.formFieldSplitLeft}>
-          <TextField
-            label={'Zone'}
-            id="component-outlined"
-            name="zone"
-            value={props.patient.zone}
-            onChange={props.onChange}
-            variant="outlined"
-            type={'text'}
-          />
-        </FormControl>
-        <FormControl className={classes.formFieldSplitRight}>
-          <TextField
-            label={'Village'}
-            id="component-outlined"
-            name="villageNumber"
-            value={props.patient.villageNumber}
-            onChange={props.onChange}
-            variant="outlined"
-            type={'text'}
-          />
-        </FormControl>
+
         <FormControl className={classes.formFieldDM}>
           <TextField
             label={'Drug History'}
