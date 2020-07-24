@@ -56,6 +56,7 @@ import { getCurrentUser } from '../../reducers/user/currentUser';
 import { getReferrals } from '../../reducers/referrals';
 import { getTrafficIcon } from './utils';
 import { newReadingPost } from '../../reducers/newReadingPost';
+import { push } from 'connected-react-router';
 
 const symptom = [];
 const unitOptions = [
@@ -251,7 +252,9 @@ class Component extends React.Component {
 
   openReadingModal = () => {
     this.onAddPatientRequired(() => {
-      this.setState({ displayReadingModal: true });
+      this.props.navigateToNewReading(this.state.selectedPatient);
+
+      // this.setState({ displayReadingModal: true });
     }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
 
@@ -1189,6 +1192,9 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(startRequest());
     dispatch(getPatientStatistics(petientId));
   },
+  navigateToNewReading: (selectedPatient: any) =>
+    dispatch(push(`/newreading`, { patient: selectedPatient })),
+
   ...bindActionCreators(
     {
       getReferrals,

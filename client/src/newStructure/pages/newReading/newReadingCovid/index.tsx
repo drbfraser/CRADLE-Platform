@@ -109,7 +109,7 @@ const Page: React.FC<IProps> = (props) => {
   const steps = getSteps(props.user.roles[0]);
 
   useEffect(() => {
-    console.log('props  => ', props.user);
+    console.log('props  => ', props);
     if (!props.user.isLoggedIn) {
       props.getCurrentUser();
     }
