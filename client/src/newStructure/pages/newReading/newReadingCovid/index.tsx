@@ -19,7 +19,10 @@ import {
   addNewReading,
   resetNewReadingStatus,
 } from '../../../shared/reducers/newReadingStatus';
-import { addNewPatient } from '../../../shared/reducers/patients';
+import {
+  addNewPatient,
+  addPatientNew,
+} from '../../../shared/reducers/patients';
 import { User } from '@types';
 import { useNewPatient } from './demographic/hooks';
 import { useNewSymptoms } from './symptoms/hooks';
@@ -29,6 +32,7 @@ import { useNewUrineTest } from './urineTestAssessment/hooks';
 import AlertDialog from './alertDialog';
 import SubmissionDialog from './submissionDialog';
 import { ConfirmationPage } from './confirmationPage';
+import { formatPatientData } from './formatData';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -69,6 +73,8 @@ interface IProps {
   afterNewPatientAdded: any;
   user: User;
   addNewReading: any;
+  addNewPatient: any;
+  addPatientNew: any;
 }
 
 // const initState = {
@@ -115,8 +121,12 @@ const Page: React.FC<IProps> = (props) => {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
+
   const handleSubmit = () => {
-    setIsShowDialogsubmission(true);
+    // setIsShowDialogsubmission(true);
+    const formattedPatient = formatPatientData(patient);
+    props.addPatientNew(formattedPatient);
+    /**/
     //  format Data --> probably another function or component
     //  if patient !exists
     //  this.props.addnewPatient(patient)
@@ -324,6 +334,7 @@ const mapDispatchToProps = (dispatch: any) => ({
       addNewReading,
       addNewPatient,
       resetNewReadingStatus,
+      addPatientNew,
       // afterNewPatientAdded
     },
     dispatch

@@ -74,6 +74,22 @@ export const getPatient = (patientId: any) => {
   });
 };
 
+export const addPatientNew = (patient: any) => {
+  return serverRequestActionCreator({
+    endpoint: `/patients`,
+    method: Methods.PUT,
+    data: patient,
+    onSuccess: (response: any) => ({
+      type: GET_PATIENT,
+      payload: response,
+    }),
+    onError: (error: any) => ({
+      type: GET_PATIENT_ERROR,
+      payload: error,
+    }),
+  });
+};
+
 export const getPatients = (search?: string) => {
   return serverRequestActionCreator({
     endpoint: search
