@@ -6,6 +6,7 @@ import api.util as util
 import service.view as view
 
 
+# /api/sync/updates
 class Updates(Resource):
     @staticmethod
     @jwt_required

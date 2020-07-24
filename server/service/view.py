@@ -102,7 +102,7 @@ def referral_view_for_user(user: User) -> List[Referral]:
     elif "VHT" in roles:
         return vht_referral_view(user)
     else:
-        raise ValueError("user does not contain an roles")
+        raise ValueError("user does not contain any roles")
 
 
 def admin_referral_view() -> List[Referral]:
