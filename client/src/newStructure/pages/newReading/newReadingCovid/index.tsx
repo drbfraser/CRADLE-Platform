@@ -79,22 +79,6 @@ interface IProps {
   doesPatientExist: any;
 }
 
-// const initState = {
-//   reading: {
-//     userId: '',
-//     readingId: '',
-//     dateTimeTaken: null,
-//     bpSystolic: '',
-//     bpDiastolic: '',
-//     heartRateBPM: '',
-//     dateRecheckVitalsNeeded: null,
-//     isFlaggedForFollowup: false,
-//     symptoms: '',
-//     urineTests: initialUrineTests,
-//   },
-//   showSuccessReading: false,
-//   hasUrineTest: false,
-// };
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);

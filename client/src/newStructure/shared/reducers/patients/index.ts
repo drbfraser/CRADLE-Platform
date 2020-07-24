@@ -77,7 +77,7 @@ export const getPatient = (patientId: any) => {
 export const addPatientNew = (patient: any) => {
   return serverRequestActionCreator({
     endpoint: `/patients`,
-    method: Methods.PUT,
+    method: Methods.POST,
     data: patient,
     onSuccess: (response: any) => ({
       type: GET_PATIENT,

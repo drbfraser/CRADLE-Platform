@@ -35,7 +35,7 @@ export const formatPatientData = (unformattedPatient: any) => {
     householdNumber: string = unformattedPatient.household as string;
     medicalHistory: string = unformattedPatient.medicalHistory as string;
     patientId: string = unformattedPatient.patientId as string;
-    patientName: string = unformattedPatient.patientName as string;
+    patientName: string = unformattedPatient.patientInitial as string;
     patientSex: string = unformattedPatient.patientSex as string;
     villageNumber: string = unformattedPatient.villageNumber as string;
     zone: string = unformattedPatient.zone as string;
