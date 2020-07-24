@@ -23,6 +23,7 @@ import {
   addNewPatient,
   addPatientNew,
   doesPatientExist,
+  addReadingNew,
 } from '../../../shared/reducers/patients';
 import { User } from '@types';
 import { useNewPatient } from './demographic/hooks';
@@ -33,7 +34,7 @@ import { useNewUrineTest } from './urineTestAssessment/hooks';
 import AlertDialog from './alertDialog';
 import SubmissionDialog from './submissionDialog';
 import { ConfirmationPage } from './confirmationPage';
-import { formatPatientData } from './formatData';
+import { formatPatientData, formatReadingData } from './formatData';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -77,6 +78,7 @@ interface IProps {
   addNewPatient: any;
   addPatientNew: any;
   doesPatientExist: any;
+  addReadingNew: any;
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -112,7 +114,16 @@ const Page: React.FC<IProps> = (props) => {
   const handleSubmit = () => {
     // setIsShowDialogsubmission(true);
     const formattedPatient = formatPatientData(patient);
+    const formattedReading = formatReadingData(
+      patient,
+      symptoms,
+      urineTest,
+      vitals,
+      props.user.userId
+    );
+    console.log(formattedReading);
     props.addPatientNew(formattedPatient);
+    props.addReadingNew(formattedReading);
     /**/
     //  format Data --> probably another function or component
     //  if patient !exists
@@ -334,6 +345,7 @@ const mapDispatchToProps = (dispatch: any) => ({
       addNewPatient,
       resetNewReadingStatus,
       addPatientNew,
+      addReadingNew,
       doesPatientExist,
       // afterNewPatientAdded
     },

@@ -104,6 +104,22 @@ export const doesPatientExist = (patientId: any) => {
   });
 };
 
+export const addReadingNew = (reading: any) => {
+  return serverRequestActionCreator({
+    endpoint: `/readings`,
+    method: Methods.POST,
+    data: reading,
+    onSuccess: (response: any) => ({
+      type: GET_PATIENT,
+      payload: response,
+    }),
+    onError: (error: any) => ({
+      type: GET_PATIENT_ERROR,
+      payload: error,
+    }),
+  });
+};
+
 export const getPatients = (search?: string) => {
   return serverRequestActionCreator({
     endpoint: search

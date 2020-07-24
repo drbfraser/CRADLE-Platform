@@ -25,6 +25,20 @@ interface Patient {
   drugHistory: string;
   medicalHistory: string;
 }
+interface Reading {
+  readingId: string;
+  patientId: string;
+  bpSystolic: number;
+  bpDiastolic: number;
+  heartRateBPM: number;
+  respiratoryRate: number;
+  oxygenSaturation: number;
+  temperature: number;
+  isFlaggedForFollowup: boolean;
+  symptoms: string[];
+  dateTimeTaken: string;
+  userId: number;
+}
 
 export const formatPatientData = (unformattedPatient: any) => {
   const formattedPatient: Patient = new (class implements Patient {
@@ -41,4 +55,45 @@ export const formatPatientData = (unformattedPatient: any) => {
     zone: string = unformattedPatient.zone as string;
   })();
   return formattedPatient;
+};
+const guid = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+const formatSymptoms = (symptoms: any) => {
+  const stringValue = [];
+
+  for (const [key, value] of Object.entries(symptoms)) {
+    if (value === true) {
+      stringValue.push(key);
+    }
+  }
+  return stringValue;
+};
+
+export const formatReadingData = (
+  patient: any,
+  symptoms: any,
+  urineTest: any,
+  vital: any,
+  userId: any
+) => {
+  const formattedReading: Reading = new (class implements Reading {
+    bpDiastolic: number = vital.bpDiastolic as number;
+    bpSystolic: number = vital.bpSystolic as number;
+    dateTimeTaken: string = Math.floor(Date.now() / 1000).toString();
+    heartRateBPM: number = vital.heartRateBPM as number;
+    isFlaggedForFollowup: boolean;
+    oxygenSaturation: number = vital.oxygenSaturation as number;
+    patientId: string = patient.patientId as string;
+    readingId: string = guid();
+    respiratoryRate: number = vital.respiratoryRate as number;
+    symptoms: string[] = formatSymptoms(symptoms);
+    temperature: number = vital.temperature as number;
+    userId: number = userId;
+  })();
+  return formattedReading;
 };
