@@ -4,32 +4,41 @@ import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
 import { PatientStateEnum } from '../../../enums';
+import { getPatientsWithReferrals } from './utils';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
 
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
 const GET_PATIENT_SUCCESS = `patients/GET_PATIENT_SUCCESS`;
 const GET_PATIENT_ERROR = `patients/GET_PATIENT_ERROR`;
-const CLEAR_GET_PATIENTS_ERROR = `patients/CLEAR_GET_PATIENTS_ERROR`;
 
 const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
 const GET_PATIENTS_SUCCESS = `patients/GET_PATIENTS_SUCCESS`;
 const GET_PATIENTS_ERROR = `patient/GET_PATIENTS_ERROR`;
+const CLEAR_GET_PATIENTS_ERROR = `patients/CLEAR_GET_PATIENTS_ERROR`;
+
+const GET_REFERRALS_TABLE_PATIENTS_REQUESTED = `patient/GET_REFERRALS_TABLE_PATIENTS_REQUESTED`;
+const GET_REFERRALS_TABLE_PATIENTS_SUCCESS = `patients/GET_REFERRALS_TABLE_PATIENTS_SUCCESS`;
+const GET_REFERRALS_TABLE_PATIENTS_ERROR = `patient/GET_REFERRALS_TABLE_PATIENTS_ERROR`;
+const CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR = `patients/CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR`;
 
 const GET_GLOBAL_SEARCH_PATIENTS_SUCCESS = `patients/GET_GLOBAL_SEARCH_PATIENTS`;
 const GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patient/GET_GLOBAL_SEARCH_PATIENTS_ERROR`;
 
 const TOGGLE_GLOBAL_SEARCH = `patients/TOGGLE_GLOBAL_SEARCH`;
 
-const UPDATE_GLOBAL_SEARCH_PAGE_NUMBER = `patients/UPDATE_GLOBAL_SEARCH_PAGE_NUMBER`;
+const UPDATE_PATIENTS_TABLE_PAGE_NUMBER = `patients/UPDATE_PATIENTS_TABLE_PAGE_NUMBER`;
+const UPDATE_REFERRALS_TABLE_PAGE_NUMBER = `patients/UPDATE_REFERRALS_TABLE_PAGE_NUMBER`;
 
 const UPDATE_PATIENTS_TABLE_SEARCH_TEXT = `patients/UPDATE_PATIENTS_TABLE_SEARCH_TEXT`;
+const UPDATE_REFERRALS_TABLE_SEARCH_TEXT = `patients/UPDATE_REFERRALS_TABLE_SEARCH_TEXT`;
 
 const UPDATE_SELECTED_PATIENT_STATE = `patients/UPDATE_SELECTED_PATIENT_STATE`;
 
 const TOGGLE_SHOW_REFERRED_PATIENTS = `patients/TOGGLE_SHOW_REFERRED_PATIENTS`;
 
 const SORT_PATIENTS = `patients/SORT_PATIENTS`;
+const SORT_REFERRALS_TABLE_PATIENTS = `patients/SORT_REFERRALS_TABLE_PATIENTS`;
 
 const UPDATE_PATIENT_SUCCESS = `patient/UPDATE_PATIENT_SUCCESS`;
 const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
@@ -45,18 +54,32 @@ export const clearGetPatientsError = () => ({
   type: CLEAR_GET_PATIENTS_ERROR,
 });
 
+export const clearGetReferralsTablePatientsError = () => ({
+  type: CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR,
+});
+
 export const toggleGlobalSearch = (globalSearch: boolean) => ({
   type: TOGGLE_GLOBAL_SEARCH,
   payload: { globalSearch },
 });
 
-export const updateGlobalSearchPageNumber = (pageNumber: number) => ({
-  type: UPDATE_GLOBAL_SEARCH_PAGE_NUMBER,
+export const updatePatientsTablePageNumber = (pageNumber: number) => ({
+  type: UPDATE_PATIENTS_TABLE_PAGE_NUMBER,
+  payload: { pageNumber },
+});
+
+export const updateReferralsTablePageNumber = (pageNumber: number) => ({
+  type: UPDATE_REFERRALS_TABLE_PAGE_NUMBER,
   payload: { pageNumber },
 });
 
 export const updatePatientsTableSearchText = (searchText?: string) => ({
   type: UPDATE_PATIENTS_TABLE_SEARCH_TEXT,
+  payload: { searchText },
+});
+
+export const updateReferralsTableSearchText = (searchText?: string) => ({
+  type: UPDATE_REFERRALS_TABLE_SEARCH_TEXT,
   payload: { searchText },
 });
 
@@ -71,6 +94,11 @@ export const toggleShowReferredPatients = () => ({
 
 export const sortPatients = (sortedPatients: Array<any>) => ({
   type: SORT_PATIENTS,
+  payload: { sortedPatients },
+});
+
+export const sortReferralsTablePatients = (sortedPatients: Array<any>) => ({
+  type: SORT_REFERRALS_TABLE_PATIENTS,
   payload: { sortedPatients },
 });
 
@@ -137,6 +165,32 @@ export const getPatients = (search?: string) => {
   };
 };
 
+const getReferralsTablePatientsRequested = () => ({
+  type: GET_REFERRALS_TABLE_PATIENTS_REQUESTED,
+});
+
+export const getReferralsTablePatients = () => {
+  return (dispatch: Dispatch) => {
+    dispatch(getReferralsTablePatientsRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: Endpoints.PATIENTS_ALL_INFO,
+        onSuccess: (response: any) => ({
+          type: GET_REFERRALS_TABLE_PATIENTS_SUCCESS,
+          payload: response,
+        }),
+        onError: (error: ServerError) => {
+          return {
+            type: GET_REFERRALS_TABLE_PATIENTS_ERROR,
+            payload: { ...error },
+          };
+        },
+      })
+    );
+  };
+};
+
 export const updatePatient = (patientId: any, data: any) => {
   return serverRequestActionCreator({
     endpoint: `${Endpoints.PATIENT}/${patientId}`,
@@ -194,14 +248,17 @@ export type PatientsState = {
   preventFetch: boolean;
   patient: any;
   globalSearch: boolean;
-  globalSearchPageNumber: number;
   globalSearchPatientsList: OrNull<any>;
   patientsList: OrNull<any>;
+  referralsTablePatientsList: OrNull<any>;
   isLoading: boolean;
   addingFromGlobalSearch: boolean;
   newPatientAdded: boolean;
+  patientsTablePageNumber: number;
+  referralsTablePageNumber: number;
   selectedPatientState?: PatientStateEnum;
   patientsTableSearchText?: string;
+  referralsTableSearchText?: string;
   showReferredPatients?: boolean;
 };
 
@@ -210,14 +267,17 @@ const initialState: PatientsState = {
   preventFetch: false,
   patient: {},
   globalSearch: false,
-  globalSearchPageNumber: 0,
   globalSearchPatientsList: null,
   patientsList: null,
+  referralsTablePatientsList: null,
   isLoading: false,
   addingFromGlobalSearch: false,
   newPatientAdded: false,
+  patientsTablePageNumber: 0,
+  referralsTablePageNumber: 0,
   selectedPatientState: undefined,
   patientsTableSearchText: undefined,
+  referralsTableSearchText: undefined,
   showReferredPatients: undefined,
 };
 
@@ -234,6 +294,16 @@ export const patientsReducer = (state = initialState, action: any) => {
         ),
         isLoading: false,
       };
+    case GET_REFERRALS_TABLE_PATIENTS_SUCCESS:
+      return {
+        ...state,
+        referralsTablePatientsList: getPatientsWithReferrals(
+          action.payload.data.sort((a: any, b: any) =>
+            sortPatientsByLastReading(a, b)
+          )
+        ),
+        isLoading: false,
+      };
     case GET_GLOBAL_SEARCH_PATIENTS_SUCCESS:
       return {
         ...state,
@@ -243,11 +313,13 @@ export const patientsReducer = (state = initialState, action: any) => {
         isLoading: false,
       };
     case GET_PATIENTS_REQUESTED:
+    case GET_REFERRALS_TABLE_PATIENTS_REQUESTED:
       return {
         ...state,
         isLoading: true,
       };
     case GET_PATIENTS_ERROR:
+    case GET_REFERRALS_TABLE_PATIENTS_ERROR:
       return {
         ...state,
         error: action.payload.message,
@@ -255,6 +327,7 @@ export const patientsReducer = (state = initialState, action: any) => {
         preventFetch: action.payload.status === 401,
       };
     case CLEAR_GET_PATIENTS_ERROR:
+    case CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR:
       return {
         ...state,
         error: null,
@@ -336,15 +409,25 @@ export const patientsReducer = (state = initialState, action: any) => {
         ...state,
         globalSearch: action.payload.globalSearch,
       };
-    case UPDATE_GLOBAL_SEARCH_PAGE_NUMBER:
+    case UPDATE_PATIENTS_TABLE_PAGE_NUMBER:
       return {
         ...state,
-        globalSearchPageNumber: action.payload.pageNumber,
+        patientsTablePageNumber: action.payload.pageNumber,
+      };
+    case UPDATE_REFERRALS_TABLE_PAGE_NUMBER:
+      return {
+        ...state,
+        referralsTablePageNumber: action.payload.pageNumber,
       };
     case UPDATE_PATIENTS_TABLE_SEARCH_TEXT:
       return {
         ...state,
         patientsTableSearchText: action.payload.searchText,
+      };
+    case UPDATE_REFERRALS_TABLE_SEARCH_TEXT:
+      return {
+        ...state,
+        referralsTableSearchText: action.payload.searchText,
       };
     case UPDATE_SELECTED_PATIENT_STATE:
       return {
@@ -366,6 +449,11 @@ export const patientsReducer = (state = initialState, action: any) => {
             ...state,
             patientsList: action.payload.sortedPatients,
           };
+    case SORT_REFERRALS_TABLE_PATIENTS:
+      return {
+        ...state,
+        referralsTablePatientsList: action.payload.sortedPatients,
+      };
     default:
       return state;
   }

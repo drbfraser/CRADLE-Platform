@@ -1,4 +1,4 @@
-import { Callback, GlobalSearchPatient, OrNull, Patient } from '@types';
+import { Callback, Patient } from '@types';
 
 import React from 'react';
 import { SortOrderEnum } from '../../../../../../../../enums';
@@ -7,12 +7,12 @@ import orderBy from 'lodash/orderBy';
 
 interface IProps {
   className: string;
-  data: Array<Patient> | Array<GlobalSearchPatient>;
-  sortData: Callback<Array<Patient> | Array<GlobalSearchPatient>>;
+  data: Array<Patient>;
+  sortData: Callback<Array<Patient>>;
   label?: string;
 }
 
-export const LastReadingDateHead: React.FC<IProps> = ({
+export const PatientIdHead: React.FC<IProps> = ({
   className,
   data,
   label,
@@ -37,13 +37,7 @@ export const LastReadingDateHead: React.FC<IProps> = ({
   }, [sorted]);
 
   const handleClick = (): void => {
-    const getLastReadingDate = ({ readings }: Patient): OrNull<number> => {
-      return orderBy(readings, [`dateTimeTaken`], [`desc`])[0].dateTimeTaken;
-    };
-
-    sortData(
-      orderBy(data as Array<Patient>, [getLastReadingDate], [sortOrder])
-    );
+    sortData(orderBy(data, [`patientId`], [sortOrder]));
     setSorted(true);
   };
 

@@ -4,8 +4,11 @@ import {
   getCurrentUser,
 } from '../../shared/reducers/user/currentUser';
 import {
-  clearGetPatientsError,
-  getPatients,
+  clearGetReferralsTablePatientsError,
+  getReferralsTablePatients,
+  sortReferralsTablePatients,
+  updateReferralsTablePageNumber,
+  updateReferralsTableSearchText,
 } from '../../shared/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -13,38 +16,42 @@ import { Error } from '../../shared/components/error';
 import React from 'react';
 import { ReduxState } from '../../redux/rootReducer';
 import { ReferralTable } from './referralTable';
-import { getPatientsWithReferrals } from './utils';
 import { push } from 'connected-react-router';
 
 type SelectorState = {
-  allPatients: OrNull<Array<Patient>>;
-  gettingAllPatients: boolean;
-  gettingAllPatientsError: OrNull<string>;
+  patients: OrNull<Array<Patient>>;
+  gettingPatients: boolean;
+  gettingPatientsError: OrNull<string>;
   loggingIn: boolean;
   loggingInError: OrNull<string>;
   loggedIn: boolean;
+  pageNumber: number;
   preventFetch: boolean;
+  searchText?: string;
 };
 
 export const ReferralsPage: React.FC = () => {
-  const [patients, setPatients] = React.useState<Array<Patient>>([]);
   const {
-    allPatients,
-    gettingAllPatients,
-    gettingAllPatientsError,
+    patients,
+    gettingPatients,
+    gettingPatientsError,
     loggingIn,
     loggingInError,
     loggedIn,
+    pageNumber,
     preventFetch,
+    searchText,
   } = useSelector(
     (state: ReduxState): SelectorState => ({
-      allPatients: state.patients.patientsList,
-      gettingAllPatients: state.patients.isLoading,
-      gettingAllPatientsError: state.patients.error,
+      patients: state.patients.referralsTablePatientsList,
+      gettingPatients: state.patients.isLoading,
+      gettingPatientsError: state.patients.error,
       loggingIn: state.user.current.loading,
       loggingInError: state.user.current.message,
       loggedIn: state.user.current.loggedIn,
+      pageNumber: state.patients.referralsTablePageNumber,
       preventFetch: state.patients.preventFetch,
+      searchText: state.patients.referralsTableSearchText,
     })
   );
   const dispatch = useDispatch();
@@ -58,27 +65,17 @@ export const ReferralsPage: React.FC = () => {
   React.useEffect((): void => {
     if (
       !preventFetch &&
-      !gettingAllPatients &&
-      !gettingAllPatientsError &&
-      (allPatients?.length === 0 || allPatients === null)
+      !gettingPatients &&
+      !gettingPatientsError &&
+      (patients?.length === 0 || patients === null)
     ) {
-      dispatch(getPatients());
+      dispatch(getReferralsTablePatients());
     }
-  }, [
-    allPatients,
-    gettingAllPatients,
-    gettingAllPatientsError,
-    dispatch,
-    preventFetch,
-  ]);
-
-  React.useEffect((): void => {
-    setPatients(getPatientsWithReferrals(allPatients));
-  }, [allPatients]);
+  }, [patients, gettingPatients, gettingPatientsError, dispatch, preventFetch]);
 
   const clearError = (): void => {
-    if (gettingAllPatientsError) {
-      dispatch(clearGetPatientsError());
+    if (gettingPatientsError) {
+      dispatch(clearGetReferralsTablePatientsError());
     }
 
     if (loggingInError) {
@@ -90,16 +87,33 @@ export const ReferralsPage: React.FC = () => {
     dispatch(push(`/patient/${selectedPatient.patientId}`));
   };
 
+  const updatePageNumber = (pageNumber: number): void => {
+    dispatch(updateReferralsTablePageNumber(pageNumber));
+  };
+
+  const updateSearchText = (searchText?: string): void => {
+    dispatch(updateReferralsTableSearchText(searchText));
+  };
+
+  const sortPatients = (sortedPatients: Array<Patient>): void => {
+    dispatch(sortReferralsTablePatients(sortedPatients));
+  };
+
   return (
     <>
       <Error
-        error={loggingInError || gettingAllPatientsError}
+        error={loggingInError || gettingPatientsError}
         clearError={clearError}
       />
       <ReferralTable
-        callbackFromParent={goToPatientPage}
+        pageNumber={pageNumber}
+        searchText={searchText}
+        onPatientSelected={goToPatientPage}
         data={patients}
-        isLoading={gettingAllPatients}
+        loading={gettingPatients}
+        updatePageNumber={updatePageNumber}
+        updateSearchText={updateSearchText}
+        sortPatients={sortPatients}
       />
     </>
   );

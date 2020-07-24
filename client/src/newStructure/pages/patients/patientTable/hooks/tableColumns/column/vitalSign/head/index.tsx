@@ -2,7 +2,7 @@ import { Callback, GlobalSearchPatient, Patient } from '@types';
 import { SortOrderEnum, TrafficLightEnum } from '../../../../../../../../enums';
 
 import React from 'react';
-import { SortToggle } from '../../../sortToggle';
+import { SortToggle } from '../../../../../../../../shared/components/sortToggle';
 import orderBy from 'lodash/orderBy';
 
 interface IProps {

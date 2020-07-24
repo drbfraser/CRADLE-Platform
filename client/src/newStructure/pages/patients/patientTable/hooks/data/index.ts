@@ -8,8 +8,8 @@ import {
 
 import React from 'react';
 import debounce from 'lodash/debounce';
-import { useFilterBySearchText } from './filter/searchText';
-import { useFilterReferredPatients } from './filter/referredPatients';
+import { useFilterBySearchText } from '../../../../../shared/hooks/table/filterBySearchText';
+import { useFilterReferredPatients } from './filterReferredPatients';
 
 interface IArgs {
   data: OrNull<Array<Patient>>;

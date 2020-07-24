@@ -10,7 +10,7 @@ interface IProps {
   searchText?: string;
 }
 
-export const Search: React.FC<IProps> = ({
+export const DefaultSearch: React.FC<IProps> = ({
   globalSearch,
   searchText,
   updateSearchText,

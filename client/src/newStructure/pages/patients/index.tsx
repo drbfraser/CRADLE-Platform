@@ -13,7 +13,7 @@ import {
   sortPatients,
   toggleGlobalSearch,
   toggleShowReferredPatients,
-  updateGlobalSearchPageNumber,
+  updatePatientsTablePageNumber,
   updatePatientsTableSearchText,
   updateSelectedPatientState,
 } from '../../shared/reducers/patients';
@@ -27,7 +27,7 @@ import { push } from 'connected-react-router';
 interface IProps {
   addingFromGlobalSearch: boolean;
   globalSearch: boolean;
-  globalSearchPageNumber: number;
+  pageNumber: number;
   patientsTableSearchText?: string;
   showReferredPatients?: boolean;
   fetchingPatients: boolean;
@@ -37,7 +37,7 @@ interface IProps {
   addPatientToHealthFacility: Callback<string>;
   sortPatients: Callback<OrNull<Array<Patient>>>;
   toggleGlobalSearch: Callback<boolean>;
-  updateGlobalSearchPageNumber: Callback<number>;
+  updatePatientsTablePageNumber: Callback<number>;
   updatePatientsTableSearchText: Callback<OrUndefined<string>>;
   updateSelectedPatientState: Callback<OrUndefined<PatientStateEnum>>;
   toggleShowReferredPatients: () => void;
@@ -67,19 +67,19 @@ const Page: React.FC<IProps> = ({
   return (
     <PatientTable
       globalSearch={props.globalSearch}
-      globalSearchPageNumber={props.globalSearchPageNumber}
-      patientsTableSearchText={props.patientsTableSearchText}
+      pageNumber={props.pageNumber}
+      searchText={props.patientsTableSearchText}
       showReferredPatients={props.showReferredPatients}
       toggleGlobalSearch={props.toggleGlobalSearch}
       onPatientSelected={onPatientSelected}
       onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
       data={patients}
       globalSearchData={props.globalSearchPatients}
-      isLoading={fetchingPatients || props.addingFromGlobalSearch}
+      loading={fetchingPatients || props.addingFromGlobalSearch}
       showGlobalSearch={props.userIsHealthWorker}
       getPatients={getPatients}
-      updateGlobalSearchPageNumber={props.updateGlobalSearchPageNumber}
-      updatePatientsTableSearchText={props.updatePatientsTableSearchText}
+      updatePageNumber={props.updatePatientsTablePageNumber}
+      updateSearchText={props.updatePatientsTableSearchText}
       updateSelectedPatientState={props.updateSelectedPatientState}
       toggleShowReferredPatients={props.toggleShowReferredPatients}
       sortPatients={props.sortPatients}
@@ -93,7 +93,7 @@ const mapStateToProps = ({ patients, user }: ReduxState) => ({
   fetchingPatients: patients.isLoading,
   patients: patients.patientsList,
   globalSearch: patients.globalSearch,
-  globalSearchPageNumber: patients.globalSearchPageNumber,
+  pageNumber: patients.patientsTablePageNumber,
   patientsTableSearchText: patients.patientsTableSearchText,
   globalSearchPatients: patients.globalSearchPatientsList,
   showReferredPatients: patients.showReferredPatients,
@@ -106,7 +106,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
         addPatientToHealthFacility,
         getPatients,
         toggleGlobalSearch,
-        updateGlobalSearchPageNumber,
+        updatePatientsTablePageNumber,
         updatePatientsTableSearchText,
         updateSelectedPatientState,
         toggleShowReferredPatients,

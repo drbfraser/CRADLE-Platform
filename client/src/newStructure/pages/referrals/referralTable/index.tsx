@@ -1,67 +1,79 @@
-import React, { Component } from 'react';
-import { assessment, dateReferred } from './utils';
-import {
-  initials,
-  patientId,
-  village,
-  vitalSign,
-} from '../../../shared/components/table/columns';
+import { Callback, OrNull, OrUndefined, Patient } from '@types';
 
-import MaterialTable from 'material-table';
+import MUIDataTable from 'mui-datatables';
+import React from 'react';
+import { customRowRender } from '../../../shared/components/tableRow';
+import { customToolbarRender } from './toolbar';
+import { useData } from './hooks/data';
+import { useLocalization } from '../../../shared/hooks/table/localization';
+import { useSearchChange } from '../../../shared/hooks/table/searchChange';
+import { useTableColumns } from './hooks/tableColumns';
+import { useUpdatePageNumber } from '../../../shared/hooks/table/updatePageNumber';
 
 interface IProps {
-  callbackFromParent: any;
-  data: any;
-  isLoading: boolean;
+  data: OrNull<Array<Patient>>;
+  pageNumber: number;
+  loading: boolean;
+  onPatientSelected: Callback<Patient>;
+  sortPatients: Callback<OrNull<Array<Patient>>>;
+  updatePageNumber: Callback<number>;
+  updateSearchText: Callback<OrUndefined<string>>;
+  searchText?: string;
 }
 
-interface IState {
-  columns: any;
-  data: any;
-  selectedPatient: any;
-}
+export const ReferralTable: React.FC<IProps> = (props) => {
+  const onSearchChange = useSearchChange({
+    updateSearchText: props.updateSearchText,
+  });
 
-export class ReferralTable extends Component<IProps, IState> {
-  state = {
-    columns: [
-      initials,
-      patientId,
-      village,
-      vitalSign,
-      dateReferred,
-      assessment,
-    ],
-    data: [],
-    selectedPatient: {
-      patientId: '',
-      patientName: 'Test',
-      patientSex: 'F',
-      medicalHistory: '',
-      drugHistory: '',
-      villageNumber: '',
-      readings: [],
-    },
+  const { patients, sortData } = useData({
+    data: props.data,
+    searchText: props.searchText,
+    sortPatients: props.sortPatients,
+  });
+
+  const tableColumns = useTableColumns({
+    patients,
+    sortData,
+  });
+
+  const localization = useLocalization({
+    loading: props.loading,
+  });
+
+  const onChangePage = useUpdatePageNumber({
+    update: props.updatePageNumber,
+  });
+
+  const handleRowClick = (dataIndex: number): void => {
+    props.onPatientSelected(patients[dataIndex]);
   };
 
-  render(): JSX.Element {
-    return (
-      <MaterialTable
-        title="Referrals"
-        isLoading={this.props.isLoading}
-        columns={this.state.columns as any}
-        data={this.props.data}
-        options={{
-          pageSize: 10,
-          rowStyle: () => {
-            return {
-              height: '75px',
-            };
-          },
-          searchFieldVariant: `outlined`,
-          searchFieldStyle: { marginBlockStart: `1rem` },
-        }}
-        onRowClick={(e, rowData) => this.props.callbackFromParent(rowData)}
-      />
-    );
-  }
-}
+  return (
+    <MUIDataTable
+      columns={tableColumns}
+      data={patients}
+      title="Referrals"
+      options={{
+        customRowRender: customRowRender(handleRowClick),
+        customToolbar: customToolbarRender({
+          loading: props.loading,
+          searchText: props.searchText ?? ``,
+          updateSearchText: onSearchChange,
+        }),
+        download: false,
+        elevation: 1,
+        fixedHeader: true,
+        filter: false,
+        page: props.pageNumber,
+        print: false,
+        responsive: `simple`,
+        selectableRows: `none`,
+        search: false,
+        textLabels: localization,
+        viewColumns: false,
+        onChangePage,
+      }}
+    />
+  );
+};

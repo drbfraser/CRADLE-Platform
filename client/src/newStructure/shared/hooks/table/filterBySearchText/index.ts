@@ -3,15 +3,15 @@ import { GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
 import React from 'react';
 
 interface IArgs {
-  globalSearch: boolean;
   searchText: OrUndefined<string>;
+  globalSearch?: boolean;
 }
 
 export const useFilterBySearchText = <
   T extends Array<GlobalSearchPatient> | Array<Patient>
 >({
-  globalSearch,
   searchText,
+  globalSearch,
 }: IArgs): ((
   data: OrNull<T>
 ) => Array<GlobalSearchPatient> | Array<Patient>) => {

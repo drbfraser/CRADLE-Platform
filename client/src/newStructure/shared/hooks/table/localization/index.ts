@@ -2,15 +2,15 @@ import { MUIDataTableTextLabels } from 'mui-datatables';
 import React from 'react';
 
 interface IArgs {
-  globalSearch: boolean;
   loading: boolean;
+  globalSearch?: boolean;
 }
 
 export const useLocalization = ({
-  globalSearch,
   loading,
+  globalSearch,
 }: IArgs): MUIDataTableTextLabels => {
-  const noMatchText = React.useMemo<string>((): string => {
+  const noMatch = React.useMemo<string>((): string => {
     if (loading) {
       return `Fetching patient data...`;
     }
@@ -24,7 +24,7 @@ export const useLocalization = ({
   return React.useMemo((): MUIDataTableTextLabels => {
     return {
       body: {
-        noMatch: noMatchText,
+        noMatch,
       },
       filter: {},
       pagination: {},
@@ -32,5 +32,5 @@ export const useLocalization = ({
       toolbar: {},
       viewColumns: {},
     };
-  }, [noMatchText]);
+  }, [noMatch]);
 };

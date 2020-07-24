@@ -9,44 +9,44 @@ import {
 import MUIDataTable from 'mui-datatables';
 import { PatientStateEnum } from '../../../enums';
 import React from 'react';
-import { customRowRender } from './row';
+import { customRowRender } from '../../../shared/components/tableRow';
 import { customToolbarRender } from './toolbar';
 import { useData } from './hooks/data';
-import { useLocalization } from './hooks/localization';
-import { useSearchChange } from './hooks/searchChange';
+import { useLocalization } from '../../../shared/hooks/table/localization';
+import { useSearchChange } from '../../../shared/hooks/table/searchChange';
 import { useTableColumns } from './hooks/tableColumns';
-import { useUpdatePageNumber } from './hooks/updatePageNumber';
+import { useUpdatePageNumber } from '../../../shared/hooks/table/updatePageNumber';
 
 interface IProps {
   data: OrNull<Array<Patient>>;
   globalSearchData: OrNull<Array<GlobalSearchPatient>>;
   globalSearch: boolean;
-  globalSearchPageNumber: number;
-  isLoading: boolean;
+  pageNumber: number;
+  loading: boolean;
   getPatients: Callback<OrUndefined<string>>;
   onPatientSelected: Callback<Patient>;
   onGlobalSearchPatientSelected: Callback<string>;
   toggleGlobalSearch: Callback<boolean>;
   sortPatients: Callback<OrNull<Array<Patient>>>;
   updateSelectedPatientState: Callback<OrUndefined<PatientStateEnum>>;
-  updateGlobalSearchPageNumber: Callback<number>;
-  updatePatientsTableSearchText: Callback<OrUndefined<string>>;
+  updatePageNumber: Callback<number>;
+  updateSearchText: Callback<OrUndefined<string>>;
   toggleShowReferredPatients: () => void;
-  patientsTableSearchText?: string;
+  searchText?: string;
   showReferredPatients?: boolean;
   showGlobalSearch?: boolean;
 }
 
 export const PatientTable: React.FC<IProps> = (props) => {
   const onSearchChange = useSearchChange({
-    updateSearchText: props.updatePatientsTableSearchText,
+    updateSearchText: props.updateSearchText,
   });
 
   const { patients, sortData } = useData({
     data: props.data,
     globalSearch: props.globalSearch,
     globalSearchData: props.globalSearchData,
-    searchText: props.patientsTableSearchText,
+    searchText: props.searchText,
     getPatients: props.getPatients,
     showReferredPatients: props.showReferredPatients,
     sortPatients: props.sortPatients,
@@ -61,11 +61,11 @@ export const PatientTable: React.FC<IProps> = (props) => {
 
   const localization = useLocalization({
     globalSearch: props.globalSearch,
-    loading: props.isLoading,
+    loading: props.loading,
   });
 
   const onChangePage = useUpdatePageNumber({
-    update: props.updateGlobalSearchPageNumber,
+    update: props.updatePageNumber,
   });
 
   const handleRowClick = (dataIndex: number): void => {
@@ -87,8 +87,8 @@ export const PatientTable: React.FC<IProps> = (props) => {
         customToolbar: customToolbarRender({
           globalSearch: props.globalSearch,
           globalSearchAction: props.showGlobalSearch,
-          loading: props.isLoading,
-          searchText: props.patientsTableSearchText ?? ``,
+          loading: props.loading,
+          searchText: props.searchText ?? ``,
           showReferredPatients: props.showReferredPatients,
           toggleShowReferredPatients: props.toggleShowReferredPatients,
           updateSearchText: onSearchChange,
@@ -98,7 +98,7 @@ export const PatientTable: React.FC<IProps> = (props) => {
         elevation: 1,
         fixedHeader: true,
         filter: false,
-        page: props.globalSearchPageNumber,
+        page: props.pageNumber,
         print: false,
         responsive: `simple`,
         selectableRows: `none`,

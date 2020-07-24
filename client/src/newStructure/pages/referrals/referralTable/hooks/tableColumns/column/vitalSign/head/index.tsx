@@ -1,23 +1,27 @@
-import { Callback, GlobalSearchPatient, OrNull, Patient } from '@types';
+import { Callback, Patient } from '@types';
+import { SortOrderEnum, TrafficLightEnum } from '../../../../../../../../enums';
 
 import React from 'react';
-import { SortOrderEnum } from '../../../../../../../../enums';
 import { SortToggle } from '../../../../../../../../shared/components/sortToggle';
 import orderBy from 'lodash/orderBy';
 
 interface IProps {
   className: string;
-  data: Array<Patient> | Array<GlobalSearchPatient>;
-  sortData: Callback<Array<Patient> | Array<GlobalSearchPatient>>;
+  data: Array<Patient>;
+  sortData: Callback<Array<Patient>>;
   label?: string;
 }
 
-export const LastReadingDateHead: React.FC<IProps> = ({
+export const VitalSignHead: React.FC<IProps> = ({
   className,
   data,
   label,
   sortData,
 }) => {
+  const trafficLights = React.useRef<Array<TrafficLightEnum>>(
+    Object.values(TrafficLightEnum)
+  );
+
   const [sortOrder, setSortOrder] = React.useState<SortOrderEnum>(
     SortOrderEnum.ASC
   );
@@ -37,13 +41,11 @@ export const LastReadingDateHead: React.FC<IProps> = ({
   }, [sorted]);
 
   const handleClick = (): void => {
-    const getLastReadingDate = ({ readings }: Patient): OrNull<number> => {
-      return orderBy(readings, [`dateTimeTaken`], [`desc`])[0].dateTimeTaken;
+    const getTrafficLightIndex = ({ readings }: Patient): number => {
+      return trafficLights.current.indexOf(readings[0].trafficLightStatus);
     };
 
-    sortData(
-      orderBy(data as Array<Patient>, [getLastReadingDate], [sortOrder])
-    );
+    sortData(orderBy(data, [getTrafficLightIndex], [sortOrder]));
     setSorted(true);
   };
 
