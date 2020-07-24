@@ -242,10 +242,13 @@ class PatientAllInformation(Resource):
     @jwt_required
     def get(self):
         current_user = get_jwt_identity()
-        patients_readings_referrals = patientManager.get_patient_with_referral_and_reading(
-            current_user
-        )
-        # patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
+        try:
+            patients_readings_referrals = patientManager.get_patient_with_referral_and_reading(
+                current_user
+            )
+            # patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
+        except PermissionError as permission_error:
+            abort(401, message="{}".format(permission_error))
 
         if not patients_readings_referrals:
             return []

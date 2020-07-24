@@ -11,7 +11,7 @@ interface IProps {
 
 const Page: React.FC<IProps> = (props) => {
   return props.currentUser ? (
-    <Redirect to="/patients" />
+    <Redirect to="/referrals" />
   ) : (
     <Redirect to="/login" />
   );

@@ -36,7 +36,9 @@ class PatientManager(Manager):
         elif "VHT" in roles:
             patients = filter.patients_for_vht(user)
         else:
-            raise PermissionError("user is not authenticated")
+            raise PermissionError(
+                "You do not have the necessary role(s) to view patients. Contact an admin for assistance."
+            )
 
         return [self.__make_patient_readings_and_referrals(p) for p in patients]
 

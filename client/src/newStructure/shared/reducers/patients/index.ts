@@ -1,7 +1,8 @@
+import { OrNull, ServerError } from '@types';
+
 import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
-import { OrNull } from '@types';
 import { PatientStateEnum } from '../../../enums';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
@@ -9,6 +10,7 @@ import { sortPatientsByLastReading } from '../../utils';
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
 const GET_PATIENT_SUCCESS = `patients/GET_PATIENT_SUCCESS`;
 const GET_PATIENT_ERROR = `patients/GET_PATIENT_ERROR`;
+const CLEAR_GET_PATIENTS_ERROR = `patients/CLEAR_GET_PATIENTS_ERROR`;
 
 const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
 const GET_PATIENTS_SUCCESS = `patients/GET_PATIENTS_SUCCESS`;
@@ -38,6 +40,10 @@ const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`;
+
+export const clearGetPatientsError = () => ({
+  type: CLEAR_GET_PATIENTS_ERROR,
+});
 
 export const toggleGlobalSearch = (globalSearch: boolean) => ({
   type: TOGGLE_GLOBAL_SEARCH,
@@ -115,16 +121,17 @@ export const getPatients = (search?: string) => {
                 type: GET_PATIENTS_SUCCESS,
                 payload: response,
               },
-        onError: (error: any) =>
-          search
+        onError: (error: ServerError) => {
+          return search
             ? {
                 type: GET_GLOBAL_SEARCH_PATIENTS_ERROR,
-                payload: error,
+                payload: { ...error },
               }
             : {
                 type: GET_PATIENTS_ERROR,
-                payload: error,
-              },
+                payload: { ...error },
+              };
+        },
       })
     );
   };
@@ -183,6 +190,8 @@ export const afterNewPatientAdded = () => ({
 });
 
 export type PatientsState = {
+  error: OrNull<string>;
+  preventFetch: boolean;
   patient: any;
   globalSearch: boolean;
   globalSearchPageNumber: number;
@@ -197,6 +206,8 @@ export type PatientsState = {
 };
 
 const initialState: PatientsState = {
+  error: null,
+  preventFetch: false,
   patient: {},
   globalSearch: false,
   globalSearchPageNumber: 0,
@@ -239,11 +250,19 @@ export const patientsReducer = (state = initialState, action: any) => {
     case GET_PATIENTS_ERROR:
       return {
         ...state,
+        error: action.payload.message,
         isLoading: false,
+        preventFetch: action.payload.status === 401,
+      };
+    case CLEAR_GET_PATIENTS_ERROR:
+      return {
+        ...state,
+        error: null,
       };
     case GET_GLOBAL_SEARCH_PATIENTS_ERROR:
       return {
         ...state,
+        error: action.payload.message,
         isLoading: false,
       };
     case GET_PATIENT_SUCCESS:
