@@ -1,0 +1,53 @@
+# Create new patient 
+localhost:5000/api/patients
+
+ {
+       "patientId": "123456",
+       "patientName": "testName",
+       "householdNumber": "20",
+       "dob": "1990-05-30",
+       "zone": "15",
+       "villageNumber": "50",
+       "gestationalTimestamp": 1587068710,
+       "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+       "patientSex": "FEMALE",
+       "drugHistory": "too much tylenol",
+       "medicalHistory": "not enough advil" 
+}
+   
+
+# Create New Reading
+localhost:5000/api/readings
+
+{
+       "readingId": "asdasd82314278226313803",
+       "patientId": "123456",
+       "bpSystolic" : 150,
+       "bpDiastolic" : 150,
+       "heartRateBPM" : 35,
+       "respiratoryRate": 14,
+       "oxygenSaturation": 99,
+       "temperature": 37,
+       "isFlaggedForFollowup" : false,
+       "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
+       "dateTimeTaken": 1111233,
+       "userId": 1
+}
+
+
+# Create assessment 
+localhost:5000/api/assessments
+{
+	"diagnosis": "b",
+	"medicationPrescribed": "b",
+	"specialInvestigations": "bcccccccccddeeeff",
+	"treatment": "b",
+	"readingId": "asdasd82314278226313803",
+	"followupNeeded": "TRUE",
+	"followupInstructions": "pls help, give lots of tylenol"
+}
+
+
+# Feel free to checkout api docs for general idea for types, although some have changed, and some json structures are different for new apis that aren't documented, but this may still give you an idea. start server and go to: http://localhost:5000/apidocs/#/
+
+# If you decide to nest some of these inside one another, you can just use 1 API and nest objects inside one another. E.g can use /api/patients and have patient with reading/referral etc inside it. or if you want, can make patient seperate with one api, and then the rest with another api. very flexible. Feel free to ask me or checkout: https://docs.google.com/spreadsheets/d/1a67jyK2udHnTs0mdteB9seR-fqMgRbgC4j1Jd08p-fc/edit#gid=0
