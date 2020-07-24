@@ -1,4 +1,4 @@
-# just example jsons to help with new covid reading. Uses new APIs.
+# just example jsons to help with new covid reading. Uses new APIs. Just putting this here for now since we don't have API docs for new APIs yet, will delete this once we do.
 
 # If you change your mind and decide to nest some of these inside one another and use just one/two APIs: 
 - You can just use 1 API and nest objects inside one another. 
