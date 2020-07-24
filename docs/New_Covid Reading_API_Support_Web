@@ -53,7 +53,7 @@ localhost:5000/api/assessments
 Post
 
 {
-	"diagnosis": "patient is fine", - required 
+	"diagnosis": "patient is fine",
 	"medicationPrescribed": "tylenol",
 	"specialInvestigations": "bcccccccccddeeeff",
 	"treatment": "b",
