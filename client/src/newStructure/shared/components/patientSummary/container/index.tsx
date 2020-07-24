@@ -1,67 +1,56 @@
-// @ts-nocheck
+import { OrNull, Patient } from '@types';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { Dispatch, bindActionCreators } from 'redux';
-
+import { Loader } from '../../../components/loader';
 import { PatientSummary } from '..';
 import React from 'react';
 import { ReduxState } from 'src/newStructure/redux/rootReducer';
-import { connect } from 'react-redux';
-import { getCurrentUser } from '../../../reducers/user/currentUser';
+import { RouteComponentProps } from 'react-router-dom';
 import { getPatient } from '../../../reducers/patients';
+import { goBack } from 'connected-react-router';
 
-class Component extends React.Component {
-  constructor(props) {
-    super(props);
-    // TO DO: don't fetch patientData everytime, get it from redux if possible.
-    this.props.getPatient(this.props.match.params.id);
-  }
-
-  componentDidMount() {
-    if (!this.props.loggedIn) {
-      this.props.getCurrentUser();
-    }
-    this.props.getPatient(this.props.match.params.id);
-  }
-
-  backBtnCallback = () => {
-    this.props.history.goBack();
-  };
-
-  render() {
-    if (!this.props.loggedIn) {
-      return <div />;
-    }
-
-    if (this.props.isLoading) {
-      return <div>Loading...</div>;
-    }
-
-    return (
-      <PatientSummary
-        callbackFromParent={this.backBtnCallback}
-        selectedPatient={this.props.patient}
-      />
-    );
-  }
-}
-
-const mapStateToProps = ({ patients, user }: ReduxState) => ({
-  isLoading: patients.isLoading,
-  loggedIn: user.current.loggedIn,
-  patient: patients.patient,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return bindActionCreators(
-    {
-      getCurrentUser,
-      getPatient,
-    },
-    dispatch
-  );
+type SelectorState = {
+  loading: boolean;
+  patient: OrNull<Patient>;
 };
 
-export const PatientSummaryContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Component);
+type Params = {
+  id: string;
+};
+
+export const PatientSummaryContainer: React.FC<RouteComponentProps<Params>> = ({
+  match: {
+    params: { id },
+  },
+}) => {
+  const { loading, patient } = useSelector(
+    ({ patients }: ReduxState): SelectorState => {
+      return {
+        loading: patients.isLoading,
+        patient: patients.patient,
+      };
+    }
+  );
+  const dispatch = useDispatch();
+
+  React.useEffect((): void => {
+    if (id) {
+      dispatch(getPatient(id));
+    }
+  }, [dispatch, id]);
+
+  const goBackToPreviousPage = () => {
+    dispatch(goBack());
+  };
+
+  if (loading) {
+    return <Loader message="Fetching the patient..." show={true} />;
+  }
+
+  return (
+    <PatientSummary
+      callbackFromParent={goBackToPreviousPage}
+      selectedPatient={patient}
+    />
+  );
+};

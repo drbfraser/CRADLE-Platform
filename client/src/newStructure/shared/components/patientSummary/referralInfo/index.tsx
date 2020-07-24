@@ -4,10 +4,16 @@ import React, { Component } from 'react';
 import { FollowUpInfo } from './followup/info';
 import { FollowUpModal } from './followup/modal';
 import { Icon } from 'semantic-ui-react';
+import { OrNull } from '@types';
 import Typography from '@material-ui/core/Typography';
 import { getPrettyDateTime } from '../../../utils';
 
-export default class ReferralInfo extends Component {
+interface IProps {
+  readingId: string;
+  referral: OrNull<string>;
+}
+
+export default class ReferralInfo extends Component<IProps> {
   render() {
     if (this.props.referral) {
       const ref = this.props.referral;

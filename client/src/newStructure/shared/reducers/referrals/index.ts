@@ -2,6 +2,7 @@ import { BASE_URL } from '../../../server/utils';
 import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
+import { OrNull } from '@types';
 import axios from 'axios';
 import { serverRequestActionCreator } from '../utils';
 
@@ -52,7 +53,7 @@ export const getReferrals = (
 
     Promise.all(referralPromises)
       .then((results: any) => {
-        const referrals = {} as { [key: string]: any };
+        const referrals = {} as Record<string, any>;
         for (const i in results) {
           const thisReferral = results[i].data;
           referrals[thisReferral.readingId] = thisReferral;
@@ -113,7 +114,7 @@ export const setReadingId = (readingId: any) => {
 
 export type ReferralsState = {
   isLoading: boolean;
-  mappedReferrals: { [key: string]: any };
+  mappedReferrals: OrNull<Record<string, any>>;
   referral: any;
   referralId: string;
   readingId: string;
@@ -121,7 +122,7 @@ export type ReferralsState = {
 
 const initialState: ReferralsState = {
   isLoading: false,
-  mappedReferrals: {}, // maps reading id to referral objects
+  mappedReferrals: null, // maps reading id to referral objects
   referral: {},
   referralId: ``,
   readingId: ``,
@@ -152,7 +153,8 @@ export const referralsReducer = (
         mappedReferrals: {
           ...state.mappedReferrals,
           [state.readingId]: {
-            ...state.mappedReferrals[state.readingId],
+            ...(((state.mappedReferrals?.[state.readingId] ??
+              {}) as unknown) as Record<string, unknown>),
             followUp: action.payload.data,
           },
         },
