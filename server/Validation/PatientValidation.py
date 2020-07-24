@@ -9,7 +9,6 @@ from datetime import datetime, date
         request_body = {
         "patientId":"51253242033", -- string
         "patientName":"BF", -- string
-        "patientAge":49, -- int, should probably stick to one
         "gestationalAgeUnit":"GESTATIONAL_AGE_UNITS_WEEKS", -- string
         "gestationalTimestamp":1592339808, -- Timestamp
         "villageNumber":"1251515", -- string
@@ -124,7 +123,6 @@ def check_patient_fields(request_body):
     required_keys = {
         "patientId",
         "patientName",
-        # 'patientAge',
         "patientSex",
     }
 
@@ -158,7 +156,7 @@ def check_patient_fields(request_body):
     }
 
     # values that must be of type int
-    must_be_int = {"patientAge"}
+
 
     # # todo: repeated code -- pull this out as a funciton that all necessary functions can use
     # # making sure that values are of the correct type
@@ -271,7 +269,7 @@ def update_info_invalid(patient_id, request_body):
         return required_keys_present_message
 
     # values that must be of type int
-    must_be_int = {"patientAge", "villageNumber"}
+    must_be_int = {"villageNumber"}
 
     values_string_or_int_message = check_if_values_string_int_array(
         request_body, None, must_be_int, None

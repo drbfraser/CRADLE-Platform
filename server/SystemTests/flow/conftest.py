@@ -36,7 +36,6 @@ def make_patient(make_assessment):
         patient: dict = {
             "patientId": patient_id,
             "patientName": "TEST",
-            "patientAge": 30,
             "patientSex": "FEMALE",
             "isPregnant": False,
             "zone": "1",

@@ -44,7 +44,6 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
     return {
         "patientId": patient_id,
         "patientName": "TEST",
-        "patientAge": 30,
         "patientSex": "FEMALE",
         "isPregnant": False,
         "villageNumber": "1",

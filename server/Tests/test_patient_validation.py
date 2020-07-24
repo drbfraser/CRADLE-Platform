@@ -3,7 +3,6 @@ from Validation import PatientValidation
 patient_request_body = {
     "patientId": "51253242033",
     "patientName": "BF",
-    "patientAge": 49,
     "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
     "gestationalTimestamp": 1592339808,
     "villageNumber": "1251515",
@@ -15,7 +14,6 @@ patient_request_body = {
 }
 
 patient_request_body_missing_fields = {
-    "patientAge": 49,
     "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
     "gestationalTimestamp": 1592339808,
     "villageNumber": "1251515",
@@ -27,7 +25,6 @@ patient_request_body_missing_fields = {
 patient_request_body_gestation_over_limit = {
     "patientId": "51253242034",
     "patientName": "BF",
-    "patientAge": 49,
     "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
     "gestationalTimestamp": 1563311831,
     "villageNumber": "1251515",
@@ -68,7 +65,7 @@ def test_check_if_required_keys_present_with_all_keys():
     )
     assert valid is None
 
-
+# figure this out? 
 def test_check_if_required_keys_present_with_missing_keys():
     required_keys = {"patientName", "villageNumber", "patientSex", "dob"}
     invalid_code = PatientValidation.check_if_required_keys_present(
@@ -81,7 +78,7 @@ def test_check_if_required_keys_present_with_missing_keys():
 
 
 def test_check_if_values_string_int_array_succeeds_with_int():
-    must_be_int = {"patientAge", "villageNumber"}
+    must_be_int = {"villageNumber"}
     result = PatientValidation.check_if_values_string_int_array(
         patient_request_body, None, must_be_int, None
     )
@@ -104,7 +101,7 @@ def test_check_if_values_string_int_array_succeeds_with_string_and_int():
         "drugHistory",
     }
 
-    must_be_int = {"patientAge", "villageNumber"}
+    must_be_int = {"villageNumber"}
     result = PatientValidation.check_if_values_string_int_array(
         patient_request_body, must_be_string, must_be_int, None
     )

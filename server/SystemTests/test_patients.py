@@ -123,9 +123,9 @@ def test_pass_create_patient_2():
     assert response_body["patientName"] == patient_name
     assert response_body["patientSex"] == patient_sex
     assert response_body["dob"] == None
-    assert response_body["patientAge"] == None
 
 
+# edit this dob test - add rough estimate ?
 def test_pass_create_patient_with_dob_no_age():
     patient_id = get_random_patient_id()
     patient_name = getRandomInitials()
@@ -140,15 +140,7 @@ def test_pass_create_patient_with_dob_no_age():
         "dob": BIRTHDATE,
     }
 
-    # calculates age from Jan 1, 2000 birthdate
-    today = date.today()
     birthday = datetime.strptime(BIRTHDATE, "%Y-%m-%d").date()
-    age_in_database = (
-        today.year
-        - birthday.year
-        - ((today.month, today.day) < (birthday.month, birthday.day))
-    )
-
     response = requests.post(url, json=data, headers=auth_header)
     response_body = json.loads(response.text)
 
@@ -157,9 +149,8 @@ def test_pass_create_patient_with_dob_no_age():
     assert response_body["patientName"] == patient_name
     assert response_body["patientSex"] == patient_sex
     assert response_body["dob"] == BIRTHDATE
-    assert response_body["patientAge"] == int(age_in_database)
 
-
+# edit this dob test
 def test_pass_create_patient_reading_with_dob_no_age():
     patient_id = get_random_patient_id()
     patient_name = getRandomInitials()
@@ -182,14 +173,7 @@ def test_pass_create_patient_reading_with_dob_no_age():
         "dob": BIRTHDATE,
     }
 
-    # calculates age from Jan 1, 2000 birthdate
-    today = date.today()
     birthday = datetime.strptime(BIRTHDATE, "%Y-%m-%d").date()
-    age_in_database = (
-        today.year
-        - birthday.year
-        - ((today.month, today.day) < (birthday.month, birthday.day))
-    )
 
     reading = {
         "readingId": reading_id,
@@ -213,7 +197,6 @@ def test_pass_create_patient_reading_with_dob_no_age():
     assert response_body["reading"]["bpDiastolic"] == bp_diastolic
     assert response_body["reading"]["heartRateBPM"] == hr
     assert response_body["patient"]["dob"] == BIRTHDATE
-    assert response_body["patient"]["patientAge"] == int(age_in_database)
 
 
 def test_pass_create_patient_reading():
@@ -259,7 +242,6 @@ def test_pass_create_patient_reading():
     assert response_body["reading"]["bpDiastolic"] == bp_diastolic
     assert response_body["reading"]["heartRateBPM"] == hr
     assert response_body["patient"]["dob"] == None
-    assert response_body["patient"]["patientAge"] == None
 
 
 def test_get_patient():
