@@ -68,6 +68,7 @@ class SinglePatient(Resource):
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
+        patient.dob = str(patient.dob)
         return marshal.marshal(patient)
 
 
