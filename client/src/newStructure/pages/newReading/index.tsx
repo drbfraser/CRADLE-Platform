@@ -271,7 +271,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
       this.setState({
         patient: {
           ...this.state.patient,
-          dob: Date.parse(this.state.patient.dob as any) / 1000,
+          dob: String(this.state.patient.dob as any),
         },
       });
     }

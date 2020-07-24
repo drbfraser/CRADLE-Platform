@@ -178,7 +178,7 @@ class Patient(db.Model):
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    dob = db.Column(db.BigInteger)
+    dob = db.Column(db.Date)
     villageNumber = db.Column(db.String(50))
     created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     lastEdited = db.Column(
