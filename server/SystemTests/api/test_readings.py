@@ -81,7 +81,7 @@ def reading_referral_followup(reading_id):
         "followup": {
             "diagnosis": "diagnosis",
             "treatment": "treatment",
-            "dateAssessed": "dateAssessed",
+            "dateAssessed": 123456,
             "healthcareWorkerId": 2,
             "followupNeeded": False,
             "medicationPrescribed": "medicationPrescribed",
