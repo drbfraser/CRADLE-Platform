@@ -1,3 +1,12 @@
+# just example jsons to help with new covid reading. Uses new APIs.
+
+# If you change your mind and decide to nest some of these inside one another and use just one/two APIs: 
+- You can just use 1 API and nest objects inside one another. 
+- E.g can use /api/patients and have patient with reading/referral etc inside it. Or if you want, can make patient seperate with one api, and then the rest with another api. very flexible. 
+- Feel free to ask me or checkout: https://docs.google.com/spreadsheets/d/1a67jyK2udHnTs0mdteB9seR-fqMgRbgC4j1Jd08p-fc/edit#gid=0
+
+###########################################################################################################
+
 # Create new patient 
 localhost:5000/api/patients
 
@@ -15,6 +24,7 @@ localhost:5000/api/patients
        "medicalHistory": "not enough advil" 
 }
    
+###########################################################################################################
 
 # Create New Reading
 localhost:5000/api/readings
@@ -34,6 +44,7 @@ localhost:5000/api/readings
        "userId": 1
 }
 
+###########################################################################################################
 
 # Create assessment 
 localhost:5000/api/assessments
@@ -47,7 +58,20 @@ localhost:5000/api/assessments
 	"followupInstructions": "pls help, give lots of tylenol"
 }
 
+###########################################################################################################
 
-# Feel free to checkout api docs for general idea for types, although some have changed, and some json structures are different for new apis that aren't documented, but this may still give you an idea. start server and go to: http://localhost:5000/apidocs/#/
+# Check if patient exists 
 
-# If you decide to nest some of these inside one another, you can just use 1 API and nest objects inside one another. E.g can use /api/patients and have patient with reading/referral etc inside it. or if you want, can make patient seperate with one api, and then the rest with another api. very flexible. Feel free to ask me or checkout: https://docs.google.com/spreadsheets/d/1a67jyK2udHnTs0mdteB9seR-fqMgRbgC4j1Jd08p-fc/edit#gid=0
+localhost:5000/api/patients/<string:patient_id>
+E.g localhost:5000/api/patients/123456
+
+- Feel free to let me know if you prefer an api that just returns a boolean and/or basic info or something instead of all patient information
+
+###########################################################################################################
+
+# Additional Info 
+- Let me know if you urgently need response types as well, otherwise can just wait till someone completes API docs
+
+- Feel free to checkout api docs for general idea for types, although some have changed, and some json structures are different for new apis that aren't documented, but this may still give you an idea. start server and go to: http://localhost:5000/apidocs/#/
+
+
