@@ -11,8 +11,6 @@ import { useVitalSignColumn } from './column/vitalSign';
 
 // * Order of enums is important
 // * Must match order of columns in the table
-// * Necessary for the Take Action column
-// * Requires the right index
 export enum ReferralTableColumnEnum {
   INITIALS = 'INITIALS',
   PATIENT_ID = 'PATIENT_ID',

@@ -37,7 +37,17 @@ export const AssessmentHead: React.FC<IProps> = ({
   }, [sorted]);
 
   const handleClick = (): void => {
-    sortData(orderBy(data, [`needsAssessment`], [sortOrder]));
+    sortData(
+      orderBy(
+        data,
+        [`needsAssessment`],
+        [
+          sortOrder === SortOrderEnum.ASC
+            ? SortOrderEnum.DESC
+            : SortOrderEnum.ASC,
+        ]
+      )
+    );
     setSorted(true);
   };
 

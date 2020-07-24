@@ -66,8 +66,10 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
       console.error(err);
       return dispatch(
         onError({
-          message: err.response.data.message,
-          status: err.response.status,
+          message:
+            err.response?.data.message ??
+            `Something went wrong on our end. We are trying to get it fixed`,
+          status: err.response?.status ?? 500,
         })
       );
     });
