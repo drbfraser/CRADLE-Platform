@@ -117,15 +117,9 @@ const Component: React.FC<IProps> = (props) => {
   useEffect(() => {
     const pathNameRoute = props.pathName.replace('/', '');
     setActiveItem(routesNames[pathNameRoute]);
-    if (statsOpen) {
-      setOpenStats(false);
-    }
+    setOpenStats(false);
   }, [props.pathName]);
 
-  // const onMouseOver = (event: any) => {
-  //   setOpenStats(true);
-  //   setAnchor(event.currentTarget);
-  // };
 
   const onStatsClick = (event: any) => {
     setOpenStats(!statsOpen);
