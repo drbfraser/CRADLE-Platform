@@ -126,6 +126,52 @@ def api_put(url: str, auth_header: dict) -> Callable[[str, dict], requests.Respo
     return __make_http_request_closure(url, auth_header, requests.put)
 
 
+@pytest.fixture
+def api(url: str):
+    class Api:
+        @staticmethod
+        def get(
+            endpoint: str, email: str = "admin123@admin.com", password: str = "admin123"
+        ):
+            return Api.__make_request(requests.get, endpoint, {}, email, password)
+
+        @staticmethod
+        def post(
+            endpoint: str,
+            payload: dict,
+            email: str = "admin123@admin.com",
+            password: str = "admin123",
+        ):
+            return Api.__make_request(requests.post, endpoint, payload, email, password)
+
+        @staticmethod
+        def put(
+            endpoint: str,
+            payload: dict,
+            email: str = "admin123@admin.com",
+            password: str = "admin123",
+        ):
+            return Api.__make_request(requests.put, endpoint, payload, email, password)
+
+        @staticmethod
+        def __get_bearer_token(email: str, password: str):
+            u = f"{url}/api/user/auth"
+            payload = {"email": email, "password": password}
+            response = requests.post(u, json=payload)
+            resp_json = response.json()
+            return resp_json["token"]
+
+        @staticmethod
+        def __make_request(
+            func, endpoint: str, payload: dict, email: str, password: str
+        ):
+            token = Api.__get_bearer_token(email, password)
+            header = {"Authorization": f"Bearer {token}"}
+            return func(f"{url}{endpoint}", headers=header, json=payload)
+
+    return Api
+
+
 #
 # Model Factory Fixtures
 #

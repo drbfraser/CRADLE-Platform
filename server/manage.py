@@ -214,6 +214,10 @@ def create_patient_reading_referral(
     gestAgeUnit=None,
     gestTimestamp=None,
 ):
+    import data.crud as crud
+    import data.marshal as marshal
+    from models import Patient
+
     """
     Creates a patient in the database.
     """
@@ -259,13 +263,10 @@ def create_patient_reading_referral(
         "comment": "They need help!",
     }
 
-    patient_schema = PatientSchema()
-    referral_schema = ReferralSchema()
-
-    db.session.add(patient_schema.load(patient))
-    ReadingRepo().create(reading)
-    db.session.add(referral_schema.load(referral))
-    db.session.commit()
+    reading["referral"] = referral
+    patient["readings"] = [reading]
+    model = marshal.unmarshal(Patient, patient)
+    crud.create(model)
 
 
 def getRandomInitials():

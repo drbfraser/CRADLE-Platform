@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from typing import Any
+import data.crud as crud
+import data.marshal as marshal
 
 
 class ModelFactory:
@@ -158,7 +160,7 @@ class FollowUpFactory(ModelFactory):
 class UserFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super(UserFactory, self).__init__(
-            db, password="password", healthFacilityName="H0000"
+            db, password="password", healthFacilityName="H0000", role="ADMIN"
         )
 
     def create(self, **kwargs) -> Any:
@@ -172,9 +174,23 @@ class UserFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from Database.UserRepo import UserRepo
+        import data
+        from config import flask_bcrypt
+        from models import User, Role
 
-        return UserRepo().create_model(dict(**kwargs))
+        d = dict(**kwargs)
+        role_name = d["role"]
+        del d["role"]  # not an actual user field so delete if from the args
+
+        # Hash the user's password so that they can login
+        d["password"] = flask_bcrypt.generate_password_hash(d["password"])
+
+        user = marshal.unmarshal(User, d)
+        crud.create(user)
+        role = crud.read(Role, name=role_name)
+        user.roleIds = [role]
+        data.db_session.commit()
+        return user
 
 
 class HealthFacilityFactory(ModelFactory):
