@@ -1,7 +1,8 @@
 import { Divider, Header, Segment } from 'semantic-ui-react';
+import { FollowUp, OrNull } from '@types';
 
 import React from 'react';
-import { getPrettyDateTime } from '../../../../../utils';
+import { getPrettyDateTime } from '../../../../../../shared/utils';
 
 const followupFrequencyUnit = [
   { key: 'none', text: 'N/a', value: 'NONE' },
@@ -13,7 +14,11 @@ const followupFrequencyUnit = [
   { key: 'year', text: 'Years', value: 'YEARS' },
 ];
 
-export const FollowUpInfo: React.FC<any> = (props) => {
+interface IProps {
+  followUp: OrNull<FollowUp>;
+}
+
+export const FollowUpInfo: React.FC<IProps> = (props) => {
   if (props.followUp) {
     let frequencyStr = '';
     if (
@@ -26,7 +31,7 @@ export const FollowUpInfo: React.FC<any> = (props) => {
         'Every ' +
         props.followUp.followupFrequencyValue +
         ' ' +
-        props.followUp.followupFrequencyUnit.toLowerCase() +
+        props.followUp.followupFrequencyUnit.value.toLowerCase() +
         ' until ' +
         props.followUp.dateFollowupNeededTill;
     }

@@ -30,7 +30,7 @@ import { NewReadingPage } from '../pages/newReading';
 // import { NewReadingCovid } from '../pages/newReading/newReadingCovid';
 import { NotFoundPage } from '../pages/notFound';
 import { Pathname } from 'history';
-import { PatientSummaryContainer } from '../shared/components/patientSummary/container';
+import { PatientPage } from '../pages/patient';
 import PatientsImg from './img/patients.svg';
 import { PatientsPage } from '../pages/patients';
 import { PrivateRoute } from './privateRoute';
@@ -493,10 +493,7 @@ const Component: React.FC<IProps> = (props) => {
               path="/patients"
               component={PatientsPage}
             />
-            <PrivateRoute
-              path="/patient/:id"
-              component={PatientSummaryContainer}
-            />
+            <PrivateRoute path="/patient/:id" component={PatientPage} />
             <PrivateRoute exact={true} path="/signup" component={SignUpPage} />
             <Route exact={true} path="/login" component={LoginPage} />
             <PrivateRoute

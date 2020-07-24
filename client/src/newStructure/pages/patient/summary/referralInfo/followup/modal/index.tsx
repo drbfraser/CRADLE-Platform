@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import {
   Button,
   Form,
@@ -8,15 +6,16 @@ import {
   Select,
   TextArea,
 } from 'semantic-ui-react';
+import { Dispatch, bindActionCreators } from 'redux';
 import {
   addPatientToHealthFacility,
   updateSelectedPatientState,
-} from '../../../../../reducers/patients';
+} from '../../../../../../shared/reducers/patients';
 import {
   createFollowUp,
   setReadingId,
   updateFollowUp,
-} from '../../../../../reducers/referrals';
+} from '../../../../../../shared/reducers/referrals';
 
 /**
  * Description: Modal reponsible for the the UI to create and update
@@ -26,12 +25,11 @@ import {
  *  handleSubmit(state) [required]: function that is called when the user submits form
  *      this function should handle data validation
  */
-import { AddPatientPrompt } from '../../../../addPatientPrompt';
+import { AddPatientPrompt } from '../../../../../../shared/components/addPatientPrompt';
 import { PatientStateEnum } from '../../../../../../enums';
 import React from 'react';
 import { ReduxState } from '../../../../../../redux/rootReducer';
 import Switch from '@material-ui/core/Switch';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { followupFrequencyUnitOptions } from '../utils';
 
@@ -41,7 +39,7 @@ const untilDateOrOther = [
 ];
 
 class Component extends React.Component<any, any> {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
 
     this.state = {
@@ -83,7 +81,10 @@ class Component extends React.Component<any, any> {
 
   // * Handles confirming that the patient has been added to the health facility
   // * before proceeding with the action
-  onAddPatientRequired = (actionAfterAdding, promptMessage) => {
+  onAddPatientRequired = (
+    actionAfterAdding: () => void,
+    promptMessage: string
+  ): void => {
     const onAddPatient = () => {
       this.props.updateSelectedPatientState(undefined);
       this.props.addPatientToHealthFacility(
@@ -105,12 +106,15 @@ class Component extends React.Component<any, any> {
 
   loadInitialValues() {
     this.setState({
-      data: Object.keys(this.state.data).reduce((values, key) => {
-        if (this.props.initialValues && this.props.initialValues[key]) {
-          values[key] = this.props.initialValues[key];
-        }
-        return values;
-      }, {}),
+      data: Object.keys(this.state.data).reduce(
+        (values: Record<string, any>, key: string): Record<string, any> => {
+          if (this.props.initialValues && this.props.initialValues[key]) {
+            values[key] = this.props.initialValues[key];
+          }
+          return values;
+        },
+        {}
+      ),
     });
   }
 
@@ -137,7 +141,7 @@ class Component extends React.Component<any, any> {
     this.props.setReadingId(this.props.readingId);
   }
 
-  handleChange(e, value) {
+  handleChange(_: any, value: any) {
     this.setState({
       data: {
         ...this.state.data,
@@ -146,19 +150,19 @@ class Component extends React.Component<any, any> {
     });
   }
 
-  handleSwitchChange(e) {
+  handleSwitchChange(event: any) {
     this.setState({
       data: {
         ...this.state.data,
-        followupNeeded: e.target.checked,
+        followupNeeded: event.target.checked,
       },
     });
   }
 
-  handleDateOrOtherChange = (error, value) => {
+  handleDateOrOtherChange = (_: any, value: any) => {
     if (
-      value.name === 'untilDateOrOther' &&
-      (value.value === 'OTHER' || value.value === 'DATE')
+      value.name === `untilDateOrOther` &&
+      (value.value === `OTHER` || value.value === `DATE`)
     ) {
       this.setState({ dateOrOther: value.value });
     }
@@ -168,14 +172,14 @@ class Component extends React.Component<any, any> {
     const followupData = this.state.data;
     followupData.referral = this.props.referralId;
 
-    if (this.state.dateOrCondition === 'DATE') {
+    if (this.state.dateOrCondition === `DATE`) {
       // divide by 1000 to convert ms into s
       followupData.dateFollowupNeededTill =
         Date.parse(this.state.data.dateFollowupNeededTill) / 1000;
     }
 
     if (this.state.untilDateOrCond) {
-      delete this.state.untilDateOrCond;
+      // * delete this.state.untilDateOrCond;
     }
 
     const {
@@ -357,8 +361,8 @@ const mapStateToProps = ({ patients }: ReduxState) => ({
   selectedPatientState: patients.selectedPatientState,
 });
 
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return bindActionCreators(
     {
       addPatientToHealthFacility,
       updateFollowUp,
@@ -368,7 +372,7 @@ const mapDispatchToProps = (dispatch) =>
     },
     dispatch
   );
-
+};
 export const FollowUpModal = connect(
   mapStateToProps,
   mapDispatchToProps

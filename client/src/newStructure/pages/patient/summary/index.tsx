@@ -8,18 +8,21 @@ import {
   Modal,
   Select,
 } from 'semantic-ui-react';
-import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from '../form/patient';
+import {
+  GESTATIONAL_AGE_UNITS,
+  PatientInfoForm,
+} from '../../../shared/components/form/patient';
 import { OrNull, Patient, Reading } from '@types';
 import {
   UrineTestForm,
   initialUrineTests,
   urineTestChemicals,
-} from '../form/urineTest';
+} from '../../../shared/components/form/urineTest';
 import {
   addPatientToHealthFacility,
   updatePatient,
   updateSelectedPatientState,
-} from '../../reducers/patients';
+} from '../../../shared/reducers/patients';
 import {
   average,
   calculateShockIndex,
@@ -37,26 +40,26 @@ import {
   getPrettyDateYYYYmmDD,
   monthsToWeeks,
   weeksToMonths,
-} from '../../utils';
+} from '../../../shared/utils';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
-import { AddPatientPrompt } from '../addPatientPrompt';
+import { AddPatientPrompt } from '../../../shared/components/addPatientPrompt';
 import Grid from '@material-ui/core/Grid';
 import { Icon } from 'semantic-ui-react';
 import Paper from '@material-ui/core/Paper';
 import { PatientStateEnum } from '../../../enums';
 import React from 'react';
 import { ReduxState } from '../../../redux/rootReducer';
-import ReferralInfo from './referralInfo';
+import { ReferralInfo } from './referralInfo';
 import SweetAlert from 'sweetalert2-react';
-import { SymptomForm } from '../form/symptom';
+import { SymptomForm } from '../../../shared/components/form/symptom';
 import Typography from '@material-ui/core/Typography';
-import { getPatientStatistics } from '../../reducers/patientStatistics';
-import { getReferrals } from '../../reducers/referrals';
-import { newReadingPost } from '../../reducers/newReadingPost';
+import { getPatientStatistics } from '../../../shared/reducers/patientStatistics';
+import { getReferrals } from '../../../shared/reducers/referrals';
+import { newReadingPost } from '../../../shared/reducers/newReadingPost';
 
 interface IProps {
   callbackFromParent: () => void;

@@ -1,12 +1,12 @@
 import { OrNull, Patient } from '@types';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Loader } from '../../../components/loader';
-import { PatientSummary } from '..';
+import { Loader } from '../../shared/components/loader';
+import { PatientSummary } from './summary';
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { ReduxState } from '../../redux/rootReducer';
 import { RouteComponentProps } from 'react-router-dom';
-import { getPatient } from '../../../reducers/patients';
+import { getPatient } from '../../shared/reducers/patients';
 import { goBack } from 'connected-react-router';
 
 type SelectorState = {
@@ -18,7 +18,7 @@ type Params = {
   id: string;
 };
 
-export const PatientSummaryContainer: React.FC<RouteComponentProps<Params>> = ({
+export const PatientPage: React.FC<RouteComponentProps<Params>> = ({
   match: {
     params: { id },
   },

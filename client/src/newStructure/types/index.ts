@@ -150,3 +150,16 @@ export type UrineTests = {
   urineTestPro: string;
   urineTestGlu: string;
 };
+
+export type FollowUp = {
+  followupFrequencyValue: OrNull<string>;
+  followupFrequencyUnit: OrNull<{ key: string; text: string; value: string }>;
+  dateFollowupNeededTill: string;
+  specialInvestigations: string;
+  diagnosis: string;
+  treatment: string;
+  medicationPrescribed: string;
+  followupInstructions: string;
+  healthcareWorkerId: string;
+  dateAssessed: number;
+};
