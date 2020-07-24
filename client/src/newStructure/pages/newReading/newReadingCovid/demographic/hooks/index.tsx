@@ -1,6 +1,7 @@
 import React from 'react';
 import { GESTATIONAL_AGE_UNITS } from '../../../patientInfoForm';
 import { validateInput } from '../validation';
+import moment from "moment";
 
 export const useNewPatient = () => {
   const [patient, setPatient] = React.useState({
@@ -19,7 +20,6 @@ export const useNewPatient = () => {
     villageNumber: '',
     drugHistory: '',
     medicalHistory: '',
-    dobOrAge: false,
     householdError: false,
     patientInitialError: false,
     patientIdError: false,
@@ -35,11 +35,17 @@ export const useNewPatient = () => {
     drugHistoryError: false,
     medicalHistoryError: false,
   });
+  const calculateDOB = (value: number) => {
+    const currentDate = new Date();
+    currentDate.setFullYear(currentDate.getFullYear() - value);
+    return moment(currentDate).format('YYYY-MM-DD');
+  };
+
   const getAgeBasedOnDOB = (value: string) => {
     const year: string = value.substr(0, value.indexOf('-'));
     const yearNow: number = new Date().getUTCFullYear();
     return yearNow - +year;
-  };
+  }
 
   const calculateGestationalAgeValue = (value: string) => {
     const currentDate = new Date();
@@ -54,10 +60,11 @@ export const useNewPatient = () => {
     return currentDate.getTime() / 1000;
   };
 
+
+
   const handleChangePatient = (e: any) => {
     const errors: any = validateInput(e.target.name, e.target.value);
     const name = e.target.name;
-
     if (name === 'patientSex') {
       if (e.target.value === 'MALE') {
         setPatient({
@@ -87,16 +94,6 @@ export const useNewPatient = () => {
         });
       }
     }
-    if (name === 'dob') {
-      const dob = e.target.value ? e.target.value : patient.dob;
-      const calculatedAge: number = getAgeBasedOnDOB(dob);
-      setPatient({
-        ...patient,
-        [name]: e.target.value,
-        patientAge: calculatedAge,
-        dobError: errors.dobError,
-      });
-    }
     if (name === 'patientInitial') {
       setPatient({
         ...patient,
@@ -111,10 +108,22 @@ export const useNewPatient = () => {
         patientIdError: errors.patientIdError,
       });
     }
-    if (name === 'patientAge') {
+    if (name === 'dob') {
+      const dob = e.target.value ? e.target.value : patient.dob;
+      const calculatedAge: number = getAgeBasedOnDOB(dob);
       setPatient({
         ...patient,
         [name]: e.target.value,
+        patientAge: calculatedAge,
+        dobError: errors.dobError,
+      });
+    }
+    if (name === 'patientAge') {
+      const age = calculateDOB(e.target.value);
+      setPatient({
+        ...patient,
+        [name]: e.target.value,
+        dob : age,
         patientAgeError: errors.patientAgeError,
       });
     }
@@ -130,12 +139,6 @@ export const useNewPatient = () => {
         ...patient,
         [name]: e.target.value,
         gestationalAgeValue: '0',
-      });
-    }
-    if (name === 'dobOrAge') {
-      setPatient({
-        ...patient,
-        [name]: e.target.checked,
       });
     }
     if (name === 'gestationalAgeValue') {
@@ -170,6 +173,7 @@ export const useNewPatient = () => {
         [name]: e.target.value,
       });
     }
+    console.log(patient)
   };
   return { patient, handleChangePatient };
 };

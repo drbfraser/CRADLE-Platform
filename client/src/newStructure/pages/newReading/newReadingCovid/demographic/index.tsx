@@ -1,18 +1,17 @@
 import React from 'react';
 
 import {
-  FormControl,
-  FormControlLabel,
-  Checkbox,
-  Paper,
-  TextField,
-  MenuItem,
-  Switch,
-  Grid,
+    FormControl,
+    FormControlLabel,
+    Checkbox,
+    Paper,
+    TextField,
+    MenuItem,
 } from '@material-ui/core';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { GESTATIONAL_AGE_UNITS } from '../../patientInfoForm';
+import {ToggleButton, ToggleButtonGroup} from "@material-ui/lab";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -26,6 +25,14 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: '22ch',
       width: '30%',
     },
+      formFieldSplitLeft: {
+      margin: theme.spacing(1),
+      width: '15%',
+    },
+      formFieldSplitRight: {
+          margin: theme.spacing(1),
+          width: '15%',
+      },
     formFieldDM: {
       margin: theme.spacing(1),
       minWidth: '48ch',
@@ -45,6 +52,14 @@ interface IProps {
 
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
+    const [alignment, setAlignment] = React.useState<string | null>("left");
+
+    const handleAlignment = (
+        event: React.MouseEvent<HTMLElement>,
+        newAlignment: string | null
+    ) => {
+        setAlignment(newAlignment);
+    };
   return (
     <Paper
       style={{
@@ -99,57 +114,59 @@ const Page: React.FC<IProps> = (props) => {
             type={'text'}
           />
         </FormControl>
-        <FormControl className={classes.formField}>
-          <TextField
-            disabled={props.patient.dobOrAge}
-            error={props.patient.dobError}
-            id="date"
-            label="Birthday"
-            type="date"
-            defaultValue="2004-01-01"
-            name="dob"
-            value={props.patient.dob}
-            variant="outlined"
-            onChange={props.onChange}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            helperText={
-              props.patient.dobError ? 'Must be between 15 - 65.' : ''
-            }
-          />
-        </FormControl>
-        <FormControl className={classes.formField}>
-          <Grid component="label" container alignItems="center" spacing={1}>
-            <Grid item>Birthday</Grid>
-            <Grid item>
-              <Switch
-                checked={props.patient.dobOrAge}
-                onChange={props.onChange}
-                name="dobOrAge"
-                inputProps={{ 'aria-label': 'secondary checkbox' }}
+          {alignment === "left" ?  <FormControl className={classes.formField}>
+              <TextField
+                  error={props.patient.dobError}
+                  id="date"
+                  label="Birthday"
+                  type="date"
+                  defaultValue="2004-01-01"
+                  name="dob"
+                  value={props.patient.dob}
+                  variant="outlined"
+                  onChange={props.onChange}
+                  InputLabelProps={{
+                      shrink: true,
+                  }}
+                  helperText={
+                      props.patient.dobError ? 'Must be between 15 - 65.' : ''
+                  }
               />
-            </Grid>
-            <Grid item>Age</Grid>
-          </Grid>
-        </FormControl>
+          </FormControl>
+          :
+              <FormControl className={classes.formField}>
+                  <TextField
+                      error={props.patient.patientAgeError}
+                      label={'Patient Age'}
+                      id="component-outlined"
+                      name="patientAge"
+                      value={props.patient.patientAge}
+                      onChange={props.onChange}
+                      type={'number'}
+                      variant="outlined"
+                      helperText={
+                          props.patient.patientAgeError ? 'Must be between 15 - 65.' : ''
+                      }
+                  />
+              </FormControl>
+          }
         <FormControl className={classes.formField}>
-          <TextField
-            disabled={!props.patient.dobOrAge}
-            error={props.patient.patientAgeError}
-            label={'Patient Age'}
-            id="component-outlined"
-            name="patientAge"
-            value={props.patient.patientAge}
-            onChange={props.onChange}
-            type={'number'}
-            variant="outlined"
-            helperText={
-              props.patient.patientAgeError ? 'Must be between 15 - 65.' : ''
-            }
-          />
+            <ToggleButtonGroup
+                value={alignment}
+                exclusive
+                onChange={handleAlignment}
+                aria-label="text alignment"
+            >
+                <ToggleButton value="left" aria-label="left aligned" name="dobOrAge">
+                    Birthday
+                </ToggleButton>
+                <ToggleButton value="right" aria-label="centered" name="dobOrAge">
+                    Age Estimated
+                </ToggleButton>
+            </ToggleButtonGroup>
         </FormControl>
-        <FormControl className={classes.formField}>
+
+        <FormControl className={classes.formFieldSplitLeft}>
           <TextField
             label={'Gender'}
             select
@@ -162,7 +179,7 @@ const Page: React.FC<IProps> = (props) => {
             <MenuItem value={'OTHER'}>Other</MenuItem>
           </TextField>
         </FormControl>
-        <FormControl className={classes.formField}>
+        <FormControl className={classes.formFieldSplitRight}>
           <FormControlLabel
             control={
               <Checkbox
@@ -225,7 +242,7 @@ const Page: React.FC<IProps> = (props) => {
             <MenuItem value={GESTATIONAL_AGE_UNITS.MONTHS}>Months</MenuItem>
           </TextField>
         </FormControl>
-        <FormControl className={classes.formField}>
+        <FormControl className={classes.formFieldSplitLeft}>
           <TextField
             label={'Zone'}
             id="component-outlined"
@@ -236,7 +253,7 @@ const Page: React.FC<IProps> = (props) => {
             type={'text'}
           />
         </FormControl>
-        <FormControl className={classes.formField}>
+        <FormControl className={classes.formFieldSplitRight}>
           <TextField
             label={'Village'}
             id="component-outlined"

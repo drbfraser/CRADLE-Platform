@@ -9,11 +9,11 @@ export const useNewVitals = () => {
     bpSystolicError: false,
     bpDiastolicError: false,
     heartRateBPMError: false,
-    oxygenSaturationError:false,
+    oxygenSaturationError: false,
     respiratoryRate: '',
     oxygenSaturation: '',
     temperature: '',
-    temperatureError:false,
+    temperatureError: false,
     dateRecheckVitalsNeeded: null,
     isFlaggedForFollowup: false,
   });
@@ -85,14 +85,14 @@ export const useNewVitals = () => {
       setVitals({
         ...vitals,
         [e.target.name]: e.target.value,
-        oxygenSaturationError:validation,
+        oxygenSaturationError: validation,
       });
     }
     if (name === 'temperature') {
       setVitals({
         ...vitals,
         [e.target.name]: e.target.value,
-        temperatureError:validation
+        temperatureError: validation,
       });
     }
 

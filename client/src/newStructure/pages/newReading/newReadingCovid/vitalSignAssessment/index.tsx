@@ -64,9 +64,9 @@ const Page: React.FC<IProps> = (props) => {
               variant="outlined"
               type="number"
               InputProps={{
-                  endAdornment: (
-                      <InputAdornment position="end">mm/Hg</InputAdornment>
-                  ),
+                endAdornment: (
+                  <InputAdornment position="end">mm/Hg</InputAdornment>
+                ),
               }}
               helperText={
                 props.vitals.bpSystolicError ? 'Must be between 50 - 300.' : ''
@@ -84,9 +84,9 @@ const Page: React.FC<IProps> = (props) => {
               variant="outlined"
               type="number"
               InputProps={{
-                  endAdornment: (
-                      <InputAdornment position="end">mm/Hg</InputAdornment>
-                  ),
+                endAdornment: (
+                  <InputAdornment position="end">mm/Hg</InputAdornment>
+                ),
               }}
               helperText={
                 props.vitals.bpDiastolicError ? 'Must be between 30 - 200.' : ''
@@ -170,9 +170,7 @@ const Page: React.FC<IProps> = (props) => {
               variant="outlined"
               type="number"
               helperText={
-                props.vitals.temperatureError
-                  ? 'Must be between 34 - 45.'
-                  : ''
+                props.vitals.temperatureError ? 'Must be between 34 - 45.' : ''
               }
             />
           </FormControl>

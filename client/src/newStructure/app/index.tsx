@@ -120,7 +120,6 @@ const Component: React.FC<IProps> = (props) => {
     setOpenStats(false);
   }, [props.pathName]);
 
-
   const onStatsClick = (event: any) => {
     setOpenStats(!statsOpen);
     setAnchor(event.currentTarget);
