@@ -6,7 +6,7 @@ import string
 import time
 import uuid
 import logging
-from datetime import datetime
+from datetime import date, datetime
 from manage import getRandomInitials
 
 
@@ -29,8 +29,8 @@ def get_authorization_header(email, password):
 
 
 BASE_URL = "http://localhost:5000"
-# date equivalent to Jan 1, 2000
-EPOCH_BIRTHDATE = 946684800
+# date of Jan 1, 2000 in Python's datetime
+BIRTHDATE = datetime.strptime("2000-01-01", "%Y-%m-%d").strftime("%Y-%m-%d")
 
 
 def get_random_patient_id():
@@ -137,13 +137,17 @@ def test_pass_create_patient_with_dob_no_age():
         "patientId": patient_id,
         "patientName": patient_name,
         "patientSex": patient_sex,
-        # dob equivalent to Jan 1, 2000
-        "dob": EPOCH_BIRTHDATE,
+        "dob": BIRTHDATE,
     }
 
     # calculates age from Jan 1, 2000 birthdate
-    SECONDS_IN_YEAR = 31557600
-    age_in_database = (time.time() - EPOCH_BIRTHDATE) / SECONDS_IN_YEAR
+    today = date.today()
+    birthday = datetime.strptime(BIRTHDATE, "%Y-%m-%d").date()
+    age_in_database = (
+        today.year
+        - birthday.year
+        - ((today.month, today.day) < (birthday.month, birthday.day))
+    )
 
     response = requests.post(url, json=data, headers=auth_header)
     response_body = json.loads(response.text)
@@ -152,7 +156,7 @@ def test_pass_create_patient_with_dob_no_age():
     assert response_body["patientId"] == patient_id
     assert response_body["patientName"] == patient_name
     assert response_body["patientSex"] == patient_sex
-    assert response_body["dob"] == EPOCH_BIRTHDATE
+    assert response_body["dob"] == BIRTHDATE
     assert response_body["patientAge"] == int(age_in_database)
 
 
@@ -175,13 +179,17 @@ def test_pass_create_patient_reading_with_dob_no_age():
         "patientId": patient_id,
         "patientName": patient_name,
         "patientSex": patient_sex,
-        # dob equivalent to Jan 1, 2000
-        "dob": EPOCH_BIRTHDATE,
+        "dob": BIRTHDATE,
     }
 
     # calculates age from Jan 1, 2000 birthdate
-    SECONDS_IN_YEAR = 31557600
-    age_in_database = (time.time() - EPOCH_BIRTHDATE) / SECONDS_IN_YEAR
+    today = date.today()
+    birthday = datetime.strptime(BIRTHDATE, "%Y-%m-%d").date()
+    age_in_database = (
+        today.year
+        - birthday.year
+        - ((today.month, today.day) < (birthday.month, birthday.day))
+    )
 
     reading = {
         "readingId": reading_id,
@@ -204,7 +212,7 @@ def test_pass_create_patient_reading_with_dob_no_age():
     assert response_body["reading"]["bpSystolic"] == bp_systolic
     assert response_body["reading"]["bpDiastolic"] == bp_diastolic
     assert response_body["reading"]["heartRateBPM"] == hr
-    assert response_body["patient"]["dob"] == EPOCH_BIRTHDATE
+    assert response_body["patient"]["dob"] == BIRTHDATE
     assert response_body["patient"]["patientAge"] == int(age_in_database)
 
 
@@ -383,12 +391,12 @@ def test_fail_empty_patient_id():
 
 
 def test_fail_create_patient_invalid_gestational_age_weeks():
-    # should fail because max gestational age for weeks is 43
+    # should fail because max gestational age is 43 weeks/10 months
     patient_id = get_random_patient_id()
     patient_name = getRandomInitials()
     patient_sex = "FEMALE"
     patient_gest_age_unit = "GESTATIONAL_AGE_UNITS_WEEKS"
-    patient_gest_age = "44"
+    patient_gest_timestamp = 1563311831
 
     url = BASE_URL + "/api/patient"
 
@@ -398,37 +406,11 @@ def test_fail_create_patient_invalid_gestational_age_weeks():
         "patientSex": patient_sex,
         "isPregnant": True,
         "gestationalAgeUnit": patient_gest_age_unit,
-        "gestationalAgeValue": patient_gest_age,
+        "gestationalTimestamp": patient_gest_timestamp,
     }
 
     response = requests.post(url, json=data, headers=auth_header)
     response_body = response.json()
 
     assert response.status_code == 400
-    assert response_body["HTTP 400"] == "Gestation age is greater than 43 weeks."
-
-
-def test_fail_create_patient_invalid_gestational_age_months():
-    # should fail because max gestational age for months is 10
-    patient_id = get_random_patient_id()
-    patient_name = getRandomInitials()
-    patient_sex = "FEMALE"
-    patient_gest_age_unit = "GESTATIONAL_AGE_UNITS_MONTHS"
-    patient_gest_age = "11"
-
-    url = BASE_URL + "/api/patient"
-
-    data = {
-        "patientId": patient_id,
-        "patientName": patient_name,
-        "patientSex": patient_sex,
-        "isPregnant": True,
-        "gestationalAgeUnit": patient_gest_age_unit,
-        "gestationalAgeValue": patient_gest_age,
-    }
-
-    response = requests.post(url, json=data, headers=auth_header)
-    response_body = response.json()
-
-    assert response.status_code == 400
-    assert response_body["HTTP 400"] == "Gestation age is greater than 10 months."
+    assert response_body["HTTP 400"] == "Gestation is greater than 43 weeks/10 months."

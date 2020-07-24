@@ -43,6 +43,7 @@ const initState = {
     patientSex: 'FEMALE',
     isPregnant: true,
     gestationalAgeValue: '1',
+    gestationalTimestamp: null,
     gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
     zone: '',
     dob: null,
@@ -270,10 +271,43 @@ class NewReadingPageComponent extends Component<IProps, IState> {
       this.setState({
         patient: {
           ...this.state.patient,
-          dob: Date.parse(this.state.patient.dob as any) / 1000,
+          dob: String(this.state.patient.dob as any),
         },
       });
     }
+
+    if (
+      this.state.patient.isPregnant === true &&
+      this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
+    ) {
+      const gestDate = new Date();
+      gestDate.setDate(
+        gestDate.getDate() - (this.state.patient.gestationalAgeValue as any) * 7
+      );
+      this.setState({
+        patient: {
+          ...this.state.patient,
+          gestationalTimestamp: Date.parse(gestDate as any) / 1000,
+        },
+      });
+    }
+
+    if (
+      this.state.patient.isPregnant === true &&
+      this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS
+    ) {
+      const gestDate = new Date();
+      gestDate.setMonth(
+        gestDate.getMonth() - (this.state.patient.gestationalAgeValue as any)
+      );
+      this.setState({
+        patient: {
+          ...this.state.patient,
+          gestationalTimestamp: Date.parse(gestDate as any) / 1000,
+        },
+      });
+    }
+
     const readingID = guid();
 
     const dateTimeTaken = Math.floor(Date.now() / 1000);
@@ -294,6 +328,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
         if (!this.state.hasUrineTest) {
           delete readingData.urineTests;
         }
+        delete patientData.gestationalAgeValue;
 
         const newData = {
           patient: patientData,

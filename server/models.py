@@ -1,11 +1,14 @@
-from config import db, ma
 import enum
+
 from jsonschema import validate
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
+
+from config import db, ma
 from utils import get_current_time
+
 
 # To add a table to db, make a new class
 # create a migration: flask db migrate
@@ -36,16 +39,6 @@ class TrafficLightEnum(enum.Enum):
     YELLOW_DOWN = "YELLOW_DOWN"
     RED_UP = "RED_UP"
     RED_DOWN = "RED_DOWN"
-
-
-class FrequencyUnitEnum(enum.Enum):
-    NONE = "None"
-    MINUTES = "MINUTES"
-    HOURS = "HOURS"
-    DAYS = "DAYS"
-    WEEKS = "WEEKS"
-    MONTHS = "MONTHS"
-    YEARS = "YEARS"
 
 
 class FacilityTypeEnum(enum.Enum):
@@ -110,6 +103,10 @@ class User(db.Model):
         secondaryjoin=id == supervises.c.vhtId,
     )
 
+    @staticmethod
+    def schema():
+        return UserSchema
+
     def __repr__(self):
         return "<User {}>".format(self.username)
 
@@ -118,22 +115,25 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Enum(RoleEnum), nullable=False)
 
+    @staticmethod
+    def schema():
+        return RoleSchema
+
 
 class Referral(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dateReferred = db.Column(db.BigInteger, nullable=False)
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
+    isAssessed = db.Column(db.Boolean, nullable=False, default=0)
 
     # FOREIGN KEYS
     userId = db.Column(db.Integer, db.ForeignKey("user.id"))
     patientId = db.Column(db.String(50), db.ForeignKey("patient.patientId"))
-
+    readingId = db.Column(db.String(50), db.ForeignKey("reading.readingId"))
     referralHealthFacilityName = db.Column(
         db.String(50), db.ForeignKey("healthfacility.healthFacilityName")
     )
-    readingId = db.Column(db.String(50), db.ForeignKey("reading.readingId"))
-    followUpId = db.Column(db.Integer, db.ForeignKey("followup.id"))
 
     # RELATIONSHIPS
     healthFacility = db.relationship(
@@ -142,10 +142,11 @@ class Referral(db.Model):
     reading = db.relationship(
         "Reading", backref=db.backref("referral", lazy=True, uselist=False)
     )
-    followUp = db.relationship(
-        "FollowUp",
-        backref=db.backref("referral", lazy=True, uselist=False, cascade="save-update"),
-    )
+    patient = db.relationship("Patient", backref=db.backref("referrals", lazy=True))
+
+    @staticmethod
+    def schema():
+        return ReferralSchema
 
 
 class HealthFacility(db.Model):
@@ -161,6 +162,10 @@ class HealthFacility(db.Model):
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
 
+    @staticmethod
+    def schema():
+        return HealthFacilitySchema
+
 
 class Patient(db.Model):
     patientId = db.Column(db.String(50), primary_key=True)
@@ -169,12 +174,14 @@ class Patient(db.Model):
     patientSex = db.Column(db.Enum(SexEnum), nullable=False)
     isPregnant = db.Column(db.Boolean)
     gestationalAgeUnit = db.Column(db.String(50))
-    gestationalAgeValue = db.Column(db.String(20))
+    gestationalTimestamp = db.Column(db.BigInteger)
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    dob = db.Column(db.BigInteger)
+    dob = db.Column(db.Date)
     villageNumber = db.Column(db.String(50))
+    householdNumber = db.Column(db.String(50))
+    created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     lastEdited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -185,12 +192,19 @@ class Patient(db.Model):
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
+    @staticmethod
+    def schema():
+        return PatientSchema
+
 
 class Reading(db.Model):
     readingId = db.Column(db.String(50), primary_key=True)
     bpSystolic = db.Column(db.Integer)
     bpDiastolic = db.Column(db.Integer)
     heartRateBPM = db.Column(db.Integer)
+    respiratoryRate = db.Column(db.Integer)
+    oxygenSaturation = db.Column(db.Integer)
+    temperature = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
     dateTimeTaken = db.Column(db.BigInteger)
@@ -249,25 +263,38 @@ class Reading(db.Model):
 
         return traffic_light
 
+    @staticmethod
+    def schema():
+        return ReadingSchema
+
 
 class FollowUp(db.Model):
     __tablename__ = "followup"
     id = db.Column(db.Integer, primary_key=True)
     followupInstructions = db.Column(db.Text)
+    specialInvestigations = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
+    medicationPrescribed = db.Column(db.Text)
     dateAssessed = db.Column(db.BigInteger, nullable=False)
-    healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
-    specialInvestigations = db.Column(db.Text)
-    medicationPrescribed = db.Column(
-        db.Text
-    )  # those medication names can get pretty long ...
     followupNeeded = db.Column(db.Boolean)
-    # reading = db.relationship('Reading', backref=db.backref('referral', lazy=True, uselist=False))
+
+    # FOREIGN KEYS
+    readingId = db.Column(db.ForeignKey(Reading.readingId), nullable=False)
+    healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
+
+    # RELATIONSHIPS
+    reading = db.relationship(
+        Reading,
+        backref=db.backref(
+            "followup", lazy=True, uselist=False, cascade="all, delete-orphan"
+        ),
+    )
     healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
-    followupFrequencyValue = db.Column(db.Float)
-    followupFrequencyUnit = db.Column(db.Enum(FrequencyUnitEnum))
-    dateFollowupNeededTill = db.Column(db.String(50))
+
+    @staticmethod
+    def schema():
+        return FollowUpSchema
 
 
 class Village(db.Model):
@@ -285,14 +312,37 @@ class UrineTest(db.Model):
     # urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
     readingId = db.Column(db.ForeignKey("reading.readingId"))
 
+    @staticmethod
+    def schema():
+        return UrineTestSchema
 
-class PatientFacility(db.Model):
-    id = db.Column(db.String(50), primary_key=True)
-    patientId = db.Column(db.ForeignKey("patient.patientId"), nullable=False)
-    healthFacilityName = db.Column(
-        db.ForeignKey("healthfacility.healthFacilityName"), nullable=False
+
+class PatientAssociations(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patientId = db.Column(
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"), nullable=False,
     )
-    __table_args__ = (db.UniqueConstraint("patientId", "healthFacilityName"),)
+    healthFacilityName = db.Column(
+        db.ForeignKey(HealthFacility.healthFacilityName, ondelete="CASCADE"),
+        nullable=True,
+    )
+    userId = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=True)
+
+    # RELATIONSHIPS
+    patient = db.relationship(
+        "Patient", backref=db.backref("associations", lazy=True, cascade="all, delete"),
+    )
+    healthFacility = db.relationship(
+        "HealthFacility",
+        backref=db.backref("associations", lazy=True, cascade="all, delete"),
+    )
+    user = db.relationship(
+        "User", backref=db.backref("associations", lazy=True, cascade="all, delete"),
+    )
+
+    @staticmethod
+    def schema():
+        return PatientAssociationsSchema
 
 
 #
@@ -347,7 +397,6 @@ class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
 
 
 class FollowUpSchema(ma.SQLAlchemyAutoSchema):
-    followupFrequencyUnit = EnumField(FrequencyUnitEnum, by_value=True)
     healthcareWorker = fields.Nested(UserSchema)
 
     class Meta:
@@ -376,10 +425,10 @@ class UrineTestSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-class PatientFacilitySchema(ma.SQLAlchemyAutoSchema):
+class PatientAssociationsSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = PatientFacility
+        model = PatientAssociations
         load_instance = True
         include_relationships = True
 

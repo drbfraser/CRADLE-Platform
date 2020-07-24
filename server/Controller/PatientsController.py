@@ -1,33 +1,28 @@
-import logging
-import json
-import uuid
-from flask import request
-from flask_restful import Resource, abort
 from datetime import date, datetime
-from Controller.Helpers import _get_request_body
+import json
+import logging
 import time
 
-# Project modules
-from Manager.PatientManagerNew import PatientManager as PatientManagerNew
-from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
-from Validation import PatientValidation
-from Manager.UserManager import UserManager
-from Manager.PatientFacilityManager import PatientFacilityManager
-from Manager.urineTestManager import urineTestManager
-
+from flasgger import swag_from
+from flask import request
 from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
     jwt_required,
-    jwt_refresh_token_required,
     get_jwt_identity,
 )
-from flasgger import swag_from
+from flask_restful import Resource, abort
+from sqlalchemy.exc import IntegrityError
+
+from Controller.Helpers import _get_request_body
+from Manager.PatientAssociationsManager import PatientAssociationsManager
+from Manager.PatientManagerNew import PatientManager as PatientManagerNew
+from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
+from Manager.UserManager import UserManager
+from Manager.urineTestManager import urineTestManager
+from Validation import PatientValidation
 
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()
 userManager = UserManager()
-patientFacilityManager = PatientFacilityManager()
 
 urineTestManager = urineTestManager()
 decoding_error = "The json body could not be decoded. Try enclosing appropriate fields with quotations, or ensuring that values are comma separated."
@@ -57,8 +52,13 @@ def abort_if_patient_exists(patient_id):
 # input: timestamp (int)
 # output: patient data w/ age populated (int)
 def calculate_age_from_dob(patient_data):
-    SECONDS_IN_YEAR = 31557600
-    age = (time.time() - patient_data["dob"]) / SECONDS_IN_YEAR
+    today = date.today()
+    birthday = datetime.strptime(patient_data["dob"], "%Y-%m-%d").date()
+    age = (
+        today.year
+        - birthday.year
+        - ((today.month, today.day) < (birthday.month, birthday.day))
+    )
     patient_data["patientAge"] = int(age)
     return patient_data
 
@@ -99,9 +99,6 @@ class PatientAll(Resource):
         except:
             return {"HTTP 400": decoding_error}, 400
         patient_data = self._get_request_body()
-
-        if "dob" in patient_data and patient_data["dob"] is not None:
-            patient_data["dob"] = int(patient_data["dob"])
 
         # Ensure all data is valid
         abort_if_body_empty(patient_data)
@@ -212,9 +209,6 @@ class PatientReading(Resource):
             and patient_data["dob"]
             and ("patientAge" not in patient_data or patient_data["patientAge"] is None)
         ):
-            patient_reading_data["patient"]["dob"] = int(
-                patient_reading_data["patient"]["dob"]
-            )
             patient_reading_data["patient"] = calculate_age_from_dob(patient_data)
 
         # create new reading (and patient if it does not already exist)
@@ -223,11 +217,16 @@ class PatientReading(Resource):
         )
 
         # add patient to the facility of the user that took their reading
-        user = userManager.read("id", patient_reading_data["reading"]["userId"])
-        userFacility = user["healthFacilityName"]
-        patientFacilityManager.add_patient_facility_relationship(
-            patient_reading_data["patient"]["patientId"], userFacility
-        )
+        user_id = patient_reading_data["reading"]["userId"]
+        user = userManager.database.select_one(id=user_id)
+        facility_name = user.healthFacilityName
+        patient_id = patient_reading_data["patient"]["patientId"]
+        try:
+            PatientAssociationsManager().associate_by_id(
+                patient_id, facility_name, user_id
+            )
+        except IntegrityError:
+            abort(409, message="Duplicate entry")
 
         # associate new reading with patient
         reading_and_patient["message"] = "Patient reading created successfully!"
@@ -267,20 +266,14 @@ class PatientGlobalSearch(Resource):
     @jwt_required
     def get(self, search):
         current_user = get_jwt_identity()
-
-        # Only works for health workers currently
-        if "HCW" not in current_user["roles"]:
-            return (
-                {"message": "Unauthorized, please try again as a Health Care Worker"},
-                401,
-            )
-
         patients_readings_referrals = patientManager.get_global_search_patients(
-            current_user, search
+            current_user, search.upper()
         )
 
         if not patients_readings_referrals:
-            abort(404, message="No patients currently exist.")
+            abort(
+                404, message="No patients matching the search criteria currently exist."
+            )
         else:
             return patients_readings_referrals
 
@@ -293,20 +286,28 @@ class PatientGlobalSearch(Resource):
 class PatientFacility(Resource):
     @jwt_required
     def post(self):
+        import api.util as util
+        import data.crud as crud
+        import service.assoc as assoc
+        from models import Patient
+
         try:
             request_body = _get_request_body()
         except:
             return {"HTTP 400": decoding_error}, 400
         if not request_body["patientId"]:
             return {"HTTP 400": "Patient Id is empty."}, 400
-        # to do, check if patient exists in add patient facility function instead
-        patient = patientManager.read("patientId", request_body["patientId"])
+
+        # Emulate old API functionality with new systems, use of /api/associations is
+        # preferred over this method now
+        patient = crud.read(Patient, patientId=request_body["patientId"])
         if patient:
-            current_user = get_jwt_identity()
-            user_health_facility = current_user["healthFacilityName"]
-            patientFacilityManager.add_patient_facility_relationship(
-                request_body["patientId"], user_health_facility
-            )
+            user = util.current_user()
+            facility = user.healthFacility
+            if not assoc.has_association(patient, facility, user):
+                assoc.associate(patient, facility, user)
+            else:
+                abort(409, message="Duplicate entry")
             return {"message": "patient has been added to facility successfully"}, 201
         else:
             abort(404, message="This patient does not exist.")

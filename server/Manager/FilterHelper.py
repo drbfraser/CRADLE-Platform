@@ -1,106 +1,73 @@
-from Manager.PatientFacilityManager import PatientFacilityManager
+from typing import List, Tuple
 
-patientFacilityManager = PatientFacilityManager()
-# todo: should probably refactor all of this into one function b/c there's some code reuse
-# todo: when cleaning up code, can use search insted of manually finding
-def filtered_list_hcw(patients, referrals, users, userId):
-    print("Filtering list...")
-    patient_id_list = []
-    patient_filtered_list = []
-
-    # need to look up userId in user table to find what health facility person is from
-    # may need to add error check here depending on if front end is okay with catching them
-    facilityName = ""
-    for u in users:
-        if u["id"] == userId:
-            facilityName = u["healthFacilityName"]
-
-    # we can technically get rid of filtering via referrals alltogether
-    # however curently our data seeding file does not use apis to add patients so that relationship is never entered into the patient_facility table
-    # so leaving this referral filter here for now, but can remove it in production as all patient creation will happen via APIs
-    # getting patient Ids for all patients referred to the clinic in question
-    for r in referrals:
-        if r["referralHealthFacilityName"] == facilityName:
-            if r["patientId"] not in patient_id_list:
-                patient_id_list.append(r["patientId"])
-
-    # finding patients that have relationship to facility that current user is from
-    args = {"healthFacilityName": facilityName}
-    patients_created_at_facility = patientFacilityManager.search(args)
-
-    # adding those patients to filtered list
-    for p in patients_created_at_facility:
-        if p["patientId"] not in patient_id_list:
-            patient_id_list.append(p["patientId"])
-
-    # getting all patient rows based on patientIds collected
-    for patient in patients:
-        if patient["patientId"] in patient_id_list:
-            patient_filtered_list.append(patient)
-
-    # now we have a filtered list
-    return patient_filtered_list
+from models import Patient, User
+from .PatientAssociationsManager import (
+    patients_at_facility,
+    patients_for_user,
+    has_association,
+)
 
 
-def filtered_list_vht(patients, readings, userId):
-    print("Filtering list...")
-    patient_id_list = []
-    patient_filtered_list = []
+def patients_for_hcw(user: User) -> List[Patient]:
+    """
+    Returns the list of patients that are associated with a health care worker.
 
-    # getting patient Ids for all patients this VHT has taken readings for
-    for r in readings:
-        if r["userId"] == userId:
-            if r["patientId"] not in patient_id_list:
-                patient_id_list.append(r["patientId"])
+    Patients are considered to be associated with a HCW if there is an association
+    between the patient and the facility the HCW works at in the patient_associations
+    table.
 
-    # getting all patient rows based on patientIds collected in last table
-    for p in patients:
-        if p["patientId"] in patient_id_list:
-            patient_filtered_list.append(p)
-
-    # now we have a filtered list
-    return patient_filtered_list
+    :param user: A HCW user model
+    :return: A list of patients
+    """
+    facility = user.healthFacility
+    return patients_at_facility(facility)
 
 
-def filtered_list_cho(patients, readings, vhtList, userId):
-    print("Filtering list...")
-    patient_id_list = []
-    patient_filtered_list = []
+def patients_for_cho(user: User) -> List[Patient]:
+    """
+    Returns the list of patients that are associated with a CHO.
 
-    # adding cho user id to VHT list because we need the patients CHO sees as well
-    vhtList.append(userId)
-
-    for v in vhtList:
-        patient_filtered_list.extend(filtered_list_vht(patients, readings, v))
-
-    return patient_filtered_list
+    :param user: A CHO user model
+    :return: A list of patients
+    """
+    cho_patients = patients_for_user(user)
+    vht_patients = [u for vht in user.vhtList for u in patients_for_user(vht)]
+    return cho_patients + vht_patients
 
 
-# Performs a global search using either patient id or patient initials
-def filtered_global_search(patients, healthFacilityName, search):
-    # Fetch all patients created in the health facility the current user belongs to
-    args = {"healthFacilityName": healthFacilityName}
-    patients_created_at_facility = patientFacilityManager.search(args)
+def patients_for_vht(user: User) -> List[Patient]:
+    """
+    Returns the list of patients that are associated with a VHT.
 
-    # Populate patient ids for patients created at facility
-    patient_ids = []
-    for patient_created in patients_created_at_facility:
-        patient_ids.append(patient_created["patientId"])
+    Patients are considered to be associated with a VHT if there is an association
+    between the user and the patient in the patient_associations table.
 
-    # get all patients that either have a partial or full match
-    # of their patient id or initials with the given search value
-    patient_filtered_list = []
-    for patient in patients:
-        # Confirm that patient matches search criteria
-        if search in patient["patientId"] or search in patient["patientName"]:
-            # If patient already added to health facility indicate in state as added
-            if patient["patientId"] in patient_ids:
-                patient["state"] = "Added"
-            # If patient not added to health facility indicate in state as add
-            else:
-                patient["state"] = "Add"
+    :param user: VHT user model
+    :return: A list of patients
+    """
+    return patients_for_user(user)
 
-            patient_filtered_list.append(patient)
 
-    # now we have all patients matching the search critieria
-    return patient_filtered_list
+def annotated_global_patient_list(
+    user: User, search: str
+) -> List[Tuple[Patient, bool]]:
+    """
+    Returns the global list of patients where each patient is paired with a boolean that
+    is True if the patient is a member of the user's health facility and False if not.
+
+    :param user: A user model
+    :param search: A search query
+    :return: A list of tuples
+    """
+
+    def __normalized_search(query: str, value: str) -> bool:
+        return query.upper() in value.upper()
+
+    facility = user.healthFacility
+    all_patients = Patient.query.all()
+    return [
+        (patient, has_association(patient=patient, facility=facility))
+        for patient in all_patients
+        if __normalized_search(search, patient.patientId)
+        or __normalized_search(search, patient.patientName)
+    ]

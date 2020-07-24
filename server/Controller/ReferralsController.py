@@ -3,7 +3,7 @@ from flask import request
 from flask_restful import Resource, abort
 from config import db
 from utils import pprint
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
 
 # Project modules
@@ -123,4 +123,9 @@ class ReferralApi(Resource):
     def post(self):
         req_data = _get_request_body()
 
-        return referralManager.create_referral_with_patient_and_reading(req_data), 201
+        current_user = get_jwt_identity()
+        user_id = current_user["userId"]
+        return (
+            referralManager.create_referral_with_patient_and_reading(req_data, user_id),
+            201,
+        )

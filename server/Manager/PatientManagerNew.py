@@ -1,41 +1,12 @@
-import json
+from typing import Tuple
+
+import Manager.FilterHelper as filter
 from Database.PatientRepoNew import PatientRepo
 from Database.ReadingRepoNew import ReadingRepo
-from Database.ReferralRepo import ReferralRepo
-from Manager.Manager import Manager
-from Manager import referralManager, readingManager
-from Manager.ReferralManager import ReferralManager  # referral data
-from Manager.ReadingManagerNew import ReadingManager  # referral data
-from models import *
-from flask_sqlalchemy import SQLAlchemy
-from Manager.urineTestManager import urineTestManager
-
-urineTestManager = urineTestManager()
-
-# to do: remove all the redundant imports
-
-from Manager.UserManager import UserManager
-
-userManager = UserManager()
-referralManager = ReferralManager()
-readingManager = ReadingManager()
-from Manager.FilterHelper import (
-    filtered_list_hcw,
-    filtered_list_vht,
-    filtered_list_cho,
-    filtered_global_search,
-)
+from Database.UserRepo import UserRepo
 from Manager.GlobalSearchHelper import to_global_search_patient
-from Manager.RoleManager import RoleManager
-
-roleManager = RoleManager()
-from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
-    jwt_required,
-    jwt_refresh_token_required,
-    get_jwt_identity,
-)
+from Manager.Manager import Manager
+from models import Patient, Reading
 
 
 class PatientManager(Manager):
@@ -43,89 +14,52 @@ class PatientManager(Manager):
         Manager.__init__(self, PatientRepo)
 
     def get_global_search_patients(self, current_user, search):
-        patient_list = self.read_all()
-        patients_query = filtered_global_search(
-            patient_list, current_user["healthFacilityName"], search
-        )
+        def __make_gs_patient_dict(p: Patient, is_added: bool) -> dict:
+            patient_dict = PatientRepo().model_to_dict(p)
+            patient_dict["state"] = "Added" if is_added else "Add"
+            return patient_dict
 
-        result_json_arr = []
-        for patient in patients_query:
-            global_search_patient = to_global_search_patient(patient)
-            result_json_arr.append(global_search_patient)
+        user = UserRepo().select_one(id=current_user["userId"])
+        pairs = filter.annotated_global_patient_list(user, search)
+        patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
+        return [to_global_search_patient(p) for p in patients_query]
 
-        return result_json_arr
-
-    def get_patient_with_referral_and_reading(self, current_user, search=None):
-        # TO DO: Extract this code into a function
-        # Would be nice to let role based authorization/behavior happen elsewhere
-        # Will also allow us to only read the tables we need for that user
-        patient_list = self.read_all()
-        if patient_list is None:
-            return None
-        ref_list = referralManager.read_all()
-        readings_list = readingManager.read_all()
-        user_list = userManager.read_all()
-
-        if "ADMIN" in current_user["roles"]:
-            patients_query = self.read_all()
-        elif "HCW" in current_user["roles"]:
-            patients_query = filtered_list_hcw(
-                patient_list, ref_list, user_list, current_user["userId"]
-            )
-        elif "CHO" in current_user["roles"]:
-            patients_query = filtered_list_cho(
-                patient_list,
-                readings_list,
-                current_user["vhtList"],
-                current_user["userId"],
-            )
-        elif "VHT" in current_user["roles"]:
-            patients_query = filtered_list_vht(
-                patient_list, readings_list, current_user["userId"]
-            )
-
-        # otherwise show them all, which is not the best way to handle it, but risky to throw errors atm
+    def get_patient_with_referral_and_reading(self, current_user):
+        user = UserRepo().select_one(id=current_user["userId"])
+        roles = current_user["roles"]
+        if "ADMIN" in roles:
+            patients = Patient.query.all()
+        elif "HCW" in roles:
+            patients = filter.patients_for_hcw(user)
+        elif "CHO" in roles:
+            patients = filter.patients_for_cho(user)
+        elif "VHT" in roles:
+            patients = filter.patients_for_vht(user)
         else:
-            patients_query = patient_list
+            raise PermissionError("user is not authenticated")
 
-        print("length of patients_query: " + str(len(patients_query)))
+        return [self.__make_patient_readings_and_referrals(p) for p in patients]
 
-        if not patients_query:
-            return None
+    @staticmethod
+    def __make_patient_readings_and_referrals(patient: Patient) -> dict:
+        tuples = [
+            PatientManager.__make_reading_and_referral(r) for r in patient.readings
+        ]
+        reading_dicts = [t[0] for t in tuples]
+        needs_assessment = any([t[1] for t in tuples])
+        patient_dict = PatientRepo().model_to_dict(patient)
+        patient_dict["readings"] = reading_dicts
+        patient_dict["needsAssessment"] = needs_assessment
+        return patient_dict
 
-        result_json_arr = []
-        for patient in patients_query:
-
-            if patient["readings"]:
-                readings_arr = []
-                needs_assessment = False
-                for reading in patient["readings"]:
-                    # build the reading json to add to array
-                    # reading_json = readingManager.read("readingId", reading)
-                    reading_json = readingManager.get_reading_json_from_reading(reading)
-                    # add referral if exists in reading
-                    if reading_json["referral"]:
-
-                        top_ref = referralManager.read("id", reading_json["referral"])
-                        if not top_ref["followUp"]:
-                            needs_assessment = True
-
-                        reading_json["comment"] = top_ref["comment"]
-                        reading_json["dateReferred"] = top_ref["dateReferred"]
-                        reading_json["healthFacilityName"] = top_ref[
-                            "referralHealthFacilityName"
-                        ]
-
-                    # add reading to readings array w/ referral info if exists
-                    readings_arr.append(reading_json)
-
-                # add assessed field to patient
-                patient["needsAssessment"] = needs_assessment
-
-                # add reading key to patient key
-                patient["readings"] = readings_arr
-
-                # add to result array
-                result_json_arr.append(patient)
-
-        return result_json_arr
+    @staticmethod
+    def __make_reading_and_referral(reading: Reading) -> Tuple[dict, bool]:
+        reading_dict = ReadingRepo().model_to_dict(reading)
+        referral = reading.referral
+        needs_assessment = False
+        if referral:
+            reading_dict["comment"] = referral.comment
+            reading_dict["dateReferred"] = referral.dateReferred
+            reading_dict["healthFacilityName"] = referral.referralHealthFacilityName
+            needs_assessment = not referral.isAssessed
+        return reading_dict, needs_assessment

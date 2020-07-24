@@ -99,7 +99,7 @@ def seed_test_data():
         "1002",
         True,
         "GESTATIONAL_AGE_UNITS_WEEKS",
-        "22",
+        1592339808,
     )
     # TODO: Add more data here
 
@@ -140,7 +140,7 @@ def seed():
             "patientName": getRandomInitials(),
             "patientAge": getRandomAge(),
             "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
-            "gestationalAgeValue": "51",
+            "gestationalTimestamp": 1587068710,
             "villageNumber": getRandomVillage(),
             "patientSex": "FEMALE",
             "isPregnant": "true",
@@ -212,8 +212,12 @@ def create_patient_reading_referral(
     villageNum,
     isPregnant=False,
     gestAgeUnit=None,
-    gestAgeValue=None,
+    gestTimestamp=None,
 ):
+    import data.crud as crud
+    import data.marshal as marshal
+    from models import Patient
+
     """
     Creates a patient in the database.
     """
@@ -223,7 +227,7 @@ def create_patient_reading_referral(
             "patientName": name,
             "patientAge": age,
             "gestationalAgeUnit": gestAgeUnit,
-            "gestationalAgeValue": gestAgeValue,
+            "gestationalTimestamp": gestTimestamp,
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "true",
@@ -259,13 +263,10 @@ def create_patient_reading_referral(
         "comment": "They need help!",
     }
 
-    patient_schema = PatientSchema()
-    referral_schema = ReferralSchema()
-
-    db.session.add(patient_schema.load(patient))
-    ReadingRepo().create(reading)
-    db.session.add(referral_schema.load(referral))
-    db.session.commit()
+    reading["referral"] = referral
+    patient["readings"] = [reading]
+    model = marshal.unmarshal(Patient, patient)
+    crud.create(model)
 
 
 def getRandomInitials():

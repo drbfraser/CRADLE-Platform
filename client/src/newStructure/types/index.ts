@@ -128,10 +128,11 @@ export type SelectedUser = {
 };
 
 export type PatientNewReading = {
-  dob: OrNull<number>;
+  dob: OrNull<string>;
   drugHistory: OrNull<string>;
   gestationalAgeUnit: string;
   gestationalAgeValue: string;
+  gestationalTimestamp: OrNull<number>;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
   patientAge: OrNull<string>;

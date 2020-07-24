@@ -1,3 +1,5 @@
+from datetime import datetime, date
+
 # This module provides functions to validate the request data for a Patient.
 
 """
@@ -9,7 +11,7 @@
         "patientName":"BF", -- string
         "patientAge":49, -- int, should probably stick to one
         "gestationalAgeUnit":"GESTATIONAL_AGE_UNITS_WEEKS", -- string
-        "gestationalAgeValue":"45", -- string
+        "gestationalTimestamp":1592339808, -- Timestamp
         "villageNumber":"1251515", -- string
         "patientSex":"FEMALE", 
         "isPregnant":"true", -- boolean
@@ -58,16 +60,12 @@ def check_if_required_keys_present(request_body, required_keys):
 
 # helper method that checks gestational age isn't over 43 weeks/10 months
 def check_gestational_age_under_limit(request_body):
-    if (
-        request_body.get("gestationalAgeUnit") == "GESTATIONAL_AGE_UNITS_WEEKS"
-        and int(request_body.get("gestationalAgeValue")) > 43
-    ):
-        return "Gestation age is greater than 43 weeks."
-    if (
-        request_body.get("gestationalAgeUnit") == "GESTATIONAL_AGE_UNITS_MONTHS"
-        and int(request_body.get("gestationalAgeValue")) > 10
-    ):
-        return "Gestation age is greater than 10 months."
+    gestation_timestamp = int(request_body.get("gestationalTimestamp"))
+    gestation_date = datetime.fromtimestamp(gestation_timestamp)
+    today = date.today()
+    num_of_weeks = (today - gestation_date.date()).days // 7
+    if num_of_weeks > 43:
+        return "Gestation is greater than 43 weeks/10 months."
     return None
 
 
@@ -145,7 +143,7 @@ def check_patient_fields(request_body):
         gestational_age_message = check_gestational_age_under_limit(request_body)
 
     if gestational_age_message is not None:
-        print("Invalid gestation age: " + gestational_age_message)
+        print(gestational_age_message)
         return gestational_age_message
 
     # values that must be of type string
@@ -153,7 +151,6 @@ def check_patient_fields(request_body):
         "patientId",
         "patientName",
         "gestationalAgeUnit",
-        "gestationalAgeValue",
         "villageNumber",
         "zone",
         "medicalHistory",
@@ -274,7 +271,7 @@ def update_info_invalid(patient_id, request_body):
         return required_keys_present_message
 
     # values that must be of type int
-    must_be_int = {"patientAge", "villageNumber", "gestationalAgeValue"}
+    must_be_int = {"patientAge", "villageNumber"}
 
     values_string_or_int_message = check_if_values_string_int_array(
         request_body, None, must_be_int, None
