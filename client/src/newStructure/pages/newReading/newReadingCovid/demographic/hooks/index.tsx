@@ -1,7 +1,7 @@
 import React from 'react';
 import { GESTATIONAL_AGE_UNITS } from '../../../patientInfoForm';
 import { validateInput } from '../validation';
-import moment from "moment";
+import moment from 'moment';
 
 export const useNewPatient = () => {
   const [patient, setPatient] = React.useState({
@@ -45,7 +45,7 @@ export const useNewPatient = () => {
     const year: string = value.substr(0, value.indexOf('-'));
     const yearNow: number = new Date().getUTCFullYear();
     return yearNow - +year;
-  }
+  };
 
   const calculateGestationalAgeValue = (value: string) => {
     const currentDate = new Date();
@@ -59,8 +59,6 @@ export const useNewPatient = () => {
     }
     return currentDate.getTime() / 1000;
   };
-
-
 
   const handleChangePatient = (e: any) => {
     const errors: any = validateInput(e.target.name, e.target.value);
@@ -123,7 +121,7 @@ export const useNewPatient = () => {
       setPatient({
         ...patient,
         [name]: e.target.value,
-        dob : age,
+        dob: age,
         patientAgeError: errors.patientAgeError,
       });
     }
@@ -173,7 +171,7 @@ export const useNewPatient = () => {
         [name]: e.target.value,
       });
     }
-    console.log(patient)
+    console.log(patient);
   };
   return { patient, handleChangePatient };
 };
