@@ -90,6 +90,20 @@ export const addPatientNew = (patient: any) => {
   });
 };
 
+export const doesPatientExist = (patientId: any) => {
+  return serverRequestActionCreator({
+    endpoint: `/patients/${patientId}`,
+    onSuccess: (response: any) => ({
+      type: GET_PATIENT,
+      payload: response,
+    }),
+    onError: (error: any) => ({
+      type: GET_PATIENT_ERROR,
+      payload: error,
+    }),
+  });
+};
+
 export const getPatients = (search?: string) => {
   return serverRequestActionCreator({
     endpoint: search

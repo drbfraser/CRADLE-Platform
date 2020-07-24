@@ -22,6 +22,7 @@ import {
 import {
   addNewPatient,
   addPatientNew,
+  doesPatientExist,
 } from '../../../shared/reducers/patients';
 import { User } from '@types';
 import { useNewPatient } from './demographic/hooks';
@@ -75,6 +76,7 @@ interface IProps {
   addNewReading: any;
   addNewPatient: any;
   addPatientNew: any;
+  doesPatientExist: any;
 }
 
 // const initState = {
@@ -115,6 +117,7 @@ const Page: React.FC<IProps> = (props) => {
 
   const handleNext = () => {
     if (activeStep === 0) {
+      props.doesPatientExist(patient.patientId);
       setIsPatientCreated(true);
       setIsShowDialog(true);
     } else {
@@ -158,7 +161,19 @@ const Page: React.FC<IProps> = (props) => {
         !patient.patientId ||
         !patient.patientInitial ||
         patient.patientIdError ||
-        patient.patientInitialError
+        patient.patientInitialError ||
+        patient.householdError ||
+        patient.patientNameError ||
+        patient.patientAgeError ||
+        patient.patientSexError ||
+        patient.isPregnantError ||
+        patient.gestationalAgeValueError ||
+        patient.gestationalAgeUnitError ||
+        patient.zoneError ||
+        patient.dobError ||
+        patient.villageNumberError ||
+        patient.drugHistoryError ||
+        patient.medicalHistoryError
       ) {
         return true;
       }
@@ -335,6 +350,7 @@ const mapDispatchToProps = (dispatch: any) => ({
       addNewPatient,
       resetNewReadingStatus,
       addPatientNew,
+      doesPatientExist,
       // afterNewPatientAdded
     },
     dispatch
