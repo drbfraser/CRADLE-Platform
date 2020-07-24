@@ -1,5 +1,9 @@
 import { OrNull, Patient } from '@types';
 import {
+  clearCurrentUserError,
+  getCurrentUser,
+} from '../../shared/reducers/user/currentUser';
+import {
   clearGetPatientsError,
   getPatients,
 } from '../../shared/reducers/patients';
@@ -9,7 +13,6 @@ import { Error } from '../../shared/components/error';
 import React from 'react';
 import { ReduxState } from '../../redux/rootReducer';
 import { ReferralTable } from './referralTable';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
 import { getPatientsWithReferrals } from './utils';
 import { push } from 'connected-react-router';
 
@@ -18,7 +21,7 @@ type SelectorState = {
   gettingAllPatients: boolean;
   gettingAllPatientsError: OrNull<string>;
   loggingIn: boolean;
-  loggingInError: boolean;
+  loggingInError: OrNull<string>;
   loggedIn: boolean;
   preventFetch: boolean;
 };
@@ -39,7 +42,7 @@ export const ReferralsPage: React.FC = () => {
       gettingAllPatients: state.patients.isLoading,
       gettingAllPatientsError: state.patients.error,
       loggingIn: state.user.current.loading,
-      loggingInError: state.user.current.error,
+      loggingInError: state.user.current.message,
       loggedIn: state.user.current.loggedIn,
       preventFetch: state.patients.preventFetch,
     })
@@ -74,7 +77,13 @@ export const ReferralsPage: React.FC = () => {
   }, [allPatients]);
 
   const clearError = (): void => {
-    dispatch(clearGetPatientsError());
+    if (gettingAllPatientsError) {
+      dispatch(clearGetPatientsError());
+    }
+
+    if (loggingInError) {
+      dispatch(clearCurrentUserError());
+    }
   };
 
   const goToPatientPage = (selectedPatient: { patientId: string }): void => {
@@ -83,7 +92,10 @@ export const ReferralsPage: React.FC = () => {
 
   return (
     <>
-      <Error error={gettingAllPatientsError} clearError={clearError} />
+      <Error
+        error={loggingInError || gettingAllPatientsError}
+        clearError={clearError}
+      />
       <ReferralTable
         callbackFromParent={goToPatientPage}
         data={patients}

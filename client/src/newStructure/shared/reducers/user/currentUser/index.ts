@@ -7,7 +7,7 @@ import { Methods } from '../../../../server/methods';
 import { push } from 'connected-react-router';
 
 export enum CurrentUserActionEnum {
-  CLEAR_REQUEST_OUTCOME = 'currentUser/CLEAR_REQUEST_OUTCOME',
+  CLEAR_CURRENT_USER_ERROR = 'currentUser/CLEAR_CURRENT_USER_ERROR',
   GET_CURRENT_USER_REQUESTED = 'currentUser/GET_CURRENT_USER_REQUESTED',
   GET_CURRENT_USER_SUCCESS = 'currentUser/GET_CURRENT_USER_SUCCESS',
   GET_CURRENT_USER_ERROR = 'currentUser/GET_CURRENT_USER_ERROR',
@@ -17,12 +17,12 @@ export enum CurrentUserActionEnum {
   LOGOUT_USER = 'currentUser/LOGOUT_USER',
 }
 
-export const clearRequestOutcome = (): CurrentUserAction => ({
-  type: CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME,
+export const clearCurrentUserError = (): CurrentUserAction => ({
+  type: CurrentUserActionEnum.CLEAR_CURRENT_USER_ERROR,
 });
 
 type CurrentUserAction =
-  | { type: CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME }
+  | { type: CurrentUserActionEnum.CLEAR_CURRENT_USER_ERROR }
   | { type: CurrentUserActionEnum.GET_CURRENT_USER_REQUESTED }
   | {
       type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS;
@@ -61,7 +61,7 @@ export const loginUser = (
   data: LoginData
 ): ((dispatch: Dispatch) => ServerRequestAction) => {
   return (dispatch: Dispatch) => {
-    dispatch(clearRequestOutcome());
+    dispatch(clearCurrentUserError());
     dispatch(loginUserRequested());
 
     return dispatch(
@@ -142,7 +142,7 @@ export const currentUserReducer = (
   action: CurrentUserAction
 ): CurrentUserState => {
   switch (action.type) {
-    case CurrentUserActionEnum.CLEAR_REQUEST_OUTCOME: {
+    case CurrentUserActionEnum.CLEAR_CURRENT_USER_ERROR: {
       return {
         ...initialState,
         data: state.data,

@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 import {
   LoginData,
-  clearRequestOutcome,
+  clearCurrentUserError,
   loginUser,
 } from '../../../shared/reducers/user/currentUser';
 import { useDispatch, useSelector } from 'react-redux';
@@ -40,7 +40,7 @@ export const LoginForm: React.FC = () => {
   });
 
   const clearError = (): void => {
-    dispatch(clearRequestOutcome());
+    dispatch(clearCurrentUserError());
   };
 
   return (
