@@ -49,18 +49,6 @@ def abort_if_patient_exists(patient_id):
         abort(400, message="Patient {} already exists.".format(patient_id))
 
 
-# input: timestamp (int)
-# output: patient data w/ age populated (int)
-def calculate_age_from_dob(patient_data):
-    today = date.today()
-    birthday = datetime.strptime(patient_data["dob"], "%Y-%m-%d").date()
-    age = (
-        today.year
-        - birthday.year
-        - ((today.month, today.day) < (birthday.month, birthday.day))
-    )
-    patient_data["patientAge"] = int(age)
-    return patient_data
 
 
 # URI: /api/patient [Get, Post]
@@ -107,13 +95,7 @@ class PatientAll(Resource):
         if invalid is not None:
             return {"HTTP 400": invalid}, 400
 
-        # if age is not provided, populate age using dob
-        if (
-            "dob" in patient_data
-            and patient_data["dob"]
-            and ("patientAge" not in patient_data or patient_data["patientAge"] is None)
-        ):
-            patient_data = calculate_age_from_dob(patient_data)
+
         response_body = patientManager.create(patient_data)
         return response_body, 201
 
@@ -204,12 +186,6 @@ class PatientReading(Resource):
             return {"HTTP 400": is_invalid_reading}, 400
 
         patient_data = patient_reading_data["patient"]
-        if (
-            "dob" in patient_data
-            and patient_data["dob"]
-            and ("patientAge" not in patient_data or patient_data["patientAge"] is None)
-        ):
-            patient_reading_data["patient"] = calculate_age_from_dob(patient_data)
 
         # create new reading (and patient if it does not already exist)
         reading_and_patient = readingManager.create_reading_and_patient(
