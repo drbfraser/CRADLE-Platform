@@ -41,3 +41,14 @@ export enum SortOrderEnum {
   ASC = 'asc',
   DESC = 'desc',
 }
+
+export enum SymptomEnum {
+  NONE = 'None',
+  HEADACHE = 'Headache',
+  BLURRED_VISION = 'Blurred vision',
+  ABDOMINAL_PAIN = 'Abdominal pain',
+  BLEEDING = 'Bleeding',
+  FEVERISH = 'Feverish',
+  UNWELL = 'Unwell',
+  OTHER = 'Other',
+}

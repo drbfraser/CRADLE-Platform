@@ -46,15 +46,32 @@ export type Reading = {
   dateReferred?: number;
 };
 
-export type PatientTableData = {
-  id: number;
+export type UrineTests = {
+  urineTestNit: string;
+  urineTestBlood: string;
+  urineTestLeuc: string;
+  urineTestPro: string;
+  urineTestGlu: string;
 };
+
+export type NewReading = {
+  userId: number;
+  bpSystolic: string;
+  bpDiastolic: string;
+  dateRecheckVitalsNeeded: string;
+  dateTimeTaken: string;
+  heartRateBPM: string;
+  symptoms: string;
+  otherSymptoms: string;
+  urineTests: Record<keyof UrineTests, string>;
+} & Pick<Reading, 'isFlaggedForFollowup' | 'readingId'>;
 
 export type Patient = {
   dob: OrNull<number>;
   drugHistory: OrNull<string>;
   gestationalAgeUnit: GestationalAgeUnitEnum;
   gestationalAgeValue: string;
+  gestationalTimestamp: number;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
   needsAssessment: boolean;
@@ -64,7 +81,7 @@ export type Patient = {
   patientSex: SexEnum;
   villageNumber: string;
   readings: Array<Reading>;
-  tableData: PatientTableData;
+  tableData: { id: number };
   zone: OrNull<string>;
 };
 
@@ -141,14 +158,6 @@ export type PatientNewReadingReading = {
   isFlaggedForFollowup: boolean;
   symptoms: string;
   urineTests: UrineTests;
-};
-
-export type UrineTests = {
-  urineTestNit: string;
-  urineTestBlood: string;
-  urineTestLeuc: string;
-  urineTestPro: string;
-  urineTestGlu: string;
 };
 
 export type FollowUp = {

@@ -1,15 +1,19 @@
 import { OrNull, Patient } from '@types';
+import {
+  clearGetPatientError,
+  getPatient,
+} from '../../shared/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { Error } from '../../shared/components/error';
 import { Loader } from '../../shared/components/loader';
 import { PatientSummary } from './summary';
 import React from 'react';
 import { ReduxState } from '../../redux/rootReducer';
 import { RouteComponentProps } from 'react-router-dom';
-import { getPatient } from '../../shared/reducers/patients';
-import { goBack } from 'connected-react-router';
 
 type SelectorState = {
+  error: OrNull<string>;
   loading: boolean;
   patient: OrNull<Patient>;
 };
@@ -23,9 +27,10 @@ export const PatientPage: React.FC<RouteComponentProps<Params>> = ({
     params: { id },
   },
 }) => {
-  const { loading, patient } = useSelector(
+  const { error, loading, patient } = useSelector(
     ({ patients }: ReduxState): SelectorState => {
       return {
+        error: patients.error,
         loading: patients.isLoading,
         patient: patients.patient,
       };
@@ -39,18 +44,18 @@ export const PatientPage: React.FC<RouteComponentProps<Params>> = ({
     }
   }, [dispatch, id]);
 
-  const goBackToPreviousPage = () => {
-    dispatch(goBack());
-  };
-
-  if (loading) {
+  if (loading || !patient) {
     return <Loader message="Fetching the patient..." show={true} />;
   }
 
+  const clearError = (): void => {
+    dispatch(clearGetPatientError());
+  };
+
   return (
-    <PatientSummary
-      callbackFromParent={goBackToPreviousPage}
-      selectedPatient={patient}
-    />
+    <>
+      <Error error={error} clearError={clearError} />
+      <PatientSummary selectedPatient={patient} />
+    </>
   );
 };

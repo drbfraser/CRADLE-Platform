@@ -5,12 +5,14 @@ import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
 import { PatientStateEnum } from '../../../enums';
 import { getPatientsWithReferrals } from './utils';
+import { goBack } from 'connected-react-router';
 import { serverRequestActionCreator } from '../utils';
 import { sortPatientsByLastReading } from '../../utils';
 
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
 const GET_PATIENT_SUCCESS = `patients/GET_PATIENT_SUCCESS`;
 const GET_PATIENT_ERROR = `patients/GET_PATIENT_ERROR`;
+const CLEAR_GET_PATIENT_ERROR = `patients/CLEAR_GET_PATIENT_ERROR`;
 
 const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
 const GET_PATIENTS_SUCCESS = `patients/GET_PATIENTS_SUCCESS`;
@@ -49,6 +51,15 @@ const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`;
+
+export const clearGetPatientError = () => {
+  return (dispatch: Dispatch) => {
+    dispatch(goBack());
+    return dispatch({
+      type: CLEAR_GET_PATIENT_ERROR,
+    });
+  };
+};
 
 export const clearGetPatientsError = () => ({
   type: CLEAR_GET_PATIENTS_ERROR,
@@ -117,7 +128,7 @@ export const getPatient = (patientId: string) => {
           type: GET_PATIENT_SUCCESS,
           payload: response,
         }),
-        onError: (error: any) => ({
+        onError: (error: ServerError) => ({
           type: GET_PATIENT_ERROR,
           payload: error,
         }),
@@ -326,6 +337,7 @@ export const patientsReducer = (state = initialState, action: any) => {
         isLoading: false,
         preventFetch: action.payload.status === 401,
       };
+    case CLEAR_GET_PATIENT_ERROR:
     case CLEAR_GET_PATIENTS_ERROR:
     case CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR:
       return {
@@ -363,6 +375,7 @@ export const patientsReducer = (state = initialState, action: any) => {
     case GET_PATIENT_ERROR:
       return {
         ...state,
+        error: action.payload.message,
         isLoading: false,
       };
     case ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED:

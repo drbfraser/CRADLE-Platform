@@ -38,6 +38,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "7.1.9",
     "@types/react-router-dom": "^5.1.5",
+    "@types/uuid": "^8.0.0",
     "@types/yup": "0.29.0",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
@@ -81,6 +82,7 @@
     "sweetalert": "^2.1.2",
     "sweetalert2-react": "^0.8.3",
     "typeface-roboto": "^0.0.75",
+    "uuid": "^8.2.0",
     "yup": "^0.27.0"
   },
   "resolutions": {
