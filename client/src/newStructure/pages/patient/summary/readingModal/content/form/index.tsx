@@ -99,7 +99,7 @@ export const Form: React.FC<Omit<IProps, 'displayReadingModal'>> = ({
 
     dispatch(
       newReadingPost({
-        patient: { ...patientData },
+        patient: { ...selectedPatient },
         reading: {
           ...readingData,
           userId,
