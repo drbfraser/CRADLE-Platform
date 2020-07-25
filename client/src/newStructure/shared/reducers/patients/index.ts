@@ -80,7 +80,7 @@ export const addPatientNew = (patient: any) => {
     method: Methods.POST,
     data: patient,
     onSuccess: (response: any) => ({
-      type: GET_PATIENT,
+      type: ADD_NEW_PATIENT,
       payload: response,
     }),
     onError: (error: any) => ({
@@ -93,22 +93,6 @@ export const addPatientNew = (patient: any) => {
 export const doesPatientExist = (patientId: any) => {
   return serverRequestActionCreator({
     endpoint: `/patients/${patientId}`,
-    onSuccess: (response: any) => ({
-      type: GET_PATIENT,
-      payload: response,
-    }),
-    onError: (error: any) => ({
-      type: GET_PATIENT_ERROR,
-      payload: error,
-    }),
-  });
-};
-
-export const addReadingNew = (reading: any) => {
-  return serverRequestActionCreator({
-    endpoint: `/readings`,
-    method: Methods.POST,
-    data: reading,
     onSuccess: (response: any) => ({
       type: GET_PATIENT,
       payload: response,

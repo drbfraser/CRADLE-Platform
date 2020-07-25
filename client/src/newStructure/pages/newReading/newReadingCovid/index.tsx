@@ -17,13 +17,14 @@ import { bindActionCreators } from 'redux';
 import { getCurrentUser } from '../../../shared/reducers/user/currentUser';
 import {
   addNewReading,
+  addReadingNew,
   resetNewReadingStatus,
 } from '../../../shared/reducers/newReadingStatus';
 import {
   addNewPatient,
   addPatientNew,
   doesPatientExist,
-  addReadingNew,
+  afterNewPatientAdded,
 } from '../../../shared/reducers/patients';
 import { User } from '@types';
 import { useNewPatient } from './demographic/hooks';
@@ -79,6 +80,7 @@ interface IProps {
   addPatientNew: any;
   doesPatientExist: any;
   addReadingNew: any;
+  newPatientAdded: any;
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -99,6 +101,17 @@ const Page: React.FC<IProps> = (props) => {
     if (!props.user.isLoggedIn) {
       props.getCurrentUser();
     }
+    if (props.newPatientAdded) {
+      const formattedReading = formatReadingData(
+        patient,
+        symptoms,
+        urineTest,
+        vitals,
+        props.user.userId
+      );
+      props.addReadingNew(formattedReading);
+      props.afterNewPatientAdded();
+    }
   });
 
   const handleNext = () => {
@@ -114,16 +127,8 @@ const Page: React.FC<IProps> = (props) => {
   const handleSubmit = () => {
     // setIsShowDialogsubmission(true);
     const formattedPatient = formatPatientData(patient);
-    const formattedReading = formatReadingData(
-      patient,
-      symptoms,
-      urineTest,
-      vitals,
-      props.user.userId
-    );
-    console.log(formattedReading);
     props.addPatientNew(formattedPatient);
-    props.addReadingNew(formattedReading);
+
     /**/
     //  format Data --> probably another function or component
     //  if patient !exists
@@ -347,7 +352,7 @@ const mapDispatchToProps = (dispatch: any) => ({
       addPatientNew,
       addReadingNew,
       doesPatientExist,
-      // afterNewPatientAdded
+      afterNewPatientAdded,
     },
     dispatch
   ),

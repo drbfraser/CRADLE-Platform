@@ -30,6 +30,22 @@ export const addNewReading = (data: any): ServerRequestAction => {
     }),
   });
 };
+
+export const addReadingNew = (reading: any) => {
+  return serverRequestActionCreator({
+    endpoint: `/readings`,
+    method: Methods.POST,
+    data: reading,
+    onSuccess: (message: string): NewReadingStatusAction => ({
+      type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS,
+      payload: { message },
+    }),
+    onError: (): NewReadingStatusAction => ({
+      type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR,
+    }),
+  });
+};
+
 export const resetNewReadingStatus = (): NewReadingStatusAction => ({
   type: NewReadingStatusEnum.CLEAR_REQUEST_OUTCOME,
 });
