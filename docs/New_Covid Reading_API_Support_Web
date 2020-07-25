@@ -48,6 +48,41 @@ Post
 
 ###########################################################################################################
 
+# Create patient and reading (can nest multiple readings if you want, this example just has 1)
+localhost:5000/api/patients
+Post
+same as creating a patient, except nest reading inside it, like the following example: 
+ {
+       "patientId": "12345996",
+       "patientName": "testName",
+       "householdNumber": "20", 
+       "dob": "1990-05-30",
+       "zone": "15",
+       "villageNumber": "50",
+       "gestationalTimestamp": 1587068710, 
+       "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+       "patientSex": "FEMALE", 
+       "drugHistory": "too much tylenol",
+       "medicalHistory": "not enough advil", 
+
+       "readings": [{
+       "readingId": "asdasd82314278226313803",
+       "patientId": "123456", 
+       "bpSystolic" : 150, 
+       "bpDiastolic" : 150,
+       "heartRateBPM" : 35,
+       "respiratoryRate": 14, 
+       "oxygenSaturation": 99,
+       "temperature": 37,
+       "isFlaggedForFollowup" : false,
+       "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"], 
+       "dateTimeTaken": 1111233,
+       "userId": 1 
+       }]
+}
+
+###########################################################################################################
+
 # Create assessment 
 localhost:5000/api/assessments
 Post
@@ -72,6 +107,8 @@ E.g localhost:5000/api/patients/123456
 - Feel free to let me know if you prefer an api that just returns a boolean and/or basic info or something instead of all patient information
 
 ###########################################################################################################
+
+
 
 # Additional Info 
 - Let me know if you urgently need response types as well, otherwise can just wait till someone completes API docs
