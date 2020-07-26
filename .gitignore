@@ -126,6 +126,9 @@ ENV/
 # mypy
 .mypy_cache/
 
+# http-prompt sessions
+server/.sessions/
+
 # ---------------------
 
 # vscode config files
