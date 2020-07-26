@@ -46,6 +46,21 @@ export const addReadingNew = (reading: any) => {
   });
 };
 
+export const addReadingAssessment = (assessment: any) => {
+  return serverRequestActionCreator({
+    endpoint: `/assessments`,
+    method: Methods.POST,
+    data: assessment,
+    onSuccess: (message: string): NewReadingStatusAction => ({
+      type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS,
+      payload: { message },
+    }),
+    onError: (): NewReadingStatusAction => ({
+      type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR,
+    }),
+  });
+};
+
 export const resetNewReadingStatus = (): NewReadingStatusAction => ({
   type: NewReadingStatusEnum.CLEAR_REQUEST_OUTCOME,
 });

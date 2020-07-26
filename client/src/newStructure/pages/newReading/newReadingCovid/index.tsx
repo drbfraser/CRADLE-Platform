@@ -19,6 +19,7 @@ import {
   addNewReading,
   addReadingNew,
   resetNewReadingStatus,
+  addReadingAssessment,
 } from '../../../shared/reducers/newReadingStatus';
 import {
   addNewPatient,
@@ -36,7 +37,11 @@ import { useNewUrineTest } from './urineTestAssessment/hooks';
 import AlertDialog from './alertDialog';
 import SubmissionDialog from './submissionDialog';
 import { ConfirmationPage } from './confirmationPage';
-import { formatPatientData, formatReadingData } from './formatData';
+import {
+  formatAssessmentData,
+  formatPatientData,
+  formatReadingData,
+} from './formatData';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -85,6 +90,7 @@ interface IProps {
   newPatientExist: boolean;
   getPatient: any;
   patient: any;
+  addReadingAssessment: any;
 }
 
 function isEmpty(obj: any) {
@@ -125,6 +131,11 @@ const Page: React.FC<IProps> = (props) => {
         props.user.userId
       );
       props.addReadingNew(formattedReading);
+      const formattedAssessment = formatAssessmentData(
+        assessment,
+        formattedReading.readingId
+      );
+      props.addReadingAssessment(formattedAssessment);
       props.afterNewPatientAdded();
     }
     if (!isEmpty(props.patient) && existingPatient) {
@@ -157,6 +168,11 @@ const Page: React.FC<IProps> = (props) => {
         props.user.userId
       );
       props.addReadingNew(formattedReading);
+      const formattedAssessment = formatAssessmentData(
+        assessment,
+        formattedReading.readingId
+      );
+      props.addReadingAssessment(formattedAssessment);
       props.afterNewPatientAdded();
     }
   };
@@ -387,6 +403,7 @@ const mapDispatchToProps = (dispatch: any) => ({
       doesPatientExist,
       afterNewPatientAdded,
       getPatient,
+      addReadingAssessment,
     },
     dispatch
   ),

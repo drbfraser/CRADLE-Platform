@@ -39,6 +39,15 @@ interface Reading {
   dateTimeTaken: string;
   userId: number;
 }
+interface Assessment {
+  diagnosis: string;
+  medicationPrescribed: string;
+  specialInvestigations: string;
+  treatment: string;
+  readingId: string;
+  followupNeeded: string;
+  followupInstructions: string;
+}
 
 export const formatPatientData = (unformattedPatient: any) => {
   const formattedPatient: Patient = new (class implements Patient {
@@ -96,4 +105,26 @@ export const formatReadingData = (
     userId: number = userId;
   })();
   return formattedReading;
+};
+//{
+// 	"diagnosis": "patient is fine",
+// 	"medicationPrescribed": "tylenol",
+// 	"specialInvestigations": "bcccccccccddeeeff",
+// 	"treatment": "b",
+// 	"readingId": "asdasd82314278226313803", - required
+// 	"followupNeeded": "TRUE", - required if this field is true lol (might be easier to always send it?)
+// 	"followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = true
+// }
+
+export const formatAssessmentData = (assessment: any, readingId: any) => {
+  const formattedAssessment: Assessment = new (class implements Assessment {
+    diagnosis: string = assessment.finalDiagnosis;
+    followupInstructions: string = assessment.InstructionFollow;
+    followupNeeded: string = assessment.enabled ? 'TRUE' : 'FALSE';
+    medicationPrescribed: string = assessment.medPrescribed;
+    readingId: string = readingId;
+    specialInvestigations: string = assessment.specialInvestigations;
+    treatment: string = assessment.treatmentOP;
+  })();
+  return formattedAssessment;
 };

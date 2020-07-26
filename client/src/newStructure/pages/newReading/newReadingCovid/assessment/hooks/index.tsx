@@ -7,6 +7,7 @@ export const useNewAssessment = () => {
     treatmentOP: '',
     medPrescribed: '',
     InstructionFollow: '',
+    enabled: false,
   });
   const handleChangeAssessment = (e: any) => {
     if (e.target.name == 'enabled') {
