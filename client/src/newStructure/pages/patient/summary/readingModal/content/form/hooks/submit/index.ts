@@ -57,7 +57,7 @@ export const useSubmit = ({
 
     dispatch(
       createReading({
-        patient: { ...selectedPatient },
+        patient: selectedPatient,
         reading: {
           ...newReading,
           userId,
