@@ -32,7 +32,7 @@ type CreateReading = {
     userId: number;
     readingId: string;
     dateTimeTaken: number;
-    symptoms: string;
+    symptoms: Array<string>;
     dateRecheckVitalsNeeded: null;
     urineTests: OrNull<Record<keyof UrineTests, string>>;
   };

@@ -3,7 +3,7 @@ import { SymptomEnum } from '../../../../../../../../../enums';
 export const formatSymptoms = (
   selectedSymptoms: Record<SymptomEnum, boolean>,
   otherSymptoms: string
-): string => {
+): Array<string> => {
   // * Get all selected symptoms
   const symptoms = Object.entries(selectedSymptoms).reduce(
     (
@@ -21,7 +21,7 @@ export const formatSymptoms = (
 
   if (symptoms.includes(SymptomEnum.NONE)) {
     // * If none selected return nothing
-    return ``;
+    return [];
   }
 
   return (
@@ -40,6 +40,5 @@ export const formatSymptoms = (
       )
       // * Add other symptoms if selected
       .concat(symptoms.includes(SymptomEnum.OTHER) ? [otherSymptoms] : [])
-      .join(`,`)
   );
 };
