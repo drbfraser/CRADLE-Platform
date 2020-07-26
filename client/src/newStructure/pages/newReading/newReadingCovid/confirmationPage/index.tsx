@@ -27,7 +27,42 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
+const getSymptomsMapping = (symptoms: any) => {
+  switch (symptoms) {
+    case 'none':
+      return 'NONE';
+    case 'headache':
+      return 'HEADACHE';
+    case 'bleeding':
+      return 'BLEEDING';
+    case 'blurredVision':
+      return 'BLURRED VISION';
+    case 'feverish':
+      return 'FEVERISH';
+    case 'abdominalPain':
+      return 'ABDOMINAL PAIN';
+    case 'unwell':
+      return 'UNWELL';
+    case 'cough':
+      return 'COUGH';
+    case 'shortnessBreath':
+      return 'SHORTNESS of BREATH';
+    case 'soreThroat':
+      return 'SORE THROAT';
+    case 'muscleAche':
+      return 'MUSCLE ACHE';
+    case 'fatigue':
+      return 'FATIGUE';
+    case 'lossOfSense':
+      return 'LOSS of SENSE';
+    case 'lossOfTaste':
+      return 'LOSS of TASTE';
+    case 'lossOfSmell':
+      return 'LOSS of SMELL';
+    default:
+      return '';
+  }
+};
 interface IProps {
   patient: any;
   symptoms: any;
@@ -44,7 +79,8 @@ const Page: React.FC<IProps> = (props) => {
     let stringValue = '';
     for (const [key, value] of Object.entries(props.symptoms)) {
       if (value === true) {
-        stringValue += key + ', ';
+        const pushValue = getSymptomsMapping(key);
+        stringValue += pushValue + ',  ';
       }
     }
     setSymptomsString(stringValue);

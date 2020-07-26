@@ -49,6 +49,43 @@ interface Assessment {
   followupInstructions: string;
 }
 
+const getSymptomsMapping = (symptoms: any) => {
+  switch (symptoms) {
+    case 'none':
+      return 'NONE';
+    case 'headache':
+      return 'HEADACHE';
+    case 'bleeding':
+      return 'BLEEDING';
+    case 'blurredVision':
+      return 'BLURRED VISION';
+    case 'feverish':
+      return 'FEVERISH';
+    case 'abdominalPain':
+      return 'ABDOMINAL PAIN';
+    case 'unwell':
+      return 'UNWELL';
+    case 'cough':
+      return 'COUGH';
+    case 'shortnessBreath':
+      return 'SHORTNESS of BREATH';
+    case 'soreThroat':
+      return 'SORE THROAT';
+    case 'muscleAche':
+      return 'MUSCLE ACHE';
+    case 'fatigue':
+      return 'FATIGUE';
+    case 'lossOfSense':
+      return 'LOSS of SENSE';
+    case 'lossOfTaste':
+      return 'LOSS of TASTE';
+    case 'lossOfSmell':
+      return 'LOSS of SMELL';
+    default:
+      return '';
+  }
+};
+
 export const formatPatientData = (unformattedPatient: any) => {
   const formattedPatient: Patient = new (class implements Patient {
     dob: string = unformattedPatient.dob as string;
@@ -77,8 +114,12 @@ const formatSymptoms = (symptoms: any) => {
 
   for (const [key, value] of Object.entries(symptoms)) {
     if (value === true) {
-      stringValue.push(key);
+      const pushValue = getSymptomsMapping(key);
+      stringValue.push(pushValue);
     }
+  }
+  if (symptoms.otherSymptoms !== '') {
+    stringValue.push(symptoms.otherSymptoms);
   }
   return stringValue;
 };
