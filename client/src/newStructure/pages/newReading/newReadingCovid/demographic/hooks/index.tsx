@@ -47,6 +47,42 @@ export const useNewPatient = () => {
     return yearNow - +year;
   };
 
+  const resetValuesPatient = (reset: boolean) => {
+    if (reset) {
+      setPatient({
+        household: '',
+        patientInitial: '',
+        patientId: '',
+        patientName: '',
+        patientAge: 0,
+        patientSex: 'FEMALE',
+        isPregnant: false,
+        gestationalAgeValue: '',
+        gestationalAgeValueTimeStamp: 0,
+        gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
+        zone: '',
+        dob: '2004-01-01',
+        villageNumber: '',
+        drugHistory: '',
+        medicalHistory: '',
+        householdError: false,
+        patientInitialError: false,
+        patientIdError: false,
+        patientNameError: false,
+        patientAgeError: false,
+        patientSexError: false,
+        isPregnantError: false,
+        gestationalAgeValueError: false,
+        gestationalAgeUnitError: false,
+        zoneError: false,
+        dobError: false,
+        villageNumberError: false,
+        drugHistoryError: false,
+        medicalHistoryError: false,
+      });
+    }
+  };
+
   const calculateGestationalAgeValue = (value: string) => {
     const currentDate = new Date();
     let subtractValue = 0;
@@ -179,5 +215,10 @@ export const useNewPatient = () => {
     }
     console.log(patient);
   };
-  return { patient, handleChangePatient, handleExistingPatient };
+  return {
+    patient,
+    handleChangePatient,
+    handleExistingPatient,
+    resetValuesPatient,
+  };
 };

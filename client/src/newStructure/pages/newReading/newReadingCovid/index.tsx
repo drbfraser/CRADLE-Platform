@@ -107,12 +107,25 @@ const Page: React.FC<IProps> = (props) => {
     patient,
     handleChangePatient,
     handleExistingPatient,
+    resetValuesPatient,
   } = useNewPatient();
   const [existingPatient, setExistingPatient] = useState(false);
-  const { symptoms, handleChangeSymptoms } = useNewSymptoms();
-  const { vitals, handleChangeVitals } = useNewVitals();
-  const { assessment, handleChangeAssessment } = useNewAssessment();
-  const { urineTest, handleChangeUrineTest } = useNewUrineTest();
+  const {
+    symptoms,
+    handleChangeSymptoms,
+    resetValuesSymptoms,
+  } = useNewSymptoms();
+  const { vitals, handleChangeVitals, resetValueVitals } = useNewVitals();
+  const {
+    assessment,
+    handleChangeAssessment,
+    resetValueAssessment,
+  } = useNewAssessment();
+  const {
+    urineTest,
+    handleChangeUrineTest,
+    resetValueUrineTest,
+  } = useNewUrineTest();
   const [isShowDialog, setIsShowDialog] = useState(false);
   const [isShowDialogSubmission, setIsShowDialogsubmission] = useState(false);
   const steps = getSteps(props.user.roles[0]);
@@ -137,6 +150,7 @@ const Page: React.FC<IProps> = (props) => {
       );
       props.addReadingAssessment(formattedAssessment);
       props.afterNewPatientAdded();
+      setIsShowDialogsubmission(true);
     }
     if (!isEmpty(props.patient) && existingPatient) {
       handleExistingPatient(props.patient.patientName, 'patientInitial');
@@ -155,7 +169,6 @@ const Page: React.FC<IProps> = (props) => {
   };
 
   const handleSubmit = () => {
-    // setIsShowDialogsubmission(true);
     if (!props.newPatientExist) {
       const formattedPatient = formatPatientData(patient);
       props.addPatientNew(formattedPatient);
@@ -174,6 +187,7 @@ const Page: React.FC<IProps> = (props) => {
       );
       props.addReadingAssessment(formattedAssessment);
       props.afterNewPatientAdded();
+      setIsShowDialogsubmission(true);
     }
   };
 
@@ -255,6 +269,11 @@ const Page: React.FC<IProps> = (props) => {
 
   const handleReset = () => {
     setActiveStep(0);
+    resetValuesPatient(true);
+    resetValuesSymptoms(true);
+    resetValueVitals(true);
+    resetValueAssessment(true);
+    resetValueUrineTest(true);
   };
   // console.log('isPatientCreated', isPatientCreated);
   console.log('isPatientCreated', patient);

@@ -17,6 +17,27 @@ export const useNewVitals = () => {
     dateRecheckVitalsNeeded: null,
     isFlaggedForFollowup: false,
   });
+
+  const resetValueVitals = (reset: boolean) => {
+    if (reset) {
+      setVitals({
+        dateTimeTaken: null,
+        bpSystolic: '',
+        bpDiastolic: '',
+        heartRateBPM: '',
+        bpSystolicError: false,
+        bpDiastolicError: false,
+        heartRateBPMError: false,
+        oxygenSaturationError: false,
+        respiratoryRate: '',
+        oxygenSaturation: '',
+        temperature: '',
+        temperatureError: false,
+        dateRecheckVitalsNeeded: null,
+        isFlaggedForFollowup: false,
+      });
+    }
+  };
   const validate = (name: string, value: number) => {
     if (name === 'bpSystolic') {
       if (value < 50 || value > 300) {
@@ -98,5 +119,5 @@ export const useNewVitals = () => {
 
     console.log('vitals', vitals);
   };
-  return { vitals, handleChangeVitals };
+  return { vitals, handleChangeVitals, resetValueVitals };
 };

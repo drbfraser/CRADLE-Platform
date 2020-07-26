@@ -22,5 +22,17 @@ export const useNewAssessment = () => {
       });
     }
   };
-  return { assessment, handleChangeAssessment };
+  const resetValueAssessment = (reset: boolean) => {
+    if (reset) {
+      setAssessment({
+        specialInvestigations: '',
+        finalDiagnosis: '',
+        treatmentOP: '',
+        medPrescribed: '',
+        InstructionFollow: '',
+        enabled: false,
+      });
+    }
+  };
+  return { assessment, handleChangeAssessment, resetValueAssessment };
 };

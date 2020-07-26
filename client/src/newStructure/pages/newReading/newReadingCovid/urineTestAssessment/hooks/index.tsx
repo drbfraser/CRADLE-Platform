@@ -34,5 +34,18 @@ export const useNewUrineTest = () => {
       });
     }
   };
-  return { urineTest, handleChangeUrineTest };
+
+  const resetValueUrineTest = (reset: boolean) => {
+    if (reset) {
+      setUrineTest({
+        enabled: true,
+        leukocytes: '',
+        blood: '',
+        protein: '',
+        glucose: '',
+        nitrites: '',
+      });
+    }
+  };
+  return { urineTest, handleChangeUrineTest, resetValueUrineTest };
 };
