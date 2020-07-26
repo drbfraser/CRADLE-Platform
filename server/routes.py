@@ -3,27 +3,32 @@
     @Description: This file contains all the routes for the server
 """
 
-from Controller.HelloWorld import *
-from Controller.Multi import *
-from Controller.UsersController import *
-from Controller.PatientsController import *
-from Controller.ReferralsController import ReferralApi, ReferralInfo
-from Controller.HealthFacilityController import *
+import api as new_api
 from Controller.FollowUpController import (
     FollowUp,
     FollowUpMobile,
     FollowUpMobileSummarized,
 )
-from Controller.StatsController import *
-from Controller.SMSController import *
+from Controller.HealthFacilityController import *
+from Controller.HelloWorld import *
+from Controller.Multi import *
 from Controller.PasswordResetController import *
+from Controller.PatientsController import *
+from Controller.ReferralsController import ReferralApi, ReferralInfo
+from Controller.SMSController import *
+from Controller.StatsController import *
+from Controller.UsersController import *
 
 
 def init(api):
     api.add_resource(HelloWorld, "/api/hello-world")
     api.add_resource(Multi, "/api/multi/<int:num>")
     api.add_resource(AllStats, "/api/stats")  # [GET]
-    api.add_resource(PatientStats, "/api/patient/stats/<string:patient_id>")  # [GET]
+    api.add_resource(
+        PatientStats,
+        "/api/patient/stats/<string:patient_id>",
+        endpoint="old_patient_stats",
+    )  # [GET]
 
     api.add_resource(UserApi, "/api/user/register")  # [POST]
     api.add_resource(UserAuthApi, "/api/user/auth")  # [POST]
@@ -43,7 +48,9 @@ def init(api):
         "/api/patient/reading/<string:patient_id>",
         "/api/patient/reading",
     )  # [GET, POST]
-    api.add_resource(PatientInfo, "/api/patient/<string:patient_id>")  # [GET, PUT]
+    api.add_resource(
+        PatientInfo, "/api/patient/<string:patient_id>", endpoint="old_patient_info"
+    )  # [GET, PUT]
     api.add_resource(PatientAll, "/api/patient")  # [GET, POST]
     api.add_resource(PatientFacility, "/api/patient/facility")  # [POST]
 
@@ -79,3 +86,5 @@ def init(api):
     api.add_resource(ResetPassword, "/api/reset/<string:reset_token>")  # [PUT]
 
     api.add_resource(SMS, "/api/sms")
+
+    new_api.init_routes(api)

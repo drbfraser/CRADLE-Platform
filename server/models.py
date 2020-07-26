@@ -1,11 +1,14 @@
-from config import db, ma
 import enum
+
 from jsonschema import validate
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
+
+from config import db, ma
 from utils import get_current_time
+
 
 # To add a table to db, make a new class
 # create a migration: flask db migrate
@@ -100,6 +103,10 @@ class User(db.Model):
         secondaryjoin=id == supervises.c.vhtId,
     )
 
+    @staticmethod
+    def schema():
+        return UserSchema
+
     def __repr__(self):
         return "<User {}>".format(self.username)
 
@@ -107,6 +114,10 @@ class User(db.Model):
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Enum(RoleEnum), nullable=False)
+
+    @staticmethod
+    def schema():
+        return RoleSchema
 
 
 class Referral(db.Model):
@@ -131,6 +142,11 @@ class Referral(db.Model):
     reading = db.relationship(
         "Reading", backref=db.backref("referral", lazy=True, uselist=False)
     )
+    patient = db.relationship("Patient", backref=db.backref("referrals", lazy=True))
+
+    @staticmethod
+    def schema():
+        return ReferralSchema
 
 
 class HealthFacility(db.Model):
@@ -146,6 +162,10 @@ class HealthFacility(db.Model):
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
 
+    @staticmethod
+    def schema():
+        return HealthFacilitySchema
+
 
 class Patient(db.Model):
     patientId = db.Column(db.String(50), primary_key=True)
@@ -160,6 +180,7 @@ class Patient(db.Model):
     zone = db.Column(db.String(20))
     dob = db.Column(db.Date)
     villageNumber = db.Column(db.String(50))
+    created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     lastEdited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -169,6 +190,10 @@ class Patient(db.Model):
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
+    @staticmethod
+    def schema():
+        return PatientSchema
 
 
 class Reading(db.Model):
@@ -234,6 +259,10 @@ class Reading(db.Model):
 
         return traffic_light
 
+    @staticmethod
+    def schema():
+        return ReadingSchema
+
 
 class FollowUp(db.Model):
     __tablename__ = "followup"
@@ -259,6 +288,10 @@ class FollowUp(db.Model):
     )
     healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
 
+    @staticmethod
+    def schema():
+        return FollowUpSchema
+
 
 class Village(db.Model):
     villageNumber = db.Column(db.String(50), primary_key=True)
@@ -275,31 +308,37 @@ class UrineTest(db.Model):
     # urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
     readingId = db.Column(db.ForeignKey("reading.readingId"))
 
+    @staticmethod
+    def schema():
+        return UrineTestSchema
+
 
 class PatientAssociations(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     patientId = db.Column(
-        db.ForeignKey(Patient.patientId), nullable=False, primary_key=True
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"), nullable=False,
     )
     healthFacilityName = db.Column(
-        db.ForeignKey(HealthFacility.healthFacilityName),
-        nullable=False,
-        primary_key=True,
+        db.ForeignKey(HealthFacility.healthFacilityName, ondelete="CASCADE"),
+        nullable=True,
     )
-    userId = db.Column(db.ForeignKey(User.id), nullable=False, primary_key=True)
+    userId = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=True)
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient",
-        backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
+        "Patient", backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     healthFacility = db.relationship(
         "HealthFacility",
-        backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
+        backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     user = db.relationship(
-        "User",
-        backref=db.backref("associations", lazy=True, cascade="all, delete-orphan"),
+        "User", backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
+
+    @staticmethod
+    def schema():
+        return PatientAssociationsSchema
 
 
 #
