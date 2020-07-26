@@ -59,6 +59,12 @@ export const useNewPatient = () => {
     }
     return currentDate.getTime() / 1000;
   };
+  const handleExistingPatient = (value: any, key: any) => {
+    setPatient({
+      ...patient,
+      [key]: value,
+    });
+  };
 
   const handleChangePatient = (e: any) => {
     const errors: any = validateInput(e.target.name, e.target.value);
@@ -173,5 +179,5 @@ export const useNewPatient = () => {
     }
     console.log(patient);
   };
-  return { patient, handleChangePatient };
+  return { patient, handleChangePatient, handleExistingPatient };
 };

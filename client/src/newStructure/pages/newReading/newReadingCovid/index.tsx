@@ -25,6 +25,7 @@ import {
   addPatientNew,
   doesPatientExist,
   afterNewPatientAdded,
+  getPatient,
 } from '../../../shared/reducers/patients';
 import { User } from '@types';
 import { useNewPatient } from './demographic/hooks';
@@ -82,12 +83,26 @@ interface IProps {
   addReadingNew: any;
   newPatientAdded: any;
   newPatientExist: boolean;
+  getPatient: any;
+  patient: any;
+}
+
+function isEmpty(obj: any) {
+  for (const key in obj) {
+    if (obj[key]) return false;
+  }
+  return true;
 }
 
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
-  const { patient, handleChangePatient } = useNewPatient();
+  const {
+    patient,
+    handleChangePatient,
+    handleExistingPatient,
+  } = useNewPatient();
+  const [existingPatient, setExistingPatient] = useState(false);
   const { symptoms, handleChangeSymptoms } = useNewSymptoms();
   const { vitals, handleChangeVitals } = useNewVitals();
   const { assessment, handleChangeAssessment } = useNewAssessment();
@@ -112,15 +127,17 @@ const Page: React.FC<IProps> = (props) => {
       props.addReadingNew(formattedReading);
       props.afterNewPatientAdded();
     }
+    if (!isEmpty(props.patient) && existingPatient) {
+      handleExistingPatient(props.patient.patientName, 'patientInitial');
+      // need to add other fields
+      setExistingPatient(false);
+    }
   });
 
   const handleNext = () => {
     if (activeStep === 0) {
       props.doesPatientExist(patient.patientId);
-      if (!props.newPatientExist) {
-        setIsShowDialog(true);
-        // setIsPatientCreated(true);
-      }
+      setIsShowDialog(true);
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
@@ -128,24 +145,20 @@ const Page: React.FC<IProps> = (props) => {
 
   const handleSubmit = () => {
     // setIsShowDialogsubmission(true);
-    const formattedPatient = formatPatientData(patient);
-    props.addPatientNew(formattedPatient);
-
-    /**/
-    //  format Data --> probably another function or component
-    //  if patient !exists
-    //  this.props.addnewPatient(patient)
-    //      handle error
-    //      handle success
-    //    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //  this.props.reading(reading)
-    //      handle error
-    //      handle success
-
-    //    if roleid is not hcw
-    //  this.props.assessment(assessment)
-    //      handle error
-    //      handle success
+    if (!props.newPatientExist) {
+      const formattedPatient = formatPatientData(patient);
+      props.addPatientNew(formattedPatient);
+    } else {
+      const formattedReading = formatReadingData(
+        patient,
+        symptoms,
+        urineTest,
+        vitals,
+        props.user.userId
+      );
+      props.addReadingNew(formattedReading);
+      props.afterNewPatientAdded();
+    }
   };
 
   const handleDialogClose = (e: any) => {
@@ -154,8 +167,11 @@ const Page: React.FC<IProps> = (props) => {
       setIsShowDialog(false);
     }
     if (value === 'yes') {
-      //get the patient info and fill it out
+      //get the patient info and fill it out and make it none editable
       setIsShowDialog(false);
+      props.getPatient(patient.patientId);
+      setExistingPatient(true);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
     if (value === 'ok') {
       setIsShowDialog(false);
@@ -356,6 +372,7 @@ const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
   newReadingData: newReadingStatus.message,
   newPatientAdded: patients.newPatientAdded,
   newPatientExist: patients.patientExist,
+  patient: patients.patient,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -369,6 +386,7 @@ const mapDispatchToProps = (dispatch: any) => ({
       addReadingNew,
       doesPatientExist,
       afterNewPatientAdded,
+      getPatient,
     },
     dispatch
   ),
