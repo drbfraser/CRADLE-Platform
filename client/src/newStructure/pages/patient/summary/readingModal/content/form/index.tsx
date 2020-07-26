@@ -98,6 +98,7 @@ export const Form: React.FC<Omit<IProps, 'displayReadingModal'>> = ({
     selectedSymptoms,
     selectedPatient,
     setError,
+    updateState,
   });
 
   return (

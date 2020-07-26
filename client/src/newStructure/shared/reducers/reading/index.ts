@@ -1,4 +1,12 @@
-import { NewReading, OrNull, Patient, ServerError, UrineTests } from '@types';
+import {
+  NewReading,
+  OrNull,
+  OrUndefined,
+  Patient,
+  Reading,
+  ServerError,
+  UrineTests,
+} from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
@@ -12,7 +20,16 @@ enum ReadingEnum {
   CLEAR_CREATE_READING_OUTCOME = `reading/CLEAR_CREATE_NEW_READING_OUTCOME`,
 }
 
-type ReadingPayload = { message: string };
+export type ReadingCreatedResponse = {
+  patient: Patient;
+  reading: Reading;
+};
+
+type CreateReadingSuccessPayload = {
+  message: string;
+  patient: Patient;
+  reading: Reading;
+};
 
 type ReadingAction =
   | { type: ReadingEnum.CREATE_READING_REQUESTED }
@@ -20,7 +37,7 @@ type ReadingAction =
   | { type: ReadingEnum.CLEAR_CREATE_READING_OUTCOME }
   | {
       type: ReadingEnum.CREATE_READING_SUCCESS;
-      payload: ReadingPayload;
+      payload: CreateReadingSuccessPayload;
     };
 
 type CreateReading = {
@@ -34,7 +51,7 @@ type CreateReading = {
     dateTimeTaken: number;
     symptoms: Array<string>;
     dateRecheckVitalsNeeded: null;
-    urineTests: OrNull<Record<keyof UrineTests, string>>;
+    urineTests: OrUndefined<Record<keyof UrineTests, string>>;
   };
 };
 
@@ -53,11 +70,14 @@ export const createReading = (
         endpoint: `${Endpoints.PATIENT}${Endpoints.READING}`,
         method: Methods.POST,
         data,
-        onSuccess: (message: string): ReadingAction => {
-          console.log(message);
+        onSuccess: ({
+          data,
+        }: {
+          data: CreateReadingSuccessPayload;
+        }): ReadingAction => {
           return {
             type: ReadingEnum.CREATE_READING_SUCCESS,
-            payload: { message },
+            payload: data,
           };
         },
         onError: (error: ServerError): ReadingAction => ({
@@ -78,6 +98,7 @@ export type ReadingState = {
   loading: boolean;
   message: OrNull<string>;
   readingCreated: boolean;
+  readingCreatedResponse: OrNull<ReadingCreatedResponse>;
 };
 
 const initialState: ReadingState = {
@@ -85,6 +106,7 @@ const initialState: ReadingState = {
   loading: false,
   message: null,
   readingCreated: false,
+  readingCreatedResponse: null,
 };
 
 export const readingReducer = (
@@ -102,6 +124,10 @@ export const readingReducer = (
         ...initialState,
         message: action.payload.message,
         readingCreated: true,
+        readingCreatedResponse: {
+          patient: action.payload.patient,
+          reading: action.payload.reading,
+        },
       };
     case ReadingEnum.CREATE_READING_ERROR:
       return {

@@ -54,6 +54,7 @@ export const ReferralsPage: React.FC = () => {
       searchText: state.patients.referralsTableSearchText,
     })
   );
+
   const dispatch = useDispatch();
 
   React.useEffect((): void => {

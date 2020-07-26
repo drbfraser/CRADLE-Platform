@@ -8,12 +8,10 @@ import {
 } from '../../../shared/reducers/patients';
 import {
   average,
-  createReadingObject,
   getNumOfMonths,
   getNumOfWeeks,
   getReferralIds,
   getTrafficIcon,
-  sortReadings,
   unitOptions,
 } from './utils';
 import {
@@ -44,6 +42,7 @@ import SweetAlert from 'sweetalert2-react';
 import Typography from '@material-ui/core/Typography';
 import { getPatientStatistics } from '../../../shared/reducers/patientStatistics';
 import { getReferrals } from '../../../shared/reducers/referrals';
+import { useReadings } from './hooks/readings';
 
 interface IProps {
   selectedPatient: Patient;
@@ -300,19 +299,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     }));
   };*/
 
-  let readings: Array<Reading> = [];
-
-  if (
-    selectedPatient.readings !== undefined &&
-    selectedPatient.readings.length > 0
-  ) {
-    for (let i = 0; i < selectedPatient.readings.length; i++) {
-      const reading = createReadingObject(selectedPatient.readings[i]);
-      readings.push(reading);
-    }
-
-    readings = sortReadings(readings);
-  }
+  const readings = useReadings(selectedPatient);
 
   let bpSystolicReadingsMontly = {};
 

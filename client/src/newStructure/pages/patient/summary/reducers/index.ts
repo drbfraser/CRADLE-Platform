@@ -13,6 +13,7 @@ export enum ActionTypeEnum {
   UPDATE_OTHER_SYMPTOMS,
   UPDATE_URINE_TEST,
   TOGGLE_URINE_TEST,
+  RESET,
 }
 
 type ShowPromptPayload = {
@@ -55,7 +56,8 @@ export type Action =
       type: ActionTypeEnum.UPDATE_URINE_TEST;
       payload: UpdateUrineTestPayload;
     }
-  | { type: ActionTypeEnum.TOGGLE_URINE_TEST };
+  | { type: ActionTypeEnum.TOGGLE_URINE_TEST }
+  | { type: ActionTypeEnum.RESET };
 
 type State = {
   onPromptConfirmed: OrNull<() => void>;
@@ -117,6 +119,7 @@ type ActionCreatorSignature = {
   updateOtherSymptoms: (otherSymptoms: string) => Action;
   updateUrineTest: (payload: UpdateUrineTestPayload) => Action;
   toggleUrineTest: () => Action;
+  reset: () => Action;
 };
 
 export const actionCreators: ActionCreatorSignature = {
@@ -159,6 +162,9 @@ export const actionCreators: ActionCreatorSignature = {
   },
   toggleUrineTest: (): Action => {
     return { type: ActionTypeEnum.TOGGLE_URINE_TEST };
+  },
+  reset: (): Action => {
+    return { type: ActionTypeEnum.RESET };
   },
 };
 
@@ -224,6 +230,9 @@ export const reducer = (state: State = initialState, action: Action): State => {
     }
     case ActionTypeEnum.TOGGLE_URINE_TEST: {
       return { ...state, hasUrineTest: !state.hasUrineTest };
+    }
+    case ActionTypeEnum.RESET: {
+      return initialState;
     }
     default: {
       return state;

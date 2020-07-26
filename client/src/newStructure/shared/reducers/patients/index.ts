@@ -1,4 +1,5 @@
-import { OrNull, ServerError } from '@types';
+import { OrNull, Patient, Reading, ServerError } from '@types';
+import { calculateShockIndex, sortPatientsByLastReading } from '../../utils';
 
 import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
@@ -7,7 +8,6 @@ import { PatientStateEnum } from '../../../enums';
 import { getPatientsWithReferrals } from './utils';
 import { goBack } from 'connected-react-router';
 import { serverRequestActionCreator } from '../utils';
-import { sortPatientsByLastReading } from '../../utils';
 
 const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
 const GET_PATIENT_SUCCESS = `patients/GET_PATIENT_SUCCESS`;
@@ -47,6 +47,9 @@ const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
 
 const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
 const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
+
+const AFTER_NEW_READING_ADDED = `patients/AFTER_NEW_READING_ADDED`;
+const RESET_PATIENT_UPDATED = `patients/RESET_PATIENT_UPDATED`;
 
 const ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED`;
 const ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`;
@@ -254,10 +257,25 @@ export const afterNewPatientAdded = () => ({
   type: AFTER_NEW_PATIENT_ADDED,
 });
 
+export const afterNewReadingAdded = (reading: Reading) => {
+  // * Create traffic light status for newly created reading
+  reading.trafficLightStatus = calculateShockIndex(reading);
+
+  return {
+    type: AFTER_NEW_READING_ADDED,
+    payload: { reading },
+  };
+};
+
+export const resetPatientUpdated = () => ({
+  type: RESET_PATIENT_UPDATED,
+});
+
 export type PatientsState = {
   error: OrNull<string>;
   preventFetch: boolean;
-  patient: any;
+  patient: OrNull<Patient>;
+  patientUpdated: boolean;
   globalSearch: boolean;
   globalSearchPatientsList: OrNull<any>;
   patientsList: OrNull<any>;
@@ -276,7 +294,8 @@ export type PatientsState = {
 const initialState: PatientsState = {
   error: null,
   preventFetch: false,
-  patient: {},
+  patient: null,
+  patientUpdated: false,
   globalSearch: false,
   globalSearchPatientsList: null,
   patientsList: null,
@@ -372,6 +391,23 @@ export const patientsReducer = (state = initialState, action: any) => {
         ...state,
         newPatientAdded: false,
       };
+    case AFTER_NEW_READING_ADDED:
+      return {
+        ...state,
+        patientUpdated: true,
+        patient: {
+          ...state.patient,
+          readings: [
+            action.payload.reading,
+            ...(state.patient?.readings ?? []),
+          ],
+        },
+      };
+    case RESET_PATIENT_UPDATED:
+      return {
+        ...state,
+        patientUpdated: false,
+      };
     case GET_PATIENT_ERROR:
       return {
         ...state,
@@ -400,9 +436,11 @@ export const patientsReducer = (state = initialState, action: any) => {
           return patient;
         }
       );
+
       if (patientToAdd === null && state.globalSearchPatientsList !== null) {
         throw new Error(`Unknown patient id: ${action.payload.patientId}`);
       }
+
       return {
         ...state,
         addingFromGlobalSearch: false,

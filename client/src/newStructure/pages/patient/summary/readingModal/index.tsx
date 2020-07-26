@@ -4,7 +4,9 @@ import { NewReading, Patient } from '@types';
 import { Content } from './content';
 import { Modal } from 'semantic-ui-react';
 import React from 'react';
+import { ReduxState } from '../../../../redux/rootReducer';
 import { SymptomEnum } from '../../../../enums';
+import { useSelector } from 'react-redux';
 
 export interface IProps {
   displayReadingModal: boolean;
@@ -21,9 +23,19 @@ export const ReadingModal: React.FC<IProps> = ({
   updateState,
   ...props
 }) => {
-  const closeReadingModal = (): void => {
+  const readingCreated = useSelector(
+    ({ patients }: ReduxState): boolean => patients.patientUpdated
+  );
+
+  const closeReadingModal = React.useCallback((): void => {
     updateState(actionCreators.toggleReadingModal());
-  };
+  }, [updateState]);
+
+  React.useEffect((): void => {
+    if (readingCreated) {
+      closeReadingModal();
+    }
+  }, [closeReadingModal, readingCreated]);
 
   return (
     <Modal closeIcon onClose={closeReadingModal} open={displayReadingModal}>

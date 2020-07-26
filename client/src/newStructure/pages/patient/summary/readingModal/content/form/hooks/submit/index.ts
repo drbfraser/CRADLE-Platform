@@ -1,11 +1,20 @@
-import { Callback, NewReading, OrUndefined, Patient } from '@types';
+import { Action, actionCreators } from '../../../../../reducers';
+import { Callback, NewReading, OrNull, OrUndefined, Patient } from '@types';
+import React, { Dispatch } from 'react';
+import {
+  ReadingCreatedResponse,
+  createReading,
+} from '../../../../../../../../shared/reducers/reading';
+import {
+  afterNewReadingAdded,
+  resetPatientUpdated,
+} from '../../../../../../../../shared/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ReduxState } from '../../../../../../../../redux/rootReducer';
 import { SymptomEnum } from '../../../../../../../../enums';
-import { createReading } from '../../../../../../../../shared/reducers/reading';
 import { formatSymptoms } from './utils';
-import { v4 as makeUniqueId } from 'uuid';
+import { makeUniqueId } from '../../../../../../../../shared/utils';
 
 interface IArgs {
   hasUrineTest: boolean;
@@ -14,7 +23,13 @@ interface IArgs {
   selectedSymptoms: Record<SymptomEnum, boolean>;
   selectedPatient: Patient;
   setError: Callback<string>;
+  updateState: Dispatch<Action>;
 }
+
+type SelectorState = {
+  readingCreatedResponse: OrNull<ReadingCreatedResponse>;
+  userId: OrUndefined<number>;
+};
 
 export const useSubmit = ({
   hasUrineTest,
@@ -23,12 +38,22 @@ export const useSubmit = ({
   selectedSymptoms,
   selectedPatient,
   setError,
+  updateState,
 }: IArgs): Callback<React.FormEvent<HTMLFormElement>> => {
-  const userId = useSelector(
-    ({ user }: ReduxState): OrUndefined<number> => user.current.data?.userId
+  const { readingCreatedResponse, userId } = useSelector(
+    ({ reading, user }: ReduxState): SelectorState => ({
+      readingCreatedResponse: reading.readingCreatedResponse,
+      userId: user.current.data?.userId,
+    })
   );
 
   const dispatch = useDispatch();
+
+  React.useEffect((): void => {
+    if (readingCreatedResponse) {
+      dispatch(afterNewReadingAdded(readingCreatedResponse.reading));
+    }
+  }, [dispatch, readingCreatedResponse]);
 
   return (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -40,6 +65,10 @@ export const useSubmit = ({
       return;
     }
 
+    // * Reset patient updated to allow new reading to be shown
+    // * without requiring a page refresh
+    dispatch(resetPatientUpdated());
+
     // * Generate random id as reading id
     const readingId = makeUniqueId();
 
@@ -47,9 +76,15 @@ export const useSubmit = ({
     const dateTimeTaken = Math.floor(Date.now() / 1000);
 
     // * Remove unnecessary fields from selectedPatient
-    delete selectedPatient.readings;
-    delete selectedPatient.needsAssessment;
-    delete selectedPatient.tableData;
+    const {
+      readings,
+      needsAssessment,
+      tableData,
+      ...patientData
+    } = selectedPatient;
+
+    // * Remove unnecessary fields from newReading
+    const { urineTests, ...readingData } = newReading;
 
     if (!hasUrineTest) {
       delete newReading.urineTests;
@@ -57,9 +92,12 @@ export const useSubmit = ({
 
     dispatch(
       createReading({
-        patient: selectedPatient,
+        patient: {
+          ...patientData,
+        },
         reading: {
-          ...newReading,
+          ...readingData,
+          urineTests: hasUrineTest ? urineTests : undefined,
           userId,
           readingId,
           dateTimeTaken,
@@ -69,10 +107,10 @@ export const useSubmit = ({
       })
     );
 
-    // TODO: Upon successsful new reading addition
-    // TODO: Display success message
-    // TODO: Calculate traffic light for new reading (Use calculate shock index in utils)
-    // TODO: Update traffic light for new reading
-    // TODO: Update patient with new reading
+    selectedPatient.readings = readings;
+    selectedPatient.needsAssessment = needsAssessment;
+    selectedPatient.tableData = tableData;
+
+    updateState(actionCreators.reset());
   };
 };
