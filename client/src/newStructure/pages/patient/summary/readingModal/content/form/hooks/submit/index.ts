@@ -46,24 +46,25 @@ export const useSubmit = ({
     // * Generate reading date as current time
     const dateTimeTaken = Math.floor(Date.now() / 1000);
 
-    // * Remove unnecessary fields
+    // * Remove unnecessary fields from selectedPatient
     delete selectedPatient.readings;
     delete selectedPatient.needsAssessment;
     delete selectedPatient.tableData;
 
-    const { urineTests, ...readingData } = newReading;
+    if (!hasUrineTest) {
+      delete newReading.urineTests;
+    }
 
     dispatch(
       createReading({
         patient: { ...selectedPatient },
         reading: {
-          ...readingData,
+          ...newReading,
           userId,
           readingId,
           dateTimeTaken,
           symptoms: formatSymptoms(selectedSymptoms, otherSymptoms),
           dateRecheckVitalsNeeded: null,
-          urineTests: hasUrineTest ? urineTests : null,
         },
       })
     );

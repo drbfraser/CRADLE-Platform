@@ -750,7 +750,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
           displayReadingModal={state.displayReadingModal}
           hasUrineTest={state.hasUrineTest}
           newReading={state.newReading}
-          otherSymptoms={state.newReading.otherSymptoms}
+          otherSymptoms={state.otherSymptoms}
           selectedPatient={selectedPatient}
           selectedSymptoms={state.selectedSymptoms}
           updateState={updateState}

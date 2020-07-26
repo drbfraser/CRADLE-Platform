@@ -25,7 +25,6 @@ export type UpdateNewReadingKey =
   | `bpSystolic`
   | `heartRateBPM`
   | `isFlaggedForFollowup`
-  | `otherSymptoms`
   | `urineTests`;
 
 type UpdateNewReadingPayload = {
@@ -69,6 +68,7 @@ type State = {
   showSuccessReading: boolean;
   hasUrineTest: boolean;
   selectedSymptoms: Record<SymptomEnum, boolean>;
+  otherSymptoms: string;
   newReading: NewReading;
 };
 
@@ -92,12 +92,12 @@ export const initialState: State = {
     [SymptomEnum.UNWELL]: false,
     [SymptomEnum.OTHER]: false,
   },
+  otherSymptoms: ``,
   newReading: {
     bpDiastolic: ``,
     bpSystolic: ``,
     heartRateBPM: ``,
     isFlaggedForFollowup: false,
-    otherSymptoms: ``,
     urineTests: {
       urineTestBlood: ``,
       urineTestGlu: ``,
@@ -207,10 +207,7 @@ export const reducer = (state: State = initialState, action: Action): State => {
     case ActionTypeEnum.UPDATE_OTHER_SYMPTOMS: {
       return {
         ...state,
-        newReading: {
-          ...state.newReading,
-          otherSymptoms: action.payload.otherSymptoms,
-        },
+        otherSymptoms: action.payload.otherSymptoms,
       };
     }
     case ActionTypeEnum.UPDATE_URINE_TEST: {

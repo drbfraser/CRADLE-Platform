@@ -58,7 +58,6 @@ export type NewReading = {
   bpSystolic: string;
   bpDiastolic: string;
   heartRateBPM: string;
-  otherSymptoms: string;
   urineTests: Record<keyof UrineTests, string>;
 } & Pick<Reading, 'isFlaggedForFollowup'>;
 
