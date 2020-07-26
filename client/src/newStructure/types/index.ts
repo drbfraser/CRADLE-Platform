@@ -55,16 +55,12 @@ export type UrineTests = {
 };
 
 export type NewReading = {
-  userId: number;
   bpSystolic: string;
   bpDiastolic: string;
-  dateRecheckVitalsNeeded: string;
-  dateTimeTaken: string;
   heartRateBPM: string;
-  symptoms: string;
   otherSymptoms: string;
   urineTests: Record<keyof UrineTests, string>;
-} & Pick<Reading, 'isFlaggedForFollowup' | 'readingId'>;
+} & Pick<Reading, 'isFlaggedForFollowup'>;
 
 export type Patient = {
   dob: OrNull<number>;

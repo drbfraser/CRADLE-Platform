@@ -753,7 +753,6 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
           otherSymptoms={state.newReading.otherSymptoms}
           selectedPatient={selectedPatient}
           selectedSymptoms={state.selectedSymptoms}
-          symptoms={`${state.newReading.symptoms},${state.newReading.otherSymptoms}`}
           updateState={updateState}
         />
         <SweetAlert

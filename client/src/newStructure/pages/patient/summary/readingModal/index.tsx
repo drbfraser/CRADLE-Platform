@@ -13,7 +13,6 @@ export interface IProps {
   otherSymptoms: string;
   selectedPatient: Patient;
   selectedSymptoms: Record<SymptomEnum, boolean>;
-  symptoms: string;
   updateState: React.Dispatch<Action>;
 }
 

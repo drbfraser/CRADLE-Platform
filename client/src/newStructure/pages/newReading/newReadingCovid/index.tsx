@@ -1,34 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
 import {
+  Button,
   Divider,
-  Stepper,
   Step,
   StepLabel,
+  Stepper,
   Typography,
-  Button,
 } from '@material-ui/core';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { Demographics } from './demographic';
-import { Symptoms } from './symptoms';
-import { VitalSignAssessment } from './vitalSignAssessment';
-import { Assessment } from './assessment';
-import { bindActionCreators } from 'redux';
-import { getCurrentUser } from '../../../shared/reducers/user/currentUser';
+import React, { useEffect, useState } from 'react';
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import {
-  addNewReading,
-  resetNewReadingStatus,
-} from '../../../shared/reducers/newReadingStatus';
-import { addNewPatient } from '../../../shared/reducers/patients';
+  clearCreateReadingOutcome,
+  createReading,
+} from '../../../shared/reducers/reading';
+
+import AlertDialog from './alertDialog';
+import { Assessment } from './assessment';
+import { ConfirmationPage } from './confirmationPage';
+import { Demographics } from './demographic';
+import SubmissionDialog from './submissionDialog';
+import { Symptoms } from './symptoms';
 import { User } from '@types';
+import { VitalSignAssessment } from './vitalSignAssessment';
+import { addNewPatient } from '../../../shared/reducers/patients';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../../shared/reducers/user/currentUser';
+import { useNewAssessment } from './assessment/hooks';
 import { useNewPatient } from './demographic/hooks';
 import { useNewSymptoms } from './symptoms/hooks';
-import { useNewVitals } from './vitalSignAssessment/hooks';
-import { useNewAssessment } from './assessment/hooks';
 import { useNewUrineTest } from './urineTestAssessment/hooks';
-import AlertDialog from './alertDialog';
-import SubmissionDialog from './submissionDialog';
-import { ConfirmationPage } from './confirmationPage';
+import { useNewVitals } from './vitalSignAssessment/hooks';
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -53,6 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
+
 function getSteps() {
   return [
     'Collect basic demographic info',
@@ -62,11 +65,12 @@ function getSteps() {
     'Confirmation',
   ];
 }
+
 interface IProps {
   getCurrentUser: any;
   afterNewPatientAdded: any;
   user: User;
-  addNewReading: any;
+  createReading: any;
 }
 
 // const initState = {
@@ -283,11 +287,11 @@ const Page: React.FC<IProps> = (props) => {
     </div>
   );
 };
-const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
+const mapStateToProps = ({ user, reading, patients }: any) => ({
   user: user.current.data,
-  createReadingStatusError: newReadingStatus.error,
-  readingCreated: newReadingStatus.readingCreated,
-  newReadingData: newReadingStatus.message,
+  createReadingStatusError: reading.error,
+  readingCreated: reading.readingCreated,
+  newReadingData: reading.message,
   newPatientAdded: patients.newPatientAdded,
 });
 
@@ -295,9 +299,9 @@ const mapDispatchToProps = (dispatch: any) => ({
   ...bindActionCreators(
     {
       getCurrentUser,
-      addNewReading,
+      createReading,
       addNewPatient,
-      resetNewReadingStatus,
+      clearCreateReadingOutcome,
       // afterNewPatientAdded
     },
     dispatch

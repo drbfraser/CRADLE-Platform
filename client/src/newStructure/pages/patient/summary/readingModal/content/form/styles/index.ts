@@ -8,4 +8,8 @@ export const useStyles = makeStyles((theme: Theme) => ({
   symptomFormContainer: {
     marginBlockStart: `${theme.spacing(3)}px`,
   },
+  input: {
+    appearance: `none`,
+    margin: 0,
+  },
 }));

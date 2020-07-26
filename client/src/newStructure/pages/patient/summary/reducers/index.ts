@@ -1,10 +1,5 @@
 import { NewReading, OrNull, UrineTests } from '@types';
-import {
-  formatSymptoms,
-  toggleNoneSymptom,
-  updateReadingSymptoms,
-  updateSelectedSymptoms,
-} from './utils';
+import { toggleNoneSymptom, updateSelectedSymptoms } from './utils';
 
 import { SymptomEnum } from '../../../../enums';
 
@@ -29,14 +24,9 @@ export type UpdateNewReadingKey =
   | `bpDiastolic`
   | `bpSystolic`
   | `heartRateBPM`
-  | `dateRecheckVitalsNeeded`
-  | `dateTimeTaken`
   | `isFlaggedForFollowup`
   | `otherSymptoms`
-  | `readingId`
-  | `symptoms`
-  | `urineTests`
-  | `userId`;
+  | `urineTests`;
 
 type UpdateNewReadingPayload = {
   key: UpdateNewReadingKey;
@@ -106,12 +96,8 @@ export const initialState: State = {
     bpDiastolic: ``,
     bpSystolic: ``,
     heartRateBPM: ``,
-    dateRecheckVitalsNeeded: ``,
-    dateTimeTaken: ``,
     isFlaggedForFollowup: false,
     otherSymptoms: ``,
-    readingId: ``,
-    symptoms: ``,
     urineTests: {
       urineTestBlood: ``,
       urineTestGlu: ``,
@@ -119,7 +105,6 @@ export const initialState: State = {
       urineTestNit: ``,
       urineTestPro: ``,
     },
-    userId: 0,
   },
 };
 
@@ -208,12 +193,6 @@ export const reducer = (state: State = initialState, action: Action): State => {
         selectedSymptoms: toggleNoneSymptom(
           state.selectedSymptoms[SymptomEnum.NONE]
         ),
-        newReading: {
-          ...state.newReading,
-          symptoms: state.selectedSymptoms[SymptomEnum.NONE]
-            ? ``
-            : formatSymptoms(SymptomEnum.NONE),
-        },
       };
     }
     case ActionTypeEnum.SYMPTOM_TOGGLED: {
@@ -223,13 +202,6 @@ export const reducer = (state: State = initialState, action: Action): State => {
           action.payload.symptom,
           state.selectedSymptoms
         ),
-        newReading: {
-          ...state.newReading,
-          symptoms: updateReadingSymptoms(
-            action.payload.symptom,
-            state.newReading.symptoms
-          ),
-        },
       };
     }
     case ActionTypeEnum.UPDATE_OTHER_SYMPTOMS: {

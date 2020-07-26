@@ -60,38 +60,3 @@ export const updateSelectedSymptoms = (
 
   return newSelectedSypmtoms;
 };
-
-export const formatSymptoms = (symptoms: string): string => {
-  return symptoms
-    .replace(/[A-Z]/g, (uppercase: string): string => uppercase.toLowerCase())
-    .replace(
-      /[a-z] [a-z]/g,
-      (match: string): string => `${match[0]}${match[2].toUpperCase()}`
-    )
-    .replace(/ /g, ``);
-};
-
-export const updateReadingSymptoms = (
-  symptomToToggle: SymptomEnum,
-  symptoms: string
-): string => {
-  const formattedSymptom = formatSymptoms(symptomToToggle);
-
-  let symptomRemoved = false;
-
-  const newSymptoms = symptoms
-    .split(`,`)
-    .reduce((newSymptoms: Array<string>, symptom: string): Array<string> => {
-      if (symptom === formattedSymptom) {
-        symptomRemoved = true;
-        return newSymptoms;
-      }
-      return [...newSymptoms, symptom];
-    }, []);
-
-  if (!symptomRemoved) {
-    newSymptoms.push(formattedSymptom);
-  }
-
-  return formatSymptoms(newSymptoms.join(`,`));
-};
