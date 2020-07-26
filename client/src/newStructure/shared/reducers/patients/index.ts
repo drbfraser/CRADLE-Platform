@@ -259,7 +259,9 @@ export const afterNewPatientAdded = () => ({
 
 export const afterNewReadingAdded = (reading: Reading) => {
   // * Create traffic light status for newly created reading
+  console.log(reading.trafficLightStatus);
   reading.trafficLightStatus = calculateShockIndex(reading);
+  console.log(reading.trafficLightStatus);
 
   return {
     type: AFTER_NEW_READING_ADDED,

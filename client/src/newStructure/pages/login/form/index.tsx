@@ -7,10 +7,10 @@ import {
 } from '../../../shared/reducers/user/currentUser';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Error } from '../../../shared/components/error';
 import { OrNull } from '@types';
 import React from 'react';
 import { ReduxState } from '../../../redux/rootReducer';
+import { Toast } from '../../../shared/components/toast';
 import classes from './styles.module.css';
 import { useFormik } from 'formik';
 
@@ -45,7 +45,7 @@ export const LoginForm: React.FC = () => {
 
   return (
     <>
-      <Error error={errorMessage} clearError={clearError} />
+      <Toast status="error" message={errorMessage} clearMessage={clearError} />
       <form onSubmit={formik.handleSubmit}>
         <h1 className={classes.login}>Log In</h1>
         <h2>Email</h2>

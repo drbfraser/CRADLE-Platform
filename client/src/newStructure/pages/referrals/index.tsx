@@ -12,10 +12,10 @@ import {
 } from '../../shared/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Error } from '../../shared/components/error';
 import React from 'react';
 import { ReduxState } from '../../redux/rootReducer';
 import { ReferralTable } from './referralTable';
+import { Toast } from '../../shared/components/toast';
 import { push } from 'connected-react-router';
 
 type SelectorState = {
@@ -102,9 +102,10 @@ export const ReferralsPage: React.FC = () => {
 
   return (
     <>
-      <Error
-        error={loggingInError || gettingPatientsError}
-        clearError={clearError}
+      <Toast
+        status="error"
+        message={loggingInError || gettingPatientsError}
+        clearMessage={clearError}
       />
       <ReferralTable
         pageNumber={pageNumber}

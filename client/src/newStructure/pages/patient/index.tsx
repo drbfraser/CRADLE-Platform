@@ -5,12 +5,12 @@ import {
 } from '../../shared/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Error } from '../../shared/components/error';
 import { Loader } from '../../shared/components/loader';
 import { PatientSummary } from './summary';
 import React from 'react';
 import { ReduxState } from '../../redux/rootReducer';
 import { RouteComponentProps } from 'react-router-dom';
+import { Toast } from '../../shared/components/toast';
 
 type SelectorState = {
   error: OrNull<string>;
@@ -54,7 +54,7 @@ export const PatientPage: React.FC<RouteComponentProps<Params>> = ({
 
   return (
     <>
-      <Error error={error} clearError={clearError} />
+      <Toast status="error" message={error} clearMessage={clearError} />
       <PatientSummary selectedPatient={patient} />
     </>
   );

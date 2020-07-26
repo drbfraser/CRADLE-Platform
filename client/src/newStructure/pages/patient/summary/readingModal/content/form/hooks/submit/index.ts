@@ -76,12 +76,21 @@ export const useSubmit = ({
     const dateTimeTaken = Math.floor(Date.now() / 1000);
 
     // * Remove unnecessary fields from selectedPatient
-    const {
-      readings,
-      needsAssessment,
-      tableData,
-      ...patientData
-    } = selectedPatient;
+    const patientData = Object.entries(selectedPatient).reduce(
+      (data: Record<string, any>, [key, value]: [string, any]): any => {
+        if (
+          key === `readings` ||
+          key === `needsAssessment` ||
+          key === `tableData`
+        ) {
+          return data;
+        }
+
+        data[key] = value;
+        return data;
+      },
+      {}
+    );
 
     // * Remove unnecessary fields from newReading
     const { urineTests, ...readingData } = newReading;
@@ -106,10 +115,6 @@ export const useSubmit = ({
         },
       })
     );
-
-    selectedPatient.readings = readings;
-    selectedPatient.needsAssessment = needsAssessment;
-    selectedPatient.tableData = tableData;
 
     updateState(actionCreators.reset());
   };

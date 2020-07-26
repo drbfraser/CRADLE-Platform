@@ -5,23 +5,30 @@ import Alert from '@material-ui/lab/Alert';
 import React from 'react';
 
 interface IProps {
-  error: OrNull<string>;
-  clearError: () => void;
+  message: OrNull<string>;
+  clearMessage: () => void;
+  status: `error` | `success` | `info` | `warning`;
+  clickaway?: boolean;
 }
 
-export const Error: React.FC<IProps> = ({ error, clearError }) => {
-  const [message, setMessage] = React.useState<OrNull<string>>(null);
+export const Toast: React.FC<IProps> = ({
+  message,
+  clearMessage,
+  status,
+  clickaway = false,
+}) => {
+  const [toastMessage, setToastMessage] = React.useState<OrNull<string>>(null);
 
   React.useEffect((): (() => void) => {
     let timeout: OrUndefined<NodeJS.Timeout>;
 
-    if (error) {
-      setMessage(error);
+    if (message) {
+      setToastMessage(message);
     } else {
       // * Prevents the snackbar message from immediately
-      // * disappearing when the error is cleared
+      // * disappearing when the message is cleared
       timeout = setTimeout(() => {
-        setMessage(null);
+        setToastMessage(null);
       }, 150);
     }
 
@@ -30,26 +37,26 @@ export const Error: React.FC<IProps> = ({ error, clearError }) => {
         clearTimeout(timeout);
       }
     };
-  }, [error]);
+  }, [message]);
 
   const handleClose = (
     _: React.SyntheticEvent,
     reason?: SnackbarCloseReason
   ): void => {
-    if (reason === `clickaway`) {
+    if (!clickaway && reason === `clickaway`) {
       return;
     }
 
-    clearError();
+    clearMessage();
   };
 
   return (
     <Snackbar
-      open={Boolean(error)}
+      open={Boolean(message)}
       anchorOrigin={{ vertical: `top`, horizontal: `center` }}
       onClose={handleClose}>
-      <Alert severity="error" variant="filled" onClose={handleClose}>
-        {message}
+      <Alert severity={status} variant="filled" onClose={handleClose}>
+        {toastMessage}
       </Alert>
     </Snackbar>
   );

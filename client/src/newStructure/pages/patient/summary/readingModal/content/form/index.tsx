@@ -7,7 +7,6 @@ import {
 import { OrNull, UrineTests } from '@types';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Error } from '../../../../../../shared/components/error';
 import { HeartForm } from './heart';
 import { IProps } from '../..';
 import { Paper } from '@material-ui/core';
@@ -15,6 +14,7 @@ import React from 'react';
 import { ReduxState } from '../../../../../../redux/rootReducer';
 import { SymptomEnum } from '../../../../../../enums';
 import { SymptomForm } from '../../../../../../shared/components/form/symptom';
+import { Toast } from '../../../../../../shared/components/toast';
 import { UrineTestForm } from '../../../../../../shared/components/form/urineTest';
 import { actionCreators } from '../../../reducers';
 import { clearCreateReadingOutcome } from '../../../../../../shared/reducers/reading';
@@ -103,7 +103,11 @@ export const Form: React.FC<Omit<IProps, 'displayReadingModal'>> = ({
 
   return (
     <>
-      <Error error={error || readingError} clearError={clearError} />
+      <Toast
+        status="error"
+        message={error || readingError}
+        clearMessage={clearError}
+      />
       <SemanticForm onSubmit={handleReadingSubmit}>
         <Paper className={classes.formContainer}>
           <HeartForm newReading={newReading} updateState={updateState} />
