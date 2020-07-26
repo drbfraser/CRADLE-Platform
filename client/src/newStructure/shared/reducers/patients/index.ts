@@ -21,6 +21,9 @@ const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
 const GET_PATIENTS_ERROR = `patient/GET_PATIENTS_ERROR`;
 const GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patient/GET_GLOBAL_SEARCH_PATIENTS_ERROR`;
 
+const DOES_PATIENT_EXIST = `patient/DOES_PATIENT_EXIST`;
+const DOES_PATIENT_EXIST_ERROR = `patient/DOES_PATIENT_EXIST_ERROR`;
+
 const UPDATE_PATIENT = `patient/UPDATE_PATIENT`;
 const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
 
@@ -94,11 +97,11 @@ export const doesPatientExist = (patientId: any) => {
   return serverRequestActionCreator({
     endpoint: `/patients/${patientId}`,
     onSuccess: (response: any) => ({
-      type: GET_PATIENT,
+      type: DOES_PATIENT_EXIST,
       payload: response,
     }),
     onError: (error: any) => ({
-      type: GET_PATIENT_ERROR,
+      type: DOES_PATIENT_EXIST_ERROR,
       payload: error,
     }),
   });
@@ -219,6 +222,17 @@ export const patientsReducer = (state = initialState, action: any) => {
   let updatedPatients = [];
 
   switch (action.type) {
+    case DOES_PATIENT_EXIST:
+      return {
+        ...state,
+        patientExist: true,
+      };
+    case DOES_PATIENT_EXIST_ERROR: {
+      return {
+        ...state,
+        patientExist: false,
+      };
+    }
     case GET_PATIENTS:
       return {
         ...state,

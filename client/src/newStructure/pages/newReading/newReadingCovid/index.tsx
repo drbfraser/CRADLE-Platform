@@ -81,6 +81,7 @@ interface IProps {
   doesPatientExist: any;
   addReadingNew: any;
   newPatientAdded: any;
+  newPatientExist: boolean;
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -91,7 +92,6 @@ const Page: React.FC<IProps> = (props) => {
   const { vitals, handleChangeVitals } = useNewVitals();
   const { assessment, handleChangeAssessment } = useNewAssessment();
   const { urineTest, handleChangeUrineTest } = useNewUrineTest();
-  const [isPatientCreated, setIsPatientCreated] = useState(false);
   const [isShowDialog, setIsShowDialog] = useState(false);
   const [isShowDialogSubmission, setIsShowDialogsubmission] = useState(false);
   const steps = getSteps(props.user.roles[0]);
@@ -117,8 +117,10 @@ const Page: React.FC<IProps> = (props) => {
   const handleNext = () => {
     if (activeStep === 0) {
       props.doesPatientExist(patient.patientId);
-      setIsPatientCreated(true);
-      setIsShowDialog(true);
+      if (!props.newPatientExist) {
+        setIsShowDialog(true);
+        // setIsPatientCreated(true);
+      }
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
@@ -146,10 +148,21 @@ const Page: React.FC<IProps> = (props) => {
     //      handle success
   };
 
-  const handleDialogClose = () => {
-    setIsShowDialog(false);
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  const handleDialogClose = (e: any) => {
+    const value = e.currentTarget.value;
+    if (value === 'no') {
+      setIsShowDialog(false);
+    }
+    if (value === 'yes') {
+      //get the patient info and fill it out
+      setIsShowDialog(false);
+    }
+    if (value === 'ok') {
+      setIsShowDialog(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
   };
+
   const handleDialogCloseSubmission = () => {
     setIsShowDialogsubmission(false);
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -211,7 +224,7 @@ const Page: React.FC<IProps> = (props) => {
   const handleReset = () => {
     setActiveStep(0);
   };
-  console.log('isPatientCreated', isPatientCreated);
+  // console.log('isPatientCreated', isPatientCreated);
   console.log('isPatientCreated', patient);
   return (
     <div
@@ -321,6 +334,8 @@ const Page: React.FC<IProps> = (props) => {
               </Button>
               <AlertDialog
                 open={isShowDialog}
+                patientExist={props.newPatientExist}
+                patientId={patient.patientId}
                 handleDialogClose={handleDialogClose}></AlertDialog>
               <SubmissionDialog
                 open={isShowDialogSubmission}
@@ -340,6 +355,7 @@ const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
   readingCreated: newReadingStatus.readingCreated,
   newReadingData: newReadingStatus.message,
   newPatientAdded: patients.newPatientAdded,
+  newPatientExist: patients.patientExist,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

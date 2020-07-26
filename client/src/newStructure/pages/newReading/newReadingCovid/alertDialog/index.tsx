@@ -5,10 +5,13 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { ButtonGroup } from '@material-ui/core';
 
 interface IProps {
   open: boolean;
   handleDialogClose: any;
+  patientExist: boolean;
+  patientId: any;
 }
 
 export default function AlertDialog(props: IProps) {
@@ -19,17 +22,42 @@ export default function AlertDialog(props: IProps) {
         onClose={props.handleDialogClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">{'The ID is Valid'}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          {props.patientExist
+            ? 'Patient ID already exists'
+            : 'Patient ID does not exist'}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            This pop will will be used to inform the user if they are using a
-            duplicated ID
+            {props.patientExist
+              ? 'Would you like to use the patient with ID: ' + props.patientId
+              : 'Click OK! to make reading'}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={props.handleDialogClose} color="primary">
-            Ok!
-          </Button>
+          {props.patientExist ? (
+            <ButtonGroup>
+              <Button
+                value={'no'}
+                onClick={props.handleDialogClose}
+                color="primary">
+                No
+              </Button>
+              <Button
+                value={'yes'}
+                onClick={props.handleDialogClose}
+                color="primary">
+                Yes
+              </Button>
+            </ButtonGroup>
+          ) : (
+            <Button
+              value={'ok'}
+              onClick={props.handleDialogClose}
+              color="primary">
+              Ok!
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </div>
