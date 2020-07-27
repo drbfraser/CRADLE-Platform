@@ -156,6 +156,7 @@ export const useNewPatient = () => {
         [name]: e.target.value,
         patientAge: calculatedAge,
         dobError: errors.dobError,
+        patientAgeError: errors.patientAgeError,
       });
     }
     if (name === 'patientAge') {
@@ -164,6 +165,7 @@ export const useNewPatient = () => {
         ...patient,
         [name]: e.target.value,
         dob: age,
+        dobError: errors.dobError,
         patientAgeError: errors.patientAgeError,
       });
     }

@@ -38,11 +38,13 @@ export const validateInput = (name: any, value: any) => {
     case 'dob':
       if (age > 65 || age < 15) {
         patientError.dobError = true;
+        patientError.patientAgeError = true;
       }
       break;
     case 'patientAge':
       if (value > 65 || value < 15) {
         patientError.patientAgeError = true;
+        patientError.dobError = true;
       }
       break;
 
