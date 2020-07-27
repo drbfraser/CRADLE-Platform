@@ -1,5 +1,9 @@
 import { Action, actionCreators } from '../reducers';
 import { NewReading, OrNull, Patient } from '@types';
+import {
+  clearCreateReadingOutcome,
+  clearReadingCreatedResponse,
+} from '../../../../shared/reducers/reading';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Content } from './content';
@@ -8,7 +12,6 @@ import React from 'react';
 import { ReduxState } from '../../../../redux/rootReducer';
 import { SymptomEnum } from '../../../../enums';
 import { Toast } from '../../../../shared/components/toast';
-import { clearCreateReadingOutcome } from '../../../../shared/reducers/reading';
 
 export interface IProps {
   displayReadingModal: boolean;
@@ -23,7 +26,6 @@ export interface IProps {
 type SelectorState = {
   error: boolean;
   message: OrNull<string>;
-  readingCreated: boolean;
 };
 
 export const ReadingModal: React.FC<IProps> = ({
@@ -31,10 +33,13 @@ export const ReadingModal: React.FC<IProps> = ({
   updateState,
   ...props
 }) => {
-  const { error, message, readingCreated } = useSelector(
-    ({ patients, reading }: ReduxState): SelectorState => ({
+  const [submissionError, setSubmissionError] = React.useState<OrNull<string>>(
+    null
+  );
+
+  const { error, message } = useSelector(
+    ({ reading }: ReduxState): SelectorState => ({
       error: reading.error,
-      readingCreated: patients.patientUpdated,
       message: reading.message,
     })
   );
@@ -42,30 +47,38 @@ export const ReadingModal: React.FC<IProps> = ({
   const dispatch = useDispatch();
 
   const closeReadingModal = React.useCallback((): void => {
-    updateState(actionCreators.toggleReadingModal());
+    updateState(actionCreators.closeReadingModal());
+    updateState(actionCreators.reset());
   }, [updateState]);
 
-  React.useEffect((): void => {
-    if (readingCreated) {
-      closeReadingModal();
-    }
-  }, [closeReadingModal, readingCreated]);
-
   const clearMessage = (): void => {
+    setSubmissionError(null);
     dispatch(clearCreateReadingOutcome());
   };
+
+  React.useEffect((): void => {
+    if (!error && message) {
+      updateState(actionCreators.reset());
+      dispatch(clearReadingCreatedResponse());
+    }
+  }, [dispatch, error, message, updateState]);
 
   return (
     <>
       <Toast
         clickaway={!error}
-        message={message}
-        status={error ? `error` : `success`}
+        message={message || submissionError}
+        status={error || submissionError ? `error` : `success`}
         clearMessage={clearMessage}
       />
       <Modal closeIcon onClose={closeReadingModal} open={displayReadingModal}>
         <Modal.Header>Patient Information</Modal.Header>
-        <Content {...props} updateState={updateState} />
+        <Content
+          {...props}
+          displayReadingModal={displayReadingModal}
+          setError={setSubmissionError}
+          updateState={updateState}
+        />
       </Modal>
     </>
   );

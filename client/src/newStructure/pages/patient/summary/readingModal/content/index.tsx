@@ -1,13 +1,15 @@
+import { Callback, OrNull } from '@types';
 import { Header, Modal } from 'semantic-ui-react';
 
 import { Form } from './form';
-import { IProps } from '..';
+import { IProps as Props } from '..';
 import React from 'react';
 
-export const Content: React.FC<Omit<IProps, 'displayReadingModal'>> = ({
-  selectedPatient,
-  ...props
-}) => {
+export interface IProps extends Props {
+  setError: Callback<OrNull<string>>;
+}
+
+export const Content: React.FC<IProps> = ({ selectedPatient, ...props }) => {
   return (
     <Modal.Content scrolling>
       <Modal.Description>

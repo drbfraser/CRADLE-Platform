@@ -6,7 +6,8 @@ import { SymptomEnum } from '../../../../enums';
 export enum ActionTypeEnum {
   HIDE_PROMPT,
   SHOW_PROMPT,
-  TOGGLE_READING_MODAL,
+  CLOSE_READING_MODAL,
+  OPEN_READING_MODAL,
   UPDATE_NEW_READING,
   NONE_SYMPTOM_TOGGLED,
   SYMPTOM_TOGGLED,
@@ -41,7 +42,8 @@ export type Action =
       type: ActionTypeEnum.SHOW_PROMPT;
       payload: ShowPromptPayload;
     }
-  | { type: ActionTypeEnum.TOGGLE_READING_MODAL }
+  | { type: ActionTypeEnum.CLOSE_READING_MODAL }
+  | { type: ActionTypeEnum.OPEN_READING_MODAL }
   | {
       type: ActionTypeEnum.UPDATE_NEW_READING;
       payload: UpdateNewReadingPayload;
@@ -113,7 +115,8 @@ export const initialState: State = {
 type ActionCreatorSignature = {
   hidePrompt: () => Action;
   showPrompt: (payload: ShowPromptPayload) => Action;
-  toggleReadingModal: () => Action;
+  closeReadingModal: () => Action;
+  openReadingModal: () => Action;
   updateNewReading: (payload: UpdateNewReadingPayload) => Action;
   updateSymptoms: (symptom: SymptomEnum) => Action;
   updateOtherSymptoms: (otherSymptoms: string) => Action;
@@ -132,8 +135,11 @@ export const actionCreators: ActionCreatorSignature = {
       payload: { message, onPromptConfirmed },
     };
   },
-  toggleReadingModal: (): Action => {
-    return { type: ActionTypeEnum.TOGGLE_READING_MODAL };
+  closeReadingModal: (): Action => {
+    return { type: ActionTypeEnum.CLOSE_READING_MODAL };
+  },
+  openReadingModal: (): Action => {
+    return { type: ActionTypeEnum.OPEN_READING_MODAL };
   },
   updateNewReading: (payload: UpdateNewReadingPayload): Action => {
     return { type: ActionTypeEnum.UPDATE_NEW_READING, payload };
@@ -181,8 +187,11 @@ export const reducer = (state: State = initialState, action: Action): State => {
         onPromptConfirmed: action.payload.onPromptConfirmed,
       };
     }
-    case ActionTypeEnum.TOGGLE_READING_MODAL: {
-      return { ...state, displayReadingModal: !state.displayReadingModal };
+    case ActionTypeEnum.CLOSE_READING_MODAL: {
+      return { ...state, displayReadingModal: false };
+    }
+    case ActionTypeEnum.OPEN_READING_MODAL: {
+      return { ...state, displayReadingModal: true };
     }
     case ActionTypeEnum.UPDATE_NEW_READING: {
       return {

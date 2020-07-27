@@ -17,7 +17,8 @@ enum ReadingEnum {
   CREATE_READING_REQUESTED = `reading/CREATE_READING_REQUESTED`,
   CREATE_READING_SUCCESS = `reading/CREATE_READING_SUCCESS`,
   CREATE_READING_ERROR = `reading/CREATE_READING_ERROR`,
-  CLEAR_CREATE_READING_OUTCOME = `reading/CLEAR_CREATE_NEW_READING_OUTCOME`,
+  CLEAR_CREATE_READING_OUTCOME = `reading/CLEAR_CREATE_READING_OUTCOME`,
+  CLEAR_READING_CREATED_RESPONSE = `reading/CLEAR_READING_CREATED_RESPONSE`,
 }
 
 export type ReadingCreatedResponse = {
@@ -35,6 +36,7 @@ type ReadingAction =
   | { type: ReadingEnum.CREATE_READING_REQUESTED }
   | { type: ReadingEnum.CREATE_READING_ERROR; payload: { error: ServerError } }
   | { type: ReadingEnum.CLEAR_CREATE_READING_OUTCOME }
+  | { type: ReadingEnum.CLEAR_READING_CREATED_RESPONSE }
   | {
       type: ReadingEnum.CREATE_READING_SUCCESS;
       payload: CreateReadingSuccessPayload;
@@ -93,6 +95,10 @@ export const clearCreateReadingOutcome = (): ReadingAction => ({
   type: ReadingEnum.CLEAR_CREATE_READING_OUTCOME,
 });
 
+export const clearReadingCreatedResponse = (): ReadingAction => ({
+  type: ReadingEnum.CLEAR_READING_CREATED_RESPONSE,
+});
+
 export type ReadingState = {
   error: boolean;
   loading: boolean;
@@ -138,6 +144,8 @@ export const readingReducer = (
       };
     case ReadingEnum.CLEAR_CREATE_READING_OUTCOME:
       return initialState;
+    case ReadingEnum.CLEAR_READING_CREATED_RESPONSE:
+      return { ...state, readingCreatedResponse: null };
     default:
       return state;
   }

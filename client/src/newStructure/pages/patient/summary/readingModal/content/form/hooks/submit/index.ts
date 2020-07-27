@@ -1,6 +1,4 @@
-import { Action, actionCreators } from '../../../../../reducers';
 import { Callback, NewReading, OrNull, OrUndefined, Patient } from '@types';
-import React, { Dispatch } from 'react';
 import {
   ReadingCreatedResponse,
   createReading,
@@ -11,19 +9,20 @@ import {
 } from '../../../../../../../../shared/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
+import React from 'react';
 import { ReduxState } from '../../../../../../../../redux/rootReducer';
 import { SymptomEnum } from '../../../../../../../../enums';
 import { formatSymptoms } from './utils';
 import { makeUniqueId } from '../../../../../../../../shared/utils';
 
 interface IArgs {
+  displayReadingModal: boolean;
   hasUrineTest: boolean;
   newReading: NewReading;
   otherSymptoms: string;
   selectedSymptoms: Record<SymptomEnum, boolean>;
   selectedPatient: Patient;
-  setError: Callback<string>;
-  updateState: Dispatch<Action>;
+  setError: Callback<OrNull<string>>;
 }
 
 type SelectorState = {
@@ -32,13 +31,13 @@ type SelectorState = {
 };
 
 export const useSubmit = ({
+  displayReadingModal,
   hasUrineTest,
   newReading,
   otherSymptoms,
   selectedSymptoms,
   selectedPatient,
   setError,
-  updateState,
 }: IArgs): Callback<React.FormEvent<HTMLFormElement>> => {
   const { readingCreatedResponse, userId } = useSelector(
     ({ reading, user }: ReduxState): SelectorState => ({
@@ -57,6 +56,11 @@ export const useSubmit = ({
 
   return (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
+
+    if (!displayReadingModal) {
+      // * Do not submit if the modal is closed
+      return;
+    }
 
     if (!userId) {
       setError(
@@ -115,7 +119,5 @@ export const useSubmit = ({
         },
       })
     );
-
-    updateState(actionCreators.reset());
   };
 };

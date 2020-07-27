@@ -185,7 +185,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
 
   const openReadingModal = (): void => {
     onAddPatientRequired(() => {
-      updateState(actionCreators.toggleReadingModal());
+      updateState(actionCreators.openReadingModal());
     }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
 

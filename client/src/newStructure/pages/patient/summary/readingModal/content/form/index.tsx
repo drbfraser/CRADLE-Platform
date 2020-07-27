@@ -4,48 +4,36 @@ import {
   Form as SemanticForm,
   TextAreaProps,
 } from 'semantic-ui-react';
-import { OrNull, UrineTests } from '@types';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { HeartForm } from './heart';
-import { IProps } from '../..';
+import { IProps } from '..';
 import { Paper } from '@material-ui/core';
 import React from 'react';
 import { ReduxState } from '../../../../../../redux/rootReducer';
 import { SymptomEnum } from '../../../../../../enums';
 import { SymptomForm } from '../../../../../../shared/components/form/symptom';
-import { Toast } from '../../../../../../shared/components/toast';
 import { UrineTestForm } from '../../../../../../shared/components/form/urineTest';
+import { UrineTests } from '@types';
 import { actionCreators } from '../../../reducers';
-import { clearCreateReadingOutcome } from '../../../../../../shared/reducers/reading';
 import { useDisableSubmit } from './hooks/disableSubmit';
+import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
 import { useSubmit } from './hooks/submit';
 
-type SelectorState = {
-  readingError: OrNull<string>;
-  loading: boolean;
-};
-
-export const Form: React.FC<Omit<IProps, 'displayReadingModal'>> = ({
+export const Form: React.FC<IProps> = ({
+  displayReadingModal,
   hasUrineTest,
   newReading,
   otherSymptoms,
   selectedPatient,
   selectedSymptoms,
+  setError,
   updateState,
 }) => {
-  const dispatch = useDispatch();
-
-  const [error, setError] = React.useState<OrNull<string>>(null);
-
   const classes = useStyles();
 
-  const { loading, readingError } = useSelector(
-    ({ reading }: ReduxState): SelectorState => ({
-      loading: reading.loading,
-      readingError: reading.error ? reading.message : null,
-    })
+  const loading = useSelector(
+    ({ reading }: ReduxState): boolean => reading.loading
   );
 
   const disabled = useDisableSubmit({
@@ -81,55 +69,38 @@ export const Form: React.FC<Omit<IProps, 'displayReadingModal'>> = ({
     updateState(actionCreators.toggleUrineTest());
   };
 
-  const clearError = (): void => {
-    if (error) {
-      setError(null);
-    }
-
-    if (readingError) {
-      dispatch(clearCreateReadingOutcome());
-    }
-  };
-
   const handleReadingSubmit = useSubmit({
+    displayReadingModal,
     hasUrineTest,
     newReading,
     otherSymptoms,
     selectedSymptoms,
     selectedPatient,
     setError,
-    updateState,
   });
 
   return (
-    <>
-      <Toast
-        status="error"
-        message={error || readingError}
-        clearMessage={clearError}
-      />
-      <SemanticForm onSubmit={handleReadingSubmit}>
-        <Paper className={classes.formContainer}>
-          <HeartForm newReading={newReading} updateState={updateState} />
-        </Paper>
-        <div className={classes.symptomFormContainer}>
-          <SymptomForm
-            selectedSymptoms={selectedSymptoms}
-            otherSymptoms={otherSymptoms}
-            onSelectedSymptomsChange={handleSelectedSymptomsChange}
-            onOtherSymptomsChange={handleOtherSymptomsChange}
-          />
-        </div>
-        <UrineTestForm
-          newReading={newReading}
-          onChange={handleUrineTestChange}
-          onSwitchChange={handleUrineTestSwitchChange}
-          hasUrineTest={hasUrineTest}
+    <SemanticForm onSubmit={handleReadingSubmit}>
+      <Paper className={classes.formContainer}>
+        <HeartForm newReading={newReading} updateState={updateState} />
+      </Paper>
+      <div className={classes.symptomFormContainer}>
+        <SymptomForm
+          selectedSymptoms={selectedSymptoms}
+          otherSymptoms={otherSymptoms}
+          onSelectedSymptomsChange={handleSelectedSymptomsChange}
+          onOtherSymptomsChange={handleOtherSymptomsChange}
         />
-        <SemanticForm.Field control={Button} disabled={disabled}>
-          Submit
-        </SemanticForm.Field>
-      </SemanticForm>
-    </>
+      </div>
+      <UrineTestForm
+        newReading={newReading}
+        onChange={handleUrineTestChange}
+        onSwitchChange={handleUrineTestSwitchChange}
+        hasUrineTest={hasUrineTest}
+      />
+      <SemanticForm.Field control={Button} disabled={disabled}>
+        Submit
+      </SemanticForm.Field>
+    </SemanticForm>
   );
 };
