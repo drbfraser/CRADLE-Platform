@@ -7,6 +7,7 @@ import {
   Select,
   TextArea,
 } from 'semantic-ui-react';
+import { GestationalAgeUnitEnum, SexEnum } from '../../../../enums';
 import {
   gestationalAgeUnitOptions,
   pregnantOptions,
@@ -15,10 +16,11 @@ import {
 import {
   gestationalAgeValueMonthOptions,
   gestationalAgeValueWeekOptions,
+  getNumOfMonths,
+  getNumOfWeeks,
 } from '../../../utils';
 
 import { EditedPatient } from '@types';
-import { GestationalAgeUnitEnum } from '../../../../enums';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
 import { useStyles } from './styles';
@@ -56,6 +58,12 @@ export const PatientInfoForm: React.FC<IProps> = ({
     return patient.patientAge ? patient.patientAge.toString() : ``;
   }, [patient]);
 
+  const gestationalTimestamp = React.useMemo((): string => {
+    return patient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
+      ? getNumOfWeeks(patient.gestationalTimestamp).toString()
+      : getNumOfMonths(patient.gestationalTimestamp).toString();
+  }, [patient.gestationalAgeUnit, patient.gestationalTimestamp]);
+
   return (
     <Paper className={classes.container}>
       {!isEditPage && (
@@ -77,7 +85,7 @@ export const PatientInfoForm: React.FC<IProps> = ({
           pattern="[a-zA-Z]*"
           maxLength="4"
           minLength="1"
-          required
+          required={true}
         />
         {!isEditPage && (
           <Form.Field
@@ -91,7 +99,7 @@ export const PatientInfoForm: React.FC<IProps> = ({
             type="text"
             maxLength="15"
             minLength="1"
-            required
+            required={true}
           />
         )}
       </Form.Group>
@@ -127,7 +135,7 @@ export const PatientInfoForm: React.FC<IProps> = ({
           options={sexOptions}
           placeholder="Gender"
           onChange={onChange}
-          required
+          required={true}
         />
       </Form.Group>
       <Form.Group widths="equal">
@@ -139,11 +147,12 @@ export const PatientInfoForm: React.FC<IProps> = ({
           label="Pregnant"
           options={pregnantOptions}
           onChange={onChange}
-          disabled={patient.patientSex === 'MALE'}
+          disabled={patient.patientSex === SexEnum.MALE}
+          required={patient.patientSex === SexEnum.FEMALE}
         />
         <Form.Dropdown
-          name="gestationalAgeValue"
-          value={patient.gestationalAgeValue}
+          name="gestationalTimestamp"
+          value={gestationalTimestamp}
           control={Select}
           options={
             patient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
@@ -153,8 +162,8 @@ export const PatientInfoForm: React.FC<IProps> = ({
           search={true}
           onChange={onChange}
           label="Gestational Age"
-          disabled={patient.patientSex === 'MALE' || !patient.isPregnant}
-          required
+          disabled={patient.patientSex === SexEnum.MALE || !patient.isPregnant}
+          required={patient.patientSex === SexEnum.FEMALE && patient.isPregnant}
         />
         <Form.Field
           className={classes.input}
@@ -164,8 +173,8 @@ export const PatientInfoForm: React.FC<IProps> = ({
           options={gestationalAgeUnitOptions}
           onChange={onChange}
           label="Gestational Age Unit"
-          disabled={patient.patientSex === 'MALE' || !patient.isPregnant}
-          required
+          disabled={patient.patientSex === SexEnum.MALE || !patient.isPregnant}
+          required={patient.patientSex === SexEnum.FEMALE && patient.isPregnant}
         />
       </Form.Group>
       <Form.Group>

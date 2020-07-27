@@ -1,14 +1,9 @@
-import { Callback, EditedPatient, OrUndefined } from '@types';
-import {
-  getTimestampFromMonths,
-  getTimestampFromWeeks,
-} from '../../../../../../../shared/utils';
+import { Callback, EditedPatient } from '@types';
 import {
   resetPatientUpdated,
   updatePatient,
 } from '../../../../../../../shared/reducers/patients';
 
-import { GestationalAgeUnitEnum } from '../../../../../../../enums';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -35,18 +30,15 @@ export const useSubmit = ({
     // * without requiring a page refresh
     dispatch(resetPatientUpdated());
 
-    const { patientId, gestationalAgeValue, ...patientData } = editedPatient;
-    let gestationalTimestamp: OrUndefined<number>;
-
-    if (editedPatient.isPregnant) {
-      gestationalTimestamp =
-        editedPatient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
-          ? getTimestampFromWeeks(gestationalAgeValue)
-          : getTimestampFromMonths(gestationalAgeValue);
-    }
+    const { patientId, gestationalTimestamp, ...patientData } = editedPatient;
 
     dispatch(
-      updatePatient(patientId, { ...patientData, gestationalTimestamp })
+      updatePatient(patientId, {
+        ...patientData,
+        gestationalTimestamp: editedPatient.isPregnant
+          ? gestationalTimestamp
+          : undefined,
+      })
     );
   };
 };

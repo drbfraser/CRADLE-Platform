@@ -5,10 +5,8 @@ import {
   SymptomEnum,
 } from '../../../../enums';
 import {
-  getNumOfMonths,
-  getNumOfWeeks,
-  monthsToWeeks,
-  weeksToMonths,
+  getTimestampFromMonths,
+  getTimestampFromWeeks,
 } from '../../../../shared/utils';
 import { toggleNoneSymptom, updateSelectedSymptoms } from './utils';
 
@@ -23,6 +21,7 @@ export enum ActionTypeEnum {
   EDIT_PATIENT_SEX,
   EDIT_OTHER_PATIENT_FIELD,
   TOGGLE_PATIENT_GESTATIONAL_AGE_UNIT,
+  EDIT_GESTATIONAL_TIMESTAMP,
   UPDATE_NEW_READING,
   NONE_SYMPTOM_TOGGLED,
   SYMPTOM_TOGGLED,
@@ -59,7 +58,7 @@ type EditPatientKey =
   | `dob`
   | `isPregnant`
   | `gestationalAgeUnit`
-  | `gestationalAgeValue`
+  | `gestationalTimestamp`
   | `villageNumber`
   | `zone`
   | `drugHistory`
@@ -94,6 +93,10 @@ export type Action =
     }
   | {
       type: ActionTypeEnum.TOGGLE_PATIENT_GESTATIONAL_AGE_UNIT;
+    }
+  | {
+      type: ActionTypeEnum.EDIT_GESTATIONAL_TIMESTAMP;
+      payload: { value: string };
     }
   | {
       type: ActionTypeEnum.UPDATE_NEW_READING;
@@ -166,7 +169,7 @@ export const initialState: State = {
     dob: null,
     drugHistory: ``,
     gestationalAgeUnit: GestationalAgeUnitEnum.WEEKS,
-    gestationalAgeValue: ``,
+    gestationalTimestamp: Date.now(),
     isPregnant: true,
     medicalHistory: ``,
     patientAge: null,
@@ -231,6 +234,11 @@ export const actionCreators: ActionCreatorSignature = {
       };
     } else if (name === `gestationalAgeUnit`) {
       return { type: ActionTypeEnum.TOGGLE_PATIENT_GESTATIONAL_AGE_UNIT };
+    } else if (name === `gestationalTimestamp`) {
+      return {
+        type: ActionTypeEnum.EDIT_GESTATIONAL_TIMESTAMP,
+        payload: { value: value as string },
+      };
     }
 
     return {
@@ -300,14 +308,7 @@ export const reducer = (state: State = initialState, action: Action): State => {
       const dob = action.payload.patient.dob;
       const drugHistory = action.payload.patient.drugHistory;
       const gestationalAgeUnit = action.payload.patient.gestationalAgeUnit;
-      const gestationalAgeValue =
-        gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
-          ? getNumOfWeeks(
-              action.payload.patient.gestationalTimestamp
-            ).toString()
-          : getNumOfMonths(
-              action.payload.patient.gestationalTimestamp
-            ).toString();
+      const gestationalTimestamp = action.payload.patient.gestationalTimestamp;
       const isPregnant = action.payload.patient.isPregnant;
       const medicalHistory = action.payload.patient.medicalHistory;
       const patientAge = action.payload.patient.patientAge;
@@ -323,7 +324,7 @@ export const reducer = (state: State = initialState, action: Action): State => {
           dob,
           drugHistory,
           gestationalAgeUnit,
-          gestationalAgeValue,
+          gestationalTimestamp,
           isPregnant,
           medicalHistory,
           patientAge,
@@ -341,10 +342,10 @@ export const reducer = (state: State = initialState, action: Action): State => {
         editedPatient: {
           ...state.editedPatient,
           patientSex: action.payload.sex,
-          gestationalAgeValue:
+          gestationalTimestamp:
             action.payload.sex === SexEnum.MALE
-              ? ``
-              : state.editedPatient.gestationalAgeValue,
+              ? Date.now()
+              : state.editedPatient.gestationalTimestamp,
           isPregnant:
             action.payload.sex === SexEnum.MALE
               ? false
@@ -366,16 +367,24 @@ export const reducer = (state: State = initialState, action: Action): State => {
         ...state,
         editedPatient: {
           ...state.editedPatient,
-          gestationalAgeValue:
-            state.editedPatient.gestationalAgeUnit ===
-            GestationalAgeUnitEnum.WEEKS
-              ? weeksToMonths(state.editedPatient.gestationalAgeValue)
-              : monthsToWeeks(state.editedPatient.gestationalAgeValue),
           gestationalAgeUnit:
             state.editedPatient.gestationalAgeUnit ===
             GestationalAgeUnitEnum.WEEKS
               ? GestationalAgeUnitEnum.MONTHS
               : GestationalAgeUnitEnum.WEEKS,
+        },
+      };
+    }
+    case ActionTypeEnum.EDIT_GESTATIONAL_TIMESTAMP: {
+      return {
+        ...state,
+        editedPatient: {
+          ...state.editedPatient,
+          gestationalTimestamp:
+            state.editedPatient.gestationalAgeUnit ===
+            GestationalAgeUnitEnum.WEEKS
+              ? getTimestampFromWeeks(action.payload.value)
+              : getTimestampFromMonths(action.payload.value),
         },
       };
     }

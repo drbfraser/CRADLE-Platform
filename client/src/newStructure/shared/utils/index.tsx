@@ -23,6 +23,10 @@ export const getTimestampFromWeeks = (weeks: string): number => {
 };
 
 export const getTimestampFromMonths = (months: string): number => {
+  if (months === `Less than 1`) {
+    return Date.now() / 1000;
+  }
+
   const gestationalDate = new Date();
 
   // * Set gestational time as difference between number of months and now
@@ -38,7 +42,7 @@ export const getNumOfWeeks = (timestamp: number): number => {
   const todaysDate = new Date();
   const gestationalDate = new Date(timestamp * 1000);
   const difference = todaysDate.getTime() - gestationalDate.getTime();
-  return Math.round(difference / (7 * 24 * 60 * 60 * 1000));
+  return Math.round(difference / (7 * 24 * 60 * 60 * 1000)) || 1;
 };
 
 export const getNumOfMonths = (timestamp: number): number | string => {
@@ -212,4 +216,14 @@ export const gestationalAgeValueMonthOptions = new Array(
     key: `${index + 1}`,
     text: `${index + 1}`,
     value: `${index + 1}`,
-  }));
+  }))
+  .concat([
+    {
+      key: `0`,
+      text: `Less than 1 month`,
+      value: `Less than 1`,
+    },
+  ])
+  .sort((first: { key: string }, second: { key: string }): number => {
+    return Number(first.key) - Number(second.key);
+  });

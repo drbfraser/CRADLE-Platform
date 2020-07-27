@@ -224,7 +224,7 @@ const updatePatientRequested = () => ({
 
 export const updatePatient = (
   patientId: string,
-  data: Omit<EditedPatient, 'patientId' | 'gestationalAgeValue'> & {
+  data: Omit<EditedPatient, 'patientId' | 'gestationalTimestamp'> & {
     gestationalTimestamp: OrUndefined<number>;
   }
 ) => {

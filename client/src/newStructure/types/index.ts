@@ -85,7 +85,7 @@ export type EditedPatient = Pick<
   | 'dob'
   | 'drugHistory'
   | 'gestationalAgeUnit'
-  | 'gestationalAgeValue'
+  | 'gestationalTimestamp'
   | 'isPregnant'
   | 'medicalHistory'
   | 'patientAge'

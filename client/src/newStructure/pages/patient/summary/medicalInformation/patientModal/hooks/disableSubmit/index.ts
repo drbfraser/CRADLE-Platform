@@ -17,7 +17,7 @@ export const useDisableSubmit = ({
       !editedPatient.patientName ||
       !editedPatient.patientSex ||
       (editedPatient.patientSex === SexEnum.FEMALE &&
-        (!editedPatient.gestationalAgeValue ||
+        (!editedPatient.gestationalTimestamp ||
           !editedPatient.gestationalAgeUnit))
     );
   }, [loading, editedPatient]);
