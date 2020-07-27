@@ -10,22 +10,44 @@ import moment from 'moment';
 
 export { v4 as makeUniqueId } from 'uuid';
 
+export const getTimestampFromWeeks = (weeks: string): number => {
+  const gestationalDate = new Date();
+
+  // * Set gestational time as difference between number of weeks and now
+  gestationalDate.setTime(
+    gestationalDate.getTime() - Number(weeks) * 7 * 24 * 60 * 60 * 1000
+  );
+
+  // * Convert to seconds
+  return gestationalDate.getTime() / 1000;
+};
+
+export const getTimestampFromMonths = (months: string): number => {
+  const gestationalDate = new Date();
+
+  // * Set gestational time as difference between number of months and now
+  gestationalDate.setTime(
+    gestationalDate.getTime() - Number(months) * 4 * 7 * 24 * 60 * 60 * 1000
+  );
+
+  // * Convert to seconds
+  return gestationalDate.getTime() / 1000;
+};
+
 export const getNumOfWeeks = (timestamp: number): number => {
   const todaysDate = new Date();
-  const gestDate = new Date(timestamp * 1000);
-  const difference = todaysDate.getTime() - gestDate.getTime();
+  const gestationalDate = new Date(timestamp * 1000);
+  const difference = todaysDate.getTime() - gestationalDate.getTime();
   return Math.round(difference / (7 * 24 * 60 * 60 * 1000));
 };
 
 export const getNumOfMonths = (timestamp: number): number | string => {
   const todaysDate = new Date();
-  const gestDate = new Date(timestamp * 1000);
-  const numOfMonths =
-    todaysDate.getMonth() -
-    gestDate.getMonth() +
-    12 * (todaysDate.getFullYear() - gestDate.getFullYear());
+  const gestationalDate = new Date(timestamp * 1000);
+  const difference = todaysDate.getTime() - gestationalDate.getTime();
+  const numOfMonths = Math.floor(difference / (4 * 7 * 24 * 60 * 60 * 1000));
 
-  return numOfMonths === 0 ? `< 1` : numOfMonths;
+  return numOfMonths === 0 ? `Less than 1` : numOfMonths;
 };
 
 export const calculateShockIndex = (reading: Reading): TrafficLightEnum => {

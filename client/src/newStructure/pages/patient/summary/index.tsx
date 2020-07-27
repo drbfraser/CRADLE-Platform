@@ -288,7 +288,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
             updateState={updateState}
           />
           <Grid
-            item
+            item={true}
             xs={6}
             style={{
               minWidth: '500px',

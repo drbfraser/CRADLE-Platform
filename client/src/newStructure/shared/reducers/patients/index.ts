@@ -377,7 +377,10 @@ export const patientsReducer = (state = initialState, action: any) => {
         ...state,
         success: `Patient successfully updated!`,
         patientUpdated: true,
-        patient: action.payload.updatedPatient,
+        patient: {
+          ...action.payload.updatedPatient,
+          readings: state.patient?.readings,
+        },
         isLoading: false,
       };
     }

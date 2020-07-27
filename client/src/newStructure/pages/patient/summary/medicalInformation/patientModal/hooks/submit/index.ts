@@ -1,5 +1,9 @@
 import { Callback, EditedPatient, OrUndefined } from '@types';
 import {
+  getTimestampFromMonths,
+  getTimestampFromWeeks,
+} from '../../../../../../../shared/utils';
+import {
   resetPatientUpdated,
   updatePatient,
 } from '../../../../../../../shared/reducers/patients';
@@ -35,19 +39,10 @@ export const useSubmit = ({
     let gestationalTimestamp: OrUndefined<number>;
 
     if (editedPatient.isPregnant) {
-      const gestationalDate = new Date();
-
-      if (editedPatient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS) {
-        gestationalDate.setDate(
-          gestationalDate.getDate() - Number(gestationalAgeValue) * 7
-        );
-      } else {
-        gestationalDate.setDate(
-          gestationalDate.getMonth() - Number(gestationalAgeValue)
-        );
-      }
-
-      gestationalTimestamp = gestationalDate.getTime() / 1000;
+      gestationalTimestamp =
+        editedPatient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
+          ? getTimestampFromWeeks(gestationalAgeValue)
+          : getTimestampFromMonths(gestationalAgeValue);
     }
 
     dispatch(
