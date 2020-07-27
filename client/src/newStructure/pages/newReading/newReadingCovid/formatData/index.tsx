@@ -38,15 +38,29 @@ interface Reading {
   symptoms: string[];
   dateTimeTaken: string;
   userId: number;
+  followup: {
+    diagnosis: string;
+    medicationPrescribed: string;
+    specialInvestigations: string;
+    treatment: string;
+    readingId: string;
+    dateAssessed: string;
+    healthcareWorkerId: 1;
+  };
 }
-interface Assessment {
-  diagnosis: string;
-  medicationPrescribed: string;
-  specialInvestigations: string;
-  treatment: string;
+interface ReadingVHT {
   readingId: string;
-  followupNeeded: string;
-  followupInstructions: string;
+  patientId: string;
+  bpSystolic: number;
+  bpDiastolic: number;
+  heartRateBPM: number;
+  respiratoryRate: number;
+  oxygenSaturation: number;
+  temperature: number;
+  isFlaggedForFollowup: boolean;
+  symptoms: string[];
+  dateTimeTaken: string;
+  userId: number;
 }
 
 const getSymptomsMapping = (symptoms: any) => {
@@ -129,8 +143,10 @@ export const formatReadingData = (
   symptoms: any,
   urineTest: any,
   vital: any,
+  assessment: any,
   userId: any
 ) => {
+  const readingidGenerated = guid();
   const formattedReading: Reading = new (class implements Reading {
     bpDiastolic: number = vital.bpDiastolic as number;
     bpSystolic: number = vital.bpSystolic as number;
@@ -139,33 +155,47 @@ export const formatReadingData = (
     isFlaggedForFollowup: boolean;
     oxygenSaturation: number = vital.oxygenSaturation as number;
     patientId: string = patient.patientId as string;
-    readingId: string = guid();
+    readingId: string = readingidGenerated;
+    respiratoryRate: number = vital.respiratoryRate as number;
+    symptoms: string[] = formatSymptoms(symptoms);
+    temperature: number = vital.temperature as number;
+    userId: number = userId;
+    followup = {
+      diagnosis: assessment.finalDiagnosis,
+      followupInstructions: assessment.InstructionFollow,
+      followupNeeded: assessment.enabled ? true : false,
+      medicationPrescribed: assessment.medPrescribed,
+      readingId: readingidGenerated,
+      specialInvestigations: assessment.specialInvestigations,
+      treatment: assessment.treatmentOP,
+      dateAssessed: Math.floor(Date.now() / 1000).toString(),
+      healthcareWorkerId: userId,
+    };
+  })();
+  return formattedReading;
+};
+
+export const formatReadingDataVHT = (
+  patient: any,
+  symptoms: any,
+  urineTest: any,
+  vital: any,
+  userId: any
+) => {
+  const readingidGenerated = guid();
+  const formattedReading: ReadingVHT = new (class implements ReadingVHT {
+    bpDiastolic: number = vital.bpDiastolic as number;
+    bpSystolic: number = vital.bpSystolic as number;
+    dateTimeTaken: string = Math.floor(Date.now() / 1000).toString();
+    heartRateBPM: number = vital.heartRateBPM as number;
+    isFlaggedForFollowup: boolean;
+    oxygenSaturation: number = vital.oxygenSaturation as number;
+    patientId: string = patient.patientId as string;
+    readingId: string = readingidGenerated;
     respiratoryRate: number = vital.respiratoryRate as number;
     symptoms: string[] = formatSymptoms(symptoms);
     temperature: number = vital.temperature as number;
     userId: number = userId;
   })();
   return formattedReading;
-};
-//{
-// 	"diagnosis": "patient is fine",
-// 	"medicationPrescribed": "tylenol",
-// 	"specialInvestigations": "bcccccccccddeeeff",
-// 	"treatment": "b",
-// 	"readingId": "asdasd82314278226313803", - required
-// 	"followupNeeded": "TRUE", - required if this field is true lol (might be easier to always send it?)
-// 	"followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = true
-// }
-
-export const formatAssessmentData = (assessment: any, readingId: any) => {
-  const formattedAssessment: Assessment = new (class implements Assessment {
-    diagnosis: string = assessment.finalDiagnosis;
-    followupInstructions: string = assessment.InstructionFollow;
-    followupNeeded: string = assessment.enabled ? 'TRUE' : 'FALSE';
-    medicationPrescribed: string = assessment.medPrescribed;
-    readingId: string = readingId;
-    specialInvestigations: string = assessment.specialInvestigations;
-    treatment: string = assessment.treatmentOP;
-  })();
-  return formattedAssessment;
 };

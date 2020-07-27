@@ -51,9 +51,8 @@ export const addReadingAssessment = (assessment: any) => {
     endpoint: `/assessments`,
     method: Methods.POST,
     data: assessment,
-    onSuccess: (message: string): NewReadingStatusAction => ({
-      type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS,
-      payload: { message },
+    onSuccess: (): NewReadingStatusAction => ({
+      type: NewReadingStatusEnum.CLEAR_REQUEST_OUTCOME,
     }),
     onError: (): NewReadingStatusAction => ({
       type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR,

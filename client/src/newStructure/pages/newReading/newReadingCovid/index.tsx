@@ -38,9 +38,9 @@ import AlertDialog from './alertDialog';
 import SubmissionDialog from './submissionDialog';
 import { ConfirmationPage } from './confirmationPage';
 import {
-  formatAssessmentData,
   formatPatientData,
   formatReadingData,
+  formatReadingDataVHT,
 } from './formatData';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 function getSteps(roles: string) {
-  return roles === 'HCW'
+  return roles === 'VHT'
     ? ['Demographic Information', 'Symptoms', 'Vitals Signs', 'Confirmation']
     : [
         'Demographic Information',
@@ -133,28 +133,12 @@ const Page: React.FC<IProps> = (props) => {
   const steps = getSteps(props.user.roles[0]);
 
   useEffect(() => {
-    console.log('props  => ', props);
     if (!props.user.isLoggedIn) {
       props.getCurrentUser();
     }
     if (props.newPatientAdded) {
-      const formattedReading = formatReadingData(
-        patient,
-        symptoms,
-        urineTest,
-        vitals,
-        props.user.userId
-      );
-      props.addReadingNew(formattedReading);
-      const formattedAssessment = formatAssessmentData(
-        assessment,
-        formattedReading.readingId
-      );
-      if (props.readingCreated) {
-        props.addReadingAssessment(formattedAssessment);
-      }
+      addReading();
       props.afterNewPatientAdded();
-      props.resetNewReadingStatus();
       setIsShowDialogsubmission(true);
     }
     if (!isEmpty(props.patient) && existingPatient) {
@@ -172,13 +156,9 @@ const Page: React.FC<IProps> = (props) => {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
-
-  const handleSubmit = () => {
-    if (!props.newPatientExist) {
-      const formattedPatient = formatPatientData(patient);
-      props.addPatientNew(formattedPatient);
-    } else {
-      const formattedReading = formatReadingData(
+  const addReading = () => {
+    if (props.user.roles[0] === 'VHT') {
+      const formattedReading = formatReadingDataVHT(
         patient,
         symptoms,
         urineTest,
@@ -186,15 +166,27 @@ const Page: React.FC<IProps> = (props) => {
         props.user.userId
       );
       props.addReadingNew(formattedReading);
-      const formattedAssessment = formatAssessmentData(
+    } else {
+      const formattedReading = formatReadingData(
+        patient,
+        symptoms,
+        urineTest,
+        vitals,
         assessment,
-        formattedReading.readingId
+        props.user.userId
       );
-      if (props.readingCreated) {
-        props.addReadingAssessment(formattedAssessment);
-      }
+      props.addReadingNew(formattedReading);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!props.newPatientExist) {
+      const formattedPatient = formatPatientData(patient);
+      props.addPatientNew(formattedPatient);
+    } else {
+      addReading();
+
       props.afterNewPatientAdded();
-      props.resetNewReadingStatus();
       setIsShowDialogsubmission(true);
     }
   };
@@ -326,7 +318,7 @@ const Page: React.FC<IProps> = (props) => {
       ) : (
         ''
       )}
-      {activeStep === 3 && props.user.roles[0] !== 'HCW' ? (
+      {activeStep === 3 && props.user.roles[0] !== 'VHT' ? (
         <Assessment
           assessment={assessment}
           onChange={handleChangeAssessment}></Assessment>
@@ -334,7 +326,7 @@ const Page: React.FC<IProps> = (props) => {
         ''
       )}
       {activeStep === 4 ||
-      (props.user.roles[0] === 'HCW' && activeStep === 3) ? (
+      (props.user.roles[0] === 'VHT' && activeStep === 3) ? (
         <ConfirmationPage
           patient={patient}
           symptoms={symptoms}
@@ -379,7 +371,7 @@ const Page: React.FC<IProps> = (props) => {
                   display: steps.length - 2 !== activeStep ? 'none' : '',
                 }}
                 disabled={
-                  props.user.roles[0] === 'HCW'
+                  props.user.roles[0] === 'VHT'
                     ? isRequiredFilled()
                       ? true
                       : false
