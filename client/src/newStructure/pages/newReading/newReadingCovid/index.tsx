@@ -215,10 +215,12 @@ const Page: React.FC<IProps> = (props) => {
   };
 
   const isRequiredFilled = () => {
+    console.log(patient);
     if (activeStep === 0) {
       if (
         !patient.patientId ||
         !patient.patientInitial ||
+        (patient.isPregnant && !patient.gestationalAgeValue) ||
         patient.patientIdError ||
         patient.patientInitialError ||
         patient.householdError ||
@@ -275,8 +277,6 @@ const Page: React.FC<IProps> = (props) => {
     resetValueAssessment(true);
     resetValueUrineTest(true);
   };
-  // console.log('isPatientCreated', isPatientCreated);
-  console.log('isPatientCreated', patient);
   return (
     <div
       style={{
