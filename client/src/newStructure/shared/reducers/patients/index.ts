@@ -1,4 +1,11 @@
-import { OrNull, Patient, Reading, ServerError } from '@types';
+import {
+  EditedPatient,
+  OrNull,
+  OrUndefined,
+  Patient,
+  Reading,
+  ServerError,
+} from '@types';
 import { calculateShockIndex, sortPatientsByLastReading } from '../../utils';
 
 import { Dispatch } from 'redux';
@@ -42,8 +49,10 @@ const TOGGLE_SHOW_REFERRED_PATIENTS = `patients/TOGGLE_SHOW_REFERRED_PATIENTS`;
 const SORT_PATIENTS = `patients/SORT_PATIENTS`;
 const SORT_REFERRALS_TABLE_PATIENTS = `patients/SORT_REFERRALS_TABLE_PATIENTS`;
 
+const UPDATE_PATIENT_REQUESTED = `patient/UPDATE_PATIENT_REQUESTED`;
 const UPDATE_PATIENT_SUCCESS = `patient/UPDATE_PATIENT_SUCCESS`;
 const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
+const CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME = `patients/CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME`;
 
 const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
 const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
@@ -70,6 +79,10 @@ export const clearGetPatientsError = () => ({
 
 export const clearGetReferralsTablePatientsError = () => ({
   type: CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR,
+});
+
+export const clearUpdatePatientRequestOutcome = () => ({
+  type: CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME,
 });
 
 export const toggleGlobalSearch = (globalSearch: boolean) => ({
@@ -205,20 +218,35 @@ export const getReferralsTablePatients = () => {
   };
 };
 
-export const updatePatient = (patientId: any, data: any) => {
-  return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENT}/${patientId}`,
-    method: Methods.PUT,
-    data,
-    onSuccess: (response: any) => ({
-      type: UPDATE_PATIENT_SUCCESS,
-      payload: response,
-    }),
-    onError: (error: any) => ({
-      type: UPDATE_PATIENT_ERROR,
-      payload: error,
-    }),
-  });
+const updatePatientRequested = () => ({
+  type: UPDATE_PATIENT_REQUESTED,
+});
+
+export const updatePatient = (
+  patientId: string,
+  data: Omit<EditedPatient, 'patientId' | 'gestationalAgeValue'> & {
+    gestationalTimestamp: OrUndefined<number>;
+  }
+) => {
+  return (dispatch: Dispatch) => {
+    dispatch(updatePatientRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: `${Endpoints.PATIENT}/${patientId}`,
+        method: Methods.PUT,
+        data,
+        onSuccess: ({ data }: { data: Patient }) => ({
+          type: UPDATE_PATIENT_SUCCESS,
+          payload: { updatedPatient: data },
+        }),
+        onError: (error: ServerError) => ({
+          type: UPDATE_PATIENT_ERROR,
+          payload: error,
+        }),
+      })
+    );
+  };
 };
 
 const addPatientToHealthFacilityRequested = (patientId: string) => ({
@@ -273,6 +301,7 @@ export const resetPatientUpdated = () => ({
 
 export type PatientsState = {
   error: OrNull<string>;
+  success: OrNull<string>;
   preventFetch: boolean;
   patient: OrNull<Patient>;
   patientUpdated: boolean;
@@ -293,6 +322,7 @@ export type PatientsState = {
 
 const initialState: PatientsState = {
   error: null,
+  success: null,
   preventFetch: false,
   patient: null,
   patientUpdated: false,
@@ -342,14 +372,25 @@ export const patientsReducer = (state = initialState, action: any) => {
         ),
         isLoading: false,
       };
+    case UPDATE_PATIENT_SUCCESS: {
+      return {
+        ...state,
+        success: `Patient successfully updated!`,
+        patientUpdated: true,
+        patient: action.payload.updatedPatient,
+        isLoading: false,
+      };
+    }
     case GET_PATIENTS_REQUESTED:
     case GET_REFERRALS_TABLE_PATIENTS_REQUESTED:
+    case UPDATE_PATIENT_REQUESTED:
       return {
         ...state,
         isLoading: true,
       };
     case GET_PATIENTS_ERROR:
     case GET_REFERRALS_TABLE_PATIENTS_ERROR:
+    case UPDATE_PATIENT_ERROR:
       return {
         ...state,
         error: action.payload.message,
@@ -362,6 +403,12 @@ export const patientsReducer = (state = initialState, action: any) => {
       return {
         ...state,
         error: null,
+      };
+    case CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME:
+      return {
+        ...state,
+        error: null,
+        success: null,
       };
     case GET_GLOBAL_SEARCH_PATIENTS_ERROR:
       return {

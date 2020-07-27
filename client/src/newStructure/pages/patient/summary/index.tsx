@@ -149,46 +149,6 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
 
-  /*const handleSubmit = (event: any): void => {
-    event.preventDefault();
-
-    // * pass by value
-    const patientData = JSON.parse(JSON.stringify(selectedPatient));
-    const patientId = patientData.patientId;
-
-    // * delete any unnecessary fields
-    delete patientData.readings;
-    delete patientData.needsAssessment;
-    delete patientData.tableData;
-    delete patientData.patientId;
-
-    if (
-      patientData.isPregnant === true &&
-      patientData.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
-    ) {
-      const gestDate = new Date();
-      gestDate.setDate(
-        gestDate.getDate() - (patientData.gestationalAgeValue as any) * 7
-      );
-      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000;
-    }
-
-    if (
-      patientData.isPregnant === true &&
-      patientData.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS
-    ) {
-      const gestDate = new Date();
-      gestDate.setMonth(
-        gestDate.getMonth() - (patientData.gestationalAgeValue as any)
-      );
-      patientData.gestationalTimestamp = Date.parse(gestDate as any) / 1000;
-    }
-
-    delete patientData.gestationalAgeValue;
-    dispatch(updatePatient(patientId, patientData));
-    closePatientModal(`formSubmitted`);
-  };*/
-
   /*const showVitals = (): void => {
     setState((currentState) => ({
       ...currentState,
