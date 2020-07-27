@@ -91,6 +91,8 @@ interface IProps {
   getPatient: any;
   patient: any;
   addReadingAssessment: any;
+  readingCreated: any;
+  resetNewReadingStatus: any;
 }
 
 function isEmpty(obj: any) {
@@ -148,8 +150,11 @@ const Page: React.FC<IProps> = (props) => {
         assessment,
         formattedReading.readingId
       );
-      props.addReadingAssessment(formattedAssessment);
+      if (props.readingCreated) {
+        props.addReadingAssessment(formattedAssessment);
+      }
       props.afterNewPatientAdded();
+      props.resetNewReadingStatus();
       setIsShowDialogsubmission(true);
     }
     if (!isEmpty(props.patient) && existingPatient) {
@@ -185,8 +190,11 @@ const Page: React.FC<IProps> = (props) => {
         assessment,
         formattedReading.readingId
       );
-      props.addReadingAssessment(formattedAssessment);
+      if (props.readingCreated) {
+        props.addReadingAssessment(formattedAssessment);
+      }
       props.afterNewPatientAdded();
+      props.resetNewReadingStatus();
       setIsShowDialogsubmission(true);
     }
   };
