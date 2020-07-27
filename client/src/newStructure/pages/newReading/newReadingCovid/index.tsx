@@ -111,7 +111,7 @@ const Page: React.FC<IProps> = (props) => {
     handleExistingPatient,
     resetValuesPatient,
   } = useNewPatient();
-  const [existingPatient, setExistingPatient] = useState(false);
+  const [existingPatient, setExistingPatient] = useState(true);
   const {
     symptoms,
     handleChangeSymptoms,
@@ -142,7 +142,8 @@ const Page: React.FC<IProps> = (props) => {
       setIsShowDialogsubmission(true);
     }
     if (!isEmpty(props.patient) && existingPatient) {
-      handleExistingPatient(props.patient.patientName, 'patientInitial');
+      handleExistingPatient(props.patient);
+
       // need to add other fields
       setExistingPatient(false);
     }
@@ -160,6 +161,7 @@ const Page: React.FC<IProps> = (props) => {
     if (props.user.roles[0] === 'VHT') {
       const formattedReading = formatReadingDataVHT(
         patient,
+        patient.patientId,
         symptoms,
         urineTest,
         vitals,
@@ -169,6 +171,7 @@ const Page: React.FC<IProps> = (props) => {
     } else {
       const formattedReading = formatReadingData(
         patient,
+        patient.patientId,
         symptoms,
         urineTest,
         vitals,

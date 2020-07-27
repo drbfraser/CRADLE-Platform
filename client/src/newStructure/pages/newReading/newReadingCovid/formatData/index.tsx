@@ -140,6 +140,7 @@ const formatSymptoms = (symptoms: any) => {
 
 export const formatReadingData = (
   patient: any,
+  patientId: any,
   symptoms: any,
   urineTest: any,
   vital: any,
@@ -154,7 +155,7 @@ export const formatReadingData = (
     heartRateBPM: number = vital.heartRateBPM as number;
     isFlaggedForFollowup: boolean;
     oxygenSaturation: number = vital.oxygenSaturation as number;
-    patientId: string = patient.patientId as string;
+    patientId: string = patientId as string;
     readingId: string = readingidGenerated;
     respiratoryRate: number = vital.respiratoryRate as number;
     symptoms: string[] = formatSymptoms(symptoms);
@@ -177,6 +178,7 @@ export const formatReadingData = (
 
 export const formatReadingDataVHT = (
   patient: any,
+  patientId: any,
   symptoms: any,
   urineTest: any,
   vital: any,
@@ -190,7 +192,7 @@ export const formatReadingDataVHT = (
     heartRateBPM: number = vital.heartRateBPM as number;
     isFlaggedForFollowup: boolean;
     oxygenSaturation: number = vital.oxygenSaturation as number;
-    patientId: string = patient.patientId as string;
+    patientId: string = patientId as string;
     readingId: string = readingidGenerated;
     respiratoryRate: number = vital.respiratoryRate as number;
     symptoms: string[] = formatSymptoms(symptoms);
