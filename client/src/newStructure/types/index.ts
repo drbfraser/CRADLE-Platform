@@ -62,7 +62,7 @@ export type NewReading = {
 } & Pick<Reading, 'isFlaggedForFollowup'>;
 
 export type Patient = {
-  dob: OrNull<number>;
+  dob: OrNull<string>;
   drugHistory: OrNull<string>;
   gestationalAgeUnit: GestationalAgeUnitEnum;
   gestationalAgeValue: string;
@@ -79,6 +79,22 @@ export type Patient = {
   tableData: { id: number };
   zone: OrNull<string>;
 };
+
+export type EditedPatient = Pick<
+  Patient,
+  | 'dob'
+  | 'drugHistory'
+  | 'gestationalAgeUnit'
+  | 'gestationalAgeValue'
+  | 'isPregnant'
+  | 'medicalHistory'
+  | 'patientAge'
+  | 'patientId'
+  | 'patientName'
+  | 'patientSex'
+  | 'villageNumber'
+  | 'zone'
+>;
 
 export type GlobalSearchPatient = {
   patientName: string;

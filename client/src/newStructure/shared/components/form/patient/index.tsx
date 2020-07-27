@@ -3,72 +3,91 @@ import {
   Form,
   Header,
   Input,
+  InputOnChangeData,
   Select,
   TextArea,
 } from 'semantic-ui-react';
+import {
+  gestationalAgeUnitOptions,
+  pregnantOptions,
+  sexOptions,
+} from './utils';
 import {
   gestationalAgeValueMonthOptions,
   gestationalAgeValueWeekOptions,
 } from '../../../utils';
 
+import { EditedPatient } from '@types';
+import { GestationalAgeUnitEnum } from '../../../../enums';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
-import classes from '../styles.module.css';
-
-const sexOptions = [
-  { key: 'm', text: 'Male', value: 'MALE' },
-  { key: 'f', text: 'Female', value: 'FEMALE' },
-  { key: 'o', text: 'Other', value: 'I' },
-];
-
-const pregOptions = [
-  { key: 'y', text: 'Yes', value: true },
-  { key: 'n', text: 'No', value: false },
-];
+import { useStyles } from './styles';
 
 export const GESTATIONAL_AGE_UNITS = {
   WEEKS: 'GESTATIONAL_AGE_UNITS_WEEKS',
   MONTHS: 'GESTATIONAL_AGE_UNITS_MONTHS',
 };
 
-const gestationalAgeUnitOptions = [
-  { key: 'week', text: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
-  { key: 'month', text: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS },
-];
+interface IProps {
+  patient: EditedPatient;
+  onChange: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    { name, value }: InputOnChangeData
+  ) => void;
+  isEditPage?: boolean;
+}
 
-export const PatientInfoForm: React.FC<any> = (props) => {
+export const PatientInfoForm: React.FC<IProps> = ({
+  patient,
+  onChange,
+  isEditPage,
+}) => {
+  const classes = useStyles();
+
+  const dob = React.useMemo((): string => {
+    if (patient.dob) {
+      return `${patient.dob}`;
+    }
+
+    return ``;
+  }, [patient]);
+
+  const patientAge = React.useMemo((): string => {
+    return patient.patientAge ? patient.patientAge.toString() : ``;
+  }, [patient]);
+
   return (
-    <Paper style={{ padding: '35px 25px', borderRadius: '15px' }}>
-      {!props.isEditPage && (
+    <Paper className={classes.container}>
+      {!isEditPage && (
         <Header>
           <b>Patient Information</b>
         </Header>
       )}
-      {!props.isEditPage && <Divider />}
+      {!isEditPage && <Divider />}
       <Form.Group>
         <Form.Field
           className={classes.input}
           name="patientName"
-          value={props.patient.patientName}
+          value={patient.patientName}
           control={Input}
           label="Patient Initials"
           placeholder="Patient Initials"
-          onChange={props.onChange}
+          onChange={onChange}
           type="text"
           pattern="[a-zA-Z]*"
           maxLength="4"
           minLength="1"
           required
         />
-        {!props.isEditPage && (
+        {!isEditPage && (
           <Form.Field
             className={classes.input}
             name="patientId"
-            value={props.patient.patientId}
+            value={patient.patientId}
             control={Input}
             label="ID"
             placeholder="ID Number"
-            onChange={props.onChange}
+            onChange={onChange}
             type="text"
             maxLength="15"
             minLength="1"
@@ -80,34 +99,34 @@ export const PatientInfoForm: React.FC<any> = (props) => {
         <Form.Field
           className={classes.input}
           name="patientAge"
-          value={props.patient.patientAge}
+          value={patientAge}
           control={Input}
           label="Age"
           type="number"
           min="15"
           max="60"
           placeholder="Patient Age"
-          onChange={props.onChange}
+          onChange={onChange}
         />
         <Form.Field
           className={classes.input}
           name="dob"
-          value={props.patient.dob}
+          value={dob}
           control={Input}
           label="Birthday"
           type="date"
           placeholder="Birthday"
-          onChange={props.onChange}
+          onChange={onChange}
         />
         <Form.Field
           className={classes.input}
           name="patientSex"
-          value={props.patient.patientSex}
+          value={patient.patientSex}
           control={Select}
           label="Gender"
           options={sexOptions}
           placeholder="Gender"
-          onChange={props.onChange}
+          onChange={onChange}
           required
         />
       </Form.Group>
@@ -115,41 +134,37 @@ export const PatientInfoForm: React.FC<any> = (props) => {
         <Form.Field
           className={classes.input}
           name="isPregnant"
-          value={props.patient.isPregnant}
+          value={patient.isPregnant}
           control={Select}
           label="Pregnant"
-          options={pregOptions}
-          onChange={props.onChange}
-          disabled={props.patient.patientSex === 'MALE'}
+          options={pregnantOptions}
+          onChange={onChange}
+          disabled={patient.patientSex === 'MALE'}
         />
         <Form.Dropdown
           name="gestationalAgeValue"
-          value={props.patient.gestationalAgeValue}
+          value={patient.gestationalAgeValue}
           control={Select}
           options={
-            props.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
+            patient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
               ? gestationalAgeValueWeekOptions
               : gestationalAgeValueMonthOptions
           }
           search={true}
-          onChange={props.onChange}
+          onChange={onChange}
           label="Gestational Age"
-          disabled={
-            props.patient.patientSex === 'MALE' || !props.patient.isPregnant
-          }
+          disabled={patient.patientSex === 'MALE' || !patient.isPregnant}
           required
         />
         <Form.Field
           className={classes.input}
           name="gestationalAgeUnit"
-          value={props.patient.gestationalAgeUnit}
+          value={patient.gestationalAgeUnit}
           control={Select}
           options={gestationalAgeUnitOptions}
-          onChange={props.onChange}
+          onChange={onChange}
           label="Gestational Age Unit"
-          disabled={
-            props.patient.patientSex === 'MALE' || !props.patient.isPregnant
-          }
+          disabled={patient.patientSex === 'MALE' || !patient.isPregnant}
           required
         />
       </Form.Group>
@@ -157,42 +172,41 @@ export const PatientInfoForm: React.FC<any> = (props) => {
         <Form.Field
           className={classes.input}
           name="zone"
-          value={props.patient.zone}
+          value={patient.zone}
           control={Input}
           label="Zone"
           type="number"
           placeholder="Zone"
-          onChange={props.onChange}
+          onChange={onChange}
         />
-
         <Form.Field
           className={classes.input}
           name="villageNumber"
-          value={props.patient.villageNumber}
+          value={patient.villageNumber}
           control={Input}
           label="Village"
           type="number"
           placeholder="Village"
-          onChange={props.onChange}
+          onChange={onChange}
         />
       </Form.Group>
       <Form.Field
         className={classes.input}
         name="drugHistory"
-        value={props.patient.drugHistory}
+        value={patient.drugHistory}
         control={TextArea}
         label="Drug History"
-        placeholder="Patient's drug history..."
-        onChange={props.onChange}
+        placeholder="Enter the patient's drug history..."
+        onChange={onChange}
       />
       <Form.Field
         className={classes.input}
         name="medicalHistory"
-        value={props.patient.medicalHistory}
+        value={patient.medicalHistory}
         control={TextArea}
         label="Medical History"
-        placeholder="Patient's medical history..."
-        onChange={props.onChange}
+        placeholder="Enter the patient's medical history..."
+        onChange={onChange}
       />
     </Paper>
   );

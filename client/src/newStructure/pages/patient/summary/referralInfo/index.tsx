@@ -34,7 +34,8 @@ export const ReferralInfo: React.FC<IProps> = ({ readingId, referral }) => {
           />
           Referred on {getPrettyDateTime(referral.dateReferred)}
         </Typography>
-        <br /> <br />
+        <br />
+        <br />
         <Typography variant="subtitle1">
           <Icon
             style={{ lineHeight: '0.7em' }}

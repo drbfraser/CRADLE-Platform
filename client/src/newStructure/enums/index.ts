@@ -1,12 +1,28 @@
+export enum YesNoEnum {
+  YES = 1,
+  NO = 0,
+}
+
+export enum YesNoDisplayEnum {
+  YES = 'Yes',
+  NO = 'No',
+}
+
 export enum SexEnum {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
   OTHER = 'OTHER',
 }
 
+export enum SexDisplayEnum {
+  MALE = 'Male',
+  FEMALE = 'Female',
+  OTHER = 'Other',
+}
+
 export enum GestationalAgeUnitDisplayEnum {
-  WEEKS = 'WEEKS',
-  MONTHS = 'MONTHS',
+  WEEKS = 'Weeks',
+  MONTHS = 'Months',
 }
 
 export enum TrafficLightEnum {

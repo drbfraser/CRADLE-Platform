@@ -26,29 +26,6 @@ export const getReferralIds = (patient: OrNull<Patient>): Array<string> => {
   );
 };
 
-export const unitOptions = [
-  { key: `weeks`, text: `Weeks`, value: 1 },
-  { key: `months`, text: `Months`, value: 2 },
-];
-
-export const getNumOfWeeks = (timestamp: number): number => {
-  const todaysDate = new Date();
-  const gestDate = new Date(timestamp * 1000);
-  const difference = todaysDate.getTime() - gestDate.getTime();
-  return Math.round(difference / (7 * 24 * 60 * 60 * 1000));
-};
-
-export const getNumOfMonths = (timestamp: number): number | string => {
-  const todaysDate = new Date();
-  const gestDate = new Date(timestamp * 1000);
-  const numOfMonths =
-    todaysDate.getMonth() -
-    gestDate.getMonth() +
-    12 * (todaysDate.getFullYear() - gestDate.getFullYear());
-
-  return numOfMonths === 0 ? `< 1` : numOfMonths;
-};
-
 export const getTrafficIcon = (trafficLightStatus: any): JSX.Element => {
   if (trafficLightStatus === `RED_DOWN`) {
     return (

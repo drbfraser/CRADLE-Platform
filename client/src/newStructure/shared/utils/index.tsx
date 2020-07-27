@@ -10,6 +10,24 @@ import moment from 'moment';
 
 export { v4 as makeUniqueId } from 'uuid';
 
+export const getNumOfWeeks = (timestamp: number): number => {
+  const todaysDate = new Date();
+  const gestDate = new Date(timestamp * 1000);
+  const difference = todaysDate.getTime() - gestDate.getTime();
+  return Math.round(difference / (7 * 24 * 60 * 60 * 1000));
+};
+
+export const getNumOfMonths = (timestamp: number): number | string => {
+  const todaysDate = new Date();
+  const gestDate = new Date(timestamp * 1000);
+  const numOfMonths =
+    todaysDate.getMonth() -
+    gestDate.getMonth() +
+    12 * (todaysDate.getFullYear() - gestDate.getFullYear());
+
+  return numOfMonths === 0 ? `< 1` : numOfMonths;
+};
+
 export const calculateShockIndex = (reading: Reading): TrafficLightEnum => {
   const RED_SYSTOLIC = 160;
   const RED_DIASTOLIC = 110;
@@ -64,8 +82,8 @@ export const getPrettyDateTime = (dateStr: any) => {
   return getMomentDate(dateStr).format('MMMM Do YYYY, h:mm:ss a');
 };
 
-export const getPrettyDateYYYYmmDD = (dateStr: any) => {
-  return moment(String(dateStr)).format('MMMM Do YYYY');
+export const getPrettyDateYYYYmmDD = (dateStr: string) => {
+  return moment(dateStr).format('MMMM Do YYYY');
 };
 
 export const getLatestReading = (readings: any) => {

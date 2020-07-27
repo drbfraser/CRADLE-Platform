@@ -1,23 +1,11 @@
 import { Bar, Line } from 'react-chartjs-2';
-import { Divider, Form, Select } from 'semantic-ui-react';
 import { OrNull, Patient, Reading } from '@types';
 import { actionCreators, initialState, reducer } from './reducers';
 import {
   addPatientToHealthFacility,
   updateSelectedPatientState,
 } from '../../../shared/reducers/patients';
-import {
-  average,
-  getNumOfMonths,
-  getNumOfWeeks,
-  getReferralIds,
-  getTrafficIcon,
-  unitOptions,
-} from './utils';
-import {
-  getPrettyDateTime,
-  getPrettyDateYYYYmmDD,
-} from '../../../shared/utils';
+import { average, getReferralIds, getTrafficIcon } from './utils';
 import {
   initialUrineTests,
   urineTestChemicals,
@@ -28,9 +16,10 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import { AddPatientPrompt } from '../../../shared/components/addPatientPrompt';
-import { GESTATIONAL_AGE_UNITS } from '../../../shared/components/form/patient';
+import { Divider } from 'semantic-ui-react';
 import Grid from '@material-ui/core/Grid';
 import { Icon } from 'semantic-ui-react';
+import { MedicalInformation } from './medicalInformation';
 import { PageHeader } from './header';
 import Paper from '@material-ui/core/Paper';
 import { PatientStateEnum } from '../../../enums';
@@ -38,9 +27,9 @@ import React from 'react';
 import { ReadingModal } from './readingModal';
 import { ReduxState } from '../../../redux/rootReducer';
 import { ReferralInfo } from './referralInfo';
-import SweetAlert from 'sweetalert2-react';
 import Typography from '@material-ui/core/Typography';
 import { getPatientStatistics } from '../../../shared/reducers/patientStatistics';
+import { getPrettyDateTime } from '../../../shared/utils';
 import { getReferrals } from '../../../shared/reducers/referrals';
 import { useReadings } from './hooks/readings';
 
@@ -71,7 +60,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
 
   const [state, updateState] = React.useReducer(reducer, initialState);
 
-  const [oldState, setOldState] = React.useState({
+  const [oldState] = React.useState({
     actionAfterAdding: (): void => {
       return;
     },
@@ -154,94 +143,11 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     }
   };
 
-  /*const openPatientModal = (): void => {
-    onAddPatientRequired((): void => {
-      setState((currentState) => ({
-        ...currentState,
-        displayPatientModal: true,
-        selectedPatientCopy: {
-          readings: selectedPatient.readings ?? [],
-        },
-      }));
-    }, `You haven't added this patient to your health facility. You need to do that before you can edit this patient. Would like to add this patient?`);
-  };*/
-
-  /*const closePatientModal = (event: any): void => {
-    if (event === `formSubmitted`) {
-      setState((currentState) => ({
-        ...currentState,
-        displayPatientModal: false,
-      }));
-    } else {
-      // * Form has not been submitted
-      // * therefore, display original patient fields
-      setState((currentState) => ({
-        ...currentState,
-        displayPatientModal: false,
-        selectedPatient: { ...currentState.selectedPatientCopy },
-      }));
-    }
-  };*/
-
   const openReadingModal = (): void => {
     onAddPatientRequired(() => {
       updateState(actionCreators.openReadingModal());
     }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
-
-  const handleUnitChange = (_: any, value: any): void => {
-    if (value.value === 1) {
-      setOldState((currentState) => ({
-        ...currentState,
-        selectedPatient: {
-          ...selectedPatient,
-          gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
-        },
-      }));
-    } else {
-      setOldState((currentState) => ({
-        ...currentState,
-        selectedPatient: {
-          ...selectedPatient,
-          gestationalAgeUnit: GESTATIONAL_AGE_UNITS.MONTHS,
-        },
-      }));
-    }
-  };
-
-  /*const handleSelectChange = (_: any, value: any): void => {
-    if (value.name === `patientSex` && value.value === `MALE`) {
-      setState((currentState) => ({
-        ...currentState,
-        selectedPatient: {
-          ...selectedPatient,
-          patientSex: `MALE`,
-          gestationalAgeValue: ``,
-          isPregnant: false,
-        },
-      }));
-    } else if (value.name === `gestationalAgeUnit`) {
-      setState((currentState) => ({
-        ...currentState,
-        selectedPatient: {
-          ...selectedPatient,
-          [value.name]: value.value,
-          gestationalAgeValue:
-            value.value === GESTATIONAL_AGE_UNITS.WEEKS
-              ? monthsToWeeks(selectedPatient.gestationalAgeValue ?? ``)
-              : weeksToMonths(selectedPatient.gestationalAgeValue ?? ``),
-        },
-      }));
-    } else {
-      setState((currentState) => ({
-        ...currentState,
-        selectedPatient: {
-          ...selectedPatient,
-          [value.name]: value.value,
-        },
-      }));
-    }
-  };*/
 
   /*const handleSubmit = (event: any): void => {
     event.preventDefault();
@@ -414,108 +320,13 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
         />
         <Divider />
         <Grid container direction="row" spacing={4}>
-          <Grid
-            item
-            xs={6}
-            style={{
-              minWidth: '500px',
-              height: '100% !important',
-            }}>
-            <Paper
-              style={{
-                padding: '35px 25px',
-                borderRadius: '15px',
-                height: '100%',
-              }}>
-              <Typography variant="h5" component="h3">
-                <Icon
-                  style={{
-                    lineHeight: '0.7em',
-                  }}
-                  name="address card outline"
-                  size="large"
-                />
-                Medical Information
-              </Typography>
-              <Divider />
-              <div
-                style={{
-                  padding: '20px 50px',
-                }}>
-                <p>
-                  <b>Patient ID: </b> {selectedPatient.patientId}{' '}
-                </p>
-                <p>
-                  <b>Patient Birthday: </b>{' '}
-                  {selectedPatient.dob === undefined ||
-                  selectedPatient.dob === null
-                    ? 'N/A'
-                    : getPrettyDateYYYYmmDD(selectedPatient.dob)}{' '}
-                </p>
-                <p>
-                  <b>Patient Age: </b>{' '}
-                  {selectedPatient.patientAge === undefined ||
-                  selectedPatient.patientAge === null
-                    ? 'N/A'
-                    : selectedPatient.patientAge}{' '}
-                </p>
-                <p>
-                  <b>Patient Sex: </b> {selectedPatient.patientSex}{' '}
-                </p>
-                {selectedPatient.patientSex === 'FEMALE' && (
-                  <p>
-                    <b>Pregnant: </b>{' '}
-                    {selectedPatient.isPregnant ? 'Yes' : 'No'}{' '}
-                  </p>
-                )}
-                {selectedPatient.isPregnant && 1 && (
-                  <p>
-                    <b>Gestational Age: </b>{' '}
-                    {selectedPatient.gestationalAgeUnit ===
-                    GESTATIONAL_AGE_UNITS.WEEKS
-                      ? `${getNumOfWeeks(0)} week(s)`
-                      : `${getNumOfMonths(0)} month(s)`}
-                    <Form.Field
-                      name="gestationalUnits"
-                      control={Select}
-                      options={unitOptions}
-                      placeholder={
-                        selectedPatient.gestationalAgeUnit ===
-                        GESTATIONAL_AGE_UNITS.WEEKS
-                          ? 'Weeks'
-                          : 'Months'
-                      }
-                      onChange={handleUnitChange}
-                    />
-                  </p>
-                )}
-                <Accordion>
-                  <AccordionSummary
-                    expandIcon={<Icon name="chevron down" />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header">
-                    <Typography>Drug History</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography>{selectedPatient.drugHistory}</Typography>
-                  </AccordionDetails>
-                </Accordion>
-                <Accordion>
-                  <AccordionSummary
-                    expandIcon={<Icon name="chevron down" />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header">
-                    <Typography>Medical History</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography>{selectedPatient.medicalHistory}</Typography>
-                  </AccordionDetails>
-                </Accordion>
-                <Divider />
-                {/* <Button onClick={openPatientModal}>Edit Patient</Button> */}
-              </div>
-            </Paper>
-          </Grid>
+          <MedicalInformation
+            displayPatientModal={state.displayPatientModal}
+            editedPatient={state.editedPatient}
+            selectedPatient={selectedPatient}
+            onAddPatientRequired={onAddPatientRequired}
+            updateState={updateState}
+          />
           <Grid
             item
             xs={6}
@@ -641,7 +452,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
                     <p>
                       <b>Heart Rate (BPM): </b> {row.heartRateBPM}{' '}
                     </p>
-                    <p>
+                    <div>
                       <b>Symptoms</b>
                       <div
                         style={{
@@ -650,7 +461,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
                         }}>
                         {row.symptoms}
                       </div>
-                    </p>
+                    </div>
                     {row.urineTests && (
                       <div>
                         <Accordion>
@@ -663,7 +474,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
                             </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
-                            <Typography>
+                            <div>
                               <p>
                                 <b>{urineTestChemicals.LEUC}: </b>{' '}
                                 {row.urineTests.urineTestLeuc}{' '}
@@ -684,7 +495,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
                                 <b>{urineTestChemicals.BLOOD}: </b>{' '}
                                 {row.urineTests.urineTestBlood}{' '}
                               </p>
-                            </Typography>
+                            </div>
                           </AccordionDetails>
                         </Accordion>
                       </div>
@@ -713,26 +524,6 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
             </Grid>
           ))}
         </Grid>
-        {/* <Modal
-          closeIcon
-          onClose={closePatientModal}
-          open={state.displayPatientModal}>
-          <Modal.Header>
-            Patient Information for ID #{selectedPatient.patientId}
-          </Modal.Header>
-          <Modal.Content scrolling>
-            <Form onSubmit={handleSubmit}>
-              <PatientInfoForm
-                patient={selectedPatient}
-                onChange={handleSelectChange}
-                isEditPage={true}
-              />
-              <Form.Field style={{ marginTop: '10px' }} control={Button}>
-                Submit
-              </Form.Field>
-            </Form>
-          </Modal.Content>
-        </Modal> */}
         <ReadingModal
           displayReadingModal={state.displayReadingModal}
           hasUrineTest={state.hasUrineTest}
@@ -741,18 +532,6 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
           selectedPatient={selectedPatient}
           selectedSymptoms={state.selectedSymptoms}
           updateState={updateState}
-        />
-        <SweetAlert
-          type="success"
-          show={oldState.showSuccessReading}
-          title="Reading Created!"
-          text="Success! You can view the new reading below"
-          onConfirm={() =>
-            setOldState((currentState) => ({
-              ...currentState,
-              showSuccessReading: false,
-            }))
-          }
         />
       </div>
     </div>

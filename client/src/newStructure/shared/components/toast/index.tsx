@@ -45,7 +45,7 @@ export const Toast: React.FC<IProps> = ({
         clearTimeout(timeout);
       }
     };
-  }, [message, status]);
+  }, [message, status, toastMessage]);
 
   const handleClose = (
     _: React.SyntheticEvent,
