@@ -95,6 +95,42 @@ Post
 	"readingId": "asdasd82314278226313803", - required 
 	"followupNeeded": "TRUE", - required if this field is true lol (might be easier to always send it?) 
 	"followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = true 
+       "dateAssessed": "987654" - required
+       "healthcareWorkerId" - required 
+}
+
+
+
+###########################################################################################################
+
+Create reading and assessment 
+localhost:5000/api/readings:
+Post
+Same as making a reading, except followup is nested inside it
+{
+       "readingId": "test3",
+       "patientId": "123456",
+       "bpSystolic" : 150,
+       "bpDiastolic" : 150,
+       "heartRateBPM" : 35,
+       "respiratoryRate": 14,
+       "oxygenSaturation": 99,
+       "temperature": 37,
+       "isFlaggedForFollowup" : false,
+       "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
+       "dateTimeTaken": 868545,
+       "userId": 1 ,
+       "followup":{
+              "diagnosis": "patient is fine",
+              "medicationPrescribed": "tylenol",
+              "specialInvestigations": "bcccccccccddeeeff",
+              "treatment": "b",
+              "readingId": "test3",
+              "dateAssessed": "876545"
+              "healthcareWorkerId": 1 
+              "followupNeeded": "TRUE",
+              "followupInstructions": "pls help, give lots of tylenol"
+       }
 }
 
 ###########################################################################################################
