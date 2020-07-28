@@ -1,7 +1,8 @@
+import { OrNull, Patient, Reading } from '@types';
+
 import { ReactComponent as GreenTraffic } from '../icons/green.svg';
 import { Icon } from 'semantic-ui-react';
 import React from 'react';
-import { Reading } from '@types';
 import { ReactComponent as RedTraffic } from '../icons/red.svg';
 import { TrafficLightEnum } from '../../enums';
 import { ReactComponent as YellowTraffic } from '../icons/yellow.svg';
@@ -96,62 +97,67 @@ export const calculateShockIndex = (reading: Reading): TrafficLightEnum => {
   return TrafficLightEnum.GREEN;
 };
 
-export const getMomentDate = (dateS: any) => {
-  return moment(dateS * 1000);
+export const getMomentDate = (dateS: OrNull<number>): moment.Moment => {
+  return moment(dateS ?? 0 * 1000);
 };
 
-export const getPrettyDate = (dateStr: any) => {
+export const getPrettyDate = (dateStr: number): string => {
   return getMomentDate(dateStr).format('MMMM Do YYYY');
 };
 
-export const getPrettyDateTime = (dateStr: any) => {
+export const getPrettyDateTime = (dateStr: number): string => {
   return getMomentDate(dateStr).format('MMMM Do YYYY, h:mm:ss a');
 };
 
-export const getPrettyDateYYYYmmDD = (dateStr: string) => {
+export const getPrettyDateYYYYmmDD = (dateStr: string): string => {
   return moment(dateStr).format('MMMM Do YYYY');
 };
 
-export const getLatestReading = (readings: any) => {
+export const getLatestReading = (readings: Array<Reading>): Reading => {
   const sortedReadings = readings.sort(
-    (a: any, b: any) =>
-      getMomentDate(b.dateTimeTaken).valueOf() -
-      getMomentDate(a.dateTimeTaken).valueOf()
+    (reading: Reading, otherReading: Reading) =>
+      getMomentDate(otherReading.dateTimeTaken).valueOf() -
+      getMomentDate(reading.dateTimeTaken).valueOf()
   );
   return sortedReadings[0];
 };
 
-export const getLatestReadingDateTime = (readings: any) => {
+export const getLatestReadingDateTime = (
+  readings: Array<Reading>
+): OrNull<number> => {
   return getLatestReading(readings).dateTimeTaken;
 };
 
-export const sortPatientsByLastReading = (a: any, b: any) =>
-  getMomentDate(getLatestReadingDateTime(b.readings)).valueOf() -
-  getMomentDate(getLatestReadingDateTime(a.readings)).valueOf();
+export const sortPatientsByLastReading = (a: Patient, b: Patient): number => {
+  return (
+    getMomentDate(getLatestReadingDateTime(b.readings)).valueOf() -
+    getMomentDate(getLatestReadingDateTime(a.readings)).valueOf()
+  );
+};
 
-export const getTrafficIcon = (trafficLightStatus: any) => {
-  if (trafficLightStatus === 'RED_DOWN') {
+export const getTrafficIcon = (trafficLightStatus: TrafficLightEnum) => {
+  if (trafficLightStatus === TrafficLightEnum.RED_DOWN) {
     return (
       <div>
         <RedTraffic className={classes.trafficLight} />
         <Icon name="arrow down" size="huge" />
       </div>
     );
-  } else if (trafficLightStatus === 'RED_UP') {
+  } else if (trafficLightStatus === TrafficLightEnum.RED_UP) {
     return (
       <div>
         <RedTraffic className={classes.trafficLight} />
         <Icon name="arrow up" size="huge" />
       </div>
     );
-  } else if (trafficLightStatus === 'YELLOW_UP') {
+  } else if (trafficLightStatus === TrafficLightEnum.YELLOW_UP) {
     return (
       <div>
         <YellowTraffic className={classes.trafficLight} />
         <Icon name="arrow up" size="huge" />
       </div>
     );
-  } else if (trafficLightStatus === 'YELLOW_DOWN') {
+  } else if (trafficLightStatus === TrafficLightEnum.YELLOW_DOWN) {
     return (
       <div>
         <YellowTraffic className={classes.trafficLight} />

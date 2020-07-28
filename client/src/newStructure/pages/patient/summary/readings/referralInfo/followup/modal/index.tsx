@@ -10,25 +10,17 @@ import { Dispatch, bindActionCreators } from 'redux';
 import {
   addPatientToHealthFacility,
   updateSelectedPatientState,
-} from '../../../../../../shared/reducers/patients';
+} from '../../../../../../../shared/reducers/patients';
 import {
   createFollowUp,
   setReadingId,
   updateFollowUp,
-} from '../../../../../../shared/reducers/referrals';
+} from '../../../../../../../shared/reducers/referrals';
 
-/**
- * Description: Modal reponsible for the the UI to create and update
- *      the Follow Up info for Referrals
- * Props:
- *  initialValues [JSON]: initial values of to insert into the form
- *  handleSubmit(state) [required]: function that is called when the user submits form
- *      this function should handle data validation
- */
-import { AddPatientPrompt } from '../../../../../../shared/components/addPatientPrompt';
-import { PatientStateEnum } from '../../../../../../enums';
+import { AddPatientPrompt } from '../../../../../../../shared/components/addPatientPrompt';
+import { PatientStateEnum } from '../../../../../../../enums';
 import React from 'react';
-import { ReduxState } from '../../../../../../redux/rootReducer';
+import { ReduxState } from '../../../../../../../redux/rootReducer';
 import Switch from '@material-ui/core/Switch';
 import { connect } from 'react-redux';
 import { followupFrequencyUnitOptions } from '../utils';
@@ -228,7 +220,7 @@ class Component extends React.Component<any, any> {
         <Modal
           trigger={
             <Button
-              style={{ backgroundColor: '#84ced4' }}
+              style={{ backgroundColor: '#84ced4', marginTop: 16 }}
               size="large"
               onClick={this.handleOpen}>
               {this.props.initialValues ? 'Update Assessment' : 'Assess'}

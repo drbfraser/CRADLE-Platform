@@ -5,6 +5,7 @@ import {
 
 import React from 'react';
 import { Reading } from '@types';
+import { TrafficLightEnum } from '../../../../../../../../enums';
 import { useStyles } from './styles';
 
 interface IProps {
@@ -19,7 +20,7 @@ export const VitalSignBody: React.FC<IProps> = ({
   const classes = useStyles();
 
   const status = React.useMemo(
-    (): string => getLatestReading(readings).trafficLightStatus,
+    (): TrafficLightEnum => getLatestReading(readings).trafficLightStatus,
     [readings]
   );
 

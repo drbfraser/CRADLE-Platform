@@ -1,9 +1,10 @@
-import { Reading } from '@types';
+import { OrUndefined, Reading } from '@types';
+
 import { getMomentDate } from '../../../../../../../../shared/utils';
 
 export const getLatestReferral = (
   readings: Array<Reading>
-): number | string => {
+): OrUndefined<number> => {
   const sortedReadings = readings.sort(
     (reading: Reading, otherReading: Reading): number => {
       return (
@@ -13,5 +14,5 @@ export const getLatestReferral = (
     }
   );
 
-  return sortedReadings[0].dateReferred ?? ``;
+  return sortedReadings[0].dateReferred;
 };

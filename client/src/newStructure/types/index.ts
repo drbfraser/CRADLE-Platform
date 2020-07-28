@@ -35,7 +35,7 @@ export type Reading = {
   readingId: string;
   referral: OrNull<string>;
   retestOfPreviousReadingIds: OrNull<string>;
-  symptoms: string;
+  symptoms: Array<string>;
   temporaryFlags: OrNull<number>;
   totalOcrSeconds: OrNull<number>;
   trafficLightStatus: TrafficLightEnum;

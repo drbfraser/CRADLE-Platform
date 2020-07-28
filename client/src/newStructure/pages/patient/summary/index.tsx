@@ -4,34 +4,23 @@ import {
   addPatientToHealthFacility,
   updateSelectedPatientState,
 } from '../../../shared/reducers/patients';
-import { getReferralIds, getTrafficIcon } from './utils';
-import {
-  initialUrineTests,
-  urineTestChemicals,
-} from '../../../shared/components/form/urineTest';
 import { useDispatch, useSelector } from 'react-redux';
 
-import Accordion from '@material-ui/core/Accordion';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
 import { AddPatientPrompt } from '../../../shared/components/addPatientPrompt';
 import { Divider } from 'semantic-ui-react';
 import Grid from '@material-ui/core/Grid';
-import { Icon } from 'semantic-ui-react';
 import { MedicalInformation } from './medicalInformation';
 import { PageHeader } from './header';
-import Paper from '@material-ui/core/Paper';
+import { PatientReadings } from './readings';
 import { PatientStateEnum } from '../../../enums';
 import React from 'react';
 import { ReadingModal } from './readingModal';
 import { ReduxState } from '../../../redux/rootReducer';
-import { ReferralInfo } from './referralInfo';
-import Typography from '@material-ui/core/Typography';
 import { VitalsOverTime } from './vitalsOverTime';
 import { getPatientStatistics } from '../../../shared/reducers/patientStatistics';
-import { getPrettyDateTime } from '../../../shared/utils';
+import { getReferralIds } from './utils';
 import { getReferrals } from '../../../shared/reducers/referrals';
-import { useReadings } from './hooks/readings';
+import { initialUrineTests } from '../../../shared/components/form/urineTest';
 
 interface IProps {
   selectedPatient: Patient;
@@ -143,10 +132,8 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
 
-  const readings = useReadings(selectedPatient);
-
   return (
-    <div>
+    <>
       <AddPatientPrompt
         addPatient={oldState.actionAfterAdding}
         closeDialog={hidePrompt}
@@ -174,119 +161,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
             updateState={updateState}
           />
         </Grid>
-        <br />
-        <Grid container={true} spacing={0}>
-          {readings.map((row) => (
-            <Grid key={row.readingId} item={true} xs={12}>
-              <Paper
-                style={{
-                  marginBottom: '35px',
-                  height: 'auto',
-                  padding: '45px 50px',
-                  borderRadius: '15px',
-                  display: 'flex',
-                }}>
-                <div
-                  style={{
-                    display: 'inline-block',
-                    width: '50%',
-                  }}>
-                  <Typography variant="h4" component="h4">
-                    Reading
-                  </Typography>
-
-                  <Typography variant="subtitle1">
-                    Taken on {getPrettyDateTime(row.dateTimeTaken)}
-                  </Typography>
-
-                  <div
-                    style={{
-                      padding: '25px 50px',
-                    }}>
-                    {getTrafficIcon(row.trafficLightStatus)}
-                    <br />
-                    <br />
-                    <p>
-                      <b>Systolic Blood Pressure: </b> {row.bpSystolic}{' '}
-                    </p>
-                    <p>
-                      <b>Diastolic Blood Pressure: </b> {row.bpDiastolic}{' '}
-                    </p>
-                    <p>
-                      <b>Heart Rate (BPM): </b> {row.heartRateBPM}{' '}
-                    </p>
-                    <div>
-                      <b>Symptoms</b>
-                      <div
-                        style={{
-                          display: `flex`,
-                          flexDirection: `column`,
-                        }}>
-                        {row.symptoms}
-                      </div>
-                    </div>
-                    {row.urineTests && (
-                      <div>
-                        <Accordion>
-                          <AccordionSummary
-                            expandIcon={<Icon name="chevron down" />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header">
-                            <Typography>
-                              <b>Urine Tests Result</b>
-                            </Typography>
-                          </AccordionSummary>
-                          <AccordionDetails>
-                            <div>
-                              <p>
-                                <b>{urineTestChemicals.LEUC}: </b>{' '}
-                                {row.urineTests.urineTestLeuc}{' '}
-                              </p>
-                              <p>
-                                <b>{urineTestChemicals.NIT}: </b>{' '}
-                                {row.urineTests.urineTestNit}{' '}
-                              </p>
-                              <p>
-                                <b>{urineTestChemicals.GLU}: </b>{' '}
-                                {row.urineTests.urineTestGlu}{' '}
-                              </p>
-                              <p>
-                                <b>{urineTestChemicals.PRO}: </b>{' '}
-                                {row.urineTests.urineTestPro}{' '}
-                              </p>
-                              <p>
-                                <b>{urineTestChemicals.BLOOD}: </b>{' '}
-                                {row.urineTests.urineTestBlood}{' '}
-                              </p>
-                            </div>
-                          </AccordionDetails>
-                        </Accordion>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div
-                  style={{
-                    borderLeft: '2px solid #84ced4',
-                    display: 'inline-block',
-                    width: '50%',
-                    float: 'right',
-                    height: '100%',
-                  }}>
-                  <div
-                    style={{
-                      padding: '0px 50px',
-                    }}>
-                    <ReferralInfo
-                      readingId={row.readingId}
-                      referral={referrals?.[row.readingId]}
-                    />
-                  </div>
-                </div>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
+        <PatientReadings selectedPatient={selectedPatient} />
         <ReadingModal
           displayReadingModal={state.displayReadingModal}
           hasUrineTest={state.hasUrineTest}
@@ -297,6 +172,6 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
           updateState={updateState}
         />
       </div>
-    </div>
+    </>
   );
 };
