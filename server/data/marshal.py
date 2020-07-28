@@ -30,7 +30,7 @@ def marshal(obj: Any, shallow=False) -> dict:
 def __marshal_patient(p: Patient, shallow) -> dict:
     d = vars(p).copy()
     __pre_process(d)
-    if d.get("dob"):              
+    if d.get("dob"):
         d["dob"] = str(d["dob"])
     if not shallow:
         d["readings"] = [marshal(r) for r in p.readings]
