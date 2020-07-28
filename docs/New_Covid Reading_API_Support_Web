@@ -95,8 +95,6 @@ Post
 	"readingId": "asdasd82314278226313803", - required 
 	"followupNeeded": "TRUE", - required if this field is true lol (might be easier to always send it?) 
 	"followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = true 
-       "dateAssessed": "987654" - required
-       "healthcareWorkerId" - required 
 }
 
 
@@ -126,8 +124,6 @@ Same as making a reading, except followup is nested inside it
               "specialInvestigations": "bcccccccccddeeeff",
               "treatment": "b",
               "readingId": "test3",
-              "dateAssessed": "876545"
-              "healthcareWorkerId": 1 
               "followupNeeded": "TRUE",
               "followupInstructions": "pls help, give lots of tylenol"
        }
