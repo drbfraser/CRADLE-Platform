@@ -125,8 +125,7 @@ def test_pass_create_patient_2():
     assert response_body["dob"] == None
 
 
-# edit this dob test - add rough estimate ?
-def test_pass_create_patient_with_dob_no_age():
+def test_pass_create_patient_with_exact_dob():
     patient_id = get_random_patient_id()
     patient_name = getRandomInitials()
     patient_sex = "MALE"
@@ -138,6 +137,7 @@ def test_pass_create_patient_with_dob_no_age():
         "patientName": patient_name,
         "patientSex": patient_sex,
         "dob": BIRTHDATE,
+        "isExactDob": True,
     }
 
     birthday = datetime.strptime(BIRTHDATE, "%Y-%m-%d").date()
@@ -149,10 +149,10 @@ def test_pass_create_patient_with_dob_no_age():
     assert response_body["patientName"] == patient_name
     assert response_body["patientSex"] == patient_sex
     assert response_body["dob"] == BIRTHDATE
+    assert response_body["isExactDob"] == True
 
 
-# edit this dob test
-def test_pass_create_patient_reading_with_dob_no_age():
+def test_pass_create_patient_reading_with_dob_estimate():
     patient_id = get_random_patient_id()
     patient_name = getRandomInitials()
     patient_sex = get_random_gender()
@@ -172,6 +172,7 @@ def test_pass_create_patient_reading_with_dob_no_age():
         "patientName": patient_name,
         "patientSex": patient_sex,
         "dob": BIRTHDATE,
+        "isExactDob": False,
     }
 
     birthday = datetime.strptime(BIRTHDATE, "%Y-%m-%d").date()
@@ -198,6 +199,7 @@ def test_pass_create_patient_reading_with_dob_no_age():
     assert response_body["reading"]["bpDiastolic"] == bp_diastolic
     assert response_body["reading"]["heartRateBPM"] == hr
     assert response_body["patient"]["dob"] == BIRTHDATE
+    assert response_body["patient"]["isExactDob"] == False
 
 
 def test_pass_create_patient_reading():

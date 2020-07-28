@@ -2,42 +2,6 @@ from datetime import datetime, date
 
 # This module provides functions to validate the request data for a Patient.
 
-"""
-    Description: validates request for creating a new patient, will also be using this to help validate new patient with a reading
-
-    Request looks like: 
-        request_body = {
-        "patientId":"51253242033", -- string
-        "patientName":"BF", -- string
-        "gestationalAgeUnit":"GESTATIONAL_AGE_UNITS_WEEKS", -- string
-        "gestationalTimestamp":1592339808, -- Timestamp
-        "villageNumber":"1251515", -- string
-        "patientSex":"FEMALE", 
-        "isPregnant":"true", -- boolean
-        "block": "15", -- string
-        "medicalHistory": "nothing really", db.text (long string)
-        "drugHistory": "nothing really", db.text (long string)
-        }
-
-    Required value types specified in request above in -- {value type} 
-
-    Required keys and their values should be in request body
-        - Patient ID
-        - Patient Name
-        - Patient Age
-        - Patient Sex
-
-    Ranges for all values: 
-        - PatientID: 11 digit attestation number
-        - Patient name, initials atleast 2 characters 
-        - Patient age: check min-max age on google/our current client restrictions
-        - Patient sex: should be male or female (check sex vs gender)
-        - Gestational unit: need more info
-        - Zone/village: need more info
-
-    Village number should exist
-"""
-
 # helper method that makes sure all required keys and values are in request body
 def check_if_required_keys_present(request_body, required_keys):
     for key in required_keys:
@@ -155,8 +119,6 @@ def check_patient_fields(request_body):
         "drugHistory",
     }
 
-    # values that must be of type int
-
     # # todo: repeated code -- pull this out as a funciton that all necessary functions can use
     # # making sure that values are of the correct type
     # for key in request_body:
@@ -169,49 +131,6 @@ def check_patient_fields(request_body):
     #     # add other type checks here once they're confirmed
 
     # To Do: Do we also want to check for value ranges here? Or only on client side?
-
-
-"""
-    Description: validates request for creating a new patient with a reading
-
-    Request looks like: 
-    Everything in patient request and: 
-     "reading" : {
-    	"readingId": "asdasd8231280222223", -- string
-        "dateTimeTaken" : "2019-09-25T19:00:43.002-07:00[America/Vancouver]", -- string
-        "userId": "1", - integer
-        "bpSystolic" : 20, -- integer
-        "bpDiastolic" : 30, -- integer
-        "heartRateBPM" : 10, -- integer
-        "dateRecheckVitalsNeeded" : "2019-09-25T19:15:38.032-07:00[America/Vancouver]", -- string
-        "isFlaggedForFollowup" : false, - boolean
-        "symptoms": "Headache,Blurred vision,Bleeding,sleepy" - db.text (long string)
-    }
-    For patient, same as above
-    For reading: 
-
-    Can also have some more things that are listed in DB, check if still required
-
-    Required Keys:
-        - userid // person who took the reading
-        - Datetime taken vs datetimelastsaved
-        - readingID
-        - bpDiastolic
-        - BpSystolic
-        - heartRateBPM
-        - dateRecheckNeeded?? Check if client shows this atm
-        - isFlaggedForfollowup
-        - Symotoms: or has selected no symptoms
-        
-    Check value ranges:
-        - bpSystolic: check min and max 
-        - bpDiastolic: check min and max
-        - heartRateBPM: check min and max
-        - Datetime cannot be in the past
-
-    userID exists (person who took the reading)
-
-"""
 
 
 def check_reading_fields(request_body):
