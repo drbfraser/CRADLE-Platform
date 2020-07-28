@@ -42,9 +42,7 @@ export const PatientModal: React.FC<IProps> = ({
 
   const dispatch = useDispatch();
 
-  const closePatientModal = (
-    _: React.MouseEvent<HTMLElement, MouseEvent>
-  ): void => {
+  const closePatientModal = (): void => {
     updateState(actionCreators.closePatientModal());
   };
 

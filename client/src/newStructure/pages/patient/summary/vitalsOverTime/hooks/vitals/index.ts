@@ -44,7 +44,9 @@ export const useVitals = (): Vitals => {
             ? Array(vitalsLength.current)
                 .fill(null)
                 .map((_: null, index: number): number => {
-                  return average(statistics!.bpSystolicReadingsMonthly![index]);
+                  return average(
+                    statistics.bpSystolicReadingsMonthly?.[index] ?? []
+                  );
                 })
             : [],
         },
@@ -60,7 +62,7 @@ export const useVitals = (): Vitals => {
                 .fill(null)
                 .map((_: null, index: number): number => {
                   return average(
-                    statistics!.bpDiastolicReadingsMonthly![index]
+                    statistics.bpDiastolicReadingsMonthly?.[index] ?? []
                   );
                 })
             : [],
@@ -76,7 +78,9 @@ export const useVitals = (): Vitals => {
             ? Array(vitalsLength.current)
                 .fill(null)
                 .map((_: null, index: number): number => {
-                  return average(statistics!.heartRateReadingsMonthly![index]);
+                  return average(
+                    statistics.heartRateReadingsMonthly?.[index] ?? []
+                  );
                 })
             : [],
         },
