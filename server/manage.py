@@ -274,7 +274,8 @@ def getRandomInitials():
 
 def getRandomVillage():
     return random.choice(villageList)
-    
+
+
 def getRandomBpSystolic():
     return random.choice(bpSystolicList)
 

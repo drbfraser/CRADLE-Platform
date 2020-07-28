@@ -150,6 +150,7 @@ def test_pass_create_patient_with_dob_no_age():
     assert response_body["patientSex"] == patient_sex
     assert response_body["dob"] == BIRTHDATE
 
+
 # edit this dob test
 def test_pass_create_patient_reading_with_dob_no_age():
     patient_id = get_random_patient_id()

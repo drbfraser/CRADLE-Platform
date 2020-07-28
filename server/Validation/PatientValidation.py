@@ -157,7 +157,6 @@ def check_patient_fields(request_body):
 
     # values that must be of type int
 
-
     # # todo: repeated code -- pull this out as a funciton that all necessary functions can use
     # # making sure that values are of the correct type
     # for key in request_body:

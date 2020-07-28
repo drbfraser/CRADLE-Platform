@@ -65,7 +65,8 @@ def test_check_if_required_keys_present_with_all_keys():
     )
     assert valid is None
 
-# figure this out? 
+
+# figure this out?
 def test_check_if_required_keys_present_with_missing_keys():
     required_keys = {"patientName", "villageNumber", "patientSex", "dob"}
     invalid_code = PatientValidation.check_if_required_keys_present(

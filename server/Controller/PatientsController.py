@@ -49,8 +49,6 @@ def abort_if_patient_exists(patient_id):
         abort(400, message="Patient {} already exists.".format(patient_id))
 
 
-
-
 # URI: /api/patient [Get, Post]
 # [GET]: Get a list of patients
 # [POST]: Create a new patient
@@ -94,7 +92,6 @@ class PatientAll(Resource):
         invalid = PatientValidation.check_patient_fields(patient_data)
         if invalid is not None:
             return {"HTTP 400": invalid}, 400
-
 
         response_body = patientManager.create(patient_data)
         return response_body, 201
