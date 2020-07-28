@@ -28,6 +28,8 @@ export enum ActionTypeEnum {
   UPDATE_OTHER_SYMPTOMS,
   UPDATE_URINE_TEST,
   TOGGLE_URINE_TEST,
+  SHOW_VITALS,
+  SHOW_TRAFFIC_LIGHTS,
   RESET,
 }
 
@@ -113,6 +115,8 @@ export type Action =
       payload: UpdateUrineTestPayload;
     }
   | { type: ActionTypeEnum.TOGGLE_URINE_TEST }
+  | { type: ActionTypeEnum.SHOW_VITALS }
+  | { type: ActionTypeEnum.SHOW_TRAFFIC_LIGHTS }
   | { type: ActionTypeEnum.RESET };
 
 type State = {
@@ -195,6 +199,8 @@ type ActionCreatorSignature = {
   updateOtherSymptoms: (otherSymptoms: string) => Action;
   updateUrineTest: (payload: UpdateUrineTestPayload) => Action;
   toggleUrineTest: () => Action;
+  showVitals: () => Action;
+  showTrafficLights: () => Action;
   reset: () => Action;
 };
 
@@ -273,6 +279,12 @@ export const actionCreators: ActionCreatorSignature = {
   },
   toggleUrineTest: (): Action => {
     return { type: ActionTypeEnum.TOGGLE_URINE_TEST };
+  },
+  showVitals: (): Action => {
+    return { type: ActionTypeEnum.SHOW_VITALS };
+  },
+  showTrafficLights: (): Action => {
+    return { type: ActionTypeEnum.SHOW_TRAFFIC_LIGHTS };
   },
   reset: (): Action => {
     return { type: ActionTypeEnum.RESET };
@@ -434,6 +446,12 @@ export const reducer = (state: State = initialState, action: Action): State => {
     }
     case ActionTypeEnum.TOGGLE_URINE_TEST: {
       return { ...state, hasUrineTest: !state.hasUrineTest };
+    }
+    case ActionTypeEnum.SHOW_VITALS: {
+      return { ...state, showVitals: true, showTrafficLights: false };
+    }
+    case ActionTypeEnum.SHOW_TRAFFIC_LIGHTS: {
+      return { ...state, showTrafficLights: true, showVitals: false };
     }
     case ActionTypeEnum.RESET: {
       return initialState;

@@ -183,3 +183,16 @@ export type FollowUp = {
   healthcareWorkerId: string;
   dateAssessed: number;
 };
+
+export type PatientStatistics = {
+  bpSystolicReadingsMonthly?: Array<Array<number>>;
+  bpDiastolicReadingsMonthly?: Array<Array<number>>;
+  heartRateReadingsMonthly?: Array<Array<number>>;
+  trafficLightCountsFromDay1: {
+    green: Array<number>;
+    yellowUp: Array<number>;
+    yellowDown: Array<number>;
+    redUp: Array<number>;
+    redDown: Array<number>;
+  };
+};

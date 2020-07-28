@@ -4,15 +4,15 @@ import React from 'react';
 interface IArgs {
   startTimer: boolean;
   onTimeoutComplete: () => void;
-  onWithoutTimeout: () => void;
   timeInMs?: number;
+  onWithoutTimeout?: () => void;
 }
 
 export const useTimeout = ({
   startTimer,
   onTimeoutComplete,
-  onWithoutTimeout,
   timeInMs = 500,
+  onWithoutTimeout,
 }: IArgs) => {
   React.useEffect((): (() => void) => {
     let timeout: OrUndefined<NodeJS.Timeout>;
@@ -24,7 +24,7 @@ export const useTimeout = ({
         }
       }, timeInMs);
     } else {
-      onWithoutTimeout();
+      onWithoutTimeout?.();
     }
 
     return (): void => {

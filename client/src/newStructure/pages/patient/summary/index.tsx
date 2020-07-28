@@ -1,11 +1,10 @@
-import { Bar, Line } from 'react-chartjs-2';
 import { OrNull, Patient, Reading } from '@types';
 import { actionCreators, initialState, reducer } from './reducers';
 import {
   addPatientToHealthFacility,
   updateSelectedPatientState,
 } from '../../../shared/reducers/patients';
-import { average, getReferralIds, getTrafficIcon } from './utils';
+import { getReferralIds, getTrafficIcon } from './utils';
 import {
   initialUrineTests,
   urineTestChemicals,
@@ -28,6 +27,7 @@ import { ReadingModal } from './readingModal';
 import { ReduxState } from '../../../redux/rootReducer';
 import { ReferralInfo } from './referralInfo';
 import Typography from '@material-ui/core/Typography';
+import { VitalsOverTime } from './vitalsOverTime';
 import { getPatientStatistics } from '../../../shared/reducers/patientStatistics';
 import { getPrettyDateTime } from '../../../shared/utils';
 import { getReferrals } from '../../../shared/reducers/referrals';
@@ -39,20 +39,14 @@ interface IProps {
 
 type SelectorState = {
   referrals: OrNull<Record<string, any>>;
-  selectedPatientStatsList: any;
   selectedPatientState?: PatientStateEnum;
 };
 
 export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
-  const {
-    referrals,
-    selectedPatientStatsList,
-    selectedPatientState,
-  } = useSelector(
+  const { referrals, selectedPatientState } = useSelector(
     (state: ReduxState): SelectorState => {
       return {
         referrals: state.referrals.mappedReferrals,
-        selectedPatientStatsList: state.patientStatistics.data ?? {},
         selectedPatientState: state.patients.selectedPatientState,
       };
     }
@@ -149,120 +143,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
 
-  /*const showVitals = (): void => {
-    setState((currentState) => ({
-      ...currentState,
-      showVitals: true,
-      showTrafficLights: false,
-    }));
-  };*/
-
-  /*const showTrafficLights = (): void => {
-    setState((currentState) => ({
-      ...currentState,
-      showVitals: false,
-      showTrafficLights: true,
-    }));
-  };*/
-
   const readings = useReadings(selectedPatient);
-
-  let bpSystolicReadingsMontly = {};
-
-  if (selectedPatientStatsList.bpSystolicReadingsMontly) {
-    const bpSystolicReadingsData =
-      selectedPatientStatsList.bpSystolicReadingsMontly;
-    const averageSystolic = Array(12);
-    for (let j = 0; j < 12; j++) {
-      averageSystolic[j] = average(bpSystolicReadingsData[j]);
-    }
-
-    bpSystolicReadingsMontly = {
-      label: 'Systolic',
-      fill: false,
-      lineTension: 0.1,
-      backgroundColor: 'rgba(75,192,192,0.4)',
-      borderColor: 'rgba(75,192,192,1)',
-      pointRadius: 1,
-      data: averageSystolic,
-    };
-  }
-
-  let bpDiastolicReadingsMonthly = {};
-  if (selectedPatientStatsList.bpDiastolicReadingsMonthly) {
-    const bpDiastolicReadingsData =
-      selectedPatientStatsList.bpDiastolicReadingsMonthly;
-    const averageDiastolic = Array(12);
-    for (let l = 0; l < 12; l++) {
-      averageDiastolic[l] = average(bpDiastolicReadingsData[l]);
-    }
-
-    bpDiastolicReadingsMonthly = {
-      label: 'Diastolic',
-      fill: false,
-      lineTension: 0.1,
-      backgroundColor: 'rgba(148,0,211,0.4)',
-      borderColor: 'rgba(148,0,211,1)',
-      pointRadius: 1,
-      data: averageDiastolic,
-    };
-  }
-
-  let heartRateReadingsMonthly = {};
-  if (selectedPatientStatsList.heartRateReadingsMonthly) {
-    const heartRateData = selectedPatientStatsList.heartRateReadingsMonthly;
-    const averageHeartRate = Array(12);
-    for (let k = 0; k < 12; k++) {
-      averageHeartRate[k] = average(heartRateData[k]);
-    }
-
-    heartRateReadingsMonthly = {
-      label: 'Heart Rate',
-      fill: false,
-      lineTension: 0.1,
-      backgroundColor: 'rgba(255,127,80,0.4)',
-      borderColor: 'rgba(255,127,80,1)',
-      pointRadius: 1,
-      data: averageHeartRate,
-    };
-  }
-
-  const vitalsOverTime = {
-    labels: [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ],
-    datasets: [
-      bpSystolicReadingsMontly,
-      bpDiastolicReadingsMonthly,
-      heartRateReadingsMonthly,
-    ],
-  };
-
-  let trafficLight = {};
-  if (selectedPatientStatsList.trafficLightCountsFromDay1) {
-    trafficLight = {
-      labels: ['GREEN', 'YELLOW UP', 'YELLOW DOWN', 'RED UP', 'RED DOWN'],
-      datasets: [
-        {
-          backgroundColor: ['green', 'yellow', 'yellow', 'red', 'red'],
-          data: Object.values(
-            selectedPatientStatsList.trafficLightCountsFromDay1
-          ),
-        },
-      ],
-    };
-  }
 
   return (
     <div>
@@ -287,89 +168,11 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
             onAddPatientRequired={onAddPatientRequired}
             updateState={updateState}
           />
-          <Grid
-            item={true}
-            xs={6}
-            style={{
-              minWidth: '500px',
-              height: '100% !important',
-            }}>
-            <Paper
-              style={{
-                padding: '35px 25px 0px',
-                borderRadius: '15px',
-                height: '100%',
-              }}>
-              <Typography variant="h5" component="h3">
-                <Icon
-                  style={{
-                    lineHeight: '0.7em',
-                  }}
-                  name="heartbeat"
-                  size="large"
-                />
-                Vitals Over Time
-              </Typography>
-              <Divider />
-              {/* <Button.Group style={{ width: '100%' }}>
-                <Button active={state.showVitals} onClick={showVitals}>
-                  Show Vitals Over Time
-                </Button>
-                <Button
-                  active={state.showTrafficLights}
-                  onClick={showTrafficLights}>
-                  Show Traffic Lights
-                </Button>
-              </Button.Group> */}
-              <br />
-              <br />
-              {oldState.showVitals && (
-                <div>
-                  <h4
-                    style={{
-                      margin: '0',
-                    }}>
-                    Average Vitals Over Time:
-                  </h4>
-                  <Line data={vitalsOverTime} />
-                </div>
-              )}
-              {oldState.showTrafficLights && (
-                <div>
-                  <h4
-                    style={{
-                      margin: '0',
-                    }}>
-                    Traffic Lights From All Readings:
-                  </h4>
-                  <Bar
-                    data={trafficLight}
-                    options={{
-                      legend: {
-                        display: false,
-                      },
-                      scales: {
-                        xAxes: [
-                          {
-                            ticks: {
-                              fontSize: 10,
-                            },
-                          },
-                        ],
-                        yAxes: [
-                          {
-                            ticks: {
-                              beginAtZero: true,
-                            },
-                          },
-                        ],
-                      },
-                    }}
-                  />
-                </div>
-              )}
-            </Paper>
-          </Grid>
+          <VitalsOverTime
+            showingVitals={state.showVitals}
+            showingTrafficLights={state.showTrafficLights}
+            updateState={updateState}
+          />
         </Grid>
         <br />
         <Grid container={true} spacing={0}>

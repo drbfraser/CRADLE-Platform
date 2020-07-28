@@ -174,7 +174,7 @@ export const NavigationDrawer: React.FC<IProps> = ({
               className={styles.listItem}
               component={Link}
               button
-              key="new user"
+              key="signup"
               to="/signup"
               selected={activeItem === `Signup`}
               onClick={updateActiveItem(`Signup`)}>
@@ -192,7 +192,7 @@ export const NavigationDrawer: React.FC<IProps> = ({
               className={styles.listItem}
               component={Link}
               button
-              key="new user"
+              key="admin"
               to="/admin"
               selected={activeItem === `Admin`}
               onClick={updateActiveItem(`Admin`)}>

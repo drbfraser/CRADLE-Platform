@@ -423,7 +423,7 @@ const Component: React.FC<IProps> = (props) => {
                     className={classes.listItem}
                     component={Link}
                     button
-                    key="new user"
+                    key="signup"
                     to="/signup"
                     selected={activeItem === 'Signup'}
                     onClick={() => setActiveItem('Signup')}>
@@ -441,7 +441,7 @@ const Component: React.FC<IProps> = (props) => {
                     className={classes.listItem}
                     component={Link}
                     button
-                    key="new user"
+                    key="admin"
                     to="/admin"
                     selected={activeItem === 'Admin'}
                     onClick={() => setActiveItem('Admin')}>

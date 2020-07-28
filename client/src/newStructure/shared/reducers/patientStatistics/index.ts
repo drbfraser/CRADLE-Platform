@@ -1,8 +1,8 @@
+import { OrNull, PatientStatistics, ServerError } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
-import { OrNull } from '@types';
 
 enum PatientStatisticsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'patientStatistics/CLEAR_REQUEST_OUTCOME',
@@ -20,7 +20,7 @@ type PatientStatisticsAction =
     }
   | {
       type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS;
-      payload: { data: any };
+      payload: { data: PatientStatistics };
     };
 
 const getPatientStatsiticsRequested = (): PatientStatisticsAction => ({
@@ -36,13 +36,17 @@ export const getPatientStatistics = (
     return dispatch(
       serverRequestActionCreator({
         endpoint: `${Endpoints.PATIENT}${Endpoints.STATS}/${patientId}`,
-        onSuccess: ({ data }: any): PatientStatisticsAction => ({
+        onSuccess: ({
+          data,
+        }: {
+          data: PatientStatistics;
+        }): PatientStatisticsAction => ({
           type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS,
           payload: { data },
         }),
-        onError: (message: string): PatientStatisticsAction => ({
+        onError: (error: ServerError): PatientStatisticsAction => ({
           type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR,
-          payload: { message },
+          payload: { message: error.message },
         }),
       })
     );
@@ -54,7 +58,7 @@ export const clearPatientStatisticsRequestOutcome = (): PatientStatisticsAction 
 });
 
 export type PatientStatisticsState = {
-  data: OrNull<any>;
+  data: OrNull<PatientStatistics>;
   error: boolean;
   loading: boolean;
   message: OrNull<string>;
@@ -72,29 +76,30 @@ export const patientStatisticsReducer = (
   action: PatientStatisticsAction
 ): PatientStatisticsState => {
   switch (action.type) {
-    case PatientStatisticsActionEnum.CLEAR_REQUEST_OUTCOME:
+    case PatientStatisticsActionEnum.CLEAR_REQUEST_OUTCOME: {
       return { ...initialState, data: state.data };
-
-    case PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS:
-      return {
-        ...initialState,
-        data: action.payload.data,
-      };
-
-    case PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_REQUESTED:
+    }
+    case PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_REQUESTED: {
       return {
         ...initialState,
         loading: true,
       };
-
-    case PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR:
+    }
+    case PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS: {
+      return {
+        ...initialState,
+        data: action.payload.data,
+      };
+    }
+    case PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR: {
       return {
         ...initialState,
         error: true,
         message: action.payload.message,
       };
-
-    default:
+    }
+    default: {
       return state;
+    }
   }
 };
