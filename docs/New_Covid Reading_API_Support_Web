@@ -137,7 +137,7 @@ Same as making a reading, except followup is nested inside it
 
 # Check if patient exists 
 
-localhost:5000/api/patients/<string:patient_id>
+localhost:5000/api/patients/<string:patient_id>/info
 E.g localhost:5000/api/patients/123456
 
 - Feel free to let me know if you prefer an api that just returns a boolean and/or basic info or something instead of all patient information
