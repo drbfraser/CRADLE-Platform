@@ -139,7 +139,6 @@ const formatSymptoms = (symptoms: any) => {
 };
 
 export const formatReadingData = (
-  patient: any,
   patientId: any,
   symptoms: any,
   urineTest: any,
@@ -177,7 +176,6 @@ export const formatReadingData = (
 };
 
 export const formatReadingDataVHT = (
-  patient: any,
   patientId: any,
   symptoms: any,
   urineTest: any,

@@ -225,6 +225,7 @@ export const patientsReducer = (state = initialState, action: any) => {
     case DOES_PATIENT_EXIST:
       return {
         ...state,
+        patient: action.payload.data,
         patientExist: true,
       };
     case DOES_PATIENT_EXIST_ERROR: {

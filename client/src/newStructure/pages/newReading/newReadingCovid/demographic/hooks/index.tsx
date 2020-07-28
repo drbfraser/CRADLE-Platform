@@ -96,49 +96,49 @@ export const useNewPatient = () => {
     return currentDate.getTime() / 1000;
   };
 
-  const getGestValueFromUNIX = (timestamp: any) => {
-    if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS) {
-      const todaysDate = new Date();
-      const gestDate = new Date(timestamp * 1000);
-      const subtracted = +todaysDate - +gestDate;
-      return Math.round(subtracted / (7 * 24 * 60 * 60 * 1000)).toString();
-    }
-    if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS) {
-      const todaysDate = new Date();
-      const gestDate = new Date(timestamp * 1000);
+  // const getGestValueFromUNIX = (timestamp: any) => {
+  //   if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS) {
+  //     const todaysDate = new Date();
+  //     const gestDate = new Date(timestamp * 1000);
+  //     const subtracted = +todaysDate - +gestDate;
+  //     return Math.round(subtracted / (7 * 24 * 60 * 60 * 1000)).toString();
+  //   }
+  //   if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS) {
+  //     const todaysDate = new Date();
+  //     const gestDate = new Date(timestamp * 1000);
+  //
+  //     const numOfMonths =
+  //       todaysDate.getMonth() -
+  //       gestDate.getMonth() +
+  //       12 * (todaysDate.getFullYear() - gestDate.getFullYear());
+  //
+  //     return numOfMonths.toString();
+  //   }
+  //   return '';
+  // };
 
-      const numOfMonths =
-        todaysDate.getMonth() -
-        gestDate.getMonth() +
-        12 * (todaysDate.getFullYear() - gestDate.getFullYear());
-
-      return numOfMonths.toString();
-    }
-    return '';
-  };
-
-  const handleExistingPatient = (value: any) => {
-    setPatient({
-      ...patient,
-      patientInitial: value.patientName,
-      patientId: value.patientId,
-      villageNumber: value.villageNumber ? value.villageNumber : '',
-      household: value.householdNumber ? value.householdNumber : '',
-      medicalHistory: value.medicalHistory ? value.medicalHistory : '',
-      patientAge: value.patientAge ? value.patientAge : '',
-      gestationalAgeUnit: value.gestationalAgeUnit
-        ? value.gestationalAgeUnit
-        : GESTATIONAL_AGE_UNITS.WEEKS,
-      drugHistory: value.drugHistory ? value.drugHistory : '',
-      patientSex: value.patientSex ? value.patientSex : '',
-      zone: value.medicalHistory ? value.zone : '',
-      dob: value.dob ? value.dob : '2004-01-01',
-      isPregnant: value.isPregnant ? value.isPregnant : false,
-      gestationalAgeValue: value.gestationalTimestamp
-        ? getGestValueFromUNIX(value.gestationalTimestamp)
-        : '',
-    });
-  };
+  // const handleExistingPatient = (value: any) => {
+  //   setPatient({
+  //     ...patient,
+  //     patientInitial: value.patientName,
+  //     patientId: value.patientId,
+  //     villageNumber: value.villageNumber ? value.villageNumber : '',
+  //     household: value.householdNumber ? value.householdNumber : '',
+  //     medicalHistory: value.medicalHistory ? value.medicalHistory : '',
+  //     patientAge: value.patientAge ? value.patientAge : '',
+  //     gestationalAgeUnit: value.gestationalAgeUnit
+  //       ? value.gestationalAgeUnit
+  //       : GESTATIONAL_AGE_UNITS.WEEKS,
+  //     drugHistory: value.drugHistory ? value.drugHistory : '',
+  //     patientSex: value.patientSex ? value.patientSex : '',
+  //     zone: value.medicalHistory ? value.zone : '',
+  //     dob: value.dob ? value.dob : '2004-01-01',
+  //     isPregnant: value.isPregnant ? value.isPregnant : false,
+  //     gestationalAgeValue: value.gestationalTimestamp
+  //       ? getGestValueFromUNIX(value.gestationalTimestamp)
+  //       : '',
+  //   });
+  // };
 
   const handleChangePatient = (e: any) => {
     const errors: any = validateInput(e.target.name, e.target.value);
@@ -258,7 +258,6 @@ export const useNewPatient = () => {
   return {
     patient,
     handleChangePatient,
-    handleExistingPatient,
     resetValuesPatient,
   };
 };

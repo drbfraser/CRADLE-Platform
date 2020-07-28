@@ -93,24 +93,13 @@ interface IProps {
   addReadingAssessment: any;
   readingCreated: any;
   resetNewReadingStatus: any;
-}
-
-function isEmpty(obj: any) {
-  for (const key in obj) {
-    if (obj[key]) return false;
-  }
-  return true;
+  patientFromEdit: any;
 }
 
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
-  const {
-    patient,
-    handleChangePatient,
-    handleExistingPatient,
-    resetValuesPatient,
-  } = useNewPatient();
+  const { patient, handleChangePatient, resetValuesPatient } = useNewPatient();
   const [existingPatient, setExistingPatient] = useState(true);
   const {
     symptoms,
@@ -129,6 +118,8 @@ const Page: React.FC<IProps> = (props) => {
     resetValueUrineTest,
   } = useNewUrineTest();
   const [isShowDialog, setIsShowDialog] = useState(false);
+  const [blockBackButton, setblockBackButton] = useState(false);
+  const [selectedPatientId, setSelectedPatientId] = useState('');
   const [isShowDialogSubmission, setIsShowDialogsubmission] = useState(false);
   const steps = getSteps(props.user.roles[0]);
 
@@ -141,18 +132,25 @@ const Page: React.FC<IProps> = (props) => {
       props.afterNewPatientAdded();
       setIsShowDialogsubmission(true);
     }
-    if (!isEmpty(props.patient) && existingPatient) {
-      handleExistingPatient(props.patient);
-
-      // need to add other fields
+    if (props.newPatientExist && existingPatient) {
+      // props.getPatient(patient.patientId);
+      setSelectedPatientId(props.patient.patientId);
       setExistingPatient(false);
+      setIsShowDialog(true);
     }
   });
 
+  useEffect(() => {
+    if (props.patientFromEdit) {
+      setblockBackButton(true);
+      setSelectedPatientId(props.patientFromEdit.patientId);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+  }, [props.patientFromEdit]);
   const handleNext = () => {
     if (activeStep === 0) {
+      setExistingPatient(true);
       props.doesPatientExist(patient.patientId);
-      setIsShowDialog(true);
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
@@ -160,8 +158,7 @@ const Page: React.FC<IProps> = (props) => {
   const addReading = () => {
     if (props.user.roles[0] === 'VHT') {
       const formattedReading = formatReadingDataVHT(
-        patient,
-        patient.patientId,
+        selectedPatientId,
         symptoms,
         urineTest,
         vitals,
@@ -170,8 +167,7 @@ const Page: React.FC<IProps> = (props) => {
       props.addReadingNew(formattedReading);
     } else {
       const formattedReading = formatReadingData(
-        patient,
-        patient.patientId,
+        selectedPatientId,
         symptoms,
         urineTest,
         vitals,
@@ -202,8 +198,7 @@ const Page: React.FC<IProps> = (props) => {
     if (value === 'yes') {
       //get the patient info and fill it out and make it none editable
       setIsShowDialog(false);
-      props.getPatient(patient.patientId);
-      setExistingPatient(true);
+      setblockBackButton(true);
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
     if (value === 'ok') {
@@ -298,7 +293,7 @@ const Page: React.FC<IProps> = (props) => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === 0 ? (
+      {activeStep === 0 && props.patientFromEdit === null ? (
         <Demographics
           patient={patient}
           onChange={handleChangePatient}></Demographics>
@@ -351,7 +346,7 @@ const Page: React.FC<IProps> = (props) => {
           <div>
             <div>
               <Button
-                disabled={activeStep === 0}
+                disabled={activeStep === 0 || blockBackButton}
                 onClick={handleBack}
                 className={classes.backButton}>
                 Back
@@ -389,7 +384,7 @@ const Page: React.FC<IProps> = (props) => {
               <AlertDialog
                 open={isShowDialog}
                 patientExist={props.newPatientExist}
-                patientId={patient.patientId}
+                patient={props.patient}
                 handleDialogClose={handleDialogClose}></AlertDialog>
               <SubmissionDialog
                 open={isShowDialogSubmission}
@@ -403,7 +398,12 @@ const Page: React.FC<IProps> = (props) => {
     </div>
   );
 };
-const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
+const mapStateToProps = ({
+  user,
+  newReadingStatus,
+  patients,
+  router,
+}: any) => ({
   user: user.current.data,
   createReadingStatusError: newReadingStatus.error,
   readingCreated: newReadingStatus.readingCreated,
@@ -411,6 +411,7 @@ const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
   newPatientAdded: patients.newPatientAdded,
   newPatientExist: patients.patientExist,
   patient: patients.patient,
+  patientFromEdit: router.location.state ? router.location.state.patient : null,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

@@ -11,7 +11,7 @@ interface IProps {
   open: boolean;
   handleDialogClose: any;
   patientExist: boolean;
-  patientId: any;
+  patient: any;
 }
 
 export default function AlertDialog(props: IProps) {
@@ -30,8 +30,32 @@ export default function AlertDialog(props: IProps) {
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {props.patientExist
-              ? 'Would you like to use the patient with ID: ' + props.patientId
+              ? 'Would you like to use the patient with '
               : 'Click OK! to make reading'}
+            {props.patientExist ? (
+              <div>
+                {'ID: '}
+                {props.patient.patientId}{' '}
+              </div>
+            ) : (
+              ''
+            )}
+            {props.patientExist ? (
+              <div>
+                {'Initials: '}
+                {props.patient.patientName}{' '}
+              </div>
+            ) : (
+              ''
+            )}
+            {props.patientExist ? (
+              <div>
+                {'Patient Sex: '}
+                {props.patient.patientSex}
+              </div>
+            ) : (
+              ''
+            )}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
