@@ -10,9 +10,12 @@ interface IArgs {
 export const useLocalization = ({
   globalSearch,
   loading,
-  globalSearchMessage
+  globalSearchMessage,
 }: IArgs): MUIDataTableTextLabels => {
-  const [message, setMessage] = React.useState(`Search for a patient above by either Patient ID or Initials. If
+  const [
+    message,
+    setMessage,
+  ] = React.useState(`Search for a patient above by either Patient ID or Initials. If
   nothing matches your search criteria this page will remain blank`);
 
   React.useEffect((): void => {
@@ -20,8 +23,6 @@ export const useLocalization = ({
       setMessage(`No records to display`);
     }
   }, [globalSearchMessage]);
-
-
 
   const noMatchText = React.useMemo<string>((): string => {
     if (loading) {
