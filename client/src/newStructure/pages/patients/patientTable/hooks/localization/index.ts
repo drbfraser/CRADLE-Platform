@@ -4,22 +4,21 @@ import React from 'react';
 interface IArgs {
   globalSearch: boolean;
   loading: boolean;
+  globalSearchMessage: string;
 }
 
 export const useLocalization = ({
   globalSearch,
   loading,
+  globalSearchMessage,
 }: IArgs): MUIDataTableTextLabels => {
   const noMatchText = React.useMemo<string>((): string => {
     if (loading) {
       return `Fetching patient data...`;
     }
 
-    return globalSearch
-      ? `Search for a patient above by either Patient ID or Initials. If
-            nothing matches your search criteria this page will remain blank`
-      : `No records to display`;
-  }, [globalSearch, loading]);
+    return globalSearch ? `${globalSearchMessage}` : `No records to display`;
+  }, [globalSearch, loading, globalSearchMessage]);
 
   return React.useMemo((): MUIDataTableTextLabels => {
     return {
