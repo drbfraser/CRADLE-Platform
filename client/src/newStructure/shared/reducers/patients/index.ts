@@ -427,10 +427,16 @@ const addPatientToHealthFacilityRequested = (
   payload: { patientId },
 });
 
+export const clearAddPatientToHealthFacilityError = (): PatientsAction => ({
+  type: PatientsActionEnum.CLEAR_ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
+});
+
 export const addPatientToHealthFacility = (
   patientId: string
 ): Callback<Dispatch, ServerRequestAction> => {
   return (dispatch: Dispatch): ServerRequestAction => {
+    dispatch(clearAddPatientToHealthFacilityError());
+
     dispatch(addPatientToHealthFacilityRequested(patientId));
 
     return dispatch(
@@ -450,10 +456,6 @@ export const addPatientToHealthFacility = (
     );
   };
 };
-
-export const clearAddPatientToHealthFacilityError = (): PatientsAction => ({
-  type: PatientsActionEnum.CLEAR_ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
-});
 
 export const resetAddedFromGlobalSearch = (): PatientsAction => ({
   type: PatientsActionEnum.RESET_ADDED_FROM_GLOBAL_SEARCH,
