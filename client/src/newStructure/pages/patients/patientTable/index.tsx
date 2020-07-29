@@ -58,7 +58,7 @@ export const PatientTable: React.FC<IProps> = (props) => {
     patients,
     sortData,
   });
-  let noResultsMessage: string = `Search for a patient above by either Patient ID or Initials. If
+  let noResultsMessage = `Search for a patient above by either Patient ID or Initials. If
   nothing matches your search criteria this page will remain blank`;
 
   if (props.patientsTableSearchText != undefined) {
