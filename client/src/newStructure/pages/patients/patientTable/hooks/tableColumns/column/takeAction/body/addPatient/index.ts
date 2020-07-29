@@ -17,7 +17,10 @@ export const useAddPatient = (): IUseAddPatient => {
     boolean
   >(false);
 
-  const hidePrompt = (): void => setShowAddPatientPrompt(false);
+  const hidePrompt = React.useCallback(
+    (): void => setShowAddPatientPrompt(false),
+    [setShowAddPatientPrompt]
+  );
 
   const showPrompt = (): void => setShowAddPatientPrompt(true);
 
