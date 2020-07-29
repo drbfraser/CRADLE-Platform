@@ -1,4 +1,4 @@
-import { NewAssessment, OrNull, Referral } from '@types';
+import { FollowUp, NewAssessment, OrNull, Referral } from '@types';
 
 import { Action } from '../../reducers';
 import { Assessment } from './assessment';
@@ -9,8 +9,9 @@ import Typography from '@material-ui/core/Typography';
 import { useStyles } from './styles';
 
 interface IProps {
-  assessment: NewAssessment;
   displayAssessmentModal: boolean;
+  followUp: OrNull<FollowUp>;
+  newAssessment: NewAssessment;
   patientId: string;
   readingId: string;
   referral: OrNull<Referral>;
@@ -22,8 +23,9 @@ interface IProps {
 }
 
 export const ReferralInfo: React.FC<IProps> = ({
-  assessment,
   displayAssessmentModal,
+  followUp,
+  newAssessment,
   patientId,
   readingId,
   referral,
@@ -35,11 +37,11 @@ export const ReferralInfo: React.FC<IProps> = ({
   return referral ? (
     <div className={classes.container}>
       <Header
-        assessed={Boolean(referral.followUp)}
+        assessed={Boolean(followUp)}
         dateReferred={referral.dateReferred}
         healthFacilityName={referral.referralHealthFacilityName}
       />
-      {!referral.followUp && (
+      {!followUp && (
         <div className={classes.comment}>
           <Typography>
             <b>Comment:</b>
@@ -47,9 +49,9 @@ export const ReferralInfo: React.FC<IProps> = ({
           <Typography variant="subtitle1">{referral.comment}</Typography>
         </div>
       )}
-      <Assessment assessment={referral.followUp} />
+      <Assessment followUp={followUp} />
       <FollowUpModal
-        assessment={assessment}
+        assessment={newAssessment}
         displayAssessmentModal={displayAssessmentModal}
         patientId={patientId}
         readingId={readingId}

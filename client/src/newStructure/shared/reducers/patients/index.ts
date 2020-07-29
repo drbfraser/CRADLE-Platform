@@ -1,7 +1,7 @@
 import {
-  Assessment,
   Callback,
   EditedPatient,
+  FollowUp,
   GlobalSearchPatient,
   NewAssessment,
   OrNull,
@@ -187,14 +187,14 @@ type PatientsAction =
   | { type: PatientsActionEnum.CREATE_ASSESSMENT_REQUESTED }
   | {
       type: PatientsActionEnum.CREATE_ASSESSMENT_SUCCESS;
-      payload: { readingId: string; followUp: Assessment };
+      payload: { readingId: string; followup: FollowUp };
     }
   | { type: PatientsActionEnum.CREATE_ASSESSMENT_ERROR; payload: ErrorPayload }
   | { type: PatientsActionEnum.CLEAR_CREATE_ASSESSMENT_REQUEST_OUTCOME }
   | { type: PatientsActionEnum.UPDATE_ASSESSMENT_REQUESTED }
   | {
       type: PatientsActionEnum.UPDATE_ASSESSMENT_SUCCESS;
-      payload: { readingId: string; followUp: Assessment };
+      payload: { readingId: string; followup: FollowUp };
     }
   | { type: PatientsActionEnum.UPDATE_ASSESSMENT_ERROR; payload: ErrorPayload }
   | { type: PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME };
@@ -511,7 +511,7 @@ export const createAssessment = ({
           type: PatientsActionEnum.CREATE_ASSESSMENT_SUCCESS,
           payload: {
             readingId,
-            followUp: {
+            followup: {
               ...data,
               dateAssessed: Date.now() / 1000,
               healthcareWorkerId: userId.toString(),
@@ -558,7 +558,7 @@ export const updateAssessment = ({
           type: PatientsActionEnum.UPDATE_ASSESSMENT_SUCCESS,
           payload: {
             readingId,
-            followUp: {
+            followup: {
               ...data,
               dateAssessed: Date.now() / 1000,
               healthcareWorkerId: userId.toString(),
@@ -703,16 +703,10 @@ export const patientsReducer = (
                 state.patient?.readings.map(
                   (reading: Reading): Reading => {
                     if (reading.readingId === action.payload.readingId) {
-                      if (reading.referral) {
-                        return {
-                          ...reading,
-                          referral: {
-                            ...reading.referral,
-                            isAssessed: true,
-                            followUp: action.payload.followUp,
-                          },
-                        };
-                      }
+                      return {
+                        ...reading,
+                        followup: action.payload.followup,
+                      };
                     }
 
                     return reading;

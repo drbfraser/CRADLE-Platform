@@ -1,57 +1,57 @@
-import { Assessment as AssessmentType, OrNull } from '@types';
 import { Divider, Header, Segment } from 'semantic-ui-react';
+import { FollowUp, OrNull } from '@types';
 
 import React from 'react';
 import { getPrettyDateTime } from '../../../../../../shared/utils';
 
 interface IProps {
-  assessment: OrNull<AssessmentType>;
+  followUp: OrNull<FollowUp>;
 }
 
-export const Assessment: React.FC<IProps> = ({ assessment }) => {
-  return assessment ? (
+export const Assessment: React.FC<IProps> = ({ followUp }) => {
+  return followUp ? (
     <Segment>
-      {assessment.specialInvestigations && (
+      {followUp.specialInvestigations && (
         <>
           <Header size="small">Special Investigations + Results:</Header>
-          <p>{assessment.specialInvestigations}</p>
+          <p>{followUp.specialInvestigations}</p>
           <Divider />
         </>
       )}
-      {assessment.diagnosis && (
+      {followUp.diagnosis && (
         <>
           <Header size="small">Final Diagnosis:</Header>
-          <p>{assessment.diagnosis}</p>
+          <p>{followUp.diagnosis}</p>
           <Divider />
         </>
       )}
-      {assessment.treatment && (
+      {followUp.treatment && (
         <>
           <Header size="small">Treatment/Operation:</Header>
-          <p>{assessment.treatment}</p>
+          <p>{followUp.treatment}</p>
           <Divider />
         </>
       )}
-      {assessment.medicationPrescribed && (
+      {followUp.medicationPrescribed && (
         <>
           <Header size="small">Medication Prescribed:</Header>
-          <p>{assessment.medicationPrescribed || 'N/A'}</p>
+          <p>{followUp.medicationPrescribed || 'N/A'}</p>
           <Divider />
         </>
       )}
-      {assessment.followupInstructions && (
+      {followUp.followupInstructions && (
         <>
           <Header size="small">Followup Instructions:</Header>
-          <p>{assessment.followupInstructions}</p>
+          <p>{followUp.followupInstructions}</p>
           <Divider />
         </>
       )}
       <p>
         <b>Assessed By: </b>
-        {`Healthcare Worker ${assessment.healthcareWorkerId}` ?? `N/A`}
+        {`Healthcare Worker ${followUp.healthcareWorkerId}` ?? `N/A`}
       </p>
       <p>
-        <b>Date Last Assessed:</b> {getPrettyDateTime(assessment.dateAssessed)}
+        <b>Date Last Assessed:</b> {getPrettyDateTime(followUp.dateAssessed)}
       </p>
     </Segment>
   ) : null;
