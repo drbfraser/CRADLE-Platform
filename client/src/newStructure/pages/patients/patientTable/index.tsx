@@ -58,16 +58,11 @@ export const PatientTable: React.FC<IProps> = (props) => {
     patients,
     sortData,
   });
-  let noResultsMessage = `Search for a patient above by either Patient ID or Initials. If
-  nothing matches your search criteria this page will remain blank`;
 
-  if (props.patientsTableSearchText != undefined) {
-    noResultsMessage = 'No records to display';
-  }
   const localization = useLocalization({
     globalSearch: props.globalSearch,
     loading: props.isLoading,
-    globalSearchMessage: noResultsMessage,
+    globalSearchMessage: props.patientsTableSearchText,
   });
 
   const onChangePage = useUpdatePageNumber({
