@@ -84,9 +84,12 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
   React.useEffect((): void => {
     if (addedFromGlobalSearch) {
       hidePrompt();
-      action?.();
-      setAction(null);
-      dispatch(resetAddedFromGlobalSearch());
+      // * Delay performing the action for better UI experience
+      setTimeout(() => {
+        action?.();
+        setAction(null);
+        dispatch(resetAddedFromGlobalSearch());
+      }, 500);
     }
   }, [action, addedFromGlobalSearch, dispatch, hidePrompt]);
 
