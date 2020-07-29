@@ -1,4 +1,4 @@
-import { OrNull, Patient, Reading } from '@types';
+import { OrUndefined, Patient } from '@types';
 import { actionCreators, initialState, reducer } from './reducers';
 import {
   addPatientToHealthFacility,
@@ -17,27 +17,15 @@ import React from 'react';
 import { ReadingModal } from './readingModal';
 import { ReduxState } from '../../../redux/rootReducer';
 import { VitalsOverTime } from './vitalsOverTime';
-import { getPatientStatistics } from '../../../shared/reducers/patientStatistics';
-import { getReferralIds } from './utils';
-import { getReferrals } from '../../../shared/reducers/referrals';
-import { initialUrineTests } from '../../../shared/components/form/urineTest';
 
 interface IProps {
   selectedPatient: Patient;
 }
 
-type SelectorState = {
-  referrals: OrNull<Record<string, any>>;
-  selectedPatientState?: PatientStateEnum;
-};
-
 export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
-  const { referrals, selectedPatientState } = useSelector(
-    (state: ReduxState): SelectorState => {
-      return {
-        referrals: state.referrals.mappedReferrals,
-        selectedPatientState: state.patients.selectedPatientState,
-      };
+  const selectedPatientState = useSelector(
+    (state: ReduxState): OrUndefined<PatientStateEnum> => {
+      return state.patients.selectedPatientState;
     }
   );
 
@@ -48,54 +36,10 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
       return;
     },
     promptMessage: ``,
-    displayPatientModal: false,
-    showVitals: true,
     showPrompt: false,
-    showTrafficLights: false,
-    displayReadingModal: false,
-    newReading: {
-      userId: '',
-      readingId: '',
-      dateTimeTaken: '',
-      bpSystolic: '',
-      bpDiastolic: '',
-      heartRateBPM: '',
-      dateRecheckVitalsNeeded: '',
-      isFlaggedForFollowup: false,
-      symptoms: '',
-      urineTests: initialUrineTests,
-    },
-    checkedItems: {
-      none: true,
-      headache: false,
-      bleeding: false,
-      blurredVision: false,
-      feverish: false,
-      abdominalPain: false,
-      unwell: false,
-      other: false,
-      otherSymptoms: '',
-    },
-    showSuccessReading: false,
-    selectedPatientCopy: {
-      readings: [] as Array<Reading>,
-    },
-    hasUrineTest: false,
   });
 
   const dispatch = useDispatch();
-
-  React.useEffect((): void => {
-    if (!referrals && selectedPatient) {
-      dispatch(getReferrals(getReferralIds(selectedPatient)));
-    }
-  }, [dispatch, referrals, selectedPatient]);
-
-  React.useEffect((): void => {
-    if (selectedPatient.patientId) {
-      dispatch(getPatientStatistics(selectedPatient.patientId));
-    }
-  }, [dispatch, selectedPatient]);
 
   // * Handles closing the prompt
   const hidePrompt = (): void => {
@@ -156,12 +100,19 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
             updateState={updateState}
           />
           <VitalsOverTime
+            patientId={selectedPatient.patientId}
             showingVitals={state.showVitals}
             showingTrafficLights={state.showTrafficLights}
             updateState={updateState}
           />
         </Grid>
-        <PatientReadings selectedPatient={selectedPatient} />
+        <PatientReadings
+          assessment={state.assessment}
+          displayAssessmentModal={state.displayAssessmentModal}
+          selectedPatient={selectedPatient}
+          onAddPatientRequired={onAddPatientRequired}
+          updateState={updateState}
+        />
         <ReadingModal
           displayReadingModal={state.displayReadingModal}
           hasUrineTest={state.hasUrineTest}

@@ -1,31 +1,40 @@
-import { FollowUp, OrNull } from '@types';
+import { NewAssessment, OrNull, Referral } from '@types';
 
-import { FollowUpInfo } from './followup/info';
-import { FollowUpModal } from './followup/modal';
+import { Action } from '../../reducers';
+import { Assessment } from './assessment';
+import { FollowUpModal } from './followupModal';
 import { Header } from './header';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { useStyles } from './styles';
 
 interface IProps {
+  assessment: NewAssessment;
+  displayAssessmentModal: boolean;
   readingId: string;
-  referral: OrNull<{
-    id: string;
-    dateReferred: number;
-    comment: string;
-    followUp: OrNull<FollowUp>;
-    referralHealthFacilityName: string;
-  }>;
+  referral: OrNull<Referral>;
+  onAddPatientRequired: (
+    actionAfterAdding: () => void,
+    message: string
+  ) => void;
+  updateState: React.Dispatch<Action>;
 }
 
-export const ReferralInfo: React.FC<IProps> = ({ readingId, referral }) => {
+export const ReferralInfo: React.FC<IProps> = ({
+  assessment,
+  displayAssessmentModal,
+  readingId,
+  referral,
+  onAddPatientRequired,
+  updateState,
+}) => {
   const classes = useStyles();
 
   return referral ? (
     <div className={classes.container}>
       <Header
+        assessed={Boolean(referral.followUp)}
         dateReferred={referral.dateReferred}
-        followup={referral.followUp}
         healthFacilityName={referral.referralHealthFacilityName}
       />
       {!referral.followUp && (
@@ -36,11 +45,14 @@ export const ReferralInfo: React.FC<IProps> = ({ readingId, referral }) => {
           <Typography variant="subtitle1">{referral.comment}</Typography>
         </div>
       )}
-      <FollowUpInfo followUp={referral.followUp} />
+      <Assessment assessment={referral.followUp} />
       <FollowUpModal
+        assessment={assessment}
+        displayAssessmentModal={displayAssessmentModal}
         readingId={readingId}
-        referralId={referral.id}
-        initialValues={referral.followUp}
+        referral={referral}
+        onAddPatientRequired={onAddPatientRequired}
+        updateState={updateState}
       />
     </div>
   ) : (

@@ -10,17 +10,6 @@ export const average = (monthlyArray: Array<number>): number => {
   );
 };
 
-export const getReferralIds = (patient: OrNull<Patient>): Array<string> => {
-  return (
-    patient?.readings?.reduce(
-      (referralIds: Array<string>, { referral }: Reading): Array<string> => {
-        return referral === null ? referralIds : [...referralIds, referral];
-      },
-      []
-    ) ?? []
-  );
-};
-
 export const getLatestReading = (readings: Array<Reading>): Reading => {
   const sortedReadings = readings.sort(
     (a, b) =>

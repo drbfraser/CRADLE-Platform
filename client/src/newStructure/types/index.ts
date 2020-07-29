@@ -33,7 +33,7 @@ export type Reading = {
   patient: string;
   patientId: string;
   readingId: string;
-  referral: OrNull<string>;
+  referral: OrNull<number>;
   retestOfPreviousReadingIds: OrNull<string>;
   symptoms: Array<string>;
   temporaryFlags: OrNull<number>;
@@ -171,19 +171,6 @@ export type PatientNewReadingReading = {
   urineTests: UrineTests;
 };
 
-export type FollowUp = {
-  followupFrequencyValue: OrNull<string>;
-  followupFrequencyUnit: OrNull<{ key: string; text: string; value: string }>;
-  dateFollowupNeededTill: string;
-  specialInvestigations: string;
-  diagnosis: string;
-  treatment: string;
-  medicationPrescribed: string;
-  followupInstructions: string;
-  healthcareWorkerId: string;
-  dateAssessed: number;
-};
-
 export type PatientStatistics = {
   bpSystolicReadingsMonthly?: Array<Array<number>>;
   bpDiastolicReadingsMonthly?: Array<Array<number>>;
@@ -195,4 +182,35 @@ export type PatientStatistics = {
     redUp: Array<number>;
     redDown: Array<number>;
   };
+};
+
+export type Referral = {
+  id: string;
+  actionTaken: OrNull<string>;
+  comment: string;
+  dateReferred: number;
+  followUp: OrNull<any>;
+  healthFacility: string;
+  isAssessed: boolean;
+  patient: string;
+  patientId: string;
+  reading: string;
+  readingId: string;
+  referralHealthFacilityName: string;
+  userId: OrNull<number>;
+  users: null;
+};
+
+export type NewAssessment = {
+  diagnosis: string;
+  treatment: string;
+  specialInvestigations: string;
+  medicationPrescribed: string;
+  followupNeeded: boolean;
+  followupInstructions: OrNull<string>;
+};
+
+export type Assessment = NewAssessment & {
+  dateAssessed: number;
+  healthcareWorkerId: string;
 };

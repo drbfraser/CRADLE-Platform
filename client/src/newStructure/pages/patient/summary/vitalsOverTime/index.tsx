@@ -8,22 +8,32 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
+import { getPatientStatistics } from '../../../../shared/reducers/patientStatistics';
+import { useDispatch } from 'react-redux';
 import { useStyles } from './styles';
 import { useTrafficLights } from './hooks/trafficLights';
 import { useVitals } from './hooks/vitals';
 
 interface IProps {
+  patientId: string;
   showingVitals: boolean;
   showingTrafficLights: boolean;
   updateState: React.Dispatch<Action>;
 }
 
 export const VitalsOverTime: React.FC<IProps> = ({
+  patientId,
   showingVitals,
   showingTrafficLights,
   updateState,
 }) => {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
+
+  React.useEffect((): void => {
+    dispatch(getPatientStatistics(patientId));
+  }, [dispatch, patientId]);
 
   const showVitals = (): void => {
     updateState(actionCreators.showVitals());

@@ -1,4 +1,11 @@
-import { EditedPatient, NewReading, OrNull, Patient, UrineTests } from '@types';
+import {
+  EditedPatient,
+  NewAssessment,
+  NewReading,
+  OrNull,
+  Patient,
+  UrineTests,
+} from '@types';
 import {
   GestationalAgeUnitEnum,
   SexEnum,
@@ -17,6 +24,8 @@ export enum ActionTypeEnum {
   OPEN_READING_MODAL,
   CLOSE_PATIENT_MODAL,
   OPEN_PATIENT_MODAL,
+  CLOSE_ASSESSMENT_MODAL,
+  OPEN_ASSESSMENT_MODAL,
   INITIALIZE_EDITED_PATIENT,
   EDIT_PATIENT_SEX,
   EDIT_OTHER_PATIENT_FIELD,
@@ -30,6 +39,8 @@ export enum ActionTypeEnum {
   TOGGLE_URINE_TEST,
   SHOW_VITALS,
   SHOW_TRAFFIC_LIGHTS,
+  TOGGLE_FOLLOW_UP_NEEDED,
+  UPDATE_ASSESSMENT,
   RESET,
 }
 
@@ -71,6 +82,11 @@ type EditPatientPayload = {
   value: Patient[EditPatientKey];
 };
 
+type UpdateAssessmentPayload = {
+  name: keyof NewAssessment;
+  value: NewAssessment[keyof NewAssessment];
+};
+
 export type Action =
   | { type: ActionTypeEnum.HIDE_PROMPT }
   | {
@@ -81,6 +97,8 @@ export type Action =
   | { type: ActionTypeEnum.OPEN_READING_MODAL }
   | { type: ActionTypeEnum.CLOSE_PATIENT_MODAL }
   | { type: ActionTypeEnum.OPEN_PATIENT_MODAL }
+  | { type: ActionTypeEnum.CLOSE_ASSESSMENT_MODAL }
+  | { type: ActionTypeEnum.OPEN_ASSESSMENT_MODAL }
   | {
       type: ActionTypeEnum.INITIALIZE_EDITED_PATIENT;
       payload: { patient: Patient };
@@ -117,58 +135,39 @@ export type Action =
   | { type: ActionTypeEnum.TOGGLE_URINE_TEST }
   | { type: ActionTypeEnum.SHOW_VITALS }
   | { type: ActionTypeEnum.SHOW_TRAFFIC_LIGHTS }
+  | { type: ActionTypeEnum.TOGGLE_FOLLOW_UP_NEEDED }
+  | { type: ActionTypeEnum.UPDATE_ASSESSMENT; payload: UpdateAssessmentPayload }
   | { type: ActionTypeEnum.RESET };
 
 type State = {
-  onPromptConfirmed: OrNull<() => void>;
-  promptMessage: OrNull<string>;
+  assessment: NewAssessment;
+  displayAssessmentModal: boolean;
   displayPatientModal: boolean;
-  showVitals: boolean;
+  displayReadingModal: boolean;
+  editedPatient: EditedPatient;
+  hasUrineTest: boolean;
+  newReading: NewReading;
+  otherSymptoms: string;
+  promptMessage: OrNull<string>;
+  selectedSymptoms: Record<SymptomEnum, boolean>;
   showPrompt: boolean;
   showTrafficLights: boolean;
-  displayReadingModal: boolean;
-  showSuccessReading: boolean;
-  hasUrineTest: boolean;
-  selectedSymptoms: Record<SymptomEnum, boolean>;
-  otherSymptoms: string;
-  newReading: NewReading;
-  editedPatient: EditedPatient;
+  showVitals: boolean;
+  onPromptConfirmed: OrNull<() => void>;
 };
 
 export const initialState: State = {
-  onPromptConfirmed: null,
-  promptMessage: null,
+  assessment: {
+    diagnosis: ``,
+    treatment: ``,
+    specialInvestigations: ``,
+    medicationPrescribed: ``,
+    followupNeeded: false,
+    followupInstructions: null,
+  },
+  displayAssessmentModal: false,
   displayPatientModal: false,
-  showVitals: true,
-  showPrompt: false,
-  showTrafficLights: false,
   displayReadingModal: false,
-  showSuccessReading: false,
-  hasUrineTest: false,
-  selectedSymptoms: {
-    [SymptomEnum.NONE]: true,
-    [SymptomEnum.HEADACHE]: false,
-    [SymptomEnum.BLEEDING]: false,
-    [SymptomEnum.BLURRED_VISION]: false,
-    [SymptomEnum.FEVERISH]: false,
-    [SymptomEnum.ABDOMINAL_PAIN]: false,
-    [SymptomEnum.UNWELL]: false,
-    [SymptomEnum.OTHER]: false,
-  },
-  otherSymptoms: ``,
-  newReading: {
-    bpDiastolic: ``,
-    bpSystolic: ``,
-    heartRateBPM: ``,
-    isFlaggedForFollowup: false,
-    urineTests: {
-      urineTestBlood: ``,
-      urineTestGlu: ``,
-      urineTestLeuc: ``,
-      urineTestNit: ``,
-      urineTestPro: ``,
-    },
-  },
   editedPatient: {
     dob: null,
     drugHistory: ``,
@@ -183,6 +182,36 @@ export const initialState: State = {
     villageNumber: ``,
     zone: ``,
   },
+  hasUrineTest: false,
+  newReading: {
+    bpDiastolic: ``,
+    bpSystolic: ``,
+    heartRateBPM: ``,
+    isFlaggedForFollowup: false,
+    urineTests: {
+      urineTestBlood: ``,
+      urineTestGlu: ``,
+      urineTestLeuc: ``,
+      urineTestNit: ``,
+      urineTestPro: ``,
+    },
+  },
+  otherSymptoms: ``,
+  promptMessage: null,
+  selectedSymptoms: {
+    [SymptomEnum.NONE]: true,
+    [SymptomEnum.HEADACHE]: false,
+    [SymptomEnum.BLEEDING]: false,
+    [SymptomEnum.BLURRED_VISION]: false,
+    [SymptomEnum.FEVERISH]: false,
+    [SymptomEnum.ABDOMINAL_PAIN]: false,
+    [SymptomEnum.UNWELL]: false,
+    [SymptomEnum.OTHER]: false,
+  },
+  showPrompt: false,
+  showTrafficLights: false,
+  showVitals: true,
+  onPromptConfirmed: null,
 };
 
 type ActionCreatorSignature = {
@@ -192,6 +221,8 @@ type ActionCreatorSignature = {
   openReadingModal: () => Action;
   closePatientModal: () => Action;
   openPatientModal: () => Action;
+  closeAssessmentModal: () => Action;
+  openAssessmentModal: () => Action;
   initializeEditedPatient: (patient: Patient) => Action;
   editPatient: (payload: EditPatientPayload) => Action;
   updateNewReading: (payload: UpdateNewReadingPayload) => Action;
@@ -201,6 +232,7 @@ type ActionCreatorSignature = {
   toggleUrineTest: () => Action;
   showVitals: () => Action;
   showTrafficLights: () => Action;
+  updateAssessment: (payload: UpdateAssessmentPayload) => Action;
   reset: () => Action;
 };
 
@@ -226,6 +258,12 @@ export const actionCreators: ActionCreatorSignature = {
   openPatientModal: (): Action => {
     return { type: ActionTypeEnum.OPEN_PATIENT_MODAL };
   },
+  closeAssessmentModal: (): Action => {
+    return { type: ActionTypeEnum.CLOSE_ASSESSMENT_MODAL };
+  },
+  openAssessmentModal: (): Action => {
+    return { type: ActionTypeEnum.OPEN_ASSESSMENT_MODAL };
+  },
   initializeEditedPatient: (patient: Patient): Action => {
     return {
       type: ActionTypeEnum.INITIALIZE_EDITED_PATIENT,
@@ -239,7 +277,9 @@ export const actionCreators: ActionCreatorSignature = {
         payload: { sex: value as SexEnum },
       };
     } else if (name === `gestationalAgeUnit`) {
-      return { type: ActionTypeEnum.TOGGLE_PATIENT_GESTATIONAL_AGE_UNIT };
+      return {
+        type: ActionTypeEnum.TOGGLE_PATIENT_GESTATIONAL_AGE_UNIT,
+      };
     } else if (name === `gestationalTimestamp`) {
       return {
         type: ActionTypeEnum.EDIT_GESTATIONAL_TIMESTAMP,
@@ -286,6 +326,13 @@ export const actionCreators: ActionCreatorSignature = {
   showTrafficLights: (): Action => {
     return { type: ActionTypeEnum.SHOW_TRAFFIC_LIGHTS };
   },
+  updateAssessment: (payload: UpdateAssessmentPayload): Action => {
+    if (payload.name === `followupNeeded`) {
+      return { type: ActionTypeEnum.TOGGLE_FOLLOW_UP_NEEDED };
+    }
+
+    return { type: ActionTypeEnum.UPDATE_ASSESSMENT, payload };
+  },
   reset: (): Action => {
     return { type: ActionTypeEnum.RESET };
   },
@@ -315,6 +362,12 @@ export const reducer = (state: State = initialState, action: Action): State => {
     }
     case ActionTypeEnum.OPEN_PATIENT_MODAL: {
       return { ...state, displayPatientModal: true };
+    }
+    case ActionTypeEnum.CLOSE_ASSESSMENT_MODAL: {
+      return { ...state, displayAssessmentModal: false };
+    }
+    case ActionTypeEnum.OPEN_ASSESSMENT_MODAL: {
+      return { ...state, displayAssessmentModal: true };
     }
     case ActionTypeEnum.INITIALIZE_EDITED_PATIENT: {
       const dob = action.payload.patient.dob;
@@ -452,6 +505,25 @@ export const reducer = (state: State = initialState, action: Action): State => {
     }
     case ActionTypeEnum.SHOW_TRAFFIC_LIGHTS: {
       return { ...state, showTrafficLights: true, showVitals: false };
+    }
+    case ActionTypeEnum.TOGGLE_FOLLOW_UP_NEEDED: {
+      return {
+        ...state,
+        assessment: {
+          ...state.assessment,
+          followupNeeded: !state.assessment.followupNeeded,
+          followupInstructions: state.assessment.followupNeeded ? null : ``,
+        },
+      };
+    }
+    case ActionTypeEnum.UPDATE_ASSESSMENT: {
+      return {
+        ...state,
+        assessment: {
+          ...state.assessment,
+          [action.payload.name]: action.payload.value,
+        },
+      };
     }
     case ActionTypeEnum.RESET: {
       return initialState;

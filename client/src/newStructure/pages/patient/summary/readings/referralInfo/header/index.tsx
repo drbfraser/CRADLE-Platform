@@ -1,5 +1,3 @@
-import { FollowUp, OrNull } from '@types';
-
 import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import React from 'react';
@@ -9,13 +7,13 @@ import { useStyles } from './styles';
 
 interface IProps {
   dateReferred: number;
-  followup: OrNull<FollowUp>;
+  assessed: boolean;
   healthFacilityName: string;
 }
 
 export const Header: React.FC<IProps> = ({
+  assessed,
   dateReferred,
-  followup,
   healthFacilityName,
 }) => {
   const classes = useStyles();
@@ -23,12 +21,12 @@ export const Header: React.FC<IProps> = ({
   return (
     <>
       <Typography className={classes.title} component="h3" variant="h5">
-        {followup ? (
+        {assessed ? (
           <AssignmentTurnedInIcon fontSize="large" />
         ) : (
           <AssignmentLateIcon fontSize="large" />
         )}
-        {followup ? `Referral Assessed` : `Referral Pending`}
+        {assessed ? `Referral Assessed` : `Referral Pending`}
       </Typography>
       <Typography className={classes.subtitle} variant="subtitle1">
         Referred on {getPrettyDateTime(dateReferred)}

@@ -1,23 +1,3 @@
-export enum FollowupFrequencyEnum {
-  NONE = 'NONE',
-  MINUTES = 'MINUTES',
-  HOURS = 'HOURS',
-  DAYS = 'DAYS',
-  WEEKS = 'WEEKS',
-  MONTHS = 'MONTHS',
-  YEARS = 'YEARS',
-}
-
-export enum FollowupFrequencyDisplayEnum {
-  NONE = 'N/A',
-  MINUTES = 'Minutes',
-  HOURS = 'Hours',
-  DAYS = 'Days',
-  WEEKS = 'Weeks',
-  MONTHS = 'Months',
-  YEARS = 'Years',
-}
-
 export enum YesNoEnum {
   YES = 1,
   NO = 0,

@@ -30,7 +30,7 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
     try {
       const response = await axios({
         method: Methods.POST,
-        url: BASE_URL + Endpoints.USER + Endpoints.AUTH + Endpoints.REFRESH,
+        url: `${BASE_URL}${Endpoints.USER}${Endpoints.AUTH}${Endpoints.REFRESH}`,
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
@@ -51,7 +51,7 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
 
   axios({
     method: method,
-    url: BASE_URL + endpoint,
+    url: `${BASE_URL}${endpoint}`,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',

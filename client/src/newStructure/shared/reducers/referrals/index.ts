@@ -1,188 +1,269 @@
+import {
+  Assessment,
+  Callback,
+  NewAssessment,
+  OrNull,
+  Referral,
+  ServerError,
+} from '@types';
+import { ServerRequestAction, serverRequestActionCreator } from '../utils';
+
 import { BASE_URL } from '../../../server/utils';
 import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
-import { OrNull } from '@types';
 import axios from 'axios';
-import { serverRequestActionCreator } from '../utils';
 
-const GET_REFERRALS_REQUESTED = `referrals/GET_REFERRALS_REQUESTED`;
-const GET_REFERRALS_SUCCESS = `referrals/GET_REFERRALS_SUCCESS`;
-const GET_REFERRALS_ERROR = `referrals/GET_REFERRALS_ERROR`;
+enum ReferralsEnum {
+  GET_REFERRALS_REQUESTED = `referrals/GET_REFERRALS_REQUESTED`,
+  GET_REFERRALS_SUCCESS = `referrals/GET_REFERRALS_SUCCESS`,
+  GET_REFERRALS_ERROR = `referrals/GET_REFERRALS_ERROR`,
+  CREATE_ASSESSMENT_REQUESTED = `referrals/CREATE_ASSESSMENT_REQUESTED`,
+  CREATE_ASSESSMENT_SUCCESS = `referrals/CREATE_ASSESSMENT_SUCCESS`,
+  CREATE_ASSESSMENT_ERROR = `referrals/CREATE_ASSESSMENT_ERROR`,
+  CLEAR_CREATE_ASSESSMENT_OUTCOME = `referrals/CLEAR_CREATE_ASSESSMENT_OUTCOME`,
+  UPDATE_ASSESSMENT_REQUESTED = `referrals/UPDATE_ASSESSMENT_REQUESTED`,
+  UPDATE_ASSESSMENT_SUCCESS = `referrals/UPDATE_ASSESSMENT_SUCCESS`,
+  UPDATE_ASSESSMENT_ERROR = `referrals/UPDATE_ASSESSMENT_ERROR`,
+  CLEAR_UPDATE_ASSESSMENT_OUTCOME = `referrals/CLEAR_UPDATE_ASSESSMENT_OUTCOME`,
+}
 
-const GET_REFERRAL_REQUESTED = `referrals/GET_REFERRAL_REQUESTED`;
-const GET_REFERRAL_SUCCESS = `referrals/GET_REFERRAL_SUCCESS`;
-const GET_REFERRAL_ERROR = `referrals/GET_REFERRAL_ERROR`;
-
-const UPDATE_FOLLOW_UP_REQUESTED = `referrals/UPDATE_FOLLOW_UP_REQUESTED`;
-const UPDATE_FOLLOW_UP_SUCCESS = `referrals/UPDATE_FOLLOW_UP_SUCCESS`;
-const UPDATE_FOLLOW_UP_ERROR = `referrals/UPDATE_FOLLOW_UP_ERROR`;
-
-const SET_READING_ID = `referrals/SET_READING_ID`;
-
-export const getReferral = (referralId: any) => {
-  return serverRequestActionCreator({
-    endpoint: `${Endpoints.REFERRAL}/${referralId}`,
-    onSuccess: (response: any) => ({
-      type: GET_REFERRAL_SUCCESS,
-      payload: response,
-    }),
-    onError: (error: any) => ({
-      type: GET_REFERRAL_ERROR,
-      payload: error,
-    }),
-  });
+type FollowUpSuccessPayload = {
+  readingId: string;
+  followUp: Assessment;
 };
+
+type ErrorPayload = {
+  error: string;
+};
+
+type ReferralsAction =
+  | { type: ReferralsEnum.GET_REFERRALS_REQUESTED }
+  | {
+      type: ReferralsEnum.GET_REFERRALS_SUCCESS;
+      payload: { mappedReferrals: Record<string, Referral> };
+    }
+  | {
+      type: ReferralsEnum.GET_REFERRALS_ERROR;
+      payload: ErrorPayload;
+    }
+  | { type: ReferralsEnum.CREATE_ASSESSMENT_REQUESTED }
+  | {
+      type: ReferralsEnum.CREATE_ASSESSMENT_SUCCESS;
+      payload: FollowUpSuccessPayload;
+    }
+  | { type: ReferralsEnum.CREATE_ASSESSMENT_ERROR; payload: ErrorPayload }
+  | { type: ReferralsEnum.CLEAR_CREATE_ASSESSMENT_OUTCOME }
+  | { type: ReferralsEnum.UPDATE_ASSESSMENT_REQUESTED }
+  | {
+      type: ReferralsEnum.UPDATE_ASSESSMENT_SUCCESS;
+      payload: FollowUpSuccessPayload;
+    }
+  | { type: ReferralsEnum.UPDATE_ASSESSMENT_ERROR; payload: ErrorPayload }
+  | { type: ReferralsEnum.CLEAR_UPDATE_ASSESSMENT_OUTCOME };
 
 const getReferralsRequested = () => ({
-  type: GET_REFERRALS_REQUESTED,
+  type: ReferralsEnum.GET_REFERRALS_REQUESTED,
 });
 
-// TODO: create Endpoints /referral to get all referrals for user
 export const getReferrals = (
-  referralIds: any
+  referralIds: Array<number>
 ): ((dispatch: Dispatch) => void) => {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): void => {
     dispatch(getReferralsRequested());
 
-    const referralPromises = [];
-    for (const i in referralIds) {
-      const referralId = referralIds[i];
-      referralPromises.push(axios.get(BASE_URL + `/referral/${referralId}`));
-    }
+    const referralPromises = referralIds.map(
+      (referralId: number): Promise<{ data: any }> => {
+        return axios.get(`${BASE_URL}${Endpoints.REFERRAL}/${referralId}`);
+      }
+    );
 
     Promise.all(referralPromises)
-      .then((results: any) => {
-        const referrals = {} as Record<string, any>;
-        for (const i in results) {
-          const thisReferral = results[i].data;
-          referrals[thisReferral.readingId] = thisReferral;
-        }
-
+      .then((results: Array<{ data: Referral }>) => {
         dispatch({
-          type: GET_REFERRALS_SUCCESS,
-          payload: referrals,
+          type: ReferralsEnum.GET_REFERRALS_SUCCESS,
+          payload: {
+            mappedReferrals: results.reduce(
+              (
+                referrals: Record<string, Referral>,
+                result: { data: Referral }
+              ): Record<string, any> => {
+                referrals[result.data.readingId] = result.data;
+                return referrals;
+              },
+              {}
+            ),
+          },
         });
       })
-      .catch((err: any) => {
-        console.error(err);
-        dispatch({
-          type: GET_REFERRALS_ERROR,
-        });
-      });
+      .catch(
+        (error: {
+          response?: { data: { message: string }; status: number };
+        }) => {
+          console.error(error);
+          dispatch({
+            type: ReferralsEnum.GET_REFERRALS_ERROR,
+            payload: {
+              error:
+                error.response?.data.message ??
+                `Something went wrong on our end which means you can't perform this action right now. We are working hard at getting it fixed soon!`,
+            },
+          });
+        }
+      );
   };
 };
 
-const updateFollowUpOnSuccess = (response: any) => ({
-  type: UPDATE_FOLLOW_UP_SUCCESS,
-  payload: response,
+const createAssessmentRequested = (): ReferralsAction => ({
+  type: ReferralsEnum.CREATE_ASSESSMENT_REQUESTED,
 });
 
-const updateFollowUpOnError = (error: any) => ({
-  type: UPDATE_FOLLOW_UP_ERROR,
-  payload: error,
+export const createAssessment = (
+  readingId: string,
+  data: NewAssessment
+): Callback<Dispatch, ServerRequestAction> => {
+  return (dispatch: Dispatch): ServerRequestAction => {
+    dispatch(createAssessmentRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: Endpoints.FOLLOW_UP,
+        method: Methods.POST,
+        data,
+        onSuccess: (response: Assessment): ReferralsAction => ({
+          type: ReferralsEnum.CREATE_ASSESSMENT_SUCCESS,
+          payload: { readingId, followUp: response },
+        }),
+        onError: ({ message }: ServerError): ReferralsAction => ({
+          type: ReferralsEnum.CREATE_ASSESSMENT_ERROR,
+          payload: { error: message },
+        }),
+      })
+    );
+  };
+};
+
+export const clearCreateAssessmentOutcome = (): ReferralsAction => ({
+  type: ReferralsEnum.CLEAR_CREATE_ASSESSMENT_OUTCOME,
 });
 
-export const updateFollowUp = (followUpId: any, data: any) => {
-  return serverRequestActionCreator({
-    endpoint: `${Endpoints.FOLLOW_UP}/${followUpId}`,
-    method: Methods.PUT,
-    data,
-    onSuccess: updateFollowUpOnSuccess,
-    onError: updateFollowUpOnError,
-  });
-};
+const updateAssessmentRequested = (): ReferralsAction => ({
+  type: ReferralsEnum.UPDATE_ASSESSMENT_REQUESTED,
+});
 
-export const createFollowUp = (data: any) => {
-  return serverRequestActionCreator({
-    endpoint: Endpoints.FOLLOW_UP,
-    method: Methods.POST,
-    data,
-    onSuccess: updateFollowUpOnSuccess,
-    onError: updateFollowUpOnError,
-  });
-};
-
-export const setReadingId = (readingId: any) => {
+export const updateAssessment = (
+  readingId: string,
+  referralId: string,
+  data: NewAssessment
+): Callback<Dispatch, ServerRequestAction> => {
   return (dispatch: Dispatch) => {
-    return dispatch({
-      type: SET_READING_ID,
-      payload: readingId,
-    });
+    dispatch(updateAssessmentRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: `${Endpoints.FOLLOW_UP}/${referralId}`,
+        method: Methods.PUT,
+        data,
+        onSuccess: (response: Assessment): ReferralsAction => ({
+          type: ReferralsEnum.UPDATE_ASSESSMENT_SUCCESS,
+          payload: { readingId, followUp: response },
+        }),
+        onError: ({ message }: ServerError): ReferralsAction => ({
+          type: ReferralsEnum.UPDATE_ASSESSMENT_ERROR,
+          payload: { error: message },
+        }),
+      })
+    );
   };
 };
+
+export const clearUpdateAssessmentOutcome = (): ReferralsAction => ({
+  type: ReferralsEnum.CLEAR_UPDATE_ASSESSMENT_OUTCOME,
+});
 
 export type ReferralsState = {
-  isLoading: boolean;
-  mappedReferrals: OrNull<Record<string, any>>;
-  referral: any;
-  referralId: string;
-  readingId: string;
+  error: OrNull<string>;
+  success: OrNull<string>;
+  loading: boolean;
+  mappedReferrals: OrNull<Record<string, Referral>>;
 };
 
 const initialState: ReferralsState = {
-  isLoading: false,
-  mappedReferrals: null, // maps reading id to referral objects
-  referral: {},
-  referralId: ``,
-  readingId: ``,
+  error: null,
+  success: null,
+  loading: false,
+  mappedReferrals: null,
 };
 
 export const referralsReducer = (
   state = initialState,
-  action: any
+  action: ReferralsAction
 ): ReferralsState => {
   switch (action.type) {
-    case GET_REFERRAL_SUCCESS:
+    case ReferralsEnum.GET_REFERRALS_REQUESTED:
+    case ReferralsEnum.CREATE_ASSESSMENT_REQUESTED:
+    case ReferralsEnum.UPDATE_ASSESSMENT_REQUESTED:
       return {
-        ...state,
-        referral: action.payload,
-        isLoading: false,
+        ...initialState,
+        loading: true,
       };
-
-    case GET_REFERRALS_SUCCESS:
+    case ReferralsEnum.GET_REFERRALS_SUCCESS:
       return {
         ...state,
-        mappedReferrals: action.payload,
-        isLoading: false,
+        mappedReferrals: action.payload.mappedReferrals,
+        loading: false,
       };
-
-    case UPDATE_FOLLOW_UP_SUCCESS:
+    case ReferralsEnum.CREATE_ASSESSMENT_SUCCESS:
       return {
         ...state,
+        success: `Assessment successfuly created!`,
         mappedReferrals: {
           ...state.mappedReferrals,
-          [state.readingId]: {
-            ...(((state.mappedReferrals?.[state.readingId] ??
-              {}) as unknown) as Record<string, unknown>),
-            followUp: action.payload.data,
+          [action.payload.readingId]: {
+            ...(state.mappedReferrals?.[action.payload.readingId] as Referral),
+            followUp: action.payload.followUp,
           },
         },
-        isLoading: false,
+        loading: false,
       };
-
-    case GET_REFERRAL_REQUESTED:
-    case GET_REFERRALS_REQUESTED:
-    case UPDATE_FOLLOW_UP_REQUESTED:
+    case ReferralsEnum.UPDATE_ASSESSMENT_SUCCESS:
       return {
         ...state,
-        isLoading: true,
+        success: `Assessment successfuly updated!`,
+        mappedReferrals: {
+          ...state.mappedReferrals,
+          [action.payload.readingId]: {
+            ...(state.mappedReferrals?.[action.payload.readingId] as Referral),
+            followUp: action.payload.followUp,
+          },
+        },
+        loading: false,
       };
-
-    case GET_REFERRAL_ERROR:
-    case GET_REFERRALS_ERROR:
-    case UPDATE_FOLLOW_UP_ERROR:
+    case ReferralsEnum.GET_REFERRALS_ERROR:
       return {
         ...state,
-        isLoading: false,
+        error: action.payload.error,
+        loading: false,
       };
-
-    case SET_READING_ID:
+    case ReferralsEnum.CREATE_ASSESSMENT_ERROR:
+    case ReferralsEnum.UPDATE_ASSESSMENT_ERROR:
       return {
         ...state,
-        readingId: action.payload,
+        error: action.payload.error,
+        loading: false,
       };
-
+    case ReferralsEnum.CLEAR_CREATE_ASSESSMENT_OUTCOME:
+      return {
+        ...state,
+        error: null,
+        success: null,
+      };
+    case ReferralsEnum.CLEAR_UPDATE_ASSESSMENT_OUTCOME:
+      return {
+        ...state,
+        error: null,
+        success: null,
+      };
     default:
       return state;
   }
