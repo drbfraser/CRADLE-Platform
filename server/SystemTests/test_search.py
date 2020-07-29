@@ -79,11 +79,8 @@ def test_no_id_matches():
     url = BASE_URL + "/api/patient/global/" + full_patient_id
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
-    assert response.status_code == 404
-    assert (
-        response_body["message"]
-        == "No patients matching the search criteria currently exist."
-    )
+    assert response.status_code == 200
+    assert response_body == []
 
 
 def test_no_initials_matches():
@@ -91,8 +88,5 @@ def test_no_initials_matches():
     url = BASE_URL + "/api/patient/global/" + full_initials
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
-    assert response.status_code == 404
-    assert (
-        response_body["message"]
-        == "No patients matching the search criteria currently exist."
-    )
+    assert response.status_code == 200
+    assert response_body == []
