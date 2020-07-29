@@ -216,7 +216,7 @@ export const referralsReducer = (
     case ReferralsEnum.CREATE_ASSESSMENT_SUCCESS:
       return {
         ...state,
-        success: `Assessment successfuly created!`,
+        success: `Assessment created successfuly!`,
         mappedReferrals: {
           ...state.mappedReferrals,
           [action.payload.readingId]: {
@@ -229,7 +229,7 @@ export const referralsReducer = (
     case ReferralsEnum.UPDATE_ASSESSMENT_SUCCESS:
       return {
         ...state,
-        success: `Assessment successfuly updated!`,
+        success: `Assessment updated successfuly!`,
         mappedReferrals: {
           ...state.mappedReferrals,
           [action.payload.readingId]: {
