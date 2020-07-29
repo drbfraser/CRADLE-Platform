@@ -41,7 +41,6 @@ type SelectorState = {
 export const FollowUpModal: React.FC<IProps> = ({
   assessment,
   displayAssessmentModal,
-  patientId,
   readingId,
   referral,
   onAddPatientRequired,
@@ -54,7 +53,7 @@ export const FollowUpModal: React.FC<IProps> = ({
       error: patients.error,
       loading: patients.isLoading,
       success: patients.success,
-      userId: user.current!.data!.userId,
+      userId: user.current.data!.userId,
     })
   );
 
