@@ -1,0 +1,150 @@
+# just example jsons to help with new covid reading. Uses new APIs. Just putting this here for now since we don't have API docs for new APIs yet, will delete this once we do.
+
+# If you change your mind and decide to nest some of these inside one another and use just one/two APIs: 
+- You can just use 1 API and nest objects inside one another. 
+- E.g can use /api/patients and have patient with reading/referral etc inside it. Or if you want, can make patient seperate with one api, and then the rest with another api. very flexible. 
+- Feel free to ask me or checkout: https://docs.google.com/spreadsheets/d/1a67jyK2udHnTs0mdteB9seR-fqMgRbgC4j1Jd08p-fc/edit#gid=0
+
+###########################################################################################################
+
+# Create new patient 
+localhost:5000/api/patients
+Post
+
+ {
+       "patientId": "123456", - required
+       "patientName": "testName", - required
+       "householdNumber": "20", 
+       "dob": "1990-05-30",
+       "zone": "15",
+       "villageNumber": "50",
+       "gestationalTimestamp": 1587068710, - required if patient is pregnant 
+       "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS", - required if patient is pregnant 
+       "patientSex": "FEMALE", - required
+       "drugHistory": "too much tylenol",
+       "medicalHistory": "not enough advil" 
+}
+   
+###########################################################################################################
+
+# Create New Reading
+localhost:5000/api/readings
+Post
+
+{
+       "readingId": "asdasd82314278226313803", - required
+       "patientId": "123456", - required
+       "bpSystolic" : 150, - required
+       "bpDiastolic" : 150, - required
+       "heartRateBPM" : 35, - required
+       "respiratoryRate": 14, 
+       "oxygenSaturation": 99,
+       "temperature": 37,
+       "isFlaggedForFollowup" : false,
+       "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"], - required
+       "dateTimeTaken": 1111233,
+       "userId": 1 - required 
+}
+
+###########################################################################################################
+
+# Create patient and reading (can nest multiple readings if you want, this example just has 1)
+localhost:5000/api/patients
+Post
+same as creating a patient, except nest reading inside it, like the following example: 
+ {
+       "patientId": "12345996",
+       "patientName": "testName",
+       "householdNumber": "20", 
+       "dob": "1990-05-30",
+       "zone": "15",
+       "villageNumber": "50",
+       "gestationalTimestamp": 1587068710, 
+       "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+       "patientSex": "FEMALE", 
+       "drugHistory": "too much tylenol",
+       "medicalHistory": "not enough advil", 
+
+       "readings": [{
+       "readingId": "asdasd82314278226313803",
+       "patientId": "123456", 
+       "bpSystolic" : 150, 
+       "bpDiastolic" : 150,
+       "heartRateBPM" : 35,
+       "respiratoryRate": 14, 
+       "oxygenSaturation": 99,
+       "temperature": 37,
+       "isFlaggedForFollowup" : false,
+       "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"], 
+       "dateTimeTaken": 1111233,
+       "userId": 1 
+       }]
+}
+
+###########################################################################################################
+
+# Create assessment 
+localhost:5000/api/assessments
+Post
+
+{
+	"diagnosis": "patient is fine",
+	"medicationPrescribed": "tylenol",
+	"specialInvestigations": "bcccccccccddeeeff",
+	"treatment": "b",
+	"readingId": "asdasd82314278226313803", - required 
+	"followupNeeded": "TRUE", - required if this field is true lol (might be easier to always send it?) 
+	"followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = true 
+}
+
+
+
+###########################################################################################################
+
+Create reading and assessment 
+localhost:5000/api/readings:
+Post
+Same as making a reading, except followup is nested inside it
+{
+       "readingId": "test3",
+       "patientId": "123456",
+       "bpSystolic" : 150,
+       "bpDiastolic" : 150,
+       "heartRateBPM" : 35,
+       "respiratoryRate": 14,
+       "oxygenSaturation": 99,
+       "temperature": 37,
+       "isFlaggedForFollowup" : false,
+       "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
+       "dateTimeTaken": 868545,
+       "userId": 1 ,
+       "followup":{
+              "diagnosis": "patient is fine",
+              "medicationPrescribed": "tylenol",
+              "specialInvestigations": "bcccccccccddeeeff",
+              "treatment": "b",
+              "readingId": "test3",
+              "followupNeeded": "TRUE",
+              "followupInstructions": "pls help, give lots of tylenol"
+       }
+}
+
+###########################################################################################################
+
+# Check if patient exists 
+
+localhost:5000/api/patients/<string:patient_id>/info
+E.g localhost:5000/api/patients/123456
+
+- Feel free to let me know if you prefer an api that just returns a boolean and/or basic info or something instead of all patient information
+
+###########################################################################################################
+
+
+
+# Additional Info 
+- Let me know if you urgently need response types as well, otherwise can just wait till someone completes API docs
+
+- Feel free to checkout api docs for general idea for types, although some have changed, and some json structures are different for new apis that aren't documented, but this may still give you an idea. start server and go to: http://localhost:5000/apidocs/#/
+
+
