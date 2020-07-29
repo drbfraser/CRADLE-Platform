@@ -8,6 +8,8 @@ import {
 
 import React from 'react';
 import debounce from 'lodash/debounce';
+import { sortPatientsTablePatients } from '../../../../../shared/reducers/patients';
+import { useDispatch } from 'react-redux';
 import { useFilterBySearchText } from '../../../../../shared/hooks/table/filterBySearchText';
 import { useFilterReferredPatients } from './filterReferredPatients';
 
@@ -18,7 +20,6 @@ interface IArgs {
   searchText: OrUndefined<string>;
   showReferredPatients?: boolean;
   getPatients: Callback<string>;
-  sortPatients: Callback<OrNull<Array<GlobalSearchPatient> | Array<Patient>>>;
 }
 
 interface IUseData {
@@ -33,7 +34,6 @@ export const useData = ({
   searchText,
   showReferredPatients,
   getPatients,
-  sortPatients,
 }: IArgs): IUseData => {
   const filterBySearchText = useFilterBySearchText({
     globalSearch,
@@ -66,6 +66,14 @@ export const useData = ({
     globalSearch,
     showReferredPatients,
   ]);
+
+  const dispatch = useDispatch();
+
+  const sortPatients = (
+    sortedPatients: Array<Patient> | Array<GlobalSearchPatient>
+  ): void => {
+    dispatch(sortPatientsTablePatients(sortedPatients));
+  };
 
   const sortData = (
     sortedPatients: Array<Patient> | Array<GlobalSearchPatient>

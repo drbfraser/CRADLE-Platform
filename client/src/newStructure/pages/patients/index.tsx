@@ -1,124 +1,108 @@
-import {
-  Callback,
-  GlobalSearchPatient,
-  OrNull,
-  OrUndefined,
-  Patient,
-} from '@types';
-import { Dispatch, bindActionCreators } from 'redux';
-import { PatientStateEnum, RoleEnum } from '../../enums';
+import { GlobalSearchPatient, OrNull, Patient } from '@types';
 import {
   addPatientToHealthFacility,
+  clearAddPatientToHealthFacilityError,
   getPatientsTablePatients,
-  sortPatientsTablePatients,
-  toggleGlobalSearch,
-  toggleShowReferredPatients,
   updatePatientsTablePageNumber,
   updatePatientsTableSearchText,
-  updateSelectedPatientState,
 } from '../../shared/reducers/patients';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { PatientTable } from './patientTable';
 import React from 'react';
 import { ReduxState } from '../../redux/rootReducer';
-import { connect } from 'react-redux';
+import { RoleEnum } from '../../enums';
+import { Toast } from '../../shared/components/toast';
 import { push } from 'connected-react-router';
 
-interface IProps {
+type SelectorState = {
   addingFromGlobalSearch: boolean;
-  globalSearch: boolean;
+  error: OrNull<string>;
+  fetchingPatients: boolean;
+  globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
   pageNumber: number;
+  patients: OrNull<Array<Patient>>;
   patientsTableSearchText?: string;
   showReferredPatients?: boolean;
-  fetchingPatients: boolean;
-  patients: OrNull<Array<Patient>>;
-  globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
-  getPatientsTablePatients: (searchText?: string) => void;
-  addPatientToHealthFacility: Callback<string>;
-  sortPatientsTablePatients: Callback<
-    OrNull<Array<Patient> | Array<GlobalSearchPatient>>
-  >;
-  toggleGlobalSearch: Callback<boolean>;
-  updatePatientsTablePageNumber: Callback<number>;
-  updatePatientsTableSearchText: Callback<OrUndefined<string>>;
-  updateSelectedPatientState: Callback<OrUndefined<PatientStateEnum>>;
-  toggleShowReferredPatients: () => void;
-  navigateToPatientPage: any;
   userIsHealthWorker?: boolean;
-}
+};
 
-const Page: React.FC<IProps> = ({
-  fetchingPatients,
-  patients,
-  getPatientsTablePatients,
-  ...props
-}) => {
+export const PatientsPage: React.FC = () => {
+  const {
+    addingFromGlobalSearch,
+    error,
+    fetchingPatients,
+    globalSearchPatients,
+    pageNumber,
+    patients,
+    patientsTableSearchText,
+    showReferredPatients,
+    userIsHealthWorker,
+  } = useSelector(
+    ({ patients, user }: ReduxState): SelectorState => ({
+      addingFromGlobalSearch: patients.addingFromGlobalSearch,
+      error: patients.addingFromGlobalSearchError,
+      fetchingPatients: patients.isLoading,
+      globalSearchPatients: patients.globalSearchPatientsList,
+      pageNumber: patients.patientsTablePageNumber,
+      patients: patients.patientsList,
+      patientsTableSearchText: patients.patientsTableSearchText,
+      showReferredPatients: patients.showReferredPatients,
+      userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
+    })
+  );
+  const dispatch = useDispatch();
+
+  const getPatients = React.useCallback(
+    (searchText?: string): void => {
+      dispatch(getPatientsTablePatients(searchText));
+    },
+    [dispatch]
+  );
+
   React.useEffect(() => {
     if (!fetchingPatients && patients === null) {
-      getPatientsTablePatients();
+      getPatients();
     }
-  }, [fetchingPatients, getPatientsTablePatients, patients]);
+  }, [fetchingPatients, getPatients, patients]);
 
-  const onPatientSelected = ({ patientId }: Patient): void =>
-    props.navigateToPatientPage(patientId);
+  const onPatientSelected = ({ patientId }: Patient): void => {
+    dispatch(push(`/patients/${patientId}`));
+  };
 
   const onGlobalSearchPatientSelected = (patientId: string): void => {
-    props.addPatientToHealthFacility(patientId);
+    dispatch(addPatientToHealthFacility(patientId));
+  };
+
+  const updatePageNumber = (pageNumber: number): void => {
+    dispatch(updatePatientsTablePageNumber(pageNumber));
+  };
+
+  const updateSearchText = (searchText?: string): void => {
+    dispatch(updatePatientsTableSearchText(searchText));
+  };
+
+  const clearError = (): void => {
+    dispatch(clearAddPatientToHealthFacilityError());
   };
 
   return (
-    <PatientTable
-      globalSearch={props.globalSearch}
-      pageNumber={props.pageNumber}
-      searchText={props.patientsTableSearchText}
-      showReferredPatients={props.showReferredPatients}
-      toggleGlobalSearch={props.toggleGlobalSearch}
-      onPatientSelected={onPatientSelected}
-      onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
-      data={patients}
-      globalSearchData={props.globalSearchPatients}
-      loading={fetchingPatients || props.addingFromGlobalSearch}
-      showGlobalSearch={props.userIsHealthWorker}
-      getPatients={getPatientsTablePatients}
-      updatePageNumber={props.updatePatientsTablePageNumber}
-      updateSearchText={props.updatePatientsTableSearchText}
-      updateSelectedPatientState={props.updateSelectedPatientState}
-      toggleShowReferredPatients={props.toggleShowReferredPatients}
-      sortPatients={props.sortPatientsTablePatients}
-    />
+    <>
+      <Toast message={error} status="error" clearMessage={clearError} />
+      <PatientTable
+        pageNumber={pageNumber}
+        searchText={patientsTableSearchText}
+        showReferredPatients={showReferredPatients}
+        onPatientSelected={onPatientSelected}
+        onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
+        data={patients}
+        globalSearchData={globalSearchPatients}
+        loading={fetchingPatients || addingFromGlobalSearch}
+        showGlobalSearch={userIsHealthWorker}
+        getPatients={getPatients}
+        updatePageNumber={updatePageNumber}
+        updateSearchText={updateSearchText}
+      />
+    </>
   );
 };
-
-const mapStateToProps = ({ patients, user }: ReduxState) => ({
-  addingFromGlobalSearch: patients.addingFromGlobalSearch,
-  userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
-  fetchingPatients: patients.isLoading,
-  patients: patients.patientsList,
-  globalSearch: patients.globalSearch,
-  pageNumber: patients.patientsTablePageNumber,
-  patientsTableSearchText: patients.patientsTableSearchText,
-  globalSearchPatients: patients.globalSearchPatientsList,
-  showReferredPatients: patients.showReferredPatients,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    ...bindActionCreators(
-      {
-        addPatientToHealthFacility,
-        getPatientsTablePatients,
-        toggleGlobalSearch,
-        updatePatientsTablePageNumber,
-        updatePatientsTableSearchText,
-        updateSelectedPatientState,
-        toggleShowReferredPatients,
-        sortPatientsTablePatients,
-      },
-      dispatch
-    ),
-    navigateToPatientPage: (patientId: string) =>
-      dispatch(push(`/patients/${patientId}`)),
-  };
-};
-
-export const PatientsPage = connect(mapStateToProps, mapDispatchToProps)(Page);

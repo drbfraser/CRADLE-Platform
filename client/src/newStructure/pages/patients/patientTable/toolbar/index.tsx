@@ -10,8 +10,6 @@ import { useTimeout } from '../../../../shared/hooks/timeout';
 
 interface IProps {
   loading: boolean;
-  toggleShowReferredPatients: () => void;
-  toggleGlobalSearch: Callback<boolean>;
   updateSearchText: Callback<OrUndefined<string>>;
   globalSearch?: boolean;
   globalSearchAction?: boolean;
@@ -22,8 +20,6 @@ interface IProps {
 const Toolbar: React.FC<IProps> = ({
   loading,
   showReferredPatients,
-  toggleShowReferredPatients,
-  toggleGlobalSearch,
   globalSearchAction = false,
   ...props
 }) => {
@@ -54,13 +50,9 @@ const Toolbar: React.FC<IProps> = ({
           <GlobalSearch
             className={classes.spacedAction}
             globalSearch={props.globalSearch}
-            toggleGlobalSearch={toggleGlobalSearch}
           />
         )}
-        <ReferredPatients
-          showReferredPatients={showReferredPatients}
-          toggleShowReferredPatients={toggleShowReferredPatients}
-        />
+        <ReferredPatients showReferredPatients={showReferredPatients} />
       </div>
     </>
   );

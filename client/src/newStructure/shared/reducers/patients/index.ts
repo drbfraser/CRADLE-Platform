@@ -55,6 +55,7 @@ enum PatientsActionEnum {
   ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = 'patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED',
   ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = 'patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS',
   ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = 'patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR',
+  CLEAR_ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = 'patients/CLEAR_ADD_PATIENT_TO_HEALTH_FACILITY_ERROR',
   RESET_ADDED_FROM_GLOBAL_SEARCH = 'patients/RESET_ADDED_FROM_GLOBAL_SEARCH',
   CREATE_ASSESSMENT_REQUESTED = 'patients/CREATE_ASSESSMENT_REQUESTED',
   CREATE_ASSESSMENT_SUCCESS = 'patients/CREATE_ASSESSMENT_SUCCESS',
@@ -175,7 +176,10 @@ type PatientsAction =
     }
   | {
       type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR;
-      payload: ErrorPayload;
+      payload: ErrorPayload & { patientId: string };
+    }
+  | {
+      type: PatientsActionEnum.CLEAR_ADD_PATIENT_TO_HEALTH_FACILITY_ERROR;
     }
   | {
       type: PatientsActionEnum.RESET_ADDED_FROM_GLOBAL_SEARCH;
@@ -440,12 +444,16 @@ export const addPatientToHealthFacility = (
         }),
         onError: ({ message }: ServerError): PatientsAction => ({
           type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
-          payload: { error: message },
+          payload: { error: message, patientId },
         }),
       })
     );
   };
 };
+
+export const clearAddPatientToHealthFacilityError = (): PatientsAction => ({
+  type: PatientsActionEnum.CLEAR_ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
+});
 
 export const resetAddedFromGlobalSearch = (): PatientsAction => ({
   type: PatientsActionEnum.RESET_ADDED_FROM_GLOBAL_SEARCH,
@@ -735,6 +743,11 @@ export const patientsReducer = (
         ...state,
         error: null,
       };
+    case PatientsActionEnum.CLEAR_ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
+      return {
+        ...state,
+        addingFromGlobalSearchError: null,
+      };
     case PatientsActionEnum.CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME:
     case PatientsActionEnum.CLEAR_CREATE_ASSESSMENT_REQUEST_OUTCOME:
     case PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME:
@@ -843,6 +856,15 @@ export const patientsReducer = (
         ...state,
         addingFromGlobalSearchError: action.payload.error,
         addingFromGlobalSearch: false,
+        globalSearchPatientsList: state.globalSearchPatientsList!.map(
+          (patient: GlobalSearchPatient): GlobalSearchPatient => {
+            if (patient.patientId === action.payload.patientId) {
+              return { ...patient, state: PatientStateEnum.ADD };
+            }
+
+            return patient;
+          }
+        ),
       };
     case PatientsActionEnum.RESET_ADDED_FROM_GLOBAL_SEARCH:
       return {

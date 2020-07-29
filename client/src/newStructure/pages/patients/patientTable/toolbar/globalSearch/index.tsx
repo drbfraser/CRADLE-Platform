@@ -2,9 +2,10 @@ import Autocomplete, {
   AutocompleteRenderInputParams,
 } from '@material-ui/lab/Autocomplete';
 
-import { Callback } from '@types';
 import React from 'react';
 import { TextField } from '@material-ui/core';
+import { toggleGlobalSearch } from '../../../../../shared/reducers/patients';
+import { useDispatch } from 'react-redux';
 import { useStyles } from './styles';
 
 enum SearchFilterEnum {
@@ -15,15 +16,16 @@ enum SearchFilterEnum {
 interface IProps {
   className: string;
   globalSearch?: boolean;
-  toggleGlobalSearch: Callback<boolean>;
 }
 
-export const GlobalSearch: React.FC<IProps> = ({
-  className,
-  globalSearch,
-  toggleGlobalSearch,
-}) => {
+export const GlobalSearch: React.FC<IProps> = ({ className, globalSearch }) => {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
+
+  const handleChange = (value: string): void => {
+    dispatch(toggleGlobalSearch(value === SearchFilterEnum.GLOBAL_SEARCH));
+  };
 
   return (
     <Autocomplete
@@ -46,7 +48,7 @@ export const GlobalSearch: React.FC<IProps> = ({
         <TextField {...params} label="Search region" variant="outlined" />
       )}
       onChange={(_: any, value: string): void => {
-        toggleGlobalSearch(value === SearchFilterEnum.GLOBAL_SEARCH);
+        handleChange(value);
       }}
     />
   );
