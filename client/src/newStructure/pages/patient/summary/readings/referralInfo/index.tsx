@@ -11,6 +11,7 @@ import { useStyles } from './styles';
 interface IProps {
   assessment: NewAssessment;
   displayAssessmentModal: boolean;
+  patientId: string;
   readingId: string;
   referral: OrNull<Referral>;
   onAddPatientRequired: (
@@ -23,6 +24,7 @@ interface IProps {
 export const ReferralInfo: React.FC<IProps> = ({
   assessment,
   displayAssessmentModal,
+  patientId,
   readingId,
   referral,
   onAddPatientRequired,
@@ -49,6 +51,7 @@ export const ReferralInfo: React.FC<IProps> = ({
       <FollowUpModal
         assessment={assessment}
         displayAssessmentModal={displayAssessmentModal}
+        patientId={patientId}
         readingId={readingId}
         referral={referral}
         onAddPatientRequired={onAddPatientRequired}

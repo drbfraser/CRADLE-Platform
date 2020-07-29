@@ -27,7 +27,7 @@ interface IProps {
   onPatientSelected: Callback<Patient>;
   onGlobalSearchPatientSelected: Callback<string>;
   toggleGlobalSearch: Callback<boolean>;
-  sortPatients: Callback<OrNull<Array<Patient>>>;
+  sortPatients: Callback<OrNull<Array<Patient> | Array<GlobalSearchPatient>>>;
   updateSelectedPatientState: Callback<OrUndefined<PatientStateEnum>>;
   updatePageNumber: Callback<number>;
   updateSearchText: Callback<OrUndefined<string>>;

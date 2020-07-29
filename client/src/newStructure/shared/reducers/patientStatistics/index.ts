@@ -2,7 +2,7 @@ import { OrNull, PatientStatistics, ServerError } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { Endpoints } from '../../../server/endpoints';
+import { EndpointEnum } from '../../../server/endpoints';
 
 enum PatientStatisticsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'patientStatistics/CLEAR_REQUEST_OUTCOME',
@@ -35,7 +35,7 @@ export const getPatientStatistics = (
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.PATIENT}${Endpoints.STATS}/${patientId}`,
+        endpoint: `${EndpointEnum.PATIENTS}/${patientId}${EndpointEnum.STATISTICS}`,
         onSuccess: ({
           data,
         }: {

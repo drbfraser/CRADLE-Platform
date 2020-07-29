@@ -11,26 +11,47 @@ interface IProps {
 export const Assessment: React.FC<IProps> = ({ assessment }) => {
   return assessment ? (
     <Segment>
-      <Header size="small">Special Investigations + Results:</Header>
-      <p>{assessment?.specialInvestigations || 'N/A'}</p>
-      <Divider />
-      <Header size="small">Final Diagnosis:</Header>
-      <p>{assessment?.diagnosis || 'N/A'}</p>
-      <Divider />
-      <Header size="small">Treatment/Operation:</Header>
-      <p>{assessment?.treatment || 'N/A'}</p>
-      <Divider />
-      <Header size="small">Medication Prescribed:</Header>
-      <p>{assessment?.medicationPrescribed || 'N/A'}</p>
-      <Divider />
-      <Header size="small">Followup Instructions:</Header>
-      <p>{assessment?.followupInstructions || 'N/A'}</p>
-      <Divider />
+      {assessment.specialInvestigations && (
+        <>
+          <Header size="small">Special Investigations + Results:</Header>
+          <p>{assessment.specialInvestigations}</p>
+          <Divider />
+        </>
+      )}
+      {assessment.diagnosis && (
+        <>
+          <Header size="small">Final Diagnosis:</Header>
+          <p>{assessment.diagnosis}</p>
+          <Divider />
+        </>
+      )}
+      {assessment.treatment && (
+        <>
+          <Header size="small">Treatment/Operation:</Header>
+          <p>{assessment.treatment}</p>
+          <Divider />
+        </>
+      )}
+      {assessment.medicationPrescribed && (
+        <>
+          <Header size="small">Medication Prescribed:</Header>
+          <p>{assessment.medicationPrescribed || 'N/A'}</p>
+          <Divider />
+        </>
+      )}
+      {assessment.followupInstructions && (
+        <>
+          <Header size="small">Followup Instructions:</Header>
+          <p>{assessment.followupInstructions}</p>
+          <Divider />
+        </>
+      )}
       <p>
-        <b>Assessed By:</b> Healthcare Worker {assessment?.healthcareWorkerId}
+        <b>Assessed By: </b>
+        {`Healthcare Worker ${assessment.healthcareWorkerId}` ?? `N/A`}
       </p>
       <p>
-        <b>Date Last Assessed:</b> {getPrettyDateTime(assessment?.dateAssessed)}
+        <b>Date Last Assessed:</b> {getPrettyDateTime(assessment.dateAssessed)}
       </p>
     </Segment>
   ) : null;

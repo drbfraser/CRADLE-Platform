@@ -9,8 +9,8 @@ import { Dispatch, bindActionCreators } from 'redux';
 import { PatientStateEnum, RoleEnum } from '../../enums';
 import {
   addPatientToHealthFacility,
-  getPatients,
-  sortPatients,
+  getPatientsTablePatients,
+  sortPatientsTablePatients,
   toggleGlobalSearch,
   toggleShowReferredPatients,
   updatePatientsTablePageNumber,
@@ -33,9 +33,11 @@ interface IProps {
   fetchingPatients: boolean;
   patients: OrNull<Array<Patient>>;
   globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
-  getPatients: (searchText?: string) => void;
+  getPatientsTablePatients: (searchText?: string) => void;
   addPatientToHealthFacility: Callback<string>;
-  sortPatients: Callback<OrNull<Array<Patient>>>;
+  sortPatientsTablePatients: Callback<
+    OrNull<Array<Patient> | Array<GlobalSearchPatient>>
+  >;
   toggleGlobalSearch: Callback<boolean>;
   updatePatientsTablePageNumber: Callback<number>;
   updatePatientsTableSearchText: Callback<OrUndefined<string>>;
@@ -48,14 +50,14 @@ interface IProps {
 const Page: React.FC<IProps> = ({
   fetchingPatients,
   patients,
-  getPatients,
+  getPatientsTablePatients,
   ...props
 }) => {
   React.useEffect(() => {
     if (!fetchingPatients && patients === null) {
-      getPatients();
+      getPatientsTablePatients();
     }
-  }, [fetchingPatients, getPatients, patients]);
+  }, [fetchingPatients, getPatientsTablePatients, patients]);
 
   const onPatientSelected = ({ patientId }: Patient): void =>
     props.navigateToPatientPage(patientId);
@@ -77,12 +79,12 @@ const Page: React.FC<IProps> = ({
       globalSearchData={props.globalSearchPatients}
       loading={fetchingPatients || props.addingFromGlobalSearch}
       showGlobalSearch={props.userIsHealthWorker}
-      getPatients={getPatients}
+      getPatients={getPatientsTablePatients}
       updatePageNumber={props.updatePatientsTablePageNumber}
       updateSearchText={props.updatePatientsTableSearchText}
       updateSelectedPatientState={props.updateSelectedPatientState}
       toggleShowReferredPatients={props.toggleShowReferredPatients}
-      sortPatients={props.sortPatients}
+      sortPatients={props.sortPatientsTablePatients}
     />
   );
 };
@@ -104,13 +106,13 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     ...bindActionCreators(
       {
         addPatientToHealthFacility,
-        getPatients,
+        getPatientsTablePatients,
         toggleGlobalSearch,
         updatePatientsTablePageNumber,
         updatePatientsTableSearchText,
         updateSelectedPatientState,
         toggleShowReferredPatients,
-        sortPatients,
+        sortPatientsTablePatients,
       },
       dispatch
     ),

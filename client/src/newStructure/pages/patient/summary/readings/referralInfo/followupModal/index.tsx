@@ -6,20 +6,22 @@ import {
   clearUpdateAssessmentOutcome,
   createAssessment,
   updateAssessment,
-} from '../../../../../../shared/reducers/referrals';
+} from '../../../../../../shared/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Button from '@material-ui/core/Button';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { ReduxState } from '../../../../../../redux/rootReducer';
 import Switch from '@material-ui/core/Switch';
 import { Toast } from '../../../../../../shared/components/toast';
+import { useDisableSubmit } from './hooks/disableSubmit';
 import { useStyles } from './styles';
 
 interface IProps {
   assessment: NewAssessment;
   displayAssessmentModal: boolean;
+  patientId: string;
   readingId: string;
   referral: Referral;
   onAddPatientRequired: (
@@ -31,12 +33,15 @@ interface IProps {
 
 type SelectorState = {
   error: OrNull<string>;
+  loading: boolean;
   success: OrNull<string>;
+  userId: number;
 };
 
 export const FollowUpModal: React.FC<IProps> = ({
   assessment,
   displayAssessmentModal,
+  patientId,
   readingId,
   referral,
   onAddPatientRequired,
@@ -44,14 +49,21 @@ export const FollowUpModal: React.FC<IProps> = ({
 }) => {
   const classes = useStyles();
 
-  const { error, success } = useSelector(
-    ({ referrals }: ReduxState): SelectorState => ({
-      error: referrals.error,
-      success: referrals.success,
+  const { error, loading, success, userId } = useSelector(
+    ({ patients, user }: ReduxState): SelectorState => ({
+      error: patients.error,
+      loading: patients.isLoading,
+      success: patients.success,
+      userId: user.current!.data!.userId,
     })
   );
 
   const dispatch = useDispatch();
+
+  const disabled = useDisableSubmit({
+    loading,
+    newAssessment: assessment,
+  });
 
   const openAssessmentModal = (): void => {
     onAddPatientRequired((): void => {
@@ -86,10 +98,17 @@ export const FollowUpModal: React.FC<IProps> = ({
   };
 
   const handleSubmit = (): void => {
-    if (referral.id) {
-      dispatch(updateAssessment(readingId, referral.id, assessment));
+    if (referral.isAssessed) {
+      dispatch(
+        updateAssessment({
+          data: assessment,
+          readingId,
+          referralId: referral.id,
+          userId,
+        })
+      );
     } else {
-      dispatch(createAssessment(readingId, assessment));
+      dispatch(createAssessment({ readingId, data: assessment, userId }));
     }
   };
 
@@ -181,7 +200,11 @@ export const FollowUpModal: React.FC<IProps> = ({
                     onChange={handleChange}></Form.Field>
                 </div>
               )}
-              <Button className={classes.submit} variant="contained">
+              <Button
+                className={classes.submit}
+                disabled={disabled}
+                variant="contained"
+                type="submit">
                 Submit
               </Button>
             </Form>

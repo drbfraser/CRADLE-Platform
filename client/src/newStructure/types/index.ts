@@ -33,9 +33,9 @@ export type Reading = {
   patient: string;
   patientId: string;
   readingId: string;
-  referral: OrNull<number>;
+  referral: OrNull<Referral>;
   retestOfPreviousReadingIds: OrNull<string>;
-  symptoms: Array<string>;
+  symptoms?: Array<string>;
   temporaryFlags: OrNull<number>;
   totalOcrSeconds: OrNull<number>;
   trafficLightStatus: TrafficLightEnum;
@@ -176,29 +176,12 @@ export type PatientStatistics = {
   bpDiastolicReadingsMonthly?: Array<Array<number>>;
   heartRateReadingsMonthly?: Array<Array<number>>;
   trafficLightCountsFromDay1: {
-    green: Array<number>;
-    yellowUp: Array<number>;
-    yellowDown: Array<number>;
-    redUp: Array<number>;
-    redDown: Array<number>;
+    green: number;
+    yellowUp: number;
+    yellowDown: number;
+    redUp: number;
+    redDown: number;
   };
-};
-
-export type Referral = {
-  id: string;
-  actionTaken: OrNull<string>;
-  comment: string;
-  dateReferred: number;
-  followUp: OrNull<any>;
-  healthFacility: string;
-  isAssessed: boolean;
-  patient: string;
-  patientId: string;
-  reading: string;
-  readingId: string;
-  referralHealthFacilityName: string;
-  userId: OrNull<number>;
-  users: null;
 };
 
 export type NewAssessment = {
@@ -213,4 +196,19 @@ export type NewAssessment = {
 export type Assessment = NewAssessment & {
   dateAssessed: number;
   healthcareWorkerId: string;
+  readingId: string;
+};
+
+export type Referral = {
+  id: string;
+  actionTaken: OrNull<string>;
+  dateReferred: number;
+  comment: string;
+  followUp: OrNull<Assessment>;
+  healthFacility: string;
+  isAssessed: boolean;
+  patientId: string;
+  readingId: string;
+  referralHealthFacilityName: string;
+  userId: OrNull<number>;
 };

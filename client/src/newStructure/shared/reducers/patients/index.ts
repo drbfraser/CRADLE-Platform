@@ -1,164 +1,311 @@
 import {
+  Assessment,
+  Callback,
   EditedPatient,
+  GlobalSearchPatient,
+  NewAssessment,
   OrNull,
   OrUndefined,
   Patient,
   Reading,
   ServerError,
 } from '@types';
+import { EndpointEnum, Endpoints } from '../../../server/endpoints';
+import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 import { calculateShockIndex, sortPatientsByLastReading } from '../../utils';
 
 import { Dispatch } from 'redux';
-import { Endpoints } from '../../../server/endpoints';
 import { Methods } from '../../../server/methods';
 import { PatientStateEnum } from '../../../enums';
 import { getPatientsWithReferrals } from './utils';
 import { goBack } from 'connected-react-router';
-import { serverRequestActionCreator } from '../utils';
 
-const GET_PATIENT_REQUESTED = `patients/GET_PATIENT_REQUESTED`;
-const GET_PATIENT_SUCCESS = `patients/GET_PATIENT_SUCCESS`;
-const GET_PATIENT_ERROR = `patients/GET_PATIENT_ERROR`;
-const CLEAR_GET_PATIENT_ERROR = `patients/CLEAR_GET_PATIENT_ERROR`;
+enum PatientsActionEnum {
+  GET_PATIENT_REQUESTED = 'patients/GET_PATIENT_REQUESTED',
+  GET_PATIENT_SUCCESS = 'patients/GET_PATIENT_SUCCESS',
+  GET_PATIENT_ERROR = 'patients/GET_PATIENT_ERROR',
+  CLEAR_GET_PATIENT_ERROR = 'patients/CLEAR_GET_PATIENT_ERROR',
+  GET_PATIENTS_REQUESTED = 'patient/GET_PATIENTS_REQUESTED',
+  GET_PATIENTS_TABLE_PATIENTS_SUCCESS = 'patients/GET_PATIENTS_SUCCESS',
+  GET_PATIENTS_TABLE_PATIENTS_ERROR = 'patient/GET_PATIENTS_ERROR',
+  CLEAR_GET_PATIENTS_ERROR = 'patients/CLEAR_GET_PATIENTS_ERROR',
+  GET_REFERRALS_TABLE_PATIENTS_REQUESTED = 'patient/GET_REFERRALS_TABLE_PATIENTS_REQUESTED',
+  GET_REFERRALS_TABLE_PATIENTS_SUCCESS = 'patients/GET_REFERRALS_TABLE_PATIENTS_SUCCESS',
+  GET_REFERRALS_TABLE_PATIENTS_ERROR = 'patient/GET_REFERRALS_TABLE_PATIENTS_ERROR',
+  CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR = 'patients/CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR',
+  GET_GLOBAL_SEARCH_PATIENTS_SUCCESS = 'patients/GET_GLOBAL_SEARCH_PATIENTS',
+  GET_GLOBAL_SEARCH_PATIENTS_ERROR = 'patient/GET_GLOBAL_SEARCH_PATIENTS_ERROR',
+  TOGGLE_GLOBAL_SEARCH = 'patients/TOGGLE_GLOBAL_SEARCH',
+  UPDATE_PATIENTS_TABLE_PAGE_NUMBER = 'patients/UPDATE_PATIENTS_TABLE_PAGE_NUMBER',
+  UPDATE_REFERRALS_TABLE_PAGE_NUMBER = 'patients/UPDATE_REFERRALS_TABLE_PAGE_NUMBER',
+  UPDATE_PATIENTS_TABLE_SEARCH_TEXT = 'patients/UPDATE_PATIENTS_TABLE_SEARCH_TEXT',
+  UPDATE_REFERRALS_TABLE_SEARCH_TEXT = 'patients/UPDATE_REFERRALS_TABLE_SEARCH_TEXT',
+  UPDATE_SELECTED_PATIENT_STATE = 'patients/UPDATE_SELECTED_PATIENT_STATE',
+  TOGGLE_SHOW_REFERRED_PATIENTS = 'patients/TOGGLE_SHOW_REFERRED_PATIENTS',
+  SORT_PATIENTS_TABLE_PATIENTS = 'patients/SORT_PATIENTS_TABLE_PATIENTS',
+  SORT_REFERRALS_TABLE_PATIENTS = 'patients/SORT_REFERRALS_TABLE_PATIENTS',
+  UPDATE_PATIENT_REQUESTED = 'patient/UPDATE_PATIENT_REQUESTED',
+  UPDATE_PATIENT_SUCCESS = 'patient/UPDATE_PATIENT_SUCCESS',
+  UPDATE_PATIENT_ERROR = 'patients/UPDATE_PATIENT_ERROR',
+  CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME = 'patients/CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME',
+  ADD_NEW_PATIENT = 'patients/ADD_NEW_PATIENT',
+  AFTER_NEW_PATIENT_ADDED = 'patients/AFTER_NEW_PATIENT_ADDED',
+  AFTER_NEW_READING_ADDED = 'patients/AFTER_NEW_READING_ADDED',
+  RESET_PATIENT_UPDATED = 'patients/RESET_PATIENT_UPDATED',
+  ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = 'patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED',
+  ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = 'patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS',
+  ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = 'patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR',
+  CREATE_ASSESSMENT_REQUESTED = 'patients/CREATE_ASSESSMENT_REQUESTED',
+  CREATE_ASSESSMENT_SUCCESS = 'patients/CREATE_ASSESSMENT_SUCCESS',
+  CREATE_ASSESSMENT_ERROR = 'patients/CREATE_ASSESSMENT_ERROR',
+  CLEAR_CREATE_ASSESSMENT_REQUEST_OUTCOME = 'patients/CLEAR_CREATE_ASSESSMENT_OUTCOME',
+  UPDATE_ASSESSMENT_REQUESTED = 'patients/UPDATE_ASSESSMENT_REQUESTED',
+  UPDATE_ASSESSMENT_SUCCESS = 'patients/UPDATE_ASSESSMENT_SUCCESS',
+  UPDATE_ASSESSMENT_ERROR = 'patients/UPDATE_ASSESSMENT_ERROR',
+  CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME = 'patients/CLEAR_UPDATE_ASSESSMENT_OUTCOME',
+}
 
-const GET_PATIENTS_REQUESTED = `patient/GET_PATIENTS_REQUESTED`;
-const GET_PATIENTS_SUCCESS = `patients/GET_PATIENTS_SUCCESS`;
-const GET_PATIENTS_ERROR = `patient/GET_PATIENTS_ERROR`;
-const CLEAR_GET_PATIENTS_ERROR = `patients/CLEAR_GET_PATIENTS_ERROR`;
+type PageNumberPayload = { pageNumber: number };
 
-const GET_REFERRALS_TABLE_PATIENTS_REQUESTED = `patient/GET_REFERRALS_TABLE_PATIENTS_REQUESTED`;
-const GET_REFERRALS_TABLE_PATIENTS_SUCCESS = `patients/GET_REFERRALS_TABLE_PATIENTS_SUCCESS`;
-const GET_REFERRALS_TABLE_PATIENTS_ERROR = `patient/GET_REFERRALS_TABLE_PATIENTS_ERROR`;
-const CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR = `patients/CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR`;
+type SearchTextPayload = { searchText?: string };
 
-const GET_GLOBAL_SEARCH_PATIENTS_SUCCESS = `patients/GET_GLOBAL_SEARCH_PATIENTS`;
-const GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patient/GET_GLOBAL_SEARCH_PATIENTS_ERROR`;
+type ErrorPayload = { error: string };
 
-const TOGGLE_GLOBAL_SEARCH = `patients/TOGGLE_GLOBAL_SEARCH`;
+type PatientIdPayload = { patientId: string };
 
-const UPDATE_PATIENTS_TABLE_PAGE_NUMBER = `patients/UPDATE_PATIENTS_TABLE_PAGE_NUMBER`;
-const UPDATE_REFERRALS_TABLE_PAGE_NUMBER = `patients/UPDATE_REFERRALS_TABLE_PAGE_NUMBER`;
+type PatientsAction =
+  | { type: PatientsActionEnum.GET_PATIENT_REQUESTED }
+  | {
+      type: PatientsActionEnum.GET_PATIENT_SUCCESS;
+      payload: { patient: Patient };
+    }
+  | { type: PatientsActionEnum.GET_PATIENT_ERROR; payload: ErrorPayload }
+  | { type: PatientsActionEnum.CLEAR_GET_PATIENT_ERROR }
+  | { type: PatientsActionEnum.GET_PATIENTS_REQUESTED }
+  | {
+      type: PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_SUCCESS;
+      payload: { patients: Array<Patient> };
+    }
+  | {
+      type: PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_ERROR;
+      payload: ErrorPayload;
+    }
+  | { type: PatientsActionEnum.CLEAR_GET_PATIENTS_ERROR }
+  | { type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_REQUESTED }
+  | {
+      type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_SUCCESS;
+      payload: { patients: Array<Patient> };
+    }
+  | {
+      type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_ERROR;
+      payload: ErrorPayload;
+    }
+  | {
+      type: PatientsActionEnum.CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR;
+    }
+  | {
+      type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS;
+      payload: { globalSearchPatients: Array<GlobalSearchPatient> };
+    }
+  | {
+      type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR;
+      payload: ErrorPayload;
+    }
+  | {
+      type: PatientsActionEnum.TOGGLE_GLOBAL_SEARCH;
+      payload: { globalSearch: boolean };
+    }
+  | {
+      type: PatientsActionEnum.UPDATE_PATIENTS_TABLE_PAGE_NUMBER;
+      payload: PageNumberPayload;
+    }
+  | {
+      type: PatientsActionEnum.UPDATE_REFERRALS_TABLE_PAGE_NUMBER;
+      payload: PageNumberPayload;
+    }
+  | {
+      type: PatientsActionEnum.UPDATE_PATIENTS_TABLE_SEARCH_TEXT;
+      payload: SearchTextPayload;
+    }
+  | {
+      type: PatientsActionEnum.UPDATE_REFERRALS_TABLE_SEARCH_TEXT;
+      payload: SearchTextPayload;
+    }
+  | {
+      type: PatientsActionEnum.UPDATE_SELECTED_PATIENT_STATE;
+      payload: { state?: PatientStateEnum };
+    }
+  | { type: PatientsActionEnum.TOGGLE_SHOW_REFERRED_PATIENTS }
+  | {
+      type: PatientsActionEnum.SORT_PATIENTS_TABLE_PATIENTS;
+      payload: { sortedPatients: Array<Patient> | Array<GlobalSearchPatient> };
+    }
+  | {
+      type: PatientsActionEnum.SORT_REFERRALS_TABLE_PATIENTS;
+      payload: { sortedPatients: Array<Patient> };
+    }
+  | { type: PatientsActionEnum.UPDATE_PATIENT_REQUESTED }
+  | {
+      type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS;
+      payload: { updatedPatient: EditedPatient };
+    }
+  | {
+      type: PatientsActionEnum.UPDATE_PATIENT_ERROR;
+      payload: { error: ServerError };
+    }
+  | { type: PatientsActionEnum.CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME }
+  | {
+      type: PatientsActionEnum.ADD_NEW_PATIENT;
+      payload: { newPatient: Patient };
+    }
+  | { type: PatientsActionEnum.AFTER_NEW_PATIENT_ADDED }
+  | {
+      type: PatientsActionEnum.AFTER_NEW_READING_ADDED;
+      payload: { reading: Reading };
+    }
+  | { type: PatientsActionEnum.RESET_PATIENT_UPDATED }
+  | {
+      type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED;
+      payload: PatientIdPayload;
+    }
+  | {
+      type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS;
+      payload: PatientIdPayload;
+    }
+  | {
+      type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR;
+      payload: ErrorPayload;
+    }
+  | { type: PatientsActionEnum.CREATE_ASSESSMENT_REQUESTED }
+  | {
+      type: PatientsActionEnum.CREATE_ASSESSMENT_SUCCESS;
+      payload: { readingId: string; followUp: Assessment };
+    }
+  | { type: PatientsActionEnum.CREATE_ASSESSMENT_ERROR; payload: ErrorPayload }
+  | { type: PatientsActionEnum.CLEAR_CREATE_ASSESSMENT_REQUEST_OUTCOME }
+  | { type: PatientsActionEnum.UPDATE_ASSESSMENT_REQUESTED }
+  | {
+      type: PatientsActionEnum.UPDATE_ASSESSMENT_SUCCESS;
+      payload: { readingId: string; followUp: Assessment };
+    }
+  | { type: PatientsActionEnum.UPDATE_ASSESSMENT_ERROR; payload: ErrorPayload }
+  | { type: PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME };
 
-const UPDATE_PATIENTS_TABLE_SEARCH_TEXT = `patients/UPDATE_PATIENTS_TABLE_SEARCH_TEXT`;
-const UPDATE_REFERRALS_TABLE_SEARCH_TEXT = `patients/UPDATE_REFERRALS_TABLE_SEARCH_TEXT`;
-
-const UPDATE_SELECTED_PATIENT_STATE = `patients/UPDATE_SELECTED_PATIENT_STATE`;
-
-const TOGGLE_SHOW_REFERRED_PATIENTS = `patients/TOGGLE_SHOW_REFERRED_PATIENTS`;
-
-const SORT_PATIENTS = `patients/SORT_PATIENTS`;
-const SORT_REFERRALS_TABLE_PATIENTS = `patients/SORT_REFERRALS_TABLE_PATIENTS`;
-
-const UPDATE_PATIENT_REQUESTED = `patient/UPDATE_PATIENT_REQUESTED`;
-const UPDATE_PATIENT_SUCCESS = `patient/UPDATE_PATIENT_SUCCESS`;
-const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
-const CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME = `patients/CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME`;
-
-const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
-const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
-
-const AFTER_NEW_READING_ADDED = `patients/AFTER_NEW_READING_ADDED`;
-const RESET_PATIENT_UPDATED = `patients/RESET_PATIENT_UPDATED`;
-
-const ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED`;
-const ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS`;
-const ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR`;
-
-export const clearGetPatientError = () => {
-  return (dispatch: Dispatch) => {
+export const clearGetPatientError = (): Callback<Dispatch, PatientsAction> => {
+  return (dispatch: Dispatch): PatientsAction => {
     dispatch(goBack());
     return dispatch({
-      type: CLEAR_GET_PATIENT_ERROR,
+      type: PatientsActionEnum.CLEAR_GET_PATIENT_ERROR,
     });
   };
 };
 
-export const clearGetPatientsError = () => ({
-  type: CLEAR_GET_PATIENTS_ERROR,
+export const clearGetPatientsError = (): PatientsAction => ({
+  type: PatientsActionEnum.CLEAR_GET_PATIENTS_ERROR,
 });
 
-export const clearGetReferralsTablePatientsError = () => ({
-  type: CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR,
+export const clearGetReferralsTablePatientsError = (): PatientsAction => ({
+  type: PatientsActionEnum.CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR,
 });
 
-export const clearUpdatePatientRequestOutcome = () => ({
-  type: CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME,
+export const clearUpdatePatientRequestOutcome = (): PatientsAction => ({
+  type: PatientsActionEnum.CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME,
 });
 
-export const toggleGlobalSearch = (globalSearch: boolean) => ({
-  type: TOGGLE_GLOBAL_SEARCH,
+export const toggleGlobalSearch = (globalSearch: boolean): PatientsAction => ({
+  type: PatientsActionEnum.TOGGLE_GLOBAL_SEARCH,
   payload: { globalSearch },
 });
 
-export const updatePatientsTablePageNumber = (pageNumber: number) => ({
-  type: UPDATE_PATIENTS_TABLE_PAGE_NUMBER,
+export const updatePatientsTablePageNumber = (
+  pageNumber: number
+): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_PATIENTS_TABLE_PAGE_NUMBER,
   payload: { pageNumber },
 });
 
-export const updateReferralsTablePageNumber = (pageNumber: number) => ({
-  type: UPDATE_REFERRALS_TABLE_PAGE_NUMBER,
+export const updateReferralsTablePageNumber = (
+  pageNumber: number
+): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_REFERRALS_TABLE_PAGE_NUMBER,
   payload: { pageNumber },
 });
 
-export const updatePatientsTableSearchText = (searchText?: string) => ({
-  type: UPDATE_PATIENTS_TABLE_SEARCH_TEXT,
+export const updatePatientsTableSearchText = (
+  searchText?: string
+): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_PATIENTS_TABLE_SEARCH_TEXT,
   payload: { searchText },
 });
 
-export const updateReferralsTableSearchText = (searchText?: string) => ({
-  type: UPDATE_REFERRALS_TABLE_SEARCH_TEXT,
+export const updateReferralsTableSearchText = (
+  searchText?: string
+): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_REFERRALS_TABLE_SEARCH_TEXT,
   payload: { searchText },
 });
 
-export const updateSelectedPatientState = (state?: PatientStateEnum) => ({
-  type: UPDATE_SELECTED_PATIENT_STATE,
+export const updateSelectedPatientState = (
+  state?: PatientStateEnum
+): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_SELECTED_PATIENT_STATE,
   payload: { state },
 });
 
-export const toggleShowReferredPatients = () => ({
-  type: TOGGLE_SHOW_REFERRED_PATIENTS,
+export const toggleShowReferredPatients = (): PatientsAction => ({
+  type: PatientsActionEnum.TOGGLE_SHOW_REFERRED_PATIENTS,
 });
 
-export const sortPatients = (sortedPatients: Array<any>) => ({
-  type: SORT_PATIENTS,
+export const sortPatientsTablePatients = (
+  sortedPatients: Array<Patient> | Array<GlobalSearchPatient>
+): PatientsAction => ({
+  type: PatientsActionEnum.SORT_PATIENTS_TABLE_PATIENTS,
   payload: { sortedPatients },
 });
 
-export const sortReferralsTablePatients = (sortedPatients: Array<any>) => ({
-  type: SORT_REFERRALS_TABLE_PATIENTS,
+export const sortReferralsTablePatients = (
+  sortedPatients: Array<Patient>
+): PatientsAction => ({
+  type: PatientsActionEnum.SORT_REFERRALS_TABLE_PATIENTS,
   payload: { sortedPatients },
 });
 
-const getPatientRequested = () => ({
-  type: GET_PATIENT_REQUESTED,
+const getPatientRequested = (): PatientsAction => ({
+  type: PatientsActionEnum.GET_PATIENT_REQUESTED,
 });
 
-export const getPatient = (patientId: string) => {
-  return (dispatch: Dispatch) => {
+export const getPatient = (
+  patientId: string
+): Callback<Dispatch, ServerRequestAction> => {
+  return (dispatch: Dispatch): ServerRequestAction => {
     dispatch(getPatientRequested());
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.PATIENT}${Endpoints.READING}/${patientId}`,
-        onSuccess: (response: any) => ({
-          type: GET_PATIENT_SUCCESS,
-          payload: response,
-        }),
-        onError: (error: ServerError) => ({
-          type: GET_PATIENT_ERROR,
-          payload: error,
+        endpoint: `${EndpointEnum.PATIENTS}/${patientId}`,
+        onSuccess: (response: { data: Patient }): PatientsAction => {
+          return {
+            type: PatientsActionEnum.GET_PATIENT_SUCCESS,
+            payload: { patient: response.data },
+          };
+        },
+        onError: ({ message }: ServerError): PatientsAction => ({
+          type: PatientsActionEnum.GET_PATIENT_ERROR,
+          payload: { error: message },
         }),
       })
     );
   };
 };
 
-const getPatientsRequested = () => ({
-  type: GET_PATIENTS_REQUESTED,
+const getPatientsRequested = (): PatientsAction => ({
+  type: PatientsActionEnum.GET_PATIENTS_REQUESTED,
 });
 
-export const getPatients = (search?: string) => {
-  return (dispatch: Dispatch) => {
+export const getPatientsTablePatients = (
+  search?: string
+): Callback<Dispatch, ServerRequestAction> => {
+  return (dispatch: Dispatch): ServerRequestAction => {
     dispatch(getPatientsRequested());
 
     return dispatch(
@@ -166,25 +313,32 @@ export const getPatients = (search?: string) => {
         endpoint: search
           ? `${Endpoints.PATIENTS_GLOBAL_SEARCH}/${search}`
           : Endpoints.PATIENTS_ALL_INFO,
-        onSuccess: (response: any) =>
-          search
-            ? {
-                type: GET_GLOBAL_SEARCH_PATIENTS_SUCCESS,
-                payload: response,
-              }
-            : {
-                type: GET_PATIENTS_SUCCESS,
-                payload: response,
-              },
-        onError: (error: ServerError) => {
+        onSuccess: ({
+          data,
+        }: {
+          data: Array<Patient> | Array<GlobalSearchPatient>;
+        }): PatientsAction => {
           return search
             ? {
-                type: GET_GLOBAL_SEARCH_PATIENTS_ERROR,
-                payload: { ...error },
+                type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS,
+                payload: {
+                  globalSearchPatients: data as Array<GlobalSearchPatient>,
+                },
               }
             : {
-                type: GET_PATIENTS_ERROR,
-                payload: { ...error },
+                type: PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_SUCCESS,
+                payload: { patients: data as Array<Patient> },
+              };
+        },
+        onError: ({ message }: ServerError): PatientsAction => {
+          return search
+            ? {
+                type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR,
+                payload: { error: message },
+              }
+            : {
+                type: PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_ERROR,
+                payload: { error: message },
               };
         },
       })
@@ -192,25 +346,28 @@ export const getPatients = (search?: string) => {
   };
 };
 
-const getReferralsTablePatientsRequested = () => ({
-  type: GET_REFERRALS_TABLE_PATIENTS_REQUESTED,
+const getReferralsTablePatientsRequested = (): PatientsAction => ({
+  type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_REQUESTED,
 });
 
-export const getReferralsTablePatients = () => {
-  return (dispatch: Dispatch) => {
+export const getReferralsTablePatients = (): Callback<
+  Dispatch,
+  ServerRequestAction
+> => {
+  return (dispatch: Dispatch): ServerRequestAction => {
     dispatch(getReferralsTablePatientsRequested());
 
     return dispatch(
       serverRequestActionCreator({
         endpoint: Endpoints.PATIENTS_ALL_INFO,
-        onSuccess: (response: any) => ({
-          type: GET_REFERRALS_TABLE_PATIENTS_SUCCESS,
-          payload: response,
+        onSuccess: ({ data }: { data: Array<Patient> }): PatientsAction => ({
+          type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_SUCCESS,
+          payload: { patients: data },
         }),
-        onError: (error: ServerError) => {
+        onError: ({ message }: ServerError): PatientsAction => {
           return {
-            type: GET_REFERRALS_TABLE_PATIENTS_ERROR,
-            payload: { ...error },
+            type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_ERROR,
+            payload: { error: message },
           };
         },
       })
@@ -218,8 +375,8 @@ export const getReferralsTablePatients = () => {
   };
 };
 
-const updatePatientRequested = () => ({
-  type: UPDATE_PATIENT_REQUESTED,
+const updatePatientRequested = (): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_PATIENT_REQUESTED,
 });
 
 export const updatePatient = (
@@ -227,35 +384,45 @@ export const updatePatient = (
   data: Omit<EditedPatient, 'patientId' | 'gestationalTimestamp'> & {
     gestationalTimestamp: OrUndefined<number>;
   }
-) => {
+): Callback<Dispatch, ServerRequestAction> => {
   return (dispatch: Dispatch) => {
     dispatch(updatePatientRequested());
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.PATIENT}/${patientId}`,
+        endpoint: `${EndpointEnum.PATIENTS}/${patientId}${EndpointEnum.INFO}`,
         method: Methods.PUT,
         data,
-        onSuccess: ({ data }: { data: Patient }) => ({
-          type: UPDATE_PATIENT_SUCCESS,
-          payload: { updatedPatient: data },
+        onSuccess: (): PatientsAction => ({
+          type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS,
+          payload: {
+            updatedPatient: {
+              ...data,
+              gestationalTimestamp: data.gestationalTimestamp ?? Date.now(),
+              patientId,
+            },
+          },
         }),
-        onError: (error: ServerError) => ({
-          type: UPDATE_PATIENT_ERROR,
-          payload: error,
+        onError: (error: ServerError): PatientsAction => ({
+          type: PatientsActionEnum.UPDATE_PATIENT_ERROR,
+          payload: { error },
         }),
       })
     );
   };
 };
 
-const addPatientToHealthFacilityRequested = (patientId: string) => ({
-  type: ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED,
+const addPatientToHealthFacilityRequested = (
+  patientId: string
+): PatientsAction => ({
+  type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED,
   payload: { patientId },
 });
 
-export const addPatientToHealthFacility = (patientId: string) => {
-  return (dispatch: Dispatch) => {
+export const addPatientToHealthFacility = (
+  patientId: string
+): Callback<Dispatch, ServerRequestAction> => {
+  return (dispatch: Dispatch): ServerRequestAction => {
     dispatch(addPatientToHealthFacilityRequested(patientId));
 
     return dispatch(
@@ -263,40 +430,135 @@ export const addPatientToHealthFacility = (patientId: string) => {
         endpoint: Endpoints.PATIENT_FACILITY,
         method: Methods.POST,
         data: { patientId },
-        onSuccess: () => ({
-          type: ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
+        onSuccess: (): PatientsAction => ({
+          type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
           payload: { patientId },
         }),
-        onError: (error: any) => ({
-          type: ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
-          payload: error,
+        onError: ({ message }: ServerError): PatientsAction => ({
+          type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR,
+          payload: { error: message },
         }),
       })
     );
   };
 };
 
-export const addNewPatient = (newPatient: any) => ({
-  type: ADD_NEW_PATIENT,
-  payload: newPatient,
+export const addNewPatient = (newPatient: Patient): PatientsAction => ({
+  type: PatientsActionEnum.ADD_NEW_PATIENT,
+  payload: { newPatient },
 });
 
-export const afterNewPatientAdded = () => ({
-  type: AFTER_NEW_PATIENT_ADDED,
+export const afterNewPatientAdded = (): PatientsAction => ({
+  type: PatientsActionEnum.AFTER_NEW_PATIENT_ADDED,
 });
 
-export const afterNewReadingAdded = (reading: Reading) => {
+export const afterNewReadingAdded = (reading: Reading): PatientsAction => {
   // * Create traffic light status for newly created reading
   reading.trafficLightStatus = calculateShockIndex(reading);
 
   return {
-    type: AFTER_NEW_READING_ADDED,
+    type: PatientsActionEnum.AFTER_NEW_READING_ADDED,
     payload: { reading },
   };
 };
 
-export const resetPatientUpdated = () => ({
-  type: RESET_PATIENT_UPDATED,
+export const resetPatientUpdated = (): PatientsAction => ({
+  type: PatientsActionEnum.RESET_PATIENT_UPDATED,
+});
+
+const createAssessmentRequested = (): PatientsAction => ({
+  type: PatientsActionEnum.CREATE_ASSESSMENT_REQUESTED,
+});
+
+interface ICreateAssessmentArgs {
+  data: NewAssessment;
+  readingId: string;
+  userId: number;
+}
+
+export const createAssessment = ({
+  data,
+  readingId,
+  userId,
+}: ICreateAssessmentArgs): Callback<Dispatch, ServerRequestAction> => {
+  return (dispatch: Dispatch): ServerRequestAction => {
+    dispatch(createAssessmentRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: EndpointEnum.ASSESSMENTS,
+        method: Methods.POST,
+        data: { ...data, readingId },
+        onSuccess: (): PatientsAction => ({
+          type: PatientsActionEnum.CREATE_ASSESSMENT_SUCCESS,
+          payload: {
+            readingId,
+            followUp: {
+              ...data,
+              dateAssessed: Date.now() / 1000,
+              healthcareWorkerId: userId.toString(),
+              readingId,
+            },
+          },
+        }),
+        onError: ({ message }: ServerError): PatientsAction => ({
+          type: PatientsActionEnum.CREATE_ASSESSMENT_ERROR,
+          payload: { error: message },
+        }),
+      })
+    );
+  };
+};
+
+export const clearCreateAssessmentOutcome = (): PatientsAction => ({
+  type: PatientsActionEnum.CLEAR_CREATE_ASSESSMENT_REQUEST_OUTCOME,
+});
+
+const updateAssessmentRequested = (): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_ASSESSMENT_REQUESTED,
+});
+
+interface IUpdateAssessmentArgs extends ICreateAssessmentArgs {
+  referralId: string;
+}
+
+export const updateAssessment = ({
+  data,
+  readingId,
+  referralId,
+  userId,
+}: IUpdateAssessmentArgs): Callback<Dispatch, ServerRequestAction> => {
+  return (dispatch: Dispatch) => {
+    dispatch(updateAssessmentRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: `${Endpoints.FOLLOW_UP}/${referralId}`,
+        method: Methods.PUT,
+        data,
+        onSuccess: (): PatientsAction => ({
+          type: PatientsActionEnum.UPDATE_ASSESSMENT_SUCCESS,
+          payload: {
+            readingId,
+            followUp: {
+              ...data,
+              dateAssessed: Date.now() / 1000,
+              healthcareWorkerId: userId.toString(),
+              readingId,
+            },
+          },
+        }),
+        onError: ({ message }: ServerError): PatientsAction => ({
+          type: PatientsActionEnum.UPDATE_ASSESSMENT_ERROR,
+          payload: { error: message },
+        }),
+      })
+    );
+  };
+};
+
+export const clearUpdateAssessmentOutcome = (): PatientsAction => ({
+  type: PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME,
 });
 
 export type PatientsState = {
@@ -306,9 +568,9 @@ export type PatientsState = {
   patient: OrNull<Patient>;
   patientUpdated: boolean;
   globalSearch: boolean;
-  globalSearchPatientsList: OrNull<any>;
+  globalSearchPatientsList: OrNull<Array<GlobalSearchPatient>>;
   patientsList: OrNull<any>;
-  referralsTablePatientsList: OrNull<any>;
+  referralsTablePatientsList: OrNull<Array<Patient>>;
   isLoading: boolean;
   addingFromGlobalSearch: boolean;
   newPatientAdded: boolean;
@@ -341,41 +603,59 @@ const initialState: PatientsState = {
   showReferredPatients: undefined,
 };
 
-export const patientsReducer = (state = initialState, action: any) => {
-  let patientToAdd = null;
-  let updatedPatients = [];
+export const patientsReducer = (
+  state = initialState,
+  action: PatientsAction
+) => {
+  let patientToAdd: OrNull<GlobalSearchPatient> = null;
+  let updatedPatients: Array<GlobalSearchPatient> = [];
 
   switch (action.type) {
-    case GET_PATIENTS_SUCCESS:
+    case PatientsActionEnum.GET_PATIENTS_REQUESTED:
+    case PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_REQUESTED:
+    case PatientsActionEnum.UPDATE_PATIENT_REQUESTED:
+    case PatientsActionEnum.CREATE_ASSESSMENT_REQUESTED:
+    case PatientsActionEnum.UPDATE_ASSESSMENT_REQUESTED:
       return {
         ...state,
-        patientsList: action.payload.data.sort((a: any, b: any) =>
-          sortPatientsByLastReading(a, b)
+        isLoading: true,
+      };
+    case PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_SUCCESS:
+      return {
+        ...state,
+        patientsList: action.payload.patients.sort(
+          (patient: Patient, otherPatient: Patient) => {
+            return sortPatientsByLastReading(patient, otherPatient);
+          }
         ),
         isLoading: false,
       };
-    case GET_REFERRALS_TABLE_PATIENTS_SUCCESS:
+    case PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_SUCCESS:
       return {
         ...state,
         referralsTablePatientsList: getPatientsWithReferrals(
-          action.payload.data.sort((a: any, b: any) =>
-            sortPatientsByLastReading(a, b)
+          action.payload.patients.sort(
+            (patient: Patient, otherPatient: Patient) => {
+              return sortPatientsByLastReading(patient, otherPatient);
+            }
           )
         ),
         isLoading: false,
       };
-    case GET_GLOBAL_SEARCH_PATIENTS_SUCCESS:
+    case PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS:
       return {
         ...state,
-        globalSearchPatientsList: action.payload.data.sort((a: any, b: any) =>
-          sortPatientsByLastReading(a, b)
+        globalSearchPatientsList: action.payload.globalSearchPatients.sort(
+          (patient: GlobalSearchPatient, otherPatient: GlobalSearchPatient) => {
+            return sortPatientsByLastReading(patient, otherPatient);
+          }
         ),
         isLoading: false,
       };
-    case UPDATE_PATIENT_SUCCESS: {
+    case PatientsActionEnum.UPDATE_PATIENT_SUCCESS: {
       return {
         ...state,
-        success: `Patient successfully updated!`,
+        success: `Patient updated successfully!`,
         patientUpdated: true,
         patient: {
           ...action.payload.updatedPatient,
@@ -384,64 +664,101 @@ export const patientsReducer = (state = initialState, action: any) => {
         isLoading: false,
       };
     }
-    case GET_PATIENTS_REQUESTED:
-    case GET_REFERRALS_TABLE_PATIENTS_REQUESTED:
-    case UPDATE_PATIENT_REQUESTED:
+    case PatientsActionEnum.CREATE_ASSESSMENT_SUCCESS:
+    case PatientsActionEnum.UPDATE_ASSESSMENT_SUCCESS:
       return {
         ...state,
-        isLoading: true,
-      };
-    case GET_PATIENTS_ERROR:
-    case GET_REFERRALS_TABLE_PATIENTS_ERROR:
-    case UPDATE_PATIENT_ERROR:
-      return {
-        ...state,
-        error: action.payload.message,
+        success: `Assessment ${
+          action.type === PatientsActionEnum.CREATE_ASSESSMENT_SUCCESS
+            ? `created`
+            : `updated`
+        } successfuly!`,
+        patient: {
+          ...state.patient,
+          readings: state.patient?.readings.map(
+            (reading: Reading): Reading => {
+              if (reading.readingId === action.payload.readingId) {
+                if (reading.referral) {
+                  return {
+                    ...reading,
+                    referral: {
+                      ...reading.referral,
+                      isAssessed: true,
+                      followUp: action.payload.followUp,
+                    },
+                  };
+                }
+              }
+
+              return reading;
+            }
+          ),
+        },
         isLoading: false,
-        preventFetch: action.payload.status === 401,
       };
-    case CLEAR_GET_PATIENT_ERROR:
-    case CLEAR_GET_PATIENTS_ERROR:
-    case CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR:
+    case PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_ERROR:
+    case PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_ERROR:
+    case PatientsActionEnum.CREATE_ASSESSMENT_ERROR:
+    case PatientsActionEnum.UPDATE_ASSESSMENT_ERROR:
+      return {
+        ...state,
+        error: action.payload.error,
+        isLoading: false,
+      };
+    case PatientsActionEnum.UPDATE_PATIENT_ERROR:
+      return {
+        ...state,
+        error: action.payload.error.message,
+        isLoading: false,
+        preventFetch: action.payload.error.status === 401,
+      };
+    case PatientsActionEnum.CLEAR_GET_PATIENT_ERROR:
+    case PatientsActionEnum.CLEAR_GET_PATIENTS_ERROR:
+    case PatientsActionEnum.CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR:
       return {
         ...state,
         error: null,
       };
-    case CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME:
+    case PatientsActionEnum.CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME:
+    case PatientsActionEnum.CLEAR_CREATE_ASSESSMENT_REQUEST_OUTCOME:
+    case PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME:
       return {
         ...state,
         error: null,
         success: null,
       };
-    case GET_GLOBAL_SEARCH_PATIENTS_ERROR:
+    case PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR:
       return {
         ...state,
-        error: action.payload.message,
+        error: action.payload.error,
         isLoading: false,
       };
-    case GET_PATIENT_SUCCESS:
+    case PatientsActionEnum.GET_PATIENT_SUCCESS:
       return {
         ...state,
-        patient: action.payload.data,
+        patient: action.payload.patient,
         isLoading: false,
       };
-    case GET_PATIENT_REQUESTED:
+    case PatientsActionEnum.GET_PATIENT_REQUESTED:
       return {
         ...state,
         isLoading: true,
       };
-    case ADD_NEW_PATIENT:
+    case PatientsActionEnum.ADD_NEW_PATIENT:
       return {
         ...state,
-        patientsList: [action.payload, ...(state.patientsList ?? [])],
+        patientsList: [
+          action.payload.newPatient,
+          ...(state.patientsList ?? []),
+        ],
         newPatientAdded: true,
       };
-    case AFTER_NEW_PATIENT_ADDED:
+    case PatientsActionEnum.AFTER_NEW_PATIENT_ADDED:
       return {
         ...state,
         newPatientAdded: false,
       };
-    case AFTER_NEW_READING_ADDED:
+    case PatientsActionEnum.AFTER_NEW_READING_ADDED:
       return {
         ...state,
         patientUpdated: true,
@@ -453,36 +770,40 @@ export const patientsReducer = (state = initialState, action: any) => {
           ],
         },
       };
-    case RESET_PATIENT_UPDATED:
+    case PatientsActionEnum.RESET_PATIENT_UPDATED:
       return {
         ...state,
         patientUpdated: false,
       };
-    case GET_PATIENT_ERROR:
+    case PatientsActionEnum.GET_PATIENT_ERROR:
       return {
         ...state,
-        error: action.payload.message,
+        error: action.payload.error,
         isLoading: false,
       };
-    case ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED:
+    case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED:
       return {
         ...state,
-        globalSearchPatientsList: (
-          state.globalSearchPatientsList ?? []
-        ).map((patient: any): any =>
-          patient.patientId === action.payload.patientId
-            ? { ...patient, state: PatientStateEnum.ADDING }
-            : patient
+        globalSearchPatientsList: (state.globalSearchPatientsList ?? []).map(
+          (patient: GlobalSearchPatient): GlobalSearchPatient => {
+            return patient.patientId === action.payload.patientId
+              ? { ...patient, state: PatientStateEnum.ADDING }
+              : patient;
+          }
         ),
         addingFromGlobalSearch: true,
       };
-    case ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
+    case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS:
       updatedPatients = (state.globalSearchPatientsList ?? []).map(
-        (patient: any): any => {
+        (patient: GlobalSearchPatient): GlobalSearchPatient => {
           if (patient.patientId === action.payload.patientId) {
-            patientToAdd = { ...patient, state: PatientStateEnum.JUST_ADDED };
+            patientToAdd = {
+              ...patient,
+              state: PatientStateEnum.JUST_ADDED,
+            } as GlobalSearchPatient;
             return patientToAdd;
           }
+
           return patient;
         }
       );
@@ -500,57 +821,60 @@ export const patientsReducer = (state = initialState, action: any) => {
             ? [patientToAdd, ...state.patientsList]
             : state.patientsList,
       };
-    case ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
+    case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
       return {
         ...state,
+        error: action.payload.error,
         addingFromGlobalSearch: false,
       };
-    case TOGGLE_GLOBAL_SEARCH:
+    case PatientsActionEnum.TOGGLE_GLOBAL_SEARCH:
       return {
         ...state,
         globalSearch: action.payload.globalSearch,
       };
-    case UPDATE_PATIENTS_TABLE_PAGE_NUMBER:
+    case PatientsActionEnum.UPDATE_PATIENTS_TABLE_PAGE_NUMBER:
       return {
         ...state,
         patientsTablePageNumber: action.payload.pageNumber,
       };
-    case UPDATE_REFERRALS_TABLE_PAGE_NUMBER:
+    case PatientsActionEnum.UPDATE_REFERRALS_TABLE_PAGE_NUMBER:
       return {
         ...state,
         referralsTablePageNumber: action.payload.pageNumber,
       };
-    case UPDATE_PATIENTS_TABLE_SEARCH_TEXT:
+    case PatientsActionEnum.UPDATE_PATIENTS_TABLE_SEARCH_TEXT:
       return {
         ...state,
         patientsTableSearchText: action.payload.searchText,
       };
-    case UPDATE_REFERRALS_TABLE_SEARCH_TEXT:
+    case PatientsActionEnum.UPDATE_REFERRALS_TABLE_SEARCH_TEXT:
       return {
         ...state,
         referralsTableSearchText: action.payload.searchText,
       };
-    case UPDATE_SELECTED_PATIENT_STATE:
+    case PatientsActionEnum.UPDATE_SELECTED_PATIENT_STATE:
       return {
         ...state,
         selectedPatientState: action.payload.state,
       };
-    case TOGGLE_SHOW_REFERRED_PATIENTS:
+    case PatientsActionEnum.TOGGLE_SHOW_REFERRED_PATIENTS:
       return {
         ...state,
         showReferredPatients: !state.showReferredPatients,
       };
-    case SORT_PATIENTS:
+    case PatientsActionEnum.SORT_PATIENTS_TABLE_PATIENTS:
       return state.globalSearch
         ? {
             ...state,
-            globalSearchPatientsList: action.payload.sortedPatients,
+            globalSearchPatientsList: action.payload.sortedPatients as Array<
+              GlobalSearchPatient
+            >,
           }
         : {
             ...state,
-            patientsList: action.payload.sortedPatients,
+            patientsList: action.payload.sortedPatients as Array<Patient>,
           };
-    case SORT_REFERRALS_TABLE_PATIENTS:
+    case PatientsActionEnum.SORT_REFERRALS_TABLE_PATIENTS:
       return {
         ...state,
         referralsTablePatientsList: action.payload.sortedPatients,

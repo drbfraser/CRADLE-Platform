@@ -5,7 +5,7 @@ import { Dispatch } from 'redux';
 import { Endpoints } from '../../../../server/endpoints';
 import { Methods } from '../../../../server/methods';
 
-enum RegisterStatusEnum {
+enum RegisterStatusActionEnum {
   CLEAR_REQUEST_OUTCOME = 'registerStatus/CLEAR_REQUEST_OUTCOME',
   REGISTER_USER_REQUESTED = 'registerStatus/REGISTER_USER_REQUESTED',
   REGISTER_USER_SUCCESS = 'registerStatus/REGISTER_USER_SUCCESS',
@@ -13,23 +13,23 @@ enum RegisterStatusEnum {
 }
 
 export type RegisterStatusAction =
-  | { type: RegisterStatusEnum.CLEAR_REQUEST_OUTCOME }
-  | { type: RegisterStatusEnum.REGISTER_USER_REQUESTED }
+  | { type: RegisterStatusActionEnum.CLEAR_REQUEST_OUTCOME }
+  | { type: RegisterStatusActionEnum.REGISTER_USER_REQUESTED }
   | {
-      type: RegisterStatusEnum.REGISTER_USER_SUCCESS;
+      type: RegisterStatusActionEnum.REGISTER_USER_SUCCESS;
       payload: { message: string };
     }
   | {
-      type: RegisterStatusEnum.REGISTER_USER_ERROR;
+      type: RegisterStatusActionEnum.REGISTER_USER_ERROR;
       payload: { message: string };
     };
 
 const clearRegisterStatusOutcome = (): RegisterStatusAction => ({
-  type: RegisterStatusEnum.CLEAR_REQUEST_OUTCOME,
+  type: RegisterStatusActionEnum.CLEAR_REQUEST_OUTCOME,
 });
 
 const registerUserRequested = (): RegisterStatusAction => ({
-  type: RegisterStatusEnum.REGISTER_USER_REQUESTED,
+  type: RegisterStatusActionEnum.REGISTER_USER_REQUESTED,
 });
 
 export const registerUser = (
@@ -49,12 +49,12 @@ export const registerUser = (
           }, 3000);
 
           return {
-            type: RegisterStatusEnum.REGISTER_USER_SUCCESS,
+            type: RegisterStatusActionEnum.REGISTER_USER_SUCCESS,
             payload: { message: `User successfully created!` },
           };
         },
         onError: (message: string): RegisterStatusAction => ({
-          type: RegisterStatusEnum.REGISTER_USER_ERROR,
+          type: RegisterStatusActionEnum.REGISTER_USER_ERROR,
           payload: { message },
         }),
       })
@@ -81,23 +81,23 @@ export const registerStatusReducer = (
   action: RegisterStatusAction
 ): RegisterStatusState => {
   switch (action.type) {
-    case RegisterStatusEnum.CLEAR_REQUEST_OUTCOME: {
+    case RegisterStatusActionEnum.CLEAR_REQUEST_OUTCOME: {
       return initialState;
     }
-    case RegisterStatusEnum.REGISTER_USER_REQUESTED: {
+    case RegisterStatusActionEnum.REGISTER_USER_REQUESTED: {
       return {
         ...initialState,
         loading: false,
       };
     }
-    case RegisterStatusEnum.REGISTER_USER_SUCCESS: {
+    case RegisterStatusActionEnum.REGISTER_USER_SUCCESS: {
       return {
         ...initialState,
         message: action.payload.message,
         userCreated: true,
       };
     }
-    case RegisterStatusEnum.REGISTER_USER_ERROR: {
+    case RegisterStatusActionEnum.REGISTER_USER_ERROR: {
       return {
         ...initialState,
         error: true,

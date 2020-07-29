@@ -1,4 +1,4 @@
-import { OrNull, Patient, Reading } from '@types';
+import { GlobalSearchPatient, OrNull, Patient, Reading } from '@types';
 
 import { ReactComponent as GreenTraffic } from '../icons/green.svg';
 import { Icon } from 'semantic-ui-react';
@@ -128,10 +128,13 @@ export const getLatestReadingDateTime = (
   return getLatestReading(readings).dateTimeTaken;
 };
 
-export const sortPatientsByLastReading = (a: Patient, b: Patient): number => {
+export const sortPatientsByLastReading = (
+  patient: Patient | GlobalSearchPatient,
+  otherPatient: Patient | GlobalSearchPatient
+): number => {
   return (
-    getMomentDate(getLatestReadingDateTime(b.readings)).valueOf() -
-    getMomentDate(getLatestReadingDateTime(a.readings)).valueOf()
+    getMomentDate(getLatestReadingDateTime(otherPatient.readings)).valueOf() -
+    getMomentDate(getLatestReadingDateTime(patient.readings)).valueOf()
   );
 };
 

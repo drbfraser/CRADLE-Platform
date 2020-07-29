@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 
 type Dataset = {
   backgroundColor: ['red', 'red', 'yellow', 'yellow', 'green'];
-  data: Array<Array<number>>;
+  data: Array<number>;
 };
 
 type TrafficLights = {

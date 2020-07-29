@@ -28,6 +28,7 @@ export enum ActionTypeEnum {
   OPEN_ASSESSMENT_MODAL,
   INITIALIZE_EDITED_PATIENT,
   EDIT_PATIENT_SEX,
+  EDIT_IS_PREGNANT,
   EDIT_OTHER_PATIENT_FIELD,
   TOGGLE_PATIENT_GESTATIONAL_AGE_UNIT,
   EDIT_GESTATIONAL_TIMESTAMP,
@@ -106,6 +107,10 @@ export type Action =
   | {
       type: ActionTypeEnum.EDIT_PATIENT_SEX;
       payload: { sex: SexEnum };
+    }
+  | {
+      type: ActionTypeEnum.EDIT_IS_PREGNANT;
+      payload: { isPregnant: boolean };
     }
   | {
       type: ActionTypeEnum.EDIT_OTHER_PATIENT_FIELD;
@@ -285,6 +290,11 @@ export const actionCreators: ActionCreatorSignature = {
         type: ActionTypeEnum.EDIT_GESTATIONAL_TIMESTAMP,
         payload: { value: value as string },
       };
+    } else if (name === `isPregnant`) {
+      return {
+        type: ActionTypeEnum.EDIT_IS_PREGNANT,
+        payload: { isPregnant: value as boolean },
+      };
     }
 
     return {
@@ -415,6 +425,21 @@ export const reducer = (state: State = initialState, action: Action): State => {
             action.payload.sex === SexEnum.MALE
               ? false
               : state.editedPatient.isPregnant,
+        },
+      };
+    }
+    case ActionTypeEnum.EDIT_IS_PREGNANT: {
+      return {
+        ...state,
+        editedPatient: {
+          ...state.editedPatient,
+          isPregnant: action.payload.isPregnant,
+          gestationalAgeUnit: action.payload.isPregnant
+            ? GestationalAgeUnitEnum.WEEKS
+            : state.editedPatient.gestationalAgeUnit,
+          gestationalTimestamp: action.payload.isPregnant
+            ? Date.now() / 1000
+            : state.editedPatient.gestationalTimestamp,
         },
       };
     }

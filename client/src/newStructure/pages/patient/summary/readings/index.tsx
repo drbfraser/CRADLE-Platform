@@ -1,19 +1,14 @@
-import { NewAssessment, OrNull, Patient, Reading } from '@types';
-import { useDispatch, useSelector } from 'react-redux';
+import { NewAssessment, Patient, Reading } from '@types';
 
 import { Action } from '../reducers';
 import Grid from '@material-ui/core/Grid';
 import { Header } from './header';
 import { Heart } from './heart';
-import { Loader } from '../../../../shared/components/loader';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
-import { ReduxState } from '../../../../redux/rootReducer';
 import { ReferralInfo } from './referralInfo';
 import { Symptoms } from './symptoms';
 import { UrineTests } from './urineTests';
-import { getReferralIds } from './utils';
-import { getReferrals } from '../../../../shared/reducers/referrals';
 import { getTrafficIcon } from '../../../../shared/utils';
 import { useReadings } from './hooks';
 import { useStyles } from './styles';
@@ -38,18 +33,6 @@ export const PatientReadings: React.FC<IProps> = ({
 }) => {
   const classes = useStyles();
 
-  const mappedReferrals = useSelector(
-    (state: ReduxState): OrNull<Record<string, any>> => {
-      return state.referrals.mappedReferrals;
-    }
-  );
-
-  const dispatch = useDispatch();
-
-  React.useEffect((): void => {
-    dispatch(getReferrals(getReferralIds(selectedPatient)));
-  }, [dispatch, selectedPatient]);
-
   const readings = useReadings(selectedPatient);
 
   return (
@@ -67,18 +50,15 @@ export const PatientReadings: React.FC<IProps> = ({
                   <UrineTests urineTests={reading.urineTests} />
                 </div>
               </div>
-              {mappedReferrals ? (
-                <ReferralInfo
-                  assessment={assessment}
-                  displayAssessmentModal={displayAssessmentModal}
-                  readingId={reading.readingId}
-                  referral={mappedReferrals[reading.readingId]}
-                  onAddPatientRequired={onAddPatientRequired}
-                  updateState={updateState}
-                />
-              ) : (
-                <Loader message="Loading referrals..." show={true} />
-              )}
+              <ReferralInfo
+                assessment={assessment}
+                displayAssessmentModal={displayAssessmentModal}
+                patientId={selectedPatient.patientId}
+                readingId={reading.readingId}
+                referral={reading.referral}
+                onAddPatientRequired={onAddPatientRequired}
+                updateState={updateState}
+              />
             </Paper>
           </Grid>
         )

@@ -1,4 +1,3 @@
-import { Callback, Patient } from '@types';
 import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
 import {
   GestationalAgeUnitDisplayEnum,
@@ -6,6 +5,7 @@ import {
 } from '../../../../../enums';
 import { getNumOfMonths, getNumOfWeeks } from '../../../../../shared/utils';
 
+import { Callback } from '@types';
 import React from 'react';
 import { unitOptions } from './utils';
 import { useStyles } from './styles';
@@ -14,27 +14,22 @@ interface IProps {
   gestationalAgeUnit: GestationalAgeUnitEnum;
   gestationalTimestamp: number;
   pregnant: boolean;
-  updatePatient: Callback<Callback<Patient, Patient>>;
+  updateGestationalAgeUnit: Callback<GestationalAgeUnitEnum>;
 }
 
 export const GestationalAge: React.FC<IProps> = ({
   gestationalAgeUnit,
   gestationalTimestamp,
   pregnant,
-  updatePatient,
+  updateGestationalAgeUnit,
 }) => {
   const classes = useStyles();
 
-  const handleUnitChange = (
+  const handleGestationalAgeUnitChange = (
     _: React.ChangeEvent<HTMLInputElement>,
     { value }: InputOnChangeData
   ): void => {
-    updatePatient(
-      (currentPatient: Patient): Patient => ({
-        ...currentPatient,
-        gestationalAgeUnit: value as GestationalAgeUnitEnum,
-      })
-    );
+    updateGestationalAgeUnit(value as GestationalAgeUnitEnum);
   };
 
   return pregnant ? (
@@ -54,7 +49,7 @@ export const GestationalAge: React.FC<IProps> = ({
             ? GestationalAgeUnitDisplayEnum.WEEKS
             : GestationalAgeUnitDisplayEnum.MONTHS
         }
-        onChange={handleUnitChange}
+        onChange={handleGestationalAgeUnitChange}
       />
     </div>
   ) : null;

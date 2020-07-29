@@ -5,6 +5,7 @@ import { BasicInformation } from './basicInformation';
 import Button from '@material-ui/core/Button/Button';
 import { Divider } from 'semantic-ui-react';
 import { GestationalAge } from './gestationalAge';
+import { GestationalAgeUnitEnum } from 'src/newStructure/enums';
 import Grid from '@material-ui/core/Grid';
 import { HistoryItem } from './historyItem';
 import Paper from '@material-ui/core/Paper';
@@ -38,17 +39,31 @@ export const MedicalInformation: React.FC<IProps> = ({
     ),
   });
 
-  const [patient, setPatient] = React.useState<Patient>(selectedPatient);
-
-  React.useEffect((): void => {
-    setPatient(selectedPatient);
-  }, [selectedPatient]);
+  // * Allows toggling gestational age unit in medical information
+  const [gestationalAgeUnit, setGestationalAgeUnit] = React.useState<
+    GestationalAgeUnitEnum
+  >(selectedPatient.gestationalAgeUnit);
 
   React.useEffect((): void => {
     if (displayPatientModal) {
-      updateState(actionCreators.initializeEditedPatient(patient));
+      updateState(
+        actionCreators.initializeEditedPatient({
+          ...selectedPatient,
+          gestationalAgeUnit,
+        })
+      );
     }
-  }, [displayPatientModal, patient, updateState]);
+  }, [displayPatientModal, gestationalAgeUnit, selectedPatient, updateState]);
+
+  React.useEffect((): void => {
+    // * Allow edited patient gestational age unit to match selected patient
+    updateState(
+      actionCreators.editPatient({
+        name: `gestationalAgeUnit`,
+        value: gestationalAgeUnit,
+      })
+    );
+  }, [gestationalAgeUnit, updateState]);
 
   const openPatientModal = (): void => {
     onAddPatientRequired((): void => {
@@ -71,17 +86,20 @@ export const MedicalInformation: React.FC<IProps> = ({
           </Typography>
           <Divider />
           <div className={classes.content}>
-            <BasicInformation patient={patient} />
+            <BasicInformation patient={selectedPatient} />
             <GestationalAge
-              gestationalAgeUnit={patient.gestationalAgeUnit}
-              gestationalTimestamp={patient.gestationalTimestamp}
-              pregnant={patient.isPregnant}
-              updatePatient={setPatient}
+              gestationalAgeUnit={gestationalAgeUnit}
+              gestationalTimestamp={selectedPatient.gestationalTimestamp}
+              pregnant={selectedPatient.isPregnant}
+              updateGestationalAgeUnit={setGestationalAgeUnit}
             />
-            <HistoryItem title="Drug history" history={patient.drugHistory} />
+            <HistoryItem
+              title="Drug history"
+              history={selectedPatient.drugHistory}
+            />
             <HistoryItem
               title="Medical history"
-              history={patient.medicalHistory}
+              history={selectedPatient.medicalHistory}
             />
             <Button variant="contained" onClick={openPatientModal}>
               Edit Patient

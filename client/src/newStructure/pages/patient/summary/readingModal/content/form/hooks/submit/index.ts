@@ -81,7 +81,10 @@ export const useSubmit = ({
 
     // * Remove unnecessary fields from selectedPatient
     const patientData = Object.entries(selectedPatient).reduce(
-      (data: Record<string, any>, [key, value]: [string, any]): any => {
+      (
+        data: Record<string, any>,
+        [key, value]: [keyof Patient, Patient[keyof Patient]]
+      ): any => {
         if (
           key === `readings` ||
           key === `needsAssessment` ||

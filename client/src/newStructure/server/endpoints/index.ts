@@ -18,3 +18,10 @@ export const Endpoints = {
   REFRESH: `/refresh_token`,
   CURRENT: `/current`,
 };
+
+export enum EndpointEnum {
+  ASSESSMENTS = '/assessments',
+  INFO = '/info',
+  PATIENTS = '/patients',
+  STATISTICS = '/stats',
+}
