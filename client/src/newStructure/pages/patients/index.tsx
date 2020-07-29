@@ -117,7 +117,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
       dispatch
     ),
     navigateToPatientPage: (patientId: string) =>
-      dispatch(push(`/patient/${patientId}`)),
+      dispatch(push(`/patients/${patientId}`)),
   };
 };
 

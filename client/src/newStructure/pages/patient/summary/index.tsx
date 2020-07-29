@@ -1,7 +1,8 @@
-import { OrUndefined, Patient } from '@types';
+import { OrNull, OrUndefined, Patient } from '@types';
 import { actionCreators, initialState, reducer } from './reducers';
 import {
   addPatientToHealthFacility,
+  resetAddedFromGlobalSearch,
   updateSelectedPatientState,
 } from '../../../shared/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,35 +17,47 @@ import { PatientStateEnum } from '../../../enums';
 import React from 'react';
 import { ReadingModal } from './readingModal';
 import { ReduxState } from '../../../redux/rootReducer';
+import { Toast } from '../../../shared/components/toast';
 import { VitalsOverTime } from './vitalsOverTime';
 
 interface IProps {
   selectedPatient: Patient;
 }
 
+type SelectorState = {
+  addedFromGlobalSearch: boolean;
+  addingFromGlobalSearch: boolean;
+  addingFromGlobalSearchError: OrNull<string>;
+  selectedPatientState: OrUndefined<PatientStateEnum>;
+};
+
 export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
-  const selectedPatientState = useSelector(
-    (state: ReduxState): OrUndefined<PatientStateEnum> => {
-      return state.patients.selectedPatientState;
+  const {
+    addedFromGlobalSearch,
+    addingFromGlobalSearch,
+    addingFromGlobalSearchError,
+    selectedPatientState,
+  } = useSelector(
+    ({ patients }: ReduxState): SelectorState => {
+      return {
+        addedFromGlobalSearch: patients.addedFromGlobalSearch,
+        addingFromGlobalSearch: patients.addingFromGlobalSearch,
+        addingFromGlobalSearchError: patients.addingFromGlobalSearchError,
+        selectedPatientState: patients.selectedPatientState,
+      };
     }
   );
 
   const [state, updateState] = React.useReducer(reducer, initialState);
 
-  const [oldState] = React.useState({
-    actionAfterAdding: (): void => {
-      return;
-    },
-    promptMessage: ``,
-    showPrompt: false,
-  });
+  const [action, setAction] = React.useState<OrNull<() => void>>(null);
 
   const dispatch = useDispatch();
 
   // * Handles closing the prompt
-  const hidePrompt = (): void => {
+  const hidePrompt = React.useCallback((): void => {
     updateState(actionCreators.hidePrompt());
-  };
+  }, []);
 
   // * Handles confirming that the patient has been added to the health facility
   // * before proceeding with the action
@@ -52,17 +65,15 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     actionAfterAdding: () => void,
     message: string
   ): void => {
-    const onPromptConfirmed = (): void => {
-      dispatch(updateSelectedPatientState(undefined));
-      dispatch(addPatientToHealthFacility(selectedPatient.patientId));
-      actionAfterAdding();
-    };
-
     if (selectedPatientState === PatientStateEnum.ADD) {
       updateState(
         actionCreators.showPrompt({
           message,
-          onPromptConfirmed,
+          onPromptConfirmed: (): void => {
+            dispatch(updateSelectedPatientState(undefined));
+            dispatch(addPatientToHealthFacility(selectedPatient.patientId));
+            setAction((): (() => void) => actionAfterAdding);
+          },
         })
       );
     } else {
@@ -70,20 +81,39 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     }
   };
 
+  React.useEffect((): void => {
+    if (addedFromGlobalSearch) {
+      hidePrompt();
+      action?.();
+      setAction(null);
+      dispatch(resetAddedFromGlobalSearch());
+    }
+  }, [action, addedFromGlobalSearch, dispatch, hidePrompt]);
+
   const openReadingModal = (): void => {
     onAddPatientRequired(() => {
       updateState(actionCreators.openReadingModal());
     }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
 
+  const clearError = (): void => {
+    dispatch(resetAddedFromGlobalSearch());
+  };
+
   return (
     <>
+      <Toast
+        status="error"
+        message={addingFromGlobalSearchError}
+        clearMessage={clearError}
+      />
       <AddPatientPrompt
-        addPatient={oldState.actionAfterAdding}
+        adding={addingFromGlobalSearch}
+        addPatient={state.onPromptConfirmed}
         closeDialog={hidePrompt}
-        show={oldState.showPrompt}
-        message={oldState.promptMessage}
-        positiveText="Yes"
+        show={state.showPrompt}
+        message={state.promptMessage}
+        positiveText="Add"
       />
       <div>
         <PageHeader

@@ -98,15 +98,19 @@ export const calculateShockIndex = (reading: Reading): TrafficLightEnum => {
 };
 
 export const getMomentDate = (dateS: OrNull<number>): moment.Moment => {
-  return moment(dateS ?? 0 * 1000);
+  return moment(dateS ?? 0);
 };
 
 export const getPrettyDate = (dateStr: number): string => {
-  return getMomentDate(dateStr).format('MMMM Do YYYY');
+  // * Date comes in from the backend in seconds
+  // * Moment date requires milliseconds
+  return getMomentDate(dateStr * 1000).format('MMMM Do YYYY');
 };
 
 export const getPrettyDateTime = (dateStr: number): string => {
-  return getMomentDate(dateStr).format('MMMM Do YYYY, h:mm:ss a');
+  // * Date comes in from the backend in seconds
+  // * Moment date requires milliseconds
+  return getMomentDate(dateStr * 1000).format('MMMM Do YYYY, h:mm:ss a');
 };
 
 export const getPrettyDateYYYYmmDD = (dateStr: string): string => {

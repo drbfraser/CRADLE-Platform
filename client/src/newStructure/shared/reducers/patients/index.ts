@@ -55,6 +55,7 @@ enum PatientsActionEnum {
   ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = 'patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED',
   ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS = 'patients/ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS',
   ADD_PATIENT_TO_HEALTH_FACILITY_ERROR = 'patients/ADD_PATIENT_TO_HEALTH_FACILITY_ERROR',
+  RESET_ADDED_FROM_GLOBAL_SEARCH = 'patients/RESET_ADDED_FROM_GLOBAL_SEARCH',
   CREATE_ASSESSMENT_REQUESTED = 'patients/CREATE_ASSESSMENT_REQUESTED',
   CREATE_ASSESSMENT_SUCCESS = 'patients/CREATE_ASSESSMENT_SUCCESS',
   CREATE_ASSESSMENT_ERROR = 'patients/CREATE_ASSESSMENT_ERROR',
@@ -175,6 +176,9 @@ type PatientsAction =
   | {
       type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR;
       payload: ErrorPayload;
+    }
+  | {
+      type: PatientsActionEnum.RESET_ADDED_FROM_GLOBAL_SEARCH;
     }
   | { type: PatientsActionEnum.CREATE_ASSESSMENT_REQUESTED }
   | {
@@ -443,6 +447,10 @@ export const addPatientToHealthFacility = (
   };
 };
 
+export const resetAddedFromGlobalSearch = (): PatientsAction => ({
+  type: PatientsActionEnum.RESET_ADDED_FROM_GLOBAL_SEARCH,
+});
+
 export const addNewPatient = (newPatient: Patient): PatientsAction => ({
   type: PatientsActionEnum.ADD_NEW_PATIENT,
   payload: { newPatient },
@@ -562,6 +570,8 @@ export const clearUpdateAssessmentOutcome = (): PatientsAction => ({
 });
 
 export type PatientsState = {
+  addedFromGlobalSearch: boolean;
+  addingFromGlobalSearchError: OrNull<string>;
   error: OrNull<string>;
   success: OrNull<string>;
   preventFetch: boolean;
@@ -583,6 +593,8 @@ export type PatientsState = {
 };
 
 const initialState: PatientsState = {
+  addedFromGlobalSearch: false,
+  addingFromGlobalSearchError: null,
   error: null,
   success: null,
   preventFetch: false,
@@ -606,7 +618,7 @@ const initialState: PatientsState = {
 export const patientsReducer = (
   state = initialState,
   action: PatientsAction
-) => {
+): PatientsState => {
   let patientToAdd: OrNull<GlobalSearchPatient> = null;
   let updatedPatients: Array<GlobalSearchPatient> = [];
 
@@ -658,8 +670,9 @@ export const patientsReducer = (
         success: `Patient updated successfully!`,
         patientUpdated: true,
         patient: {
-          ...action.payload.updatedPatient,
-          readings: state.patient?.readings,
+          ...state.patient,
+          ...(action.payload.updatedPatient as Patient),
+          readings: state.patient?.readings ?? [],
         },
         isLoading: false,
       };
@@ -673,27 +686,30 @@ export const patientsReducer = (
             ? `created`
             : `updated`
         } successfuly!`,
-        patient: {
-          ...state.patient,
-          readings: state.patient?.readings.map(
-            (reading: Reading): Reading => {
-              if (reading.readingId === action.payload.readingId) {
-                if (reading.referral) {
-                  return {
-                    ...reading,
-                    referral: {
-                      ...reading.referral,
-                      isAssessed: true,
-                      followUp: action.payload.followUp,
-                    },
-                  };
-                }
-              }
+        patient: state.patient
+          ? {
+              ...state.patient,
+              readings:
+                state.patient?.readings.map(
+                  (reading: Reading): Reading => {
+                    if (reading.readingId === action.payload.readingId) {
+                      if (reading.referral) {
+                        return {
+                          ...reading,
+                          referral: {
+                            ...reading.referral,
+                            isAssessed: true,
+                            followUp: action.payload.followUp,
+                          },
+                        };
+                      }
+                    }
 
-              return reading;
+                    return reading;
+                  }
+                ) ?? [],
             }
-          ),
-        },
+          : null,
         isLoading: false,
       };
     case PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_ERROR:
@@ -763,7 +779,7 @@ export const patientsReducer = (
         ...state,
         patientUpdated: true,
         patient: {
-          ...state.patient,
+          ...(state.patient as Patient),
           readings: [
             action.payload.reading,
             ...(state.patient?.readings ?? []),
@@ -809,11 +825,12 @@ export const patientsReducer = (
       );
 
       if (patientToAdd === null && state.globalSearchPatientsList !== null) {
-        throw new Error(`Unknown patient id: ${action.payload.patientId}`);
+        return state;
       }
 
       return {
         ...state,
+        addedFromGlobalSearch: true,
         addingFromGlobalSearch: false,
         globalSearchPatientsList: updatedPatients,
         patientsList:
@@ -824,8 +841,14 @@ export const patientsReducer = (
     case PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_ERROR:
       return {
         ...state,
-        error: action.payload.error,
+        addingFromGlobalSearchError: action.payload.error,
         addingFromGlobalSearch: false,
+      };
+    case PatientsActionEnum.RESET_ADDED_FROM_GLOBAL_SEARCH:
+      return {
+        ...state,
+        addedFromGlobalSearch: false,
+        addingFromGlobalSearchError: null,
       };
     case PatientsActionEnum.TOGGLE_GLOBAL_SEARCH:
       return {

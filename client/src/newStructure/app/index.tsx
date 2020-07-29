@@ -493,7 +493,7 @@ const Component: React.FC<IProps> = (props) => {
               path="/patients"
               component={PatientsPage}
             />
-            <PrivateRoute path="/patient/:id" component={PatientPage} />
+            <PrivateRoute path="/patients/:id" component={PatientPage} />
             <PrivateRoute exact={true} path="/signup" component={SignUpPage} />
             <Route exact={true} path="/login" component={LoginPage} />
             <PrivateRoute

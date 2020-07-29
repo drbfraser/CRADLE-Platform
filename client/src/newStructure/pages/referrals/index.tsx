@@ -20,7 +20,7 @@ import { push } from 'connected-react-router';
 
 type SelectorState = {
   patients: OrNull<Array<Patient>>;
-  gettingPatients: boolean;
+  fetchingPatients: boolean;
   gettingPatientsError: OrNull<string>;
   loggingIn: boolean;
   loggingInError: OrNull<string>;
@@ -33,7 +33,7 @@ type SelectorState = {
 export const ReferralsPage: React.FC = () => {
   const {
     patients,
-    gettingPatients,
+    fetchingPatients,
     gettingPatientsError,
     loggingIn,
     loggingInError,
@@ -44,7 +44,7 @@ export const ReferralsPage: React.FC = () => {
   } = useSelector(
     (state: ReduxState): SelectorState => ({
       patients: state.patients.referralsTablePatientsList,
-      gettingPatients: state.patients.isLoading,
+      fetchingPatients: state.patients.isLoading,
       gettingPatientsError: state.patients.error,
       loggingIn: state.user.current.loading,
       loggingInError: state.user.current.message,
@@ -66,13 +66,19 @@ export const ReferralsPage: React.FC = () => {
   React.useEffect((): void => {
     if (
       !preventFetch &&
-      !gettingPatients &&
+      !fetchingPatients &&
       !gettingPatientsError &&
-      (patients?.length === 0 || patients === null)
+      patients === null
     ) {
       dispatch(getReferralsTablePatients());
     }
-  }, [patients, gettingPatients, gettingPatientsError, dispatch, preventFetch]);
+  }, [
+    patients,
+    fetchingPatients,
+    gettingPatientsError,
+    dispatch,
+    preventFetch,
+  ]);
 
   const clearError = (): void => {
     if (gettingPatientsError) {
@@ -85,7 +91,7 @@ export const ReferralsPage: React.FC = () => {
   };
 
   const goToPatientPage = (selectedPatient: { patientId: string }): void => {
-    dispatch(push(`/patient/${selectedPatient.patientId}`));
+    dispatch(push(`/patients/${selectedPatient.patientId}`));
   };
 
   const updatePageNumber = (pageNumber: number): void => {
@@ -112,7 +118,7 @@ export const ReferralsPage: React.FC = () => {
         searchText={searchText}
         onPatientSelected={goToPatientPage}
         data={patients}
-        loading={gettingPatients}
+        loading={fetchingPatients}
         updatePageNumber={updatePageNumber}
         updateSearchText={updateSearchText}
         sortPatients={sortPatients}
