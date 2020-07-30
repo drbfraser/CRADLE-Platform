@@ -25,8 +25,8 @@ import {
   addNewPatient,
   addPatientNew,
   doesPatientExist,
+  afterDoesPatientExist,
   afterNewPatientAdded,
-  getPatient,
 } from '../../../shared/reducers/patients';
 import { User } from '@types';
 import { useNewPatient } from './demographic/hooks';
@@ -88,19 +88,19 @@ interface IProps {
   addReadingNew: any;
   newPatientAdded: any;
   newPatientExist: boolean;
-  getPatient: any;
   patient: any;
   addReadingAssessment: any;
   readingCreated: any;
   resetNewReadingStatus: any;
   patientFromEdit: any;
+  afterDoesPatientExist: any;
 }
 
 const Page: React.FC<IProps> = (props) => {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const { patient, handleChangePatient, resetValuesPatient } = useNewPatient();
-  const [existingPatient, setExistingPatient] = useState(true);
+  const [existingPatient, setExistingPatient] = useState(false);
   const {
     symptoms,
     handleChangeSymptoms,
@@ -128,13 +128,23 @@ const Page: React.FC<IProps> = (props) => {
       props.getCurrentUser();
     }
     if (props.newPatientAdded) {
+      console.log('newPatientAdded');
       addReading();
       props.afterNewPatientAdded();
+      props.afterDoesPatientExist();
       setIsShowDialogsubmission(true);
     }
     if (props.newPatientExist && existingPatient) {
-      // props.getPatient(patient.patientId);
+      console.log('props.newPatientExist && existingPatient');
+
       setSelectedPatientId(props.patient.patientId);
+      setExistingPatient(false);
+      setIsShowDialog(true);
+    }
+    if (!props.newPatientExist && existingPatient) {
+      console.log('!props.newPatientExist && existingPatient');
+
+      setSelectedPatientId(patient.patientId);
       setExistingPatient(false);
       setIsShowDialog(true);
     }
@@ -142,6 +152,8 @@ const Page: React.FC<IProps> = (props) => {
 
   useEffect(() => {
     if (props.patientFromEdit) {
+      console.log('props.patientFromEdit');
+
       setblockBackButton(true);
       setSelectedPatientId(props.patientFromEdit.patientId);
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -179,13 +191,14 @@ const Page: React.FC<IProps> = (props) => {
   };
 
   const handleSubmit = () => {
-    if (!props.newPatientExist) {
+    if (!props.newPatientExist || props.patientFromEdit) {
       const formattedPatient = formatPatientData(patient);
       props.addPatientNew(formattedPatient);
     } else {
       addReading();
 
       props.afterNewPatientAdded();
+      props.afterDoesPatientExist();
       setIsShowDialogsubmission(true);
     }
   };
@@ -274,6 +287,7 @@ const Page: React.FC<IProps> = (props) => {
     resetValueVitals(true);
     resetValueAssessment(true);
     resetValueUrineTest(true);
+    setblockBackButton(false);
   };
   return (
     <div
@@ -293,7 +307,7 @@ const Page: React.FC<IProps> = (props) => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === 0 && props.patientFromEdit === null ? (
+      {activeStep === 0 ? (
         <Demographics
           patient={patient}
           onChange={handleChangePatient}></Demographics>
@@ -424,8 +438,8 @@ const mapDispatchToProps = (dispatch: any) => ({
       addPatientNew,
       addReadingNew,
       doesPatientExist,
+      afterDoesPatientExist,
       afterNewPatientAdded,
-      getPatient,
       addReadingAssessment,
     },
     dispatch

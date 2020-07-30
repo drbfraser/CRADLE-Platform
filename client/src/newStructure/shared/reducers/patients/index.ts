@@ -23,6 +23,7 @@ const GET_GLOBAL_SEARCH_PATIENTS_ERROR = `patient/GET_GLOBAL_SEARCH_PATIENTS_ERR
 
 const DOES_PATIENT_EXIST = `patient/DOES_PATIENT_EXIST`;
 const DOES_PATIENT_EXIST_ERROR = `patient/DOES_PATIENT_EXIST_ERROR`;
+const AFTER_DOES_PATIENT_EXIST = `patient/AFTER_DOES_PATIENT_EXIST`;
 
 const UPDATE_PATIENT = `patient/UPDATE_PATIENT`;
 const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
@@ -56,6 +57,10 @@ export const updateSelectedPatientState = (state?: PatientStateEnum) => ({
 
 export const toggleShowReferredPatients = () => ({
   type: TOGGLE_SHOW_REFERRED_PATIENTS,
+});
+
+export const afterDoesPatientExist = () => ({
+  type: AFTER_DOES_PATIENT_EXIST,
 });
 
 export const sortPatients = (sortedPatients: Array<any>) => ({
@@ -234,6 +239,12 @@ export const patientsReducer = (state = initialState, action: any) => {
         patientExist: false,
       };
     }
+    case AFTER_DOES_PATIENT_EXIST:
+      return {
+        ...state,
+        patient: null,
+        patientExist: false,
+      };
     case GET_PATIENTS:
       return {
         ...state,

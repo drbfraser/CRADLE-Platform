@@ -9,7 +9,7 @@ export const useNewPatient = () => {
     patientInitial: '',
     patientId: '',
     patientName: '',
-    patientAge: 0,
+    patientAge: 15,
     patientSex: 'FEMALE',
     isPregnant: false,
     gestationalAgeValue: '',
@@ -93,7 +93,7 @@ export const useNewPatient = () => {
     if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS) {
       currentDate.setMonth(currentDate.getMonth() - +value);
     }
-    return currentDate.getTime() / 1000;
+    return Math.floor(currentDate.getTime() / 1000);
   };
 
   // const getGestValueFromUNIX = (timestamp: any) => {
