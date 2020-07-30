@@ -11,7 +11,8 @@ import React from 'react';
 import { RoleEnum } from '../../../../../../../../../enums';
 import { User } from '@types';
 import { options } from '../../../../../../../utils';
-import { useHealthFacilityOptions } from './hooks';
+import { useHealthFacilityOptions } from './hooks/healthFacilityOptions';
+import { useVHTOptions } from './hooks/vhtOptions';
 
 interface IProps {
   displayEditUserModal: boolean;
@@ -33,6 +34,7 @@ export const EditUserModal: React.FC<IProps> = ({
   handleSubmit,
 }) => {
   const healthFacilityOptions = useHealthFacilityOptions();
+  const vhtOptions = useVHTOptions();
 
   return (
     <Modal closeIcon onClose={closeEditUserModal} open={displayEditUserModal}>
