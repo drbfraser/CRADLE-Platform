@@ -185,7 +185,7 @@ export const allUsersReducer = (
               user.userId === action.payload.updatedUser.userId
                 ? action.payload.updatedUser
                 : user
-          ) ?? null,
+          ) ?? [],
       };
     }
     case AllUsersActionEnum.DELETE_USER_SUCCESS: {

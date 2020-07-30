@@ -1,3 +1,17 @@
+export enum UserOptionEnum {
+  VHT = 1,
+  HCW = 2,
+  CHO = 3,
+  ADMIN = 4,
+}
+
+export enum UserOptionDisplayEnum {
+  VHT = 'VHT',
+  HCW = 'HCW',
+  CHO = 'CHO',
+  ADMIN = 'ADMIN',
+}
+
 export enum YesNoEnum {
   YES = 1,
   NO = 0,

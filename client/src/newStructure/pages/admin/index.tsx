@@ -25,13 +25,8 @@ import { connect } from 'react-redux';
 import { getCurrentUser } from '../../redux/reducers/user/currentUser';
 import { getHealthFacilityList } from '../../redux/reducers/healthFacilities';
 import { getVhts } from '../../redux/reducers/user/allVhts';
+import { options } from './utils';
 
-const options = [
-  { key: 'vht', text: 'VHT', value: 1 },
-  { key: 'hcw', text: 'HCW', value: 2 },
-  { key: 'admin', text: 'ADMIN', value: 3 },
-  { key: 'cho', text: 'CHO', value: 4 },
-];
 interface IProps {
   user: any;
   users: any;
@@ -47,6 +42,7 @@ interface IProps {
   loggedIn: boolean;
   fetching: boolean;
 }
+
 interface IState {
   columns: any;
   data: any;
