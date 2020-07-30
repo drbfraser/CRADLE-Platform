@@ -195,6 +195,7 @@ export type NewAssessment = {
 };
 
 export type FollowUp = NewAssessment & {
+  id: number;
   dateAssessed: number;
   healthcareWorkerId: string;
   readingId: string;

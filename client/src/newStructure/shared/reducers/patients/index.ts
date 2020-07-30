@@ -8,6 +8,7 @@ import {
   OrUndefined,
   Patient,
   Reading,
+  Referral,
   ServerError,
 } from '@types';
 import { EndpointEnum, Endpoints } from '../../../server/endpoints';
@@ -507,12 +508,13 @@ export const createAssessment = ({
         endpoint: EndpointEnum.ASSESSMENTS,
         method: Methods.POST,
         data: { ...data, readingId },
-        onSuccess: (): PatientsAction => ({
+        onSuccess: ({ data: id }: { data: number }): PatientsAction => ({
           type: PatientsActionEnum.CREATE_ASSESSMENT_SUCCESS,
           payload: {
             readingId,
             followup: {
               ...data,
+              id,
               dateAssessed: Date.now() / 1000,
               healthcareWorkerId: userId.toString(),
               readingId,
@@ -537,13 +539,12 @@ const updateAssessmentRequested = (): PatientsAction => ({
 });
 
 interface IUpdateAssessmentArgs extends ICreateAssessmentArgs {
-  referralId: string;
+  data: NewAssessment & { id: number };
 }
 
 export const updateAssessment = ({
   data,
   readingId,
-  referralId,
   userId,
 }: IUpdateAssessmentArgs): Callback<Dispatch, ServerRequestAction> => {
   return (dispatch: Dispatch) => {
@@ -551,7 +552,7 @@ export const updateAssessment = ({
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.FOLLOW_UP}/${referralId}`,
+        endpoint: `${Endpoints.FOLLOW_UP}/${data.id}`,
         method: Methods.PUT,
         data,
         onSuccess: (): PatientsAction => ({
@@ -705,6 +706,10 @@ export const patientsReducer = (
                     if (reading.readingId === action.payload.readingId) {
                       return {
                         ...reading,
+                        referral: {
+                          ...(reading.referral as Referral),
+                          isAssessed: true,
+                        },
                         followup: action.payload.followup,
                       };
                     }

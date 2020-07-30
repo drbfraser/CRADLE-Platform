@@ -1,6 +1,6 @@
 import { Action, actionCreators } from '../../../reducers';
+import { FollowUp, NewAssessment, OrNull, Referral } from '@types';
 import { Form, InputOnChangeData, Modal, TextArea } from 'semantic-ui-react';
-import { NewAssessment, OrNull, Referral } from '@types';
 import {
   clearCreateAssessmentOutcome,
   clearUpdateAssessmentOutcome,
@@ -21,6 +21,7 @@ import { useStyles } from './styles';
 interface IProps {
   assessment: NewAssessment;
   displayAssessmentModal: boolean;
+  followUp: OrNull<FollowUp>;
   patientId: string;
   readingId: string;
   referral: Referral;
@@ -41,6 +42,7 @@ type SelectorState = {
 export const FollowUpModal: React.FC<IProps> = ({
   assessment,
   displayAssessmentModal,
+  followUp,
   readingId,
   referral,
   onAddPatientRequired,
@@ -66,7 +68,7 @@ export const FollowUpModal: React.FC<IProps> = ({
 
   const openAssessmentModal = (): void => {
     onAddPatientRequired((): void => {
-      updateState(actionCreators.openAssessmentModal());
+      updateState(actionCreators.openAssessmentModal({ followUp }));
     }, `You haven't added this patient to your health facility. You need to do that before you can add/edit an assessment. Would like to add this patient?`);
   };
 
@@ -100,9 +102,8 @@ export const FollowUpModal: React.FC<IProps> = ({
     if (referral.isAssessed) {
       dispatch(
         updateAssessment({
-          data: assessment,
+          data: { ...assessment, id: followUp!.id },
           readingId,
-          referralId: referral.id,
           userId,
         })
       );

@@ -1,5 +1,6 @@
 import {
   EditedPatient,
+  FollowUp,
   NewAssessment,
   NewReading,
   OrNull,
@@ -99,7 +100,10 @@ export type Action =
   | { type: ActionTypeEnum.CLOSE_PATIENT_MODAL }
   | { type: ActionTypeEnum.OPEN_PATIENT_MODAL }
   | { type: ActionTypeEnum.CLOSE_ASSESSMENT_MODAL }
-  | { type: ActionTypeEnum.OPEN_ASSESSMENT_MODAL }
+  | {
+      type: ActionTypeEnum.OPEN_ASSESSMENT_MODAL;
+      payload: { followUp: OrNull<FollowUp> };
+    }
   | {
       type: ActionTypeEnum.INITIALIZE_EDITED_PATIENT;
       payload: { patient: Patient };
@@ -227,7 +231,7 @@ type ActionCreatorSignature = {
   closePatientModal: () => Action;
   openPatientModal: () => Action;
   closeAssessmentModal: () => Action;
-  openAssessmentModal: () => Action;
+  openAssessmentModal: (payload: { followUp: OrNull<FollowUp> }) => Action;
   initializeEditedPatient: (patient: Patient) => Action;
   editPatient: (payload: EditPatientPayload) => Action;
   updateNewReading: (payload: UpdateNewReadingPayload) => Action;
@@ -266,8 +270,8 @@ export const actionCreators: ActionCreatorSignature = {
   closeAssessmentModal: (): Action => {
     return { type: ActionTypeEnum.CLOSE_ASSESSMENT_MODAL };
   },
-  openAssessmentModal: (): Action => {
-    return { type: ActionTypeEnum.OPEN_ASSESSMENT_MODAL };
+  openAssessmentModal: (payload: { followUp: OrNull<FollowUp> }): Action => {
+    return { type: ActionTypeEnum.OPEN_ASSESSMENT_MODAL, payload };
   },
   initializeEditedPatient: (patient: Patient): Action => {
     return {
@@ -377,7 +381,11 @@ export const reducer = (state: State = initialState, action: Action): State => {
       return { ...state, displayAssessmentModal: false };
     }
     case ActionTypeEnum.OPEN_ASSESSMENT_MODAL: {
-      return { ...state, displayAssessmentModal: true };
+      return {
+        ...state,
+        displayAssessmentModal: true,
+        assessment: action.payload.followUp ?? state.assessment,
+      };
     }
     case ActionTypeEnum.INITIALIZE_EDITED_PATIENT: {
       const dob = action.payload.patient.dob;
