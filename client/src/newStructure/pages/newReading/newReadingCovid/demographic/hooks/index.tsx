@@ -35,18 +35,22 @@ export const useNewPatient = () => {
     drugHistoryError: false,
     medicalHistoryError: false,
   });
+
+  //~~~~~~~ format DOB for backend ~~~~~~~~~~
   const calculateDOB = (value: number) => {
     const currentDate = new Date();
     currentDate.setFullYear(currentDate.getFullYear() - value);
     return moment(currentDate).format('YYYY-MM-DD');
   };
 
+  //~~~~~~~ Calculate DOB based on Age ~~~~~~~~~~
   const getAgeBasedOnDOB = (value: string) => {
     const year: string = value.substr(0, value.indexOf('-'));
     const yearNow: number = new Date().getUTCFullYear();
     return yearNow - +year;
   };
 
+  //~~~~~~~ Reset All values ~~~~~~~~~~
   const resetValuesPatient = (reset: boolean) => {
     if (reset) {
       setPatient({
@@ -54,7 +58,7 @@ export const useNewPatient = () => {
         patientInitial: '',
         patientId: '',
         patientName: '',
-        patientAge: 0,
+        patientAge: 15,
         patientSex: 'FEMALE',
         isPregnant: false,
         gestationalAgeValue: '',
@@ -83,6 +87,7 @@ export const useNewPatient = () => {
     }
   };
 
+  //~~~~~~~ Format Gestational Age to UNIX ~~~~~~~~~~
   const calculateGestationalAgeValue = (value: string) => {
     const currentDate = new Date();
     let subtractValue = 0;
@@ -96,65 +101,24 @@ export const useNewPatient = () => {
     return Math.floor(currentDate.getTime() / 1000);
   };
 
-  // const getGestValueFromUNIX = (timestamp: any) => {
-  //   if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS) {
-  //     const todaysDate = new Date();
-  //     const gestDate = new Date(timestamp * 1000);
-  //     const subtracted = +todaysDate - +gestDate;
-  //     return Math.round(subtracted / (7 * 24 * 60 * 60 * 1000)).toString();
-  //   }
-  //   if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS) {
-  //     const todaysDate = new Date();
-  //     const gestDate = new Date(timestamp * 1000);
-  //
-  //     const numOfMonths =
-  //       todaysDate.getMonth() -
-  //       gestDate.getMonth() +
-  //       12 * (todaysDate.getFullYear() - gestDate.getFullYear());
-  //
-  //     return numOfMonths.toString();
-  //   }
-  //   return '';
-  // };
-
-  // const handleExistingPatient = (value: any) => {
-  //   setPatient({
-  //     ...patient,
-  //     patientInitial: value.patientName,
-  //     patientId: value.patientId,
-  //     villageNumber: value.villageNumber ? value.villageNumber : '',
-  //     household: value.householdNumber ? value.householdNumber : '',
-  //     medicalHistory: value.medicalHistory ? value.medicalHistory : '',
-  //     patientAge: value.patientAge ? value.patientAge : '',
-  //     gestationalAgeUnit: value.gestationalAgeUnit
-  //       ? value.gestationalAgeUnit
-  //       : GESTATIONAL_AGE_UNITS.WEEKS,
-  //     drugHistory: value.drugHistory ? value.drugHistory : '',
-  //     patientSex: value.patientSex ? value.patientSex : '',
-  //     zone: value.medicalHistory ? value.zone : '',
-  //     dob: value.dob ? value.dob : '2004-01-01',
-  //     isPregnant: value.isPregnant ? value.isPregnant : false,
-  //     gestationalAgeValue: value.gestationalTimestamp
-  //       ? getGestValueFromUNIX(value.gestationalTimestamp)
-  //       : '',
-  //   });
-  // };
-
+  //~~~~~~~ handle onChange Event ~~~~~~~~~~
   const handleChangePatient = (e: any) => {
-    const errors: any = validateInput(e.target.name, e.target.value);
     const name = e.target.name;
+    const value = e.target.value;
+    const errors: any = validateInput(name, value);
+
     if (name === 'patientSex') {
-      if (e.target.value === 'MALE') {
+      if (value === 'MALE') {
         setPatient({
           ...patient,
-          [name]: e.target.value,
+          [name]: value,
           gestationalAgeValue: '',
           isPregnant: false,
         });
       } else {
         setPatient({
           ...patient,
-          [name]: e.target.value,
+          [name]: value,
         });
       }
     }
@@ -175,61 +139,54 @@ export const useNewPatient = () => {
     if (name === 'patientInitial') {
       setPatient({
         ...patient,
-        [name]: e.target.value,
+        [name]: value,
         patientInitialError: errors.patientInitialError,
       });
     }
     if (name === 'patientId') {
       setPatient({
         ...patient,
-        [name]: e.target.value,
+        [name]: value,
         patientIdError: errors.patientIdError,
       });
     }
     if (name === 'dob') {
-      const dob = e.target.value ? e.target.value : patient.dob;
+      const dob = value ? value : patient.dob;
       const calculatedAge: number = getAgeBasedOnDOB(dob);
       setPatient({
         ...patient,
-        [name]: e.target.value,
+        [name]: value,
         patientAge: calculatedAge,
         dobError: errors.dobError,
         patientAgeError: errors.patientAgeError,
       });
     }
     if (name === 'patientAge') {
-      const age = calculateDOB(e.target.value);
+      const age = calculateDOB(value);
       setPatient({
         ...patient,
-        [name]: e.target.value,
+        [name]: value,
         dob: age,
         dobError: errors.dobError,
         patientAgeError: errors.patientAgeError,
       });
     }
-    if (name === 'household') {
-      setPatient({
-        ...patient,
-        [name]: e.target.value,
-        // error check for household?
-      });
-    }
     if (name === 'gestationalAgeUnit') {
       setPatient({
         ...patient,
-        [name]: e.target.value,
+        [name]: value,
         gestationalAgeValue: '0',
       });
     }
     if (name === 'gestationalAgeValue') {
       let gestationalAgeValueError = false;
       if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS) {
-        if (e.target.value > 60 || e.target.value < 1) {
+        if (value > 60 || value < 1) {
           gestationalAgeValueError = true;
         }
       }
       if (patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS) {
-        if (e.target.value > 12 || e.target.value < 1) {
+        if (value > 12 || value < 1) {
           gestationalAgeValueError = true;
         }
       }
@@ -246,14 +203,14 @@ export const useNewPatient = () => {
       name === 'zone' ||
       name === 'villageNumber' ||
       name === 'drugHistory' ||
-      name === 'medicalHistory'
+      name === 'medicalHistory' ||
+      name === 'household'
     ) {
       setPatient({
         ...patient,
-        [name]: e.target.value,
+        [name]: value,
       });
     }
-    console.log(patient);
   };
   return {
     patient,
