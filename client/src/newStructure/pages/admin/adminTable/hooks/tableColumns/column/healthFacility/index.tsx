@@ -18,7 +18,7 @@ interface IArgs {
 export const useHealthFacilityColumn = ({
   headClass,
   bodyClass,
-  users: users,
+  users,
   sortData,
 }: IArgs): MUIDataTableColumn => {
   return React.useMemo(() => {

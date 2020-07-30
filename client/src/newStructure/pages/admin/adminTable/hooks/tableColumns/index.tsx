@@ -34,7 +34,6 @@ export const useTableColumns = ({
   const actionsColumn = useActionsColumn({
     headClass: classes.headCell,
     users,
-    sortData,
   });
   const firstNameColumn = useFirstNameColumn({
     headClass: classes.headCell,

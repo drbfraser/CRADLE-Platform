@@ -1,4 +1,3 @@
-import { Callback, User } from '@types';
 import {
   MUIDataTableColumn,
   MUIDataTableCustomHeadRenderer,
@@ -7,17 +6,16 @@ import {
 import { ActionsBody } from './body';
 import { ActionsHead } from './head';
 import React from 'react';
+import { User } from '@types';
 
 interface IArgs {
   headClass: string;
   users: Array<User>;
-  sortData: Callback<Array<User>>;
 }
 
 export const useActionsColumn = ({
   headClass,
   users,
-  sortData,
 }: IArgs): MUIDataTableColumn => {
   return React.useMemo(() => {
     return {
@@ -39,5 +37,5 @@ export const useActionsColumn = ({
         searchable: false,
       },
     };
-  }, [headClass, users, sortData]);
+  }, [headClass, users]);
 };
