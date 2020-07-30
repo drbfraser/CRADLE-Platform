@@ -10,14 +10,12 @@ import React from 'react';
 
 interface IArgs {
   headClass: string;
-  bodyClass: string;
   users: Array<User>;
   sortData: Callback<Array<User>>;
 }
 
 export const useActionsColumn = ({
   headClass,
-  bodyClass,
   users,
   sortData,
 }: IArgs): MUIDataTableColumn => {
@@ -37,11 +35,9 @@ export const useActionsColumn = ({
             label={label}
           />
         ),
-        customBodyRender: (id: string) => (
-          <ActionsBody className={bodyClass} id={id} />
-        ),
+        customBodyRender: (id: string) => <ActionsBody id={id} />,
         searchable: false,
       },
     };
-  }, [headClass, bodyClass, users, sortData]);
+  }, [headClass, users, sortData]);
 };

@@ -2,6 +2,7 @@ import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
+import { OrNull } from '@types';
 
 enum HealthFacilitiesActionEnum {
   GET_HEALTH_FACILITY_REQUESTED = 'healthFacility/GET_HEALTH_FACILITY_REQUESTED',
@@ -13,7 +14,7 @@ type HealthFacilitiesAction =
   | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUESTED }
   | {
       type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_SUCCESS;
-      payload: { data: any };
+      payload: { data: Array<string> };
     }
   | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_ERROR };
 
@@ -30,7 +31,11 @@ export const getHealthFacilityList = (): ((
     return dispatch(
       serverRequestActionCreator({
         endpoint: Endpoints.HEALTH_FACILITY_LIST,
-        onSuccess: ({ data }: { data: any }): HealthFacilitiesAction => ({
+        onSuccess: ({
+          data,
+        }: {
+          data: Array<string>;
+        }): HealthFacilitiesAction => ({
           type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_SUCCESS,
           payload: { data },
         }),
@@ -47,11 +52,11 @@ export const getHealthFacilityList = (): ((
 
 export type HealthFacilitiesState = {
   isLoading: boolean;
-  data: Array<any>;
+  data: OrNull<Array<string>>;
 };
 
 const initialState: HealthFacilitiesState = {
-  data: [],
+  data: null,
   isLoading: false,
 };
 

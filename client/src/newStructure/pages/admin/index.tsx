@@ -18,6 +18,7 @@ import {
   updateUser,
 } from '../../redux/reducers/user/allUsers';
 
+import { AdminTable } from './adminTable';
 import MaterialTable from 'material-table';
 import { ReduxState } from '../../redux/reducers';
 import { VHT } from '../../types';
@@ -297,6 +298,21 @@ class AdminPageComponent extends Component<IProps, IState> {
     return (
       <div>
         <h1>Admin Panel</h1>
+        <AdminTable
+          data={this.props.users}
+          pageNumber={0}
+          loading={false}
+          sortUsers={(): void => {
+            return;
+          }}
+          updatePageNumber={(): void => {
+            return;
+          }}
+          updateSearchText={(): void => {
+            return;
+          }}
+          searchText={``}
+        />
         <MaterialTable
           title="Manage Users"
           isLoading={this.props.isLoading}

@@ -33,7 +33,6 @@ export const useTableColumns = ({
 
   const actionsColumn = useActionsColumn({
     headClass: classes.headCell,
-    bodyClass: classes.bodyCell,
     users,
     sortData,
   });
