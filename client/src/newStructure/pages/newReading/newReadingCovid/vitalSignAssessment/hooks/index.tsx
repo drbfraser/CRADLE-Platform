@@ -38,6 +38,7 @@ export const useNewVitals = () => {
       });
     }
   };
+
   const validate = (name: string, value: number) => {
     if (name === 'bpSystolic') {
       if (value < 50 || value > 300) {
@@ -66,58 +67,53 @@ export const useNewVitals = () => {
     }
     return false;
   };
+
   const handleChangeVitals = (e: any) => {
     const name = e.target.name;
     const value = e.target.value;
     const validation = validate(name, value);
-    console.log('validation', validation);
-    // sys 50-300
-    // 30-200 di
-    // 30-250 hear
+
     if (name == 'bpSystolic') {
       setVitals({
         ...vitals,
-        [e.target.name]: e.target.value,
+        [name]: value,
         bpSystolicError: validation,
       });
     }
     if (name === 'bpDiastolic') {
       setVitals({
         ...vitals,
-        [e.target.name]: e.target.value,
+        [name]: value,
         bpDiastolicError: validation,
       });
     }
     if (name === 'heartRateBPM') {
       setVitals({
         ...vitals,
-        [e.target.name]: e.target.value,
+        [name]: value,
         heartRateBPMError: validation,
       });
     }
     if (name === 'respiratoryRate') {
-      //add validation here
       setVitals({
         ...vitals,
-        [e.target.name]: e.target.value,
+        [name]: value,
       });
     }
     if (name === 'oxygenSaturation') {
       setVitals({
         ...vitals,
-        [e.target.name]: e.target.value,
+        [name]: value,
         oxygenSaturationError: validation,
       });
     }
     if (name === 'temperature') {
       setVitals({
         ...vitals,
-        [e.target.name]: e.target.value,
+        [name]: value,
         temperatureError: validation,
       });
     }
-
-    console.log('vitals', vitals);
   };
   return { vitals, handleChangeVitals, resetValueVitals };
 };
