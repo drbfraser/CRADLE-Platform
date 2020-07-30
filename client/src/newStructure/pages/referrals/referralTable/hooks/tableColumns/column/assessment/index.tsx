@@ -1,4 +1,4 @@
-import { Callback, Patient } from '@types';
+import { Callback, Patient, Reading } from '@types';
 import {
   MUIDataTableColumn,
   MUIDataTableCustomHeadRenderer,
@@ -24,7 +24,7 @@ export const useAssessmentColumn = ({
   return React.useMemo(() => {
     return {
       label: `Assessment`,
-      name: `needsAssessment`,
+      name: `readings`,
       options: {
         customHeadRender: ({
           label,
@@ -38,11 +38,8 @@ export const useAssessmentColumn = ({
             sortData={sortData}
           />
         ),
-        customBodyRender: (needsAssessment: boolean) => (
-          <AssessmentBody
-            className={bodyClass}
-            needsAssessment={needsAssessment}
-          />
+        customBodyRender: (readings: Array<Reading>) => (
+          <AssessmentBody className={bodyClass} readings={readings} />
         ),
         searchable: false,
       },

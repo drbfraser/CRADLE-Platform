@@ -65,7 +65,8 @@ enum PatientsActionEnum {
   UPDATE_ASSESSMENT_REQUESTED = 'patients/UPDATE_ASSESSMENT_REQUESTED',
   UPDATE_ASSESSMENT_SUCCESS = 'patients/UPDATE_ASSESSMENT_SUCCESS',
   UPDATE_ASSESSMENT_ERROR = 'patients/UPDATE_ASSESSMENT_ERROR',
-  CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME = 'patients/CLEAR_UPDATE_ASSESSMENT_OUTCOME',
+  CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME = 'patients/CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME',
+  UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE = 'patients/UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE',
 }
 
 type PageNumberPayload = { pageNumber: number };
@@ -198,7 +199,8 @@ type PatientsAction =
       payload: { readingId: string; followup: FollowUp };
     }
   | { type: PatientsActionEnum.UPDATE_ASSESSMENT_ERROR; payload: ErrorPayload }
-  | { type: PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME };
+  | { type: PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME }
+  | { type: PatientsActionEnum.UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE };
 
 export const clearGetPatientError = (): Callback<Dispatch, PatientsAction> => {
   return (dispatch: Dispatch): PatientsAction => {
@@ -580,6 +582,10 @@ export const clearUpdateAssessmentOutcome = (): PatientsAction => ({
   type: PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME,
 });
 
+export const updateTableDataOnSelectedPatientChange = (): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE,
+});
+
 export type PatientsState = {
   addedFromGlobalSearch: boolean;
   addingFromGlobalSearchError: OrNull<string>;
@@ -924,6 +930,33 @@ export const patientsReducer = (
       return {
         ...state,
         referralsTablePatientsList: action.payload.sortedPatients,
+      };
+    case PatientsActionEnum.UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE:
+      return {
+        ...state,
+        referralsTablePatientsList:
+          state.referralsTablePatientsList?.map(
+            (patient: Patient): Patient => {
+              if (patient.patientId === state.patient?.patientId) {
+                return {
+                  ...patient,
+                  readings: patient.readings.map(
+                    (reading: Reading): Reading => ({
+                      ...reading,
+                      dateReferred: reading.dateReferred,
+                      followup:
+                        state.patient?.readings.find(
+                          ({ readingId }: Reading): boolean =>
+                            readingId === reading.readingId
+                        )?.followup ?? null,
+                    })
+                  ),
+                };
+              }
+
+              return patient;
+            }
+          ) ?? [],
       };
     default:
       return state;

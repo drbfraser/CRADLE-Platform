@@ -2,8 +2,8 @@ import { OrUndefined, Reading } from '@types';
 
 import { getLatestReadingWithReferral } from '../../utils';
 
-export const getLatestDateReferred = (
+export const getLatestReferralAssessed = (
   readings: Array<Reading>
-): OrUndefined<number> => {
-  return getLatestReadingWithReferral(readings).dateReferred;
+): OrUndefined<boolean> => {
+  return getLatestReadingWithReferral(readings).followup !== null;
 };

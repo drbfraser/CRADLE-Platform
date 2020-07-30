@@ -1,7 +1,7 @@
 import { OrUndefined, Reading } from '@types';
 
 import React from 'react';
-import { getLatestReferral } from '../utils';
+import { getLatestDateReferred } from '../utils';
 import { getPrettyDate } from '../../../../../../../../shared/utils';
 
 interface IProps {
@@ -10,11 +10,13 @@ interface IProps {
 }
 
 export const DateReferredBody: React.FC<IProps> = ({ className, readings }) => {
-  const latestReferral = React.useMemo((): OrUndefined<number> => {
-    return getLatestReferral(readings);
+  const latestDateReferred = React.useMemo((): OrUndefined<number> => {
+    return getLatestDateReferred(readings);
   }, [readings]);
 
-  return latestReferral ? (
-    <p className={className}>{getPrettyDate(latestReferral)}</p>
-  ) : null;
+  return (
+    <p className={className}>
+      {latestDateReferred ? getPrettyDate(latestDateReferred) : `N/A`}
+    </p>
+  );
 };

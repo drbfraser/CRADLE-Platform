@@ -9,6 +9,7 @@ import {
   sortReferralsTablePatients,
   updateReferralsTablePageNumber,
   updateReferralsTableSearchText,
+  updateTableDataOnSelectedPatientChange,
 } from '../../shared/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -19,6 +20,7 @@ import { Toast } from '../../shared/components/toast';
 import { push } from 'connected-react-router';
 
 type SelectorState = {
+  selectedPatient: OrNull<Patient>;
   patients: OrNull<Array<Patient>>;
   fetchingPatients: boolean;
   gettingPatientsError: OrNull<string>;
@@ -32,6 +34,7 @@ type SelectorState = {
 
 export const ReferralsPage: React.FC = () => {
   const {
+    selectedPatient,
     patients,
     fetchingPatients,
     gettingPatientsError,
@@ -43,6 +46,7 @@ export const ReferralsPage: React.FC = () => {
     searchText,
   } = useSelector(
     (state: ReduxState): SelectorState => ({
+      selectedPatient: state.patients.patient,
       patients: state.patients.referralsTablePatientsList,
       fetchingPatients: state.patients.isLoading,
       gettingPatientsError: state.patients.error,
@@ -79,6 +83,10 @@ export const ReferralsPage: React.FC = () => {
     dispatch,
     preventFetch,
   ]);
+
+  React.useEffect((): void => {
+    dispatch(updateTableDataOnSelectedPatientChange());
+  }, [dispatch, selectedPatient]);
 
   const clearError = (): void => {
     if (gettingPatientsError) {
