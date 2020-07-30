@@ -191,12 +191,11 @@ const Page: React.FC<IProps> = (props) => {
   };
 
   const handleSubmit = () => {
-    if (!props.newPatientExist || props.patientFromEdit) {
+    if (!props.newPatientExist && !props.patientFromEdit) {
       const formattedPatient = formatPatientData(patient);
       props.addPatientNew(formattedPatient);
     } else {
       addReading();
-
       props.afterNewPatientAdded();
       props.afterDoesPatientExist();
       setIsShowDialogsubmission(true);
