@@ -164,6 +164,7 @@ const Page: React.FC<IProps> = (props) => {
       setExistingPatient(true);
       props.doesPatientExist(patient.patientId);
     } else {
+      setblockBackButton(false);
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
@@ -208,7 +209,6 @@ const Page: React.FC<IProps> = (props) => {
       setIsShowDialog(false);
     }
     if (value === 'yes') {
-      //get the patient info and fill it out and make it none editable
       setIsShowDialog(false);
       setblockBackButton(true);
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -276,6 +276,9 @@ const Page: React.FC<IProps> = (props) => {
   };
 
   const handleBack = () => {
+    if (activeStep === 2 && (props.newPatientExist || props.patientFromEdit)) {
+      setblockBackButton(true);
+    }
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
@@ -343,7 +346,10 @@ const Page: React.FC<IProps> = (props) => {
           symptoms={symptoms}
           vitals={vitals}
           assessment={assessment}
-          urineTest={urineTest}></ConfirmationPage>
+          urineTest={urineTest}
+          isPatientExisting={
+            props.newPatientExist || props.patientFromEdit ? true : false
+          }></ConfirmationPage>
       ) : (
         ''
       )}
