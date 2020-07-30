@@ -119,6 +119,9 @@ const Page: React.FC<IProps> = (props) => {
   const [isShowDialogPatientCheck, setIsShowDialogPatientCheck] = useState(
     false
   );
+  const [pageTitle, setPageTitle] = useState(
+    'Create a New Patient and Reading'
+  );
   const steps = getSteps(props.user.roles[0]);
 
   useEffect(() => {
@@ -142,6 +145,9 @@ const Page: React.FC<IProps> = (props) => {
     // flow for NOT using existing patient after typing id
     if (!props.newPatientExist && existingPatient) {
       setSelectedPatientId(patient.patientId);
+      setPageTitle(
+        `Create a New Reading, Patient: ${patient.patientId} (${patient.patientInitial})`
+      );
       setExistingPatient(false);
       setIsShowDialogPatientCheck(true);
     }
@@ -152,6 +158,9 @@ const Page: React.FC<IProps> = (props) => {
     if (props.patientFromEdit) {
       setblockBackButton(true);
       setSelectedPatientId(props.patientFromEdit.patientId);
+      setPageTitle(
+        `Create a New Reading, Patient: ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
+      );
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   }, [props.patientFromEdit]);
@@ -222,6 +231,9 @@ const Page: React.FC<IProps> = (props) => {
     if (value === 'yes') {
       setIsShowDialogPatientCheck(false);
       setblockBackButton(true);
+      setPageTitle(
+        `Create a New Reading, Patient: ${props.patient.patientId} (${props.patient.patientName})`
+      );
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
     if (value === 'ok') {
@@ -303,7 +315,7 @@ const Page: React.FC<IProps> = (props) => {
         marginRight: 'auto',
       }}>
       <h1 style={{ textAlign: 'center' }}>
-        <b>Create a New Reading</b>
+        <b>{pageTitle}</b>
       </h1>
       <Divider />
       <Stepper activeStep={activeStep} alternativeLabel>
