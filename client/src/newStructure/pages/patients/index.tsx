@@ -5,12 +5,12 @@ import {
   getPatientsTablePatients,
   updatePatientsTablePageNumber,
   updatePatientsTableSearchText,
-} from '../../shared/reducers/patients';
+} from '../../redux/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { PatientTable } from './patientTable';
 import React from 'react';
-import { ReduxState } from '../../redux/rootReducer';
+import { ReduxState } from '../../redux/reducers';
 import { RoleEnum } from '../../enums';
 import { Toast } from '../../shared/components/toast';
 import { push } from 'connected-react-router';

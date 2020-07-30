@@ -2,15 +2,15 @@ import { Callback, NewReading, OrNull, OrUndefined, Patient } from '@types';
 import {
   ReadingCreatedResponse,
   createReading,
-} from '../../../../../../../../shared/reducers/reading';
+} from '../../../../../../../../redux/reducers/reading';
 import {
   afterNewReadingAdded,
   resetPatientUpdated,
-} from '../../../../../../../../shared/reducers/patients';
+} from '../../../../../../../../redux/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
 import React from 'react';
-import { ReduxState } from '../../../../../../../../redux/rootReducer';
+import { ReduxState } from '../../../../../../../../redux/reducers';
 import { SymptomEnum } from '../../../../../../../../enums';
 import { formatSymptoms } from './utils';
 import { makeUniqueId } from '../../../../../../../../shared/utils';

@@ -1,7 +1,7 @@
 import { LoginForm } from './form';
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { ReduxState } from '../../redux/reducers';
 import image from './img/splash_screen_4.png';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';

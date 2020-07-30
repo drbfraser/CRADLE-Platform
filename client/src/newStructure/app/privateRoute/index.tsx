@@ -1,13 +1,13 @@
 import {
   CurrentUserState,
   getCurrentUser,
-} from '../../shared/reducers/user/currentUser';
+} from '../../redux/reducers/user/currentUser';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Loader } from '../../shared/components/loader';
 import React from 'react';
-import { ReduxState } from '../../redux/rootReducer';
+import { ReduxState } from '../../redux/reducers';
 
 interface IProps {
   component:

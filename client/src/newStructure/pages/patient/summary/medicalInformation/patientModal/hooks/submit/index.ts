@@ -2,7 +2,7 @@ import { Callback, EditedPatient } from '@types';
 import {
   resetPatientUpdated,
   updatePatient,
-} from '../../../../../../../shared/reducers/patients';
+} from '../../../../../../../redux/reducers/patients';
 
 import React from 'react';
 import { useDispatch } from 'react-redux';

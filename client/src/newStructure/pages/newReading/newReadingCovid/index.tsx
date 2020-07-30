@@ -11,7 +11,7 @@ import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   clearCreateReadingOutcome,
   createReading,
-} from '../../../shared/reducers/reading';
+} from '../../../redux/reducers/reading';
 
 import AlertDialog from './alertDialog';
 import { Assessment } from './assessment';
@@ -21,10 +21,10 @@ import SubmissionDialog from './submissionDialog';
 import { Symptoms } from './symptoms';
 import { User } from '@types';
 import { VitalSignAssessment } from './vitalSignAssessment';
-import { addNewPatient } from '../../../shared/reducers/patients';
+import { addNewPatient } from '../../../redux/reducers/patients';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../../shared/reducers/user/currentUser';
+import { getCurrentUser } from '../../../redux/reducers/user/currentUser';
 import { useNewAssessment } from './assessment/hooks';
 import { useNewPatient } from './demographic/hooks';
 import { useNewSymptoms } from './symptoms/hooks';

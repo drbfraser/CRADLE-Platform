@@ -16,15 +16,15 @@ import {
   deleteUser,
   getUsers,
   updateUser,
-} from '../../shared/reducers/user/allUsers';
+} from '../../redux/reducers/user/allUsers';
 
 import MaterialTable from 'material-table';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { ReduxState } from '../../redux/reducers';
 import { VHT } from '../../types';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { getHealthFacilityList } from '../../shared/reducers/healthFacilities';
-import { getVhts } from '../../shared/reducers/user/allVhts';
+import { getCurrentUser } from '../../redux/reducers/user/currentUser';
+import { getHealthFacilityList } from '../../redux/reducers/healthFacilities';
+import { getVhts } from '../../redux/reducers/user/allVhts';
 
 const options = [
   { key: 'vht', text: 'VHT', value: 1 },

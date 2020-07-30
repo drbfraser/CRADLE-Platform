@@ -2,7 +2,7 @@ import { OrNull, PatientStatistics } from '@types';
 
 import { MonthEnum } from '../../../../../../enums';
 import React from 'react';
-import { ReduxState } from '../../../../../../redux/rootReducer';
+import { ReduxState } from '../../../../../../redux/reducers';
 import { average } from './utils';
 import { useSelector } from 'react-redux';
 

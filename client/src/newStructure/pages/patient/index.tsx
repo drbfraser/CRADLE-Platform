@@ -2,13 +2,13 @@ import { OrNull, Patient } from '@types';
 import {
   clearGetPatientError,
   getPatient,
-} from '../../shared/reducers/patients';
+} from '../../redux/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Loader } from '../../shared/components/loader';
 import { PatientSummary } from './summary';
 import React from 'react';
-import { ReduxState } from '../../redux/rootReducer';
+import { ReduxState } from '../../redux/reducers';
 import { RouteComponentProps } from 'react-router-dom';
 import { Toast } from '../../shared/components/toast';
 

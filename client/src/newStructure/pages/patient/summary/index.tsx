@@ -4,7 +4,7 @@ import {
   addPatientToHealthFacility,
   resetAddedFromGlobalSearch,
   updateSelectedPatientState,
-} from '../../../shared/reducers/patients';
+} from '../../../redux/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AddPatientPrompt } from '../../../shared/components/addPatientPrompt';
@@ -16,7 +16,7 @@ import { PatientReadings } from './readings';
 import { PatientStateEnum } from '../../../enums';
 import React from 'react';
 import { ReadingModal } from './readingModal';
-import { ReduxState } from '../../../redux/rootReducer';
+import { ReduxState } from '../../../redux/reducers';
 import { Toast } from '../../../shared/components/toast';
 import { VitalsOverTime } from './vitalsOverTime';
 

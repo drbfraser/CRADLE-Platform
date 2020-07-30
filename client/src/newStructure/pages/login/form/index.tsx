@@ -4,12 +4,12 @@ import {
   LoginData,
   clearCurrentUserError,
   loginUser,
-} from '../../../shared/reducers/user/currentUser';
+} from '../../../redux/reducers/user/currentUser';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { OrNull } from '@types';
 import React from 'react';
-import { ReduxState } from '../../../redux/rootReducer';
+import { ReduxState } from '../../../redux/reducers';
 import { Toast } from '../../../shared/components/toast';
 import classes from './styles.module.css';
 import { useFormik } from 'formik';

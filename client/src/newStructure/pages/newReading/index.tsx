@@ -12,7 +12,7 @@ import { UrineTestForm, initialUrineTests } from './urineTestForm';
 import {
   clearCreateReadingOutcome,
   createReading,
-} from '../../shared/reducers/reading';
+} from '../../redux/reducers/reading';
 import { monthsToWeeks, weeksToMonths } from '../../shared/utils';
 
 import { BpForm } from './bpForm';
@@ -20,10 +20,10 @@ import { Component } from 'react';
 import React from 'react';
 import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from './symptomForm';
-import { addNewPatient } from '../../shared/reducers/patients';
+import { addNewPatient } from '../../redux/reducers/patients';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { getCurrentUser } from '../../redux/reducers/user/currentUser';
 
 const symptom: any = [];
 

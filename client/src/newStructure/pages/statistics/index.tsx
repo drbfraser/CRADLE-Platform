@@ -5,11 +5,11 @@ import { GlobalStatistics } from './global';
 import { HealthFacilityStatistics } from './healthFacility';
 import { LastMonthTrafficLightsStatistics } from './lastMonthTrafficLights';
 import React from 'react';
-import { ReduxState } from '../../../newStructure/redux/rootReducer';
+import { ReduxState } from '../../redux/reducers';
 import { bindActionCreators } from 'redux';
 import classes from './styles.module.css';
 import { connect } from 'react-redux';
-import { getStatistics } from '../../shared/reducers/statistics';
+import { getStatistics } from '../../redux/reducers/statistics';
 
 interface IProps {
   getStatistics: any;

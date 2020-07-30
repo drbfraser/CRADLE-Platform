@@ -1,7 +1,7 @@
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
-import { toggleShowReferredPatients } from '../../../../../shared/reducers/patients';
+import { toggleShowReferredPatients } from '../../../../../redux/reducers/patients';
 import { useDispatch } from 'react-redux';
 import { useStyles } from './styles';
 

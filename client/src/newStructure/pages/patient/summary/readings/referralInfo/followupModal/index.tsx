@@ -6,13 +6,13 @@ import {
   clearUpdateAssessmentOutcome,
   createAssessment,
   updateAssessment,
-} from '../../../../../../shared/reducers/patients';
+} from '../../../../../../redux/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Button from '@material-ui/core/Button';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import React from 'react';
-import { ReduxState } from '../../../../../../redux/rootReducer';
+import { ReduxState } from '../../../../../../redux/reducers';
 import Switch from '@material-ui/core/Switch';
 import { Toast } from '../../../../../../shared/components/toast';
 import { useDisableSubmit } from './hooks/disableSubmit';

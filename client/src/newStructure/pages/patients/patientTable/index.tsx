@@ -9,10 +9,10 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import MUIDataTable from 'mui-datatables';
 import React from 'react';
-import { ReduxState } from '../../../redux/rootReducer';
+import { ReduxState } from '../../../redux/reducers';
 import { customRowRender } from '../../../shared/components/tableRow';
 import { customToolbarRender } from './toolbar';
-import { updateSelectedPatientState } from '../../../shared/reducers/patients';
+import { updateSelectedPatientState } from '../../../redux/reducers/patients';
 import { useData } from './hooks/data';
 import { useLocalization } from '../../../shared/hooks/table/localization';
 import { useSearchChange } from '../../../shared/hooks/table/searchChange';

@@ -4,7 +4,7 @@ import Autocomplete, {
 
 import React from 'react';
 import { TextField } from '@material-ui/core';
-import { toggleGlobalSearch } from '../../../../../shared/reducers/patients';
+import { toggleGlobalSearch } from '../../../../../redux/reducers/patients';
 import { useDispatch } from 'react-redux';
 import { useStyles } from './styles';
 

@@ -1,6 +1,6 @@
 import { OrNull, PatientStatistics } from '@types';
 
-import { ReduxState } from '../../../../../../redux/rootReducer';
+import { ReduxState } from '../../../../../../redux/reducers';
 import { TrafficLightEnum } from '../../../../../../enums';
 import { useSelector } from 'react-redux';
 

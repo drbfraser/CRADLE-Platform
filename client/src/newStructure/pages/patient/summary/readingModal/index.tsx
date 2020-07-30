@@ -3,13 +3,13 @@ import { NewReading, OrNull, Patient } from '@types';
 import {
   clearCreateReadingOutcome,
   clearReadingCreatedResponse,
-} from '../../../../shared/reducers/reading';
+} from '../../../../redux/reducers/reading';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Content } from './content';
 import { Modal } from 'semantic-ui-react';
 import React from 'react';
-import { ReduxState } from '../../../../redux/rootReducer';
+import { ReduxState } from '../../../../redux/reducers';
 import { SymptomEnum } from '../../../../enums';
 import { Toast } from '../../../../shared/components/toast';
 

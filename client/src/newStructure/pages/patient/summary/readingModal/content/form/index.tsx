@@ -9,7 +9,7 @@ import { HeartForm } from './heart';
 import { IProps } from '..';
 import { Paper } from '@material-ui/core';
 import React from 'react';
-import { ReduxState } from '../../../../../../redux/rootReducer';
+import { ReduxState } from '../../../../../../redux/reducers';
 import { SymptomEnum } from '../../../../../../enums';
 import { SymptomForm } from '../../../../../../shared/components/form/symptom';
 import { UrineTestForm } from '../../../../../../shared/components/form/urineTest';

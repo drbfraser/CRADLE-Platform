@@ -1,5 +1,5 @@
 import { applyMiddleware, createStore } from 'redux';
-import { history, rootReducer } from '../rootReducer';
+import { history, rootReducer } from '../reducers';
 
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 import { requestMiddleware } from '../middleware/request';

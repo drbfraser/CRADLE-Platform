@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 
 import { CommunityWorkerResources } from './CommunityWorkerResource';
-import { HealthWorkerResources } from './HealthWorkerResources';
 import { CovidHelp } from './CovidHelp';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { HealthWorkerResources } from './HealthWorkerResources';
+import { ReduxState } from '../../redux/reducers';
 import { Tab } from 'semantic-ui-react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { getCurrentUser } from '../../redux/reducers/user/currentUser';
 
 const panes = [
   {

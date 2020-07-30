@@ -2,7 +2,7 @@ import { OrNull, Patient } from '@types';
 import {
   clearCurrentUserError,
   getCurrentUser,
-} from '../../shared/reducers/user/currentUser';
+} from '../../redux/reducers/user/currentUser';
 import {
   clearGetReferralsTablePatientsError,
   getReferralsTablePatients,
@@ -10,11 +10,11 @@ import {
   updateReferralsTablePageNumber,
   updateReferralsTableSearchText,
   updateTableDataOnSelectedPatientChange,
-} from '../../shared/reducers/patients';
+} from '../../redux/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
 import React from 'react';
-import { ReduxState } from '../../redux/rootReducer';
+import { ReduxState } from '../../redux/reducers';
 import { ReferralTable } from './referralTable';
 import { Toast } from '../../shared/components/toast';
 import { push } from 'connected-react-router';

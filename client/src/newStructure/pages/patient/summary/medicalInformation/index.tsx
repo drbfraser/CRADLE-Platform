@@ -5,7 +5,7 @@ import { BasicInformation } from './basicInformation';
 import Button from '@material-ui/core/Button/Button';
 import { Divider } from 'semantic-ui-react';
 import { GestationalAge } from './gestationalAge';
-import { GestationalAgeUnitEnum } from 'src/newStructure/enums';
+import { GestationalAgeUnitEnum } from '../../../../enums';
 import Grid from '@material-ui/core/Grid';
 import { HistoryItem } from './historyItem';
 import Paper from '@material-ui/core/Paper';

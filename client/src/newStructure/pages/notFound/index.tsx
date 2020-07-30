@@ -1,9 +1,14 @@
 import React from 'react';
-import classes from './styles.module.css';
+import Typography from '@material-ui/core/Typography';
 
 export const NotFoundPage: React.FC = () => (
   <>
-    <h1 className={classes.headerSize}>404</h1>
-    <h2>Page not found</h2>
+    <Typography gutterBottom={true} variant="h4">
+      Page not found
+    </Typography>
+    <Typography variant="body1">
+      Use one of the navigation links in the menu to head back to one of the
+      pages
+    </Typography>
   </>
 );

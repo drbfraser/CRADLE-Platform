@@ -8,7 +8,7 @@ import {
 
 import React from 'react';
 import debounce from 'lodash/debounce';
-import { sortPatientsTablePatients } from '../../../../../shared/reducers/patients';
+import { sortPatientsTablePatients } from '../../../../../redux/reducers/patients';
 import { useDispatch } from 'react-redux';
 import { useFilterBySearchText } from '../../../../../shared/hooks/table/filterBySearchText';
 import { useFilterReferredPatients } from './filterReferredPatients';

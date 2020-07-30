@@ -6,16 +6,16 @@ import { OrNull, User } from '../../types';
 import {
   RegisterStatusState,
   registerUser,
-} from '../../shared/reducers/user/registerStatus';
+} from '../../redux/reducers/user/registerStatus';
 
 import { Paper } from '@material-ui/core';
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { ReduxState } from '../../redux/reducers';
 import { RoleEnum } from '../../enums';
-import { ServerRequestAction } from 'src/newStructure/shared/reducers/utils';
+import { ServerRequestAction } from '../../redux/reducers/utils';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
-import { getHealthFacilityList } from '../../shared/reducers/healthFacilities';
+import { getCurrentUser } from '../../redux/reducers/user/currentUser';
+import { getHealthFacilityList } from '../../redux/reducers/healthFacilities';
 
 const initState = {
   user: {

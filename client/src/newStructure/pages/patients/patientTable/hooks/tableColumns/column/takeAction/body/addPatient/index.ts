@@ -1,5 +1,5 @@
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { ReduxState } from '../../../../../../../../../redux/reducers';
 import { useSelector } from 'react-redux';
 
 interface IUseAddPatient {

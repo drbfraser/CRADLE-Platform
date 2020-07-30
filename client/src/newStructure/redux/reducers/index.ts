@@ -2,21 +2,18 @@ import { ChatState, chatReducer } from '../../pages/videoChat/reducers/chat';
 import {
   HealthFacilitiesState,
   healthFacilitiesReducer,
-} from '../../shared/reducers/healthFacilities';
+} from '../reducers/healthFacilities';
 import { History, createBrowserHistory } from 'history';
 import {
   PatientStatisticsState,
   patientStatisticsReducer,
-} from '../../shared/reducers/patientStatistics';
-import { PatientsState, patientsReducer } from '../../shared/reducers/patients';
-import { ReadingState, readingReducer } from '../../shared/reducers/reading';
-import {
-  StatisticsState,
-  statisticsReducer,
-} from '../../shared/reducers/statistics';
-import { UserState, userReducer } from '../../shared/reducers/user';
+} from '../reducers/patientStatistics';
+import { PatientsState, patientsReducer } from '../reducers/patients';
+import { ReadingState, readingReducer } from '../reducers/reading';
+import { StatisticsState, statisticsReducer } from '../reducers/statistics';
+import { UserState, userReducer } from '../reducers/user';
 
-import { CurrentUserActionEnum } from '../../shared/reducers/user/currentUser';
+import { CurrentUserActionEnum } from '../reducers/user/currentUser';
 import { RouterState } from 'connected-react-router';
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';

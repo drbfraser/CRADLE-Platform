@@ -13,7 +13,10 @@ import {
 } from '@types';
 import { EndpointEnum, Endpoints } from '../../../server/endpoints';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
-import { calculateShockIndex, sortPatientsByLastReading } from '../../utils';
+import {
+  calculateShockIndex,
+  sortPatientsByLastReading,
+} from '../../../shared/utils';
 
 import { Dispatch } from 'redux';
 import { Methods } from '../../../server/methods';
