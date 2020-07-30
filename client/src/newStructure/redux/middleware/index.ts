@@ -1,10 +1,10 @@
-import { BASE_URL } from '../../../server/utils';
-import { Endpoints } from '../../../server/endpoints';
-import { MakeServerRequestEnum } from '../../../redux/reducers/utils';
-import { Methods } from '../../../server/methods';
+import { BASE_URL } from '../../server/utils';
+import { Endpoints } from '../../server/endpoints';
+import { MakeServerRequestEnum } from '../reducers/utils';
+import { Methods } from '../../server/methods';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
-import { logoutUser } from '../../../redux/reducers/user/currentUser';
+import { logoutUser } from '../reducers/user/currentUser';
 import { replace } from 'connected-react-router';
 
 export const requestMiddleware = () => ({ dispatch }: any) => (

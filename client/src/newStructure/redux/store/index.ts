@@ -2,7 +2,7 @@ import { applyMiddleware, createStore } from 'redux';
 import { history, rootReducer } from '../reducers';
 
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
-import { requestMiddleware } from '../middleware/request';
+import { requestMiddleware } from '../middleware';
 import { routerMiddleware } from 'connected-react-router';
 import thunk from 'redux-thunk';
 
