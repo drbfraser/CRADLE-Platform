@@ -44,15 +44,6 @@ import {
 } from './formatData';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      '& > *': {
-        margin: theme.spacing(2),
-      },
-    },
-    formField: {
-      margin: theme.spacing(2),
-      minWidth: '22ch',
-    },
     backButton: {
       margin: theme.spacing(2),
     },
@@ -97,10 +88,13 @@ interface IProps {
 }
 
 const Page: React.FC<IProps> = (props) => {
+  //styling
   const classes = useStyles();
+  //stepper
   const [activeStep, setActiveStep] = React.useState(0);
+
+  // ~~~~~~~~~~~~~~~ custome states for each component ~~~~~~~~~~~~~~~~~~~~~
   const { patient, handleChangePatient, resetValuesPatient } = useNewPatient();
-  const [existingPatient, setExistingPatient] = useState(false);
   const {
     symptoms,
     handleChangeSymptoms,
@@ -117,48 +111,52 @@ const Page: React.FC<IProps> = (props) => {
     handleChangeUrineTest,
     resetValueUrineTest,
   } = useNewUrineTest();
-  const [isShowDialog, setIsShowDialog] = useState(false);
+
+  const [existingPatient, setExistingPatient] = useState(false);
   const [blockBackButton, setblockBackButton] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState('');
   const [isShowDialogSubmission, setIsShowDialogsubmission] = useState(false);
+  const [isShowDialogPatientCheck, setIsShowDialogPatientCheck] = useState(
+    false
+  );
   const steps = getSteps(props.user.roles[0]);
 
   useEffect(() => {
+    // getting current user
     if (!props.user.isLoggedIn) {
       props.getCurrentUser();
     }
+    // flow for adding new patient + reading
     if (props.newPatientAdded) {
-      console.log('newPatientAdded');
       addReading();
       props.afterNewPatientAdded();
       props.afterDoesPatientExist();
       setIsShowDialogsubmission(true);
     }
+    // flow for using existing patient after typing id
     if (props.newPatientExist && existingPatient) {
-      console.log('props.newPatientExist && existingPatient');
-
       setSelectedPatientId(props.patient.patientId);
       setExistingPatient(false);
-      setIsShowDialog(true);
+      setIsShowDialogPatientCheck(true);
     }
+    // flow for NOT using existing patient after typing id
     if (!props.newPatientExist && existingPatient) {
-      console.log('!props.newPatientExist && existingPatient');
-
       setSelectedPatientId(patient.patientId);
       setExistingPatient(false);
-      setIsShowDialog(true);
+      setIsShowDialogPatientCheck(true);
     }
   });
 
+  // ~~~~~~~~ flow from patient list -> add new reading ~~~~~~~~~~~~
   useEffect(() => {
     if (props.patientFromEdit) {
-      console.log('props.patientFromEdit');
-
       setblockBackButton(true);
       setSelectedPatientId(props.patientFromEdit.patientId);
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   }, [props.patientFromEdit]);
+
+  // ~~~~~~~~ Stepper Next button call ~~~~~~~~~~~~~~~~~~
   const handleNext = () => {
     if (activeStep === 0) {
       setExistingPatient(true);
@@ -168,6 +166,16 @@ const Page: React.FC<IProps> = (props) => {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
+
+  // ~~~~~~~~ Stepper Back button call ~~~~~~~~~~~~~~~~~~
+  const handleBack = () => {
+    if (activeStep === 2 && (props.newPatientExist || props.patientFromEdit)) {
+      setblockBackButton(true);
+    }
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  // ~~~~~~~~ Creating Reading  ~~~~~~~~~~~~~~~~~~
   const addReading = () => {
     if (props.user.roles[0] === 'VHT') {
       const formattedReading = formatReadingDataVHT(
@@ -191,7 +199,9 @@ const Page: React.FC<IProps> = (props) => {
     }
   };
 
+  // ~~~~~~~~ Last Step Submission Call  ~~~~~~~~~~~
   const handleSubmit = () => {
+    //if not an existing patient
     if (!props.newPatientExist && !props.patientFromEdit) {
       const formattedPatient = formatPatientData(patient);
       props.addPatientNew(formattedPatient);
@@ -203,29 +213,30 @@ const Page: React.FC<IProps> = (props) => {
     }
   };
 
+  // ~~~~~~~~ Handle response from the existing patient Dialog  ~~~~~~~~~~~
   const handleDialogClose = (e: any) => {
     const value = e.currentTarget.value;
     if (value === 'no') {
-      setIsShowDialog(false);
+      setIsShowDialogPatientCheck(false);
     }
     if (value === 'yes') {
-      setIsShowDialog(false);
+      setIsShowDialogPatientCheck(false);
       setblockBackButton(true);
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
     if (value === 'ok') {
-      setIsShowDialog(false);
+      setIsShowDialogPatientCheck(false);
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
 
+  // ~~~~~~~~ Handle response from Submission dialog  ~~~~~~~~~~~
   const handleDialogCloseSubmission = () => {
     setIsShowDialogsubmission(false);
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const isRequiredFilled = () => {
-    console.log(patient);
     if (activeStep === 0) {
       if (
         !patient.patientId ||
@@ -273,13 +284,6 @@ const Page: React.FC<IProps> = (props) => {
       }
     }
     return false;
-  };
-
-  const handleBack = () => {
-    if (activeStep === 2 && (props.newPatientExist || props.patientFromEdit)) {
-      setblockBackButton(true);
-    }
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
   const handleReset = () => {
@@ -359,6 +363,7 @@ const Page: React.FC<IProps> = (props) => {
             <Typography className={classes.instructions}>
               All steps completed
             </Typography>
+            {/*need to be styled*/}
             <Button onClick={handleReset}>Create New Patient/Reading</Button>
           </div>
         ) : (
@@ -401,7 +406,7 @@ const Page: React.FC<IProps> = (props) => {
                 Confirm
               </Button>
               <AlertDialog
-                open={isShowDialog}
+                open={isShowDialogPatientCheck}
                 patientExist={props.newPatientExist}
                 patient={props.patient}
                 handleDialogClose={handleDialogClose}></AlertDialog>
