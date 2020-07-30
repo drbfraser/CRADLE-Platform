@@ -72,6 +72,7 @@ export const PatientTable: React.FC<IProps> = (props) => {
   const localization = useLocalization({
     globalSearch,
     loading: props.loading,
+    searchText: props.searchText,
   });
 
   const onChangePage = useUpdatePageNumber({

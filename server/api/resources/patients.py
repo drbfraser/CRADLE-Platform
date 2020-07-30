@@ -56,7 +56,6 @@ class Root(Resource):
             referral = reading.referral
             if referral and not assoc.has_association(patient, referral.healthFacility):
                 assoc.associate(patient, facility=referral.healthFacility)
-
         return marshal.marshal(patient), 201
 
 
