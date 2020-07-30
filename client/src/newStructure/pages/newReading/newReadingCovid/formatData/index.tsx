@@ -24,6 +24,7 @@ interface Patient {
   patientSex: string;
   drugHistory: string;
   medicalHistory: string;
+  isPregnant: boolean;
 }
 interface Reading {
   readingId: string;
@@ -113,6 +114,7 @@ export const formatPatientData = (unformattedPatient: any) => {
     patientSex: string = unformattedPatient.patientSex as string;
     villageNumber: string = unformattedPatient.villageNumber as string;
     zone: string = unformattedPatient.zone as string;
+    isPregnant: boolean = unformattedPatient.isPregnant as boolean;
   })();
   return formattedPatient;
 };
