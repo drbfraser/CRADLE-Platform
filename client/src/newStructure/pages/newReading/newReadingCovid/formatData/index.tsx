@@ -48,6 +48,13 @@ interface Reading {
     dateAssessed: string;
     healthcareWorkerId: 1;
   };
+  urineTest: {
+    urineTestBlood: string;
+    urineTestGlu: string;
+    urineTestLeuc: string;
+    urineTestNit: string;
+    urineTestPro: string;
+  };
 }
 interface ReadingVHT {
   readingId: string;
@@ -62,6 +69,13 @@ interface ReadingVHT {
   symptoms: string[];
   dateTimeTaken: string;
   userId: number;
+  urineTest: {
+    urineTestBlood: string;
+    urineTestGlu: string;
+    urineTestLeuc: string;
+    urineTestNit: string;
+    urineTestPro: string;
+  };
 }
 
 const getSymptomsMapping = (symptoms: any) => {
@@ -173,6 +187,13 @@ export const formatReadingData = (
       dateAssessed: Math.floor(Date.now() / 1000).toString(),
       healthcareWorkerId: userId,
     };
+    urineTest = {
+      urineTestBlood: urineTest.blood,
+      urineTestGlu: urineTest.glucose,
+      urineTestLeuc: urineTest.leukocytes,
+      urineTestNit: urineTest.nitrites,
+      urineTestPro: urineTest.protein,
+    };
   })();
   return formattedReading;
 };
@@ -198,6 +219,13 @@ export const formatReadingDataVHT = (
     symptoms: string[] = formatSymptoms(symptoms);
     temperature: number = vital.temperature as number;
     userId: number = userId;
+    urineTest = {
+      urineTestBlood: urineTest.blood,
+      urineTestGlu: urineTest.glucose,
+      urineTestLeuc: urineTest.leukocytes,
+      urineTestNit: urineTest.nitrites,
+      urineTestPro: urineTest.protein,
+    };
   })();
   return formattedReading;
 };

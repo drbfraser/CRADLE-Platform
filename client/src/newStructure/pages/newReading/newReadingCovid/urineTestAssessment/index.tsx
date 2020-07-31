@@ -72,10 +72,10 @@ const Page: React.FC<IProps> = (props) => {
               required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
@@ -88,10 +88,10 @@ const Page: React.FC<IProps> = (props) => {
               required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
@@ -104,10 +104,10 @@ const Page: React.FC<IProps> = (props) => {
               required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
@@ -120,10 +120,10 @@ const Page: React.FC<IProps> = (props) => {
               required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
@@ -136,10 +136,10 @@ const Page: React.FC<IProps> = (props) => {
               required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
         </FormControl>

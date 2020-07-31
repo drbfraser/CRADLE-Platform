@@ -129,6 +129,7 @@ const Page: React.FC<IProps> = (props) => {
     if (!props.user.isLoggedIn) {
       props.getCurrentUser();
     }
+    console.log('urineTest', urineTest);
     // flow for adding new patient + reading
     if (props.newPatientAdded) {
       addReading();
