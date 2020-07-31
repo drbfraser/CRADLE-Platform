@@ -87,21 +87,6 @@ const Page: React.FC<IProps> = (props) => {
     setSymptomsString(stringValue);
   }, []);
 
-  const getUrineSign = (key: string) => {
-    if (key === 'm') {
-      return '-';
-    }
-    if (key === 'p') {
-      return '+';
-    }
-    if (key === 'pp') {
-      return '++';
-    }
-    if (key === 'ppp') {
-      return '+++';
-    }
-    return '';
-  };
   return (
     <Paper
       style={{
@@ -141,7 +126,7 @@ const Page: React.FC<IProps> = (props) => {
               InputProps={{
                 readOnly: props.patient.household ? true : false,
               }}
-              label="House Hold"
+              label="Household Number"
               variant="outlined"
               value={props.patient.household}
             />
@@ -177,7 +162,7 @@ const Page: React.FC<IProps> = (props) => {
               InputProps={{
                 readOnly: props.patient.gestationalAgeUnit ? true : false,
               }}
-              label="Gestational Age"
+              label="Gestational Unit"
               variant="outlined"
               value={
                 props.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
@@ -286,7 +271,7 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.vitals.bpSystolic ? true : false,
           }}
           className={classes.formFieldDM}
-          label="bpSystolic"
+          label="Systolic"
           variant="outlined"
           value={props.vitals.bpSystolic}
         />
@@ -296,9 +281,9 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.urineTest.leukocytes ? true : false,
           }}
           className={classes.formFieldDM}
-          label="leukocytes"
+          label="Leukocytes"
           variant="outlined"
-          value={getUrineSign(props.urineTest.leukocytes)}
+          value={props.urineTest.leukocytes}
         />
         <TextField
           disabled={props.vitals.bpDiastolic ? false : true}
@@ -306,7 +291,7 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.vitals.bpDiastolic ? true : false,
           }}
           className={classes.formFieldDM}
-          label="bpDiastolic"
+          label="Diastolic"
           variant="outlined"
           value={props.vitals.bpDiastolic}
         />
@@ -316,9 +301,9 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.urineTest.blood ? true : false,
           }}
           className={classes.formFieldDM}
-          label="blood"
+          label="Blood"
           variant="outlined"
-          value={getUrineSign(props.urineTest.blood)}
+          value={props.urineTest.blood}
         />
         <TextField
           disabled={props.vitals.heartRateBPM ? false : true}
@@ -326,7 +311,7 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.vitals.heartRateBPM ? true : false,
           }}
           className={classes.formFieldDM}
-          label="heartRateBPM"
+          label="Heart Rate"
           variant="outlined"
           value={props.vitals.heartRateBPM}
         />
@@ -336,9 +321,9 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.urineTest.protein ? true : false,
           }}
           className={classes.formFieldDM}
-          label="protein"
+          label="Protein"
           variant="outlined"
-          value={getUrineSign(props.urineTest.protein)}
+          value={props.urineTest.protein}
         />
         <TextField
           disabled={props.vitals.respiratoryRate ? false : true}
@@ -346,7 +331,7 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.vitals.respiratoryRate ? true : false,
           }}
           className={classes.formFieldDM}
-          label="respiratoryRate"
+          label="Respiratory Rate"
           variant="outlined"
           value={props.vitals.respiratoryRate}
         />
@@ -356,9 +341,9 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.urineTest.glucose ? true : false,
           }}
           className={classes.formFieldDM}
-          label="glucose"
+          label="Glucose"
           variant="outlined"
-          value={getUrineSign(props.urineTest.glucose)}
+          value={props.urineTest.glucose}
         />
         <TextField
           disabled={props.vitals.oxygenSaturation ? false : true}
@@ -366,7 +351,7 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.vitals.oxygenSaturation ? true : false,
           }}
           className={classes.formFieldDM}
-          label="oxygenSaturation"
+          label="Oxygen Saturation"
           variant="outlined"
           value={props.vitals.oxygenSaturation}
         />
@@ -376,9 +361,9 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.urineTest.nitrites ? true : false,
           }}
           className={classes.formFieldDM}
-          label="nitrites"
+          label="Nitrites"
           variant="outlined"
-          value={getUrineSign(props.urineTest.nitrites)}
+          value={props.urineTest.nitrites}
         />
         <TextField
           disabled={props.vitals.temperature ? false : true}
@@ -386,7 +371,7 @@ const Page: React.FC<IProps> = (props) => {
             readOnly: props.vitals.temperature ? true : false,
           }}
           className={classes.formFieldDM}
-          label="temperature"
+          label="Temperature"
           variant="outlined"
           value={props.vitals.temperature}
         />
@@ -424,7 +409,7 @@ const Page: React.FC<IProps> = (props) => {
           className={classes.formFieldDM}
           multiline
           rows={3}
-          label="Treatement/Operation"
+          label="Treatment/Operation"
           variant="outlined"
           value={props.assessment.treatmentOP}
         />
@@ -448,7 +433,7 @@ const Page: React.FC<IProps> = (props) => {
           className={classes.formFieldDM}
           multiline
           rows={3}
-          label="Instruction for Follow"
+          label="Instruction for Follow-up"
           variant="outlined"
           value={props.assessment.InstructionFollow}
         />
