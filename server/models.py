@@ -222,7 +222,6 @@ class Reading(db.Model):
 
     # RELATIONSHIPS
     patient = db.relationship("Patient", backref=db.backref("readings", lazy=True))
-    urineTests = db.relationship("UrineTest", backref=db.backref("reading", lazy=True))
 
     def get_traffic_light(self):
         red_systolic = 160
@@ -303,14 +302,23 @@ class Village(db.Model):
 
 
 class UrineTest(db.Model):
-    Id = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     urineTestLeuc = db.Column(db.String(5))
     urineTestNit = db.Column(db.String(5))
     urineTestGlu = db.Column(db.String(5))
     urineTestPro = db.Column(db.String(5))
     urineTestBlood = db.Column(db.String(5))
-    # urineTests = db.relationship(Reading, backref=db.backref('urineTests', lazy=True))
-    readingId = db.Column(db.ForeignKey("reading.readingId"))
+
+    # FOREIGN KEYS
+    readingId = db.Column(db.ForeignKey("reading.readingId", ondelete="CASCADE"))
+
+    # RELATIONSHIPS
+    reading = db.relationship(
+        Reading,
+        backref=db.backref(
+            "urineTests", lazy=True, uselist=False, cascade="all, delete-orphan"
+        ),
+    )
 
     @staticmethod
     def schema():

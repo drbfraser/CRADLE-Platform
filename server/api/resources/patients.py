@@ -56,8 +56,6 @@ class Root(Resource):
             referral = reading.referral
             if referral and not assoc.has_association(patient, referral.healthFacility):
                 assoc.associate(patient, facility=referral.healthFacility)
-        if patient.dob:
-            patient.dob = str(patient.dob)
         return marshal.marshal(patient), 201
 
 
@@ -69,8 +67,6 @@ class SinglePatient(Resource):
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
-        if patient.dob:
-            patient.dob = str(patient.dob)
         return marshal.marshal(patient)
 
 

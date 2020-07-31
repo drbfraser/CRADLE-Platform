@@ -271,9 +271,7 @@ class PatientGlobalSearch(Resource):
         )
 
         if not patients_readings_referrals:
-            abort(
-                404, message="No patients matching the search criteria currently exist."
-            )
+            return []
         else:
             return patients_readings_referrals
 
