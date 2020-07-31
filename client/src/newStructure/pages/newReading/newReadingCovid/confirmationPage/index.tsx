@@ -237,18 +237,6 @@ const Page: React.FC<IProps> = (props) => {
 
         <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>Symptoms</h3>
         <TextField
-          disabled={props.symptoms.otherSymptoms ? false : true}
-          InputProps={{
-            readOnly: props.symptoms.otherSymptoms ? true : false,
-          }}
-          className={classes.formFieldDM}
-          multiline
-          rows={4}
-          label="Other Symptoms"
-          variant="outlined"
-          value={props.symptoms.otherSymptoms}
-        />
-        <TextField
           disabled={symptomsString ? false : true}
           InputProps={{
             readOnly: symptomsString ? true : false,
@@ -260,7 +248,18 @@ const Page: React.FC<IProps> = (props) => {
           variant="outlined"
           value={symptomsString}
         />
-
+        <TextField
+          disabled={props.symptoms.otherSymptoms ? false : true}
+          InputProps={{
+            readOnly: props.symptoms.otherSymptoms ? true : false,
+          }}
+          className={classes.formFieldDM}
+          multiline
+          rows={4}
+          label="Other Symptoms"
+          variant="outlined"
+          value={props.symptoms.otherSymptoms}
+        />
         <h3
           style={{
             color: '#9E9E9E',

@@ -8,6 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 interface IProps {
   open: boolean;
+  patientExist: boolean;
   handleDialogClose: any;
 }
 
@@ -22,7 +23,9 @@ export default function SubmissionDialog(props: IProps) {
         <DialogTitle id="alert-dialog-title">{'Submitted!!'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Patient and Reading Created Successfully
+            {props.patientExist
+              ? `Reading Created Successfully!`
+              : `Patient and Reading Created Successfully!`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

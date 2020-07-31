@@ -146,7 +146,7 @@ const Page: React.FC<IProps> = (props) => {
     if (!props.newPatientExist && existingPatient) {
       setSelectedPatientId(patient.patientId);
       setPageTitle(
-        `Create a New Reading, Patient: ${patient.patientId} (${patient.patientInitial})`
+        `Create a New Patient and Reading, ${patient.patientId} (${patient.patientInitial})`
       );
       setExistingPatient(false);
       setIsShowDialogPatientCheck(true);
@@ -159,7 +159,7 @@ const Page: React.FC<IProps> = (props) => {
       setblockBackButton(true);
       setSelectedPatientId(props.patientFromEdit.patientId);
       setPageTitle(
-        `Create a New Reading, Patient: ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
+        `Create a New Reading, ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
       );
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
@@ -232,7 +232,7 @@ const Page: React.FC<IProps> = (props) => {
       setIsShowDialogPatientCheck(false);
       setblockBackButton(true);
       setPageTitle(
-        `Create a New Reading, Patient: ${props.patient.patientId} (${props.patient.patientName})`
+        `Create a New Reading, ${props.patient.patientId} (${props.patient.patientName})`
       );
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
@@ -423,6 +423,7 @@ const Page: React.FC<IProps> = (props) => {
                 patient={props.patient}
                 handleDialogClose={handleDialogClose}></AlertDialog>
               <SubmissionDialog
+                patientExist={props.newPatientExist}
                 open={isShowDialogSubmission}
                 handleDialogClose={
                   handleDialogCloseSubmission
