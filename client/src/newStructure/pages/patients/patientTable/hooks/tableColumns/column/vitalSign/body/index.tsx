@@ -1,11 +1,8 @@
-import {
-  getLatestReading,
-  getTrafficIcon,
-} from '../../../../../../../../shared/utils';
-
 import React from 'react';
 import { Reading } from '@types';
 import { TrafficLightEnum } from '../../../../../../../../enums';
+import { getFirstReadingWithTrafficLight } from '../utils';
+import { getTrafficIcon } from '../../../../../../../../shared/utils';
 import { useStyles } from './styles';
 
 interface IProps {
@@ -19,10 +16,9 @@ export const VitalSignBody: React.FC<IProps> = ({
 }: IProps) => {
   const classes = useStyles();
 
-  const status = React.useMemo(
-    (): TrafficLightEnum => getLatestReading(readings).trafficLightStatus,
-    [readings]
-  );
+  const status = React.useMemo((): TrafficLightEnum => {
+    return getFirstReadingWithTrafficLight(readings).trafficLightStatus;
+  }, [readings]);
 
   return (
     <div className={`${className} ${classes.vitalSign}`}>

@@ -1,5 +1,10 @@
 import { Callback, Patient } from '@types';
 import { SortOrderEnum, TrafficLightEnum } from '../../../../../../../../enums';
+import {
+  calculateShockIndex,
+  getLatestReading,
+  getLatestReadingWithReferral,
+} from '../../../../../../../../shared/utils';
 
 import React from 'react';
 import { SortToggle } from '../../../../../../../../shared/components/sortToggle';
@@ -42,7 +47,12 @@ export const VitalSignHead: React.FC<IProps> = ({
 
   const handleClick = (): void => {
     const getTrafficLightIndex = ({ readings }: Patient): number => {
-      return trafficLights.current.indexOf(readings[0].trafficLightStatus);
+      const latestReading = getLatestReading(readings);
+
+      return trafficLights.current.indexOf(
+        getLatestReadingWithReferral(readings)?.trafficLightStatus ??
+          calculateShockIndex(latestReading)
+      );
     };
 
     sortData(orderBy(data, [getTrafficLightIndex], [sortOrder]));

@@ -1,8 +1,10 @@
-import { makeStyles } from '@material-ui/core/styles';
+import { Theme, makeStyles } from '@material-ui/core/styles';
 
-export const useStyles = makeStyles({
+export const useStyles = makeStyles((theme: Theme) => ({
   vitalSign: {
-    padding: 0,
-    minWidth: 150,
+    justifyContent: `flex-start`,
+    margin: 0,
+    padding: theme.spacing(0, 0, 0, 12),
+    maxWidth: 230,
   },
-});
+}));
