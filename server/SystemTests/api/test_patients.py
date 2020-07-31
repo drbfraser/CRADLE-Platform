@@ -4,6 +4,30 @@ import data.crud as crud
 from models import Patient, Reading, TrafficLightEnum
 
 
+def test_get_patient(patient_factory, api_get):
+    patient_id = "341541641613"
+    patient_factory.create(patientId=patient_id, lastEdited=5, created=1)
+
+    expected = {
+        "patientId": patient_id,
+        "patientName": "Test",
+        "patientAge": 30,
+        "patientSex": "FEMALE",
+        "isPregnant": False,
+        "zone": "37",
+        "villageNumber": "37",
+        "created": 1,
+        "lastEdited": 5,
+        "base": 5,
+        "readings": [],
+    }
+
+    response = api_get(endpoint=f"/api/patients/{patient_id}")
+
+    assert response.status_code == 200
+    assert expected == response.json()
+
+
 def test_create_patient_with_nested_readings(database, api_post):
     patient_id = "5390160146141"
     reading_ids = [
@@ -38,6 +62,40 @@ def test_update_patient_name(patient_factory, api_put):
 
     assert response.status_code == 200
     assert crud.read(Patient, patientId=patient_id).patientName == "CD"
+
+
+def test_update_patient_with_base(patient_factory, api_put):
+    patient_id = "45642677524614"
+    patient_factory.create(patientId=patient_id, patientName="AB", lastEdited=5)
+
+    json = {
+        "patientName": "CD",
+        "lastEdited": 6,
+        "base": 5,  # base == lastEdited -> request is accepted
+    }
+    response = api_put(endpoint=f"/api/patients/{patient_id}/info", json=json)
+
+    assert response.status_code == 200
+    patient = crud.read(Patient, patientId=patient_id)
+    assert patient.patientName == "CD"
+    assert patient.lastEdited == 6
+
+
+def test_update_patient_abort_due_to_conflict(patient_factory, api_put):
+    patient_id = "45642677524614"
+    patient_factory.create(patientId=patient_id, patientName="AB", lastEdited=7)
+
+    json = {
+        "patientName": "CD",
+        "lastEdited": 6,
+        "base": 5,  # base != lastEdited -> request is rejected
+    }
+    response = api_put(endpoint=f"/api/patients/{patient_id}/info", json=json)
+
+    assert response.status_code == 409
+    patient = crud.read(Patient, patientId=patient_id)
+    assert patient.patientName == "AB"
+    assert patient.lastEdited == 7
 
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
