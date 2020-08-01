@@ -48,7 +48,7 @@ interface Reading {
     dateAssessed: string;
     healthcareWorkerId: 1;
   };
-  urineTest: {
+  urineTests: {
     urineTestBlood: string;
     urineTestGlu: string;
     urineTestLeuc: string;
@@ -69,7 +69,7 @@ interface ReadingVHT {
   symptoms: string[];
   dateTimeTaken: string;
   userId: number;
-  urineTest: {
+  urineTests: {
     urineTestBlood: string;
     urineTestGlu: string;
     urineTestLeuc: string;
@@ -187,7 +187,7 @@ export const formatReadingData = (
       dateAssessed: Math.floor(Date.now() / 1000).toString(),
       healthcareWorkerId: userId,
     };
-    urineTest = {
+    urineTests = {
       urineTestBlood: urineTest.blood,
       urineTestGlu: urineTest.glucose,
       urineTestLeuc: urineTest.leukocytes,
@@ -219,7 +219,7 @@ export const formatReadingDataVHT = (
     symptoms: string[] = formatSymptoms(symptoms);
     temperature: number = vital.temperature as number;
     userId: number = userId;
-    urineTest = {
+    urineTests = {
       urineTestBlood: urineTest.blood,
       urineTestGlu: urineTest.glucose,
       urineTestLeuc: urineTest.leukocytes,
