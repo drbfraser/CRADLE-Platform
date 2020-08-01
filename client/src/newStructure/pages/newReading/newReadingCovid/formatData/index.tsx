@@ -1,17 +1,3 @@
-/*
-*      "patientId": "123456",
-       "patientName": "testName",
-       "householdNumber": "20",
-       "dob": "1990-05-30",
-       "zone": "15",
-       "villageNumber": "50",
-       "gestationalTimestamp": 1587068710,
-       "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
-       "patientSex": "FEMALE",
-       "drugHistory": "too much tylenol",
-       "medicalHistory": "not enough advil"
-*
-* */
 interface Patient {
   patientId: string;
   patientName: string;

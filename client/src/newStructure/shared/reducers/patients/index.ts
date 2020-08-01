@@ -29,6 +29,7 @@ const UPDATE_PATIENT = `patient/UPDATE_PATIENT`;
 const UPDATE_PATIENT_ERROR = `patients/UPDATE_PATIENT_ERROR`;
 
 const ADD_NEW_PATIENT = `patients/ADD_NEW_PATIENT`;
+const ADD_NEW_PATIENT_NEW_API = `patients/ADD_NEW_PATIENT_NEW_API`;
 const AFTER_NEW_PATIENT_ADDED = `patients/AFTER_NEW_PATIENT_ADDED`;
 
 const ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED = `patients/ADD_PATIENT_TO_HEALTH_FACILITY_REQUESTED`;
@@ -84,11 +85,11 @@ export const getPatient = (patientId: any) => {
 
 export const addPatientNew = (patient: any) => {
   return serverRequestActionCreator({
-    endpoint: `/patients`,
+    endpoint: `${Endpoints.PATIENTS}`,
     method: Methods.POST,
     data: patient,
     onSuccess: (response: any) => ({
-      type: ADD_NEW_PATIENT,
+      type: ADD_NEW_PATIENT_NEW_API,
       payload: response,
     }),
     onError: (error: any) => ({
@@ -100,7 +101,7 @@ export const addPatientNew = (patient: any) => {
 
 export const doesPatientExist = (patientId: any) => {
   return serverRequestActionCreator({
-    endpoint: `/patients/${patientId}`,
+    endpoint: `${Endpoints.PATIENTS}/${patientId}`,
     onSuccess: (response: any) => ({
       type: DOES_PATIENT_EXIST,
       payload: response,
@@ -291,6 +292,11 @@ export const patientsReducer = (state = initialState, action: any) => {
       return {
         ...state,
         patientsList: [action.payload, ...(state.patientsList ?? [])],
+        newPatientAdded: true,
+      };
+    case ADD_NEW_PATIENT_NEW_API:
+      return {
+        ...state,
         newPatientAdded: true,
       };
     case AFTER_NEW_PATIENT_ADDED:
