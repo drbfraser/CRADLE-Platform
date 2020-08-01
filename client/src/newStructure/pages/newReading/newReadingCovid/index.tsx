@@ -244,9 +244,16 @@ const Page: React.FC<IProps> = (props) => {
   };
 
   // ~~~~~~~~ Handle response from Submission dialog  ~~~~~~~~~~~
-  const handleDialogCloseSubmission = () => {
-    setIsShowDialogsubmission(false);
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  const handleDialogCloseSubmission = (e:any) => {
+    const value = e.currentTarget.value;
+    if (value === 'ok') {
+      setIsShowDialogsubmission(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+    if (value === 'redo') {
+      setIsShowDialogsubmission(false);
+      handleReset()
+    }
   };
 
   const isRequiredFilled = () => {
@@ -425,6 +432,7 @@ const Page: React.FC<IProps> = (props) => {
                 handleDialogClose={handleDialogClose}></AlertDialog>
               <SubmissionDialog
                 patientExist={props.newPatientExist}
+                readingCreated={props.readingCreated}
                 open={isShowDialogSubmission}
                 handleDialogClose={
                   handleDialogCloseSubmission
