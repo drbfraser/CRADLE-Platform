@@ -244,7 +244,7 @@ const Page: React.FC<IProps> = (props) => {
   };
 
   // ~~~~~~~~ Handle response from Submission dialog  ~~~~~~~~~~~
-  const handleDialogCloseSubmission = (e:any) => {
+  const handleDialogCloseSubmission = (e: any) => {
     const value = e.currentTarget.value;
     if (value === 'ok') {
       setIsShowDialogsubmission(false);
@@ -252,7 +252,7 @@ const Page: React.FC<IProps> = (props) => {
     }
     if (value === 'redo') {
       setIsShowDialogsubmission(false);
-      handleReset()
+      handleReset();
     }
   };
 
