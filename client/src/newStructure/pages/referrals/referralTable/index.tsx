@@ -2,8 +2,8 @@ import { Callback, OrNull, OrUndefined, Patient } from '@types';
 
 import MUIDataTable from 'mui-datatables';
 import React from 'react';
-import { customRowRender } from '../../../shared/components/tableRow';
-import { customToolbarRender } from './toolbar';
+import { customRowRender } from '../../../shared/components/table/row';
+import { customToolbarRender } from '../../../shared/components/table/toolbar';
 import { useData } from './hooks/data';
 import { useLocalization } from '../../../shared/hooks/table/localization';
 import { useSearchChange } from '../../../shared/hooks/table/searchChange';
@@ -39,6 +39,7 @@ export const ReferralTable: React.FC<IProps> = (props) => {
 
   const localization = useLocalization({
     loading: props.loading,
+    loadingText: `Getting referral data...`,
   });
 
   const onChangePage = useUpdatePageNumber({

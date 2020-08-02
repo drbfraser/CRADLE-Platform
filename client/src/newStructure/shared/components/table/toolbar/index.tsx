@@ -1,18 +1,23 @@
 import { Callback, OrUndefined } from '@types';
 
-import { DefaultSearch } from '../../../../shared/components/defaultSearch';
+import { DefaultSearch } from '../../defaultSearch';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import React from 'react';
-import { useStyles } from '../../../../shared/styles/toolbar';
-import { useTimeout } from '../../../../shared/hooks/timeout';
+import { useStyles } from '../../../styles/toolbar';
+import { useTimeout } from '../../../hooks/timeout';
 
 interface IProps {
   loading: boolean;
   updateSearchText: Callback<OrUndefined<string>>;
+  searchPlaceholder?: string;
   searchText?: string;
 }
 
-const Toolbar: React.FC<IProps> = ({ loading, ...props }) => {
+const Toolbar: React.FC<IProps> = ({
+  loading,
+  searchPlaceholder,
+  ...props
+}) => {
   const [showLoader, setShowLoader] = React.useState<boolean>(false);
   const classes = useStyles();
   useTimeout({
@@ -35,7 +40,7 @@ const Toolbar: React.FC<IProps> = ({ loading, ...props }) => {
         />
       )}
       <div className={classes.toolbarActions}>
-        <DefaultSearch {...props} />
+        <DefaultSearch {...props} placeholder={searchPlaceholder} />
       </div>
     </>
   );

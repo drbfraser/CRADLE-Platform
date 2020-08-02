@@ -53,6 +53,8 @@ export enum GestationalAgeUnitEnum {
   MONTHS = 'GESTATIONAL_AGE_UNITS_MONTHS',
 }
 
+// * Order of enums is important
+// * Must match order used by the server
 export enum RoleEnum {
   VHT = 'VHT',
   HCW = 'HCW',

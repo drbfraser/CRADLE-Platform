@@ -5,15 +5,17 @@ import TextField from '@material-ui/core/TextField';
 import { useSearchFocus } from './hooks/focus';
 
 interface IProps {
-  globalSearch?: boolean;
   updateSearchText: Callback<OrUndefined<string>>;
+  globalSearch?: boolean;
+  placeholder?: string;
   searchText?: string;
 }
 
 export const DefaultSearch: React.FC<IProps> = ({
-  globalSearch,
-  searchText,
   updateSearchText,
+  globalSearch,
+  placeholder = 'Patient ID or Initals',
+  searchText,
 }) => {
   const search = useSearchFocus(globalSearch ?? false);
 
@@ -25,7 +27,7 @@ export const DefaultSearch: React.FC<IProps> = ({
     <TextField
       inputRef={search}
       label="Search filter"
-      placeholder="Patient ID or Initals"
+      placeholder={placeholder}
       variant="outlined"
       value={searchText}
       onChange={handleChange}

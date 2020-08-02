@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import MUIDataTable from 'mui-datatables';
 import React from 'react';
 import { ReduxState } from '../../../redux/reducers';
-import { customRowRender } from '../../../shared/components/tableRow';
+import { customRowRender } from '../../../shared/components/table/row';
 import { customToolbarRender } from './toolbar';
 import { updateSelectedPatientState } from '../../../redux/reducers/patients';
 import { useData } from './hooks/data';
@@ -71,7 +71,12 @@ export const PatientTable: React.FC<IProps> = (props) => {
 
   const localization = useLocalization({
     globalSearch,
+    initialMessage: globalSearch
+      ? `Search for a patient above by either Patient ID or Initials. If
+  nothing matches your search criteria this page will remain blank`
+      : undefined,
     loading: props.loading,
+    loadingText: `Getting patient data...`,
     searchText: props.searchText,
   });
 

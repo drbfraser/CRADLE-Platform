@@ -1,22 +1,25 @@
 import { MUIDataTableTextLabels } from 'mui-datatables';
+import { OrUndefined } from '@types';
 import React from 'react';
 
 interface IArgs {
   loading: boolean;
+  loadingText: string;
   globalSearch?: boolean;
+  initialMessage?: string;
   searchText?: string;
 }
 
 export const useLocalization = ({
   loading,
+  loadingText,
   globalSearch,
+  initialMessage,
   searchText,
 }: IArgs): MUIDataTableTextLabels => {
-  const [
-    message,
-    setMessage,
-  ] = React.useState(`Search for a patient above by either Patient ID or Initials. If
-  nothing matches your search criteria this page will remain blank`);
+  const [message, setMessage] = React.useState<OrUndefined<string>>(
+    initialMessage
+  );
 
   React.useEffect((): void => {
     if (searchText !== undefined) {
@@ -26,11 +29,11 @@ export const useLocalization = ({
 
   const noMatch = React.useMemo<string>((): string => {
     if (loading) {
-      return `Fetching patient data...`;
+      return loadingText;
     }
 
     return globalSearch ? `${message}` : `No records to display`;
-  }, [globalSearch, loading, message]);
+  }, [globalSearch, loading, loadingText, message]);
 
   return React.useMemo((): MUIDataTableTextLabels => {
     return {

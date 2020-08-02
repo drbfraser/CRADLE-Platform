@@ -3,10 +3,11 @@ import { Callback, OrNull, OrUndefined, User } from '@types';
 import MUIDataTable from 'mui-datatables';
 import React from 'react';
 import { customRowRender } from './tableRow';
-import { customToolbarRender } from './toolbar';
+import { customToolbarRender } from '../../../shared/components/table/toolbar';
 import { useData } from './hooks/data';
 import { useLocalization } from '../../../shared/hooks/table/localization';
 import { useSearchChange } from '../../../shared/hooks/table/searchChange';
+import { useStyles } from './styles';
 import { useTableColumns } from './hooks/tableColumns';
 import { useUpdatePageNumber } from '../../../shared/hooks/table/updatePageNumber';
 
@@ -21,7 +22,10 @@ interface IProps {
 }
 
 export const AdminTable: React.FC<IProps> = (props) => {
+  const classes = useStyles();
+
   const onSearchChange = useSearchChange({
+    capitalize: false,
     updateSearchText: props.updateSearchText,
   });
 
@@ -38,6 +42,7 @@ export const AdminTable: React.FC<IProps> = (props) => {
 
   const localization = useLocalization({
     loading: props.loading,
+    loadingText: `Getting user data...`,
   });
 
   const onChangePage = useUpdatePageNumber({
@@ -50,10 +55,11 @@ export const AdminTable: React.FC<IProps> = (props) => {
       data={users}
       title="Manage Users"
       options={{
-        customRowRender: customRowRender(),
+        customRowRender: customRowRender(classes.row),
         customToolbar: customToolbarRender({
           loading: props.loading,
           searchText: props.searchText ?? ``,
+          searchPlaceholder: `Search by any field`,
           updateSearchText: onSearchChange,
         }),
         download: false,

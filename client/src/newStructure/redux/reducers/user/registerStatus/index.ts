@@ -1,4 +1,4 @@
-import { OrNull, User } from '@types';
+import { ActualUser, OrNull } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
@@ -33,7 +33,7 @@ const registerUserRequested = (): RegisterStatusAction => ({
 });
 
 export const registerUser = (
-  data: User
+  data: ActualUser
 ): ((dispatch: Dispatch) => ServerRequestAction) => {
   return (dispatch: Dispatch) => {
     dispatch(registerUserRequested());

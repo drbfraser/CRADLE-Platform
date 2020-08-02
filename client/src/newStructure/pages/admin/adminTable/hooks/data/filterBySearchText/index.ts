@@ -2,6 +2,7 @@ import { OrNull, OrUndefined, User } from '@types';
 
 import React from 'react';
 import { RoleEnum } from 'src/newStructure/enums';
+import { getRoles } from '../../utils';
 
 interface IArgs {
   searchText: OrUndefined<string>;
@@ -17,29 +18,37 @@ export const useFilterBySearchText = ({
           firstName: string,
           email: string,
           healthFacilityName: string,
-          roles: Array<RoleEnum>,
+          roleIds: Array<number>,
           searchText?: string
         ): boolean => {
           if (searchText === undefined) {
             return true;
           }
+
           const searchTextRegex = new RegExp(searchText);
 
           return (
             searchTextRegex.test(firstName) ||
             searchTextRegex.test(email) ||
             searchTextRegex.test(healthFacilityName) ||
-            roles.some((role: RoleEnum): boolean => role.startsWith(searchText))
+            getRoles(roleIds).some((role: RoleEnum): boolean => {
+              return role.toLowerCase().includes(searchText.toLowerCase());
+            })
           );
         };
 
         return (data as Array<User>).filter(
-          ({ firstName, email, healthFacilityName, roles }: User): boolean => {
+          ({
+            firstName,
+            email,
+            healthFacilityName,
+            roleIds,
+          }: User): boolean => {
             return matchesSearchText(
               firstName,
               email,
               healthFacilityName,
-              roles,
+              roleIds,
               searchText
             );
           }

@@ -9,19 +9,22 @@ import {
   Modal,
   Select,
 } from 'semantic-ui-react';
+import { Callback, OrNull, OrUndefined, User, VHT } from '../../types';
 import { Dispatch, bindActionCreators } from 'redux';
 import React, { Component } from 'react';
 import {
   clearAllUsersRequestOutcome,
   deleteUser,
   getUsers,
+  sortUsers,
+  updatePageNumber,
+  updateSearchText,
   updateUser,
 } from '../../redux/reducers/user/allUsers';
 
 import { AdminTable } from './adminTable';
 import MaterialTable from 'material-table';
 import { ReduxState } from '../../redux/reducers';
-import { VHT } from '../../types';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../redux/reducers/user/currentUser';
 import { getHealthFacilityList } from '../../redux/reducers/healthFacilities';
@@ -42,6 +45,11 @@ interface IProps {
   isLoading: any;
   loggedIn: boolean;
   fetching: boolean;
+  pageNumber: number;
+  searchText?: string;
+  sortUsers: Callback<OrNull<Array<User>>>;
+  updatePageNumber: Callback<number>;
+  updateSearchText: Callback<OrUndefined<string>>;
 }
 
 interface IState {
@@ -260,7 +268,7 @@ class AdminPageComponent extends Component<IProps, IState> {
 
     if (
       this.props.healthFacilityList !== undefined &&
-      this.props.healthFacilityList.length > 0
+      this.props.healthFacilityList?.length > 0
     ) {
       for (let i = 0; i < this.props.healthFacilityList.length; i++) {
         hfOptions.push({
@@ -297,21 +305,14 @@ class AdminPageComponent extends Component<IProps, IState> {
 
     return (
       <div>
-        <h1>Admin Panel</h1>
         <AdminTable
           data={this.props.users}
-          pageNumber={0}
-          loading={false}
-          sortUsers={(): void => {
-            return;
-          }}
-          updatePageNumber={(): void => {
-            return;
-          }}
-          updateSearchText={(): void => {
-            return;
-          }}
-          searchText={``}
+          pageNumber={this.props.pageNumber}
+          loading={this.props.isLoading}
+          sortUsers={this.props.sortUsers}
+          updatePageNumber={this.props.updatePageNumber}
+          updateSearchText={this.props.updateSearchText}
+          searchText={this.props.searchText}
         />
         <MaterialTable
           title="Manage Users"
@@ -436,6 +437,8 @@ const mapStateToProps = ({ user, healthFacilities }: ReduxState) => ({
   user: user.current.data,
   loggedIn: user.current.loggedIn,
   isLoading: user.allUsers.loading,
+  pageNumber: user.allUsers.pageNumber,
+  searchText: user.allUsers.searchText,
   updateUserList: user.allUsers.updatedUserList,
   users: user.allUsers.data,
   vhtList: user.allVhts.data,
@@ -453,6 +456,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
       updateUser,
       getVhts,
       clearAllUsersRequestOutcome,
+      sortUsers,
+      updatePageNumber,
+      updateSearchText,
     },
     dispatch
   );

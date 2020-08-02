@@ -1,8 +1,8 @@
 import './styles.module.css';
 
+import { ActualUser, OrNull } from '@types';
 import { Dispatch, bindActionCreators } from 'redux';
 import { Link, Route, Switch } from 'react-router-dom';
-import { OrNull, User } from '@types';
 import React, { useEffect, useState } from 'react';
 
 import { AdminPage } from '../pages/admin';
@@ -104,7 +104,7 @@ interface IProps {
   loggedIn: boolean;
   logoutUser: () => void;
   navigateToHelpPage: () => void;
-  user: OrNull<User>;
+  user: OrNull<ActualUser>;
   pathName: Pathname;
 }
 

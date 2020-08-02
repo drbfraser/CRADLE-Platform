@@ -111,10 +111,14 @@ export type User = {
   healthFacilityName: string;
   isLoggedIn: boolean;
   refresh: string;
-  roles: Array<RoleEnum>;
+  roleIds: Array<number>;
   token: string;
   userId: number;
   vhtList: Array<VHT>;
+};
+
+export type ActualUser = Omit<User, 'roleIds'> & {
+  roles: Array<RoleEnum>;
 };
 
 export type VHT = {

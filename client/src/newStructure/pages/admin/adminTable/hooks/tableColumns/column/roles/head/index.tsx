@@ -37,7 +37,7 @@ export const RolesHead: React.FC<IProps> = ({
   }, [sorted]);
 
   const handleClick = (): void => {
-    sortData(orderBy(data, [`roles`], [sortOrder]));
+    sortData(orderBy(data, [`roleIds`], [sortOrder]));
     setSorted(true);
   };
 

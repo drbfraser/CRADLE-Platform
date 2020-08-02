@@ -1,8 +1,8 @@
 import './index.css';
 
+import { ActualUser, OrNull } from '../../types';
 import { Button, Divider, Form, Message, Select } from 'semantic-ui-react';
 import { Dispatch, bindActionCreators } from 'redux';
-import { OrNull, User } from '../../types';
 import {
   RegisterStatusState,
   registerUser,
@@ -28,10 +28,12 @@ const initState = {
 };
 interface IProps {
   loggedIn: boolean;
-  registerUser: (data: User) => (dispatch: Dispatch) => ServerRequestAction;
+  registerUser: (
+    data: ActualUser
+  ) => (dispatch: Dispatch) => ServerRequestAction;
   getCurrentUser: () => (dispatch: Dispatch) => ServerRequestAction;
   getHealthFacilityList: () => (dispatch: Dispatch) => ServerRequestAction;
-  user: OrNull<User>;
+  user: OrNull<ActualUser>;
   healthFacilityList: Array<any>;
   registerStatus: RegisterStatusState;
 }
@@ -70,7 +72,7 @@ class SignupComponent extends React.Component<IProps> {
 
   handleSubmit = (event: any) => {
     event.preventDefault();
-    this.props.registerUser((this.state.user as unknown) as User);
+    this.props.registerUser((this.state.user as unknown) as ActualUser);
   };
 
   render() {

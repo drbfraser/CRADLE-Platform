@@ -10,6 +10,7 @@ import {
 import React from 'react';
 import { RoleEnum } from '../../../../../../../../../enums';
 import { User } from '@types';
+import { getRoles } from '../../../../../utils';
 import { options } from '../../../../../../../utils';
 import { useHealthFacilityOptions } from './hooks/healthFacilityOptions';
 import { useVHTOptions } from './hooks/vhtOptions';
@@ -79,12 +80,12 @@ export const EditUserModal: React.FC<IProps> = ({
                 multiple={true}
                 selection={true}
                 options={options}
-                value={selectedUser.roles}
+                value={getRoles(selectedUser.roleIds)}
                 onChange={handleDropdownChange}
               />
             </Form.Group>
 
-            {selectedUser.roles.includes(RoleEnum.VHT) && (
+            {getRoles(selectedUser.roleIds).includes(RoleEnum.VHT) && (
               <Form.Group>
                 <Form.Field label="VHT Supervising">
                   <div></div>
@@ -95,7 +96,7 @@ export const EditUserModal: React.FC<IProps> = ({
                   multiple={true}
                   selection={true}
                   options={vhtOptions}
-                  value={selectedUser.roles}
+                  value={getRoles(selectedUser.roleIds)}
                   onChange={handleVhtDropdownChange}
                 />
               </Form.Group>

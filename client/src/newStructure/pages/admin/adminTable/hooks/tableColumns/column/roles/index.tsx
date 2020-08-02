@@ -5,7 +5,6 @@ import {
 } from 'mui-datatables';
 
 import React from 'react';
-import { RoleEnum } from '../../../../../../../enums';
 import { RolesBody } from './body';
 import { RolesHead } from './head';
 
@@ -25,7 +24,7 @@ export const useRolesColumn = ({
   return React.useMemo(() => {
     return {
       label: `Roles`,
-      name: `roles`,
+      name: `roleIds`,
       options: {
         customHeadRender: ({
           label,
@@ -39,8 +38,8 @@ export const useRolesColumn = ({
             sortData={sortData}
           />
         ),
-        customBodyRender: (roles: Array<RoleEnum>): JSX.Element => (
-          <RolesBody className={bodyClass} roles={roles} />
+        customBodyRender: (roleIds: Array<number>): JSX.Element => (
+          <RolesBody className={bodyClass} roleIds={roleIds} />
         ),
         searchable: true,
       },

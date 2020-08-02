@@ -1,4 +1,4 @@
-import { Callback, OrNull, ServerError, User } from '@types';
+import { ActualUser, Callback, OrNull, ServerError } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
@@ -26,14 +26,17 @@ type CurrentUserAction =
   | { type: CurrentUserActionEnum.GET_CURRENT_USER_REQUESTED }
   | {
       type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS;
-      payload: { currentUser: User };
+      payload: { currentUser: ActualUser };
     }
   | {
       type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR;
       payload: { message: string };
     }
   | { type: CurrentUserActionEnum.LOGIN_USER_REQUESTED }
-  | { type: CurrentUserActionEnum.LOGIN_USER_SUCCESS; payload: { user: User } }
+  | {
+      type: CurrentUserActionEnum.LOGIN_USER_SUCCESS;
+      payload: { user: ActualUser };
+    }
   | {
       type: CurrentUserActionEnum.LOGIN_USER_ERROR;
       payload: { message: string };
@@ -69,7 +72,7 @@ export const loginUser = (
         endpoint: `${Endpoints.USER}${Endpoints.AUTH}`,
         method: Methods.POST,
         data,
-        onSuccess: ({ data }: { data: User }): CurrentUserAction => {
+        onSuccess: ({ data }: { data: ActualUser }): CurrentUserAction => {
           localStorage.setItem(`token`, data.token);
           localStorage.setItem(`refresh`, data.refresh);
           return {
@@ -104,7 +107,7 @@ export const getCurrentUser = (): ((
         onSuccess: ({
           data: currentUser,
         }: {
-          data: User;
+          data: ActualUser;
         }): CurrentUserAction => ({
           type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
           payload: { currentUser },
@@ -122,7 +125,7 @@ export const getCurrentUser = (): ((
 };
 
 export type CurrentUserState = {
-  data: OrNull<User>;
+  data: OrNull<ActualUser>;
   error: boolean;
   loading: boolean;
   loggedIn: boolean;
