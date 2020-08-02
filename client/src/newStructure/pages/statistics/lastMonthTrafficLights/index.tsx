@@ -1,38 +1,46 @@
+import { OrNull, Statistics } from '@types';
+
 import { Bar } from 'react-chartjs-2';
 import { Card } from 'semantic-ui-react';
+import { Loader } from '../../../shared/components/loader';
 import React from 'react';
-import classes from '../styles.module.css';
-import styles from './styles.module.css';
-import { trafficLightLabels } from './utils';
+import { useChart } from './hooks';
+import { useStyles as useLocalStyles } from './styles';
+import { useStyles } from '../styles';
 
 interface IProps {
-  statisticsList: any;
+  error: boolean;
+  loading: boolean;
+  statistics: OrNull<Statistics>;
 }
 
 export const LastMonthTrafficLightsStatistics: React.FC<IProps> = ({
-  statisticsList,
+  error,
+  loading,
+  statistics,
 }) => {
-  const trafficLight = statisticsList.trafficLightStatusLastMonth
-    ? {
-        labels: trafficLightLabels,
-        datasets: [
-          {
-            backgroundColor: [`green`, `yellow`, `yellow`, `red`, `red`],
-            data: Object.values(statisticsList.trafficLightStatusLastMonth),
-          },
-        ],
-      }
-    : {};
+  const classes = { ...useStyles(), ...useLocalStyles() };
+  const data = useChart({
+    statistics: statistics?.trafficLightStatusLastMonth,
+  });
+
+  if (loading) {
+    return <Loader message="Getting traffic light statistics..." show={true} />;
+  }
+
+  if (error) {
+    return null;
+  }
 
   return (
     <div>
-      <h2 className={styles.header}>Traffic lights from last month:</h2>
+      <h2 className={classes.header}>Traffic lights from last month:</h2>
       <div className={classes.center}>
-        <div className="chart">
-          <Card fluid>
+        <div className={classes.chart}>
+          <Card fluid={true}>
             <Card.Content>
               <Bar
-                data={trafficLight}
+                data={data}
                 options={{
                   legend: { display: false },
                   scales: { yAxes: [{ ticks: { beginAtZero: true } }] },

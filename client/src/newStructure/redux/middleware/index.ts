@@ -67,7 +67,7 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
       return dispatch(
         onError({
           message:
-            err.response?.status === 500
+            err.response?.status === 500 || err.response?.status === undefined
               ? `Something went wrong on our end which means you can't perform this action right now. We are working hard at getting it fixed soon!`
               : err.response?.data.message ?? ``,
           status: err.response?.status ?? 500,

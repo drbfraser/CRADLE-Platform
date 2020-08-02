@@ -172,17 +172,61 @@ export type PatientNewReadingReading = {
   urineTests: UrineTests;
 };
 
+export type TrafficLightStatistics = {
+  green: number;
+  yellowUp: number;
+  yellowDown: number;
+  redUp: number;
+  redDown: number;
+};
+
+export type YearPatientStatistics = [
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>
+];
+
 export type PatientStatistics = {
-  bpSystolicReadingsMonthly?: Array<Array<number>>;
-  bpDiastolicReadingsMonthly?: Array<Array<number>>;
-  heartRateReadingsMonthly?: Array<Array<number>>;
-  trafficLightCountsFromDay1: {
-    green: number;
-    yellowUp: number;
-    yellowDown: number;
-    redUp: number;
-    redDown: number;
-  };
+  trafficLightCountsFromDay1: TrafficLightStatistics;
+  bpSystolicReadingsMonthly?: YearPatientStatistics;
+  bpDiastolicReadingsMonthly?: YearPatientStatistics;
+  heartRateReadingsMonthly?: YearPatientStatistics;
+};
+
+export type YearGlobalStatistics = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number
+];
+
+export type Statistics = {
+  assessmentsPerMonth: YearGlobalStatistics;
+  readingsPerMonth: YearGlobalStatistics;
+  referralsPerMonth: YearGlobalStatistics;
+  pregnantWomenAssessedPerMonth: YearGlobalStatistics;
+  pregnantWomenReferredPerMonth: YearGlobalStatistics;
+  trafficLightStatusLastMonth: TrafficLightStatistics;
+  uniquePeopleAssesedPerMonth: YearGlobalStatistics;
+  womenAssessedPerMonth: YearGlobalStatistics;
+  womenReferredPerMonth: YearGlobalStatistics;
 };
 
 export type NewAssessment = {
@@ -212,4 +256,14 @@ export type Referral = {
   readingId: string;
   referralHealthFacilityName: string;
   userId: OrNull<number>;
+};
+
+export type StatisticsDataset<Label, Data, BackgroundColor = string> = {
+  backgroundColor: BackgroundColor;
+  data: Data;
+  label?: Label;
+  fill?: false;
+  lineTension?: 0.1;
+  borderColor?: string;
+  pointRadius?: 1;
 };

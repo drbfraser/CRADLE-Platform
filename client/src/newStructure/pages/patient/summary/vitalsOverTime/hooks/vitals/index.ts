@@ -1,4 +1,4 @@
-import { OrNull, PatientStatistics } from '@types';
+import { OrNull, PatientStatistics, StatisticsDataset } from '@types';
 
 import { MonthEnum } from '../../../../../../enums';
 import React from 'react';
@@ -6,19 +6,11 @@ import { ReduxState } from '../../../../../../redux/reducers';
 import { average } from './utils';
 import { useSelector } from 'react-redux';
 
-type Dataset = {
-  label: `Systolic` | `Diastolic` | `Heart Rate`;
-  fill: false;
-  lineTension: 0.1;
-  backgroundColor: string;
-  borderColor: string;
-  pointRadius: 1;
-  data: Array<number>;
-};
-
 type Vitals = {
   labels: Array<MonthEnum>;
-  datasets: Array<Dataset>;
+  datasets: Array<
+    StatisticsDataset<'Systolic' | 'Diastolic' | 'Heart Rate', Array<number>>
+  >;
 };
 
 export const useVitals = (): Vitals => {

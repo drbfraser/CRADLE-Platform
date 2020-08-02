@@ -1,17 +1,18 @@
-import { OrNull, PatientStatistics } from '@types';
+import { OrNull, PatientStatistics, StatisticsDataset } from '@types';
 
 import { ReduxState } from '../../../../../../redux/reducers';
 import { TrafficLightEnum } from '../../../../../../enums';
 import { useSelector } from 'react-redux';
 
-type Dataset = {
-  backgroundColor: ['red', 'red', 'yellow', 'yellow', 'green'];
-  data: Array<number>;
-};
-
 type TrafficLights = {
   labels: Array<string>;
-  datasets: Array<Dataset>;
+  datasets: Array<
+    StatisticsDataset<
+      undefined,
+      Array<number>,
+      ['red', 'red', 'yellow', 'yellow', 'green']
+    >
+  >;
 };
 
 export const useTrafficLights = (): OrNull<TrafficLights> => {

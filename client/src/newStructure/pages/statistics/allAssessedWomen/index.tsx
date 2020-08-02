@@ -1,4 +1,4 @@
-import { Card, Statistic } from 'semantic-ui-react';
+import { OrNull, Statistics } from '@types';
 import {
   pregnantWomenAssessedPerMonth,
   pregnantWomenReferredPerMonth,
@@ -6,84 +6,76 @@ import {
   womenReferredPerMonth,
 } from './utils';
 
-import { Line } from 'react-chartjs-2';
+import { Chart } from '../chart';
+import { Loader } from '../../../shared/components/loader';
 import React from 'react';
-import classes from '../styles.module.css';
-import { xLabels } from '../utils';
+import { Statistic as SemanticStatistic } from 'semantic-ui-react';
+import { Statistic } from '../statistic';
+import { useStyles } from '../styles';
 
 interface IProps {
-  currentMonth: number;
-  statisticsList: any;
+  error: boolean;
+  loading: boolean;
+  statistics: OrNull<Statistics>;
 }
 
 export const AllAssessedWomenStatsitics: React.FC<IProps> = ({
-  currentMonth,
-  statisticsList,
+  error,
+  loading,
+  statistics,
 }) => {
-  const womenReferralsVsAssessed = {
-    labels: xLabels,
-    datasets: [
-      womenReferredPerMonth(statisticsList.womenReferredPerMonth),
-      pregnantWomenReferredPerMonth(
-        statisticsList.pregnantWomenReferredPerMonth
-      ),
-      womenAssessedPerMonth(statisticsList.womenAssessedPerMonth),
-      pregnantWomenAssessedPerMonth(
-        statisticsList.pregnantWomenAssessedPerMonth
-      ),
-    ],
-  };
+  const classes = useStyles();
+
+  if (loading) {
+    return (
+      <Loader message="Getting assessed women statistics..." show={true} />
+    );
+  }
+
+  if (error) {
+    return null;
+  }
 
   return (
     <div>
       <h2>A snapshot of all women assessed:</h2>
       <div className={classes.center}>
-        {statisticsList.womenReferredPerMonth &&
-        statisticsList.pregnantWomenReferredPerMonth &&
-        statisticsList.womenAssessedPerMonth &&
-        statisticsList.pregnantWomenAssessedPerMonth ? (
-          <Statistic.Group className={classes.statisticGroup}>
-            <Statistic horizontal className={classes.statistic}>
-              <Statistic.Value className={classes.underlineBlack}>
-                {statisticsList.womenReferredPerMonth[currentMonth - 1]}
-              </Statistic.Value>
-              <Statistic.Label className={classes.verticalWriting}>
-                WOMEN REFERRED
-              </Statistic.Label>
-            </Statistic>
-            <Statistic horizontal className={classes.statistic}>
-              <Statistic.Value className={classes.underlineBlue}>
-                {statisticsList.pregnantWomenReferredPerMonth[currentMonth - 1]}
-              </Statistic.Value>
-              <Statistic.Label className={classes.verticalWriting}>
-                PREGNANT WOMEN REFERRED
-              </Statistic.Label>
-            </Statistic>
-            <Statistic horizontal className={classes.statistic}>
-              <Statistic.Value className={classes.underlinePurple}>
-                {statisticsList.womenAssessedPerMonth[currentMonth - 1]}
-              </Statistic.Value>
-              <Statistic.Label className={classes.verticalWriting}>
-                WOMEN ASSESSED
-              </Statistic.Label>
-            </Statistic>
-            <Statistic horizontal className={classes.statistic}>
-              <Statistic.Value className={classes.underlineOrange}>
-                {statisticsList.pregnantWomenAssessedPerMonth[currentMonth - 1]}
-              </Statistic.Value>
-              <Statistic.Label className={classes.verticalWriting}>
-                PREGNANT WOMEN ASSESSED
-              </Statistic.Label>
-            </Statistic>
-          </Statistic.Group>
-        ) : null}
-        <div className="chart">
-          <Card fluid>
-            <Card.Content>
-              <Line data={womenReferralsVsAssessed} />
-            </Card.Content>
-          </Card>
-        </div>
+        <SemanticStatistic.Group className={classes.statisticGroup}>
+          <Statistic
+            label="WOMEN REFERRED"
+            data={statistics?.womenReferredPerMonth}
+            underlineClassName={classes.underlineBlack}
+          />
+          <Statistic
+            label="PREGNANT WOMEN REFERRED"
+            data={statistics?.pregnantWomenReferredPerMonth}
+            underlineClassName={classes.underlineBlue}
+          />
+          <Statistic
+            label="WOMEN ASSESSED"
+            data={statistics?.womenAssessedPerMonth}
+            underlineClassName={classes.underlinePurple}
+          />
+          <Statistic
+            label="PREGNANT WOMEN ASSESSED"
+            data={statistics?.pregnantWomenAssessedPerMonth}
+            underlineClassName={classes.underlineOrange}
+          />
+        </SemanticStatistic.Group>
+        {statistics && (
+          <Chart
+            datasets={[
+              womenReferredPerMonth(statistics.womenReferredPerMonth),
+              pregnantWomenReferredPerMonth(
+                statistics.pregnantWomenReferredPerMonth
+              ),
+              womenAssessedPerMonth(statistics.womenAssessedPerMonth),
+              pregnantWomenAssessedPerMonth(
+                statistics.pregnantWomenAssessedPerMonth
+              ),
+            ]}
+          />
+        )}
       </div>
     </div>
   );

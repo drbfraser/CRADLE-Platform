@@ -19,7 +19,7 @@ export const Content: React.FC = ({ children }) => {
   return loading ? (
     <Loader
       className={classes.loader}
-      message="Loading vitals..."
+      message="Getting patient vitals..."
       show={true}
       timeout={0}
     />

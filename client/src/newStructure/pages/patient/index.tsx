@@ -45,7 +45,7 @@ export const PatientPage: React.FC<RouteComponentProps<Params>> = ({
   }, [dispatch, id]);
 
   if (loading || !patient) {
-    return <Loader message="Fetching the patient..." show={true} />;
+    return <Loader message="Getting patient information..." show={true} />;
   }
 
   const clearError = (): void => {

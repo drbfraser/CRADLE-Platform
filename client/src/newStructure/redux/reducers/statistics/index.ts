@@ -1,8 +1,8 @@
+import { OrNull, ServerError, Statistics } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
 import { Endpoints } from '../../../server/endpoints';
-import { OrNull } from '@types';
 
 enum StatisticsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'statistics/CLEAR_REQUEST_OUTCOME',
@@ -40,7 +40,7 @@ export const getStatistics = (): ((
           type: StatisticsActionEnum.GET_STATISTICS_SUCCESS,
           payload: { data },
         }),
-        onError: (message: string): StatisticsAction => ({
+        onError: ({ message }: ServerError): StatisticsAction => ({
           type: StatisticsActionEnum.GET_STATISTICS_ERROR,
           payload: { message },
         }),
@@ -54,7 +54,7 @@ export const clearStatisticsRequestOutcome = (): StatisticsAction => ({
 });
 
 export type StatisticsState = {
-  data: OrNull<any>;
+  data: OrNull<Statistics>;
   error: boolean;
   loading: boolean;
   message: OrNull<string>;
