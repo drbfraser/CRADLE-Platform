@@ -16,6 +16,8 @@ export const Endpoints = {
   EDIT: `/edit`,
   DELETE: `/delete`,
   READING: `/reading`,
+  READINGS: `/readings`,
   REFRESH: `/refresh_token`,
   CURRENT: `/current`,
+  ASSESSMENTS: '/assessments',
 };

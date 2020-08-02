@@ -16,13 +16,10 @@ import { Assessment } from './assessment';
 import { bindActionCreators } from 'redux';
 import { getCurrentUser } from '../../../shared/reducers/user/currentUser';
 import {
-  addNewReading,
   addReadingNew,
   resetNewReadingStatus,
-  addReadingAssessment,
 } from '../../../shared/reducers/newReadingStatus';
 import {
-  addNewPatient,
   addPatientNew,
   doesPatientExist,
   afterDoesPatientExist,
@@ -72,15 +69,12 @@ interface IProps {
   getCurrentUser: any;
   afterNewPatientAdded: any;
   user: User;
-  addNewReading: any;
-  addNewPatient: any;
   addPatientNew: any;
   doesPatientExist: any;
   addReadingNew: any;
   newPatientAdded: any;
   newPatientExist: boolean;
   patient: any;
-  addReadingAssessment: any;
   readingCreated: any;
   resetNewReadingStatus: any;
   patientFromEdit: any;
@@ -464,15 +458,12 @@ const mapDispatchToProps = (dispatch: any) => ({
   ...bindActionCreators(
     {
       getCurrentUser,
-      addNewReading,
-      addNewPatient,
       resetNewReadingStatus,
       addPatientNew,
       addReadingNew,
       doesPatientExist,
       afterDoesPatientExist,
       afterNewPatientAdded,
-      addReadingAssessment,
     },
     dispatch
   ),

@@ -33,7 +33,7 @@ export const addNewReading = (data: any): ServerRequestAction => {
 
 export const addReadingNew = (reading: any) => {
   return serverRequestActionCreator({
-    endpoint: `/readings`,
+    endpoint: `${Endpoints.READINGS}`,
     method: Methods.POST,
     data: reading,
     onSuccess: (message: string): NewReadingStatusAction => ({
@@ -48,7 +48,7 @@ export const addReadingNew = (reading: any) => {
 
 export const addReadingAssessment = (assessment: any) => {
   return serverRequestActionCreator({
-    endpoint: `/assessments`,
+    endpoint: `${Endpoints.ASSESSMENTS}`,
     method: Methods.POST,
     data: assessment,
     onSuccess: (): NewReadingStatusAction => ({
