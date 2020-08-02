@@ -56,6 +56,9 @@ class Root(Resource):
             referral = reading.referral
             if referral and not assoc.has_association(patient, referral.healthFacility):
                 assoc.associate(patient, facility=referral.healthFacility)
+                # The associate function performs a database commit, since this will
+                # wipe out the patient we want to return we must refresh it.
+                data.db_session.refresh(patient)
         return marshal.marshal(patient), 201
 
 
