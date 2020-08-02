@@ -21,9 +21,7 @@ import {
 } from '../../../utils';
 
 import { EditedPatient } from '@types';
-import Paper from '@material-ui/core/Paper';
 import React from 'react';
-import { useStyles } from './styles';
 
 export const GESTATIONAL_AGE_UNITS = {
   WEEKS: 'GESTATIONAL_AGE_UNITS_WEEKS',
@@ -44,8 +42,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
   onChange,
   isEditPage,
 }) => {
-  const classes = useStyles();
-
   const dob = React.useMemo((): string => {
     if (patient.dob) {
       return `${patient.dob}`;
@@ -65,16 +61,15 @@ export const PatientInfoForm: React.FC<IProps> = ({
   }, [patient.gestationalAgeUnit, patient.gestationalTimestamp]);
 
   return (
-    <Paper className={classes.container}>
+    <>
       {!isEditPage && (
         <Header>
           <b>Patient Information</b>
         </Header>
       )}
       {!isEditPage && <Divider />}
-      <Form.Group>
+      <Form.Group widths="equal">
         <Form.Field
-          className={classes.input}
           name="patientName"
           value={patient.patientName}
           control={Input}
@@ -87,9 +82,10 @@ export const PatientInfoForm: React.FC<IProps> = ({
           minLength="1"
           required={true}
         />
-        {!isEditPage && (
+      </Form.Group>
+      {!isEditPage && (
+        <Form.Group widths="equal">
           <Form.Field
-            className={classes.input}
             name="patientId"
             value={patient.patientId}
             control={Input}
@@ -101,11 +97,10 @@ export const PatientInfoForm: React.FC<IProps> = ({
             minLength="1"
             required={true}
           />
-        )}
-      </Form.Group>
+        </Form.Group>
+      )}
       <Form.Group widths="equal">
         <Form.Field
-          className={classes.input}
           name="patientAge"
           value={patientAge}
           control={Input}
@@ -117,7 +112,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
           onChange={onChange}
         />
         <Form.Field
-          className={classes.input}
           name="dob"
           value={dob}
           control={Input}
@@ -126,8 +120,9 @@ export const PatientInfoForm: React.FC<IProps> = ({
           placeholder="Birthday"
           onChange={onChange}
         />
+      </Form.Group>
+      <Form.Group widths="equal">
         <Form.Field
-          className={classes.input}
           name="patientSex"
           value={patient.patientSex}
           control={Select}
@@ -140,7 +135,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
       </Form.Group>
       <Form.Group widths="equal">
         <Form.Field
-          className={classes.input}
           name="isPregnant"
           value={patient.isPregnant}
           control={Select}
@@ -150,6 +144,8 @@ export const PatientInfoForm: React.FC<IProps> = ({
           disabled={patient.patientSex === SexEnum.MALE}
           required={patient.patientSex === SexEnum.FEMALE}
         />
+      </Form.Group>
+      <Form.Group widths="equal">
         <Form.Dropdown
           name="gestationalTimestamp"
           value={gestationalTimestamp}
@@ -166,7 +162,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
           required={patient.patientSex === SexEnum.FEMALE && patient.isPregnant}
         />
         <Form.Field
-          className={classes.input}
           name="gestationalAgeUnit"
           value={patient.gestationalAgeUnit}
           control={Select}
@@ -177,9 +172,8 @@ export const PatientInfoForm: React.FC<IProps> = ({
           required={patient.patientSex === SexEnum.FEMALE && patient.isPregnant}
         />
       </Form.Group>
-      <Form.Group>
+      <Form.Group widths="equal">
         <Form.Field
-          className={classes.input}
           name="zone"
           value={patient.zone}
           control={Input}
@@ -189,7 +183,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
           onChange={onChange}
         />
         <Form.Field
-          className={classes.input}
           name="villageNumber"
           value={patient.villageNumber}
           control={Input}
@@ -200,7 +193,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
         />
       </Form.Group>
       <Form.Field
-        className={classes.input}
         name="drugHistory"
         value={patient.drugHistory}
         control={TextArea}
@@ -209,7 +201,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
         onChange={onChange}
       />
       <Form.Field
-        className={classes.input}
         name="medicalHistory"
         value={patient.medicalHistory}
         control={TextArea}
@@ -217,6 +208,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
         placeholder="Enter the patient's medical history..."
         onChange={onChange}
       />
-    </Paper>
+    </>
   );
 };

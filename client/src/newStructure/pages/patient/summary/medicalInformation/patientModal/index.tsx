@@ -72,7 +72,11 @@ export const PatientModal: React.FC<IProps> = ({
         status={error ? `error` : `success`}
         clearMessage={clearMessage}
       />
-      <Modal closeIcon onClose={closePatientModal} open={displayPatientModal}>
+      <Modal
+        closeIcon={true}
+        open={displayPatientModal}
+        size="tiny"
+        onClose={closePatientModal}>
         <Modal.Header>
           {`Patient Information for ID #${patient.patientId}`}
         </Modal.Header>
