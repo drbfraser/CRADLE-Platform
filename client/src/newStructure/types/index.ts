@@ -106,19 +106,31 @@ export type GlobalSearchPatient = {
 };
 
 export type User = {
+  associations: unknown;
   email: string;
   firstName: string;
+  followups: unknown;
+  healthFacility: string;
   healthFacilityName: string;
-  isLoggedIn: boolean;
-  refresh: string;
+  id: number;
+  referrals: unknown;
   roleIds: Array<number>;
-  token: string;
-  userId: number;
+  tableData: {
+    id: number;
+  };
+  username: OrNull<string>;
   vhtList: Array<VHT>;
 };
 
-export type ActualUser = Omit<User, 'roleIds'> & {
+export type ActualUser = Pick<
+  User,
+  'email' | 'firstName' | 'healthFacilityName' | 'vhtList'
+> & {
+  isLoggedIn: boolean;
+  refresh: string;
   roles: Array<RoleEnum>;
+  token: string;
+  userId: number;
 };
 
 export type VHT = {

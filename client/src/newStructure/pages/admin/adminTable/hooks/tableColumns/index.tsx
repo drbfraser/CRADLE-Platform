@@ -1,21 +1,21 @@
 import { Callback, User } from '@types';
 
 import { MUIDataTableColumn } from 'mui-datatables';
-import { useActionsColumn } from './column/actions';
 import { useEmailColumn } from './column/email';
 import { useFirstNameColumn } from './column/firstName';
 import { useHealthFacilityColumn } from './column/healthFacility';
 import { useRolesColumn } from './column/roles';
 import { useStyles } from './styles';
+import { useTakeActionColumn } from './column/takeAction';
 
 // * Order of enums is important
 // * Must match order of columns in the table
 export enum AdminTableColumnEnum {
-  ACTIONS = 'ACTIONS',
   FIRST_NAME = 'FIRST_NAME',
   EMAIL = 'EMAIL',
   HEALTH_FACILITY = 'HEALTH_FACILITY',
   ROLES = 'ROLES',
+  TAKE_ACTION = 'TAKE_ACTION',
 }
 
 interface IArgs {
@@ -31,10 +31,6 @@ export const useTableColumns = ({
 }: IArgs): Array<MUIDataTableColumn> => {
   const classes = useStyles();
 
-  const actionsColumn = useActionsColumn({
-    headClass: classes.headCell,
-    users,
-  });
   const firstNameColumn = useFirstNameColumn({
     headClass: classes.headCell,
     bodyClass: classes.bodyCell,
@@ -59,13 +55,17 @@ export const useTableColumns = ({
     users,
     sortData,
   });
+  const takeActionColumn = useTakeActionColumn({
+    headClass: classes.headCell,
+    users,
+  });
 
   const columns: TableColumns = {
-    [AdminTableColumnEnum.ACTIONS]: actionsColumn,
     [AdminTableColumnEnum.FIRST_NAME]: firstNameColumn,
     [AdminTableColumnEnum.EMAIL]: emailColumn,
     [AdminTableColumnEnum.HEALTH_FACILITY]: healthFacilityColumn,
     [AdminTableColumnEnum.ROLES]: rolesColumn,
+    [AdminTableColumnEnum.TAKE_ACTION]: takeActionColumn,
   };
 
   return Object.values(columns);

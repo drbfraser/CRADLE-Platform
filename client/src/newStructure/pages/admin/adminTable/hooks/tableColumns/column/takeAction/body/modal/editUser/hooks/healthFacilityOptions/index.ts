@@ -2,8 +2,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { OrNull } from '@types';
 import React from 'react';
-import { ReduxState } from '../../../../../../../../../../../redux/reducers';
-import { getHealthFacilityList } from '../../../../../../../../../../../redux/reducers/healthFacilities';
+import { ReduxState } from '../../../../../../../../../../../../redux/reducers';
+import { getHealthFacilityList } from '../../../../../../../../../../../../redux/reducers/healthFacilities';
 
 interface IUseHealthFacilityOptions {
   key: string;

@@ -7,6 +7,6 @@ interface IProps {
   label?: string;
 }
 
-export const ActionsHead: React.FC<IProps> = ({ className, label }) => {
+export const TakeActionHead: React.FC<IProps> = ({ className, label }) => {
   return <th className={className}>{label}</th>;
 };

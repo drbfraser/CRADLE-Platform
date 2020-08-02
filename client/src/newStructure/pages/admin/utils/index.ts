@@ -1,6 +1,6 @@
 import { UserOptionDisplayEnum, UserOptionEnum } from '../../../enums';
 
-export const options = [
+export const roleOptions = [
   {
     key: UserOptionDisplayEnum.VHT,
     text: UserOptionDisplayEnum.VHT,
@@ -12,13 +12,13 @@ export const options = [
     value: UserOptionEnum.HCW,
   },
   {
-    key: UserOptionDisplayEnum.CHO,
-    text: UserOptionDisplayEnum.CHO,
-    value: UserOptionEnum.CHO,
-  },
-  {
     key: UserOptionDisplayEnum.ADMIN,
     text: UserOptionDisplayEnum.ADMIN,
     value: UserOptionEnum.ADMIN,
+  },
+  {
+    key: UserOptionDisplayEnum.CHO,
+    text: UserOptionDisplayEnum.CHO,
+    value: UserOptionEnum.CHO,
   },
 ];

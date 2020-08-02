@@ -71,10 +71,8 @@ export const PatientTable: React.FC<IProps> = (props) => {
 
   const localization = useLocalization({
     globalSearch,
-    initialMessage: globalSearch
-      ? `Search for a patient above by either Patient ID or Initials. If
-  nothing matches your search criteria this page will remain blank`
-      : undefined,
+    initialMessage: `Search for a patient above by either Patient ID or Initials. If
+  nothing matches your search criteria this page will remain blank`,
     loading: props.loading,
     loadingText: `Getting patient data...`,
     searchText: props.searchText,
@@ -101,7 +99,7 @@ export const PatientTable: React.FC<IProps> = (props) => {
       data={patients}
       title="Patients"
       options={{
-        customRowRender: customRowRender(handleRowClick),
+        customRowRender: customRowRender({ handleRowClick }),
         customToolbar: customToolbarRender({
           globalSearch,
           globalSearchAction: props.showGlobalSearch,

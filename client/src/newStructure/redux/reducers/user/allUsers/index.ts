@@ -218,7 +218,7 @@ export const allUsersReducer = (
         data:
           state.data?.map(
             (user: User): User =>
-              user.userId === action.payload.updatedUser.userId
+              user.id === action.payload.updatedUser.id
                 ? action.payload.updatedUser
                 : user
           ) ?? [],
@@ -230,8 +230,7 @@ export const allUsersReducer = (
         updatedUserList: true,
         data:
           state.data?.filter(
-            ({ userId }: User): boolean =>
-              userId !== action.payload.deletedUserId
+            ({ id }: User): boolean => id !== action.payload.deletedUserId
           ) ?? null,
       };
     }

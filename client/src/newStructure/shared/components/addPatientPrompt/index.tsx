@@ -57,14 +57,15 @@ export const AddPatientPrompt: React.FC<IProps> = ({
           classes={{ root: classes.button }}
           disabled={adding}
           onClick={handleNegativeClick}
-          color="primary">
+          color="inherit">
           Cancel
         </Button>
         <Button
           classes={{ root: classes.button }}
           disabled={adding}
           onClick={handlePositiveClick}
-          color="primary">
+          color="primary"
+          variant="contained">
           {adding ? `Adding...` : positiveText}
         </Button>
       </DialogActions>

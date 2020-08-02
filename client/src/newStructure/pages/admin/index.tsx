@@ -29,7 +29,7 @@ import { connect } from 'react-redux';
 import { getCurrentUser } from '../../redux/reducers/user/currentUser';
 import { getHealthFacilityList } from '../../redux/reducers/healthFacilities';
 import { getVhts } from '../../redux/reducers/user/allVhts';
-import { options } from './utils';
+import { roleOptions } from './utils';
 
 interface IProps {
   user: any;
@@ -373,7 +373,7 @@ class AdminPageComponent extends Component<IProps, IState> {
                     fluid
                     multiple
                     selection
-                    options={options}
+                    options={roleOptions}
                     value={this.state.selectedUser.dropdownSelections}
                     onChange={this.handleDropdownChange}
                   />

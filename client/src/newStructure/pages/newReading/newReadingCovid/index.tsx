@@ -13,13 +13,13 @@ import {
   createReading,
 } from '../../../redux/reducers/reading';
 
+import { ActualUser } from '@types';
 import AlertDialog from './alertDialog';
 import { Assessment } from './assessment';
 import { ConfirmationPage } from './confirmationPage';
 import { Demographics } from './demographic';
 import SubmissionDialog from './submissionDialog';
 import { Symptoms } from './symptoms';
-import { User } from '@types';
 import { VitalSignAssessment } from './vitalSignAssessment';
 import { addNewPatient } from '../../../redux/reducers/patients';
 import { bindActionCreators } from 'redux';
@@ -69,7 +69,7 @@ function getSteps() {
 interface IProps {
   getCurrentUser: any;
   afterNewPatientAdded: any;
-  user: User;
+  user: ActualUser;
   createReading: any;
 }
 

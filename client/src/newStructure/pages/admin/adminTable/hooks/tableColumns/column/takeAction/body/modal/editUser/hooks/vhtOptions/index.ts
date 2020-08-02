@@ -2,10 +2,10 @@ import { OrNull, VHT } from '@types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import React from 'react';
-import { ReduxState } from '../../../../../../../../../../../redux/reducers';
-import { getVhts } from '../../../../../../../../../../../redux/reducers/user/allVhts';
+import { ReduxState } from '../../../../../../../../../../../../redux/reducers';
+import { getVhts } from '../../../../../../../../../../../../redux/reducers/user/allVhts';
 
-interface IUseVHTOptions {
+export interface IUseVHTOptions {
   key: number;
   text: string;
   value: number;

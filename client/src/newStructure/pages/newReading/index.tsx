@@ -1,12 +1,12 @@
 import './index.css';
 
-import { Button, Divider, Form } from 'semantic-ui-react';
 import {
+  ActualUser,
   CheckedItems,
   PatientNewReading,
   PatientNewReadingReading,
-  User,
 } from '../../types';
+import { Button, Divider, Form } from 'semantic-ui-react';
 import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from './patientInfoForm';
 import { UrineTestForm, initialUrineTests } from './urineTestForm';
 import {
@@ -80,7 +80,7 @@ const initState = {
 interface IProps {
   getCurrentUser: any;
   afterNewPatientAdded: any;
-  user: User;
+  user: ActualUser;
   createReading: any;
 }
 

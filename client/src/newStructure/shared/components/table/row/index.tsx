@@ -6,21 +6,21 @@ interface IProps {
   dataIndex: number;
   rowIndex?: number;
   rowClassName?: string;
-  handleClick?: (dataIndex: number, rowIndex: number) => void;
+  handleRowClick?: (dataIndex: number, rowIndex: number) => void;
 }
 
 export const TableRow: React.FC<IProps> = ({
   data,
   dataIndex,
   rowIndex,
-  handleClick,
+  handleRowClick,
   rowClassName,
 }) => {
   const classes = useStyles();
 
   const onClick = (): void => {
-    if (rowIndex && handleClick) {
-      handleClick(dataIndex, rowIndex);
+    if (rowIndex && handleRowClick) {
+      handleRowClick(dataIndex, rowIndex);
     }
   };
 
@@ -35,9 +35,19 @@ export const TableRow: React.FC<IProps> = ({
   );
 };
 
-export const customRowRender = (
-  handleClick: (dataIndex: number, rowIndex: number) => void
-): ((data: Array<any>, dataIndex: number, rowIndex: number) => JSX.Element) => {
+interface IArgs {
+  rowClassName?: string;
+  handleRowClick?: (dataIndex: number, rowIndex: number) => void;
+}
+
+export const customRowRender = ({
+  rowClassName,
+  handleRowClick,
+}: IArgs): ((
+  data: Array<any>,
+  dataIndex: number,
+  rowIndex: number
+) => JSX.Element) => {
   return (
     data: Array<any>,
     dataIndex: number,
@@ -48,7 +58,8 @@ export const customRowRender = (
       data={data}
       dataIndex={dataIndex}
       rowIndex={rowIndex}
-      handleClick={handleClick}
+      rowClassName={rowClassName}
+      handleRowClick={handleRowClick}
     />
   );
 };

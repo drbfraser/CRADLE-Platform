@@ -1,8 +1,11 @@
+// * Role ids start from 1 to 4 in the order below
+// * Order must be maintained for use in edit user form
+// * in the admin page
 export enum UserOptionEnum {
   VHT = 1,
   HCW = 2,
-  CHO = 3,
-  ADMIN = 4,
+  ADMIN = 3,
+  CHO = 4,
 }
 
 export enum UserOptionDisplayEnum {

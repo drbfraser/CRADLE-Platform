@@ -2,7 +2,7 @@ import { Callback, OrNull, OrUndefined, User } from '@types';
 
 import MUIDataTable from 'mui-datatables';
 import React from 'react';
-import { customRowRender } from './tableRow';
+import { customRowRender } from '../../../shared/components/table/row';
 import { customToolbarRender } from '../../../shared/components/table/toolbar';
 import { useData } from './hooks/data';
 import { useLocalization } from '../../../shared/hooks/table/localization';
@@ -55,7 +55,7 @@ export const AdminTable: React.FC<IProps> = (props) => {
       data={users}
       title="Manage Users"
       options={{
-        customRowRender: customRowRender(classes.row),
+        customRowRender: customRowRender({ rowClassName: classes.row }),
         customToolbar: customToolbarRender({
           loading: props.loading,
           searchText: props.searchText ?? ``,

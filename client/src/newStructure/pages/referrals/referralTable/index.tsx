@@ -56,7 +56,7 @@ export const ReferralTable: React.FC<IProps> = (props) => {
       data={patients}
       title="Referrals"
       options={{
-        customRowRender: customRowRender(handleRowClick),
+        customRowRender: customRowRender({ handleRowClick }),
         customToolbar: customToolbarRender({
           loading: props.loading,
           searchText: props.searchText ?? ``,

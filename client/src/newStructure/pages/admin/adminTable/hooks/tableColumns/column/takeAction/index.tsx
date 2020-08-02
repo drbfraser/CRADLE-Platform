@@ -3,9 +3,9 @@ import {
   MUIDataTableCustomHeadRenderer,
 } from 'mui-datatables';
 
-import { ActionsBody } from './body';
-import { ActionsHead } from './head';
 import React from 'react';
+import { TakeActionBody } from './body';
+import { TakeActionHead } from './head';
 import { User } from '@types';
 
 interface IArgs {
@@ -13,27 +13,27 @@ interface IArgs {
   users: Array<User>;
 }
 
-export const useActionsColumn = ({
+export const useTakeActionColumn = ({
   headClass,
   users,
 }: IArgs): MUIDataTableColumn => {
   return React.useMemo(() => {
     return {
-      label: `Actions`,
+      label: `Take Action`,
       name: `id`,
       options: {
         customHeadRender: ({
           label,
           index,
         }: MUIDataTableCustomHeadRenderer): JSX.Element => (
-          <ActionsHead
+          <TakeActionHead
             key={index}
             className={headClass}
             data={users}
             label={label}
           />
         ),
-        customBodyRender: (id: string) => <ActionsBody id={id} />,
+        customBodyRender: (id: number) => <TakeActionBody userId={id} />,
         searchable: false,
       },
     };

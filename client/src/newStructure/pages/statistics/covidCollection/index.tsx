@@ -470,7 +470,7 @@ const Page: React.FC<any> = () => {
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseT} color="primary">
+          <Button onClick={handleCloseT} color="primary" variant="contained">
             Trasnfer
           </Button>
         </DialogActions>
