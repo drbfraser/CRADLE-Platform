@@ -3,7 +3,7 @@ import React from 'react';
 
 interface IArgs {
   loading: boolean;
-  globalSearch: boolean;
+  globalSearch?: boolean;
   searchText?: string;
 }
 
