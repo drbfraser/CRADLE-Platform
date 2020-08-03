@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Loader } from '../../shared/components/loader';
 import React from 'react';
 import { ReduxState } from '../../redux/reducers';
+import { RoleEnum } from '../../enums';
 
 interface IProps {
   component:
@@ -15,6 +16,13 @@ interface IProps {
     | React.ComponentType<any>;
   exact?: boolean;
   path?: string;
+}
+
+// * Must contain updated paths
+// * that only admins are allowed to see
+export enum AdminRoutesEnum {
+  ADMIN_PANEL = '/admin',
+  SIGN_UP = '/signup',
 }
 
 export const PrivateRoute: React.FC<IProps> = (props) => {
@@ -36,6 +44,18 @@ export const PrivateRoute: React.FC<IProps> = (props) => {
   }
 
   if (currentUser.loggedIn) {
+    const admin = currentUser.data?.roles.includes(RoleEnum.ADMIN);
+
+    // * Prevent non-admins from accessing admin pages
+    if (
+      !admin &&
+      (Object.values(AdminRoutesEnum) as Array<string>).includes(
+        props.path as string
+      )
+    ) {
+      return <Redirect to="/" />;
+    }
+
     return <Route {...props} />;
   }
 
