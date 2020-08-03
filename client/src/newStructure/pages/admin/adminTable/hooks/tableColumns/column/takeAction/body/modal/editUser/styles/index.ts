@@ -8,7 +8,4 @@ export const useStyles = makeStyles((theme: Theme) => ({
       marginBlockEnd: `${theme.spacing(2)}px`,
     },
   },
-  actions: {
-    padding: theme.spacing(2),
-  },
 }));

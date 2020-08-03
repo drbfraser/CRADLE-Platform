@@ -1,7 +1,5 @@
 import {
-  Divider,
   Form,
-  Header,
   Input,
   InputOnChangeData,
   Select,
@@ -34,14 +32,9 @@ interface IProps {
     event: React.ChangeEvent<HTMLInputElement>,
     { name, value }: InputOnChangeData
   ) => void;
-  isEditPage?: boolean;
 }
 
-export const PatientInfoForm: React.FC<IProps> = ({
-  patient,
-  onChange,
-  isEditPage,
-}) => {
+export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
   const dob = React.useMemo((): string => {
     if (patient.dob) {
       return `${patient.dob}`;
@@ -62,12 +55,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
 
   return (
     <>
-      {!isEditPage && (
-        <Header>
-          <b>Patient Information</b>
-        </Header>
-      )}
-      {!isEditPage && <Divider />}
       <Form.Group widths="equal">
         <Form.Field
           name="patientName"
@@ -83,22 +70,6 @@ export const PatientInfoForm: React.FC<IProps> = ({
           required={true}
         />
       </Form.Group>
-      {!isEditPage && (
-        <Form.Group widths="equal">
-          <Form.Field
-            name="patientId"
-            value={patient.patientId}
-            control={Input}
-            label="ID"
-            placeholder="ID Number"
-            onChange={onChange}
-            type="text"
-            maxLength="15"
-            minLength="1"
-            required={true}
-          />
-        </Form.Group>
-      )}
       <Form.Group widths="equal">
         <Form.Field
           name="patientAge"

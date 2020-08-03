@@ -1,9 +1,5 @@
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
+import { Dialog } from '../../components/dialog';
 import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import { OrNull } from '@types';
 import React from 'react';
 import { useStyles } from './styles';
@@ -47,28 +43,21 @@ export const AddPatientPrompt: React.FC<IProps> = ({
     <Dialog
       open={show && message !== null}
       onClose={handleNegativeClick}
-      aria-labelledby="search-prompt-dialog-title">
-      <DialogTitle id="search-prompt-dialog-title">Add Patient</DialogTitle>
-      <DialogContent>
-        <DialogContentText>{message}</DialogContentText>
-      </DialogContent>
-      <DialogActions className={classes.actions}>
-        <Button
-          classes={{ root: classes.button }}
-          disabled={adding}
-          onClick={handleNegativeClick}
-          color="inherit">
-          Cancel
-        </Button>
-        <Button
-          classes={{ root: classes.button }}
-          disabled={adding}
-          onClick={handlePositiveClick}
-          color="primary"
-          variant="outlined">
-          {adding ? `Adding...` : positiveText}
-        </Button>
-      </DialogActions>
-    </Dialog>
+      aria-labelledby="search-prompt-dialog-title"
+      content={<DialogContentText>{message}</DialogContentText>}
+      title="Add Patient"
+      primaryAction={{
+        buttonText: adding ? `Adding...` : positiveText,
+        classes: { root: classes.button },
+        disabled: adding,
+        onClick: handlePositiveClick,
+      }}
+      secondaryAction={{
+        buttonText: `Cancel`,
+        classes: { root: classes.button },
+        disabled: adding,
+        onClick: handleNegativeClick,
+      }}
+    />
   );
 };

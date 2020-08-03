@@ -1,9 +1,10 @@
 import { Action, actionCreators } from '../../reducers';
 import { EditedPatient, OrNull } from '@types';
-import { Form, InputOnChangeData, Modal } from 'semantic-ui-react';
+import { Form, InputOnChangeData } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Button from '@material-ui/core/Button';
+import { Dialog } from '../../../../../shared/components/dialog';
 import { PatientInfoForm } from '../../../../../shared/components/form/patient';
 import React from 'react';
 import { ReduxState } from '../../../../../redux/reducers';
@@ -72,21 +73,13 @@ export const PatientModal: React.FC<IProps> = ({
         status={error ? `error` : `success`}
         clearMessage={clearMessage}
       />
-      <Modal
-        closeIcon={true}
+      <Dialog
         open={displayPatientModal}
-        size="tiny"
-        onClose={closePatientModal}>
-        <Modal.Header>
-          {`Patient Information for ID #${patient.patientId}`}
-        </Modal.Header>
-        <Modal.Content scrolling>
+        onClose={closePatientModal}
+        aria-labelledby="edit-patient-dialog-title"
+        content={
           <Form onSubmit={handleEditedPatientSubmit}>
-            <PatientInfoForm
-              patient={patient}
-              onChange={handleChange}
-              isEditPage={true}
-            />
+            <PatientInfoForm patient={patient} onChange={handleChange} />
             <Button
               className={classes.submit}
               disabled={disabled}
@@ -95,8 +88,10 @@ export const PatientModal: React.FC<IProps> = ({
               Submit
             </Button>
           </Form>
-        </Modal.Content>
-      </Modal>
+        }
+        title={`Patient Information for ID #${patient.patientId}`}
+        subtitle="Fields marked with * are required"
+      />
     </>
   );
 };
