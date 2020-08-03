@@ -1,7 +1,7 @@
 import { OrNull, OrUndefined, User } from '@types';
 
 import React from 'react';
-import { RoleEnum } from 'src/newStructure/enums';
+import { RoleEnum } from '../../../../../../enums';
 import { getRoles } from '../../utils';
 
 interface IArgs {

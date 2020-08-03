@@ -14,7 +14,7 @@ import { AutocompleteOption } from '../../../../../../../../../shared/components
 import { DeleteUserModal } from './deleteUser';
 import { EditUserModal } from './editUser';
 import React from 'react';
-import { RoleEnum } from 'src/newStructure/enums';
+import { RoleEnum } from '../../../../../../../../../enums';
 import { useDispatch } from 'react-redux';
 
 interface IProps {

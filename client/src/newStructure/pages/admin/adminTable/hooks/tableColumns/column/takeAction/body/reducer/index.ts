@@ -1,7 +1,7 @@
 import { EditUser, OrNull, User, VHT } from '@types';
 
 import { AutocompleteOption } from '../../../../../../../../../shared/components/input/autocomplete/utils';
-import { RoleEnum } from 'src/newStructure/enums';
+import { RoleEnum } from '../../../../../../../../../enums';
 import { getRoles } from '../../../../../utils';
 
 export enum ActionTypeEnum {

@@ -1,6 +1,6 @@
 import { Callback, User } from '@types';
 
-import { AutocompleteOption } from 'src/newStructure/shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from '../../../../../shared/components/input/autocomplete/utils';
 import { MUIDataTableColumn } from 'mui-datatables';
 import { useEmailColumn } from './column/email';
 import { useFirstNameColumn } from './column/firstName';

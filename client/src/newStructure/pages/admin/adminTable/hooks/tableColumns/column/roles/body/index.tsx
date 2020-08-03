@@ -1,5 +1,5 @@
 import React from 'react';
-import { RoleEnum } from 'src/newStructure/enums';
+import { RoleEnum } from '../../../../../../../../enums';
 import { getRoles } from '../../../../utils';
 import { useStyles } from './styles';
 

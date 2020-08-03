@@ -1,8 +1,9 @@
-import { Callback, OrNull } from '@types';
+import { FormikErrors, FormikTouched } from 'formik';
 
 import { AutocompleteInput } from '../../../shared/components/input/autocomplete';
 import { AutocompleteOption } from '../../../shared/components/input/autocomplete/utils';
 import Button from '@material-ui/core/Button';
+import { Callback } from '@types';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -11,6 +12,7 @@ import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import React from 'react';
 import { RoleEnum } from '../../../enums';
+import { SignUpData } from '..';
 import { TextInput } from '../../../shared/components/input/text';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
@@ -18,11 +20,11 @@ import { useHealthFacilityOptions } from '../../../shared/hooks/healthFacilityOp
 import { useStyles } from './styles';
 
 interface IProps {
-  email: string;
-  firstName: string;
-  healthFacilityName: OrNull<AutocompleteOption<string, string>>;
-  password: string;
-  role: OrNull<AutocompleteOption<string, string>>;
+  errors: FormikErrors<SignUpData>;
+  submitting: boolean;
+  touched: FormikTouched<SignUpData>;
+  values: SignUpData;
+  handleBlur: Callback<React.FocusEvent<HTMLInputElement>>;
   handleCreate: () => void;
   handleChange: Callback<React.ChangeEvent<HTMLInputElement>>;
   handleSelectChange: (
@@ -36,11 +38,11 @@ interface IProps {
 }
 
 export const SignUpForm: React.FC<IProps> = ({
-  email,
-  firstName,
-  healthFacilityName,
-  password,
-  role,
+  errors,
+  submitting,
+  touched,
+  values,
+  handleBlur,
   handleCreate,
   handleChange,
   handleSelectChange,
@@ -48,8 +50,16 @@ export const SignUpForm: React.FC<IProps> = ({
   const classes = useStyles();
 
   const disableSubmit = React.useMemo((): boolean => {
-    return !email || !firstName || !password || !role || !healthFacilityName;
-  }, [email, firstName, password, role, healthFacilityName]);
+    return (
+      submitting ||
+      Object.entries(errors).length !== 0 ||
+      !values.email ||
+      !values.firstName ||
+      !values.password ||
+      !values.role ||
+      !values.healthFacilityName
+    );
+  }, [errors, submitting, values]);
 
   const roles = React.useRef<Array<AutocompleteOption<string, string>>>(
     Object.values(RoleEnum).map(
@@ -76,20 +86,28 @@ export const SignUpForm: React.FC<IProps> = ({
       />
       <CardContent className={classes.cardContent}>
         <TextInput
+          error={Boolean(touched.email && errors.email)}
+          helperText={touched.email ? errors.email : undefined}
           label="Email"
           name="email"
           required={true}
-          value={email}
+          value={values.email}
+          onBlur={handleBlur}
           onChange={handleChange}
         />
         <TextInput
+          error={Boolean(touched.firstName && errors.firstName)}
+          helperText={touched.firstName ? errors.firstName : undefined}
           label="First Name"
           name="firstName"
           required={true}
-          value={firstName}
+          value={values.firstName}
+          onBlur={handleBlur}
           onChange={handleChange}
         />
         <TextInput
+          error={Boolean(touched.password && errors.password)}
+          helperText={touched.password ? errors.password : undefined}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -105,21 +123,22 @@ export const SignUpForm: React.FC<IProps> = ({
           name="password"
           required={true}
           type={showPassword ? `text` : `password`}
-          value={password}
+          value={values.password}
+          onBlur={handleBlur}
           onChange={handleChange}
         />
         <AutocompleteInput
           label="Role"
           options={roles.current}
           placeholder="Pick a role"
-          value={role}
+          value={values.role}
           onChange={handleSelectChange(`role`)}
         />
         <AutocompleteInput
           label="Health Facility"
           options={healthFacilityOptions}
           placeholder="Pick a health facility"
-          value={healthFacilityName}
+          value={values.healthFacilityName}
           onChange={handleSelectChange(`healthFacilityName`)}
         />
       </CardContent>
@@ -129,7 +148,7 @@ export const SignUpForm: React.FC<IProps> = ({
           disabled={disableSubmit}
           variant="contained"
           onClick={handleCreate}>
-          Create
+          {`Creat${submitting ? `ing...` : `e`}`}
         </Button>
       </CardActions>
     </Card>
