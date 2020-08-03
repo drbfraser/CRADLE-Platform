@@ -4,7 +4,7 @@ import { Form, InputOnChangeData } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Button from '@material-ui/core/Button';
-import { Dialog } from '../../../../../shared/components/dialog';
+import { DialogPopup } from '../../../../../shared/components/dialogPopup';
 import { PatientInfoForm } from '../../../../../shared/components/form/patient';
 import React from 'react';
 import { ReduxState } from '../../../../../redux/reducers';
@@ -73,7 +73,7 @@ export const PatientModal: React.FC<IProps> = ({
         status={error ? `error` : `success`}
         clearMessage={clearMessage}
       />
-      <Dialog
+      <DialogPopup
         open={displayPatientModal}
         onClose={closePatientModal}
         aria-labelledby="edit-patient-dialog-title"

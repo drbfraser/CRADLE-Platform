@@ -20,7 +20,7 @@ interface IProps extends DialogProps {
   subtitle?: string;
 }
 
-export const Dialog: React.FC<IProps> = ({
+export const DialogPopup: React.FC<IProps> = ({
   open,
   onClose,
   content,

@@ -1,5 +1,5 @@
-import { Dialog } from '../../../../../../../../../../shared/components/dialog';
 import DialogContentText from '@material-ui/core/DialogContentText';
+import { DialogPopup } from '../../../../../../../../../../shared/components/dialogPopup';
 import React from 'react';
 
 interface IProps {
@@ -18,7 +18,7 @@ export const DeleteUserModal: React.FC<IProps> = ({
   handleDelete,
 }) => {
   return (
-    <Dialog
+    <DialogPopup
       open={displayDeleteUserModal}
       onClose={closeDeleteUserModal}
       aria-labelledby="delete-user-dialog-title"

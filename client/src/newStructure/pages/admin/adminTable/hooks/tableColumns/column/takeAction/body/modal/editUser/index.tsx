@@ -1,6 +1,6 @@
 import { AutocompleteInput } from '../../../../../../../../../../shared/components/input/autocomplete';
 import { AutocompleteOption } from '../../../../../../../../../../shared/components/input/autocomplete/utils';
-import { Dialog } from '../../../../../../../../../../shared/components/dialog';
+import { DialogPopup } from '../../../../../../../../../../shared/components/dialogPopup';
 import { EditUser } from '@types';
 import React from 'react';
 import { RoleEnum } from '../../../../../../../../../../enums';
@@ -39,7 +39,7 @@ export const EditUserModal: React.FC<IProps> = ({
   const { healthFacilityOptions, vhtOptions } = useTakeActionsContext();
 
   return (
-    <Dialog
+    <DialogPopup
       open={displayEditUserModal}
       onClose={closeEditUserModal}
       aria-labelledby="edit-user-dialog-title"

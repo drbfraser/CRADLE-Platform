@@ -1,5 +1,5 @@
-import { Dialog } from '../../../../shared/components/dialog';
 import DialogContentText from '@material-ui/core/DialogContentText';
+import { DialogPopup } from '../../../../shared/components/dialogPopup';
 import React from 'react';
 
 interface IProps {
@@ -9,7 +9,7 @@ interface IProps {
 
 export default function SubmissionDialog(props: IProps) {
   return (
-    <Dialog
+    <DialogPopup
       open={props.open}
       onClose={props.handleDialogClose}
       aria-labelledby="submit-dialog-title"

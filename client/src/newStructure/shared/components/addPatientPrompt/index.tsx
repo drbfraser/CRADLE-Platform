@@ -1,5 +1,5 @@
-import { Dialog } from '../../components/dialog';
 import DialogContentText from '@material-ui/core/DialogContentText';
+import { DialogPopup } from '../../components/dialog';
 import { OrNull } from '@types';
 import React from 'react';
 import { useStyles } from './styles';
@@ -40,7 +40,7 @@ export const AddPatientPrompt: React.FC<IProps> = ({
   };
 
   return (
-    <Dialog
+    <DialogPopup
       open={show && message !== null}
       onClose={handleNegativeClick}
       aria-labelledby="search-prompt-dialog-title"

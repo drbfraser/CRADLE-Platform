@@ -10,7 +10,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 
 import Button from '@material-ui/core/Button';
-import { Dialog } from '../../../../../../shared/components/dialog';
+import { DialogPopup } from '../../../../../../shared/components/dialogPopup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import React from 'react';
 import { ReduxState } from '../../../../../../redux/reducers';
@@ -132,7 +132,7 @@ export const FollowUpModal: React.FC<IProps> = ({
         onClick={openAssessmentModal}>
         {referral.isAssessed ? `Update Assessment` : `Assess`}
       </Button>
-      <Dialog
+      <DialogPopup
         aria-labelledby="followup-dialog-title"
         content={
           <Form onSubmit={handleSubmit}>
