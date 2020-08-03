@@ -1,11 +1,4 @@
-import {
-  Form,
-  Input,
-  InputOnChangeData,
-  Select,
-  TextArea,
-} from 'semantic-ui-react';
-import { GestationalAgeUnitEnum, SexEnum } from '../../../../enums';
+import { GestationalAgeUnitEnum, SexEnum } from '../../../../../../enums';
 import {
   gestationalAgeUnitOptions,
   pregnantOptions,
@@ -16,10 +9,13 @@ import {
   gestationalAgeValueWeekOptions,
   getNumOfMonths,
   getNumOfWeeks,
-} from '../../../utils';
+} from '../../../../../../shared/utils';
 
+import { AutocompleteInput } from '../../../../../../shared/components/input/autocomplete';
 import { EditedPatient } from '@types';
+import { Form } from 'semantic-ui-react';
 import React from 'react';
+import { TextInput } from '../../../../../../shared/components/input/text';
 
 export const GESTATIONAL_AGE_UNITS = {
   WEEKS: 'GESTATIONAL_AGE_UNITS_WEEKS',
@@ -28,10 +24,7 @@ export const GESTATIONAL_AGE_UNITS = {
 
 interface IProps {
   patient: EditedPatient;
-  onChange: (
-    event: React.ChangeEvent<HTMLInputElement>,
-    { name, value }: InputOnChangeData
-  ) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
@@ -53,39 +46,45 @@ export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
       : getNumOfMonths(patient.gestationalTimestamp).toString();
   }, [patient.gestationalAgeUnit, patient.gestationalTimestamp]);
 
+  const handleSelectChange = (
+    name: string
+  ): ((event: React.ChangeEvent<HTMLInputElement>) => void) => {
+    return (event: React.ChangeEvent<HTMLInputElement>): void => {
+      event.persist();
+      onChange({ ...event, target: { ...event.target, name } });
+    };
+  };
+
   return (
     <>
       <Form.Group widths="equal">
-        <Form.Field
+        <TextInput
           name="patientName"
           value={patient.patientName}
-          control={Input}
           label="Patient Initials"
           placeholder="Patient Initials"
           onChange={onChange}
           type="text"
-          pattern="[a-zA-Z]*"
-          maxLength="4"
-          minLength="1"
+          // pattern="[a-zA-Z]*"
+          // maxLength="4"
+          // minLength="1"
           required={true}
         />
       </Form.Group>
       <Form.Group widths="equal">
-        <Form.Field
+        <TextInput
           name="patientAge"
           value={patientAge}
-          control={Input}
           label="Age"
           type="number"
-          min="15"
-          max="60"
+          // min="15"
+          // max="60"
           placeholder="Patient Age"
           onChange={onChange}
         />
-        <Form.Field
+        <TextInput
           name="dob"
           value={dob}
-          control={Input}
           label="Birthday"
           type="date"
           placeholder="Birthday"
@@ -93,89 +92,78 @@ export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
         />
       </Form.Group>
       <Form.Group widths="equal">
-        <Form.Field
-          name="patientSex"
+        <AutocompleteInput
           value={patient.patientSex}
-          control={Select}
           label="Gender"
           options={sexOptions}
           placeholder="Gender"
-          onChange={onChange}
-          required={true}
+          // required={true}
+          onChange={handleSelectChange(`patientSex`)}
         />
       </Form.Group>
       <Form.Group widths="equal">
-        <Form.Field
-          name="isPregnant"
-          value={patient.isPregnant}
-          control={Select}
+        <AutocompleteInput
+          // value={patient.isPregnant}
           label="Pregnant"
           options={pregnantOptions}
-          onChange={onChange}
+          onChange={handleSelectChange(`isPregnant`)}
           disabled={patient.patientSex === SexEnum.MALE}
-          required={patient.patientSex === SexEnum.FEMALE}
+          // required={patient.patientSex === SexEnum.FEMALE}
         />
       </Form.Group>
       <Form.Group widths="equal">
-        <Form.Dropdown
-          name="gestationalTimestamp"
+        <AutocompleteInput
           value={gestationalTimestamp}
-          control={Select}
           options={
             patient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
               ? gestationalAgeValueWeekOptions
               : gestationalAgeValueMonthOptions
           }
-          search={true}
-          onChange={onChange}
+          onChange={handleSelectChange(`gestationalTimestamp`)}
           label="Gestational Age"
           disabled={patient.patientSex === SexEnum.MALE || !patient.isPregnant}
-          required={patient.patientSex === SexEnum.FEMALE && patient.isPregnant}
+          // required={patient.patientSex === SexEnum.FEMALE && patient.isPregnant}
         />
-        <Form.Field
-          name="gestationalAgeUnit"
-          value={patient.gestationalAgeUnit}
-          control={Select}
+        <AutocompleteInput
+          // value={patient.gestationalAgeUnit}
           options={gestationalAgeUnitOptions}
-          onChange={onChange}
+          onChange={handleSelectChange(`gestationalAgeUnit`)}
           label="Gestational Age Unit"
           disabled={patient.patientSex === SexEnum.MALE || !patient.isPregnant}
-          required={patient.patientSex === SexEnum.FEMALE && patient.isPregnant}
+          // required={patient.patientSex === SexEnum.FEMALE && patient.isPregnant}
         />
       </Form.Group>
       <Form.Group widths="equal">
-        <Form.Field
+        <TextInput
           name="zone"
           value={patient.zone}
-          control={Input}
           label="Zone"
           type="number"
           placeholder="Zone"
           onChange={onChange}
         />
-        <Form.Field
+        <TextInput
           name="villageNumber"
           value={patient.villageNumber}
-          control={Input}
           label="Village"
           type="number"
           placeholder="Village"
           onChange={onChange}
         />
       </Form.Group>
-      <Form.Field
+      <TextInput
+        label="Drug History"
+        multiline={true}
         name="drugHistory"
         value={patient.drugHistory}
-        control={TextArea}
-        label="Drug History"
         placeholder="Enter the patient's drug history..."
         onChange={onChange}
       />
-      <Form.Field
+      <TextInput
+        label="Medical History"
+        multiline={true}
         name="medicalHistory"
         value={patient.medicalHistory}
-        control={TextArea}
-        label="Medical History"
         placeholder="Enter the patient's medical history..."
         onChange={onChange}
       />

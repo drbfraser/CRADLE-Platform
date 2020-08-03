@@ -65,7 +65,7 @@ type UpdateNewReadingPayload = {
 
 type UpdateUrineTestPayload = { key: keyof UrineTests; value: string };
 
-type EditPatientKey =
+export type EditPatientKey =
   | `patientName`
   | `patientId`
   | `patientAge`

@@ -1,17 +1,14 @@
-import { Action, actionCreators } from '../../reducers';
+import { Action, EditPatientKey, actionCreators } from '../../reducers';
 import { EditedPatient, OrNull } from '@types';
-import { Form, InputOnChangeData } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import Button from '@material-ui/core/Button';
 import { DialogPopup } from '../../../../../shared/components/dialogPopup';
-import { PatientInfoForm } from '../../../../../shared/components/form/patient';
+import { PatientInfoForm } from './form';
 import React from 'react';
 import { ReduxState } from '../../../../../redux/reducers';
 import { Toast } from '../../../../../shared/components/toast';
 import { clearUpdatePatientRequestOutcome } from '../../../../../redux/reducers/patients';
 import { useDisableSubmit } from './hooks/disableSubmit';
-import { useStyles } from './styles';
 import { useSubmit } from './hooks/submit';
 
 interface IProps {
@@ -31,8 +28,6 @@ export const PatientModal: React.FC<IProps> = ({
   patient,
   updateState,
 }) => {
-  const classes = useStyles();
-
   const { loading, error, success } = useSelector(
     ({ patients }: ReduxState): SelectorState => ({
       error: patients.error,
@@ -47,11 +42,13 @@ export const PatientModal: React.FC<IProps> = ({
     updateState(actionCreators.closePatientModal());
   };
 
-  const handleChange = (
-    _: React.ChangeEvent<HTMLInputElement>,
-    { name, value }: InputOnChangeData
-  ): void => {
-    updateState(actionCreators.editPatient({ name, value }));
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    updateState(
+      actionCreators.editPatient({
+        name: event.target.name as EditPatientKey,
+        value: event.target.value,
+      })
+    );
   };
 
   const disabled = useDisableSubmit({ loading, editedPatient: patient });
@@ -78,19 +75,22 @@ export const PatientModal: React.FC<IProps> = ({
         onClose={closePatientModal}
         aria-labelledby="edit-patient-dialog-title"
         content={
-          <Form onSubmit={handleEditedPatientSubmit}>
+          <form onSubmit={handleEditedPatientSubmit}>
             <PatientInfoForm patient={patient} onChange={handleChange} />
-            <Button
-              className={classes.submit}
-              disabled={disabled}
-              type="submit"
-              variant="contained">
-              Submit
-            </Button>
-          </Form>
+          </form>
         }
         title={`Patient Information for ID #${patient.patientId}`}
         subtitle="Fields marked with * are required"
+        primaryAction={{
+          children: `Submit`,
+          disabled,
+          type: `submit`,
+          onClick: closePatientModal,
+        }}
+        secondaryAction={{
+          children: `Cancel`,
+          onClick: closePatientModal,
+        }}
       />
     </>
   );

@@ -216,8 +216,7 @@ export const gestationalAgeValueWeekOptions = new Array(
 )
   .fill(null)
   .map((_: null, index: number) => ({
-    key: `${index + 1}`,
-    text: `${index + 1}`,
+    label: `${index + 1}`,
     value: `${index + 1}`,
   }));
 
@@ -226,17 +225,23 @@ export const gestationalAgeValueMonthOptions = new Array(
 )
   .fill(null)
   .map((_: null, index: number) => ({
-    key: `${index + 1}`,
-    text: `${index + 1}`,
+    label: `${index + 1}`,
     value: `${index + 1}`,
   }))
   .concat([
     {
-      key: `0`,
-      text: `Less than 1 month`,
+      label: `Less than 1 month`,
       value: `Less than 1`,
     },
   ])
-  .sort((first: { key: string }, second: { key: string }): number => {
-    return Number(first.key) - Number(second.key);
+  .sort((first: { label: string }, second: { label: string }): number => {
+    if (first.label === `Less than 1 month`) {
+      return -1;
+    }
+
+    if (second.label === `Less than 1 month`) {
+      return 1;
+    }
+
+    return Number(first.label) - Number(second.label);
   });
