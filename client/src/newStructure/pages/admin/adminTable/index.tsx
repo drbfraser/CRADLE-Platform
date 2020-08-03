@@ -10,7 +10,7 @@ import { clearHealthFacilitiesRequestOutcome } from '../../../redux/reducers/hea
 import { customRowRender } from '../../../shared/components/table/row';
 import { customToolbarRender } from '../../../shared/components/table/toolbar';
 import { useData } from './hooks/data';
-import { useHealthFacilityOptions } from './hooks/healthFacilityOptions';
+import { useHealthFacilityOptions } from '../../../shared/hooks/healthFacilityOptions';
 import { useLocalization } from '../../../shared/hooks/table/localization';
 import { useSearchChange } from '../../../shared/hooks/table/searchChange';
 import { useStyles } from './styles';

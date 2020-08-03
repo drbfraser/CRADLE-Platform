@@ -4,6 +4,7 @@ import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 import { Dispatch } from 'redux';
 import { Endpoints } from '../../../../server/endpoints';
 import { Methods } from '../../../../server/methods';
+import { RoleEnum } from '../../../../enums';
 
 enum AllUsersActionEnum {
   CLEAR_REQUEST_OUTCOME = 'allUsers/CLEAR_REQUEST_OUTCOME',
@@ -17,6 +18,10 @@ enum AllUsersActionEnum {
   DELETE_USER_REQUESTED = 'allUsers/DELETE_USER_REQUESTED',
   DELETE_USER_SUCCESS = 'allUsers/DELETE_USER_SUCCESS',
   DELETE_USER_ERROR = 'allUsers/DELETE_USER_ERROR',
+  REGISTER_USER_REQUESTED = 'allUsers/REGISTER_USER_REQUESTED',
+  REGISTER_USER_SUCCESS = 'allUsers/REGISTER_USER_SUCCESS',
+  REGISTER_USER_ERROR = 'allUsers/REGISTER_USER_ERROR',
+  CLEAR_REGISTER_USER_REQUEST_OUTCOME = 'allUsers/CLEAR_REGISTER_USER_REQUEST_OUTCOME',
   UPDATE_PAGE_NUMBER = 'allUsers/UPDATE_PAGE_NUMBER',
   UPDATE_SEARCH_TEXT = 'allUsers/UPDATE_SEARCH_TEXT',
 }
@@ -47,6 +52,13 @@ type AllUsersAction =
       payload: { updatedUser: User };
     }
   | { type: AllUsersActionEnum.UPDATE_USER_ERROR; payload: ErrorPayload }
+  | { type: AllUsersActionEnum.REGISTER_USER_REQUESTED }
+  | {
+      type: AllUsersActionEnum.REGISTER_USER_SUCCESS;
+      payload: { registeredUser: User };
+    }
+  | { type: AllUsersActionEnum.REGISTER_USER_ERROR; payload: ErrorPayload }
+  | { type: AllUsersActionEnum.CLEAR_REGISTER_USER_REQUEST_OUTCOME }
   | {
       type: AllUsersActionEnum.UPDATE_PAGE_NUMBER;
       payload: { pageNumber: number };
@@ -188,7 +200,66 @@ export const updateSearchText = (searchText?: string): AllUsersAction => ({
   payload: { searchText },
 });
 
+const registerUserRequested = (): AllUsersAction => ({
+  type: AllUsersActionEnum.REGISTER_USER_REQUESTED,
+});
+
+type RegisterUser = {
+  email: string;
+  firstName: string;
+  password: string;
+  role: string;
+  healthFacilityName: string;
+};
+
+export const registerUser = (
+  data: RegisterUser
+): ((dispatch: Dispatch) => ServerRequestAction) => {
+  return (dispatch: Dispatch) => {
+    dispatch(registerUserRequested());
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: `${Endpoints.USER}${Endpoints.REGISTER}`,
+        method: Methods.POST,
+        data,
+        onSuccess: ({ data: id }: { data: number }): AllUsersAction => ({
+          type: AllUsersActionEnum.REGISTER_USER_SUCCESS,
+          payload: {
+            registeredUser: {
+              ...data,
+              associations: [],
+              followups: [],
+              healthFacility: data.healthFacilityName,
+              referrals: [],
+              roleIds: [
+                Object.values(RoleEnum).indexOf(data.role as RoleEnum) + 1,
+              ],
+              id,
+              tableData: {
+                id,
+              },
+              username: null,
+              vhtList: [],
+            },
+          },
+        }),
+        onError: ({ message }: ServerError): AllUsersAction => ({
+          type: AllUsersActionEnum.REGISTER_USER_ERROR,
+          payload: { message },
+        }),
+      })
+    );
+  };
+};
+
+export const clearRegisterUserRequestOutcome = (): AllUsersAction => ({
+  type: AllUsersActionEnum.CLEAR_REQUEST_OUTCOME,
+});
+
 export type AllUsersState = {
+  created: OrNull<string>;
+  createdError: OrNull<string>;
   error: boolean;
   loading: boolean;
   message: OrNull<string>;
@@ -201,6 +272,8 @@ export type AllUsersState = {
 };
 
 const initialState: AllUsersState = {
+  created: null,
+  createdError: null,
   error: false,
   loading: false,
   message: null,
@@ -220,9 +293,13 @@ export const allUsersReducer = (
     case AllUsersActionEnum.CLEAR_REQUEST_OUTCOME: {
       return { ...initialState, data: state.data };
     }
+    case AllUsersActionEnum.CLEAR_REGISTER_USER_REQUEST_OUTCOME: {
+      return { ...state, created: null, createdError: null };
+    }
     case AllUsersActionEnum.GET_USERS_REQUESTED:
     case AllUsersActionEnum.UPDATE_USER_REQUESTED:
-    case AllUsersActionEnum.DELETE_USER_REQUESTED: {
+    case AllUsersActionEnum.DELETE_USER_REQUESTED:
+    case AllUsersActionEnum.REGISTER_USER_REQUESTED: {
       return { ...initialState, data: state.data, loading: true };
     }
     case AllUsersActionEnum.GET_USERS_SUCCESS: {
@@ -258,6 +335,14 @@ export const allUsersReducer = (
           ) ?? null,
       };
     }
+    case AllUsersActionEnum.REGISTER_USER_SUCCESS: {
+      return {
+        ...state,
+        data: [action.payload.registeredUser, ...(state.data ?? [])],
+        loading: false,
+        created: `User created successfully!`,
+      };
+    }
     case AllUsersActionEnum.UPDATE_USER_ERROR:
     case AllUsersActionEnum.DELETE_USER_ERROR:
     case AllUsersActionEnum.GET_USERS_ERROR: {
@@ -266,6 +351,13 @@ export const allUsersReducer = (
         error: true,
         loading: false,
         message: action.payload.message,
+      };
+    }
+    case AllUsersActionEnum.REGISTER_USER_ERROR: {
+      return {
+        ...state,
+        loading: false,
+        createdError: action.payload.message,
       };
     }
     case AllUsersActionEnum.SORT_USERS: {

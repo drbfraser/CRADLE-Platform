@@ -44,10 +44,8 @@ export const AdminPage: React.FC = () => {
   const dispatch = useDispatch();
 
   React.useEffect((): void => {
-    if (!users) {
-      dispatch(getUsers());
-    }
-  }, [dispatch, users]);
+    dispatch(getUsers());
+  }, [dispatch]);
 
   const handleSortUsers = (sortedUsers: OrNull<Array<User>>): void => {
     dispatch(sortUsers(sortedUsers));

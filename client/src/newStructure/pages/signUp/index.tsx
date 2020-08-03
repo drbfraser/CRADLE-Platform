@@ -1,219 +1,107 @@
-import './index.css';
-
-import { ActualUser, OrNull } from '../../types';
-import { Button, Divider, Form, Message, Select } from 'semantic-ui-react';
-import { Dispatch, bindActionCreators } from 'redux';
 import {
-  RegisterStatusState,
+  clearRegisterUserRequestOutcome,
   registerUser,
-} from '../../redux/reducers/user/registerStatus';
+} from '../../redux/reducers/user/allUsers';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { Paper } from '@material-ui/core';
+import { AutocompleteOption } from '../../shared/components/input/autocomplete/utils';
+import { OrNull } from '@types';
 import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { RoleEnum } from '../../enums';
-import { ServerRequestAction } from '../../redux/reducers/utils';
-import { connect } from 'react-redux';
-import { getCurrentUser } from '../../redux/reducers/user/currentUser';
-import { getHealthFacilityList } from '../../redux/reducers/healthFacilities';
+import { ReduxState } from 'src/newStructure/redux/reducers';
+import { SignUpForm } from './form';
+import { Toast } from '../../shared/components/toast';
 
-const initState = {
-  user: {
-    email: ``,
-    password: ``,
-    firstName: ``,
-    healthFacilityName: ``,
-    role: `VHT`, // default value
-  },
+type SignUpData = {
+  email: string;
+  firstName: string;
+  password: string;
+  role: OrNull<AutocompleteOption<string, string>>;
+  healthFacilityName: OrNull<AutocompleteOption<string, string>>;
 };
-interface IProps {
-  loggedIn: boolean;
-  registerUser: (
-    data: ActualUser
-  ) => (dispatch: Dispatch) => ServerRequestAction;
-  getCurrentUser: () => (dispatch: Dispatch) => ServerRequestAction;
-  getHealthFacilityList: () => (dispatch: Dispatch) => ServerRequestAction;
-  user: OrNull<ActualUser>;
-  healthFacilityList: Array<any>;
-  registerStatus: RegisterStatusState;
-}
 
-class SignupComponent extends React.Component<IProps> {
-  state = initState;
+type SelectorState = {
+  error: OrNull<string>;
+  success: OrNull<string>;
+};
 
-  componentDidMount = () => {
-    if (!this.props.loggedIn) {
-      this.props.getCurrentUser();
-    }
-    if (
-      !this.props.healthFacilityList ||
-      !this.props.healthFacilityList.length
-    ) {
-      this.props.getHealthFacilityList();
-    }
-  };
+export const SignUpPage: React.FC = () => {
+  const { error, success } = useSelector(
+    ({ user }: ReduxState): SelectorState => ({
+      error: user.allUsers.createdError,
+      success: user.allUsers.created,
+    })
+  );
 
-  static getDerivedStateFromProps = (props: IProps) => {
-    return props.registerStatus.userCreated ? initState : null;
-  };
+  const [data, setData] = React.useState<SignUpData>({
+    email: ``,
+    firstName: ``,
+    password: ``,
+    role: null,
+    healthFacilityName: null,
+  });
 
-  handleChange = (event: any) => {
-    this.setState({
-      user: {
-        ...this.state.user,
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    event.persist();
+
+    setData(
+      (currentData: SignUpData): SignUpData => ({
+        ...currentData,
         [event.target.name]: event.target.value,
-      },
-    });
+      })
+    );
   };
 
-  handleSelectChange = (e: any, value: any) => {
-    this.setState({ user: { ...this.state.user, [value.name]: value.value } });
+  const handleSelectChange = (
+    name: `role` | `healthFacilityName`
+  ): ((
+    event: React.ChangeEvent<Record<string, unknown>>,
+    value: AutocompleteOption<string, string>
+  ) => void) => {
+    return (
+      _: React.ChangeEvent<Record<string, unknown>>,
+      value: AutocompleteOption<string, string>
+    ): void => {
+      setData(
+        (currentData: SignUpData): SignUpData => ({
+          ...currentData,
+          [name]: value,
+        })
+      );
+    };
   };
 
-  handleSubmit = (event: any) => {
-    event.preventDefault();
-    this.props.registerUser((this.state.user as unknown) as ActualUser);
-  };
+  const dispatch = useDispatch();
 
-  render() {
-    // only admins can see this page
-    if (
-      this.props.user?.roles === undefined ||
-      !this.props.user?.roles.includes(RoleEnum.ADMIN)
-    ) {
-      return (
-        <Message warning>
-          <Message.Header>Only Admins can enter this page</Message.Header>
-          <p>Please login with an Admin account</p>
-        </Message>
+  const handleCreate = (): void => {
+    const { role, healthFacilityName, ...otherData } = data;
+    if (role && healthFacilityName) {
+      dispatch(
+        registerUser({
+          ...otherData,
+          role: role.value,
+          healthFacilityName: healthFacilityName.value,
+        })
       );
     }
+  };
 
-    // construct health facilities list object for dropdown
-    const hfOptions = [];
-    if (
-      this.props.healthFacilityList !== undefined &&
-      this.props.healthFacilityList.length > 0
-    ) {
-      for (let i = 0; i < this.props.healthFacilityList.length; i++) {
-        hfOptions.push({
-          key: this.props.healthFacilityList[i],
-          text: this.props.healthFacilityList[i],
-          value: this.props.healthFacilityList[i],
-        });
-      }
-    }
+  const clearMessage = (): void => {
+    dispatch(clearRegisterUserRequestOutcome());
+  };
 
-    return (
-      <div>
-        <div>
-          <Paper
-            style={{
-              padding: '35px 25px',
-              borderRadius: '15px',
-              minWidth: '500px',
-              maxWidth: '750px',
-              margin: 'auto',
-            }}>
-            <Form onSubmit={this.handleSubmit}>
-              <h1>Create a User</h1>
-
-              <label>Email</label>
-              <input
-                required
-                name="email"
-                type="email"
-                value={this.state.user.email}
-                onChange={this.handleChange}
-              />
-              <br />
-              <label>First Name</label>
-              <input
-                required
-                pattern="[a-zA-Z]*"
-                minLength={2}
-                maxLength={30}
-                name="firstName"
-                type="text"
-                value={this.state.user.firstName}
-                onChange={this.handleChange}
-              />
-              <br />
-              <label>Password</label>
-              <input
-                required
-                minLength={5}
-                maxLength={35}
-                type="password"
-                name="password"
-                value={this.state.user.password}
-                onChange={this.handleChange}
-              />
-              <br />
-              <label>Role</label>
-              <select onChange={this.handleChange} name="role" required>
-                <option value="VHT">VHT</option>
-                <option value="HCW">HCW</option>
-                <option value="CHO">CHO</option>
-                <option value="ADMIN">ADMIN</option>
-              </select>
-              <Form.Field
-                required
-                name="healthFacilityName"
-                control={Select}
-                value={this.state.user.healthFacilityName}
-                label="Health Facility"
-                options={hfOptions}
-                placeholder="Health Facility"
-                onChange={this.handleSelectChange}
-              />
-              <Divider />
-              <div className="flexbox">
-                <Button style={{ backgroundColor: '#84ced4' }} type="submit">
-                  Submit
-                </Button>
-              </div>
-            </Form>
-          </Paper>
-        </div>
-        {this.props.registerStatus.error && (
-          <Message negative size="large">
-            <Message.Header>{this.props.registerStatus.message}</Message.Header>
-          </Message>
-        )}
-
-        {this.props.registerStatus.error === false &&
-          this.props.registerStatus.userCreated === true && (
-            <Message success size="large">
-              <Message.Header>
-                {this.props.registerStatus.message}
-              </Message.Header>
-            </Message>
-          )}
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = ({ user, healthFacilities }: ReduxState) => ({
-  loggedIn: user.current.loggedIn,
-  user: user.current.data,
-  registerStatus: user.registerStatus,
-  healthFacilityList: healthFacilities.data,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return bindActionCreators(
-    {
-      getCurrentUser,
-      getHealthFacilityList,
-      registerUser,
-    },
-    dispatch
+  return (
+    <>
+      <Toast
+        message={error ?? success}
+        clearMessage={clearMessage}
+        status={error ? `error` : `success`}
+      />
+      <SignUpForm
+        {...data}
+        handleCreate={handleCreate}
+        handleChange={handleChange}
+        handleSelectChange={handleSelectChange}
+      />
+    </>
   );
 };
-
-export const SignUpPage = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SignupComponent);

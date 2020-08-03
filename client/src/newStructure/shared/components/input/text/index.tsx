@@ -10,6 +10,7 @@ export const TextInput: React.FC<TextInputProps> = (props) => {
       fullWidth={true}
       required={true}
       rows={5}
+      type="text"
       variant="outlined"
       {...props}
     />
