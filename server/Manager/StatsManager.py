@@ -150,11 +150,11 @@ class StatsManager:
         collected_patients_assessed = []
         if table:
             for record in table:
-                referral = referralManager.read("id", record["referral"])
+                reading = readingManager.read("readingId", record["reading"])
                 dates = self.calculate_dates_helper(record, "dateAssessed")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = patientManager.read("patientId", referral["patientId"])
+                patient = patientManager.read("patientId", reading["patientId"])
                 # women that were assessed (unique)
                 if (
                     patient["patientSex"] == "FEMALE"
