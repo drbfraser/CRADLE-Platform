@@ -24,7 +24,7 @@ export const createRoom: ChatActionCreator = (roomId: string) => {
       type: ChatActionEnum.CREATE_ROOM,
       payload: { roomId },
     });
-    dispatch(push(`/chat/session/${roomId}`));
+    dispatch(push(`/chat/${roomId}`));
   };
 };
 
@@ -34,7 +34,7 @@ export const joinRoom: ChatActionCreator = (roomId: string) => {
       type: ChatActionEnum.JOIN_ROOM,
       payload: { roomId },
     });
-    dispatch(push(`/chat/session/${roomId}`));
+    dispatch(push(`/chat/${roomId}`));
   };
 };
 

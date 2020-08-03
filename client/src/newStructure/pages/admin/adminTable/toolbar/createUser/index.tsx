@@ -4,17 +4,18 @@ import { FormikHelpers, useFormik } from 'formik';
 import {
   clearRegisterUserRequestOutcome,
   registerUser,
-} from '../../redux/reducers/user/allUsers';
+} from '../../../../../redux/reducers/user/allUsers';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { AutocompleteOption } from '../../shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from '../../../../../shared/components/input/autocomplete/utils';
+import Button from '@material-ui/core/Button';
+import { CreateUserModal } from './modal';
 import { OrNull } from '@types';
 import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { SignUpForm } from './form';
-import { Toast } from '../../shared/components/toast';
+import { ReduxState } from '../../../../../redux/reducers';
+import { Toast } from '../../../../../shared/components/toast';
 
-export type SignUpData = {
+export type CreateUserData = {
   email: string;
   firstName: string;
   password: string;
@@ -27,7 +28,17 @@ type SelectorState = {
   success: OrNull<string>;
 };
 
-export const SignUpPage: React.FC = () => {
+export const CreateUser: React.FC = () => {
+  const [open, setOpen] = React.useState<boolean>(false);
+
+  const handleOpen = (): void => {
+    setOpen(true);
+  };
+
+  const handleClose = React.useCallback((): void => {
+    setOpen(false);
+  }, []);
+
   const [submitting, setSubmitting] = React.useState<boolean>(false);
 
   const {
@@ -58,8 +69,8 @@ export const SignUpPage: React.FC = () => {
         .required(`Required`),
     }),
     onSubmit: (
-      values: SignUpData,
-      { resetForm }: FormikHelpers<SignUpData>
+      values: CreateUserData,
+      { resetForm }: FormikHelpers<CreateUserData>
     ) => {
       setSubmitting(true);
       const { role, healthFacilityName, ...otherData } = values;
@@ -85,9 +96,10 @@ export const SignUpPage: React.FC = () => {
 
   React.useEffect((): void => {
     if (error || success) {
+      handleClose();
       setSubmitting(false);
     }
-  }, [error, success]);
+  }, [error, success, handleClose]);
 
   const handleSelectChange = (
     name: `role` | `healthFacilityName`
@@ -116,12 +128,17 @@ export const SignUpPage: React.FC = () => {
         clearMessage={clearMessage}
         status={error ? `error` : `success`}
       />
-      <SignUpForm
+      <Button color="primary" variant="contained" onClick={handleOpen}>
+        Create User
+      </Button>
+      <CreateUserModal
         errors={errors}
+        open={open}
         submitting={submitting}
         touched={touched}
         values={values}
         handleBlur={handleBlur}
+        handleClose={handleClose}
         handleCreate={handleSubmit}
         handleChange={handleChange}
         handleSelectChange={handleSelectChange}

@@ -80,7 +80,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   ),
 });
 
-export const HelpPage = connect(
+export const ResourcesPage = connect(
   mapStateToProps,
   mapDispatchToProps
 )(HelpPageComponent);

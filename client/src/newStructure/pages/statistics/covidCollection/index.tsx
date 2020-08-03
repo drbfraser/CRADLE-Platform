@@ -485,7 +485,7 @@ const Page: React.FC<any> = () => {
 const mapStateToProps = () => ({});
 
 const mapDispatchToProps = () => ({});
-export const CovidCollection = connect(
+export const CovidCollectionPage = connect(
   mapStateToProps,
   mapDispatchToProps
 )(Page);

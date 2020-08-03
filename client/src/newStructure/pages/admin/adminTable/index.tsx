@@ -8,7 +8,7 @@ import { Toast } from '../../../shared/components/toast';
 import { clearAllVhtsRequestOutcome } from '../../../redux/reducers/user/allVhts';
 import { clearHealthFacilitiesRequestOutcome } from '../../../redux/reducers/healthFacilities';
 import { customRowRender } from '../../../shared/components/table/row';
-import { customToolbarRender } from '../../../shared/components/table/toolbar';
+import { customToolbarRender } from './toolbar';
 import { useData } from './hooks/data';
 import { useHealthFacilityOptions } from '../../../shared/hooks/healthFacilityOptions';
 import { useLocalization } from '../../../shared/hooks/table/localization';

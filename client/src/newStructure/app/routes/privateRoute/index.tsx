@@ -1,14 +1,14 @@
 import {
   CurrentUserState,
   getCurrentUser,
-} from '../../redux/reducers/user/currentUser';
+} from '../../../redux/reducers/user/currentUser';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Loader } from '../../shared/components/loader';
+import { Loader } from '../../../shared/components/loader';
 import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { RoleEnum } from '../../enums';
+import { ReduxState } from '../../../redux/reducers';
+import { RoleEnum } from '../../../enums';
 
 interface IProps {
   component:
@@ -21,8 +21,7 @@ interface IProps {
 // * Must contain updated paths
 // * that only admins are allowed to see
 export enum AdminRoutesEnum {
-  ADMIN_PANEL = '/admin',
-  SIGN_UP = '/signup',
+  ADMIN = '/admin',
 }
 
 export const PrivateRoute: React.FC<IProps> = (props) => {
