@@ -1,9 +1,5 @@
 import { OrNull, Patient } from '@types';
 import {
-  clearCurrentUserError,
-  getCurrentUser,
-} from '../../redux/reducers/user/currentUser';
-import {
   clearGetReferralsTablePatientsError,
   getReferralsTablePatients,
   sortReferralsTablePatients,
@@ -24,9 +20,6 @@ type SelectorState = {
   patients: OrNull<Array<Patient>>;
   fetchingPatients: boolean;
   gettingPatientsError: OrNull<string>;
-  loggingIn: boolean;
-  loggingInError: OrNull<string>;
-  loggedIn: boolean;
   pageNumber: number;
   preventFetch: boolean;
   searchText?: string;
@@ -38,9 +31,6 @@ export const ReferralsPage: React.FC = () => {
     patients,
     fetchingPatients,
     gettingPatientsError,
-    loggingIn,
-    loggingInError,
-    loggedIn,
     pageNumber,
     preventFetch,
     searchText,
@@ -50,9 +40,6 @@ export const ReferralsPage: React.FC = () => {
       patients: state.patients.referralsTablePatientsList,
       fetchingPatients: state.patients.isLoading,
       gettingPatientsError: state.patients.error,
-      loggingIn: state.user.current.loading,
-      loggingInError: state.user.current.message,
-      loggedIn: state.user.current.loggedIn,
       pageNumber: state.patients.referralsTablePageNumber,
       preventFetch: state.patients.preventFetch,
       searchText: state.patients.referralsTableSearchText,
@@ -60,12 +47,6 @@ export const ReferralsPage: React.FC = () => {
   );
 
   const dispatch = useDispatch();
-
-  React.useEffect((): void => {
-    if (!loggingIn && !loggingInError && !loggedIn) {
-      dispatch(getCurrentUser());
-    }
-  }, [dispatch, loggingIn, loggingInError, loggedIn]);
 
   React.useEffect((): void => {
     if (
@@ -89,13 +70,7 @@ export const ReferralsPage: React.FC = () => {
   }, [dispatch, selectedPatient]);
 
   const clearError = (): void => {
-    if (gettingPatientsError) {
-      dispatch(clearGetReferralsTablePatientsError());
-    }
-
-    if (loggingInError) {
-      dispatch(clearCurrentUserError());
-    }
+    dispatch(clearGetReferralsTablePatientsError());
   };
 
   const goToPatientPage = (selectedPatient: { patientId: string }): void => {
@@ -118,7 +93,7 @@ export const ReferralsPage: React.FC = () => {
     <>
       <Toast
         status="error"
-        message={loggingInError || gettingPatientsError}
+        message={gettingPatientsError}
         clearMessage={clearError}
       />
       <ReferralTable

@@ -732,6 +732,12 @@ export const patientsReducer = (
       };
     case PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_ERROR:
     case PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_ERROR:
+      return {
+        ...state,
+        error: action.payload.error,
+        isLoading: false,
+        preventFetch: true,
+      };
     case PatientsActionEnum.CREATE_ASSESSMENT_ERROR:
     case PatientsActionEnum.UPDATE_ASSESSMENT_ERROR:
       return {

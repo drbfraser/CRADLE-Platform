@@ -19,7 +19,7 @@ export const TableRow: React.FC<IProps> = ({
   const classes = useStyles();
 
   const onClick = (): void => {
-    if (rowIndex && handleRowClick) {
+    if (rowIndex !== undefined && handleRowClick) {
       handleRowClick(dataIndex, rowIndex);
     }
   };

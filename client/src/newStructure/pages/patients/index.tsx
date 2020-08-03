@@ -2,6 +2,7 @@ import { GlobalSearchPatient, OrNull, Patient } from '@types';
 import {
   addPatientToHealthFacility,
   clearAddPatientToHealthFacilityError,
+  clearGetPatientsError,
   getPatientsTablePatients,
   updatePatientsTablePageNumber,
   updatePatientsTableSearchText,
@@ -23,6 +24,7 @@ type SelectorState = {
   pageNumber: number;
   patients: OrNull<Array<Patient>>;
   patientsTableSearchText?: string;
+  preventFetch: boolean;
   showReferredPatients?: boolean;
   userIsHealthWorker?: boolean;
 };
@@ -36,17 +38,19 @@ export const PatientsPage: React.FC = () => {
     pageNumber,
     patients,
     patientsTableSearchText,
+    preventFetch,
     showReferredPatients,
     userIsHealthWorker,
   } = useSelector(
     ({ patients, user }: ReduxState): SelectorState => ({
       addingFromGlobalSearch: patients.addingFromGlobalSearch,
-      error: patients.addingFromGlobalSearchError,
+      error: patients.addingFromGlobalSearchError || patients.error,
       fetchingPatients: patients.isLoading,
       globalSearchPatients: patients.globalSearchPatientsList,
       pageNumber: patients.patientsTablePageNumber,
       patients: patients.patientsList,
       patientsTableSearchText: patients.patientsTableSearchText,
+      preventFetch: patients.preventFetch,
       showReferredPatients: patients.showReferredPatients,
       userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
     })
@@ -61,10 +65,10 @@ export const PatientsPage: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (!fetchingPatients && patients === null) {
+    if (!preventFetch && !error && !fetchingPatients && patients === null) {
       getPatients();
     }
-  }, [fetchingPatients, getPatients, patients]);
+  }, [error, fetchingPatients, getPatients, patients, preventFetch]);
 
   const onPatientSelected = ({ patientId }: Patient): void => {
     dispatch(push(`/patients/${patientId}`));
@@ -84,6 +88,7 @@ export const PatientsPage: React.FC = () => {
 
   const clearError = (): void => {
     dispatch(clearAddPatientToHealthFacilityError());
+    dispatch(clearGetPatientsError());
   };
 
   return (
