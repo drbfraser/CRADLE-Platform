@@ -80,10 +80,10 @@ export const loginUser = (
             payload: { user: data },
           };
         },
-        onError: (error: ServerError) => {
+        onError: ({ message }: ServerError) => {
           return {
             type: CurrentUserActionEnum.LOGIN_USER_ERROR,
-            payload: { message: error.message },
+            payload: { message },
           };
         },
       })
@@ -112,11 +112,11 @@ export const getCurrentUser = (): ((
           type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
           payload: { currentUser },
         }),
-        onError: (error: ServerError): CurrentUserAction => {
+        onError: ({ message }: ServerError): CurrentUserAction => {
           logoutUser();
           return {
             type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR,
-            payload: { message: error.message },
+            payload: { message },
           };
         },
       })

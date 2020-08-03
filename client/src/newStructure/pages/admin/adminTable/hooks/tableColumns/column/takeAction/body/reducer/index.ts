@@ -1,4 +1,8 @@
-import { OrNull, User, VHT } from '@types';
+import { EditUser, OrNull, User, VHT } from '@types';
+
+import { AutocompleteOption } from '../../../../../../../../../shared/components/input/autocomplete/utils';
+import { RoleEnum } from 'src/newStructure/enums';
+import { getRoles } from '../../../../../utils';
 
 export enum ActionTypeEnum {
   CLOSE_EDIT_USER_MODAL,
@@ -7,7 +11,7 @@ export enum ActionTypeEnum {
   OPEN_DELETE_USER_MODAL,
   INITIALIZE_USER,
   UPDATE_USER,
-  UPDATE_VHT_LIST,
+  UPDATE_OPTIONS,
   RESET,
 }
 
@@ -15,11 +19,18 @@ type InitializeUserPayload = {
   user: User;
 };
 
-type UpdateUserKey = `email` | `firstName` | `healthFacilityName` | `roleIds`;
+export type UpdateUserKey = `email` | `firstName`;
 
 type UpdateUserPayload = {
-  name: UpdateUserKey | `vhtList`;
-  value: User[UpdateUserKey] | Array<number>;
+  name: UpdateUserKey;
+  value: User[UpdateUserKey];
+};
+
+export type UpdateOptionsKey = `healthFacilityName` | `roleIds` | `vhtList`;
+
+type UpdateOptionsPayload = {
+  name: UpdateOptionsKey;
+  value: AutocompleteOption | Array<AutocompleteOption>;
 };
 
 export type Action =
@@ -29,19 +40,20 @@ export type Action =
   | { type: ActionTypeEnum.OPEN_DELETE_USER_MODAL }
   | { type: ActionTypeEnum.INITIALIZE_USER; payload: InitializeUserPayload }
   | { type: ActionTypeEnum.UPDATE_USER; payload: UpdateUserPayload }
+  | { type: ActionTypeEnum.UPDATE_OPTIONS; payload: UpdateOptionsPayload }
   | { type: ActionTypeEnum.RESET };
-
-export type EditUser = Omit<User, 'vhtList'> & { vhtList: Array<number> };
 
 type State = {
   displayEditUserModal: boolean;
   displayDeleteUserModal: boolean;
+  originalUser: OrNull<EditUser>;
   user: OrNull<EditUser>;
 };
 
 export const initialState: State = {
   displayEditUserModal: false,
   displayDeleteUserModal: false,
+  originalUser: null,
   user: null,
 };
 
@@ -52,6 +64,7 @@ type ActionCreatorSignature = {
   openDeleteUserModal: () => Action;
   initializeUser: (payload: InitializeUserPayload) => Action;
   updateUser: (payload: UpdateUserPayload) => Action;
+  updateOptions: (payload: UpdateOptionsPayload) => Action;
   reset: () => Action;
 };
 
@@ -74,6 +87,9 @@ export const actionCreators: ActionCreatorSignature = {
   updateUser: (payload: UpdateUserPayload): Action => {
     return { type: ActionTypeEnum.UPDATE_USER, payload };
   },
+  updateOptions: (payload: UpdateOptionsPayload): Action => {
+    return { type: ActionTypeEnum.UPDATE_OPTIONS, payload };
+  },
   reset: (): Action => {
     return { type: ActionTypeEnum.RESET };
   },
@@ -82,10 +98,17 @@ export const actionCreators: ActionCreatorSignature = {
 export const reducer = (state: State = initialState, action: Action): State => {
   switch (action.type) {
     case ActionTypeEnum.CLOSE_EDIT_USER_MODAL: {
-      return { ...state, displayEditUserModal: false };
+      return {
+        ...state,
+        displayEditUserModal: false,
+      };
     }
     case ActionTypeEnum.OPEN_EDIT_USER_MODAL: {
-      return { ...state, displayEditUserModal: Boolean(state.user) };
+      return {
+        ...state,
+        displayEditUserModal: Boolean(state.user),
+        user: state.originalUser,
+      };
     }
     case ActionTypeEnum.CLOSE_DELETE_USER_MODAL: {
       return { ...state, displayDeleteUserModal: false };
@@ -96,13 +119,54 @@ export const reducer = (state: State = initialState, action: Action): State => {
     case ActionTypeEnum.INITIALIZE_USER: {
       return {
         ...state,
+        originalUser: {
+          ...action.payload.user,
+          healthFacilityName: {
+            label: action.payload.user.healthFacilityName,
+            value: action.payload.user.healthFacilityName,
+          },
+          roleIds: getRoles(action.payload.user.roleIds).map(
+            (
+              role: RoleEnum,
+              index: number
+            ): AutocompleteOption<RoleEnum, number> => ({
+              label: role,
+              value: action.payload.user.roleIds[index],
+            })
+          ),
+          vhtList: action.payload.user.vhtList.map(
+            ({ email, id }: VHT): AutocompleteOption<string, number> => ({
+              label: email,
+              value: id,
+            })
+          ),
+        },
         user: {
           ...action.payload.user,
-          vhtList: action.payload.user.vhtList.map(({ id }: VHT): number => id),
+          healthFacilityName: {
+            label: action.payload.user.healthFacilityName,
+            value: action.payload.user.healthFacilityName,
+          },
+          roleIds: getRoles(action.payload.user.roleIds).map(
+            (
+              role: RoleEnum,
+              index: number
+            ): AutocompleteOption<RoleEnum, number> => ({
+              label: role,
+              value: action.payload.user.roleIds[index],
+            })
+          ),
+          vhtList: action.payload.user.vhtList.map(
+            ({ email, id }: VHT): AutocompleteOption<string, number> => ({
+              label: email,
+              value: id,
+            })
+          ),
         },
       };
     }
-    case ActionTypeEnum.UPDATE_USER: {
+    case ActionTypeEnum.UPDATE_USER:
+    case ActionTypeEnum.UPDATE_OPTIONS: {
       return {
         ...state,
         user: {

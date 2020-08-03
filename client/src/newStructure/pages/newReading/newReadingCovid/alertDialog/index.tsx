@@ -5,6 +5,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import React from 'react';
+import { useStyles } from '../styles';
 
 interface IProps {
   open: boolean;
@@ -12,6 +13,8 @@ interface IProps {
 }
 
 export default function AlertDialog(props: IProps) {
+  const classes = useStyles();
+
   return (
     <div>
       <Dialog
@@ -26,11 +29,11 @@ export default function AlertDialog(props: IProps) {
             duplicated ID
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={classes.actions}>
           <Button
             onClick={props.handleDialogClose}
             color="primary"
-            variant="contained">
+            variant="outlined">
             Ok!
           </Button>
         </DialogActions>

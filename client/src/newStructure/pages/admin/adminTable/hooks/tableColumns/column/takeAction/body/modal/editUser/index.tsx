@@ -1,37 +1,32 @@
-import {
-  Button,
-  Dropdown,
-  DropdownProps,
-  Form,
-  Input,
-  InputOnChangeData,
-  Modal,
-  Select,
-} from 'semantic-ui-react';
-
-import { EditUser } from '../../reducer';
+import { AutocompleteInput } from '../../../../../../../../../../shared/components/input/autocomplete';
+import { AutocompleteOption } from '../../../../../../../../../../shared/components/input/autocomplete/utils';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import { EditUser } from '@types';
 import React from 'react';
 import { RoleEnum } from '../../../../../../../../../../enums';
-import { getAllVhtEmails } from './hooks/utils';
-import { getRoles } from '../../../../../../utils';
+import { TextInput } from '../../../../../../../../../../shared/components/input/text';
+import { UpdateOptionsKey } from '../../reducer';
 import { roleOptions } from '../../../../../../../../utils';
-import { useHealthFacilityOptions } from './hooks/healthFacilityOptions';
 import { useStyles } from './styles';
-import { useVHTOptions } from './hooks/vhtOptions';
+import { useTakeActionsContext } from '../../../context/hooks';
 
 interface IProps {
   displayEditUserModal: boolean;
   user: EditUser;
   closeEditUserModal: () => void;
   handleSelectChange: (
-    name: `roleIds` | `vhtList`
+    name: UpdateOptionsKey
   ) => (
-    event: React.SyntheticEvent<HTMLElement, Event>,
-    data: DropdownProps
+    event: React.ChangeEvent<Record<string, unknown>>,
+    value: AutocompleteOption | Array<AutocompleteOption>
   ) => void;
   handleChange: (
-    event: React.ChangeEvent<HTMLInputElement>,
-    { name, value }: InputOnChangeData
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   handleSubmit: () => void;
 }
@@ -46,87 +41,73 @@ export const EditUserModal: React.FC<IProps> = ({
 }) => {
   const classes = useStyles();
 
-  const healthFacilityOptions = useHealthFacilityOptions();
-
-  const vhtOptions = useVHTOptions();
+  const { healthFacilityOptions, vhtOptions } = useTakeActionsContext();
 
   return (
-    <Modal
-      closeIcon={true}
+    <Dialog
       open={displayEditUserModal}
-      size="tiny"
-      onClose={closeEditUserModal}>
-      <Modal.Header>User Information</Modal.Header>
-      <Modal.Content scrolling>
-        <Modal.Description>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group widths="equal">
-              <Form.Field
-                name="firstName"
-                control={Input}
-                value={user.firstName}
-                label="Name"
-                placeholder="First Name"
-                onChange={handleChange}
-              />
-            </Form.Group>
-            <Form.Group widths="equal">
-              <Form.Field
-                name="email"
-                control={Input}
-                value={user.email}
-                label="Name"
-                placeholder="Email"
-                onChange={handleChange}
-              />
-            </Form.Group>
-            <Form.Group widths="equal">
-              <Form.Field
-                name="healthFacilityName"
-                control={Select}
-                value={user.healthFacilityName}
-                label="Health Facility"
-                options={healthFacilityOptions}
-                placeholder="Health Facility"
-                onChange={handleChange}
-              />
-            </Form.Group>
-            <div className={classes.container}>
-              <label htmlFor="roles">Role(s)</label>
-              <Form.Group widths="equal">
-                <Dropdown
-                  id="roles"
-                  fluid={true}
-                  placeholder="Select the role(s) this user will have"
-                  multiple={true}
-                  selection={true}
-                  options={roleOptions}
-                  value={getRoles(user.roleIds)}
-                  onChange={handleSelectChange(`roleIds`)}
-                />
-              </Form.Group>
-            </div>
-            {getRoles(user.roleIds).includes(RoleEnum.CHO) && (
-              <div className={classes.container}>
-                <label htmlFor="supervising">VHT(s) to Supervise</label>
-                <Form.Group widths="equal">
-                  <Dropdown
-                    id="supervising"
-                    fluid={true}
-                    placeholder="Select the VHT(s) to be supervised"
-                    multiple={true}
-                    selection={true}
-                    options={vhtOptions}
-                    value={getAllVhtEmails(user.vhtList, vhtOptions)}
-                    onChange={handleSelectChange(`vhtList`)}
-                  />
-                </Form.Group>
-              </div>
-            )}
-            <Form.Field control={Button}>Edit User</Form.Field>
-          </Form>
-        </Modal.Description>
-      </Modal.Content>
-    </Modal>
+      onClose={closeEditUserModal}
+      aria-labelledby="edit-user-dialog-title"
+      aria-describedby="edit-user-dialog-description"
+      fullWidth={true}
+      maxWidth="sm">
+      <DialogTitle id="edit-user-dialog-title">Edit User</DialogTitle>
+      <DialogContent className={classes.content}>
+        <DialogContentText id="edit-user-dialog-title">
+          Fields marked with * are required
+        </DialogContentText>
+        <TextInput
+          name="firstName"
+          value={user.firstName}
+          label="First Name"
+          placeholder="First Name"
+          onChange={handleChange}
+        />
+        <TextInput
+          name="email"
+          value={user.email}
+          label="Email"
+          placeholder="Email"
+          onChange={handleChange}
+        />
+        <AutocompleteInput
+          label="Health Facility"
+          options={healthFacilityOptions}
+          placeholder="Pick a health facility"
+          value={user.healthFacilityName}
+          onChange={handleSelectChange(`healthFacilityName`)}
+        />
+        <AutocompleteInput
+          label="Role(s)"
+          multiple={true}
+          options={roleOptions}
+          placeholder="Select the role(s) this user will have"
+          value={user.roleIds}
+          onChange={handleSelectChange(`roleIds`)}
+        />
+        {user.roleIds
+          .map(
+            ({ label }: AutocompleteOption<RoleEnum, number>): RoleEnum => label
+          )
+          .includes(RoleEnum.CHO) && (
+          <AutocompleteInput
+            label="VHT(s) to Supervise"
+            multiple={true}
+            options={vhtOptions}
+            placeholder="Select the VHT(s) to be supervised by this user"
+            value={user.vhtList}
+            onChange={handleSelectChange(`vhtList`)}
+          />
+        )}
+      </DialogContent>
+      <DialogActions className={classes.actions}>
+        <Button onClick={closeEditUserModal} color="default">
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} color="primary" variant="outlined">
+          Edit
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

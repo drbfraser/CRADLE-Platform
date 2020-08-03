@@ -43,6 +43,9 @@ const useStyles = makeStyles((theme: Theme) =>
     dialogTitle: {
       textAlign: 'center',
     },
+    dialogActions: {
+      padding: theme.spacing(2),
+    },
   })
 );
 
@@ -429,14 +432,14 @@ const Page: React.FC<any> = () => {
             </RadioGroup>
           </FormControl>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={classes.dialogActions}>
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={openTransfer} color="primary">
+          <Button onClick={openTransfer} color="primary" variant="outlined">
             Transfer
           </Button>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color="primary" variant="contained">
             Save
           </Button>
         </DialogActions>
@@ -469,9 +472,9 @@ const Page: React.FC<any> = () => {
             </Select>
           </FormControl>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseT} color="primary" variant="contained">
-            Trasnfer
+        <DialogActions className={classes.dialogActions}>
+          <Button onClick={handleCloseT} color="primary" variant="outlined">
+            Transfer
           </Button>
         </DialogActions>
       </Dialog>

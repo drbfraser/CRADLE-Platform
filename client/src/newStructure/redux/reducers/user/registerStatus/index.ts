@@ -1,4 +1,4 @@
-import { ActualUser, OrNull } from '@types';
+import { ActualUser, OrNull, ServerError } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
@@ -53,7 +53,7 @@ export const registerUser = (
             payload: { message: `User successfully created!` },
           };
         },
-        onError: (message: string): RegisterStatusAction => ({
+        onError: ({ message }: ServerError): RegisterStatusAction => ({
           type: RegisterStatusActionEnum.REGISTER_USER_ERROR,
           payload: { message },
         }),

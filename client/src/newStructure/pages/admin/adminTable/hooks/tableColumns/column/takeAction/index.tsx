@@ -3,19 +3,25 @@ import {
   MUIDataTableCustomHeadRenderer,
 } from 'mui-datatables';
 
+import { AutocompleteOption } from '../../../../../../../shared/components/input/autocomplete/utils';
 import React from 'react';
 import { TakeActionBody } from './body';
+import { TakeActionContextProvider } from './context';
 import { TakeActionHead } from './head';
 import { User } from '@types';
 
 interface IArgs {
   headClass: string;
   users: Array<User>;
+  healthFacilityOptions: Array<AutocompleteOption<string, string>>;
+  vhtOptions: Array<AutocompleteOption<string, number>>;
 }
 
 export const useTakeActionColumn = ({
   headClass,
   users,
+  healthFacilityOptions,
+  vhtOptions,
 }: IArgs): MUIDataTableColumn => {
   return React.useMemo(() => {
     return {
@@ -33,9 +39,15 @@ export const useTakeActionColumn = ({
             label={label}
           />
         ),
-        customBodyRender: (id: number) => <TakeActionBody userId={id} />,
+        customBodyRender: (id: number) => (
+          <TakeActionContextProvider
+            healthFacilityOptions={healthFacilityOptions}
+            vhtOptions={vhtOptions}>
+            <TakeActionBody userId={id} />
+          </TakeActionContextProvider>
+        ),
         searchable: false,
       },
     };
-  }, [headClass, users]);
+  }, [headClass, healthFacilityOptions, users, vhtOptions]);
 };

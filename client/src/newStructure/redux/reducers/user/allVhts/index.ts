@@ -1,14 +1,14 @@
-import { OrNull, VHT } from '@types';
+import { OrNull, ServerError, VHT } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
 import { Endpoints } from '../../../../server/endpoints';
 
 enum AllVhtsActionEnum {
-  CLEAR_REQUEST_OUTCOME = 'allVhts/CLEAR_REQUEST_OUTCOME',
   GET_VHTS_REQUESTED = 'allVhts/GET_VHTS_REQUESTED',
-  GET_VHTS_ERROR = 'allVhts/GET_VHTS_ERROR',
   GET_VHTS_SUCCESS = 'allVhts/GET_VHTS_SUCCESS',
+  GET_VHTS_ERROR = 'allVhts/GET_VHTS_ERROR',
+  CLEAR_REQUEST_OUTCOME = 'allVhts/CLEAR_REQUEST_OUTCOME',
 }
 
 type AllVhtsAction =
@@ -34,7 +34,7 @@ export const getVhts = (): ((dispatch: Dispatch) => ServerRequestAction) => {
             payload: { vhts },
           };
         },
-        onError: (message: string): AllVhtsAction => ({
+        onError: ({ message }: ServerError): AllVhtsAction => ({
           type: AllVhtsActionEnum.GET_VHTS_ERROR,
           payload: { message },
         }),

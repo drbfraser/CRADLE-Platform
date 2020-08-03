@@ -1,17 +1,12 @@
 import { OrNull, VHT } from '@types';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { AutocompleteOption } from '../../../../../shared/components/input/autocomplete/utils';
 import React from 'react';
-import { ReduxState } from '../../../../../../../../../../../../redux/reducers';
-import { getVhts } from '../../../../../../../../../../../../redux/reducers/user/allVhts';
+import { ReduxState } from '../../../../../redux/reducers';
+import { getVhts } from '../../../../../redux/reducers/user/allVhts';
 
-export interface IUseVHTOptions {
-  key: number;
-  text: string;
-  value: number;
-}
-
-export const useVHTOptions = (): Array<IUseVHTOptions> => {
+export const useVHTOptions = (): Array<AutocompleteOption<string, number>> => {
   const vhts = useSelector(
     ({ user }: ReduxState): OrNull<Array<VHT>> => user.allVhts.data
   );
@@ -26,9 +21,8 @@ export const useVHTOptions = (): Array<IUseVHTOptions> => {
 
   return (
     vhts?.map(
-      (vht: VHT): IUseVHTOptions => ({
-        key: vht.id,
-        text: vht.email,
+      (vht: VHT): AutocompleteOption<string, number> => ({
+        label: vht.email,
         value: vht.id,
       })
     ) ?? []

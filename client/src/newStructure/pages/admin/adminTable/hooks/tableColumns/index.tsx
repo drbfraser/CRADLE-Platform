@@ -1,5 +1,6 @@
 import { Callback, User } from '@types';
 
+import { AutocompleteOption } from 'src/newStructure/shared/components/input/autocomplete/utils';
 import { MUIDataTableColumn } from 'mui-datatables';
 import { useEmailColumn } from './column/email';
 import { useFirstNameColumn } from './column/firstName';
@@ -20,6 +21,8 @@ export enum AdminTableColumnEnum {
 
 interface IArgs {
   users: Array<User>;
+  healthFacilityOptions: Array<AutocompleteOption<string, string>>;
+  vhtOptions: Array<AutocompleteOption<string, number>>;
   sortData: Callback<Array<User>>;
 }
 
@@ -27,6 +30,8 @@ type TableColumns = { [key in AdminTableColumnEnum]: MUIDataTableColumn };
 
 export const useTableColumns = ({
   users,
+  healthFacilityOptions,
+  vhtOptions,
   sortData,
 }: IArgs): Array<MUIDataTableColumn> => {
   const classes = useStyles();
@@ -58,6 +63,8 @@ export const useTableColumns = ({
   const takeActionColumn = useTakeActionColumn({
     headClass: classes.headCell,
     users,
+    healthFacilityOptions,
+    vhtOptions,
   });
 
   const columns: TableColumns = {

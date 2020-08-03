@@ -6,6 +6,8 @@ import {
   TrafficLightEnum,
 } from '../enums';
 
+import { AutocompleteOption } from '../shared/components/input/autocomplete/utils';
+
 export type Callback<T, U = void> = (args: T) => U;
 
 export type OrNull<T> = T | null;
@@ -131,6 +133,15 @@ export type ActualUser = Pick<
   roles: Array<RoleEnum>;
   token: string;
   userId: number;
+};
+
+export type EditUser = Omit<
+  User,
+  'healthFacilityName' | 'roleIds' | 'vhtList'
+> & {
+  healthFacilityName: AutocompleteOption<string, string>;
+  roleIds: Array<AutocompleteOption<RoleEnum, number>>;
+  vhtList: Array<AutocompleteOption<string, number>>;
 };
 
 export type VHT = {
@@ -283,3 +294,5 @@ export type StatisticsDataset<Label, Data, BackgroundColor = string> = {
   borderColor?: string;
   pointRadius?: 1;
 };
+
+export type HealthFacility = string;

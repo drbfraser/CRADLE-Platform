@@ -44,9 +44,9 @@ export const getPatientStatistics = (
           type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_SUCCESS,
           payload: { data },
         }),
-        onError: (error: ServerError): PatientStatisticsAction => ({
+        onError: ({ message }: ServerError): PatientStatisticsAction => ({
           type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR,
-          payload: { message: error.message },
+          payload: { message },
         }),
       })
     );

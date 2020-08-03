@@ -1,4 +1,4 @@
-import { OrNull, User } from '@types';
+import { EditUser, OrNull, ServerError, User, VHT } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
@@ -75,7 +75,7 @@ export const getUsers = (): ((dispatch: Dispatch) => ServerRequestAction) => {
           type: AllUsersActionEnum.GET_USERS_SUCCESS,
           payload: { users },
         }),
-        onError: (message: string): AllUsersAction => ({
+        onError: ({ message }: ServerError): AllUsersAction => ({
           type: AllUsersActionEnum.GET_USERS_ERROR,
           payload: { message },
         }),
@@ -95,30 +95,50 @@ const updateUserRequest = (): AllUsersAction => ({
   type: AllUsersActionEnum.UPDATE_USER_REQUESTED,
 });
 
-export const updateUser = (
-  userId: string,
-  updatedUser: any
-): ((dispatch: Dispatch) => ServerRequestAction) => {
+export type UpdateUser = Pick<
+  User,
+  'email' | 'firstName' | 'followups' | 'healthFacilityName' | 'username'
+> & {
+  newRoleIds: Array<number>;
+  newVHTs: Array<VHT>;
+};
+
+interface IUpdateUserArgs {
+  userId: number;
+  currentUser: Omit<EditUser, 'healthFacilityName' | 'roleIds' | 'vhtList'>;
+  userToUpdate: UpdateUser;
+}
+
+export const updateUser = ({
+  userId,
+  currentUser,
+  userToUpdate,
+}: IUpdateUserArgs): ((dispatch: Dispatch) => ServerRequestAction) => {
   return (dispatch: Dispatch) => {
     dispatch(updateUserRequest());
+
+    const { newVHTs, ...data } = userToUpdate;
 
     return dispatch(
       serverRequestActionCreator({
         endpoint: `${Endpoints.USER}${Endpoints.EDIT}/${userId}`,
-        data: updatedUser,
+        data: {
+          ...data,
+          newVhtIds: newVHTs.map((vht: VHT): number => vht.id),
+        },
         method: Methods.PUT,
         onSuccess: (): AllUsersAction => ({
           type: AllUsersActionEnum.UPDATE_USER_SUCCESS,
           payload: {
             updatedUser: {
-              ...updatedUser,
-              roleIds: updatedUser.newRoleIds,
-              vhtIds: updatedUser.newVhtIds,
-              userId,
+              ...currentUser,
+              ...userToUpdate,
+              roleIds: userToUpdate.newRoleIds,
+              vhtList: userToUpdate.newVHTs,
             },
           },
         }),
-        onError: (message: string): AllUsersAction => ({
+        onError: ({ message }: ServerError): AllUsersAction => ({
           type: AllUsersActionEnum.UPDATE_USER_ERROR,
           payload: { message },
         }),
@@ -145,8 +165,8 @@ export const deleteUser = (
           type: AllUsersActionEnum.DELETE_USER_SUCCESS,
           payload: { deletedUserId: userId },
         }),
-        onError: (message: string): AllUsersAction => ({
-          type: AllUsersActionEnum.UPDATE_USER_ERROR,
+        onError: ({ message }: ServerError): AllUsersAction => ({
+          type: AllUsersActionEnum.DELETE_USER_ERROR,
           payload: { message },
         }),
       })
@@ -173,6 +193,7 @@ export type AllUsersState = {
   loading: boolean;
   message: OrNull<string>;
   pageNumber: number;
+  success: OrNull<string>;
   searchText?: string;
   updatedUserList: boolean;
   data: OrNull<Array<User>>;
@@ -184,6 +205,7 @@ const initialState: AllUsersState = {
   loading: false,
   message: null,
   pageNumber: 0,
+  success: null,
   searchText: ``,
   updatedUserList: false,
   data: null,
@@ -214,6 +236,7 @@ export const allUsersReducer = (
     case AllUsersActionEnum.UPDATE_USER_SUCCESS: {
       return {
         ...initialState,
+        success: `User updated successfully!`,
         updatedUserList: true,
         data:
           state.data?.map(
@@ -228,6 +251,7 @@ export const allUsersReducer = (
       return {
         ...initialState,
         updatedUserList: true,
+        success: `User deleted successfully!`,
         data:
           state.data?.filter(
             ({ id }: User): boolean => id !== action.payload.deletedUserId
@@ -237,7 +261,12 @@ export const allUsersReducer = (
     case AllUsersActionEnum.UPDATE_USER_ERROR:
     case AllUsersActionEnum.DELETE_USER_ERROR:
     case AllUsersActionEnum.GET_USERS_ERROR: {
-      return { ...initialState, error: true, message: action.payload.message };
+      return {
+        ...state,
+        error: true,
+        loading: false,
+        message: action.payload.message,
+      };
     }
     case AllUsersActionEnum.SORT_USERS: {
       return { ...state, data: action.payload.sortedUsers };

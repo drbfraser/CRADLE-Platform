@@ -52,7 +52,7 @@ export const AddPatientPrompt: React.FC<IProps> = ({
       <DialogContent>
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>
-      <DialogActions>
+      <DialogActions className={classes.actions}>
         <Button
           classes={{ root: classes.button }}
           disabled={adding}
@@ -65,7 +65,7 @@ export const AddPatientPrompt: React.FC<IProps> = ({
           disabled={adding}
           onClick={handlePositiveClick}
           color="primary"
-          variant="contained">
+          variant="outlined">
           {adding ? `Adding...` : positiveText}
         </Button>
       </DialogActions>

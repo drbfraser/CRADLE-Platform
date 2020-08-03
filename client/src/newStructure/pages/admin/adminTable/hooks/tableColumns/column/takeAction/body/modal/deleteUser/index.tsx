@@ -5,6 +5,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import React from 'react';
+import { useStyles } from './styles';
 
 interface IProps {
   displayDeleteUserModal: boolean;
@@ -21,6 +22,8 @@ export const DeleteUserModal: React.FC<IProps> = ({
   closeDeleteUserModal,
   handleDelete,
 }) => {
+  const classes = useStyles();
+
   return (
     <Dialog
       open={displayDeleteUserModal}
@@ -39,11 +42,11 @@ export const DeleteUserModal: React.FC<IProps> = ({
           Email: {email}
         </DialogContentText>
       </DialogContent>
-      <DialogActions>
+      <DialogActions className={classes.actions}>
         <Button onClick={closeDeleteUserModal} color="default">
           Cancel
         </Button>
-        <Button onClick={handleDelete} color="primary" variant="contained">
+        <Button onClick={handleDelete} color="primary" variant="outlined">
           Yes I&apos;m sure
         </Button>
       </DialogActions>
