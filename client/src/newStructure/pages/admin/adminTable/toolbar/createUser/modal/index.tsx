@@ -147,12 +147,12 @@ export const CreateUserModal: React.FC<IProps> = ({
       title="Create A User"
       subtitle="Fields marked with * are required"
       primaryAction={{
-        buttonText: `Creat${submitting ? `ing...` : `e`}`,
+        children: `Creat${submitting ? `ing...` : `e`}`,
         disabled: disableSubmit,
         onClick: handleCreate,
       }}
       secondaryAction={{
-        buttonText: `Cancel`,
+        children: `Cancel`,
         onClick: handleClose,
       }}
     />

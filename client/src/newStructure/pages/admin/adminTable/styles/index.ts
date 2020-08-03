@@ -2,6 +2,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 export const useStyles = makeStyles({
   row: {
+    cursor: `default`,
     display: `table-row`,
     borderBlockEnd: `1px solid rgba(224, 224, 224, 1)`,
     height: 75,

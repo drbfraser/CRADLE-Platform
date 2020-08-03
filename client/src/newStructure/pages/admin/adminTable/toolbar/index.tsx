@@ -4,6 +4,7 @@ import { CreateUser } from './createUser';
 import { DefaultSearch } from '../../../../shared/components/defaultSearch';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import React from 'react';
+import { useStyles as useLocalStyles } from './styles';
 import { useStyles } from '../../../../shared/styles/toolbar';
 import { useTimeout } from '../../../../shared/hooks/timeout';
 
@@ -21,7 +22,7 @@ const Toolbar: React.FC<IProps> = ({
 }) => {
   const [showLoader, setShowLoader] = React.useState<boolean>(false);
 
-  const classes = useStyles();
+  const classes = { ...useStyles(), ...useLocalStyles() };
 
   useTimeout({
     startTimer: loading,
@@ -42,7 +43,7 @@ const Toolbar: React.FC<IProps> = ({
           variant="indeterminate"
         />
       )}
-      <div className={classes.toolbarActions}>
+      <div className={`${classes.toolbarActions} ${classes.toolbar}`}>
         <DefaultSearch {...props} placeholder={searchPlaceholder} />
         <div className={classes.spacedAction}>
           <CreateUser />

@@ -22,7 +22,7 @@ export default function AlertDialog(props: IProps) {
       }
       title="The Id is Valid"
       primaryAction={{
-        buttonText: `Ok!`,
+        children: `Ok!`,
         onClick: props.handleDialogClose,
       }}
     />

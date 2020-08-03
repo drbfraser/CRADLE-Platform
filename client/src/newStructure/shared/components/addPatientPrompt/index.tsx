@@ -47,13 +47,13 @@ export const AddPatientPrompt: React.FC<IProps> = ({
       content={<DialogContentText>{message}</DialogContentText>}
       title="Add Patient"
       primaryAction={{
-        buttonText: adding ? `Adding...` : positiveText,
+        children: adding ? `Adding...` : positiveText,
         classes: { root: classes.button },
         disabled: adding,
         onClick: handlePositiveClick,
       }}
       secondaryAction={{
-        buttonText: `Cancel`,
+        children: `Cancel`,
         classes: { root: classes.button },
         disabled: adding,
         onClick: handleNegativeClick,

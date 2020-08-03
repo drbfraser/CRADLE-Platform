@@ -95,11 +95,11 @@ export const EditUserModal: React.FC<IProps> = ({
       title="Edit User"
       subtitle="Fields marked with * are required"
       primaryAction={{
-        buttonText: `Edit`,
+        children: `Edit`,
         onClick: handleSubmit,
       }}
       secondaryAction={{
-        buttonText: `Cancel`,
+        children: `Cancel`,
         onClick: closeEditUserModal,
       }}
     />

@@ -3,7 +3,7 @@ import { Theme, makeStyles } from '@material-ui/core/styles';
 export const useStyles = makeStyles((theme: Theme) => ({
   container: {
     marginBlockStart: `${theme.spacing(2)}px`,
-    width: `100vw`,
+    width: `100%`,
     display: `flex`,
     flexDirection: `column`,
     alignItems: `center`,

@@ -31,11 +31,11 @@ export const DeleteUserModal: React.FC<IProps> = ({
       title="Delete User"
       subtitle="Are you sure you want to delete this user?"
       primaryAction={{
-        buttonText: `Yes I'm Sure`,
+        children: `Yes I'm Sure`,
         onClick: handleDelete,
       }}
       secondaryAction={{
-        buttonText: `Cancel`,
+        children: `Cancel`,
         onClick: closeDeleteUserModal,
       }}
     />

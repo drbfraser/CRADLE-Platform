@@ -7,9 +7,7 @@ import MaterialDialogTitle from '@material-ui/core/DialogTitle';
 import React from 'react';
 import { useStyles } from './styles';
 
-type DialogAction = Omit<ButtonProps, 'children'> & {
-  buttonText: string;
-};
+type DialogAction = ButtonProps;
 
 interface IProps extends DialogProps {
   content?: React.ReactNode;
@@ -65,21 +63,13 @@ export const DialogPopup: React.FC<IProps> = ({
         <MaterialDialogActions className={classes.actions}>
           {tertiaryAction && (
             <div className={classes.leftActions}>
-              <Button {...tertiaryAction} color="default">
-                {tertiaryAction.buttonText}
-              </Button>
+              <Button {...tertiaryAction} color="default" />
             </div>
           )}
           <div className={classes.rightActions}>
-            {secondaryAction && (
-              <Button {...secondaryAction} color="default">
-                {secondaryAction.buttonText}
-              </Button>
-            )}
+            {secondaryAction && <Button {...secondaryAction} color="default" />}
             {primaryAction && (
-              <Button {...primaryAction} color="primary" variant="outlined">
-                {primaryAction.buttonText}
-              </Button>
+              <Button {...primaryAction} color="primary" variant="outlined" />
             )}
           </div>
         </MaterialDialogActions>

@@ -21,7 +21,7 @@ export default function SubmissionDialog(props: IProps) {
       }
       title="Submitted!!"
       primaryAction={{
-        buttonText: `Ok!`,
+        children: `Ok!`,
         onClick: props.handleDialogClose,
       }}
     />
