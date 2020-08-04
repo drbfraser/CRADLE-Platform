@@ -13,9 +13,9 @@ import {
 
 import { AutocompleteInput } from '../../../../../../shared/components/input/autocomplete';
 import { EditedPatient } from '@types';
-import { Form } from 'semantic-ui-react';
 import React from 'react';
 import { TextInput } from '../../../../../../shared/components/input/text';
+import { useStyles } from './styles';
 
 export const GESTATIONAL_AGE_UNITS = {
   WEEKS: 'GESTATIONAL_AGE_UNITS_WEEKS',
@@ -28,6 +28,8 @@ interface IProps {
 }
 
 export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
+  const classes = useStyles();
+
   const dob = React.useMemo((): string => {
     if (patient.dob) {
       return `${patient.dob}`;
@@ -56,22 +58,20 @@ export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
   };
 
   return (
-    <>
-      <Form.Group widths="equal">
-        <TextInput
-          name="patientName"
-          value={patient.patientName}
-          label="Patient Initials"
-          placeholder="Patient Initials"
-          onChange={onChange}
-          type="text"
-          // pattern="[a-zA-Z]*"
-          // maxLength="4"
-          // minLength="1"
-          required={true}
-        />
-      </Form.Group>
-      <Form.Group widths="equal">
+    <div className={classes.container}>
+      <TextInput
+        name="patientName"
+        value={patient.patientName}
+        label="Patient Initials"
+        placeholder="Patient Initials"
+        onChange={onChange}
+        type="text"
+        // pattern="[a-zA-Z]*"
+        // maxLength="4"
+        // minLength="1"
+        required={true}
+      />
+      <div className={classes.row}>
         <TextInput
           name="patientAge"
           value={patientAge}
@@ -90,28 +90,24 @@ export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
           placeholder="Birthday"
           onChange={onChange}
         />
-      </Form.Group>
-      <Form.Group widths="equal">
-        <AutocompleteInput
-          value={patient.patientSex}
-          label="Gender"
-          options={sexOptions}
-          placeholder="Gender"
-          // required={true}
-          onChange={handleSelectChange(`patientSex`)}
-        />
-      </Form.Group>
-      <Form.Group widths="equal">
-        <AutocompleteInput
-          // value={patient.isPregnant}
-          label="Pregnant"
-          options={pregnantOptions}
-          onChange={handleSelectChange(`isPregnant`)}
-          disabled={patient.patientSex === SexEnum.MALE}
-          // required={patient.patientSex === SexEnum.FEMALE}
-        />
-      </Form.Group>
-      <Form.Group widths="equal">
+      </div>
+      <AutocompleteInput
+        value={patient.patientSex}
+        label="Gender"
+        options={sexOptions}
+        placeholder="Gender"
+        // required={true}
+        onChange={handleSelectChange(`patientSex`)}
+      />
+      <AutocompleteInput
+        // value={patient.isPregnant}
+        label="Pregnant"
+        options={pregnantOptions}
+        onChange={handleSelectChange(`isPregnant`)}
+        disabled={patient.patientSex === SexEnum.MALE}
+        // required={patient.patientSex === SexEnum.FEMALE}
+      />
+      <div className={classes.row}>
         <AutocompleteInput
           value={gestationalTimestamp}
           options={
@@ -132,8 +128,8 @@ export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
           disabled={patient.patientSex === SexEnum.MALE || !patient.isPregnant}
           // required={patient.patientSex === SexEnum.FEMALE && patient.isPregnant}
         />
-      </Form.Group>
-      <Form.Group widths="equal">
+      </div>
+      <div className={classes.row}>
         <TextInput
           name="zone"
           value={patient.zone}
@@ -150,7 +146,7 @@ export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
           placeholder="Village"
           onChange={onChange}
         />
-      </Form.Group>
+      </div>
       <TextInput
         label="Drug History"
         multiline={true}
@@ -167,6 +163,6 @@ export const PatientInfoForm: React.FC<IProps> = ({ patient, onChange }) => {
         placeholder="Enter the patient's medical history..."
         onChange={onChange}
       />
-    </>
+    </div>
   );
 };

@@ -1,6 +1,5 @@
 import { Action, actionCreators } from '../../../reducers';
 import { FollowUp, NewAssessment, OrNull, Referral } from '@types';
-import { Form, InputOnChangeData, TextArea } from 'semantic-ui-react';
 import {
   clearCreateAssessmentOutcome,
   clearUpdateAssessmentOutcome,
@@ -15,6 +14,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import React from 'react';
 import { ReduxState } from '../../../../../../redux/reducers';
 import Switch from '@material-ui/core/Switch';
+import { TextInput } from '../../../../../../shared/components/input/text';
 import { Toast } from '../../../../../../shared/components/toast';
 import { useDisableSubmit } from './hooks/disableSubmit';
 import { useStyles } from './styles';
@@ -83,11 +83,13 @@ export const FollowUpModal: React.FC<IProps> = ({
     }
   }, [closeAssessmentModal, success]);
 
-  const handleChange = (
-    _: React.ChangeEvent<HTMLInputElement>,
-    { name, value }: InputOnChangeData
-  ): void => {
-    updateState(actionCreators.updateAssessment({ name, value }));
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    updateState(
+      actionCreators.updateAssessment({
+        name: event.target.name as keyof NewAssessment,
+        value: event.target.value,
+      })
+    );
   };
 
   const handleFollowUpNeededChange = (
@@ -135,38 +137,38 @@ export const FollowUpModal: React.FC<IProps> = ({
       <DialogPopup
         aria-labelledby="followup-dialog-title"
         content={
-          <Form onSubmit={handleSubmit}>
-            <Form.Field
+          <form className={classes.container} onSubmit={handleSubmit}>
+            <TextInput
               name="specialInvestigations"
               value={assessment.specialInvestigations}
-              control={TextArea}
+              multiline={true}
               label="Special Investigations & Results (If available)"
               placeholder="Patient's action performed for this follow up"
               onChange={handleChange}
               required={true}
             />
-            <Form.Field
+            <TextInput
               name="diagnosis"
               value={assessment.diagnosis}
-              control={TextArea}
+              multiline={true}
               label="Final Diagnosis"
               placeholder="Medical diagnosis for the cause of their chief complaint"
               onChange={handleChange}
               required={true}
             />
-            <Form.Field
+            <TextInput
               name="treatment"
               value={assessment.treatment}
-              control={TextArea}
+              multiline={true}
               label="Treatment/Operation"
               placeholder="Treatment performed on the patient to remedy their chief complaint"
               onChange={handleChange}
               required={true}
             />
-            <Form.Field
+            <TextInput
               name="medicationPrescribed"
               value={assessment.medicationPrescribed}
-              control={TextArea}
+              multiline={true}
               label="Medication Prescribed"
               placeholder="Medication prescribed to the patient to remedy their chief complaint"
               onChange={handleChange}
@@ -186,30 +188,26 @@ export const FollowUpModal: React.FC<IProps> = ({
               label="Follow-up Needed"
             />
             {assessment.followupNeeded && (
-              <div className={classes.followUpInstructions}>
-                <Form.Field
-                  name="followupInstructions"
-                  value={assessment.followupInstructions}
-                  control={TextArea}
-                  label="Instruction(s) for Follow up"
-                  placeholder="Instruction(s) for VHT to help the patient remedy their chief complaint"
-                  required={assessment.followupNeeded}
-                  onChange={handleChange}></Form.Field>
-              </div>
+              <TextInput
+                name="followupInstructions"
+                value={assessment.followupInstructions}
+                multiline={true}
+                label="Instruction(s) for Follow up"
+                placeholder="Instruction(s) for VHT to help the patient remedy their chief complaint"
+                required={assessment.followupNeeded}
+                onChange={handleChange}
+              />
             )}
-            <Button
-              className={classes.submit}
-              disabled={disabled}
-              variant="contained"
-              type="submit">
-              Submit
-            </Button>
-          </Form>
+          </form>
         }
         open={displayAssessmentModal}
         title="Referral Follow-Up Information"
         subtitle="Fields marked with * are required"
         onClose={closeAssessmentModal}
+        primaryAction={{
+          children: `Submit`,
+          disabled,
+        }}
       />
     </>
   );
