@@ -103,7 +103,7 @@ const Page: React.FC<IProps> = (props) => {
             type={'text'}
             variant="outlined"
             helperText={
-              props.patient.patientIdError ? 'Id is too long or too short.' : ''
+              props.patient.patientIdError ? 'Id is too long or too short and must be a number.' : ''
             }
           />
         </FormControl>
