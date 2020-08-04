@@ -19,6 +19,7 @@ import { ReadingModal } from './readingModal';
 import { ReduxState } from '../../../redux/reducers';
 import { Toast } from '../../../shared/components/toast';
 import { VitalsOverTime } from './vitalsOverTime';
+import { push } from 'connected-react-router';
 
 interface IProps {
   selectedPatient: Patient;
@@ -95,7 +96,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
 
   const openReadingModal = (): void => {
     onAddPatientRequired(() => {
-      updateState(actionCreators.openReadingModal());
+      dispatch(push(`/readings/new`, { patient: selectedPatient }));
     }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
 

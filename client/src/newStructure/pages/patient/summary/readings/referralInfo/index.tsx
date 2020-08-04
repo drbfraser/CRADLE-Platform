@@ -34,38 +34,42 @@ export const ReferralInfo: React.FC<IProps> = ({
 }) => {
   const classes = useStyles();
 
-  return referral ? (
+  return (
     <div className={classes.container}>
-      <Header
-        assessed={Boolean(followUp)}
-        dateReferred={referral.dateReferred}
-        healthFacilityName={referral.referralHealthFacilityName}
-      />
-      {!followUp && (
-        <div className={classes.comment}>
-          <Typography>
-            <b>Comment:</b>
-          </Typography>
-          <Typography variant="subtitle1">{referral.comment}</Typography>
-        </div>
+      {referral ? (
+        <>
+          <Header
+            assessed={Boolean(followUp)}
+            dateReferred={referral.dateReferred}
+            healthFacilityName={referral.referralHealthFacilityName}
+          />
+          {!followUp && (
+            <div className={classes.comment}>
+              <Typography>
+                <b>Comment:</b>
+              </Typography>
+              <Typography variant="subtitle1">{referral.comment}</Typography>
+            </div>
+          )}
+        </>
+      ) : (
+        <Typography variant="h5" component="h3">
+          No Referral
+        </Typography>
       )}
       <Assessment followUp={followUp} />
-      <FollowUpModal
-        assessment={newAssessment}
-        displayAssessmentModal={displayAssessmentModal}
-        followUp={followUp}
-        patientId={patientId}
-        readingId={readingId}
-        referral={referral}
-        onAddPatientRequired={onAddPatientRequired}
-        updateState={updateState}
-      />
-    </div>
-  ) : (
-    <div className={classes.container}>
-      <Typography variant="h5" component="h3">
-        No Referral
-      </Typography>
+      {referral && (
+        <FollowUpModal
+          assessment={newAssessment}
+          displayAssessmentModal={displayAssessmentModal}
+          followUp={followUp}
+          patientId={patientId}
+          readingId={readingId}
+          referral={referral}
+          onAddPatientRequired={onAddPatientRequired}
+          updateState={updateState}
+        />
+      )}
     </div>
   );
 };

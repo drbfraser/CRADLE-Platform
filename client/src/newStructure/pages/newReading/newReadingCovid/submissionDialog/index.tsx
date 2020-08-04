@@ -4,6 +4,8 @@ import React from 'react';
 
 interface IProps {
   open: boolean;
+  patientExist: boolean;
+  readingCreated: boolean;
   handleDialogClose: any;
 }
 
@@ -15,13 +17,24 @@ export default function SubmissionDialog(props: IProps) {
       aria-labelledby="submit-dialog-title"
       aria-describedby="submit-dialog-description"
       content={
-        <DialogContentText id="submit-dialog-description">
-          Patient and Reading Created Successfully
-        </DialogContentText>
+        <>
+          {props.readingCreated ? (
+            <DialogContentText id="alert-dialog-description">
+              {props.patientExist
+                ? `Reading Created Successfully!`
+                : `Patient and Reading Created Successfully!`}
+            </DialogContentText>
+          ) : (
+            <DialogContentText id="alert-dialog-description">
+              Error! Patient reading not created.
+            </DialogContentText>
+          )}
+        </>
       }
-      title="Submitted!!"
+      title={props.readingCreated ? `Submitted` : `FAILED`}
       primaryAction={{
-        children: `Ok!`,
+        children: props.readingCreated ? `Ok!` : `Take Reading Again`,
+        value: props.readingCreated ? `ok` : `redo`,
         onClick: props.handleDialogClose,
       }}
     />

@@ -12,16 +12,16 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       '& > *': {
-        margin: theme.spacing(2),
+        margin: theme.spacing(1),
       },
     },
     formField: {
-      margin: theme.spacing(2),
+      margin: theme.spacing(1),
       minWidth: '22ch',
       width: '90%',
     },
     formFieldDM: {
-      margin: theme.spacing(2),
+      margin: theme.spacing(1),
       minWidth: '48ch',
       minHeight: '15ch',
     },
@@ -41,7 +41,7 @@ const Page: React.FC<IProps> = (props) => {
   return (
     <Paper
       style={{
-        padding: '35px 25px',
+        padding: '10px 25px',
         borderRadius: '15px',
         height: '100%',
       }}>
@@ -57,7 +57,7 @@ const Page: React.FC<IProps> = (props) => {
       <h3
         hidden={props.urineTest.enabled}
         style={{ color: '#9E9E9E', fontSize: '14px' }}>
-        Urine Test Will Not Be Submitted
+        Urine test will not be submitted
       </h3>
 
       <form className={classes.root} autoComplete="off">
@@ -69,13 +69,13 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.leukocytes}
               name={'leukocytes'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
@@ -85,13 +85,13 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.nitrites}
               name={'nitrites'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
@@ -101,13 +101,13 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.glucose}
               name={'glucose'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
@@ -117,13 +117,13 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.protein}
               name={'protein'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
           <FormControl className={classes.formField}>
@@ -133,13 +133,13 @@ const Page: React.FC<IProps> = (props) => {
               value={props.urineTest.blood}
               name={'blood'}
               onChange={props.onChange}
-              required
+              required={props.urineTest.enabled}
               select
               variant="outlined">
-              <MenuItem value={'m'}>NAD</MenuItem>
-              <MenuItem value={'p'}>+</MenuItem>
-              <MenuItem value={'pp'}>++</MenuItem>
-              <MenuItem value={'ppp'}>+++</MenuItem>
+              <MenuItem value={'NAD'}>NAD</MenuItem>
+              <MenuItem value={'+'}>+</MenuItem>
+              <MenuItem value={'++'}>++</MenuItem>
+              <MenuItem value={'+++'}>+++</MenuItem>
             </TextField>
           </FormControl>
         </FormControl>

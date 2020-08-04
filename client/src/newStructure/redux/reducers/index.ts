@@ -5,6 +5,10 @@ import {
 } from '../reducers/healthFacilities';
 import { History, createBrowserHistory } from 'history';
 import {
+  NewReadingStatusState,
+  newReadingStatusReducer,
+} from '../reducers/newReadingStatus';
+import {
   PatientStatisticsState,
   patientStatisticsReducer,
 } from '../reducers/patientStatistics';
@@ -21,6 +25,7 @@ import { connectRouter } from 'connected-react-router';
 export type ReduxState = {
   chat: ChatState;
   healthFacilities: HealthFacilitiesState;
+  newReadingStatus: NewReadingStatusState;
   reading: ReadingState;
   patients: PatientsState;
   patientStatistics: PatientStatisticsState;
@@ -33,9 +38,10 @@ const createRootReducer = (history: History) => {
   return combineReducers({
     chat: chatReducer,
     healthFacilities: healthFacilitiesReducer,
-    reading: readingReducer,
+    newReadingStatus: newReadingStatusReducer,
     patients: patientsReducer,
     patientStatistics: patientStatisticsReducer,
+    reading: readingReducer,
     router: connectRouter(history),
     statistics: statisticsReducer,
     user: userReducer,

@@ -70,6 +70,10 @@ enum PatientsActionEnum {
   UPDATE_ASSESSMENT_ERROR = 'patients/UPDATE_ASSESSMENT_ERROR',
   CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME = 'patients/CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME',
   UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE = 'patients/UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE',
+  DOES_PATIENT_EXIST = 'patients/DOES_PATIENT_EXIST',
+  DOES_PATIENT_EXIST_ERROR = 'patients/DOES_PATIENT_EXIST_ERROR',
+  AFTER_DOES_PATIENT_EXIST = 'patients/AFTER_DOES_PATIENT_EXIST',
+  ADD_NEW_PATIENT_NEW_API = 'patients/ADD_NEW_PATIENT_NEW_API',
 }
 
 type PageNumberPayload = { pageNumber: number };
@@ -203,7 +207,19 @@ type PatientsAction =
     }
   | { type: PatientsActionEnum.UPDATE_ASSESSMENT_ERROR; payload: ErrorPayload }
   | { type: PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME }
-  | { type: PatientsActionEnum.UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE };
+  | { type: PatientsActionEnum.UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE }
+  | { type: PatientsActionEnum.DOES_PATIENT_EXIST; payload: { data: any } }
+  | {
+      type: PatientsActionEnum.DOES_PATIENT_EXIST_ERROR;
+      payload: ErrorPayload;
+    }
+  | {
+      type: PatientsActionEnum.AFTER_DOES_PATIENT_EXIST;
+    }
+  | {
+      type: PatientsActionEnum.ADD_NEW_PATIENT_NEW_API;
+      payload: { data: any };
+    };
 
 export const clearGetPatientError = (): Callback<Dispatch, PatientsAction> => {
   return (dispatch: Dispatch): PatientsAction => {
@@ -581,6 +597,20 @@ export const updateAssessment = ({
   };
 };
 
+export const doesPatientExist = (patientId: any) => {
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.PATIENTS}/${patientId}`,
+    onSuccess: ({ data }: any): PatientsAction => ({
+      type: PatientsActionEnum.DOES_PATIENT_EXIST,
+      payload: { data },
+    }),
+    onError: ({ message }: ServerError): PatientsAction => ({
+      type: PatientsActionEnum.DOES_PATIENT_EXIST_ERROR,
+      payload: { error: message },
+    }),
+  });
+};
+
 export const clearUpdateAssessmentOutcome = (): PatientsAction => ({
   type: PatientsActionEnum.CLEAR_UPDATE_ASSESSMENT_REQUEST_OUTCOME,
 });
@@ -589,9 +619,29 @@ export const updateTableDataOnSelectedPatientChange = (): PatientsAction => ({
   type: PatientsActionEnum.UPDATE_TABLE_DATA_ON_SELECTED_PATIENT_CHANGE,
 });
 
+export const afterDoesPatientExist = (): PatientsAction => ({
+  type: PatientsActionEnum.AFTER_DOES_PATIENT_EXIST,
+});
+
+export const addPatientNew = (patient: any) => {
+  return serverRequestActionCreator({
+    endpoint: `${Endpoints.PATIENTS}`,
+    method: Methods.POST,
+    data: patient,
+    onSuccess: () => ({
+      type: PatientsActionEnum.ADD_NEW_PATIENT_NEW_API,
+    }),
+    onError: ({ message }: ServerError) => ({
+      type: PatientsActionEnum.GET_PATIENT_ERROR,
+      payload: { message },
+    }),
+  });
+};
+
 export type PatientsState = {
   addedFromGlobalSearch: boolean;
   addingFromGlobalSearchError: OrNull<string>;
+  existingPatient: any;
   error: OrNull<string>;
   success: OrNull<string>;
   preventFetch: boolean;
@@ -599,6 +649,7 @@ export type PatientsState = {
   patientUpdated: boolean;
   globalSearch: boolean;
   globalSearchPatientsList: OrNull<Array<GlobalSearchPatient>>;
+  patientExist: boolean;
   patientsList: OrNull<any>;
   referralsTablePatientsList: OrNull<Array<Patient>>;
   isLoading: boolean;
@@ -615,6 +666,7 @@ export type PatientsState = {
 const initialState: PatientsState = {
   addedFromGlobalSearch: false,
   addingFromGlobalSearchError: null,
+  existingPatient: null,
   error: null,
   success: null,
   preventFetch: false,
@@ -622,6 +674,7 @@ const initialState: PatientsState = {
   patientUpdated: false,
   globalSearch: false,
   globalSearchPatientsList: null,
+  patientExist: false,
   patientsList: null,
   referralsTablePatientsList: null,
   isLoading: false,
@@ -967,6 +1020,31 @@ export const patientsReducer = (
             }
           ) ?? [],
       };
+    case PatientsActionEnum.DOES_PATIENT_EXIST:
+      return {
+        ...state,
+        existingPatient: action.payload.data,
+        patientExist: true,
+      };
+    case PatientsActionEnum.DOES_PATIENT_EXIST_ERROR: {
+      return {
+        ...state,
+        patientExist: false,
+      };
+    }
+    case PatientsActionEnum.AFTER_DOES_PATIENT_EXIST: {
+      return {
+        ...state,
+        existingPatient: null,
+        patientExist: false,
+      };
+    }
+    case PatientsActionEnum.ADD_NEW_PATIENT_NEW_API: {
+      return {
+        ...state,
+        newPatientAdded: true,
+      };
+    }
     default:
       return state;
   }

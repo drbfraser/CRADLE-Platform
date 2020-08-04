@@ -7,9 +7,10 @@ export const useNewAssessment = () => {
     treatmentOP: '',
     medPrescribed: '',
     InstructionFollow: '',
+    enabled: false,
   });
   const handleChangeAssessment = (e: any) => {
-    if (e.target.name == 'enabled') {
+    if (e.target.name === `enabled`) {
       setAssessment({
         ...assessment,
         [e.target.name]: e.target.checked,
@@ -21,5 +22,17 @@ export const useNewAssessment = () => {
       });
     }
   };
-  return { assessment, handleChangeAssessment };
+  const resetValueAssessment = (reset: boolean) => {
+    if (reset) {
+      setAssessment({
+        specialInvestigations: '',
+        finalDiagnosis: '',
+        treatmentOP: '',
+        medPrescribed: '',
+        InstructionFollow: '',
+        enabled: false,
+      });
+    }
+  };
+  return { assessment, handleChangeAssessment, resetValueAssessment };
 };

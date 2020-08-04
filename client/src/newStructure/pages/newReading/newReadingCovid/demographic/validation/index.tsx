@@ -26,7 +26,7 @@ export const validateInput = (name: any, value: any) => {
   }
   switch (name) {
     case 'patientInitial':
-      if (value.length > 4 || hasNumber(value) || value.length == 0) {
+      if (value.length > 4 || hasNumber(value) || value.length === 0) {
         patientError.patientInitialError = true;
       }
       break;
@@ -38,11 +38,13 @@ export const validateInput = (name: any, value: any) => {
     case 'dob':
       if (age > 65 || age < 15) {
         patientError.dobError = true;
+        patientError.patientAgeError = true;
       }
       break;
     case 'patientAge':
       if (value > 65 || value < 15) {
         patientError.patientAgeError = true;
+        patientError.dobError = true;
       }
       break;
 

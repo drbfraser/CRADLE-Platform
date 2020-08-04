@@ -9,7 +9,7 @@ export const Symptoms: React.FC<IProps> = ({ symptoms }) => {
   const classes = useStyles();
 
   const filteredSymptoms = React.useMemo((): Array<string> => {
-    return (symptoms ?? [])
+    return (symptoms || [])
       .map((symptom: string): string => {
         const trimmedSymptom = symptom.trim();
         return `${trimmedSymptom[0].toUpperCase()}${trimmedSymptom

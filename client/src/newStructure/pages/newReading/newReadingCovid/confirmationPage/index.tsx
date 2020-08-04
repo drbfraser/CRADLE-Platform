@@ -1,9 +1,8 @@
-import React from 'react';
-
 import { Paper, TextField } from '@material-ui/core';
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { GESTATIONAL_AGE_UNITS } from '../../patientInfoForm';
+import React from 'react';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,13 +26,49 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-
+const getSymptomsMapping = (symptoms: any) => {
+  switch (symptoms) {
+    case 'none':
+      return 'NONE';
+    case 'headache':
+      return 'HEADACHE';
+    case 'bleeding':
+      return 'BLEEDING';
+    case 'blurredVision':
+      return 'BLURRED VISION';
+    case 'feverish':
+      return 'FEVERISH';
+    case 'abdominalPain':
+      return 'ABDOMINAL PAIN';
+    case 'unwell':
+      return 'UNWELL';
+    case 'cough':
+      return 'COUGH';
+    case 'shortnessBreath':
+      return 'SHORTNESS of BREATH';
+    case 'soreThroat':
+      return 'SORE THROAT';
+    case 'muscleAche':
+      return 'MUSCLE ACHE';
+    case 'fatigue':
+      return 'FATIGUE';
+    case 'lossOfSense':
+      return 'LOSS of SENSE';
+    case 'lossOfTaste':
+      return 'LOSS of TASTE';
+    case 'lossOfSmell':
+      return 'LOSS of SMELL';
+    default:
+      return '';
+  }
+};
 interface IProps {
   patient: any;
   symptoms: any;
   vitals: any;
   assessment: any;
   urineTest: any;
+  isPatientExisting: any;
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -44,27 +79,13 @@ const Page: React.FC<IProps> = (props) => {
     let stringValue = '';
     for (const [key, value] of Object.entries(props.symptoms)) {
       if (value === true) {
-        stringValue += key + ', ';
+        const pushValue = getSymptomsMapping(key);
+        stringValue += pushValue + ',  ';
       }
     }
     setSymptomsString(stringValue);
-  }, []);
+  }, [props.symptoms]);
 
-  const getUrineSign = (key: string) => {
-    if (key === 'm') {
-      return '-';
-    }
-    if (key === 'p') {
-      return '+';
-    }
-    if (key === 'pp') {
-      return '++';
-    }
-    if (key === 'ppp') {
-      return '+++';
-    }
-    return '';
-  };
   return (
     <Paper
       style={{
@@ -76,104 +97,134 @@ const Page: React.FC<IProps> = (props) => {
         <b>Confirm Information</b>
       </h1>
       <form className={classes.root} noValidate autoComplete="off">
-        <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>
-          Patient Demographics
-        </h3>
-        <TextField
-          disabled={true}
-          label="Initial"
-          variant="outlined"
-          value={props.patient.patientInitial}
-        />
-        <TextField
-          disabled={true}
-          label="Id"
-          variant="outlined"
-          value={props.patient.patientId}
-        />
-        <TextField
-          disabled={true}
-          label="Name"
-          variant="outlined"
-          value={props.patient.patientName}
-        />
-        <TextField
-          disabled={true}
-          label="House Hold"
-          variant="outlined"
-          value={props.patient.household}
-        />
-        <TextField
-          disabled={true}
-          label="Age"
-          variant="outlined"
-          value={props.patient.patientAge}
-        />
-        <TextField
-          disabled={true}
-          label="Pregnant"
-          variant="outlined"
-          value={props.patient.isPregnant}
-        />
-        <TextField
-          disabled={true}
-          label="Gestational Age"
-          variant="outlined"
-          value={props.patient.gestationalAgeValue}
-        />
-        <TextField
-          disabled={true}
-          label="Gestational Age"
-          variant="outlined"
-          value={
-            props.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
-              ? 'Weeks'
-              : 'Months'
-          }
-        />
-        <TextField
-          disabled={true}
-          label="Zone"
-          variant="outlined"
-          value={props.patient.zone}
-        />
-        <TextField
-          disabled={true}
-          label="DOB"
-          variant="outlined"
-          value={props.patient.dob}
-        />
-        <TextField
-          disabled={true}
-          label="Village Number"
-          variant="outlined"
-          value={props.patient.villageNumber}
-        />
-        <TextField
-          disabled={true}
-          label="Drug History"
-          variant="outlined"
-          value={props.patient.drugHistory}
-        />
-        <TextField
-          disabled={true}
-          label="Medical History"
-          variant="outlined"
-          value={props.patient.medicalHistory}
-        />
+        {!props.isPatientExisting ? (
+          <>
+            <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>
+              Patient Demographics
+            </h3>
+            <TextField
+              disabled={props.patient.patientInitial ? false : true}
+              InputProps={{
+                readOnly: props.patient.patientInitial ? true : false,
+              }}
+              label="Initial"
+              variant="outlined"
+              value={props.patient.patientInitial}
+            />
+            <TextField
+              disabled={props.patient.patientId ? false : true}
+              InputProps={{
+                readOnly: props.patient.patientId ? true : false,
+              }}
+              label="Id"
+              variant="outlined"
+              value={props.patient.patientId}
+            />
+            <TextField
+              disabled={props.patient.household ? false : true}
+              InputProps={{
+                readOnly: props.patient.household ? true : false,
+              }}
+              label="Household Number"
+              variant="outlined"
+              value={props.patient.household}
+            />
+            <TextField
+              disabled={props.patient.patientAge ? false : true}
+              InputProps={{
+                readOnly: props.patient.patientAge ? true : false,
+              }}
+              label="Age"
+              variant="outlined"
+              value={props.patient.patientAge}
+            />
+            <TextField
+              disabled={props.patient.isPregnant ? false : true}
+              InputProps={{
+                readOnly: props.patient.isPregnant ? true : false,
+              }}
+              label="Pregnant"
+              variant="outlined"
+              value={props.patient.isPregnant}
+            />
+            <TextField
+              disabled={props.patient.gestationalAgeValue ? false : true}
+              InputProps={{
+                readOnly: props.patient.gestationalAgeValue ? true : false,
+              }}
+              label="Gestational Age"
+              variant="outlined"
+              value={props.patient.gestationalAgeValue}
+            />
+            <TextField
+              disabled={props.patient.gestationalAgeUnit ? false : true}
+              InputProps={{
+                readOnly: props.patient.gestationalAgeUnit ? true : false,
+              }}
+              label="Gestational Unit"
+              variant="outlined"
+              value={
+                props.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
+                  ? 'Weeks'
+                  : 'Months'
+              }
+            />
+            <TextField
+              disabled={props.patient.zone ? false : true}
+              InputProps={{
+                readOnly: props.patient.zone ? true : false,
+              }}
+              label="Zone"
+              variant="outlined"
+              value={props.patient.zone}
+            />
+            <TextField
+              disabled={props.patient.dob ? false : true}
+              InputProps={{
+                readOnly: props.patient.dob ? true : false,
+              }}
+              label="DOB"
+              variant="outlined"
+              value={props.patient.dob}
+            />
+            <TextField
+              disabled={props.patient.villageNumber ? false : true}
+              InputProps={{
+                readOnly: props.patient.villageNumber ? true : false,
+              }}
+              label="Village Number"
+              variant="outlined"
+              value={props.patient.villageNumber}
+            />
+            <TextField
+              disabled={props.patient.drugHistory ? false : true}
+              InputProps={{
+                readOnly: props.patient.drugHistory ? true : false,
+              }}
+              label="Drug History"
+              variant="outlined"
+              value={props.patient.drugHistory}
+            />
+            <TextField
+              disabled={props.patient.medicalHistory ? false : true}
+              InputProps={{
+                readOnly: props.patient.medicalHistory ? true : false,
+              }}
+              label="Medical History"
+              variant="outlined"
+              value={props.patient.medicalHistory}
+            />
+          </>
+        ) : (
+          ''
+        )}
 
         <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>Symptoms</h3>
         <TextField
-          disabled={true}
-          className={classes.formFieldDM}
-          multiline
-          rows={4}
-          label="Other Symptoms"
-          variant="outlined"
-          value={props.symptoms.otherSymptoms}
-        />
-        <TextField
-          disabled={true}
+          disabled={symptomsString ? false : true}
+          InputProps={{
+            readOnly: symptomsString ? true : false,
+          }}
           className={classes.formFieldDM}
           multiline
           rows={4}
@@ -181,7 +232,18 @@ const Page: React.FC<IProps> = (props) => {
           variant="outlined"
           value={symptomsString}
         />
-
+        <TextField
+          disabled={props.symptoms.otherSymptoms ? false : true}
+          InputProps={{
+            readOnly: props.symptoms.otherSymptoms ? true : false,
+          }}
+          className={classes.formFieldDM}
+          multiline
+          rows={4}
+          label="Other Symptoms"
+          variant="outlined"
+          value={props.symptoms.otherSymptoms}
+        />
         <h3
           style={{
             color: '#9E9E9E',
@@ -203,86 +265,122 @@ const Page: React.FC<IProps> = (props) => {
           Urine Test
         </h3>
         <TextField
-          disabled={true}
+          disabled={props.vitals.bpSystolic ? false : true}
+          InputProps={{
+            readOnly: props.vitals.bpSystolic ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="bpSystolic"
+          label="Systolic"
           variant="outlined"
           value={props.vitals.bpSystolic}
         />
         <TextField
-          disabled={true}
+          disabled={props.urineTest.leukocytes ? false : true}
+          InputProps={{
+            readOnly: props.urineTest.leukocytes ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="leukocytes"
+          label="Leukocytes"
           variant="outlined"
-          value={getUrineSign(props.urineTest.leukocytes)}
+          value={props.urineTest.leukocytes}
         />
         <TextField
-          disabled={true}
+          disabled={props.vitals.bpDiastolic ? false : true}
+          InputProps={{
+            readOnly: props.vitals.bpDiastolic ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="bpDiastolic"
+          label="Diastolic"
           variant="outlined"
           value={props.vitals.bpDiastolic}
         />
         <TextField
-          disabled={true}
+          disabled={props.urineTest.blood ? false : true}
+          InputProps={{
+            readOnly: props.urineTest.blood ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="blood"
+          label="Blood"
           variant="outlined"
-          value={getUrineSign(props.urineTest.blood)}
+          value={props.urineTest.blood}
         />
         <TextField
-          disabled={true}
+          disabled={props.vitals.heartRateBPM ? false : true}
+          InputProps={{
+            readOnly: props.vitals.heartRateBPM ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="heartRateBPM"
+          label="Heart Rate"
           variant="outlined"
           value={props.vitals.heartRateBPM}
         />
         <TextField
-          disabled={true}
+          disabled={props.urineTest.protein ? false : true}
+          InputProps={{
+            readOnly: props.urineTest.protein ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="protein"
+          label="Protein"
           variant="outlined"
-          value={getUrineSign(props.urineTest.protein)}
+          value={props.urineTest.protein}
         />
         <TextField
-          disabled={true}
+          disabled={props.vitals.respiratoryRate ? false : true}
+          InputProps={{
+            readOnly: props.vitals.respiratoryRate ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="respiratoryRate"
+          label="Respiratory Rate"
           variant="outlined"
           value={props.vitals.respiratoryRate}
         />
         <TextField
-          disabled={true}
+          disabled={props.urineTest.glucose ? false : true}
+          InputProps={{
+            readOnly: props.urineTest.glucose ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="glucose"
+          label="Glucose"
           variant="outlined"
-          value={getUrineSign(props.urineTest.glucose)}
+          value={props.urineTest.glucose}
         />
         <TextField
-          disabled={true}
+          disabled={props.vitals.oxygenSaturation ? false : true}
+          InputProps={{
+            readOnly: props.vitals.oxygenSaturation ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="oxygenSaturation"
+          label="Oxygen Saturation"
           variant="outlined"
           value={props.vitals.oxygenSaturation}
         />
         <TextField
-          disabled={true}
+          disabled={props.urineTest.nitrites ? false : true}
+          InputProps={{
+            readOnly: props.urineTest.nitrites ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="nitrites"
+          label="Nitrites"
           variant="outlined"
-          value={getUrineSign(props.urineTest.nitrites)}
+          value={props.urineTest.nitrites}
         />
         <TextField
-          disabled={true}
+          disabled={props.vitals.temperature ? false : true}
+          InputProps={{
+            readOnly: props.vitals.temperature ? true : false,
+          }}
           className={classes.formFieldDM}
-          label="temperature"
+          label="Temperature"
           variant="outlined"
           value={props.vitals.temperature}
         />
 
         <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>Assessment</h3>
         <TextField
-          disabled={true}
+          disabled={props.assessment.specialInvestigations ? false : true}
+          InputProps={{
+            readOnly: props.assessment.specialInvestigations ? true : false,
+          }}
           className={classes.formFieldDM}
           multiline
           rows={3}
@@ -291,7 +389,10 @@ const Page: React.FC<IProps> = (props) => {
           value={props.assessment.specialInvestigations}
         />
         <TextField
-          disabled={true}
+          disabled={props.assessment.finalDiagnosis ? false : true}
+          InputProps={{
+            readOnly: props.assessment.finalDiagnosis ? true : false,
+          }}
           className={classes.formFieldDM}
           multiline
           rows={3}
@@ -300,16 +401,22 @@ const Page: React.FC<IProps> = (props) => {
           value={props.assessment.finalDiagnosis}
         />
         <TextField
-          disabled={true}
+          disabled={props.assessment.treatmentOP ? false : true}
+          InputProps={{
+            readOnly: props.assessment.treatmentOP ? true : false,
+          }}
           className={classes.formFieldDM}
           multiline
           rows={3}
-          label="Treatement/Operation"
+          label="Treatment/Operation"
           variant="outlined"
           value={props.assessment.treatmentOP}
         />
         <TextField
-          disabled={true}
+          disabled={props.assessment.medPrescribed ? false : true}
+          InputProps={{
+            readOnly: props.assessment.medPrescribed ? true : false,
+          }}
           className={classes.formFieldDM}
           multiline
           rows={3}
@@ -318,11 +425,14 @@ const Page: React.FC<IProps> = (props) => {
           value={props.assessment.medPrescribed}
         />
         <TextField
-          disabled={true}
+          disabled={props.assessment.InstructionFollow ? false : true}
+          InputProps={{
+            readOnly: props.assessment.InstructionFollow ? true : false,
+          }}
           className={classes.formFieldDM}
           multiline
           rows={3}
-          label="Instruction for Follow"
+          label="Instruction for Follow-up"
           variant="outlined"
           value={props.assessment.InstructionFollow}
         />
