@@ -85,10 +85,7 @@ export const useSubmit = ({
         data: Record<string, any>,
         [key, value]: [keyof Patient, Patient[keyof Patient]]
       ): any => {
-        if (
-          key === `readings` ||
-          key === `tableData`
-        ) {
+        if (key === `readings` || key === `tableData`) {
           return data;
         }
 
