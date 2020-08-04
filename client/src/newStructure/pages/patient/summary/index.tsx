@@ -1,3 +1,4 @@
+import { FormStatusEnum, PatientStateEnum } from '../../../enums';
 import { OrNull, OrUndefined, Patient } from '@types';
 import { actionCreators, initialState, reducer } from './reducers';
 import {
@@ -13,7 +14,6 @@ import Grid from '@material-ui/core/Grid';
 import { MedicalInformation } from './medicalInformation';
 import { PageHeader } from './header';
 import { PatientReadings } from './readings';
-import { PatientStateEnum } from '../../../enums';
 import React from 'react';
 import { ReadingModal } from './readingModal';
 import { ReduxState } from '../../../redux/reducers';
@@ -94,9 +94,14 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     }
   }, [action, addedFromGlobalSearch, dispatch, hidePrompt]);
 
-  const openReadingModal = (): void => {
+  const addNewReading = (): void => {
     onAddPatientRequired(() => {
-      dispatch(push(`/readings/new`, { patient: selectedPatient }));
+      dispatch(
+        push(`/readings/new`, {
+          patient: selectedPatient,
+          status: FormStatusEnum.ADD_NEW_READING,
+        })
+      );
     }, `You haven't added this patient to your health facility. You need to do that before you can add a reading. Would like to add this patient?`);
   };
 
@@ -122,7 +127,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
       <div>
         <PageHeader
           title={selectedPatient.patientName}
-          openReadingModal={openReadingModal}
+          addNewReading={addNewReading}
         />
         <Divider />
         <Grid container direction="row" spacing={4}>
@@ -141,11 +146,8 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
           />
         </Grid>
         <PatientReadings
-          assessment={state.assessment}
-          displayAssessmentModal={state.displayAssessmentModal}
           selectedPatient={selectedPatient}
           onAddPatientRequired={onAddPatientRequired}
-          updateState={updateState}
         />
         <ReadingModal
           displayReadingModal={state.displayReadingModal}

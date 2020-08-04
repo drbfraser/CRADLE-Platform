@@ -1,6 +1,5 @@
-import { NewAssessment, Patient, Reading } from '@types';
+import { Patient, Reading } from '@types';
 
-import { Action } from '../reducers';
 import Grid from '@material-ui/core/Grid';
 import { Header } from './header';
 import { Heart } from './heart';
@@ -14,22 +13,16 @@ import { useReadings } from './hooks';
 import { useStyles } from './styles';
 
 interface IProps {
-  assessment: NewAssessment;
-  displayAssessmentModal: boolean;
   selectedPatient: Patient;
   onAddPatientRequired: (
     actionAfterAdding: () => void,
     message: string
   ) => void;
-  updateState: React.Dispatch<Action>;
 }
 
 export const PatientReadings: React.FC<IProps> = ({
-  assessment,
-  displayAssessmentModal,
   selectedPatient,
   onAddPatientRequired,
-  updateState,
 }) => {
   const classes = useStyles();
 
@@ -51,14 +44,10 @@ export const PatientReadings: React.FC<IProps> = ({
                 </div>
               </div>
               <ReferralInfo
-                displayAssessmentModal={displayAssessmentModal}
                 followUp={reading.followup}
-                newAssessment={assessment}
-                patientId={selectedPatient.patientId}
-                readingId={reading.readingId}
                 referral={reading.referral}
+                selectedPatient={selectedPatient}
                 onAddPatientRequired={onAddPatientRequired}
-                updateState={updateState}
               />
             </Paper>
           </Grid>

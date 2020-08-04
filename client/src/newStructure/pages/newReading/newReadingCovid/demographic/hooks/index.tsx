@@ -1,7 +1,29 @@
-import React from 'react';
+import { getNumOfMonths, getNumOfWeeks } from '../../../../../shared/utils';
+
 import { GESTATIONAL_AGE_UNITS } from '../../../patientInfoForm';
-import { validateInput } from '../validation';
+import { GestationalAgeUnitEnum } from '../../../../../enums';
+import { Patient } from '@types';
+import React from 'react';
 import moment from 'moment';
+import { validateInput } from '../validation';
+
+const initializePatientKeys = [
+  `household`,
+  `patientInitial`,
+  `patientId`,
+  `patientName`,
+  `patientSex`,
+  `isPregnant`,
+  `zone`,
+  `villageNumber`,
+  `drugHistory`,
+  `medicalHistory`,
+  `dob?`,
+  `patientAge`,
+  `gestationalAgeValue`,
+  `gestationalAgeValueTimeStamp`,
+  `gestationalAgeUnit`,
+];
 
 export const useNewPatient = () => {
   const [patient, setPatient] = React.useState({
@@ -212,9 +234,42 @@ export const useNewPatient = () => {
       });
     }
   };
+
+  //~~~~~~~ initialize the edited patient ~~~~~~~~~~
+  const initializeEditPatient = (patient: Patient): void => {
+    const initializedPatient = Object.entries(patient).reduce(
+      (
+        initialized: Record<string, any>,
+        [key, value]: [keyof Patient, Patient[keyof Patient]]
+      ): Record<string, any> => {
+        if (initializePatientKeys.includes(key)) {
+          if (key === `patientName`) {
+            initialized.patientInitial = value;
+          }
+          if (key === `gestationalTimestamp`) {
+            initialized.gestationalAgeValueTimestamp = value;
+            initialized.gestationalAgeValue =
+              patient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
+                ? getNumOfWeeks(Number(value))
+                : getNumOfMonths(Number(value));
+          }
+          initialized[key] = value;
+        }
+        return initialized;
+      },
+      {}
+    );
+
+    setPatient((currentPatient) => ({
+      ...currentPatient,
+      ...initializedPatient,
+    }));
+  };
+
   return {
     patient,
     handleChangePatient,
+    initializeEditPatient,
     resetValuesPatient,
   };
 };

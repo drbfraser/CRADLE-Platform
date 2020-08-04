@@ -8,4 +8,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
   comment: {
     marginBlockStart: `${theme.spacing(1.5)}px`,
   },
+  button: {
+    marginBlockStart: `${theme.spacing(2)}px`,
+  },
 }));

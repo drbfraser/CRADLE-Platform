@@ -5,8 +5,10 @@ export const useStyles = makeStyles((theme: Theme) => ({
     padding: theme.spacing(1, 0),
     display: `flex`,
     justifyContent: `space-between`,
-    alignItems: `center`,
     flexWrap: `wrap`,
+    [`& > :first-child`]: {
+      alignSelf: `center`,
+    },
     [`& > :last-child`]: {
       marginInlineStart: `${theme.spacing(7)}px`,
     },

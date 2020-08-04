@@ -1,38 +1,47 @@
-import { FollowUp, NewAssessment, OrNull, Referral } from '@types';
+import { FollowUp, OrNull, Patient, Referral } from '@types';
 
-import { Action } from '../../reducers';
 import { Assessment } from './assessment';
-import { FollowUpModal } from './followupModal';
+import Button from '@material-ui/core/Button';
+import { FormStatusEnum } from '../../../../../enums';
 import { Header } from './header';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
+import { push } from 'connected-react-router';
+import { useDispatch } from 'react-redux';
 import { useStyles } from './styles';
 
 interface IProps {
-  displayAssessmentModal: boolean;
   followUp: OrNull<FollowUp>;
-  newAssessment: NewAssessment;
-  patientId: string;
-  readingId: string;
   referral: OrNull<Referral>;
+  selectedPatient: Patient;
   onAddPatientRequired: (
     actionAfterAdding: () => void,
     message: string
   ) => void;
-  updateState: React.Dispatch<Action>;
 }
 
 export const ReferralInfo: React.FC<IProps> = ({
-  displayAssessmentModal,
   followUp,
-  newAssessment,
-  patientId,
-  readingId,
   referral,
+  selectedPatient,
   onAddPatientRequired,
-  updateState,
 }) => {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
+
+  const manageAssessment = (): void => {
+    onAddPatientRequired((): void => {
+      dispatch(
+        push(`/readings/new`, {
+          patient: selectedPatient,
+          status: followUp
+            ? FormStatusEnum.UPDATE_ASSESSMENT
+            : FormStatusEnum.ADD_ASSESSMENT,
+        })
+      );
+    }, `You haven't added this patient to your health facility. You need to do that before you can edit this patient. Would like to add this patient?`);
+  };
 
   return (
     <div className={classes.container}>
@@ -59,16 +68,13 @@ export const ReferralInfo: React.FC<IProps> = ({
       )}
       <Assessment followUp={followUp} />
       {referral && (
-        <FollowUpModal
-          assessment={newAssessment}
-          displayAssessmentModal={displayAssessmentModal}
-          followUp={followUp}
-          patientId={patientId}
-          readingId={readingId}
-          referral={referral}
-          onAddPatientRequired={onAddPatientRequired}
-          updateState={updateState}
-        />
+        <Button
+          className={classes.button}
+          color="primary"
+          variant="outlined"
+          onClick={manageAssessment}>
+          {followUp ? `Update Assessment` : `Assess`}
+        </Button>
       )}
     </div>
   );

@@ -1,3 +1,10 @@
+export enum FormStatusEnum {
+  ADD_NEW_READING = 1,
+  EDIT_PATIENT_INFORMATION,
+  ADD_ASSESSMENT,
+  UPDATE_ASSESSMENT,
+}
+
 // * Role ids start from 1 to 4 in the order below
 // * Order must be maintained for use in edit user form
 // * in the admin page
