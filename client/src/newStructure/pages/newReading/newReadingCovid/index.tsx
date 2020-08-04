@@ -255,7 +255,7 @@ const Page: React.FC<IProps> = (props) => {
       setBlockBackButton(true);
       setSelectedPatientId(props.patientFromEdit.patientId);
     }
-  }, [props.patientFromEdit, props.formStatus]);
+  }, [initializeEditPatient, props.patientFromEdit, props.formStatus]);
 
   // ~~~~~~~~ Stepper Next button call ~~~~~~~~~~~~~~~~~~
   const handleNext = () => {
