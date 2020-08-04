@@ -1,5 +1,7 @@
 import {
+  calculateShockIndex,
   getLatestReading,
+  getLatestReadingWithReferral,
   getTrafficIcon,
 } from '../../../../../../../../shared/utils';
 
@@ -19,10 +21,14 @@ export const VitalSignBody: React.FC<IProps> = ({
 }: IProps) => {
   const classes = useStyles();
 
-  const status = React.useMemo(
-    (): TrafficLightEnum => getLatestReading(readings).trafficLightStatus,
-    [readings]
-  );
+  const status = React.useMemo((): TrafficLightEnum => {
+    const latestReading = getLatestReading(readings);
+
+    return (
+      getLatestReadingWithReferral(readings)?.trafficLightStatus ??
+      calculateShockIndex(latestReading)
+    );
+  }, [readings]);
 
   return (
     <div className={`${className} ${classes.vitalSign}`}>

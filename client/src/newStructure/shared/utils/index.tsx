@@ -1,15 +1,37 @@
-import { GlobalSearchPatient, OrNull, Patient, Reading } from '@types';
+import {
+  GlobalSearchPatient,
+  OrNull,
+  OrUndefined,
+  Patient,
+  Reading,
+} from '@types';
 
 import { ReactComponent as GreenTraffic } from '../icons/green.svg';
 import { Icon } from 'semantic-ui-react';
 import React from 'react';
 import { ReactComponent as RedTraffic } from '../icons/red.svg';
 import { TrafficLightEnum } from '../../enums';
+import Typography from '@material-ui/core/Typography';
 import { ReactComponent as YellowTraffic } from '../icons/yellow.svg';
 import classes from './styles.module.css';
 import moment from 'moment';
 
 export { v4 as makeUniqueId } from 'uuid';
+
+export const getLatestReadingWithReferral = (
+  readings: Array<Reading>
+): OrUndefined<Reading> => {
+  // * Sort readings in ascending order of date reading was taken
+  // * Therefore, first reading is the last one to be taken
+  return readings
+    .filter((reading: Reading): boolean => Boolean(reading.referral))
+    .sort((reading: Reading, otherReading: Reading): number => {
+      return (
+        getMomentDate(otherReading.dateTimeTaken).valueOf() -
+        getMomentDate(reading.dateTimeTaken).valueOf()
+      );
+    })[0];
+};
 
 export const getTimestampFromWeeks = (weeks: string): number => {
   const gestationalDate = new Date();
@@ -142,7 +164,9 @@ export const sortPatientsByLastReading = (
   );
 };
 
-export const getTrafficIcon = (trafficLightStatus: TrafficLightEnum) => {
+export const getTrafficIcon = (
+  trafficLightStatus: TrafficLightEnum
+): JSX.Element => {
   if (trafficLightStatus === TrafficLightEnum.RED_DOWN) {
     return (
       <div>
@@ -171,8 +195,10 @@ export const getTrafficIcon = (trafficLightStatus: TrafficLightEnum) => {
         <Icon name="arrow down" size="huge" />
       </div>
     );
-  } else {
+  } else if (trafficLightStatus === TrafficLightEnum.GREEN) {
     return <GreenTraffic className={classes.trafficLight} />;
+  } else {
+    return <Typography variant="h5">N/A</Typography>;
   }
 };
 

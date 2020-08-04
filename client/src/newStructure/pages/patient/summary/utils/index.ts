@@ -1,6 +1,5 @@
 import { OrNull, Patient, Reading } from '@types';
-
-import { getMomentDate } from '../../../../shared/utils';
+import { getLatestReading, getMomentDate } from '../../../../shared/utils';
 
 export const average = (monthlyArray: Array<number>): number => {
   return (
@@ -8,15 +7,6 @@ export const average = (monthlyArray: Array<number>): number => {
       return total + value;
     }, 0) / monthlyArray.length
   );
-};
-
-export const getLatestReading = (readings: Array<Reading>): Reading => {
-  const sortedReadings = readings.sort(
-    (a, b) =>
-      getMomentDate(b.dateTimeTaken).valueOf() -
-      getMomentDate(a.dateTimeTaken).valueOf()
-  );
-  return sortedReadings[0];
 };
 
 export const getLatestReadingDateTime = (
