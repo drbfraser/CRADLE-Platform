@@ -128,7 +128,7 @@ const Page: React.FC<IProps> = (props) => {
       const formattedReading = formatReadingDataVHT(
         selectedPatientId,
         symptoms,
-        urineTest,
+        urineTest.enabled ? urineTest : null,
         vitals,
         props.user.userId
       );
@@ -137,7 +137,7 @@ const Page: React.FC<IProps> = (props) => {
       const formattedReading = formatReadingData(
         selectedPatientId,
         symptoms,
-        urineTest,
+        urineTest.enabled ? urineTest : null,
         vitals,
         assessment,
         props.user.userId

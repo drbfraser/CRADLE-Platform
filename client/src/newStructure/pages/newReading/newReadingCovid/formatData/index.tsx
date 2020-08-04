@@ -34,7 +34,7 @@ interface Reading {
     dateAssessed: string;
     healthcareWorkerId: 1;
   };
-  urineTests: {
+  urineTests?: {
     urineTestBlood: string;
     urineTestGlu: string;
     urineTestLeuc: string;
@@ -55,7 +55,7 @@ interface ReadingVHT {
   symptoms: string[];
   dateTimeTaken: string;
   userId: number;
-  urineTests: {
+  urineTests?: {
     urineTestBlood: string;
     urineTestGlu: string;
     urineTestLeuc: string;
@@ -149,38 +149,67 @@ export const formatReadingData = (
   userId: any
 ) => {
   const readingidGenerated = guid();
-  const formattedReading: Reading = new (class implements Reading {
-    bpDiastolic: number = vital.bpDiastolic as number;
-    bpSystolic: number = vital.bpSystolic as number;
-    dateTimeTaken: string = Math.floor(Date.now() / 1000).toString();
-    heartRateBPM: number = vital.heartRateBPM as number;
-    isFlaggedForFollowup: boolean;
-    oxygenSaturation: number = vital.oxygenSaturation as number;
-    patientId: string = patientId as string;
-    readingId: string = readingidGenerated;
-    respiratoryRate: number = vital.respiratoryRate as number;
-    symptoms: string[] = formatSymptoms(symptoms);
-    temperature: number = vital.temperature as number;
-    userId: number = userId;
-    followup = {
-      diagnosis: assessment.finalDiagnosis,
-      followupInstructions: assessment.InstructionFollow,
-      followupNeeded: assessment.enabled ? true : false,
-      medicationPrescribed: assessment.medPrescribed,
-      readingId: readingidGenerated,
-      specialInvestigations: assessment.specialInvestigations,
-      treatment: assessment.treatmentOP,
-      dateAssessed: Math.floor(Date.now() / 1000).toString(),
-      healthcareWorkerId: userId,
-    };
-    urineTests = {
-      urineTestBlood: urineTest.blood,
-      urineTestGlu: urineTest.glucose,
-      urineTestLeuc: urineTest.leukocytes,
-      urineTestNit: urineTest.nitrites,
-      urineTestPro: urineTest.protein,
-    };
-  })();
+  let formattedReading: Reading;
+  if (urineTest) {
+    formattedReading = new (class implements Reading {
+      bpDiastolic: number = vital.bpDiastolic as number;
+      bpSystolic: number = vital.bpSystolic as number;
+      dateTimeTaken: string = Math.floor(Date.now() / 1000).toString();
+      heartRateBPM: number = vital.heartRateBPM as number;
+      isFlaggedForFollowup: boolean;
+      oxygenSaturation: number = vital.oxygenSaturation as number;
+      patientId: string = patientId as string;
+      readingId: string = readingidGenerated;
+      respiratoryRate: number = vital.respiratoryRate as number;
+      symptoms: string[] = formatSymptoms(symptoms);
+      temperature: number = vital.temperature as number;
+      userId: number = userId;
+      followup = {
+        diagnosis: assessment.finalDiagnosis,
+        followupInstructions: assessment.InstructionFollow,
+        followupNeeded: assessment.enabled ? true : false,
+        medicationPrescribed: assessment.medPrescribed,
+        readingId: readingidGenerated,
+        specialInvestigations: assessment.specialInvestigations,
+        treatment: assessment.treatmentOP,
+        dateAssessed: Math.floor(Date.now() / 1000).toString(),
+        healthcareWorkerId: userId,
+      };
+      urineTests = {
+        urineTestBlood: urineTest.blood,
+        urineTestGlu: urineTest.glucose,
+        urineTestLeuc: urineTest.leukocytes,
+        urineTestNit: urineTest.nitrites,
+        urineTestPro: urineTest.protein,
+      };
+    })();
+  } else {
+    formattedReading = new (class implements Reading {
+      bpDiastolic: number = vital.bpDiastolic as number;
+      bpSystolic: number = vital.bpSystolic as number;
+      dateTimeTaken: string = Math.floor(Date.now() / 1000).toString();
+      heartRateBPM: number = vital.heartRateBPM as number;
+      isFlaggedForFollowup: boolean;
+      oxygenSaturation: number = vital.oxygenSaturation as number;
+      patientId: string = patientId as string;
+      readingId: string = readingidGenerated;
+      respiratoryRate: number = vital.respiratoryRate as number;
+      symptoms: string[] = formatSymptoms(symptoms);
+      temperature: number = vital.temperature as number;
+      userId: number = userId;
+      followup = {
+        diagnosis: assessment.finalDiagnosis,
+        followupInstructions: assessment.InstructionFollow,
+        followupNeeded: assessment.enabled ? true : false,
+        medicationPrescribed: assessment.medPrescribed,
+        readingId: readingidGenerated,
+        specialInvestigations: assessment.specialInvestigations,
+        treatment: assessment.treatmentOP,
+        dateAssessed: Math.floor(Date.now() / 1000).toString(),
+        healthcareWorkerId: userId,
+      };
+    })();
+  }
   return formattedReading;
 };
 
@@ -192,26 +221,44 @@ export const formatReadingDataVHT = (
   userId: any
 ) => {
   const readingidGenerated = guid();
-  const formattedReading: ReadingVHT = new (class implements ReadingVHT {
-    bpDiastolic: number = vital.bpDiastolic as number;
-    bpSystolic: number = vital.bpSystolic as number;
-    dateTimeTaken: string = Math.floor(Date.now() / 1000).toString();
-    heartRateBPM: number = vital.heartRateBPM as number;
-    isFlaggedForFollowup: boolean;
-    oxygenSaturation: number = vital.oxygenSaturation as number;
-    patientId: string = patientId as string;
-    readingId: string = readingidGenerated;
-    respiratoryRate: number = vital.respiratoryRate as number;
-    symptoms: string[] = formatSymptoms(symptoms);
-    temperature: number = vital.temperature as number;
-    userId: number = userId;
-    urineTests = {
-      urineTestBlood: urineTest.blood,
-      urineTestGlu: urineTest.glucose,
-      urineTestLeuc: urineTest.leukocytes,
-      urineTestNit: urineTest.nitrites,
-      urineTestPro: urineTest.protein,
-    };
-  })();
+  let formattedReading: ReadingVHT;
+  if (urineTest) {
+    formattedReading = new (class implements ReadingVHT {
+      bpDiastolic: number = vital.bpDiastolic as number;
+      bpSystolic: number = vital.bpSystolic as number;
+      dateTimeTaken: string = Math.floor(Date.now() / 1000).toString();
+      heartRateBPM: number = vital.heartRateBPM as number;
+      isFlaggedForFollowup: boolean;
+      oxygenSaturation: number = vital.oxygenSaturation as number;
+      patientId: string = patientId as string;
+      readingId: string = readingidGenerated;
+      respiratoryRate: number = vital.respiratoryRate as number;
+      symptoms: string[] = formatSymptoms(symptoms);
+      temperature: number = vital.temperature as number;
+      userId: number = userId;
+      urineTests = {
+        urineTestBlood: urineTest.blood,
+        urineTestGlu: urineTest.glucose,
+        urineTestLeuc: urineTest.leukocytes,
+        urineTestNit: urineTest.nitrites,
+        urineTestPro: urineTest.protein,
+      };
+    })();
+  } else {
+    formattedReading = new (class implements ReadingVHT {
+      bpDiastolic: number = vital.bpDiastolic as number;
+      bpSystolic: number = vital.bpSystolic as number;
+      dateTimeTaken: string = Math.floor(Date.now() / 1000).toString();
+      heartRateBPM: number = vital.heartRateBPM as number;
+      isFlaggedForFollowup: boolean;
+      oxygenSaturation: number = vital.oxygenSaturation as number;
+      patientId: string = patientId as string;
+      readingId: string = readingidGenerated;
+      respiratoryRate: number = vital.respiratoryRate as number;
+      symptoms: string[] = formatSymptoms(symptoms);
+      temperature: number = vital.temperature as number;
+      userId: number = userId;
+    })();
+  }
   return formattedReading;
 };
