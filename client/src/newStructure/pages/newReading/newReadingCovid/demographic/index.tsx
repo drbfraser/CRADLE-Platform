@@ -24,6 +24,11 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: '22ch',
       width: '31.9%',
     },
+    expandedFormField: {
+      margin: theme.spacing(1),
+      minWidth: '22ch',
+      width: '65%',
+    },
     formFieldSplitLeft: {
       margin: theme.spacing(1),
       width: '15%',
@@ -51,6 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface IProps {
   patient: any;
+  showPatientId: boolean;
   onChange: any;
 }
 
@@ -59,7 +65,7 @@ const Page: React.FC<IProps> = (props) => {
   const [alignment, setAlignment] = React.useState<string | null>('left');
 
   const handleAlignment = (
-    event: React.MouseEvent<HTMLElement>,
+    _: React.MouseEvent<HTMLElement>,
     newAlignment: string | null
   ) => {
     setAlignment(newAlignment);
@@ -92,24 +98,29 @@ const Page: React.FC<IProps> = (props) => {
             }
           />
         </FormControl>
-        <FormControl className={classes.formField}>
-          <TextField
-            error={props.patient.patientIdError}
-            label={'Patient ID'}
-            name="patientId"
-            value={props.patient.patientId}
-            onChange={props.onChange}
-            required={true}
-            type={'text'}
-            variant="outlined"
-            helperText={
-              props.patient.patientIdError
-                ? 'Id is too long or too short and must be a number.'
-                : ''
-            }
-          />
-        </FormControl>
-        <FormControl className={classes.formField}>
+        {props.showPatientId && (
+          <FormControl className={classes.formField}>
+            <TextField
+              error={props.patient.patientIdError}
+              label={'Patient ID'}
+              name="patientId"
+              value={props.patient.patientId}
+              onChange={props.onChange}
+              required={true}
+              type={'text'}
+              variant="outlined"
+              helperText={
+                props.patient.patientIdError
+                  ? 'Id is too long or too short and must be a number.'
+                  : ''
+              }
+            />
+          </FormControl>
+        )}
+        <FormControl
+          className={
+            props.showPatientId ? classes.formField : classes.expandedFormField
+          }>
           <TextField
             label={'Household Number'}
             id="component-outlined"

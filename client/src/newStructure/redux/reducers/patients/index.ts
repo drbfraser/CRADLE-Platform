@@ -1,17 +1,20 @@
 import {
   Callback,
-  EditedPatient,
   FollowUp,
   GlobalSearchPatient,
   NewAssessment,
   OrNull,
-  OrUndefined,
   Patient,
   Reading,
   Referral,
   ServerError,
 } from '@types';
 import { EndpointEnum, Endpoints } from '../../../server/endpoints';
+import {
+  GestationalAgeUnitEnum,
+  PatientStateEnum,
+  SexEnum,
+} from '../../../enums';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 import {
   calculateShockIndex,
@@ -20,7 +23,7 @@ import {
 
 import { Dispatch } from 'redux';
 import { Methods } from '../../../server/methods';
-import { PatientStateEnum } from '../../../enums';
+import { formatPatientData } from '../../../pages/newReading/newReadingCovid/formatData';
 import { getPatientsWithReferrals } from './utils';
 import { goBack } from 'connected-react-router';
 
@@ -84,7 +87,7 @@ type ErrorPayload = { error: string };
 
 type PatientIdPayload = { patientId: string };
 
-type PatientsAction =
+export type PatientsAction =
   | { type: PatientsActionEnum.GET_PATIENT_REQUESTED }
   | {
       type: PatientsActionEnum.GET_PATIENT_SUCCESS;
@@ -158,7 +161,7 @@ type PatientsAction =
   | { type: PatientsActionEnum.UPDATE_PATIENT_REQUESTED }
   | {
       type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS;
-      payload: { updatedPatient: EditedPatient };
+      payload: { updatedPatient: ReturnType<typeof formatPatientData> };
     }
   | {
       type: PatientsActionEnum.UPDATE_PATIENT_ERROR;
@@ -238,7 +241,7 @@ export const clearGetReferralsTablePatientsError = (): PatientsAction => ({
   type: PatientsActionEnum.CLEAR_GET_REFERRALS_TABLE_PATIENTS_ERROR,
 });
 
-export const clearUpdatePatientRequestOutcome = (): PatientsAction => ({
+export const clearUpdatePatientOutcome = (): PatientsAction => ({
   type: PatientsActionEnum.CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME,
 });
 
@@ -409,18 +412,19 @@ const updatePatientRequested = (): PatientsAction => ({
   type: PatientsActionEnum.UPDATE_PATIENT_REQUESTED,
 });
 
-export const updatePatient = (
-  patientId: string,
-  data: Omit<EditedPatient, 'patientId' | 'gestationalTimestamp'> & {
-    gestationalTimestamp: OrUndefined<number>;
-  }
-): Callback<Dispatch, ServerRequestAction> => {
+export interface IUpdatePatientArgs {
+  data: ReturnType<typeof formatPatientData>;
+}
+
+export const updatePatient = ({
+  data,
+}: IUpdatePatientArgs): Callback<Dispatch, ServerRequestAction> => {
   return (dispatch: Dispatch) => {
     dispatch(updatePatientRequested());
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${EndpointEnum.PATIENTS}/${patientId}${EndpointEnum.INFO}`,
+        endpoint: `${EndpointEnum.PATIENTS}/${data.patientId}${EndpointEnum.INFO}`,
         method: Methods.PUT,
         data,
         onSuccess: (): PatientsAction => ({
@@ -428,8 +432,7 @@ export const updatePatient = (
           payload: {
             updatedPatient: {
               ...data,
-              gestationalTimestamp: data.gestationalTimestamp ?? Date.now(),
-              patientId,
+              gestationalTimestamp: data.gestationalTimestamp * 1000,
             },
           },
         }),
@@ -510,7 +513,7 @@ const createAssessmentRequested = (): PatientsAction => ({
   type: PatientsActionEnum.CREATE_ASSESSMENT_REQUESTED,
 });
 
-interface ICreateAssessmentArgs {
+export interface ICreateAssessmentArgs {
   data: NewAssessment;
   readingId: string;
   userId: number;
@@ -559,7 +562,7 @@ const updateAssessmentRequested = (): PatientsAction => ({
   type: PatientsActionEnum.UPDATE_ASSESSMENT_REQUESTED,
 });
 
-interface IUpdateAssessmentArgs extends ICreateAssessmentArgs {
+export interface IUpdateAssessmentArgs extends ICreateAssessmentArgs {
   data: NewAssessment & { id: number };
 }
 
@@ -743,8 +746,11 @@ export const patientsReducer = (
         success: `Patient updated successfully!`,
         patientUpdated: true,
         patient: {
-          ...state.patient,
-          ...(action.payload.updatedPatient as Patient),
+          ...(state.patient as Patient),
+          ...action.payload.updatedPatient,
+          gestationalAgeUnit: action.payload.updatedPatient
+            .gestationalAgeUnit as GestationalAgeUnitEnum,
+          patientSex: action.payload.updatedPatient.patientSex as SexEnum,
           readings: state.patient?.readings ?? [],
         },
         isLoading: false,

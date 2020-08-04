@@ -1,17 +1,19 @@
 import { FollowUp, OrNull, Patient, Referral } from '@types';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Assessment } from './assessment';
 import Button from '@material-ui/core/Button';
 import { FormStatusEnum } from '../../../../../enums';
 import { Header } from './header';
 import React from 'react';
+import { ReduxState } from 'src/newStructure/redux/reducers';
 import Typography from '@material-ui/core/Typography';
 import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
 import { useStyles } from './styles';
 
 interface IProps {
   followUp: OrNull<FollowUp>;
+  readingId: string;
   referral: OrNull<Referral>;
   selectedPatient: Patient;
   onAddPatientRequired: (
@@ -22,11 +24,18 @@ interface IProps {
 
 export const ReferralInfo: React.FC<IProps> = ({
   followUp,
+  readingId,
   referral,
   selectedPatient,
   onAddPatientRequired,
 }) => {
   const classes = useStyles();
+
+  const userId = useSelector(
+    ({ user }: ReduxState): OrNull<number> => {
+      return user.current.data?.userId ?? null;
+    }
+  );
 
   const dispatch = useDispatch();
 
@@ -36,6 +45,8 @@ export const ReferralInfo: React.FC<IProps> = ({
         push(`/readings/new`, {
           assessment: followUp,
           patient: selectedPatient,
+          readingId,
+          userId,
           status: followUp
             ? FormStatusEnum.UPDATE_ASSESSMENT
             : FormStatusEnum.ADD_ASSESSMENT,

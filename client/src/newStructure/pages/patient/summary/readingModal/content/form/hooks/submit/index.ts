@@ -87,7 +87,6 @@ export const useSubmit = ({
       ): any => {
         if (
           key === `readings` ||
-          key === `needsAssessment` ||
           key === `tableData`
         ) {
           return data;

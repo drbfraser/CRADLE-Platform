@@ -248,16 +248,14 @@ export const useNewPatient = () => {
           if (key === `patientName`) {
             initialized.patientInitial = value;
           }
-          if (key === `gestationalAgeValue`) {
-            initialized.gestationalAgeValue =
-              patient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
-                ? getNumOfWeeks(Number(patient.gestationalTimestamp))
-                : getNumOfMonths(Number(patient.gestationalTimestamp));
-          }
         }
 
         if (key === `gestationalTimestamp`) {
           initialized.gestationalAgeValueTimestamp = value;
+          initialized.gestationalAgeValue =
+            patient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
+              ? getNumOfWeeks(Number(value))
+              : getNumOfMonths(Number(value));
         }
 
         return initialized;

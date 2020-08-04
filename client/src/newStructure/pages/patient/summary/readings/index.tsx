@@ -45,6 +45,7 @@ export const PatientReadings: React.FC<IProps> = ({
               </div>
               <ReferralInfo
                 followUp={reading.followup}
+                readingId={reading.readingId}
                 referral={reading.referral}
                 selectedPatient={selectedPatient}
                 onAddPatientRequired={onAddPatientRequired}

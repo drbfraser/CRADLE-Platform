@@ -7,7 +7,7 @@ import { PatientInfoForm } from './form';
 import React from 'react';
 import { ReduxState } from '../../../../../redux/reducers';
 import { Toast } from '../../../../../shared/components/toast';
-import { clearUpdatePatientRequestOutcome } from '../../../../../redux/reducers/patients';
+import { clearUpdatePatientOutcome } from '../../../../../redux/reducers/patients';
 import { useDisableSubmit } from './hooks/disableSubmit';
 import { useSubmit } from './hooks/submit';
 
@@ -59,7 +59,7 @@ export const PatientModal: React.FC<IProps> = ({
   });
 
   const clearMessage = (): void => {
-    dispatch(clearUpdatePatientRequestOutcome());
+    dispatch(clearUpdatePatientOutcome());
   };
 
   return (

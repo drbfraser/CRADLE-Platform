@@ -1,4 +1,4 @@
-import { ActualUser, FollowUp, OrNull, Patient } from '@types';
+import { ActualUser, Callback, FollowUp, OrNull, Patient } from '@types';
 import {
   Button,
   Divider,
@@ -7,14 +7,24 @@ import {
   Stepper,
   Typography,
 } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
-import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
+import { Dispatch, bindActionCreators } from 'redux';
 import {
+  ICreateAssessmentArgs,
+  IUpdateAssessmentArgs,
+  IUpdatePatientArgs,
   addPatientNew,
   afterDoesPatientExist,
   afterNewPatientAdded,
+  clearCreateAssessmentOutcome,
+  clearUpdateAssessmentOutcome,
+  clearUpdatePatientOutcome,
+  createAssessment,
   doesPatientExist,
+  updateAssessment,
+  updatePatient,
 } from '../../../redux/reducers/patients';
+import React, { useEffect, useState } from 'react';
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   addReadingNew,
   resetNewReadingStatus,
@@ -34,7 +44,6 @@ import { ReduxState } from '../../../redux/reducers';
 import SubmissionDialog from './submissionDialog';
 import { Symptoms } from './symptoms';
 import { VitalSignAssessment } from './vitalSignAssessment';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../../redux/reducers/user/currentUser';
 import { useNewAssessment } from './assessment/hooks';
@@ -86,9 +95,11 @@ function getSteps(roles: string, formStatus: OrNull<FormStatusEnum>) {
 }
 
 type LocationState = {
-  assessment?: FollowUp;
   patient: Patient;
   status: FormStatusEnum;
+  assessment?: FollowUp;
+  readingId?: string;
+  userId?: OrNull<number>;
 };
 
 interface IProps {
@@ -103,10 +114,20 @@ interface IProps {
   patient: any;
   readingCreated: any;
   resetNewReadingStatus: any;
+  error: OrNull<string>;
+  success: OrNull<string>;
   assessmentFromEdit: OrNull<FollowUp>;
-  patientFromEdit: OrNull<Patient>;
   formStatus: OrNull<FormStatusEnum>;
+  patientFromEdit: OrNull<Patient>;
+  readingId: OrNull<string>;
+  userId: OrNull<number>;
   afterDoesPatientExist: any;
+  createAssessment: Callback<ICreateAssessmentArgs>;
+  updateAssessment: Callback<IUpdateAssessmentArgs>;
+  updatePatient: Callback<IUpdatePatientArgs>;
+  clearCreateAssessmentOutcome: () => void;
+  clearUpdateAssessmentOutcome: () => void;
+  clearUpdatePatientOutcome: () => void;
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -175,6 +196,12 @@ const Page: React.FC<IProps> = (props) => {
       props.addReadingNew(formattedReading);
     }
   }, [assessment, props, selectedPatientId, symptoms, urineTest, vitals]);
+
+  useEffect((): void => {
+    if (props.error || props.success) {
+      setIsShowDialogsubmission(true);
+    }
+  }, [props.error, props.success]);
 
   useEffect(() => {
     // getting current user
@@ -254,6 +281,7 @@ const Page: React.FC<IProps> = (props) => {
     }
   }, [
     initializeEditPatient,
+    initializeAssessment,
     props.assessmentFromEdit,
     props.patientFromEdit,
     props.formStatus,
@@ -287,8 +315,51 @@ const Page: React.FC<IProps> = (props) => {
 
   // ~~~~~~~~ Last Step Submission Call  ~~~~~~~~~~~
   const handleSubmit = () => {
-    //if not an existing patient
-    if (!props.newPatientExist && !props.patientFromEdit) {
+    if (props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION) {
+      props.updatePatient({
+        data: formatPatientData(patient),
+      });
+    } else if (props.formStatus === FormStatusEnum.ADD_ASSESSMENT) {
+      if (props.readingId && props.userId) {
+        props.createAssessment({
+          data: {
+            diagnosis: assessment.finalDiagnosis,
+            followupNeeded: assessment.enabled,
+            followupInstructions: assessment.InstructionFollow,
+            medicationPrescribed: assessment.medPrescribed,
+            specialInvestigations: assessment.specialInvestigations,
+            treatment: assessment.treatmentOP,
+          },
+          readingId: props.readingId,
+          userId: props.userId,
+        });
+      } else {
+        throw new Error(
+          `Invalid action: Reading ID and User ID from patient page corrupted!`
+        );
+      }
+    } else if (props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT) {
+      if (props.assessmentFromEdit && props.readingId && props.userId) {
+        props.updateAssessment({
+          data: {
+            id: props.assessmentFromEdit.id,
+            followupNeeded: assessment.enabled,
+            followupInstructions: assessment.InstructionFollow,
+            diagnosis: assessment.finalDiagnosis,
+            medicationPrescribed: assessment.medPrescribed,
+            specialInvestigations: assessment.specialInvestigations,
+            treatment: assessment.treatmentOP,
+          },
+          readingId: props.readingId,
+          userId: props.userId,
+        });
+      } else {
+        throw new Error(
+          `Invalid action: Assessment from patient page corrupted!`
+        );
+      }
+    } else if (!props.newPatientExist && !props.patientFromEdit) {
+      //if not an existing patient
       const formattedPatient = formatPatientData(patient);
       props.addPatientNew(formattedPatient);
     } else {
@@ -319,6 +390,21 @@ const Page: React.FC<IProps> = (props) => {
 
   // ~~~~~~~~ Handle response from Submission dialog  ~~~~~~~~~~~
   const handleDialogCloseSubmission = (e: any) => {
+    switch (props.formStatus) {
+      case FormStatusEnum.EDIT_PATIENT_INFORMATION: {
+        props.clearUpdatePatientOutcome();
+        break;
+      }
+      case FormStatusEnum.ADD_ASSESSMENT: {
+        props.clearCreateAssessmentOutcome();
+        break;
+      }
+      case FormStatusEnum.UPDATE_ASSESSMENT: {
+        props.clearUpdateAssessmentOutcome();
+        break;
+      }
+    }
+
     const value = e.currentTarget.value;
     props.afterNewPatientAdded();
     props.afterDoesPatientExist();
@@ -414,6 +500,9 @@ const Page: React.FC<IProps> = (props) => {
       props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
         <Demographics
           patient={patient}
+          showPatientId={
+            props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION
+          }
           onChange={handleChangePatient}></Demographics>
       ) : (
         ''
@@ -428,7 +517,10 @@ const Page: React.FC<IProps> = (props) => {
       ) : (
         ''
       )}
-      {activeStep === 2 ? (
+      {activeStep === 2 &&
+      props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+      props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+      props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
         <VitalSignAssessment
           vitals={vitals}
           onChange={handleChangeVitals}
@@ -454,6 +546,7 @@ const Page: React.FC<IProps> = (props) => {
           props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
           props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT)) ? (
         <ConfirmationPage
+          formStatus={props.formStatus}
           patient={patient}
           symptoms={symptoms}
           vitals={vitals}
@@ -536,6 +629,8 @@ const Page: React.FC<IProps> = (props) => {
                 patient={props.patient}
                 handleDialogClose={handleDialogClose}></AlertDialog>
               <SubmissionDialog
+                error={props.error}
+                success={props.success}
                 patientExist={
                   props.newPatientExist || props.patientFromEdit ? true : false
                 }
@@ -565,27 +660,41 @@ const mapStateToProps = ({
   newPatientAdded: patients.newPatientAdded,
   newPatientExist: patients.patientExist,
   patient: patients.existingPatient,
+  error: patients.error,
+  success: patients.success,
   assessmentFromEdit: router.location.state
     ? (router.location.state as LocationState).assessment ?? null
-    : null,
-  patientFromEdit: router.location.state
-    ? (router.location.state as LocationState).patient
     : null,
   formStatus: router.location.state
     ? (router.location.state as LocationState).status
     : null,
+  patientFromEdit: router.location.state
+    ? (router.location.state as LocationState).patient
+    : null,
+  readingId: router.location.state
+    ? (router.location.state as LocationState).readingId
+    : null,
+  userId: router.location.state
+    ? (router.location.state as LocationState).userId
+    : null,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   ...bindActionCreators(
     {
       getCurrentUser,
       resetNewReadingStatus,
       addPatientNew,
       addReadingNew,
+      createAssessment,
+      updateAssessment,
+      updatePatient,
       doesPatientExist,
       afterDoesPatientExist,
       afterNewPatientAdded,
+      clearCreateAssessmentOutcome,
+      clearUpdateAssessmentOutcome,
+      clearUpdatePatientOutcome,
     },
     dispatch
   ),

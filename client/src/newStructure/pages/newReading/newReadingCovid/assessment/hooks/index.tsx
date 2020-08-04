@@ -40,18 +40,21 @@ export const useNewAssessment = () => {
     }
   };
 
-  const initializeAssessment = (assessment: OrNull<FollowUp>): void => {
-    if (assessment) {
-      setAssessment({
-        specialInvestigations: assessment.specialInvestigations,
-        finalDiagnosis: assessment.diagnosis,
-        treatmentOP: assessment.treatment,
-        medPrescribed: assessment.medicationPrescribed,
-        InstructionFollow: assessment.followupInstructions ?? ``,
-        enabled: assessment.followupNeeded,
-      });
-    }
-  };
+  const initializeAssessment = React.useCallback(
+    (assessment: OrNull<FollowUp>): void => {
+      if (assessment) {
+        setAssessment({
+          specialInvestigations: assessment.specialInvestigations,
+          finalDiagnosis: assessment.diagnosis,
+          treatmentOP: assessment.treatment,
+          medPrescribed: assessment.medicationPrescribed,
+          InstructionFollow: assessment.followupInstructions ?? ``,
+          enabled: assessment.followupNeeded,
+        });
+      }
+    },
+    []
+  );
 
   return {
     assessment,

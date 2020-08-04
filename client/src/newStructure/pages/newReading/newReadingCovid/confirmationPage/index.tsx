@@ -1,7 +1,9 @@
 import { Paper, TextField } from '@material-ui/core';
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 
+import { FormStatusEnum } from '../../../../enums';
 import { GESTATIONAL_AGE_UNITS } from '../../patientInfoForm';
+import { OrNull } from '@types';
 import React from 'react';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -63,6 +65,7 @@ const getSymptomsMapping = (symptoms: any) => {
   }
 };
 interface IProps {
+  formStatus: OrNull<FormStatusEnum>;
   patient: any;
   symptoms: any;
   vitals: any;
@@ -97,7 +100,8 @@ const Page: React.FC<IProps> = (props) => {
         <b>Confirm Information</b>
       </h1>
       <form className={classes.root} noValidate autoComplete="off">
-        {!props.isPatientExisting ? (
+        {!props.isPatientExisting ||
+        props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION ? (
           <>
             <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>
               Patient Demographics
@@ -218,224 +222,233 @@ const Page: React.FC<IProps> = (props) => {
         ) : (
           ''
         )}
+        {props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+          props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+          props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT && (
+            <>
+              <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>Symptoms</h3>
+              <TextField
+                disabled={symptomsString ? false : true}
+                InputProps={{
+                  readOnly: symptomsString ? true : false,
+                }}
+                className={classes.formFieldDM}
+                multiline
+                rows={4}
+                label="Symptoms"
+                variant="outlined"
+                value={symptomsString}
+              />
+              <TextField
+                disabled={props.symptoms.otherSymptoms ? false : true}
+                InputProps={{
+                  readOnly: props.symptoms.otherSymptoms ? true : false,
+                }}
+                className={classes.formFieldDM}
+                multiline
+                rows={4}
+                label="Other Symptoms"
+                variant="outlined"
+                value={props.symptoms.otherSymptoms}
+              />
 
-        <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>Symptoms</h3>
-        <TextField
-          disabled={symptomsString ? false : true}
-          InputProps={{
-            readOnly: symptomsString ? true : false,
-          }}
-          className={classes.formFieldDM}
-          multiline
-          rows={4}
-          label="Symptoms"
-          variant="outlined"
-          value={symptomsString}
-        />
-        <TextField
-          disabled={props.symptoms.otherSymptoms ? false : true}
-          InputProps={{
-            readOnly: props.symptoms.otherSymptoms ? true : false,
-          }}
-          className={classes.formFieldDM}
-          multiline
-          rows={4}
-          label="Other Symptoms"
-          variant="outlined"
-          value={props.symptoms.otherSymptoms}
-        />
-        <h3
-          style={{
-            color: '#9E9E9E',
-            fontSize: '18px',
-            width: '51ch',
-            display: 'inline',
-            float: 'left',
-          }}>
-          Vitals
-        </h3>
-        <h3
-          style={{
-            color: '#9E9E9E',
-            fontSize: '18px',
-            width: '45%',
-            display: 'inline',
-            float: 'left',
-          }}>
-          Urine Test
-        </h3>
-        <TextField
-          disabled={props.vitals.bpSystolic ? false : true}
-          InputProps={{
-            readOnly: props.vitals.bpSystolic ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Systolic"
-          variant="outlined"
-          value={props.vitals.bpSystolic}
-        />
-        <TextField
-          disabled={props.urineTest.leukocytes ? false : true}
-          InputProps={{
-            readOnly: props.urineTest.leukocytes ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Leukocytes"
-          variant="outlined"
-          value={props.urineTest.leukocytes}
-        />
-        <TextField
-          disabled={props.vitals.bpDiastolic ? false : true}
-          InputProps={{
-            readOnly: props.vitals.bpDiastolic ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Diastolic"
-          variant="outlined"
-          value={props.vitals.bpDiastolic}
-        />
-        <TextField
-          disabled={props.urineTest.blood ? false : true}
-          InputProps={{
-            readOnly: props.urineTest.blood ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Blood"
-          variant="outlined"
-          value={props.urineTest.blood}
-        />
-        <TextField
-          disabled={props.vitals.heartRateBPM ? false : true}
-          InputProps={{
-            readOnly: props.vitals.heartRateBPM ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Heart Rate"
-          variant="outlined"
-          value={props.vitals.heartRateBPM}
-        />
-        <TextField
-          disabled={props.urineTest.protein ? false : true}
-          InputProps={{
-            readOnly: props.urineTest.protein ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Protein"
-          variant="outlined"
-          value={props.urineTest.protein}
-        />
-        <TextField
-          disabled={props.vitals.respiratoryRate ? false : true}
-          InputProps={{
-            readOnly: props.vitals.respiratoryRate ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Respiratory Rate"
-          variant="outlined"
-          value={props.vitals.respiratoryRate}
-        />
-        <TextField
-          disabled={props.urineTest.glucose ? false : true}
-          InputProps={{
-            readOnly: props.urineTest.glucose ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Glucose"
-          variant="outlined"
-          value={props.urineTest.glucose}
-        />
-        <TextField
-          disabled={props.vitals.oxygenSaturation ? false : true}
-          InputProps={{
-            readOnly: props.vitals.oxygenSaturation ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Oxygen Saturation"
-          variant="outlined"
-          value={props.vitals.oxygenSaturation}
-        />
-        <TextField
-          disabled={props.urineTest.nitrites ? false : true}
-          InputProps={{
-            readOnly: props.urineTest.nitrites ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Nitrites"
-          variant="outlined"
-          value={props.urineTest.nitrites}
-        />
-        <TextField
-          disabled={props.vitals.temperature ? false : true}
-          InputProps={{
-            readOnly: props.vitals.temperature ? true : false,
-          }}
-          className={classes.formFieldDM}
-          label="Temperature"
-          variant="outlined"
-          value={props.vitals.temperature}
-        />
-
-        <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>Assessment</h3>
-        <TextField
-          disabled={props.assessment.specialInvestigations ? false : true}
-          InputProps={{
-            readOnly: props.assessment.specialInvestigations ? true : false,
-          }}
-          className={classes.formFieldDM}
-          multiline
-          rows={3}
-          label="Special Investigations"
-          variant="outlined"
-          value={props.assessment.specialInvestigations}
-        />
-        <TextField
-          disabled={props.assessment.finalDiagnosis ? false : true}
-          InputProps={{
-            readOnly: props.assessment.finalDiagnosis ? true : false,
-          }}
-          className={classes.formFieldDM}
-          multiline
-          rows={3}
-          label="Final Diagnosis"
-          variant="outlined"
-          value={props.assessment.finalDiagnosis}
-        />
-        <TextField
-          disabled={props.assessment.treatmentOP ? false : true}
-          InputProps={{
-            readOnly: props.assessment.treatmentOP ? true : false,
-          }}
-          className={classes.formFieldDM}
-          multiline
-          rows={3}
-          label="Treatment/Operation"
-          variant="outlined"
-          value={props.assessment.treatmentOP}
-        />
-        <TextField
-          disabled={props.assessment.medPrescribed ? false : true}
-          InputProps={{
-            readOnly: props.assessment.medPrescribed ? true : false,
-          }}
-          className={classes.formFieldDM}
-          multiline
-          rows={3}
-          label="Medication Prescribed"
-          variant="outlined"
-          value={props.assessment.medPrescribed}
-        />
-        <TextField
-          disabled={props.assessment.InstructionFollow ? false : true}
-          InputProps={{
-            readOnly: props.assessment.InstructionFollow ? true : false,
-          }}
-          className={classes.formFieldDM}
-          multiline
-          rows={3}
-          label="Instruction for Follow-up"
-          variant="outlined"
-          value={props.assessment.InstructionFollow}
-        />
+              <h3
+                style={{
+                  color: '#9E9E9E',
+                  fontSize: '18px',
+                  width: '51ch',
+                  display: 'inline',
+                  float: 'left',
+                }}>
+                Vitals
+              </h3>
+              <h3
+                style={{
+                  color: '#9E9E9E',
+                  fontSize: '18px',
+                  width: '45%',
+                  display: 'inline',
+                  float: 'left',
+                }}>
+                Urine Test
+              </h3>
+              <TextField
+                disabled={props.vitals.bpSystolic ? false : true}
+                InputProps={{
+                  readOnly: props.vitals.bpSystolic ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Systolic"
+                variant="outlined"
+                value={props.vitals.bpSystolic}
+              />
+              <TextField
+                disabled={props.urineTest.leukocytes ? false : true}
+                InputProps={{
+                  readOnly: props.urineTest.leukocytes ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Leukocytes"
+                variant="outlined"
+                value={props.urineTest.leukocytes}
+              />
+              <TextField
+                disabled={props.vitals.bpDiastolic ? false : true}
+                InputProps={{
+                  readOnly: props.vitals.bpDiastolic ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Diastolic"
+                variant="outlined"
+                value={props.vitals.bpDiastolic}
+              />
+              <TextField
+                disabled={props.urineTest.blood ? false : true}
+                InputProps={{
+                  readOnly: props.urineTest.blood ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Blood"
+                variant="outlined"
+                value={props.urineTest.blood}
+              />
+              <TextField
+                disabled={props.vitals.heartRateBPM ? false : true}
+                InputProps={{
+                  readOnly: props.vitals.heartRateBPM ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Heart Rate"
+                variant="outlined"
+                value={props.vitals.heartRateBPM}
+              />
+              <TextField
+                disabled={props.urineTest.protein ? false : true}
+                InputProps={{
+                  readOnly: props.urineTest.protein ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Protein"
+                variant="outlined"
+                value={props.urineTest.protein}
+              />
+              <TextField
+                disabled={props.vitals.respiratoryRate ? false : true}
+                InputProps={{
+                  readOnly: props.vitals.respiratoryRate ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Respiratory Rate"
+                variant="outlined"
+                value={props.vitals.respiratoryRate}
+              />
+              <TextField
+                disabled={props.urineTest.glucose ? false : true}
+                InputProps={{
+                  readOnly: props.urineTest.glucose ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Glucose"
+                variant="outlined"
+                value={props.urineTest.glucose}
+              />
+              <TextField
+                disabled={props.vitals.oxygenSaturation ? false : true}
+                InputProps={{
+                  readOnly: props.vitals.oxygenSaturation ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Oxygen Saturation"
+                variant="outlined"
+                value={props.vitals.oxygenSaturation}
+              />
+              <TextField
+                disabled={props.urineTest.nitrites ? false : true}
+                InputProps={{
+                  readOnly: props.urineTest.nitrites ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Nitrites"
+                variant="outlined"
+                value={props.urineTest.nitrites}
+              />
+              <TextField
+                disabled={props.vitals.temperature ? false : true}
+                InputProps={{
+                  readOnly: props.vitals.temperature ? true : false,
+                }}
+                className={classes.formFieldDM}
+                label="Temperature"
+                variant="outlined"
+                value={props.vitals.temperature}
+              />
+            </>
+          )}
+        {props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION && (
+          <>
+            <h3 style={{ color: '#9E9E9E', fontSize: '18px' }}>Assessment</h3>
+            <TextField
+              disabled={props.assessment.specialInvestigations ? false : true}
+              InputProps={{
+                readOnly: props.assessment.specialInvestigations ? true : false,
+              }}
+              className={classes.formFieldDM}
+              multiline
+              rows={3}
+              label="Special Investigations"
+              variant="outlined"
+              value={props.assessment.specialInvestigations}
+            />
+            <TextField
+              disabled={props.assessment.finalDiagnosis ? false : true}
+              InputProps={{
+                readOnly: props.assessment.finalDiagnosis ? true : false,
+              }}
+              className={classes.formFieldDM}
+              multiline
+              rows={3}
+              label="Final Diagnosis"
+              variant="outlined"
+              value={props.assessment.finalDiagnosis}
+            />
+            <TextField
+              disabled={props.assessment.treatmentOP ? false : true}
+              InputProps={{
+                readOnly: props.assessment.treatmentOP ? true : false,
+              }}
+              className={classes.formFieldDM}
+              multiline
+              rows={3}
+              label="Treatment/Operation"
+              variant="outlined"
+              value={props.assessment.treatmentOP}
+            />
+            <TextField
+              disabled={props.assessment.medPrescribed ? false : true}
+              InputProps={{
+                readOnly: props.assessment.medPrescribed ? true : false,
+              }}
+              className={classes.formFieldDM}
+              multiline
+              rows={3}
+              label="Medication Prescribed"
+              variant="outlined"
+              value={props.assessment.medPrescribed}
+            />
+            <TextField
+              disabled={props.assessment.InstructionFollow ? false : true}
+              InputProps={{
+                readOnly: props.assessment.InstructionFollow ? true : false,
+              }}
+              className={classes.formFieldDM}
+              multiline
+              rows={3}
+              label="Instruction for Follow-up"
+              variant="outlined"
+              value={props.assessment.InstructionFollow}
+            />
+          </>
+        )}{' '}
       </form>
     </Paper>
   );

@@ -1,10 +1,7 @@
 import { Callback, EditedPatient } from '@types';
-import {
-  resetPatientUpdated,
-  updatePatient,
-} from '../../../../../../../redux/reducers/patients';
 
 import React from 'react';
+import { resetPatientUpdated } from '../../../../../../../redux/reducers/patients';
 import { useDispatch } from 'react-redux';
 
 interface IArgs {
@@ -14,7 +11,6 @@ interface IArgs {
 
 export const useSubmit = ({
   displayPatientModal,
-  editedPatient,
 }: IArgs): Callback<React.FormEvent<HTMLFormElement>> => {
   const dispatch = useDispatch();
 
@@ -30,15 +26,15 @@ export const useSubmit = ({
     // * without requiring a page refresh
     dispatch(resetPatientUpdated());
 
-    const { patientId, gestationalTimestamp, ...patientData } = editedPatient;
+    // const { patientId, gestationalTimestamp, ...patientData } = editedPatient;
 
-    dispatch(
-      updatePatient(patientId, {
-        ...patientData,
-        gestationalTimestamp: editedPatient.isPregnant
-          ? gestationalTimestamp
-          : undefined,
-      })
-    );
+    // dispatch(
+    //   updatePatient(patientId, {
+    //     ...patientData,
+    //     gestationalTimestamp: editedPatient.isPregnant
+    //       ? gestationalTimestamp
+    //       : undefined,
+    //   })
+    // );
   };
 };

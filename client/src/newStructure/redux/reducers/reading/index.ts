@@ -46,7 +46,7 @@ type ReadingAction =
     };
 
 type CreateReading = {
-  patient: Omit<Patient, 'readings' | 'needsAssessment' | 'tableData'>;
+  patient: Omit<Patient, 'readings' | 'tableData'>;
   reading: Omit<
     NewReading,
     'dateTimeTaken' | 'dateRecheckVitalsNeeded' | 'urineTests'
