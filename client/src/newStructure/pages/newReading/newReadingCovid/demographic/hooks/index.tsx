@@ -236,25 +236,30 @@ export const useNewPatient = () => {
   };
 
   //~~~~~~~ initialize the edited patient ~~~~~~~~~~
-  const initializeEditPatient = (patient: Patient): void => {
+  const initializeEditPatient = React.useCallback((patient: Patient): void => {
     const initializedPatient = Object.entries(patient).reduce(
       (
         initialized: Record<string, any>,
         [key, value]: [keyof Patient, Patient[keyof Patient]]
       ): Record<string, any> => {
         if (initializePatientKeys.includes(key)) {
+          initialized[key] = value;
+
           if (key === `patientName`) {
             initialized.patientInitial = value;
           }
-          if (key === `gestationalTimestamp`) {
-            initialized.gestationalAgeValueTimestamp = value;
+          if (key === `gestationalAgeValue`) {
             initialized.gestationalAgeValue =
               patient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
-                ? getNumOfWeeks(Number(value))
-                : getNumOfMonths(Number(value));
+                ? getNumOfWeeks(Number(patient.gestationalTimestamp))
+                : getNumOfMonths(Number(patient.gestationalTimestamp));
           }
-          initialized[key] = value;
         }
+
+        if (key === `gestationalTimestamp`) {
+          initialized.gestationalAgeValueTimestamp = value;
+        }
+
         return initialized;
       },
       {}
@@ -264,7 +269,7 @@ export const useNewPatient = () => {
       ...currentPatient,
       ...initializedPatient,
     }));
-  };
+  }, []);
 
   return {
     patient,

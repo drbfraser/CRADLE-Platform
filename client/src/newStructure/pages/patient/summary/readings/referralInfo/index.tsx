@@ -34,6 +34,7 @@ export const ReferralInfo: React.FC<IProps> = ({
     onAddPatientRequired((): void => {
       dispatch(
         push(`/readings/new`, {
+          assessment: followUp,
           patient: selectedPatient,
           status: followUp
             ? FormStatusEnum.UPDATE_ASSESSMENT

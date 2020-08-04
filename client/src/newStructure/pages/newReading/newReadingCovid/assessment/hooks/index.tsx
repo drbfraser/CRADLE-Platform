@@ -1,3 +1,5 @@
+import { FollowUp, OrNull } from '@types';
+
 import React from 'react';
 
 export const useNewAssessment = () => {
@@ -9,10 +11,12 @@ export const useNewAssessment = () => {
     InstructionFollow: '',
     enabled: false,
   });
+
   const handleChangeAssessment = (e: any) => {
     if (e.target.name === `enabled`) {
       setAssessment({
         ...assessment,
+        InstructionFollow: e.target.checked ? assessment.InstructionFollow : ``,
         [e.target.name]: e.target.checked,
       });
     } else {
@@ -22,6 +26,7 @@ export const useNewAssessment = () => {
       });
     }
   };
+
   const resetValueAssessment = (reset: boolean) => {
     if (reset) {
       setAssessment({
@@ -34,5 +39,24 @@ export const useNewAssessment = () => {
       });
     }
   };
-  return { assessment, handleChangeAssessment, resetValueAssessment };
+
+  const initializeAssessment = (assessment: OrNull<FollowUp>): void => {
+    if (assessment) {
+      setAssessment({
+        specialInvestigations: assessment.specialInvestigations,
+        finalDiagnosis: assessment.diagnosis,
+        treatmentOP: assessment.treatment,
+        medPrescribed: assessment.medicationPrescribed,
+        InstructionFollow: assessment.followupInstructions ?? ``,
+        enabled: assessment.followupNeeded,
+      });
+    }
+  };
+
+  return {
+    assessment,
+    handleChangeAssessment,
+    initializeAssessment,
+    resetValueAssessment,
+  };
 };

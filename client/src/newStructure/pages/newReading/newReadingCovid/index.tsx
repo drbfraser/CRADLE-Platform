@@ -1,4 +1,4 @@
-import { ActualUser, OrNull, Patient } from '@types';
+import { ActualUser, FollowUp, OrNull, Patient } from '@types';
 import {
   Button,
   Divider,
@@ -58,20 +58,36 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-function getSteps(roles: string) {
-  return roles === 'VHT'
-    ? ['Demographic Information', 'Symptoms', 'Vitals Signs', 'Confirmation']
-    : [
-        'Demographic Information',
-        'Symptoms',
-        'Vitals Signs',
-        'Assessments',
-        'Confirmation',
-      ];
+
+function getSteps(roles: string, formStatus: OrNull<FormStatusEnum>) {
+  switch (formStatus) {
+    case FormStatusEnum.EDIT_PATIENT_INFORMATION:
+      return [`Demographic Information`, `Confirmation`];
+    case FormStatusEnum.ADD_ASSESSMENT:
+    case FormStatusEnum.UPDATE_ASSESSMENT:
+      return [`Assessments`, `Confirmation`];
+    case FormStatusEnum.ADD_NEW_READING:
+    default:
+      return roles === `VHT`
+        ? [
+            `Demographic Information`,
+            `Symptoms`,
+            `Vitals Signs`,
+            `Confirmation`,
+          ]
+        : [
+            `Demographic Information`,
+            `Symptoms`,
+            `Vitals Signs`,
+            `Assessments`,
+            `Confirmation`,
+          ];
+  }
 }
 
 type LocationState = {
-  patient: OrNull<Patient>;
+  assessment?: FollowUp;
+  patient: Patient;
   status: FormStatusEnum;
 };
 
@@ -87,6 +103,7 @@ interface IProps {
   patient: any;
   readingCreated: any;
   resetNewReadingStatus: any;
+  assessmentFromEdit: OrNull<FollowUp>;
   patientFromEdit: OrNull<Patient>;
   formStatus: OrNull<FormStatusEnum>;
   afterDoesPatientExist: any;
@@ -114,6 +131,7 @@ const Page: React.FC<IProps> = (props) => {
   const {
     assessment,
     handleChangeAssessment,
+    initializeAssessment,
     resetValueAssessment,
   } = useNewAssessment();
   const {
@@ -132,7 +150,7 @@ const Page: React.FC<IProps> = (props) => {
   const [pageTitle, setPageTitle] = useState(
     'Create a New Patient and Reading'
   );
-  const steps = getSteps(props.user.roles[0]);
+  const steps = getSteps(props.user.roles[0], props.formStatus);
 
   // ~~~~~~~~ Creating Reading  ~~~~~~~~~~~~~~~~~~
   const addReading = React.useCallback(() => {
@@ -194,33 +212,13 @@ const Page: React.FC<IProps> = (props) => {
     urineTest,
   ]);
 
-  useEffect((): void => {
-    if (props.formStatus) {
-      switch (props.formStatus) {
-        case FormStatusEnum.ADD_NEW_READING: {
-          if (activeStep === 1) {
-            setBlockBackButton(true);
-          }
-          break;
-        }
-        case FormStatusEnum.ADD_ASSESSMENT:
-        case FormStatusEnum.UPDATE_ASSESSMENT: {
-          if (activeStep === 3) {
-            setBlockBackButton(true);
-          }
-          break;
-        }
-      }
-    }
-  }, [activeStep, props.formStatus]);
-
   // ~~~~~~~~ flow from patient list ~~~~~~~~~~~~
   // ~~~~~~~~ add new reading ~~~~~~~~~~~~
   // ~~~~~~~~ edit patient info ~~~~~~~~~~~~
-  // ~~~~~~~~ create assessment ~~~~~~~~~~~~
+  // ~~~~~~~~ add assessment ~~~~~~~~~~~~
   // ~~~~~~~~ update assessment~~~~~~~~~~~~
   useEffect(() => {
-    if (props.patientFromEdit && props.formStatus) {
+    if (props.patientFromEdit) {
       switch (props.formStatus) {
         case FormStatusEnum.ADD_NEW_READING: {
           setPageTitle(
@@ -240,14 +238,13 @@ const Page: React.FC<IProps> = (props) => {
           setPageTitle(
             `Create Assessment, ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
           );
-          setActiveStep(3);
           break;
         }
         case FormStatusEnum.UPDATE_ASSESSMENT: {
+          initializeAssessment(props.assessmentFromEdit);
           setPageTitle(
             `Update Assessment, ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
           );
-          setActiveStep(3);
           break;
         }
       }
@@ -255,17 +252,23 @@ const Page: React.FC<IProps> = (props) => {
       setBlockBackButton(true);
       setSelectedPatientId(props.patientFromEdit.patientId);
     }
-  }, [initializeEditPatient, props.patientFromEdit, props.formStatus]);
+  }, [
+    initializeEditPatient,
+    props.assessmentFromEdit,
+    props.patientFromEdit,
+    props.formStatus,
+  ]);
 
   // ~~~~~~~~ Stepper Next button call ~~~~~~~~~~~~~~~~~~
   const handleNext = () => {
     if (
       activeStep === 0 &&
-      props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION
+      !(
+        props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION ||
+        props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
+        props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT
+      )
     ) {
-      setBlockBackButton(false);
-      setActiveStep(4);
-    } else if (activeStep === 0) {
       setExistingPatient(true);
       props.doesPatientExist(patient.patientId);
     } else {
@@ -278,12 +281,6 @@ const Page: React.FC<IProps> = (props) => {
   const handleBack = () => {
     if (activeStep === 2 && (props.newPatientExist || props.patientFromEdit)) {
       setBlockBackButton(true);
-    } else if (
-      activeStep === 4 &&
-      props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION
-    ) {
-      setActiveStep(0);
-      return;
     }
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
@@ -412,14 +409,19 @@ const Page: React.FC<IProps> = (props) => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === 0 ? (
+      {activeStep === 0 &&
+      props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+      props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
         <Demographics
           patient={patient}
           onChange={handleChangePatient}></Demographics>
       ) : (
         ''
       )}
-      {activeStep === 1 ? (
+      {activeStep === 1 &&
+      props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+      props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+      props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
         <Symptoms
           symptoms={symptoms}
           onChange={handleChangeSymptoms}></Symptoms>
@@ -435,7 +437,10 @@ const Page: React.FC<IProps> = (props) => {
       ) : (
         ''
       )}
-      {activeStep === 3 && props.user.roles[0] !== 'VHT' ? (
+      {(activeStep === 3 && props.user.roles[0] !== 'VHT') ||
+      (activeStep === 0 &&
+        (props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
+          props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT)) ? (
         <Assessment
           assessment={assessment}
           onChange={handleChangeAssessment}></Assessment>
@@ -443,7 +448,11 @@ const Page: React.FC<IProps> = (props) => {
         ''
       )}
       {activeStep === 4 ||
-      (props.user.roles[0] === 'VHT' && activeStep === 3) ? (
+      (props.user.roles[0] === 'VHT' && activeStep === 3) ||
+      (activeStep === 1 &&
+        (props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION ||
+          props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
+          props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT)) ? (
         <ConfirmationPage
           patient={patient}
           symptoms={symptoms}
@@ -556,6 +565,9 @@ const mapStateToProps = ({
   newPatientAdded: patients.newPatientAdded,
   newPatientExist: patients.patientExist,
   patient: patients.existingPatient,
+  assessmentFromEdit: router.location.state
+    ? (router.location.state as LocationState).assessment ?? null
+    : null,
   patientFromEdit: router.location.state
     ? (router.location.state as LocationState).patient
     : null,
