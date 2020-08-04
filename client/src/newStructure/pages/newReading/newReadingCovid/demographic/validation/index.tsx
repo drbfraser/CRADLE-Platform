@@ -31,7 +31,7 @@ export const validateInput = (name: any, value: any) => {
       }
       break;
     case 'patientId':
-      if (value.length > 14 || value.length < 1 ||  isNaN(+value)) {
+      if (value.length > 14 || value.length < 1 || isNaN(+value)) {
         patientError.patientIdError = true;
       }
       break;
