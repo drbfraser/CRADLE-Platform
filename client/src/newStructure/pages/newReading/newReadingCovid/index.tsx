@@ -221,8 +221,6 @@ const Page: React.FC<IProps> = (props) => {
       props.addPatientNew(formattedPatient);
     } else {
       addReading();
-      props.afterNewPatientAdded();
-      props.afterDoesPatientExist();
       setIsShowDialogsubmission(true);
     }
   };
@@ -250,6 +248,8 @@ const Page: React.FC<IProps> = (props) => {
   // ~~~~~~~~ Handle response from Submission dialog  ~~~~~~~~~~~
   const handleDialogCloseSubmission = (e: any) => {
     const value = e.currentTarget.value;
+    props.afterNewPatientAdded();
+    props.afterDoesPatientExist();
     if (value === 'ok') {
       setIsShowDialogsubmission(false);
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -435,7 +435,9 @@ const Page: React.FC<IProps> = (props) => {
                 patient={props.patient}
                 handleDialogClose={handleDialogClose}></AlertDialog>
               <SubmissionDialog
-                patientExist={props.newPatientExist}
+                patientExist={
+                  props.newPatientExist || props.patientFromEdit ? true : false
+                }
                 readingCreated={props.readingCreated}
                 open={isShowDialogSubmission}
                 handleDialogClose={
