@@ -101,7 +101,7 @@ class PatientStatsManager:
 
         # putting data into one object now
         data = {
-            "bpSystolicReadingsMontly": bp_systolic,
+            "bpSystolicReadingsMonthly": bp_systolic,
             "bpDiastolicReadingsMonthly": bp_diastolic,
             "heartRateReadingsMonthly": heart_rate,
             "trafficLightCountsFromDay1": {

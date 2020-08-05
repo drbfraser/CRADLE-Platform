@@ -11,17 +11,17 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       '& > *': {
-        margin: theme.spacing(2),
+        margin: theme.spacing(1),
       },
     },
     formField: {
-      margin: theme.spacing(2),
+      margin: theme.spacing(1),
       minWidth: '26ch',
       width: '90%',
     },
 
     formFieldDM: {
-      margin: theme.spacing(2),
+      margin: theme.spacing(1),
       minWidth: '48ch',
       minHeight: '15ch',
     },
@@ -44,13 +44,13 @@ const Page: React.FC<IProps> = (props) => {
     <div style={{ display: 'flex' }}>
       <Paper
         style={{
-          padding: '35px 25px',
+          padding: '10px 25px',
           marginTop: '2%',
           borderRadius: '15px',
           width: '45%',
         }}>
         <h1>
-          <b>Vital Sign Assessment</b>
+          <b>Vital Signs</b>
         </h1>
         <form className={classes.root} noValidate autoComplete="off">
           <FormControl className={classes.formField}>
@@ -63,6 +63,11 @@ const Page: React.FC<IProps> = (props) => {
               value={props.vitals.bpSystolic}
               variant="outlined"
               type="number"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">mm/Hg</InputAdornment>
+                ),
+              }}
               helperText={
                 props.vitals.bpSystolicError ? 'Must be between 50 - 300.' : ''
               }
@@ -78,8 +83,13 @@ const Page: React.FC<IProps> = (props) => {
               value={props.vitals.bpDiastolic}
               variant="outlined"
               type="number"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">mm/Hg</InputAdornment>
+                ),
+              }}
               helperText={
-                props.vitals.bpDiastolicError ? 'Must be between 50 - 300.' : ''
+                props.vitals.bpDiastolicError ? 'Must be between 30 - 200.' : ''
               }
             />
           </FormControl>
@@ -100,7 +110,7 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.heartRateBPMError
-                  ? 'Must be between 50 - 300.'
+                  ? 'Must be between 30 - 250.'
                   : ''
               }
             />
@@ -128,7 +138,7 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-              // error={props.vitals.heartRateBPMError}
+              error={props.vitals.oxygenSaturationError}
               label={'Oxygen Saturation'}
               onChange={props.onChange}
               name={'oxygenSaturation'}
@@ -138,16 +148,16 @@ const Page: React.FC<IProps> = (props) => {
               }}
               variant="outlined"
               type="number"
-              // helperText={
-              //   props.vitals.heartRateBPMError
-              //     ? 'Must be between 50 - 300.'
-              //     : ''
-              // }
+              helperText={
+                props.vitals.oxygenSaturationError
+                  ? 'Must be between 50 - 100.'
+                  : ''
+              }
             />
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-              // error={props.vitals.heartRateBPMError}
+              error={props.vitals.temperatureError}
               label={'Temperature'}
               onChange={props.onChange}
               name={'temperature'}
@@ -159,11 +169,9 @@ const Page: React.FC<IProps> = (props) => {
               }}
               variant="outlined"
               type="number"
-              // helperText={
-              //   props.vitals.heartRateBPMError
-              //     ? 'Must be between 50 - 300.'
-              //     : ''
-              // }
+              helperText={
+                props.vitals.temperatureError ? 'Must be between 34 - 45.' : ''
+              }
             />
           </FormControl>
         </form>

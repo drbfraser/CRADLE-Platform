@@ -33,7 +33,7 @@ class Root(Resource):
             follow_up.reading.referral.isAssessed = True
             data.db_session.commit()
 
-        return marshal.marshal(follow_up), 201
+        return follow_up.id, 201
 
 
 # /api/assessments/<int:id>

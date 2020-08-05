@@ -48,8 +48,8 @@ export const TakeActionBody: React.FC<IProps> = ({
   const handleAddButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>
   ): void => {
-    // Prevents clicking on the parent patient row
-    // which would cause navigation to the patient page
+    // * Prevents clicking on the parent patient row
+    // * which would cause navigation to the patient page
     event.stopPropagation();
     showPrompt();
   };
@@ -57,8 +57,8 @@ export const TakeActionBody: React.FC<IProps> = ({
   const handleJustAddedButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>
   ): void => {
-    // Prevents clicking on the parent patient row
-    // which would cause navigation to the patient page
+    // * Prevents clicking on the parent patient row
+    // * which would cause navigation to the patient page
     event.stopPropagation();
     onAlreadyAdded();
   };

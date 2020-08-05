@@ -1,37 +1,72 @@
+import { DialogPopup } from '../../../../shared/components/dialogPopup';
 import React from 'react';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 
 interface IProps {
   open: boolean;
   handleDialogClose: any;
+  patientExist: boolean;
+  patient: any;
 }
 
 export default function AlertDialog(props: IProps) {
   return (
-    <div>
-      <Dialog
-        open={props.open}
-        onClose={props.handleDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">{'The Id is Valid'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            This pop will will be used to inform the user if they are using a
-            duplicated ID
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={props.handleDialogClose} color="primary">
-            Ok!
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+    <DialogPopup
+      open={props.open}
+      onClose={props.handleDialogClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      content={
+        <>
+          {props.patientExist
+            ? `Would you like to use the patient with `
+            : `Click OK! to make reading`}
+          {props.patientExist ? (
+            <div>
+              {`ID: `}
+              {props.patient.patientId}
+              {` `}
+            </div>
+          ) : (
+            ``
+          )}
+          {props.patientExist ? (
+            <div>
+              {`Initials: `}
+              {props.patient.patientName}
+              {` `}
+            </div>
+          ) : (
+            ``
+          )}
+          {props.patientExist ? (
+            <div>
+              {`Patient Sex: `}
+              {props.patient.patientSex}
+            </div>
+          ) : (
+            ``
+          )}
+        </>
+      }
+      title={
+        props.patientExist
+          ? `Patient ID already exists`
+          : `Patient ID does not exist`
+      }
+      primaryAction={{
+        children: props.patientExist ? `Yes` : `Ok!`,
+        value: props.patientExist ? `yes` : `ok`,
+        onClick: props.handleDialogClose,
+      }}
+      secondaryAction={
+        props.patientExist
+          ? {
+              children: `No`,
+              value: `no`,
+              onClick: props.handleDialogClose,
+            }
+          : undefined
+      }
+    />
   );
 }

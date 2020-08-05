@@ -2,7 +2,8 @@ import { Callback, GlobalSearchPatient, Patient } from '@types';
 import { SortOrderEnum, TrafficLightEnum } from '../../../../../../../../enums';
 
 import React from 'react';
-import { SortToggle } from '../../../sortToggle';
+import { SortToggle } from '../../../../../../../../shared/components/sortToggle';
+import { getFirstReadingWithTrafficLight } from '../utils';
 import orderBy from 'lodash/orderBy';
 
 interface IProps {
@@ -42,7 +43,9 @@ export const VitalSignHead: React.FC<IProps> = ({
 
   const handleClick = (): void => {
     const getTrafficLightIndex = ({ readings }: Patient): number => {
-      return trafficLights.current.indexOf(readings[0].trafficLightStatus);
+      return trafficLights.current.indexOf(
+        getFirstReadingWithTrafficLight(readings).trafficLightStatus
+      );
     };
 
     sortData(

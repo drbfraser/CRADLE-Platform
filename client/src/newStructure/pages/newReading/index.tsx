@@ -1,18 +1,18 @@
 import './index.css';
 
-import { Button, Divider, Form } from 'semantic-ui-react';
 import {
+  ActualUser,
   CheckedItems,
   PatientNewReading,
   PatientNewReadingReading,
-  User,
 } from '../../types';
+import { Button, Divider, Form } from 'semantic-ui-react';
 import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from './patientInfoForm';
 import { UrineTestForm, initialUrineTests } from './urineTestForm';
 import {
-  addNewReading,
-  resetNewReadingStatus,
-} from '../../shared/reducers/newReadingStatus';
+  clearCreateReadingOutcome,
+  createReading,
+} from '../../redux/reducers/reading';
 import { monthsToWeeks, weeksToMonths } from '../../shared/utils';
 
 import { BpForm } from './bpForm';
@@ -20,10 +20,10 @@ import { Component } from 'react';
 import React from 'react';
 import SweetAlert from 'sweetalert2-react';
 import { SymptomForm } from './symptomForm';
-import { addNewPatient } from '../../shared/reducers/patients';
+import { addNewPatient } from '../../redux/reducers/patients';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { getCurrentUser } from '../../redux/reducers/user/currentUser';
 
 const symptom: any = [];
 
@@ -80,8 +80,8 @@ const initState = {
 interface IProps {
   getCurrentUser: any;
   afterNewPatientAdded: any;
-  user: User;
-  addNewReading: any;
+  user: ActualUser;
+  createReading: any;
 }
 
 interface IState {
@@ -111,7 +111,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
     // }
 
     if (props.readingCreated) {
-      props.resetNewReadingStatus();
+      props.clearCreateReadingOutcome();
       return {
         ...state,
         showSuccessReading: true,
@@ -334,7 +334,7 @@ class NewReadingPageComponent extends Component<IProps, IState> {
           patient: patientData,
           reading: readingData,
         };
-        this.props.addNewReading(newData);
+        this.props.createReading(newData);
       }
     );
   };
@@ -402,11 +402,11 @@ class NewReadingPageComponent extends Component<IProps, IState> {
   }
 }
 
-const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
+const mapStateToProps = ({ user, reading, patients }: any) => ({
   user: user.current.data,
-  createReadingStatusError: newReadingStatus.error,
-  readingCreated: newReadingStatus.readingCreated,
-  newReadingData: newReadingStatus.message,
+  createReadingStatusError: reading.error,
+  readingCreated: reading.readingCreated,
+  newReadingData: reading.message,
   newPatientAdded: patients.newPatientAdded,
 });
 
@@ -414,9 +414,9 @@ const mapDispatchToProps = (dispatch: any) => ({
   ...bindActionCreators(
     {
       getCurrentUser,
-      addNewReading,
+      createReading,
       addNewPatient,
-      resetNewReadingStatus,
+      clearCreateReadingOutcome,
       // afterNewPatientAdded
     },
     dispatch

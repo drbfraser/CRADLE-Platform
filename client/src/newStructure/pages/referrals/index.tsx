@@ -1,109 +1,111 @@
+import { OrNull, Patient } from '@types';
 import {
-  PatientsState,
-  getPatients,
-  getPatientsRequested,
-} from '../../shared/reducers/patients';
-import React, { Component } from 'react';
+  clearGetReferralsTablePatientsError,
+  getReferralsTablePatients,
+  sortReferralsTablePatients,
+  updateReferralsTablePageNumber,
+  updateReferralsTableSearchText,
+  updateTableDataOnSelectedPatientChange,
+} from '../../redux/reducers/patients';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { ReduxState } from '../../redux/rootReducer';
+import React from 'react';
+import { ReduxState } from '../../redux/reducers';
 import { ReferralTable } from './referralTable';
-import { connect } from 'react-redux';
-import { getCurrentUser } from '../../shared/reducers/user/currentUser';
+import { Toast } from '../../shared/components/toast';
+import { push } from 'connected-react-router';
 
-interface IProps {
-  getCurrentUser: any;
-  user: any;
-  patients: PatientsState;
-  getPatients: any;
-  history: any;
-}
-class ReferralPageComponent extends Component<IProps> {
-  state = {
-    patientsList: [],
-  };
+type SelectorState = {
+  selectedPatient: OrNull<Patient>;
+  patients: OrNull<Array<Patient>>;
+  fetchingPatients: boolean;
+  gettingPatientsError: OrNull<string>;
+  pageNumber: number;
+  preventFetch: boolean;
+  searchText?: string;
+};
 
-  componentDidMount = () => {
-    if (!this.props.user.isLoggedIn) {
-      this.props.getCurrentUser();
-    }
+export const ReferralsPage: React.FC = () => {
+  const {
+    selectedPatient,
+    patients,
+    fetchingPatients,
+    gettingPatientsError,
+    pageNumber,
+    preventFetch,
+    searchText,
+  } = useSelector(
+    (state: ReduxState): SelectorState => ({
+      selectedPatient: state.patients.patient,
+      patients: state.patients.referralsTablePatientsList,
+      fetchingPatients: state.patients.isLoading,
+      gettingPatientsError: state.patients.error,
+      pageNumber: state.patients.referralsTablePageNumber,
+      preventFetch: state.patients.preventFetch,
+      searchText: state.patients.referralsTableSearchText,
+    })
+  );
+
+  const dispatch = useDispatch();
+
+  React.useEffect((): void => {
     if (
-      this.props.patients.patientsList?.length === 0 ||
-      this.props.patients.patientsList === null
+      !preventFetch &&
+      !fetchingPatients &&
+      !gettingPatientsError &&
+      patients === null
     ) {
-      this.props.getPatients();
+      dispatch(getReferralsTablePatients());
     }
+  }, [
+    patients,
+    fetchingPatients,
+    gettingPatientsError,
+    dispatch,
+    preventFetch,
+  ]);
+
+  React.useEffect((): void => {
+    dispatch(updateTableDataOnSelectedPatientChange());
+  }, [dispatch, selectedPatient]);
+
+  const clearError = (): void => {
+    dispatch(clearGetReferralsTablePatientsError());
   };
 
-  static filterReferrals(patientsList: any) {
-    const result = patientsList?.filter((patient: any) => {
-      if (patient.readings.length === 0) {
-        return false;
-      }
-
-      // check if patient has a referral
-      for (let i = 0; i < patient.readings.length; i++) {
-        if (patient.readings[i].referral != null) {
-          return true;
-        }
-      }
-      return false;
-    });
-    return result ? result : [];
-  }
-
-  static getDerivedStateFromProps(props: any, state: any) {
-    const referredPatients: any = ReferralsPage.filterReferrals(
-      props.patients.patientsList
-    );
-    const newState = {
-      ...state,
-      patientsList: referredPatients,
-    };
-
-    return newState;
-  }
-
-  patientCallback = (selectedPatient: any) => {
-    this.props.history.push(`/patient/${selectedPatient.patientId}`);
+  const goToPatientPage = (selectedPatient: { patientId: string }): void => {
+    dispatch(push(`/patients/${selectedPatient.patientId}`));
   };
 
-  backBtnCallback = () => {
-    this.props.history.goBack();
+  const updatePageNumber = (pageNumber: number): void => {
+    dispatch(updateReferralsTablePageNumber(pageNumber));
   };
 
-  render() {
-    // don't render page if user is not logged in
-    if (!this.props.user.isLoggedIn) {
-      return <div />;
-    }
+  const updateSearchText = (searchText?: string): void => {
+    dispatch(updateReferralsTableSearchText(searchText));
+  };
 
-    return (
-      <div>
-        <ReferralTable
-          callbackFromParent={this.patientCallback}
-          data={this.state.patientsList}
-          isLoading={this.props.patients.isLoading}></ReferralTable>
-      </div>
-    );
-  }
-}
+  const sortPatients = (sortedPatients: Array<Patient>): void => {
+    dispatch(sortReferralsTablePatients(sortedPatients));
+  };
 
-const mapStateToProps = ({ patients, user }: ReduxState) => ({
-  patients,
-  user: user.current.data,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  getPatients: () => {
-    dispatch(getPatientsRequested());
-    dispatch(getPatients());
-  },
-  getCurrentUser: () => {
-    dispatch(getCurrentUser());
-  },
-});
-
-export const ReferralsPage = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ReferralPageComponent);
+  return (
+    <>
+      <Toast
+        status="error"
+        message={gettingPatientsError}
+        clearMessage={clearError}
+      />
+      <ReferralTable
+        pageNumber={pageNumber}
+        searchText={searchText}
+        onPatientSelected={goToPatientPage}
+        data={patients}
+        loading={fetchingPatients}
+        updatePageNumber={updatePageNumber}
+        updateSearchText={updateSearchText}
+        sortPatients={sortPatients}
+      />
+    </>
+  );
+};

@@ -5,75 +5,99 @@ import {
   OrUndefined,
   Patient,
 } from '@types';
+import {
+  updatePatientsTableRowsPerPage,
+  updateSelectedPatientState,
+} from '../../../redux/reducers/patients';
+import { useDispatch, useSelector } from 'react-redux';
 
 import MUIDataTable from 'mui-datatables';
-import { PatientStateEnum } from '../../../enums';
 import React from 'react';
-import { customRowRender } from './row';
+import { ReduxState } from '../../../redux/reducers';
+import { customRowRender } from '../../../shared/components/table/row';
 import { customToolbarRender } from './toolbar';
 import { useData } from './hooks/data';
-import { useLocalization } from './hooks/localization';
-import { useSearchChange } from './hooks/searchChange';
+import { useLocalization } from '../../../shared/hooks/table/localization';
+import { useSearchChange } from '../../../shared/hooks/table/searchChange';
 import { useTableColumns } from './hooks/tableColumns';
-import { useUpdatePageNumber } from './hooks/updatePageNumber';
+import { useUpdatePageNumber } from '../../../shared/hooks/table/updatePageNumber';
 
 interface IProps {
   data: OrNull<Array<Patient>>;
   globalSearchData: OrNull<Array<GlobalSearchPatient>>;
-  globalSearch: boolean;
-  globalSearchPageNumber: number;
-  isLoading: boolean;
+  pageNumber: number;
+  loading: boolean;
   getPatients: Callback<OrUndefined<string>>;
   onPatientSelected: Callback<Patient>;
   onGlobalSearchPatientSelected: Callback<string>;
-  toggleGlobalSearch: Callback<boolean>;
-  sortPatients: Callback<OrNull<Array<Patient>>>;
-  updateSelectedPatientState: Callback<OrUndefined<PatientStateEnum>>;
-  updateGlobalSearchPageNumber: Callback<number>;
-  updatePatientsTableSearchText: Callback<OrUndefined<string>>;
-  toggleShowReferredPatients: () => void;
-  patientsTableSearchText?: string;
+  updatePageNumber: Callback<number>;
+  updateSearchText: Callback<OrUndefined<string>>;
+  searchText?: string;
   showReferredPatients?: boolean;
   showGlobalSearch?: boolean;
 }
 
+type SelectorState = {
+  globalSearch: boolean;
+  rowsPerPage: number;
+};
+
 export const PatientTable: React.FC<IProps> = (props) => {
+  const { globalSearch, rowsPerPage } = useSelector(
+    ({ patients }: ReduxState): SelectorState => {
+      return {
+        globalSearch: patients.globalSearch,
+        rowsPerPage: patients.patientsTableRowsPerPage,
+      };
+    }
+  );
+
+  const dispatch = useDispatch();
+
   const onSearchChange = useSearchChange({
-    updateSearchText: props.updatePatientsTableSearchText,
+    updateSearchText: props.updateSearchText,
   });
 
   const { patients, sortData } = useData({
     data: props.data,
-    globalSearch: props.globalSearch,
+    globalSearch,
     globalSearchData: props.globalSearchData,
-    searchText: props.patientsTableSearchText,
+    searchText: props.searchText,
     getPatients: props.getPatients,
     showReferredPatients: props.showReferredPatients,
-    sortPatients: props.sortPatients,
   });
 
   const tableColumns = useTableColumns({
-    globalSearch: props.globalSearch,
+    globalSearch,
     onGlobalSearchPatientSelected: props.onGlobalSearchPatientSelected,
     patients,
     sortData,
   });
 
   const localization = useLocalization({
-    globalSearch: props.globalSearch,
-    loading: props.isLoading,
-    globalSearchMessage: props.patientsTableSearchText,
+    globalSearch,
+    initialMessage: `Search for a patient above by either Patient ID or Initials. If
+  nothing matches your search criteria this page will remain blank`,
+    loading: props.loading,
+    loadingText: `Getting patient data...`,
+    searchText: props.searchText,
   });
 
   const onChangePage = useUpdatePageNumber({
-    update: props.updateGlobalSearchPageNumber,
+    update: props.updatePageNumber,
   });
 
+  const onChangeRowsPerPage = (numberOfRows: number): void => {
+    dispatch(updatePatientsTableRowsPerPage(numberOfRows));
+  };
+
   const handleRowClick = (dataIndex: number): void => {
-    props.updateSelectedPatientState(
-      props.globalSearch
-        ? (patients[dataIndex] as GlobalSearchPatient).state
-        : undefined
+    dispatch(
+      updateSelectedPatientState(
+        globalSearch
+          ? (patients[dataIndex] as GlobalSearchPatient).state
+          : undefined
+      )
     );
     props.onPatientSelected(patients[dataIndex] as Patient);
   };
@@ -84,29 +108,29 @@ export const PatientTable: React.FC<IProps> = (props) => {
       data={patients}
       title="Patients"
       options={{
-        customRowRender: customRowRender(handleRowClick),
+        customRowRender: customRowRender({ handleRowClick }),
         customToolbar: customToolbarRender({
-          globalSearch: props.globalSearch,
+          globalSearch,
           globalSearchAction: props.showGlobalSearch,
-          loading: props.isLoading,
-          searchText: props.patientsTableSearchText ?? ``,
+          loading: props.loading,
+          searchText: props.searchText ?? ``,
           showReferredPatients: props.showReferredPatients,
-          toggleShowReferredPatients: props.toggleShowReferredPatients,
           updateSearchText: onSearchChange,
-          toggleGlobalSearch: props.toggleGlobalSearch,
         }),
         download: false,
         elevation: 1,
         fixedHeader: true,
         filter: false,
-        page: props.globalSearchPageNumber,
+        page: props.pageNumber,
         print: false,
         responsive: `simple`,
+        rowsPerPage,
         selectableRows: `none`,
         search: false,
         textLabels: localization,
         viewColumns: false,
         onChangePage,
+        onChangeRowsPerPage,
       }}
     />
   );

@@ -1,45 +1,60 @@
-import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { ActualUser, Callback, FollowUp, OrNull, Patient } from '@types';
 import {
+  Button,
   Divider,
-  Stepper,
   Step,
   StepLabel,
+  Stepper,
   Typography,
-  Button,
 } from '@material-ui/core';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { Dispatch, bindActionCreators } from 'redux';
+import {
+  ICreateAssessmentArgs,
+  IUpdateAssessmentArgs,
+  IUpdatePatientArgs,
+  addPatientNew,
+  afterDoesPatientExist,
+  afterNewPatientAdded,
+  clearCreateAssessmentOutcome,
+  clearUpdateAssessmentOutcome,
+  clearUpdatePatientOutcome,
+  createAssessment,
+  doesPatientExist,
+  updateAssessment,
+  updatePatient,
+} from '../../../redux/reducers/patients';
+import React, { useEffect, useState } from 'react';
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
+import {
+  addReadingNew,
+  resetNewReadingStatus,
+} from '../../../redux/reducers/newReadingStatus';
+import {
+  formatPatientData,
+  formatReadingData,
+  formatReadingDataVHT,
+} from './formatData';
+
+import AlertDialog from './alertDialog';
+import { Assessment } from './assessment';
+import { ConfirmationPage } from './confirmationPage';
 import { Demographics } from './demographic';
+import { FormStatusEnum } from '../../../enums';
+import { ReduxState } from '../../../redux/reducers';
+import SubmissionDialog from './submissionDialog';
 import { Symptoms } from './symptoms';
 import { VitalSignAssessment } from './vitalSignAssessment';
-import { Assessment } from './assessment';
-import { bindActionCreators } from 'redux';
-import { getCurrentUser } from '../../../shared/reducers/user/currentUser';
-import {
-  addNewReading,
-  resetNewReadingStatus,
-} from '../../../shared/reducers/newReadingStatus';
-import { addNewPatient } from '../../../shared/reducers/patients';
-import { User } from '@types';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../../redux/reducers/user/currentUser';
+import { push } from 'connected-react-router';
+import { useNewAssessment } from './assessment/hooks';
 import { useNewPatient } from './demographic/hooks';
 import { useNewSymptoms } from './symptoms/hooks';
-import { useNewVitals } from './vitalSignAssessment/hooks';
-import { useNewAssessment } from './assessment/hooks';
 import { useNewUrineTest } from './urineTestAssessment/hooks';
-import AlertDialog from './alertDialog';
-import SubmissionDialog from './submissionDialog';
-import { ConfirmationPage } from './confirmationPage';
+import { useNewVitals } from './vitalSignAssessment/hooks';
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      '& > *': {
-        margin: theme.spacing(2),
-      },
-    },
-    formField: {
-      margin: theme.spacing(2),
-      minWidth: '22ch',
-    },
     backButton: {
       margin: theme.spacing(2),
     },
@@ -53,76 +68,361 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-function getSteps() {
-  return [
-    'Collect basic demographic info',
-    'Collect symptoms',
-    'Vitals sign assessment',
-    'Assessment',
-    'Confirmation',
-  ];
+
+function getSteps(roles: string, formStatus: OrNull<FormStatusEnum>) {
+  switch (formStatus) {
+    case FormStatusEnum.EDIT_PATIENT_INFORMATION:
+      return [`Demographic Information`, `Confirmation`];
+    case FormStatusEnum.ADD_ASSESSMENT:
+    case FormStatusEnum.UPDATE_ASSESSMENT:
+      return [`Assessments`, `Confirmation`];
+    case FormStatusEnum.ADD_NEW_READING:
+    default:
+      return roles === `VHT`
+        ? [
+            `Demographic Information`,
+            `Symptoms`,
+            `Vitals Signs`,
+            `Confirmation`,
+          ]
+        : [
+            `Demographic Information`,
+            `Symptoms`,
+            `Vitals Signs`,
+            `Assessments`,
+            `Confirmation`,
+          ];
+  }
 }
+
+type LocationState = {
+  patient: Patient;
+  status: FormStatusEnum;
+  assessment?: FollowUp;
+  readingId?: string;
+  userId?: OrNull<number>;
+};
+
 interface IProps {
   getCurrentUser: any;
   afterNewPatientAdded: any;
-  user: User;
-  addNewReading: any;
+  user: ActualUser;
+  addPatientNew: any;
+  doesPatientExist: any;
+  addReadingNew: any;
+  newPatientAdded: any;
+  newPatientExist: boolean;
+  patient: any;
+  readingCreated: any;
+  resetNewReadingStatus: any;
+  error: OrNull<string>;
+  success: OrNull<string>;
+  assessmentFromEdit: OrNull<FollowUp>;
+  formStatus: OrNull<FormStatusEnum>;
+  patientFromEdit: OrNull<Patient>;
+  readingId: OrNull<string>;
+  userId: OrNull<number>;
+  afterDoesPatientExist: any;
+  createAssessment: Callback<ICreateAssessmentArgs>;
+  updateAssessment: Callback<IUpdateAssessmentArgs>;
+  updatePatient: Callback<IUpdatePatientArgs>;
+  clearCreateAssessmentOutcome: () => void;
+  clearUpdateAssessmentOutcome: () => void;
+  clearUpdatePatientOutcome: () => void;
+  goBackToPatientPage: Callback<string>;
 }
 
-// const initState = {
-//   reading: {
-//     userId: '',
-//     readingId: '',
-//     dateTimeTaken: null,
-//     bpSystolic: '',
-//     bpDiastolic: '',
-//     heartRateBPM: '',
-//     dateRecheckVitalsNeeded: null,
-//     isFlaggedForFollowup: false,
-//     symptoms: '',
-//     urineTests: initialUrineTests,
-//   },
-//   showSuccessReading: false,
-//   hasUrineTest: false,
-// };
 const Page: React.FC<IProps> = (props) => {
+  //styling
   const classes = useStyles();
+  //stepper
   const [activeStep, setActiveStep] = React.useState(0);
-  const { patient, handleChangePatient } = useNewPatient();
-  const { symptoms, handleChangeSymptoms } = useNewSymptoms();
-  const { vitals, handleChangeVitals } = useNewVitals();
-  const { assessment, handleChangeAssessment } = useNewAssessment();
-  const { urineTest, handleChangeUrineTest } = useNewUrineTest();
-  const [isPatientCreated, setIsPatientCreated] = useState(false);
-  const [isShowDialog, setIsShowDialog] = useState(false);
+
+  // ~~~~~~~~~~~~~~~ custome states for each component ~~~~~~~~~~~~~~~~~~~~~
+  const {
+    patient,
+    handleChangePatient,
+    initializeEditPatient,
+    resetValuesPatient,
+  } = useNewPatient();
+  const {
+    symptoms,
+    handleChangeSymptoms,
+    resetValuesSymptoms,
+  } = useNewSymptoms();
+  const { vitals, handleChangeVitals, resetValueVitals } = useNewVitals();
+  const {
+    assessment,
+    handleChangeAssessment,
+    initializeAssessment,
+    resetValueAssessment,
+  } = useNewAssessment();
+  const {
+    urineTest,
+    handleChangeUrineTest,
+    resetValueUrineTest,
+  } = useNewUrineTest();
+
+  const [existingPatient, setExistingPatient] = useState(false);
+  const [blockBackButton, setBlockBackButton] = useState(false);
+  const [selectedPatientId, setSelectedPatientId] = useState('');
   const [isShowDialogSubmission, setIsShowDialogsubmission] = useState(false);
-  const steps = getSteps();
+  const [isShowDialogPatientCheck, setIsShowDialogPatientCheck] = useState(
+    false
+  );
+  const [pageTitle, setPageTitle] = useState(
+    'Create a New Patient and Reading'
+  );
+  const steps = getSteps(props.user.roles[0], props.formStatus);
+
+  // ~~~~~~~~ Creating Reading  ~~~~~~~~~~~~~~~~~~
+  const addReading = React.useCallback(() => {
+    if (props.user.roles[0] === 'VHT') {
+      const formattedReading = formatReadingDataVHT(
+        selectedPatientId,
+        symptoms,
+        urineTest.enabled ? urineTest : null,
+        vitals,
+        props.user.userId
+      );
+      props.addReadingNew(formattedReading);
+    } else {
+      const formattedReading = formatReadingData(
+        selectedPatientId,
+        symptoms,
+        urineTest.enabled ? urineTest : null,
+        vitals,
+        assessment,
+        props.user.userId
+      );
+      props.addReadingNew(formattedReading);
+    }
+  }, [assessment, props, selectedPatientId, symptoms, urineTest, vitals]);
+
+  useEffect((): void => {
+    if (props.error || props.success) {
+      setIsShowDialogsubmission(true);
+    }
+  }, [props.error, props.success]);
 
   useEffect(() => {
+    // getting current user
     if (!props.user.isLoggedIn) {
       props.getCurrentUser();
     }
-  });
+    // flow for adding new patient + reading
+    if (props.newPatientAdded) {
+      addReading();
+      props.afterNewPatientAdded();
+      props.afterDoesPatientExist();
+      setIsShowDialogsubmission(true);
+    }
+    // flow for using existing patient after typing id
+    if (props.newPatientExist && existingPatient) {
+      setSelectedPatientId(props.patient.patientId);
+      setExistingPatient(false);
+      setIsShowDialogPatientCheck(true);
+    }
+    // flow for NOT using existing patient after typing id
+    if (!props.newPatientExist && existingPatient) {
+      setSelectedPatientId(patient.patientId);
+      setPageTitle(
+        `Create a New Patient and Reading, ${patient.patientId} (${patient.patientInitial})`
+      );
+      setExistingPatient(false);
+      setIsShowDialogPatientCheck(true);
+    }
+  }, [
+    addReading,
+    existingPatient,
+    patient.patientId,
+    patient.patientInitial,
+    props,
+    urineTest,
+  ]);
 
+  // ~~~~~~~~ flow from patient list ~~~~~~~~~~~~
+  // ~~~~~~~~ add new reading ~~~~~~~~~~~~
+  // ~~~~~~~~ edit patient info ~~~~~~~~~~~~
+  // ~~~~~~~~ add assessment ~~~~~~~~~~~~
+  // ~~~~~~~~ update assessment~~~~~~~~~~~~
+  useEffect(() => {
+    if (props.patientFromEdit) {
+      switch (props.formStatus) {
+        case FormStatusEnum.ADD_NEW_READING: {
+          setPageTitle(
+            `Create a New Reading, ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
+          );
+          setActiveStep((prevActiveStep) => prevActiveStep + 1);
+          break;
+        }
+        case FormStatusEnum.EDIT_PATIENT_INFORMATION: {
+          initializeEditPatient(props.patientFromEdit);
+          setPageTitle(
+            `Edit Patient Information, ${props.patientFromEdit.patientId}`
+          );
+          break;
+        }
+        case FormStatusEnum.ADD_ASSESSMENT: {
+          setPageTitle(
+            `Create Assessment, ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
+          );
+          break;
+        }
+        case FormStatusEnum.UPDATE_ASSESSMENT: {
+          initializeAssessment(props.assessmentFromEdit);
+          setPageTitle(
+            `Update Assessment, ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
+          );
+          break;
+        }
+      }
+
+      setBlockBackButton(true);
+      setSelectedPatientId(props.patientFromEdit.patientId);
+    }
+  }, [
+    initializeEditPatient,
+    initializeAssessment,
+    props.assessmentFromEdit,
+    props.patientFromEdit,
+    props.formStatus,
+  ]);
+
+  // ~~~~~~~~ Stepper Next button call ~~~~~~~~~~~~~~~~~~
   const handleNext = () => {
-    if (activeStep === 0) {
-      setIsPatientCreated(true);
-      setIsShowDialog(true);
+    if (
+      activeStep === 0 &&
+      !(
+        props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION ||
+        props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
+        props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT
+      )
+    ) {
+      setExistingPatient(true);
+      props.doesPatientExist(patient.patientId);
     } else {
+      setBlockBackButton(false);
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
-  const handleSubmit = () => {
-    setIsShowDialogsubmission(true);
+
+  // ~~~~~~~~ Stepper Back button call ~~~~~~~~~~~~~~~~~~
+  const handleBack = () => {
+    if (activeStep === 2 && (props.newPatientExist || props.patientFromEdit)) {
+      setBlockBackButton(true);
+    }
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleDialogClose = () => {
-    setIsShowDialog(false);
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  // ~~~~~~~~ Last Step Submission Call  ~~~~~~~~~~~
+  const handleSubmit = () => {
+    if (props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION) {
+      props.updatePatient({
+        data: formatPatientData(patient),
+      });
+    } else if (props.formStatus === FormStatusEnum.ADD_ASSESSMENT) {
+      if (props.readingId && props.userId) {
+        props.createAssessment({
+          data: {
+            diagnosis: assessment.finalDiagnosis,
+            followupNeeded: assessment.enabled,
+            followupInstructions: assessment.InstructionFollow,
+            medicationPrescribed: assessment.medPrescribed,
+            specialInvestigations: assessment.specialInvestigations,
+            treatment: assessment.treatmentOP,
+          },
+          readingId: props.readingId,
+          userId: props.userId,
+        });
+      } else {
+        throw new Error(
+          `Invalid action: Reading ID and User ID from patient page corrupted!`
+        );
+      }
+    } else if (props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT) {
+      if (props.assessmentFromEdit && props.readingId && props.userId) {
+        props.updateAssessment({
+          data: {
+            id: props.assessmentFromEdit.id,
+            followupNeeded: assessment.enabled,
+            followupInstructions: assessment.InstructionFollow,
+            diagnosis: assessment.finalDiagnosis,
+            medicationPrescribed: assessment.medPrescribed,
+            specialInvestigations: assessment.specialInvestigations,
+            treatment: assessment.treatmentOP,
+          },
+          readingId: props.readingId,
+          userId: props.userId,
+        });
+      } else {
+        throw new Error(
+          `Invalid action: Assessment from patient page corrupted!`
+        );
+      }
+    } else if (!props.newPatientExist && !props.patientFromEdit) {
+      //if not an existing patient
+      const formattedPatient = formatPatientData(patient);
+      props.addPatientNew(formattedPatient);
+    } else {
+      addReading();
+      setIsShowDialogsubmission(true);
+    }
   };
-  const handleDialogCloseSubmission = () => {
-    setIsShowDialogsubmission(false);
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+
+  // ~~~~~~~~ Handle response from the existing patient Dialog  ~~~~~~~~~~~
+  const handleDialogClose = (e: any) => {
+    const value = e.currentTarget.value;
+    if (value === 'no') {
+      setIsShowDialogPatientCheck(false);
+    }
+    if (value === 'yes') {
+      setIsShowDialogPatientCheck(false);
+      setBlockBackButton(true);
+      setPageTitle(
+        `Create a New Reading, ${props.patient.patientId} (${props.patient.patientName})`
+      );
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+    if (value === 'ok') {
+      setIsShowDialogPatientCheck(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+  };
+
+  // ~~~~~~~~ Handle response from Submission dialog  ~~~~~~~~~~~
+  const handleDialogCloseSubmission = (e: any) => {
+    switch (props.formStatus) {
+      case FormStatusEnum.EDIT_PATIENT_INFORMATION: {
+        props.clearUpdatePatientOutcome();
+        break;
+      }
+      case FormStatusEnum.ADD_ASSESSMENT: {
+        props.clearCreateAssessmentOutcome();
+        break;
+      }
+      case FormStatusEnum.UPDATE_ASSESSMENT: {
+        props.clearUpdateAssessmentOutcome();
+        break;
+      }
+    }
+
+    if (props.formStatus && props.patientFromEdit) {
+      props.goBackToPatientPage(props.patientFromEdit.patientId);
+      return;
+    }
+
+    const value = e.currentTarget.value;
+    props.afterNewPatientAdded();
+    props.afterDoesPatientExist();
+    if (value === 'ok') {
+      setIsShowDialogsubmission(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+    if (value === 'redo') {
+      setIsShowDialogsubmission(false);
+      handleReset();
+    }
   };
 
   const isRequiredFilled = () => {
@@ -130,8 +430,21 @@ const Page: React.FC<IProps> = (props) => {
       if (
         !patient.patientId ||
         !patient.patientInitial ||
+        (patient.isPregnant && !patient.gestationalAgeValue) ||
         patient.patientIdError ||
-        patient.patientInitialError
+        patient.patientInitialError ||
+        patient.householdError ||
+        patient.patientNameError ||
+        patient.patientAgeError ||
+        patient.patientSexError ||
+        patient.isPregnantError ||
+        patient.gestationalAgeValueError ||
+        patient.gestationalAgeUnitError ||
+        patient.zoneError ||
+        patient.dobError ||
+        patient.villageNumberError ||
+        patient.drugHistoryError ||
+        patient.medicalHistoryError
       ) {
         return true;
       }
@@ -162,14 +475,16 @@ const Page: React.FC<IProps> = (props) => {
     return false;
   };
 
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
   const handleReset = () => {
     setActiveStep(0);
+    resetValuesPatient(true);
+    resetValuesSymptoms(true);
+    resetValueVitals(true);
+    resetValueAssessment(true);
+    resetValueUrineTest(true);
+    setBlockBackButton(false);
+    setPageTitle('Create a New Patient and Reading');
   };
-  console.log('isPatientCreated', isPatientCreated);
   return (
     <div
       style={{
@@ -178,7 +493,7 @@ const Page: React.FC<IProps> = (props) => {
         marginRight: 'auto',
       }}>
       <h1 style={{ textAlign: 'center' }}>
-        <b>Create a New Reading</b>
+        <b>{pageTitle}</b>
       </h1>
       <Divider />
       <Stepper activeStep={activeStep} alternativeLabel>
@@ -188,21 +503,32 @@ const Page: React.FC<IProps> = (props) => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === 0 ? (
+      {activeStep === 0 &&
+      props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+      props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
         <Demographics
           patient={patient}
+          showPatientId={
+            props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION
+          }
           onChange={handleChangePatient}></Demographics>
       ) : (
         ''
       )}
-      {activeStep === 1 ? (
+      {activeStep === 1 &&
+      props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+      props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+      props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
         <Symptoms
           symptoms={symptoms}
           onChange={handleChangeSymptoms}></Symptoms>
       ) : (
         ''
       )}
-      {activeStep === 2 ? (
+      {activeStep === 2 &&
+      props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+      props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+      props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
         <VitalSignAssessment
           vitals={vitals}
           onChange={handleChangeVitals}
@@ -211,20 +537,32 @@ const Page: React.FC<IProps> = (props) => {
       ) : (
         ''
       )}
-      {activeStep === 3 ? (
+      {(activeStep === 3 && props.user.roles[0] !== 'VHT') ||
+      (activeStep === 0 &&
+        (props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
+          props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT)) ? (
         <Assessment
           assessment={assessment}
           onChange={handleChangeAssessment}></Assessment>
       ) : (
         ''
       )}
-      {activeStep === 4 ? (
+      {activeStep === 4 ||
+      (props.user.roles[0] === 'VHT' && activeStep === 3) ||
+      (activeStep === 1 &&
+        (props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION ||
+          props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
+          props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT)) ? (
         <ConfirmationPage
+          formStatus={props.formStatus}
           patient={patient}
           symptoms={symptoms}
           vitals={vitals}
           assessment={assessment}
-          urineTest={urineTest}></ConfirmationPage>
+          urineTest={urineTest}
+          isPatientExisting={
+            props.newPatientExist || props.patientFromEdit ? true : false
+          }></ConfirmationPage>
       ) : (
         ''
       )}
@@ -234,22 +572,32 @@ const Page: React.FC<IProps> = (props) => {
             <Typography className={classes.instructions}>
               All steps completed
             </Typography>
+            {/*need to be styled*/}
             <Button onClick={handleReset}>Create New Patient/Reading</Button>
           </div>
         ) : (
           <div>
             <div>
               <Button
-                disabled={activeStep === 0}
+                disabled={activeStep === 0 || blockBackButton}
                 onClick={handleBack}
                 className={classes.backButton}>
                 Back
               </Button>
               <Button
                 style={{
-                  display: steps.length - 2 === activeStep ? 'none' : '',
+                  display:
+                    props.formStatus ===
+                      FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+                    activeStep !== 0
+                      ? ``
+                      : steps.length - 2 === activeStep ||
+                        props.formStatus ===
+                          FormStatusEnum.EDIT_PATIENT_INFORMATION
+                      ? 'none'
+                      : '',
                 }}
-                disabled={isRequiredFilled() ? true : false}
+                disabled={isRequiredFilled()}
                 className={classes.nextButton}
                 variant="contained"
                 color="primary"
@@ -260,8 +608,23 @@ const Page: React.FC<IProps> = (props) => {
               </Button>
               <Button
                 style={{
-                  display: steps.length - 2 !== activeStep ? 'none' : '',
+                  display:
+                    props.formStatus ===
+                      FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+                    activeStep === 0
+                      ? ``
+                      : steps.length - 2 !== activeStep
+                      ? 'none'
+                      : '',
                 }}
+                disabled={
+                  props.user.roles[0] === 'VHT' ||
+                  props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION
+                    ? isRequiredFilled()
+                      ? true
+                      : false
+                    : false
+                }
                 className={classes.nextButton}
                 variant="contained"
                 color="primary"
@@ -269,9 +632,17 @@ const Page: React.FC<IProps> = (props) => {
                 Confirm
               </Button>
               <AlertDialog
-                open={isShowDialog}
+                open={isShowDialogPatientCheck}
+                patientExist={props.newPatientExist}
+                patient={props.patient}
                 handleDialogClose={handleDialogClose}></AlertDialog>
               <SubmissionDialog
+                error={props.error}
+                success={props.success}
+                patientExist={
+                  props.newPatientExist || props.patientFromEdit ? true : false
+                }
+                readingCreated={props.readingCreated}
                 open={isShowDialogSubmission}
                 handleDialogClose={
                   handleDialogCloseSubmission
@@ -283,25 +654,61 @@ const Page: React.FC<IProps> = (props) => {
     </div>
   );
 };
-const mapStateToProps = ({ user, newReadingStatus, patients }: any) => ({
+
+const mapStateToProps = ({
+  user,
+  newReadingStatus,
+  patients,
+  router,
+}: ReduxState) => ({
   user: user.current.data,
   createReadingStatusError: newReadingStatus.error,
   readingCreated: newReadingStatus.readingCreated,
   newReadingData: newReadingStatus.message,
   newPatientAdded: patients.newPatientAdded,
+  newPatientExist: patients.patientExist,
+  patient: patients.existingPatient,
+  error: patients.error,
+  success: patients.success,
+  assessmentFromEdit: router.location.state
+    ? (router.location.state as LocationState).assessment ?? null
+    : null,
+  formStatus: router.location.state
+    ? (router.location.state as LocationState).status
+    : null,
+  patientFromEdit: router.location.state
+    ? (router.location.state as LocationState).patient
+    : null,
+  readingId: router.location.state
+    ? (router.location.state as LocationState).readingId
+    : null,
+  userId: router.location.state
+    ? (router.location.state as LocationState).userId
+    : null,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   ...bindActionCreators(
     {
       getCurrentUser,
-      addNewReading,
-      addNewPatient,
       resetNewReadingStatus,
-      // afterNewPatientAdded
+      addPatientNew,
+      addReadingNew,
+      createAssessment,
+      updateAssessment,
+      updatePatient,
+      doesPatientExist,
+      afterDoesPatientExist,
+      afterNewPatientAdded,
+      clearCreateAssessmentOutcome,
+      clearUpdateAssessmentOutcome,
+      clearUpdatePatientOutcome,
     },
     dispatch
   ),
+  goBackToPatientPage: (patientId: string): void => {
+    dispatch(push(`/patients/${patientId}`));
+  },
 });
 export const NewReadingCovid = connect(
   mapStateToProps,

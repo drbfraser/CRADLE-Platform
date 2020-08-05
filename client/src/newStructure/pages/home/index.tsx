@@ -1,24 +1,13 @@
-import { OrNull, User } from '@types';
+import { ActualUser, OrNull } from '@types';
 
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
-import { connect } from 'react-redux';
+import { ReduxState } from '../../redux/reducers';
+import { useSelector } from 'react-redux';
 
-interface IProps {
-  currentUser: OrNull<User>;
-}
-
-const Page: React.FC<IProps> = (props) => {
-  return props.currentUser ? (
-    <Redirect to="/patients" />
-  ) : (
-    <Redirect to="/login" />
+export const HomePage: React.FC = () => {
+  const currentUser = useSelector(
+    ({ user }: ReduxState): OrNull<ActualUser> => user.current.data
   );
+  return currentUser ? <Redirect to="/referrals" /> : <Redirect to="/login" />;
 };
-
-const mapStateToProps = ({ user }: ReduxState) => ({
-  currentUser: user.current.data,
-});
-
-export const HomePage = connect(mapStateToProps)(Page);

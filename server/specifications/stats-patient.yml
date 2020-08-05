@@ -16,7 +16,7 @@ responses:
         schema:
           type: object
           properties:
-            bpSystolicReadingsMontly:
+            bpSystolicReadingsMonthly:
               type: array
               items: array of integers
               example: [[], [], [60], [], [], [], [], [], [], [], [], []]

@@ -1,80 +1,72 @@
-import { Card, Statistic } from 'semantic-ui-react';
+import { OrNull, Statistics } from '@types';
 import {
   assessmentsPerMonth,
   readingsPerMonth,
   referralsPerMonth,
 } from './utils';
 
-import { Line } from 'react-chartjs-2';
+import { Chart } from '../chart';
+import { Loader } from '../../../shared/components/loader';
 import React from 'react';
-import classes from '../styles.module.css';
-import { xLabels } from '../utils';
+import { Statistic as SemanticStatistic } from 'semantic-ui-react';
+import { Statistic } from '../statistic';
+import { useStyles } from '../styles';
 
 interface IProps {
-  currentMonth: number;
-  statisticsList: any;
+  error: boolean;
+  loading: boolean;
+  statistics: OrNull<Statistics>;
 }
 
 export const GlobalStatistics: React.FC<IProps> = ({
-  currentMonth,
-  statisticsList,
+  error,
+  loading,
+  statistics,
 }) => {
-  const readingsVsReferralsVsAssessment = {
-    labels: xLabels,
-    datasets: [
-      readingsPerMonth(statisticsList.readingsPerMonth),
-      referralsPerMonth(statisticsList.referralsPerMonth),
-      assessmentsPerMonth(statisticsList.assessmentsPerMonth),
-    ],
-  };
+  const classes = useStyles();
+
+  if (loading) {
+    return <Loader message="Getting global statistics..." show={true} />;
+  }
+
+  if (error) {
+    return null;
+  }
 
   return (
-    <>
+    <div>
       <h1 className={classes.headerSize}>Global Statistics</h1>
       <div>
         <h2>In the last month, there were:</h2>
         <div className={classes.center}>
-          {statisticsList.readingsPerMonth &&
-          statisticsList.referralsPerMonth &&
-          statisticsList.assessmentsPerMonth ? (
-            <Statistic.Group className={classes.statisticGroup}>
-              <Statistic horizontal className={classes.statistic}>
-                <Statistic.Value className={classes.underlineBlue}>
-                  {statisticsList.readingsPerMonth[currentMonth - 1]}
-                </Statistic.Value>
-                <Statistic.Label className={classes.verticalWriting}>
-                  READINGS TAKEN
-                </Statistic.Label>
-              </Statistic>
-
-              <Statistic horizontal className={classes.statistic}>
-                <Statistic.Value className={classes.underlinePurple}>
-                  {statisticsList.referralsPerMonth[currentMonth - 1]}
-                </Statistic.Value>
-                <Statistic.Label className={classes.verticalWriting}>
-                  REFERRALS SENT
-                </Statistic.Label>
-              </Statistic>
-
-              <Statistic horizontal className={classes.statistic}>
-                <Statistic.Value className={classes.underlineOrange}>
-                  {statisticsList.assessmentsPerMonth[currentMonth - 1]}
-                </Statistic.Value>
-                <Statistic.Label className={classes.verticalWriting}>
-                  ASSESSMENTS MADE
-                </Statistic.Label>
-              </Statistic>
-            </Statistic.Group>
-          ) : null}
-          <div className="chart">
-            <Card fluid className="chart">
-              <Card.Content>
-                <Line data={readingsVsReferralsVsAssessment} />
-              </Card.Content>
-            </Card>
-          </div>
+          <SemanticStatistic.Group className={classes.statisticGroup}>
+            <Statistic
+              label="READINGS TAKEN"
+              data={statistics?.readingsPerMonth}
+              underlineClassName={classes.underlineBlue}
+            />
+            <Statistic
+              label="REFERRALS SENT"
+              data={statistics?.referralsPerMonth}
+              underlineClassName={classes.underlinePurple}
+            />
+            <Statistic
+              label="ASSESSMENTS MADE"
+              data={statistics?.assessmentsPerMonth}
+              underlineClassName={classes.underlineOrange}
+            />
+          </SemanticStatistic.Group>
+          {statistics && (
+            <Chart
+              datasets={[
+                readingsPerMonth(statistics.readingsPerMonth),
+                referralsPerMonth(statistics.referralsPerMonth),
+                assessmentsPerMonth(statistics.assessmentsPerMonth),
+              ]}
+            />
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 };

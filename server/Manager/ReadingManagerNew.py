@@ -48,7 +48,6 @@ class ReadingManager(Manager):
         # if a urine test already exits for reading, throw an error, otherwise create the urine test reading
         existingReading = urineTestManager.read("readingId", reading["readingId"])
         if existingReading is None:
-            urineTestData["Id"] = str(uuid.uuid4())
             urineTestData["readingId"] = reading["readingId"]
             urineTests = urineTestManager.create(urineTestData)
             logging.debug("urine test created")

@@ -1,18 +1,24 @@
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
+import { toggleShowReferredPatients } from '../../../../../redux/reducers/patients';
+import { useDispatch } from 'react-redux';
 import { useStyles } from './styles';
 
 interface IProps {
-  toggleShowReferredPatients: () => void;
   showReferredPatients?: boolean;
 }
 
 export const ReferredPatients: React.FC<IProps> = ({
   showReferredPatients,
-  toggleShowReferredPatients,
 }) => {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
+
+  const handleClick = (): void => {
+    dispatch(toggleShowReferredPatients());
+  };
 
   return (
     <Tooltip
@@ -23,7 +29,7 @@ export const ReferredPatients: React.FC<IProps> = ({
         className={classes.container}
         color="primary"
         checked={showReferredPatients}
-        onClick={toggleShowReferredPatients}
+        onClick={handleClick}
       />
     </Tooltip>
   );

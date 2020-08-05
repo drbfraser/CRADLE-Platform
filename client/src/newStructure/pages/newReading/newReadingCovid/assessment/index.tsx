@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Checkbox,
   FormControl,
@@ -6,7 +5,9 @@ import {
   Paper,
   TextField,
 } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
+
+import React from 'react';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -74,10 +75,9 @@ const Page: React.FC<IProps> = (props) => {
         <FormControl className={classes.formFieldWide}>
           <TextField
             id="outlined-multiline-static"
-            label="Special Investigation + Results (if avaulable)"
+            label="Investigation Results (if available)"
             multiline
             rows={2}
-            defaultValue="..."
             variant="outlined"
             name={'specialInvestigations'}
             value={props.assessment.specialInvestigations}
@@ -90,7 +90,6 @@ const Page: React.FC<IProps> = (props) => {
             label="Final Diagnosis"
             multiline
             rows={2}
-            defaultValue="..."
             variant="outlined"
             name={'finalDiagnosis'}
             value={props.assessment.finalDiagnosis}
@@ -103,7 +102,6 @@ const Page: React.FC<IProps> = (props) => {
             label="Treatment/Operation"
             multiline
             rows={2}
-            defaultValue="..."
             variant="outlined"
             name={'treatmentOP'}
             value={props.assessment.treatmentOP}
@@ -116,7 +114,6 @@ const Page: React.FC<IProps> = (props) => {
             label="Medication Prescribed (include dose and frequency)"
             multiline
             rows={2}
-            defaultValue="..."
             variant="outlined"
             name={'medPrescribed'}
             value={props.assessment.medPrescribed}
@@ -128,7 +125,6 @@ const Page: React.FC<IProps> = (props) => {
             disabled={!props.assessment.enabled}
             id="outlined-multiline-static"
             label="Instructions for Follow up"
-            defaultValue="..."
             variant="outlined"
             name={'InstructionFollow'}
             value={props.assessment.InstructionFollow}

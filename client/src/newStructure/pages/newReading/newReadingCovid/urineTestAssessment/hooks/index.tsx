@@ -10,7 +10,7 @@ export const useNewUrineTest = () => {
     nitrites: '',
   });
   const handleChangeUrineTest = (e: any) => {
-    if (e.target.name == 'enabled') {
+    if (e.target.name === `enabled`) {
       if (!e.target.checked) {
         setUrineTest({
           ...urineTest,
@@ -34,5 +34,18 @@ export const useNewUrineTest = () => {
       });
     }
   };
-  return { urineTest, handleChangeUrineTest };
+
+  const resetValueUrineTest = (reset: boolean) => {
+    if (reset) {
+      setUrineTest({
+        enabled: true,
+        leukocytes: '',
+        blood: '',
+        protein: '',
+        glucose: '',
+        nitrites: '',
+      });
+    }
+  };
+  return { urineTest, handleChangeUrineTest, resetValueUrineTest };
 };

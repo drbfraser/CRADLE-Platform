@@ -1,69 +1,76 @@
-import './index.css';
+import { Statistics as GlobalStatisticsType, OrNull } from '@types';
+import {
+  clearStatisticsRequestOutcome,
+  getStatistics,
+} from '../../redux/reducers/statistics';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { AllAssessedWomenStatsitics } from './allAssessedWomen';
+import { CurrentMonthContextProvider } from './context/currentMonth';
 import { GlobalStatistics } from './global';
 import { HealthFacilityStatistics } from './healthFacility';
 import { LastMonthTrafficLightsStatistics } from './lastMonthTrafficLights';
 import React from 'react';
-import { ReduxState } from '../../../newStructure/redux/rootReducer';
-import { bindActionCreators } from 'redux';
-import classes from './styles.module.css';
-import { connect } from 'react-redux';
-import { getStatistics } from '../../shared/reducers/statistics';
+import { ReduxState } from '../../redux/reducers';
+import { Toast } from '../../shared/components/toast';
+import { useStyles } from './styles';
 
-interface IProps {
-  getStatistics: any;
-  statisticsList: any;
-}
-
-const Page: React.FC<IProps> = ({ getStatistics, statisticsList }) => {
-  const currentMonth = React.useRef<number>(new Date().getMonth());
-
-  React.useEffect((): void => {
-    getStatistics();
-  }, [getStatistics]);
-
-  return statisticsList ? (
-    <div className={classes.container}>
-      <HealthFacilityStatistics
-        currentMonth={currentMonth.current}
-        statisticsList={statisticsList}
-      />
-      <br />
-      <br />
-      <GlobalStatistics
-        currentMonth={currentMonth.current}
-        statisticsList={statisticsList}
-      />
-      <br />
-      <br />
-      <AllAssessedWomenStatsitics
-        currentMonth={currentMonth.current}
-        statisticsList={statisticsList}
-      />
-      <br />
-      <br />
-      <LastMonthTrafficLightsStatistics statisticsList={statisticsList} />
-    </div>
-  ) : (
-    <>Loading ...</>
-  );
+type SelectorState = {
+  error: boolean;
+  loading: boolean;
+  message: OrNull<string>;
+  statistics: OrNull<GlobalStatisticsType>;
 };
 
-const mapStateToProps = ({ statistics }: ReduxState) => ({
-  statisticsList: statistics.data,
-});
+export const StatisticsPage: React.FC = () => {
+  const classes = useStyles();
 
-const mapDispatchToProps = (dispatch: any) => ({
-  ...bindActionCreators(
-    {
-      getStatistics,
-    },
-    dispatch
-  ),
-});
+  const { error, loading, message, statistics } = useSelector(
+    ({ statistics }: ReduxState): SelectorState => ({
+      error: statistics.error,
+      loading: statistics.loading,
+      message: statistics.message,
+      statistics: statistics.data,
+    })
+  );
 
-export const StatisticsPage = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Page);
+  const dispatch = useDispatch();
+
+  React.useEffect((): void => {
+    dispatch(getStatistics());
+  }, [dispatch]);
+
+  const clearError = (): void => {
+    dispatch(clearStatisticsRequestOutcome());
+  };
+
+  return (
+    <>
+      <Toast status="error" message={message} clearMessage={clearError} />
+      <CurrentMonthContextProvider>
+        <div className={classes.container}>
+          <HealthFacilityStatistics
+            error={error}
+            loading={loading}
+            statistics={statistics}
+          />
+          <GlobalStatistics
+            error={error}
+            loading={loading}
+            statistics={statistics}
+          />
+          <AllAssessedWomenStatsitics
+            error={error}
+            loading={loading}
+            statistics={statistics}
+          />
+          <LastMonthTrafficLightsStatistics
+            error={error}
+            loading={loading}
+            statistics={statistics}
+          />
+        </div>
+      </CurrentMonthContextProvider>
+    </>
+  );
+};
