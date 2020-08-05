@@ -32,8 +32,8 @@ class Root(Resource):
     @jwt_required
     def post():
         json = request.get_json(force=True)
+        # TODO: Check for duplicate patient
         error_message = patients.validate(json)
-        print(error_message)
         if error_message is not None:
             abort(400, message=error_message)
         patient = marshal.unmarshal(Patient, json)

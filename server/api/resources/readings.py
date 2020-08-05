@@ -6,6 +6,7 @@ import data.crud as crud
 import data.marshal as marshal
 import service.invariant as invariant
 from models import Reading
+from Validation import readings
 
 
 class Root(Resource):
@@ -13,7 +14,10 @@ class Root(Resource):
     @jwt_required
     def post():
         json = request.get_json(force=True)
-        # TODO: Validate request
+        error_message = readings.validate(json)
+        if error_message is not None:
+            abort(400, message=error_message)
+
         reading = marshal.unmarshal(Reading, json)
 
         if crud.read(Reading, readingId=reading.readingId):
