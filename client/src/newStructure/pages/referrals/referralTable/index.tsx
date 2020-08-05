@@ -1,9 +1,12 @@
 import { Callback, OrNull, OrUndefined, Patient } from '@types';
+import { useDispatch, useSelector } from 'react-redux';
 
 import MUIDataTable from 'mui-datatables';
 import React from 'react';
+import { ReduxState } from 'src/newStructure/redux/reducers';
 import { customRowRender } from '../../../shared/components/table/row';
 import { customToolbarRender } from '../../../shared/components/table/toolbar';
+import { updateReferralsTableRowsPerPage } from '../../../redux/reducers/patients';
 import { useData } from './hooks/data';
 import { useLocalization } from '../../../shared/hooks/table/localization';
 import { useSearchChange } from '../../../shared/hooks/table/searchChange';
@@ -22,6 +25,10 @@ interface IProps {
 }
 
 export const ReferralTable: React.FC<IProps> = (props) => {
+  const rowsPerPage = useSelector(({ patients }: ReduxState): number => {
+    return patients.referralsTableRowsPerPage;
+  });
+
   const onSearchChange = useSearchChange({
     updateSearchText: props.updateSearchText,
   });
@@ -46,6 +53,12 @@ export const ReferralTable: React.FC<IProps> = (props) => {
     update: props.updatePageNumber,
   });
 
+  const dispatch = useDispatch();
+
+  const onChangeRowsPerPage = (numberOfRows: number): void => {
+    dispatch(updateReferralsTableRowsPerPage(numberOfRows));
+  };
+
   const handleRowClick = (dataIndex: number): void => {
     props.onPatientSelected(patients[dataIndex]);
   };
@@ -69,11 +82,13 @@ export const ReferralTable: React.FC<IProps> = (props) => {
         page: props.pageNumber,
         print: false,
         responsive: `simple`,
+        rowsPerPage,
         selectableRows: `none`,
         search: false,
         textLabels: localization,
         viewColumns: false,
         onChangePage,
+        onChangeRowsPerPage,
       }}
     />
   );

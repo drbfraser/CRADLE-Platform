@@ -5,6 +5,10 @@ import {
   OrUndefined,
   Patient,
 } from '@types';
+import {
+  updatePatientsTableRowsPerPage,
+  updateSelectedPatientState,
+} from '../../../redux/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
 import MUIDataTable from 'mui-datatables';
@@ -12,7 +16,6 @@ import React from 'react';
 import { ReduxState } from '../../../redux/reducers';
 import { customRowRender } from '../../../shared/components/table/row';
 import { customToolbarRender } from './toolbar';
-import { updateSelectedPatientState } from '../../../redux/reducers/patients';
 import { useData } from './hooks/data';
 import { useLocalization } from '../../../shared/hooks/table/localization';
 import { useSearchChange } from '../../../shared/hooks/table/searchChange';
@@ -36,13 +39,15 @@ interface IProps {
 
 type SelectorState = {
   globalSearch: boolean;
+  rowsPerPage: number;
 };
 
 export const PatientTable: React.FC<IProps> = (props) => {
-  const { globalSearch } = useSelector(
+  const { globalSearch, rowsPerPage } = useSelector(
     ({ patients }: ReduxState): SelectorState => {
       return {
         globalSearch: patients.globalSearch,
+        rowsPerPage: patients.patientsTableRowsPerPage,
       };
     }
   );
@@ -82,6 +87,10 @@ export const PatientTable: React.FC<IProps> = (props) => {
     update: props.updatePageNumber,
   });
 
+  const onChangeRowsPerPage = (numberOfRows: number): void => {
+    dispatch(updatePatientsTableRowsPerPage(numberOfRows));
+  };
+
   const handleRowClick = (dataIndex: number): void => {
     dispatch(
       updateSelectedPatientState(
@@ -115,11 +124,13 @@ export const PatientTable: React.FC<IProps> = (props) => {
         page: props.pageNumber,
         print: false,
         responsive: `simple`,
+        rowsPerPage,
         selectableRows: `none`,
         search: false,
         textLabels: localization,
         viewColumns: false,
         onChangePage,
+        onChangeRowsPerPage,
       }}
     />
   );

@@ -9,6 +9,7 @@ import { clearAllVhtsRequestOutcome } from '../../../redux/reducers/user/allVhts
 import { clearHealthFacilitiesRequestOutcome } from '../../../redux/reducers/healthFacilities';
 import { customRowRender } from '../../../shared/components/table/row';
 import { customToolbarRender } from './toolbar';
+import { updateRowsPerPage } from '../../../redux/reducers/user/allUsers';
 import { useData } from './hooks/data';
 import { useHealthFacilityOptions } from '../../../shared/hooks/healthFacilityOptions';
 import { useLocalization } from '../../../shared/hooks/table/localization';
@@ -28,14 +29,20 @@ interface IProps {
   searchText?: string;
 }
 
-export const AdminTable: React.FC<IProps> = (props) => {
-  const error = useSelector(
-    ({ healthFacilities, user }: ReduxState): OrNull<string> => {
-      if (user.allVhts.error) {
-        return user.allVhts.message;
-      }
+type SelectorState = {
+  error: OrNull<string>;
+  rowsPerPage: number;
+};
 
-      return healthFacilities.error;
+export const AdminTable: React.FC<IProps> = (props) => {
+  const { error, rowsPerPage } = useSelector(
+    ({ healthFacilities, user }: ReduxState): SelectorState => {
+      return {
+        error: user.allVhts.error
+          ? user.allVhts.message
+          : healthFacilities.error,
+        rowsPerPage: user.allUsers.rowsPerPage,
+      };
     }
   );
 
@@ -74,6 +81,10 @@ export const AdminTable: React.FC<IProps> = (props) => {
     update: props.updatePageNumber,
   });
 
+  const onChangeRowsPerPage = (numberOfRows: number): void => {
+    dispatch(updateRowsPerPage(numberOfRows));
+  };
+
   const clearMessage = (): void => {
     dispatch(clearAllVhtsRequestOutcome());
     dispatch(clearHealthFacilitiesRequestOutcome());
@@ -101,11 +112,13 @@ export const AdminTable: React.FC<IProps> = (props) => {
           page: props.pageNumber,
           print: false,
           responsive: `simple`,
+          rowsPerPage,
           selectableRows: `none`,
           search: false,
           textLabels: localization,
           viewColumns: false,
           onChangePage,
+          onChangeRowsPerPage,
         }}
       />
     </>
