@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStyles } from './styles';
+import { useStyles } from '../../../../../../../../shared/components/table/column/initials/styles';
 
 interface IProps {
   className: string;

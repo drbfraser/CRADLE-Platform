@@ -6,7 +6,7 @@ import { useEmailColumn } from './column/email';
 import { useFirstNameColumn } from './column/firstName';
 import { useHealthFacilityColumn } from './column/healthFacility';
 import { useRolesColumn } from './column/roles';
-import { useStyles } from './styles';
+import { useStyles } from '../../../../../shared/components/table/styles';
 import { useTakeActionColumn } from './column/takeAction';
 
 // * Order of enums is important

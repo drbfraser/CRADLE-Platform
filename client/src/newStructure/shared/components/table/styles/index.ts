@@ -4,7 +4,6 @@ export const useStyles = makeStyles((theme: Theme) => ({
   headCell: {
     borderBlockEnd: `1px solid rgba(224, 224, 224, 1)`,
     display: `table-cell`,
-    fontWeight: `normal`,
     padding: theme.spacing(2, 0),
     [`& > button`]: {
       marginBlockStart: `${theme.spacing(-0.5)}px`,
@@ -12,9 +11,8 @@ export const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   bodyCell: {
-    display: `flex`,
-    justifyContent: `center`,
-    width: `100%`,
+    textAlign: `center`,
     height: `100%`,
+    width: `100%`,
   },
 }));

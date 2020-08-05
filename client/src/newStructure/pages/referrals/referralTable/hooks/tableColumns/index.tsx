@@ -5,7 +5,7 @@ import { useAssessmentColumn } from './column/assessment';
 import { useDateReferredColumn } from './column/dateReferred';
 import { useInitialsColumn } from './column/initials';
 import { usePatientIdColumn } from './column/patientId';
-import { useStyles } from './styles';
+import { useStyles } from '../../../../../shared/components/table/styles';
 import { useVillageColumn } from './column/village';
 import { useVitalSignColumn } from './column/vitalSign';
 

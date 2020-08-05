@@ -8,7 +8,6 @@ import {
 import React from 'react';
 import { Reading } from '@types';
 import { TrafficLightEnum } from '../../../../../../../../enums';
-import { useStyles } from './styles';
 
 interface IProps {
   className: string;
@@ -19,8 +18,6 @@ export const VitalSignBody: React.FC<IProps> = ({
   className,
   readings,
 }: IProps) => {
-  const classes = useStyles();
-
   const status = React.useMemo((): TrafficLightEnum => {
     const latestReading = getLatestReading(readings);
 
@@ -30,9 +27,5 @@ export const VitalSignBody: React.FC<IProps> = ({
     );
   }, [readings]);
 
-  return (
-    <div className={`${className} ${classes.vitalSign}`}>
-      {getTrafficIcon(status)}
-    </div>
-  );
+  return <div className={className}>{getTrafficIcon(status)}</div>;
 };

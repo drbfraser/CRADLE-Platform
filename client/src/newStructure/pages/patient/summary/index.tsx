@@ -15,7 +15,6 @@ import { MedicalInformation } from './medicalInformation';
 import { PageHeader } from './header';
 import { PatientReadings } from './readings';
 import React from 'react';
-import { ReadingModal } from './readingModal';
 import { ReduxState } from '../../../redux/reducers';
 import { Toast } from '../../../shared/components/toast';
 import { VitalsOverTime } from './vitalsOverTime';
@@ -132,11 +131,8 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
         <Divider />
         <Grid container direction="row" spacing={4}>
           <MedicalInformation
-            displayPatientModal={state.displayPatientModal}
-            editedPatient={state.editedPatient}
             selectedPatient={selectedPatient}
             onAddPatientRequired={onAddPatientRequired}
-            updateState={updateState}
           />
           <VitalsOverTime
             patientId={selectedPatient.patientId}
@@ -148,15 +144,6 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
         <PatientReadings
           selectedPatient={selectedPatient}
           onAddPatientRequired={onAddPatientRequired}
-        />
-        <ReadingModal
-          displayReadingModal={state.displayReadingModal}
-          hasUrineTest={state.hasUrineTest}
-          newReading={state.newReading}
-          otherSymptoms={state.otherSymptoms}
-          selectedPatient={selectedPatient}
-          selectedSymptoms={state.selectedSymptoms}
-          updateState={updateState}
         />
       </div>
     </>
