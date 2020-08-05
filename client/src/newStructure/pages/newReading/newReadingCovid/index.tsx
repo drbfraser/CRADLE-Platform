@@ -46,6 +46,7 @@ import { Symptoms } from './symptoms';
 import { VitalSignAssessment } from './vitalSignAssessment';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../../redux/reducers/user/currentUser';
+import { push } from 'connected-react-router';
 import { useNewAssessment } from './assessment/hooks';
 import { useNewPatient } from './demographic/hooks';
 import { useNewSymptoms } from './symptoms/hooks';
@@ -128,6 +129,7 @@ interface IProps {
   clearCreateAssessmentOutcome: () => void;
   clearUpdateAssessmentOutcome: () => void;
   clearUpdatePatientOutcome: () => void;
+  goBackToPatientPage: Callback<string>;
 }
 
 const Page: React.FC<IProps> = (props) => {
@@ -405,6 +407,11 @@ const Page: React.FC<IProps> = (props) => {
       }
     }
 
+    if (props.formStatus && props.patientFromEdit) {
+      props.goBackToPatientPage(props.patientFromEdit.patientId);
+      return;
+    }
+
     const value = e.currentTarget.value;
     props.afterNewPatientAdded();
     props.afterDoesPatientExist();
@@ -476,6 +483,7 @@ const Page: React.FC<IProps> = (props) => {
     resetValueAssessment(true);
     resetValueUrineTest(true);
     setBlockBackButton(false);
+    setPageTitle('Create a New Patient and Reading');
   };
   return (
     <div
@@ -698,6 +706,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     },
     dispatch
   ),
+  goBackToPatientPage: (patientId: string): void => {
+    dispatch(push(`/patients/${patientId}`));
+  },
 });
 export const NewReadingCovid = connect(
   mapStateToProps,
