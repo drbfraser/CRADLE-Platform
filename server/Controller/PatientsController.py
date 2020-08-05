@@ -178,6 +178,7 @@ class PatientReading(Resource):
         return patient
 
     # Create a new patient with a reading
+    # Deprecated in favour of api/resources/patients.py
     @jwt_required
     @swag_from("../specifications/patient-reading-post.yml", methods=["POST"])
     def post(self):

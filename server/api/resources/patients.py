@@ -12,6 +12,7 @@ import service.view as view
 from Manager.PatientStatsManager import PatientStatsManager
 from models import Patient
 from utils import get_current_time
+from Validation import patients
 
 
 # /api/patients
@@ -31,7 +32,10 @@ class Root(Resource):
     @jwt_required
     def post():
         json = request.get_json(force=True)
-        # TODO: Validate request
+        error_message = patients.validate(json)
+        print(error_message)
+        if error_message is not None:
+            abort(400, message=error_message)
         patient = marshal.unmarshal(Patient, json)
 
         if crud.read(Patient, patientId=patient.patientId):
