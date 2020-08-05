@@ -47,6 +47,8 @@ enum PatientsActionEnum {
   UPDATE_REFERRALS_TABLE_PAGE_NUMBER = 'patients/UPDATE_REFERRALS_TABLE_PAGE_NUMBER',
   UPDATE_PATIENTS_TABLE_SEARCH_TEXT = 'patients/UPDATE_PATIENTS_TABLE_SEARCH_TEXT',
   UPDATE_REFERRALS_TABLE_SEARCH_TEXT = 'patients/UPDATE_REFERRALS_TABLE_SEARCH_TEXT',
+  UPDATE_PATIENTS_TABLE_ROWS_PER_PAGE = 'patients/UPDATE_PATIENTS_TABLE_ROWS_PER_PAGE',
+  UPDATE_REFERRALS_TABLE_ROWS_PER_PAGE = 'patients/UPDATE_REFERRALS_TABLE_ROWS_PER_PAGE',
   UPDATE_SELECTED_PATIENT_STATE = 'patients/UPDATE_SELECTED_PATIENT_STATE',
   TOGGLE_SHOW_REFERRED_PATIENTS = 'patients/TOGGLE_SHOW_REFERRED_PATIENTS',
   SORT_PATIENTS_TABLE_PATIENTS = 'patients/SORT_PATIENTS_TABLE_PATIENTS',
@@ -80,6 +82,8 @@ enum PatientsActionEnum {
 }
 
 type PageNumberPayload = { pageNumber: number };
+
+type RowsPerPagePayload = { rowsPerPage: number };
 
 type SearchTextPayload = { searchText?: string };
 
@@ -144,6 +148,14 @@ export type PatientsAction =
   | {
       type: PatientsActionEnum.UPDATE_REFERRALS_TABLE_SEARCH_TEXT;
       payload: SearchTextPayload;
+    }
+  | {
+      type: PatientsActionEnum.UPDATE_PATIENTS_TABLE_ROWS_PER_PAGE;
+      payload: RowsPerPagePayload;
+    }
+  | {
+      type: PatientsActionEnum.UPDATE_REFERRALS_TABLE_ROWS_PER_PAGE;
+      payload: RowsPerPagePayload;
     }
   | {
       type: PatientsActionEnum.UPDATE_SELECTED_PATIENT_STATE;
@@ -276,6 +288,20 @@ export const updateReferralsTableSearchText = (
 ): PatientsAction => ({
   type: PatientsActionEnum.UPDATE_REFERRALS_TABLE_SEARCH_TEXT,
   payload: { searchText },
+});
+
+export const updatePatientsTableRowsPerPage = (
+  rowsPerPage: number
+): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_PATIENTS_TABLE_ROWS_PER_PAGE,
+  payload: { rowsPerPage },
+});
+
+export const updateReferralsTableRowsPerPage = (
+  rowsPerPage: number
+): PatientsAction => ({
+  type: PatientsActionEnum.UPDATE_REFERRALS_TABLE_ROWS_PER_PAGE,
+  payload: { rowsPerPage },
 });
 
 export const updateSelectedPatientState = (
@@ -660,6 +686,8 @@ export type PatientsState = {
   newPatientAdded: boolean;
   patientsTablePageNumber: number;
   referralsTablePageNumber: number;
+  patientsTableRowsPerPage: number;
+  referralsTableRowsPerPage: number;
   selectedPatientState?: PatientStateEnum;
   patientsTableSearchText?: string;
   referralsTableSearchText?: string;
@@ -685,6 +713,8 @@ const initialState: PatientsState = {
   newPatientAdded: false,
   patientsTablePageNumber: 0,
   referralsTablePageNumber: 0,
+  patientsTableRowsPerPage: 10,
+  referralsTableRowsPerPage: 10,
   selectedPatientState: undefined,
   patientsTableSearchText: undefined,
   referralsTableSearchText: undefined,
@@ -971,6 +1001,16 @@ export const patientsReducer = (
       return {
         ...state,
         referralsTableSearchText: action.payload.searchText,
+      };
+    case PatientsActionEnum.UPDATE_PATIENTS_TABLE_ROWS_PER_PAGE:
+      return {
+        ...state,
+        patientsTableRowsPerPage: action.payload.rowsPerPage,
+      };
+    case PatientsActionEnum.UPDATE_REFERRALS_TABLE_ROWS_PER_PAGE:
+      return {
+        ...state,
+        referralsTableRowsPerPage: action.payload.rowsPerPage,
       };
     case PatientsActionEnum.UPDATE_SELECTED_PATIENT_STATE:
       return {

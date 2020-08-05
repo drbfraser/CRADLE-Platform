@@ -2,11 +2,11 @@ import {
   calculateShockIndex,
   getLatestReading,
   getLatestReadingWithReferral,
-  getTrafficIcon,
 } from '../../../../../../../../shared/utils';
 
 import React from 'react';
 import { Reading } from '@types';
+import { TrafficLight } from '../../../../../../../../shared/components/trafficLight';
 import { TrafficLightEnum } from '../../../../../../../../enums';
 
 interface IProps {
@@ -27,5 +27,5 @@ export const VitalSignBody: React.FC<IProps> = ({
     );
   }, [readings]);
 
-  return <div className={className}>{getTrafficIcon(status)}</div>;
+  return <TrafficLight className={className} status={status} />;
 };

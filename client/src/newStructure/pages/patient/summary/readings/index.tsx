@@ -7,8 +7,8 @@ import Paper from '@material-ui/core/Paper';
 import React from 'react';
 import { ReferralInfo } from './referralInfo';
 import { Symptoms } from './symptoms';
+import { TrafficLight } from '../../../../shared/components/trafficLight';
 import { UrineTests } from './urineTests';
-import { getTrafficIcon } from '../../../../shared/utils';
 import { useReadings } from './hooks';
 import { useStyles } from './styles';
 
@@ -37,7 +37,7 @@ export const PatientReadings: React.FC<IProps> = ({
               <div>
                 <Header dateTimeTaken={reading.dateTimeTaken} />
                 <div className={classes.reading}>
-                  {getTrafficIcon(reading.trafficLightStatus)}
+                  <TrafficLight status={reading.trafficLightStatus} />
                   <Heart reading={reading} />
                   <Symptoms symptoms={reading.symptoms} />
                   <UrineTests urineTests={reading.urineTests} />

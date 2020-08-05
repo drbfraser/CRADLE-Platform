@@ -6,14 +6,7 @@ import {
   Reading,
 } from '@types';
 
-import { ReactComponent as GreenTraffic } from '../icons/green.svg';
-import { Icon } from 'semantic-ui-react';
-import React from 'react';
-import { ReactComponent as RedTraffic } from '../icons/red.svg';
 import { TrafficLightEnum } from '../../enums';
-import Typography from '@material-ui/core/Typography';
-import { ReactComponent as YellowTraffic } from '../icons/yellow.svg';
-import classes from './styles.module.css';
 import moment from 'moment';
 
 export { v4 as makeUniqueId } from 'uuid';
@@ -162,44 +155,6 @@ export const sortPatientsByLastReading = (
     getMomentDate(getLatestReadingDateTime(otherPatient.readings)).valueOf() -
     getMomentDate(getLatestReadingDateTime(patient.readings)).valueOf()
   );
-};
-
-export const getTrafficIcon = (
-  trafficLightStatus: TrafficLightEnum
-): JSX.Element => {
-  if (trafficLightStatus === TrafficLightEnum.RED_DOWN) {
-    return (
-      <div>
-        <RedTraffic className={classes.trafficLight} />
-        <Icon name="arrow down" size="huge" />
-      </div>
-    );
-  } else if (trafficLightStatus === TrafficLightEnum.RED_UP) {
-    return (
-      <div>
-        <RedTraffic className={classes.trafficLight} />
-        <Icon name="arrow up" size="huge" />
-      </div>
-    );
-  } else if (trafficLightStatus === TrafficLightEnum.YELLOW_UP) {
-    return (
-      <div>
-        <YellowTraffic className={classes.trafficLight} />
-        <Icon name="arrow up" size="huge" />
-      </div>
-    );
-  } else if (trafficLightStatus === TrafficLightEnum.YELLOW_DOWN) {
-    return (
-      <div>
-        <YellowTraffic className={classes.trafficLight} />
-        <Icon name="arrow down" size="huge" />
-      </div>
-    );
-  } else if (trafficLightStatus === TrafficLightEnum.GREEN) {
-    return <GreenTraffic className={classes.trafficLight} />;
-  } else {
-    return <Typography variant="h5">N/A</Typography>;
-  }
 };
 
 export const GESTATIONAL_AGE_UNITS = {

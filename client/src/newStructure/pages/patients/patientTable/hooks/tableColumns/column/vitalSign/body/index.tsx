@@ -1,8 +1,8 @@
 import React from 'react';
 import { Reading } from '@types';
+import { TrafficLight } from '../../../../../../../../shared/components/trafficLight';
 import { TrafficLightEnum } from '../../../../../../../../enums';
 import { getFirstReadingWithTrafficLight } from '../utils';
-import { getTrafficIcon } from '../../../../../../../../shared/utils';
 
 interface IProps {
   className: string;
@@ -17,5 +17,5 @@ export const VitalSignBody: React.FC<IProps> = ({
     return getFirstReadingWithTrafficLight(readings).trafficLightStatus;
   }, [readings]);
 
-  return <div className={className}>{getTrafficIcon(status)}</div>;
+  return <TrafficLight className={className} status={status} />;
 };

@@ -24,6 +24,7 @@ enum AllUsersActionEnum {
   CLEAR_REGISTER_USER_REQUEST_OUTCOME = 'allUsers/CLEAR_REGISTER_USER_REQUEST_OUTCOME',
   UPDATE_PAGE_NUMBER = 'allUsers/UPDATE_PAGE_NUMBER',
   UPDATE_SEARCH_TEXT = 'allUsers/UPDATE_SEARCH_TEXT',
+  UPDATE_ROWS_PER_PAGE = 'allUsers/UPDATE_ROWS_PER_PAGE',
 }
 
 type ErrorPayload = { message: string };
@@ -66,6 +67,10 @@ type AllUsersAction =
   | {
       type: AllUsersActionEnum.UPDATE_SEARCH_TEXT;
       payload: { searchText?: string };
+    }
+  | {
+      type: AllUsersActionEnum.UPDATE_ROWS_PER_PAGE;
+      payload: { rowsPerPage: number };
     };
 
 const getUsersRequest = (): AllUsersAction => ({
@@ -200,6 +205,11 @@ export const updateSearchText = (searchText?: string): AllUsersAction => ({
   payload: { searchText },
 });
 
+export const updateRowsPerPage = (rowsPerPage: number): AllUsersAction => ({
+  type: AllUsersActionEnum.UPDATE_ROWS_PER_PAGE,
+  payload: { rowsPerPage },
+});
+
 const registerUserRequested = (): AllUsersAction => ({
   type: AllUsersActionEnum.REGISTER_USER_REQUESTED,
 });
@@ -265,10 +275,11 @@ export type AllUsersState = {
   message: OrNull<string>;
   pageNumber: number;
   success: OrNull<string>;
-  searchText?: string;
   updatedUserList: boolean;
   data: OrNull<Array<User>>;
   fetched: boolean;
+  rowsPerPage: number;
+  searchText?: string;
 };
 
 const initialState: AllUsersState = {
@@ -279,10 +290,11 @@ const initialState: AllUsersState = {
   message: null,
   pageNumber: 0,
   success: null,
-  searchText: ``,
   updatedUserList: false,
   data: null,
   fetched: false,
+  rowsPerPage: 10,
+  searchText: ``,
 };
 
 export const allUsersReducer = (
@@ -368,6 +380,9 @@ export const allUsersReducer = (
     }
     case AllUsersActionEnum.UPDATE_SEARCH_TEXT: {
       return { ...state, searchText: action.payload.searchText };
+    }
+    case AllUsersActionEnum.UPDATE_ROWS_PER_PAGE: {
+      return { ...state, rowsPerPage: action.payload.rowsPerPage };
     }
     default: {
       return state;
