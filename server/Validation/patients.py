@@ -19,7 +19,9 @@ def validate(request_body):
 
     # If patient is pregnant, check  if certain pregnancy related fields are present
     if request_body.get("isPregnant") == True:
-        error_message = required_keys_present(request_body, ["gestationalTimestamp", "gestationalAgeUnit"])
+        error_message = required_keys_present(
+            request_body, ["gestationalTimestamp", "gestationalAgeUnit"]
+        )
     if error_message is not None:
         return error_message
 
@@ -32,16 +34,18 @@ def validate(request_body):
     error_message = values_correct_type(request_body, ["patientId"], int)
     if error_message is not None:
         return error_message
-    
+
     # Check that patientId is not over the 14 digit limit.
     if len(str(request_body.get("patientId"))) > 14:
         return "patientId is too long. Max is 14 digits."
 
-    if request_body.get("dob") != datetime.strptime(request_body.get("dob"), "%Y-%m-%d").strftime('%Y-%m-%d'):
+    if request_body.get("dob") != datetime.strptime(
+        request_body.get("dob"), "%Y-%m-%d"
+    ).strftime("%Y-%m-%d"):
         return "dob is not in the required YYYY-MM-DD format."
 
     return error_message
-    
+
 
 def required_keys_present(request_body, required_keys):
     """
