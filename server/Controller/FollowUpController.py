@@ -52,6 +52,7 @@ class FollowUp(Resource):
     @swag_from(
         "../specifications/followup-post.yml", methods=["POST"], endpoint="followup"
     )
+    # Deprecated in favour of api/resources/assessments.py
     def post(self):
         logging.debug("Received request: POST /follow_up")
         current_user = get_jwt_identity()
