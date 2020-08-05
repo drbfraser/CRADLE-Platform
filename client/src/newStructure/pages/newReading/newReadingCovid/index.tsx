@@ -483,6 +483,7 @@ const Page: React.FC<IProps> = (props) => {
     resetValueAssessment(true);
     resetValueUrineTest(true);
     setBlockBackButton(false);
+    setPageTitle('Create a New Patient and Reading');
   };
   return (
     <div
