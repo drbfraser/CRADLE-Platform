@@ -27,9 +27,23 @@ def values_correct_type(request_body, key_names, type):
     for key in key_names:
         if key in request_body and request_body.get(key) is not None:
             if type == int:
-                if not isinstance(int(request_body.get(key)), type):
+                if not is_int(request_body.get(key)):
                     return "The value for key {" + key + "} is not the correct type."
             else:
                 if not isinstance((request_body.get(key)), type):
                     return "The value for key {" + key + "} is not the correct type."
     return None
+
+
+def is_int(s):
+    """
+    Checks if a value is an integer.
+
+    :param s: The value to check 
+    :return: Returns True if the passed in value is an integer, False otherwise
+    """
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False

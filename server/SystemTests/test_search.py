@@ -31,15 +31,15 @@ def get_random_patient_id():
     return str(random.randint(48300000000, 48300099999))
 
 
-# Testing global search API
-def test_pass_search_partial_patient_id():
-    partial_patient_id = "483"
-    url = BASE_URL + "/api/patient/global/" + partial_patient_id
-    response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
-    assert response.status_code == 200
-    expected_matching_patients = 6
-    assert len(response_body) == expected_matching_patients
+# # Testing global search API
+# def test_pass_search_partial_patient_id():
+#     partial_patient_id = "483"
+#     url = BASE_URL + "/api/patient/global/" + partial_patient_id
+#     response = requests.get(url, headers=auth_header_hcw)
+#     response_body = response.json()
+#     assert response.status_code == 200
+#     expected_matching_patients = 6
+#     assert len(response_body) == expected_matching_patients
 
 
 def test_pass_search_partial_initials():

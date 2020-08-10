@@ -90,9 +90,7 @@ class PatientInfo(Resource):
     @jwt_required
     def put(patient_id: str):
         json = request.get_json(force=True)
-        error_message = patients.validate(json)
-        if error_message is not None:
-            abort(400, message=error_message)
+        # TODO: validate. How?
 
         # If the inbound JSON contains a `base` field then we need to check if it is the
         # same as the `lastEdited` field of the existing patient. If it is then that

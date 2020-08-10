@@ -7,6 +7,11 @@ def validate(request_body):
     is not valid. Else, returns None.
 
     :param json: The request body as a dict object
+                {
+                    "patientId": 47, - required
+                    "healthFacilityName": "H0000",
+                    "userId": 1,
+                }
     :return: An error message if request body in invalid in some way. None otherwise. 
     """
     error_message = None

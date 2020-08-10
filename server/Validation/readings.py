@@ -54,8 +54,9 @@ def validate(request_body):
         return error_message
 
     # Check if the nested assessment (followup) object is valid
-    error_message = validate_assessment(request_body.get("followup"))
-    if error_message is not None:
-        return error_message
+    if "followup" in request_body:
+        error_message = validate_assessment(request_body.get("followup"))
+        if error_message is not None:
+            return error_message
 
     return error_message

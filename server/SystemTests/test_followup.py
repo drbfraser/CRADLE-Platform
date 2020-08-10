@@ -19,7 +19,7 @@ def test_create_followup_without_referral(
         "followupNeeded": True,
         "readingId": reading_id,
     }
-    response: Response = api_post(endpoint="/api/follow_up", json=followup_json)
+    response: Response = api_post(endpoint="/api/assessments", json=followup_json)
     database.session.commit()
 
     assert response.status_code == 201
@@ -46,7 +46,7 @@ def test_create_followup_marks_referral_as_assessed(
         "followupNeeded": True,
         "readingId": reading_id,
     }
-    response: Response = api_post(endpoint="/api/follow_up", json=followup_json)
+    response: Response = api_post(endpoint="/api/assessments", json=followup_json)
     database.session.commit()
 
     assert response.status_code == 201

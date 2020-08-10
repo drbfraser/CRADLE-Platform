@@ -59,6 +59,8 @@ def test_update_patient_name(patient_factory, api_put):
     response = api_put(
         endpoint=f"/api/patients/{patient_id}/info", json={"patientName": "CD"}
     )
+    response_body = response.json()
+    print(response_body)
 
     assert response.status_code == 200
     assert crud.read(Patient, patientId=patient_id).patientName == "CD"

@@ -41,7 +41,7 @@ def validate(request_body):
         return "patientId is too long. Max is 14 digits."
 
     # Make sure the dob is in YYYY-mm-dd format
-    if request_body.get("dob") != datetime.strptime(
+    if "dob" in request_body and request_body.get("dob") != datetime.strptime(
         request_body.get("dob"), "%Y-%m-%d"
     ).strftime("%Y-%m-%d"):
         return "dob is not in the required YYYY-MM-DD format."
