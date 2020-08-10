@@ -34,12 +34,14 @@ export const GestationalAge: React.FC<IProps> = ({
 
   return pregnant ? (
     <div className={classes.container}>
-      <p>
-        <b>Gestational Age: </b>
-        {gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
-          ? `${getNumOfWeeks(gestationalTimestamp)} week(s)`
-          : `${getNumOfMonths(gestationalTimestamp)} month(s)`}
-      </p>
+      {gestationalTimestamp ? (
+        <p>
+          <b>Gestational Age: </b>
+          {gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
+            ? `${getNumOfWeeks(gestationalTimestamp)} week(s)`
+            : `${getNumOfMonths(gestationalTimestamp)} month(s)`}
+        </p>
+      ) : null}
       <Form.Field
         name="gestationalUnits"
         control={Select}

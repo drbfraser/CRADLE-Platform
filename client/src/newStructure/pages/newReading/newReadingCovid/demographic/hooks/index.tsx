@@ -250,7 +250,7 @@ export const useNewPatient = () => {
           }
         }
 
-        if (key === `gestationalTimestamp`) {
+        if (key === `gestationalTimestamp` && value !== 0) {
           initialized.gestationalAgeValueTimestamp = value;
           initialized.gestationalAgeValue =
             patient.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
