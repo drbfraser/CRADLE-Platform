@@ -42,7 +42,7 @@ def is_int(s):
     :param s: The value to check 
     :return: Returns True if the passed in value is an integer, False otherwise
     """
-    try: 
+    try:
         int(s)
         return True
     except ValueError:

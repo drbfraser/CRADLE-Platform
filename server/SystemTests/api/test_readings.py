@@ -7,7 +7,7 @@ from models import Reading, Referral, FollowUp
 def test_post_reading_with_referral_and_followup(
     reading_id, reading_referral_followup, patient_factory, api_post
 ):
-    patient_factory.create(patientId="abc")
+    patient_factory.create(patientId="123")
     try:
         response = api_post(endpoint="/api/readings", json=reading_referral_followup)
         assert response.status_code == 201
@@ -31,7 +31,7 @@ def test_post_reading_with_referral_and_followup(
 def test_post_reading_with_referral(
     reading_id, reading_referral_followup, patient_factory, api_post
 ):
-    patient_factory.create(patientId="abc")
+    patient_factory.create(patientId="123")
     # Remove the followup
     del reading_referral_followup["followup"]
     try:
