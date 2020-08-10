@@ -15,44 +15,11 @@ followUpManager = FollowUpManager()
 # URI: /followup
 class FollowUp(Resource):
 
-    # Get all followups
-    # Get all followups with an ID
-    # Get all followups, for a specific referral
-    @jwt_required
-    @swag_from(
-        "../specifications/followups-get.yml", methods=["GET"], endpoint="followup"
-    )
-    @swag_from(
-        "../specifications/followup-get.yml", methods=["GET"], endpoint="followup_path"
-    )
-    def get(self, id=None):
-        args = request.args
-        if id:
-            logging.debug("Received request: GET /follow_up/<id>")
-            follow_up = followUpManager.read("id", id)
-            if follow_up is None:
-                abort(400, message=f'No FollowUp exists with id "{id}"')
-            return follow_up
-        elif args:
-            logging.debug("Received request: GET /follow_up")
-            print("args: " + json.dumps(args, indent=2, sort_keys=True))
-            follow_ups = followUpManager.search(args)
-            if not follow_ups:
-                abort(400, message="No FollowUps found with given query params.")
-            return follow_ups
-        else:
-            logging.debug("Received request: GET /follow_up")
-            follow_ups = followUpManager.read_all()
-            if not follow_ups:
-                abort(404, message="No FollowUps currently exist.")
-            return follow_ups
-
     # Create a new follow up
     @jwt_required
     @swag_from(
         "../specifications/followup-post.yml", methods=["POST"], endpoint="followup"
     )
-
     @jwt_required
     @swag_from(
         "../specifications/followup-put.yml", methods=["PUT"], endpoint="followup_path"

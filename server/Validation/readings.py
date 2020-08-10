@@ -20,14 +20,13 @@ def validate(request_body):
         "bpDiastolic",
         "heartRateBPM",
         "symptoms",
-        "userId",
     ]
     error_message = required_keys_present(request_body, required_keys)
     if error_message is not None:
         return error_message
 
     # Check that certain fields are of type string
-    error_message = values_correct_type(request_body, ["readindId"], str)
+    error_message = values_correct_type(request_body, ["readingId"], str)
     if error_message is not None:
         return error_message
 

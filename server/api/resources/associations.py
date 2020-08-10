@@ -6,6 +6,7 @@ import api.util as util
 import data.crud as crud
 import service.assoc as assoc
 from models import Patient, HealthFacility, User
+from Validation import associations
 
 
 # /api/associations
@@ -14,7 +15,9 @@ class Root(Resource):
     @jwt_required
     def post():
         json: dict = request.get_json(force=True)
-        # TODO: Validate request
+        error_message = associations.validate(json)
+        if error_message is not None:
+            abort(400, message=error_message)
 
         patient_id = json.get("patientId")
         facility_name = json.get("healthFacilityName")
