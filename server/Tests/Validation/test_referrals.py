@@ -236,9 +236,16 @@ invalid_nested_reading = {
     },
 }
 
+
 @pytest.mark.parametrize(
     "json, output",
-    [(valid_json, type(None)), (required_keys_missing, str), (invalid_nested_patient, str), (invalid_nested_reading, str), (invalid_referral, str)],
+    [
+        (valid_json, type(None)),
+        (required_keys_missing, str),
+        (invalid_nested_patient, str),
+        (invalid_nested_reading, str),
+        (invalid_referral, str),
+    ],
 )
 def test_validation(json, output):
     message = validate(json)
