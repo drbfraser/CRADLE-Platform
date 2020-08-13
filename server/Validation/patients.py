@@ -42,7 +42,9 @@ def validate(request_body):
 
     # Check if gestational age is less than or equal to 43 weeks/10 months
     if "gestationalTimestamp" in request_body:
-        error_message = check_gestational_age_under_limit(int(request_body.get("gestationalTimestamp")))
+        error_message = check_gestational_age_under_limit(
+            int(request_body.get("gestationalTimestamp"))
+        )
     if error_message is not None:
         return error_message
 
@@ -81,6 +83,7 @@ def check_gestational_age_under_limit(gestation_timestamp):
     if num_of_weeks > 43:
         return "Gestation is greater than 43 weeks/10 months."
     return None
+
 
 def is_correct_date_format(s):
     """
