@@ -76,14 +76,13 @@ def validate(request_body):
 
     for reading_body in list_of_readings:
         # Validate the reading itself
-        error_message = validate_patient(request_body.get(reading_body))
+        error_message = validate_reading(reading_body)
         if error_message is not None:
             return error_message
 
         referral_body = reading_body.get("referral")
 
         # Check if required keys are present
-        # TODO: check if `referralHealthFacilityName` exists
         error_message = required_keys_present(
             referral_body,
             [
