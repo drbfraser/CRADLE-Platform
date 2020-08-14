@@ -2,200 +2,189 @@
 
 [![License](https://img.shields.io/github/license/Cradle-VSA/cradle-vsa.github.io)](https://github.com/Cradle-VSA/cradle-vsa.github.io/blob/master/LICENCE)
 
-React front-end web application and Python back-end web server for the Cradle VSA System, a technological health care system to improve maternal care and reduce preventable maternal deaths in Ugandan villages.
+React front-end web application and Python back-end web server for the Cradle 
+VSA System, a technological health care system to improve maternal care and 
+reduce preventable maternal deaths in Ugandan villages.
 
-> Issue tracking is managed via JIRA at: https://icradle.atlassian.net
+<img src="readme-img/screenshot.png" width="600px"/>
 
-View the React web application here: https://cradle-vsa.github.io/client/build
-View the React web application here: https://cradle.eastus.cloudapp.azure.com/
+## Sites and Servers
 
-
-The back-end is in the directory `server/` and the front-end is in the directory `client/`.
-
-![Screenshot](readme-img/screenshot.png)
-
-## Software Stack (Front-End)
-
-| Purpose | Technology |
-| --- | --- |
-| Development Language | HTML, CSS, JavaScript |
-| Front-End Development Framework | [React](https://reactjs.org/) |
-| Dependency Manager | [Yarn](https://yarnpkg.com/) |
-| Deployment | [GitHub Pages](https://pages.github.com/) |
-
-## Software Stack (Back-End)
-
-| Purpose | Technology |
-| --- | --- |
-| Development Language | [Python 3.7](https://www.python.org/downloads/release/python-370/) |
-| Web Framework | [Flask](https://www.fullstackpython.com/flask.html) |
-| Database | [MySQL](https://www.mysql.com/) |
-| Deployment | Under Construction |
+* Issue tracking is managed via JIRA at: https://icradle.atlassian.net
+* Build/Test server is hosted by SFU at: https://cmpt373-lockdown.cs.surrey.sfu.ca
+* Production server is hosed on Azure at: https://cradle.eastus.cloudapp.azure.com
 
 ## Setup Instructions
 
-### Codebase
+### Requirements
 
-Clone the repository and navigate into the directory:
-```shell
-git clone https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git
-cd cradle-platform/
+Development environments are supported on Windows, macOS, and Linux. If you are
+on Windows Home Edition, note that there may be some issues getting Docker to
+work correctly. Note that the use of Docker in development environments is
+entierly optional, and only really recommended for running the database.
+
+* [npm](https://nodejs.org/en/)
+* [Python](https://www.python.org/) 3.7 or higher
+* [MySQL](https://dev.mysql.com/downloads/) (or [docker](https://www.docker.com/products/docker-desktop) see below)
+
+> To run the database inside docker, run the following command:
+>
+> ```
+> docker run --name cradle-db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -d mysql:5.7
+> ```
+>
+> Note that you can name the container whatever you would like by changing
+> "cradle-db", and set the password by changing "password" to something different.
+
+### Install virtualenv (Optional)
+
+`virtualenv` is a tool which allows you to install all of your Python project's
+dependencies into an isolated location instead of installing them globably on
+your system which could conflict with dependencies used by other projects. We
+recommend setting it up for Cradle development but it is not necessary.
+
+`virtualenv` can be installed via `pip`:
+
+```
+pip install virtualenv
 ```
 
-### Database (MySQL)
+Once installed, navigate to the `server` directory and run:
 
-Install [MySQL](https://www.mysql.com/).
-
-Configure access to the root account on MySQL so that you can login with the following command:
 ```
-mysql -u root -p YOUR_PASSWORD_HERE
-```
-
-For reference, see this [sample guide from DigitalOcean for Debian-based systems](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-18-04).
-
-Once in the prompt, create a new database named `cradle` (case-sensitive):
-```
-mysql> CREATE DATABASE cradle;
-Query OK, 1 row affected (0.00 sec)
-
-mysql> exit
-Bye
-```
-
-In the `server/` directory, create a file named `.env` containing your local MySQL root username and password in the following format:
-```
-DB_USERNAME=<MY_MYSQL_DB_USERNAME>
-DB_PASSWORD= MY_MYSQL_DB_PASSWORD>
-DB_HOSTNAME=db
-DB_PORT=3306
-DB_NAME=<MY_MYSQL_DB_NAME>
-EMAIL_USER=<MY_EMAIL_ADDRESS>
-EMAIL_PASSWORD=<MY_EMAIL_PASSWORD>
-```
-
-For example:
-```
-DB_USERNAME=root
-DB_PASSWORD=123456
-DB_HOSTNAME=db
-DB_PORT=3306
-DB_NAME=cradle
-EMAIL_USER=student@gmail.ca
-EMAIL_PASSWORD=p4sSw0rd
-```
-
-Note: If using a local MySQL server, set the DB_HOSTNAME to "localhost"
-
-- Create a symbolic link to the `.env` file in the `server` directory in the root directory of the project
-    - This is required as `docker-compose.yml` reads from a .env file in the same directory
-```
-cd cradle-platform # change directory to the root directory of the project
-ln -s server/.env .env # create a symlink if server/.env to .env in the current directory
-```
-
-This file will be automatically ignored by Git. Do not manually commit it to the repository.
-
-When the back-end web server is started, it will connect to the database using the credentials in this file.
-
-### Back-End Web Server
-
-#### Python and Flask
-
-Enter the project directory:
-```shell
-cd server/
-```
-
-If Python 3 is not yet installed, then install the relevant packages:
-```shell
-sudo apt-get install python3 python3-pip
-```
-
-Install the PIP dependencies:
-```shell
-pip3 install -r requirements.txt
-```
-If there are flask errors try: 
-```shell
-pip3 install -r requirements.txt --user
-```
-#### Virtualenv (Optional: Isolated Environment for Python packages)
-
-Install Virtualenv and create an environment named `venv` (or any name you prefer) within your project directory:
-```shell
-pip3 install virtualenv
 virtualenv venv
 ```
 
-Before installing any other packages from the project, activate the virtual environment to isolate your environment for all following commands:
-```shell
-source venv/bin/activate
+This creates a `venv` folder within the `server` directory which is used to
+store all the projects dependencies.
+
+Now, each time you want to run the server you need to first load the environment
+into your terminal session. The command to do this varies depending on your 
+shell (some common ones are listed bellow), but the general idea is that there
+is a script named `activate` somewhere in `server/venv/` that you run to load
+the environment.
+
+For Powershell it's the `.ps1` file, and CMD the `.bat` file, the command for
+either is simply:
+
+```
+.\venv\Scripts\active
 ```
 
-If on Windows, run the script directly instead:
-```
-./venv/Scripts/activate
-```
+For bash:
 
-Run all Python and PIP commands here.
-
-To deactivate the isolated virtual environment and return to the original environment, either close the console window or run the following command:
-```shell
-deactivate
+```
+source ./venv/bin/activate
 ```
 
-#### Flask
+For fish:
 
-Flask is installed by the PIP commands above.
+```
+source ./venv/bin/activate.fish
+```
 
-For all following commands, `flask` can be replaced with `python3 -m flask` if the Flask executable is not available.
+If everything worked correctly, you should see a little `(venv)` before your
+usual prompt telling you that the virtual environment has been loaded. For 
+example, in Powershell:
 
-Migrate the database to the newest version:
-```shell
+```
+PS C:\U\j\D\f\c\server> .\venv\Scripts\activate
+(venv) PS C:\U\j\D\f\c\server>
+```
+
+### Install Dependencies
+
+From the `server` directory, with virtualenv (optional) loaded:
+
+```
+pip install -r ./requirements.txt
+```
+
+> Note that if you're on Windows, the `uwsgi` dependency will fail to install.
+> It's not required for development builds so you can simply remove it from
+> `requirements.txt` and run the command again. Remember to add it back once
+> you've finished though as it is used when building for production.
+
+### Configuration
+
+The server pulls configration from a file named `.env` in the `server` directory.
+Create this file now and put the following into it:
+
+```
+DB_USERNAME=root
+DB_PASSWORD=password
+DB_HOSTNAME=localhost
+DB_PORT=3306
+DB_NAME=cradle
+EMAIL_USER=sample_user@gmail.com
+EMAIL_PASSWORD=password
+```
+
+> If you have a different database user/password, make sure to update the
+> corresponding variables here to match.
+
+The `EMAIL_USER` and `EMAIL_PASSWORD` are required by some legacy code an may
+not be required in the future, but for now they are.
+
+### Database Setup
+
+#### Creating The Database
+
+Once you have MySQL installed an the MySQL service running, or have Docker
+installed and have created a MySQL container using the command mentioned in the
+requirements section, it's time to setup the database.
+
+The database itself is simply named `cradle` and needs to be created manually
+before the schema can be applied. In a MySQL prompt, create a new database like
+so:
+
+> If running your database inside docker, you can get a MySQL prompt like so:
+>
+> ```
+> docker exec -it cradle-db mysql -u root -ppassword
+> ```
+>
+> This is assuming the container is named `cradle-db` and your root password is
+> `password`. No `-ppassword` is not a typo, that's just how MySQL handles
+> passwords on the command line.
+
+```
+mysql> create database cradle;
+```
+
+Once that's done you can exit the MySQL prompt.
+
+#### Applying The Schema
+
+The database schema is managed by `flask`, our backend framework. To create all
+the required tables, simply run the following from the `server` directory (with
+`vertualenv` loaded if you decided to use it):
+
+```
 flask db upgrade
 ```
 
-Start the server with either one of the following commands:
-```shell
-python3 app.py
+This command runs though and applies all of our database migrations to the
+database that you just created in the previous step. If you're interested you
+can hop back into that MySQL prompt and view all the new tables.
 
+#### Seeding Data
+
+Data seeding is handled by the `manage.py` script in the `server` directory.
+There are 3 commands to seed data into the database, all of which give you
+different amounts of data:
+
+* `python ./manage.py seed_minimal`: seeds the bare minimum amount of data to
+get the application running, useful if you want to debug something without 
+having to trudge through unrelated data
+* `python ./manage.py seed_test_data`: seeds data required to run the unit tests
+* `python ./manage.py seed`: seeds a generous amount of random data
+
+### Starting The Server
+
+Finally it's time to start the server! To do so simply run:
+
+```
 flask run
 ```
-**Note:** flask might complain when you have python3 and python 2.7 install. In this case uninstall python 2.7
-The server will be available on port 5000 (http://127.0.0.1:5000).
 
-### Front-End Web Application (Yarn with React)
-
-Enter the project directory:
-```shell
-cd client/
-```
-
-Install [Yarn](https://yarnpkg.com/).
-
-Install the necessary packages:
-```shell
-yarn install
-```
-or 
-```shell
-yarn install --ignore-engines
-```
-
-Start the server locally:
-```shell
-yarn start
-```
-
-The server will be available on port 3000 (http://127.0.0.1:3000).
-
-## Deployment
-
-To build the front-end into deployable files, edit the value `homepage` in `client/package.json` to be the URL where the web application will be hosted, so that the page can resolve the correct URL to its resources.
-
-Build the files:
-```shell
-yarn build
-```
-
-The completed files will be ready for deployment at directory `client/build/`.
