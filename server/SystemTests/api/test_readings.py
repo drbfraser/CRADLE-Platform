@@ -57,7 +57,7 @@ def test_invalid_reading_not_created(
     reading_id, reading_referral_followup, patient_factory, api_post
 ):
     patient_factory.create(patientId="123")
-    # Remove bpSystolic to make the eading invalid
+    # Removed bpSystolic to make the eading invalid
     del reading_referral_followup["bpSystolic"]
 
     response = api_post(endpoint="/api/readings", json=reading_referral_followup)
