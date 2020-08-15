@@ -53,6 +53,20 @@ def test_post_reading_with_referral(
         crud.delete_by(Reading, readingId=reading_id)
 
 
+def test_invalid_reading_not_created(
+    reading_id, reading_referral_followup, patient_factory, api_post
+):
+    patient_factory.create(patientId="123")
+    # Remove bpSystolic to make the eading invalid
+    del reading_referral_followup["bpSystolic"]
+
+    response = api_post(endpoint="/api/readings", json=reading_referral_followup)
+    assert response.status_code == 400
+    assert crud.read(Reading, readingId=reading_id) is None
+    assert crud.read(Referral, readingId=reading_id) is None
+    assert crud.read(FollowUp, readingId=reading_id) is None
+
+
 @pytest.fixture
 def reading_id():
     return "9771e6ee-81af-41a4-afff-9676cadcc00a"
