@@ -14,7 +14,6 @@ followUpManager = FollowUpManager()
 
 # URI: /followup
 class FollowUp(Resource):
-
     @jwt_required
     @swag_from(
         "../specifications/followup-put.yml", methods=["PUT"], endpoint="followup_path"
