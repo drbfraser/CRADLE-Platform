@@ -164,7 +164,7 @@ flask run
 **Note:** flask might complain when you have python3 and python 2.7 install. In this case uninstall python 2.7
 The server will be available on port 5000 (http://127.0.0.1:5000).
 
-### Front-End Web Application (Yarn with React)
+### Front-End Web Application
 
 Enter the project directory:
 ```shell
