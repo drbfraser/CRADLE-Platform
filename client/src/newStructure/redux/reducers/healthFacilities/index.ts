@@ -2,7 +2,7 @@ import { HealthFacility, OrNull, ServerError } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { Endpoints } from '../../../server/endpoints';
+import { EndpointEnum } from '../../../server';
 
 enum HealthFacilitiesActionEnum {
   GET_HEALTH_FACILITY_REQUESTED = 'healthFacility/GET_HEALTH_FACILITY_REQUESTED',
@@ -41,7 +41,7 @@ export const getHealthFacilityList = (): ((
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: Endpoints.HEALTH_FACILITY_LIST,
+        endpoint: EndpointEnum.HEALTH_FACILITY_LIST,
         onSuccess: ({
           data,
         }: {
