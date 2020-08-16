@@ -18,9 +18,9 @@ The back-end is in the directory `server/` and the front-end is in the directory
 
 | Purpose | Technology |
 | --- | --- |
-| Development Language | HTML, CSS, JavaScript |
+| Development Language | TSX, Material UI, Typescript |
 | Front-End Development Framework | [React](https://reactjs.org/) |
-| Dependency Manager | [Yarn](https://yarnpkg.com/) |
+| Dependency Manager | [npm](https://www.npmjs.com/get-npm) |
 | Deployment | [GitHub Pages](https://pages.github.com/) |
 
 ## Software Stack (Back-End)
@@ -171,20 +171,16 @@ Enter the project directory:
 cd client/
 ```
 
-Install [Yarn](https://yarnpkg.com/).
+Install [npm](https://www.npmjs.com/get-npm).
 
 Install the necessary packages:
 ```shell
-yarn install
-```
-or 
-```shell
-yarn install --ignore-engines
+npm install
 ```
 
 Start the server locally:
 ```shell
-yarn start
+npm run start
 ```
 
 The server will be available on port 3000 (http://127.0.0.1:3000).
@@ -195,7 +191,7 @@ To build the front-end into deployable files, edit the value `homepage` in `clie
 
 Build the files:
 ```shell
-yarn build
+npm run build
 ```
 
 The completed files will be ready for deployment at directory `client/build/`.
