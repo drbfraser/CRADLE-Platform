@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import pytest
-from Validation.patients import validate
+from Validation.patients import validate, validate_put_request
 
 # Dynamically calculate valid and invalid gestatation ages from todays date.
 todays_date = datetime.today()
@@ -132,4 +132,32 @@ incorrect_dob_format = {
 )
 def test_validation(json, output):
     message = validate(json)
+    assert type(message) == output
+
+
+#####################################
+# Testing validation of PUT request #
+#####################################
+
+valid_put_request = {"patientName": "AA"}
+put_mismatched_patientId = {"patientId": "456"}
+put_invalid_key = {"readingId": "asdfg123"}
+put_not_type_str = {"patientName": 12}
+put_invalid_dob = {"dob": "Oct 12, 2000"}
+put_invalid_gest_timestamo = {"gestationalTimestamp": fifty_weeks_ago}
+
+
+@pytest.mark.parametrize(
+    "json, output",
+    [
+        (valid_put_request, type(None)),
+        (put_invalid_key, str),
+        (put_not_type_str, str),
+        (put_invalid_dob, str),
+        (put_invalid_gest_timestamo, str),
+    ],
+)
+def test_put_validation(json, output):
+    patient_id = 123
+    message = validate_put_request(json, patient_id)
     assert type(message) == output

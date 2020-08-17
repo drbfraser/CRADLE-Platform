@@ -1,18 +1,19 @@
+from typing import Optional
 from Validation.validate import required_keys_present, values_correct_type
 
 
-def validate(request_body):
+def validate(request_body: dict) -> Optional[str]:
     """
-    Returns an error code and message if the /api/facilities post request
+    Returns an error message if the /api/facilities post request
     is not valid. Else, returns None.
 
-    :param json: The request body as a dict object
-                {
-                    "healthFacilityName": "H12", - required
-                    "healthFacilityPhoneNumber": "444-444-4444",
-                    "about": "Biggest hospital",
-                    "facilityType": "HOSPITAL"
-                }
+    :param request_body: The request body as a dict object
+                        {
+                            "healthFacilityName": "H12", - required
+                            "healthFacilityPhoneNumber": "444-444-4444",
+                            "about": "Biggest hospital",
+                            "facilityType": "HOSPITAL"
+                        }
     :return: An error message if request body in invalid in some way. None otherwise. 
     """
     error_message = None

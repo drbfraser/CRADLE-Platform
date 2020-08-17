@@ -1,23 +1,24 @@
+from typing import Optional
 from Validation.validate import required_keys_present, values_correct_type
 
 
-def validate(request_body):
+def validate(request_body: dict) -> Optional[str]:
     """
-    Returns an error code and message if the /api/assessments post request
+    Returns an error message if the /api/assessments post request
     is not valid. Else, returns None.
 
-    :param json: The request body as a dict object
-                {
-                    "dateAssessed": 1551447833, - required
-                    "diagnosis": "patient is fine",
-                    "medicationPrescribed": "tylenol",
-                    "healthcareWorkerId": 2,
-                    "specialInvestigations": "bcccccccccddeeeff",
-                    "treatment": "b",
-                    "readingId": "asdasd82314278226313803", - required
-                    "followupNeeded": True, - required
-                    "followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = True 
-                }
+    :param request_body: The request body as a dict object
+                        {
+                            "dateAssessed": 1551447833, - required
+                            "diagnosis": "patient is fine",
+                            "medicationPrescribed": "tylenol",
+                            "healthcareWorkerId": 2,
+                            "specialInvestigations": "bcccccccccddeeeff",
+                            "treatment": "b",
+                            "readingId": "asdasd82314278226313803", - required
+                            "followupNeeded": True, - required
+                            "followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = True 
+                        }
 
     :return: An error message if request body in invalid in some way. None otherwise. 
     """

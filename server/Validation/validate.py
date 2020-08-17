@@ -1,9 +1,14 @@
-def required_keys_present(request_body, required_keys):
+from typing import Any, List, Optional
+
+
+def required_keys_present(
+    request_body: dict, required_keys: List[str]
+) -> Optional[str]:
     """
     Returns an error message if the required keys are not
     present. Else, returns None.
 
-    :param json: The request body as a dict object
+    :param request_body: The request body as a dict object
     :param required_keys: The list of required key names
     :return: An error message if required keys are not present. None otherwise. 
     """
@@ -15,13 +20,16 @@ def required_keys_present(request_body, required_keys):
     return None
 
 
-def values_correct_type(request_body, key_names, type):
+def values_correct_type(
+    request_body: dict, key_names: List[str], type
+) -> Optional[str]:
     """
     Returns an error message if the values of some keys are not
     the correct specified type. Else, returns None.
 
-    :param json: The request body as a dict object
-    :param required_keys: The list of keys to have their values checked. 
+    :param request_body: The request body as a dict object
+    :param key_names: The list of keys to have their values checked.
+    :param type: The type that the values need to be.
     :return: An error message if the values are not the correct type. None otherwise. 
     """
     for key in key_names:
@@ -35,7 +43,7 @@ def values_correct_type(request_body, key_names, type):
     return None
 
 
-def is_int(s):
+def is_int(s: Any) -> bool:
     """
     Checks if a value is an integer.
 
