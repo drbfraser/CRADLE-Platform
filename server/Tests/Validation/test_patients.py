@@ -144,17 +144,18 @@ put_mismatched_patientId = {"patientId": "456"}
 put_invalid_key = {"readingId": "asdfg123"}
 put_not_type_str = {"patientName": 12}
 put_invalid_dob = {"dob": "Oct 12, 2000"}
-put_invalid_gest_timestamo = {"gestationalTimestamp": fifty_weeks_ago}
+put_invalid_gest_timestamp = {"gestationalTimestamp": fifty_weeks_ago}
 
 
 @pytest.mark.parametrize(
     "json, output",
     [
         (valid_put_request, type(None)),
+        (put_mismatched_patientId, str),
         (put_invalid_key, str),
         (put_not_type_str, str),
         (put_invalid_dob, str),
-        (put_invalid_gest_timestamo, str),
+        (put_invalid_gest_timestamp, str),
     ],
 )
 def test_put_validation(json, output):
