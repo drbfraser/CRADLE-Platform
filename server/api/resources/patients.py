@@ -12,6 +12,7 @@ import service.view as view
 from Manager.PatientStatsManager import PatientStatsManager
 from models import Patient
 from utils import get_current_time
+from Validation import patients
 
 
 # /api/patients
@@ -31,7 +32,9 @@ class Root(Resource):
     @jwt_required
     def post():
         json = request.get_json(force=True)
-        # TODO: Validate request
+        error_message = patients.validate(json)
+        if error_message is not None:
+            abort(400, message=error_message)
         patient = marshal.unmarshal(Patient, json)
 
         if crud.read(Patient, patientId=patient.patientId):
@@ -87,7 +90,9 @@ class PatientInfo(Resource):
     @jwt_required
     def put(patient_id: str):
         json = request.get_json(force=True)
-        # TODO: Validate
+        error_message = patients.validate_put_request(json, patient_id)
+        if error_message is not None:
+            abort(400, message=error_message)
 
         # If the inbound JSON contains a `base` field then we need to check if it is the
         # same as the `lastEdited` field of the existing patient. If it is then that

@@ -7,7 +7,7 @@ from models import Reading, Referral, FollowUp
 def test_post_reading_with_referral_and_followup(
     reading_id, reading_referral_followup, patient_factory, api_post
 ):
-    patient_factory.create(patientId="abc")
+    patient_factory.create(patientId="123")
     try:
         response = api_post(endpoint="/api/readings", json=reading_referral_followup)
         assert response.status_code == 201
@@ -31,7 +31,7 @@ def test_post_reading_with_referral_and_followup(
 def test_post_reading_with_referral(
     reading_id, reading_referral_followup, patient_factory, api_post
 ):
-    patient_factory.create(patientId="abc")
+    patient_factory.create(patientId="123")
     # Remove the followup
     del reading_referral_followup["followup"]
     try:
@@ -53,6 +53,20 @@ def test_post_reading_with_referral(
         crud.delete_by(Reading, readingId=reading_id)
 
 
+def test_invalid_reading_not_created(
+    reading_id, reading_referral_followup, patient_factory, api_post
+):
+    patient_factory.create(patientId="123")
+    # Removed bpSystolic to make the eading invalid
+    del reading_referral_followup["bpSystolic"]
+
+    response = api_post(endpoint="/api/readings", json=reading_referral_followup)
+    assert response.status_code == 400
+    assert crud.read(Reading, readingId=reading_id) is None
+    assert crud.read(Referral, readingId=reading_id) is None
+    assert crud.read(FollowUp, readingId=reading_id) is None
+
+
 @pytest.fixture
 def reading_id():
     return "9771e6ee-81af-41a4-afff-9676cadcc00a"
@@ -68,13 +82,13 @@ def reading_referral_followup(reading_id):
         "symptoms": ["unwell", "bleeding"],
         "dateTimeTaken": 320,
         "userId": 1,
-        "patientId": "abc",
+        "patientId": "123",
         "referral": {
             "dateReferred": 340,
             "comment": "comment",
             "actionTaken": "action",
             "userId": 1,
-            "patientId": "abc",
+            "patientId": "123",
             "referralHealthFacilityName": "H0000",
             "readingId": reading_id,
         },
