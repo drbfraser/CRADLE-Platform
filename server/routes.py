@@ -18,17 +18,17 @@ from Controller.ReferralsController import ReferralApi, ReferralInfo
 from Controller.SMSController import *
 from Controller.StatsController import *
 from Controller.UsersController import *
+from api.resources.assessments import Root as Assessments, SingleAssessment
+from api.resources.associations import Root as Associations
+from api.resources.facilities import Root as Facilities
+from api.resources.patients import Root as Patients
 
 
 def init(api):
     api.add_resource(HelloWorld, "/api/hello-world")
     api.add_resource(Multi, "/api/multi/<int:num>")
     api.add_resource(AllStats, "/api/stats")  # [GET]
-    api.add_resource(
-        PatientStats,
-        "/api/patient/stats/<string:patient_id>",
-        endpoint="old_patient_stats",
-    )  # [GET]
+
 
     api.add_resource(UserApi, "/api/user/register")  # [POST]
     api.add_resource(UserAuthApi, "/api/user/auth")  # [POST]
@@ -51,7 +51,7 @@ def init(api):
 
     api.add_resource(
         HealthFacility, "/api/health_facility", endpoint="healthfacility"
-    )  # [GET, POST, PUT, DELETE]
+    )  # [PUT, DELETE]
     api.add_resource(
         HealthFacility,
         "/api/health_facility/<string:name>",
@@ -61,10 +61,10 @@ def init(api):
 
     api.add_resource(
         FollowUp, "/api/follow_up", endpoint="followup"
-    )  # [GET, POST, PUT, DELETE]
+    )  # [PUT, DELETE]
     api.add_resource(
         FollowUp, "/api/follow_up/<int:id>", endpoint="followup_path"
-    )  # [GET, POST, PUT, DELETE]
+    )  # [PUT, DELETE]
     api.add_resource(
         FollowUpMobile, "/api/mobile/follow_up", "/api/mobile/follow_up/<int:id>"
     )  # [GET]
@@ -78,5 +78,15 @@ def init(api):
     api.add_resource(ResetPassword, "/api/reset/<string:reset_token>")  # [PUT]
 
     api.add_resource(SMS, "/api/sms")
+
+    #### New Endpoints ####
+    api.add_resource(Assessments, "/api/assessments", endpoint="assessments") # [POST]
+    api.add_resource(SingleAssessment, "/api/assessments/<int:id>", endpoint="single_assessment") # [GET]
+
+    api.add_resource(Associations, "/api/associations") # [POST]
+
+    api.add_resource(Facilities, "/api/facilities", endpoint="facilities") # [GET, POST]
+
+    # api.add_resource(Patients, "/api/patients", endpoint="patients") # [GET, POST]
 
     new_api.init_routes(api)

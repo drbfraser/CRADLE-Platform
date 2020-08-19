@@ -15,57 +15,6 @@ healthFacilityManager = HealthFacilityManager()
 # URI: /health_facility
 class HealthFacility(Resource):
 
-    # Get all health facilities
-    @staticmethod
-    @jwt_required
-    @swag_from(
-        "../specifications/healthfacility-get.yml",
-        methods=["GET"],
-        endpoint="healthfacility_path",
-    )
-    @swag_from(
-        "../specifications/healthfacilities-get.yml",
-        methods=["GET"],
-        endpoint="healthfacility",
-    )
-    def get(name=None):
-        args = request.args
-        if name:
-            logging.debug("Received request: GET /health_facility/<id>")
-            hf = healthFacilityManager.read("healthFacilityName", name)
-            if hf is None:
-                abort(400, message=f'No health facility exists with name "{name}"')
-            return hf
-        elif args:
-            logging.debug("Received request: GET /health_facility")
-            print("args: " + json.dumps(args, indent=2, sort_keys=True))
-            hfs = healthFacilityManager.search(args)
-            if not hfs:
-                abort(
-                    400, message="No health facilities found with given query params."
-                )
-            return hfs
-        else:
-            logging.debug("Received request: GET /health_facility")
-            hfs = healthFacilityManager.read_all()
-            if not hfs:
-                abort(404, message="No health facilities currently exist.")
-            return hfs
-
-    # Create a new hf
-    @staticmethod
-    @jwt_required
-    @swag_from(
-        "../specifications/healthfacility-post.yml",
-        methods=["POST"],
-        endpoint="healthfacility",
-    )
-    def post():
-        logging.debug("Received request: POST /health_facility")
-        hf_data = _get_request_body()
-        response_body = healthFacilityManager.create(hf_data)
-        return response_body, 201
-
     @staticmethod
     @jwt_required
     @swag_from(

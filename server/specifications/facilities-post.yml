@@ -1,0 +1,36 @@
+Create a new health facility
+---
+tags:
+  - Facilities
+requestBody:
+  required: true
+  description: POST request body for /api/facilities
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          healthFacilityName:
+            type: string - required
+            example: H5123
+          healthFacilityPhoneNumber:
+            type: string | Null
+            example: 555-555-5555
+          location:
+            type: string | Null
+            example: District 1
+          facilityType:
+            type: string | Null
+            enum: [HCF_2, HCF_3, HCF_4, HOSPITAL]
+            example: HOSPITAL
+          about:
+            type: string | Null
+            example: Sample health centre
+responses:
+  201:
+    description: Response from POST request for /api/facilities
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:

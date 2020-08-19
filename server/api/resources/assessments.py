@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
@@ -15,6 +16,7 @@ from Validation import assessments
 class Root(Resource):
     @staticmethod
     @jwt_required
+    @swag_from("../../specifications/assessments-post.yml", methods=["POST"], endpoint="assessments")
     def post():
         json = request.get_json(force=True)
 
@@ -44,6 +46,7 @@ class Root(Resource):
 class SingleAssessment(Resource):
     @staticmethod
     @jwt_required
+    @swag_from("../../specifications/single-assessment-get.yml", methods=["GET"], endpoint="single_assessment")
     def get(assessment_id: int):
         follow_up = crud.read(FollowUp, id=assessment_id)
         if not follow_up:

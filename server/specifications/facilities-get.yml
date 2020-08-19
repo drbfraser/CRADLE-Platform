@@ -1,10 +1,10 @@
 Get a list of all health facilities
 ---
 tags:
-  - Health Facility
+  - Facilities
 responses:
   200:
-    description: A list of all health facilities
+    description: List of GET response bodies for /api/facilities
     content:
       application/json:
         schema:
@@ -12,22 +12,15 @@ responses:
           items:
             type: object
             properties:
-              users:
-                type: array | Null
-                items: integer
-                example: [2, 3]
               healthFacilityName:
                 type: string
                 example: H5123
-              referrals:
-                type: array | Null
-                items: integer
-                example: [4, 9, 13, 21, 22, 25, 31, 36, 42, 46, 49]
               healthFacilityPhoneNumber:
                 type: string | Null
-                example: "555-555-5555"
+                example: 555-555-5555
               location:
                 type: string | Null
+                example: District 1
               facilityType:
                 type: string | Null
                 enum: [HCF_2, HCF_3, HCF_4, HOSPITAL]

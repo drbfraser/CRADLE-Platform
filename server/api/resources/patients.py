@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
@@ -19,6 +20,7 @@ from Validation import patients
 class Root(Resource):
     @staticmethod
     @jwt_required
+    @swag_from("../../specifications/patients-get.yml", methods=["GET"], endpoint="patients")
     def get():
         user = util.current_user()
         patients = view.patient_view_for_user(user)
@@ -30,6 +32,7 @@ class Root(Resource):
 
     @staticmethod
     @jwt_required
+    @swag_from("../../specifications/patients-post.yml", methods=["POST"], endpoint="patients")
     def post():
         json = request.get_json(force=True)
         error_message = patients.validate(json)

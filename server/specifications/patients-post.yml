@@ -1,7 +1,7 @@
 Create a patient
 ---
 tags:
-  - Patient
+  - Patients
 requestBody:
   required: true
   content:
