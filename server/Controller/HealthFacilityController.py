@@ -14,7 +14,6 @@ healthFacilityManager = HealthFacilityManager()
 
 # URI: /health_facility
 class HealthFacility(Resource):
-
     @staticmethod
     @jwt_required
     @swag_from(

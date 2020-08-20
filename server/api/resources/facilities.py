@@ -14,7 +14,11 @@ from Validation import facilities
 class Root(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/facilities-get.yml", methods=["GET"], endpoint="facilities")
+    @swag_from(
+        "../../specifications/facilities-get.yml",
+        methods=["GET"],
+        endpoint="facilities",
+    )
     def get():
         facilities = crud.read_all(HealthFacility)
         if util.query_param_bool(request, "simplified"):
@@ -27,7 +31,11 @@ class Root(Resource):
 
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/facilities-post.yml", methods=["POST"], endpoint="facilities")
+    @swag_from(
+        "../../specifications/facilities-post.yml",
+        methods=["POST"],
+        endpoint="facilities",
+    )
     def post():
         json = request.get_json(force=True)
         error_message = facilities.validate(json)

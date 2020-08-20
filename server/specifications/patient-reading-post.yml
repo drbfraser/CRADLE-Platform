@@ -23,7 +23,7 @@ requestBody:
                 example: true
               patientSex:
                 type: string
-                enum: [MALE, FEMALE]
+                enum: [MALE, FEMALE, OTHER]
                 example: FEMALE
               patientAge:
                 type: integer
@@ -38,7 +38,7 @@ requestBody:
                 type: string
                 example: 5
               patientId:
-                type: string
+                type: integer
                 example: 191919
               gestationalTimestamp:
                 type: Unix timestamp
@@ -119,7 +119,7 @@ responses:
               example: true
             patientSex:
               type: string
-              enum: [MALE, FEMALE]
+              enum: [MALE, FEMALE, OTHER]
               example: FEMALE
             patientAge:
               type: integer
@@ -142,7 +142,7 @@ responses:
               type: string
               example: 5
             patientId:
-              type: string
+              type: integer
               example: 191919
             gestationalTimestamp:
               type: Unix timestamp

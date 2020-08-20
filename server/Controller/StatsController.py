@@ -6,6 +6,7 @@ from flasgger import swag_from
 
 statsManager = StatsManager()
 
+
 class AllStats(Resource):
     # GET api/stats
     # Get global stats

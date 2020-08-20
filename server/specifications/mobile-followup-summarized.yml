@@ -60,7 +60,7 @@ responses:
                   type: string | Null
                   example: "has heart conditions"
                 patientId:
-                  type: string
+                  type: integer
                   example: 48300058906
             readingId:
               type: string

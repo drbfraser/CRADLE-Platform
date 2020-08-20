@@ -1,0 +1,49 @@
+Get stats for a single patient
+---
+tags:
+  - Patients
+parameters:
+- in: path
+  name: patient_id
+  required: true
+  schema:
+    type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/stats
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            bpSystolicReadingsMonthly:
+              type: array
+              items: array
+              example: [[]]
+            bpDiastolicReadingsMonthly:
+              type: array
+              items: array
+              example: [[]]
+            heartRateReadingsMonthly:
+              type: array
+              items: array
+              example: [[]]
+            trafficLightCountsFromDay1:
+              type: object
+              properties:
+                green:
+                  type: integer
+                  example: 0
+                yellowUp:
+                  type: integer
+                  example: 0
+                yellowDown:
+                  type: integer
+                  example: 0
+                redUp:
+                  type: integer
+                  example: 0
+                redDown:
+                  type: integer
+                  example: 0
+            

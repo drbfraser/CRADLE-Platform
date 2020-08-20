@@ -13,14 +13,14 @@ responses:
             type: object
             properties:
               patientId:
-                type: string
+                type: integer
                 example: 191919
               isPregnant:
                 type: boolean
                 example: true
               patientSex:
                 type: string
-                enum: [MALE, FEMALE]
+                enum: [MALE, FEMALE, OTHER]
                 example: FEMALE
               patientAge:
                 type: integer
@@ -29,10 +29,10 @@ responses:
                 type: string
                 example: MR
               dob:
-                type: string
+                type: string | Null
                 example: "1990-03-26"
               villageNumber:
-                type: string
+                type: string | Null
                 example: 5
               gestationalTimestamp:
                 type: Unix timestamp | Null
@@ -42,8 +42,17 @@ responses:
                 enum: [GESTATIONAL_AGE_UNITS_WEEKS, GESTATIONAL_AGE_UNITS_MONTHS]
                 example: GESTATIONAL_AGE_UNITS_WEEKS
               zone:
-                type: string
+                type: string | Null
                 example: 1
+              householdNumber:
+                type: string | Null
+                example: 1
+              medicalHistory:
+                type: string | Null
+                example: Sample medical history
+              drugHistory:
+                type: string | Null
+                example: Sample drug history
               created:
                 type: Unix timestamp
                 example: 1592339808
