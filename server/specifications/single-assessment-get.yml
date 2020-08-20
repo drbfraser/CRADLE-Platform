@@ -10,7 +10,7 @@ parameters:
       type: integer
 responses:
   200:
-    description: GET response body for /api/assessments
+    description: GET response body for /api/assessments/<int:id>
     content:
       application/json:
         schema:
