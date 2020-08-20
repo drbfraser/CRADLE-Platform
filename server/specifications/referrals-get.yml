@@ -1,10 +1,10 @@
-Get a single referral
+Get a list of all referrals
 ---
 tags:
   - Referrals
 responses:
   200:
-    description: Response from GET request for /api/referrals/<int:id>
+    description: Response from GET request for /api/referrals
     content:
       application/json:
         schema:
