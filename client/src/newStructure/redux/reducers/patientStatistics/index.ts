@@ -2,7 +2,7 @@ import { OrNull, PatientStatistics, ServerError } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from '../../../server/endpoints';
+import { EndpointEnum } from '../../../server';
 
 enum PatientStatisticsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'patientStatistics/CLEAR_REQUEST_OUTCOME',
