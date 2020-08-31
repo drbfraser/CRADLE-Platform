@@ -98,6 +98,26 @@ def test_update_patient_abort_due_to_conflict(patient_factory, api_put):
     assert patient.lastEdited == 7
 
 
+def test_invalid_patient_not_created(patient_factory, api_post):
+    patient_id = "48375354"
+    # invalid as patientName is missing
+    patient = {
+        "patientId": patient_id,
+        "patientAge": 30,
+        "patientSex": "FEMALE",
+        "isPregnant": False,
+        "zone": "37",
+        "villageNumber": "37",
+        "created": 1,
+        "lastEdited": 5,
+        "base": 5,
+        "readings": [],
+    }
+    response = api_post(endpoint="/api/patients", json=patient)
+    assert response.status_code == 400
+    assert crud.read(Patient, patientId=patient_id) is None
+
+
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
     return {
         "patientId": patient_id,

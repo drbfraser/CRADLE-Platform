@@ -1,7 +1,7 @@
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
-import { Endpoints } from '../../../server/endpoints';
-import { Methods } from '../../../server/methods';
+import { EndpointEnum } from '../../../server';
+import { MethodEnum } from '../../../server';
 import { OrNull } from '@types';
 
 enum NewReadingStatusEnum {
@@ -22,8 +22,8 @@ type NewReadingStatusAction =
 
 export const addNewReading = (data: any): ServerRequestAction => {
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENT}${Endpoints.READING}`,
-    method: Methods.POST,
+    endpoint: `${EndpointEnum.PATIENT}${EndpointEnum.READING}`,
+    method: MethodEnum.POST,
     data,
     onSuccess: (message: string): NewReadingStatusAction => ({
       type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS,
@@ -37,8 +37,8 @@ export const addNewReading = (data: any): ServerRequestAction => {
 
 export const addReadingNew = (reading: any) => {
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.READINGS}`,
-    method: Methods.POST,
+    endpoint: `${EndpointEnum.READINGS}`,
+    method: MethodEnum.POST,
     data: reading,
     onSuccess: (message: string): NewReadingStatusAction => ({
       type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS,
@@ -52,8 +52,8 @@ export const addReadingNew = (reading: any) => {
 
 export const addReadingAssessment = (assessment: any) => {
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.ASSESSMENTS}`,
-    method: Methods.POST,
+    endpoint: `${EndpointEnum.ASSESSMENTS}`,
+    method: MethodEnum.POST,
     data: assessment,
     onSuccess: (): NewReadingStatusAction => ({
       type: NewReadingStatusEnum.CLEAR_REQUEST_OUTCOME,

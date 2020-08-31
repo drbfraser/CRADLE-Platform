@@ -1,11 +1,12 @@
 from flask import request
 from flask_jwt_extended import jwt_required
-from flask_restful import Resource
+from flask_restful import Resource, abort
 
 import api.util as util
 import data.crud as crud
 import data.marshal as marshal
 from models import HealthFacility
+from Validation import facilities
 
 
 # /api/facilities
@@ -26,7 +27,10 @@ class Root(Resource):
     @jwt_required
     def post():
         json = request.get_json(force=True)
-        # TODO: Validate request
+        error_message = facilities.validate(json)
+        if error_message is not None:
+            abort(400, message=error_message)
+
         facility = marshal.unmarshal(HealthFacility, json)
         crud.create(facility)
         return marshal.marshal(facility), 201

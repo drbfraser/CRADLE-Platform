@@ -9,7 +9,6 @@ import {
   Referral,
   ServerError,
 } from '@types';
-import { EndpointEnum, Endpoints } from '../../../server/endpoints';
 import {
   GestationalAgeUnitEnum,
   PatientStateEnum,
@@ -22,7 +21,8 @@ import {
 } from '../../../shared/utils';
 
 import { Dispatch } from 'redux';
-import { Methods } from '../../../server/methods';
+import { EndpointEnum } from '../../../server';
+import { MethodEnum } from '../../../server';
 import { formatPatientData } from '../../../pages/newReading/newReadingCovid/formatData';
 import { getPatientsWithReferrals } from './utils';
 import { goBack } from 'connected-react-router';
@@ -370,8 +370,8 @@ export const getPatientsTablePatients = (
     return dispatch(
       serverRequestActionCreator({
         endpoint: search
-          ? `${Endpoints.PATIENTS_GLOBAL_SEARCH}/${search}`
-          : Endpoints.PATIENTS_ALL_INFO,
+          ? `${EndpointEnum.PATIENTS_GLOBAL_SEARCH}/${search}`
+          : EndpointEnum.PATIENTS_ALL_INFO,
         onSuccess: ({
           data,
         }: {
@@ -418,7 +418,7 @@ export const getReferralsTablePatients = (): Callback<
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: Endpoints.PATIENTS_ALL_INFO,
+        endpoint: EndpointEnum.PATIENTS_ALL_INFO,
         onSuccess: ({ data }: { data: Array<Patient> }): PatientsAction => ({
           type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_SUCCESS,
           payload: { patients: data },
@@ -451,7 +451,7 @@ export const updatePatient = ({
     return dispatch(
       serverRequestActionCreator({
         endpoint: `${EndpointEnum.PATIENTS}/${data.patientId}${EndpointEnum.INFO}`,
-        method: Methods.PUT,
+        method: MethodEnum.PUT,
         data,
         onSuccess: (): PatientsAction => ({
           type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS,
@@ -492,8 +492,8 @@ export const addPatientToHealthFacility = (
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: Endpoints.PATIENT_FACILITY,
-        method: Methods.POST,
+        endpoint: EndpointEnum.PATIENT_FACILITY,
+        method: MethodEnum.POST,
         data: { patientId },
         onSuccess: (): PatientsAction => ({
           type: PatientsActionEnum.ADD_PATIENT_TO_HEALTH_FACILITY_SUCCESS,
@@ -556,7 +556,7 @@ export const createAssessment = ({
     return dispatch(
       serverRequestActionCreator({
         endpoint: EndpointEnum.ASSESSMENTS,
-        method: Methods.POST,
+        method: MethodEnum.POST,
         data: { ...data, readingId },
         onSuccess: ({ data: id }: { data: number }): PatientsAction => ({
           type: PatientsActionEnum.CREATE_ASSESSMENT_SUCCESS,
@@ -602,8 +602,8 @@ export const updateAssessment = ({
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.FOLLOW_UP}/${data.id}`,
-        method: Methods.PUT,
+        endpoint: `${EndpointEnum.FOLLOW_UP}/${data.id}`,
+        method: MethodEnum.PUT,
         data,
         onSuccess: (): PatientsAction => ({
           type: PatientsActionEnum.UPDATE_ASSESSMENT_SUCCESS,
@@ -628,7 +628,7 @@ export const updateAssessment = ({
 
 export const doesPatientExist = (patientId: any) => {
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENTS}/${patientId}`,
+    endpoint: `${EndpointEnum.PATIENTS}/${patientId}`,
     onSuccess: ({ data }: any): PatientsAction => ({
       type: PatientsActionEnum.DOES_PATIENT_EXIST,
       payload: { data },
@@ -654,8 +654,8 @@ export const afterDoesPatientExist = (): PatientsAction => ({
 
 export const addPatientNew = (patient: any) => {
   return serverRequestActionCreator({
-    endpoint: `${Endpoints.PATIENTS}`,
-    method: Methods.POST,
+    endpoint: `${EndpointEnum.PATIENTS}`,
+    method: MethodEnum.POST,
     data: patient,
     onSuccess: () => ({
       type: PatientsActionEnum.ADD_NEW_PATIENT_NEW_API,

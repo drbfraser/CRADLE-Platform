@@ -23,7 +23,7 @@ on Windows Home Edition, note that there may be some issues getting Docker to
 work correctly. Note that the use of Docker in development environments is
 entierly optional, and only really recommended for running the database.
 
-* [npm](https://nodejs.org/en/)
+* [npm](https://www.npmjs.com/get-npm)
 * [Python](https://www.python.org/) 3.7 or higher
 * [MySQL](https://dev.mysql.com/downloads/) (or [docker](https://www.docker.com/products/docker-desktop) see below)
 
@@ -35,6 +35,28 @@ entierly optional, and only really recommended for running the database.
 >
 > Note that you can name the container whatever you would like by changing
 > "cradle-db", and set the password by changing "password" to something different.
+
+
+### Front-End Web Application
+
+Setting up the frontend is simple so we'll cover it first.
+
+Install [npm](https://www.npmjs.com/get-npm).
+
+Install the necessary packages:
+```shell
+npm install
+```
+
+Start the server locally:
+```shell
+npm run start
+```
+
+Build the files:
+```shell
+npm run build
+```
 
 ### Install virtualenv (Optional)
 
@@ -107,7 +129,7 @@ pip install -r ./requirements.txt
 
 ### Configuration
 
-The server pulls configration from a file named `.env` in the `server` directory.
+The server pulls configuration from a file named `.env` in the `server` directory.
 Create this file now and put the following into it:
 
 ```
@@ -187,4 +209,3 @@ Finally it's time to start the server! To do so simply run:
 ```
 flask run
 ```
-
