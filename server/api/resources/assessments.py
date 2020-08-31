@@ -33,6 +33,9 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
+        # TODO: validate that assessment's reading id references an actual reading and
+        #   return 404 if it doesn't
+
         follow_up = marshal.unmarshal(FollowUp, json)
 
         crud.create(follow_up)

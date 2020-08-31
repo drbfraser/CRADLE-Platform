@@ -10,57 +10,59 @@ requestBody:
       schema:
         type: object
         properties:
-          isPregnant:
-            type: boolean
+          specialInvestigations:
+            type: string | Null
+            example: Investigated this an that
+          diagnosis:
+            type: string | Null
+            example: I diagnose you with dead
+          treatment:
+            type: string | Null
+            example: Take this pill twice daily
+          medicationPrescribed:
+            type: string | Null
+            example: Advil
+          followupNeeded:
+            type: bool
             example: true
-          patientSex:
-            type: string
-            enum: [MALE, FEMALE, OTHER]
-            example: FEMALE
-          patientAge:
-            type: integer
-            example: 29
-          readings:
-            type: array
-            items: string
-            example:
-              [
-                a5b31bdb-68a6-46e0-bd2c-c39edcdc3fe3,
-                c46702da-0f59-4e6e-8fb2-f7502273285b,
-              ]
-          drugHistory:
-            type: string
-            example: Tylenol
-          dob:
-            type: string
-            example: "1990-03-26"
-          villageNumber:
-            type: string
-            example: 5
-          patientId:
-            type: integer
-            example: 191919
-          gestationalTimestamp:
-            type: Unix timestamp
-            example: 1592339808
-          gestationalAgeUnit:
-            type: string
-            enum: [GESTATIONAL_AGE_UNITS_WEEKS, GESTATIONAL_AGE_UNITS_MONTHS]
-            example: GESTATIONAL_AGE_UNITS_WEEKS
-          zone:
-            type: string
-            example: 1
-          patientName:
-            type: string
-            example: Grace
-          medicalHistory:
-            type: string
-            example: ""
+          followupInstructions:
+            type: string | Null
+            example: Check back with the patient once a week
+          readingId:
+            type: UUID
+            example: a1198ed9-5055-4138-bff3-69c599bf6e5b
+
 responses:
   201:
-    description: Response from POST request for /api/assessments
+    description: |
+      Assessment was created successfully.
+
+      The id of the newly created assessment is returned in the response body.
     content:
       application/json:
         schema:
-          type: Followup ID - integer
+          type: integer
           example: 3
+          description: Id of the newly created assessment
+  400:
+    description: |
+      Bad request: required fields are missing or  invalid.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: The request body key {readingId} is required.
+  404:
+    description: |
+      Not found: `readingId` doesn't reference a reading in the database.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Unable to find reading with id 18755470-312d-4cce-b9f4-be1c29ae1caf
