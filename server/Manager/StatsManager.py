@@ -17,11 +17,11 @@ followupManager = FollowUpManager()
 # add init
 class StatsManager:
 
-    """ 
-        Description: Helper function that converts from unixtimestamp to date objects and returns necessary date components
-            Parameters: 
-                record: the row in the db that is being converted
-                dateLabel: how date is recorded in that table e.g dateTime vs dateReferred
+    """
+    Description: Helper function that converts from unixtimestamp to date objects and returns necessary date components
+        Parameters:
+            record: the row in the db that is being converted
+            dateLabel: how date is recorded in that table e.g dateTime vs dateReferred
     """
 
     def calculate_dates_helper(self, record, dateLabel):

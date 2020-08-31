@@ -17,10 +17,10 @@ def validate(request_body: dict) -> Optional[str]:
                             "treatment": "b",
                             "readingId": "asdasd82314278226313803", - required
                             "followupNeeded": True, - required
-                            "followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = True 
+                            "followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = True
                         }
 
-    :return: An error message if request body in invalid in some way. None otherwise. 
+    :return: An error message if request body in invalid in some way. None otherwise.
     """
     error_message = None
 
