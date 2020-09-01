@@ -16,6 +16,9 @@ reduce preventable maternal deaths in Ugandan villages.
 
 ## Setup Instructions
 
+> Checkout the [wiki](https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform/-/wikis/home) 
+> for alternative ways to setup your development environment.
+
 ### Requirements
 
 Development environments are supported on Windows, macOS, and Linux. If you are
