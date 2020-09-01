@@ -9,10 +9,6 @@ import { history } from './newStructure/redux/reducers';
 import { reduxStore } from './newStructure/redux/store';
 import { render } from 'react-dom';
 
-// import reduxStore, { history }  from './oldStructure/store';
-
-// import App from './oldStructure/containers/app';
-
 render(
   <ReduxProvider store={reduxStore}>
     <ConnectedRouter history={history}>
