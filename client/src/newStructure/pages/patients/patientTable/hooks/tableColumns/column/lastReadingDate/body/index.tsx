@@ -1,10 +1,10 @@
+import { OrNull, Reading } from '@types';
 import {
   getLatestReadingDateTime,
   getPrettyDate,
 } from '../../../../../../../../shared/utils';
 
 import React from 'react';
-import { Reading } from '@types';
 
 interface IProps {
   className: string;
@@ -15,9 +15,11 @@ export const LastReadingDateBody: React.FC<IProps> = ({
   className,
   readings,
 }) => {
-  return (
-    <p className={className}>
-      {getPrettyDate(getLatestReadingDateTime(readings))}
-    </p>
-  );
+  const latestReadingDateTime = React.useMemo((): OrNull<number> => {
+    return getLatestReadingDateTime(readings);
+  }, [readings]);
+
+  return latestReadingDateTime ? (
+    <p className={className}>{getPrettyDate(latestReadingDateTime)}</p>
+  ) : null;
 };

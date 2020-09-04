@@ -1,16 +1,15 @@
 import { Callback, OrUndefined } from '@types';
 
+import { DefaultSearch } from '../../../../shared/components/defaultSearch';
 import { GlobalSearch } from './globalSearch';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import React from 'react';
 import { ReferredPatients } from './referredPatients';
-import { Search } from './search';
-import { useStyles } from './styles';
+import { useStyles } from '../../../../shared/styles/toolbar';
+import { useTimeout } from '../../../../shared/hooks/timeout';
 
 interface IProps {
   loading: boolean;
-  toggleShowReferredPatients: () => void;
-  toggleGlobalSearch: Callback<boolean>;
   updateSearchText: Callback<OrUndefined<string>>;
   globalSearch?: boolean;
   globalSearchAction?: boolean;
@@ -21,40 +20,20 @@ interface IProps {
 const Toolbar: React.FC<IProps> = ({
   loading,
   showReferredPatients,
-  toggleShowReferredPatients,
-  toggleGlobalSearch,
   globalSearchAction = false,
   ...props
 }) => {
   const [showLoader, setShowLoader] = React.useState<boolean>(false);
   const classes = useStyles();
-
-  React.useEffect((): (() => void) => {
-    let timeout: OrUndefined<NodeJS.Timeout>;
-
-    if (loading) {
-      //* Timeout used here to prevent
-      //* showing loader if data comes back very quickly
-
-      //* This makes the UI feel faster to the user
-      //* if we do not need to show a loading state
-      timeout = setTimeout((): void => {
-        if (loading) {
-          setShowLoader(true);
-        }
-      }, 500);
-    } else {
+  useTimeout({
+    startTimer: loading,
+    onTimeoutComplete: (): void => {
+      setShowLoader(true);
+    },
+    onWithoutTimeout: (): void => {
       setShowLoader(false);
-    }
-
-    return (): void => {
-      //* Whenever loading state updates clear the previous timeout
-      //* Prevents memory leaks
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  }, [loading]);
+    },
+  });
 
   return (
     <>
@@ -65,19 +44,15 @@ const Toolbar: React.FC<IProps> = ({
           variant="indeterminate"
         />
       )}
-      <div id="firstActions" className={classes.toolbarActions}>
-        <Search {...props} />
+      <div className={classes.toolbarActions}>
+        <DefaultSearch {...props} />
         {globalSearchAction && (
           <GlobalSearch
             className={classes.spacedAction}
             globalSearch={props.globalSearch}
-            toggleGlobalSearch={toggleGlobalSearch}
           />
         )}
-        <ReferredPatients
-          showReferredPatients={showReferredPatients}
-          toggleShowReferredPatients={toggleShowReferredPatients}
-        />
+        <ReferredPatients showReferredPatients={showReferredPatients} />
       </div>
     </>
   );

@@ -5,7 +5,7 @@ import React from 'react';
 import { useInitialsColumn } from './column/initials';
 import { useLastReadingDateColumn } from './column/lastReadingDate';
 import { usePatientIdColumn } from './column/patientId';
-import { useStyles } from './styles';
+import { useStyles } from '../../../../../shared/components/table/styles';
 import { useTakeActionColumn } from './column/takeAction';
 import { useVillageColumn } from './column/village';
 import { useVitalSignColumn } from './column/vitalSign';

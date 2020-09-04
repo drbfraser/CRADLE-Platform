@@ -8,6 +8,7 @@ import data.marshal as marshal
 import service.assoc as assoc
 import service.view as view
 from models import Referral
+from Validation import referrals
 
 
 # /api/referrals
@@ -29,7 +30,10 @@ class Root(Resource):
     @jwt_required
     def post():
         json = request.get_json(force=True)
-        # TODO: Validate request
+        error_message = referrals.validate(json)
+        if error_message is not None:
+            abort(400, message=error_message)
+
         referral = marshal.unmarshal(Referral, json)
         crud.create(referral)
 

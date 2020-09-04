@@ -1,4 +1,12 @@
-export const womenReferredPerMonth = (data: any): any => ({
+import { StatisticsDataset, YearGlobalStatistics } from '@types';
+
+export const womenReferredPerMonth = (
+  data: YearGlobalStatistics
+): StatisticsDataset<
+  'Total Number of Women Referred',
+  YearGlobalStatistics,
+  'rgba(21,21,43,0.4)'
+> => ({
   label: `Total Number of Women Referred`,
   fill: false,
   lineTension: 0.1,
@@ -8,7 +16,13 @@ export const womenReferredPerMonth = (data: any): any => ({
   data,
 });
 
-export const pregnantWomenReferredPerMonth = (data: any): any => ({
+export const pregnantWomenReferredPerMonth = (
+  data: YearGlobalStatistics
+): StatisticsDataset<
+  'Total Number of Pregnant Women Referred',
+  YearGlobalStatistics,
+  'rgba(75,192,192,0.4)'
+> => ({
   label: `Total Number of Pregnant Women Referred`,
   fill: false,
   lineTension: 0.1,
@@ -18,7 +32,13 @@ export const pregnantWomenReferredPerMonth = (data: any): any => ({
   data,
 });
 
-export const pregnantWomenAssessedPerMonth = (data: any): any => ({
+export const pregnantWomenAssessedPerMonth = (
+  data: YearGlobalStatistics
+): StatisticsDataset<
+  'Total Number of Pregnant Women Referred',
+  YearGlobalStatistics,
+  'rgba(255,127,80,0.4)'
+> => ({
   label: `Total Number of Pregnant Women Referred`,
   fill: false,
   lineTension: 0.1,
@@ -28,7 +48,13 @@ export const pregnantWomenAssessedPerMonth = (data: any): any => ({
   data,
 });
 
-export const womenAssessedPerMonth = (data: any): any => ({
+export const womenAssessedPerMonth = (
+  data: YearGlobalStatistics
+): StatisticsDataset<
+  'Total Number of Women Assessed',
+  YearGlobalStatistics,
+  'rgba(148,0,211,0.4)'
+> => ({
   label: `Total Number of Women Assessed`,
   fill: false,
   lineTension: 0.1,

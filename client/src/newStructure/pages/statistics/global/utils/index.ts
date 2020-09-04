@@ -1,4 +1,12 @@
-export const readingsPerMonth = (data: any): any => ({
+import { StatisticsDataset, YearGlobalStatistics } from '@types';
+
+export const readingsPerMonth = (
+  data: YearGlobalStatistics
+): StatisticsDataset<
+  'Total Number of Readings',
+  YearGlobalStatistics,
+  'rgba(75,192,192,0.4)'
+> => ({
   label: `Total Number of Readings`,
   fill: false,
   lineTension: 0.1,
@@ -8,7 +16,13 @@ export const readingsPerMonth = (data: any): any => ({
   data,
 });
 
-export const referralsPerMonth = (data: any): any => ({
+export const referralsPerMonth = (
+  data: YearGlobalStatistics
+): StatisticsDataset<
+  'Total Number of Referrals',
+  YearGlobalStatistics,
+  'rgba(148,0,211,0.4)'
+> => ({
   label: `Total Number of Referrals`,
   fill: false,
   lineTension: 0.1,
@@ -18,7 +32,13 @@ export const referralsPerMonth = (data: any): any => ({
   data,
 });
 
-export const assessmentsPerMonth = (data: any): any => ({
+export const assessmentsPerMonth = (
+  data: YearGlobalStatistics
+): StatisticsDataset<
+  'Total Number of Assesments',
+  YearGlobalStatistics,
+  'rgba(255,127,80,0.4)'
+> => ({
   label: `Total Number of Assesments`,
   fill: false,
   lineTension: 0.1,

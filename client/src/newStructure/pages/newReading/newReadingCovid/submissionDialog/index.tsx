@@ -1,36 +1,52 @@
-import React from 'react';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import { DialogPopup } from '../../../../shared/components/dialogPopup';
+import { OrNull } from '@types';
+import React from 'react';
 
 interface IProps {
   open: boolean;
+  error: OrNull<string>;
+  success: OrNull<string>;
+  patientExist: boolean;
+  readingCreated: boolean;
   handleDialogClose: any;
 }
 
 export default function SubmissionDialog(props: IProps) {
+  const message = React.useMemo((): OrNull<string> => {
+    return props.error || props.success;
+  }, [props.error, props.success]);
+
   return (
-    <div>
-      <Dialog
-        open={props.open}
-        onClose={props.handleDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">{'Submitted!!'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Patient and Reading Created Successfully
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={props.handleDialogClose} color="primary">
-            Ok!
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+    <DialogPopup
+      open={props.open}
+      onClose={props.handleDialogClose}
+      aria-labelledby="submit-dialog-title"
+      aria-describedby="submit-dialog-description"
+      content={
+        <>
+          {message || props.readingCreated ? (
+            <DialogContentText id="alert-dialog-description">
+              {message
+                ? message
+                : props.patientExist
+                ? `Reading Created Successfully!`
+                : `Patient and Reading Created Successfully!`}
+            </DialogContentText>
+          ) : (
+            <DialogContentText id="alert-dialog-description">
+              Error! Patient reading not created.
+            </DialogContentText>
+          )}
+        </>
+      }
+      title={props.readingCreated || props.success ? `Submitted` : `FAILED`}
+      primaryAction={{
+        children:
+          props.readingCreated || message ? `Ok!` : `Take Reading Again`,
+        value: props.readingCreated || message ? `ok` : `redo`,
+        onClick: props.handleDialogClose,
+      }}
+    />
   );
 }

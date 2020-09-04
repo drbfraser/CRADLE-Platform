@@ -61,5 +61,29 @@ export const useNewSymptoms = () => {
 
     console.log(symptoms);
   };
-  return { symptoms, handleChangeSymptoms };
+
+  const resetValuesSymptoms = (reset: boolean) => {
+    if (reset) {
+      setSymptoms({
+        none: true,
+        headache: false,
+        bleeding: false,
+        blurredVision: false,
+        feverish: false,
+        abdominalPain: false,
+        unwell: false,
+        other: false,
+        cough: false,
+        shortnessBreath: false,
+        soreThroat: false,
+        muscleAche: false,
+        fatigue: false,
+        lossOfSense: false,
+        lossOfTaste: false,
+        lossOfSmell: false,
+        otherSymptoms: '',
+      });
+    }
+  };
+  return { symptoms, handleChangeSymptoms, resetValuesSymptoms };
 };

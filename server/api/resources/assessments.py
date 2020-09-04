@@ -8,6 +8,7 @@ import data.crud as crud
 import data.marshal as marshal
 from models import FollowUp
 from utils import get_current_time
+from Validation import assessments
 
 
 # /api/assessments
@@ -16,12 +17,15 @@ class Root(Resource):
     @jwt_required
     def post():
         json = request.get_json(force=True)
-        # TODO: Validate request
 
         # Populate the dateAssessed and healthCareWorkerId fields of the followup
         json["dateAssessed"] = get_current_time()
         user = util.current_user()
         json["healthcareWorkerId"] = user.id
+
+        error_message = assessments.validate(json)
+        if error_message is not None:
+            abort(400, message=error_message)
 
         follow_up = marshal.unmarshal(FollowUp, json)
 
@@ -33,7 +37,7 @@ class Root(Resource):
             follow_up.reading.referral.isAssessed = True
             data.db_session.commit()
 
-        return marshal.marshal(follow_up), 201
+        return follow_up.id, 201
 
 
 # /api/assessments/<int:id>

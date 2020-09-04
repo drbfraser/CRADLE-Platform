@@ -71,7 +71,7 @@ class UserApi(Resource):
             role = Role.query.filter_by(name=data["role"]).first()
             del data["role"]
 
-            # Add a new patient to db
+            # Add a new user to db
             user_schema = UserSchema()
             new_user = user_schema.load(data, session=db.session)
 
@@ -80,7 +80,7 @@ class UserApi(Resource):
             db.session.add(role)  # add user and role
             db.session.commit()
 
-            return {}, 200
+            return new_user.id, 201
         else:
             return {"message": "Please check the fields"}, 400
 

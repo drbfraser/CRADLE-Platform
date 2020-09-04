@@ -1,5 +1,6 @@
-import { Form, Header, Select } from 'semantic-ui-react';
+import { Form, Header, InputOnChangeData, Select } from 'semantic-ui-react';
 
+import { NewReading } from '@types';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
 import Switch from '@material-ui/core/Switch';
@@ -28,7 +29,20 @@ export const initialUrineTests = {
   urineTestGlu: '',
 };
 
-export const UrineTestForm: React.FC<any> = (props) => {
+interface IProps {
+  hasUrineTest: boolean;
+  newReading: NewReading;
+  onChange: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    data: InputOnChangeData
+  ) => void;
+  onSwitchChange: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean
+  ) => void;
+}
+
+export const UrineTestForm: React.FC<IProps> = (props) => {
   return (
     <Paper
       className={classes.urineTestCard}
@@ -53,7 +67,8 @@ export const UrineTestForm: React.FC<any> = (props) => {
             placeholder="Test Result"
             onChange={props.onChange}
             disabled={!props.hasUrineTest}
-            required
+            required={true}
+            value={props.newReading.urineTests.urineTestLeuc}
           />
           <Form.Field
             className={classes.input}
@@ -64,7 +79,8 @@ export const UrineTestForm: React.FC<any> = (props) => {
             placeholder="Test Result"
             onChange={props.onChange}
             disabled={!props.hasUrineTest}
-            required
+            required={true}
+            value={props.newReading.urineTests.urineTestNit}
           />
           <Form.Field
             className={classes.input}
@@ -75,7 +91,8 @@ export const UrineTestForm: React.FC<any> = (props) => {
             placeholder="Test Result"
             onChange={props.onChange}
             disabled={!props.hasUrineTest}
-            required
+            required={true}
+            value={props.newReading.urineTests.urineTestGlu}
           />
           <Form.Field
             className={classes.input}
@@ -86,7 +103,8 @@ export const UrineTestForm: React.FC<any> = (props) => {
             placeholder="Test Result"
             onChange={props.onChange}
             disabled={!props.hasUrineTest}
-            required
+            required={true}
+            value={props.newReading.urineTests.urineTestPro}
           />
           <Form.Field
             className={classes.input}
@@ -97,7 +115,8 @@ export const UrineTestForm: React.FC<any> = (props) => {
             placeholder="Test Result"
             onChange={props.onChange}
             disabled={!props.hasUrineTest}
-            required
+            required={true}
+            value={props.newReading.urineTests.urineTestBlood}
           />
         </div>
       )}

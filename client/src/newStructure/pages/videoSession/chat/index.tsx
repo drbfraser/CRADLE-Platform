@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import { ChatHistory } from './history';
 import Input from '@material-ui/core/Input';
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/rootReducer';
+import { ReduxState } from '../../../redux/reducers';
 import classes from './styles.module.css';
 import { connect } from 'react-redux';
 

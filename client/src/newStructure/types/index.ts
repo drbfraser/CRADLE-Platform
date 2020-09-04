@@ -6,7 +6,7 @@ import {
   TrafficLightEnum,
 } from '../enums';
 
-import { Method as AxiosMethod } from 'axios';
+import { AutocompleteOption } from '../shared/components/input/autocomplete/utils';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -16,18 +16,7 @@ export type OrUndefined<T> = T | undefined;
 
 export type ServerError = {
   message: string;
-  name: string;
-  stack: string;
-  config: {
-    url: string;
-    method: AxiosMethod;
-    data: string;
-    headers: {
-      Accept: `application/json`;
-      'Content-Type': `application/json`;
-      Authorization?: string;
-    };
-  };
+  status: number;
 };
 
 export type Reading = {
@@ -39,6 +28,7 @@ export type Reading = {
   dateTimeTaken: OrNull<number>;
   dateUploadedToServer: OrNull<number>;
   deviceInfo: OrNull<string>;
+  followup: OrNull<FollowUp>;
   gpsLocationOfReading: OrNull<string>;
   heartRateBPM: number;
   isFlaggedForFollowup: OrNull<boolean>;
@@ -46,9 +36,9 @@ export type Reading = {
   patient: string;
   patientId: string;
   readingId: string;
-  referral: OrNull<string>;
+  referral: OrNull<Referral>;
   retestOfPreviousReadingIds: OrNull<string>;
-  symptoms: string;
+  symptoms?: Array<string>;
   temporaryFlags: OrNull<number>;
   totalOcrSeconds: OrNull<number>;
   trafficLightStatus: TrafficLightEnum;
@@ -59,15 +49,27 @@ export type Reading = {
   dateReferred?: number;
 };
 
-export type PatientTableData = {
-  id: number;
+export type UrineTests = {
+  urineTestNit: string;
+  urineTestBlood: string;
+  urineTestLeuc: string;
+  urineTestPro: string;
+  urineTestGlu: string;
 };
 
+export type NewReading = {
+  bpSystolic: string;
+  bpDiastolic: string;
+  heartRateBPM: string;
+  urineTests: Record<keyof UrineTests, string>;
+} & Pick<Reading, 'isFlaggedForFollowup'>;
+
 export type Patient = {
-  dob: OrNull<number>;
+  dob: OrNull<string>;
   drugHistory: OrNull<string>;
   gestationalAgeUnit: GestationalAgeUnitEnum;
   gestationalAgeValue: string;
+  gestationalTimestamp: number;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
   needsAssessment: boolean;
@@ -77,9 +79,25 @@ export type Patient = {
   patientSex: SexEnum;
   villageNumber: string;
   readings: Array<Reading>;
-  tableData: PatientTableData;
+  tableData: { id: number };
   zone: OrNull<string>;
 };
+
+export type EditedPatient = Pick<
+  Patient,
+  | 'dob'
+  | 'drugHistory'
+  | 'gestationalAgeUnit'
+  | 'gestationalTimestamp'
+  | 'isPregnant'
+  | 'medicalHistory'
+  | 'patientAge'
+  | 'patientId'
+  | 'patientName'
+  | 'patientSex'
+  | 'villageNumber'
+  | 'zone'
+>;
 
 export type GlobalSearchPatient = {
   patientName: string;
@@ -90,15 +108,40 @@ export type GlobalSearchPatient = {
 };
 
 export type User = {
+  associations: unknown;
   email: string;
   firstName: string;
+  followups: unknown;
+  healthFacility: string;
   healthFacilityName: string;
+  id: number;
+  referrals: unknown;
+  roleIds: Array<number>;
+  tableData: {
+    id: number;
+  };
+  username: OrNull<string>;
+  vhtList: Array<VHT>;
+};
+
+export type ActualUser = Pick<
+  User,
+  'email' | 'firstName' | 'healthFacilityName' | 'vhtList'
+> & {
   isLoggedIn: boolean;
   refresh: string;
   roles: Array<RoleEnum>;
   token: string;
   userId: number;
-  vhtList: Array<VHT>;
+};
+
+export type EditUser = Omit<
+  User,
+  'healthFacilityName' | 'roleIds' | 'vhtList'
+> & {
+  healthFacilityName: AutocompleteOption<string, string>;
+  roleIds: Array<AutocompleteOption<RoleEnum, number>>;
+  vhtList: Array<AutocompleteOption<string, number>>;
 };
 
 export type VHT = {
@@ -156,10 +199,100 @@ export type PatientNewReadingReading = {
   urineTests: UrineTests;
 };
 
-export type UrineTests = {
-  urineTestNit: string;
-  urineTestBlood: string;
-  urineTestLeuc: string;
-  urineTestPro: string;
-  urineTestGlu: string;
+export type TrafficLightStatistics = {
+  green: number;
+  yellowUp: number;
+  yellowDown: number;
+  redUp: number;
+  redDown: number;
 };
+
+export type YearPatientStatistics = [
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>,
+  Array<number>
+];
+
+export type PatientStatistics = {
+  trafficLightCountsFromDay1: TrafficLightStatistics;
+  bpSystolicReadingsMonthly?: YearPatientStatistics;
+  bpDiastolicReadingsMonthly?: YearPatientStatistics;
+  heartRateReadingsMonthly?: YearPatientStatistics;
+};
+
+export type YearGlobalStatistics = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number
+];
+
+export type Statistics = {
+  assessmentsPerMonth: YearGlobalStatistics;
+  readingsPerMonth: YearGlobalStatistics;
+  referralsPerMonth: YearGlobalStatistics;
+  pregnantWomenAssessedPerMonth: YearGlobalStatistics;
+  pregnantWomenReferredPerMonth: YearGlobalStatistics;
+  trafficLightStatusLastMonth: TrafficLightStatistics;
+  uniquePeopleAssesedPerMonth: YearGlobalStatistics;
+  womenAssessedPerMonth: YearGlobalStatistics;
+  womenReferredPerMonth: YearGlobalStatistics;
+};
+
+export type NewAssessment = {
+  diagnosis: string;
+  treatment: string;
+  specialInvestigations: string;
+  medicationPrescribed: string;
+  followupNeeded: boolean;
+  followupInstructions: OrNull<string>;
+};
+
+export type FollowUp = NewAssessment & {
+  id: number;
+  dateAssessed: number;
+  healthcareWorkerId: string;
+  readingId: string;
+};
+
+export type Referral = {
+  id: string;
+  actionTaken: OrNull<string>;
+  dateReferred: number;
+  comment: string;
+  healthFacility: string;
+  isAssessed: boolean;
+  patientId: string;
+  readingId: string;
+  referralHealthFacilityName: string;
+  userId: OrNull<number>;
+};
+
+export type StatisticsDataset<Label, Data, BackgroundColor = string> = {
+  backgroundColor: BackgroundColor;
+  data: Data;
+  label?: Label;
+  fill?: false;
+  lineTension?: 0.1;
+  borderColor?: string;
+  pointRadius?: 1;
+};
+
+export type HealthFacility = string;

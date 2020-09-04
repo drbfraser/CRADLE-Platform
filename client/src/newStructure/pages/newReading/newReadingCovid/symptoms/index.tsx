@@ -1,15 +1,15 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import {
+  Checkbox,
   FormControl,
   FormControlLabel,
-  Checkbox,
-  Paper,
   FormGroup,
+  Paper,
   TextField,
 } from '@material-ui/core';
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import React from 'react';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,7 +47,7 @@ const Page: React.FC<IProps> = (props) => {
         borderRadius: '15px',
       }}>
       <h1>
-        <b>Collect Symptoms</b>
+        <b>Symptoms</b>
       </h1>
 
       <FormControl component="fieldset" className={classes.formControl}>
@@ -215,7 +215,6 @@ const Page: React.FC<IProps> = (props) => {
             label="Others"
             multiline
             rows={4}
-            defaultValue="Others"
             name={'otherSymptoms'}
             value={props.symptoms.otherSymptoms}
             variant="outlined"

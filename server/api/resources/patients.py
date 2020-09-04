@@ -12,6 +12,7 @@ import service.view as view
 from Manager.PatientStatsManager import PatientStatsManager
 from models import Patient
 from utils import get_current_time
+from Validation import patients
 
 
 # /api/patients
@@ -31,7 +32,9 @@ class Root(Resource):
     @jwt_required
     def post():
         json = request.get_json(force=True)
-        # TODO: Validate request
+        error_message = patients.validate(json)
+        if error_message is not None:
+            abort(400, message=error_message)
         patient = marshal.unmarshal(Patient, json)
 
         if crud.read(Patient, patientId=patient.patientId):
@@ -56,7 +59,9 @@ class Root(Resource):
             referral = reading.referral
             if referral and not assoc.has_association(patient, referral.healthFacility):
                 assoc.associate(patient, facility=referral.healthFacility)
-
+                # The associate function performs a database commit, since this will
+                # wipe out the patient we want to return we must refresh it.
+                data.db_session.refresh(patient)
         return marshal.marshal(patient), 201
 
 
@@ -85,13 +90,39 @@ class PatientInfo(Resource):
     @jwt_required
     def put(patient_id: str):
         json = request.get_json(force=True)
-        # TODO: Validate
-        crud.update(Patient, json, patientId=patient_id)
+        error_message = patients.validate_put_request(json, patient_id)
+        if error_message is not None:
+            abort(400, message=error_message)
 
-        # Update the patient's lastEdited timestamp
+        # If the inbound JSON contains a `base` field then we need to check if it is the
+        # same as the `lastEdited` field of the existing patient. If it is then that
+        # means that the patient has not been edited on the server since this inbound
+        # patient was last synced and we can apply the changes. If they are not equal,
+        # then that means the patient has been edited on the server after it was last
+        # synced with the client. In these cases, we reject the changes for the client.
+        #
+        # You can think of this like aborting a git merge due to conflicts.
+        base = json.get("base")
+        if base:
+            last_edited = crud.read(Patient, patientId=patient_id).lastEdited
+            if base != last_edited:
+                abort(409, message="Unable to merge changes, conflict detected")
+
+            # Delete the `base` field once we are done with it as to not confuse the
+            # ORM as there is no "base" column in the database for patients.
+            del json["base"]
+
+        crud.update(Patient, json, patientId=patient_id)
         patient = crud.read(Patient, patientId=patient_id)
-        patient.lastEdited = get_current_time()
-        data.db_session.commit()
+
+        # Update the patient's lastEdited timestamp only if there was no `base` field
+        # in the request JSON. If there was then that means that this edit happened some
+        # time in the past and is just being synced. In this case we want to keep the
+        # `lastEdited` value which is present in the request.
+        if not base:
+            patient.lastEdited = get_current_time()
+            data.db_session.commit()
+            data.db_session.refresh(patient)  # Need to refresh the patient after commit
 
         return marshal.marshal(patient)
 

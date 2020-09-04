@@ -31,15 +31,15 @@ def get_random_patient_id():
     return str(random.randint(48300000000, 48300099999))
 
 
-# Testing global search API
-def test_pass_search_partial_patient_id():
-    partial_patient_id = "483"
-    url = BASE_URL + "/api/patient/global/" + partial_patient_id
-    response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
-    assert response.status_code == 200
-    expected_matching_patients = 6
-    assert len(response_body) == expected_matching_patients
+# # Testing global search API
+# def test_pass_search_partial_patient_id():
+#     partial_patient_id = "483"
+#     url = BASE_URL + "/api/patient/global/" + partial_patient_id
+#     response = requests.get(url, headers=auth_header_hcw)
+#     response_body = response.json()
+#     assert response.status_code == 200
+#     expected_matching_patients = 6
+#     assert len(response_body) == expected_matching_patients
 
 
 def test_pass_search_partial_initials():
@@ -79,11 +79,8 @@ def test_no_id_matches():
     url = BASE_URL + "/api/patient/global/" + full_patient_id
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
-    assert response.status_code == 404
-    assert (
-        response_body["message"]
-        == "No patients matching the search criteria currently exist."
-    )
+    assert response.status_code == 200
+    assert response_body == []
 
 
 def test_no_initials_matches():
@@ -91,8 +88,5 @@ def test_no_initials_matches():
     url = BASE_URL + "/api/patient/global/" + full_initials
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
-    assert response.status_code == 404
-    assert (
-        response_body["message"]
-        == "No patients matching the search criteria currently exist."
-    )
+    assert response.status_code == 200
+    assert response_body == []

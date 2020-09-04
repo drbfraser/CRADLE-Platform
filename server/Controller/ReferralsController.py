@@ -8,11 +8,9 @@ from flasgger import swag_from
 
 # Project modules
 from Manager.ReferralManager import ReferralManager
-from Validation.ReferralValidator import ReferralValidator
 from Controller.Helpers import _get_request_body
 
 referralManager = ReferralManager()
-validator = ReferralValidator()
 
 
 def abort_if_referral_doesnt_exist(referral_id):

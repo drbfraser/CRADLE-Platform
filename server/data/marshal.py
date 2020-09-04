@@ -30,6 +30,14 @@ def marshal(obj: Any, shallow=False) -> dict:
 def __marshal_patient(p: Patient, shallow) -> dict:
     d = vars(p).copy()
     __pre_process(d)
+    if d.get("dob"):
+        d["dob"] = str(d["dob"])
+
+    # The API representation of a patient contains a "base" field which is used by
+    # mobile for syncing. When getting a patient from an API, this value is always
+    # equivalent to "lastEdited".
+    d["base"] = d["lastEdited"]
+
     if not shallow:
         d["readings"] = [marshal(r) for r in p.readings]
     return d
@@ -80,7 +88,7 @@ def __pre_process(d: Dict[str, Any]):
 
 
 def __strip_none_values(d: Dict[str, Any]):
-    remove = [k for k in d if not d[k]]
+    remove = [k for k in d if d[k] is None]
     for k in remove:
         del d[k]
 
@@ -130,6 +138,11 @@ def __unmarshal_patient(d: dict) -> Patient:
         del d["readings"]
     else:
         readings = []
+
+    # Since "base" doesn't have a column in the database, we must remove it from its
+    # marshalled representation before converting back to an object.
+    if d.get("base"):
+        del d["base"]
 
     # Put the readings back into the patient
     patient = __load(Patient, d)

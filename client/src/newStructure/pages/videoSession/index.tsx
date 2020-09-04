@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 
 import $ from 'jquery';
 import { Chat } from './chat';
-import { ReduxState } from '../../redux/rootReducer';
+import { ReduxState } from '../../redux/reducers';
 import classes from './styles.module.css';
 import { connect } from 'react-redux';
 import swal from 'sweetalert';
