@@ -1,7 +1,7 @@
 """new covid reading changes
 
 Revision ID: 3d49263fe82c
-Revises: a1913287ffaf
+Revises: eb105ee6775b
 Create Date: 2020-07-24 01:30:48.727157
 
 """
