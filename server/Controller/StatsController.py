@@ -9,8 +9,8 @@ patientStatsManager = PatientStatsManager()
 
 
 class AllStats(Resource):
-    # GET api/stats
     # Get global stats
+    # GET api/stats
     @jwt_required
     @swag_from("../specifications/stats-all.yml", methods=["GET"])
     def get(self):
@@ -19,9 +19,8 @@ class AllStats(Resource):
 
 
 class PatientStats(Resource):
-
-    # GET /api/patient/stats/<string:patient_id>
     # Get stats for a specific patient
+    # GET /api/patient/stats/<string:patient_id>
     @jwt_required
     @swag_from("../specifications/stats-patient.yml", methods=["GET"])
     def get(self, patient_id):
