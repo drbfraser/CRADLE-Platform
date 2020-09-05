@@ -64,15 +64,15 @@ class ReferralInfo(Resource):
 # /referral [GET, POST]
 class ReferralApi(Resource):
 
-    """ Get Referrals
-        queryParams (Optional):
-            - healthFacilityId
-            - userId
-            - patientId
-        Description:    
-            if query params are supplied, 
-            all referrals that match the given query params are return
-            else, all referrals are returned
+    """Get Referrals
+    queryParams (Optional):
+        - healthFacilityId
+        - userId
+        - patientId
+    Description:
+        if query params are supplied,
+        all referrals that match the given query params are return
+        else, all referrals are returned
     """
 
     @jwt_required
