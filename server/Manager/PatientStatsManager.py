@@ -11,6 +11,7 @@ readingManager = ReadingManager()
 # TO DO: Update init
 # TO DO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
 
+
 class PatientStatsManager:
     def get_traffic_light(self, item, data):
         yellow_up_index = 1
