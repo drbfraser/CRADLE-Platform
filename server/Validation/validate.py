@@ -10,7 +10,7 @@ def required_keys_present(
 
     :param request_body: The request body as a dict object
     :param required_keys: The list of required key names
-    :return: An error message if required keys are not present. None otherwise. 
+    :return: An error message if required keys are not present. None otherwise.
     """
     for key in required_keys:
         if key not in request_body:
@@ -30,7 +30,7 @@ def values_correct_type(
     :param request_body: The request body as a dict object
     :param key_names: The list of keys to have their values checked.
     :param type: The type that the values need to be.
-    :return: An error message if the values are not the correct type. None otherwise. 
+    :return: An error message if the values are not the correct type. None otherwise.
     """
     for key in key_names:
         if key in request_body and request_body.get(key) is not None:
@@ -47,7 +47,7 @@ def is_int(s: Any) -> bool:
     """
     Checks if a value is an integer.
 
-    :param s: The value to check 
+    :param s: The value to check
     :return: Returns True if the passed in value is an integer, False otherwise
     """
     try:

@@ -2,8 +2,8 @@ import { ActualUser, Callback, OrNull, ServerError } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
-import { Endpoints } from '../../../../server/endpoints';
-import { Methods } from '../../../../server/methods';
+import { EndpointEnum } from '../../../../server';
+import { MethodEnum } from '../../../../server';
 import { push } from 'connected-react-router';
 
 export enum CurrentUserActionEnum {
@@ -69,8 +69,8 @@ export const loginUser = (
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.USER}${Endpoints.AUTH}`,
-        method: Methods.POST,
+        endpoint: `${EndpointEnum.USER}${EndpointEnum.AUTH}`,
+        method: MethodEnum.POST,
         data,
         onSuccess: ({ data }: { data: ActualUser }): CurrentUserAction => {
           localStorage.setItem(`token`, data.token);
@@ -103,7 +103,7 @@ export const getCurrentUser = (): ((
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.USER}${Endpoints.CURRENT}`,
+        endpoint: `${EndpointEnum.USER}${EndpointEnum.CURRENT}`,
         onSuccess: ({
           data: currentUser,
         }: {

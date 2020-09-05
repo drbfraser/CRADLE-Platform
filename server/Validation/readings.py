@@ -34,7 +34,7 @@ def validate(request_body: dict) -> Optional[str]:
                                 "followupInstructions": "pls help, give lots of tylenol"
                             }
                         }
-    :return: An error message if request body in invalid in some way. None otherwise. 
+    :return: An error message if request body in invalid in some way. None otherwise.
     """
     error_message = None
 

@@ -10,8 +10,8 @@ import {
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { Endpoints } from '../../../server/endpoints';
-import { Methods } from '../../../server/methods';
+import { EndpointEnum } from '../../../server';
+import { MethodEnum } from '../../../server';
 
 enum ReadingActionEnum {
   CREATE_READING_REQUESTED = `reading/CREATE_READING_REQUESTED`,
@@ -72,8 +72,8 @@ export const createReading = (
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.PATIENT}${Endpoints.READING}`,
-        method: Methods.POST,
+        endpoint: `${EndpointEnum.PATIENT}${EndpointEnum.READING}`,
+        method: MethodEnum.POST,
         data,
         onSuccess: ({
           data,

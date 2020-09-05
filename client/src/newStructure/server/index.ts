@@ -1,0 +1,31 @@
+export enum EndpointEnum {
+  ALL = '/all',
+  ASSESSMENTS = '/assessments',
+  AUTH = '/auth',
+  CURRENT = '/current',
+  DELETE = '/delete',
+  EDIT = '/edit',
+  FOLLOW_UP = '/follow_up',
+  HEALTH_FACILITY_LIST = '/health_facility_list',
+  INFO = '/info',
+  PATIENT = '/patient',
+  PATIENTS = '/patients',
+  PATIENTS_ALL_INFO = '/patient/allinfo',
+  PATIENT_FACILITY = '/patient/facility',
+  PATIENTS_GLOBAL_SEARCH = '/patient/global',
+  REFERRAL = '/referral',
+  READING = '/reading',
+  READINGS = '/readings',
+  REFRESH = '/refresh_token',
+  STATISTICS = '/stats',
+  REGISTER = '/register',
+  USER = '/user',
+  VHTS = '/vhts',
+}
+
+export enum MethodEnum {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE',
+}

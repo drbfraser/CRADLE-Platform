@@ -14,16 +14,16 @@ def validate(request_body: dict) -> Optional[str]:
                             "patientName": "testName", - required
                             "isPregnant": True, - required
                             "patientSex": "FEMALE", - required
-                            "householdNumber": "20", 
+                            "householdNumber": "20",
                             "dob": "1990-05-30",
                             "zone": "15",
                             "villageNumber": "50",
                             "gestationalTimestamp": 1587068710, - required if isPregnant = True
                             "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS", - required isPregnant = True
                             "drugHistory": "too much tylenol",
-                            "medicalHistory": "not enough advil" 
+                            "medicalHistory": "not enough advil"
                         }
-    :return: An error message if request body in invalid in some way. None otherwise. 
+    :return: An error message if request body in invalid in some way. None otherwise.
     """
     error_message = None
 
@@ -83,7 +83,7 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
     :param request_body: The request body as a dict object
     :param patient_id: The patient ID the PUT request is being made for
 
-    :return: An error message if request body in invalid in some way. None otherwise. 
+    :return: An error message if request body in invalid in some way. None otherwise.
     """
 
     error_message = None
@@ -148,7 +148,7 @@ def check_gestational_age_under_limit(gestation_timestamp: int) -> Optional[str]
     Checks if a Unix timestamp is a valid gestational age.
     Is a valid gestational age if is from no more than 43 weeks/10 months ago
 
-    :param gestation_timestamp: The Unix timestamp to validate 
+    :param gestation_timestamp: The Unix timestamp to validate
     :return: Returns None if the timestamp is valid, a string message otherwise
     """
     if gestation_timestamp == 0:
@@ -166,7 +166,7 @@ def is_correct_date_format(s: Any) -> bool:
     """
     Checks if a value is in the YYYY-mm-dd format.
 
-    :param s: The value to check 
+    :param s: The value to check
     :return: Returns True if the passed in value is an integer, False otherwise
     """
     try:
