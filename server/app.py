@@ -37,6 +37,10 @@ if "-prod" in sys.argv:
     port = 8040
     host = "::"
     app.config["BASE_URL"] = "https://cmpt373.csil.sfu.ca:8048/"
+elif "-pub" in sys.argv:
+    port = 5000
+    host = "0.0.0.0"
+    app.config["BASE_URL"] = "http://0.0.0.0:5000/"
 else:
     app.config["BASE_URL"] = "http://localhost:5000/"
 
