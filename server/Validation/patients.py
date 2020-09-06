@@ -152,7 +152,7 @@ def check_gestational_age_under_limit(gestation_timestamp: int) -> Optional[str]
     :return: Returns None if the timestamp is valid, a string message otherwise
     """
     if gestation_timestamp == 0:
-        return "Gesation cannot be zero"
+        return None
 
     gestation_date = datetime.fromtimestamp(gestation_timestamp)
     today = date.today()

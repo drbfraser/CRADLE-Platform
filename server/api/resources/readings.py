@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
@@ -9,9 +10,13 @@ from models import Reading
 from Validation import readings
 
 
+# /api/readings
 class Root(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/readings-post.yml", methods=["POST"], endpoint="readings"
+    )
     def post():
         json = request.get_json(force=True)
         error_message = readings.validate(json)
@@ -28,9 +33,15 @@ class Root(Resource):
         return marshal.marshal(reading), 201
 
 
+# /api/readings/<string:id>
 class SingleReading(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/single-reading-get.yml",
+        methods=["GET"],
+        endpoint="single_reading",
+    )
     def get(reading_id: str):
         reading = crud.read(Reading, readingId=reading_id)
         if not reading:

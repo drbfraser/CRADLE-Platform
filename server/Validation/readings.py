@@ -21,7 +21,7 @@ def validate(request_body: dict) -> Optional[str]:
                             "isFlaggedForFollowup" : True,
                             "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"], - required
                             "dateTimeTaken": 868545,
-                            "userId": 1 ,
+                            "userId": 1,
                             "followup": {
                                 "dateAssessed": 1551447833,
                                 "healthcareWorkerId": 2,

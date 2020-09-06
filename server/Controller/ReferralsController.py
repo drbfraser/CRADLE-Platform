@@ -76,7 +76,6 @@ class ReferralApi(Resource):
     """
 
     @jwt_required
-    @swag_from("../specifications/referrals-get.yml", methods=["GET"])
     def get(self):
         # NEEDS TESTING and query string validation
         args = request.args
