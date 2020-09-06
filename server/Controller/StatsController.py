@@ -6,10 +6,10 @@ from flasgger import swag_from
 
 statsManager = StatsManager()
 
-
+# TODO: Should move this over to new API structure (single patient stats have already been moved)
 class AllStats(Resource):
-    # GET api/stats
     # Get global stats
+    # GET api/stats
     @jwt_required
     @swag_from("../specifications/stats-all.yml", methods=["GET"])
     def get(self):

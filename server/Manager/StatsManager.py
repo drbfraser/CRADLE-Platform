@@ -13,7 +13,8 @@ readingManager = ReadingManager()
 followupManager = FollowUpManager()
 
 
-# TO DO: NEED TO ADD ERROR CHECKING
+# TODO: Add error handling
+# TODO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
 # add init
 class StatsManager:
 
