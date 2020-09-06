@@ -2,8 +2,8 @@ import { EditUser, OrNull, ServerError, User, VHT } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
-import { Endpoints } from '../../../../server/endpoints';
-import { Methods } from '../../../../server/methods';
+import { EndpointEnum } from '../../../../server';
+import { MethodEnum } from '../../../../server';
 import { RoleEnum } from '../../../../enums';
 
 enum AllUsersActionEnum {
@@ -83,7 +83,7 @@ export const getUsers = (): ((dispatch: Dispatch) => ServerRequestAction) => {
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.USER}${Endpoints.ALL}`,
+        endpoint: `${EndpointEnum.USER}${EndpointEnum.ALL}`,
         onSuccess: ({
           data: users,
         }: {
@@ -138,12 +138,12 @@ export const updateUser = ({
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.USER}${Endpoints.EDIT}/${userId}`,
+        endpoint: `${EndpointEnum.USER}${EndpointEnum.EDIT}/${userId}`,
         data: {
           ...data,
           newVhtIds: newVHTs.map((vht: VHT): number => vht.id),
         },
-        method: Methods.PUT,
+        method: MethodEnum.PUT,
         onSuccess: (): AllUsersAction => ({
           type: AllUsersActionEnum.UPDATE_USER_SUCCESS,
           payload: {
@@ -176,8 +176,8 @@ export const deleteUser = (
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.USER}${Endpoints.DELETE}/${userId}`,
-        method: Methods.DELETE,
+        endpoint: `${EndpointEnum.USER}${EndpointEnum.DELETE}/${userId}`,
+        method: MethodEnum.DELETE,
         onSuccess: (): AllUsersAction => ({
           type: AllUsersActionEnum.DELETE_USER_SUCCESS,
           payload: { deletedUserId: userId },
@@ -230,8 +230,8 @@ export const registerUser = (
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.USER}${Endpoints.REGISTER}`,
-        method: Methods.POST,
+        endpoint: `${EndpointEnum.USER}${EndpointEnum.REGISTER}`,
+        method: MethodEnum.POST,
         data,
         onSuccess: ({ data: id }: { data: number }): AllUsersAction => ({
           type: AllUsersActionEnum.REGISTER_USER_SUCCESS,

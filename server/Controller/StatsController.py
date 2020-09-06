@@ -5,25 +5,13 @@ from flask_jwt_extended import jwt_required
 from flasgger import swag_from
 
 statsManager = StatsManager()
-patientStatsManager = PatientStatsManager()
 
-
+# TODO: Should move this over to new API structure (single patient stats have already been moved)
 class AllStats(Resource):
-    # GET api/stats
     # Get global stats
+    # GET api/stats
     @jwt_required
     @swag_from("../specifications/stats-all.yml", methods=["GET"])
     def get(self):
         stats = statsManager.put_data_together()
-        return stats
-
-
-class PatientStats(Resource):
-
-    # GET /api/patient/stats/<string:patient_id>
-    # Get stats for a specific patient
-    @jwt_required
-    @swag_from("../specifications/stats-patient.yml", methods=["GET"])
-    def get(self, patient_id):
-        stats = patientStatsManager.put_data_together(patient_id)
         return stats

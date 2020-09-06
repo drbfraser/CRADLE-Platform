@@ -107,7 +107,7 @@ responses:
                       type: string | Null
                       example: "One dose of Tylenol everyday"
                 patientId:
-                  type: string
+                  type: integer
                   example: "565742345"
                 readingId:
                   type: string
@@ -214,7 +214,7 @@ responses:
               properties:
                 patientSex:
                   type: string
-                  enum: [MALE, FEMALE]
+                  enum: [MALE, FEMALE, OTHER]
                   example: FEMALE
                 isPregnant:
                   type: boolean | Null
@@ -240,7 +240,7 @@ responses:
                   type: string | Null
                   example: 5
                 patientId:
-                  type: string
+                  type: integer
                   example: 191919
                 gestationalTimestamp:
                   type: Unix timestamp | Null

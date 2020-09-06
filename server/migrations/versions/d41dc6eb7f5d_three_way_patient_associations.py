@@ -24,10 +24,17 @@ def upgrade():
         sa.Column("healthFacilityName", sa.String(length=50), nullable=False),
         sa.Column("userId", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["healthFacilityName"], ["healthfacility.healthFacilityName"],
+            ["healthFacilityName"],
+            ["healthfacility.healthFacilityName"],
         ),
-        sa.ForeignKeyConstraint(["patientId"], ["patient.patientId"],),
-        sa.ForeignKeyConstraint(["userId"], ["user.id"],),
+        sa.ForeignKeyConstraint(
+            ["patientId"],
+            ["patient.patientId"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["userId"],
+            ["user.id"],
+        ),
         sa.PrimaryKeyConstraint("patientId", "healthFacilityName", "userId"),
     )
     op.drop_table("patient_facility")

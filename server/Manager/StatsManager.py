@@ -13,15 +13,16 @@ readingManager = ReadingManager()
 followupManager = FollowUpManager()
 
 
-# TO DO: NEED TO ADD ERROR CHECKING
+# TODO: Add error handling
+# TODO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
 # add init
 class StatsManager:
 
-    """ 
-        Description: Helper function that converts from unixtimestamp to date objects and returns necessary date components
-            Parameters: 
-                record: the row in the db that is being converted
-                dateLabel: how date is recorded in that table e.g dateTime vs dateReferred
+    """
+    Description: Helper function that converts from unixtimestamp to date objects and returns necessary date components
+        Parameters:
+            record: the row in the db that is being converted
+            dateLabel: how date is recorded in that table e.g dateTime vs dateReferred
     """
 
     def calculate_dates_helper(self, record, dateLabel):

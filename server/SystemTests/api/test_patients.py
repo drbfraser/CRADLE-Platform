@@ -11,7 +11,6 @@ def test_get_patient(patient_factory, api_get):
     expected = {
         "patientId": patient_id,
         "patientName": "Test",
-        "patientAge": 30,
         "patientSex": "FEMALE",
         "isPregnant": False,
         "zone": "37",
@@ -103,7 +102,6 @@ def test_invalid_patient_not_created(patient_factory, api_post):
     # invalid as patientName is missing
     patient = {
         "patientId": patient_id,
-        "patientAge": 30,
         "patientSex": "FEMALE",
         "isPregnant": False,
         "zone": "37",
@@ -122,7 +120,6 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
     return {
         "patientId": patient_id,
         "patientName": "TEST",
-        "patientAge": 30,
         "patientSex": "FEMALE",
         "isPregnant": False,
         "villageNumber": "1",

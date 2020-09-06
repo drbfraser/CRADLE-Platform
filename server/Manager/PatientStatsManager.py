@@ -7,9 +7,11 @@ import json
 
 readingManager = ReadingManager()
 
-# TO DO: Add error checking
-# TO DO: Update init
-# TO DO: Clean up and refactor similar to stats manager once we have client requirements
+# TODO: Add error handling
+# TODO: Update init
+# TODO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
+
+
 class PatientStatsManager:
     def get_traffic_light(self, item, data):
         yellow_up_index = 1

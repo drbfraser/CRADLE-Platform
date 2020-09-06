@@ -36,7 +36,6 @@ def make_patient(make_assessment):
         patient: dict = {
             "patientId": patient_id,
             "patientName": "TEST",
-            "patientAge": 30,
             "patientSex": "FEMALE",
             "isPregnant": False,
             "zone": "1",
@@ -91,7 +90,9 @@ def make_patient(make_assessment):
 @pytest.fixture
 def make_assessment():
     def __builder(
-        reading_id: str, assessed_by: int = 2, assessment_timestamp: int = None,
+        reading_id: str,
+        assessed_by: int = 2,
+        assessment_timestamp: int = None,
     ):
         return {
             "diagnosis": "A diagnosis",

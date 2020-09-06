@@ -2,7 +2,7 @@ import { OrNull, ServerError, VHT } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
-import { Endpoints } from '../../../../server/endpoints';
+import { EndpointEnum } from '../../../../server';
 
 enum AllVhtsActionEnum {
   GET_VHTS_REQUESTED = 'allVhts/GET_VHTS_REQUESTED',
@@ -27,7 +27,7 @@ export const getVhts = (): ((dispatch: Dispatch) => ServerRequestAction) => {
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${Endpoints.USER}${Endpoints.VHTS}`,
+        endpoint: `${EndpointEnum.USER}${EndpointEnum.VHTS}`,
         onSuccess: ({ data: vhts }: { data: Array<VHT> }): AllVhtsAction => {
           return {
             type: AllVhtsActionEnum.GET_VHTS_SUCCESS,

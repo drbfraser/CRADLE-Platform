@@ -1,16 +1,16 @@
-Get patient stats
+Get stats for a single patient
 ---
 tags:
-  - Stats
+  - Patients
 parameters:
-  - in: path
-    name: patient_id
-    required: true
-    schema:
-      type: integer
+- in: path
+  name: patient_id
+  required: true
+  schema:
+    type: integer
 responses:
   200:
-    description: Patient stats
+    description: GET response body for /api/patients/<string:patient_id>/stats
     content:
       application/json:
         schema:
@@ -18,16 +18,16 @@ responses:
           properties:
             bpSystolicReadingsMonthly:
               type: array
-              items: array of integers
-              example: [[], [], [60], [], [], [], [], [], [], [], [], []]
+              items: array
+              example: [[]]
             bpDiastolicReadingsMonthly:
               type: array
-              items: array of integers
-              example: [[], [], [60], [], [], [], [], [], [], [], [], []]
+              items: array
+              example: [[]]
             heartRateReadingsMonthly:
               type: array
-              items: array of integers
-              example: [[], [], [60], [], [], [], [], [], [], [], [], []]
+              items: array
+              example: [[]]
             trafficLightCountsFromDay1:
               type: object
               properties:
@@ -39,10 +39,11 @@ responses:
                   example: 0
                 yellowDown:
                   type: integer
-                  example: 2
+                  example: 0
                 redUp:
                   type: integer
                   example: 0
                 redDown:
                   type: integer
                   example: 0
+            

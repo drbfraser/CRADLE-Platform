@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
@@ -15,6 +16,11 @@ from Validation import assessments
 class Root(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/assessments-post.yml",
+        methods=["POST"],
+        endpoint="assessments",
+    )
     def post():
         json = request.get_json(force=True)
 
@@ -26,6 +32,9 @@ class Root(Resource):
         error_message = assessments.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
+
+        # TODO: validate that assessment's reading id references an actual reading and
+        #   return 404 if it doesn't
 
         follow_up = marshal.unmarshal(FollowUp, json)
 
@@ -44,6 +53,11 @@ class Root(Resource):
 class SingleAssessment(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/single-assessment-get.yml",
+        methods=["GET"],
+        endpoint="single_assessment",
+    )
     def get(assessment_id: int):
         follow_up = crud.read(FollowUp, id=assessment_id)
         if not follow_up:

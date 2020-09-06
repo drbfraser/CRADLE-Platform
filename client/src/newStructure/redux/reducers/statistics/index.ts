@@ -2,7 +2,7 @@ import { OrNull, ServerError, Statistics } from '@types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { Endpoints } from '../../../server/endpoints';
+import { EndpointEnum } from '../../../server';
 
 enum StatisticsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'statistics/CLEAR_REQUEST_OUTCOME',
@@ -35,7 +35,7 @@ export const getStatistics = (): ((
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: Endpoints.STATS,
+        endpoint: EndpointEnum.STATISTICS,
         onSuccess: ({ data }: any): StatisticsAction => ({
           type: StatisticsActionEnum.GET_STATISTICS_SUCCESS,
           payload: { data },

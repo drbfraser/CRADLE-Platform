@@ -170,7 +170,6 @@ class HealthFacility(db.Model):
 class Patient(db.Model):
     patientId = db.Column(db.String(50), primary_key=True)
     patientName = db.Column(db.String(50))
-    patientAge = db.Column(db.Integer)
     patientSex = db.Column(db.Enum(SexEnum), nullable=False)
     isPregnant = db.Column(db.Boolean)
     gestationalAgeUnit = db.Column(db.String(50))
@@ -179,6 +178,7 @@ class Patient(db.Model):
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
     dob = db.Column(db.Date)
+    isExactDob = db.Column(db.Boolean)
     villageNumber = db.Column(db.String(50))
     householdNumber = db.Column(db.String(50))
     created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
@@ -328,7 +328,8 @@ class UrineTest(db.Model):
 class PatientAssociations(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patientId = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"), nullable=False,
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        nullable=False,
     )
     healthFacilityName = db.Column(
         db.ForeignKey(HealthFacility.healthFacilityName, ondelete="CASCADE"),
@@ -338,14 +339,16 @@ class PatientAssociations(db.Model):
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient", backref=db.backref("associations", lazy=True, cascade="all, delete"),
+        "Patient",
+        backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     healthFacility = db.relationship(
         "HealthFacility",
         backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     user = db.relationship(
-        "User", backref=db.backref("associations", lazy=True, cascade="all, delete"),
+        "User",
+        backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
 
     @staticmethod

@@ -1,6 +1,6 @@
 import { Method as AxiosMethod } from 'axios';
-import { Methods } from '../../../server/methods';
 import { Callback } from '@types';
+import { MethodEnum } from '../../../server';
 
 export enum MakeServerRequestEnum {
   MAKE_SERVER_REQUEST = 'MAKE_SERVER_REQUEST',
@@ -33,7 +33,7 @@ export const serverRequestActionCreator: ServerRequestActionCreator = ({
   onSuccess,
   onError,
   data = null,
-  method = Methods.GET,
+  method = MethodEnum.GET,
 }) => {
   return {
     type: MakeServerRequestEnum.MAKE_SERVER_REQUEST,

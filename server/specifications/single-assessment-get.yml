@@ -1,0 +1,48 @@
+Get a single assessment
+---
+tags:
+  - Assessments
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: GET response body for /api/assessments/<int:id>
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            dateAssessed:
+              type: Unix timestamp
+              example: 1593649727
+            healthcareWorkerId:
+              type: integer | Null
+              example: 1
+            specialInvestigations:
+              type: string | Null
+              example: Needs a urine test
+            treatment:
+              type: string | Null
+              example: 3 doses of antibiotics daily
+            readingId:
+              type: string - required
+              example: asda-sd8231-42782-26313
+            followupNeeded:
+              type: boolean
+              example: true
+            followupInstructions:
+              type: string
+              example: Make sure they bring birth certificate
+            diagnosis:
+              type: string | Null
+              example: Strep throat
+            medicationPrescribed:
+              type: string | Null
+              example: Amoxicillin

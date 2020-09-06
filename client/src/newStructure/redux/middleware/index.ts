@@ -1,7 +1,7 @@
 import { BASE_URL } from '../../server/utils';
-import { Endpoints } from '../../server/endpoints';
+import { EndpointEnum } from '../../server';
 import { MakeServerRequestEnum } from '../reducers/utils';
-import { Methods } from '../../server/methods';
+import { MethodEnum } from '../../server';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { logoutUser } from '../reducers/user/currentUser';
@@ -23,14 +23,14 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
   const renewToken =
     decodedToken &&
     currentTime > decodedToken.exp &&
-    endpoint !== `${Endpoints.USER}${Endpoints.AUTH}`;
+    endpoint !== `${EndpointEnum.USER}${EndpointEnum.AUTH}`;
 
   if (renewToken) {
     const refreshToken = localStorage.refresh;
     try {
       const response = await axios({
-        method: Methods.POST,
-        url: `${BASE_URL}${Endpoints.USER}${Endpoints.AUTH}${Endpoints.REFRESH}`,
+        method: MethodEnum.POST,
+        url: `${BASE_URL}${EndpointEnum.USER}${EndpointEnum.AUTH}${EndpointEnum.REFRESH}`,
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
