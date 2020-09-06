@@ -36,8 +36,8 @@ class PatientAllInformation(Resource):
     def get(self):
         current_user = get_jwt_identity()
         try:
-            patients_readings_referrals = patientManager.get_patient_with_referral_and_reading(
-                current_user
+            patients_readings_referrals = (
+                patientManager.get_patient_with_referral_and_reading(current_user)
             )
             # patients_readings_referrals = patientManager.get_patient_with_referral_and_reading()
         except PermissionError as permission_error:

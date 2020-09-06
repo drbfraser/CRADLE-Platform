@@ -1,0 +1,126 @@
+Get a single patient with readings
+---
+tags:
+  - Patients
+parameters:
+- in: path
+  name: patient_id
+  required: true
+  schema:
+    type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            patientId:
+              type: integer
+              example: 191919
+            isPregnant:
+              type: boolean
+              example: true
+            patientSex:
+              type: string
+              enum: [MALE, FEMALE, OTHER]
+              example: FEMALE
+            patientAge:
+              type: integer
+              example: 29
+            patientName:
+              type: string
+              example: MR
+            dob:
+              type: string | Null
+              example: "1990-03-26"
+            villageNumber:
+              type: string | Null
+              example: 5
+            gestationalTimestamp:
+              type: Unix timestamp | Null
+              example: 1592339808
+            gestationalAgeUnit:
+              type: string | Null
+              enum: [GESTATIONAL_AGE_UNITS_WEEKS, GESTATIONAL_AGE_UNITS_MONTHS]
+              example: GESTATIONAL_AGE_UNITS_WEEKS
+            zone:
+              type: string | Null
+              example: 1
+            householdNumber:
+              type: string | Null
+              example: 1
+            medicalHistory:
+              type: string | Null
+              example: Sample medical history
+            drugHistory:
+              type: string | Null
+              example: Sample drug history
+            created:
+              type: Unix timestamp
+              example: 1592339808
+            lastEdited:
+              type: Unix timestamp
+              example: 1592339808
+            base: 
+              type: Unix timestamp | Null
+              example: 1622337702
+            readings:
+              type: array
+              items:
+                type: object
+                properties:
+                  userId:
+                    type: integer | Null
+                    example: 1
+                  patientId:
+                    type: integer
+                    example: 191919
+                  readingId:
+                    type: string
+                    example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+                  symptoms:
+                    type: array
+                    items: string
+                    example: ["HEADACHE"]
+                  bpSystolic: 
+                    type: integer
+                    example: 100
+                  trafficLightStatus:
+                    type: string
+                    enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
+                    example: GREEN
+                  bpDiastolic:
+                    type: integer
+                    example: 70
+                  dateTimeTaken:
+                    type: Unix timestamp
+                    example: 1592339808
+                  heartRateBPM:
+                    type: integer
+                    example: 60
+                  referral:
+                    type: object
+                    properties:
+                      dateReferred:
+                        type: Unix timestamp
+                        example: 1592339808
+                      isAssessed:
+                        type: boolean
+                        example: false
+                      patientId:
+                        type: integer
+                        example: 191919
+                      referralHealthFacilityName:
+                        type: string | Null
+                        example: H0000
+                      id: 
+                        type: string
+                        example: 1
+                      comment:
+                        type: string | Null
+                        example: They need help
+                      readingId:
+                        type: string
+                        example: e90c0529-74ad-41b4-876e-d8e5ac60e786

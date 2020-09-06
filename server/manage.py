@@ -138,7 +138,6 @@ def seed():
         p1 = {
             "patientId": patientId,
             "patientName": getRandomInitials(),
-            "patientAge": getRandomAge(),
             "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
             "gestationalTimestamp": 1587068710,
             "villageNumber": getRandomVillage(),
@@ -225,7 +224,6 @@ def create_patient_reading_referral(
         patient = {
             "patientId": patientId,
             "patientName": name,
-            "patientAge": age,
             "gestationalAgeUnit": gestAgeUnit,
             "gestationalTimestamp": gestTimestamp,
             "villageNumber": villageNum,
@@ -236,7 +234,6 @@ def create_patient_reading_referral(
         patient = {
             "patientId": patientId,
             "patientName": name,
-            "patientAge": age,
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "false",
@@ -277,10 +274,6 @@ def getRandomInitials():
 
 def getRandomVillage():
     return random.choice(villageList)
-
-
-def getRandomAge():
-    return random.randint(20, 40)
 
 
 def getRandomBpSystolic():

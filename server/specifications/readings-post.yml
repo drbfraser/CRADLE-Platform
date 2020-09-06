@@ -1,0 +1,162 @@
+Create a new reading
+---
+tags:
+  - Readings
+requestBody:
+  required: true
+  description: POST request body for /api/readings
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          readingId:
+            type: string - required
+            example: adas-d82314-27822-63138
+          patientId:
+            type: integer - required
+            example: 123456
+          bpSystolic:
+            type: integer - required
+            example: 70
+          bpDiastolic:
+            type: integer - required
+            example: 60
+          heartRateBPM:
+            type: integer - required
+            example: 80
+          respiratoryRate:
+            type: integer | Null
+            example: 50
+          oxygenSaturation:
+            type: integer | Null
+            example: 80
+          temperature:
+            type: integer | Null
+            example: 38
+          isFlaggedForFollowup:
+            type: boolean | Null
+            example: true
+          symptoms:
+            type: array - required
+            items: string
+            example: [BLEEDING, HEADACHE]
+          dateTimeTaken:
+            type: Unix timestamp | Null
+            example: 1551447833
+          userId:
+            type: integer | Null
+            example: 1
+          followup:
+            type: object
+            properties:
+              dateAssessed: 
+                type: Unix timestamp | Null
+                example: 1551447833
+              healthcareWorkerId:
+                type: integer | Null
+                example: 1
+              diagnosis:
+                type: string | Null
+                example: Sample diagnosis
+              medicationPrescribed:
+                type: string | Null
+                example: Tylenol
+              specialInvestigations:
+                type: string | Null
+                example: Sample special investigation
+              treatment:
+                type: string | Null
+                example: Sample treatment
+              readingId:
+                type: string
+                example: adas-d82314-27822-63138
+              followupNeeded:
+                type: boolean | Null
+                example: true
+              followupInstructions:
+                type: string | Null
+                example: Sample followup instructions
+
+responses:
+  201:
+    description: Response from POST request for /api/readings
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            readingId:
+              type: string
+              example: adas-d82314-27822-63138
+            patientId:
+              type: integer
+              example: 123456
+            bpSystolic:
+              type: integer
+              example: 70
+            bpDiastolic:
+              type: integer
+              example: 60
+            heartRateBPM:
+              type: integer
+              example: 80
+            respiratoryRate:
+              type: integer | Null
+              example: 50
+            oxygenSaturation:
+              type: integer | Null
+              example: 80
+            temperature:
+              type: integer | Null
+              example: 38
+            isFlaggedForFollowup:
+              type: boolean | Null
+              example: true
+            symptoms:
+              type: array - required
+              items: string
+              example: [BLEEDING, HEADACHE]
+            dateTimeTaken:
+              type: Unix timestamp | Null
+              example: 1551447833
+            userId:
+              type: integer | Null
+              example: 1
+            trafficLightStatus:
+              type: string
+              enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
+              example: GREEN
+            followup:
+              type: object
+              properties:
+                dateAssessed: 
+                  type: Unix timestamp | Null
+                  example: 1551447833
+                healthcareWorkerId:
+                  type: integer | Null
+                  example: 1
+                diagnosis:
+                  type: string | Null
+                  example: Sample diagnosis
+                medicationPrescribed:
+                  type: string | Null
+                  example: Tylenol
+                specialInvestigations:
+                  type: string | Null
+                  example: Sample special investigation
+                treatment:
+                  type: string | Null
+                  example: Sample treatment
+                readingId:
+                  type: string
+                  example: adas-d82314-27822-63138
+                followupNeeded:
+                  type: boolean | Null
+                  example: true
+                followupInstructions:
+                  type: string | Null
+                  example: Sample followup instructions
+                id:
+                  type: integer
+                  example: 1

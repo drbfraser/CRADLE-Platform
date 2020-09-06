@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
@@ -15,6 +16,9 @@ from Validation import referrals
 class Root(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/referrals-get.yml", methods=["GET"], endpoint="referrals"
+    )
     def get():
         user = util.current_user()
         referrals = view.referral_view_for_user(user)
@@ -28,6 +32,11 @@ class Root(Resource):
 
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/referrals-post.yml",
+        methods=["POST"],
+        endpoint="referrals",
+    )
     def post():
         json = request.get_json(force=True)
         error_message = referrals.validate(json)
@@ -51,6 +60,11 @@ class Root(Resource):
 class SingleReferral(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/single-referral-get.yml",
+        methods=["GET"],
+        endpoint="single_referral",
+    )
     def get(referral_id: int):
         referral = crud.read(Referral, id=referral_id)
         if not referral:

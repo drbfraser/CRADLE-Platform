@@ -60,7 +60,6 @@ class PatientFactory(ModelFactory):
         super(PatientFactory, self).__init__(
             db,
             patientName="Test",
-            patientAge=30,
             patientSex="FEMALE",
             isPregnant=False,
             zone="37",
@@ -115,7 +114,10 @@ class ReadingFactory(ModelFactory):
 class ReferralFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super(ReferralFactory, self).__init__(
-            db, dateReferred=1594514397, userId=1, referralHealthFacilityName="H0000",
+            db,
+            dateReferred=1594514397,
+            userId=1,
+            referralHealthFacilityName="H0000",
         )
 
     def create(self, **kwargs):
