@@ -1,0 +1,29 @@
+Create a new association
+---
+tags:
+  - Associations
+requestBody:
+  required: true
+  description: POST request body for /api/associations
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          patientId:
+            type: integer - required
+            example: 159437
+          healthFacilityName:
+            type: string | Null
+            example: H1001
+          userId:
+            type: integer | Null
+            example: 1
+responses:
+  201:
+    description: Response from POST request for /api/associations
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:

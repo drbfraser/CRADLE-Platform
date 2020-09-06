@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
@@ -19,6 +20,9 @@ from Validation import patients
 class Root(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/patients-get.yml", methods=["GET"], endpoint="patients"
+    )
     def get():
         user = util.current_user()
         patients = view.patient_view_for_user(user)
@@ -30,6 +34,9 @@ class Root(Resource):
 
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/patients-post.yml", methods=["POST"], endpoint="patients"
+    )
     def post():
         json = request.get_json(force=True)
         error_message = patients.validate(json)
@@ -69,6 +76,11 @@ class Root(Resource):
 class SinglePatient(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/single-patient-get.yml",
+        methods=["GET"],
+        endpoint="single_patient",
+    )
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
@@ -80,6 +92,11 @@ class SinglePatient(Resource):
 class PatientInfo(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/patient-info-get.yml",
+        methods=["GET"],
+        endpoint="patient_info",
+    )
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
@@ -88,6 +105,11 @@ class PatientInfo(Resource):
 
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/patient-info-put.yml",
+        methods=["PUT"],
+        endpoint="patient_info",
+    )
     def put(patient_id: str):
         json = request.get_json(force=True)
         error_message = patients.validate_put_request(json, patient_id)
@@ -131,6 +153,11 @@ class PatientInfo(Resource):
 class PatientStats(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/patient-stats-get.yml",
+        methods=["GET"],
+        endpoint="patient_stats",
+    )
     def get(patient_id: str):
         return PatientStatsManager().put_data_together(patient_id)
 
@@ -139,6 +166,11 @@ class PatientStats(Resource):
 class PatientReadings(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/patient-readings-get.yml",
+        methods=["GET"],
+        endpoint="patient_readings",
+    )
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(r) for r in patient.readings]
