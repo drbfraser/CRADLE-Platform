@@ -60,7 +60,6 @@ class PatientFactory(ModelFactory):
         super(PatientFactory, self).__init__(
             db,
             patientName="Test",
-            patientAge=30,
             patientSex="FEMALE",
             isPregnant=False,
             zone="37",

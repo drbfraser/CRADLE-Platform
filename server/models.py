@@ -170,7 +170,6 @@ class HealthFacility(db.Model):
 class Patient(db.Model):
     patientId = db.Column(db.String(50), primary_key=True)
     patientName = db.Column(db.String(50))
-    patientAge = db.Column(db.Integer)
     patientSex = db.Column(db.Enum(SexEnum), nullable=False)
     isPregnant = db.Column(db.Boolean)
     gestationalAgeUnit = db.Column(db.String(50))
@@ -179,6 +178,7 @@ class Patient(db.Model):
     drugHistory = db.Column(db.Text)
     zone = db.Column(db.String(20))
     dob = db.Column(db.Date)
+    isExactDob = db.Column(db.Boolean)
     villageNumber = db.Column(db.String(50))
     householdNumber = db.Column(db.String(50))
     created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
