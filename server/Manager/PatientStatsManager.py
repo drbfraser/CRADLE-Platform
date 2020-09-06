@@ -7,9 +7,9 @@ import json
 
 readingManager = ReadingManager()
 
-# TO DO: Add error handling
-# TO DO: Update init
-# TO DO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
+# TODO: Add error handling
+# TODO: Update init
+# TODO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
 
 
 class PatientStatsManager:
