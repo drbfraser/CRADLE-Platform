@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@types": ["./src/newStructure/types"]
+      "@types": ["./src/types"]
     }
   }
 }
