@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import { FormStatusEnum } from '../../../../../enums';
 import { Header } from './header';
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/reducers';
+import { ReduxState } from '../../../../../redux/reducers';
 import Typography from '@material-ui/core/Typography';
 import { push } from 'connected-react-router';
 import { useStyles } from './styles';

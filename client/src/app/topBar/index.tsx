@@ -6,7 +6,7 @@ import AppImg from './img/app_icon.png';
 import { Icon } from 'semantic-ui-react';
 import IconButton from '@material-ui/core/IconButton';
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/reducers';
+import { ReduxState } from '../../redux/reducers';
 import { RoleEnum } from '../../enums';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';

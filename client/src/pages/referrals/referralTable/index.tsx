@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import MUIDataTable from 'mui-datatables';
 import React from 'react';
-import { ReduxState } from 'src/newStructure/redux/reducers';
+import { ReduxState } from '../../../redux/reducers';
 import { customRowRender } from '../../../shared/components/table/row';
 import { customToolbarRender } from '../../../shared/components/table/toolbar';
 import { updateReferralsTableRowsPerPage } from '../../../redux/reducers/patients';
