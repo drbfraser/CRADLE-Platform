@@ -24,7 +24,7 @@ reduce preventable maternal deaths in Ugandan villages.
 Development environments are supported on Windows, macOS, and Linux. If you are
 on Windows Home Edition, note that there may be some issues getting Docker to
 work correctly. Note that the use of Docker in development environments is
-entierly optional, and only really recommended for running the database.
+entirely optional, and only really recommended for running the database.
 
 * [npm](https://www.npmjs.com/get-npm)
 * [Python](https://www.python.org/) 3.7 or higher
@@ -64,7 +64,7 @@ npm run build
 ### Install virtualenv (Optional)
 
 `virtualenv` is a tool which allows you to install all of your Python project's
-dependencies into an isolated location instead of installing them globably on
+dependencies into an isolated location instead of installing them globally on
 your system which could conflict with dependencies used by other projects. We
 recommend setting it up for Cradle development but it is not necessary.
 
@@ -204,6 +204,24 @@ get the application running, useful if you want to debug something without
 having to trudge through unrelated data
 * `python ./manage.py seed_test_data`: seeds data required to run the unit tests
 * `python ./manage.py seed`: seeds a generous amount of random data
+
+### Seed Data Usernames & Passwords
+
+When you `seed_minimal`, only one user is added:
+
+| Username           | Password | Role                   |
+|--------------------|----------|------------------------|
+| admin123@admin.com | admin123 | ADMIN - Administrator  |
+
+If you choose to seed additional test data using either `seed_test_data` or `seed`,
+the previously mentioned admin user is added along with a few additional users:
+
+| Username           | Password | Role                         |
+|--------------------|----------|------------------------------|
+| admin123@admin.com | admin123 | ADMIN - Administrator        |
+| hcw@hcw.com        | hcw123   | HCW   - Healthcare Worker    |
+| cho@cho.com        | cho123   | CHO   - Chief Health Officer |
+| vht@vht.com        | vht123   | VHT   - Village Health Team  |
 
 ### Starting The Server
 
