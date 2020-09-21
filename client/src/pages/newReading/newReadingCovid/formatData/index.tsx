@@ -106,7 +106,7 @@ export const formatPatientData = (unformattedPatient: any) => {
     dob: string = unformattedPatient.dob as string;
     drugHistory: string = unformattedPatient.drugHistory as string;
     gestationalAgeUnit: string = unformattedPatient.gestationalAgeUnit as string;
-    gestationalTimestamp: number = unformattedPatient.gestationalAgeValueTimeStamp as number;
+    gestationalTimestamp: number = unformattedPatient.gestationalAgeValueTimestamp as number;
     householdNumber: string = unformattedPatient.household as string;
     medicalHistory: string = unformattedPatient.medicalHistory as string;
     patientId: string = unformattedPatient.patientId as string;

@@ -21,7 +21,7 @@ const initializePatientKeys = [
   `dob?`,
   `patientAge`,
   `gestationalAgeValue`,
-  `gestationalAgeValueTimeStamp`,
+  `gestationalAgeValueTimestamp`,
   `gestationalAgeUnit`,
 ];
 
@@ -35,7 +35,7 @@ export const useNewPatient = () => {
     patientSex: 'FEMALE',
     isPregnant: false,
     gestationalAgeValue: '',
-    gestationalAgeValueTimeStamp: 0,
+    gestationalAgeValueTimestamp: 0,
     gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
     zone: '',
     dob: '2004-01-01',
@@ -84,7 +84,7 @@ export const useNewPatient = () => {
         patientSex: 'FEMALE',
         isPregnant: false,
         gestationalAgeValue: '',
-        gestationalAgeValueTimeStamp: 0,
+        gestationalAgeValueTimestamp: 0,
         gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
         zone: '',
         dob: '2004-01-01',
@@ -215,7 +215,7 @@ export const useNewPatient = () => {
       setPatient({
         ...patient,
         [name]: e.target.value,
-        gestationalAgeValueTimeStamp: calculateGestationalAgeValue(
+        gestationalAgeValueTimestamp: calculateGestationalAgeValue(
           e.target.value
         ),
         gestationalAgeValueError: gestationalAgeValueError,
