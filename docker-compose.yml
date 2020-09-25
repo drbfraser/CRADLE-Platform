@@ -1,21 +1,15 @@
+#########################################
+# This is the base Docker file          #
+# It includes the following containers: #
+#  - Flask                              #
+#  - MySQL                              #
+#########################################
+
 version: "3.8"
 services:
-    caddy:
-        container_name: caddy
-        image: caddy:2.0.0
-        volumes:
-            - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-        ports:
-            - 80:80
-            - 443:443
-        environment:
-            CADDY_DOMAIN: ${CADDY_DOMAIN}
     flask:
-        container_name: flask
         build:
             context: ./server
-        command: python app.py    # development
-        # command: gunicorn -c ./prod/gunicorn.conf.py app:app    # production
         volumes:
             - ./server:/usr/src/server
         environment:
@@ -25,8 +19,9 @@ services:
             DB_NAME: ${DB_NAME}
             DB_USERNAME: ${DB_USERNAME}
             DB_PASSWORD: ${DB_PASSWORD}
+        depends_on: 
+            - mysql
     mysql:
-        container_name: mysql
         image: mysql:5.7
         volumes:
             - mysql_data:/var/lib/mysql
