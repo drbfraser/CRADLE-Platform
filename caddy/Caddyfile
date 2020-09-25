@@ -1,0 +1,10 @@
+{$CADDY_DOMAIN} {
+    # Serve static files from this directory
+    root * /var/www
+
+    # Enable static file server
+    file_server
+
+    # Route API requests to flask
+    reverse_proxy /api/* flask:5000
+}
