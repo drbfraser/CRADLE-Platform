@@ -33,7 +33,6 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-
         follow_up = marshal.unmarshal(FollowUp, json)
 
         # Check that reading id which doesn’t reference an existing reading in the database
