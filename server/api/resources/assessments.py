@@ -7,7 +7,7 @@ import api.util as util
 import data
 import data.crud as crud
 import data.marshal as marshal
-from models import FollowUp
+from models import FollowUp, Reading
 from utils import get_current_time
 from Validation import assessments
 
@@ -33,10 +33,13 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        # TODO: validate that assessment's reading id references an actual reading and
-        #   return 404 if it doesn't
 
         follow_up = marshal.unmarshal(FollowUp, json)
+
+        # Check that reading id which doesn’t reference an existing reading in the database
+        reading = crud.read(Reading, readingId=follow_up.readingId)
+        if not reading:
+            abort(404, message=f"No reading with id {follow_up.readingId}")
 
         crud.create(follow_up)
 
