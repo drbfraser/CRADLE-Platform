@@ -65,7 +65,7 @@ export const useNewPatient = () => {
     return moment(currentDate).format('YYYY-MM-DD');
   };
 
-  //~~~~~~~ Calculate DOB based on Age ~~~~~~~~~~
+  //~~~~~~~ Calculate Age based on DOB ~~~~~~~~~~
   const getAgeBasedOnDOB = (value: string) => {
     const year: string = value.substr(0, value.indexOf('-'));
     const yearNow: number = new Date().getUTCFullYear();
