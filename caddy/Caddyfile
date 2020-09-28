@@ -1,4 +1,4 @@
-{$CADDY_DOMAIN} {
+{$CADDY_DOMAIN}:80, {$CADDY_DOMAIN}:443 {
     # Serve static files from this directory
     root * /var/www
 
@@ -7,4 +7,15 @@
 
     # Route API requests to flask
     reverse_proxy /api/* flask:5000
+
+    header / {
+        # Don't identify ourselves
+        -Server
+
+        # HSTS: ensure HTTPS is used for subsequent requests, prevent downgrade attacks
+        Strict-Transport-Security 'max-age=31536000; includeSubDomains; preload';
+
+        # ask browsers to respect the Content Types we send
+        X-Content-Type-Options "nosniff"
+    }
 }
