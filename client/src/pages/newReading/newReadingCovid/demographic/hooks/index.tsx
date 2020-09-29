@@ -1,4 +1,8 @@
-import { getNumOfMonths,getNumOfWeeks,getAgeBasedOnDOB} from '../../../../../shared/utils';
+import {
+  getNumOfMonths,
+  getNumOfWeeks,
+  getAgeBasedOnDOB,
+} from '../../../../../shared/utils';
 import { GESTATIONAL_AGE_UNITS } from '../../../patientInfoForm';
 import { GestationalAgeUnitEnum } from '../../../../../enums';
 import { Patient } from '@types';
