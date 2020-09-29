@@ -158,7 +158,7 @@ export const sortPatientsByLastReading = (
 };
 
 //~~~~~~~ Calculate Age based on DOB ~~~~~~~~~~
-export const getAgeBasedOnDOB = (value: string) => { 
+export const getAgeBasedOnDOB = (value: string) => {
   return moment().diff(value, 'years');
 };
 

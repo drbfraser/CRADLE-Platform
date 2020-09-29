@@ -1,4 +1,4 @@
-import { getNumOfMonths, getNumOfWeeks, getAgeBasedOnDOB } from '../../../../../shared/utils';
+import { getNumOfMonths,getNumOfWeeks,getAgeBasedOnDOB} from '../../../../../shared/utils';
 import { GESTATIONAL_AGE_UNITS } from '../../../patientInfoForm';
 import { GestationalAgeUnitEnum } from '../../../../../enums';
 import { Patient } from '@types';
@@ -63,7 +63,6 @@ export const useNewPatient = () => {
     currentDate.setFullYear(currentDate.getFullYear() - value);
     return moment(currentDate).format('YYYY-MM-DD');
   };
-
 
   //~~~~~~~ Reset All values ~~~~~~~~~~
   const resetValuesPatient = (reset: boolean) => {
