@@ -1,5 +1,8 @@
-import { getNumOfMonths, getNumOfWeeks } from '../../../../../shared/utils';
-
+import {
+  getNumOfMonths,
+  getNumOfWeeks,
+  getAgeBasedOnDOB,
+} from '../../../../../shared/utils';
 import { GESTATIONAL_AGE_UNITS } from '../../../patientInfoForm';
 import { GestationalAgeUnitEnum } from '../../../../../enums';
 import { Patient } from '@types';
@@ -63,13 +66,6 @@ export const useNewPatient = () => {
     const currentDate = new Date();
     currentDate.setFullYear(currentDate.getFullYear() - value);
     return moment(currentDate).format('YYYY-MM-DD');
-  };
-
-  //~~~~~~~ Calculate DOB based on Age ~~~~~~~~~~
-  const getAgeBasedOnDOB = (value: string) => {
-    const year: string = value.substr(0, value.indexOf('-'));
-    const yearNow: number = new Date().getUTCFullYear();
-    return yearNow - +year;
   };
 
   //~~~~~~~ Reset All values ~~~~~~~~~~

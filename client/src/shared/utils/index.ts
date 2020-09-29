@@ -119,17 +119,17 @@ export const getMomentDate = (dateS: OrNull<number>): moment.Moment => {
 export const getPrettyDate = (dateStr: number): string => {
   // * Date comes in from the backend in seconds
   // * Moment date requires milliseconds
-  return getMomentDate(dateStr * 1000).format('MMMM Do YYYY');
+  return getMomentDate(dateStr * 1000).format('YYYY-MM-DD');
 };
 
 export const getPrettyDateTime = (dateStr: number): string => {
   // * Date comes in from the backend in seconds
   // * Moment date requires milliseconds
-  return getMomentDate(dateStr * 1000).format('MMMM Do YYYY, h:mm:ss a');
+  return getMomentDate(dateStr * 1000).format('YYYY-MM-DD');
 };
 
 export const getPrettyDateYYYYmmDD = (dateStr: string): string => {
-  return moment(dateStr).format('MMMM Do YYYY');
+  return moment(dateStr).format('YYYY-MM-DD');
 };
 
 export const getLatestReading = (readings: Array<Reading>): Reading => {
@@ -155,6 +155,11 @@ export const sortPatientsByLastReading = (
     getMomentDate(getLatestReadingDateTime(otherPatient.readings)).valueOf() -
     getMomentDate(getLatestReadingDateTime(patient.readings)).valueOf()
   );
+};
+
+//~~~~~~~ Calculate Age based on DOB ~~~~~~~~~~
+export const getAgeBasedOnDOB = (value: string) => {
+  return moment().diff(value, 'years');
 };
 
 export const GESTATIONAL_AGE_UNITS = {
