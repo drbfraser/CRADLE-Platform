@@ -50,7 +50,6 @@ enum PatientsActionEnum {
   UPDATE_PATIENTS_TABLE_ROWS_PER_PAGE = 'patients/UPDATE_PATIENTS_TABLE_ROWS_PER_PAGE',
   UPDATE_REFERRALS_TABLE_ROWS_PER_PAGE = 'patients/UPDATE_REFERRALS_TABLE_ROWS_PER_PAGE',
   UPDATE_SELECTED_PATIENT_STATE = 'patients/UPDATE_SELECTED_PATIENT_STATE',
-  TOGGLE_SHOW_REFERRED_PATIENTS = 'patients/TOGGLE_SHOW_REFERRED_PATIENTS',
   SORT_PATIENTS_TABLE_PATIENTS = 'patients/SORT_PATIENTS_TABLE_PATIENTS',
   SORT_REFERRALS_TABLE_PATIENTS = 'patients/SORT_REFERRALS_TABLE_PATIENTS',
   UPDATE_PATIENT_REQUESTED = 'patient/UPDATE_PATIENT_REQUESTED',
@@ -161,7 +160,6 @@ export type PatientsAction =
       type: PatientsActionEnum.UPDATE_SELECTED_PATIENT_STATE;
       payload: { state?: PatientStateEnum };
     }
-  | { type: PatientsActionEnum.TOGGLE_SHOW_REFERRED_PATIENTS }
   | {
       type: PatientsActionEnum.SORT_PATIENTS_TABLE_PATIENTS;
       payload: { sortedPatients: Array<Patient> | Array<GlobalSearchPatient> };
@@ -309,10 +307,6 @@ export const updateSelectedPatientState = (
 ): PatientsAction => ({
   type: PatientsActionEnum.UPDATE_SELECTED_PATIENT_STATE,
   payload: { state },
-});
-
-export const toggleShowReferredPatients = (): PatientsAction => ({
-  type: PatientsActionEnum.TOGGLE_SHOW_REFERRED_PATIENTS,
 });
 
 export const sortPatientsTablePatients = (
@@ -1016,11 +1010,6 @@ export const patientsReducer = (
       return {
         ...state,
         selectedPatientState: action.payload.state,
-      };
-    case PatientsActionEnum.TOGGLE_SHOW_REFERRED_PATIENTS:
-      return {
-        ...state,
-        showReferredPatients: !state.showReferredPatients,
       };
     case PatientsActionEnum.SORT_PATIENTS_TABLE_PATIENTS:
       return state.globalSearch
