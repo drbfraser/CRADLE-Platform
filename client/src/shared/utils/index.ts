@@ -158,10 +158,8 @@ export const sortPatientsByLastReading = (
 };
 
 //~~~~~~~ Calculate Age based on DOB ~~~~~~~~~~
-export const getAgeBasedOnDOB = (value: string) => {
-  const year: string = value.substr(0, value.indexOf('-'));
-  const yearNow: number = new Date().getUTCFullYear();
-  return yearNow - +year;
+export const getAgeBasedOnDOB = (value: string) => { 
+  return moment().diff(value, 'years');
 };
 
 export const GESTATIONAL_AGE_UNITS = {
