@@ -1,14 +1,5 @@
 {$CADDY_DOMAIN}:80, {$CADDY_DOMAIN}:443 {
-    # Serve static files from this directory
-    root * /var/www
-
-    # Enable static file server
-    file_server
-
-    # Route API requests to flask
-    reverse_proxy /api/* flask:5000
-
-    header / {
+    header {
         # Don't identify ourselves
         -Server
 
@@ -17,5 +8,21 @@
 
         # ask browsers to respect the Content Types we send
         X-Content-Type-Options "nosniff"
+    }
+
+    handle /api/* {
+        # Route API requests to Flask
+        reverse_proxy flask:5000
+    }
+
+    handle {
+        # Serve static files from this directory
+        root * /var/www
+
+        # Enable static file server
+        file_server
+
+        # If there is a 404, serve index.html
+        try_files {path} index.html
     }
 }
