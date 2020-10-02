@@ -69,6 +69,12 @@ class UserApi(Resource):
 
             # find the role of the user
             role = Role.query.filter_by(name=data["role"]).first()
+            if (
+                role
+                and data["role"] == "ADMIN"
+                and data["healthFacilityName"] == "Null"
+            ):
+                data["healthFacilityName"] = None
             del data["role"]
 
             # Add a new user to db
