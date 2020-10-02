@@ -6,7 +6,7 @@
 #   - creates a container to run npm in (for the front end)            #
 ########################################################################
 
-version: "3.8"
+version: "3.7"
 services:
     flask:
         command: python app.py

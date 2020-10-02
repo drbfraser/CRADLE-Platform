@@ -5,7 +5,7 @@
 #  - MySQL                              #
 #########################################
 
-version: "3.8"
+version: "3.7"
 services:
     flask:
         build:
@@ -19,6 +19,9 @@ services:
             DB_NAME: ${DB_NAME}
             DB_USERNAME: ${DB_USERNAME}
             DB_PASSWORD: ${DB_PASSWORD}
+            # TO-DO: remove
+            EMAIL_USER: sample_user@gmail.com
+            EMAIL_PASSWORD: password
         depends_on: 
             - mysql
     mysql:

@@ -7,12 +7,18 @@
 #  - MySQL (extended)                             #
 ###################################################
 
-version: "3.8"
+version: "3.7"
 services:
     flask:
+        restart: always
         command: gunicorn -c ./prod/gunicorn.conf.py app:app
+        volumes:
+            - flask_logs:/var/log
+    mysql:
+        restart: always
     caddy:
         image: caddy:2.0.0
+        restart: always
         volumes:
             - ./caddy/Caddyfile:/etc/caddy/Caddyfile
             - caddy_data:/root/.caddy
@@ -23,4 +29,5 @@ services:
             CADDY_DOMAIN: ${CADDY_DOMAIN}
 
 volumes:
+    flask_logs:
     caddy_data:
