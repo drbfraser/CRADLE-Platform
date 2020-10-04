@@ -22,7 +22,7 @@ services:
         volumes:
             - ./caddy/Caddyfile:/etc/caddy/Caddyfile
             - ./frontend_build:/var/www
-            - caddy_data:/root/.caddy
+            - caddy_data:/root/.caddy   # persist certificates
         ports:
             - 80:80
             - 443:443

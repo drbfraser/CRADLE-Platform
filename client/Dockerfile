@@ -1,5 +1,5 @@
-# pull latest official node image as base image
-FROM node:10
+# pull node alpine image as base image
+FROM node:14.11.0-alpine3.12
 
 # create work directory in container
 RUN mkdir /usr/src/client
@@ -13,8 +13,8 @@ ENV PATH /usr/src/client/node_modules/.bin:$PATH
 # add app
 COPY . ./
 
-# add typescript as a dev dependency
-RUN yarn add --dev typescript
-
 # install dependencies
 RUN npm install
+
+# generate react build
+RUN npm run build
