@@ -94,7 +94,9 @@ const Page: React.FC<IProps> = (props) => {
             variant="outlined"
             type={'text'}
             helperText={
-              props.patient.patientInitialError ? 'Must Be 1-4 letters.' : ''
+              props.patient.patientInitialError
+                ? 'Please enter characters only.'
+                : ''
             }
           />
         </FormControl>
