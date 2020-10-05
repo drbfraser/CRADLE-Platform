@@ -217,9 +217,15 @@ export const useNewPatient = () => {
         gestationalAgeValueError: gestationalAgeValueError,
       });
     }
+    if (name === 'villageNumber') {
+      setPatient({
+        ...patient,
+        [name]: value,
+        villageNumberError: errors.villageNumberError
+      });
+    }
     if (
       name === 'zone' ||
-      name === 'villageNumber' ||
       name === 'drugHistory' ||
       name === 'medicalHistory' ||
       name === 'household'
