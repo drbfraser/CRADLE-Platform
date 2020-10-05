@@ -1,5 +1,5 @@
 import DialogContentText from '@material-ui/core/DialogContentText';
-import { DialogPopup } from '../../../../shared/components/dialogPopup';
+import { DialogPopup } from '../../../shared/components/dialogPopup';
 import { OrNull } from '@types';
 import React from 'react';
 

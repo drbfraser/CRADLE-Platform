@@ -1,429 +1,713 @@
-import './index.css';
-
+import { ActualUser, Callback, FollowUp, OrNull, Patient } from '@types';
 import {
-  ActualUser,
-  CheckedItems,
-  PatientNewReading,
-  PatientNewReadingReading,
-} from '../../types';
-import { Button, Divider, Form } from 'semantic-ui-react';
-import { GESTATIONAL_AGE_UNITS, PatientInfoForm } from './patientInfoForm';
-import { UrineTestForm, initialUrineTests } from './urineTestForm';
+  Button,
+  Divider,
+  Step,
+  StepLabel,
+  Stepper,
+  Typography,
+} from '@material-ui/core';
+import { Dispatch, bindActionCreators } from 'redux';
 import {
-  clearCreateReadingOutcome,
-  createReading,
-} from '../../redux/reducers/reading';
-import { monthsToWeeks, weeksToMonths } from '../../shared/utils';
+  ICreateAssessmentArgs,
+  IUpdateAssessmentArgs,
+  IUpdatePatientArgs,
+  addPatientNew,
+  afterDoesPatientExist,
+  afterNewPatientAdded,
+  clearCreateAssessmentOutcome,
+  clearUpdateAssessmentOutcome,
+  clearUpdatePatientOutcome,
+  createAssessment,
+  doesPatientExist,
+  updateAssessment,
+  updatePatient,
+} from '../../redux/reducers/patients';
+import React, { useEffect, useState } from 'react';
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
+import {
+  addReadingNew,
+  resetNewReadingStatus,
+} from '../../redux/reducers/newReadingStatus';
+import {
+  formatPatientData,
+  formatReadingData,
+  formatReadingDataVHT,
+} from './formatData';
 
-import { BpForm } from './bpForm';
-import { Component } from 'react';
-import React from 'react';
-import SweetAlert from 'sweetalert2-react';
-import { SymptomForm } from './symptomForm';
-import { addNewPatient } from '../../redux/reducers/patients';
-import { bindActionCreators } from 'redux';
+import AlertDialog from './alertDialog';
+import { Assessment } from './assessment';
+import { ConfirmationPage } from './confirmationPage';
+import { Demographics } from './demographic';
+import { FormStatusEnum } from '../../enums';
+import { ReduxState } from '../../redux/reducers';
+import SubmissionDialog from './submissionDialog';
+import { Symptoms } from './symptoms';
+import { VitalSignAssessment } from './vitalSignAssessment';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../redux/reducers/user/currentUser';
+import { goBack } from 'connected-react-router';
+import { useNewAssessment } from './assessment/hooks';
+import { useNewPatient } from './demographic/hooks';
+import { useNewSymptoms } from './symptoms/hooks';
+import { useNewUrineTest } from './urineTestAssessment/hooks';
+import { useNewVitals } from './vitalSignAssessment/hooks';
 
-const symptom: any = [];
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    backButton: {
+      margin: theme.spacing(2),
+    },
+    nextButton: {
+      margin: theme.spacing(2),
+      float: 'right',
+    },
+    instructions: {
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(1),
+    },
+  })
+);
 
-function guid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+function getSteps(roles: string, formStatus: OrNull<FormStatusEnum>) {
+  switch (formStatus) {
+    case FormStatusEnum.EDIT_PATIENT_INFORMATION:
+      return [`Demographic Information`, `Confirmation`];
+    case FormStatusEnum.ADD_ASSESSMENT:
+    case FormStatusEnum.UPDATE_ASSESSMENT:
+      return [`Assessments`, `Confirmation`];
+    case FormStatusEnum.ADD_NEW_READING:
+    default:
+      return roles === `VHT`
+        ? [
+            `Demographic Information`,
+            `Symptoms`,
+            `Vitals Signs`,
+            `Confirmation`,
+          ]
+        : [
+            `Demographic Information`,
+            `Symptoms`,
+            `Vitals Signs`,
+            `Assessments`,
+            `Confirmation`,
+          ];
+  }
 }
 
-const initState = {
-  patient: {
-    patientId: '',
-    patientName: '',
-    patientAge: null,
-    patientSex: 'FEMALE',
-    isPregnant: true,
-    gestationalAgeValue: '1',
-    gestationalTimestamp: null,
-    gestationalAgeUnit: GESTATIONAL_AGE_UNITS.WEEKS,
-    zone: '',
-    dob: null,
-    villageNumber: '',
-    drugHistory: '',
-    medicalHistory: '',
-  },
-  reading: {
-    userId: '',
-    readingId: '',
-    dateTimeTaken: null,
-    bpSystolic: '',
-    bpDiastolic: '',
-    heartRateBPM: '',
-    dateRecheckVitalsNeeded: null,
-    isFlaggedForFollowup: false,
-    symptoms: '',
-    urineTests: initialUrineTests,
-  },
-  checkedItems: {
-    none: true,
-    headache: false,
-    bleeding: false,
-    blurredVision: false,
-    feverish: false,
-    abdominalPain: false,
-    unwell: false,
-    other: false,
-    otherSymptoms: '',
-  },
-  showSuccessReading: false,
-  hasUrineTest: false,
+type LocationState = {
+  patient: Patient;
+  status: FormStatusEnum;
+  assessment?: FollowUp;
+  readingId?: string;
+  userId?: OrNull<number>;
 };
+
 interface IProps {
   getCurrentUser: any;
   afterNewPatientAdded: any;
   user: ActualUser;
-  createReading: any;
+  addPatientNew: any;
+  doesPatientExist: any;
+  addReadingNew: any;
+  newPatientAdded: any;
+  newPatientExist: boolean;
+  patient: any;
+  readingCreated: any;
+  resetNewReadingStatus: any;
+  error: OrNull<string>;
+  success: OrNull<string>;
+  assessmentFromEdit: OrNull<FollowUp>;
+  formStatus: OrNull<FormStatusEnum>;
+  patientFromEdit: OrNull<Patient>;
+  readingId: OrNull<string>;
+  userId: OrNull<number>;
+  afterDoesPatientExist: any;
+  createAssessment: Callback<ICreateAssessmentArgs>;
+  updateAssessment: Callback<IUpdateAssessmentArgs>;
+  updatePatient: Callback<IUpdatePatientArgs>;
+  clearCreateAssessmentOutcome: () => void;
+  clearUpdateAssessmentOutcome: () => void;
+  clearUpdatePatientOutcome: () => void;
+  goBackToPatientPage: () => void;
 }
 
-interface IState {
-  patient: PatientNewReading;
-  reading: PatientNewReadingReading;
-  hasUrineTest: boolean;
-  checkedItems: CheckedItems;
-  showSuccessReading: boolean;
-}
+const Page: React.FC<IProps> = (props) => {
+  //styling
+  const classes = useStyles();
+  //stepper
+  const [activeStep, setActiveStep] = React.useState(0);
 
-class NewReadingPageComponent extends Component<IProps, IState> {
-  state = initState;
+  // ~~~~~~~~~~~~~~~ custome states for each component ~~~~~~~~~~~~~~~~~~~~~
+  const {
+    patient,
+    handleChangePatient,
+    initializeEditPatient,
+    resetValuesPatient,
+  } = useNewPatient();
+  const {
+    symptoms,
+    handleChangeSymptoms,
+    resetValuesSymptoms,
+  } = useNewSymptoms();
+  const { vitals, handleChangeVitals, resetValueVitals } = useNewVitals();
+  const {
+    assessment,
+    handleChangeAssessment,
+    initializeAssessment,
+    resetValueAssessment,
+  } = useNewAssessment();
+  const {
+    urineTest,
+    handleChangeUrineTest,
+    resetValueUrineTest,
+  } = useNewUrineTest();
 
-  componentDidMount = () => {
-    if (!this.props.user.isLoggedIn) {
-      this.props.getCurrentUser();
+  const [existingPatient, setExistingPatient] = useState(false);
+  const [blockBackButton, setBlockBackButton] = useState(false);
+  const [selectedPatientId, setSelectedPatientId] = useState('');
+  const [isShowDialogSubmission, setIsShowDialogsubmission] = useState(false);
+  const [isShowDialogPatientCheck, setIsShowDialogPatientCheck] = useState(
+    false
+  );
+  const [pageTitle, setPageTitle] = useState(
+    'Create a New Patient and Reading'
+  );
+  const steps = getSteps(props.user.roles[0], props.formStatus);
+
+  // ~~~~~~~~ Creating Reading  ~~~~~~~~~~~~~~~~~~
+  const addReading = React.useCallback(() => {
+    if (props.user.roles[0] === 'VHT') {
+      const formattedReading = formatReadingDataVHT(
+        selectedPatientId,
+        symptoms,
+        urineTest.enabled ? urineTest : null,
+        vitals,
+        props.user.userId
+      );
+      props.addReadingNew(formattedReading);
+    } else {
+      const formattedReading = formatReadingData(
+        selectedPatientId,
+        symptoms,
+        urineTest.enabled ? urineTest : null,
+        vitals,
+        assessment,
+        props.user.userId
+      );
+      props.addReadingNew(formattedReading);
+    }
+  }, [assessment, props, selectedPatientId, symptoms, urineTest, vitals]);
+
+  useEffect((): void => {
+    if (props.error || props.success) {
+      setIsShowDialogsubmission(true);
+    }
+  }, [props.error, props.success]);
+
+  useEffect(() => {
+    // getting current user
+    if (!props.user.isLoggedIn) {
+      props.getCurrentUser();
+    }
+    // flow for adding new patient + reading
+    if (props.newPatientAdded) {
+      addReading();
+      props.afterNewPatientAdded();
+      props.afterDoesPatientExist();
+      setIsShowDialogsubmission(true);
+    }
+    // flow for using existing patient after typing id
+    if (props.newPatientExist && existingPatient) {
+      setSelectedPatientId(props.patient.patientId);
+      setExistingPatient(false);
+      setIsShowDialogPatientCheck(true);
+    }
+    // flow for NOT using existing patient after typing id
+    if (!props.newPatientExist && existingPatient) {
+      setSelectedPatientId(patient.patientId);
+      setPageTitle(
+        `Create a New Patient and Reading, ${patient.patientId} (${patient.patientInitial})`
+      );
+      setExistingPatient(false);
+      setIsShowDialogPatientCheck(true);
+    }
+  }, [
+    addReading,
+    existingPatient,
+    patient.patientId,
+    patient.patientInitial,
+    props,
+    urineTest,
+  ]);
+
+  // ~~~~~~~~ flow from patient list ~~~~~~~~~~~~
+  // ~~~~~~~~ add new reading ~~~~~~~~~~~~
+  // ~~~~~~~~ edit patient info ~~~~~~~~~~~~
+  // ~~~~~~~~ add assessment ~~~~~~~~~~~~
+  // ~~~~~~~~ update assessment~~~~~~~~~~~~
+  useEffect(() => {
+    if (props.patientFromEdit) {
+      switch (props.formStatus) {
+        case FormStatusEnum.ADD_NEW_READING: {
+          setPageTitle(
+            `Create a New Reading, ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
+          );
+          setActiveStep((prevActiveStep) => prevActiveStep + 1);
+          break;
+        }
+        case FormStatusEnum.EDIT_PATIENT_INFORMATION: {
+          initializeEditPatient(props.patientFromEdit);
+          setPageTitle(
+            `Edit Patient Information, ${props.patientFromEdit.patientId}`
+          );
+          break;
+        }
+        case FormStatusEnum.ADD_ASSESSMENT: {
+          setPageTitle(
+            `Create Assessment, ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
+          );
+          break;
+        }
+        case FormStatusEnum.UPDATE_ASSESSMENT: {
+          initializeAssessment(props.assessmentFromEdit);
+          setPageTitle(
+            `Update Assessment, ${props.patientFromEdit.patientId} (${props.patientFromEdit.patientName})`
+          );
+          break;
+        }
+      }
+
+      setBlockBackButton(true);
+      setSelectedPatientId(props.patientFromEdit.patientId);
+    }
+  }, [
+    initializeEditPatient,
+    initializeAssessment,
+    props.assessmentFromEdit,
+    props.patientFromEdit,
+    props.formStatus,
+  ]);
+
+  // ~~~~~~~~ Stepper Next button call ~~~~~~~~~~~~~~~~~~
+  const handleNext = () => {
+    if (
+      activeStep === 0 &&
+      !(
+        props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION ||
+        props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
+        props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT
+      )
+    ) {
+      setExistingPatient(true);
+      props.doesPatientExist(patient.patientId);
+    } else {
+      setBlockBackButton(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
 
-  static getDerivedStateFromProps = (props: any, state: any) => {
-    // if (props.newPatientAdded) {
-    //   props.afterNewPatientAdded();
-    //   return {
-    //     ...state,
-    //     showSuccessReading: true
-    //   };
-    // }
-
-    if (props.readingCreated) {
-      props.clearCreateReadingOutcome();
-      return {
-        ...state,
-        showSuccessReading: true,
-      };
-      // const newPatient = props.newReadingData.patient;
-      // newPatient.readings.push(props.newReadingData.reading);
-      // props.addNewPatient(newPatient);
-      // return state;
+  // ~~~~~~~~ Stepper Back button call ~~~~~~~~~~~~~~~~~~
+  const handleBack = () => {
+    if (activeStep === 2 && (props.newPatientExist || props.patientFromEdit)) {
+      setBlockBackButton(true);
     }
-    return state;
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  handleChange = (event: any) => {
-    this.setState({
-      patient: {
-        ...this.state.patient,
-        [event.target.name]: event.target.value,
-      },
-    });
-  };
-
-  handleSelectChange = (e: any, value: any) => {
-    if (value.name === 'patientSex' && value.value === 'MALE') {
-      this.setState({
-        patient: {
-          ...this.state.patient,
-          patientSex: 'MALE',
-          gestationalAgeValue: '',
-          isPregnant: false,
-        },
+  // ~~~~~~~~ Last Step Submission Call  ~~~~~~~~~~~
+  const handleSubmit = () => {
+    if (props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION) {
+      props.updatePatient({
+        data: formatPatientData(patient),
       });
-    } else if (value.name === `gestationalAgeUnit`) {
-      this.setState(
-        {
-          patient: {
-            ...this.state.patient,
-            [value.name]: value.value,
+    } else if (props.formStatus === FormStatusEnum.ADD_ASSESSMENT) {
+      if (props.readingId && props.userId) {
+        props.createAssessment({
+          data: {
+            diagnosis: assessment.finalDiagnosis,
+            followupNeeded: assessment.enabled,
+            followupInstructions: assessment.InstructionFollow,
+            medicationPrescribed: assessment.medPrescribed,
+            specialInvestigations: assessment.specialInvestigations,
+            treatment: assessment.treatmentOP,
           },
-        },
-        (): void => {
-          this.setState({
-            patient: {
-              ...this.state.patient,
-              gestationalAgeValue:
-                this.state.patient.gestationalAgeUnit ===
-                GESTATIONAL_AGE_UNITS.WEEKS
-                  ? monthsToWeeks(this.state.patient.gestationalAgeValue)
-                  : weeksToMonths(this.state.patient.gestationalAgeValue),
-            },
-          });
+          readingId: props.readingId,
+          userId: props.userId,
+        });
+      } else {
+        throw new Error(
+          `Invalid action: Reading ID and User ID from patient page corrupted!`
+        );
+      }
+    } else if (props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT) {
+      if (props.assessmentFromEdit && props.readingId && props.userId) {
+        props.updateAssessment({
+          data: {
+            id: props.assessmentFromEdit.id,
+            followupNeeded: assessment.enabled,
+            followupInstructions: assessment.InstructionFollow,
+            diagnosis: assessment.finalDiagnosis,
+            medicationPrescribed: assessment.medPrescribed,
+            specialInvestigations: assessment.specialInvestigations,
+            treatment: assessment.treatmentOP,
+          },
+          readingId: props.readingId,
+          userId: props.userId,
+        });
+      } else {
+        throw new Error(
+          `Invalid action: Assessment from patient page corrupted!`
+        );
+      }
+    } else if (!props.newPatientExist && !props.patientFromEdit) {
+      //if not an existing patient
+      const formattedPatient = formatPatientData(patient);
+      props.addPatientNew(formattedPatient);
+    } else {
+      addReading();
+      setIsShowDialogsubmission(true);
+    }
+  };
+
+  // ~~~~~~~~ Handle response from the existing patient Dialog  ~~~~~~~~~~~
+  const handleDialogClose = (e: any) => {
+    const value = e.currentTarget.value;
+    if (value === 'no') {
+      setIsShowDialogPatientCheck(false);
+    }
+    if (value === 'yes') {
+      setIsShowDialogPatientCheck(false);
+      setBlockBackButton(true);
+      setPageTitle(
+        `Create a New Reading, ${props.patient.patientId} (${props.patient.patientName})`
+      );
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+    if (value === 'ok') {
+      setIsShowDialogPatientCheck(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+  };
+
+  // ~~~~~~~~ Handle response from Submission dialog  ~~~~~~~~~~~
+  const handleDialogCloseSubmission = (e: any) => {
+    switch (props.formStatus) {
+      case FormStatusEnum.EDIT_PATIENT_INFORMATION: {
+        props.clearUpdatePatientOutcome();
+        break;
+      }
+      case FormStatusEnum.ADD_ASSESSMENT: {
+        props.clearCreateAssessmentOutcome();
+        break;
+      }
+      case FormStatusEnum.UPDATE_ASSESSMENT: {
+        props.clearUpdateAssessmentOutcome();
+        break;
+      }
+    }
+
+    if (props.formStatus) {
+      props.goBackToPatientPage();
+      return;
+    }
+
+    const value = e.currentTarget.value;
+    props.afterNewPatientAdded();
+    props.afterDoesPatientExist();
+    if (value === 'ok') {
+      setIsShowDialogsubmission(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+    if (value === 'redo') {
+      setIsShowDialogsubmission(false);
+      handleReset();
+    }
+  };
+
+  const isRequiredFilled = () => {
+    if (activeStep === 0) {
+      if (
+        !patient.patientId ||
+        !patient.patientInitial ||
+        (patient.isPregnant && !patient.gestationalAgeValue) ||
+        patient.patientIdError ||
+        patient.patientInitialError ||
+        patient.householdError ||
+        patient.patientNameError ||
+        patient.patientAgeError ||
+        patient.patientSexError ||
+        patient.isPregnantError ||
+        patient.gestationalAgeValueError ||
+        patient.gestationalAgeUnitError ||
+        patient.zoneError ||
+        patient.dobError ||
+        patient.villageNumberError ||
+        patient.drugHistoryError ||
+        patient.medicalHistoryError
+      ) {
+        return true;
+      }
+    }
+    if (activeStep === 2) {
+      if (
+        !vitals.bpSystolic ||
+        vitals.bpSystolicError ||
+        !vitals.bpSystolic ||
+        vitals.bpSystolicError ||
+        !vitals.heartRateBPM ||
+        vitals.heartRateBPMError
+      ) {
+        return true;
+      }
+      if (urineTest.enabled) {
+        if (
+          !urineTest.blood ||
+          !urineTest.glucose ||
+          !urineTest.protein ||
+          !urineTest.nitrites ||
+          !urineTest.leukocytes
+        ) {
+          return true;
         }
-      );
-    } else {
-      this.setState({
-        patient: { ...this.state.patient, [value.name]: value.value },
-      });
-    }
-  };
-
-  handleReadingChange = (e: any, value: any) => {
-    this.setState({
-      reading: { ...this.state.reading, [value.name]: value.value },
-    });
-  };
-
-  handleUrineTestChange = (e: any, value: any) => {
-    this.setState({
-      reading: {
-        ...this.state.reading,
-        urineTests: {
-          ...this.state.reading.urineTests,
-          [value.name]: value.value,
-        },
-      },
-    });
-  };
-
-  handleUrineTestSwitchChange = (e: any) => {
-    this.setState({
-      hasUrineTest: e.target.checked,
-    } as any);
-    if (!e.target.checked) {
-      this.setState({
-        reading: {
-          ...this.state.reading,
-          urineTests: initialUrineTests,
-        },
-      });
-    }
-  };
-
-  handleCheckedChange = (e: any, value: any) => {
-    // true => false, pop
-    if (value.value) {
-      if (symptom.indexOf(value.name) >= 0) {
-        symptom.pop();
-      }
-    } else {
-      // false => true, push
-      if (symptom.indexOf(value.name) < 0) {
-        symptom.push(value.name);
       }
     }
-    if (value.name !== 'none') {
-      if (symptom.indexOf('none') >= 0) {
-        symptom.pop();
-      }
-      this.setState({
-        checkedItems: {
-          ...this.state.checkedItems,
-          [value.name]: !value.value,
-          none: false,
-        },
-      } as any);
-    } else {
-      while (symptom.length > 0) {
-        symptom.pop();
-      }
-      this.setState({
-        checkedItems: {
-          none: true,
-          headache: false,
-          bleeding: false,
-          blurredVision: false,
-          feverish: false,
-          abdominalPain: false,
-          unwell: false,
-          other: false,
-          otherSymptoms: '',
-        },
-      } as any);
-    }
+    return false;
   };
 
-  handleOtherSymptom = (event: any) => {
-    this.setState({
-      checkedItems: {
-        ...this.state.checkedItems,
-        [event.target.name]: event.target.value,
-      },
-    } as any);
+  const handleReset = () => {
+    setActiveStep(0);
+    resetValuesPatient(true);
+    resetValuesSymptoms(true);
+    resetValueVitals(true);
+    resetValueAssessment(true);
+    resetValueUrineTest(true);
+    setBlockBackButton(false);
+    setPageTitle('Create a New Patient and Reading');
   };
-
-  handleSubmit = (event: any) => {
-    event.preventDefault();
-    if (symptom.indexOf('other') >= 0) {
-      symptom.pop();
-      if (this.state.checkedItems.otherSymptoms !== '') {
-        symptom.push(this.state.checkedItems.otherSymptoms);
-      }
-    }
-    if (this.state.patient.patientAge === ``) {
-      this.setState({ patient: { ...this.state.patient, patientAge: null } });
-    }
-
-    if (this.state.patient.dob !== null) {
-      this.setState({
-        patient: {
-          ...this.state.patient,
-          dob: String(this.state.patient.dob as any),
-        },
-      });
-    }
-
-    if (
-      this.state.patient.isPregnant === true &&
-      this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.WEEKS
-    ) {
-      const gestDate = new Date();
-      gestDate.setDate(
-        gestDate.getDate() - (this.state.patient.gestationalAgeValue as any) * 7
-      );
-      this.setState({
-        patient: {
-          ...this.state.patient,
-          gestationalTimestamp: Date.parse(gestDate as any) / 1000,
-        },
-      });
-    }
-
-    if (
-      this.state.patient.isPregnant === true &&
-      this.state.patient.gestationalAgeUnit === GESTATIONAL_AGE_UNITS.MONTHS
-    ) {
-      const gestDate = new Date();
-      gestDate.setMonth(
-        gestDate.getMonth() - (this.state.patient.gestationalAgeValue as any)
-      );
-      this.setState({
-        patient: {
-          ...this.state.patient,
-          gestationalTimestamp: Date.parse(gestDate as any) / 1000,
-        },
-      });
-    }
-
-    const readingID = guid();
-
-    const dateTimeTaken = Math.floor(Date.now() / 1000);
-
-    this.setState(
-      {
-        reading: {
-          ...this.state.reading,
-          userId: this.props.user.userId.toString(),
-          readingId: readingID,
-          dateTimeTaken: dateTimeTaken.toString(),
-          symptoms: symptom,
-        },
-      },
-      (): void => {
-        const patientData = JSON.parse(JSON.stringify(this.state.patient));
-        const readingData = JSON.parse(JSON.stringify(this.state.reading));
-        if (!this.state.hasUrineTest) {
-          delete readingData.urineTests;
-        }
-        delete patientData.gestationalAgeValue;
-
-        const newData = {
-          patient: patientData,
-          reading: readingData,
-        };
-        this.props.createReading(newData);
-      }
-    );
-  };
-
-  render() {
-    // don't render page if user is not logged in
-    if (!this.props.user.isLoggedIn) {
-      return <div />;
-    }
-
-    return (
-      <div
-        style={{
-          maxWidth: 1200,
-          marginLeft: 'auto',
-          marginRight: 'auto',
-        }}>
-        <h1>
-          <b>Create a new patient and reading:</b>
-        </h1>
-        <Divider />
-        <Form onSubmit={this.handleSubmit}>
-          <PatientInfoForm
-            patient={this.state.patient}
-            onChange={this.handleSelectChange}
-            isEditPage=""
-          />
-          <div className="leftContainer">
-            <BpForm
-              reading={this.state.reading}
-              onChange={this.handleReadingChange}
-            />
-            <SymptomForm
-              checkedItems={this.state.checkedItems}
-              patient={this.state.patient}
-              onChange={this.handleCheckedChange}
-              onOtherChange={this.handleOtherSymptom}
-            />
+  return (
+    <div
+      style={{
+        maxWidth: 1200,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+      }}>
+      <h1 style={{ textAlign: 'center' }}>
+        <b>{pageTitle}</b>
+      </h1>
+      <Divider />
+      <Stepper activeStep={activeStep} alternativeLabel>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      {activeStep === 0 &&
+      props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+      props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
+        <Demographics
+          patient={patient}
+          showPatientId={
+            props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION
+          }
+          onChange={handleChangePatient}></Demographics>
+      ) : (
+        ''
+      )}
+      {activeStep === 1 &&
+      props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+      props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+      props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
+        <Symptoms
+          symptoms={symptoms}
+          onChange={handleChangeSymptoms}></Symptoms>
+      ) : (
+        ''
+      )}
+      {activeStep === 2 &&
+      props.formStatus !== FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+      props.formStatus !== FormStatusEnum.ADD_ASSESSMENT &&
+      props.formStatus !== FormStatusEnum.UPDATE_ASSESSMENT ? (
+        <VitalSignAssessment
+          vitals={vitals}
+          onChange={handleChangeVitals}
+          urineTest={urineTest}
+          urineTetsOnChange={handleChangeUrineTest}></VitalSignAssessment>
+      ) : (
+        ''
+      )}
+      {(activeStep === 3 && props.user.roles[0] !== 'VHT') ||
+      (activeStep === 0 &&
+        (props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
+          props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT)) ? (
+        <Assessment
+          assessment={assessment}
+          onChange={handleChangeAssessment}></Assessment>
+      ) : (
+        ''
+      )}
+      {activeStep === 4 ||
+      (props.user.roles[0] === 'VHT' && activeStep === 3) ||
+      (activeStep === 1 &&
+        (props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION ||
+          props.formStatus === FormStatusEnum.ADD_ASSESSMENT ||
+          props.formStatus === FormStatusEnum.UPDATE_ASSESSMENT)) ? (
+        <ConfirmationPage
+          formStatus={props.formStatus}
+          patient={patient}
+          symptoms={symptoms}
+          vitals={vitals}
+          assessment={assessment}
+          urineTest={urineTest}
+          isPatientExisting={
+            props.newPatientExist || props.patientFromEdit ? true : false
+          }></ConfirmationPage>
+      ) : (
+        ''
+      )}
+      <div>
+        {activeStep === steps.length ? (
+          <div>
+            <Typography className={classes.instructions}>
+              All steps completed
+            </Typography>
+            {/*need to be styled*/}
+            <Button onClick={handleReset}>Create New Patient/Reading</Button>
           </div>
-          <div className="rightContainer">
-            <UrineTestForm
-              reading={this.state.reading}
-              onChange={this.handleUrineTestChange}
-              onSwitchChange={this.handleUrineTestSwitchChange}
-              hasUrineTest={this.state.hasUrineTest}
-            />
+        ) : (
+          <div>
+            <div>
+              <Button
+                disabled={activeStep === 0 || blockBackButton}
+                onClick={handleBack}
+                className={classes.backButton}>
+                Back
+              </Button>
+              <Button
+                style={{
+                  display:
+                    props.formStatus ===
+                      FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+                    activeStep !== 0
+                      ? ``
+                      : steps.length - 2 === activeStep ||
+                        props.formStatus ===
+                          FormStatusEnum.EDIT_PATIENT_INFORMATION
+                      ? 'none'
+                      : '',
+                }}
+                disabled={isRequiredFilled()}
+                className={classes.nextButton}
+                variant="contained"
+                color="primary"
+                onClick={
+                  activeStep === steps.length - 1 ? handleSubmit : handleNext
+                }>
+                {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+              </Button>
+              <Button
+                style={{
+                  display:
+                    props.formStatus ===
+                      FormStatusEnum.EDIT_PATIENT_INFORMATION &&
+                    activeStep === 0
+                      ? ``
+                      : steps.length - 2 !== activeStep
+                      ? 'none'
+                      : '',
+                }}
+                disabled={
+                  props.user.roles[0] === 'VHT' ||
+                  props.formStatus === FormStatusEnum.EDIT_PATIENT_INFORMATION
+                    ? isRequiredFilled()
+                      ? true
+                      : false
+                    : false
+                }
+                className={classes.nextButton}
+                variant="contained"
+                color="primary"
+                onClick={handleNext}>
+                Confirm
+              </Button>
+              <AlertDialog
+                open={isShowDialogPatientCheck}
+                patientExist={props.newPatientExist}
+                patient={props.patient}
+                handleDialogClose={handleDialogClose}></AlertDialog>
+              <SubmissionDialog
+                error={props.error}
+                success={props.success}
+                patientExist={
+                  props.newPatientExist || props.patientFromEdit ? true : false
+                }
+                readingCreated={props.readingCreated}
+                open={isShowDialogSubmission}
+                handleDialogClose={
+                  handleDialogCloseSubmission
+                }></SubmissionDialog>
+            </div>
           </div>
-
-          <div style={{ clear: 'both' }}></div>
-          <div className="contentRight">
-            <Button style={{ backgroundColor: '#84ced4' }} type="submit">
-              Submit
-            </Button>
-          </div>
-        </Form>
-        <SweetAlert
-          type="success"
-          show={this.state.showSuccessReading}
-          title="Patient Reading Created!"
-          text="Success! You can view the new reading by going to the Patients tab"
-          onConfirm={() => this.setState(initState)}
-        />
+        )}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-const mapStateToProps = ({ user, reading, patients }: any) => ({
+const mapStateToProps = ({
+  user,
+  newReadingStatus,
+  patients,
+  router,
+}: ReduxState) => ({
   user: user.current.data,
-  createReadingStatusError: reading.error,
-  readingCreated: reading.readingCreated,
-  newReadingData: reading.message,
+  createReadingStatusError: newReadingStatus.error,
+  readingCreated: newReadingStatus.readingCreated,
+  newReadingData: newReadingStatus.message,
   newPatientAdded: patients.newPatientAdded,
+  newPatientExist: patients.patientExist,
+  patient: patients.existingPatient,
+  error: patients.error,
+  success: patients.success,
+  assessmentFromEdit: router.location.state
+    ? (router.location.state as LocationState).assessment ?? null
+    : null,
+  formStatus: router.location.state
+    ? (router.location.state as LocationState).status
+    : null,
+  patientFromEdit: router.location.state
+    ? (router.location.state as LocationState).patient
+    : null,
+  readingId: router.location.state
+    ? (router.location.state as LocationState).readingId
+    : null,
+  userId: router.location.state
+    ? (router.location.state as LocationState).userId
+    : null,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   ...bindActionCreators(
     {
       getCurrentUser,
-      createReading,
-      addNewPatient,
-      clearCreateReadingOutcome,
-      // afterNewPatientAdded
+      resetNewReadingStatus,
+      addPatientNew,
+      addReadingNew,
+      createAssessment,
+      updateAssessment,
+      updatePatient,
+      doesPatientExist,
+      afterDoesPatientExist,
+      afterNewPatientAdded,
+      clearCreateAssessmentOutcome,
+      clearUpdateAssessmentOutcome,
+      clearUpdatePatientOutcome,
     },
     dispatch
   ),
+  goBackToPatientPage: (): void => {
+    dispatch(goBack());
+  },
 });
-
-export const NewReadingPage = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NewReadingPageComponent);
+export const NewReading = connect(mapStateToProps, mapDispatchToProps)(Page);

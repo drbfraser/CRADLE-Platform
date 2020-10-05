@@ -1,8 +1,8 @@
 import { Paper, TextField } from '@material-ui/core';
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 
-import { FormStatusEnum } from '../../../../enums';
-import { GESTATIONAL_AGE_UNITS } from '../../patientInfoForm';
+import { FormStatusEnum } from '../../../enums';
+import { GESTATIONAL_AGE_UNITS } from '../patientInfoForm';
 import { OrNull } from '@types';
 import React from 'react';
 
