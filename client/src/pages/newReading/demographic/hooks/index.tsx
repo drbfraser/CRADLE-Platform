@@ -221,7 +221,7 @@ export const useNewPatient = () => {
       setPatient({
         ...patient,
         [name]: value,
-        villageNumberError: errors.villageNumberError
+        villageNumberError: errors.villageNumberError,
       });
     }
     if (
