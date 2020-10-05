@@ -9,7 +9,7 @@ import {
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 
-import { GESTATIONAL_AGE_UNITS } from '../../patientInfoForm';
+import { GESTATIONAL_AGE_UNITS } from '../patientInfoForm';
 import React from 'react';
 
 const useStyles = makeStyles((theme: Theme) =>
