@@ -26,7 +26,7 @@ export const validateInput = (name: any, value: any) => {
   }
   switch (name) {
     case 'patientInitial':
-      if (value.length > 4 || hasNumber(value) || value.length === 0) {
+      if (hasNumber(value) || value.length === 0) {
         patientError.patientInitialError = true;
       }
       break;
