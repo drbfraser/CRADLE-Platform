@@ -3,7 +3,7 @@ import { AdminPage } from '../../../pages/admin';
 import { CovidCollectionPage } from '../../../pages/statistics/covidCollection';
 import { HomePage } from '../../../pages/home';
 import { LoginPage } from '../../../pages/login';
-import { NewReadingCovid } from '../../../pages/newReading/newReadingCovid';
+import { NewReading } from '../../../pages/newReading';
 import { NotFoundPage } from '../../../pages/notFound';
 import { PatientPage } from '../../../pages/patient';
 import { PatientsPage } from '../../../pages/patients';
@@ -38,7 +38,7 @@ export type AppRoute = {
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
   {
-    component: NewReadingCovid,
+    component: NewReading,
     exactPath: true,
     id: makeUniqueId(),
     icon: <AddCircleIcon fontSize="large" />,

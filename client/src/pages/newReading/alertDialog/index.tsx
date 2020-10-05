@@ -1,4 +1,4 @@
-import { DialogPopup } from '../../../../shared/components/dialogPopup';
+import { DialogPopup } from '../../../shared/components/dialogPopup';
 import React from 'react';
 
 interface IProps {
