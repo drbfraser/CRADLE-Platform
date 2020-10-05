@@ -186,19 +186,6 @@ export type PatientNewReading = {
   zone: OrNull<string>;
 };
 
-export type PatientNewReadingReading = {
-  userId: string;
-  readingId: string;
-  dateTimeTaken: OrNull<string>;
-  bpSystolic: string;
-  bpDiastolic: string;
-  heartRateBPM: string;
-  dateRecheckVitalsNeeded: OrNull<string>;
-  isFlaggedForFollowup: boolean;
-  symptoms: string;
-  urineTests: UrineTests;
-};
-
 export type TrafficLightStatistics = {
   green: number;
   yellowUp: number;
