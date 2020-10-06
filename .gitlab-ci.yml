@@ -3,9 +3,12 @@ stages:
   - test
   - format
   - deploy
+  - build-prod
+  - deploy-prod
 
 variables:
-  DEPLOYMENT_BRANCH: "/master|staging|production/"
+  STAGING_BRANCH: "master"
+  PROD_BRANCH: "prod"
 
 frontend build:
   stage: build
@@ -13,14 +16,14 @@ frontend build:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
     - changes:
       - client/**/*
   before_script:
     - cd client
     - npm install
   script:
-    - CI=false yarn build
+    - CI=false npm run build
 
 backend unit tests:
   stage: test
@@ -28,7 +31,7 @@ backend unit tests:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
     - changes:
       - server/**/*
   before_script:
@@ -44,7 +47,7 @@ backend system tests:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
     - changes:
       - server/**/*
   variables:
@@ -84,7 +87,7 @@ frontend lint:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
       when: always
     - changes:
       - client/**/*
@@ -101,7 +104,7 @@ frontend format:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
       when: always
     - changes:
       - client/**/*
@@ -117,7 +120,7 @@ backend format:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
       when: always
     - changes:
       - server/**/*
@@ -133,8 +136,7 @@ deploy staging:
   tags:
     - shell
   rules:
-    # Only deploy to staging if we are on the master or stating branch.
-    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH =~ "/master|staging/"'
+    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $STAGING_BRANCH'
       when: on_success
     - when: never
   script:

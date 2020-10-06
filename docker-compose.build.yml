@@ -1,0 +1,24 @@
+###################################################
+# This is the frontend build Docker file          #
+#    It hosts builds of the frontend for the      #
+#    staging and prod servers                     #
+#                                                 #
+# It includes the following containers:           #
+#  - Caddy (for hosting the build)                #
+#  - Node (for building the frontend)             #
+###################################################
+
+version: "3.7"
+services:
+    frontend_build:
+        container_name: frontend_build
+        image: node:14.11.0-alpine3.12
+    caddy_build:
+        container_name: caddy_build
+        image: caddy:2.0.0
+        restart: always
+        volumes:
+            - ./caddy/Caddyfile.build:/etc/caddy/Caddyfile
+            - ./frontend_archives:/var/www
+        ports:
+            - 16080:80
