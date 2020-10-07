@@ -1,5 +1,5 @@
 from config import db
-from Database.FollowUpRepo import FollowUpRepo
+from database.FollowUpRepo import FollowUpRepo
 from manager.Manager import Manager
 from manager import referralManager
 from manager import patientManager

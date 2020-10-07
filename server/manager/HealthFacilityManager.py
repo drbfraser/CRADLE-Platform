@@ -1,4 +1,4 @@
-from Database.HealthFacilityRepoNew import HealthFacilityRepo
+from database.HealthFacilityRepoNew import HealthFacilityRepo
 from manager.Manager import Manager
 
 

@@ -1,4 +1,4 @@
-from Database.ReadingRepoNew import ReadingRepo
+from database.ReadingRepoNew import ReadingRepo
 from manager.Manager import Manager
 from manager import patientManager
 from manager.urineTestManager import urineTestManager

@@ -1,9 +1,9 @@
 from manager.Manager import Manager
 
-from Database.ReferralRepo import ReferralRepo
-from Database.ReadingRepoNew import ReadingRepo
-from Database.PatientRepoNew import PatientRepo
-from Database.HealthFacilityRepoNew import HealthFacilityRepo
+from database.ReferralRepo import ReferralRepo
+from database.ReadingRepoNew import ReadingRepo
+from database.PatientRepoNew import PatientRepo
+from database.HealthFacilityRepoNew import HealthFacilityRepo
 
 referralManager = Manager(ReferralRepo)
 patientManager = Manager(PatientRepo)

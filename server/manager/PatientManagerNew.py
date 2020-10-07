@@ -1,9 +1,9 @@
 from typing import Tuple
 
 import manager.FilterHelper as filter
-from Database.PatientRepoNew import PatientRepo
-from Database.ReadingRepoNew import ReadingRepo
-from Database.UserRepo import UserRepo
+from database.PatientRepoNew import PatientRepo
+from database.ReadingRepoNew import ReadingRepo
+from database.UserRepo import UserRepo
 from manager.GlobalSearchHelper import to_global_search_patient
 from manager.Manager import Manager
 from models import Patient, Reading
