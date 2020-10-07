@@ -3,7 +3,7 @@ from typing import Callable, Tuple
 import pytest
 import requests
 
-import SystemTests.mock.factory as factory
+import systemTests.mock.factory as factory
 
 
 #
