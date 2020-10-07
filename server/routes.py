@@ -4,19 +4,19 @@
 """
 
 import api as new_api
-from Controller.FollowUpController import (
+from controller.FollowUpController import (
     FollowUp,
     FollowUpMobile,
     FollowUpMobileSummarized,
 )
-from Controller.HealthFacilityController import *
-from Controller.Multi import *
-from Controller.PasswordResetController import *
-from Controller.PatientsController import *
-from Controller.ReferralsController import ReferralApi, ReferralInfo
-from Controller.SMSController import *
-from Controller.StatsController import *
-from Controller.UsersController import *
+from controller.HealthFacilityController import *
+from controller.Multi import *
+from controller.PasswordResetController import *
+from controller.PatientsController import *
+from controller.ReferralsController import ReferralApi, ReferralInfo
+from controller.SMSController import *
+from controller.StatsController import *
+from controller.UsersController import *
 from api.resources.assessments import Root as Assessments, SingleAssessment
 from api.resources.associations import Root as Associations
 from api.resources.facilities import Root as Facilities

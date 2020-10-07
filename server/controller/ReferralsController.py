@@ -8,7 +8,7 @@ from flasgger import swag_from
 
 # Project modules
 from manager.ReferralManager import ReferralManager
-from Controller.Helpers import _get_request_body
+from controller.Helpers import _get_request_body
 
 referralManager = ReferralManager()
 

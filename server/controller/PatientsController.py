@@ -12,7 +12,7 @@ from flask_jwt_extended import (
 from flask_restful import Resource, abort
 from sqlalchemy.exc import IntegrityError
 
-from Controller.Helpers import _get_request_body
+from controller.Helpers import _get_request_body
 from manager.PatientAssociationsManager import PatientAssociationsManager
 from manager.PatientManagerNew import PatientManager as PatientManagerNew
 from manager.ReadingManagerNew import ReadingManager as ReadingManagerNew

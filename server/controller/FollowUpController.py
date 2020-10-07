@@ -4,7 +4,7 @@ import json
 from flask import request
 from flask_restful import Resource, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from Controller.Helpers import _get_request_body
+from controller.Helpers import _get_request_body
 from flasgger import swag_from
 
 # Project modules
