@@ -1,5 +1,5 @@
 import pytest
-from Validation.associations import validate
+from validation.associations import validate
 
 valid_json = {"patientId": 47, "healthFacilityName": "H0000", "userId": 1}
 

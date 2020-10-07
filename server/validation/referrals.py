@@ -1,7 +1,7 @@
 from typing import Optional
-from Validation.patients import validate as validate_patient
-from Validation.readings import validate as validate_reading
-from Validation.validate import required_keys_present, values_correct_type
+from validation.patients import validate as validate_patient
+from validation.readings import validate as validate_reading
+from validation.validate import required_keys_present, values_correct_type
 
 
 def validate(request_body: dict) -> Optional[str]:

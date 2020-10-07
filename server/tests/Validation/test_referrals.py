@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import pytest
-from Validation.referrals import validate
+from validation.referrals import validate
 
 # Dynamically calculate valid gestatation age from todays date.
 todays_date = datetime.today()

@@ -1,5 +1,5 @@
 import pytest
-from Validation.readings import validate
+from validation.readings import validate
 
 valid_json = {
     "readingId": "asdasd82314278226313803",

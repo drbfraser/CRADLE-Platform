@@ -8,7 +8,7 @@ from Database.ReadingRepoNew import ReadingRepo
 from Database.HealthFacilityRepoNew import HealthFacilityRepo
 
 from models import Patient, HealthFacility, Reading
-from Validation.ReferralValidator import ReferralValidator
+from validation.ReferralValidator import ReferralValidator
 
 from Manager.Manager import Manager
 

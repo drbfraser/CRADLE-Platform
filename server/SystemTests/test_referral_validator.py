@@ -1,6 +1,6 @@
 import pytest
 from models import Patient
-from Validation.ReferralValidator import ReferralValidator
+from validation.ReferralValidator import ReferralValidator
 
 validator = ReferralValidator()
 

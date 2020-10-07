@@ -6,7 +6,7 @@ from flask import request
 from flask_restful import Resource, abort
 from Manager.UserManager import UserManager
 from config import flask_bcrypt
-from Validation.errors import (
+from validation.errors import (
     InternalServerError,
     EmailDoesnotExistsError,
     BadTokenError,

@@ -13,7 +13,7 @@ import service.view as view
 from Manager.PatientStatsManager import PatientStatsManager
 from models import Patient
 from utils import get_current_time
-from Validation import patients
+from validation import patients
 
 
 # /api/patients

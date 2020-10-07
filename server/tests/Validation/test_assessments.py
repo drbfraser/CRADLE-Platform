@@ -1,5 +1,5 @@
 import pytest
-from Validation.assessments import validate
+from validation.assessments import validate
 
 valid_json = {
     "dateAssessed": 1551447833,

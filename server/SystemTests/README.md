@@ -10,4 +10,4 @@ database is **not** reset between tests. It is however reset at the start of eac
 CI job meaning that state of the database is always known before any tests are run.
 
 Tests which do not need a live instance of the server or database to run should be
-placed in [`server/Tests`](../Tests).
+placed in [`server/Tests`](../tests).

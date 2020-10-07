@@ -1,5 +1,5 @@
 import pytest
-from Validation.facilities import validate
+from validation.facilities import validate
 
 valid_json = {
     "healthFacilityName": "H12",

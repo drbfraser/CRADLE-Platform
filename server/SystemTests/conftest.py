@@ -43,7 +43,7 @@ def credentials() -> Tuple[str, str]:
     """
     Provides the user credentials used to perform API requests.
 
-    Tests may override these credentials on an individual basis using the
+    tests may override these credentials on an individual basis using the
     ``@pytest.mark.parametrize`` decorator. For example::
 
         @pytest.mark.parametrize("credentials", [("foo", "bar")])

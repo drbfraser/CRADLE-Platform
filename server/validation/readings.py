@@ -1,6 +1,6 @@
-from Validation.assessments import validate as validate_assessment
+from validation.assessments import validate as validate_assessment
 from typing import Optional
-from Validation.validate import required_keys_present, values_correct_type
+from validation.validate import required_keys_present, values_correct_type
 
 
 def validate(request_body: dict) -> Optional[str]:
