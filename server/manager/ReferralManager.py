@@ -10,11 +10,11 @@ from Database.HealthFacilityRepoNew import HealthFacilityRepo
 from models import Patient, HealthFacility, Reading
 from validation.ReferralValidator import ReferralValidator
 
-from Manager.Manager import Manager
+from manager.Manager import Manager
 
-from Manager import patientManager, healthFacilityManager
-from Manager.PatientAssociationsManager import PatientAssociationsManager
-from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
+from manager import patientManager, healthFacilityManager
+from manager.PatientAssociationsManager import PatientAssociationsManager
+from manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
 
 readingManager = ReadingManagerNew()
 validator = ReferralValidator()

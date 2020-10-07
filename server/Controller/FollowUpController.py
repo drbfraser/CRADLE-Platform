@@ -8,7 +8,7 @@ from Controller.Helpers import _get_request_body
 from flasgger import swag_from
 
 # Project modules
-from Manager.FollowUpManager import FollowUpManager
+from manager.FollowUpManager import FollowUpManager
 
 followUpManager = FollowUpManager()
 

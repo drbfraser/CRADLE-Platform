@@ -4,7 +4,7 @@ from itsdangerous import URLSafeTimedSerializer
 import logging, json
 from flask import request
 from flask_restful import Resource, abort
-from Manager.UserManager import UserManager
+from manager.UserManager import UserManager
 from config import flask_bcrypt
 from validation.errors import (
     InternalServerError,

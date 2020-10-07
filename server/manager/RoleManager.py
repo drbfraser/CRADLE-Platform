@@ -1,4 +1,4 @@
-from Manager.Manager import Manager
+from manager.Manager import Manager
 
 from config import db
 from models import Role, User

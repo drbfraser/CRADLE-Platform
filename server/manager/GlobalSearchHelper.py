@@ -1,8 +1,8 @@
-from Manager.ReadingManagerNew import ReadingManager
+from manager.ReadingManagerNew import ReadingManager
 
 readingManager = ReadingManager()
 
-from Manager.ReferralManager import ReferralManager
+from manager.ReferralManager import ReferralManager
 
 referralManager = ReferralManager()
 

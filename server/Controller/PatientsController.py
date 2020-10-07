@@ -13,11 +13,11 @@ from flask_restful import Resource, abort
 from sqlalchemy.exc import IntegrityError
 
 from Controller.Helpers import _get_request_body
-from Manager.PatientAssociationsManager import PatientAssociationsManager
-from Manager.PatientManagerNew import PatientManager as PatientManagerNew
-from Manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
-from Manager.UserManager import UserManager
-from Manager.urineTestManager import urineTestManager
+from manager.PatientAssociationsManager import PatientAssociationsManager
+from manager.PatientManagerNew import PatientManager as PatientManagerNew
+from manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
+from manager.UserManager import UserManager
+from manager.urineTestManager import urineTestManager
 
 patientManager = PatientManagerNew()
 readingManager = ReadingManagerNew()

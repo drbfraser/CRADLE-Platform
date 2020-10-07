@@ -1,8 +1,8 @@
 from config import db
 from Database.FollowUpRepo import FollowUpRepo
-from Manager.Manager import Manager
-from Manager import referralManager
-from Manager import patientManager
+from manager.Manager import Manager
+from manager import referralManager
+from manager import patientManager
 from models import FollowUp
 from utils import get_current_time
 

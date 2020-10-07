@@ -1,9 +1,9 @@
 """
 Description:
-    This is a parent Manager class that implements 
+    This is a parent manager class that implements
     common database operations
 Usage:
-    Create a class that inherits from this Manager class, 
+    Create a class that inherits from this manager class,
     passing in the mysql table during instantiation
 """
 

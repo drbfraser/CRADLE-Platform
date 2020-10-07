@@ -1,4 +1,4 @@
-from Manager.Manager import Manager
+from manager.Manager import Manager
 
 from Database.ReferralRepo import ReferralRepo
 from Database.ReadingRepoNew import ReadingRepo

@@ -8,7 +8,7 @@ from Controller.Helpers import _get_request_body
 from flasgger import swag_from
 
 # Project modules
-from Manager.HealthFacilityManager import HealthFacilityManager
+from manager.HealthFacilityManager import HealthFacilityManager
 
 healthFacilityManager = HealthFacilityManager()
 

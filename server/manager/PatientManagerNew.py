@@ -1,11 +1,11 @@
 from typing import Tuple
 
-import Manager.FilterHelper as filter
+import manager.FilterHelper as filter
 from Database.PatientRepoNew import PatientRepo
 from Database.ReadingRepoNew import ReadingRepo
 from Database.UserRepo import UserRepo
-from Manager.GlobalSearchHelper import to_global_search_patient
-from Manager.Manager import Manager
+from manager.GlobalSearchHelper import to_global_search_patient
+from manager.Manager import Manager
 from models import Patient, Reading
 
 

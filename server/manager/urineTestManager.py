@@ -1,5 +1,5 @@
 from Database.urineTestRepo import urineTestRepo
-from Manager.Manager import Manager
+from manager.Manager import Manager
 
 # TODO: Change file name urineTestManager -> UrineTestManager
 class urineTestManager(Manager):

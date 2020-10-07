@@ -1,9 +1,9 @@
 from datetime import datetime, date
-from Manager.Manager import Manager
-from Manager.PatientManagerNew import PatientManager  # patient data
-from Manager.ReadingManagerNew import ReadingManager  # reading data
-from Manager.ReferralManager import ReferralManager  # referral data
-from Manager.FollowUpManager import FollowUpManager  # assessment data
+from manager.Manager import Manager
+from manager.PatientManagerNew import PatientManager  # patient data
+from manager.ReadingManagerNew import ReadingManager  # reading data
+from manager.ReferralManager import ReferralManager  # referral data
+from manager.FollowUpManager import FollowUpManager  # assessment data
 import json
 from models import Reading, ReadingSchema
 

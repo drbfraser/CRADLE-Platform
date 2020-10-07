@@ -1,6 +1,6 @@
 from flask_restful import Resource
-from Manager.StatsManager import StatsManager
-from Manager.PatientStatsManager import PatientStatsManager
+from manager.StatsManager import StatsManager
+from manager.PatientStatsManager import PatientStatsManager
 from flask_jwt_extended import jwt_required
 from flasgger import swag_from
 

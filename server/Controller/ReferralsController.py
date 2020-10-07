@@ -7,7 +7,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flasgger import swag_from
 
 # Project modules
-from Manager.ReferralManager import ReferralManager
+from manager.ReferralManager import ReferralManager
 from Controller.Helpers import _get_request_body
 
 referralManager = ReferralManager()

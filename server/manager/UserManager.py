@@ -1,7 +1,7 @@
 from Database.UserRepo import UserRepo
-from Manager.Manager import Manager
+from manager.Manager import Manager
 
-from Manager.RoleManager import RoleManager
+from manager.RoleManager import RoleManager
 
 roleManager = RoleManager()
 

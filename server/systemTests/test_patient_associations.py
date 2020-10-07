@@ -1,4 +1,4 @@
-from Manager.PatientAssociationsManager import (
+from manager.PatientAssociationsManager import (
     PatientAssociationsManager,
     patients_for_user,
     patients_at_facility,

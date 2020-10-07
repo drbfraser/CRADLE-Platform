@@ -10,8 +10,8 @@ from flask_jwt_extended import (
     jwt_refresh_token_required,
     get_jwt_identity,
 )
-from Manager.UserManager import UserManager
-from Manager.RoleManager import RoleManager
+from manager.UserManager import UserManager
+from manager.RoleManager import RoleManager
 from flasgger import swag_from
 
 userManager = UserManager()

@@ -1,7 +1,7 @@
 from Database.ReadingRepoNew import ReadingRepo
-from Manager.Manager import Manager
-from Manager import patientManager
-from Manager.urineTestManager import urineTestManager
+from manager.Manager import Manager
+from manager import patientManager
+from manager.urineTestManager import urineTestManager
 import logging
 from marshmallow import ValidationError
 

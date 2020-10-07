@@ -1,5 +1,5 @@
 from Database.HealthFacilityRepoNew import HealthFacilityRepo
-from Manager.Manager import Manager
+from manager.Manager import Manager
 
 
 class HealthFacilityManager(Manager):
