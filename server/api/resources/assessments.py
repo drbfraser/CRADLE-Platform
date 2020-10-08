@@ -68,12 +68,12 @@ class SingleAssessment(Resource):
         return marshal.marshal(follow_up)
 
 
-# /api/assessmentsUpdate
+# /api/assessmentUpdate
 class UpdateAssessment(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/assessments-post.yml",
+        "../../specifications/assessments-update-post.yml",
         methods=["POST"],
         endpoint="update_assessment",
     )
