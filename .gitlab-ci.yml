@@ -36,7 +36,7 @@ backend unit tests:
     - pip install --upgrade pip
     - pip install -r requirements.txt
   script:
-    - python -m pytest Tests
+    - python -m pytest tests
 
 backend system tests:
   stage: test
@@ -76,7 +76,7 @@ backend system tests:
     - python3 db.py rebuild --no-docker
     - python3 manage.py seed_test_data
   script:
-    - python -m pytest SystemTests
+    - python -m pytest system-tests
 
 frontend lint:
   stage: format
