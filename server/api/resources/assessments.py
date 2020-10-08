@@ -9,7 +9,7 @@ import data.crud as crud
 import data.marshal as marshal
 from models import FollowUp, Reading
 from utils import get_current_time
-from Validation import assessments
+from validation import assessments
 
 
 # /api/assessments

@@ -10,10 +10,10 @@ import data.marshal as marshal
 import service.assoc as assoc
 import service.invariant as invariant
 import service.view as view
-from Manager.PatientStatsManager import PatientStatsManager
+from manager.PatientStatsManager import PatientStatsManager
 from models import Patient
 from utils import get_current_time
-from Validation import patients
+from validation import patients
 
 
 # /api/patients

@@ -9,7 +9,7 @@ import data.marshal as marshal
 import service.assoc as assoc
 import service.view as view
 from models import Referral
-from Validation import referrals
+from validation import referrals
 
 
 # /api/referrals

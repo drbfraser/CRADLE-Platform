@@ -8,7 +8,7 @@ from datetime import timedelta, datetime
 from flask_script import Manager
 from config import app, db, flask_bcrypt
 from models import *
-from Database.ReadingRepoNew import ReadingRepo
+from database.ReadingRepoNew import ReadingRepo
 
 manager = Manager(app)
 
