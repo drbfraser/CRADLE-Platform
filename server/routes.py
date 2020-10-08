@@ -17,7 +17,11 @@ from controller.ReferralsController import ReferralApi, ReferralInfo
 from controller.SMSController import *
 from controller.StatsController import *
 from controller.UsersController import *
-from api.resources.assessments import Root as Assessments, SingleAssessment
+from api.resources.assessments import (
+    Root as Assessments,
+    SingleAssessment,
+    UpdateAssessment,
+)
 from api.resources.associations import Root as Associations
 from api.resources.facilities import Root as Facilities
 from api.resources.patients import (
@@ -84,6 +88,7 @@ def init(api):
 
     #### New Endpoints ####
     api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST]
+    # api.add_resource(UpdateAssessment, "/api/assessmentsUpdate", endpoint="update_assessment")  # [POST]
     api.add_resource(
         SingleAssessment, "/api/assessments/<int:id>", endpoint="single_assessment"
     )  # [GET]
