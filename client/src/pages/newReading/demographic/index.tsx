@@ -204,13 +204,20 @@ const Page: React.FC<IProps> = (props) => {
         </FormControl>
         <FormControl className={classes.formFieldSplitRight}>
           <TextField
+            error={props.patient.villageNumberError}
             label={'Village'}
             id="component-outlined"
             name="villageNumber"
             value={props.patient.villageNumber}
             onChange={props.onChange}
+            required={true}
             variant="outlined"
             type={'text'}
+            helperText={
+              props.patient.villageNumberError
+                ? 'Please enter numbers only.'
+                : ''
+            }
           />
         </FormControl>
         <FormControl className={classes.formFieldSplitLeft}>
