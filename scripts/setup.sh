@@ -38,7 +38,7 @@ echo -e "\n${BLUE}Once added to Gitlab, press any enter to continue...${COLOR_OF
 read
 
 cd ~
-rm -r cradle-platform
+rm -rf cradle-platform
 git clone git@csil-git1.cs.surrey.sfu.ca:415-cradle/cradle-platform.git
 cd cradle-platform
 
