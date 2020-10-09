@@ -37,7 +37,9 @@ export const VillageHead: React.FC<IProps> = ({
   }, [sorted]);
 
   const handleClick = (): void => {
-    sortData(orderBy(data as Array<Patient>, [`villageNumber`], [sortOrder]));
+    sortData(orderBy(data as Array<Patient>, function(obj) {
+      return Number(obj.villageNumber);
+    }, [sortOrder]));
     setSorted(true);
   };
 

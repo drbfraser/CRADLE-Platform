@@ -37,7 +37,9 @@ export const PatientIdHead: React.FC<IProps> = ({
   }, [sorted]);
 
   const handleClick = (): void => {
-    sortData(orderBy(data as Array<Patient>, [`patientId`], [sortOrder]));
+    sortData(orderBy(data as Array<Patient>, function(obj) {
+      return Number(obj.patientId);
+    }, [sortOrder]));
     setSorted(true);
   };
 
