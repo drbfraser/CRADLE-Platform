@@ -6,10 +6,11 @@ stages:
 
 variables:
   STAGING_BRANCH: "master"
-  PROD_BRANCH: "task/CRDL-156-DockerCleanup"
+  PROD_BRANCH: "prod"
 
 frontend build:
   stage: build
+  needs: []
   image: node:10
   tags:
     - docker
@@ -38,6 +39,7 @@ frontend build:
 
 backend unit tests:
   stage: test
+  needs: []
   image: python:3.7.6-buster
   tags:
     - docker
@@ -54,6 +56,7 @@ backend unit tests:
 
 backend system tests:
   stage: test
+  needs: []
   image: python:3.7.6-buster
   tags:
     - docker
@@ -88,6 +91,7 @@ backend system tests:
 
 frontend lint:
   stage: format
+  needs: []
   image: node:10
   tags:
     - docker
@@ -105,6 +109,7 @@ frontend lint:
 
 frontend format:
   stage: format
+  needs: []
   image: node:10
   tags:
     - docker
@@ -121,6 +126,7 @@ frontend format:
 
 backend format:
   stage: format
+  needs: []
   image: python:3.7.6-buster
   tags:
     - docker
@@ -138,8 +144,7 @@ backend format:
 
 deploy staging:
   stage: deploy
-  dependencies:
-    - frontend build
+  needs: ["frontend build"]
   tags:
     - shell
   rules:
@@ -156,8 +161,7 @@ deploy staging:
 
 deploy prod:
   stage: deploy
-  dependencies:
-    - frontend build
+  needs: ["frontend build"]
   tags:
     - shell-prod
   rules:

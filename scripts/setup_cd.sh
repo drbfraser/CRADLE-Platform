@@ -35,6 +35,8 @@ echo -e "${BLUE}Installing Gitlab runner...${COLOR_OFF}\n"
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash
 export GITLAB_RUNNER_DISABLE_SKEL=true; sudo -E apt-get install gitlab-runner
 
+usermod -aG docker gitlab-runner
+
 echo -e "${BLUE}"
 echo -e "Registering Gitlab Runner"
 echo -e "The URL and token can be found in Settings -> CI/CD -> Runners"
