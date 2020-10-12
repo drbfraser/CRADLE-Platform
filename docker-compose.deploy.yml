@@ -1,5 +1,5 @@
 ###################################################
-# This is the production Docker file              #
+# This is the deployment Docker file              #
 #                                                 #
 # It includes the following containers:           #
 #  - Caddy                                        #

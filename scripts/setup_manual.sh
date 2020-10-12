@@ -57,7 +57,7 @@ if [ ! -f .env ]; then
     echo -e "CADDY_DOMAIN=${REPLY}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\n" > .env
 
     echo -e "\n${BLUE}Removing previous Docker containers and volunes...${COLOR_OFF}\n"
-    docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+    docker-compose -f docker-compose.yml -f docker-compose.deploy.yml down
     docker volume rm $(docker volume ls -q)
 fi
 
@@ -67,7 +67,7 @@ npm run build
 cd ../
 
 echo -e "\n${BLUE}Spinning up Docker containers...${COLOR_OFF}\n"
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up -d
 
 echo -e "\n${BLUE}Waiting for MySQL to start...${COLOR_OFF}"
 sleep 10;

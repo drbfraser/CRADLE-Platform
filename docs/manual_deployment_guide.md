@@ -21,4 +21,4 @@ Note that it is recommended you set up the staging / production deployments usin
 5. `cd client`
 6. `npm run build`
 7. `cd ../`
-8. `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --force-recreate -d`
+8. `docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d`

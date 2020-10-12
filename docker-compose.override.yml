@@ -3,7 +3,7 @@
 #                                                                      #
 # It overrides the base file with development setup; specifically it:  #
 #   - runs the Flask development server                                #
-#   - creates a container to run npm in (for the front end)            #
+#   - creates a container to run npm in (for the front end; disabled)  #
 ########################################################################
 
 version: "3.7"
