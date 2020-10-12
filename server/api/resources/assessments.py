@@ -7,9 +7,9 @@ import api.util as util
 import data
 import data.crud as crud
 import data.marshal as marshal
-from models import FollowUp
+from models import FollowUp, Reading
 from utils import get_current_time
-from Validation import assessments
+from validation import assessments
 
 
 # /api/assessments
@@ -33,10 +33,12 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        # TODO: validate that assessment's reading id references an actual reading and
-        #   return 404 if it doesn't
-
         follow_up = marshal.unmarshal(FollowUp, json)
+
+        # Check that reading id which doesn’t reference an existing reading in the database
+        reading = crud.read(Reading, readingId=follow_up.readingId)
+        if not reading:
+            abort(404, message=f"No reading with id {follow_up.readingId}")
 
         crud.create(follow_up)
 
@@ -64,3 +66,41 @@ class SingleAssessment(Resource):
             abort(404, message=f"No assessment with id {id}")
 
         return marshal.marshal(follow_up)
+
+
+# /api/assessmentUpdate
+class UpdateAssessment(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/assessments-update-post.yml",
+        methods=["POST"],
+        endpoint="update_assessment",
+    )
+    def post():
+        json = request.get_json(force=True)
+
+        json["dateAssessed"] = get_current_time()
+
+        # get current UserID
+        user = util.current_user()
+        json["healthcareWorkerId"] = user.id
+
+        error_message = assessments.validate(json)
+        if error_message is not None:
+            abort(400, message=error_message)
+
+        follow_up = marshal.unmarshal(FollowUp, json)
+
+        # Check that reading id which doesn’t reference an existing reading in the database
+        reading = crud.read(Reading, readingId=follow_up.readingId)
+        if not reading:
+            abort(404, message=f"No reading with id {follow_up.readingId}")
+
+        updatedAssessment = crud.read(FollowUp, id=json["id"])
+        if not updatedAssessment:
+            abort(404, message=f"No assessment with id { json['id'] }")
+
+        crud.update(FollowUp, json, id=updatedAssessment.id)
+
+        return updatedAssessment.id, 201

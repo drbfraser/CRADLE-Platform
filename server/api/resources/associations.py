@@ -7,7 +7,7 @@ import api.util as util
 import data.crud as crud
 import service.assoc as assoc
 from models import Patient, HealthFacility, User
-from Validation import associations
+from validation import associations
 
 
 # /api/associations

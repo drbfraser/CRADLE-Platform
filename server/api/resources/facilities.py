@@ -7,7 +7,7 @@ import api.util as util
 import data.crud as crud
 import data.marshal as marshal
 from models import HealthFacility
-from Validation import facilities
+from validation import facilities
 
 
 # /api/facilities

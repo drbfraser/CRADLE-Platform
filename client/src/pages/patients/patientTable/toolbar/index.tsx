@@ -4,7 +4,6 @@ import { DefaultSearch } from '../../../../shared/components/defaultSearch';
 import { GlobalSearch } from './globalSearch';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import React from 'react';
-import { ReferredPatients } from './referredPatients';
 import { useStyles } from '../../../../shared/styles/toolbar';
 import { useTimeout } from '../../../../shared/hooks/timeout';
 
@@ -52,7 +51,6 @@ const Toolbar: React.FC<IProps> = ({
             globalSearch={props.globalSearch}
           />
         )}
-        <ReferredPatients showReferredPatients={showReferredPatients} />
       </div>
     </>
   );

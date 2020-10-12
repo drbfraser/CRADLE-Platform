@@ -1,0 +1,69 @@
+Create a new assessment
+---
+tags:
+  - Assessments
+requestBody:
+  required: true
+  description: POST request body for /api/assessmentUpdate
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          specialInvestigations:
+            type: string | Null
+            example: Investigated this an that
+          diagnosis:
+            type: string | Null
+            example: I diagnose you with dead
+          treatment:
+            type: string | Null
+            example: Take this pill twice daily
+          medicationPrescribed:
+            type: string | Null
+            example: Advil
+          followupNeeded:
+            type: bool
+            example: true
+          followupInstructions:
+            type: string | Null
+            example: Check back with the patient once a week
+          readingId:
+            type: UUID
+            example: a1198ed9-5055-4138-bff3-69c599bf6e5b
+          id:
+            type: string
+            example: 5
+responses:
+  201:
+    description: |
+      The id of the updated assessment is returned in the response body.
+    content:
+      application/json:
+        schema:
+          type: integer
+          example: 3
+          description: Id of the newly created assessment
+  400:
+    description: |
+      Bad request: required fields are missing or  invalid.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: The request body key {readingId} is required.
+  404:
+    description: |
+      Not found: `readingId` doesn't reference a reading in the database.
+      Not found: `id` doesn't reference an assessment in the database.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: No assessment with id 18755470-312d-4cce-b9f4-be1c29ae1caf

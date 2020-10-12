@@ -10,10 +10,11 @@ import data.marshal as marshal
 import service.assoc as assoc
 import service.invariant as invariant
 import service.view as view
-from Manager.PatientStatsManager import PatientStatsManager
+import service.serialize as serialize
+from manager.PatientStatsManager import PatientStatsManager
 from models import Patient
 from utils import get_current_time
-from Validation import patients
+from validation import patients
 
 
 # /api/patients
@@ -27,8 +28,8 @@ class Root(Resource):
         user = util.current_user()
         patients = view.patient_view_for_user(user)
         if util.query_param_bool(request, name="simplified"):
-            # TODO: Compute simplified view for each patient
-            return []
+            # Computes simplified view for each patient
+            return [serialize.serialize_patient(p) for p in patients]
         else:
             return [marshal.marshal(p) for p in patients]
 

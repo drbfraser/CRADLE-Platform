@@ -7,7 +7,7 @@ import data.crud as crud
 import data.marshal as marshal
 import service.invariant as invariant
 from models import Reading
-from Validation import readings
+from validation import readings
 
 
 # /api/readings
