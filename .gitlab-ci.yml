@@ -5,8 +5,8 @@ stages:
   - deploy
 
 variables:
-  STAGING_BRANCH: "test-ci"
-  PROD_BRANCH: "prod"
+  STAGING_BRANCH: "task/CRDL-156-DockerCleanup"
+  PROD_BRANCH: "task/CRDL-156-DockerCleanup"
 
 frontend build:
   stage: build

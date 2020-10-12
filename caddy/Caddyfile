@@ -1,4 +1,4 @@
-{$CADDY_DOMAIN}:80, {$CADDY_DOMAIN}:443 {
+{$CADDY_DOMAIN} {
     header {
         # Don't identify ourselves
         -Server
