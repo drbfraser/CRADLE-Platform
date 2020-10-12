@@ -8,10 +8,11 @@ COLOR_OFF='\033[0m'
 set -e
 
 echo -e "${BLUE}"
-echo -e "Cradle Repo and Docker Setup"
+echo -e "Cradle Manual Deployment"
 echo -e "This script must be run as root or with sudo."
 echo -e "${COLOR_OFF}${RED}"
-echo -e "WARNING: If run on an existing Cradle instance, this will delete data."
+echo -e "WARNING: This is a manual deployment. You should likely set up CRADLE with CD instead (setup_cd.sh)."
+echo -e "WARNING: If run on an existing Cradle instance, this might delete data."
 read -p "Continue (y/n)? " CONT
 echo -e "${COLOR_OFF}"
 
@@ -23,7 +24,7 @@ echo -e "${BLUE}Updating, upgrading and installing required packages...${COLOR_O
 
 apt update -y
 apt upgrade -y
-apt install git docker.io docker-compose
+apt install git docker.io docker-compose nodejs npm
 
 if [ ! -f ~/.ssh/id_ed25519.pub ]; then
     echo -e "\n${BLUE}Generating SSH key... please leave passphrase blank and save in default location.${COLOR_OFF}\n"
@@ -42,21 +43,28 @@ rm -rf cradle-platform
 git clone git@csil-git1.cs.surrey.sfu.ca:415-cradle/cradle-platform.git
 cd cradle-platform
 
-git checkout task/CRDL-156-DockerCleanup
+git checkout master
 
 echo -e "\n${BLUE}Starting the Docker service and setting Docker to automatically start at boot${COLOR_OFF}\n"
 
 systemctl start docker
 systemctl enable docker
 
-echo -e "${BLUE}Please enter the domain for this Cradle installation (blank to use IP):${COLOR_OFF}"
-RAND_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-read;
-echo -e "CADDY_DOMAIN=${REPLY}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\nDB_NAME=cradle\n" > .env
+if [ ! -f .env ]; then
+    echo -e "${BLUE}Please enter the domain for this Cradle installation (blank to use IP):${COLOR_OFF}"
+    RAND_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    read;
+    echo -e "CADDY_DOMAIN=${REPLY}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\nDB_NAME=cradle\n" > .env
 
-echo -e "\n${BLUE}Removing previous Docker containers and volunes...${COLOR_OFF}\n"
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
-docker volume rm $(docker volume ls -q)
+    echo -e "\n${BLUE}Removing previous Docker containers and volunes...${COLOR_OFF}\n"
+    docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+    docker volume rm $(docker volume ls -q)
+fi
+
+echo -e "\n${BLUE}Building the frontend...${COLOR_OFF}\n"
+cd client
+npm run build
+cd ../
 
 echo -e "\n${BLUE}Spinning up Docker containers...${COLOR_OFF}\n"
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d

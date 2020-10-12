@@ -22,7 +22,7 @@ services:
         restart: always
         volumes:
             - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-            - ./frontend_build:/var/www
+            - ./client/build:/var/www
             - caddy_data:/root/.caddy   # persist certificates
         ports:
             - 80:80

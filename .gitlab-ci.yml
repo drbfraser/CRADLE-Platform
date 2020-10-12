@@ -3,11 +3,9 @@ stages:
   - test
   - format
   - deploy
-  - build-prod
-  - deploy-prod
 
 variables:
-  STAGING_BRANCH: "master"
+  STAGING_BRANCH: "test-ci"
   PROD_BRANCH: "prod"
 
 frontend build:
@@ -16,14 +14,27 @@ frontend build:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
-    - changes:
-      - client/**/*
+    # run for testing for merge requests
+    - if: '$CI_MERGE_REQUEST_ID != null'
+      changes:
+        - client/**/*
+      when: on_success
+    # run automatically for deploying to staging
+    - if: '$CI_COMMIT_BRANCH == $STAGING_BRANCH'
+      when: on_success
+    # run manually for deploying to production
+    - if: '$CI_COMMIT_BRANCH == $PROD_BRANCH'
+      when: manual
   before_script:
     - cd client
     - npm install
   script:
     - CI=false npm run build
+  after_script:
+    - tar -czvf frontend.tar.gz client/build
+  artifacts:
+    paths:
+      - frontend.tar.gz
 
 backend unit tests:
   stage: test
@@ -51,7 +62,6 @@ backend system tests:
     - changes:
       - server/**/*
   variables:
-    # Cradle Server Variables
     DB_USERNAME: "root"
     DB_PASSWORD: "ci-password"
     EMAIL_USER: "ci@ci.com"
@@ -60,22 +70,17 @@ backend system tests:
     DB_PORT: "3306"
     DB_NAME: "cradle"
     PORT: "5000"
-    # MySQL Variables
     MYSQL_DATABASE: "cradle"
     MYSQL_ROOT_PASSWORD: "ci-password"
   services:
     - mysql:5.7
   before_script:
-    # Add mysql client so we can execute queries on the database
     - apt-get update -y
     - apt-get install default-mysql-client -y
     - cd server
     - pip install --upgrade pip
     - pip install -r requirements.txt
-    # Spin up a server instance in the background
-    # Run this first so that the server can warm up whilst we seed the db
     - python3 app.py &
-    # Build and seed database
     - python3 db.py rebuild --no-docker
     - python3 manage.py seed_test_data
   script:
@@ -133,6 +138,8 @@ backend format:
 
 deploy staging:
   stage: deploy
+  dependencies:
+    - frontend build
   tags:
     - shell
   rules:
@@ -140,5 +147,27 @@ deploy staging:
       when: on_success
     - when: never
   script:
-    - source /var/cradle/staging.env
-    - ./scripts/deploy.sh
+    - cp /var/cradle/.env ./.env
+    - tar -xvf frontend.tar.gz
+    - docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+    # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
+    - docker exec flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/mysql/3306'; do sleep 1; done;" &>-
+    - docker exec flask flask db upgrade
+
+deploy prod:
+  stage: deploy
+  dependencies:
+    - frontend build
+  tags:
+    - shell-prod
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $PROD_BRANCH'
+      when: manual
+    - when: never
+  script:
+    - cp /var/cradle/.env ./.env
+    - tar -xvf frontend.tar.gz
+    - docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+    # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
+    - docker exec flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/mysql/3306'; do sleep 1; done;" &>-
+    - docker exec flask flask db upgrade
