@@ -5,7 +5,7 @@ stages:
   - deploy
 
 variables:
-  STAGING_BRANCH: "task/CRDL-156-DockerCleanup"
+  STAGING_BRANCH: "master"
   PROD_BRANCH: "task/CRDL-156-DockerCleanup"
 
 frontend build:
@@ -149,7 +149,7 @@ deploy staging:
   script:
     - cp /var/cradle/.env ./.env
     - tar -xvf frontend.tar.gz
-    - docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+    - docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --force-recreate -d
     # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
     - docker exec flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/mysql/3306'; do sleep 1; done;" &>-
     - docker exec flask flask db upgrade
@@ -167,7 +167,7 @@ deploy prod:
   script:
     - cp /var/cradle/.env ./.env
     - tar -xvf frontend.tar.gz
-    - docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+    - docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --force-recreate -d
     # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
     - docker exec flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/mysql/3306'; do sleep 1; done;" &>-
     - docker exec flask flask db upgrade

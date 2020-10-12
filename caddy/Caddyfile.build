@@ -1,9 +1,0 @@
-:80 {
-    handle {
-        # Serve static files from this directory
-        root * /var/www
-
-        # Enable static file server
-        file_server
-    }
-}

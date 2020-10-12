@@ -44,6 +44,8 @@ echo -e "${COLOR_OFF}"
 
 gitlab-runner register
 
+mkdir /var/cradle
+
 echo -e "\n${BLUE}Please enter the domain for this Cradle installation (blank to use IP):${COLOR_OFF}"
 RAND_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 read;
