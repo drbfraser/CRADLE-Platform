@@ -15,7 +15,7 @@ frontend build:
   tags:
     - docker
   rules:
-    # run for testing for merge requests
+    # ensure frontend builds if any frontend files have changed in the MR
     - if: '$CI_MERGE_REQUEST_ID != null'
       changes:
         - client/**/*
