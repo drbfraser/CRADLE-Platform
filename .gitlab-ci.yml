@@ -75,6 +75,7 @@ backend system tests:
     PORT: "5000"
     MYSQL_DATABASE: "cradle"
     MYSQL_ROOT_PASSWORD: "ci-password"
+    JWT_SECRET_KEY: "testkey"
   services:
     - mysql:5.7
   before_script:

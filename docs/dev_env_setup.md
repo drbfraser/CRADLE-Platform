@@ -18,6 +18,7 @@ Create a file named `.env` (extension only file) in the the server directory `cr
 ```
 DB_USERNAME=<A_DATABASE_USERNAME>
 DB_PASSWORD=<A_DATABASE_PASSWORD>
+JWT_SECRET_KEY=<A_SECRET_KEY>
 ```
 
 For example:
@@ -25,6 +26,7 @@ For example:
 ```
 DB_USERNAME=user
 DB_PASSWORD=abcd1234
+JWT_SECRET_KEY=supersecretkey
 ```
 
 ## 3. Spin up the Docker Containers and run the NPM dev server

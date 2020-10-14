@@ -62,6 +62,7 @@ DB_PASSWORD=123456
 DB_HOSTNAME=localhost
 DB_PORT=3306
 DB_NAME=cradle
+JWT_SECRET_KEY=supersecretkey
 EMAIL_USER=student@gmail.ca
 EMAIL_PASSWORD=p4sSw0rd
 ```

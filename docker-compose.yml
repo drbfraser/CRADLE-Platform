@@ -20,6 +20,7 @@ services:
             DB_NAME: cradle
             DB_USERNAME: ${DB_USERNAME}
             DB_PASSWORD: ${DB_PASSWORD}
+            JWT_SECRET_KEY: ${JWT_SECRET_KEY}
             # TO-DO: remove
             EMAIL_USER: sample_user@gmail.com
             EMAIL_PASSWORD: password

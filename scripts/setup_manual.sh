@@ -53,8 +53,9 @@ systemctl enable docker
 if [ ! -f .env ]; then
     echo -e "${BLUE}Please enter the domain for this Cradle installation (blank to use IP):${COLOR_OFF}"
     RAND_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    RAND_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
     read;
-    echo -e "CADDY_DOMAIN=${REPLY}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\n" > .env
+    echo -e "CADDY_DOMAIN=${REPLY}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\nJWT_SECRET_KEY=${RAND_SECRET}\n" > .env
 
     echo -e "\n${BLUE}Removing previous Docker containers and volunes...${COLOR_OFF}\n"
     docker-compose -f docker-compose.yml -f docker-compose.deploy.yml down
