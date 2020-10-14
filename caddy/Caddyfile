@@ -1,4 +1,6 @@
 {$CADDY_DOMAIN} {
+    encode gzip
+
     header {
         # Don't identify ourselves
         -Server

@@ -19,7 +19,9 @@ Create a file named `.env` (extension only file) in the the server directory `cr
 DB_USERNAME=<A_DATABASE_USERNAME>
 DB_PASSWORD=<A_DATABASE_PASSWORD>
 ```
-* eg: 
+
+For example:
+
 ```
 DB_USERNAME=user
 DB_PASSWORD=abcd1234

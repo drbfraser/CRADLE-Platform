@@ -27,11 +27,11 @@ apt upgrade -y
 apt install git docker.io docker-compose nodejs npm
 
 if [ ! -f ~/.ssh/id_ed25519.pub ]; then
-    echo -e "\n${BLUE}Generating SSH key... please leave passphrase blank and save in default location.${COLOR_OFF}\n"
-    ssh-keygen -t ed25519
+    echo -e "\n${BLUE}Generating SSH key...${COLOR_OFF}\n"
+    ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519.pub -q -N ""
 fi
 
-echo -e "\n${BLUE}Please copy and paste the following SSH key into Gitlab (Settings -> Repository):${COLOR_OFF}\n"
+echo -e "\n${BLUE}Please copy and paste the following SSH key into the Gitlab cradle-platform repo with read-only access (Settings -> Repository -> Deploy Keys):${COLOR_OFF}\n"
 
 cat ~/.ssh/id_ed25519.pub
 
