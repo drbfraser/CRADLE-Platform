@@ -1,3 +1,7 @@
+## Warning
+
+A manual development environment is not recommended. It is highly recommended you run CRADLE within Docker so the environments are consistent between development, staging and production. See `dev_env_setup.md`.
+
 ## What you'll need 
 
 * Node.JS v10 (includes NPM) [https://nodejs.org/en/download/](https://nodejs.org/en/download/)
@@ -58,6 +62,7 @@ DB_PASSWORD=123456
 DB_HOSTNAME=localhost
 DB_PORT=3306
 DB_NAME=cradle
+JWT_SECRET_KEY=supersecretkey
 EMAIL_USER=student@gmail.ca
 EMAIL_PASSWORD=p4sSw0rd
 ```

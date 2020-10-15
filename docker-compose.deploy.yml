@@ -1,0 +1,35 @@
+###################################################
+# This is the deployment Docker file              #
+#                                                 #
+# It includes the following containers:           #
+#  - Caddy                                        #
+#  - Flask (extended, running using prod server)  #
+#  - MySQL (extended)                             #
+###################################################
+
+version: "3.7"
+services:
+    flask:
+        restart: always
+        command: gunicorn -c ./prod/gunicorn.conf.py app:app
+        volumes:
+            - flask_logs:/var/log
+    mysql:
+        restart: always
+    caddy:
+        container_name: caddy
+        image: caddy:2.0.0
+        restart: always
+        volumes:
+            - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+            - ./client/build:/var/www
+            - caddy_data:/root/.caddy   # persist certificates
+        ports:
+            - 80:80
+            - 443:443
+        environment:
+            CADDY_DOMAIN: ${CADDY_DOMAIN}
+
+volumes:
+    flask_logs:
+    caddy_data:

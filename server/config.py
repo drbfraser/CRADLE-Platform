@@ -26,6 +26,7 @@ class Config(object):
         db_hostname = env("DB_HOSTNAME")
         db_port = env("DB_PORT")
         db_name = env("DB_NAME")
+        JWT_SECRET_KEY = env("JWT_SECRET_KEY")
 
     except environs.EnvError:
         print(
@@ -44,8 +45,6 @@ class Config(object):
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # JWT_SECRET_KEY= os.environ.get('SECRET')
-    JWT_SECRET_KEY = "very secret"
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
 
 
@@ -66,15 +65,6 @@ FLASK_DEBUG = 1
 app = Flask(__name__, static_folder="../client/build")
 app.config["SWAGGER"] = {"openapi": "3.0.2"}
 swagger = Swagger(app)
-
-# Used to Serve React App and static assets if Nginx is not configured
-# @app.route('/', defaults={'path': ''})
-# @app.route('/<path:path>')
-# def serve(path):
-#     if path != "" and os.path.exists(app.static_folder + '/' + path):
-#         return send_from_directory(app.static_folder, path)
-#     else:
-#         return send_from_directory(app.static_folder, 'index.html')
 
 CORS(app)
 api = Api(app)

@@ -16,11 +16,8 @@ _VAR = os.path.join(_ROOT, "var")
 loglevel = "info"
 errorlog = os.path.join(_VAR, "log/cradle-error.log")
 accesslog = os.path.join(_VAR, "log/cradle-access.log")
-# errorlog = "-"
-# accesslog = "-"
 
-# bind = 'unix:%s' % os.path.join(_VAR, 'run/gunicorn.sock')
-bind = "0.0.0.0:5000"
+bind = "0.0.0.0:" + port
 workers = 1
 # TODO: when upgrading server, uncoming the line below to replace the line above
 # workers = multiprocessing.cpu_count() * 2 + 1

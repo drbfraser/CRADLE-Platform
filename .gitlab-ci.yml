@@ -5,30 +5,46 @@ stages:
   - deploy
 
 variables:
-  DEPLOYMENT_BRANCH: "/master|staging|production/"
+  STAGING_BRANCH: "master"
+  PROD_BRANCH: "prod"
 
 frontend build:
   stage: build
+  needs: []
   image: node:10
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
-    - changes:
-      - client/**/*
+    # ensure frontend builds if any frontend files have changed in the MR
+    - if: '$CI_MERGE_REQUEST_ID != null'
+      changes:
+        - client/**/*
+      when: on_success
+    # run automatically for deploying to staging
+    - if: '$CI_COMMIT_BRANCH == $STAGING_BRANCH'
+      when: on_success
+    # run manually for deploying to production
+    - if: '$CI_COMMIT_BRANCH == $PROD_BRANCH'
+      when: manual
   before_script:
     - cd client
     - npm install
   script:
-    - CI=false yarn build
+    - CI=false npm run build
+  after_script:
+    - tar -czvf frontend.tar.gz client/build
+  artifacts:
+    paths:
+      - frontend.tar.gz
 
 backend unit tests:
   stage: test
+  needs: []
   image: python:3.7.6-buster
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
     - changes:
       - server/**/*
   before_script:
@@ -40,15 +56,15 @@ backend unit tests:
 
 backend system tests:
   stage: test
+  needs: []
   image: python:3.7.6-buster
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
     - changes:
       - server/**/*
   variables:
-    # Cradle Server Variables
     DB_USERNAME: "root"
     DB_PASSWORD: "ci-password"
     EMAIL_USER: "ci@ci.com"
@@ -57,22 +73,18 @@ backend system tests:
     DB_PORT: "3306"
     DB_NAME: "cradle"
     PORT: "5000"
-    # MySQL Variables
     MYSQL_DATABASE: "cradle"
     MYSQL_ROOT_PASSWORD: "ci-password"
+    JWT_SECRET_KEY: "testkey"
   services:
     - mysql:5.7
   before_script:
-    # Add mysql client so we can execute queries on the database
     - apt-get update -y
     - apt-get install default-mysql-client -y
     - cd server
     - pip install --upgrade pip
     - pip install -r requirements.txt
-    # Spin up a server instance in the background
-    # Run this first so that the server can warm up whilst we seed the db
     - python3 app.py &
-    # Build and seed database
     - python3 db.py rebuild --no-docker
     - python3 manage.py seed_test_data
   script:
@@ -80,11 +92,12 @@ backend system tests:
 
 frontend lint:
   stage: format
+  needs: []
   image: node:10
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
       when: always
     - changes:
       - client/**/*
@@ -97,11 +110,12 @@ frontend lint:
 
 frontend format:
   stage: format
+  needs: []
   image: node:10
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
       when: always
     - changes:
       - client/**/*
@@ -113,11 +127,12 @@ frontend format:
 
 backend format:
   stage: format
+  needs: []
   image: python:3.7.6-buster
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH =~ $DEPLOYMENT_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
       when: always
     - changes:
       - server/**/*
@@ -130,13 +145,34 @@ backend format:
 
 deploy staging:
   stage: deploy
+  needs: ["frontend build"]
   tags:
     - shell
   rules:
-    # Only deploy to staging if we are on the master or stating branch.
-    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH =~ "/master|staging/"'
+    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $STAGING_BRANCH'
       when: on_success
     - when: never
   script:
-    - source /var/cradle/staging.env
-    - ./scripts/deploy.sh
+    - cp /var/cradle/.env ./.env
+    - tar -xvf frontend.tar.gz
+    - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d
+    # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
+    - docker exec flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/mysql/3306'; do sleep 1; done;" &>-
+    - docker exec flask flask db upgrade
+
+deploy prod:
+  stage: deploy
+  needs: ["frontend build"]
+  tags:
+    - shell-prod
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $PROD_BRANCH'
+      when: manual
+    - when: never
+  script:
+    - cp /var/cradle/.env ./.env
+    - tar -xvf frontend.tar.gz
+    - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d
+    # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
+    - docker exec flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/mysql/3306'; do sleep 1; done;" &>-
+    - docker exec flask flask db upgrade

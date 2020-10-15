@@ -1,0 +1,30 @@
+{$CADDY_DOMAIN} {
+    encode gzip
+
+    header {
+        # Don't identify ourselves
+        -Server
+
+        # HSTS: ensure HTTPS is used for subsequent requests, prevent downgrade attacks
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+        # ask browsers to respect the Content Types we send
+        X-Content-Type-Options "nosniff"
+    }
+
+    handle /api/* {
+        # Route API requests to Flask
+        reverse_proxy flask:5000
+    }
+
+    handle {
+        # Serve static files from this directory
+        root * /var/www
+
+        # Enable static file server
+        file_server
+
+        # If there is a 404, serve index.html
+        try_files {path} index.html
+    }
+}
