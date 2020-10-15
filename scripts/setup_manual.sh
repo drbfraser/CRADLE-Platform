@@ -9,7 +9,7 @@ set -e
 
 echo -e "${BLUE}"
 echo -e "Cradle Manual Deployment"
-echo -e "This script must be run as root or with sudo."
+echo -e "This script must be run as root or with sudo. It is only supported on Ubuntu Server 20.04."
 echo -e "${COLOR_OFF}${RED}"
 echo -e "WARNING: This is a manual deployment. You should likely set up CRADLE with CD instead (setup_cd.sh)."
 echo -e "WARNING: If run on an existing Cradle instance, this might delete data."
@@ -26,9 +26,14 @@ apt update -y
 apt upgrade -y
 apt install git docker.io docker-compose nodejs npm
 
+echo -e "\n${BLUE}Starting the Docker service and setting Docker to automatically start at boot${COLOR_OFF}\n"
+
+systemctl start docker
+systemctl enable docker
+
 if [ ! -f ~/.ssh/id_ed25519.pub ]; then
     echo -e "\n${BLUE}Generating SSH key...${COLOR_OFF}\n"
-    ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519.pub -q -N ""
+    ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -q -N ""
 fi
 
 echo -e "\n${BLUE}Please copy and paste the following SSH key into the Gitlab cradle-platform repo with read-only access (Settings -> Repository -> Deploy Keys):${COLOR_OFF}\n"
@@ -39,36 +44,37 @@ echo -e "\n${BLUE}Once added to Gitlab, press any enter to continue...${COLOR_OF
 read
 
 cd ~
-rm -rf cradle-platform
-git clone git@csil-git1.cs.surrey.sfu.ca:415-cradle/cradle-platform.git
+
+if [ ! -d cradle-platform ]; then
+    git clone git@csil-git1.cs.surrey.sfu.ca:415-cradle/cradle-platform.git
+fi
+
 cd cradle-platform
-
+git reset --hard
 git checkout master
-
-echo -e "\n${BLUE}Starting the Docker service and setting Docker to automatically start at boot${COLOR_OFF}\n"
-
-systemctl start docker
-systemctl enable docker
+git pull
 
 if [ ! -f .env ]; then
-    echo -e "${BLUE}Please enter the domain for this Cradle installation (blank to use IP):${COLOR_OFF}"
+    echo -e "\n${BLUE}Please enter the domain for this Cradle installation (blank to use IP over HTTP only):${COLOR_OFF}"
     RAND_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
     RAND_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
     read;
-    echo -e "CADDY_DOMAIN=${REPLY}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\nJWT_SECRET_KEY=${RAND_SECRET}\n" > .env
+    echo -e "CADDY_DOMAIN=${REPLY:-:80}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\nJWT_SECRET_KEY=${RAND_SECRET}\n" > .env
 
-    echo -e "\n${BLUE}Removing previous Docker containers and volunes...${COLOR_OFF}\n"
+    # this is necessary because the MySQL password has now been changed
+    echo -e "\n${BLUE}Removing previous Docker containers and volumes...${COLOR_OFF}\n"
     docker-compose -f docker-compose.yml -f docker-compose.deploy.yml down
-    docker volume rm $(docker volume ls -q)
+    docker volume prune -f
 fi
 
 echo -e "\n${BLUE}Building the frontend...${COLOR_OFF}\n"
 cd client
+npm install
 npm run build
 cd ../
 
 echo -e "\n${BLUE}Spinning up Docker containers...${COLOR_OFF}\n"
-docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up -d
+docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d
 
 echo -e "\n${BLUE}Waiting for MySQL to start...${COLOR_OFF}"
 sleep 10;
