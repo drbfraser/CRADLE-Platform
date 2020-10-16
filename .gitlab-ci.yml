@@ -145,7 +145,6 @@ backend format:
 
 deploy staging:
   stage: deploy
-  needs: ["frontend build"]
   tags:
     - shell
   rules:
@@ -162,7 +161,6 @@ deploy staging:
 
 deploy prod:
   stage: deploy
-  needs: ["frontend build"]
   tags:
     - shell-prod
   rules:
