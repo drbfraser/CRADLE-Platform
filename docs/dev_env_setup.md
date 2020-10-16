@@ -1,24 +1,33 @@
-## What you'll need 
+# Development Environment Setup
+
+## 1. Install Required Programs
+
+You'll need to install the following:
 
 - Linux, macOS or Windows 10 Pro / Education / Enterprise
-  - Windows 10 Education is available for free from https://sfu.onthehub.com/WebStore/ProductsByMajorVersionList.aspx
+  - Windows 10 Education is available for free for SFU students from https://sfu.onthehub.com/WebStore/ProductsByMajorVersionList.aspx
 - Docker: https://www.docker.com/products/docker-desktop
   - You will need to run the `docker` and `docker-compose` commands 
 - Node + NPM: https://nodejs.org/en/download/
 
-## 1. Cloning the Repo
+In particular, if you're on Windows / macOS, follow Docker Desktop's "Getting Started" guide. It'll introduce you to the basics of Docker and give you an easy way to verify it's correctly installed.
 
-Clone the repo:
+## 2. Cloning the Repo
+
+Prior to cloning the repo, ensure you have registered your SSH key with Gitlab (out of the scope of this guide).
+
+Then run:
 ```
 git clone https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git
 ```
 
-## 2. Set up environment variables
-Create a file named `.env` (extension only file) in the the server directory `cradle-platform` with these fields:
+## 3. Set up Environment Variables
+
+Create a file named `.env` (extension only file) in the `cradle-platform` directory containing the following:
 ```
-DB_USERNAME=<A_DATABASE_USERNAME>
-DB_PASSWORD=<A_DATABASE_PASSWORD>
-JWT_SECRET_KEY=<A_SECRET_KEY>
+DB_USERNAME=[A_DATABASE_USERNAME]
+DB_PASSWORD=[A_DATABASE_PASSWORD]
+JWT_SECRET_KEY=[A_SECRET_KEY]
 ```
 
 For example:
@@ -29,12 +38,37 @@ DB_PASSWORD=abcd1234
 JWT_SECRET_KEY=supersecretkey
 ```
 
-## 3. Spin up the Docker Containers and run the NPM dev server
+## 4. Spin up the Docker Containers
+
 ```
 docker-compose up
 ```
 
-All the Docker images will build and then the Docker containers will start. You may run with the `-d` option to run the Docker containers in the background. NPM is not run inside Docker (due to poor filesystem performance), so in another terminal window (or the same one if you used `-d`) start the NPM dev server:
+All the Docker images will build and then the Docker containers will start. You may use the `-d` option to run the Docker containers in the background.
+
+Now it's time to run the database migrations. Once the containers have fully started, run:
+
+```
+docker exec flask flask db upgrade
+```
+
+## 5. Seeding Data
+
+Data seeding is handled by the `manage.py` script in the `server` directory. There are 3 data seeding options which give various amounts of data:
+
+* `seed_minimal`: seeds the bare minimum amount of data to get the application running, useful if you want to debug something without having to trudge through unrelated data
+* `seed_test_data`: seeds data required to run the unit tests
+* `seed`: seeds a generous amount of random data
+
+In order to seed data, run `docker exec flask python manage.py [SEED_OPTION]` where `[SEED_OPTION]` is one of the options listed above. For example:
+
+```
+docker exec flask python manage.py seed_test_data
+```
+
+## 6. Run the NPM Dev Server
+
+NPM is not run inside Docker (due to poor filesystem performance), so you'll need to run the following to start the NPM development server:
 
 ```
 cd client
@@ -44,10 +78,12 @@ npm start
 ## Start Developing!
 - Navigate to http://localhost:3000/ to check out the React client running in your browser, communicating to the server hosted at http://localhost:5000/ which is communicating with MySQL!
 - You will be able work on the client-side and server-side code, all while being able to enjoy hot-reloading!
+- Once the initial setup is completed, you'll only need to run `docker-compose up` in the `cradle-platform` directory and `npm start` in the client directory to start Cradle.
+- If using Docker Desktop, you may also start / restart / stop the containers from within the GUI.
 
 <hr>
 
-## Useful tools / dev software
+## Useful Tools / Dev Software
 
 * [Postman](https://www.getpostman.com/): 
    - Used to test API endpoints and send HTTP requests with a GUI 
