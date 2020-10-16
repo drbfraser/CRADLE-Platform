@@ -19,10 +19,10 @@ frontend build:
     - if: '$CI_MERGE_REQUEST_ID != null'
       changes:
         - client/**/*
-      when: on_success
+      when: always
     # run automatically for deploying to staging
     - if: '$CI_COMMIT_BRANCH == $STAGING_BRANCH'
-      when: on_success
+      when: always
     # run manually for deploying to production
     - if: '$CI_COMMIT_BRANCH == $PROD_BRANCH'
       when: manual
@@ -45,8 +45,9 @@ backend unit tests:
     - docker
   rules:
     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
-    - changes:
-      - server/**/*
+      changes:
+        - server/**/*
+      when: always
   before_script:
     - cd server
     - pip install --upgrade pip
@@ -62,8 +63,9 @@ backend system tests:
     - docker
   rules:
     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
-    - changes:
-      - server/**/*
+      changes:
+        - server/**/*
+      when: always
   variables:
     DB_USERNAME: "root"
     DB_PASSWORD: "ci-password"
@@ -98,9 +100,8 @@ frontend lint:
     - docker
   rules:
     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
-      when: always
-    - changes:
-      - client/**/*
+      changes:
+        - client/**/*
       when: always
   before_script:
     - cd client
@@ -116,9 +117,8 @@ frontend format:
     - docker
   rules:
     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
-      when: always
-    - changes:
-      - client/**/*
+      changes:
+        - client/**/*
       when: always
   before_script:
     - npm install prettier --global
@@ -133,9 +133,8 @@ backend format:
     - docker
   rules:
     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
-      when: always
-    - changes:
-      - server/**/*
+      changes:
+        - server/**/*
       when: always
   before_script:
     - pip install --upgrade pip
@@ -145,7 +144,6 @@ backend format:
 
 deploy staging:
   stage: deploy
-  needs: ["frontend build"]
   tags:
     - shell
   rules:
@@ -162,7 +160,6 @@ deploy staging:
 
 deploy prod:
   stage: deploy
-  needs: ["frontend build"]
   tags:
     - shell-prod
   rules:
