@@ -13,7 +13,9 @@ export const LoginPage: React.FC = () => {
     ({ user }: ReduxState): boolean => user.current.loggedIn
   );
 
-  if (loggedIn) {
+  const hasToken = localStorage.getItem('token') !== null;
+
+  if (loggedIn || hasToken) {
     return <Redirect to="/referrals" />;
   }
 

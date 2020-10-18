@@ -5,7 +5,6 @@ import { MethodEnum } from '../../server';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { logoutUser } from '../reducers/user/currentUser';
-import { replace } from 'connected-react-router';
 
 export const requestMiddleware = () => ({ dispatch }: any) => (
   next: any
@@ -41,11 +40,7 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
       token = localStorage.token;
     } catch (error) {
       console.error(error);
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh');
       dispatch(logoutUser());
-      dispatch(replace(`/login`));
-      return;
     }
   }
 

@@ -46,6 +46,7 @@ type CurrentUserAction =
 export const logoutUser = (): Callback<Dispatch> => {
   return (dispatch: Dispatch): void => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh');
     dispatch({ type: CurrentUserActionEnum.LOGOUT_USER });
     dispatch(push('/login'));
   };
@@ -96,9 +97,9 @@ const getCurrentUserRequested = (): CurrentUserAction => ({
 });
 
 export const getCurrentUser = (): ((
-  dispatch: Dispatch
+  dispatch: Dispatch<any>
 ) => ServerRequestAction) => {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch<any>) => {
     dispatch(getCurrentUserRequested());
 
     return dispatch(
@@ -113,7 +114,7 @@ export const getCurrentUser = (): ((
           payload: { currentUser },
         }),
         onError: ({ message }: ServerError): CurrentUserAction => {
-          logoutUser();
+          dispatch(logoutUser());
           return {
             type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR,
             payload: { message },
