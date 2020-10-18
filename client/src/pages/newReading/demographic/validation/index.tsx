@@ -1,8 +1,8 @@
 const hasNumber = (myString: any) => {
-  return /\d/.test(myString);
+  return /[0-9]+$/.test(myString);
 };
 const hasCharacter = (myString: any) => {
-  return /[A-Za-z]+$/.test(myString);
+  return /^[\sa-zA-Z'-]*$/.test(myString);
 };
 export const validateInput = (name: any, value: any) => {
   const patientError = {
@@ -29,12 +29,12 @@ export const validateInput = (name: any, value: any) => {
   }
   switch (name) {
     case 'patientInitial':
-      if (hasNumber(value) || value.length === 0) {
+      if (!hasCharacter(value) || value.length === 0) {
         patientError.patientInitialError = true;
       }
       break;
     case 'villageNumber':
-      if (hasCharacter(value)) {
+      if (!hasNumber(value)) {
         patientError.villageNumberError = true;
       }
       break;
