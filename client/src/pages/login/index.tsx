@@ -1,19 +1,15 @@
 import { LoginForm } from './form';
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { ReduxState } from '../../redux/reducers';
 import image from './img/splash_screen_4.png';
-import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
 
 export const LoginPage: React.FC = () => {
   const classes = useStyles();
 
-  const loggedIn = useSelector(
-    ({ user }: ReduxState): boolean => user.current.loggedIn
-  );
-
-  if (loggedIn) {
+  // if the user has reached the login page, they likely came directly here
+  // therefore Redux will be empty and we must check local storage for a token
+  if (localStorage.getItem('token') !== null) {
     return <Redirect to="/referrals" />;
   }
 

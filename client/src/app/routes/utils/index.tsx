@@ -1,7 +1,6 @@
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { AdminPage } from '../../../pages/admin';
 import { CovidCollectionPage } from '../../../pages/statistics/covidCollection';
-import { HomePage } from '../../../pages/home';
 import { LoginPage } from '../../../pages/login';
 import { NewReading } from '../../../pages/newReading';
 import { NotFoundPage } from '../../../pages/notFound';
@@ -104,20 +103,20 @@ export const appRoutes: Array<AppRoute> = [
     to: `/admin`,
   },
   {
-    component: HomePage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: false,
-    to: `/`,
-  },
-  {
     component: PatientPage,
     exactPath: false,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
     to: `/patients/:id`,
+  },
+  {
+    component: LoginPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: false,
+    to: `/`,
   },
   {
     component: LoginPage,
