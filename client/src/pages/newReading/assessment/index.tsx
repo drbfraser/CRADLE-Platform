@@ -30,13 +30,13 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     formFieldSWide: {
       margin: theme.spacing(2),
-      minWidth: '36ch',
-      width: '30%',
+      minWidth: '26ch',
+      width: '22%',
     },
-    formFieldWideEnd: {
+    formFieldLWide: {
       margin: theme.spacing(2),
-      minWidth: '36ch',
-      width: '96%',
+      minWidth: '56ch',
+      width: '71%',
     },
   })
 );
@@ -58,17 +58,6 @@ const Page: React.FC<IProps> = (props) => {
       }}>
       <h1>
         <b>Assessment</b>
-        <FormControlLabel
-          style={{ display: 'flex', float: 'right' }}
-          control={
-            <Checkbox
-              name={'enabled'}
-              checked={props.assessment.enabled}
-              onChange={props.onChange}
-            />
-          }
-          label="Follow-up Needed"
-        />
       </h1>
 
       <form className={classes.root} noValidate autoComplete="off">
@@ -120,7 +109,18 @@ const Page: React.FC<IProps> = (props) => {
             onChange={props.onChange}
           />
         </FormControl>
-        <FormControl className={classes.formFieldWideEnd}>
+        <FormControlLabel
+          className={classes.formFieldSWide}
+          control={
+            <Checkbox
+              name={'enabled'}
+              checked={props.assessment.enabled}
+              onChange={props.onChange}
+            />
+          }
+          label="Follow-up Needed"
+        />
+        <FormControl className={classes.formFieldLWide}>
           <TextField
             disabled={!props.assessment.enabled}
             id="outlined-multiline-static"

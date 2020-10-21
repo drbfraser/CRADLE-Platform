@@ -138,7 +138,7 @@ const Page: React.FC<IProps> = (props) => {
             <TextField
               error={props.patient.dobError}
               id="date"
-              label="Birthdate"
+              label="Date of Birth"
               type="date"
               name="dob"
               value={props.patient.dob}
@@ -180,7 +180,7 @@ const Page: React.FC<IProps> = (props) => {
               value="left"
               aria-label="left aligned"
               name="dobOrAge">
-              Birthdate
+              Date of Birth
             </ToggleButton>
             <ToggleButton
               classes={{ selected: classes.toggle }}
