@@ -7,7 +7,6 @@ from sqlalchemy.orm import joinedload
 M = TypeVar("M")
 
 
-
 def create(model: M, refresh=False):
     """
     Inserts a new model into the database.
@@ -44,7 +43,6 @@ def read(m: Type[M], **kwargs) -> Optional[M]:
     return m.query.filter_by(**kwargs).one_or_none()
 
 
-
 def read_all(m: Type[M], **kwargs) -> List[M]:
     """
     Queries the database for all models which match some query parameters defined as
@@ -66,7 +64,6 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
             return m.query.options(joinedload(m.reading)).all()
 
         return m.query.options(joinedload(m.reading)).filter_by(**kwargs).all()
-
 
 
 def update(m: Type[M], changes: dict, **kwargs):
