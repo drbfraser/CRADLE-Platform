@@ -11,7 +11,7 @@ import service.assoc as assoc
 import service.invariant as invariant
 import service.view as view
 import service.serialize as serialize
-from manager.PatientStatsManager import PatientStatsManager
+import service.statsCalculation as statsCalculation
 from models import Patient
 from utils import get_current_time
 from validation import patients
@@ -160,7 +160,39 @@ class PatientStats(Resource):
         endpoint="patient_stats",
     )
     def get(patient_id: str):
-        return PatientStatsManager().put_data_together(patient_id)
+
+        patient = crud.read(Patient, patientId=patient_id)
+        if not patient:
+            abort(404, message=f"No patient with id {patient_id}")
+
+        # getting all bpSystolic readings for each month
+        bp_systolic = statsCalculation.get_stats_data("bpSystolic", patient.readings)
+
+        # getting all bpDiastolic readings for each month
+        bp_diastolic = statsCalculation.get_stats_data("bpDiastolic", patient.readings)
+
+        # getting all heart rate readings for each month
+        heart_rate = statsCalculation.get_stats_data("heartRateBPM", patient.readings)
+
+        # getting all traffic lights from day 1 for this patient
+        traffic_light_statuses = statsCalculation.get_stats_data(
+            "trafficLightStatus", patient.readings
+        )
+
+        # putting data into one object now
+        data = {
+            "bpSystolicReadingsMonthly": bp_systolic,
+            "bpDiastolicReadingsMonthly": bp_diastolic,
+            "heartRateReadingsMonthly": heart_rate,
+            "trafficLightCountsFromDay1": {
+                "green": traffic_light_statuses[0],  # dont
+                "yellowUp": traffic_light_statuses[1],  # hate
+                "yellowDown": traffic_light_statuses[2],  # the
+                "redUp": traffic_light_statuses[3],  # magic
+                "redDown": traffic_light_statuses[4],  # numbers
+            },
+        }
+        return data
 
 
 # /api/patients/<string:patient_id>/readings
