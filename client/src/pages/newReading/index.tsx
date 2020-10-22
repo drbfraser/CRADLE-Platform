@@ -1,12 +1,5 @@
 import { ActualUser, Callback, FollowUp, OrNull, Patient } from '@types';
-import {
-  Button,
-  Divider,
-  Step,
-  StepLabel,
-  Stepper,
-  Typography,
-} from '@material-ui/core';
+import { Button, Divider, Step, StepLabel, Stepper } from '@material-ui/core';
 import { Dispatch, bindActionCreators } from 'redux';
 import {
   ICreateAssessmentArgs,
@@ -24,6 +17,7 @@ import {
   updatePatient,
 } from '../../redux/reducers/patients';
 import React, { useEffect, useState } from 'react';
+import { Redirect } from 'react-router-dom';
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   addReadingNew,
@@ -568,13 +562,7 @@ const Page: React.FC<IProps> = (props) => {
       )}
       <div>
         {activeStep === steps.length ? (
-          <div>
-            <Typography className={classes.instructions}>
-              All steps completed
-            </Typography>
-            {/*need to be styled*/}
-            <Button onClick={handleReset}>Create New Patient/Reading</Button>
-          </div>
+          <Redirect to={'/patients/' + patient.patientId} />
         ) : (
           <div>
             <div>

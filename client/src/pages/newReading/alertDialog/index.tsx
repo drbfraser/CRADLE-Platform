@@ -19,7 +19,7 @@ export default function AlertDialog(props: IProps) {
         <>
           {props.patientExist
             ? `Would you like to use the patient with `
-            : `Click OK! to make reading`}
+            : `To create a new patient, press continue.`}
           {props.patientExist ? (
             <div>
               {`ID: `}
@@ -54,7 +54,7 @@ export default function AlertDialog(props: IProps) {
           : `Patient ID does not exist`
       }
       primaryAction={{
-        children: props.patientExist ? `Yes` : `Ok!`,
+        children: props.patientExist ? `Yes` : `Continue`,
         value: props.patientExist ? `yes` : `ok`,
         onClick: props.handleDialogClose,
       }}
@@ -65,7 +65,11 @@ export default function AlertDialog(props: IProps) {
               value: `no`,
               onClick: props.handleDialogClose,
             }
-          : undefined
+          : {
+              children: `Cancel`,
+              value: `no`,
+              onClick: props.handleDialogClose,
+            }
       }
     />
   );
