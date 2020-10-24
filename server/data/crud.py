@@ -65,6 +65,11 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
 
         return m.query.options(joinedload(m.reading)).filter_by(**kwargs).all()
 
+    if not kwargs:
+        return m.query.all()
+
+    return m.query.filter_by(**kwargs).all()
+
 
 def update(m: Type[M], changes: dict, **kwargs):
     """

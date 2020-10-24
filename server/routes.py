@@ -90,7 +90,9 @@ def init(api):
     api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST]
     # api.add_resource(UpdateAssessment, "/api/assessmentsUpdate", endpoint="update_assessment")  # [POST]
     api.add_resource(
-        SingleAssessment, "/api/assessments/<int:id>", endpoint="single_assessment"
+        SingleAssessment,
+        "/api/assessments/<int:assessment_id>",
+        endpoint="single_assessment",
     )  # [GET]
 
     api.add_resource(Associations, "/api/associations")  # [POST]
