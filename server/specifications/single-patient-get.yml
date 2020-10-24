@@ -63,6 +63,9 @@ responses:
             lastEdited:
               type: Unix timestamp
               example: 1592339808
+            isExactDob:
+              type: boolean
+              example: true
             base: 
               type: Unix timestamp | Null
               example: 1622337702
