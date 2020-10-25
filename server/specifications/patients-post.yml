@@ -48,6 +48,9 @@ requestBody:
           drugHistory:
             type: string | Null
             example: Sample drug history
+          isExactDob:
+            type: boolean
+            example: true
           
 responses:
   201:
