@@ -1,6 +1,8 @@
 from typing import List, Optional, Type, TypeVar
 
 from data import db_session
+from models import Patient, Referral
+from sqlalchemy.orm import joinedload
 
 M = TypeVar("M")
 
@@ -51,8 +53,21 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
                    query (e.g., ``patientId="abc"``)
     :return: A list of models from the database
     """
+    if m.schema() == Patient.schema():
+        if not kwargs:
+            return m.query.options(joinedload(m.readings)).all()
+
+        return m.query.options(joinedload(m.readings)).filter_by(**kwargs).all()
+
+    if m.schema() == Referral.schema():
+        if not kwargs:
+            return m.query.options(joinedload(m.reading)).all()
+
+        return m.query.options(joinedload(m.reading)).filter_by(**kwargs).all()
+
     if not kwargs:
         return m.query.all()
+
     return m.query.filter_by(**kwargs).all()
 
 

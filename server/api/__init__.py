@@ -37,7 +37,7 @@ def __init_referral_resources(api: Api):
     import api.resources.referrals as r
 
     api.add_resource(r.Root, "/api/referrals", endpoint="referral_root")
-    api.add_resource(r.SingleReferral, "/api/referrals/<int:id>")
+    api.add_resource(r.SingleReferral, "/api/referrals/<int:referral_id>")
 
 
 def __init_assessment_resources(api: Api):

@@ -51,7 +51,7 @@ class Root(Resource):
         return follow_up.id, 201
 
 
-# /api/assessments/<int:id>
+# /api/assessments/<int:assessment_id>
 class SingleAssessment(Resource):
     @staticmethod
     @jwt_required

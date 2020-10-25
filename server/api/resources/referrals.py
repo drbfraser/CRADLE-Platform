@@ -56,7 +56,7 @@ class Root(Resource):
         return marshal.marshal(referral), 201
 
 
-# /api/referrals/<int:id>
+# /api/referrals/<int:referral_id>
 class SingleReferral(Resource):
     @staticmethod
     @jwt_required
