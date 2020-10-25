@@ -23,7 +23,7 @@ export const useInitialsColumn = ({
 }: IArgs): MUIDataTableColumn => {
   return React.useMemo(() => {
     return {
-      label: `Patient Initials`,
+      label: `Patient Name`,
       name: `patientName`,
       options: {
         customHeadRender: ({

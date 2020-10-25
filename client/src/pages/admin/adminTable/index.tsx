@@ -51,7 +51,6 @@ export const AdminTable: React.FC<IProps> = (props) => {
   const classes = useStyles();
 
   const onSearchChange = useSearchChange({
-    capitalize: false,
     updateSearchText: props.updateSearchText,
   });
 
