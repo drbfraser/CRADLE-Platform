@@ -20,12 +20,9 @@ frontend build:
       changes:
         - client/**/*
       when: always
-    # run automatically for deploying to staging
-    - if: '$CI_COMMIT_BRANCH == $STAGING_BRANCH'
+    # always run if deploying to staging or prod
+    - if: '$CI_COMMIT_BRANCH == $STAGING_BRANCH || $CI_COMMIT_BRANCH == $PROD_BRANCH'
       when: always
-    # run manually for deploying to production
-    - if: '$CI_COMMIT_BRANCH == $PROD_BRANCH'
-      when: manual
   before_script:
     - cd client
     - npm install
@@ -164,6 +161,7 @@ deploy prod:
     - shell-prod
   rules:
     - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $PROD_BRANCH'
+      # only manually deploy to production for greater control
       when: manual
     - when: never
   script:
