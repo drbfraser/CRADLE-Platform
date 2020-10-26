@@ -85,7 +85,7 @@ const Page: React.FC<IProps> = (props) => {
         <FormControl className={classes.formField}>
           <TextField
             error={props.patient.patientInitialError}
-            label={'Patient Initials'}
+            label={'Patient Name'}
             id="component-outlined"
             name="patientInitial"
             value={props.patient.patientInitial}
@@ -95,7 +95,7 @@ const Page: React.FC<IProps> = (props) => {
             type={'text'}
             helperText={
               props.patient.patientInitialError
-                ? 'Please enter characters only.'
+                ? 'please enter alphanumeric characters only.'
                 : ''
             }
           />
