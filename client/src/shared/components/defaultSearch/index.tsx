@@ -14,7 +14,7 @@ interface IProps {
 export const DefaultSearch: React.FC<IProps> = ({
   updateSearchText,
   globalSearch,
-  placeholder = 'Patient ID or Initals',
+  placeholder = 'Patient ID or Name',
   searchText,
 }) => {
   const search = useSearchFocus(globalSearch ?? false);

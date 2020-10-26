@@ -1,21 +1,21 @@
-import { Callback, Patient } from '@types';
+import { Callback, GlobalSearchPatient, Patient } from '@types';
 import {
   MUIDataTableColumn,
   MUIDataTableCustomHeadRenderer,
 } from 'mui-datatables';
 
-import { InitialsBody } from './body';
-import { InitialsHead } from './head';
+import { PatientNameBody } from './body';
+import { PatientNameHead } from './head';
 import React from 'react';
 
 interface IArgs {
   headClass: string;
   bodyClass: string;
-  patients: Array<Patient>;
+  patients: Array<Patient> | Array<GlobalSearchPatient>;
   sortData: Callback<Array<Patient>>;
 }
 
-export const useInitialsColumn = ({
+export const usePatientNameColumn = ({
   headClass,
   bodyClass,
   patients,
@@ -30,7 +30,7 @@ export const useInitialsColumn = ({
           label,
           index,
         }: MUIDataTableCustomHeadRenderer): JSX.Element => (
-          <InitialsHead
+          <PatientNameHead
             key={index}
             className={headClass}
             data={patients}
@@ -39,7 +39,7 @@ export const useInitialsColumn = ({
           />
         ),
         customBodyRender: (patientName: string): JSX.Element => (
-          <InitialsBody className={bodyClass} initials={patientName} />
+          <PatientNameBody className={bodyClass} patientName={patientName} />
         ),
         searchable: true,
       },

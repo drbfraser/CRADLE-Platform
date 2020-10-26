@@ -22,7 +22,7 @@ export default function AlertDialog(props: IProps) {
             : `To create a new patient, press continue.`}
           {props.patientExist ? (
             <div>
-              {`ID: `}
+              {`Patient ID: `}
               {props.patient.patientId}
               {` `}
             </div>
@@ -31,7 +31,7 @@ export default function AlertDialog(props: IProps) {
           )}
           {props.patientExist ? (
             <div>
-              {`Initials: `}
+              {`Patient Name: `}
               {props.patient.patientName}
               {` `}
             </div>

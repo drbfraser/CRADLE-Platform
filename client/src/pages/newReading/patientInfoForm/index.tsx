@@ -56,8 +56,8 @@ export function PatientInfoForm(props: IProps): JSX.Element {
           name="patientName"
           value={props.patient.patientName}
           control={Input}
-          label="Patient Initials"
-          placeholder="Patient Initials"
+          label="Patient Name"
+          placeholder="Patient Name"
           onChange={props.onChange}
           type="text"
           pattern="[a-zA-Z]*"

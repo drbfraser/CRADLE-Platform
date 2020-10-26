@@ -12,7 +12,6 @@ import { validateInput } from '../validation';
 
 const initializePatientKeys = [
   `household`,
-  `patientInitial`,
   `patientId`,
   `patientName`,
   `patientSex`,
@@ -31,7 +30,6 @@ const initializePatientKeys = [
 export const useNewPatient = () => {
   const [patient, setPatient] = React.useState({
     household: '',
-    patientInitial: '',
     patientId: '',
     patientName: '',
     patientAge: 15,
@@ -46,7 +44,6 @@ export const useNewPatient = () => {
     drugHistory: '',
     medicalHistory: '',
     householdError: false,
-    patientInitialError: false,
     patientIdError: false,
     patientNameError: false,
     patientAgeError: false,
@@ -73,7 +70,6 @@ export const useNewPatient = () => {
     if (reset) {
       setPatient({
         household: '',
-        patientInitial: '',
         patientId: '',
         patientName: '',
         patientAge: 15,
@@ -88,7 +84,6 @@ export const useNewPatient = () => {
         drugHistory: '',
         medicalHistory: '',
         householdError: false,
-        patientInitialError: false,
         patientIdError: false,
         patientNameError: false,
         patientAgeError: false,
@@ -154,11 +149,11 @@ export const useNewPatient = () => {
         });
       }
     }
-    if (name === 'patientInitial') {
+    if (name === 'patientName') {
       setPatient({
         ...patient,
         [name]: value,
-        patientInitialError: errors.patientInitialError,
+        patientNameError: errors.patientNameError,
       });
     }
     if (name === 'patientId') {
@@ -248,7 +243,7 @@ export const useNewPatient = () => {
           initialized[key] = value;
 
           if (key === `patientName`) {
-            initialized.patientInitial = value;
+            initialized.patientName = value;
           }
         }
 

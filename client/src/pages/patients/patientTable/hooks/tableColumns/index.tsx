@@ -2,7 +2,7 @@ import { Callback, GlobalSearchPatient, Patient } from '@types';
 
 import { MUIDataTableColumn } from 'mui-datatables';
 import React from 'react';
-import { useInitialsColumn } from './column/initials';
+import { usePatientNameColumn } from './column/patientName';
 import { useLastReadingDateColumn } from './column/lastReadingDate';
 import { usePatientIdColumn } from './column/patientId';
 import { useStyles } from '../../../../../shared/components/table/styles';
@@ -15,7 +15,7 @@ import { useVitalSignColumn } from './column/vitalSign';
 // * Necessary for the Take Action column
 // * Requires the right index
 export enum PatientTableColumnEnum {
-  INITIALS = 'INITIALS',
+  PATIENT_NAME = 'PATIENT_NAME',
   PATIENT_ID = 'PATIENT_ID',
   VILLAGE = 'VILLAGE',
   VITAL_SIGN = 'VITAL_SIGN',
@@ -40,7 +40,7 @@ export const useTableColumns = ({
 }: IArgs): Array<MUIDataTableColumn> => {
   const classes = useStyles();
 
-  const initialsColumn = useInitialsColumn({
+  const patientNameColumn = usePatientNameColumn({
     headClass: classes.headCell,
     bodyClass: classes.bodyCell,
     patients,
@@ -78,7 +78,7 @@ export const useTableColumns = ({
   });
 
   const columns: TableColumns = {
-    [PatientTableColumnEnum.INITIALS]: initialsColumn,
+    [PatientTableColumnEnum.PATIENT_NAME]: patientNameColumn,
     [PatientTableColumnEnum.PATIENT_ID]: patientIdColumn,
     [PatientTableColumnEnum.VILLAGE]: villageColumn,
     [PatientTableColumnEnum.VITAL_SIGN]: vitalSignColumn,

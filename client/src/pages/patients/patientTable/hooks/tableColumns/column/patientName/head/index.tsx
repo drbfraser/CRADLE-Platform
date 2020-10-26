@@ -12,7 +12,7 @@ interface IProps {
   label?: string;
 }
 
-export const InitialsHead: React.FC<IProps> = ({
+export const PatientNameHead: React.FC<IProps> = ({
   className,
   data,
   label,
