@@ -11,7 +11,7 @@ interface Patient {
   drugHistory: string;
   medicalHistory: string;
   isPregnant: boolean;
-  isExactDob:boolean;
+  isExactDob: boolean;
 }
 interface Reading {
   readingId: string;
@@ -104,7 +104,7 @@ const getSymptomsMapping = (symptoms: any) => {
 
 export const formatPatientData = (unformattedPatient: any) => {
   const formattedPatient: Patient = new (class implements Patient {
-    isExactDob:boolean = unformattedPatient.isExactDob as boolean;
+    isExactDob: boolean = unformattedPatient.isExactDob as boolean;
     dob: string = unformattedPatient.dob as string;
     drugHistory: string = unformattedPatient.drugHistory as string;
     gestationalAgeUnit: string = unformattedPatient.gestationalAgeUnit as string;

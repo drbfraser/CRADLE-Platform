@@ -81,7 +81,7 @@ export type Patient = {
   readings: Array<Reading>;
   tableData: { id: number };
   zone: OrNull<string>;
-  isExactDob:boolean;
+  isExactDob: boolean;
 };
 
 export type EditedPatient = Pick<
@@ -185,7 +185,7 @@ export type PatientNewReading = {
   patientSex: string;
   villageNumber: string;
   zone: OrNull<string>;
-  isExactDob:boolean;
+  isExactDob: boolean;
 };
 
 export type TrafficLightStatistics = {
