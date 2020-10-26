@@ -3,13 +3,13 @@ import { useStyles } from '../../../../../../../../shared/components/table/colum
 
 interface IProps {
   className: string;
-  initials: string;
+  patientName: string;
 }
 
-export const InitialsBody: React.FC<IProps> = ({
+export const PatientNameBody: React.FC<IProps> = ({
   className,
-  initials,
+  patientName,
 }: IProps) => {
   const classes = useStyles();
-  return <p className={`${className} ${classes.text}`}>{initials}</p>;
+  return <p className={`${className} ${classes.text}`}>{patientName}</p>;
 };

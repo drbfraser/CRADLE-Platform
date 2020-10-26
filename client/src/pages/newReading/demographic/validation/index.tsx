@@ -1,13 +1,12 @@
 const hasNumber = (myString: any) => {
   return /^[0-9]+$/.test(myString);
 };
-const isPatientInitialsValid = (myString: any) => {
+const isPatientNameValid = (myString: any) => {
   return /^\w[\w+\- ]*$/.test(myString);
 };
 export const validateInput = (name: any, value: any) => {
   const patientError = {
     householdError: false,
-    patientInitialError: false,
     patientIdError: false,
     patientNameError: false,
     patientAgeError: false,
@@ -28,9 +27,9 @@ export const validateInput = (name: any, value: any) => {
     age = yearNow - +year;
   }
   switch (name) {
-    case 'patientInitial':
-      if (!isPatientInitialsValid(value)) {
-        patientError.patientInitialError = true;
+    case 'patientName':
+      if (!isPatientNameValid(value)) {
+        patientError.patientNameError = true;
       }
       break;
     case 'villageNumber':

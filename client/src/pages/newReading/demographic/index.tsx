@@ -84,17 +84,17 @@ const Page: React.FC<IProps> = (props) => {
       <form className={classes.root} autoComplete="off">
         <FormControl className={classes.formField}>
           <TextField
-            error={props.patient.patientInitialError}
+            error={props.patient.patientNameError}
             label={'Patient Name'}
             id="component-outlined"
-            name="patientInitial"
-            value={props.patient.patientInitial}
+            name="patientName"
+            value={props.patient.patientName}
             onChange={props.onChange}
             required={true}
             variant="outlined"
             type={'text'}
             helperText={
-              props.patient.patientInitialError
+              props.patient.patientNameError
                 ? 'please enter alphanumeric characters only.'
                 : ''
             }

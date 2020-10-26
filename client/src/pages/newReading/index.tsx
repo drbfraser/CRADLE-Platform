@@ -221,7 +221,7 @@ const Page: React.FC<IProps> = (props) => {
     if (!props.newPatientExist && existingPatient) {
       setSelectedPatientId(patient.patientId);
       setPageTitle(
-        `Create a New Patient and Reading, ${patient.patientId} (${patient.patientInitial})`
+        `Create a New Patient and Reading, ${patient.patientId} (${patient.patientName})`
       );
       setExistingPatient(false);
       setIsShowDialogPatientCheck(true);
@@ -230,7 +230,7 @@ const Page: React.FC<IProps> = (props) => {
     addReading,
     existingPatient,
     patient.patientId,
-    patient.patientInitial,
+    patient.patientName,
     props,
     urineTest,
   ]);
@@ -423,10 +423,9 @@ const Page: React.FC<IProps> = (props) => {
     if (activeStep === 0) {
       if (
         !patient.patientId ||
-        !patient.patientInitial ||
+        !patient.patientName ||
         (patient.isPregnant && !patient.gestationalAgeValue) ||
         patient.patientIdError ||
-        patient.patientInitialError ||
         patient.householdError ||
         patient.patientNameError ||
         patient.patientAgeError ||

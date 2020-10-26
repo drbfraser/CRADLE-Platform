@@ -107,13 +107,13 @@ const Page: React.FC<IProps> = (props) => {
               Patient Demographics
             </h3>
             <TextField
-              disabled={props.patient.patientInitial ? false : true}
+              disabled={props.patient.patientName ? false : true}
               InputProps={{
-                readOnly: props.patient.patientInitial ? true : false,
+                readOnly: props.patient.patientName ? true : false,
               }}
-              label="Initial"
+              label="Name"
               variant="outlined"
-              value={props.patient.patientInitial}
+              value={props.patient.patientName}
             />
             <TextField
               disabled={props.patient.patientId ? false : true}

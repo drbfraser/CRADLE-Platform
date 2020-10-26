@@ -3,7 +3,7 @@ import { Callback, Patient } from '@types';
 import { MUIDataTableColumn } from 'mui-datatables';
 import { useAssessmentColumn } from './column/assessment';
 import { useDateReferredColumn } from './column/dateReferred';
-import { useInitialsColumn } from './column/initials';
+import { usePatientNameColumn } from './column/patientName';
 import { usePatientIdColumn } from './column/patientId';
 import { useStyles } from '../../../../../shared/components/table/styles';
 import { useVillageColumn } from './column/village';
@@ -12,7 +12,7 @@ import { useVitalSignColumn } from './column/vitalSign';
 // * Order of enums is important
 // * Must match order of columns in the table
 export enum ReferralTableColumnEnum {
-  INITIALS = 'INITIALS',
+  PATIENT_NAME = 'PATIENT_NAME',
   PATIENT_ID = 'PATIENT_ID',
   VILLAGE = 'VILLAGE',
   VITAL_SIGN = 'VITAL_SIGN',
@@ -33,7 +33,7 @@ export const useTableColumns = ({
 }: IArgs): Array<MUIDataTableColumn> => {
   const classes = useStyles();
 
-  const initialsColumn = useInitialsColumn({
+  const patientNameColumn = usePatientNameColumn({
     headClass: classes.headCell,
     bodyClass: classes.bodyCell,
     patients,
@@ -71,7 +71,7 @@ export const useTableColumns = ({
   });
 
   const columns: TableColumns = {
-    [ReferralTableColumnEnum.INITIALS]: initialsColumn,
+    [ReferralTableColumnEnum.PATIENT_NAME]: patientNameColumn,
     [ReferralTableColumnEnum.PATIENT_ID]: patientIdColumn,
     [ReferralTableColumnEnum.VILLAGE]: villageColumn,
     [ReferralTableColumnEnum.VITAL_SIGN]: vitalSignColumn,

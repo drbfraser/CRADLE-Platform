@@ -76,7 +76,7 @@ export const PatientTable: React.FC<IProps> = (props) => {
 
   const localization = useLocalization({
     globalSearch,
-    initialMessage: `Search for a patient above by either Patient ID or Initials. If
+    initialMessage: `Search for a patient above by either Patient ID or Name. If
   nothing matches your search criteria this page will remain blank`,
     loading: props.loading,
     loadingText: `Getting patient data...`,
