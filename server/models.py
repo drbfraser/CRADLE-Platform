@@ -32,6 +32,12 @@ class SexEnum(enum.Enum):
     OTHER = "OTHER"
 
 
+class GestationalAgeUnitEnum(enum.Enum):
+    MONTHS = "MONTHS"
+    WEEKS = "WEEKS"
+    DAYS = "DAYS"
+
+
 class TrafficLightEnum(enum.Enum):
     NONE = "NONE"
     GREEN = "GREEN"
@@ -172,7 +178,7 @@ class Patient(db.Model):
     patientName = db.Column(db.String(50))
     patientSex = db.Column(db.Enum(SexEnum), nullable=False)
     isPregnant = db.Column(db.Boolean)
-    gestationalAgeUnit = db.Column(db.String(50))
+    gestationalAgeUnit = db.Column(db.Enum(GestationalAgeUnitEnum), nullable=True)
     gestationalTimestamp = db.Column(db.BigInteger)
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)

@@ -19,7 +19,7 @@ def validate(request_body: dict) -> Optional[str]:
                             "zone": "15",
                             "villageNumber": "50",
                             "gestationalTimestamp": 1587068710, - required if isPregnant = True
-                            "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS", - required isPregnant = True
+                            "gestationalAgeUnit": "WEEKS", - required isPregnant = True
                             "drugHistory": "too much tylenol",
                             "medicalHistory": "not enough advil"
                         }

@@ -15,7 +15,7 @@ curl \
         "patientId": "'"$UUID"'",
         "patientName":"Kevin",
         "patientAge":15,
-        "gestationalAgeUnit":"GESTATIONAL_AGE_UNITS_WEEKS",
+        "gestationalAgeUnit":"WEEKS",
         "gestationalAgeValue":"34",
         "villageNumber": "123245",
         "patientSex":"F",

@@ -10,7 +10,7 @@ valid_json = {
     "referralId": "e9b1d6b0-a098-4c0a-ab47-bda85a1890c7",
     "patient": {
         "gestationalTimestamp": two_weeks_ago,
-        "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_MONTHS",
+        "gestationalAgeUnit": "MONTHS",
         "patientId": "2",
         "patientName": "A",
         "dob": "2000-01-01",
@@ -56,7 +56,7 @@ valid_json = {
 required_keys_missing = {
     "patient": {
         "gestationalTimestamp": two_weeks_ago,
-        "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_MONTHS",
+        "gestationalAgeUnit": "MONTHS",
         "patientId": "2",
         "patientName": "A",
         "dob": "2000-01-01",
@@ -103,7 +103,7 @@ invalid_nested_patient = {
     "referralId": "e9b1d6b0-a098-4c0a-ab47-bda85a1890c7",
     "patient": {
         "gestationalTimestamp": two_weeks_ago,
-        "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_MONTHS",
+        "gestationalAgeUnit": "MONTHS",
         "patientName": "A",
         "dob": "2000-01-01",
         "patientSex": "FEMALE",
@@ -149,7 +149,7 @@ invalid_referral = {
     "referralId": "e9b1d6b0-a098-4c0a-ab47-bda85a1890c7",
     "patient": {
         "gestationalTimestamp": two_weeks_ago,
-        "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_MONTHS",
+        "gestationalAgeUnit": "MONTHS",
         "patientId": "2",
         "patientName": "A",
         "dob": "2000-01-01",
@@ -195,7 +195,7 @@ invalid_nested_reading = {
     "referralId": "e9b1d6b0-a098-4c0a-ab47-bda85a1890c7",
     "patient": {
         "gestationalTimestamp": two_weeks_ago,
-        "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_MONTHS",
+        "gestationalAgeUnit": "MONTHS",
         "patientId": "2",
         "patientName": "A",
         "dob": "2000-01-01",

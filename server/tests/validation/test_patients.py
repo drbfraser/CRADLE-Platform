@@ -17,7 +17,7 @@ valid_json = {
     "zone": "15",
     "villageNumber": "50",
     "gestationalTimestamp": two_weeks_ago,
-    "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+    "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
 }
@@ -32,7 +32,7 @@ missing_gestational_timestamp = {
     "dob": "1990-05-30",
     "zone": "15",
     "villageNumber": "50",
-    "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+    "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
 }
@@ -48,7 +48,7 @@ invalid_gestational_timestamp = {
     "zone": "15",
     "villageNumber": "50",
     "gestationalTimestamp": fifty_weeks_ago,
-    "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+    "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
 }
@@ -64,7 +64,7 @@ not_type_string = {
     "zone": "15",
     "villageNumber": "50",
     "gestationalTimestamp": two_weeks_ago,
-    "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+    "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
 }
@@ -80,7 +80,7 @@ not_type_int = {
     "zone": "15",
     "villageNumber": "50",
     "gestationalTimestamp": two_weeks_ago,
-    "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+    "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
 }
@@ -96,7 +96,7 @@ patient_id_too_long = {
     "zone": "15",
     "villageNumber": "50",
     "gestationalTimestamp": two_weeks_ago,
-    "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+    "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
 }
@@ -112,7 +112,7 @@ incorrect_dob_format = {
     "zone": "15",
     "villageNumber": "50",
     "gestationalTimestamp": two_weeks_ago,
-    "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+    "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
 }
