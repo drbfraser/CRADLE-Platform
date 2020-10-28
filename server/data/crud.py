@@ -123,17 +123,32 @@ def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
             )
 
     if m.schema() == Referral.schema():
-        if sortDir.lower() == "asc":
+        if search_param is not None:
             return (
                 m.query.options(joinedload(m.reading))
-                .order_by(asc(getattr(m, sortBy)))
+                .filter(
+                    or_(
+                        m.patientName.ilike("%" + search_param.lower() + "%"),
+                        m.patientId.ilike(search_param + "%"),
+                    )
+                )
+                .order_by(
+                    asc(getattr(m, sortBy))
+                    if sortDir.lower() == "asc"
+                    else desc(getattr(m, sortBy))
+                )
                 .limit(limit)
                 .offset((page - 1) * limit)
             )
+
         else:
             return (
                 m.query.options(joinedload(m.reading))
-                .order_by(desc(getattr(m, sortBy)))
+                .order_by(
+                    asc(getattr(m, sortBy))
+                    if sortDir.lower() == "asc"
+                    else desc(getattr(m, sortBy))
+                )
                 .limit(limit)
                 .offset((page - 1) * limit)
             )
