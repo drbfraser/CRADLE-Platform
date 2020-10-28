@@ -55,18 +55,6 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
                    query (e.g., ``patientId="abc"``)
     :return: A list of models from the database
     """
-    if m.schema() == Patient.schema():
-        if not kwargs:
-            return m.query.options(joinedload(m.readings)).all()
-
-        return m.query.options(joinedload(m.readings)).filter_by(**kwargs).all()
-
-    if m.schema() == Referral.schema():
-        if not kwargs:
-            return m.query.options(joinedload(m.reading)).all()
-
-        return m.query.options(joinedload(m.reading)).filter_by(**kwargs).all()
-
     if not kwargs:
         return m.query.all()
 
