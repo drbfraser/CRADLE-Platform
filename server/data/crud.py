@@ -110,7 +110,7 @@ def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
         elif search_id is not None:
             return (
                 m.query.options(joinedload(m.readings))
-                .filter(m.patientId.ilike("%" + search_id + "%"))
+                .filter(m.patientId.ilike(search_id + "%"))
                 .order_by(
                     asc(getattr(m, sortBy))
                     if sortDir.lower() == "asc"
