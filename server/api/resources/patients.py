@@ -32,8 +32,7 @@ class Root(Resource):
             page = util.query_param_page(request, name="page")
             sort_by = util.query_param_sortBy(request, name="sortBy")
             sort_dir = util.query_param_sortDir(request, name="sortDir")
-            search_name = util.query_param_searchName(request, name="searchName")
-            search_id = util.query_param_searchId(request, name="searchId")
+            search = util.query_param_search(request, name="search")
 
             patients = view.patient_view_for_user(
                 user,
@@ -41,8 +40,7 @@ class Root(Resource):
                 page=page,
                 sortBy=sort_by,
                 sortDir=sort_dir,
-                searchName=search_name,
-                searchId=search_id,
+                search=search,
             )
 
             # Computes simplified view for each patient

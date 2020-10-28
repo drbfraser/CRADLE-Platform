@@ -4,6 +4,7 @@ from data import db_session
 from models import Patient, Referral
 from sqlalchemy.orm import joinedload
 from sqlalchemy import asc, desc
+from sqlalchemy import or_
 
 M = TypeVar("M")
 
@@ -86,31 +87,20 @@ def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
     page = kwargs.get("page", None)
     sortBy = kwargs.get("sortBy", None)
     sortDir = kwargs.get("sortDir", None)
-    search_name = (
-        None if kwargs.get("searchName", None) == "" else kwargs.get("searchName", None)
-    )
-    search_id = (
-        None if kwargs.get("searchId", None) == "" else kwargs.get("searchId", None)
+    search_param = (
+        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
 
     if m.schema() == Patient.schema():
-        if search_name is not None:
+        if search_param is not None:
             return (
                 m.query.options(joinedload(m.readings))
-                .filter(m.patientName.ilike("%" + search_name.lower() + "%"))
-                .order_by(
-                    asc(getattr(m, sortBy))
-                    if sortDir.lower() == "asc"
-                    else desc(getattr(m, sortBy))
+                .filter(
+                    or_(
+                        m.patientName.ilike("%" + search_param.lower() + "%"),
+                        m.patientId.ilike(search_param + "%"),
+                    )
                 )
-                .limit(limit)
-                .offset((page - 1) * limit)
-            )
-
-        elif search_id is not None:
-            return (
-                m.query.options(joinedload(m.readings))
-                .filter(m.patientId.ilike(search_id + "%"))
                 .order_by(
                     asc(getattr(m, sortBy))
                     if sortDir.lower() == "asc"
