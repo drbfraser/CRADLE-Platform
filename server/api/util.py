@@ -24,48 +24,47 @@ def query_param_bool(request: Request, name: str) -> bool:
 
 def query_param_limit(request: Request, name: str) -> int:
     """
-    Returns true if the request URL contains a boolean query parameter with a given
-    ``name`` who's value is "true".
+    Returns Integer if the request URL contains a limit query parameter.
 
     :param request: A request
     :param name: The name of the parameter to check for
-    :return: True if the value for the parameter is "true", otherwise False.
+    :return: 10 if the value for the parameter is not specified, otherwise given value.
     """
     return request.args.get(name, 10, type=int)
 
 
 def query_param_page(request: Request, name: str) -> int:
     """
-    Returns true if the request URL contains a boolean query parameter with a given
-    ``name`` who's value is "true".
+    Returns Integer if the request URL contains a page query parameter.
 
     :param request: A request
     :param name: The name of the parameter to check for
-    :return: True if the value for the parameter is "true", otherwise False.
+    :return: 1 if the value for the parameter is not specified, otherwise given value.
+
     """
-    return request.args.get(name, 0, type=int)
+    return request.args.get(name, 1, type=int)
 
 
 def query_param_sortBy(request: Request, name: str) -> str:
     """
-    Returns true if the request URL contains a boolean query parameter with a given
-    ``name`` who's value is "true".
+    Returns String if the request URL contains a page sortBy parameter.
 
     :param request: A request
     :param name: The name of the parameter to check for
-    :return: True if the value for the parameter is "true", otherwise False.
+    :return: patientName if the value for the parameter is not specified, otherwise given column name.
+
     """
     return request.args.get(name, "patientName", type=str)
 
 
 def query_param_sortDir(request: Request, name: str) -> str:
     """
-    Returns true if the request URL contains a boolean query parameter with a given
-    ``name`` who's value is "true".
+    Returns String if the request URL contains a page sortDir parameter.
 
     :param request: A request
     :param name: The name of the parameter to check for
-    :return: True if the value for the parameter is "true", otherwise False.
+    :return: asc if the value for the parameter is not specified, otherwise given column name.
+
     """
     return request.args.get(name, "asc", type=str)
 

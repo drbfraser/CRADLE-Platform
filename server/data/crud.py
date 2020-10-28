@@ -100,12 +100,24 @@ def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
                 m.query.options(joinedload(m.readings))
                 .order_by(desc(getattr(m, sortBy)))
                 .limit(limit)
-                .offset(page * limit)
+                .offset((page - 1) * limit)
             )
 
     if m.schema() == Referral.schema():
-        return m.query.options(joinedload(m.reading)).limit(kwargs.get("limit", None))
-
+        if sortDir.lower() == "asc":
+            return (
+                m.query.options(joinedload(m.reading))
+                .order_by(asc(getattr(m, sortBy)))
+                .limit(limit)
+                .offset(page * limit)
+            )
+        else:
+            return (
+                m.query.options(joinedload(m.reading))
+                .order_by(desc(getattr(m, sortBy)))
+                .limit(limit)
+                .offset((page - 1) * limit)
+            )
 
 def update(m: Type[M], changes: dict, **kwargs):
     """
