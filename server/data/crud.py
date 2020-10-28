@@ -3,6 +3,7 @@ from typing import List, Optional, Type, TypeVar
 from data import db_session
 from models import Patient, Referral
 from sqlalchemy.orm import joinedload
+from sqlalchemy import asc, desc
 
 M = TypeVar("M")
 
@@ -69,6 +70,41 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
         return m.query.all()
 
     return m.query.filter_by(**kwargs).all()
+
+
+def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
+    """
+    Queries the database for all models which match some query parameters defined as
+    keyword arguments.
+
+    :param m: Type of the model to query for
+    :param kwargs: Keyword arguments mapping column names to values to parameterize the
+                   query (e.g., ``patientId="abc"``)
+    :return: A list of models from the database
+    """
+    limit = kwargs.get("limit", None)
+    page = kwargs.get("page", None)
+    sortBy = kwargs.get("sortBy", None)
+    sortDir = kwargs.get("sortDir", None)
+
+    if m.schema() == Patient.schema():
+        if sortDir.lower() == "asc":
+            return (
+                m.query.options(joinedload(m.readings))
+                .order_by(asc(getattr(m, sortBy)))
+                .limit(limit)
+                .offset(page * limit)
+            )
+        else:
+            return (
+                m.query.options(joinedload(m.readings))
+                .order_by(desc(getattr(m, sortBy)))
+                .limit(limit)
+                .offset(page * limit)
+            )
+
+    if m.schema() == Referral.schema():
+        return m.query.options(joinedload(m.reading)).limit(kwargs.get("limit", None))
 
 
 def update(m: Type[M], changes: dict, **kwargs):

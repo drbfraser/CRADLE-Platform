@@ -26,12 +26,22 @@ class Root(Resource):
     )
     def get():
         user = util.current_user()
-        patients = view.patient_view_for_user(user)
-        if util.query_param_bool(request, name="simplified"):
+
+        if util.query_param_limit(request, name="limit"):
+            limit = util.query_param_limit(request, name="limit")
+            page = util.query_param_page(request, name="page")
+            sort_by = util.query_param_sortBy(request, name="sortBy")
+            sort_dir = util.query_param_sortDir(request, name="sortDir")
+
+            patients = view.patient_view_for_user(
+                user, limit=limit, page=page, sortBy=sort_by, sortDir=sort_dir
+            )
+
             # Computes simplified view for each patient
-            return [serialize.serialize_patient(p) for p in patients]
         else:
-            return [marshal.marshal(p) for p in patients]
+            patients = view.patient_view_for_user(user)
+
+        return [serialize.serialize_patient(p) for p in patients]
 
     @staticmethod
     @jwt_required

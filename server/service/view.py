@@ -24,7 +24,7 @@ import service.assoc as assoc
 from models import Patient, Referral, User
 
 
-def patient_view_for_user(user: User) -> List[Patient]:
+def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
     """
     Switches on the role of ``user`` and returns an appropriate list of patients.
 
@@ -33,7 +33,7 @@ def patient_view_for_user(user: User) -> List[Patient]:
     """
     roles = [r.name.value for r in user.roleIds]
     if "ADMIN" in roles:
-        return admin_patient_view()
+        return admin_patient_view(**kwargs)
     elif "HCW" in roles:
         return hcw_patient_view(user)
     elif "CHO" in roles:
@@ -44,13 +44,16 @@ def patient_view_for_user(user: User) -> List[Patient]:
         raise ValueError("user does not contain an roles")
 
 
-def admin_patient_view() -> List[Patient]:
+def admin_patient_view(**kwargs) -> List[Patient]:
     """
     Returns the admin patient view (i.e., all patients).
 
     :return: A list of patients
     """
-    return crud.read_all(Patient)
+    if not kwargs:
+        return crud.read_all(Patient)
+    else:
+        return crud.read_all_limit_page_sort(Patient, **kwargs)
 
 
 def hcw_patient_view(user: User) -> List[Patient]:
