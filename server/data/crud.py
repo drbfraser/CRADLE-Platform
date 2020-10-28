@@ -86,19 +86,48 @@ def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
     page = kwargs.get("page", None)
     sortBy = kwargs.get("sortBy", None)
     sortDir = kwargs.get("sortDir", None)
+    search_name = (
+        None if kwargs.get("searchName", None) == "" else kwargs.get("searchName", None)
+    )
+    search_id = (
+        None if kwargs.get("searchId", None) == "" else kwargs.get("searchId", None)
+    )
 
     if m.schema() == Patient.schema():
-        if sortDir.lower() == "asc":
+        if search_name is not None:
             return (
                 m.query.options(joinedload(m.readings))
-                .order_by(asc(getattr(m, sortBy)))
+                .filter(m.patientName.ilike("%" + search_name.lower() + "%"))
+                .order_by(
+                    asc(getattr(m, sortBy))
+                    if sortDir.lower() == "asc"
+                    else desc(getattr(m, sortBy))
+                )
                 .limit(limit)
-                .offset(page * limit)
+                .offset((page - 1) * limit)
             )
+
+        elif search_id is not None:
+            return (
+                m.query.options(joinedload(m.readings))
+                .filter(m.patientId.ilike("%" + search_id + "%"))
+                .order_by(
+                    asc(getattr(m, sortBy))
+                    if sortDir.lower() == "asc"
+                    else desc(getattr(m, sortBy))
+                )
+                .limit(limit)
+                .offset((page - 1) * limit)
+            )
+
         else:
             return (
                 m.query.options(joinedload(m.readings))
-                .order_by(desc(getattr(m, sortBy)))
+                .order_by(
+                    asc(getattr(m, sortBy))
+                    if sortDir.lower() == "asc"
+                    else desc(getattr(m, sortBy))
+                )
                 .limit(limit)
                 .offset((page - 1) * limit)
             )
@@ -109,7 +138,7 @@ def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
                 m.query.options(joinedload(m.reading))
                 .order_by(asc(getattr(m, sortBy)))
                 .limit(limit)
-                .offset(page * limit)
+                .offset((page - 1) * limit)
             )
         else:
             return (
@@ -118,6 +147,7 @@ def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
                 .limit(limit)
                 .offset((page - 1) * limit)
             )
+
 
 def update(m: Type[M], changes: dict, **kwargs):
     """

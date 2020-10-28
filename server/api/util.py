@@ -69,6 +69,30 @@ def query_param_sortDir(request: Request, name: str) -> str:
     return request.args.get(name, "asc", type=str)
 
 
+def query_param_searchName(request: Request, name: str) -> str:
+    """
+    Returns String if the request URL contains a page sortDir parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: empty string if the value for the parameter is not specified, otherwise given column name.
+
+    """
+    return request.args.get(name, "", type=str)
+
+
+def query_param_searchId(request: Request, name: str) -> str:
+    """
+    Returns String if the request URL contains a page sortDir parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: empty string if the value for the parameter is not specified, otherwise given column name.
+
+    """
+    return request.args.get(name, "", type=str)
+
+
 def current_user() -> User:
     """
     Returns the the model for the user making the request.
