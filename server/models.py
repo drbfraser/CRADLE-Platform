@@ -206,7 +206,7 @@ class Reading(db.Model):
     oxygenSaturation = db.Column(db.Integer)
     temperature = db.Column(db.Integer)
     symptoms = db.Column(db.Text)
-    trafficLightStatus = db.Column(db.Enum(TrafficLightEnum))
+    trafficLightStatus = db.Column(db.Enum(TrafficLightEnum, nullable=False))
     dateTimeTaken = db.Column(db.BigInteger)
     dateRecheckVitalsNeeded = db.Column(db.BigInteger)
     retestOfPreviousReadingIds = db.Column(db.String(100))

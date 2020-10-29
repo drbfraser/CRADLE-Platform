@@ -58,7 +58,7 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
     return m.query.filter_by(**kwargs).all()
 
 
-def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
+def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
     """
     Queries the database for all models which match some query parameters defined as
     keyword arguments.

@@ -53,7 +53,7 @@ def admin_patient_view(**kwargs) -> List[Patient]:
     if not kwargs:
         return crud.read_all(Patient)
     else:
-        return crud.read_all_limit_page_sort(Patient, **kwargs)
+        return crud.read_all_with_args(Patient, **kwargs)
 
 
 def hcw_patient_view(user: User) -> List[Patient]:
@@ -118,7 +118,7 @@ def admin_referral_view(**kwargs) -> List[Referral]:
     if not kwargs:
         return crud.read_all(Referral)
     else:
-        return crud.read_all_limit_page_sort(Referral, **kwargs)
+        return crud.read_all_with_args(Referral, **kwargs)
 
 
 def hcw_referral_view(user: User) -> List[Referral]:
