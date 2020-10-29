@@ -32,7 +32,6 @@ export const PatientTable = ({ patients }: IProps) => {
 
 const useStyles = makeStyles({
   table: {
-    backgroundColor: '#fff',
     width: '100%',
     textAlign: 'center',
   },
