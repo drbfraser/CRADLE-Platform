@@ -50,7 +50,11 @@ backend unit tests:
     - pip install --upgrade pip
     - pip install -r requirements.txt
   script:
-    - python -m pytest tests
+    - python -m pytest --junitxml=report.xml tests
+  artifacts:
+    when: always
+    reports:
+      junit: server/report.xml
 
 backend system tests:
   stage: test
@@ -87,7 +91,11 @@ backend system tests:
     - python3 db.py rebuild --no-docker
     - python3 manage.py seed_test_data
   script:
-    - python -m pytest systemTests
+    - python -m pytest --junitxml=report.xml systemTests
+  artifacts:
+    when: always
+    reports:
+      junit: server/report.xml
 
 frontend lint:
   stage: format
