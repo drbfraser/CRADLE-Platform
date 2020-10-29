@@ -5,6 +5,7 @@ import { IPatient, SortDir } from './types';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import SortIcon from '@material-ui/icons/Sort';
+import IconButton from '@material-ui/core/IconButton';
 
 interface IProps {
   patients: IPatient[];
@@ -46,9 +47,9 @@ export const PatientTable = ({
       <thead>
         <tr className={classes.headRow}>
           {Object.entries(columns).map(([col, name]) => (
-            <th key={col}>
+            <th className={classes.headCell} key={col}>
               {name}
-              <div className={classes.sortIcon} onClick={() => handleSort(col)}>
+              <IconButton onClick={() => handleSort(col)}>
                 {sortBy === col ? (
                   sortDir === SortDir.ASC ? (
                     <ArrowDownwardIcon />
@@ -58,7 +59,7 @@ export const PatientTable = ({
                 ) : (
                   <SortIcon />
                 )}
-              </div>
+              </IconButton>
             </th>
           ))}
         </tr>
@@ -80,15 +81,9 @@ const useStyles = makeStyles({
   headRow: {
     height: '60px',
   },
-  sortIcon: {
-    display: 'inline-block',
-    color: '#888',
-    marginLeft: 10,
-    padding: 3,
-    borderRadius: '50%',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: '#eee',
-    },
+  headCell: {
+    backgroundColor: '#fff',
+    position: 'sticky',
+    top: 0,
   },
 });

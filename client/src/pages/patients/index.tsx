@@ -8,12 +8,18 @@ import { EndpointEnum } from '../../../src/server';
 import { BASE_URL } from '../../../src/server/utils';
 import { PatientTable } from './PatientTable';
 import { IPatient, SortDir } from './types';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import { IconButton } from '@material-ui/core';
 
 export const PatientsPage = () => {
   const [patients, setPatients] = useState<IPatient[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
-  const [limit] = useState(10);
+  const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('patientName');
@@ -35,10 +41,14 @@ export const PatientsPage = () => {
 
     setLoading(true);
 
+    // allow aborting a fetch early if the user clicks things rapidly
+    const controller = new AbortController();
+
     const fetchOptions = {
       headers: {
         Authorization: 'Bearer ' + localStorage.getItem('token'),
       },
+      signal: controller.signal,
     };
 
     const params =
@@ -55,16 +65,31 @@ export const PatientsPage = () => {
       .then(async (resp) => {
         const json = await resp.json();
         setPatients(json);
+        setLoading(false);
       })
-      .catch(() => setLoadingError(true))
-      .finally(() => setLoading(false));
+      .catch((e) => {
+        if (e.name !== 'AbortError') {
+          setLoadingError(true);
+          setLoading(false);
+        }
+      });
+
+    // if the user does something else, cancel the fetch
+    return () => controller.abort();
   }, [limit, page, search, sortBy, sortDir]);
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
+  const startRecordNum = ((page - 1) * limit) + 1;
+  const endRecordNum = startRecordNum + patients.length - 1;
+  const canPageBackward = page !== 1;
+  // since we don't know how many records there are
+  // guess that if we're at the limit there are more
+  const canPageForward = patients.length === limit;
+
   return (
-    <div className={classes.wrapper}>
+    <Paper className={classes.wrapper}>
       {loadingError && (
         <Toast
           status="error"
@@ -86,7 +111,7 @@ export const PatientsPage = () => {
         />
       </div>
       {patients.length ? (
-        <>
+        <div className={classes.tableWrapper}>
           <PatientTable
             patients={patients}
             sortBy={sortBy}
@@ -94,14 +119,34 @@ export const PatientsPage = () => {
             setSortBy={setSortBy}
             setSortDir={setSortDir}
           />
-          Records {(page - 1) * limit + 1} - {limit}. Rows per page: {limit}
-        </>
+        </div>
       ) : (
         <div className={classes.messageWrapper}>
           {loading ? 'Getting patient data...' : 'No records to display.'}
         </div>
       )}
-    </div>
+      <div className={classes.footer}>
+        Records {startRecordNum} - {endRecordNum}.
+        Rows per page: &nbsp;
+        <Select
+          value={limit}
+          onChange={(e) => setLimit(e.target.value as number)}>
+          <MenuItem value={10}>10</MenuItem>
+          <MenuItem value={25}>25</MenuItem>
+          <MenuItem value={50}>50</MenuItem>
+        </Select>
+        <IconButton
+          disabled={!canPageBackward}
+          onClick={() => setPage(page - 1)}>
+          <NavigateBeforeIcon />
+        </IconButton>
+        <IconButton
+          disabled={!canPageForward}
+          onClick={() => setPage(page + 1)}>
+          <NavigateNextIcon />
+        </IconButton>
+      </div>
+    </Paper>
   );
 };
 
@@ -121,8 +166,16 @@ const useStyles = makeStyles({
   search: {
     float: 'right',
   },
+  tableWrapper: {
+    maxHeight: '60vh',
+    overflowY: 'auto',
+  },
   messageWrapper: {
     textAlign: 'center',
     padding: '15px',
+  },
+  footer: {
+    textAlign: 'right',
+    padding: 15,
   },
 });
