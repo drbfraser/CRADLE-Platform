@@ -1,6 +1,6 @@
 # Server System Tests
 
-This directory contains system tests for the sever as opposed to `server/tests` which
+This directory contains system tests for the server as opposed to `server/tests` which
 contains unit tests. System tests run alongside a live server instance with a database
 containing predetermined test data.
 
