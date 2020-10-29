@@ -24,7 +24,7 @@ export const PatientRow = ({ patient }: IProps) => {
       </td>
       <td>{patient.patientId}</td>
       <td>{patient.villageNumber}</td>
-      <td>
+      <td className={classes.cellPadding}>
         <TrafficLight status={patient.trafficLightStatus} />
       </td>
       <td>{moment(patient.dateTimeTaken * 1000).format('YYYY-MM-DD')}</td>
@@ -40,5 +40,8 @@ const useStyles = makeStyles({
     '&:hover': {
       backgroundColor: '#f8f8f8',
     },
+  },
+  cellPadding: {
+    padding: '5px 0',
   },
 });

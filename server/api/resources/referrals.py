@@ -37,11 +37,6 @@ class Root(Resource):
             search=search,
         )
 
-        # If the request does not specifically specify "all=true", then only return the
-        # referrals which have not been assessed.
-        if not util.query_param_bool(request, "all"):
-            referrals = [r for r in referrals if r.isAssessed != 1]
-
         return [serialize.serialize_referral(r) for r in referrals]
 
     @staticmethod

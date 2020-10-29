@@ -8,12 +8,8 @@ import { EndpointEnum } from '../../../src/server';
 import { BASE_URL } from '../../../src/server/utils';
 import { PatientTable } from './PatientTable';
 import { IPatient, SortDir } from './types';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
-import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import { IconButton } from '@material-ui/core';
+import Pagination from '../../../src/shared/components/pagination/Pagination';
 
 export const PatientsPage = () => {
   const [patients, setPatients] = useState<IPatient[]>([]);
@@ -81,13 +77,6 @@ export const PatientsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
-  const startRecordNum = ((page - 1) * limit) + 1;
-  const endRecordNum = startRecordNum + patients.length - 1;
-  const canPageBackward = page !== 1;
-  // since we don't know how many records there are
-  // guess that if we're at the limit there are more
-  const canPageForward = patients.length === limit;
-
   return (
     <Paper className={classes.wrapper}>
       {loadingError && (
@@ -125,27 +114,13 @@ export const PatientsPage = () => {
           {loading ? 'Getting patient data...' : 'No records to display.'}
         </div>
       )}
-      <div className={classes.footer}>
-        Records {startRecordNum} - {endRecordNum}.
-        Rows per page: &nbsp;
-        <Select
-          value={limit}
-          onChange={(e) => setLimit(e.target.value as number)}>
-          <MenuItem value={10}>10</MenuItem>
-          <MenuItem value={25}>25</MenuItem>
-          <MenuItem value={50}>50</MenuItem>
-        </Select>
-        <IconButton
-          disabled={!canPageBackward}
-          onClick={() => setPage(page - 1)}>
-          <NavigateBeforeIcon />
-        </IconButton>
-        <IconButton
-          disabled={!canPageForward}
-          onClick={() => setPage(page + 1)}>
-          <NavigateNextIcon />
-        </IconButton>
-      </div>
+      <Pagination
+        dataLen={patients.length}
+        page={page}
+        limit={limit}
+        setPage={setPage}
+        setLimit={setLimit}
+      />
     </Paper>
   );
 };
@@ -173,9 +148,5 @@ const useStyles = makeStyles({
   messageWrapper: {
     textAlign: 'center',
     padding: '15px',
-  },
-  footer: {
-    textAlign: 'right',
-    padding: 15,
   },
 });

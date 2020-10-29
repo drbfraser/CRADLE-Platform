@@ -21,6 +21,7 @@ def serialize_referral(r: any):
         "referralId": r.id,
         "patientId": r.patientId,
         "patientName": r.patientName,
+        "villageNumber": r.villageNumber,
         "trafficLightStatus": r.trafficLightStatus,
         "dateReferred": r.dateReferred,
         "isAssessed": r.isAssessed,
