@@ -78,3 +78,6 @@ responses:
             base: 
               type: Unix timestamp | Null
               example: 1622337702
+            isExactDob:
+              type: boolean
+              example: true
