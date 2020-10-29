@@ -88,7 +88,7 @@ def vht_patient_view(user: User) -> List[Patient]:
     return assoc.patients_for_user(user)
 
 
-def referral_view_for_user(user: User) -> List[Referral]:
+def referral_view_for_user(user: User, **kwargs) -> List[Referral]:
     """
     Switches on the role of ``user`` and returns an appropriate list of referrals.
 
@@ -97,7 +97,7 @@ def referral_view_for_user(user: User) -> List[Referral]:
     """
     roles = [r.name.value for r in user.roleIds]
     if "ADMIN" in roles:
-        return admin_referral_view()
+        return admin_referral_view(**kwargs)
     elif "HCW" in roles:
         return hcw_referral_view(user)
     elif "CHO" in roles:
@@ -109,13 +109,16 @@ def referral_view_for_user(user: User) -> List[Referral]:
         raise ValueError("user does not contain any roles")
 
 
-def admin_referral_view() -> List[Referral]:
+def admin_referral_view(**kwargs) -> List[Referral]:
     """
     Returns the Admin referral view (i.e., all referrals).
 
     :return: All referrals in the database
     """
-    return crud.read_all(Referral)
+    if not kwargs:
+        return crud.read_all(Referral)
+    else:
+        return crud.read_all_limit_page_sort(Referral, **kwargs)
 
 
 def hcw_referral_view(user: User) -> List[Referral]:
