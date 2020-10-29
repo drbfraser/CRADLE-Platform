@@ -2,9 +2,6 @@ from typing import List, Optional, Type, TypeVar
 
 from data import db_session
 from models import Patient, Referral
-from sqlalchemy.orm import joinedload
-from sqlalchemy import asc, desc
-from sqlalchemy import or_
 
 M = TypeVar("M")
 
@@ -61,7 +58,7 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
     return m.query.filter_by(**kwargs).all()
 
 
-def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
+def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
     """
     Queries the database for all models which match some query parameters defined as
     keyword arguments.
@@ -81,64 +78,97 @@ def read_all_limit_page_sort(m: Type[M], **kwargs) -> List[M]:
 
     if m.schema() == Patient.schema():
         if search_param is not None:
-            return (
-                m.query.options(joinedload(m.readings))
-                .filter(
-                    or_(
-                        m.patientName.ilike("%" + search_param.lower() + "%"),
-                        m.patientId.ilike(search_param + "%"),
-                    )
-                )
-                .order_by(
-                    asc(getattr(m, sortBy))
-                    if sortDir.lower() == "asc"
-                    else desc(getattr(m, sortBy))
-                )
-                .limit(limit)
-                .offset((page - 1) * limit)
+            return db_session.execute(
+                "SELECT p.patientName, "
+                "p.patientId, "
+                "p.villageNumber, "
+                "r.trafficLightStatus, "
+                "r.dateTimeTaken"
+                " FROM patient p JOIN reading r ON r.patientId=p.patientId AND r.readingId"
+                " IN (SELECT MAX(readingId) FROM reading WHERE dateTimeTaken IN "
+                "(SELECT MAX(dateTimeTaken) FROM reading GROUP BY patientId) GROUP BY patientId)"
+                " WHERE patientName LIKE '%"
+                + search_param
+                + "%' OR p.patientId LIKE '"
+                + search_param
+                + "%'"
+                + " ORDER BY "
+                + sortBy
+                + " "
+                + sortDir
+                + " LIMIT "
+                + str((page - 1) * limit)
+                + ", "
+                + str(limit)
             )
 
         else:
-            return (
-                m.query.options(joinedload(m.readings))
-                .order_by(
-                    asc(getattr(m, sortBy))
-                    if sortDir.lower() == "asc"
-                    else desc(getattr(m, sortBy))
-                )
-                .limit(limit)
-                .offset((page - 1) * limit)
+            return db_session.execute(
+                "SELECT p.patientName, "
+                "p.patientId, "
+                "p.villageNumber, "
+                "r.trafficLightStatus, "
+                "r.dateTimeTaken"
+                " FROM patient p JOIN reading r ON r.patientId=p.patientId AND r.readingId"
+                " IN (SELECT MAX(readingId) FROM reading WHERE dateTimeTaken IN "
+                "(SELECT MAX(dateTimeTaken) FROM reading GROUP BY patientId) GROUP BY patientId)"
+                " ORDER BY "
+                + sortBy
+                + " "
+                + sortDir
+                + " LIMIT "
+                + str((page - 1) * limit)
+                + ", "
+                + str(limit)
             )
 
     if m.schema() == Referral.schema():
         if search_param is not None:
-            return (
-                m.query.options(joinedload(m.reading))
-                .filter(
-                    or_(
-                        m.patientName.ilike("%" + search_param.lower() + "%"),
-                        m.patientId.ilike(search_param + "%"),
-                    )
-                )
-                .order_by(
-                    asc(getattr(m, sortBy))
-                    if sortDir.lower() == "asc"
-                    else desc(getattr(m, sortBy))
-                )
-                .limit(limit)
-                .offset((page - 1) * limit)
+            return db_session.execute(
+                "SELECT p.patientId,"
+                " p.patientName,"
+                " p.villageNumber,"
+                " rd.trafficLightStatus,"
+                " rf.dateReferred,"
+                " rf.isAssessed,"
+                " rf.id"
+                " FROM referral rf"
+                " JOIN patient p ON rf.patientId=p.patientId"
+                " JOIN reading rd ON rd.readingId=rf.readingId"
+                " WHERE patientName LIKE '%"
+                + search_param
+                + "%' OR p.patientId LIKE '"
+                + search_param
+                + "%'"
+                + " ORDER BY "
+                + sortBy
+                + " "
+                + sortDir
+                + " LIMIT "
+                + str((page - 1) * limit)
+                + ", "
+                + str(limit)
             )
-
         else:
-            return (
-                m.query.options(joinedload(m.reading))
-                .order_by(
-                    asc(getattr(m, sortBy))
-                    if sortDir.lower() == "asc"
-                    else desc(getattr(m, sortBy))
-                )
-                .limit(limit)
-                .offset((page - 1) * limit)
+            return db_session.execute(
+                "SELECT p.patientId,"
+                " p.patientName,"
+                " p.villageNumber,"
+                " rd.trafficLightStatus,"
+                " rf.dateReferred,"
+                " rf.isAssessed,"
+                " rf.id"
+                " FROM referral rf"
+                " JOIN patient p ON rf.patientId=p.patientId"
+                " JOIN reading rd ON rd.readingId=rf.readingId"
+                " ORDER BY "
+                + sortBy
+                + " "
+                + sortDir
+                + " LIMIT "
+                + str((page - 1) * limit)
+                + ", "
+                + str(limit)
             )
 
 
