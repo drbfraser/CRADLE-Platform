@@ -43,6 +43,7 @@ export const useNewPatient = () => {
     villageNumber: '',
     drugHistory: '',
     medicalHistory: '',
+    isExactDob: false,
     householdError: false,
     patientIdError: false,
     patientNameError: false,
@@ -83,6 +84,7 @@ export const useNewPatient = () => {
         villageNumber: '',
         drugHistory: '',
         medicalHistory: '',
+        isExactDob: false,
         householdError: false,
         patientIdError: false,
         patientNameError: false,
@@ -170,6 +172,7 @@ export const useNewPatient = () => {
         ...patient,
         [name]: value,
         patientAge: calculatedAge,
+        isExactDob: true,
         dobError: errors.dobError,
         patientAgeError: errors.patientAgeError,
       });
@@ -180,6 +183,7 @@ export const useNewPatient = () => {
         ...patient,
         [name]: value,
         dob: age,
+        isExactDob: false,
         dobError: errors.dobError,
         patientAgeError: errors.patientAgeError,
       });
