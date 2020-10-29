@@ -7,3 +7,7 @@ export interface IPatient {
   trafficLightStatus: TrafficLightEnum;
   dateTimeTaken: number;
 }
+export enum SortDir {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
