@@ -65,9 +65,10 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
 
     :param m: Type of the model to query for
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``patientId="abc"``)
+                   query (e.g., ``sortBy="abc"``)
     :return: A list of models from the database
     """
+
     limit = kwargs.get("limit", None)
     page = kwargs.get("page", None)
     sortBy = kwargs.get("sortBy", None)

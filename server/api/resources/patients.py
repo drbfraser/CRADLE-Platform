@@ -27,6 +27,7 @@ class Root(Resource):
     def get():
         user = util.current_user()
 
+        # query parameters for later SQL use
         limit = util.query_param_limit(request, name="limit")
         page = util.query_param_page(request, name="page")
         sort_by = util.query_param_sortBy(request, name="sortBy")
@@ -41,6 +42,8 @@ class Root(Resource):
             sortDir=sort_dir,
             search=search,
         )
+
+        # create JSON format
         return [serialize.serialize_patient(p) for p in patients]
 
     @staticmethod
