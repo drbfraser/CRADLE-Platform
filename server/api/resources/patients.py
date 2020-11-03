@@ -102,6 +102,22 @@ class SinglePatient(Resource):
         return marshal.marshal(patient)
 
 
+# /api/android/patients/
+class PatientAndroid(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-patient-get.yml",
+        methods=["GET"],
+        endpoint="single_patient",
+    )
+    def get():
+        user = util.current_user()
+        patients = view.patient_view_for_user(user)
+
+        return patients, 200
+
+
 # /api/patients/<string:patient_id>/info
 class PatientInfo(Resource):
     @staticmethod
