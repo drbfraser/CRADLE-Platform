@@ -56,7 +56,9 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
 
     if m.schema() == Patient.schema():
         if not kwargs:
+            # get all the patients
             patients = read_all_patients()
+            # get all reading + referral + followup
             readings = read_all_reading()
 
             for p in patients:
@@ -80,20 +82,31 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
 def create_dict(d: any, row: any, pat_or_reading: bool) -> dict:
     referral = {}
     followup = {}
+
+    # Case 1 ==> patient dictionary
+    # Case 2 ==> reading dictionary
+
+    # iterate through the row values
     for column, value in row.items():
+        # Case 1
         if column == "dob":
             d = {**d, **{column: str(value)}}
         else:
+            # Case 2 for reading referral
             if "rf_" in column:
                 referral = {**referral, **{column.replace("rf_", ""): value}}
+            # Case 2 for reading followup
             if "followup_" in column:
                 followup = {**followup, **{column.replace("followup_", ""): value}}
+            # Case 2
             else:
                 d = {**d, **{column.replace("r_", ""): value}}
 
+    # Case 2
     if not pat_or_reading:
         d = {**d, **{"referral": referral}}
 
+    # Case 1
     if pat_or_reading:
         d = {**d, **{"readings": []}}
     return d
@@ -151,6 +164,7 @@ def read_all_reading() -> List[M]:
 
     for reading_row in reading_referral:
         creat_dict = create_dict(creat_dict, reading_row, False)
+        # make list of symptoms
         if creat_dict.get("symptoms"):
             creat_dict["symptoms"] = creat_dict["symptoms"].split(",")
         arr.append(creat_dict)
