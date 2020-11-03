@@ -70,10 +70,9 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
 
         return m.query.filter_by(**kwargs).all()
 
-    if m.schema() == Referral.schema():
-        if not kwargs:
-            return m.query.options(joinedload(m.patient)).all()
-        return m.query.filter_by(**kwargs).options(joinedload(m.patient)).all()
+    if not kwargs:
+        return m.query.all()
+    return m.query.filter_by(**kwargs).all()
 
 
 # https://stackoverflow.com/questions/20743806/sqlalchemy-execute-return-resultproxy-as-tuple-not-dict
