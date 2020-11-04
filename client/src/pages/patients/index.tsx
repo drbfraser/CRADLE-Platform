@@ -38,7 +38,7 @@ export const PatientsPage = () => {
         endpoint={EndpointEnum.PATIENTS}
         search={search}
         columns={columns}
-        rowKey={'referralId'}
+        rowKey={'patientId'}
         RowComponent={PatientRow}
       />
     </Paper>
