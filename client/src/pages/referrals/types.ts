@@ -9,8 +9,3 @@ export interface IReferral {
   dateReferred: number;
   isAssessed: boolean;
 }
-
-export enum SortDir {
-  ASC = 'ASC',
-  DESC = 'DESC',
-}
