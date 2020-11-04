@@ -6,38 +6,40 @@ import { TrafficLight } from '../../../src/shared/components/trafficLight';
 import { IReferral } from './types';
 import DoneIcon from '@material-ui/icons/Done';
 import ScheduleIcon from '@material-ui/icons/Schedule';
+import { useRowStyles } from '../../../src/shared/components/apiTable/rowStyles';
 
 interface IProps {
-  referral: IReferral;
+  row: IReferral;
 }
 
-export const ReferralRow = ({ referral }: IProps) => {
-  const classes = useStyles();
+export const ReferralRow = ({ row }: IProps) => {
+  const classes = useRowStyles();
+  const classesIcon = useStyles();
   const history = useHistory();
 
   const handleClick = () => {
-    history.push('/patients/' + referral.patientId);
+    history.push('/patients/' + row.patientId);
   };
 
   return (
     <tr className={classes.row} onClick={handleClick}>
       <td>
-        <span style={{ fontSize: '30px' }}>{referral.patientName}</span>
+        <span style={{ fontSize: '30px' }}>{row.patientName}</span>
       </td>
-      <td>{referral.patientId}</td>
-      <td>{referral.villageNumber}</td>
+      <td>{row.patientId}</td>
+      <td>{row.villageNumber}</td>
       <td className={classes.cellPadding}>
-        <TrafficLight status={referral.trafficLightStatus} />
+        <TrafficLight status={row.trafficLightStatus} />
       </td>
-      <td>{moment(referral.dateReferred * 1000).format('YYYY-MM-DD')}</td>
+      <td>{moment(row.dateReferred * 1000).format('YYYY-MM-DD')}</td>
       <td>
-        {referral.isAssessed ? (
+        {row.isAssessed ? (
           <>
-            <DoneIcon className={classes.green} /> Complete
+            <DoneIcon className={classesIcon.green} /> Complete
           </>
         ) : (
           <>
-            <ScheduleIcon className={classes.red} /> Pending
+            <ScheduleIcon className={classesIcon.red} /> Pending
           </>
         )}
       </td>
@@ -46,17 +48,6 @@ export const ReferralRow = ({ referral }: IProps) => {
 };
 
 const useStyles = makeStyles({
-  row: {
-    cursor: 'pointer',
-    borderTop: '1px solid #ddd',
-    borderBottom: '1px solid #ddd',
-    '&:hover': {
-      backgroundColor: '#f8f8f8',
-    },
-  },
-  cellPadding: {
-    padding: '5px 0',
-  },
   red: {
     color: '#f44336',
   },

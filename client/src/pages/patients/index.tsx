@@ -6,10 +6,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Toast } from '../../../src/shared/components/toast';
 import { EndpointEnum } from '../../../src/server';
 import { BASE_URL } from '../../../src/server/utils';
-import { PatientTable } from './PatientTable';
+import { APITable } from '../../../src/shared/components/apiTable';
+import { PatientRow } from './PatientRow';
 import { IPatient, SortDir } from './types';
 import Paper from '@material-ui/core/Paper';
-import Pagination from '../../../src/shared/components/pagination/Pagination';
+import Pagination from '../../shared/components/apiTable/Pagination';
+
+const columns = {
+  patientName: 'Patient Name',
+  patientId: 'Patient ID',
+  villageNumber: 'Village',
+  trafficLightStatus: 'Vital Sign',
+  dateTimeTaken: 'Last Reading Date',
+};
 
 export const PatientsPage = () => {
   const [patients, setPatients] = useState<IPatient[]>([]);
@@ -101,8 +110,11 @@ export const PatientsPage = () => {
       </div>
       {patients.length ? (
         <div className={classes.tableWrapper}>
-          <PatientTable
-            patients={patients}
+          <APITable
+            columns={columns}
+            rows={patients}
+            rowKey={'patientId'}
+            RowComponent={PatientRow}
             sortBy={sortBy}
             sortDir={sortDir}
             setSortBy={setSortBy}

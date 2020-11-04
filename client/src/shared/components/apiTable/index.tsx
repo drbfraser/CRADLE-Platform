@@ -1,31 +1,27 @@
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
-import { ReferralRow } from './ReferralRow';
-import { IReferral, SortDir } from './types';
+import { SortDir } from './types';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import SortIcon from '@material-ui/icons/Sort';
 import IconButton from '@material-ui/core/IconButton';
 
 interface IProps {
-  referrals: IReferral[];
+  columns: any;
+  rows: any;
+  rowKey: string;
+  RowComponent: any;
   sortBy: string;
   sortDir: string;
   setSortBy: (col: string) => void;
   setSortDir: (dir: SortDir) => void;
 }
 
-const columns = {
-  patientName: 'Patient Name',
-  patientId: 'Patient ID',
-  villageNumber: 'Village',
-  trafficLightStatus: 'Vital Sign',
-  dateReferred: 'Date Referred',
-  isAssessed: 'Assessment',
-};
-
-export const ReferralTable = ({
-  referrals,
+export const APITable = ({
+  columns,
+  rows,
+  rowKey, // a unique value in the row, e.g. patientId for patients
+  RowComponent,
   sortBy,
   sortDir,
   setSortBy,
@@ -66,8 +62,8 @@ export const ReferralTable = ({
         </tr>
       </thead>
       <tbody>
-        {referrals.map((r) => (
-          <ReferralRow key={r.referralId} referral={r} />
+        {rows.map((r: any) => (
+          <RowComponent key={r[rowKey]} row={r} />
         ))}
       </tbody>
     </table>

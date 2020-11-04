@@ -6,10 +6,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Toast } from '../../../src/shared/components/toast';
 import { EndpointEnum } from '../../../src/server';
 import { BASE_URL } from '../../../src/server/utils';
-import { ReferralTable } from './ReferralTable';
+import { ReferralRow } from './ReferralRow';
 import { IReferral, SortDir } from './types';
 import Paper from '@material-ui/core/Paper';
-import Pagination from '../../../src/shared/components/pagination/Pagination';
+import Pagination from '../../shared/components/apiTable/Pagination';
+import { APITable } from '../../../src/shared/components/apiTable';
+
+const columns = {
+  patientName: 'Patient Name',
+  patientId: 'Patient ID',
+  villageNumber: 'Village',
+  trafficLightStatus: 'Vital Sign',
+  dateReferred: 'Date Referred',
+  isAssessed: 'Assessment',
+};
 
 export const ReferralsPage = () => {
   const [referrals, setReferrals] = useState<IReferral[]>([]);
@@ -101,8 +111,11 @@ export const ReferralsPage = () => {
       </div>
       {referrals.length ? (
         <div className={classes.tableWrapper}>
-          <ReferralTable
-            referrals={referrals}
+          <APITable
+            columns={columns}
+            rows={referrals}
+            rowKey={'referralId'}
+            RowComponent={ReferralRow}
             sortBy={sortBy}
             sortDir={sortDir}
             setSortBy={setSortBy}
