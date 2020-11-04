@@ -2,6 +2,7 @@ from typing import List, Optional, Type, TypeVar
 
 from data import db_session
 from models import Patient, Referral
+from sqlalchemy.orm import joinedload
 
 M = TypeVar("M")
 
@@ -52,10 +53,122 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
                    query (e.g., ``patientId="abc"``)
     :return: A list of models from the database
     """
+
+    if m.schema() == Patient.schema():
+        if not kwargs:
+            # get all the patients
+            patients = read_all_patients()
+            # get all reading + referral + followup
+            readings = read_all_reading()
+
+            for p in patients:
+                for r in readings:
+                    if r.get("patientId") == p.get("patientId"):
+                        p.get("readings").append(r)
+
+            return patients
+
+        return m.query.filter_by(**kwargs).all()
+
     if not kwargs:
         return m.query.all()
-
     return m.query.filter_by(**kwargs).all()
+
+
+# https://stackoverflow.com/questions/20743806/sqlalchemy-execute-return-resultproxy-as-tuple-not-dict
+
+
+def create_dict(d: any, row: any, pat_or_reading: bool) -> dict:
+    referral = {}
+    followup = {}
+
+    # Case 1 ==> patient dictionary
+    # Case 2 ==> reading dictionary
+
+    # iterate through the row values
+    for column, value in row.items():
+        # Case 1
+        if column == "dob":
+            d = {**d, **{column: str(value)}}
+        else:
+            # Case 2 for reading referral
+            if "rf_" in column:
+                referral = {**referral, **{column.replace("rf_", ""): value}}
+            # Case 2 for reading followup
+            if "followup_" in column:
+                followup = {**followup, **{column.replace("followup_", ""): value}}
+            # Case 2
+            else:
+                d = {**d, **{column.replace("r_", ""): value}}
+
+    # Case 2
+    if not pat_or_reading:
+        d = {**d, **{"referral": referral}}
+
+    # Case 1
+    if pat_or_reading:
+        d = {**d, **{"readings": []}}
+    return d
+
+
+def read_all_patients() -> List[M]:
+    patients = db_session.execute("SELECT * FROM patient ORDER BY patientId ASC")
+
+    creat_dict, arr = {}, []
+
+    for pat_row in patients:
+        creat_dict = create_dict(creat_dict, pat_row, True)
+        arr.append(creat_dict)
+
+    return arr
+
+
+def read_all_reading() -> List[M]:
+    reading_referral = db_session.execute(
+        "SELECT rf.id as rf_id, "
+        "rf.comment as rf_comment, "
+        "rf.isAssessed as rf_isAssessed, "
+        "rf.referralHealthFacilityName as rf_referralHealthFacilityName, "
+        "rf.patientId as rf_patientId, "
+        "rf.readingId as rf_readingId, "
+        "rf.dateReferred as rf_dateReferred, "
+        "r.readingId as r_readingId, "
+        "r.bpSystolic as r_bpSystolic, "
+        "r.bpDiastolic as r_bpDiastolic, "
+        "r.heartRateBPM as r_heartRateBPM, "
+        "r.respiratoryRate as r_respiratoryRate, "
+        "r.oxygenSaturation as r_oxygenSaturation, "
+        "r.temperature as r_temperature, "
+        "r.symptoms as r_symptoms, "
+        "r.trafficLightStatus as r_trafficLightStatus, "
+        "r.dateTimeTaken as r_dateTimeTaken, "
+        "r.dateRecheckVitalsNeeded as r_dateRecheckVitalsNeeded, "
+        "r.retestOfPreviousReadingIds as r_retestOfPreviousReadingIds, "
+        "r.patientId as r_patientId, "
+        "r.isFlaggedForFollowup as r_isFlaggedForFollowup, "
+        "f.id as followup_id, "
+        "f.followupInstructions as followup_followupInstructions, "
+        "f.specialInvestigations as followup_specialInvestigations, "
+        "f.diagnosis as followup_diagnosis, "
+        "f.treatment as followup_treatment, "
+        "f.medicationPrescribed as followup_medicationPrescribed, "
+        "f.dateAssessed as followup_dateAssessed, "
+        "f.followupNeeded as followup_followupNeeded"
+        " FROM reading r LEFT JOIN referral rf on r.readingId=rf.readingId"
+        " LEFT JOIN followup f on r.readingId=f.readingId"
+        " ORDER BY r.patientId ASC"
+    )
+
+    creat_dict, creat_dict_refrral, arr = {}, {}, []
+
+    for reading_row in reading_referral:
+        creat_dict = create_dict(creat_dict, reading_row, False)
+        # make list of symptoms
+        if creat_dict.get("symptoms"):
+            creat_dict["symptoms"] = creat_dict["symptoms"].split(",")
+        arr.append(creat_dict)
+
+    return arr
 
 
 def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
@@ -65,9 +178,10 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
 
     :param m: Type of the model to query for
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``patientId="abc"``)
+                   query (e.g., ``sortBy="abc"``)
     :return: A list of models from the database
     """
+
     limit = kwargs.get("limit", None)
     page = kwargs.get("page", None)
     sortBy = kwargs.get("sortBy", None)
@@ -84,9 +198,9 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
                 "p.villageNumber, "
                 "r.trafficLightStatus, "
                 "r.dateTimeTaken"
-                " FROM patient p JOIN reading r ON r.patientId=p.patientId AND r.readingId"
-                " IN (SELECT MAX(readingId) FROM reading WHERE dateTimeTaken IN "
-                "(SELECT MAX(dateTimeTaken) FROM reading GROUP BY patientId) GROUP BY patientId)"
+                " FROM patient p LEFT JOIN reading r ON r.readingId = "
+                "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
+                " ORDER BY r2.dateTimeTaken DESC LIMIT 1) "
                 " WHERE patientName LIKE '%"
                 + search_param
                 + "%' OR p.patientId LIKE '"
@@ -109,9 +223,9 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
                 "p.villageNumber, "
                 "r.trafficLightStatus, "
                 "r.dateTimeTaken"
-                " FROM patient p JOIN reading r ON r.patientId=p.patientId AND r.readingId"
-                " IN (SELECT MAX(readingId) FROM reading WHERE dateTimeTaken IN "
-                "(SELECT MAX(dateTimeTaken) FROM reading GROUP BY patientId) GROUP BY patientId)"
+                " FROM patient p LEFT JOIN reading r ON r.readingId = "
+                "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
+                " ORDER BY r2.dateTimeTaken DESC LIMIT 1) "
                 " ORDER BY "
                 + sortBy
                 + " "

@@ -29,6 +29,7 @@ def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
     Switches on the role of ``user`` and returns an appropriate list of patients.
 
     :param user: The user to get patients for
+    :param **kwargs: all the optional query values
     :return: A list of patients
     """
     roles = [r.name.value for r in user.roleIds]
@@ -48,7 +49,7 @@ def admin_patient_view(**kwargs) -> List[Patient]:
     """
     Returns the admin patient view (i.e., all patients).
 
-    :return: A list of patients
+    :return: A list of patients (filtered based on the parameters)
     """
     if not kwargs:
         return crud.read_all(Patient)

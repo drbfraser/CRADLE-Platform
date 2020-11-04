@@ -10,8 +10,8 @@ def serialize_patient(p: any):
         "patientId": p.patientId,
         "patientName": p.patientName,
         "villageNumber": p.villageNumber,
-        "trafficLightStatus": p.trafficLightStatus,
-        "dateTimeTaken": p.dateTimeTaken,
+        "trafficLightStatus": "" if p.trafficLightStatus == "null" else p.trafficLightStatus,
+        "dateTimeTaken": "" if p.dateTimeTaken == "null" else p.dateTimeTaken,
     }
     return data
 

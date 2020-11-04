@@ -27,6 +27,7 @@ class Root(Resource):
     def get():
         user = util.current_user()
 
+        # query parameters for later SQL use
         limit = util.query_param_limit(request, name="limit")
         page = util.query_param_page(request, name="page")
         sort_by = util.query_param_sortBy(request, name="sortBy")
@@ -41,6 +42,8 @@ class Root(Resource):
             sortDir=sort_dir,
             search=search,
         )
+
+        # create JSON format
         return [serialize.serialize_patient(p) for p in patients]
 
     @staticmethod
@@ -97,6 +100,22 @@ class SinglePatient(Resource):
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
         return marshal.marshal(patient)
+
+
+# /api/android/patients/
+class PatientAndroid(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-patient-get.yml",
+        methods=["GET"],
+        endpoint="single_patient",
+    )
+    def get():
+        user = util.current_user()
+        patients = view.patient_view_for_user(user)
+
+        return patients, 200
 
 
 # /api/patients/<string:patient_id>/info
