@@ -64,7 +64,10 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
             # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
             readingIdx = 0
             for p in patient_list:
-                while readingIdx < len(reading_list) and reading_list[readingIdx]["patientId"] == p["patientId"]:
+                while (
+                    readingIdx < len(reading_list)
+                    and reading_list[readingIdx]["patientId"] == p["patientId"]
+                ):
                     p["readings"].append(reading_list[readingIdx])
                     readingIdx += 1
 
@@ -84,22 +87,9 @@ def read_all_patients() -> List[M]:
     creat_dict, arr = {}, []
     # make list of patients
     for pat_row in patients:
-        creat_dict = serialize.serialize_SQL_to_dict(creat_dict, pat_row, True)
-        arr.append(creat_dict)
-
-    return arr
-
-
-def read_all_followup() -> List[M]:
-    # make DB call
-    followup = db_session.execute("SELECT * FROM followup")
-    creat_dict, arr = {}, []
-
-    # make list of follow up
-    for followup_row in followup:
-        for column, value in followup_row.items():
-            creat_dict = {**creat_dict, **{column: value}}
-        arr.append(creat_dict)
+        creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
+        creat_dict_copy = creat_dict.copy()
+        arr.append(creat_dict_copy)
 
     return arr
 
@@ -148,12 +138,13 @@ def read_all_readings() -> List[M]:
 
     # make list of readings
     for reading_row in reading_and_referral:
-        creat_dict = serialize.serialize_SQL_to_dict(creat_dict, reading_row, False)
+        creat_dict = serialize.serialize_reading_sql_to_dict(creat_dict, reading_row)
         # make list of symptoms
         if creat_dict.get("symptoms"):
             creat_dict["symptoms"] = creat_dict["symptoms"].split(",")
 
-        arr.append(creat_dict)
+        creat_dict_copy = creat_dict.copy()
+        arr.append(creat_dict_copy)
 
     return arr
 
