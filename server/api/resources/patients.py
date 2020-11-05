@@ -107,9 +107,9 @@ class PatientAndroid(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/single-patient-get.yml",
+        "../../specifications/single-patient-get.yml",  # needs to be updated
         methods=["GET"],
-        endpoint="single_patient",
+        endpoint="android_patient",  # needs to be updated
     )
     def get():
         user = util.current_user()
