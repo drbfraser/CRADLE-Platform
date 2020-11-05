@@ -61,10 +61,12 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
             # get all reading + referral + followup
             reading_list = read_all_readings()
 
+            # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
+            readingIdx = 0
             for p in patient_list:
-                for r in reading_list:
-                    if r.get("patientId") == p.get("patientId"):
-                        p.get("readings").append(r)
+                while readingIdx < len(reading_list) and reading_list[readingIdx]["patientId"] == p["patientId"]:
+                    p["readings"].append(reading_list[readingIdx])
+                    readingIdx += 1
 
             return patient_list
 
@@ -106,6 +108,16 @@ def read_all_readings() -> List[M]:
     # make DB call
     reading_and_referral = db_session.execute(
         "SELECT rf.id as rf_id, "
+        "fu.id as fu_id, "
+        "fu.followupInstructions as fu_followupInstructions, "
+        "fu.specialInvestigations as fu_specialInvestigations, "
+        "fu.diagnosis as fu_diagnosis, "
+        "fu.treatment as fu_treatment, "
+        "fu.medicationPrescribed as fu_medicationPrescribed, "
+        "fu.dateAssessed as fu_dateAssessed, "
+        "fu.followupNeeded as fu_followupNeeded, "
+        "fu.readingId as fu_readingId, "
+        "fu.healthcareWorkerId as fu_healthcareWorkerId, "
         "rf.comment as rf_comment, "
         "rf.isAssessed as rf_isAssessed, "
         "rf.referralHealthFacilityName as rf_referralHealthFacilityName, "
@@ -126,12 +138,13 @@ def read_all_readings() -> List[M]:
         "r.retestOfPreviousReadingIds as r_retestOfPreviousReadingIds, "
         "r.patientId as r_patientId, "
         "r.isFlaggedForFollowup as r_isFlaggedForFollowup"
-        " FROM reading r LEFT JOIN referral rf on r.readingId=rf.readingId"
+        " FROM reading r"
+        " LEFT OUTER JOIN referral rf on r.readingId=rf.readingId"
+        " LEFT OUTER JOIN followup fu on r.readingId=fu.readingId"
         " ORDER BY r.patientId ASC"
     )
 
     creat_dict, arr = {}, []
-    followup_arr = read_all_followup()
 
     # make list of readings
     for reading_row in reading_and_referral:
@@ -139,11 +152,6 @@ def read_all_readings() -> List[M]:
         # make list of symptoms
         if creat_dict.get("symptoms"):
             creat_dict["symptoms"] = creat_dict["symptoms"].split(",")
-
-        # add follow up if Id matches
-        for followup in followup_arr:
-            if creat_dict.get("readingId") == followup["readingId"]:
-                creat_dict["followup"] = followup
 
         arr.append(creat_dict)
 

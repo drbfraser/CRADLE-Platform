@@ -35,6 +35,7 @@ def serialize_SQL_to_dict(d: any, row: any, pat_or_reading: bool) -> dict:
     # Case 1 ==> patient dictionary
     # Case 2 ==> reading dictionary
 
+    followup = {}
     referral = {}
     # iterate through the row values
     for column, value in row.items():
@@ -48,8 +49,11 @@ def serialize_SQL_to_dict(d: any, row: any, pat_or_reading: bool) -> dict:
         if column == "dob":
             d = {**d, **{column: str(value)}}
         else:
+            # Case 2 for follow-up
+            if "fu_" in column:
+                followup = {**followup, **{column.replace("fu_", ""): value}}
             # Case 2 for reading referral
-            if "rf_" in column:
+            elif "rf_" in column:
                 referral = {**referral, **{column.replace("rf_", ""): value}}
             # Case 2
             else:
@@ -58,7 +62,7 @@ def serialize_SQL_to_dict(d: any, row: any, pat_or_reading: bool) -> dict:
     # Case 2
     if not pat_or_reading:
         d = {**d, **{"referral": None if referral.get("id") is None else referral}}
-        d = {**d, **{"followup": None}}
+        d = {**d, **{"followup": None if followup.get("id") is None else followup}}
 
     # Case 1
     if pat_or_reading:
