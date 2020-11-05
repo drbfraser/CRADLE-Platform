@@ -51,6 +51,7 @@ def serialize_patient_sql_to_dict(d: any, row: any) -> dict:
 def serialize_reading_sql_to_dict(d: any, row: any) -> dict:
     followup = {}
     referral = {}
+    urine_test = {}
     for column, value in row.items():
         # followup
         if "fu_" in column:
@@ -58,11 +59,15 @@ def serialize_reading_sql_to_dict(d: any, row: any) -> dict:
         # referral
         elif "rf_" in column:
             referral = {**referral, **{column.replace("rf_", ""): value}}
+        # urine test
+        elif "ut_" in column:
+            urine_test = {**urine_test, **{column.replace("ut_", ""): value}}
         # reading
         else:
             d = {**d, **{column.replace("r_", ""): value}}
 
     d = {**d, **{"referral": None if referral.get("id") is None else referral}}
     d = {**d, **{"followup": None if followup.get("id") is None else followup}}
+    d = {**d, **{"urineTest": None if urine_test.get("id") is None else urine_test}}
 
     return d

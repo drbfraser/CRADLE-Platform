@@ -97,6 +97,12 @@ def read_all_readings() -> List[M]:
     # make DB call
     reading_and_referral = db_session.execute(
         "SELECT rf.id as rf_id, "
+        "ut.id as ut_id, "
+        "ut.urineTestLeuc as ut_urineTestLeuc, "
+        "ut.urineTestNit as ut_urineTestNit, "
+        "ut.urineTestGlu as ut_urineTestGlu, "
+        "ut.urineTestPro as ut_urineTestPro, "
+        "ut.urineTestBlood as ut_urineTestBlood, "
         "fu.id as fu_id, "
         "fu.followupInstructions as fu_followupInstructions, "
         "fu.specialInvestigations as fu_specialInvestigations, "
@@ -130,6 +136,7 @@ def read_all_readings() -> List[M]:
         " FROM reading r"
         " LEFT OUTER JOIN referral rf on r.readingId=rf.readingId"
         " LEFT OUTER JOIN followup fu on r.readingId=fu.readingId"
+        " LEFT OUTER JOIN urine_test ut on r.readingId=ut.readingId"
         " ORDER BY r.patientId ASC"
     )
 
