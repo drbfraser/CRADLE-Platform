@@ -2,7 +2,7 @@ from typing import List, Optional, Type, TypeVar
 
 from data import db_session
 from models import Patient, Referral
-from sqlalchemy.orm import joinedload
+import service.serialize as serialize
 
 M = TypeVar("M")
 
@@ -53,78 +53,58 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
                    query (e.g., ``patientId="abc"``)
     :return: A list of models from the database
     """
-
+    # relates to api/android/patients
     if m.schema() == Patient.schema():
         if not kwargs:
             # get all the patients
-            patients = read_all_patients()
+            patient_list = read_all_patients()
             # get all reading + referral + followup
-            readings = read_all_reading()
+            reading_list = read_all_readings()
 
-            for p in patients:
-                for r in readings:
+            for p in patient_list:
+                for r in reading_list:
                     if r.get("patientId") == p.get("patientId"):
                         p.get("readings").append(r)
 
-            return patients
+            return patient_list
 
         return m.query.filter_by(**kwargs).all()
-
-    if not kwargs:
-        return m.query.all()
-    return m.query.filter_by(**kwargs).all()
-
-
-# https://stackoverflow.com/questions/20743806/sqlalchemy-execute-return-resultproxy-as-tuple-not-dict
-
-
-def create_dict(d: any, row: any, pat_or_reading: bool) -> dict:
-    referral = {}
-    followup = {}
-
-    # Case 1 ==> patient dictionary
-    # Case 2 ==> reading dictionary
-
-    # iterate through the row values
-    for column, value in row.items():
-        # Case 1
-        if column == "dob":
-            d = {**d, **{column: str(value)}}
-        else:
-            # Case 2 for reading referral
-            if "rf_" in column:
-                referral = {**referral, **{column.replace("rf_", ""): value}}
-            # Case 2 for reading followup
-            if "followup_" in column:
-                followup = {**followup, **{column.replace("followup_", ""): value}}
-            # Case 2
-            else:
-                d = {**d, **{column.replace("r_", ""): value}}
-
-    # Case 2
-    if not pat_or_reading:
-        d = {**d, **{"referral": referral}}
-
-    # Case 1
-    if pat_or_reading:
-        d = {**d, **{"readings": []}}
-    return d
+    else:
+        if not kwargs:
+            return m.query.all()
+        return m.query.filter_by(**kwargs).all()
 
 
 def read_all_patients() -> List[M]:
+    # make DB call
     patients = db_session.execute("SELECT * FROM patient ORDER BY patientId ASC")
 
     creat_dict, arr = {}, []
-
+    # make list of patients
     for pat_row in patients:
-        creat_dict = create_dict(creat_dict, pat_row, True)
+        creat_dict = serialize.serialize_SQL_to_dict(creat_dict, pat_row, True)
         arr.append(creat_dict)
 
     return arr
 
 
-def read_all_reading() -> List[M]:
-    reading_referral = db_session.execute(
+def read_all_followup() -> List[M]:
+    # make DB call
+    followup = db_session.execute("SELECT * FROM followup")
+    creat_dict, arr = {}, []
+
+    # make list of follow up
+    for followup_row in followup:
+        for column, value in followup_row.items():
+            creat_dict = {**creat_dict, **{column: value}}
+        arr.append(creat_dict)
+
+    return arr
+
+
+def read_all_readings() -> List[M]:
+    # make DB call
+    reading_and_referral = db_session.execute(
         "SELECT rf.id as rf_id, "
         "rf.comment as rf_comment, "
         "rf.isAssessed as rf_isAssessed, "
@@ -145,27 +125,26 @@ def read_all_reading() -> List[M]:
         "r.dateRecheckVitalsNeeded as r_dateRecheckVitalsNeeded, "
         "r.retestOfPreviousReadingIds as r_retestOfPreviousReadingIds, "
         "r.patientId as r_patientId, "
-        "r.isFlaggedForFollowup as r_isFlaggedForFollowup, "
-        "f.id as followup_id, "
-        "f.followupInstructions as followup_followupInstructions, "
-        "f.specialInvestigations as followup_specialInvestigations, "
-        "f.diagnosis as followup_diagnosis, "
-        "f.treatment as followup_treatment, "
-        "f.medicationPrescribed as followup_medicationPrescribed, "
-        "f.dateAssessed as followup_dateAssessed, "
-        "f.followupNeeded as followup_followupNeeded"
+        "r.isFlaggedForFollowup as r_isFlaggedForFollowup"
         " FROM reading r LEFT JOIN referral rf on r.readingId=rf.readingId"
-        " LEFT JOIN followup f on r.readingId=f.readingId"
         " ORDER BY r.patientId ASC"
     )
 
-    creat_dict, creat_dict_refrral, arr = {}, {}, []
+    creat_dict, arr = {}, []
+    followup_arr = read_all_followup()
 
-    for reading_row in reading_referral:
-        creat_dict = create_dict(creat_dict, reading_row, False)
+    # make list of readings
+    for reading_row in reading_and_referral:
+        creat_dict = serialize.serialize_SQL_to_dict(creat_dict, reading_row, False)
         # make list of symptoms
         if creat_dict.get("symptoms"):
             creat_dict["symptoms"] = creat_dict["symptoms"].split(",")
+
+        # add follow up if Id matches
+        for followup in followup_arr:
+            if creat_dict.get("readingId") == followup["readingId"]:
+                creat_dict["followup"] = followup
+
         arr.append(creat_dict)
 
     return arr
