@@ -107,7 +107,7 @@ class PatientAndroid(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/single-patient-get.yml",  # needs to be updated
+        "../../specifications/android-patients-get.yml", 
         methods=["GET"],
         endpoint="android_patient",  # needs to be updated
     )
