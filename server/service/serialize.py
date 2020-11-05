@@ -37,13 +37,14 @@ def serialize_patient_sql_to_dict(d: any, row: any) -> dict:
             # The API representation of a patient contains a "base" field which is used by
             # mobile for syncing. When getting a patient from an API, this value is always
             # equivalent to "lastEdited".
-            d["base"] = value
-        if column == "dob":
-            d[column] = str(value)
-        else:
-            d[column] = value
+            d = {**d, **{"base": value}}
 
-    d["readings"] = []
+        if column == "dob":
+            d = {**d, **{column: str(value)}}
+        else:
+            d = {**d, **{column: value}}
+
+    d = {**d, **{"readings": []}}
     return d
 
 
@@ -53,15 +54,15 @@ def serialize_reading_sql_to_dict(d: any, row: any) -> dict:
     for column, value in row.items():
         # followup
         if "fu_" in column:
-            followup[column.replace("fu_", "")] = value
+            followup = {**followup, **{column.replace("fu_", ""): value}}
         # referral
         elif "rf_" in column:
-            referral[column.replace("rf_", "")] = value
+            referral = {**referral, **{column.replace("rf_", ""): value}}
         # reading
         else:
-            d[column.replace("r_", "")] = value
+            d = {**d, **{column.replace("r_", ""): value}}
 
-    d["referral"] = None if referral["id"] is None else referral
-    d["followup"] = None if followup["id"] is None else followup
+    d = {**d, **{"referral": None if referral.get("id") is None else referral}}
+    d = {**d, **{"followup": None if followup.get("id") is None else followup}}
 
     return d

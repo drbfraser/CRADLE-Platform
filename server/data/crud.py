@@ -88,8 +88,7 @@ def read_all_patients() -> List[M]:
     # make list of patients
     for pat_row in patients:
         creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
-        creat_dict_copy = creat_dict.copy()
-        arr.append(creat_dict_copy)
+        arr.append(creat_dict)
 
     return arr
 
@@ -142,9 +141,7 @@ def read_all_readings() -> List[M]:
         # make list of symptoms
         if creat_dict.get("symptoms"):
             creat_dict["symptoms"] = creat_dict["symptoms"].split(",")
-
-        creat_dict_copy = creat_dict.copy()
-        arr.append(creat_dict_copy)
+        arr.append(creat_dict)
 
     return arr
 
