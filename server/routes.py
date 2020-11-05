@@ -27,7 +27,7 @@ from api.resources.facilities import Root as Facilities
 from api.resources.patients import (
     Root as Patients,
     SinglePatient,
-    PatientAndroid,
+    AndroidPatients,
     PatientInfo,
     PatientStats,
     PatientReadings,
@@ -107,7 +107,7 @@ def init(api):
         SinglePatient, "/api/patients/<string:patient_id>", endpoint="single_patient"
     )  # [GET]
     api.add_resource(
-        PatientAndroid, "/api/android/patients", endpoint="android_patient"
+        AndroidPatients, "/api/android/patients", endpoint="android_patient"
     )  # [GET]
     api.add_resource(
         PatientInfo, "/api/patients/<string:patient_id>/info", endpoint="patient_info"
