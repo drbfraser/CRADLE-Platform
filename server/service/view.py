@@ -84,7 +84,7 @@ def vht_patient_view(user: User, **kwargs) -> List[Patient]:
     Returns the VHT patient view for a given usr.
 
     :param user: The user to get patients for
-    :return: A list of patients
+    :return: A list of patients (filtered based on the parameters)
     """
     if not kwargs:
         return assoc.patients_for_user(user)
@@ -153,7 +153,7 @@ def vht_referral_view(user: User, **kwargs) -> List[Referral]:
     VHTs should be able to see all referrals sent to the health facility they operate at
 
     :param user: The user to get referrals for
-    :return: A list of referrals
+    :return: A list of referrals (filtered based on the parameters)
     """
     if not kwargs:
         return user.healthFacility.referrals

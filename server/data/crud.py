@@ -202,7 +202,7 @@ def read_all_referral_for_user(**kwargs) -> List[M]:
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
     sql_str = get_sql_string(search_param, **kwargs)
-    sql_str_table = get_sql_table_operation_assoc(True)
+    sql_str_table = get_sql_table_operation_assoc(False)
 
     if search_param is not None:
         return db_session.execute(sql_str_table + sql_str)
