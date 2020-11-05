@@ -1,7 +1,7 @@
 from typing import List, Optional, Type, TypeVar
 
 from data import db_session
-from models import Patient, Referral, User
+from models import Patient, Referral
 import service.serialize as serialize
 
 M = TypeVar("M")
@@ -168,63 +168,19 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
     sql_str = get_sql_string(search_param, **kwargs)
+    sql_str_table = get_sql_table_operations(m)
 
     if m.schema() == Patient.schema():
         if search_param is not None:
-            return db_session.execute(
-                "SELECT p.patientName, "
-                "p.patientId, "
-                "p.villageNumber, "
-                "r.trafficLightStatus, "
-                "r.dateTimeTaken"
-                " FROM patient p LEFT JOIN reading r ON r.readingId = "
-                "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
-                " ORDER BY r2.dateTimeTaken DESC LIMIT 1) " +
-                sql_str
-            )
-
+            return db_session.execute(sql_str_table + sql_str)
         else:
-            return db_session.execute(
-                "SELECT p.patientName, "
-                "p.patientId, "
-                "p.villageNumber, "
-                "r.trafficLightStatus, "
-                "r.dateTimeTaken"
-                " FROM patient p LEFT JOIN reading r ON r.readingId = "
-                "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
-                " ORDER BY r2.dateTimeTaken DESC LIMIT 1) " +
-                sql_str
-            )
+            return db_session.execute(sql_str_table + sql_str)
 
     if m.schema() == Referral.schema():
         if search_param is not None:
-            return db_session.execute(
-                "SELECT p.patientId,"
-                " p.patientName,"
-                " p.villageNumber,"
-                " rd.trafficLightStatus,"
-                " rf.dateReferred,"
-                " rf.isAssessed,"
-                " rf.id"
-                " FROM referral rf"
-                " JOIN patient p ON rf.patientId=p.patientId"
-                " JOIN reading rd ON rd.readingId=rf.readingId" +
-                sql_str
-            )
+            return db_session.execute(sql_str_table + sql_str)
         else:
-            return db_session.execute(
-                "SELECT p.patientId,"
-                " p.patientName,"
-                " p.villageNumber,"
-                " rd.trafficLightStatus,"
-                " rf.dateReferred,"
-                " rf.isAssessed,"
-                " rf.id"
-                " FROM referral rf"
-                " JOIN patient p ON rf.patientId=p.patientId"
-                " JOIN reading rd ON rd.readingId=rf.readingId" +
-                sql_str
-            )
+            return db_session.execute(sql_str_table + sql_str)
 
 
 def read_all_patients_for_user(**kwargs) -> List[M]:
@@ -232,32 +188,26 @@ def read_all_patients_for_user(**kwargs) -> List[M]:
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
     sql_str = get_sql_string(search_param, **kwargs)
+    sql_str_table = get_sql_table_operation_assoc(True)
+
     if search_param is not None:
-        return db_session.execute(
-                    "SELECT p.patientName, "
-                    "p.patientId, "
-                    "p.villageNumber, "
-                    "r.trafficLightStatus, "
-                    "r.dateTimeTaken"
-                    " FROM patient p JOIN patient_associations pa ON p.patientId = pa.patientId"
-                    " LEFT JOIN reading r ON r.readingId = "
-                    "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
-                    " ORDER BY r2.dateTimeTaken DESC LIMIT 1) " +
-                    sql_str
-        )
+        return db_session.execute(sql_str_table + sql_str)
     else:
-        return db_session.execute(
-                    "SELECT p.patientName, "
-                    "p.patientId, "
-                    "p.villageNumber, "
-                    "r.trafficLightStatus, "
-                    "r.dateTimeTaken"
-                    " FROM patient p JOIN patient_associations pa ON p.patientId = pa.patientId"
-                    " LEFT JOIN reading r ON r.readingId = "
-                    "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
-                    " ORDER BY r2.dateTimeTaken DESC LIMIT 1) " +
-                    sql_str
-        )
+        return db_session.execute(sql_str_table + sql_str)
+
+
+def read_all_referral_for_user(**kwargs) -> List[M]:
+
+    search_param = (
+        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
+    )
+    sql_str = get_sql_string(search_param, **kwargs)
+    sql_str_table = get_sql_table_operation_assoc(True)
+
+    if search_param is not None:
+        return db_session.execute(sql_str_table + sql_str)
+    else:
+        return db_session.execute(sql_str_table + sql_str)
 
 
 def update(m: Type[M], changes: dict, **kwargs):
@@ -339,28 +289,89 @@ def get_sql_string(search_param: str, **kwargs) -> str:
     sortDir = kwargs.get("sortDir", None)
 
     if search_param is not None:
-        return (" WHERE patientName LIKE '%"
-                + search_param
-                + "%' OR p.patientId LIKE '"
-                + search_param
-                + "%'"
-                + " ORDER BY "
-                + sortBy
-                + " "
-                + sortDir
-                + " LIMIT "
-                + str((page - 1) * limit)
-                + ", "
-                + str(limit))
+        return (
+            " WHERE patientName LIKE '%"
+            + search_param
+            + "%' OR p.patientId LIKE '"
+            + search_param
+            + "%'"
+            + " ORDER BY "
+            + sortBy
+            + " "
+            + sortDir
+            + " LIMIT "
+            + str((page - 1) * limit)
+            + ", "
+            + str(limit)
+        )
 
     elif search_param is None:
-        return (" ORDER BY "
-                + sortBy
-                + " "
-                + sortDir
-                + " LIMIT "
-                + str((page - 1) * limit)
-                + ", "
-                + str(limit))
+        return (
+            " ORDER BY "
+            + sortBy
+            + " "
+            + sortDir
+            + " LIMIT "
+            + str((page - 1) * limit)
+            + ", "
+            + str(limit)
+        )
     else:
         return ""
+
+
+def get_sql_table_operations(m: Type[M]) -> str:
+    if m.schema() == Patient.schema():
+        return (
+            "SELECT p.patientName, "
+            "p.patientId, "
+            "p.villageNumber, "
+            "r.trafficLightStatus, "
+            "r.dateTimeTaken"
+            " FROM patient p LEFT JOIN reading r ON r.readingId = "
+            "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
+            " ORDER BY r2.dateTimeTaken DESC LIMIT 1) "
+        )
+
+    elif m.schema() == Referral.schema():
+        return (
+            "SELECT p.patientId,"
+            " p.patientName,"
+            " p.villageNumber,"
+            " rd.trafficLightStatus,"
+            " rf.dateReferred,"
+            " rf.isAssessed,"
+            " rf.id"
+            " FROM referral rf"
+            " JOIN patient p ON rf.patientId=p.patientId"
+            " JOIN reading rd ON rd.readingId=rf.readingId"
+        )
+
+
+def get_sql_table_operation_assoc(patient: bool) -> str:
+    if patient:
+        return (
+            "SELECT p.patientName, "
+            "p.patientId, "
+            "p.villageNumber, "
+            "r.trafficLightStatus, "
+            "r.dateTimeTaken"
+            " FROM patient p JOIN patient_associations pa ON p.patientId = pa.patientId"
+            " LEFT JOIN reading r ON r.readingId = "
+            "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
+            " ORDER BY r2.dateTimeTaken DESC LIMIT 1) "
+        )
+    else:
+        return (
+            "SELECT p.patientId,"
+            " p.patientName,"
+            " p.villageNumber,"
+            " rd.trafficLightStatus,"
+            " rf.dateReferred,"
+            " rf.isAssessed,"
+            " rf.id"
+            " FROM referral rf"
+            " JOIN patient p ON rf.patientId=p.patientId"
+            " JOIN reading rd ON rd.readingId=rf.readingId"
+            " JOIN patient_associations pa ON rf.patientId=pa.patientId"
+        )

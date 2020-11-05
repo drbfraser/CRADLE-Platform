@@ -108,7 +108,7 @@ def referral_view_for_user(user: User, **kwargs) -> List[Referral]:
         return cho_patient_view(user)
     elif "VHT" in roles:
         # could check if individual vht referral is needed here
-        return vht_referral_view(user)
+        return vht_referral_view(user, **kwargs)
     else:
         raise ValueError("user does not contain any roles")
 
@@ -147,7 +147,7 @@ def cho_referral_view(user: User) -> List[Referral]:
     return cho_referrals + vht_referrals
 
 
-def vht_referral_view(user: User) -> List[Referral]:
+def vht_referral_view(user: User, **kwargs) -> List[Referral]:
     """
     Returns the VHT referral view of a given user.
     VHTs should be able to see all referrals sent to the health facility they operate at
@@ -155,7 +155,10 @@ def vht_referral_view(user: User) -> List[Referral]:
     :param user: The user to get referrals for
     :return: A list of referrals
     """
-    return user.healthFacility.referrals
+    if not kwargs:
+        return user.healthFacility.referrals
+    else:
+        return crud.read_all_referral_for_user(**kwargs)
 
 
 def individual_vht_referral_view(user: User) -> List[Referral]:
