@@ -40,7 +40,7 @@ def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
     elif "CHO" in roles:
         return cho_patient_view(user)
     elif "VHT" in roles:
-        return vht_patient_view(user)
+        return vht_patient_view(user, **kwargs)
     else:
         raise ValueError("user does not contain an roles")
 
@@ -79,14 +79,17 @@ def cho_patient_view(user: User) -> List[Patient]:
     return cho_patients + vht_patients
 
 
-def vht_patient_view(user: User) -> List[Patient]:
+def vht_patient_view(user: User, **kwargs) -> List[Patient]:
     """
     Returns the VHT patient view for a given usr.
 
     :param user: The user to get patients for
     :return: A list of patients
     """
-    return assoc.patients_for_user(user)
+    if not kwargs:
+        return assoc.patients_for_user(user)
+    else:
+        return crud.read_all_patients_for_user(**kwargs)
 
 
 def referral_view_for_user(user: User, **kwargs) -> List[Referral]:

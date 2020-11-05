@@ -1,7 +1,7 @@
 from typing import List, Optional, Type, TypeVar
 
 from data import db_session
-from models import Patient, Referral
+from models import Patient, Referral, User
 import service.serialize as serialize
 
 M = TypeVar("M")
@@ -164,13 +164,10 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
     :return: A list of models from the database
     """
 
-    limit = kwargs.get("limit", None)
-    page = kwargs.get("page", None)
-    sortBy = kwargs.get("sortBy", None)
-    sortDir = kwargs.get("sortDir", None)
     search_param = (
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
+    sql_str = get_sql_string(search_param, **kwargs)
 
     if m.schema() == Patient.schema():
         if search_param is not None:
@@ -182,20 +179,8 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
                 "r.dateTimeTaken"
                 " FROM patient p LEFT JOIN reading r ON r.readingId = "
                 "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
-                " ORDER BY r2.dateTimeTaken DESC LIMIT 1) "
-                " WHERE patientName LIKE '%"
-                + search_param
-                + "%' OR p.patientId LIKE '"
-                + search_param
-                + "%'"
-                + " ORDER BY "
-                + sortBy
-                + " "
-                + sortDir
-                + " LIMIT "
-                + str((page - 1) * limit)
-                + ", "
-                + str(limit)
+                " ORDER BY r2.dateTimeTaken DESC LIMIT 1) " +
+                sql_str
             )
 
         else:
@@ -207,15 +192,8 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
                 "r.dateTimeTaken"
                 " FROM patient p LEFT JOIN reading r ON r.readingId = "
                 "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
-                " ORDER BY r2.dateTimeTaken DESC LIMIT 1) "
-                " ORDER BY "
-                + sortBy
-                + " "
-                + sortDir
-                + " LIMIT "
-                + str((page - 1) * limit)
-                + ", "
-                + str(limit)
+                " ORDER BY r2.dateTimeTaken DESC LIMIT 1) " +
+                sql_str
             )
 
     if m.schema() == Referral.schema():
@@ -230,20 +208,8 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
                 " rf.id"
                 " FROM referral rf"
                 " JOIN patient p ON rf.patientId=p.patientId"
-                " JOIN reading rd ON rd.readingId=rf.readingId"
-                " WHERE patientName LIKE '%"
-                + search_param
-                + "%' OR p.patientId LIKE '"
-                + search_param
-                + "%'"
-                + " ORDER BY "
-                + sortBy
-                + " "
-                + sortDir
-                + " LIMIT "
-                + str((page - 1) * limit)
-                + ", "
-                + str(limit)
+                " JOIN reading rd ON rd.readingId=rf.readingId" +
+                sql_str
             )
         else:
             return db_session.execute(
@@ -256,16 +222,42 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
                 " rf.id"
                 " FROM referral rf"
                 " JOIN patient p ON rf.patientId=p.patientId"
-                " JOIN reading rd ON rd.readingId=rf.readingId"
-                " ORDER BY "
-                + sortBy
-                + " "
-                + sortDir
-                + " LIMIT "
-                + str((page - 1) * limit)
-                + ", "
-                + str(limit)
+                " JOIN reading rd ON rd.readingId=rf.readingId" +
+                sql_str
             )
+
+
+def read_all_patients_for_user(**kwargs) -> List[M]:
+    search_param = (
+        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
+    )
+    sql_str = get_sql_string(search_param, **kwargs)
+    if search_param is not None:
+        return db_session.execute(
+                    "SELECT p.patientName, "
+                    "p.patientId, "
+                    "p.villageNumber, "
+                    "r.trafficLightStatus, "
+                    "r.dateTimeTaken"
+                    " FROM patient p JOIN patient_associations pa ON p.patientId = pa.patientId"
+                    " LEFT JOIN reading r ON r.readingId = "
+                    "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
+                    " ORDER BY r2.dateTimeTaken DESC LIMIT 1) " +
+                    sql_str
+        )
+    else:
+        return db_session.execute(
+                    "SELECT p.patientName, "
+                    "p.patientId, "
+                    "p.villageNumber, "
+                    "r.trafficLightStatus, "
+                    "r.dateTimeTaken"
+                    " FROM patient p JOIN patient_associations pa ON p.patientId = pa.patientId"
+                    " LEFT JOIN reading r ON r.readingId = "
+                    "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
+                    " ORDER BY r2.dateTimeTaken DESC LIMIT 1) " +
+                    sql_str
+        )
 
 
 def update(m: Type[M], changes: dict, **kwargs):
@@ -338,3 +330,37 @@ def find(m: Type[M], *args) -> List[M]:
     :return: A list of models which satisfy the criteria
     """
     return m.query.filter(*args).all()
+
+
+def get_sql_string(search_param: str, **kwargs) -> str:
+    limit = kwargs.get("limit", None)
+    page = kwargs.get("page", None)
+    sortBy = kwargs.get("sortBy", None)
+    sortDir = kwargs.get("sortDir", None)
+
+    if search_param is not None:
+        return (" WHERE patientName LIKE '%"
+                + search_param
+                + "%' OR p.patientId LIKE '"
+                + search_param
+                + "%'"
+                + " ORDER BY "
+                + sortBy
+                + " "
+                + sortDir
+                + " LIMIT "
+                + str((page - 1) * limit)
+                + ", "
+                + str(limit))
+
+    elif search_param is None:
+        return (" ORDER BY "
+                + sortBy
+                + " "
+                + sortDir
+                + " LIMIT "
+                + str((page - 1) * limit)
+                + ", "
+                + str(limit))
+    else:
+        return ""
