@@ -37,10 +37,6 @@ class Root(Resource):
             search=search,
         )
 
-        roles = [r.name.value for r in user.roleIds]
-        if "CHO" in roles:
-            return [marshal.marshal(r) for p in referrals]
-
         return [serialize.serialize_referral(r) for r in referrals]
 
     @staticmethod
