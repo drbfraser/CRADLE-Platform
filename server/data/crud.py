@@ -74,6 +74,28 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
             return patient_list
 
         return m.query.filter_by(**kwargs).all()
+
+    # NOTE -> this if statement is just for testing
+    elif m.schema() == Referral.schema():
+        if not kwargs:
+            # get all the patients
+            patient_list = read_all_patients_assoc()
+            # get all reading + referral + followup
+            reading_list = read_all_readings()
+
+            # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
+            readingIdx = 0
+            for p in patient_list:
+                while (
+                    readingIdx < len(reading_list)
+                    and reading_list[readingIdx]["patientId"] == p["patientId"]
+                ):
+                    p["readings"].append(reading_list[readingIdx])
+                    readingIdx += 1
+
+                del p["id"]
+
+            return patient_list
     else:
         if not kwargs:
             return m.query.all()
@@ -93,50 +115,30 @@ def read_all_patients() -> List[M]:
     return arr
 
 
+def read_all_patients_assoc() -> List[M]:
+    # make DB call
+    patients = db_session.execute(
+        "SELECT * FROM patient p JOIN patient_associations pa "
+        "ON p.patientId = pa.patientId ORDER BY p.patientId ASC"
+    )
+
+    creat_dict, arr = {}, []
+    # make list of patients
+    for pat_row in patients:
+        creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
+        arr.append(creat_dict)
+
+    return arr
+
+
 def read_all_readings() -> List[M]:
     # make DB call
+    sql_query_reading = get_sql_table_col_for_reading_query()
     reading_and_referral = db_session.execute(
-        "SELECT rf.id as rf_id, "
-        "ut.id as ut_id, "
-        "ut.urineTestLeuc as ut_urineTestLeuc, "
-        "ut.urineTestNit as ut_urineTestNit, "
-        "ut.urineTestGlu as ut_urineTestGlu, "
-        "ut.urineTestPro as ut_urineTestPro, "
-        "ut.urineTestBlood as ut_urineTestBlood, "
-        "fu.id as fu_id, "
-        "fu.followupInstructions as fu_followupInstructions, "
-        "fu.specialInvestigations as fu_specialInvestigations, "
-        "fu.diagnosis as fu_diagnosis, "
-        "fu.treatment as fu_treatment, "
-        "fu.medicationPrescribed as fu_medicationPrescribed, "
-        "fu.dateAssessed as fu_dateAssessed, "
-        "fu.followupNeeded as fu_followupNeeded, "
-        "fu.readingId as fu_readingId, "
-        "fu.healthcareWorkerId as fu_healthcareWorkerId, "
-        "rf.comment as rf_comment, "
-        "rf.isAssessed as rf_isAssessed, "
-        "rf.referralHealthFacilityName as rf_referralHealthFacilityName, "
-        "rf.patientId as rf_patientId, "
-        "rf.readingId as rf_readingId, "
-        "rf.dateReferred as rf_dateReferred, "
-        "r.readingId as r_readingId, "
-        "r.bpSystolic as r_bpSystolic, "
-        "r.bpDiastolic as r_bpDiastolic, "
-        "r.heartRateBPM as r_heartRateBPM, "
-        "r.respiratoryRate as r_respiratoryRate, "
-        "r.oxygenSaturation as r_oxygenSaturation, "
-        "r.temperature as r_temperature, "
-        "r.symptoms as r_symptoms, "
-        "r.trafficLightStatus as r_trafficLightStatus, "
-        "r.dateTimeTaken as r_dateTimeTaken, "
-        "r.dateRecheckVitalsNeeded as r_dateRecheckVitalsNeeded, "
-        "r.retestOfPreviousReadingIds as r_retestOfPreviousReadingIds, "
-        "r.patientId as r_patientId, "
-        "r.isFlaggedForFollowup as r_isFlaggedForFollowup"
-        " FROM reading r"
-        " LEFT OUTER JOIN referral rf on r.readingId=rf.readingId"
+        sql_query_reading + " LEFT OUTER JOIN referral rf on r.readingId=rf.readingId"
         " LEFT OUTER JOIN followup fu on r.readingId=fu.readingId"
         " LEFT OUTER JOIN urine_test ut on r.readingId=ut.readingId"
+        " JOIN patient_associations pa ON r.patientId = pa.patientId"
         " ORDER BY r.patientId ASC"
     )
 
@@ -375,3 +377,46 @@ def get_sql_table_operation_assoc(patient: bool) -> str:
             " JOIN reading rd ON rd.readingId=rf.readingId"
             " JOIN patient_associations pa ON rf.patientId=pa.patientId"
         )
+
+
+def get_sql_table_col_for_reading_query() -> str:
+    return (
+        "SELECT rf.id as rf_id, "
+        "ut.id as ut_id, "
+        "ut.urineTestLeuc as ut_urineTestLeuc, "
+        "ut.urineTestNit as ut_urineTestNit, "
+        "ut.urineTestGlu as ut_urineTestGlu, "
+        "ut.urineTestPro as ut_urineTestPro, "
+        "ut.urineTestBlood as ut_urineTestBlood, "
+        "fu.id as fu_id, "
+        "fu.followupInstructions as fu_followupInstructions, "
+        "fu.specialInvestigations as fu_specialInvestigations, "
+        "fu.diagnosis as fu_diagnosis, "
+        "fu.treatment as fu_treatment, "
+        "fu.medicationPrescribed as fu_medicationPrescribed, "
+        "fu.dateAssessed as fu_dateAssessed, "
+        "fu.followupNeeded as fu_followupNeeded, "
+        "fu.readingId as fu_readingId, "
+        "fu.healthcareWorkerId as fu_healthcareWorkerId, "
+        "rf.comment as rf_comment, "
+        "rf.isAssessed as rf_isAssessed, "
+        "rf.referralHealthFacilityName as rf_referralHealthFacilityName, "
+        "rf.patientId as rf_patientId, "
+        "rf.readingId as rf_readingId, "
+        "rf.dateReferred as rf_dateReferred, "
+        "r.readingId as r_readingId, "
+        "r.bpSystolic as r_bpSystolic, "
+        "r.bpDiastolic as r_bpDiastolic, "
+        "r.heartRateBPM as r_heartRateBPM, "
+        "r.respiratoryRate as r_respiratoryRate, "
+        "r.oxygenSaturation as r_oxygenSaturation, "
+        "r.temperature as r_temperature, "
+        "r.symptoms as r_symptoms, "
+        "r.trafficLightStatus as r_trafficLightStatus, "
+        "r.dateTimeTaken as r_dateTimeTaken, "
+        "r.dateRecheckVitalsNeeded as r_dateRecheckVitalsNeeded, "
+        "r.retestOfPreviousReadingIds as r_retestOfPreviousReadingIds, "
+        "r.patientId as r_patientId, "
+        "r.isFlaggedForFollowup as r_isFlaggedForFollowup"
+        " FROM reading r"
+    )

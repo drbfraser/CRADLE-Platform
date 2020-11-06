@@ -87,7 +87,8 @@ def vht_patient_view(user: User, **kwargs) -> List[Patient]:
     :return: A list of patients (filtered based on the parameters)
     """
     if not kwargs:
-        return assoc.patients_for_user(user)
+        return crud.read_all(Referral)
+        # return assoc.patients_for_user(user)
     else:
         return crud.read_all_patients_for_user(**kwargs)
 
