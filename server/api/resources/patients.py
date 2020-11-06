@@ -109,7 +109,7 @@ class AndroidPatients(Resource):
     @swag_from(
         "../../specifications/android-patients-get.yml",
         methods=["GET"],
-        endpoint="android_patient",  # needs to be updated
+        endpoint="android_patient",
     )
     def get():
         user = util.current_user()

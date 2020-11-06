@@ -3,6 +3,7 @@ from typing import List, Optional, Type, TypeVar
 from data import db_session
 from models import Patient, Referral, User, PatientAssociations
 import service.serialize as serialize
+import service.sqlStrings as SQL
 
 M = TypeVar("M")
 
@@ -41,176 +42,6 @@ def read(m: Type[M], **kwargs) -> Optional[M]:
     :return: A model from the database or ``None`` if no model was found
     """
     return m.query.filter_by(**kwargs).one_or_none()
-
-
-def read_all(m: Type[M], **kwargs) -> List[M]:
-    """
-    Queries the database for all models which match some query parameters defined as
-    keyword arguments.
-
-    :param m: Type of the model to query for
-    :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``patientId="abc"``)
-    :return: A list of models from the database
-    """
-    # relates to api/android/patients
-    if m.schema() == Patient.schema():
-        if not kwargs:
-            # get all the patients
-            patient_list = read_all_patients()
-            # get all reading + referral + followup
-            reading_list = read_all_readings()
-
-            # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
-            readingIdx = 0
-            for p in patient_list:
-                while (
-                    readingIdx < len(reading_list)
-                    and reading_list[readingIdx]["patientId"] == p["patientId"]
-                ):
-                    p["readings"].append(reading_list[readingIdx])
-                    readingIdx += 1
-
-            return patient_list
-
-        return m.query.filter_by(**kwargs).all()
-
-    else:
-        if not kwargs:
-            return m.query.all()
-        return m.query.filter_by(**kwargs).all()
-
-
-def read_all_assoc(m: Type[M], user: User) -> List[M]:
-    if m.schema() == PatientAssociations.schema():
-        # get all the patients
-        patient_list = read_all_patients_assoc(user)
-        # get all reading + referral + followup
-        reading_list = read_all_readings()
-
-        # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
-        readingIdx = 0
-        for p in patient_list:
-            while (
-                readingIdx < len(reading_list)
-                and reading_list[readingIdx]["patientId"] == p["patientId"]
-            ):
-                p["readings"].append(reading_list[readingIdx])
-                readingIdx += 1
-
-            del p["id"]
-        return patient_list
-
-
-def read_all_patients() -> List[M]:
-    # make DB call
-    patients = db_session.execute("SELECT * FROM patient ORDER BY patientId ASC")
-
-    creat_dict, arr = {}, []
-    # make list of patients
-    for pat_row in patients:
-        creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
-        arr.append(creat_dict)
-
-    return arr
-
-
-def read_all_patients_assoc(user: User) -> List[M]:
-    # make DB call
-    patients = db_session.execute(
-        "SELECT * FROM patient p JOIN patient_associations pa "
-        "ON p.patientId = pa.patientId             "
-        " AND pa.userId=" + str(user.id) + " ORDER BY p.patientId ASC"
-    )
-
-    creat_dict, arr = {}, []
-    # make list of patients
-    for pat_row in patients:
-        creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
-        arr.append(creat_dict)
-
-    return arr
-
-
-def read_all_readings() -> List[M]:
-    # make DB call
-    sql_query_reading = get_sql_table_col_for_reading_query()
-    reading_and_referral = db_session.execute(
-        sql_query_reading + " LEFT OUTER JOIN referral rf on r.readingId=rf.readingId"
-        " LEFT OUTER JOIN followup fu on r.readingId=fu.readingId"
-        " LEFT OUTER JOIN urine_test ut on r.readingId=ut.readingId"
-        " JOIN patient_associations pa ON r.patientId = pa.patientId"
-        " ORDER BY r.patientId ASC"
-    )
-
-    creat_dict, arr = {}, []
-
-    # make list of readings
-    for reading_row in reading_and_referral:
-        creat_dict = serialize.serialize_reading_sql_to_dict(creat_dict, reading_row)
-        # make list of symptoms
-        if creat_dict.get("symptoms"):
-            creat_dict["symptoms"] = creat_dict["symptoms"].split(",")
-        arr.append(creat_dict)
-
-    return arr
-
-
-def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
-    """
-    Queries the database for all models which match some query parameters defined as
-    keyword arguments.
-
-    :param m: Type of the model to query for
-    :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``sortBy="abc"``)
-    :return: A list of models from the database
-    """
-
-    search_param = (
-        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
-    )
-    sql_str = get_sql_string(search_param, **kwargs)
-    sql_str_table = get_sql_table_operations(m)
-
-    if m.schema() == Patient.schema():
-        if search_param is not None:
-            return db_session.execute(sql_str_table + sql_str)
-        else:
-            return db_session.execute(sql_str_table + sql_str)
-
-    if m.schema() == Referral.schema():
-        if search_param is not None:
-            return db_session.execute(sql_str_table + sql_str)
-        else:
-            return db_session.execute(sql_str_table + sql_str)
-
-
-def read_all_patients_for_user(user: User, **kwargs) -> List[M]:
-    search_param = (
-        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
-    )
-    sql_str = get_sql_string(search_param, **kwargs)
-    sql_str_table = get_sql_table_operation_assoc(True, user)
-
-    if search_param is not None:
-        return db_session.execute(sql_str_table + sql_str)
-    else:
-        return db_session.execute(sql_str_table + sql_str)
-
-
-def read_all_referral_for_user(user: User, **kwargs) -> List[M]:
-
-    search_param = (
-        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
-    )
-    sql_str = get_sql_string(search_param, **kwargs)
-    sql_str_table = get_sql_table_operation_assoc(False, user)
-
-    if search_param is not None:
-        return db_session.execute(sql_str_table + sql_str)
-    else:
-        return db_session.execute(sql_str_table + sql_str)
 
 
 def update(m: Type[M], changes: dict, **kwargs):
@@ -285,140 +116,204 @@ def find(m: Type[M], *args) -> List[M]:
     return m.query.filter(*args).all()
 
 
-def get_sql_string(search_param: str, **kwargs) -> str:
-    limit = kwargs.get("limit", None)
-    page = kwargs.get("page", None)
-    sortBy = kwargs.get("sortBy", None)
-    sortDir = kwargs.get("sortDir", None)
+def read_all(m: Type[M], **kwargs) -> List[M]:
+    """
+    Queries the database for all models which match some query parameters defined as
+    keyword arguments.
+
+    :param m: Type of the model to query for
+    :param kwargs: Keyword arguments mapping column names to values to parameterize the
+                   query (e.g., ``patientId="abc"``)
+    :return: A list of models from the database
+    """
+    # relates to api/android/patients
+    if m.schema() == Patient.schema():
+        if not kwargs:
+            # get all the patients
+            patient_list = read_all_patients_db()
+            # get all reading + referral + followup
+            reading_list = read_all_readings_db()
+
+            # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
+            readingIdx = 0
+            for p in patient_list:
+                while (
+                    readingIdx < len(reading_list)
+                    and reading_list[readingIdx]["patientId"] == p["patientId"]
+                ):
+                    p["readings"].append(reading_list[readingIdx])
+                    readingIdx += 1
+
+            return patient_list
+
+        return m.query.filter_by(**kwargs).all()
+
+    else:
+        if not kwargs:
+            return m.query.all()
+        return m.query.filter_by(**kwargs).all()
+
+
+def read_all_assoc_patients(m: Type[M], user: User) -> List[M]:
+    if m.schema() == PatientAssociations.schema():
+        # get all the patients
+        patient_list = read_all_assoc_patients_db(user)
+        # get all reading + referral + followup
+        reading_list = read_all_readings_db()
+
+        # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
+        readingIdx = 0
+        for p in patient_list:
+            while (
+                readingIdx < len(reading_list)
+                and reading_list[readingIdx]["patientId"] == p["patientId"]
+            ):
+                p["readings"].append(reading_list[readingIdx])
+                readingIdx += 1
+
+            del p["id"]
+        return patient_list
+
+
+def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
+    """
+    Queries the database for all models which match some query parameters defined as
+    keyword arguments.
+
+    :param m: Type of the model to query for
+    :param kwargs: Keyword arguments mapping column names to values to parameterize the
+                   query (e.g., ``sortBy="abc"``)
+    :return: A list of models from the database
+    """
+
+    search_param = (
+        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
+    )
+    sql_str = SQL.get_sql_string(search_param, **kwargs)
+    sql_str_table = SQL.get_sql_table_operations(m)
+
+    if m.schema() == Patient.schema():
+        if search_param is not None:
+            return db_session.execute(sql_str_table + sql_str)
+        else:
+            return db_session.execute(sql_str_table + sql_str)
+
+    if m.schema() == Referral.schema():
+        if search_param is not None:
+            return db_session.execute(sql_str_table + sql_str)
+        else:
+            return db_session.execute(sql_str_table + sql_str)
+
+
+def read_all_patients_for_user(user: User, **kwargs) -> List[M]:
+    search_param = (
+        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
+    )
+    sql_str = SQL.get_sql_string(search_param, **kwargs)
+    sql_str_table = SQL.get_sql_table_operation_assoc(True, user)
 
     if search_param is not None:
-        return (
-            " WHERE patientName LIKE '%"
-            + search_param
-            + "%' OR p.patientId LIKE '"
-            + search_param
-            + "%'"
-            + " ORDER BY "
-            + sortBy
-            + " "
-            + sortDir
-            + " LIMIT "
-            + str((page - 1) * limit)
-            + ", "
-            + str(limit)
-        )
-
-    elif search_param is None:
-        return (
-            " ORDER BY "
-            + sortBy
-            + " "
-            + sortDir
-            + " LIMIT "
-            + str((page - 1) * limit)
-            + ", "
-            + str(limit)
-        )
+        return db_session.execute(sql_str_table + sql_str)
     else:
-        return ""
+        return db_session.execute(sql_str_table + sql_str)
 
 
-def get_sql_table_operations(m: Type[M]) -> str:
-    if m.schema() == Patient.schema():
-        return (
-            "SELECT p.patientName, "
-            "p.patientId, "
-            "p.villageNumber, "
-            "r.trafficLightStatus, "
-            "r.dateTimeTaken"
-            " FROM patient p LEFT JOIN reading r ON r.readingId = "
-            "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
-            " ORDER BY r2.dateTimeTaken DESC LIMIT 1) "
-        )
+def read_all_patients_for_assoc_vht(user: User, **kwargs) -> List[M]:
+    search_param = (
+        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
+    )
+    sql_str = SQL.get_sql_string(search_param, **kwargs)
+    vht_list = [
+        {column: value for column, value in row.items()}
+        for row in get_sql_vhts_for_cho_db(user.id)
+    ]
+    vht_list_id = [str(user.id)]
+    for vht in vht_list:
+        vht_list_id.append(str(vht["id"]))
 
-    elif m.schema() == Referral.schema():
-        return (
-            "SELECT p.patientId,"
-            " p.patientName,"
-            " p.villageNumber,"
-            " rd.trafficLightStatus,"
-            " rf.dateReferred,"
-            " rf.isAssessed,"
-            " rf.id"
-            " FROM referral rf"
-            " JOIN patient p ON rf.patientId=p.patientId"
-            " JOIN reading rd ON rd.readingId=rf.readingId"
-        )
+    sql_str_vht_ids = ",".join(vht_list_id)
+    sql_str_table = SQL.get_sql_table_operation_assoc_vht_list(True, sql_str_vht_ids)
 
-
-def get_sql_table_operation_assoc(patient: bool, user: User) -> str:
-    if patient:
-        return (
-            "SELECT p.patientName, "
-            "p.patientId, "
-            "p.villageNumber, "
-            "r.trafficLightStatus, "
-            "r.dateTimeTaken"
-            " FROM patient p JOIN patient_associations pa ON p.patientId = pa.patientId"
-            " AND pa.userId=" + str(user.id) + " LEFT JOIN reading r ON r.readingId = "
-            "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
-            " ORDER BY r2.dateTimeTaken DESC LIMIT 1) "
-        )
+    if search_param is not None:
+        return db_session.execute(sql_str_table + sql_str)
     else:
-        return (
-            "SELECT p.patientId,"
-            " p.patientName,"
-            " p.villageNumber,"
-            " rd.trafficLightStatus,"
-            " rf.dateReferred,"
-            " rf.isAssessed,"
-            " rf.id"
-            " FROM referral rf"
-            " JOIN patient p ON rf.patientId=p.patientId"
-            " JOIN reading rd ON rd.readingId=rf.readingId"
-            " JOIN patient_associations pa ON rf.patientId=pa.patientId"
-            " AND pa.userId=" + str(user.id)
-        )
+        return db_session.execute(sql_str_table + sql_str)
 
 
-def get_sql_table_col_for_reading_query() -> str:
-    return (
-        "SELECT rf.id as rf_id, "
-        "ut.id as ut_id, "
-        "ut.urineTestLeuc as ut_urineTestLeuc, "
-        "ut.urineTestNit as ut_urineTestNit, "
-        "ut.urineTestGlu as ut_urineTestGlu, "
-        "ut.urineTestPro as ut_urineTestPro, "
-        "ut.urineTestBlood as ut_urineTestBlood, "
-        "fu.id as fu_id, "
-        "fu.followupInstructions as fu_followupInstructions, "
-        "fu.specialInvestigations as fu_specialInvestigations, "
-        "fu.diagnosis as fu_diagnosis, "
-        "fu.treatment as fu_treatment, "
-        "fu.medicationPrescribed as fu_medicationPrescribed, "
-        "fu.dateAssessed as fu_dateAssessed, "
-        "fu.followupNeeded as fu_followupNeeded, "
-        "fu.readingId as fu_readingId, "
-        "fu.healthcareWorkerId as fu_healthcareWorkerId, "
-        "rf.comment as rf_comment, "
-        "rf.isAssessed as rf_isAssessed, "
-        "rf.referralHealthFacilityName as rf_referralHealthFacilityName, "
-        "rf.patientId as rf_patientId, "
-        "rf.readingId as rf_readingId, "
-        "rf.dateReferred as rf_dateReferred, "
-        "r.readingId as r_readingId, "
-        "r.bpSystolic as r_bpSystolic, "
-        "r.bpDiastolic as r_bpDiastolic, "
-        "r.heartRateBPM as r_heartRateBPM, "
-        "r.respiratoryRate as r_respiratoryRate, "
-        "r.oxygenSaturation as r_oxygenSaturation, "
-        "r.temperature as r_temperature, "
-        "r.symptoms as r_symptoms, "
-        "r.trafficLightStatus as r_trafficLightStatus, "
-        "r.dateTimeTaken as r_dateTimeTaken, "
-        "r.dateRecheckVitalsNeeded as r_dateRecheckVitalsNeeded, "
-        "r.retestOfPreviousReadingIds as r_retestOfPreviousReadingIds, "
-        "r.patientId as r_patientId, "
-        "r.isFlaggedForFollowup as r_isFlaggedForFollowup"
-        " FROM reading r"
+def read_all_referral_for_user(user: User, **kwargs) -> List[M]:
+
+    search_param = (
+        None if kwargs.get("search", None) == "" else kwargs.get("search", None)
+    )
+    sql_str = SQL.get_sql_string(search_param, **kwargs)
+    sql_str_table = SQL.get_sql_table_operation_assoc(False, user)
+
+    if search_param is not None:
+        return db_session.execute(sql_str_table + sql_str)
+    else:
+        return db_session.execute(sql_str_table + sql_str)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+def read_all_patients_db() -> List[M]:
+    # make DB call
+    patients = db_session.execute("SELECT * FROM patient ORDER BY patientId ASC")
+
+    creat_dict, arr = {}, []
+    # make list of patients
+    for pat_row in patients:
+        creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
+        arr.append(creat_dict)
+
+    return arr
+
+
+def read_all_assoc_patients_db(user: User) -> List[M]:
+    # make DB call
+    patients = db_session.execute(
+        "SELECT * FROM patient p JOIN patient_associations pa "
+        "ON p.patientId = pa.patientId             "
+        " AND pa.userId=" + str(user.id) + " ORDER BY p.patientId ASC"
+    )
+
+    creat_dict, arr = {}, []
+    # make list of patients
+    for pat_row in patients:
+        creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
+        arr.append(creat_dict)
+
+    return arr
+
+
+def read_all_readings_db() -> List[M]:
+    # make DB call
+    sql_query_reading = SQL.get_sql_table_col_for_reading_query()
+    reading_and_referral = db_session.execute(
+        sql_query_reading + " LEFT OUTER JOIN referral rf on r.readingId=rf.readingId"
+        " LEFT OUTER JOIN followup fu on r.readingId=fu.readingId"
+        " LEFT OUTER JOIN urine_test ut on r.readingId=ut.readingId"
+        " JOIN patient_associations pa ON r.patientId = pa.patientId"
+        " ORDER BY r.patientId ASC"
+    )
+
+    creat_dict, arr = {}, []
+
+    # make list of readings
+    for reading_row in reading_and_referral:
+        creat_dict = serialize.serialize_reading_sql_to_dict(creat_dict, reading_row)
+        # make list of symptoms
+        if creat_dict.get("symptoms"):
+            creat_dict["symptoms"] = creat_dict["symptoms"].split(",")
+        arr.append(creat_dict)
+
+    return arr
+
+
+def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
+    return db_session.execute(
+        "SELECT * from supervises s inner join "
+        "user u on s.vhtId = u.id "
+        "where choId = " + str(cho_id)
     )

@@ -39,7 +39,7 @@ def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
         return admin_patient_view(**kwargs)
         # return hcw_patient_view(user)
     elif "CHO" in roles:
-        return cho_patient_view(user)
+        return cho_patient_view(user, **kwargs)
     elif "VHT" in roles:
         return vht_patient_view(user, **kwargs)
     else:
@@ -55,7 +55,7 @@ def admin_patient_view(**kwargs) -> List[Patient]:
     if not kwargs:
         return crud.read_all(Patient)
     else:
-        return crud.read_all_with_args(Patient, **kwargs)
+        return crud.read_all_admin_view(Patient, **kwargs)
 
 
 def hcw_patient_view(user: User) -> List[Patient]:
@@ -68,16 +68,21 @@ def hcw_patient_view(user: User) -> List[Patient]:
     return assoc.patients_at_facility(user.healthFacility)
 
 
-def cho_patient_view(user: User) -> List[Patient]:
+def cho_patient_view(user: User, **kwargs) -> List[Patient]:
     """
     Returns the CHO patient view for a given user.
 
     :param user: The user to get patients for
     :return: A list of patients
     """
-    cho_patients = assoc.patients_for_user(user)
-    vht_patients = [u for vht in user.vhtList for u in assoc.patients_for_user(vht)]
-    return cho_patients + vht_patients
+    if not kwargs:
+        cho_patients = assoc.patients_for_user(user)
+        vht_patients = [u for vht in user.vhtList for u in assoc.patients_for_user(vht)]
+        return cho_patients + vht_patients
+    else:
+        vht_and_cho_patients = crud.read_all_patients_for_assoc_vht(user, **kwargs)
+
+        return vht_and_cho_patients
 
 
 def vht_patient_view(user: User, **kwargs) -> List[Patient]:
@@ -88,7 +93,7 @@ def vht_patient_view(user: User, **kwargs) -> List[Patient]:
     :return: A list of patients (filtered based on the parameters)
     """
     if not kwargs:
-        return crud.read_all_assoc(PatientAssociations, user)
+        return crud.read_all_assoc_patients(PatientAssociations, user)
     else:
         return crud.read_all_patients_for_user(user, **kwargs)
 
@@ -124,7 +129,7 @@ def admin_referral_view(**kwargs) -> List[Referral]:
     if not kwargs:
         return crud.read_all(Referral)
     else:
-        return crud.read_all_with_args(Referral, **kwargs)
+        return crud.read_all_admin_view(Referral, **kwargs)
 
 
 def hcw_referral_view(user: User) -> List[Referral]:
