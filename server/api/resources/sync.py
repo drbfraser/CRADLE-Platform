@@ -18,7 +18,7 @@ class Updates(Resource):
         # Get all patients for this user
         user = util.current_user()
         all_patients = view.patient_view_for_user(user)
-        print(all_patients[0])
+
         # New patients are patients who are created after the timestamp
         new_patients = [p["patientId"] for p in all_patients if p["created"] > timestamp]
 
