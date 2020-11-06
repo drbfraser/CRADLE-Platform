@@ -36,7 +36,8 @@ def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
     if "ADMIN" in roles:
         return admin_patient_view(**kwargs)
     elif "HCW" in roles:
-        return hcw_patient_view(user)
+        return admin_patient_view(**kwargs)
+        # return hcw_patient_view(user)
     elif "CHO" in roles:
         return cho_patient_view(user)
     elif "VHT" in roles:
@@ -103,7 +104,8 @@ def referral_view_for_user(user: User, **kwargs) -> List[Referral]:
     if "ADMIN" in roles:
         return admin_referral_view(**kwargs)
     elif "HCW" in roles:
-        return hcw_referral_view(user)
+        return admin_referral_view(**kwargs)
+        # return hcw_referral_view(user)
     elif "CHO" in roles:
         return cho_patient_view(user)
     elif "VHT" in roles:
