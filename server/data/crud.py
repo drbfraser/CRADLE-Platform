@@ -1,7 +1,7 @@
 from typing import List, Optional, Type, TypeVar
 
 from data import db_session
-from models import Patient, Referral
+from models import Patient, Referral, User, PatientAssociations
 import service.serialize as serialize
 
 M = TypeVar("M")
@@ -75,31 +75,31 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
 
         return m.query.filter_by(**kwargs).all()
 
-    # NOTE -> this if statement is just for testing
-    elif m.schema() == Referral.schema():
-        if not kwargs:
-            # get all the patients
-            patient_list = read_all_patients_assoc()
-            # get all reading + referral + followup
-            reading_list = read_all_readings()
-
-            # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
-            readingIdx = 0
-            for p in patient_list:
-                while (
-                    readingIdx < len(reading_list)
-                    and reading_list[readingIdx]["patientId"] == p["patientId"]
-                ):
-                    p["readings"].append(reading_list[readingIdx])
-                    readingIdx += 1
-
-                del p["id"]
-
-            return patient_list
     else:
         if not kwargs:
             return m.query.all()
         return m.query.filter_by(**kwargs).all()
+
+
+def read_all_assoc(m: Type[M], user: User) -> List[M]:
+    if m.schema() == PatientAssociations.schema():
+        # get all the patients
+        patient_list = read_all_patients_assoc(user)
+        # get all reading + referral + followup
+        reading_list = read_all_readings()
+
+        # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
+        readingIdx = 0
+        for p in patient_list:
+            while (
+                readingIdx < len(reading_list)
+                and reading_list[readingIdx]["patientId"] == p["patientId"]
+            ):
+                p["readings"].append(reading_list[readingIdx])
+                readingIdx += 1
+
+            del p["id"]
+        return patient_list
 
 
 def read_all_patients() -> List[M]:
@@ -115,11 +115,12 @@ def read_all_patients() -> List[M]:
     return arr
 
 
-def read_all_patients_assoc() -> List[M]:
+def read_all_patients_assoc(user: User) -> List[M]:
     # make DB call
     patients = db_session.execute(
         "SELECT * FROM patient p JOIN patient_associations pa "
-        "ON p.patientId = pa.patientId ORDER BY p.patientId ASC"
+        "ON p.patientId = pa.patientId             "
+        " AND pa.userId=" + str(user.id) + " ORDER BY p.patientId ASC"
     )
 
     creat_dict, arr = {}, []
@@ -185,12 +186,12 @@ def read_all_with_args(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
-def read_all_patients_for_user(**kwargs) -> List[M]:
+def read_all_patients_for_user(user: User, **kwargs) -> List[M]:
     search_param = (
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
     sql_str = get_sql_string(search_param, **kwargs)
-    sql_str_table = get_sql_table_operation_assoc(True)
+    sql_str_table = get_sql_table_operation_assoc(True, user)
 
     if search_param is not None:
         return db_session.execute(sql_str_table + sql_str)
@@ -198,13 +199,13 @@ def read_all_patients_for_user(**kwargs) -> List[M]:
         return db_session.execute(sql_str_table + sql_str)
 
 
-def read_all_referral_for_user(**kwargs) -> List[M]:
+def read_all_referral_for_user(user: User, **kwargs) -> List[M]:
 
     search_param = (
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
     sql_str = get_sql_string(search_param, **kwargs)
-    sql_str_table = get_sql_table_operation_assoc(False)
+    sql_str_table = get_sql_table_operation_assoc(False, user)
 
     if search_param is not None:
         return db_session.execute(sql_str_table + sql_str)
@@ -350,7 +351,7 @@ def get_sql_table_operations(m: Type[M]) -> str:
         )
 
 
-def get_sql_table_operation_assoc(patient: bool) -> str:
+def get_sql_table_operation_assoc(patient: bool, user: User) -> str:
     if patient:
         return (
             "SELECT p.patientName, "
@@ -359,7 +360,7 @@ def get_sql_table_operation_assoc(patient: bool) -> str:
             "r.trafficLightStatus, "
             "r.dateTimeTaken"
             " FROM patient p JOIN patient_associations pa ON p.patientId = pa.patientId"
-            " LEFT JOIN reading r ON r.readingId = "
+            " AND pa.userId=" + str(user.id) + " LEFT JOIN reading r ON r.readingId = "
             "(SELECT r2.readingId FROM reading r2 WHERE r2.patientId=p.patientId"
             " ORDER BY r2.dateTimeTaken DESC LIMIT 1) "
         )
@@ -376,6 +377,7 @@ def get_sql_table_operation_assoc(patient: bool) -> str:
             " JOIN patient p ON rf.patientId=p.patientId"
             " JOIN reading rd ON rd.readingId=rf.readingId"
             " JOIN patient_associations pa ON rf.patientId=pa.patientId"
+            " AND pa.userId=" + str(user.id)
         )
 
 

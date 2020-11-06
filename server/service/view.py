@@ -21,7 +21,7 @@ from typing import List
 
 import data.crud as crud
 import service.assoc as assoc
-from models import Patient, Referral, User
+from models import Patient, Referral, User, PatientAssociations
 
 
 def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
@@ -87,10 +87,9 @@ def vht_patient_view(user: User, **kwargs) -> List[Patient]:
     :return: A list of patients (filtered based on the parameters)
     """
     if not kwargs:
-        return crud.read_all(Referral)
-        # return assoc.patients_for_user(user)
+        return crud.read_all_assoc(PatientAssociations, user)
     else:
-        return crud.read_all_patients_for_user(**kwargs)
+        return crud.read_all_patients_for_user(user, **kwargs)
 
 
 def referral_view_for_user(user: User, **kwargs) -> List[Referral]:
@@ -159,7 +158,7 @@ def vht_referral_view(user: User, **kwargs) -> List[Referral]:
     if not kwargs:
         return user.healthFacility.referrals
     else:
-        return crud.read_all_referral_for_user(**kwargs)
+        return crud.read_all_referral_for_user(user, **kwargs)
 
 
 def individual_vht_referral_view(user: User) -> List[Referral]:
