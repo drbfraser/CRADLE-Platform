@@ -53,8 +53,10 @@ def admin_patient_view(**kwargs) -> List[Patient]:
     :return: A list of patients (filtered based on the parameters)
     """
     if not kwargs:
+        # getting all the patient + readings + followups + urine tests
         return crud.read_all(Patient)
     else:
+        # getting information for patient table (Admin view)
         return crud.read_all_admin_view(Patient, **kwargs)
 
 
@@ -76,10 +78,12 @@ def cho_patient_view(user: User, **kwargs) -> List[Patient]:
     :return: A list of patients
     """
     if not kwargs:
+        # patient + readings + followups + urine tests
+        # only for the CHO associated patients
         return crud.read_all_assoc_patients(PatientAssociations, user)
     else:
+        # getting information for patient table (CHO view)
         vht_and_cho_patients = crud.read_all_patients_for_assoc_vht(user, **kwargs)
-
         return vht_and_cho_patients
 
 
@@ -91,8 +95,11 @@ def vht_patient_view(user: User, **kwargs) -> List[Patient]:
     :return: A list of patients (filtered based on the parameters)
     """
     if not kwargs:
+        # patient + readings + followups + urine tests
+        # only for the VHT associated patients
         return crud.read_all_assoc_patients(PatientAssociations, user)
     else:
+        # getting information for patient table (VHT view)
         return crud.read_all_patients_for_user(user, **kwargs)
 
 
@@ -127,6 +134,7 @@ def admin_referral_view(**kwargs) -> List[Referral]:
     if not kwargs:
         return crud.read_all(Referral)
     else:
+        # getting information for Referral table (Admin view)
         return crud.read_all_admin_view(Referral, **kwargs)
 
 
@@ -153,6 +161,7 @@ def cho_referral_view(user: User, **kwargs) -> List[Referral]:
         vht_referrals = [r for vht in user.vhtList for r in vht_referral_view(vht)]
         return cho_referrals + vht_referrals
     else:
+        # getting information for Referral table (CHO view)
         return crud.read_all_referral_for_user(user, **kwargs)
 
 
@@ -167,6 +176,7 @@ def vht_referral_view(user: User, **kwargs) -> List[Referral]:
     if not kwargs:
         return user.healthFacility.referrals
     else:
+        # getting information for Referral table (VHT view)
         return crud.read_all_referral_for_user(user, **kwargs)
 
 

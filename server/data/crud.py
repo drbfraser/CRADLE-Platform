@@ -118,8 +118,7 @@ def find(m: Type[M], *args) -> List[M]:
 
 def read_all(m: Type[M], **kwargs) -> List[M]:
     """
-    Queries the database for all models which match some query parameters defined as
-    keyword arguments.
+    Queries the database for all Patients and Reaedings
 
     :param m: Type of the model to query for
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
@@ -155,6 +154,13 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
 
 
 def read_all_assoc_patients(m: Type[M], user: User) -> List[M]:
+    """
+    Queries the database for all Patients and Readings data
+
+    :param m: Type of the model to query for
+    :param user: Current User
+    :return: A list patient_list
+    """
     if m.schema() == PatientAssociations.schema():
         # get all the patients
         patient_list = read_all_assoc_patients_db(user)
@@ -177,12 +183,11 @@ def read_all_assoc_patients(m: Type[M], user: User) -> List[M]:
 
 def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
     """
-    Queries the database for all models which match some query parameters defined as
-    keyword arguments.
+    Queries the database for all Patients or Referrals
 
     :param m: Type of the model to query for
-    :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``sortBy="abc"``)
+    :param kwargs: limit, page, search, sortBy, sortDir
+
     :return: A list of models from the database
     """
 
@@ -206,6 +211,14 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
 
 
 def read_all_patients_for_user(user: User, **kwargs) -> List[M]:
+    """
+    Queries the database for all associated Patients
+
+    :param user: Current User
+    :param kwargs: limit, page, search, sortBy, sortDir
+
+    :return: A list patient_list
+    """
     search_param = (
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
@@ -219,6 +232,14 @@ def read_all_patients_for_user(user: User, **kwargs) -> List[M]:
 
 
 def read_all_patients_for_assoc_vht(user: User, **kwargs) -> List[M]:
+    """
+    Queries the database for all associated Patients
+
+    :param user: Current User
+    :param kwargs: limit, page, search, sortBy, sortDir
+
+    :return: A list patient_list that are associated to the VHT
+    """
     search_param = (
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
@@ -241,7 +262,14 @@ def read_all_patients_for_assoc_vht(user: User, **kwargs) -> List[M]:
 
 
 def read_all_referral_for_user(user: User, **kwargs) -> List[M]:
+    """
+    Queries the database for all associated Patients
 
+    :param user: Current User
+    :param kwargs: limit, page, search, sortBy, sortDir
+
+    :return: A list referrals that are associated to the current user
+    """
     search_param = (
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
@@ -258,6 +286,12 @@ def read_all_referral_for_user(user: User, **kwargs) -> List[M]:
 
 
 def read_all_patients_db() -> List[M]:
+    """
+    Queries the database for all Patients
+
+    :return: A dictionary of Patients
+    """
+
     # make DB call
     patients = db_session.execute("SELECT * FROM patient ORDER BY patientId ASC")
 
@@ -271,6 +305,11 @@ def read_all_patients_db() -> List[M]:
 
 
 def read_all_assoc_patients_db(user: User) -> List[M]:
+    """
+    Queries the database for all Patients
+
+    :return: A dictionary of Patients
+    """
     # make DB call
     patients = db_session.execute(
         "SELECT * FROM patient p JOIN patient_associations pa "
@@ -288,8 +327,12 @@ def read_all_assoc_patients_db(user: User) -> List[M]:
 
 
 def read_all_readings_db() -> List[M]:
-    # make DB call
+    """
+    Queries the database for all Readings
 
+    :return: A dictionary of Readings
+    """
+    # make DB call
     reading_and_referral = db_session.execute(
         "SELECT rf.id as rf_id, "
         "ut.id as ut_id, "
