@@ -20,10 +20,17 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
           : getAgeBasedOnDOB(patient.dob)}
       </p>
       <p>
-        <b>Village: </b> {patient.villageNumber}
+        <b>Sex: </b> {patient.patientSex}
+      </p>
+      {/* //we did not store household */}
+      <p>
+        <b>Household: </b>
       </p>
       <p>
-        <b>Sex: </b> {patient.patientSex}
+        <b>Zone: </b> {patient.zone}
+      </p>
+      <p>
+        <b>Village: </b> {patient.villageNumber}
       </p>
       {patient.patientSex === SexEnum.FEMALE && (
         <p>
