@@ -22,16 +22,6 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
       <p>
         <b>Sex: </b> {patient.patientSex}
       </p>
-      {/* //we did not store household */}
-      <p>
-        <b>Household: </b> {patient.householdNumber}
-      </p>
-      <p>
-        <b>Zone: </b> {patient.zone}
-      </p>
-      <p>
-        <b>Village: </b> {patient.villageNumber}
-      </p>
       {patient.patientSex === SexEnum.FEMALE && (
         <p>
           <b>Pregnant: </b> {patient.isPregnant ? `Yes` : `No`}
