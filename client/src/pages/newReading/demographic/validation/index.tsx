@@ -6,7 +6,7 @@ const isPatientNameValid = (myString: any) => {
 };
 export const validateInput = (name: any, value: any) => {
   const patientError = {
-    householdError: false,
+    householdNumberError: false,
     patientIdError: false,
     patientNameError: false,
     patientAgeError: false,

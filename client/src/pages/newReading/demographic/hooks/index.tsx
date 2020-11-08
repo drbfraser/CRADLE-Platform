@@ -11,7 +11,7 @@ import moment from 'moment';
 import { validateInput } from '../validation';
 
 const initializePatientKeys = [
-  `household`,
+  `householdNumber`,
   `patientId`,
   `patientName`,
   `patientSex`,
@@ -29,7 +29,7 @@ const initializePatientKeys = [
 
 export const useNewPatient = () => {
   const [patient, setPatient] = React.useState({
-    household: '',
+    householdNumber: '',
     patientId: '',
     patientName: '',
     patientAge: 15,
@@ -44,7 +44,7 @@ export const useNewPatient = () => {
     drugHistory: '',
     medicalHistory: '',
     isExactDob: false,
-    householdError: false,
+    householdNumberError: false,
     patientIdError: false,
     patientNameError: false,
     patientAgeError: false,
@@ -70,7 +70,7 @@ export const useNewPatient = () => {
   const resetValuesPatient = (reset: boolean) => {
     if (reset) {
       setPatient({
-        household: '',
+        householdNumber: '',
         patientId: '',
         patientName: '',
         patientAge: 15,
@@ -85,7 +85,7 @@ export const useNewPatient = () => {
         drugHistory: '',
         medicalHistory: '',
         isExactDob: false,
-        householdError: false,
+        householdNumberError: false,
         patientIdError: false,
         patientNameError: false,
         patientAgeError: false,
@@ -227,7 +227,7 @@ export const useNewPatient = () => {
       name === 'zone' ||
       name === 'drugHistory' ||
       name === 'medicalHistory' ||
-      name === 'household'
+      name === 'householdNumber'
     ) {
       setPatient({
         ...patient,

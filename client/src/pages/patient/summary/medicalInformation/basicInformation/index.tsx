@@ -24,7 +24,7 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
       </p>
       {/* //we did not store household */}
       <p>
-        <b>Household: </b>
+        <b>Household: </b> {patient.householdNumber}
       </p>
       <p>
         <b>Zone: </b> {patient.zone}
