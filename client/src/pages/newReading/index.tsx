@@ -426,7 +426,7 @@ const Page: React.FC<IProps> = (props) => {
         !patient.patientName ||
         (patient.isPregnant && !patient.gestationalAgeValue) ||
         patient.patientIdError ||
-        patient.householdError ||
+        patient.householdNumberError ||
         patient.patientNameError ||
         patient.patientAgeError ||
         patient.patientSexError ||

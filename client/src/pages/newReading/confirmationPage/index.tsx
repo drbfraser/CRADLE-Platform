@@ -125,13 +125,13 @@ const Page: React.FC<IProps> = (props) => {
               value={props.patient.patientId}
             />
             <TextField
-              disabled={props.patient.household ? false : true}
+              disabled={props.patient.householdNumber ? false : true}
               InputProps={{
-                readOnly: props.patient.household ? true : false,
+                readOnly: props.patient.householdNumber ? true : false,
               }}
               label="Household Number"
               variant="outlined"
-              value={props.patient.household}
+              value={props.patient.householdNumber}
             />
             <TextField
               disabled={props.patient.patientAge ? false : true}

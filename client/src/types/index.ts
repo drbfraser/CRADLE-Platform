@@ -82,6 +82,7 @@ export type Patient = {
   tableData: { id: number };
   zone: OrNull<string>;
   isExactDob: boolean;
+  householdNumber: OrNull<string>;
 };
 
 export type EditedPatient = Pick<
@@ -98,6 +99,7 @@ export type EditedPatient = Pick<
   | 'patientSex'
   | 'villageNumber'
   | 'zone'
+  | 'householdNumber'
 >;
 
 export type GlobalSearchPatient = {
@@ -186,6 +188,7 @@ export type PatientNewReading = {
   villageNumber: string;
   zone: OrNull<string>;
   isExactDob: boolean;
+  householdNumber: OrNull<string>;
 };
 
 export type TrafficLightStatistics = {

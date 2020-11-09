@@ -126,8 +126,8 @@ const Page: React.FC<IProps> = (props) => {
           <TextField
             label={'Household Number'}
             id="component-outlined"
-            name="household"
-            value={props.patient.household}
+            name="householdNumber"
+            value={props.patient.householdNumber}
             onChange={props.onChange}
             variant="outlined"
             type={'text'}
