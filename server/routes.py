@@ -107,7 +107,7 @@ def init(api):
         SinglePatient, "/api/patients/<string:patient_id>", endpoint="single_patient"
     )  # [GET]
     api.add_resource(
-        AndroidPatients, "/api/android/patients", endpoint="android_patient"
+        AndroidPatients, "/api/mobile/patients", endpoint="android_patient"
     )  # [GET]
     api.add_resource(
         PatientInfo, "/api/patients/<string:patient_id>/info", endpoint="patient_info"

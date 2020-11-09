@@ -102,7 +102,7 @@ class SinglePatient(Resource):
         return marshal.marshal(patient)
 
 
-# /api/android/patients/
+# /api/mobile/patients/
 class AndroidPatients(Resource):
     @staticmethod
     @jwt_required
