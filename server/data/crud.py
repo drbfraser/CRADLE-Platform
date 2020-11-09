@@ -131,7 +131,7 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
             # get all the patients
             patient_list = read_all_patients_db()
             # get all reading + referral + followup
-            reading_list = read_all_readings_db()
+            reading_list = read_all_readings_db(True, None)
 
             # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
             readingIdx = 0
@@ -153,7 +153,7 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
         return m.query.filter_by(**kwargs).all()
 
 
-def read_all_assoc_patients(m: Type[M], user: User) -> List[M]:
+def read_all_assoc_patients(m: Type[M], user: User, is_cho: bool) -> List[M]:
     """
     Queries the database for all Patients and Readings data
 
@@ -162,10 +162,13 @@ def read_all_assoc_patients(m: Type[M], user: User) -> List[M]:
     :return: A list patient_list
     """
     if m.schema() == PatientAssociations.schema():
+
+        user_ids = get_user_ids_list(user.id, is_cho)
+
         # get all the patients
-        patient_list = read_all_assoc_patients_db(user)
+        patient_list = read_all_assoc_patients_db(user_ids)
         # get all reading + referral + followup
-        reading_list = read_all_readings_db()
+        reading_list = read_all_readings_db(False, user_ids)
 
         # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
         readingIdx = 0
@@ -304,7 +307,7 @@ def read_all_patients_db() -> List[M]:
     return arr
 
 
-def read_all_assoc_patients_db(user: User) -> List[M]:
+def read_all_assoc_patients_db(user_ids: str) -> List[M]:
     """
     Queries the database for all Patients
 
@@ -314,7 +317,7 @@ def read_all_assoc_patients_db(user: User) -> List[M]:
     patients = db_session.execute(
         "SELECT * FROM patient p JOIN patient_associations pa "
         "ON p.patientId = pa.patientId             "
-        " AND pa.userId=" + str(user.id) + " ORDER BY p.patientId ASC"
+        " AND pa.userId IN (" + user_ids + ") ORDER BY p.patientId ASC"
     )
 
     creat_dict, arr = {}, []
@@ -326,56 +329,15 @@ def read_all_assoc_patients_db(user: User) -> List[M]:
     return arr
 
 
-def read_all_readings_db() -> List[M]:
+def read_all_readings_db(is_admin: bool, user_ids: str) -> List[M]:
     """
     Queries the database for all Readings
 
     :return: A dictionary of Readings
     """
     # make DB call
-    reading_and_referral = db_session.execute(
-        "SELECT rf.id as rf_id, "
-        "ut.id as ut_id, "
-        "ut.urineTestLeuc as ut_urineTestLeuc, "
-        "ut.urineTestNit as ut_urineTestNit, "
-        "ut.urineTestGlu as ut_urineTestGlu, "
-        "ut.urineTestPro as ut_urineTestPro, "
-        "ut.urineTestBlood as ut_urineTestBlood, "
-        "fu.id as fu_id, "
-        "fu.followupInstructions as fu_followupInstructions, "
-        "fu.specialInvestigations as fu_specialInvestigations, "
-        "fu.diagnosis as fu_diagnosis, "
-        "fu.treatment as fu_treatment, "
-        "fu.medicationPrescribed as fu_medicationPrescribed, "
-        "fu.dateAssessed as fu_dateAssessed, "
-        "fu.followupNeeded as fu_followupNeeded, "
-        "fu.readingId as fu_readingId, "
-        "fu.healthcareWorkerId as fu_healthcareWorkerId, "
-        "rf.comment as rf_comment, "
-        "rf.isAssessed as rf_isAssessed, "
-        "rf.referralHealthFacilityName as rf_referralHealthFacilityName, "
-        "rf.patientId as rf_patientId, "
-        "rf.readingId as rf_readingId, "
-        "rf.dateReferred as rf_dateReferred, "
-        "r.readingId as r_readingId, "
-        "r.bpSystolic as r_bpSystolic, "
-        "r.bpDiastolic as r_bpDiastolic, "
-        "r.heartRateBPM as r_heartRateBPM, "
-        "r.respiratoryRate as r_respiratoryRate, "
-        "r.oxygenSaturation as r_oxygenSaturation, "
-        "r.temperature as r_temperature, "
-        "r.symptoms as r_symptoms, "
-        "r.trafficLightStatus as r_trafficLightStatus, "
-        "r.dateTimeTaken as r_dateTimeTaken, "
-        "r.dateRecheckVitalsNeeded as r_dateRecheckVitalsNeeded, "
-        "r.retestOfPreviousReadingIds as r_retestOfPreviousReadingIds, "
-        "r.patientId as r_patientId, "
-        "r.isFlaggedForFollowup as r_isFlaggedForFollowup"
-        " FROM reading r LEFT OUTER JOIN referral rf on r.readingId=rf.readingId"
-        " LEFT OUTER JOIN followup fu on r.readingId=fu.readingId"
-        " LEFT OUTER JOIN urine_test ut on r.readingId=ut.readingId"
-        " ORDER BY r.patientId ASC"
-    )
+    get_sql_for_readings = SQL.get_sql_for_readings(user_ids, is_admin)
+    reading_and_referral = db_session.execute(get_sql_for_readings)
 
     creat_dict, arr = {}, []
 
@@ -388,6 +350,24 @@ def read_all_readings_db() -> List[M]:
         arr.append(creat_dict)
 
     return arr
+
+
+def get_user_ids_list(user_id: int, is_cho: bool):
+    if is_cho:
+        vht_list = [
+            {column: value for column, value in row.items()}
+            for row in get_sql_vhts_for_cho_db(str(user_id))
+        ]
+        vht_list_id = [str(user_id)]
+        for vht in vht_list:
+            vht_list_id.append(str(vht["id"]))
+
+        sql_str_vht_ids = ",".join(vht_list_id)
+    else:
+        sql_str_vht_ids = str(user_id)
+
+    print(sql_str_vht_ids)
+    return sql_str_vht_ids
 
 
 def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:

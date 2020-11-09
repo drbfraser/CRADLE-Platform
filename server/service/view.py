@@ -80,7 +80,7 @@ def cho_patient_view(user: User, **kwargs) -> List[Patient]:
     if not kwargs:
         # patient + readings + followups + urine tests
         # only for the CHO associated patients
-        return crud.read_all_assoc_patients(PatientAssociations, user)
+        return crud.read_all_assoc_patients(PatientAssociations, user, True)
     else:
         # getting information for patient table (CHO view)
         vht_and_cho_patients = crud.read_all_patients_for_assoc_vht(user, **kwargs)
@@ -97,7 +97,7 @@ def vht_patient_view(user: User, **kwargs) -> List[Patient]:
     if not kwargs:
         # patient + readings + followups + urine tests
         # only for the VHT associated patients
-        return crud.read_all_assoc_patients(PatientAssociations, user)
+        return crud.read_all_assoc_patients(PatientAssociations, user, False)
     else:
         # getting information for patient table (VHT view)
         return crud.read_all_patients_for_user(user, **kwargs)
