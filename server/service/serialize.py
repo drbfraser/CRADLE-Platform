@@ -33,6 +33,9 @@ def serialize_referral(r: any):
 
 def serialize_patient_sql_to_dict(d: any, row: any) -> dict:
     for column, value in row.items():
+        if value is None:
+            continue
+
         if column == "lastEdited":
             # The API representation of a patient contains a "base" field which is used by
             # mobile for syncing. When getting a patient from an API, this value is always
@@ -57,6 +60,8 @@ def serialize_reading_sql_to_dict(d: any, row: any) -> dict:
     referral = {}
     urine_test = {}
     for column, value in row.items():
+        if value is None:
+            continue
         # followup
         if "fu_" in column:
             if "fu_followupNeeded" in column:
