@@ -10,6 +10,7 @@ import service.assoc as assoc
 import service.view as view
 from models import Referral
 from validation import referrals
+import service.serialize as serialize
 
 
 # /api/referrals
@@ -21,14 +22,22 @@ class Root(Resource):
     )
     def get():
         user = util.current_user()
-        referrals = view.referral_view_for_user(user)
+        limit = util.query_param_limit(request, name="limit")
+        page = util.query_param_page(request, name="page")
+        sort_by = util.query_param_sortBy(request, name="sortBy")
+        sort_dir = util.query_param_sortDir(request, name="sortDir")
+        search = util.query_param_search(request, name="search")
 
-        # If the request does not specifically specify "all=true", then only return the
-        # referrals which have not been assessed.
-        if not util.query_param_bool(request, "all"):
-            referrals = [r for r in referrals if not r.isAssessed]
+        referrals = view.referral_view_for_user(
+            user,
+            limit=limit,
+            page=page,
+            sortBy=sort_by,
+            sortDir=sort_dir,
+            search=search,
+        )
 
-        return [marshal.marshal(r) for r in referrals]
+        return [serialize.serialize_referral(r) for r in referrals]
 
     @staticmethod
     @jwt_required

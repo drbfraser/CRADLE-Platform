@@ -52,7 +52,15 @@ export const TrafficLight: React.FC<IProps> = ({ className, status }) => {
           );
         }
         case TrafficLightEnum.GREEN: {
-          return <GreenTraffic className={classes.trafficLight} />;
+          return (
+            <>
+              <GreenTraffic className={classes.trafficLight} />
+              <ArrowDownwardIcon
+                className={classes.trafficLightArrow}
+                style={{ visibility: 'hidden' }}
+              />
+            </>
+          );
         }
         default: {
           return <Typography variant="h5">N/A</Typography>;

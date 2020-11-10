@@ -1,113 +1,61 @@
-import { GlobalSearchPatient, OrNull, Patient } from '@types';
-import {
-  addPatientToHealthFacility,
-  clearAddPatientToHealthFacilityError,
-  clearGetPatientsError,
-  getPatientsTablePatients,
-  updatePatientsTablePageNumber,
-  updatePatientsTableSearchText,
-} from '../../redux/reducers/patients';
-import { useDispatch, useSelector } from 'react-redux';
+import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import { debounce } from 'lodash';
+import React, { useState } from 'react';
+import { EndpointEnum } from '../../../src/server';
+import { APITable } from '../../../src/shared/components/apiTable';
+import { PatientRow } from './PatientRow';
 
-import { PatientTable } from './patientTable';
-import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { RoleEnum } from '../../enums';
-import { Toast } from '../../shared/components/toast';
-import { push } from 'connected-react-router';
-
-type SelectorState = {
-  addingFromGlobalSearch: boolean;
-  error: OrNull<string>;
-  fetchingPatients: boolean;
-  globalSearchPatients: OrNull<Array<GlobalSearchPatient>>;
-  pageNumber: number;
-  patients: OrNull<Array<Patient>>;
-  patientsTableSearchText?: string;
-  preventFetch: boolean;
-  showReferredPatients?: boolean;
-  userIsHealthWorker?: boolean;
+const columns = {
+  patientName: 'Patient Name',
+  patientId: 'Patient ID',
+  villageNumber: 'Village',
+  trafficLightStatus: 'Vital Sign',
+  dateTimeTaken: 'Last Reading Date',
 };
 
-export const PatientsPage: React.FC = () => {
-  const {
-    addingFromGlobalSearch,
-    error,
-    fetchingPatients,
-    globalSearchPatients,
-    pageNumber,
-    patients,
-    patientsTableSearchText,
-    preventFetch,
-    showReferredPatients,
-    userIsHealthWorker,
-  } = useSelector(
-    ({ patients, user }: ReduxState): SelectorState => ({
-      addingFromGlobalSearch: patients.addingFromGlobalSearch,
-      error: patients.addingFromGlobalSearchError || patients.error,
-      fetchingPatients: patients.isLoading,
-      globalSearchPatients: patients.globalSearchPatientsList,
-      pageNumber: patients.patientsTablePageNumber,
-      patients: patients.patientsList,
-      patientsTableSearchText: patients.patientsTableSearchText,
-      preventFetch: patients.preventFetch,
-      showReferredPatients: patients.showReferredPatients,
-      userIsHealthWorker: user.current.data?.roles.includes(RoleEnum.HCW),
-    })
-  );
-  const dispatch = useDispatch();
+export const PatientsPage = () => {
+  const classes = useStyles();
+  const [search, setSearch] = useState('');
 
-  const getPatients = React.useCallback(
-    (searchText?: string): void => {
-      dispatch(getPatientsTablePatients(searchText));
-    },
-    [dispatch]
-  );
-
-  React.useEffect(() => {
-    if (!preventFetch && !error && !fetchingPatients && patients === null) {
-      getPatients();
-    }
-  }, [error, fetchingPatients, getPatients, patients, preventFetch]);
-
-  const onPatientSelected = ({ patientId }: Patient): void => {
-    dispatch(push(`/patients/${patientId}`));
-  };
-
-  const onGlobalSearchPatientSelected = (patientId: string): void => {
-    dispatch(addPatientToHealthFacility(patientId));
-  };
-
-  const updatePageNumber = (pageNumber: number): void => {
-    dispatch(updatePatientsTablePageNumber(pageNumber));
-  };
-
-  const updateSearchText = (searchText?: string): void => {
-    dispatch(updatePatientsTableSearchText(searchText));
-  };
-
-  const clearError = (): void => {
-    dispatch(clearAddPatientToHealthFacilityError());
-    dispatch(clearGetPatientsError());
-  };
+  // ensure that we wait until the user has stopped typing
+  const debounceSetSearch = debounce(setSearch, 500);
 
   return (
-    <>
-      <Toast message={error} status="error" clearMessage={clearError} />
-      <PatientTable
-        pageNumber={pageNumber}
-        searchText={patientsTableSearchText}
-        showReferredPatients={showReferredPatients}
-        onPatientSelected={onPatientSelected}
-        onGlobalSearchPatientSelected={onGlobalSearchPatientSelected}
-        data={patients}
-        globalSearchData={globalSearchPatients}
-        loading={fetchingPatients || addingFromGlobalSearch}
-        showGlobalSearch={userIsHealthWorker}
-        getPatients={getPatients}
-        updatePageNumber={updatePageNumber}
-        updateSearchText={updateSearchText}
+    <Paper className={classes.wrapper}>
+      <div className={classes.topWrapper}>
+        <h2 className={classes.title}>Patients</h2>
+        <TextField
+          className={classes.search}
+          label="Search"
+          placeholder="Patient ID or Name"
+          variant="outlined"
+          onChange={(e) => debounceSetSearch(e.target.value)}
+        />
+      </div>
+      <APITable
+        endpoint={EndpointEnum.PATIENTS}
+        search={search}
+        columns={columns}
+        rowKey={'patientId'}
+        RowComponent={PatientRow}
       />
-    </>
+    </Paper>
   );
 };
+
+const useStyles = makeStyles({
+  wrapper: {
+    backgroundColor: '#fff',
+  },
+  topWrapper: {
+    padding: 15,
+  },
+  title: {
+    display: 'inline-block',
+  },
+  search: {
+    float: 'right',
+  },
+});

@@ -14,6 +14,7 @@ export enum EndpointEnum {
   PATIENT_FACILITY = '/patient/facility',
   PATIENTS_GLOBAL_SEARCH = '/patient/global',
   REFERRAL = '/referral',
+  REFERRALS = '/referrals',
   READING = '/reading',
   READINGS = '/readings',
   REFRESH = '/refresh_token',
