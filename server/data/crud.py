@@ -366,7 +366,6 @@ def get_user_ids_list(user_id: int, is_cho: bool):
     else:
         sql_str_vht_ids = str(user_id)
 
-    print(sql_str_vht_ids)
     return sql_str_vht_ids
 
 

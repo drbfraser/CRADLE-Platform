@@ -41,6 +41,10 @@ def serialize_patient_sql_to_dict(d: any, row: any) -> dict:
 
         if column == "dob":
             d = {**d, **{column: str(value)}}
+        elif column == "isPregnant":
+            d = {**d, **{column: is_null_or_bool(value)}}
+        elif column == "isExactDob":
+            d = {**d, **{column: is_null_or_bool(value)}}
         else:
             d = {**d, **{column: value}}
 
@@ -55,19 +59,41 @@ def serialize_reading_sql_to_dict(d: any, row: any) -> dict:
     for column, value in row.items():
         # followup
         if "fu_" in column:
-            followup = {**followup, **{column.replace("fu_", ""): value}}
+            if "fu_followupNeeded" in column:
+                followup = {
+                    **followup,
+                    **{column.replace("fu_", ""): is_null_or_bool(value)},
+                }
+            else:
+                followup = {**followup, **{column.replace("fu_", ""): value}}
         # referral
         elif "rf_" in column:
-            referral = {**referral, **{column.replace("rf_", ""): value}}
+            if "rf_isAssessed" in column:
+                referral = {
+                    **referral,
+                    **{column.replace("rf_", ""): is_null_or_bool(value)},
+                }
+            else:
+                referral = {**referral, **{column.replace("rf_", ""): value}}
         # urine test
         elif "ut_" in column:
             urine_test = {**urine_test, **{column.replace("ut_", ""): value}}
         # reading
         else:
-            d = {**d, **{column.replace("r_", ""): value}}
+            if "r_isFlaggedForFollowup" in column:
+                d = {**d, **{column.replace("r_", ""): is_null_or_bool(value)}}
+            else:
+                d = {**d, **{column.replace("r_", ""): value}}
 
     d = {**d, **{"referral": None if referral.get("id") is None else referral}}
     d = {**d, **{"followup": None if followup.get("id") is None else followup}}
     d = {**d, **{"urineTest": None if urine_test.get("id") is None else urine_test}}
 
     return d
+
+
+def is_null_or_bool(value: any):
+    if value is not None:
+        return False if value == 0 else True
+    else:
+        return None
