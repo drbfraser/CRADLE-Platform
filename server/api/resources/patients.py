@@ -26,12 +26,25 @@ class Root(Resource):
     )
     def get():
         user = util.current_user()
-        patients = view.patient_view_for_user(user)
-        if util.query_param_bool(request, name="simplified"):
-            # Computes simplified view for each patient
-            return [serialize.serialize_patient(p) for p in patients]
-        else:
-            return [marshal.marshal(p) for p in patients]
+
+        # query parameters for later SQL use
+        limit = util.query_param_limit(request, name="limit")
+        page = util.query_param_page(request, name="page")
+        sort_by = util.query_param_sortBy(request, name="sortBy")
+        sort_dir = util.query_param_sortDir(request, name="sortDir")
+        search = util.query_param_search(request, name="search")
+
+        patients = view.patient_view_for_user(
+            user,
+            limit=limit,
+            page=page,
+            sortBy=sort_by,
+            sortDir=sort_dir,
+            search=search,
+        )
+
+        # create JSON format
+        return [serialize.serialize_patient(p) for p in patients]
 
     @staticmethod
     @jwt_required
@@ -87,6 +100,22 @@ class SinglePatient(Resource):
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
         return marshal.marshal(patient)
+
+
+# /api/mobile/patients/
+class AndroidPatients(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/android-patients-get.yml",
+        methods=["GET"],
+        endpoint="android_patient",
+    )
+    def get():
+        user = util.current_user()
+        patients = view.patient_view_for_user(user)
+
+        return patients, 200
 
 
 # /api/patients/<string:patient_id>/info

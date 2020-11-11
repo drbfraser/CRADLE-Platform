@@ -20,14 +20,17 @@ class Updates(Resource):
         all_patients = view.patient_view_for_user(user)
 
         # New patients are patients who are created after the timestamp
-        new_patients = [p.patientId for p in all_patients if p.created > timestamp]
+        new_patients = [
+            p["patientId"] for p in all_patients if p["created"] > timestamp
+        ]
 
         # Edited patients are patients who were created before the timestamp but
         # edited after it
         edited_patients = [
-            p.patientId
+            p["patientId"]
             for p in all_patients
-            if p.created < p.lastEdited and p.created <= timestamp < p.lastEdited
+            if p["created"] < p["lastEdited"]
+            and p["created"] <= timestamp < p["lastEdited"]
         ]
 
         # New readings created after the timestamp for patients who where created before
@@ -39,13 +42,15 @@ class Updates(Resource):
         followups = []
 
         for p in all_patients:
-            for r in p.readings:
-                r_time = int(r.dateTimeTaken)
-                if p.created <= timestamp < r_time:
-                    readings.append(r.readingId)
+            for r in p["readings"]:
+                r_time = int(r["dateTimeTaken"])
+                if p["created"] <= timestamp < r_time:
+                    readings.append(r["readingId"])
 
-                if r.followup and r_time < timestamp < int(r.followup.dateAssessed):
-                    followups.append(r.followup.id)
+                if r["followup"] and r_time < timestamp < int(
+                    r["followup"]["dateAssessed"]
+                ):
+                    followups.append(r["followup"]["id"])
 
         return {
             "newPatients": new_patients,

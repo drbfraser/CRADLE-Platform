@@ -247,6 +247,7 @@ def create_patient_reading_referral(
         "bpSystolic": 50,
         "bpDiastolic": 60,
         "heartRateBPM": 70,
+        "trafficLightStatus": "YELLOW_DOWN",
         "symptoms": "FEVERISH",
     }
 

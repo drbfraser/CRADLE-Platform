@@ -18,9 +18,7 @@ errorlog = os.path.join(_VAR, "log/cradle-error.log")
 accesslog = os.path.join(_VAR, "log/cradle-access.log")
 
 bind = "0.0.0.0:" + port
-workers = 1
-# TODO: when upgrading server, uncoming the line below to replace the line above
-# workers = multiprocessing.cpu_count() * 2 + 1
+workers = multiprocessing.cpu_count() * 2 + 1
 
 timeout = 30  # 30 s
 keepalive = 5  # 5 s

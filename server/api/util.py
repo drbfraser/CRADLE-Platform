@@ -22,6 +22,65 @@ def query_param_bool(request: Request, name: str) -> bool:
     return request.args.get(name, "false", type=str) == "true"
 
 
+def query_param_limit(request: Request, name: str) -> int:
+    """
+    Returns Integer if the request URL contains a limit query parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: 10 if the value for the parameter is not specified, otherwise given value.
+    """
+    return request.args.get(name, 10, type=int)
+
+
+def query_param_page(request: Request, name: str) -> int:
+    """
+    Returns Integer if the request URL contains a page query parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: 1 if the value for the parameter is not specified, otherwise given value.
+
+    """
+    return request.args.get(name, 1, type=int)
+
+
+def query_param_sortBy(request: Request, name: str) -> str:
+    """
+    Returns String if the request URL contains a page sortBy parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: patientName if the value for the parameter is not specified, otherwise given column name.
+
+    """
+    return request.args.get(name, "patientName", type=str)
+
+
+def query_param_sortDir(request: Request, name: str) -> str:
+    """
+    Returns String if the request URL contains a page sortDir parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: asc if the value for the parameter is not specified, otherwise given column name.
+
+    """
+    return request.args.get(name, "asc", type=str)
+
+
+def query_param_search(request: Request, name: str) -> str:
+    """
+    Returns String if the request URL contains a page sortDir parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: empty string if the value for the parameter is not specified, otherwise given column name.
+
+    """
+    return request.args.get(name, "", type=str)
+
+
 def current_user() -> User:
     """
     Returns the the model for the user making the request.
