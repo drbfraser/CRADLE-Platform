@@ -1,8 +1,6 @@
-import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { AdminPage } from '../../../pages/admin';
 import { CovidCollectionPage } from '../../../pages/statistics/covidCollection';
 import { LoginPage } from '../../../pages/login';
-import { NewReading } from '../../../pages/newReading';
 import { NotFoundPage } from '../../../pages/notFound';
 import { PatientPage } from '../../../pages/patient';
 import { PatientsPage } from '../../../pages/patients';
@@ -19,6 +17,8 @@ import { VideoChatPage } from '../../../pages/videoChat';
 import { VideoSessionPage } from '../../../pages/videoSession';
 import VideocamIcon from '@material-ui/icons/Videocam';
 import { makeUniqueId } from '../../../shared/utils';
+import { NewReading } from '../../../pages/newReading';
+import { NewPatientPage } from '../../../pages/newPatient';
 
 export type AppRoute = {
   component:
@@ -37,14 +37,19 @@ export type AppRoute = {
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
   {
+    component: NewPatientPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/patients/new`,
+  },
+  {
     component: NewReading,
     exactPath: true,
     id: makeUniqueId(),
-    icon: <AddCircleIcon fontSize="large" />,
-    inNavigation: true,
-    name: `Reading`,
+    inNavigation: false,
     private: true,
-    title: `Patient & Reading`,
     to: `/readings/new`,
   },
   {
