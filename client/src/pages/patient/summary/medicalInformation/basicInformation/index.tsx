@@ -30,8 +30,8 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
             </td>
           </tr>
           <tr>
-            <td>Zone: {patient.zone ? patient.zone : 'N/A'}</td>
-            <td>
+            <td style={{ width: '50%' }}>Zone: {patient.zone ? patient.zone : 'N/A'}</td>
+            <td style={{ width: '50%' }}>
               Household: {patient.householdNumber ? patient.householdNumber : 'N/A'}
             </td>
           </tr>
