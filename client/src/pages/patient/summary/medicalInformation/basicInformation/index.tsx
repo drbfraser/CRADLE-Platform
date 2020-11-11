@@ -23,16 +23,19 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
         <b>Sex: </b> {patient.patientSex}
       </p>
       <p>
-        <table style={{ width: 300 }}>
+        <table style={{ width: 350 }}>
           <tr>
             <td colSpan={2}>
               Village: {patient.villageNumber ? patient.villageNumber : 'N/A'}
             </td>
           </tr>
           <tr>
-            <td style={{ width: '50%' }}>Zone: {patient.zone ? patient.zone : 'N/A'}</td>
-            <td style={{ width: '50%' }}>
-              Household: {patient.householdNumber ? patient.householdNumber : 'N/A'}
+            <td style={{ width: '40%' }}>
+              Zone: {patient.zone ? patient.zone : 'N/A'}
+            </td>
+            <td style={{ width: '60%' }}>
+              Household:{' '}
+              {patient.householdNumber ? patient.householdNumber : 'N/A'}
             </td>
           </tr>
         </table>
