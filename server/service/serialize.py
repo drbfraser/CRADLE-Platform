@@ -92,7 +92,7 @@ def serialize_reading_sql_to_dict(d: any, row: any) -> dict:
 
     d = {**d, **{"referral": None if referral.get("id") is None else referral}}
     d = {**d, **{"followup": None if followup.get("id") is None else followup}}
-    d = {**d, **{"urineTest": None if urine_test.get("id") is None else urine_test}}
+    d = {**d, **{"urineTests": None if urine_test.get("id") is None else urine_test}}
 
     return d
 
