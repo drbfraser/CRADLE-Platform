@@ -68,8 +68,15 @@ def validate(request_body: dict) -> Optional[str]:
     if len(str(request_body.get("patientId"))) > 14:
         return "patientId is too long. Max is 14 digits."
 
+    # check if dob field exist
+    if "dob" not in request_body:
+        return "dob is required."
+
+    if "isExactDob" not in request_body:
+        return "isExactDob is required."
+
     # Make sure the dob is in YYYY-mm-dd format
-    if "dob" in request_body and not is_correct_date_format(request_body.get("dob")):
+    if not is_correct_date_format(request_body.get("dob")):
         return "dob is not in the required YYYY-MM-DD format."
 
     return error_message
