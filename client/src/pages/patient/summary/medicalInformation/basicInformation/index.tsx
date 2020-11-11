@@ -23,7 +23,7 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
         <b>Sex: </b> {patient.patientSex}
       </p>
       <p>
-        <table style={{ width: 350 }}>
+        <table id="addressTable" style={{ width: 350 }}>
           <tr>
             <td colSpan={2}>
               Village: {patient.villageNumber ? patient.villageNumber : 'N/A'}
