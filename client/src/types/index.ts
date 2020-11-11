@@ -23,6 +23,9 @@ export type Reading = {
   appVersion: OrNull<string>;
   bpDiastolic: number;
   bpSystolic: number;
+  respiratoryRate: number;
+  oxygenSaturation: number;
+  temperature: number;
   dateLastSaved: OrNull<number>;
   dateRecheckVitalsNeeded: OrNull<number>;
   dateTimeTaken: OrNull<number>;

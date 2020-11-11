@@ -19,6 +19,7 @@ import { ReduxState } from '../../../redux/reducers';
 import { Toast } from '../../../shared/components/toast';
 import { VitalsOverTime } from './vitalsOverTime';
 import { push } from 'connected-react-router';
+import { PersonalInformation } from './personalInformation';
 
 interface IProps {
   selectedPatient: Patient;
@@ -108,6 +109,25 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     dispatch(resetAddedFromGlobalSearch());
   };
 
+  function FormColumn() {
+    return (
+      <>
+        <div>
+          <Grid container direction="column" spacing={4}>
+            <PersonalInformation
+              selectedPatient={selectedPatient}
+              onAddPatientRequired={onAddPatientRequired}
+            />
+            <MedicalInformation
+              selectedPatient={selectedPatient}
+              onAddPatientRequired={onAddPatientRequired}
+            />
+          </Grid>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Toast
@@ -129,17 +149,33 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
           addNewReading={addNewReading}
         />
         <Divider />
-        <Grid container direction="row" spacing={4}>
-          <MedicalInformation
-            selectedPatient={selectedPatient}
-            onAddPatientRequired={onAddPatientRequired}
-          />
-          <VitalsOverTime
-            patientId={selectedPatient.patientId}
-            showingVitals={state.showVitals}
-            showingTrafficLights={state.showTrafficLights}
-            updateState={updateState}
-          />
+        {/* <Grid item xs = "auto" lg="auto" sm container> */}
+        <Grid container direction="row">
+          <Grid item xs={6}>
+            <FormColumn />
+          </Grid>
+          {/* <Grid item container direction="column" spacing={4}>
+              <Grid item spacing = {4} >
+              <PersonalInformation
+              selectedPatient={selectedPatient}
+              onAddPatientRequired={onAddPatientRequired}
+            />
+            <MedicalInformation
+              selectedPatient={selectedPatient}
+              onAddPatientRequired={onAddPatientRequired}
+            />
+              </Grid>
+              </Grid> */}
+
+          <Grid item xs={6}>
+            <VitalsOverTime
+              patientId={selectedPatient.patientId}
+              showingVitals={state.showVitals}
+              showingTrafficLights={state.showTrafficLights}
+              updateState={updateState}
+            />
+            {/* </Grid> */}
+          </Grid>
         </Grid>
         <PatientReadings
           selectedPatient={selectedPatient}

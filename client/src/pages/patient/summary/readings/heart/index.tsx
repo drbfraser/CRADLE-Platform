@@ -13,7 +13,7 @@ export const Heart: React.FC<IProps> = ({ reading }) => {
     <div className={classes.heart}>
       <p>
         <b>Systolic Blood Pressure: </b> {reading.bpSystolic}
-      </p>
+        </p>
       <p>
         <b>Diastolic Blood Pressure: </b> {reading.bpDiastolic}
       </p>
