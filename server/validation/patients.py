@@ -16,6 +16,7 @@ def validate(request_body: dict) -> Optional[str]:
                             "patientSex": "FEMALE", - required
                             "householdNumber": "20",
                             "dob": "1990-05-30",
+                            "isExactDob: false
                             "zone": "15",
                             "villageNumber": "50",
                             "gestationalTimestamp": 1587068710, - required if isPregnant = True
@@ -28,7 +29,14 @@ def validate(request_body: dict) -> Optional[str]:
     error_message = None
 
     # Check if required keys are present
-    required_keys = ["patientId", "patientName", "patientSex", "isPregnant"]
+    required_keys = [
+        "patientId",
+        "patientName",
+        "patientSex",
+        "isPregnant",
+        "dob",
+        "isExactDob",
+    ]
     error_message = required_keys_present(request_body, required_keys)
     if error_message is not None:
         return error_message
@@ -69,7 +77,7 @@ def validate(request_body: dict) -> Optional[str]:
         return "patientId is too long. Max is 14 digits."
 
     # Make sure the dob is in YYYY-mm-dd format
-    if "dob" in request_body and not is_correct_date_format(request_body.get("dob")):
+    if not is_correct_date_format(request_body.get("dob")):
         return "dob is not in the required YYYY-MM-DD format."
 
     return error_message
