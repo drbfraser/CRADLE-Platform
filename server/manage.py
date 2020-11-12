@@ -231,6 +231,8 @@ def create_patient_reading_referral(
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "true",
+            "dob": "2004-01-01",
+            "isExactDob": False,
         }
     else:
         patient = {
@@ -239,6 +241,8 @@ def create_patient_reading_referral(
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "false",
+            "dob": "2004-01-01",
+            "isExactDob": False,
         }
 
     reading = {

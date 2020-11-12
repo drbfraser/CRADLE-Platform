@@ -122,6 +122,8 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
         "patientName": "TEST",
         "patientSex": "FEMALE",
         "isPregnant": False,
+        "dob": "2004-01-01",
+        "isExactDob": False,
         "villageNumber": "1",
         "zone": "1",
         "readings": [__make_reading(r, patient_id) for r in reading_ids],
