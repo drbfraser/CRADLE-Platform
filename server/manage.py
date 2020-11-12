@@ -143,6 +143,8 @@ def seed():
             "villageNumber": getRandomVillage(),
             "patientSex": "FEMALE",
             "isPregnant": "true",
+            "dob":  "2004-01-01",
+            "isExactDob": "false"
         }
         db.session.add(patient_schema.load(p1))
         db.session.commit()

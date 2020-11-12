@@ -16,6 +16,7 @@ def validate(request_body: dict) -> Optional[str]:
                             "patientSex": "FEMALE", - required
                             "householdNumber": "20",
                             "dob": "1990-05-30",
+                            "isExactDob: false
                             "zone": "15",
                             "villageNumber": "50",
                             "gestationalTimestamp": 1587068710, - required if isPregnant = True
