@@ -10,6 +10,27 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import { makeStyles } from '@material-ui/core/styles';
+
+export const GESTATIONAL_AGE_UNITS = {
+  WEEKS: 'GESTATIONAL_AGE_UNITS_WEEKS',
+  MONTHS: 'GESTATIONAL_AGE_UNITS_MONTHS',
+};
+
+const gestationalAgeUnitOptions = [
+  { name: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
+  { name: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS },
+];
+
+export const GENDERS = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+};
+
+const genderOptions = [
+  { name: 'Male', value: GENDERS.MALE },
+  { name: 'Female', value: GENDERS.FEMALE },
+];
 
 export const NewPatientPage = () => {
   const [patientId, setPatientId] = useState('');
@@ -20,12 +41,14 @@ export const NewPatientPage = () => {
   const [isExactDOB, setIsExactDOB] = useState(true);
   const [zone, setZone] = useState('');
   const [village, setVillage] = useState('');
-  const [gender, setGender] = useState('male');
+  const [gender, setGender] = useState(GENDERS.MALE);
   const [pregnant, setPregnant] = useState(false);
   const [gestationalAge, setGestationalAge] = useState('');
-  const [gestationalAgeUnit, setGestationalAgeUnit] = useState('');
+  const [gestationalAgeUnit, setGestationalAgeUnit] = useState(GESTATIONAL_AGE_UNITS.WEEKS);
   const [drugHistory, setDrugHistory] = useState('');
   const [medicalHistory, setMedicalHistory] = useState('');
+
+  const classes = useStyles();
 
   return (
     <>
@@ -68,8 +91,18 @@ export const NewPatientPage = () => {
                 size="large"
                 value={isExactDOB}
                 onChange={(_, newVal) => setIsExactDOB(newVal)}>
-                <ToggleButton value={true}>Date of Birth</ToggleButton>
-                <ToggleButton value={false}>Estimated Age</ToggleButton>
+                <ToggleButton
+                  classes={{ selected: classes.toggle }}
+                  value={true}
+                >
+                  Date of Birth
+                </ToggleButton>
+                <ToggleButton
+                  classes={{ selected: classes.toggle }}
+                  value={false}
+                >
+                  Estimated Age
+                </ToggleButton>
               </ToggleButtonGroup>
             </Grid>
             <Grid item md={4}>
@@ -123,8 +156,11 @@ export const NewPatientPage = () => {
                   label="Gender"
                   value={gender}
                   onChange={(e) => setGender(e.target.value as string)}>
-                  <MenuItem value="male">Male</MenuItem>
-                  <MenuItem value="female">Female</MenuItem>
+                  {
+                    genderOptions.map(option => (
+                      <MenuItem value={option.value}>{option.name}</MenuItem>
+                    ))
+                  }
                 </Select>
               </FormControl>
             </Grid>
@@ -135,7 +171,7 @@ export const NewPatientPage = () => {
                     checked={pregnant}
                     onChange={(e) => setPregnant(e.target.checked)}
                     color="primary"
-                    disabled={gender !== 'female'}
+                    disabled={!(gender === GENDERS.FEMALE)}
                   />
                 }
                 label="Pregnant"
@@ -163,8 +199,11 @@ export const NewPatientPage = () => {
                   onChange={(e) =>
                     setGestationalAgeUnit(e.target.value as string)
                   }>
-                  <MenuItem value="weeks">Weeks</MenuItem>
-                  <MenuItem value="months">Months</MenuItem>
+                  {
+                    gestationalAgeUnitOptions.map(option => (
+                      <MenuItem value={option.value}>{option.name}</MenuItem>
+                    ))
+                  }
                 </Select>
               </FormControl>
             </Grid>
@@ -196,3 +235,11 @@ export const NewPatientPage = () => {
     </>
   );
 };
+
+const useStyles = makeStyles({
+  toggle: {
+    border: '1px solid #3f51b5 !important',
+    fontWeight: 'bold',
+    color: '#3f51b5 !important',
+  },
+});
