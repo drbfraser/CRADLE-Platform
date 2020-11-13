@@ -7,6 +7,10 @@ import service.view as view
 
 
 # /api/sync/updates
+from server.data import crud
+from server.models import HealthFacility
+
+
 class Updates(Resource):
     @staticmethod
     @jwt_required
@@ -37,6 +41,9 @@ class Updates(Resource):
         # the timestamp
         readings = []
 
+        # reads all the Health Facilities form db and returns the updated facilities list
+        facilities = crud.read_all(HealthFacility)
+
         # New followups which were created after the timestamp for readings which were
         # created before the timestamp
         followups = []
@@ -57,4 +64,5 @@ class Updates(Resource):
             "editedPatients": edited_patients,
             "readings": readings,
             "followups": followups,
+            "HealthFacilities": facilities,
         }
