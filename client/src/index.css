@@ -143,13 +143,3 @@ button:disabled {
   width: 400px;
   margin-top: 0.25rem;
 }
-
-/* for address table in patient summary page */
-#addressTable td{
-  border: 1px solid black;
-  border-collapse: collapse;
-}
-#addressTable td{
-  padding: 5px;
-  text-align: left;
-}

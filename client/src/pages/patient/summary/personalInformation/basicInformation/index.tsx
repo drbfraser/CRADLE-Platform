@@ -11,16 +11,18 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
   return (
     <>
       <p>
-        <b>ID: </b> {patient.patientId} <b> Village: </b> {patient.villageNumber ? patient.villageNumber : `N/A`}
+        <b>ID: </b> {patient.patientId} <b> Village: </b>{' '}
+        {patient.villageNumber ? patient.villageNumber : `N/A`}
       </p>
       <p>
         <b>Age: </b>
         {patient.dob === undefined || patient.dob === null
           ? `N/A`
-          : getAgeBasedOnDOB(patient.dob)} 
+          : getAgeBasedOnDOB(patient.dob)}
       </p>
       <p>
-        <b>Sex: </b> {patient.patientSex} <b> Zone: </b> {patient.zone ? patient.zone : `N/A`}
+        <b>Sex: </b> {patient.patientSex} <b> Zone: </b>{' '}
+        {patient.zone ? patient.zone : `N/A`}
       </p>
       <p>
         <b>Household number: </b>{' '}
