@@ -5,16 +5,15 @@ import MenuItem from '@material-ui/core/MenuItem/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
-import React, { useCallback } from 'react';
+import React, { useReducer } from 'react';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { makeStyles } from '@material-ui/core/styles';
-import { useDispatch, useSelector } from 'react-redux';
-import { ReduxState } from '../../../src/redux/reducers';
-import { setPatientField } from '../../../src/redux/reducers/patient/actions';
-import { GENDERS, GESTATIONAL_AGE_UNITS, PatientField } from '../../../src/redux/reducers/patient/state';
+import { setPatientField } from './state/actions';
+import { GENDERS, GESTATIONAL_AGE_UNITS, initialState, PatientField } from './state/state';
+import { reducer } from './state/reducer';
 
 const gestationalAgeUnitOptions = [
   { name: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
@@ -27,13 +26,9 @@ const genderOptions = [
 ];
 
 export const NewPatientPage = () => {
-  const patient = useSelector((state: ReduxState) => state.patient);
   const classes = useStyles();
-  const dispatch = useDispatch();
-  // const setField = (f: PatientField, v: any) => dispatch(setPatientField(f, v))
-  const setField = useCallback((f: PatientField, v: any) => {
-    dispatch(setPatientField(f, v))
-  }, [dispatch]);
+  const [patient, dispatch] = useReducer(reducer, initialState);
+  const setField = (f: PatientField, v: any) => dispatch(setPatientField(f, v))
 
   return (
     <>
