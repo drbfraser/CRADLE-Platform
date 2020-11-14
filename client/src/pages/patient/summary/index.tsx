@@ -109,25 +109,6 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
     dispatch(resetAddedFromGlobalSearch());
   };
 
-  function FormColumn() {
-    return (
-      <>
-        <div>
-          <Grid container direction="column" spacing={4}>
-            <PersonalInformation
-              selectedPatient={selectedPatient}
-              onAddPatientRequired={onAddPatientRequired}
-            />
-            <MedicalInformation
-              selectedPatient={selectedPatient}
-              onAddPatientRequired={onAddPatientRequired}
-            />
-          </Grid>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <Toast
@@ -149,24 +130,20 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
           addNewReading={addNewReading}
         />
         <Divider />
-        {/* <Grid item xs = "auto" lg="auto" sm container> */}
-        <Grid container direction="row">
+        <Grid container direction="row" spacing={4}>
           <Grid item xs={6}>
-            <FormColumn />
-          </Grid>
-          {/* <Grid item container direction="column" spacing={4}>
-              <Grid item spacing = {4} >
+            <div>
               <PersonalInformation
-              selectedPatient={selectedPatient}
-              onAddPatientRequired={onAddPatientRequired}
-            />
-            <MedicalInformation
-              selectedPatient={selectedPatient}
-              onAddPatientRequired={onAddPatientRequired}
-            />
-              </Grid>
-              </Grid> */}
-
+                selectedPatient={selectedPatient}
+                onAddPatientRequired={onAddPatientRequired}
+              />
+              <br />
+              <MedicalInformation
+                selectedPatient={selectedPatient}
+                onAddPatientRequired={onAddPatientRequired}
+              />
+            </div>
+          </Grid>
           <Grid item xs={6}>
             <VitalsOverTime
               patientId={selectedPatient.patientId}
@@ -174,7 +151,6 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
               showingTrafficLights={state.showTrafficLights}
               updateState={updateState}
             />
-            {/* </Grid> */}
           </Grid>
         </Grid>
         <PatientReadings

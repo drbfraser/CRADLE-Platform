@@ -1,7 +1,6 @@
 import { Patient } from '@types';
 import React from 'react';
 import { SexEnum } from '../../../../../enums';
-// import { getAgeBasedOnDOB } from '../../../../../shared/utils';
 
 interface IProps {
   patient: Patient;

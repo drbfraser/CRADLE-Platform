@@ -1,6 +1,5 @@
 import { Patient } from '@types';
 import React from 'react';
-// import { SexEnum } from '../../../../../enums';
 import { getAgeBasedOnDOB } from '../../../../../shared/utils';
 
 interface IProps {
@@ -11,7 +10,7 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
   return (
     <>
       <p>
-        <b>ID: </b> {patient.patientId} <b> Village: </b>{' '}
+        <b>ID: </b> {patient.patientId} &nbsp;&nbsp;&nbsp;&nbsp;<b>Village: </b>
         {patient.villageNumber ? patient.villageNumber : `N/A`}
       </p>
       <p>
@@ -21,11 +20,11 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
           : getAgeBasedOnDOB(patient.dob)}
       </p>
       <p>
-        <b>Sex: </b> {patient.patientSex} <b> Zone: </b>{' '}
+        <b>Sex: </b> {patient.patientSex} &nbsp;&nbsp;&nbsp;&nbsp;<b> Zone: </b>
         {patient.zone ? patient.zone : `N/A`}
       </p>
       <p>
-        <b>Household number: </b>{' '}
+        <b>Household number: </b>
         {patient.householdNumber ? patient.householdNumber : `N/A`}
       </p>
     </>

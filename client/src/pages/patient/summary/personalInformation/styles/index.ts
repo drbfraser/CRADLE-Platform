@@ -5,9 +5,6 @@ interface IProps {
 }
 
 export const useStyles = makeStyles((theme: Theme) => ({
-  container: {
-    minWidth: 500,
-  },
   paper: {
     padding: theme.spacing(4),
     borderRadius: 15,
