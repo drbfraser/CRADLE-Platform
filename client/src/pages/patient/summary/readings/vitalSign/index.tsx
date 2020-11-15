@@ -18,7 +18,7 @@ export const VitalSign: React.FC<IProps> = ({ reading }) => {
         <b>Diastolic Blood Pressure: </b> {reading.bpDiastolic} mm/Hg
       </p>
       <p>
-        <b>Heart Rate : </b> {reading.heartRateBPM} bpm
+        <b>Heart Rate: </b> {reading.heartRateBPM} bpm
       </p>
       {reading.respiratoryRate && (
         <p>
