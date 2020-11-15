@@ -19,6 +19,7 @@ import { ReduxState } from '../../../redux/reducers';
 import { Toast } from '../../../shared/components/toast';
 import { VitalsOverTime } from './vitalsOverTime';
 import { push } from 'connected-react-router';
+import { PersonalInformation } from './personalInformation';
 
 interface IProps {
   selectedPatient: Patient;
@@ -130,16 +131,27 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
         />
         <Divider />
         <Grid container direction="row" spacing={4}>
-          <MedicalInformation
-            selectedPatient={selectedPatient}
-            onAddPatientRequired={onAddPatientRequired}
-          />
-          <VitalsOverTime
-            patientId={selectedPatient.patientId}
-            showingVitals={state.showVitals}
-            showingTrafficLights={state.showTrafficLights}
-            updateState={updateState}
-          />
+          <Grid item xs={6}>
+            <div>
+              <PersonalInformation
+                selectedPatient={selectedPatient}
+                onAddPatientRequired={onAddPatientRequired}
+              />
+              <br />
+              <MedicalInformation
+                selectedPatient={selectedPatient}
+                onAddPatientRequired={onAddPatientRequired}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={6}>
+            <VitalsOverTime
+              patientId={selectedPatient.patientId}
+              showingVitals={state.showVitals}
+              showingTrafficLights={state.showTrafficLights}
+              updateState={updateState}
+            />
+          </Grid>
         </Grid>
         <PatientReadings
           selectedPatient={selectedPatient}
