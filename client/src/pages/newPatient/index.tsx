@@ -12,7 +12,12 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { makeStyles } from '@material-ui/core/styles';
 import { setPatientField } from './state/actions';
-import { GENDERS, GESTATIONAL_AGE_UNITS, initialState, PatientField } from './state/state';
+import {
+  GENDERS,
+  GESTATIONAL_AGE_UNITS,
+  initialState,
+  PatientField,
+} from './state/state';
 import { reducer } from './state/reducer';
 
 const gestationalAgeUnitOptions = [
@@ -28,10 +33,10 @@ const genderOptions = [
 export const NewPatientPage = () => {
   const classes = useStyles();
   const [patient, dispatch] = useReducer(reducer, initialState);
-  const setField = (f: PatientField, v: any) => dispatch(setPatientField(f, v))
+  const setField = (f: PatientField, v: any) => dispatch(setPatientField(f, v));
 
   return (
-    <>
+    <div className={classes.container}>
       <h1>New Patient</h1>
       <Paper>
         <Box p={2}>
@@ -42,9 +47,13 @@ export const NewPatientPage = () => {
                 variant="outlined"
                 label="Patient ID"
                 value={patient.patientId}
-                onChange={(e) => setField(PatientField.patientId, e.target.value)}
+                onChange={(e) =>
+                  setField(PatientField.patientId, e.target.value)
+                }
                 error={patient.error.patientId}
-                helperText={patient.error.patientId ? 'Enter a valid ID number.' : ''}
+                helperText={
+                  patient.error.patientId ? 'Enter a valid ID number.' : ''
+                }
                 required
               />
             </Grid>
@@ -54,7 +63,9 @@ export const NewPatientPage = () => {
                 variant="outlined"
                 label="Patient Name"
                 value={patient.patientName}
-                onChange={(e) => setField(PatientField.patientName, e.target.value)}
+                onChange={(e) =>
+                  setField(PatientField.patientName, e.target.value)
+                }
                 required
               />
             </Grid>
@@ -64,7 +75,9 @@ export const NewPatientPage = () => {
                 variant="outlined"
                 label="Household Number"
                 value={patient.householdNum}
-                onChange={(e) => setField(PatientField.householdNum, e.target.value)}
+                onChange={(e) =>
+                  setField(PatientField.householdNum, e.target.value)
+                }
               />
             </Grid>
             <Grid item md={4}>
@@ -72,30 +85,32 @@ export const NewPatientPage = () => {
                 exclusive
                 size="large"
                 value={patient.isExactDob}
-                onChange={(_, newVal) => setField(PatientField.isExactDob, newVal)}>
+                onChange={(_, newVal) =>
+                  setField(PatientField.isExactDob, newVal)
+                }>
                 <ToggleButton
                   classes={{ selected: classes.toggle }}
-                  value={true}
-                >
+                  value={true}>
                   Date of Birth
                 </ToggleButton>
                 <ToggleButton
                   classes={{ selected: classes.toggle }}
-                  value={false}
-                >
+                  value={false}>
                   Estimated Age
                 </ToggleButton>
               </ToggleButtonGroup>
             </Grid>
             <Grid item md={4}>
-              {true ? (
+              {patient.isExactDob ? (
                 <TextField
                   fullWidth
                   variant="outlined"
                   type="date"
                   label="Date of Birth"
                   value={patient.dateOfBirth}
-                  onChange={(e) => setField(PatientField.dateOfBirth, e.target.value)}
+                  onChange={(e) =>
+                    setField(PatientField.dateOfBirth, e.target.value)
+                  }
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -107,7 +122,9 @@ export const NewPatientPage = () => {
                   label="Patient Age"
                   type="number"
                   value={patient.estimatedAge}
-                  onChange={(e) => setField(PatientField.estimatedAge, e.target.value)}
+                  onChange={(e) =>
+                    setField(PatientField.estimatedAge, e.target.value)
+                  }
                 />
               )}
             </Grid>
@@ -137,14 +154,14 @@ export const NewPatientPage = () => {
                   fullWidth
                   label="Gender"
                   value={patient.gender}
-                  onChange={(e) => setField(PatientField.gender, e.target.value)}>
-                  {
-                    genderOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.name}
-                      </MenuItem>
-                    ))
-                  }
+                  onChange={(e) =>
+                    setField(PatientField.gender, e.target.value)
+                  }>
+                  {genderOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -153,7 +170,9 @@ export const NewPatientPage = () => {
                 control={
                   <Checkbox
                     checked={patient.pregnant}
-                    onChange={(e) => setField(PatientField.pregnant, e.target.checked)}
+                    onChange={(e) =>
+                      setField(PatientField.pregnant, e.target.checked)
+                    }
                     color="primary"
                     disabled={!(patient.gender === GENDERS.FEMALE)}
                   />
@@ -169,7 +188,9 @@ export const NewPatientPage = () => {
                 value={patient.gestationalAge}
                 type="number"
                 disabled={!patient.pregnant}
-                onChange={(e) => setField(PatientField.gestationalAge, e.target.value)}
+                onChange={(e) =>
+                  setField(PatientField.gestationalAge, e.target.value)
+                }
               />
             </Grid>
             <Grid item md={4}>
@@ -180,14 +201,14 @@ export const NewPatientPage = () => {
                   label="Gestational Age Unit"
                   value={patient.gestationalAgeUnit}
                   disabled={!patient.pregnant}
-                  onChange={(e) => setField(PatientField.gestationalAgeUnit, e.target.value)}>
-                  {
-                    gestationalAgeUnitOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.name}
-                      </MenuItem>
-                    ))
-                  }
+                  onChange={(e) =>
+                    setField(PatientField.gestationalAgeUnit, e.target.value)
+                  }>
+                  {gestationalAgeUnitOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -199,7 +220,9 @@ export const NewPatientPage = () => {
                 variant="outlined"
                 label="Drug History"
                 value={patient.drugHistory}
-                onChange={(e) => setField(PatientField.drugHistory, e.target.value)}
+                onChange={(e) =>
+                  setField(PatientField.drugHistory, e.target.value)
+                }
               />
             </Grid>
             <Grid item md={6}>
@@ -210,17 +233,23 @@ export const NewPatientPage = () => {
                 variant="outlined"
                 label="Medical History"
                 value={patient.medicalHistory}
-                onChange={(e) => setField(PatientField.medicalHistory, e.target.value)}
+                onChange={(e) =>
+                  setField(PatientField.medicalHistory, e.target.value)
+                }
               />
             </Grid>
           </Grid>
         </Box>
       </Paper>
-    </>
+    </div>
   );
 };
 
 const useStyles = makeStyles({
+  container: {
+    maxWidth: 1250,
+    margin: '0 auto',
+  },
   toggle: {
     border: '1px solid #3f51b5 !important',
     fontWeight: 'bold',
