@@ -10,7 +10,7 @@ export const useNewVitals = () => {
     bpDiastolicError: false,
     heartRateBPMError: false,
     oxygenSaturationError: false,
-    respiratoryRateError:false,
+    respiratoryRateError: false,
     respiratoryRate: null,
     oxygenSaturation: null,
     temperature: null,
@@ -30,7 +30,7 @@ export const useNewVitals = () => {
         bpDiastolicError: false,
         heartRateBPMError: false,
         oxygenSaturationError: false,
-        respiratoryRateError:false,
+        respiratoryRateError: false,
         respiratoryRate: null,
         oxygenSaturation: null,
         temperature: null,
@@ -57,8 +57,8 @@ export const useNewVitals = () => {
         return true;
       }
     }
-    if (name == 'respiratoryRate'){
-      if(!Number.isInteger(+value)){
+    if (name === 'respiratoryRate') {
+      if (!Number.isInteger(+value)) {
         return true;
       }
     }
