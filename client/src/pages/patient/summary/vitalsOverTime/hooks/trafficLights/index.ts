@@ -10,7 +10,7 @@ type TrafficLights = {
     StatisticsDataset<
       undefined,
       Array<number>,
-      ['red', 'red', 'yellow', 'yellow', 'green']
+      ['green', 'yellow', 'yellow', 'red', 'red']
     >
   >;
 };
@@ -31,7 +31,7 @@ export const useTrafficLights = (): OrNull<TrafficLights> => {
           .map((value: TrafficLightEnum): string => value.replace(/_/g, ` `)),
         datasets: [
           {
-            backgroundColor: [`red`, `red`, `yellow`, `yellow`, `green`],
+            backgroundColor: [`green`, `yellow`, `yellow`, `red`, `red`],
             data: Object.values(statistics.trafficLightCountsFromDay1),
           },
         ],
