@@ -41,27 +41,27 @@ export const useNewVitals = () => {
 
   const validate = (name: string, value: number) => {
     if (name === 'bpSystolic') {
-      if (value < 50 || value > 300) {
+      if (value < 50 || value > 300 || !Number.isInteger(value)) {
         return true;
       }
     }
     if (name === 'bpDiastolic') {
-      if (value < 30 || value > 200) {
+      if (value < 30 || value > 200|| !Number.isInteger(value)) {
         return true;
       }
     }
     if (name === 'heartRateBPM') {
-      if (value < 30 || value > 250) {
+      if (value < 30 || value > 250|| !Number.isInteger(value)) {
         return true;
       }
     }
     if (name === 'oxygenSaturation') {
-      if (value < 50 || value > 100) {
+      if (value < 50 || value > 100|| !Number.isInteger(value)) {
         return true;
       }
     }
     if (name === 'temperature') {
-      if (value < 30 || value > 45) {
+      if (value < 30 || value > 45|| !Number.isInteger(value)) {
         return true;
       }
     }
