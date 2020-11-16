@@ -10,7 +10,7 @@ export const validateField = (field: PatientField, value: any): boolean => {
     case PatientField.patientName: {
       return /^\w[\w+\- ]*$/.test(value);
     }
-    case PatientField.dateOfBirth: {
+    case PatientField.dob: {
       const year: string = value.substr(0, value.indexOf('-'));
       const yearNow: number = new Date().getUTCFullYear();
       const age = yearNow - +year;
@@ -19,7 +19,7 @@ export const validateField = (field: PatientField, value: any): boolean => {
     case PatientField.estimatedAge: {
       return value >= 1 && value <= 100;
     }
-    case PatientField.village: {
+    case PatientField.villageNumber: {
       return /^[0-9]+$/.test(value);
     }
     default:

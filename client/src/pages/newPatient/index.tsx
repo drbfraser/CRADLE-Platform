@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -13,27 +13,83 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { makeStyles } from '@material-ui/core/styles';
 import { setPatientField } from './state/actions';
 import {
-  GENDERS,
+  SEXES,
   GESTATIONAL_AGE_UNITS,
   initialState,
   PatientField,
 } from './state/state';
 import { reducer } from './state/reducer';
+import Button from '@material-ui/core/Button';
+import { BASE_URL } from '../../../src/server/utils';
+import { EndpointEnum } from '../../../src/server';
+import { useHistory } from 'react-router-dom';
 
 const gestationalAgeUnitOptions = [
   { name: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
   { name: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS },
 ];
 
-const genderOptions = [
-  { name: 'Male', value: GENDERS.MALE },
-  { name: 'Female', value: GENDERS.FEMALE },
+const sexOptions = [
+  { name: 'Male', value: SEXES.MALE },
+  { name: 'Female', value: SEXES.FEMALE },
 ];
 
 export const NewPatientPage = () => {
   const classes = useStyles();
+  const history = useHistory();
   const [patient, dispatch] = useReducer(reducer, initialState);
+  const [hasError, setHasError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const setField = (f: PatientField, v: any) => dispatch(setPatientField(f, v));
+
+  useEffect(() => {
+    let error = false;
+    for(let field in patient.error) {
+      if(patient.error[field as PatientField]) {
+        error = true;
+        break;
+      }
+    }
+
+    setHasError(error);
+  }, [patient.error]);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+
+    // deep copy
+    let patientData = JSON.parse(JSON.stringify(patient));
+
+    delete patientData[PatientField.gestationalAge];
+    delete patientData[PatientField.estimatedAge];
+    delete patientData['error'];
+
+    const fetchOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
+      body: JSON.stringify(patientData),
+    };
+
+    try {
+      let resp = await fetch(BASE_URL + EndpointEnum.PATIENTS, fetchOptions);
+
+      if (!resp.ok) {
+        throw new Error('Response failed with error code: ' + resp.status)
+      }
+
+      let respJson = await resp.json();
+
+      history.push('/patients/' + respJson['patientId']);
+    }
+    catch(e) {
+      // show toast in future
+      alert('Error');
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className={classes.container}>
@@ -74,9 +130,9 @@ export const NewPatientPage = () => {
                 fullWidth
                 variant="outlined"
                 label="Household Number"
-                value={patient.householdNum}
+                value={patient.householdNumber}
                 onChange={(e) =>
-                  setField(PatientField.householdNum, e.target.value)
+                  setField(PatientField.householdNumber, e.target.value)
                 }
               />
             </Grid>
@@ -107,9 +163,9 @@ export const NewPatientPage = () => {
                   variant="outlined"
                   type="date"
                   label="Date of Birth"
-                  value={patient.dateOfBirth}
+                  value={patient.dob}
                   onChange={(e) =>
-                    setField(PatientField.dateOfBirth, e.target.value)
+                    setField(PatientField.dob, e.target.value)
                   }
                   InputLabelProps={{
                     shrink: true,
@@ -142,8 +198,8 @@ export const NewPatientPage = () => {
                 fullWidth
                 variant="outlined"
                 label="Village"
-                value={patient.village}
-                onChange={(e) => setField(PatientField.village, e.target.value)}
+                value={patient.villageNumber}
+                onChange={(e) => setField(PatientField.villageNumber, e.target.value)}
                 required={true}
               />
             </Grid>
@@ -153,11 +209,11 @@ export const NewPatientPage = () => {
                 <Select
                   fullWidth
                   label="Gender"
-                  value={patient.gender}
+                  value={patient.patientSex}
                   onChange={(e) =>
-                    setField(PatientField.gender, e.target.value)
+                    setField(PatientField.patientSex, e.target.value)
                   }>
-                  {genderOptions.map((option) => (
+                  {sexOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.name}
                     </MenuItem>
@@ -169,12 +225,12 @@ export const NewPatientPage = () => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={patient.pregnant}
+                    checked={patient.isPregnant}
                     onChange={(e) =>
-                      setField(PatientField.pregnant, e.target.checked)
+                      setField(PatientField.isPregnant, e.target.checked)
                     }
                     color="primary"
-                    disabled={!(patient.gender === GENDERS.FEMALE)}
+                    disabled={!(patient.patientSex === SEXES.FEMALE)}
                   />
                 }
                 label="Pregnant"
@@ -187,7 +243,7 @@ export const NewPatientPage = () => {
                 label="Gestational Age"
                 value={patient.gestationalAge}
                 type="number"
-                disabled={!patient.pregnant}
+                disabled={!patient.isPregnant}
                 onChange={(e) =>
                   setField(PatientField.gestationalAge, e.target.value)
                 }
@@ -200,7 +256,7 @@ export const NewPatientPage = () => {
                   fullWidth
                   label="Gestational Age Unit"
                   value={patient.gestationalAgeUnit}
-                  disabled={!patient.pregnant}
+                  disabled={!patient.isPregnant}
                   onChange={(e) =>
                     setField(PatientField.gestationalAgeUnit, e.target.value)
                   }>
@@ -241,6 +297,16 @@ export const NewPatientPage = () => {
           </Grid>
         </Box>
       </Paper>
+      <br/>
+      <Button
+        className={classes.right}
+        color="primary"
+        variant="contained"
+        size="large"
+        onClick={handleSubmit}
+        disabled={isSubmitting || hasError}>
+        Create Patient
+      </Button>
     </div>
   );
 };
@@ -254,5 +320,8 @@ const useStyles = makeStyles({
     border: '1px solid #3f51b5 !important',
     fontWeight: 'bold',
     color: '#3f51b5 !important',
+  },
+  right: {
+    float: 'right',
   },
 });
