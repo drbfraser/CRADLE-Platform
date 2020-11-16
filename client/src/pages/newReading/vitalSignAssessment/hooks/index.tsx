@@ -10,6 +10,7 @@ export const useNewVitals = () => {
     bpDiastolicError: false,
     heartRateBPMError: false,
     oxygenSaturationError: false,
+    respiratoryRateError:false,
     respiratoryRate: null,
     oxygenSaturation: null,
     temperature: null,
@@ -29,6 +30,7 @@ export const useNewVitals = () => {
         bpDiastolicError: false,
         heartRateBPMError: false,
         oxygenSaturationError: false,
+        respiratoryRateError:false,
         respiratoryRate: null,
         oxygenSaturation: null,
         temperature: null,
@@ -41,27 +43,32 @@ export const useNewVitals = () => {
 
   const validate = (name: string, value: number) => {
     if (name === 'bpSystolic') {
-      if (value < 50 || value > 300 ||!Number.isInteger(+value)) {
+      if (value < 50 || value > 300 || !Number.isInteger(+value)) {
         return true;
       }
     }
     if (name === 'bpDiastolic') {
-      if (value < 30 || value > 200 ||!Number.isInteger(+value)) {
+      if (value < 30 || value > 200 || !Number.isInteger(+value)) {
         return true;
       }
     }
     if (name === 'heartRateBPM') {
-      if (value < 30 || value > 250 ||!Number.isInteger(+value)) {
+      if (value < 30 || value > 250 || !Number.isInteger(+value)) {
+        return true;
+      }
+    }
+    if (name == 'respiratoryRate'){
+      if(!Number.isInteger(+value)){
         return true;
       }
     }
     if (name === 'oxygenSaturation') {
-      if (value < 50 || value > 100 ||!Number.isInteger(+value)) {
+      if (value < 50 || value > 100 || !Number.isInteger(+value)) {
         return true;
       }
     }
     if (name === 'temperature') {
-      if (value < 30 || value > 45 ||!Number.isInteger(+value)) {
+      if (value < 30 || value > 45 || !Number.isInteger(+value)) {
         return true;
       }
     }
@@ -98,6 +105,7 @@ export const useNewVitals = () => {
       setVitals({
         ...vitals,
         [name]: value,
+        respiratoryRateError: validation,
       });
     }
     if (name === 'oxygenSaturation') {

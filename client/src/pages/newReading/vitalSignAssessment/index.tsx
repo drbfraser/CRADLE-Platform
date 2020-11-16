@@ -117,7 +117,7 @@ const Page: React.FC<IProps> = (props) => {
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-              // error={props.vitals.heartRateBPMError}
+              error={props.vitals.respiratoryRateError}
               label={'Respiratory Rate'}
               onChange={props.onChange}
               name={'respiratoryRate'}
