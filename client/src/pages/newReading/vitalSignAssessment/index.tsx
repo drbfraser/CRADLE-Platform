@@ -69,7 +69,9 @@ const Page: React.FC<IProps> = (props) => {
                 ),
               }}
               helperText={
-                props.vitals.bpSystolicError ? 'Must be an integer between 50 - 300.' : ''
+                props.vitals.bpSystolicError
+                  ? 'Must be an integer between 50 - 300.'
+                  : ''
               }
             />
           </FormControl>
@@ -89,7 +91,9 @@ const Page: React.FC<IProps> = (props) => {
                 ),
               }}
               helperText={
-                props.vitals.bpDiastolicError ? 'Must be an integer between 30 - 200.' : ''
+                props.vitals.bpDiastolicError
+                  ? 'Must be an integer between 30 - 200.'
+                  : ''
               }
             />
           </FormControl>
@@ -170,7 +174,9 @@ const Page: React.FC<IProps> = (props) => {
               variant="outlined"
               type="number"
               helperText={
-                props.vitals.temperatureError ? 'Must be an integer between 34 - 45.' : ''
+                props.vitals.temperatureError
+                  ? 'Must be an integer between 34 - 45.'
+                  : ''
               }
             />
           </FormControl>
