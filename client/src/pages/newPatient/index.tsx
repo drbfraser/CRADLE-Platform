@@ -39,13 +39,14 @@ export const NewPatientPage = () => {
   const classes = useStyles();
   const history = useHistory();
   const [patient, dispatch] = useReducer(reducer, initialState);
-  const [hasError, setHasError] = useState(false);
+  const [disableSubmit, setDisableSubmit] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSubmitError, setShowSubmitError] = useState(false);
   const setField = (f: PatientField, v: any) => dispatch(setPatientField(f, v));
 
   useEffect(() => {
     let error = false;
+
     for(let field in patient.error) {
       if(patient.error[field as PatientField]) {
         error = true;
@@ -53,8 +54,18 @@ export const NewPatientPage = () => {
       }
     }
 
-    setHasError(error);
-  }, [patient.error]);
+    if(!error) {
+      // check that required fields are set
+      if(patient[PatientField.patientId] === '' ||
+        patient[PatientField.patientName] === '' ||
+        patient[PatientField.dob] === '' ||
+        patient[PatientField.villageNumber] === '') {
+        error = true;
+      }
+    }
+
+    setDisableSubmit(error);
+  }, [patient]);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -131,6 +142,10 @@ export const NewPatientPage = () => {
                   onChange={(e) =>
                     setField(PatientField.patientName, e.target.value)
                   }
+                  error={patient.error.patientName}
+                  helperText={
+                    patient.error.patientName ? 'Enter a valid name.' : ''
+                  }
                   required
                 />
               </Grid>
@@ -179,6 +194,11 @@ export const NewPatientPage = () => {
                     InputLabelProps={{
                       shrink: true,
                     }}
+                    error={patient.error.dob}
+                    helperText={
+                      patient.error.dob ? 'Enter a valid date of birth.' : ''
+                    }
+                    required
                   />
                 ) : (
                   <TextField
@@ -190,6 +210,11 @@ export const NewPatientPage = () => {
                     onChange={(e) =>
                       setField(PatientField.estimatedAge, e.target.value)
                     }
+                    error={patient.error.estimatedAge}
+                    helperText={
+                      patient.error.estimatedAge ? 'Enter a valid age.' : ''
+                    }
+                    required
                   />
                 )}
               </Grid>
@@ -313,7 +338,7 @@ export const NewPatientPage = () => {
           variant="contained"
           size="large"
           onClick={handleSubmit}
-          disabled={isSubmitting || hasError}>
+          disabled={isSubmitting || disableSubmit}>
           Create Patient
         </Button>
       </div>
