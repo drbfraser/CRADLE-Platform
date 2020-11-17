@@ -80,10 +80,18 @@ const Page: React.FC<IProps> = (props) => {
 
   React.useEffect((): void => {
     let stringValue = '';
+    let index = 0;
     for (const [key, value] of Object.entries(props.symptoms)) {
+
+      if (index === 0 && value===true){
+        const pushValue = getSymptomsMapping(key);
+        stringValue +='' + pushValue;
+        index++;
+        continue;
+      }
       if (value === true) {
         const pushValue = getSymptomsMapping(key);
-        stringValue += pushValue + ',  ';
+        stringValue +=',  ' + pushValue;
       }
     }
     setSymptomsString(stringValue);
