@@ -10,7 +10,6 @@ from controller.FollowUpController import (
     FollowUpMobileSummarized,
 )
 from controller.HealthFacilityController import *
-from controller.Multi import *
 from controller.PasswordResetController import *
 from controller.ReferralsController import ReferralApi, ReferralInfo
 from controller.SMSController import *
@@ -36,7 +35,6 @@ from api.resources.referrals import Root as Referrals, SingleReferral
 
 
 def init(api):
-    api.add_resource(Multi, "/api/multi/<int:num>")
     api.add_resource(AllStats, "/api/stats")  # [GET]
 
     api.add_resource(UserApi, "/api/user/register")  # [POST]
