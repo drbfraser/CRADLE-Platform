@@ -9,7 +9,6 @@ from controller.FollowUpController import (
     FollowUpMobile,
     FollowUpMobileSummarized,
 )
-from controller.HealthFacilityController import *
 from controller.PasswordResetController import *
 from controller.ReferralsController import ReferralApi, ReferralInfo
 from controller.SMSController import *
@@ -48,16 +47,6 @@ def init(api):
 
     api.add_resource(ReferralApi, "/api/referral")  # [GET, POST]
     api.add_resource(ReferralInfo, "/api/referral/<int:id>")  # [GET, PUT]
-
-    api.add_resource(
-        HealthFacility, "/api/health_facility", endpoint="healthfacility"
-    )  # [PUT, DELETE]
-    api.add_resource(
-        HealthFacility,
-        "/api/health_facility/<string:name>",
-        endpoint="healthfacility_path",
-    )  # [GET, POST, PUT, DELETE]
-    api.add_resource(HealthFacilityList, "/api/health_facility_list")  # [GET]
 
     api.add_resource(FollowUp, "/api/follow_up", endpoint="followup")  # [PUT, DELETE]
     api.add_resource(
