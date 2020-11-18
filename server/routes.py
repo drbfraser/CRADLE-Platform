@@ -12,7 +12,6 @@ from controller.FollowUpController import (
 from controller.HealthFacilityController import *
 from controller.Multi import *
 from controller.PasswordResetController import *
-from controller.PatientsController import *
 from controller.ReferralsController import ReferralApi, ReferralInfo
 from controller.SMSController import *
 from controller.StatsController import *
@@ -48,13 +47,6 @@ def init(api):
     api.add_resource(UserEdit, "/api/user/edit/<int:id>")  # [POST]
     api.add_resource(UserDelete, "/api/user/delete/<int:id>")  # [DELETE]
     api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]
-
-    api.add_resource(PatientAllInformation, "/api/patient/allinfo")  # [GET]
-    api.add_resource(
-        PatientGlobalSearch, "/api/patient/global/<string:search>"
-    )  # [GET]
-
-    api.add_resource(PatientFacility, "/api/patient/facility")  # [POST]
 
     api.add_resource(ReferralApi, "/api/referral")  # [GET, POST]
     api.add_resource(ReferralInfo, "/api/referral/<int:id>")  # [GET, PUT]
