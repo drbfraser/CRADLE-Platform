@@ -1,14 +1,15 @@
+
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 import api.util as util
 import service.view as view
-
+import data.marshal as marshal
 
 # /api/sync/updates
-from server.data import crud
-from server.models import HealthFacility
+import data.crud as crud
+from models import HealthFacility
 
 
 class Updates(Resource):
@@ -42,7 +43,7 @@ class Updates(Resource):
         readings = []
 
         # reads all the Health Facilities form db and returns the updated facilities list
-        facilities = crud.read_all(HealthFacility)
+        facilities = [f.healthFacilityName for f in crud.read_all(HealthFacility)]
 
         # New followups which were created after the timestamp for readings which were
         # created before the timestamp
@@ -64,5 +65,5 @@ class Updates(Resource):
             "editedPatients": edited_patients,
             "readings": readings,
             "followups": followups,
-            "HealthFacilities": facilities,
+            "healthFacilities": facilities,
         }
