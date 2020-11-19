@@ -135,7 +135,7 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.respiratoryRateError
-                  ? 'Must be an integer between 50 - 300.'
+                  ? 'Must be an integer between 1 - 100.'
                   : ''
               }
             />
@@ -175,7 +175,7 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.temperatureError
-                  ? 'Must be an integer between 34 - 45.'
+                  ? 'Must be an integer between 30 - 45.'
                   : ''
               }
             />
