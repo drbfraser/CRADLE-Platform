@@ -58,7 +58,7 @@ export const useNewVitals = () => {
       }
     }
     if (name === 'respiratoryRate') {
-      if (value > 100 || value < 1  || !Number.isInteger(+value)) {
+      if (value > 100 || value < 1 || !Number.isInteger(+value)) {
         return true;
       }
     }
