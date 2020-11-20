@@ -84,7 +84,6 @@ const Page: React.FC<IProps> = (props) => {
     );
 
     let symptomsString = '';
-
     patientSymptoms.forEach(([key], i) => {
       const comma = i !== 0 ? ', ' : '';
       symptomsString += comma + getSymptomsMapping(key);
