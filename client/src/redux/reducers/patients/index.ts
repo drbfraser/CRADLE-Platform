@@ -351,83 +351,6 @@ export const getPatient = (
   };
 };
 
-const getPatientsRequested = (): PatientsAction => ({
-  type: PatientsActionEnum.GET_PATIENTS_REQUESTED,
-});
-
-export const getPatientsTablePatients = (
-  search?: string
-): Callback<Dispatch, ServerRequestAction> => {
-  return (dispatch: Dispatch): ServerRequestAction => {
-    dispatch(getPatientsRequested());
-
-    return dispatch(
-      serverRequestActionCreator({
-        endpoint: search
-          ? `${EndpointEnum.PATIENTS_GLOBAL_SEARCH}/${search}`
-          : EndpointEnum.PATIENTS_ALL_INFO,
-        onSuccess: ({
-          data,
-        }: {
-          data: Array<Patient> | Array<GlobalSearchPatient>;
-        }): PatientsAction => {
-          return search
-            ? {
-                type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_SUCCESS,
-                payload: {
-                  globalSearchPatients: data as Array<GlobalSearchPatient>,
-                },
-              }
-            : {
-                type: PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_SUCCESS,
-                payload: { patients: data as Array<Patient> },
-              };
-        },
-        onError: ({ message }: ServerError): PatientsAction => {
-          return search
-            ? {
-                type: PatientsActionEnum.GET_GLOBAL_SEARCH_PATIENTS_ERROR,
-                payload: { error: message },
-              }
-            : {
-                type: PatientsActionEnum.GET_PATIENTS_TABLE_PATIENTS_ERROR,
-                payload: { error: message },
-              };
-        },
-      })
-    );
-  };
-};
-
-const getReferralsTablePatientsRequested = (): PatientsAction => ({
-  type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_REQUESTED,
-});
-
-export const getReferralsTablePatients = (): Callback<
-  Dispatch,
-  ServerRequestAction
-> => {
-  return (dispatch: Dispatch): ServerRequestAction => {
-    dispatch(getReferralsTablePatientsRequested());
-
-    return dispatch(
-      serverRequestActionCreator({
-        endpoint: EndpointEnum.PATIENTS_ALL_INFO,
-        onSuccess: ({ data }: { data: Array<Patient> }): PatientsAction => ({
-          type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_SUCCESS,
-          payload: { patients: data },
-        }),
-        onError: ({ message }: ServerError): PatientsAction => {
-          return {
-            type: PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_ERROR,
-            payload: { error: message },
-          };
-        },
-      })
-    );
-  };
-};
-
 const updatePatientRequested = (): PatientsAction => ({
   type: PatientsActionEnum.UPDATE_PATIENT_REQUESTED,
 });
@@ -444,7 +367,7 @@ export const updatePatient = ({
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${EndpointEnum.PATIENTS}/${data.patientId}${EndpointEnum.INFO}`,
+        endpoint: `${EndpointEnum.PATIENTS}/${data.patientId}${EndpointEnum.PATIENT_INFO}`,
         method: MethodEnum.PUT,
         data,
         onSuccess: (): PatientsAction => ({
