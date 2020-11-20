@@ -27,7 +27,7 @@ export const Symptoms: React.FC<IProps> = ({ symptoms }) => {
           <p className={classes.content}>
             {filteredSymptoms.map(
               (symptom: string, index: number): JSX.Element => (
-                <span key={index}>{symptom}</span>
+                <span key={index}>{(index ? ', ' : '') + symptom}</span>
               )
             )}
           </p>
