@@ -82,6 +82,7 @@ const Page: React.FC<IProps> = (props) => {
     const patientSymptoms = Object.entries(props.symptoms).filter(
       ([_, hasSymptom]) => hasSymptom === true
     );
+
     let symptomsString = '';
 
     patientSymptoms.forEach(([key], i) => {
