@@ -5,6 +5,10 @@ from flask_restful import Resource, abort
 import api.util as util
 import service.view as view
 import data.marshal as marshal
+from validation import patients
+from models import Patient
+from utils import get_current_time
+import service.invariant as invariant
 
 # /api/sync/updates
 import data.crud as crud
@@ -14,7 +18,7 @@ from models import HealthFacility
 class Updates(Resource):
     @staticmethod
     @jwt_required
-    def get():
+    def post():
         timestamp: int = request.args.get("since", None, type=int)
         if not timestamp:
             abort(400, message="'since' query parameter is required")
@@ -23,6 +27,31 @@ class Updates(Resource):
         user = util.current_user()
         all_patients = view.patient_view_for_user(user)
 
+        #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        patients_list = []
+        json = request.get_json(force=True)
+        for p in json:
+            error_message = patients.validate(p)
+            if error_message is not None:
+                abort(400, message=error_message)
+
+            patient = marshal.unmarshal(Patient, p)
+            # # Resolve invariants and set the creation timestamp for the patient ensuring
+            # # that both the created and lastEdited fields have the exact same value.
+
+            # invariant.resolve_reading_invariants(patient)
+            creation_time = get_current_time()
+            patient.created = creation_time
+            patient.lastEdited = creation_time
+            patients_list.append(patient)
+
+        all_patients_ids = sorted([p["patientId"] for p in all_patients])
+        mobile_patients_ids = sorted([p.patientId for p in patients_list])
+
+        patientIds_not_in_server = list(set(mobile_patients_ids).difference(set(all_patients_ids)))
+
+
+        #  ~~~~~~~~~~~~~~~~~ old logic ~~~~~~~~~~~~~~~~~~~~
         # New patients are patients who are created after the timestamp
         new_patients = [
             p["patientId"] for p in all_patients if p["created"] > timestamp
@@ -66,3 +95,68 @@ class Updates(Resource):
             "followups": followups,
             "healthFacilities": facilities,
         }
+
+
+#
+# # /api/mobile/patients
+# class PatientList(Resource):
+#     @staticmethod
+#     @jwt_required
+#     @swag_from(
+#         "../../specifications/patients-post.yml", methods=["POST"], endpoint="patient_list"
+#     )
+#     def post():
+#
+#         # make sure that the call has since parameter
+#         timestamp: int = request.args.get("since", None, type=int)
+#         if not timestamp:
+#             abort(400, message="'since' query parameter is required")
+#
+#
+#         # new Patients from android
+#         # new Reading/followup/.. from android
+#
+#         json = request.get_json(force=True)
+#         user = util.current_user()
+#         patients_list = []
+#         # new patients
+#         if not util.query_param_bool(request, "edited"):
+#             for p in json:
+#                 error_message = patients.validate(p)
+#                 if error_message is not None:
+#                     abort(400, message=error_message)
+#
+#                 patient = marshal.unmarshal(Patient, p)
+#                 # # Resolve invariants and set the creation timestamp for the patient ensuring
+#                 # # that both the created and lastEdited fields have the exact same value.
+#                 invariant.resolve_reading_invariants(patient)
+#                 creation_time = get_current_time()
+#                 patient.created = creation_time
+#                 patient.lastEdited = creation_time
+#
+#                 crud.create(patient, refresh=True)
+#                 assoc.associate_by_user_role(patient, user)
+#                 # If the patient has any readings, and those readings have referrals, we
+#                 # associate the patient with the facilities they were referred to
+#                 for reading in patient.readings:
+#                     referral = reading.referral
+#                     if referral and not assoc.has_association(patient, referral.healthFacility):
+#                         assoc.associate(patient, facility=referral.healthFacility)
+#                         # The associate function performs a database commit, since this will
+#                         # wipe out the patient we want to return we must refresh it.
+#                         data.db_session.refresh(patient)
+#
+#                 # TODO make one single call to DB
+#                 patients_list.append(patient)
+#
+#             # TODO make one single call to DB
+#             crud.create_all(patients_list, refresh=True)
+#
+#
+#
+#         # if crud.read(Patient, patientId=patient.patientId):
+#         #     abort(409, message=f"A patient already exists with id: {patient.patientId}")
+#         #
+#
+#
+#         return  201
