@@ -30,9 +30,12 @@ export const MedicalInformation: React.FC<IProps> = ({
   });
 
   // * Allows toggling gestational age unit in medical information
-  const [gestationalAgeUnit, setGestationalAgeUnit] = React.useState<
-    GestationalAgeUnitEnum
-  >(selectedPatient.gestationalAgeUnit);
+  const [
+    gestationalAgeUnit,
+    setGestationalAgeUnit,
+  ] = React.useState<GestationalAgeUnitEnum>(
+    selectedPatient.gestationalAgeUnit
+  );
 
   return (
     <Paper className={classes.paper}>
