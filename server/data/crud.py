@@ -298,9 +298,10 @@ def read_all_patients_db() -> List[M]:
     # make DB call
     patients = db_session.execute("SELECT * FROM patient ORDER BY patientId ASC")
 
-    creat_dict, arr = {}, []
+    arr = []
     # make list of patients
     for pat_row in patients:
+        creat_dict = {}
         creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
         arr.append(creat_dict)
 
@@ -320,9 +321,10 @@ def read_all_assoc_patients_db(user_ids: str) -> List[M]:
         " AND pa.userId IN (" + user_ids + ") ORDER BY p.patientId ASC"
     )
 
-    creat_dict, arr = {}, []
+    arr = []
     # make list of patients
     for pat_row in patients:
+        creat_dict = {}
         creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
         arr.append(creat_dict)
 

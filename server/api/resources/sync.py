@@ -48,8 +48,9 @@ class Updates(Resource):
         all_patients_ids = sorted([p["patientId"] for p in all_patients])
         mobile_patients_ids = sorted([p.patientId for p in patients_list])
 
-        patientIds_not_in_server = list(set(mobile_patients_ids).difference(set(all_patients_ids)))
-
+        patientIds_not_in_server = list(
+            set(mobile_patients_ids).difference(set(all_patients_ids))
+        )
 
         #  ~~~~~~~~~~~~~~~~~ old logic ~~~~~~~~~~~~~~~~~~~~
         # New patients are patients who are created after the timestamp
