@@ -54,6 +54,8 @@ class Updates(Resource):
                             invariant.resolve_reading_invariants(reading)
                             crud.create(reading, refresh=True)
 
+        all_patients = view.patient_view_for_user(user)
+
         #  ~~~~~~~~~~~~~~~~~ old logic ~~~~~~~~~~~~~~~~~~~~
         # New patients are patients who are created after the timestamp
         # new_patients = [
@@ -92,9 +94,6 @@ class Updates(Resource):
         #             followups.append(r["followup"]["id"])
 
         return {
-            # "newPatients": new_patients,
-            # "editedPatients": edited_patients,
-            # "readings": readings,
-            # "followups": followups,
+            "patients": all_patients,
             "healthFacilities": facilities,
         }
