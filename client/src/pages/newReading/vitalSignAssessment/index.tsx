@@ -70,7 +70,7 @@ const Page: React.FC<IProps> = (props) => {
               }}
               helperText={
                 props.vitals.bpSystolicError
-                  ? 'Must be an integer between 50 - 300.'
+                  ? 'Must be an integer between 50 - 300.(Not Integer: 35.4, 4/3, .9)'
                   : ''
               }
             />
@@ -92,7 +92,7 @@ const Page: React.FC<IProps> = (props) => {
               }}
               helperText={
                 props.vitals.bpDiastolicError
-                  ? 'Must be an integer between 30 - 200.'
+                  ? 'Must be an integer between 30 - 200.(Not Integer: 35.4, 4/3, .9)'
                   : ''
               }
             />
@@ -114,7 +114,7 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.heartRateBPMError
-                  ? 'Must be an integer between 30 - 250.'
+                  ? 'Must be an integer between 30 - 250.(Not Integer: 35.4, 4/3, .9)'
                   : ''
               }
             />
@@ -135,7 +135,7 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.respiratoryRateError
-                  ? 'Must be an integer between 1 - 100.'
+                  ? 'Must be an integer between 1 - 100.(Not Integer: 35.4, 4/3, .9)'
                   : ''
               }
             />
@@ -154,7 +154,7 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.oxygenSaturationError
-                  ? 'Must be an integer between 50 - 100.'
+                  ? 'Must be an integer between 50 - 100.(Not Integer: 35.4, 4/3, .9)'
                   : ''
               }
             />
@@ -175,7 +175,7 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.temperatureError
-                  ? 'Must be an integer between 30 - 45.'
+                  ? 'Must be an integer between 30 - 45.(Not Integer: 35.4, 4/3, .9)'
                   : ''
               }
             />
