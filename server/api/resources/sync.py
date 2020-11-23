@@ -19,10 +19,6 @@ class Updates(Resource):
     @staticmethod
     @jwt_required
     def post():
-        timestamp: int = request.args.get("since", None, type=int)
-        if not timestamp:
-            abort(400, message="'since' query parameter is required")
-
         # Get all patients for this user
         user = util.current_user()
         all_patients = view.patient_view_for_user(user)
