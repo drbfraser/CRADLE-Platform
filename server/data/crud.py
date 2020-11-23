@@ -29,6 +29,25 @@ def create(model: M, refresh=False):
         db_session.refresh(model)
 
 
+def create_all(model: [M]):
+    """
+    bulk_update list of model into the database.
+
+    All the actual SQL is handled under the hood by SQLAlchemy. However, it's important
+    to note that many tables may be modified by this operation: for example, in the case
+    of a model which contains relationships to other models.
+
+    Any exceptions thrown by database system are propagated back through this function.
+
+    :param model: The model to insert
+    :param refresh: If true, immediately refresh ``model`` populating it with data from
+                    the database; this involves an additional query so only use it if
+                    necessary
+    """
+    db_session.bulk_update_mappings(M, model)
+    db_session.commit()
+
+
 def read(m: Type[M], **kwargs) -> Optional[M]:
     """
     Queries the database for a single object which matches some query parameters defined

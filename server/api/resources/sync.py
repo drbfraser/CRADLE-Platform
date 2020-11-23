@@ -13,6 +13,7 @@ import service.invariant as invariant
 # /api/sync/updates
 import data.crud as crud
 from models import HealthFacility
+from datetime import datetime
 
 
 class Updates(Resource):
@@ -23,7 +24,7 @@ class Updates(Resource):
         user = util.current_user()
         all_patients = view.patient_view_for_user(user)
         all_patients_ids = sorted([p["patientId"] for p in all_patients])
-
+        patients_to_be_added: [Patient] = []
         #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
         json = request.get_json(force=True)
         for p in json:
@@ -39,7 +40,7 @@ class Updates(Resource):
                 creation_time = get_current_time()
                 patient.created = creation_time
                 patient.lastEdited = creation_time
-                crud.create(patient, refresh=True)
+                patients_to_be_added.append(patient)
             else:
                 if p.get("readings") is not None:
                     for r in p.get("readings"):
@@ -51,6 +52,16 @@ class Updates(Resource):
                             crud.create(reading, refresh=True)
 
         all_patients = view.patient_view_for_user(user)
+
+        print(
+            "Before add all:", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        )
+        if patients_to_be_added:
+            crud.create_all(patients_to_be_added)
+        print("After add all:", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3])
+
+        # reads all the Health Facilities form db and returns the updated facilities list
+        facilities = [f.healthFacilityName for f in crud.read_all(HealthFacility)]
 
         #  ~~~~~~~~~~~~~~~~~ old logic ~~~~~~~~~~~~~~~~~~~~
         # New patients are patients who are created after the timestamp
@@ -70,9 +81,6 @@ class Updates(Resource):
         # New readings created after the timestamp for patients who where created before
         # the timestamp
         # readings = []
-
-        # reads all the Health Facilities form db and returns the updated facilities list
-        facilities = [f.healthFacilityName for f in crud.read_all(HealthFacility)]
 
         # New followups which were created after the timestamp for readings which were
         # created before the timestamp
