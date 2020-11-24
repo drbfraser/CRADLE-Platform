@@ -63,15 +63,14 @@ const validateGestational = (values: PatientState, errors: any) => {
 
   const unit = values[PatientField.gestationalAgeUnit];
   const age = parseInt(values[PatientField.gestationalAge]);
-  let valid = false;
 
   if(unit === GESTATIONAL_AGE_UNITS.WEEKS) {
-    valid = age >= 0 || age <= 60;
-  } else if (unit === GESTATIONAL_AGE_UNITS.MONTHS) {
-    valid = age >= 1 && age <= 13;
-  }
-
-  if(!valid) {
-    errors[PatientField.gestationalAge] = 'Please enter a valid gestational age.';
+    if(isNaN(age) || !(age >= 0 && age <= 60)) {
+      errors[PatientField.gestationalAge] = 'Please enter between 0 and 60 weeks.';
+    }
+  } else if(unit === GESTATIONAL_AGE_UNITS.MONTHS) {
+    if(isNaN(age) || !(age >= 0 && age <= 13)) {
+      errors[PatientField.gestationalAge] = 'Please enter between 0 and 13 months.';
+    }
   }
 }

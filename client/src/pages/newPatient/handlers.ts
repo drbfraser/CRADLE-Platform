@@ -36,6 +36,8 @@ export const handlePatientIdBlur = (handleBlur: any, setExistingPatientId: (val:
       fetch(BASE_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.INFO, fetchOptions)
         .then(resp => setExistingPatientId(resp.status === 200 ? patientId : null))
         .catch(_ => setExistingPatientId(null))
+    } else {
+      setExistingPatientId(null)
     }
   }
 }
