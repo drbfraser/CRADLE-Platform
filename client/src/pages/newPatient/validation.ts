@@ -51,7 +51,7 @@ const ageIsValid = (age: number): boolean => {
 }
 
 const validateVillage = (values: PatientState, errors: any) => {
-  if(values[PatientField.villageNumber] != '' && /^[0-9]+$/.test(values[PatientField.villageNumber]) === false) {
+  if(values[PatientField.villageNumber] !== '' && /^[0-9]+$/.test(values[PatientField.villageNumber]) === false) {
     errors[PatientField.villageNumber] = 'Village number must be numeric.';
   }
 }

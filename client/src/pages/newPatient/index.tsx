@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik, Form, Field } from 'formik';
 import { Toast } from '../../../src/shared/components/toast';
-import { GESTATIONAL_AGE_UNITS, initialState, PatientField, PatientState, SEXES } from './state';
+import { GESTATIONAL_AGE_UNITS, initialState, PatientField, SEXES } from './state';
 import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
 import { ToggleButtonGroup } from 'formik-material-ui-lab';
 import ToggleButton from '@material-ui/lab/ToggleButton';
@@ -14,9 +14,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
 import { validateForm } from './validation';
-import { BASE_URL } from '../../../src/server/utils';
-import { EndpointEnum } from '../../../src/server';
 import { useHistory } from 'react-router-dom';
+import { PatientIDExists } from './PatientIDExists';
+import { handleChangeCustom, handlePatientIdBlur, handleSubmit } from './handlers';
 
 const gestationalAgeUnitOptions = [
   { name: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
@@ -32,42 +32,7 @@ export const NewPatientPage = () => {
   const classes = useStyles();
   const history = useHistory();
   const [submitError, setSubmitError] = useState(false);
-
-  const handleSubmit = async (values: PatientState, { setSubmitting }: any) => {
-    setSubmitting(true);
-
-    // deep copy
-    let patientData = JSON.parse(JSON.stringify(values));
-
-    delete patientData[PatientField.gestationalAge];
-    delete patientData[PatientField.estimatedAge];
-
-    const fetchOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
-      body: JSON.stringify(patientData),
-    };
-
-    try {
-      let resp = await fetch(BASE_URL + EndpointEnum.PATIENTS, fetchOptions);
-
-      if (!resp.ok) {
-        throw new Error('Response failed with error code: ' + resp.status)
-      }
-
-      let respJson = await resp.json();
-
-      history.push('/patients/' + respJson['patientId']);
-    }
-    catch(e) {
-      setSubmitError(true);
-    }
-    
-    setSubmitting(false);
-  }
+  const [existingPatientId, setExistingPatientId] = useState<string | null>(null);
 
   return (
     <>
@@ -82,10 +47,13 @@ export const NewPatientPage = () => {
       <Formik
         initialValues={initialState}
         validate={validateForm}
-        onSubmit={handleSubmit}>
+        onSubmit={handleSubmit(history, setSubmitError)}>
         {({
           values,
-          isSubmitting
+          isSubmitting,
+          handleChange,
+          handleBlur,
+          setFieldValue,
         }) => (
           <Form>
             <h1>New Patient</h1>
@@ -100,7 +68,11 @@ export const NewPatientPage = () => {
                       variant="outlined"
                       label="Patient ID"
                       name={PatientField.patientId}
+                      onBlur={handlePatientIdBlur(handleBlur, setExistingPatientId)}
                     />
+                    {
+                      existingPatientId != null && <PatientIDExists patientId={existingPatientId} />
+                    }
                   </Grid>
                   <Grid item md={4}>
                     <Field
@@ -194,6 +166,7 @@ export const NewPatientPage = () => {
                         fullWidth
                         label="Gender"
                         name={PatientField.patientSex}
+                        onChange={handleChangeCustom(handleChange, setFieldValue)}
                       >
                         {sexOptions.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
@@ -208,6 +181,7 @@ export const NewPatientPage = () => {
                       component={CheckboxWithLabel}
                       type="checkbox"
                       name={PatientField.isPregnant}
+                      onChange={handleChangeCustom(handleChange, setFieldValue)}
                       Label={{ label: 'Pregnant' }}
                       disabled={!(values.patientSex === SEXES.FEMALE)}
                     />
@@ -273,7 +247,7 @@ export const NewPatientPage = () => {
               variant="contained"
               size="large"
               type="submit"
-              disabled={isSubmitting}>
+              disabled={isSubmitting || (existingPatientId !== null)}>
               Create Patient
             </Button>
           </Form>
