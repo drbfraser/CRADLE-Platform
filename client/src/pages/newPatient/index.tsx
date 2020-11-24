@@ -1,29 +1,22 @@
-import Select from '@material-ui/core/Select';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import MenuItem from '@material-ui/core/MenuItem/MenuItem';
+import React, { useState } from 'react';
 import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
-import React, { useEffect, useReducer, useState } from 'react';
+import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid/Grid';
+import Button from '@material-ui/core/Button/Button';
+import { makeStyles } from '@material-ui/core/styles';
+import { Formik, Form, Field } from 'formik';
+import { Toast } from '../../../src/shared/components/toast';
+import { GESTATIONAL_AGE_UNITS, initialState, PatientField, PatientState, SEXES } from './state';
+import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
+import { ToggleButtonGroup } from 'formik-material-ui-lab';
+import ToggleButton from '@material-ui/lab/ToggleButton';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import { makeStyles } from '@material-ui/core/styles';
-import { setPatientField } from './state/actions';
-import {
-  SEXES,
-  GESTATIONAL_AGE_UNITS,
-  initialState,
-  PatientField,
-} from './state/state';
-import { reducer } from './state/reducer';
-import Button from '@material-ui/core/Button';
+import MenuItem from '@material-ui/core/MenuItem';
+import { validateForm } from './validation';
 import { BASE_URL } from '../../../src/server/utils';
 import { EndpointEnum } from '../../../src/server';
 import { useHistory } from 'react-router-dom';
-import { Toast } from '../../../src/shared/components/toast';
 
 const gestationalAgeUnitOptions = [
   { name: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
@@ -38,44 +31,16 @@ const sexOptions = [
 export const NewPatientPage = () => {
   const classes = useStyles();
   const history = useHistory();
-  const [patient, dispatch] = useReducer(reducer, initialState);
-  const [disableSubmit, setDisableSubmit] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSubmitError, setShowSubmitError] = useState(false);
-  const setField = (f: PatientField, v: any) => dispatch(setPatientField(f, v));
+  const [submitError, setSubmitError] = useState(false);
 
-  useEffect(() => {
-    let error = false;
-
-    for(let field in patient.error) {
-      if(patient.error[field as PatientField]) {
-        error = true;
-        break;
-      }
-    }
-
-    if(!error) {
-      // check that required fields are set
-      if(patient[PatientField.patientId] === '' ||
-        patient[PatientField.patientName] === '' ||
-        patient[PatientField.dob] === '' ||
-        patient[PatientField.villageNumber] === '') {
-        error = true;
-      }
-    }
-
-    setDisableSubmit(error);
-  }, [patient]);
-
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
+  const handleSubmit = async (values: PatientState, { setSubmitting }: any) => {
+    setSubmitting(true);
 
     // deep copy
-    let patientData = JSON.parse(JSON.stringify(patient));
+    let patientData = JSON.parse(JSON.stringify(values));
 
     delete patientData[PatientField.gestationalAge];
     delete patientData[PatientField.estimatedAge];
-    delete patientData['error'];
 
     const fetchOptions = {
       method: 'POST',
@@ -98,265 +63,239 @@ export const NewPatientPage = () => {
       history.push('/patients/' + respJson['patientId']);
     }
     catch(e) {
-      setShowSubmitError(true);
-      setIsSubmitting(false);
+      setSubmitError(true);
     }
+    
+    setSubmitting(false);
   }
 
   return (
     <>
-      {showSubmitError && (
-        <Toast
-          status="error"
-          message="Something went wrong on our end. Please try that again."
-          clearMessage={() => setShowSubmitError(false)}
-        />
-      )}
-      <div className={classes.container}>
-        <h1>New Patient</h1>
-        <Paper>
-          <Box p={2}>
-            <Grid container spacing={2}>
-              <Grid item md={4}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Patient ID"
-                  value={patient.patientId}
-                  onChange={(e) =>
-                    setField(PatientField.patientId, e.target.value)
-                  }
-                  error={patient.error.patientId}
-                  helperText={
-                    patient.error.patientId ? 'Enter a valid ID number.' : ''
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item md={4}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Patient Name"
-                  value={patient.patientName}
-                  onChange={(e) =>
-                    setField(PatientField.patientName, e.target.value)
-                  }
-                  error={patient.error.patientName}
-                  helperText={
-                    patient.error.patientName ? 'Enter a valid name.' : ''
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item md={4}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Household Number"
-                  value={patient.householdNumber}
-                  onChange={(e) =>
-                    setField(PatientField.householdNumber, e.target.value)
-                  }
-                />
-              </Grid>
-              <Grid item md={4}>
-                <ToggleButtonGroup
-                  exclusive
-                  size="large"
-                  value={patient.isExactDob}
-                  onChange={(_, newVal) =>
-                    setField(PatientField.isExactDob, newVal)
-                  }>
-                  <ToggleButton
-                    classes={{ selected: classes.toggle }}
-                    value={true}>
-                    Date of Birth
-                  </ToggleButton>
-                  <ToggleButton
-                    classes={{ selected: classes.toggle }}
-                    value={false}>
-                    Estimated Age
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Grid>
-              <Grid item md={4}>
-                {patient.isExactDob ? (
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    type="date"
-                    label="Date of Birth"
-                    value={patient.dob}
-                    onChange={(e) =>
-                      setField(PatientField.dob, e.target.value)
-                    }
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    error={patient.error.dob}
-                    helperText={
-                      patient.error.dob ? 'Enter a valid date of birth.' : ''
-                    }
-                    required
-                  />
-                ) : (
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    label="Patient Age"
-                    type="number"
-                    value={patient.estimatedAge}
-                    onChange={(e) =>
-                      setField(PatientField.estimatedAge, e.target.value)
-                    }
-                    error={patient.error.estimatedAge}
-                    helperText={
-                      patient.error.estimatedAge ? 'Enter a valid age.' : ''
-                    }
-                    required
-                  />
-                )}
-              </Grid>
-              <Grid item md={2}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Zone"
-                  value={patient.zone}
-                  onChange={(e) => setField(PatientField.zone, e.target.value)}
-                />
-              </Grid>
-              <Grid item md={2}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Village"
-                  value={patient.villageNumber}
-                  onChange={(e) => setField(PatientField.villageNumber, e.target.value)}
-                  required={true}
-                />
-              </Grid>
-              <Grid item md={2}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>Gender</InputLabel>
-                  <Select
-                    fullWidth
-                    label="Gender"
-                    value={patient.patientSex}
-                    onChange={(e) =>
-                      setField(PatientField.patientSex, e.target.value)
-                    }>
-                    {sexOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item md={2}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={patient.isPregnant}
-                      onChange={(e) =>
-                        setField(PatientField.isPregnant, e.target.checked)
-                      }
-                      color="primary"
-                      disabled={!(patient.patientSex === SEXES.FEMALE)}
+    {submitError && (
+      <Toast
+        status="error"
+        message="Something went wrong on our end. Please try that again."
+        clearMessage={() => setSubmitError(false)}
+      />
+    )}
+    <div className={classes.container}>
+      <Formik
+        initialValues={initialState}
+        validate={validateForm}
+        onSubmit={handleSubmit}>
+        {({
+          values,
+          isSubmitting
+        }) => (
+          <Form>
+            <h1>New Patient</h1>
+            <Paper>
+              <Box p={2}>
+                <Grid container spacing={2}>
+                  <Grid item md={4}>
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      label="Patient ID"
+                      name={PatientField.patientId}
                     />
-                  }
-                  label="Pregnant"
-                />
-              </Grid>
-              <Grid item md={4}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label="Gestational Age"
-                  value={patient.gestationalAge}
-                  type="number"
-                  disabled={!patient.isPregnant}
-                  onChange={(e) =>
-                    setField(PatientField.gestationalAge, e.target.value)
-                  }
-                />
-              </Grid>
-              <Grid item md={4}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>Gestational Age Unit</InputLabel>
-                  <Select
-                    fullWidth
-                    label="Gestational Age Unit"
-                    value={patient.gestationalAgeUnit}
-                    disabled={!patient.isPregnant}
-                    onChange={(e) =>
-                      setField(PatientField.gestationalAgeUnit, e.target.value)
-                    }>
-                    {gestationalAgeUnitOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item md={6}>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={4}
-                  variant="outlined"
-                  label="Drug History"
-                  value={patient.drugHistory}
-                  onChange={(e) =>
-                    setField(PatientField.drugHistory, e.target.value)
-                  }
-                />
-              </Grid>
-              <Grid item md={6}>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={4}
-                  variant="outlined"
-                  label="Medical History"
-                  value={patient.medicalHistory}
-                  onChange={(e) =>
-                    setField(PatientField.medicalHistory, e.target.value)
-                  }
-                />
-              </Grid>
-            </Grid>
-          </Box>
-        </Paper>
-        <br/>
-        <Button
-          className={classes.right}
-          color="primary"
-          variant="contained"
-          size="large"
-          onClick={handleSubmit}
-          disabled={isSubmitting || disableSubmit}>
-          Create Patient
-        </Button>
-      </div>
+                  </Grid>
+                  <Grid item md={4}>
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      label="Patient Name"
+                      name={PatientField.patientName}
+                    />
+                  </Grid>
+                  <Grid item md={4}>
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      variant="outlined"
+                      label="Household Number"
+                      name="householdNumber"
+                    />
+                  </Grid>
+                  <Grid item md={4}>
+                    <Field
+                      component={ToggleButtonGroup}
+                      exclusive
+                      size="large"
+                      type="checkbox"
+                      value={values.isExactDob}
+                      name={PatientField.isExactDob}
+                    >
+                      <ToggleButton
+                        classes={{ selected: classes.toggle }}
+                        value={true}>
+                        Date of Birth
+                      </ToggleButton>
+                      <ToggleButton
+                        classes={{ selected: classes.toggle }}
+                        value={false}>
+                        Estimated Age
+                      </ToggleButton>
+                    </Field>
+                  </Grid>
+                  <Grid item md={4}>
+                    {values.isExactDob ? (
+                      <Field
+                        component={TextField}
+                        fullWidth
+                        required
+                        variant="outlined"
+                        type="date"
+                        label="Date of Birth"
+                        name={PatientField.dob}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                      />
+                    ) : (
+                      <Field
+                        component={TextField}
+                        fullWidth
+                        required
+                        variant="outlined"
+                        type="number"
+                        label="Patient Age"
+                        name={PatientField.estimatedAge}
+                      />
+                    )}
+                  </Grid>
+                  <Grid item md={2}>
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      variant="outlined"
+                      label="Zone"
+                      name={PatientField.zone}
+                    />
+                  </Grid>
+                  <Grid item md={2}>
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      variant="outlined"
+                      label="Village"
+                      name={PatientField.villageNumber}
+                    />
+                  </Grid>
+                  <Grid item md={2}>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel>Gender</InputLabel>
+                      <Field
+                        component={Select}
+                        fullWidth
+                        label="Gender"
+                        name={PatientField.patientSex}
+                      >
+                        {sexOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.name}
+                          </MenuItem>
+                        ))}
+                      </Field>
+                    </FormControl>
+                  </Grid>
+                  <Grid item md={2}>
+                    <Field
+                      component={CheckboxWithLabel}
+                      type="checkbox"
+                      name={PatientField.isPregnant}
+                      Label={{ label: 'Pregnant' }}
+                      disabled={!(values.patientSex === SEXES.FEMALE)}
+                    />
+                  </Grid>
+                  <Grid item md={4}>
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      variant="outlined"
+                      type="number"
+                      label="Gestational Age"
+                      name={PatientField.gestationalAge}
+                      disabled={!values.isPregnant}
+                    />
+                  </Grid>
+                  <Grid item md={4}>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel>Gestational Age Unit</InputLabel>
+                      <Field
+                        component={Select}
+                        fullWidth
+                        label="Gestational Age Unit"
+                        name={PatientField.gestationalAgeUnit}
+                        disabled={!values.isPregnant}
+                      >
+                        {gestationalAgeUnitOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.name}
+                          </MenuItem>
+                        ))}
+                      </Field>
+                    </FormControl>
+                  </Grid>
+                  <Grid item md={6}>
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      multiline
+                      rows={4}
+                      variant="outlined"
+                      label="Drug History"
+                      name={PatientField.drugHistory}
+                    />
+                  </Grid>
+                  <Grid item md={6}>
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      multiline
+                      rows={4}
+                      variant="outlined"
+                      label="Medical History"
+                      name={PatientField.medicalHistory}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            </Paper>
+            <br/>
+            <Button
+              className={classes.right}
+              color="primary"
+              variant="contained"
+              size="large"
+              type="submit"
+              disabled={isSubmitting}>
+              Create Patient
+            </Button>
+          </Form>
+        )}
+      </Formik>
+    </div>
     </>
   );
-};
+}
 
 const useStyles = makeStyles({
-  container: {
-    maxWidth: 1250,
-    margin: '0 auto',
-  },
-  toggle: {
-    border: '1px solid #3f51b5 !important',
-    fontWeight: 'bold',
-    color: '#3f51b5 !important',
-  },
-  right: {
-    float: 'right',
-  },
+    container: {
+        maxWidth: 1250,
+        margin: '0 auto',
+    },
+    toggle: {
+        border: '1px solid #3f51b5 !important',
+        fontWeight: 'bold',
+        color: '#3f51b5 !important',
+    },
+    right: {
+        float: 'right',
+    },
 });
+  

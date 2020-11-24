@@ -40,22 +40,6 @@ export const initialState = {
   [PatientField.gestationalAgeUnit]: GESTATIONAL_AGE_UNITS.WEEKS,
   [PatientField.drugHistory]: '',
   [PatientField.medicalHistory]: '',
-  error: {
-    [PatientField.patientId]: false,
-    [PatientField.patientName]: false,
-    [PatientField.householdNumber]: false,
-    [PatientField.isExactDob]: false,
-    [PatientField.dob]: false,
-    [PatientField.estimatedAge]: false,
-    [PatientField.zone]: false,
-    [PatientField.villageNumber]: false,
-    [PatientField.patientSex]: false,
-    [PatientField.isPregnant]: false,
-    [PatientField.gestationalAge]: false,
-    [PatientField.gestationalAgeUnit]: false,
-    [PatientField.drugHistory]: false,
-    [PatientField.medicalHistory]: false,
-  },
 };
 
 export type PatientState = typeof initialState;
