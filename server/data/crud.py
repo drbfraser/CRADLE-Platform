@@ -348,8 +348,11 @@ def read_all_readings_db(is_admin: bool, user_ids: str) -> List[M]:
         creat_dict = {}
         creat_dict = serialize.serialize_reading_sql_to_dict(creat_dict, reading_row)
         # make list of symptoms
-        if creat_dict.get("symptoms"):
+        if not creat_dict.get("symptoms"):
+            creat_dict["symptoms"] = []
+        else:
             creat_dict["symptoms"] = creat_dict["symptoms"].split(",")
+
         arr.append(creat_dict)
 
     return arr

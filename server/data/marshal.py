@@ -46,6 +46,8 @@ def __marshal_patient(p: Patient, shallow) -> dict:
 def __marshal_reading(r: Reading, shallow) -> dict:
     d = vars(r).copy()
     __pre_process(d)
+    if not d.get("symptoms"):
+        d["symptoms"] = []
     if d.get("symptoms"):
         d["symptoms"] = d["symptoms"].split(",")
     if not shallow and r.referral is not None:
