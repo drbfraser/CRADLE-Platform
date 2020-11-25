@@ -51,14 +51,11 @@ class Updates(Resource):
                             invariant.resolve_reading_invariants(reading)
                             crud.create(reading, refresh=True)
 
-        all_patients = view.patient_view_for_user(user)
-
-        print(
-            "Before add all:", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-        )
         if patients_to_be_added:
-            crud.create_all(patients_to_be_added)
-        print("After add all:", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3])
+            crud.create_all_patients(patients_to_be_added)
+
+        # read all the patients from the DB
+        all_patients = view.patient_view_for_user(user)
 
         # reads all the Health Facilities form db and returns the updated facilities list
         facilities = [f.healthFacilityName for f in crud.read_all(HealthFacility)]

@@ -29,9 +29,9 @@ def create(model: M, refresh=False):
         db_session.refresh(model)
 
 
-def create_all(model: [M]):
+def create_all_patients(model: [Patient]):
     """
-    bulk_update list of model into the database.
+    add_all list of model into the database.
 
     All the actual SQL is handled under the hood by SQLAlchemy. However, it's important
     to note that many tables may be modified by this operation: for example, in the case
@@ -44,7 +44,7 @@ def create_all(model: [M]):
                     the database; this involves an additional query so only use it if
                     necessary
     """
-    db_session.bulk_update_mappings(M, model)
+    db_session.add_all(model)
     db_session.commit()
 
 
