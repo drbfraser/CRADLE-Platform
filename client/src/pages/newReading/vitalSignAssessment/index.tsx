@@ -69,7 +69,9 @@ const Page: React.FC<IProps> = (props) => {
                 ),
               }}
               helperText={
-                props.vitals.bpSystolicError ? 'Must be between 50 - 300.' : ''
+                props.vitals.bpSystolicError
+                  ? 'Must be a whole number between 50 - 300.'
+                  : ''
               }
             />
           </FormControl>
@@ -89,7 +91,9 @@ const Page: React.FC<IProps> = (props) => {
                 ),
               }}
               helperText={
-                props.vitals.bpDiastolicError ? 'Must be between 30 - 200.' : ''
+                props.vitals.bpDiastolicError
+                  ? 'Must be a whole number between 30 - 200.'
+                  : ''
               }
             />
           </FormControl>
@@ -110,14 +114,14 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.heartRateBPMError
-                  ? 'Must be between 30 - 250.'
+                  ? 'Must be a whole number between 30 - 250.'
                   : ''
               }
             />
           </FormControl>
           <FormControl className={classes.formField}>
             <TextField
-              // error={props.vitals.heartRateBPMError}
+              error={props.vitals.respiratoryRateError}
               label={'Respiratory Rate'}
               onChange={props.onChange}
               name={'respiratoryRate'}
@@ -129,11 +133,11 @@ const Page: React.FC<IProps> = (props) => {
               }}
               variant="outlined"
               type="number"
-              // helperText={
-              //   props.vitals.heartRateBPMError
-              //     ? 'Must be between 50 - 300.'
-              //     : ''
-              // }
+              helperText={
+                props.vitals.respiratoryRateError
+                  ? 'Must be a whole number between 1 - 100.'
+                  : ''
+              }
             />
           </FormControl>
           <FormControl className={classes.formField}>
@@ -150,7 +154,7 @@ const Page: React.FC<IProps> = (props) => {
               type="number"
               helperText={
                 props.vitals.oxygenSaturationError
-                  ? 'Must be between 50 - 100.'
+                  ? 'Must be a whole number between 50 - 100.'
                   : ''
               }
             />
@@ -170,7 +174,9 @@ const Page: React.FC<IProps> = (props) => {
               variant="outlined"
               type="number"
               helperText={
-                props.vitals.temperatureError ? 'Must be between 34 - 45.' : ''
+                props.vitals.temperatureError
+                  ? 'Must be a whole number between 30 - 45.'
+                  : ''
               }
             />
           </FormControl>

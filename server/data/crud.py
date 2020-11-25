@@ -298,9 +298,10 @@ def read_all_patients_db() -> List[M]:
     # make DB call
     patients = db_session.execute("SELECT * FROM patient ORDER BY patientId ASC")
 
-    creat_dict, arr = {}, []
+    arr = []
     # make list of patients
     for pat_row in patients:
+        creat_dict = {}
         creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
         arr.append(creat_dict)
 
@@ -320,9 +321,10 @@ def read_all_assoc_patients_db(user_ids: str) -> List[M]:
         " AND pa.userId IN (" + user_ids + ") ORDER BY p.patientId ASC"
     )
 
-    creat_dict, arr = {}, []
+    arr = []
     # make list of patients
     for pat_row in patients:
+        creat_dict = {}
         creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
         arr.append(creat_dict)
 
@@ -339,10 +341,11 @@ def read_all_readings_db(is_admin: bool, user_ids: str) -> List[M]:
     get_sql_for_readings = SQL.get_sql_for_readings(user_ids, is_admin)
     reading_and_referral = db_session.execute(get_sql_for_readings)
 
-    creat_dict, arr = {}, []
+    arr = []
 
     # make list of readings
     for reading_row in reading_and_referral:
+        creat_dict = {}
         creat_dict = serialize.serialize_reading_sql_to_dict(creat_dict, reading_row)
         # make list of symptoms
         if creat_dict.get("symptoms"):
