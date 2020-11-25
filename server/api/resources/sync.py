@@ -10,12 +10,10 @@ from models import Patient, Reading
 from utils import get_current_time
 import service.invariant as invariant
 
-# /api/sync/updates
 import data.crud as crud
 from models import HealthFacility
-from datetime import datetime
 
-
+# /api/sync/updates
 class Updates(Resource):
     @staticmethod
     @jwt_required
