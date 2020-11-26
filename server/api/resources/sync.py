@@ -20,6 +20,10 @@ class Updates(Resource):
     def post():
         # Get all patients for this user
         user = util.current_user()
+        timestamp: int = request.args.get("since", None, type=int)
+        if not timestamp:
+            abort(400, message="'since' query parameter is required")
+
         all_patients = view.patient_view_for_user(user)
         all_patients_ids = sorted([p["patientId"] for p in all_patients])
         patients_to_be_added: [Patient] = []
@@ -49,11 +53,31 @@ class Updates(Resource):
                             invariant.resolve_reading_invariants(reading)
                             crud.create(reading, refresh=True)
 
+                same_patient_in_server = [
+                    pat
+                    for pat in all_patients
+                    if pat["patientId"] == p.get("patientId")
+                ]
+                if int(same_patient_in_server[0]["lastEdited"]) < timestamp:
+                    if p.get("base"):
+                        if p.get("base") != p.get("lastEdited"):
+                            abort(
+                                409,
+                                message="Unable to merge changes, conflict detected",
+                            )
+                        del p["base"]
+                    del p["readings"]
+                    p["lastEdited"] = get_current_time()
+                    crud.update(Patient, p, patientId=p["patientId"])
+
         if patients_to_be_added:
             crud.create_all_patients(patients_to_be_added)
 
         # read all the patients from the DB
         all_patients = view.patient_view_for_user(user)
+        all_patients_edited_or_new = [
+            p for p in all_patients if p["lastEdited"] > timestamp
+        ]
 
         # reads all the Health Facilities form db and returns the updated facilities list
         facilities = [f.healthFacilityName for f in crud.read_all(HealthFacility)]
@@ -93,6 +117,6 @@ class Updates(Resource):
         #             followups.append(r["followup"]["id"])
 
         return {
-            "patients": all_patients,
+            "patients": all_patients_edited_or_new,
             "healthFacilities": facilities,
         }
