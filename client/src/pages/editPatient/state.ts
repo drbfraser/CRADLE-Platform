@@ -1,10 +1,6 @@
+import { GESTATIONAL_AGE_UNITS, getAgeBasedOnDOB, getNumOfMonthsNumeric, getNumOfWeeks } from '../../../src/shared/utils';
 import { EndpointEnum } from '../../server';
 import { BASE_URL } from '../../server/utils';
-
-export const GESTATIONAL_AGE_UNITS = {
-  WEEKS: 'GESTATIONAL_AGE_UNITS_WEEKS',
-  MONTHS: 'GESTATIONAL_AGE_UNITS_MONTHS',
-};
 
 export const SEXES = {
   MALE: 'MALE',
@@ -61,20 +57,28 @@ export const getPatientState = async (patientId: string | undefined): Promise<Pa
   let resp = await fetch(BASE_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.INFO, fetchOptions);
   let state = await resp.json();
 
+  // modify the response from the server to be what the frontend expects
   delete state['base'];
   delete state['created'];
   delete state['lastEdited'];
   
   state[PatientField.isExactDob] = Boolean(state[PatientField.isExactDob]);
 
-  // TODO calculate estimated age & gestational ages from the dates in the JSON response
-  // if(!state[PatientField.isExactDob]) {
-    
-  // }
+  if(!state[PatientField.isExactDob]) {
+    state[PatientField.estimatedAge] = getAgeBasedOnDOB(state[PatientField.dob]);
+    state[PatientField.dob] = '';
+  }
 
-  // if(state[PatientField.isPregnant]) {
-
-  // }
+  if(state[PatientField.isPregnant]) {
+    switch(state[PatientField.gestationalAgeUnit]) {
+      case GESTATIONAL_AGE_UNITS.WEEKS:
+        state[PatientField.gestationalAge] = getNumOfWeeks(state.gestationalTimestamp);
+        break;
+      case GESTATIONAL_AGE_UNITS.MONTHS:
+        state[PatientField.gestationalAge] = getNumOfMonthsNumeric(state.gestationalTimestamp);
+        break;
+    }
+  }
 
   return state;
 }

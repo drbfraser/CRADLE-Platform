@@ -1,3 +1,4 @@
+import { GESTATIONAL_AGE_UNITS, getDOBForEstimatedAge, getTimestampFromMonths, getTimestampFromWeeks } from '../../../src/shared/utils';
 import { EndpointEnum } from '../../../src/server';
 import { BASE_URL } from '../../../src/server/utils';
 import { initialState, PatientField, PatientState, SEXES } from './state';
@@ -50,10 +51,25 @@ export const handleSubmit = (creatingNew: boolean, history: any, setSubmitError:
     // deep copy
     let patientData = JSON.parse(JSON.stringify(values));
 
+    // modify the data to be what the server expects
+    if(!patientData[PatientField.isExactDob]) {
+      patientData[PatientField.dob] = getDOBForEstimatedAge(patientData[PatientField.estimatedAge]);
+    }
+
+    if(patientData[PatientField.isPregnant]) {
+      switch(patientData[PatientField.gestationalAgeUnit]) {
+        case GESTATIONAL_AGE_UNITS.WEEKS:
+          patientData.gestationalTimestamp = getTimestampFromWeeks(patientData[PatientField.gestationalAge]);
+          break;
+        case GESTATIONAL_AGE_UNITS.MONTHS:
+          patientData.gestationalTimestamp = getTimestampFromMonths(patientData[PatientField.gestationalAge]);
+          break;
+      }
+    }
+
     delete patientData[PatientField.estimatedAge];
     delete patientData[PatientField.gestationalAge];
 
-    // TODO calculate dates from estimated & gestational ages
 
     const fetchOptions = {
       method: 'POST',
@@ -83,6 +99,7 @@ export const handleSubmit = (creatingNew: boolean, history: any, setSubmitError:
       history.push('/patients/' + respJson['patientId']);
     }
     catch(e) {
+      console.error(e);
       setSubmitError(true);
     }
     
