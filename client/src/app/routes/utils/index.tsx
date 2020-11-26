@@ -18,7 +18,7 @@ import { VideoSessionPage } from '../../../pages/videoSession';
 import VideocamIcon from '@material-ui/icons/Videocam';
 import { makeUniqueId } from '../../../shared/utils';
 import { NewReading } from '../../../pages/newReading';
-import { NewPatientPage } from '../../../pages/newPatient';
+import { EditPatientPage } from '../../../pages/editPatient';
 
 export type AppRoute = {
   component:
@@ -37,12 +37,20 @@ export type AppRoute = {
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
   {
-    component: NewPatientPage,
+    component: EditPatientPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
     to: `/patients/new`,
+  },
+  {
+    component: EditPatientPage,
+    exactPath: false,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/patients/edit/:editId`,
   },
   {
     component: NewReading,

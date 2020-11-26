@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik, Form, Field } from 'formik';
 import { Toast } from '../../../src/shared/components/toast';
-import { GESTATIONAL_AGE_UNITS, initialState, PatientField, SEXES } from './state';
+import { GESTATIONAL_AGE_UNITS, PatientField, PatientState, SEXES } from './state';
 import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
 import { ToggleButtonGroup } from 'formik-material-ui-lab';
 import ToggleButton from '@material-ui/lab/ToggleButton';
@@ -16,7 +16,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { validateForm } from './validation';
 import { useHistory } from 'react-router-dom';
 import { PatientIDExists } from './PatientIDExists';
-import { handleChangeCustom, handlePatientIdBlur, handleSubmit } from './handlers';
+import { handleChangeCustom, handleBlurPatientId, handleSubmit } from './handlers';
 
 const gestationalAgeUnitOptions = [
   { name: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
@@ -28,26 +28,31 @@ const sexOptions = [
   { name: 'Female', value: SEXES.FEMALE },
 ];
 
-export const NewPatientPage = () => {
+interface IProps {
+  initialState: PatientState,
+  creatingNew: boolean
+}
+
+export const PatientForm = ({ initialState, creatingNew }: IProps) => {
   const classes = useStyles();
   const history = useHistory();
   const [submitError, setSubmitError] = useState(false);
+  // for *new* patients only, track whether the patient ID already exists
   const [existingPatientId, setExistingPatientId] = useState<string | null>(null);
 
   return (
     <>
-    {submitError && (
-      <Toast
-        status="error"
-        message="Something went wrong on our end. Please try that again."
-        clearMessage={() => setSubmitError(false)}
-      />
-    )}
-    <div className={classes.container}>
+      {submitError && (
+        <Toast
+          status="error"
+          message="Something went wrong on our end. Please try that again."
+          clearMessage={() => setSubmitError(false)}
+        />
+      )}
       <Formik
         initialValues={initialState}
         validate={validateForm}
-        onSubmit={handleSubmit(history, setSubmitError)}>
+        onSubmit={handleSubmit(creatingNew, history, setSubmitError)}>
         {({
           values,
           isSubmitting,
@@ -56,7 +61,6 @@ export const NewPatientPage = () => {
           setFieldValue,
         }) => (
           <Form>
-            <h1>New Patient</h1>
             <Paper>
               <Box p={2}>
                 <Grid container spacing={2}>
@@ -68,7 +72,8 @@ export const NewPatientPage = () => {
                       variant="outlined"
                       label="Patient ID"
                       name={PatientField.patientId}
-                      onBlur={handlePatientIdBlur(handleBlur, setExistingPatientId)}
+                      onBlur={handleBlurPatientId(handleBlur, setExistingPatientId)}
+                      disabled={!creatingNew}
                     />
                     {
                       existingPatientId != null && <PatientIDExists patientId={existingPatientId} />
@@ -190,6 +195,7 @@ export const NewPatientPage = () => {
                     <Field
                       component={TextField}
                       fullWidth
+                      required
                       variant="outlined"
                       type="number"
                       label="Gestational Age"
@@ -203,6 +209,7 @@ export const NewPatientPage = () => {
                       <Field
                         component={Select}
                         fullWidth
+                        required
                         label="Gestational Age Unit"
                         name={PatientField.gestationalAgeUnit}
                         disabled={!values.isPregnant}
@@ -248,21 +255,18 @@ export const NewPatientPage = () => {
               size="large"
               type="submit"
               disabled={isSubmitting || (existingPatientId !== null)}>
-              Create Patient
+                {
+                  creatingNew ? "Create New" : "Save Changes"
+                }
             </Button>
           </Form>
         )}
       </Formik>
-    </div>
     </>
   );
 }
 
 const useStyles = makeStyles({
-    container: {
-        maxWidth: 1250,
-        margin: '0 auto',
-    },
     toggle: {
         border: '1px solid #3f51b5 !important',
         fontWeight: 'bold',

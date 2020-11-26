@@ -2,6 +2,7 @@ import { EndpointEnum } from '../../../src/server';
 import { BASE_URL } from '../../../src/server/utils';
 import { initialState, PatientField, PatientState, SEXES } from './state';
 
+// custom change handler when a field might affect other fields
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
   const resetGestational = () => {
     setFieldValue(PatientField.gestationalAge, initialState[PatientField.gestationalAge], false);
@@ -21,7 +22,7 @@ export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
   }
 }
 
-export const handlePatientIdBlur = (handleBlur: any, setExistingPatientId: (val: string | null) => void) => {
+export const handleBlurPatientId = (handleBlur: any, setExistingPatientId: (val: string | null) => void) => {
   return (e: any) => {
     handleBlur(e);
 
@@ -42,15 +43,17 @@ export const handlePatientIdBlur = (handleBlur: any, setExistingPatientId: (val:
   }
 }
 
-export const handleSubmit = (history: any, setSubmitError: (error: boolean) => void) => {
+export const handleSubmit = (creatingNew: boolean, history: any, setSubmitError: (error: boolean) => void) => {
   return async (values: PatientState, { setSubmitting }: any) => {
     setSubmitting(true);
 
     // deep copy
     let patientData = JSON.parse(JSON.stringify(values));
 
-    delete patientData[PatientField.gestationalAge];
     delete patientData[PatientField.estimatedAge];
+    delete patientData[PatientField.gestationalAge];
+
+    // TODO calculate dates from estimated & gestational ages
 
     const fetchOptions = {
       method: 'POST',
@@ -61,8 +64,15 @@ export const handleSubmit = (history: any, setSubmitError: (error: boolean) => v
       body: JSON.stringify(patientData),
     };
 
+    let url = BASE_URL + EndpointEnum.PATIENTS;
+    
+    if(!creatingNew) {
+      url += "/" + patientData[PatientField.patientId] + EndpointEnum.INFO;
+      fetchOptions.method = 'PUT';
+    }
+
     try {
-      let resp = await fetch(BASE_URL + EndpointEnum.PATIENTS, fetchOptions);
+      let resp = await fetch(url, fetchOptions);
 
       if (!resp.ok) {
         throw new Error('Response failed with error code: ' + resp.status)

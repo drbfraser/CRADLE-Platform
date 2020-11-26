@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { GESTATIONAL_AGE_UNITS, PatientField, PatientState } from './state';
 
 export const validateForm = (values: PatientState): any => {
@@ -31,11 +32,8 @@ const validatePatientName = (values: PatientState, errors: any) => {
 
 const validateDobOrAge = (values: PatientState, errors: any) => {
   if(values[PatientField.isExactDob]) {
-    const dateOfBirth = values[PatientField.dob];
-    const year: string = dateOfBirth.substr(0, dateOfBirth.indexOf('-'));
-    const yearNow: number = new Date().getUTCFullYear();
-    const age = yearNow - +year;
-    
+    const age = moment().diff(moment(values[PatientField.dob], 'YYYY-MM-DD'), 'years');
+
     if(!ageIsValid(age)) {
       errors[PatientField.dob] = 'Please enter a valid date of birth.';
     }
