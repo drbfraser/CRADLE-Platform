@@ -138,6 +138,7 @@ export const CreateUserModal: React.FC<IProps> = ({
           <AutocompleteInput
             label="Health Facility"
             options={healthFacilityOptions}
+            disabled = {values.role?.label==="ADMIN"}
             placeholder="Pick a health facility"
             value={values.healthFacilityName}
             onChange={handleSelectChange(`healthFacilityName`)}
