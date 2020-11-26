@@ -138,7 +138,7 @@ class UserAuthApi(Resource):
                 return {"message": "Invalid email or password"}, 401
         else:
             return (
-                {"message": "Bad request parameters: {}".format(data["message"])},
+                {"message": "Bad request parameters"},
                 400,
             )
 

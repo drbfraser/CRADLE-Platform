@@ -60,10 +60,11 @@ class JSONEncoder(json.JSONEncoder):
 
 
 FLASK_APP = "app.py"
-FLASK_DEBUG = 1
 
 app = Flask(__name__, static_folder="../client/build")
 app.config["SWAGGER"] = {"openapi": "3.0.2"}
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["BASE_URL"] = ""
 swagger = Swagger(app)
 
 CORS(app)

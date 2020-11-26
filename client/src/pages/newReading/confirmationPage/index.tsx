@@ -31,35 +31,35 @@ const useStyles = makeStyles((theme: Theme) =>
 const getSymptomsMapping = (symptoms: any) => {
   switch (symptoms) {
     case 'none':
-      return 'NONE';
+      return 'none';
     case 'headache':
-      return 'HEADACHE';
+      return 'headache';
     case 'bleeding':
-      return 'BLEEDING';
+      return 'bleeding';
     case 'blurredVision':
-      return 'BLURRED VISION';
+      return 'blurred vision';
     case 'feverish':
-      return 'FEVERISH';
+      return 'feverish';
     case 'abdominalPain':
-      return 'ABDOMINAL PAIN';
+      return 'abdominal pain';
     case 'unwell':
-      return 'UNWELL';
+      return 'unwell';
     case 'cough':
-      return 'COUGH';
+      return 'cough';
     case 'shortnessBreath':
-      return 'SHORTNESS of BREATH';
+      return 'shortness of breath';
     case 'soreThroat':
-      return 'SORE THROAT';
+      return 'sore throat';
     case 'muscleAche':
-      return 'MUSCLE ACHE';
+      return 'muscle ache';
     case 'fatigue':
-      return 'FATIGUE';
+      return 'fatigue';
     case 'lossOfSense':
-      return 'LOSS of SENSE';
+      return 'loss of sense';
     case 'lossOfTaste':
-      return 'LOSS of TASTE';
+      return 'loss of taste';
     case 'lossOfSmell':
-      return 'LOSS of SMELL';
+      return 'loss of smell';
     default:
       return '';
   }
@@ -79,14 +79,18 @@ const Page: React.FC<IProps> = (props) => {
   const [symptomsString, setSymptomsString] = React.useState('');
 
   React.useEffect((): void => {
-    let stringValue = '';
-    for (const [key, value] of Object.entries(props.symptoms)) {
-      if (value === true) {
-        const pushValue = getSymptomsMapping(key);
-        stringValue += pushValue + ',  ';
-      }
-    }
-    setSymptomsString(stringValue);
+    const patientSymptoms = Object.entries(props.symptoms).filter(
+      ([_, hasSymptom]) => hasSymptom === true
+    );
+
+    let symptomsString = '';
+
+    patientSymptoms.forEach(([key], i) => {
+      const comma = i !== 0 ? ', ' : '';
+      symptomsString += comma + getSymptomsMapping(key);
+    });
+
+    setSymptomsString(symptomsString);
   }, [props.symptoms]);
 
   return (

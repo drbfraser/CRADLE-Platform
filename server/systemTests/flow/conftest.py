@@ -40,6 +40,8 @@ def make_patient(make_assessment):
             "isPregnant": False,
             "zone": "1",
             "villageNumber": "1",
+            "dob": "2004-01-01",
+            "isExactDob": "false",
         }
 
         if reading_id:
