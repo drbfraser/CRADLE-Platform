@@ -27,7 +27,13 @@ export const PatientRow = ({ row }: IProps) => {
       <td className={classes.cellPadding}>
         <TrafficLight status={row.trafficLightStatus} />
       </td>
-      <td>{moment(row.dateTimeTaken * 1000).format('YYYY-MM-DD')}</td>
+      <td>
+      {
+        row.dateTimeTaken === null
+        ? "No reading"
+        : moment(row.dateTimeTaken * 1000).format('YYYY-MM-DD')
+      }
+      </td>
     </tr>
   );
 };
