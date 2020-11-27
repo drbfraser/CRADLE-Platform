@@ -1,4 +1,7 @@
-import { GESTATIONAL_AGE_UNITS, getAgeBasedOnDOB } from '../../../src/shared/utils';
+import {
+  GESTATIONAL_AGE_UNITS,
+  getAgeBasedOnDOB,
+} from '../../../src/shared/utils';
 import { PatientField, PatientState } from './state';
 
 export const validateForm = (values: PatientState): any => {
@@ -13,62 +16,66 @@ export const validateForm = (values: PatientState): any => {
   return errors;
 };
 
-
 const validatePatientId = (values: PatientState, errors: any) => {
   const patientId = values[PatientField.patientId];
 
-  if(patientId.length === 0 || patientId.length > 15 || isNaN(+patientId)) {
+  if (patientId.length === 0 || patientId.length > 15 || isNaN(+patientId)) {
     errors[PatientField.patientId] = 'A valid patient ID is required.';
   }
-}
+};
 
 const validatePatientName = (values: PatientState, errors: any) => {
   const patientName = values[PatientField.patientName];
 
-  if(/^\w[\w+\- ]*$/.test(patientName) === false) {
+  if (/^\w[\w+\- ]*$/.test(patientName) === false) {
     errors[PatientField.patientName] = 'A valid patient name is required.';
   }
-}
+};
 
 const validateDobOrAge = (values: PatientState, errors: any) => {
-  if(values[PatientField.isExactDob]) {
+  if (values[PatientField.isExactDob]) {
     const age = getAgeBasedOnDOB(values[PatientField.dob]);
 
-    if(!ageIsValid(age)) {
+    if (!ageIsValid(age)) {
       errors[PatientField.dob] = 'Please enter a valid date of birth.';
     }
   } else {
-    if(!ageIsValid(parseInt(values[PatientField.estimatedAge]))) {
+    if (!ageIsValid(parseInt(values[PatientField.estimatedAge]))) {
       errors[PatientField.estimatedAge] = 'Please enter a valid age.';
     }
   }
-}
+};
 
 const ageIsValid = (age: number): boolean => {
   return age >= 1 && age <= 100;
-}
+};
 
 const validateVillage = (values: PatientState, errors: any) => {
-  if(values[PatientField.villageNumber] !== '' && /^[0-9]+$/.test(values[PatientField.villageNumber]) === false) {
+  if (
+    values[PatientField.villageNumber] !== '' &&
+    /^[0-9]+$/.test(values[PatientField.villageNumber]) === false
+  ) {
     errors[PatientField.villageNumber] = 'Village number must be numeric.';
   }
-}
+};
 
 const validateGestational = (values: PatientState, errors: any) => {
-  if(!values[PatientField.isPregnant]) {
+  if (!values[PatientField.isPregnant]) {
     return;
   }
 
   const unit = values[PatientField.gestationalAgeUnit];
   const age = parseInt(values[PatientField.gestationalAge]);
 
-  if(unit === GESTATIONAL_AGE_UNITS.WEEKS) {
-    if(isNaN(age) || !(age >= 0 && age <= 60)) {
-      errors[PatientField.gestationalAge] = 'Please enter between 0 and 60 weeks.';
+  if (unit === GESTATIONAL_AGE_UNITS.WEEKS) {
+    if (isNaN(age) || !(age >= 0 && age <= 60)) {
+      errors[PatientField.gestationalAge] =
+        'Please enter between 0 and 60 weeks.';
     }
-  } else if(unit === GESTATIONAL_AGE_UNITS.MONTHS) {
-    if(isNaN(age) || !(age >= 0 && age <= 13)) {
-      errors[PatientField.gestationalAge] = 'Please enter between 0 and 13 months.';
+  } else if (unit === GESTATIONAL_AGE_UNITS.MONTHS) {
+    if (isNaN(age) || !(age >= 0 && age <= 13)) {
+      errors[PatientField.gestationalAge] =
+        'Please enter between 0 and 13 months.';
     }
   }
-}
+};

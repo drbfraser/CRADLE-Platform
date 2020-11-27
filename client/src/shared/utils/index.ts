@@ -168,8 +168,10 @@ export const getAgeBasedOnDOB = (value: string) => {
 };
 
 export const getDOBForEstimatedAge = (age: number) => {
-  return moment().subtract(age + 0.5, 'years').format('YYYY-MM-DD');
-}
+  return moment()
+    .subtract(age + 0.5, 'years')
+    .format('YYYY-MM-DD');
+};
 
 export const GESTATIONAL_AGE_UNITS = {
   WEEKS: `GESTATIONAL_AGE_UNITS_WEEKS`,

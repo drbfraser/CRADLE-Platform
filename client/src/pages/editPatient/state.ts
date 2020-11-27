@@ -1,4 +1,9 @@
-import { GESTATIONAL_AGE_UNITS, getAgeBasedOnDOB, getNumOfMonthsNumeric, getNumOfWeeks } from '../../../src/shared/utils';
+import {
+  GESTATIONAL_AGE_UNITS,
+  getAgeBasedOnDOB,
+  getNumOfMonthsNumeric,
+  getNumOfWeeks,
+} from '../../../src/shared/utils';
 import { EndpointEnum } from '../../server';
 import { BASE_URL } from '../../server/utils';
 
@@ -43,9 +48,11 @@ export const initialState = {
 
 export type PatientState = typeof initialState;
 
-export const getPatientState = async (patientId: string | undefined): Promise<PatientState> => {
-  if(patientId === undefined) {
-    return {...initialState};
+export const getPatientState = async (
+  patientId: string | undefined
+): Promise<PatientState> => {
+  if (patientId === undefined) {
+    return { ...initialState };
   }
 
   const fetchOptions = {
@@ -54,31 +61,41 @@ export const getPatientState = async (patientId: string | undefined): Promise<Pa
     },
   };
 
-  let resp = await fetch(BASE_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.INFO, fetchOptions);
-  let state = await resp.json();
+  const resp = await fetch(
+    BASE_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.INFO,
+    fetchOptions
+  );
+
+  const state = await resp.json();
 
   // modify the response from the server to be what the frontend expects
   delete state['base'];
   delete state['created'];
   delete state['lastEdited'];
-  
+
   state[PatientField.isExactDob] = Boolean(state[PatientField.isExactDob]);
 
-  if(!state[PatientField.isExactDob]) {
-    state[PatientField.estimatedAge] = getAgeBasedOnDOB(state[PatientField.dob]);
+  if (!state[PatientField.isExactDob]) {
+    state[PatientField.estimatedAge] = getAgeBasedOnDOB(
+      state[PatientField.dob]
+    );
     state[PatientField.dob] = '';
   }
 
-  if(state[PatientField.isPregnant]) {
-    switch(state[PatientField.gestationalAgeUnit]) {
+  if (state[PatientField.isPregnant]) {
+    switch (state[PatientField.gestationalAgeUnit]) {
       case GESTATIONAL_AGE_UNITS.WEEKS:
-        state[PatientField.gestationalAge] = getNumOfWeeks(state.gestationalTimestamp);
+        state[PatientField.gestationalAge] = getNumOfWeeks(
+          state.gestationalTimestamp
+        );
         break;
       case GESTATIONAL_AGE_UNITS.MONTHS:
-        state[PatientField.gestationalAge] = getNumOfMonthsNumeric(state.gestationalTimestamp);
+        state[PatientField.gestationalAge] = getNumOfMonthsNumeric(
+          state.gestationalTimestamp
+        );
         break;
     }
   }
 
   return state;
-}
+};

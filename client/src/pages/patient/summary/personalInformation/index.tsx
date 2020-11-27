@@ -27,8 +27,7 @@ export const PersonalInformation: React.FC<IProps> = ({
   const editPatientInformation = (): void => {
     onAddPatientRequired((): void => {
       history.push('/patients/edit/' + selectedPatient.patientId);
-    },
-    `You haven't added this patient to your health facility. You need to do that before you can edit this patient. Would like to add this patient?`);
+    }, `You haven't added this patient to your health facility. You need to do that before you can edit this patient. Would like to add this patient?`);
   };
 
   return (

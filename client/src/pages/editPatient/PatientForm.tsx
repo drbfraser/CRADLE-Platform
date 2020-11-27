@@ -17,7 +17,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { validateForm } from './validation';
 import { useHistory } from 'react-router-dom';
 import { PatientIDExists } from './PatientIDExists';
-import { handleChangeCustom, handleBlurPatientId, handleSubmit } from './handlers';
+import {
+  handleChangeCustom,
+  handleBlurPatientId,
+  handleSubmit,
+} from './handlers';
 
 const gestationalAgeUnitOptions = [
   { name: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
@@ -30,8 +34,8 @@ const sexOptions = [
 ];
 
 interface IProps {
-  initialState: PatientState,
-  creatingNew: boolean
+  initialState: PatientState;
+  creatingNew: boolean;
 }
 
 export const PatientForm = ({ initialState, creatingNew }: IProps) => {
@@ -39,7 +43,9 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
   const history = useHistory();
   const [submitError, setSubmitError] = useState(false);
   // for *new* patients only, track whether the patient ID already exists
-  const [existingPatientId, setExistingPatientId] = useState<string | null>(null);
+  const [existingPatientId, setExistingPatientId] = useState<string | null>(
+    null
+  );
 
   return (
     <>
@@ -73,12 +79,15 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       variant="outlined"
                       label="Patient ID"
                       name={PatientField.patientId}
-                      onBlur={handleBlurPatientId(handleBlur, setExistingPatientId)}
+                      onBlur={handleBlurPatientId(
+                        handleBlur,
+                        setExistingPatientId
+                      )}
                       disabled={!creatingNew}
                     />
-                    {
-                      existingPatientId != null && <PatientIDExists patientId={existingPatientId} />
-                    }
+                    {existingPatientId != null && (
+                      <PatientIDExists patientId={existingPatientId} />
+                    )}
                   </Grid>
                   <Grid item md={4}>
                     <Field
@@ -106,8 +115,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       size="large"
                       type="checkbox"
                       value={values.isExactDob}
-                      name={PatientField.isExactDob}
-                    >
+                      name={PatientField.isExactDob}>
                       <ToggleButton
                         classes={{ selected: classes.toggle }}
                         value={true}>
@@ -172,8 +180,10 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                         fullWidth
                         label="Gender"
                         name={PatientField.patientSex}
-                        onChange={handleChangeCustom(handleChange, setFieldValue)}
-                      >
+                        onChange={handleChangeCustom(
+                          handleChange,
+                          setFieldValue
+                        )}>
                         {sexOptions.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
                             {option.name}
@@ -213,8 +223,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                         required
                         label="Gestational Age Unit"
                         name={PatientField.gestationalAgeUnit}
-                        disabled={!values.isPregnant}
-                      >
+                        disabled={!values.isPregnant}>
                         {gestationalAgeUnitOptions.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
                             {option.name}
@@ -248,33 +257,30 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                 </Grid>
               </Box>
             </Paper>
-            <br/>
+            <br />
             <Button
               className={classes.right}
               color="primary"
               variant="contained"
               size="large"
               type="submit"
-              disabled={isSubmitting || (existingPatientId !== null)}>
-                {
-                  creatingNew ? "Create New" : "Save Changes"
-                }
+              disabled={isSubmitting || existingPatientId !== null}>
+              {creatingNew ? 'Create New' : 'Save Changes'}
             </Button>
           </Form>
         )}
       </Formik>
     </>
   );
-}
+};
 
 const useStyles = makeStyles({
-    toggle: {
-        border: '1px solid #3f51b5 !important',
-        fontWeight: 'bold',
-        color: '#3f51b5 !important',
-    },
-    right: {
-        float: 'right',
-    },
+  toggle: {
+    border: '1px solid #3f51b5 !important',
+    fontWeight: 'bold',
+    color: '#3f51b5 !important',
+  },
+  right: {
+    float: 'right',
+  },
 });
-  

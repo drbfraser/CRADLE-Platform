@@ -11,14 +11,15 @@ export const PatientIDExists = (props: IProps) => {
 
   return (
     <div className={classes.container}>
-      Patient ID {props.patientId} already exists. <Link to={'/patients/' + props.patientId}>View patient.</Link>
+      Patient ID {props.patientId} already exists.{' '}
+      <Link to={'/patients/' + props.patientId}>View patient.</Link>
     </div>
   );
-}
+};
 
 const useStyles = makeStyles({
   container: {
-      padding: 3,
-      color: '#f44336',
+    padding: 3,
+    color: '#f44336',
   },
 });

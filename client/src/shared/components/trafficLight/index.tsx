@@ -63,7 +63,13 @@ export const TrafficLight: React.FC<IProps> = ({ className, status }) => {
           );
         }
         default: {
-          return <Typography variant="h5" style={{height: "60px", lineHeight: "60px"}}>N/A</Typography>;
+          return (
+            <Typography
+              variant="h5"
+              style={{ height: '60px', lineHeight: '60px' }}>
+              N/A
+            </Typography>
+          );
         }
       }
     },

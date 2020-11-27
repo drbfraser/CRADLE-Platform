@@ -18,31 +18,31 @@ export const EditPatientPage: React.FC<RouteComponentProps<Params>> = ({
   const [formInitialState, setFormInitialState] = useState<PatientState>();
 
   useEffect(() => {
-    getPatientState(editId).then(state => setFormInitialState(state))
+    getPatientState(editId).then((state) => setFormInitialState(state));
   }, [editId]);
 
   return (
     <>
       <div className={classes.container}>
         <h1>
-          {editId !== undefined ? "Edit Patient " + editId : "New Patient"}
+          {editId !== undefined ? 'Edit Patient ' + editId : 'New Patient'}
         </h1>
-        {
-          formInitialState === undefined
-          ? <LinearProgress />
-          : <PatientForm
-              initialState={formInitialState}
-              creatingNew={editId === undefined} />
-        }
+        {formInitialState === undefined ? (
+          <LinearProgress />
+        ) : (
+          <PatientForm
+            initialState={formInitialState}
+            creatingNew={editId === undefined}
+          />
+        )}
       </div>
     </>
   );
-}
+};
 
 const useStyles = makeStyles({
-    container: {
-        maxWidth: 1250,
-        margin: '0 auto',
-    },
+  container: {
+    maxWidth: 1250,
+    margin: '0 auto',
+  },
 });
-  

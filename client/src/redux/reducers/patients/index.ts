@@ -1015,8 +1015,9 @@ export const patientsReducer = (
       return state.globalSearch
         ? {
             ...state,
-            globalSearchPatientsList: action.payload
-              .sortedPatients as Array<GlobalSearchPatient>,
+            globalSearchPatientsList: action.payload.sortedPatients as Array<
+              GlobalSearchPatient
+            >,
           }
         : {
             ...state,
