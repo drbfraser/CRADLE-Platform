@@ -43,7 +43,7 @@ def resolve_reading_invariants_mobile(obj: Union[Patient, Reading]):
     """
     if isinstance(obj, Patient):
         for r in obj.readings:
-            resolve_reading_invariants(r)
+            resolve_reading_invariants_mobile(r)
         return
 
     # Ensure that the reading's traffic light status is present and valid
