@@ -5,11 +5,12 @@ from flask_restful import Resource, abort
 import api.util as util
 import service.view as view
 import data.marshal as marshal
-from validation import patients
-from models import Patient, Reading
+from validation import patients, referrals, assessments
+from models import Patient, Reading, Referral, FollowUp
 from utils import get_current_time
 import service.invariant as invariant
 import service.assoc as assoc
+import data
 
 import data.crud as crud
 from models import HealthFacility
@@ -53,6 +54,9 @@ class Updates(Resource):
                             reading = marshal.unmarshal(Reading, r)
                             invariant.resolve_reading_invariants(reading)
                             crud.create(reading, refresh=True)
+
+                            handle_referral(r.get("referral"))
+                            handle_followup(r.get("followup"), user)
 
                 same_patient_in_server: [Patient] = [
                     pat
@@ -125,3 +129,44 @@ class Updates(Resource):
             "patients": all_patients_edited_or_new,
             "healthFacilities": facilities,
         }
+
+
+def handle_referral(json: any):
+
+    error_message = referrals.validate(json)
+    if error_message is not None:
+        abort(400, message=error_message)
+
+    referral = marshal.unmarshal(Referral, json)
+    crud.create(referral)
+
+    # Creating a referral also associates the corresponding patient to the health
+    # facility they were referred to.
+    patient = referral.patient
+    facility = referral.healthFacility
+    if not assoc.has_association(patient, facility):
+        assoc.associate(patient, facility=facility)
+
+
+def handle_followup(json: any, user):
+
+    # Populate the dateAssessed and healthCareWorkerId fields of the followup
+    json["dateAssessed"] = get_current_time()
+    json["healthcareWorkerId"] = user.id
+
+    error_message = assessments.validate(json)
+    if error_message is not None:
+        abort(400, message=error_message)
+
+    follow_up = marshal.unmarshal(FollowUp, json)
+
+    # Check that reading id which doesn’t reference an existing reading in the database
+    reading = crud.read(Reading, readingId=follow_up.readingId)
+    if reading:
+        crud.create(follow_up)
+
+    # Creating an assessment also marks any referral attached to the associated
+    # reading as "assessed"
+    if follow_up.reading.referral:
+        follow_up.reading.referral.isAssessed = True
+        data.db_session.commit()
