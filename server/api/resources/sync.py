@@ -26,17 +26,12 @@ class Updates(Resource):
             abort(400, message="'since' query parameter is required")
 
         all_patients = view.patient_view_for_user(user)
-        all_patients_global = view.admin_patient_view()
-        all_patients_ids = sorted([p["patientId"] for p in all_patients])
-        all_patients_global_ids = sorted([p["patientId"] for p in all_patients_global])
         patients_to_be_added: [Patient] = []
         #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
         json = request.get_json(force=True)
         for p in json:
-            if (
-                p.get("patientId") not in all_patients_ids
-                and p.get("patientId") not in all_patients_global_ids
-            ):
+            patient_on_server = crud.read(Patient, patientId=p.get("patientId"))
+            if patient_on_server is None:
                 error_message = patients.validate(p)
                 if error_message is not None:
                     abort(400, message=error_message)
@@ -76,6 +71,7 @@ class Updates(Resource):
                     p["lastEdited"] = get_current_time()
                     crud.update(Patient, p, patientId=p["patientId"])
 
+        # update association
         if patients_to_be_added:
             crud.create_all_patients(patients_to_be_added)
             for new_patient in patients_to_be_added:
