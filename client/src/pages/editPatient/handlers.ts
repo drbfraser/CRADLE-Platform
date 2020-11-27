@@ -82,6 +82,10 @@ export const handleSubmit = (
     const patientData = JSON.parse(JSON.stringify(values));
 
     // modify the data to be what the server expects
+    patientData[PatientField.isExactDob] = Boolean(
+      patientData[PatientField.isExactDob]
+    );
+
     if (!patientData[PatientField.isExactDob]) {
       patientData[PatientField.dob] = getDOBForEstimatedAge(
         patientData[PatientField.estimatedAge]

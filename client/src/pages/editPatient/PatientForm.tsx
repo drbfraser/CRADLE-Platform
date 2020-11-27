@@ -114,7 +114,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       exclusive
                       size="large"
                       type="checkbox"
-                      value={values.isExactDob}
+                      value={Boolean(values.isExactDob)}
                       name={PatientField.isExactDob}>
                       <ToggleButton
                         classes={{ selected: classes.toggle }}
