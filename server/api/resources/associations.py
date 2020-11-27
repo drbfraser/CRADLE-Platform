@@ -40,14 +40,16 @@ class Root(Resource):
             user = crud.read(User, id=user_id)
             if not user:
                 abort(400, message=f"No user with id: {user_id}")
+            #     if user exists but no health facility then assign the patient to the user's health facility
+            facility = user.healthFacility
         else:
             user = None
 
         if not facility_name and not user_id:
             # If neither facility_name or user_id are present in the request, create a
-            # 'smart' association for the patient by looking at the current user's role
+            # associate patient with the current user's health facility
             user = util.current_user()
-            assoc.associate_by_user_role(patient, user)
+            assoc.associate(patient, user.healthFacility, user)
         else:
             # Otherwise, simply associate the provided models together
             if not assoc.has_association(patient, facility, user):
