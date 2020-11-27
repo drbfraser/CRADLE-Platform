@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { PatientForm } from './PatientForm';
-import { RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, useHistory } from 'react-router-dom';
 import { getPatientState, PatientState } from './state';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import Typography from '@material-ui/core/Typography';
 
 type Params = {
   editId: string | undefined;
@@ -15,6 +19,7 @@ export const EditPatientPage: React.FC<RouteComponentProps<Params>> = ({
   },
 }) => {
   const classes = useStyles();
+  const history = useHistory();
   const [formInitialState, setFormInitialState] = useState<PatientState>();
 
   useEffect(() => {
@@ -24,9 +29,17 @@ export const EditPatientPage: React.FC<RouteComponentProps<Params>> = ({
   return (
     <>
       <div className={classes.container}>
-        <h1>
-          {editId !== undefined ? 'Edit Patient ' + editId : 'New Patient'}
-        </h1>
+        <div className={classes.title}>
+          <Tooltip title="Go back" placement="top">
+            <IconButton onClick={history.goBack}>
+              <ChevronLeftIcon color="inherit" fontSize="large" />
+            </IconButton>
+          </Tooltip>
+          <Typography variant="h4">
+            {editId !== undefined ? 'Edit Patient' : 'New Patient'}
+          </Typography>
+        </div>
+        <br />
         {formInitialState === undefined ? (
           <LinearProgress />
         ) : (
@@ -44,5 +57,9 @@ const useStyles = makeStyles({
   container: {
     maxWidth: 1250,
     margin: '0 auto',
+  },
+  title: {
+    display: `flex`,
+    alignItems: `center`,
   },
 });
