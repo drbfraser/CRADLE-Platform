@@ -48,6 +48,14 @@ class Updates(Resource):
             else:
                 if p.get("readings") is not None:
                     for r in p.get("readings"):
+                        if r.get("referral"):
+                            copy_pat = {}
+                            copy_pat["patient"] = p
+                            copy_pat["referralId"] = r.get("referral").get("referralId")
+                            handle_referral(copy_pat)
+                        if r.get("followup"):
+                            handle_followup(r.get("followup"), user)
+
                         if crud.read(Reading, readingId=r.get("readingId")):
                             continue
                         else:
@@ -55,15 +63,7 @@ class Updates(Resource):
                             invariant.resolve_reading_invariants(reading)
                             crud.create(reading, refresh=True)
 
-                            handle_referral(r.get("referral"))
-                            handle_followup(r.get("followup"), user)
-
-                same_patient_in_server: [Patient] = [
-                    pat
-                    for pat in all_patients
-                    if pat["patientId"] == p.get("patientId")
-                ]
-                if int(same_patient_in_server[0]["lastEdited"]) < timestamp:
+                if int(patient_on_server.lastEdited) < timestamp:
                     if p.get("base"):
                         if p.get("base") != p.get("lastEdited"):
                             abort(
