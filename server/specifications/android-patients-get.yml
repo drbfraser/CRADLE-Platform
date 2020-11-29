@@ -4,7 +4,7 @@ tags:
   - Patients
 responses:
   200:
-    description: List of GET response bodies for /api/patients
+    description: List of GET response bodies for /api/mobile/patients
     content:
       application/json:
         schema:
