@@ -4,6 +4,8 @@ import {
 } from '../../../src/shared/utils';
 import { PatientField, PatientState } from './state';
 
+// For writing + testing Regex, see: regex101.com
+
 export const validateForm = (values: PatientState): any => {
   const errors: any = {};
 
@@ -27,7 +29,9 @@ const validatePatientId = (values: PatientState, errors: any) => {
 const validatePatientName = (values: PatientState, errors: any) => {
   const patientName = values[PatientField.patientName];
 
-  if (/^\w[\w+\- ]*$/.test(patientName) === false) {
+  // a name consists of one or more word characters (w) and may include: . ' -
+  // e.g. John A. Smith-O'Hare
+  if (/^\w[\w.'\- ]*$/.test(patientName) === false) {
     errors[PatientField.patientName] = 'A valid patient name is required.';
   }
 };
@@ -51,6 +55,7 @@ const ageIsValid = (age: number): boolean => {
 };
 
 const validateVillage = (values: PatientState, errors: any) => {
+  // if a village number is entered, it must consist of 1 or more numbers
   if (
     values[PatientField.villageNumber] !== '' &&
     /^[0-9]+$/.test(values[PatientField.villageNumber]) === false
