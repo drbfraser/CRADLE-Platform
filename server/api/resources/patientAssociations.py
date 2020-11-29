@@ -10,7 +10,7 @@ from models import Patient, HealthFacility, User
 from validation import associations
 
 
-# /api/associations
+# /api/patientAssociations
 class Root(Resource):
     @staticmethod
     @jwt_required

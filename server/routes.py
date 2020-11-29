@@ -19,7 +19,7 @@ from api.resources.assessments import (
     SingleAssessment,
     UpdateAssessment,
 )
-from api.resources.associations import Root as Associations
+from api.resources.patientAssociations import Root as PatientAssociations
 from api.resources.facilities import Root as Facilities
 from api.resources.patients import (
     Root as Patients,
@@ -75,7 +75,7 @@ def init(api):
         endpoint="single_assessment",
     )  # [GET]
 
-    api.add_resource(Associations, "/api/associations")  # [POST]
+    api.add_resource(PatientAssociations, "/api/patientAssociations")  # [POST]
 
     api.add_resource(
         Facilities, "/api/facilities", endpoint="facilities"
