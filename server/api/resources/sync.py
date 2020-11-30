@@ -15,8 +15,8 @@ import data
 import data.crud as crud
 from models import HealthFacility
 
-# /api/sync/updates
-class Updates(Resource):
+# /api/sync/patients
+class UpdatesPatients(Resource):
     @staticmethod
     @jwt_required
     def post():
@@ -26,7 +26,6 @@ class Updates(Resource):
         if not timestamp:
             abort(400, message="'since' query parameter is required")
 
-        all_patients = view.patient_view_for_user(user)
         patients_to_be_added: [Patient] = []
         #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
         json = request.get_json(force=True)
@@ -46,23 +45,6 @@ class Updates(Resource):
                 patient.lastEdited = creation_time
                 patients_to_be_added.append(patient)
             else:
-                if p.get("readings") is not None:
-                    for r in p.get("readings"):
-                        if r.get("referral"):
-                            copy_pat = {}
-                            copy_pat["patient"] = p
-                            copy_pat["referralId"] = r.get("referral").get("referralId")
-                            handle_referral(copy_pat)
-                        if r.get("followup"):
-                            handle_followup(r.get("followup"), user)
-
-                        if crud.read(Reading, readingId=r.get("readingId")):
-                            continue
-                        else:
-                            reading = marshal.unmarshal(Reading, r)
-                            invariant.resolve_reading_invariants(reading)
-                            crud.create(reading, refresh=True)
-
                 if int(patient_on_server.lastEdited) < timestamp:
                     if p.get("base"):
                         if p.get("base") != p.get("lastEdited"):
@@ -131,42 +113,54 @@ class Updates(Resource):
         }
 
 
-def handle_referral(json: any):
+# /api/sync/readings
+class UpdatesReadings(Resource):
+    @staticmethod
+    @jwt_required
+    def post():
+        # Get all patients for this user
+        timestamp: int = request.args.get("since", None, type=int)
+        if not timestamp:
+            abort(400, message="'since' query parameter is required")
 
-    error_message = referrals.validate(json)
-    if error_message is not None:
-        abort(400, message=error_message)
+        #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        json = request.get_json(force=True)
+        for r in json:
+            if crud.read(Reading, readingId=r.get("readingId")) or not crud.read(
+                Patient, patientId=r.get("patientId")
+            ):
+                print("reading exist")
+                continue
+            else:
+                print("Added new one")
+                reading = marshal.unmarshal(Reading, r)
+                invariant.resolve_reading_invariants(reading)
+                crud.create(reading, refresh=True)
 
-    referral = marshal.unmarshal(Referral, json)
-    crud.create(referral)
+        user = util.current_user()
+        all_patients = view.patient_view_for_user(user)
+        new_readings = []
+        new_referral = []
+        new_followup = []
+        for p in all_patients:
+            for r in p["readings"]:
+                if r["dateTimeTaken"] > timestamp:
+                    new_readings.append(r)
+                if (
+                    r["referral"]
+                    and r["referral"]["dateReferred"] > timestamp
+                    and r["dateTimeTaken"] < timestamp
+                ):
+                    new_referral.append(r["referral"])
+                if (
+                    r["followup"]
+                    and r["followup"]["dateAssessed"] > timestamp
+                    and r["dateTimeTaken"] < timestamp
+                ):
+                    new_followup.append(r["followup"])
 
-    # Creating a referral also associates the corresponding patient to the health
-    # facility they were referred to.
-    patient = referral.patient
-    facility = referral.healthFacility
-    if not assoc.has_association(patient, facility):
-        assoc.associate(patient, facility=facility)
-
-
-def handle_followup(json: any, user):
-
-    # Populate the dateAssessed and healthCareWorkerId fields of the followup
-    json["dateAssessed"] = get_current_time()
-    json["healthcareWorkerId"] = user.id
-
-    error_message = assessments.validate(json)
-    if error_message is not None:
-        abort(400, message=error_message)
-
-    follow_up = marshal.unmarshal(FollowUp, json)
-
-    # Check that reading id which doesn’t reference an existing reading in the database
-    reading = crud.read(Reading, readingId=follow_up.readingId)
-    if reading:
-        crud.create(follow_up)
-
-    # Creating an assessment also marks any referral attached to the associated
-    # reading as "assessed"
-    if follow_up.reading.referral:
-        follow_up.reading.referral.isAssessed = True
-        data.db_session.commit()
+        return {
+            "readings": new_readings,
+            "newReferralsForOldReadings": new_referral,
+            "newFollowupsForOldReadings": new_followup,
+        }
