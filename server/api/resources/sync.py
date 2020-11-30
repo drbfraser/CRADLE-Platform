@@ -125,9 +125,18 @@ class UpdatesReadings(Resource):
 
         #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
         json = request.get_json(force=True)
+        patients_on_server_chache = []
         for r in json:
-            if crud.read(Reading, readingId=r.get("readingId")) or not crud.read(
-                Patient, patientId=r.get("patientId")
+            if r.get("patientId") not in patients_on_server_chache:
+                patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
+                if patient_on_server is None:
+                    continue
+                else:
+                    patients_on_server_chache.append(patient_on_server.patientId)
+
+            if (
+                crud.read(Reading, readingId=r.get("readingId"))
+                or r.get("readingId") not in patients_on_server_chache
             ):
                 print("reading exist")
                 continue
