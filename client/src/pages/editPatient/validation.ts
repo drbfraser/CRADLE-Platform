@@ -41,17 +41,19 @@ const validateDobOrAge = (values: PatientState, errors: any) => {
     const age = getAgeBasedOnDOB(values[PatientField.dob]);
 
     if (!ageIsValid(age)) {
-      errors[PatientField.dob] = 'Please enter a valid date of birth.';
+      errors[PatientField.dob] =
+        'Please enter a valid date of birth corresponding to an age between 15 - 65.';
     }
   } else {
     if (!ageIsValid(parseInt(values[PatientField.estimatedAge]))) {
-      errors[PatientField.estimatedAge] = 'Please enter a valid age.';
+      errors[PatientField.estimatedAge] =
+        'Please enter a valid age between 15 - 65.';
     }
   }
 };
 
 const ageIsValid = (age: number): boolean => {
-  return age >= 1 && age <= 100;
+  return age >= 15 && age <= 65;
 };
 
 const validateVillage = (values: PatientState, errors: any) => {
