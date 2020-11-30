@@ -5,12 +5,11 @@ from flask_restful import Resource, abort
 import api.util as util
 import service.view as view
 import data.marshal as marshal
-from validation import patients, referrals, assessments
-from models import Patient, Reading, Referral, FollowUp
+from validation import patients, readings
+from models import Patient, Reading
 from utils import get_current_time
 import service.invariant as invariant
 import service.assoc as assoc
-import data
 
 import data.crud as crud
 from models import HealthFacility
@@ -53,14 +52,18 @@ class UpdatesPatients(Resource):
                                 message="Unable to merge changes, conflict detected",
                             )
                         del p["base"]
-                    del p["readings"]
+
                     p["lastEdited"] = get_current_time()
                     crud.update(Patient, p, patientId=p["patientId"])
+                #     TODO: revisit association logic
+                if not assoc.has_association(patient_on_server, user=user):
+                    assoc.associate(patient_on_server, user.healthFacility, user)
 
         # update association
         if patients_to_be_added:
             crud.create_all_patients(patients_to_be_added)
             for new_patient in patients_to_be_added:
+                #     TODO: revisit association logic
                 if not assoc.has_association(new_patient, user=user):
                     assoc.associate(new_patient, user.healthFacility, user)
 
@@ -125,28 +128,28 @@ class UpdatesReadings(Resource):
 
         #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
         json = request.get_json(force=True)
-        patients_on_server_chache = []
+        patients_on_server_chache = set()
         for r in json:
             if r.get("patientId") not in patients_on_server_chache:
                 patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
                 if patient_on_server is None:
                     continue
                 else:
-                    patients_on_server_chache.append(patient_on_server.patientId)
+                    patients_on_server_chache.add(patient_on_server.patientId)
 
-            if (
-                crud.read(Reading, readingId=r.get("readingId"))
-                or r.get("readingId") not in patients_on_server_chache
-            ):
-                print("reading exist")
+            if crud.read(Reading, readingId=r.get("readingId")):
                 continue
             else:
-                print("Added new one")
+                error_message = readings.validate(json)
+                if error_message is not None:
+                    abort(400, message=error_message)
                 reading = marshal.unmarshal(Reading, r)
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
 
         user = util.current_user()
+        #     TODO: create custome DB calls for referral and followup
+
         all_patients = view.patient_view_for_user(user)
         new_readings = []
         new_referral = []
