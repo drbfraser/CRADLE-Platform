@@ -44,7 +44,11 @@ class UpdatesPatients(Resource):
                 patient.lastEdited = creation_time
                 patients_to_be_added.append(patient)
             else:
-                if int(patient_on_server.lastEdited) < timestamp:
+                if (
+                    int(patient_on_server.lastEdited)
+                    < int(p.get("lastEdited"))
+                    < timestamp
+                ):
                     if p.get("base"):
                         if p.get("base") != p.get("lastEdited"):
                             abort(
@@ -68,6 +72,7 @@ class UpdatesPatients(Resource):
                     assoc.associate(new_patient, user.healthFacility, user)
 
         # read all the patients from the DB
+        #     TODO: optimize to get only patients
         all_patients = view.patient_view_for_user(user)
         all_patients_edited_or_new = [
             p for p in all_patients if p["lastEdited"] > timestamp
@@ -111,6 +116,7 @@ class UpdatesPatients(Resource):
         #             followups.append(r["followup"]["id"])
 
         return {
+            "total": len(all_patients_edited_or_new),
             "patients": all_patients_edited_or_new,
             "healthFacilities": facilities,
         }
@@ -172,6 +178,7 @@ class UpdatesReadings(Resource):
                     new_followup.append(r["followup"])
 
         return {
+            "total": len(new_readings) + len(new_referral) + len(new_followup),
             "readings": new_readings,
             "newReferralsForOldReadings": new_referral,
             "newFollowupsForOldReadings": new_followup,
