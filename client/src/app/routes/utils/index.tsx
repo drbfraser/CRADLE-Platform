@@ -17,6 +17,7 @@ import { VideoChatPage } from '../../../pages/videoChat';
 import { VideoSessionPage } from '../../../pages/videoSession';
 import VideocamIcon from '@material-ui/icons/Videocam';
 import { makeUniqueId } from '../../../shared/utils';
+import { NewReadingPage } from '../../../pages/newReading';
 import { NewReadingObselete } from '../../../pages/newReadingObselete';
 import { EditPatientPage } from '../../../pages/editPatient';
 
@@ -51,6 +52,14 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/patients/edit/:editId`,
+  },
+  {
+    component: NewReadingPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/readings/new`,
   },
   {
     component: NewReadingObselete,
