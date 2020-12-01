@@ -27,29 +27,27 @@ export const EditPatientPage: React.FC<RouteComponentProps<Params>> = ({
   }, [editId]);
 
   return (
-    <>
-      <div className={classes.container}>
-        <div className={classes.title}>
-          <Tooltip title="Go back" placement="top">
-            <IconButton onClick={history.goBack}>
-              <ChevronLeftIcon color="inherit" fontSize="large" />
-            </IconButton>
-          </Tooltip>
-          <Typography variant="h4">
-            {editId !== undefined ? 'Edit Patient' : 'New Patient'}
-          </Typography>
-        </div>
-        <br />
-        {formInitialState === undefined ? (
-          <LinearProgress />
-        ) : (
-          <PatientForm
-            initialState={formInitialState}
-            creatingNew={editId === undefined}
-          />
-        )}
+    <div className={classes.container}>
+      <div className={classes.title}>
+        <Tooltip title="Go back" placement="top">
+          <IconButton onClick={history.goBack}>
+            <ChevronLeftIcon color="inherit" fontSize="large" />
+          </IconButton>
+        </Tooltip>
+        <Typography variant="h4">
+          {editId !== undefined ? 'Edit Patient' : 'New Patient'}
+        </Typography>
       </div>
-    </>
+      <br />
+      {formInitialState === undefined ? (
+        <LinearProgress />
+      ) : (
+        <PatientForm
+          initialState={formInitialState}
+          creatingNew={editId === undefined}
+        />
+      )}
+    </div>
   );
 };
 

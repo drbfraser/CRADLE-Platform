@@ -697,4 +697,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(goBack());
   },
 });
-export const NewReading = connect(mapStateToProps, mapDispatchToProps)(Page);
+export const NewReadingObselete = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Page);

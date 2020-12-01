@@ -42,7 +42,7 @@ export const ReferralInfo: React.FC<IProps> = ({
   const manageAssessment = (): void => {
     onAddPatientRequired((): void => {
       dispatch(
-        push(`/readings/new`, {
+        push(`/assessments/new`, {
           assessment: followUp,
           patient: selectedPatient,
           readingId,
