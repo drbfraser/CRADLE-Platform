@@ -10,9 +10,7 @@ from models import Patient, Reading
 from utils import get_current_time
 import service.invariant as invariant
 import service.assoc as assoc
-
 import data.crud as crud
-from models import HealthFacility
 
 # /api/sync/patients
 class UpdatesPatients(Resource):
@@ -78,9 +76,6 @@ class UpdatesPatients(Resource):
             p for p in all_patients if p["lastEdited"] > timestamp
         ]
 
-        # reads all the Health Facilities form db and returns the updated facilities list
-        facilities = [f.healthFacilityName for f in crud.read_all(HealthFacility)]
-
         #  ~~~~~~~~~~~~~~~~~ old logic ~~~~~~~~~~~~~~~~~~~~
         # New patients are patients who are created after the timestamp
         # new_patients = [
@@ -118,7 +113,6 @@ class UpdatesPatients(Resource):
         return {
             "total": len(all_patients_edited_or_new),
             "patients": all_patients_edited_or_new,
-            "healthFacilities": facilities,
         }
 
 
