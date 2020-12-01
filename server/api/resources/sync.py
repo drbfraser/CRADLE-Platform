@@ -140,7 +140,7 @@ class UpdatesReadings(Resource):
             if crud.read(Reading, readingId=r.get("readingId")):
                 continue
             else:
-                error_message = readings.validate(json)
+                error_message = readings.validate(r)
                 if error_message is not None:
                     abort(400, message=error_message)
                 reading = marshal.unmarshal(Reading, r)
