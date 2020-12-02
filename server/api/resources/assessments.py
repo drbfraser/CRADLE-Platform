@@ -88,20 +88,15 @@ class UpdateAssessment(Resource):
         user = util.current_user()
         json["healthcareWorkerId"] = user.id
 
+        updatedAssessment = crud.read(FollowUp, id=assessment_id)
+        if not updatedAssessment:
+            abort(404, message=f"No assessment with id {json['id']}")
+
+        json["readingId"] = updatedAssessment.readingId
+
         error_message = assessments.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
-
-        follow_up = marshal.unmarshal(FollowUp, json)
-
-        # Check that reading id which doesn’t reference an existing reading in the database
-        reading = crud.read(Reading, readingId=follow_up.readingId)
-        if not reading:
-            abort(404, message=f"No reading with id {follow_up.readingId}")
-
-        updatedAssessment = crud.read(FollowUp, id=assessment_id)
-        if not updatedAssessment:
-            abort(404, message=f"No assessment with id { json['id'] }")
 
         crud.update(FollowUp, json, id=updatedAssessment.id)
 
