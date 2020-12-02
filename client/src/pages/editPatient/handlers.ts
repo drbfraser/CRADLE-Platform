@@ -54,7 +54,7 @@ export const handleBlurPatientId = (
       };
 
       fetch(
-        BASE_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.INFO,
+        BASE_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO,
         fetchOptions
       )
         .then((resp) =>
@@ -122,7 +122,7 @@ export const handleSubmit = (
     let url = BASE_URL + EndpointEnum.PATIENTS;
 
     if (!creatingNew) {
-      url += '/' + patientData[PatientField.patientId] + EndpointEnum.INFO;
+      url += '/' + patientData[PatientField.patientId] + EndpointEnum.PATIENT_INFO;
       fetchOptions.method = 'PUT';
     }
 
