@@ -60,7 +60,8 @@ def __init_facilities_resources(api: Api):
 def __init_sync_resources(api: Api):
     import api.resources.sync as r
 
-    api.add_resource(r.Updates, "/api/sync/updates")
+    api.add_resource(r.UpdatesPatients, "/api/sync/patients")
+    api.add_resource(r.UpdatesReadings, "/api/sync/readings")
 
 
 def __init_patientAssociations_resources(api: Api):
