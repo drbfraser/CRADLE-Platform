@@ -4,11 +4,6 @@
 """
 
 import api as new_api
-from controller.FollowUpController import (
-    FollowUp,
-    FollowUpMobile,
-    FollowUpMobileSummarized,
-)
 from controller.PasswordResetController import *
 from controller.ReferralsController import ReferralApi, ReferralInfo
 from controller.SMSController import *
@@ -47,19 +42,6 @@ def init(api):
 
     api.add_resource(ReferralApi, "/api/referral")  # [GET, POST]
     api.add_resource(ReferralInfo, "/api/referral/<int:id>")  # [GET, PUT]
-
-    api.add_resource(FollowUp, "/api/follow_up", endpoint="followup")  # [PUT, DELETE]
-    api.add_resource(
-        FollowUp, "/api/follow_up/<int:id>", endpoint="followup_path"
-    )  # [PUT, DELETE]
-    api.add_resource(
-        FollowUpMobile, "/api/mobile/follow_up", "/api/mobile/follow_up/<int:id>"
-    )  # [GET]
-    api.add_resource(
-        FollowUpMobileSummarized,
-        "/api/mobile/summarized/follow_up",
-        "/api/mobile/summarized/follow_up/<int:id>",
-    )  # [GET]
 
     api.add_resource(ForgotPassword, "/api/forgot")  # [POST]
     api.add_resource(ResetPassword, "/api/reset/<string:reset_token>")  # [PUT]
