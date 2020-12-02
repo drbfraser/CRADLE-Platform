@@ -409,7 +409,7 @@ export const addPatientToHealthFacility = (
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: EndpointEnum.PATIENT_FACILITY,
+        endpoint: EndpointEnum.PATIENT_ASSOCIATIONS,
         method: MethodEnum.POST,
         data: { patientId },
         onSuccess: (): PatientsAction => ({
@@ -519,8 +519,8 @@ export const updateAssessment = ({
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${EndpointEnum.FOLLOW_UP}/${data.id}`,
-        method: MethodEnum.PUT,
+        endpoint: `${EndpointEnum.ASSESSMENT_UPDATE}/${data.id}`,
+        method: MethodEnum.POST,
         data,
         onSuccess: (): PatientsAction => ({
           type: PatientsActionEnum.UPDATE_ASSESSMENT_SUCCESS,
