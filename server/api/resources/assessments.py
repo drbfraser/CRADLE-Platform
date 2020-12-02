@@ -77,7 +77,9 @@ class UpdateAssessment(Resource):
         methods=["POST"],
         endpoint="update_assessment",
     )
-    def post():
+    def post(assessment_id: int):
+        if not assessment_id:
+            abort(404, message=f"Assessment is required")
         json = request.get_json(force=True)
 
         json["dateAssessed"] = get_current_time()
@@ -97,7 +99,7 @@ class UpdateAssessment(Resource):
         if not reading:
             abort(404, message=f"No reading with id {follow_up.readingId}")
 
-        updatedAssessment = crud.read(FollowUp, id=json["id"])
+        updatedAssessment = crud.read(FollowUp, id=assessment_id)
         if not updatedAssessment:
             abort(404, message=f"No assessment with id { json['id'] }")
 

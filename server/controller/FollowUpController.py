@@ -12,7 +12,7 @@ from manager.FollowUpManager import FollowUpManager
 
 followUpManager = FollowUpManager()
 
-# URI: /followup
+# URI: /follow_up
 class FollowUp(Resource):
     @jwt_required
     @swag_from(
