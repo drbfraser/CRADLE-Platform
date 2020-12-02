@@ -10,17 +10,36 @@ import { Symptoms } from './symptoms';
 import { VitalSigns } from './vitalSigns';
 import { Assessment } from './assessment';
 import { Confirmation } from './confirmation';
-import Paper from '@material-ui/core/Paper/Paper';
-import Box from '@material-ui/core/Box/Box';
+import { Form, Formik } from 'formik';
+import Stepper from '@material-ui/core/Stepper/Stepper';
+import StepLabel from '@material-ui/core/StepLabel/StepLabel';
+import Step from '@material-ui/core/Step/Step';
 
 export const NewReadingPage = () => {
   const classes = useStyles();
   const history = useHistory();
 
   const [pageNum, setPageNum] = useState(0);
-  const pages = [Symptoms, VitalSigns, Assessment, Confirmation];
-  const PageComponent = pages[pageNum];
+  const pages = [
+    {
+      name: 'Symptoms',
+      component: Symptoms
+    },
+    {
+      name: 'Vital Signs',
+      component: VitalSigns
+    },
+    {
+      name: 'Assessment',
+      component: Assessment
+    },
+    {
+      name: 'Confirmation',
+      component: Confirmation
+    }
+  ];
 
+  const PageComponent = pages[pageNum].component;
   const isFinalPage = pageNum === pages.length - 1;
 
   const handleNext = () => {
@@ -42,25 +61,37 @@ export const NewReadingPage = () => {
         <Typography variant="h4">New Reading</Typography>
       </div>
       <br />
-      <Paper>
-        <Box p={2}>
-          <PageComponent />
-        </Box>
-      </Paper>
+      <Stepper activeStep={pageNum}>
+        {pages.map((page, idx) => (
+          <Step key={page.name}>
+            <StepLabel>{page.name}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
       <br />
-      <Button
-        color="primary"
-        disabled={pageNum === 0}
-        onClick={() => setPageNum(pageNum - 1)}>
-        Back
-      </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleNext}
-        className={classes.right}>
-        {isFinalPage ? 'Create' : 'Next'}
-      </Button>
+      <Formik
+        initialValues={{}}
+        onSubmit={handleNext}>
+        {() => (
+          <Form>
+            <PageComponent />
+            <br />
+            <Button
+              color="primary"
+              disabled={pageNum === 0}
+              onClick={() => setPageNum(pageNum - 1)}>
+              Back
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.right}
+              type="submit">
+              {isFinalPage ? 'Create' : 'Next'}
+            </Button>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };
