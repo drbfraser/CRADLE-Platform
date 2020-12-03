@@ -48,7 +48,6 @@ export const CreateUserModal: React.FC<IProps> = ({
   handleSelectChange,
 }) => {
   const classes = useStyles();
-  //if the user selects admin as the new role → the selection of Health care facility is disabled
 
   const disableSubmit = React.useMemo((): boolean => {
     const ifNeedHealthFacility =
