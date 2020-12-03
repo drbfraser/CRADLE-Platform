@@ -1,7 +1,7 @@
 Create a new association
 ---
 tags:
-  - Associations
+  - Patient Associations
 requestBody:
   required: true
   description: POST request body for /api/associations

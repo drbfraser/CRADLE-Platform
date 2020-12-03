@@ -57,7 +57,7 @@ def init(api):
         endpoint="single_assessment",
     )  # [GET]
 
-    api.add_resource(PatientAssociations, "/api/patientAssociations")  # [POST]
+    api.add_resource(PatientAssociations, "/api/patientAssociations", endpoint="patientAssociations")  # [POST]
 
     api.add_resource(
         Facilities, "/api/facilities", endpoint="facilities"

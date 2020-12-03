@@ -68,14 +68,14 @@ class SingleAssessment(Resource):
         return marshal.marshal(follow_up)
 
 
-# /api/assessmentUpdate
+# /api/assessmentUpdate/<int:assessment_id>
 class UpdateAssessment(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
         "../../specifications/assessments-update-post.yml",
         methods=["POST"],
-        endpoint="update_assessment",
+        endpoint="assessmentUpdate",
     )
     def post(assessment_id: int):
         if not assessment_id:

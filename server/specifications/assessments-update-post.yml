@@ -2,9 +2,16 @@ Create a new assessment
 ---
 tags:
   - Assessments
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+    example: 1
 requestBody:
   required: true
-  description: POST request body for /api/assessmentUpdate
+  description: POST request body for /api/assessmentUpdate/<int:assessment_id>
   content:
     application/json:
       schema:
@@ -31,9 +38,6 @@ requestBody:
           readingId:
             type: UUID
             example: a1198ed9-5055-4138-bff3-69c599bf6e5b
-          id:
-            type: string
-            example: 5
 responses:
   201:
     description: |

@@ -14,7 +14,11 @@ from validation import associations
 class Root(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/associations-post.yml", methods=["POST"])
+    @swag_from(
+        "../../specifications/patientAssociations-post.yml",
+        methods=["POST"],
+        endpoint="patientAssociations"
+    )
     def post():
         json: dict = request.get_json(force=True)
         error_message = associations.validate(json)
