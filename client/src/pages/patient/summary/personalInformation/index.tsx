@@ -1,5 +1,3 @@
-import { FormStatusEnum } from '../../../../enums';
-
 import { BasicInformation } from './basicInformation';
 import Button from '@material-ui/core/Button/Button';
 import { Divider } from 'semantic-ui-react';
@@ -8,9 +6,8 @@ import { Patient } from '@types';
 import React from 'react';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import Typography from '@material-ui/core/Typography';
-import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
 import { useStyles } from './styles';
+import { useHistory } from 'react-router-dom';
 
 interface IProps {
   selectedPatient: Patient;
@@ -25,17 +22,11 @@ export const PersonalInformation: React.FC<IProps> = ({
   onAddPatientRequired,
 }) => {
   const classes = useStyles();
-
-  const dispatch = useDispatch();
+  const history = useHistory();
 
   const editPatientInformation = (): void => {
     onAddPatientRequired((): void => {
-      dispatch(
-        push(`/readings/new`, {
-          patient: selectedPatient,
-          status: FormStatusEnum.EDIT_PATIENT_INFORMATION,
-        })
-      );
+      history.push('/patients/edit/' + selectedPatient.patientId);
     }, `You haven't added this patient to your health facility. You need to do that before you can edit this patient. Would like to add this patient?`);
   };
 

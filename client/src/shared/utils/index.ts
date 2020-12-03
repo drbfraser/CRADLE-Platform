@@ -61,12 +61,17 @@ export const getNumOfWeeks = (timestamp: number): number => {
   return Math.round(difference / (7 * 24 * 60 * 60 * 1000)) || 1;
 };
 
-export const getNumOfMonths = (timestamp: number): number | string => {
+export const getNumOfMonthsNumeric = (timestamp: number): number => {
   const todaysDate = new Date();
   const gestationalDate = new Date(timestamp * 1000);
   const difference = todaysDate.getTime() - gestationalDate.getTime();
   const numOfMonths = Math.floor(difference / (4 * 7 * 24 * 60 * 60 * 1000));
 
+  return numOfMonths;
+};
+
+export const getNumOfMonths = (timestamp: number): number | string => {
+  const numOfMonths = getNumOfMonthsNumeric(timestamp);
   return numOfMonths === 0 ? `Less than 1` : numOfMonths;
 };
 
@@ -160,6 +165,12 @@ export const sortPatientsByLastReading = (
 //~~~~~~~ Calculate Age based on DOB ~~~~~~~~~~
 export const getAgeBasedOnDOB = (value: string) => {
   return moment().diff(value, 'years');
+};
+
+export const getDOBForEstimatedAge = (age: number) => {
+  return moment()
+    .subtract(age + 0.5, 'years')
+    .format('YYYY-MM-DD');
 };
 
 export const GESTATIONAL_AGE_UNITS = {
