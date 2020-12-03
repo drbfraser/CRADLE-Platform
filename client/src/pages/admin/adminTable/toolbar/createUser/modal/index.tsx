@@ -48,6 +48,9 @@ export const CreateUserModal: React.FC<IProps> = ({
   handleSelectChange,
 }) => {
   const classes = useStyles();
+  //if the user selects admin as the new role → the selection of Health care facility is disabled
+  const ifNeedHealthFacility =
+    values.role?.value === 'ADMIN' ? true : values.healthFacilityName;
 
   const disableSubmit = React.useMemo((): boolean => {
     return (
@@ -56,8 +59,8 @@ export const CreateUserModal: React.FC<IProps> = ({
       !values.email ||
       !values.firstName ||
       !values.password ||
-      !values.role
-      // !values.healthFacilityName
+      !values.role ||
+      !ifNeedHealthFacility
     );
   }, [errors, submitting, values]);
 
