@@ -73,13 +73,22 @@ export const CreateUser: React.FC = () => {
       { resetForm }: FormikHelpers<CreateUserData>
     ) => {
       setSubmitting(true);
-      const { role, ...otherData } = values;
+      const { role, healthFacilityName, ...otherData } = values;
       if (role?.value === 'ADMIN') {
         dispatch(
           registerUser({
             ...otherData,
             role: role.value,
             healthFacilityName: 'Null',
+          })
+        );
+        resetForm();
+      } else if (role && healthFacilityName) {
+        dispatch(
+          registerUser({
+            ...otherData,
+            role: role.value,
+            healthFacilityName: healthFacilityName.value,
           })
         );
         resetForm();
