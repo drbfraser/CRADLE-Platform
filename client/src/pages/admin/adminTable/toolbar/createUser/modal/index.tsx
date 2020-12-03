@@ -56,8 +56,8 @@ export const CreateUserModal: React.FC<IProps> = ({
       !values.email ||
       !values.firstName ||
       !values.password ||
-      !values.role ||
-      !values.healthFacilityName
+      !values.role
+      // !values.healthFacilityName
     );
   }, [errors, submitting, values]);
 
@@ -138,7 +138,7 @@ export const CreateUserModal: React.FC<IProps> = ({
           <AutocompleteInput
             label="Health Facility"
             options={healthFacilityOptions}
-            disabled = {values.role?.label==="ADMIN"}
+            disabled={values.role?.label === 'ADMIN'}
             placeholder="Pick a health facility"
             value={values.healthFacilityName}
             onChange={handleSelectChange(`healthFacilityName`)}
