@@ -5,7 +5,6 @@
 
 import api as new_api
 from controller.PasswordResetController import *
-from controller.ReferralsController import ReferralApi, ReferralInfo
 from controller.SMSController import *
 from controller.StatsController import *
 from controller.UsersController import *
@@ -39,9 +38,6 @@ def init(api):
     api.add_resource(UserEdit, "/api/user/edit/<int:id>")  # [POST]
     api.add_resource(UserDelete, "/api/user/delete/<int:id>")  # [DELETE]
     api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]
-
-    api.add_resource(ReferralApi, "/api/referral")  # [GET, POST]
-    api.add_resource(ReferralInfo, "/api/referral/<int:id>")  # [GET, PUT]
 
     api.add_resource(ForgotPassword, "/api/forgot")  # [POST]
     api.add_resource(ResetPassword, "/api/reset/<string:reset_token>")  # [PUT]
