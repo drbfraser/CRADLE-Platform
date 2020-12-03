@@ -128,7 +128,6 @@ const Page: React.FC<IProps> = (props) => {
             variant="outlined"
             name={'InstructionFollow'}
             value={props.assessment.InstructionFollow}
-            required={props.assessment.enabled}
             onChange={props.onChange}
           />
         </FormControl>
