@@ -96,7 +96,7 @@ class UpdateAssessment(Resource):
 
         updatedAssessment = crud.read(FollowUp, id=assessment_id)
         if not updatedAssessment:
-            abort(404, message=f"No assessment with id {json['id']}")
+            abort(404, message=f"No assessment with id {assessment_id}")
 
         json["readingId"] = updatedAssessment.readingId
 
