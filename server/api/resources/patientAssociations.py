@@ -17,7 +17,7 @@ class Root(Resource):
     @swag_from(
         "../../specifications/patientAssociations-post.yml",
         methods=["POST"],
-        endpoint="patientAssociations"
+        endpoint="patientAssociations",
     )
     def post():
         json: dict = request.get_json(force=True)

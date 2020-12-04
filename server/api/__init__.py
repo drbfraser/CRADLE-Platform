@@ -67,4 +67,6 @@ def __init_sync_resources(api: Api):
 def __init_patientAssociations_resources(api: Api):
     import api.resources.patientAssociations as r
 
-    api.add_resource(r.Root, "/api/patientAssociations", endpoint="patientAssociations_root")
+    api.add_resource(
+        r.Root, "/api/patientAssociations", endpoint="patientAssociations_root"
+    )
