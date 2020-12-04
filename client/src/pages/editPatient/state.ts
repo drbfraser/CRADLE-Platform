@@ -62,7 +62,11 @@ export const getPatientState = async (
   };
 
   const resp = await fetch(
-    BASE_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO,
+    BASE_URL +
+      EndpointEnum.PATIENTS +
+      '/' +
+      patientId +
+      EndpointEnum.PATIENT_INFO,
     fetchOptions
   );
 
