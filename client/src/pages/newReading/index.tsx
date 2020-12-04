@@ -14,6 +14,7 @@ import { Form, Formik } from 'formik';
 import Stepper from '@material-ui/core/Stepper/Stepper';
 import StepLabel from '@material-ui/core/StepLabel/StepLabel';
 import Step from '@material-ui/core/Step/Step';
+import { initialState } from './state';
 
 export const NewReadingPage = () => {
   const classes = useStyles();
@@ -70,7 +71,7 @@ export const NewReadingPage = () => {
       </Stepper>
       <br />
       <Formik
-        initialValues={{}}
+        initialValues={initialState}
         onSubmit={handleNext}>
         {() => (
           <Form>
