@@ -85,7 +85,7 @@ class UpdateAssessment(Resource):
     )
     def post(assessment_id: int):
         if not assessment_id:
-            abort(404, message=f"Assessment is required")
+            abort(404, message=f"Assessment id is required")
         json = request.get_json(force=True)
 
         json["dateAssessed"] = get_current_time()
@@ -94,16 +94,16 @@ class UpdateAssessment(Resource):
         user = util.current_user()
         json["healthcareWorkerId"] = user.id
 
-        updatedAssessment = crud.read(FollowUp, id=assessment_id)
-        if not updatedAssessment:
+        assessment = crud.read(FollowUp, id=assessment_id)
+        if not assessment:
             abort(404, message=f"No assessment with id {assessment_id}")
 
-        json["readingId"] = updatedAssessment.readingId
+        json["readingId"] = assessment.readingId
 
         error_message = assessments.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
 
-        crud.update(FollowUp, json, id=updatedAssessment.id)
+        crud.update(FollowUp, json, id=assessment.id)
 
-        return updatedAssessment.id, 201
+        return assessment.id, 201
