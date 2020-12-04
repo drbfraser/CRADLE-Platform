@@ -36,7 +36,7 @@ export const Symptoms = () => {
           <Grid item md={3}>
           {
             Object.entries(checkboxesCol1).map(([name, label]) => (
-              <>
+              <React.Fragment key={name}>
                 <Field
                   component={CheckboxWithLabel}
                   type="checkbox"
@@ -44,14 +44,14 @@ export const Symptoms = () => {
                   Label={{ label }}
                 />
                 <br/>
-              </>
+              </React.Fragment>
             ))
           }
           </Grid>
           <Grid item md={3}>
           {
             Object.entries(checkboxesCol2).map(([name, label]) => (
-              <>
+              <React.Fragment key={name}>
                 <Field
                   component={CheckboxWithLabel}
                   type="checkbox"
@@ -59,7 +59,7 @@ export const Symptoms = () => {
                   Label={{ label }}
                 />
                 <br/>
-              </>
+              </React.Fragment>
             ))
           }
           </Grid>

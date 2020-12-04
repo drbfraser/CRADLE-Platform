@@ -23,11 +23,19 @@ export enum ReadingField {
     oxygenSaturation = 'oxygenSaturation',
     temperature = 'temperature',
     // urine test
+    urineTest = 'urineTest',
     leukocytes = 'leukocytes',
     nitrites = 'nitrites',
     glucose = 'glucose',
     protein = 'protein',
     blood = 'blood',
+    // assessment
+    investigation = 'investigation',
+    finalDiagnosis = 'finalDiagnosis',
+    treatment = 'treatment',
+    medication = 'medication',
+    followUp = 'followUp',
+    followUpInstruc = 'followUpInstruc',
   }
   
   export const initialState = {
@@ -55,11 +63,19 @@ export enum ReadingField {
     [ReadingField.oxygenSaturation]: '',
     [ReadingField.temperature]: '',
     // urine test
+    [ReadingField.urineTest]: false,
     [ReadingField.leukocytes]: '',
     [ReadingField.nitrites]: '',
     [ReadingField.glucose]: '',
     [ReadingField.protein]: '',
     [ReadingField.blood]: '',
+    // assessment
+    [ReadingField.investigation]: '',
+    [ReadingField.finalDiagnosis]: '',
+    [ReadingField.treatment]: '',
+    [ReadingField.medication]: '',
+    [ReadingField.followUp]: false,
+    [ReadingField.followUpInstruc]: '',
   };
   
   export type ReadingState = typeof initialState;

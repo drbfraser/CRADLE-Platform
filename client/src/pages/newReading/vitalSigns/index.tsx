@@ -10,6 +10,7 @@ import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import { Field } from 'formik';
 import { ReadingField } from '../state';
+import { CheckboxWithLabel } from 'formik-material-ui';
 
 const urineTestFields = {
   [ReadingField.leukocytes]: 'Leukocytes',
@@ -125,12 +126,19 @@ export const VitalSigns = () => {
       <Grid item md>
         <Paper>
           <Box p={2}>
-            <h2>Urine Test</h2>
-            {/* Add checkbox to see if a urine test will be submitted */}
+            <h2>
+              Urine Test &nbsp; &nbsp;
+              <Field
+                style={{marginTop: -4, padding: 4}}
+                component={CheckboxWithLabel}
+                type="checkbox"
+                name={ReadingField.urineTest}
+              />
+            </h2>
             <Box pl={4} pr={4}>
             {
               Object.entries(urineTestFields).map(([name, label]) => (
-                <>
+                <React.Fragment key={name}>
                   <FormControl fullWidth variant="outlined" required>
                     <InputLabel>{label}</InputLabel>
                     <Field
@@ -147,7 +155,7 @@ export const VitalSigns = () => {
                     </Field>
                   </FormControl>
                   <br/><br/>
-                </>
+                </React.Fragment>
               ))
             }
             </Box>

@@ -64,7 +64,7 @@ export const NewReadingPage = () => {
       <br />
       <Stepper activeStep={pageNum}>
         {pages.map((page, idx) => (
-          <Step key={page.name}>
+          <Step key={idx}>
             <StepLabel>{page.name}</StepLabel>
           </Step>
         ))}
