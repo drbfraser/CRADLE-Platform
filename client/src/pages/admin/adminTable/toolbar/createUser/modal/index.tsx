@@ -50,8 +50,10 @@ export const CreateUserModal: React.FC<IProps> = ({
   const classes = useStyles();
 
   const disableSubmit = React.useMemo((): boolean => {
-    const ifNeedHealthFacility =
-      values.role?.value === 'ADMIN' ? true : values.healthFacilityName;
+    const isHealthFacilityMissing =
+      values.role?.value === 'ADMIN'
+        ? false
+        : values.healthFacilityName?.value.length === 0;
 
     return (
       submitting ||
@@ -60,7 +62,7 @@ export const CreateUserModal: React.FC<IProps> = ({
       !values.firstName ||
       !values.password ||
       !values.role ||
-      !ifNeedHealthFacility
+      isHealthFacilityMissing
     );
   }, [errors, submitting, values]);
 
