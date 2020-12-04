@@ -50,6 +50,12 @@ class Root(Resource):
 
         return follow_up.id, 201
 
+    @staticmethod
+    @jwt_required
+    def get():
+        follow_ups = crud.read_all(FollowUp)
+        return [marshal.marshal(f) for f in follow_ups]
+
 
 # /api/assessments/<int:assessment_id>
 class SingleAssessment(Resource):
