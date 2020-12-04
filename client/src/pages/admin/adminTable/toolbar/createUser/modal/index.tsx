@@ -145,7 +145,9 @@ export const CreateUserModal: React.FC<IProps> = ({
             options={healthFacilityOptions}
             disabled={values.role?.label === 'ADMIN'}
             placeholder="Pick a health facility"
-            value={values.healthFacilityName}
+            value={
+              values.role?.label === 'ADMIN' ? '' : values.healthFacilityName
+            }
             onChange={handleSelectChange(`healthFacilityName`)}
           />
         </div>
