@@ -10,53 +10,56 @@ import { Symptoms } from './symptoms';
 import { VitalSigns } from './vitalSigns';
 import { Assessment } from './assessment';
 import { Confirmation } from './confirmation';
-import { Form, Formik, FormikHelpers } from 'formik';
+import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import Stepper from '@material-ui/core/Stepper/Stepper';
 import StepLabel from '@material-ui/core/StepLabel/StepLabel';
 import Step from '@material-ui/core/Step/Step';
 import { initialState, ReadingState } from './state';
+import { assessmentValidationSchema } from './assessment/validation';
+import { symptomsValidationSchema } from './symptoms/validation';
+import { vitalSignsValidationSchema } from './vitalSigns/validation';
 
 export const NewReadingPage = () => {
   const classes = useStyles();
   const history = useHistory();
-  const [formState, setFormState] = useState(initialState);
   const [pageNum, setPageNum] = useState(0);
 
   const pages = [
     {
       name: 'Symptoms',
-      component: Symptoms
+      component: Symptoms,
+      validationSchema: symptomsValidationSchema,
     },
     {
       name: 'Vital Signs',
-      component: VitalSigns
+      component: VitalSigns,
+      validationSchema: vitalSignsValidationSchema,
     },
     {
       name: 'Assessment',
-      component: Assessment
+      component: Assessment,
+      validationSchema: assessmentValidationSchema,
     },
     {
       name: 'Confirmation',
-      component: Confirmation
-    }
+      component: Confirmation,
+      validationSchema: undefined,
+    },
   ];
 
   const PageComponent = pages[pageNum].component;
   const isFinalPage = pageNum === pages.length - 1;
 
-  const handleBack = (values: ReadingState) => {
-    setFormState(values);
-    setPageNum(pageNum - 1);
-  }
-
-  const handleNext = (values: ReadingState, helpers: FormikHelpers<ReadingState>) => {
+  const handleNext = (
+    values: ReadingState,
+    helpers: FormikHelpers<ReadingState>
+  ) => {
     if (isFinalPage) {
       alert('Create');
     } else {
       helpers.setTouched({});
-      setFormState(values);
-      setPageNum(pageNum + 1);
       helpers.setSubmitting(false);
+      setPageNum(pageNum + 1);
     }
   };
 
@@ -80,17 +83,24 @@ export const NewReadingPage = () => {
       </Stepper>
       <br />
       <Formik
-        initialValues={formState}
-        onSubmit={handleNext}>
-        {({values}) => (
+        initialValues={initialState}
+        onSubmit={handleNext}
+        validationSchema={pages[pageNum].validationSchema}
+      >
+        {(formikProps: FormikProps<ReadingState>) => (
           <Form>
-            <PageComponent values={values} />
+            <PageComponent formikProps={formikProps} />
             <br />
             <Button
               color="primary"
               disabled={pageNum === 0}
-              onClick={() => handleBack(values)}>
+              onClick={() => setPageNum(pageNum - 1)}>
               Back
+            </Button>
+            <Button
+              color="primary"
+              onClick={() => console.log(formikProps)}>
+              Log
             </Button>
             <Button
               variant="contained"

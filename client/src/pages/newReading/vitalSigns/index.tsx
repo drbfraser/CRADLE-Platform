@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import Paper from '@material-ui/core/Paper';
 import { Field } from 'formik';
 import { FormPageProps, ReadingField } from '../state';
@@ -16,16 +17,11 @@ const urineTestFields = {
   [ReadingField.glucose]: 'Glucose',
   [ReadingField.protein]: 'Protein',
   [ReadingField.blood]: 'Blood',
-}
+};
 
-const urineTestOptions = [
-  'NAD',
-  '+',
-  '++',
-  '+++'
-]
+const urineTestOptions = ['NAD', '+', '++', '+++'];
 
-export const VitalSigns = (props: FormPageProps) => {
+export const VitalSigns = ({formikProps}: FormPageProps) => {
   return (
     <Grid container spacing={2}>
       <Grid item md>
@@ -47,7 +43,8 @@ export const VitalSigns = (props: FormPageProps) => {
                   ),
                 }}
               />
-              <br /><br />
+              <br />
+              <br />
               <Field
                 component={TextField}
                 variant="outlined"
@@ -62,7 +59,8 @@ export const VitalSigns = (props: FormPageProps) => {
                   ),
                 }}
               />
-              <br /><br />
+              <br />
+              <br />
               <Field
                 component={TextField}
                 variant="outlined"
@@ -77,7 +75,8 @@ export const VitalSigns = (props: FormPageProps) => {
                   ),
                 }}
               />
-              <br /><br />
+              <br />
+              <br />
               <Field
                 component={TextField}
                 variant="outlined"
@@ -91,7 +90,8 @@ export const VitalSigns = (props: FormPageProps) => {
                   ),
                 }}
               />
-              <br /><br />
+              <br />
+              <br />
               <Field
                 component={TextField}
                 variant="outlined"
@@ -100,10 +100,13 @@ export const VitalSigns = (props: FormPageProps) => {
                 label={'Oxygen Saturation'}
                 name={ReadingField.oxygenSaturation}
                 InputProps={{
-                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                  endAdornment: (
+                    <InputAdornment position="end">%</InputAdornment>
+                  ),
                 }}
               />
-              <br /><br />
+              <br />
+              <br />
               <Field
                 component={TextField}
                 variant="outlined"
@@ -127,17 +130,18 @@ export const VitalSigns = (props: FormPageProps) => {
             <h2>
               Urine Test &nbsp; &nbsp;
               <Field
-                style={{marginTop: -4, padding: 4}}
+                style={{ marginTop: -4, padding: 4 }}
                 component={CheckboxWithLabel}
                 type="checkbox"
                 name={ReadingField.urineTest}
               />
             </h2>
             <Box pl={4} pr={4}>
-            {
-              Object.entries(urineTestFields).map(([name, label]) => {
-                const disabled = !props.values[ReadingField.urineTest];
+              {Object.entries(urineTestFields).map(([name, label]: [ReadingField, string]) => {
+                const disabled = !formikProps.values[ReadingField.urineTest];
                 const required = !disabled;
+                const errorMsg = formikProps.errors[name];
+                const hasError = formikProps.touched[name] && Boolean(errorMsg);
 
                 return (
                   <React.Fragment key={name}>
@@ -146,6 +150,7 @@ export const VitalSigns = (props: FormPageProps) => {
                       variant="outlined"
                       disabled={disabled}
                       required={required}
+                      error={hasError}
                     >
                       <InputLabel>{label}</InputLabel>
                       <Field
@@ -153,7 +158,6 @@ export const VitalSigns = (props: FormPageProps) => {
                         label={label}
                         name={name}
                         disabled={disabled}
-                        required={required}
                         >
                         {urineTestOptions.map((option) => (
                           <MenuItem key={option} value={option}>
@@ -161,16 +165,19 @@ export const VitalSigns = (props: FormPageProps) => {
                           </MenuItem>
                         ))}
                       </Field>
+                      {
+                        hasError && <FormHelperText>{errorMsg}</FormHelperText>
+                      }
                     </FormControl>
-                    <br/><br/>
+                    <br />
+                    <br />
                   </React.Fragment>
                 );
-              })
-            }
+              })}
             </Box>
           </Box>
         </Paper>
       </Grid>
     </Grid>
-  )
+  );
 };

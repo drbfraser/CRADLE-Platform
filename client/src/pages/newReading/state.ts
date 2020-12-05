@@ -1,3 +1,5 @@
+import { FormikProps } from 'formik';
+
 export enum ReadingField {
   // symptoms
   headache = 'headache',
@@ -81,5 +83,5 @@ export const initialState = {
 export type ReadingState = typeof initialState;
 
 export interface FormPageProps {
-  values: ReadingState 
-};
+  formikProps: FormikProps<ReadingState>
+}

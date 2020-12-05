@@ -6,7 +6,7 @@ import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import React from 'react';
 import { FormPageProps, ReadingField } from '../state';
 
-export const Assessment = (props: FormPageProps) => {
+export const Assessment = ({formikProps}: FormPageProps) => {
   return (
     <Paper>
       <Box p={2}>
@@ -62,7 +62,7 @@ export const Assessment = (props: FormPageProps) => {
                 component={CheckboxWithLabel}
                 type="checkbox"
                 name={ReadingField.followUp}
-                Label={{ label: "Follow-up Needed" }}
+                Label={{ label: 'Follow-up Needed' }}
               />
             </Grid>
             <Grid item sm={12} md={8}>
@@ -72,12 +72,12 @@ export const Assessment = (props: FormPageProps) => {
                 fullWidth
                 name={ReadingField.followUpInstruc}
                 label="Instructions for Follow-up"
-                disabled={!props.values[ReadingField.followUp]}
+                disabled={!formikProps.values[ReadingField.followUp]}
               />
             </Grid>
           </Grid>
         </Box>
       </Box>
     </Paper>
-  )
+  );
 };

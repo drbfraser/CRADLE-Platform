@@ -14,7 +14,7 @@ const checkboxesCol1 = {
   [ReadingField.feverish]: 'Feverish',
   [ReadingField.unwell]: 'Unwell',
   [ReadingField.fatigue]: 'Fatigue',
-}
+};
 
 const checkboxesCol2 = {
   [ReadingField.cough]: 'Cough',
@@ -24,17 +24,16 @@ const checkboxesCol2 = {
   [ReadingField.lossOfSense]: 'Loss of sense',
   [ReadingField.lossOfTaste]: 'Loss of taste',
   [ReadingField.lossOfSmell]: 'Loss of smell',
-}
+};
 
-export const Symptoms = (props: FormPageProps) => {
+export const Symptoms = ({formikProps}: FormPageProps) => {
   return (
     <Paper>
       <Box p={2}>
         <h2>Symptoms</h2>
         <Grid container>
           <Grid item md={3}>
-          {
-            Object.entries(checkboxesCol1).map(([name, label]) => (
+            {Object.entries(checkboxesCol1).map(([name, label]) => (
               <React.Fragment key={name}>
                 <Field
                   component={CheckboxWithLabel}
@@ -42,14 +41,12 @@ export const Symptoms = (props: FormPageProps) => {
                   name={name}
                   Label={{ label }}
                 />
-                <br/>
+                <br />
               </React.Fragment>
-            ))
-          }
+            ))}
           </Grid>
           <Grid item md={3}>
-          {
-            Object.entries(checkboxesCol2).map(([name, label]) => (
+            {Object.entries(checkboxesCol2).map(([name, label]) => (
               <React.Fragment key={name}>
                 <Field
                   component={CheckboxWithLabel}
@@ -57,10 +54,9 @@ export const Symptoms = (props: FormPageProps) => {
                   name={name}
                   Label={{ label }}
                 />
-                <br/>
+                <br />
               </React.Fragment>
-            ))
-          }
+            ))}
           </Grid>
           <Grid item md={6}>
             <Field
@@ -76,5 +72,5 @@ export const Symptoms = (props: FormPageProps) => {
         </Grid>
       </Box>
     </Paper>
-  )
+  );
 };
