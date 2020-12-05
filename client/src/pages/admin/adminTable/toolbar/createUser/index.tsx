@@ -58,6 +58,7 @@ export const CreateUser: React.FC = () => {
       healthFacilityName: null,
     },
     validationSchema: Yup.object({
+      //The backend has hard limits on the lengths of the strings, the frontend follows the same rules.
       email: Yup.string()
         .email(`Invalid email address`)
         .max(50, `Must be 50 characters or less`)
