@@ -49,16 +49,20 @@ export const EditUserModal: React.FC<IProps> = ({
           <TextInput
             name="firstName"
             value={user.firstName}
+            error={user.firstName.length > 25}
             label="First Name"
             placeholder="First Name"
             onChange={handleChange}
+            helperText="Must be 50 characters or less."
           />
           <TextInput
             name="email"
             value={user.email}
+            error={user.email.length > 50}
             label="Email"
             placeholder="Email"
             onChange={handleChange}
+            helperText="Must be 50 characters or less."
           />
           <AutocompleteInput
             label="Health Facility"
