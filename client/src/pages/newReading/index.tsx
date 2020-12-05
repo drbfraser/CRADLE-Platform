@@ -10,17 +10,18 @@ import { Symptoms } from './symptoms';
 import { VitalSigns } from './vitalSigns';
 import { Assessment } from './assessment';
 import { Confirmation } from './confirmation';
-import { Form, Formik } from 'formik';
+import { Form, Formik, FormikHelpers } from 'formik';
 import Stepper from '@material-ui/core/Stepper/Stepper';
 import StepLabel from '@material-ui/core/StepLabel/StepLabel';
 import Step from '@material-ui/core/Step/Step';
-import { initialState } from './state';
+import { initialState, ReadingState } from './state';
 
 export const NewReadingPage = () => {
   const classes = useStyles();
   const history = useHistory();
-
+  const [formState, setFormState] = useState(initialState);
   const [pageNum, setPageNum] = useState(0);
+
   const pages = [
     {
       name: 'Symptoms',
@@ -43,11 +44,19 @@ export const NewReadingPage = () => {
   const PageComponent = pages[pageNum].component;
   const isFinalPage = pageNum === pages.length - 1;
 
-  const handleNext = () => {
+  const handleBack = (values: ReadingState) => {
+    setFormState(values);
+    setPageNum(pageNum - 1);
+  }
+
+  const handleNext = (values: ReadingState, helpers: FormikHelpers<ReadingState>) => {
     if (isFinalPage) {
       alert('Create');
     } else {
+      helpers.setTouched({});
+      setFormState(values);
       setPageNum(pageNum + 1);
+      helpers.setSubmitting(false);
     }
   };
 
@@ -71,16 +80,16 @@ export const NewReadingPage = () => {
       </Stepper>
       <br />
       <Formik
-        initialValues={initialState}
+        initialValues={formState}
         onSubmit={handleNext}>
-        {() => (
+        {({values}) => (
           <Form>
-            <PageComponent />
+            <PageComponent values={values} />
             <br />
             <Button
               color="primary"
               disabled={pageNum === 0}
-              onClick={() => setPageNum(pageNum - 1)}>
+              onClick={() => handleBack(values)}>
               Back
             </Button>
             <Button

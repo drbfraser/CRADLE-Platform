@@ -1,13 +1,12 @@
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
 import { Field } from 'formik';
-import { CheckboxWithLabel } from 'formik-material-ui';
+import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import React from 'react';
-import { ReadingField } from '../state';
+import { FormPageProps, ReadingField } from '../state';
 
-export const Assessment = () => {
+export const Assessment = (props: FormPageProps) => {
   return (
     <Paper>
       <Box p={2}>
@@ -73,6 +72,7 @@ export const Assessment = () => {
                 fullWidth
                 name={ReadingField.followUpInstruc}
                 label="Instructions for Follow-up"
+                disabled={!props.values[ReadingField.followUp]}
               />
             </Grid>
           </Grid>

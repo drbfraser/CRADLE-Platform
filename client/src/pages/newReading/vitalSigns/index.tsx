@@ -6,11 +6,9 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
-import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField';
 import { Field } from 'formik';
-import { ReadingField } from '../state';
-import { CheckboxWithLabel } from 'formik-material-ui';
+import { FormPageProps, ReadingField } from '../state';
+import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
 
 const urineTestFields = {
   [ReadingField.leukocytes]: 'Leukocytes',
@@ -27,7 +25,7 @@ const urineTestOptions = [
   '+++'
 ]
 
-export const VitalSigns = () => {
+export const VitalSigns = (props: FormPageProps) => {
   return (
     <Grid container spacing={2}>
       <Grid item md>
@@ -137,26 +135,37 @@ export const VitalSigns = () => {
             </h2>
             <Box pl={4} pr={4}>
             {
-              Object.entries(urineTestFields).map(([name, label]) => (
-                <React.Fragment key={name}>
-                  <FormControl fullWidth variant="outlined" required>
-                    <InputLabel>{label}</InputLabel>
-                    <Field
-                      component={Select}
+              Object.entries(urineTestFields).map(([name, label]) => {
+                const disabled = !props.values[ReadingField.urineTest];
+                const required = !disabled;
+
+                return (
+                  <React.Fragment key={name}>
+                    <FormControl
                       fullWidth
-                      label={label}
-                      name={name}
-                      >
-                      {urineTestOptions.map((option) => (
-                        <MenuItem key={option} value={option}>
-                          {option}
-                        </MenuItem>
-                      ))}
-                    </Field>
-                  </FormControl>
-                  <br/><br/>
-                </React.Fragment>
-              ))
+                      variant="outlined"
+                      disabled={disabled}
+                      required={required}
+                    >
+                      <InputLabel>{label}</InputLabel>
+                      <Field
+                        component={Select}
+                        label={label}
+                        name={name}
+                        disabled={disabled}
+                        required={required}
+                        >
+                        {urineTestOptions.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Field>
+                    </FormControl>
+                    <br/><br/>
+                  </React.Fragment>
+                );
+              })
             }
             </Box>
           </Box>

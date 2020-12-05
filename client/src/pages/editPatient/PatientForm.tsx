@@ -105,7 +105,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       fullWidth
                       variant="outlined"
                       label="Household Number"
-                      name="householdNumber"
+                      name={PatientField.householdNumber}
                     />
                   </Grid>
                   <Grid item md={4}>

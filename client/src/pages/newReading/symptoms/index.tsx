@@ -2,10 +2,9 @@ import React from 'react';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
 import { Field } from 'formik';
-import { CheckboxWithLabel } from 'formik-material-ui';
-import { ReadingField } from '../state';
+import { CheckboxWithLabel, TextField } from 'formik-material-ui';
+import { FormPageProps, ReadingField } from '../state';
 
 const checkboxesCol1 = {
   [ReadingField.headache]: 'Headache',
@@ -27,7 +26,7 @@ const checkboxesCol2 = {
   [ReadingField.lossOfSmell]: 'Loss of smell',
 }
 
-export const Symptoms = () => {
+export const Symptoms = (props: FormPageProps) => {
   return (
     <Paper>
       <Box p={2}>
