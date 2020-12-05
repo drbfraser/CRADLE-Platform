@@ -15,8 +15,6 @@ import Stepper from '@material-ui/core/Stepper/Stepper';
 import StepLabel from '@material-ui/core/StepLabel/StepLabel';
 import Step from '@material-ui/core/Step/Step';
 import { initialState, ReadingState } from './state';
-import { assessmentValidationSchema } from './assessment/validation';
-import { symptomsValidationSchema } from './symptoms/validation';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
 
 export const NewReadingPage = () => {
@@ -28,7 +26,7 @@ export const NewReadingPage = () => {
     {
       name: 'Symptoms',
       component: Symptoms,
-      validationSchema: symptomsValidationSchema,
+      validationSchema: undefined,
     },
     {
       name: 'Vital Signs',
@@ -38,7 +36,7 @@ export const NewReadingPage = () => {
     {
       name: 'Assessment',
       component: Assessment,
-      validationSchema: assessmentValidationSchema,
+      validationSchema: undefined,
     },
     {
       name: 'Confirmation',
@@ -55,7 +53,7 @@ export const NewReadingPage = () => {
     helpers: FormikHelpers<ReadingState>
   ) => {
     if (isFinalPage) {
-      alert('Create');
+      console.log(values);
     } else {
       helpers.setTouched({});
       helpers.setSubmitting(false);
@@ -93,20 +91,16 @@ export const NewReadingPage = () => {
             <br />
             <Button
               color="primary"
-              disabled={pageNum === 0}
-              onClick={() => setPageNum(pageNum - 1)}>
+              onClick={() => setPageNum(pageNum - 1)}
+              disabled={pageNum === 0 || formikProps.isSubmitting}>
               Back
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => console.log(formikProps)}>
-              Log
             </Button>
             <Button
               variant="contained"
               color="primary"
               className={classes.right}
-              type="submit">
+              type="submit"
+              disabled={formikProps.isSubmitting}>
               {isFinalPage ? 'Create' : 'Next'}
             </Button>
           </Form>
