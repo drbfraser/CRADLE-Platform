@@ -53,7 +53,7 @@ export const EditUserModal: React.FC<IProps> = ({
             label="First Name"
             placeholder="First Name"
             onChange={handleChange}
-            helperText="Must be 50 characters or less."
+            helperText="Must be 25 characters or less."
           />
           <TextInput
             name="email"
