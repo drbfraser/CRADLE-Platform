@@ -60,9 +60,11 @@ export const CreateUser: React.FC = () => {
     validationSchema: Yup.object({
       email: Yup.string()
         .email(`Invalid email address`)
-        .max(120, `Must be 120 characters or less`)
+        .max(50, `Must be 50 characters or less`)
         .required(`Required`),
-      firstName: Yup.string().required(`Required`),
+      firstName: Yup.string()
+        .max(25, `Must be 25 characters or less`)
+        .required(`Required`),
       password: Yup.string()
         .max(20, `Must be 20 characters or less`)
         .min(6, `Must be at least 6 characters`)
