@@ -44,7 +44,7 @@ def get_random_patient_id():
 
 def test_pass_search_partial_initials():
     partial_patient_initials = "A"
-    url = BASE_URL + "/api/patient/global/" + partial_patient_initials
+    url = BASE_URL + "/api/patients/" + partial_patient_initials
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 200
@@ -56,7 +56,7 @@ def test_pass_search_partial_initials():
 
 def test_pass_search_full_patient_id():
     full_patient_id = "204652"
-    url = BASE_URL + "/api/patient/global/" + full_patient_id
+    url = BASE_URL + "/api/patients/" + full_patient_id
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 200
@@ -66,7 +66,7 @@ def test_pass_search_full_patient_id():
 
 def test_pass_search_full_initials():
     full_patient_initials = "BB"
-    url = BASE_URL + "/api/patient/global/" + full_patient_initials
+    url = BASE_URL + "/api/patients/" + full_patient_initials
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 200
@@ -76,7 +76,7 @@ def test_pass_search_full_initials():
 
 def test_no_id_matches():
     full_patient_id = "9872"
-    url = BASE_URL + "/api/patient/global/" + full_patient_id
+    url = BASE_URL + "/api/patients/" + full_patient_id
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 200
@@ -85,7 +85,7 @@ def test_no_id_matches():
 
 def test_no_initials_matches():
     full_initials = "CCC"
-    url = BASE_URL + "/api/patient/global/" + full_initials
+    url = BASE_URL + "/api/patients/" + full_initials
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
     assert response.status_code == 200
