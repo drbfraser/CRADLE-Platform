@@ -80,12 +80,12 @@ export const CreateUser: React.FC = () => {
 
       let healthFacilityValue = '';
 
-      if(role?.value === 'ADMIN') {
-          healthFacilityValue = 'Null';
+      if (role?.value === 'ADMIN') {
+        healthFacilityValue = 'Null';
       } else if (healthFacilityName) {
-          healthFacilityValue = healthFacilityName.value;
+        healthFacilityValue = healthFacilityName.value;
       }
-      
+
       if (role && healthFacilityValue) {
         dispatch(
           registerUser({
@@ -95,7 +95,7 @@ export const CreateUser: React.FC = () => {
           })
         );
         resetForm();
-      } 
+      }
     },
   });
 
