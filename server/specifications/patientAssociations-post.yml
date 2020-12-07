@@ -4,7 +4,7 @@ tags:
   - Patient Associations
 requestBody:
   required: true
-  description: POST request body for /api/associations
+  description: POST request body for /api/patientAssociations
   content:
     application/json:
       schema:
