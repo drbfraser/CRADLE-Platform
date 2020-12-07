@@ -19,10 +19,7 @@ interface IProps {
   ) => void;
 }
 
-export const MedicalInformation: React.FC<IProps> = ({
-  selectedPatient,
-  onAddPatientRequired,
-}) => {
+export const MedicalInformation: React.FC<IProps> = ({ selectedPatient }) => {
   const classes = useStyles({
     history: Boolean(
       selectedPatient.drugHistory || selectedPatient.medicalHistory

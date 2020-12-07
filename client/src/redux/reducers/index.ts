@@ -13,7 +13,6 @@ import {
   patientStatisticsReducer,
 } from '../reducers/patientStatistics';
 import { PatientsState, patientsReducer } from '../reducers/patients';
-import { ReadingState, readingReducer } from '../reducers/reading';
 import { StatisticsState, statisticsReducer } from '../reducers/statistics';
 import { UserState, userReducer } from '../reducers/user';
 
@@ -26,7 +25,6 @@ export type ReduxState = {
   chat: ChatState;
   healthFacilities: HealthFacilitiesState;
   newReadingStatus: NewReadingStatusState;
-  reading: ReadingState;
   patients: PatientsState;
   patientStatistics: PatientStatisticsState;
   statistics: StatisticsState;
@@ -41,7 +39,6 @@ const createRootReducer = (history: History) => {
     newReadingStatus: newReadingStatusReducer,
     patients: patientsReducer,
     patientStatistics: patientStatisticsReducer,
-    reading: readingReducer,
     router: connectRouter(history),
     statistics: statisticsReducer,
     user: userReducer,
