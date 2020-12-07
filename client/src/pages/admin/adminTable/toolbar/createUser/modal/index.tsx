@@ -50,6 +50,11 @@ export const CreateUserModal: React.FC<IProps> = ({
   const classes = useStyles();
 
   const disableSubmit = React.useMemo((): boolean => {
+    const isHealthFacilityMissing =
+      values.role?.value === 'ADMIN'
+        ? false
+        : values.healthFacilityName?.value.length === 0;
+
     return (
       submitting ||
       Object.entries(errors).length !== 0 ||
@@ -57,7 +62,7 @@ export const CreateUserModal: React.FC<IProps> = ({
       !values.firstName ||
       !values.password ||
       !values.role ||
-      !values.healthFacilityName
+      isHealthFacilityMissing
     );
   }, [errors, submitting, values]);
 
@@ -138,8 +143,11 @@ export const CreateUserModal: React.FC<IProps> = ({
           <AutocompleteInput
             label="Health Facility"
             options={healthFacilityOptions}
+            disabled={values.role?.label === 'ADMIN'}
             placeholder="Pick a health facility"
-            value={values.healthFacilityName}
+            value={
+              values.role?.label === 'ADMIN' ? '' : values.healthFacilityName
+            }
             onChange={handleSelectChange(`healthFacilityName`)}
           />
         </div>

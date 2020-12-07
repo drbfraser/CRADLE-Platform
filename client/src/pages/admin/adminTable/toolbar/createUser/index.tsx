@@ -77,12 +77,21 @@ export const CreateUser: React.FC = () => {
     ) => {
       setSubmitting(true);
       const { role, healthFacilityName, ...otherData } = values;
-      if (role && healthFacilityName) {
+
+      let healthFacilityValue = '';
+
+      if (role?.value === 'ADMIN') {
+        healthFacilityValue = 'Null';
+      } else if (healthFacilityName) {
+        healthFacilityValue = healthFacilityName.value;
+      }
+
+      if (role && healthFacilityValue) {
         dispatch(
           registerUser({
             ...otherData,
             role: role.value,
-            healthFacilityName: healthFacilityName.value,
+            healthFacilityName: healthFacilityValue,
           })
         );
         resetForm();
