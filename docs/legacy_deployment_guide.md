@@ -1,4 +1,4 @@
-#### Note: This is is a guide on how to deploy cradle to the SFU servers, the deployment architecture has changed. Deployment is now automated using GitLab CI/CD pipelines. For a manual deployment guide with the new deployment architecture, visit: https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform/-/wikis/Manual-Deployment-Guide
+#### Note: This is an old guide on how to deploy cradle to the SFU servers, the deployment architecture has changed. Deployment is now automated using GitLab CI/CD pipelines. For a manual deployment guide with the new deployment architecture, visit: https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform/-/wikis/Manual-Deployment-Guide
 
 This is a guide on how to deploy the current master branch to the remote VM
 

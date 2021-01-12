@@ -38,15 +38,19 @@ DB_PASSWORD=abcd1234
 JWT_SECRET_KEY=supersecretkey
 ```
 
+Note you may set these to any arbitrary values.
+
 ## 4. Spin up the Docker Containers
+
+From your OS's terminal (such as PowerShell in Windows) run:
 
 ```
 docker-compose up
 ```
 
-All the Docker images will build and then the Docker containers will start. You may use the `-d` option to run the Docker containers in the background.
+All the Docker images will build and then the Docker containers will start. You may add the `-d` option to run the Docker containers in the background.
 
-Now it's time to run the database migrations. Once the containers have fully started, run:
+Now it's time to run the database migrations. Once the containers have fully started, run the following command. If you did not use the `-d` option above, you may need to launch a new terminal.
 
 ```
 docker exec flask flask db upgrade
@@ -72,6 +76,7 @@ NPM is not run inside Docker (due to poor filesystem performance), so you'll nee
 
 ```
 cd client
+npm install
 npm start
 ```
 
