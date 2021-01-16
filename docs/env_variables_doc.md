@@ -11,8 +11,10 @@ Note that the majority of these are set in the Docker Compose file for consisten
 * `EMAIL_PASSWORD` - The password to the corresponding email fo the SMTP server
 
 ## Environment File
-Create a `.env` file in the `cradle-platform` directory:
+Create a `.env` file in the `cradle-platform` directory (the values may be any arbitrary values):
+
 ```
-DB_USERNAME=student
-DB_PASSWORD=123456
+DB_USERNAME=user
+DB_PASSWORD=abcd1234
+JWT_SECRET_KEY=supersecretkey
 ```
