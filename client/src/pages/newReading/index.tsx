@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useHistory } from 'react-router-dom';
+import { RouteComponentProps, useHistory } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -16,10 +16,21 @@ import StepLabel from '@material-ui/core/StepLabel/StepLabel';
 import Step from '@material-ui/core/Step/Step';
 import { initialState, ReadingState } from './state';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
+import { handleSubmit } from './handlers';
+import { Toast } from '../../shared/components/toast';
 
-export const NewReadingPage = () => {
+type Params = {
+  patientId: string;
+};
+
+export const NewReadingPage: React.FC<RouteComponentProps<Params>> = ({
+  match: {
+    params: { patientId },
+  },
+}) => {
   const classes = useStyles();
   const history = useHistory();
+  const [submitError, setSubmitError] = useState(false);
   const [pageNum, setPageNum] = useState(0);
 
   const pages = [
@@ -48,12 +59,17 @@ export const NewReadingPage = () => {
   const PageComponent = pages[pageNum].component;
   const isFinalPage = pageNum === pages.length - 1;
 
-  const handleNext = (
+  const handleNext = async (
     values: ReadingState,
     helpers: FormikHelpers<ReadingState>
   ) => {
     if (isFinalPage) {
-      console.log(values);
+      if (await handleSubmit(patientId, values)) {
+        history.goBack();
+      } else {
+        setSubmitError(true);
+        helpers.setSubmitting(false);
+      }
     } else {
       helpers.setTouched({});
       helpers.setSubmitting(false);
@@ -63,13 +79,20 @@ export const NewReadingPage = () => {
 
   return (
     <div className={classes.container}>
+      {submitError && (
+        <Toast
+          status="error"
+          message="Something went wrong on our end. Please try that again."
+          clearMessage={() => setSubmitError(false)}
+        />
+      )}
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton onClick={history.goBack}>
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">New Reading</Typography>
+        <Typography variant="h4">New Reading for ID {patientId}</Typography>
       </div>
       <br />
       <Stepper activeStep={pageNum}>

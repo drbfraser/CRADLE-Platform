@@ -59,7 +59,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/readings/new`,
+    to: `/readings/new/:patientId`,
   },
   {
     component: NewReadingObselete,
