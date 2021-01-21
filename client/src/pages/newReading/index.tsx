@@ -83,8 +83,7 @@ export const NewReadingPage = () => {
       <Formik
         initialValues={initialState}
         onSubmit={handleNext}
-        validationSchema={pages[pageNum].validationSchema}
-      >
+        validationSchema={pages[pageNum].validationSchema}>
         {(formikProps: FormikProps<ReadingState>) => (
           <Form>
             <PageComponent formikProps={formikProps} />

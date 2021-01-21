@@ -5,40 +5,29 @@ import Paper from '@material-ui/core/Paper';
 import { Field } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import { FormPageProps, ReadingField } from '../state';
+import { symptomNames } from './symptoms';
 
-const checkboxesCol1 = {
-  [ReadingField.headache]: 'Headache',
-  [ReadingField.blurredVision]: 'Blurred vision',
-  [ReadingField.abdominalPain]: 'Abdominal pain',
-  [ReadingField.bleeding]: 'Bleeding',
-  [ReadingField.feverish]: 'Feverish',
-  [ReadingField.unwell]: 'Unwell',
-  [ReadingField.fatigue]: 'Fatigue',
-};
+const symptomsLen = Object.keys(symptomNames).length;
+const symptomsLenHalf = Math.floor(symptomsLen / 2);
+const checkboxesCol1 = Object.entries(symptomNames).slice(0, symptomsLenHalf);
+const checkboxesCol2 = Object.entries(symptomNames).slice(
+  symptomsLenHalf,
+  symptomsLen
+);
 
-const checkboxesCol2 = {
-  [ReadingField.cough]: 'Cough',
-  [ReadingField.shortnessOfBreath]: 'Shortness of breath',
-  [ReadingField.soreThroat]: 'Sore throat',
-  [ReadingField.muscleAche]: 'Muscle ache',
-  [ReadingField.lossOfSense]: 'Loss of sense',
-  [ReadingField.lossOfTaste]: 'Loss of taste',
-  [ReadingField.lossOfSmell]: 'Loss of smell',
-};
-
-export const Symptoms = ({formikProps}: FormPageProps) => {
+export const Symptoms = ({ formikProps }: FormPageProps) => {
   return (
     <Paper>
       <Box p={2}>
         <h2>Symptoms</h2>
         <Grid container>
           <Grid item md={3}>
-            {Object.entries(checkboxesCol1).map(([name, label]) => (
-              <React.Fragment key={name}>
+            {checkboxesCol1.map(([field, label]) => (
+              <React.Fragment key={field}>
                 <Field
                   component={CheckboxWithLabel}
                   type="checkbox"
-                  name={name}
+                  name={field}
                   Label={{ label }}
                 />
                 <br />
@@ -46,12 +35,12 @@ export const Symptoms = ({formikProps}: FormPageProps) => {
             ))}
           </Grid>
           <Grid item md={3}>
-            {Object.entries(checkboxesCol2).map(([name, label]) => (
-              <React.Fragment key={name}>
+            {checkboxesCol2.map(([field, label]) => (
+              <React.Fragment key={field}>
                 <Field
                   component={CheckboxWithLabel}
                   type="checkbox"
-                  name={name}
+                  name={field}
                   Label={{ label }}
                 />
                 <br />

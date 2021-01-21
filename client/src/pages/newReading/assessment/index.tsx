@@ -6,7 +6,7 @@ import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import React from 'react';
 import { FormPageProps, ReadingField } from '../state';
 
-export const Assessment = ({formikProps}: FormPageProps) => {
+export const Assessment = ({ formikProps }: FormPageProps) => {
   return (
     <Paper>
       <Box p={2}>

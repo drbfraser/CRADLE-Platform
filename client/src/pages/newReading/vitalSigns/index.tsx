@@ -21,7 +21,7 @@ const urineTestFields = {
 
 const urineTestOptions = ['NAD', '+', '++', '+++'];
 
-export const VitalSigns = ({formikProps}: FormPageProps) => {
+export const VitalSigns = ({ formikProps }: FormPageProps) => {
   return (
     <Grid container spacing={2}>
       <Grid item md>
@@ -75,51 +75,6 @@ export const VitalSigns = ({formikProps}: FormPageProps) => {
                   ),
                 }}
               />
-              <br />
-              <br />
-              <Field
-                component={TextField}
-                variant="outlined"
-                type="number"
-                fullWidth
-                label={'Respiratory Rate'}
-                name={ReadingField.respiratoryRate}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">BPM</InputAdornment>
-                  ),
-                }}
-              />
-              <br />
-              <br />
-              <Field
-                component={TextField}
-                variant="outlined"
-                type="number"
-                fullWidth
-                label={'Oxygen Saturation'}
-                name={ReadingField.oxygenSaturation}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">%</InputAdornment>
-                  ),
-                }}
-              />
-              <br />
-              <br />
-              <Field
-                component={TextField}
-                variant="outlined"
-                type="number"
-                fullWidth
-                label={'Temperature'}
-                name={ReadingField.temperature}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">°C</InputAdornment>
-                  ),
-                }}
-              />
             </Box>
           </Box>
         </Paper>
@@ -137,43 +92,44 @@ export const VitalSigns = ({formikProps}: FormPageProps) => {
               />
             </h2>
             <Box pl={4} pr={4}>
-              {Object.entries(urineTestFields).map(([name, label]: [ReadingField, string]) => {
-                const disabled = !formikProps.values[ReadingField.urineTest];
-                const required = !disabled;
-                const errorMsg = formikProps.errors[name];
-                const hasError = formikProps.touched[name] && Boolean(errorMsg);
+              {Object.entries(urineTestFields).map(
+                ([name, label]: [ReadingField, string]) => {
+                  const disabled = !formikProps.values[ReadingField.urineTest];
+                  const required = !disabled;
+                  const errorMsg = formikProps.errors[name];
+                  const hasError =
+                    formikProps.touched[name] && Boolean(errorMsg);
 
-                return (
-                  <React.Fragment key={name}>
-                    <FormControl
-                      fullWidth
-                      variant="outlined"
-                      disabled={disabled}
-                      required={required}
-                      error={hasError}
-                    >
-                      <InputLabel>{label}</InputLabel>
-                      <Field
-                        component={Select}
-                        label={label}
-                        name={name}
+                  return (
+                    <React.Fragment key={name}>
+                      <FormControl
+                        fullWidth
+                        variant="outlined"
                         disabled={disabled}
-                        >
-                        {urineTestOptions.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Field>
-                      {
-                        hasError && <FormHelperText>{errorMsg}</FormHelperText>
-                      }
-                    </FormControl>
-                    <br />
-                    <br />
-                  </React.Fragment>
-                );
-              })}
+                        required={required}
+                        error={hasError}>
+                        <InputLabel>{label}</InputLabel>
+                        <Field
+                          component={Select}
+                          label={label}
+                          name={name}
+                          disabled={disabled}>
+                          {urineTestOptions.map((option) => (
+                            <MenuItem key={option} value={option}>
+                              {option}
+                            </MenuItem>
+                          ))}
+                        </Field>
+                        {hasError && (
+                          <FormHelperText>{errorMsg}</FormHelperText>
+                        )}
+                      </FormControl>
+                      <br />
+                      <br />
+                    </React.Fragment>
+                  );
+                }
+              )}
             </Box>
           </Box>
         </Paper>

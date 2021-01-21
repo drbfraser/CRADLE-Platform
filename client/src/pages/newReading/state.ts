@@ -21,9 +21,6 @@ export enum ReadingField {
   bpSystolic = 'bpSystolic',
   bpDiastolic = 'bpDiastolic',
   heartRateBPM = 'heartRateBPM',
-  respiratoryRate = 'respiratoryRate',
-  oxygenSaturation = 'oxygenSaturation',
-  temperature = 'temperature',
   // urine test
   urineTest = 'urineTest',
   leukocytes = 'leukocytes',
@@ -61,9 +58,6 @@ export const initialState = {
   [ReadingField.bpSystolic]: '',
   [ReadingField.bpDiastolic]: '',
   [ReadingField.heartRateBPM]: '',
-  [ReadingField.respiratoryRate]: '',
-  [ReadingField.oxygenSaturation]: '',
-  [ReadingField.temperature]: '',
   // urine test
   [ReadingField.urineTest]: false,
   [ReadingField.leukocytes]: '',
@@ -83,5 +77,5 @@ export const initialState = {
 export type ReadingState = typeof initialState;
 
 export interface FormPageProps {
-  formikProps: FormikProps<ReadingState>
+  formikProps: FormikProps<ReadingState>;
 }

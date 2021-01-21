@@ -5,8 +5,9 @@ import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { FormPageProps, ReadingField } from '../state';
+import { getSymptomsFromFormState } from '../symptoms/symptoms';
 
-export const Confirmation = ({formikProps}: FormPageProps) => {
+export const Confirmation = ({ formikProps }: FormPageProps) => {
   const classes = useStyles();
 
   return (
@@ -17,13 +18,13 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
         <Grid container spacing={2}>
           <Grid item xs sm={6}>
             <TextField
-              label="Symptoms"
-              value="SYMPTOMS"
-              multiline
+              disabled
               fullWidth
               variant="outlined"
+              multiline
               rows={3}
-              disabled
+              label="Symptoms"
+              value={getSymptomsFromFormState(formikProps.values).join(', ')}
             />
           </Grid>
           <Grid item xs sm={6}>
@@ -38,7 +39,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
             />
           </Grid>
         </Grid>
-        <br/><br/>
+        <br />
+        <br />
         <Grid container spacing={2}>
           <Grid item xs sm={6}>
             <h3>Vitals</h3>
@@ -49,7 +51,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Systolic"
               value={formikProps.values[ReadingField.bpSystolic]}
             />
-            <br/><br/>
+            <br />
+            <br />
             <TextField
               disabled
               fullWidth
@@ -57,7 +60,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Diastolic"
               value={formikProps.values[ReadingField.bpDiastolic]}
             />
-            <br/><br/>
+            <br />
+            <br />
             <TextField
               disabled
               fullWidth
@@ -65,32 +69,9 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Heart Rate"
               value={formikProps.values[ReadingField.heartRateBPM]}
             />
-            <br/><br/>
-            <TextField
-              disabled
-              fullWidth
-              variant="outlined"
-              label="Respiratory Rate"
-              value={formikProps.values[ReadingField.respiratoryRate]}
-            />
-            <br/><br/>
-            <TextField
-              disabled
-              fullWidth
-              variant="outlined"
-              label="Oxygen Saturation"
-              value={formikProps.values[ReadingField.oxygenSaturation]}
-            />
-            <br/><br/>
-            <TextField
-              disabled
-              fullWidth
-              variant="outlined"
-              label="Temperature"
-              value={formikProps.values[ReadingField.temperature]}
-            />
           </Grid>
-          <br/><br/>
+          <br />
+          <br />
           <Grid item xs sm={6}>
             <h3>Urine Test</h3>
             <TextField
@@ -100,7 +81,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Leukocytes"
               value={formikProps.values[ReadingField.leukocytes]}
             />
-            <br/><br/>
+            <br />
+            <br />
             <TextField
               disabled
               fullWidth
@@ -108,7 +90,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Nitrites"
               value={formikProps.values[ReadingField.nitrites]}
             />
-            <br/><br/>
+            <br />
+            <br />
             <TextField
               disabled
               fullWidth
@@ -116,7 +99,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Glucose"
               value={formikProps.values[ReadingField.glucose]}
             />
-            <br/><br/>
+            <br />
+            <br />
             <TextField
               disabled
               fullWidth
@@ -124,7 +108,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Protein"
               value={formikProps.values[ReadingField.protein]}
             />
-            <br/><br/>
+            <br />
+            <br />
             <TextField
               disabled
               fullWidth
@@ -132,7 +117,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Blood"
               value={formikProps.values[ReadingField.blood]}
             />
-            <br/><br/>
+            <br />
+            <br />
           </Grid>
         </Grid>
         <h3>Assessment</h3>
@@ -147,7 +133,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Special Investigations"
               value={formikProps.values[ReadingField.investigation]}
             />
-            <br/><br/>
+            <br />
+            <br />
             <TextField
               disabled
               fullWidth
@@ -157,7 +144,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Treatment / Operation"
               value={formikProps.values[ReadingField.treatment]}
             />
-            <br/><br/>
+            <br />
+            <br />
             <TextField
               disabled
               fullWidth
@@ -178,7 +166,8 @@ export const Confirmation = ({formikProps}: FormPageProps) => {
               label="Final Diagnosis"
               value={formikProps.values[ReadingField.finalDiagnosis]}
             />
-            <br/><br/>
+            <br />
+            <br />
             <TextField
               disabled
               fullWidth
