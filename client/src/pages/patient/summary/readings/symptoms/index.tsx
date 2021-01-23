@@ -21,18 +21,20 @@ export const Symptoms: React.FC<IProps> = ({ symptoms }) => {
 
   return (
     <>
-      {filteredSymptoms.length ? (
+      {filteredSymptoms.length && (
         <div className={classes.container}>
           <b>Symptoms:</b>
           <p className={classes.content}>
             {filteredSymptoms.map(
               (symptom: string, index: number): JSX.Element => (
-                <span key={index}>{(index ? ', ' : '') + symptom}</span>
+                <React.Fragment key={index}>
+                  {(index ? ', ' : '') + symptom}
+                </React.Fragment>
               )
             )}
           </p>
         </div>
-      ) : null}
+      )}
     </>
   );
 };
