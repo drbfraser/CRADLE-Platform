@@ -18,6 +18,9 @@ import { initialState, ReadingState } from './state';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
 import { handleSubmit } from './handlers';
 import { Toast } from '../../shared/components/toast';
+import { ReduxState } from 'src/redux/reducers';
+import { useSelector } from 'react-redux';
+import { ActualUser } from '@types';
 
 type Params = {
   patientId: string;
@@ -32,6 +35,11 @@ export const NewReadingPage: React.FC<RouteComponentProps<Params>> = ({
   const history = useHistory();
   const [submitError, setSubmitError] = useState(false);
   const [pageNum, setPageNum] = useState(0);
+
+  // TODO: remove userId once the backend grabs the userId instead
+  const userId = useSelector(
+    (state: ReduxState) => (state.user.current.data as ActualUser).userId
+  );
 
   const pages = [
     {
@@ -64,7 +72,9 @@ export const NewReadingPage: React.FC<RouteComponentProps<Params>> = ({
     helpers: FormikHelpers<ReadingState>
   ) => {
     if (isFinalPage) {
-      if (await handleSubmit(patientId, values)) {
+      const submitSuccess = await handleSubmit(patientId, values, userId);
+
+      if (submitSuccess) {
         history.goBack();
       } else {
         setSubmitError(true);

@@ -12,29 +12,30 @@ const guid = () => {
   });
 };
 
-export const handleSubmit = async (patientId: string, values: ReadingState) => {
+export const handleSubmit = async (
+  patientId: string,
+  values: ReadingState,
+  userId: number
+) => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const readingGuid = guid();
-  const TODO = 1;
 
   // user ID and healthcare worker ID should be moved to the backend
   const submitValues = {
-    userId: TODO,
+    userId: userId,
     patientId: patientId,
     readingId: readingGuid,
     dateTimeTaken: currentTimestamp,
     bpDiastolic: values[ReadingField.bpDiastolic],
     bpSystolic: values[ReadingField.bpSystolic],
     heartRateBPM: values[ReadingField.heartRateBPM],
-    symptoms: getSymptomsFromFormState(values).concat([
-      values[ReadingField.otherSymptoms],
-    ]),
+    symptoms: getSymptomsFromFormState(values, true),
     followup: {
       dateAssessed: currentTimestamp,
       diagnosis: values[ReadingField.finalDiagnosis],
       followupInstructions: values[ReadingField.followUpInstruc],
       followupNeeded: values[ReadingField.followUp],
-      healthcareWorkerId: TODO,
+      healthcareWorkerId: userId,
       medicationPrescribed: values[ReadingField.medication],
       readingId: readingGuid,
       specialInvestigations: values[ReadingField.investigation],
@@ -61,7 +62,7 @@ export const handleSubmit = async (patientId: string, values: ReadingState) => {
     body: JSON.stringify(submitValues),
   };
 
-  let url = BASE_URL + EndpointEnum.READINGS;
+  const url = BASE_URL + EndpointEnum.READINGS;
 
   try {
     const resp = await fetch(url, fetchOptions);

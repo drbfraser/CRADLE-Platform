@@ -17,8 +17,17 @@ export const symptomNames = {
   [ReadingField.lossOfSmell]: 'Loss of smell',
 };
 
-export const getSymptomsFromFormState = (state: ReadingState) => {
-  return Object.entries(symptomNames)
+export const getSymptomsFromFormState = (
+  state: ReadingState,
+  includeOtherSymptoms = false
+) => {
+  const symptoms = Object.entries(symptomNames)
     .filter(([field]) => state[field as ReadingField])
     .map(([_, name]) => name);
+
+  if (includeOtherSymptoms && state[ReadingField.otherSymptoms].length !== 0) {
+    symptoms.push(state[ReadingField.otherSymptoms]);
+  }
+
+  return symptoms;
 };
