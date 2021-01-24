@@ -2,8 +2,8 @@
 
 Note that the majority of these are set in the Docker Compose file for consistency. Only `DB_USERNAME`, `DB_PASSWORD` and `JWT_SECRET_KEY` are stored in environment variables, for security.
 
-* `DB_USERNAME` - The username of the newly user that has access to your app database
-* `DB_PASSWORD` - The password of the root user, and the newly created the user that has access to your app database
+* `DB_USERNAME` - The username of the newly created user that has access to your app database
+* `DB_PASSWORD` - The password of the root user, and the newly created user that has access to your app database
 * `DB_HOSTNAME` - The hostname of the database.
 * `DB_PORT` - The port of the host specified by `DB_HOSTNAME` to connect to.
 * `JWT_SECRET_KEY` - the secret key used by Flask for access tokens
@@ -11,8 +11,10 @@ Note that the majority of these are set in the Docker Compose file for consisten
 * `EMAIL_PASSWORD` - The password to the corresponding email fo the SMTP server
 
 ## Environment File
-Create a `.env` file in the `cradle-platform` directory:
+Create a `.env` file in the `cradle-platform` directory (the values may be any arbitrary values):
+
 ```
-DB_USERNAME=student
-DB_PASSWORD=123456
+DB_USERNAME=user
+DB_PASSWORD=abcd1234
+JWT_SECRET_KEY=supersecretkey
 ```

@@ -13,7 +13,7 @@ def init_routes(api: Api):
     __init_assessment_resources(api)
     __init_facilities_resources(api)
     __init_sync_resources(api)
-    __init_associations_resources(api)
+    __init_patient_associations_resources(api)
 
 
 def __init_patients_resources(api: Api):
@@ -60,10 +60,13 @@ def __init_facilities_resources(api: Api):
 def __init_sync_resources(api: Api):
     import api.resources.sync as r
 
-    api.add_resource(r.Updates, "/api/sync/updates")
+    api.add_resource(r.UpdatesPatients, "/api/sync/patients")
+    api.add_resource(r.UpdatesReadings, "/api/sync/readings")
 
 
-def __init_associations_resources(api: Api):
-    import api.resources.associations as r
+def __init_patient_associations_resources(api: Api):
+    import api.resources.patientAssociations as r
 
-    api.add_resource(r.Root, "/api/associations", endpoint="association_root")
+    api.add_resource(
+        r.Root, "/api/patientAssociations", endpoint="patientAssociations_root"
+    )

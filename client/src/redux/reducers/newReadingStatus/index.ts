@@ -1,4 +1,4 @@
-import { ServerRequestAction, serverRequestActionCreator } from '../utils';
+import { serverRequestActionCreator } from '../utils';
 
 import { EndpointEnum } from '../../../server';
 import { MethodEnum } from '../../../server';
@@ -19,21 +19,6 @@ type NewReadingStatusAction =
       type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS;
       payload: NewReadingStatusPayload;
     };
-
-export const addNewReading = (data: any): ServerRequestAction => {
-  return serverRequestActionCreator({
-    endpoint: `${EndpointEnum.PATIENT}${EndpointEnum.READING}`,
-    method: MethodEnum.POST,
-    data,
-    onSuccess: (message: string): NewReadingStatusAction => ({
-      type: NewReadingStatusEnum.NEW_READING_STATUS_SUCCESS,
-      payload: { message },
-    }),
-    onError: (): NewReadingStatusAction => ({
-      type: NewReadingStatusEnum.NEW_READING_STATUS_ERROR,
-    }),
-  });
-};
 
 export const addReadingNew = (reading: any) => {
   return serverRequestActionCreator({

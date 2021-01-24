@@ -486,7 +486,7 @@ if __name__ == "__main__":
         type=str,
         help="path to manage.py script for seeding (default: server/manage.py)",
         metavar="PATH",
-        default="server/manage.py"
+        default="server/manage.py",
     )
     parser.add_argument(
         "--docker",
