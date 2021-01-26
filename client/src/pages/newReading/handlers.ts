@@ -12,7 +12,7 @@ const guid = () => {
   });
 };
 
-export const handleSubmit = async (
+const getSubmitObject = (
   patientId: string,
   values: ReadingState,
   userId: number
@@ -52,6 +52,16 @@ export const handleSubmit = async (
       urineTestPro: values[ReadingField.protein],
     };
   }
+
+  return submitValues;
+};
+
+export const handleSubmit = async (
+  patientId: string,
+  values: ReadingState,
+  userId: number
+) => {
+  const submitValues = getSubmitObject(patientId, values, userId);
 
   const fetchOptions = {
     method: 'POST',

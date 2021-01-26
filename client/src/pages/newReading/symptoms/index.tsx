@@ -7,45 +7,45 @@ import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import { FormPageProps, ReadingField } from '../state';
 import { symptomNames } from './symptoms';
 
+interface ICheckboxCol {
+  symptoms: [string, string][];
+}
+
 const symptomsLen = Object.keys(symptomNames).length;
 const symptomsLenHalf = Math.floor(symptomsLen / 2);
-const checkboxesCol1 = Object.entries(symptomNames).slice(0, symptomsLenHalf);
-const checkboxesCol2 = Object.entries(symptomNames).slice(
+const symptomsCol1 = Object.entries(symptomNames).slice(0, symptomsLenHalf);
+const symptomsCol2 = Object.entries(symptomNames).slice(
   symptomsLenHalf,
   symptomsLen
 );
 
 export const Symptoms = ({ formikProps }: FormPageProps) => {
+  const CheckboxColumn = ({ symptoms }: ICheckboxCol) => (
+    <>
+      {symptoms.map(([field, label]: [string, string]) => (
+        <React.Fragment key={field}>
+          <Field
+            component={CheckboxWithLabel}
+            type="checkbox"
+            name={field}
+            Label={{ label }}
+          />
+          <br />
+        </React.Fragment>
+      ))}
+    </>
+  );
+
   return (
     <Paper>
       <Box p={2}>
         <h2>Symptoms</h2>
         <Grid container>
           <Grid item md={3}>
-            {checkboxesCol1.map(([field, label]) => (
-              <React.Fragment key={field}>
-                <Field
-                  component={CheckboxWithLabel}
-                  type="checkbox"
-                  name={field}
-                  Label={{ label }}
-                />
-                <br />
-              </React.Fragment>
-            ))}
+            <CheckboxColumn symptoms={symptomsCol1} />
           </Grid>
           <Grid item md={3}>
-            {checkboxesCol2.map(([field, label]) => (
-              <React.Fragment key={field}>
-                <Field
-                  component={CheckboxWithLabel}
-                  type="checkbox"
-                  name={field}
-                  Label={{ label }}
-                />
-                <br />
-              </React.Fragment>
-            ))}
+            <CheckboxColumn symptoms={symptomsCol2} />
           </Grid>
           <Grid item md={6}>
             <Field
