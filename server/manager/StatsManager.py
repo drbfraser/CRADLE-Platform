@@ -5,7 +5,7 @@ from manager.ReadingManagerNew import ReadingManager  # reading data
 from manager.ReferralManager import ReferralManager  # referral data
 from manager.FollowUpManager import FollowUpManager  # assessment data
 import json
-from models import Reading, ReadingSchema
+from models import Reading, ReadingSchema, TrafficLightEnum
 
 patientManager = PatientManager()
 referralManager = ReferralManager()
@@ -44,24 +44,18 @@ class StatsManager:
                 data: the array that holds the traffic light counters
     """
 
-    def calculate_traffic_light_helper(self, record, data):
-        yellow_up_index = 1
-        yellow_down_index = 2
-        red_up_index = 3
-        red_down_index = 4
-        green_index = 0
+    def calculate_traffic_light_helper(self, record, data):      
+        traffic_light_indexes = {TrafficLightEnum.GREEN.value:0,
+                                 TrafficLightEnum.YELLOW_UP.value:1,
+                                 TrafficLightEnum.YELLOW_DOWN.value:2,
+                                 TrafficLightEnum.RED_UP.value:3,
+                                 TrafficLightEnum.RED_DOWN.value:4
+                                 }
 
-        if record["trafficLightStatus"] == "YELLOW_UP":
-            data[yellow_up_index] += 1
-        if record["trafficLightStatus"] == "YELLOW_DOWN":
-            data[yellow_down_index] += 1
-        if record["trafficLightStatus"] == "RED_UP":
-            data[red_up_index] += 1
-        if record["trafficLightStatus"] == "RED_DOWN":
-            data[red_down_index] += 1
-        if record["trafficLightStatus"] == "GREEN":
-            data[green_index] += 1
-
+        index = traffic_light_indexes[record["trafficLightStatus"]]
+        data[index] += 1
+        
+        
     """ 
         Description: calculates total number of readings, or referrals, or assessments per month for a given year (e.g 2020)
             Parameters: 
@@ -91,7 +85,9 @@ class StatsManager:
             for record in table:
                 dates = self.calculate_dates_helper(record, "dateTimeTaken")
                 if dates["record_year"] == dates["current_year"]:
+                    month_data_needed_for = 1
                     if dates["record_month"] == month_data_needed_for:
+
                         self.calculate_traffic_light_helper(record, data)
         return data
 
