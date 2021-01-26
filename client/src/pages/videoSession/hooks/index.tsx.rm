@@ -1,3 +1,5 @@
+// renamed to .rm to avoid this file being compiled (feature disabled therefore required NPM packages have been removed)
+
 import { IConfigArgs, config, copyToClipboard } from './utils';
 
 import $ from 'jquery';
