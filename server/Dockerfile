@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.7.6-buster
+FROM python:3.9.1-buster
 
 # create and set working directory
 RUN mkdir /usr/src/server
