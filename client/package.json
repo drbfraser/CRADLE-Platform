@@ -37,7 +37,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.22.0",
     "prettier": "^2.2.1",
-    "react-scripts": "^4.0.1",
+    "react-scripts": "3.4.4",
     "redux-devtools-extension": "^2.13.8",
     "typescript": "^3.9.7"
   },
@@ -64,13 +64,9 @@
     "react-router-dom": "5.2.0",
     "redux": "4.0.4",
     "redux-thunk": "2.3.0",
-    "rtcmulticonnection": "3.7.0",
     "sanitize.css": "7.0.3",
     "semantic-ui-react": "^0.88.1",
     "serve": "^11.3.2",
-    "socket.io": "2.3.0",
-    "sweetalert": "^2.1.2",
-    "typeface-roboto": "^0.0.75",
     "uuid": "^8.3.2",
     "yup": "^0.27.0"
   },
