@@ -63,9 +63,7 @@ class Session extends Component {
     if (this.props.isOpener) {
       this.openRoom();
 
-      copyToClipboard(
-        `https://${window.location.hostname + this.props.match.url}`
-      );
+      copyToClipboard(window.location.href);
 
       swal(
         'Room Link Copied to Clipboard',
