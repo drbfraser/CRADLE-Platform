@@ -1,105 +1,14 @@
-import 'typeface-roboto';
-
-import { Button, Header } from 'semantic-ui-react';
-import { createRoom, joinRoom } from './reducers/chat';
-
-import { CustomForm } from './customForm';
 import React from 'react';
-import { bindActionCreators } from 'redux';
-import classes from './styles.module.css';
-import { connect } from 'react-redux';
+import Box from '@material-ui/core/Box';
+import Paper from '@material-ui/core/Paper';
 
-interface IProps {
-  createRoom: any;
-  joinRoom: any;
-}
+const VideoChatPage = () => (
+  <Paper>
+    <Box p={2}>
+      <h1>Live Video Chat</h1>
+      <p>Video chat is currently unavailable.</p>
+    </Box>
+  </Paper>
+);
 
-interface IState {
-  roomId: any;
-  isOpener: any;
-  name: any;
-  createFormOpen: any;
-  enterFormOpen: any;
-}
-
-const Page: React.FC<IProps> = ({ createRoom, joinRoom }) => {
-  const [state, setState] = React.useState<IState>({
-    roomId: null,
-    isOpener: false,
-    name: null,
-    createFormOpen: false,
-    enterFormOpen: false,
-  });
-
-  const joinExistingRoom = (): void => joinRoom(state.roomId);
-
-  const handleRoomIdChange = (id: any): void =>
-    setState(
-      (currentState: IState): IState => ({ ...currentState, roomId: id })
-    );
-
-  const createNewRoom = (): void => {
-    const randomString = Math.random()
-      .toString(13)
-      .replace('0.', '')
-      .substring(0, 6);
-    createRoom(randomString);
-  };
-
-  const toggleEnterForm = (): void =>
-    setState(
-      (currentState: IState): IState => ({
-        ...currentState,
-        enterFormOpen: !currentState.enterFormOpen,
-        createFormOpen: false,
-        roomId: null,
-        isOpener: false,
-      })
-    );
-
-  return (
-    <div className={classes.container}>
-      <div className={classes.content}>
-        <Header as="h1">CradleChat</Header>
-        <Button
-          className={
-            state.createFormOpen ? classes.createRoom : classes.createRoomHidden
-          }
-          onClick={createNewRoom}>
-          Create Room
-        </Button>
-        <Button
-          className={
-            !state.createFormOpen && state.enterFormOpen
-              ? classes.enterRoom
-              : classes.enterRoomHidden
-          }
-          onClick={toggleEnterForm}>
-          Join Existing Room
-        </Button>
-        {state.enterFormOpen && (
-          <CustomForm
-            onRoomIdChange={handleRoomIdChange}
-            onSubmit={joinExistingRoom}
-          />
-        )}
-      </div>
-    </div>
-  );
-};
-
-const mapStateToProps = ({ chat }: any) => ({
-  isOpener: chat.isOpener,
-  roomId: chat.roomId,
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      createRoom,
-      joinRoom,
-    },
-    dispatch
-  );
-
-export const VideoChatPage = connect(mapStateToProps, mapDispatchToProps)(Page);
+export default VideoChatPage;

@@ -1,5 +1,7 @@
 // @ts-nocheck
 
+// renamed to .rm to avoid this file being compiled (feature disabled therefore required NPM packages have been removed)
+
 import * as RTCMultiConnection from 'rtcmulticonnection';
 import * as io from 'socket.io-client';
 
@@ -63,9 +65,7 @@ class Session extends Component {
     if (this.props.isOpener) {
       this.openRoom();
 
-      copyToClipboard(
-        `https://${window.location.hostname + this.props.match.url}`
-      );
+      copyToClipboard(window.location.href);
 
       swal(
         'Room Link Copied to Clipboard',
@@ -93,8 +93,8 @@ class Session extends Component {
   };
 
   config = (isLocal) => {
-    // this line is VERY_important
-    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+    // SECURITY WARNING: all connections go through someone else's server... we need to run our own copy
+    // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
     // all below lines are optional; however recommended.
 
