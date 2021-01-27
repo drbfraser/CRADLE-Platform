@@ -21,7 +21,7 @@ export const Symptoms: React.FC<IProps> = ({ symptoms }) => {
 
   return (
     <>
-      {filteredSymptoms.length && (
+      {filteredSymptoms.length ? (
         <div className={classes.container}>
           <b>Symptoms:</b>
           <p className={classes.content}>
@@ -34,6 +34,8 @@ export const Symptoms: React.FC<IProps> = ({ symptoms }) => {
             )}
           </p>
         </div>
+      ) : (
+        ''
       )}
     </>
   );

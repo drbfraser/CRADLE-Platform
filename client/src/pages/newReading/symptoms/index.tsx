@@ -6,6 +6,7 @@ import { Field } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import { FormPageProps, ReadingField } from '../state';
 import { symptomNames } from './symptoms';
+import { Typography } from '@material-ui/core';
 
 interface ICheckboxCol {
   symptoms: [string, string][];
@@ -59,6 +60,10 @@ export const Symptoms = ({ formikProps }: FormPageProps) => {
             />
           </Grid>
         </Grid>
+        <br />
+        <Typography color="textSecondary" variant="caption">
+          If the patient has no symptoms, click next.
+        </Typography>
       </Box>
     </Paper>
   );
