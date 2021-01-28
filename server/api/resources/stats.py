@@ -2,12 +2,13 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
+from manager.StatsManager import StatsManager
 
-
+statsManager = StatsManager()
 
 ## Building boilerplate for the future stats functions.
 class AllStats(Resource):
-    @staticmethod
+    
     @jwt_required
     @swag_from("../specifications/stats-all.yml", methods=["GET"])
 
@@ -62,7 +63,7 @@ class SentReferrals(Resource):
 class ReferredPatients(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-referred-patients.yml")
+    @swag_from("../../specifications/stats-referred-patients-get.yml")
 
     ## Get number of referred patients
     def get(self):
@@ -72,7 +73,7 @@ class ReferredPatients(Resource):
 class TimeFrameReadings(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-time-framed-readings.yml")
+    @swag_from("../../specifications/stats-time-framed-readings-get.yml")
 
     ## Get number of days during specified time frame in which there was >= 1 reading completed
     def get(self):

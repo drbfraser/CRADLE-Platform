@@ -7,13 +7,14 @@ import api as new_api
 from controller.PasswordResetController import *
 from controller.SMSController import *
 from controller.PatientsController import *
-from controller.StatsController import *
+# from controller.StatsController import *
 from controller.UsersController import *
 from api.resources.assessments import (
     Root as Assessments,
     SingleAssessment,
     UpdateAssessment,
 )
+from api.resources.stats import *
 from api.resources.patientAssociations import Root as PatientAssociations
 from api.resources.facilities import Root as Facilities
 from api.resources.patients import (
