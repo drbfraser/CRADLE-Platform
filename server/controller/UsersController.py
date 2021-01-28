@@ -204,7 +204,7 @@ class UserEdit(Resource):
         if not update_res:
             abort(400, message=f'No user exists with id "{id}"')
         else:
-            #Removed undesirable fields
+            # Removed undesirable fields
             update_res.pop("password")
             update_res.pop("username")
             return update_res
