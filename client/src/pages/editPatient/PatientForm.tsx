@@ -206,11 +206,11 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                     <Field
                       component={TextField}
                       fullWidth
-                      required
                       variant="outlined"
                       type="number"
                       label="Gestational Age"
                       name={PatientField.gestationalAge}
+                      required={values.isPregnant}
                       disabled={!values.isPregnant}
                     />
                   </Grid>
@@ -220,9 +220,9 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       <Field
                         component={Select}
                         fullWidth
-                        required
                         label="Gestational Age Unit"
                         name={PatientField.gestationalAgeUnit}
+                        required={values.isPregnant}
                         disabled={!values.isPregnant}>
                         {gestationalAgeUnitOptions.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
