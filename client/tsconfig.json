@@ -8,7 +8,7 @@
     ],
     "allowJs": true,
     "checkJs": false,
-    "jsx": "preserve",
+    "jsx": "react",
     "sourceMap": true,
     "outDir": "./build",
     "rootDir": "./src",
@@ -35,7 +35,8 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "noFallthroughCasesInSwitch": true
   },
   "exclude": [
     "node_modules",
