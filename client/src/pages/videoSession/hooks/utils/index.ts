@@ -15,8 +15,8 @@ export const config = ({
   onLocalConnected,
   onRemoteConnected,
 }: IConfigArgs): void => {
-  // this line is VERY_important
-  connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+  // SECURITY WARNING: all connections go through someone else's server... we need to run our own copy
+  // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
   // all below lines are optional; however recommended.
   connection.session = {

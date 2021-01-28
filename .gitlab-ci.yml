@@ -7,11 +7,13 @@ stages:
 variables:
   STAGING_BRANCH: "master"
   PROD_BRANCH: "prod"
+  NODE_IMAGE: "node:14"
+  PYTHON_IMAGE: "python:3.9.1-buster"
 
 frontend build:
   stage: build
   needs: []
-  image: node:10
+  image: $NODE_IMAGE
   tags:
     - docker
   rules:
@@ -37,7 +39,7 @@ frontend build:
 backend unit tests:
   stage: test
   needs: []
-  image: python:3.7.6-buster
+  image: $PYTHON_IMAGE
   tags:
     - docker
   rules:
@@ -59,7 +61,7 @@ backend unit tests:
 backend system tests:
   stage: test
   needs: []
-  image: python:3.7.6-buster
+  image: $PYTHON_IMAGE
   tags:
     - docker
   rules:
@@ -100,7 +102,7 @@ backend system tests:
 frontend lint:
   stage: format
   needs: []
-  image: node:10
+  image: $NODE_IMAGE
   tags:
     - docker
   rules:
@@ -117,7 +119,7 @@ frontend lint:
 frontend format:
   stage: format
   needs: []
-  image: node:10
+  image: $NODE_IMAGE
   tags:
     - docker
   rules:
@@ -134,7 +136,7 @@ frontend format:
 backend format:
   stage: format
   needs: []
-  image: python:3.7.6-buster
+  image: $PYTHON_IMAGE
   tags:
     - docker
   rules:
