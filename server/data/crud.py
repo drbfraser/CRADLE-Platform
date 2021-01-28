@@ -304,7 +304,7 @@ def read_all_referral_for_user(user: User, **kwargs) -> List[M]:
         return db_session.execute(sql_str_table + sql_str)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 
 def read_all_patients_db() -> List[M]:
@@ -400,3 +400,33 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
         "user u on s.vhtId = u.id "
         "where choId = " + str(cho_id)
     )
+
+
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+def get_unique_patients_with_readings():
+    """
+    Queries the database for unique patients with more than one reading 
+
+    :return: A number of unique patients
+    """
+
+    unique_patients = []
+    
+    query = """SELECT COUNT(pat.patientId) as patients
+        FROM(
+            SELECT DISTINCT(P.patientId)
+            FROM patient P JOIN reading R ON P.patientId = R.patientId
+            GROUP BY P.patientId
+            HAVING COUNT(R.readingID) > 0) as pat; 
+    """
+    try: 
+        result = db_session.execute(query)
+        return result
+    except Exception as e: 
+        print(e)
+
+    return unique_patients
