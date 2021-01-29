@@ -46,11 +46,6 @@ responses:
         schema:
           type: object
           properties:
-            password:
-              type: string
-              example: $2b$12$2YrL9TN6a601L8SSlzPu9OsvR/MfFqsVsEl9fC05VBbvsQ.m5TwQW
-            username:
-              type: string
             email:
               type: string
               example: alice@gmail.com
