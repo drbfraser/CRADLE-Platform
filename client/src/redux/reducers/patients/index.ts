@@ -23,7 +23,7 @@ import {
 import { Dispatch } from 'redux';
 import { EndpointEnum } from '../../../server';
 import { MethodEnum } from '../../../server';
-import { formatPatientData } from '../../../pages/newReading/formatData';
+import { formatPatientData } from '../../../pages/newReadingObselete/formatData';
 import { getPatientsWithReferrals } from './utils';
 import { goBack } from 'connected-react-router';
 

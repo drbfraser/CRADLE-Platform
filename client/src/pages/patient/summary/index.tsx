@@ -97,7 +97,7 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
   const addNewReading = (): void => {
     onAddPatientRequired(() => {
       dispatch(
-        push(`/readings/new`, {
+        push(`/readings/new/${selectedPatient.patientId}`, {
           patient: selectedPatient,
           status: FormStatusEnum.ADD_NEW_READING,
         })
