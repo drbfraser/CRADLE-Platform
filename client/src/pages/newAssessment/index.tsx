@@ -6,16 +6,13 @@ import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
 import { Button } from '@material-ui/core';
-import { Symptoms } from './symptoms';
-import { VitalSigns } from './vitalSigns';
 import { Assessment } from './assessment';
 import { Confirmation } from './confirmation';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import Stepper from '@material-ui/core/Stepper/Stepper';
 import StepLabel from '@material-ui/core/StepLabel/StepLabel';
 import Step from '@material-ui/core/Step/Step';
-import { initialState, ReadingState } from './state';
-import { vitalSignsValidationSchema } from './vitalSigns/validation';
+import { initialState, AssessmentState } from './state';
 import { handleSubmit } from './handlers';
 import { Toast } from '../../shared/components/toast';
 import { ReduxState } from 'src/redux/reducers';
@@ -24,9 +21,10 @@ import { ActualUser } from '@types';
 
 type RouteParams = {
   patientId: string;
+  assessmentId: string | undefined;
 };
 
-export const NewReadingPage = () => {
+export const NewAssessmentPage = () => {
   const classes = useStyles();
   const history = useHistory();
   const { patientId } = useRouteMatch<RouteParams>().params;
@@ -40,24 +38,12 @@ export const NewReadingPage = () => {
 
   const pages = [
     {
-      name: 'Symptoms',
-      component: Symptoms,
-      validationSchema: undefined,
-    },
-    {
-      name: 'Vital Signs',
-      component: VitalSigns,
-      validationSchema: vitalSignsValidationSchema,
-    },
-    {
       name: 'Assessment',
       component: Assessment,
-      validationSchema: undefined,
     },
     {
       name: 'Confirmation',
       component: Confirmation,
-      validationSchema: undefined,
     },
   ];
 
@@ -65,8 +51,8 @@ export const NewReadingPage = () => {
   const isFinalPage = pageNum === pages.length - 1;
 
   const handleNext = async (
-    values: ReadingState,
-    helpers: FormikHelpers<ReadingState>
+    values: AssessmentState,
+    helpers: FormikHelpers<AssessmentState>
   ) => {
     if (isFinalPage) {
       const submitSuccess = await handleSubmit(patientId, values, userId);
@@ -99,7 +85,7 @@ export const NewReadingPage = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">New Reading for ID {patientId}</Typography>
+        <Typography variant="h4">New Assessment for ID {patientId}</Typography>
       </div>
       <br />
       <Stepper activeStep={pageNum}>
@@ -110,11 +96,8 @@ export const NewReadingPage = () => {
         ))}
       </Stepper>
       <br />
-      <Formik
-        initialValues={initialState}
-        onSubmit={handleNext}
-        validationSchema={pages[pageNum].validationSchema}>
-        {(formikProps: FormikProps<ReadingState>) => (
+      <Formik initialValues={initialState} onSubmit={handleNext}>
+        {(formikProps: FormikProps<AssessmentState>) => (
           <Form>
             <PageComponent formikProps={formikProps} />
             <br />

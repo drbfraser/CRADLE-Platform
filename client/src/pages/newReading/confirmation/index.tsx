@@ -130,7 +130,7 @@ export const Confirmation = ({ formikProps }: FormPageProps) => {
               multiline
               rows={3}
               variant="outlined"
-              label="Special Investigations"
+              label="Investigation Results (if available)"
               value={formikProps.values[ReadingField.investigation]}
             />
             <br />

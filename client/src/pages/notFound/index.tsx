@@ -7,8 +7,8 @@ export const NotFoundPage: React.FC = () => (
       Page not found
     </Typography>
     <Typography variant="body1">
-      Use one of the navigation links in the menu to head back to one of the
-      pages
+      The page you are looking for could not be found. Use one of the navigation
+      links on the left hand side.
     </Typography>
   </>
 );

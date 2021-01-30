@@ -14,12 +14,11 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { StatisticsPage } from '../../../pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import VideoChatPage from '../../../pages/videoChat';
-// import { VideoSessionPage } from '../../../pages/videoSession';
 import VideocamIcon from '@material-ui/icons/Videocam';
 import { makeUniqueId } from '../../../shared/utils';
+import { NewAssessmentPage } from '../../../pages/newAssessment';
+import { NewPatientPage } from '../../../pages/newPatient';
 import { NewReadingPage } from '../../../pages/newReading';
-import { NewReadingObselete } from '../../../pages/newReadingObselete';
-import { EditPatientPage } from '../../../pages/editPatient';
 
 export type AppRoute = {
   component:
@@ -38,7 +37,7 @@ export type AppRoute = {
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
   {
-    component: EditPatientPage,
+    component: NewPatientPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -46,12 +45,12 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients/new`,
   },
   {
-    component: EditPatientPage,
-    exactPath: false,
+    component: NewPatientPage,
+    exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/edit/:editId`,
+    to: `/patients/edit/:patientId`,
   },
   {
     component: NewReadingPage,
@@ -62,12 +61,20 @@ export const appRoutes: Array<AppRoute> = [
     to: `/readings/new/:patientId`,
   },
   {
-    component: NewReadingObselete,
+    component: NewAssessmentPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/assessments/new`,
+    to: `/assessments/new/:patientId`,
+  },
+  {
+    component: NewAssessmentPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/assessments/edit/:patientId/:assessmentId`,
   },
   {
     component: ReferralsPage,
@@ -164,14 +171,6 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     to: `/covid/collection`,
   },
-  // {
-  //   component: VideoSessionPage,
-  //   exactPath: true,
-  //   id: makeUniqueId(),
-  //   inNavigation: false,
-  //   private: true,
-  //   to: `/chat/:roomId`,
-  // },
   {
     component: NotFoundPage,
     exactPath: false,
