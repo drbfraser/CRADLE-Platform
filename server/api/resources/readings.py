@@ -19,12 +19,17 @@ class Root(Resource):
     )
     def post():
         json = request.get_json(force=True)
+        print(json)
         error_message = readings.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
 
-        reading = marshal.unmarshal(Reading, json)
+        json.pop("respiratoryRate")
+        json.pop("temperature")
+        json.pop("oxygenSaturation")
 
+        reading = marshal.unmarshal(Reading, json)
+        
         if crud.read(Reading, readingId=reading.readingId):
             abort(409, message=f"A reading already exists with id: {reading.readingId}")
 

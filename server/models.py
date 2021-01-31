@@ -202,9 +202,11 @@ class Reading(db.Model):
     bpSystolic = db.Column(db.Integer)
     bpDiastolic = db.Column(db.Integer)
     heartRateBPM = db.Column(db.Integer)
+    '''
     respiratoryRate = db.Column(db.Integer)
     oxygenSaturation = db.Column(db.Integer)
     temperature = db.Column(db.Integer)
+    '''
     symptoms = db.Column(db.Text)
     trafficLightStatus = db.Column(db.Enum(TrafficLightEnum, nullable=False))
     dateTimeTaken = db.Column(db.BigInteger)

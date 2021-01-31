@@ -65,9 +65,6 @@ def validate(request_body: dict) -> Optional[str]:
             "bpDiastolic",
             "heartRateBPM",
             "userId",
-            "respiratoryRate",
-            "oxygenSaturation",
-            "temperature",
         ],
         int,
     )
