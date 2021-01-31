@@ -444,10 +444,29 @@ def get_total_readings_completed():
             SELECT COUNT(R.readingId) 
             FROM reading R
             """
-
     try:
         result = db_session.execute(query)
         return result
     except Exception as e:
+        print(e)
+        return None
+
+
+def get_total_color_readings():
+    """
+    Queries the database for total number different coloured readings (red up, yellow down, etc)
+
+    :return: Total number of respective coloured readings
+    """
+    query = """
+            SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus) 
+            FROM reading R
+            GROUP BY R.trafficLightStatus
+            """
+
+    try:
+        result = db_session.execute(query)
+        return result
+    except Exception as e: 
         print(e)
         return None

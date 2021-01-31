@@ -70,11 +70,17 @@ class TotalReadings(Resource):
 class ColorReadings(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-color-readings-get.yml")
+    @swag_from("../../specifications/stats-color-readings-get.yml",
+            methods = ["GET"],
+            endpoint = "stats_color_readings")
 
     ## Get number of varying coloured readings (red up, yellow down, etc.)
     def get():
-        pass
+        query_res = crud.get_total_color_readings()
+        res = {}
+        for row in query_res: 
+            res[row[0]] = row[1]
+        return jsonify({'color_readings': res})
 
 
 class SentReferrals(Resource):

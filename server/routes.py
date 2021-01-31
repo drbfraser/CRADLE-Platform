@@ -38,9 +38,9 @@ from api.resources.referrals import Root as Referrals, SingleReferral
 
 def init(api):
     api.add_resource(AllStats, "/api/stats")  # [GET]
-    api.add_resource(UniqueReadings, "/api/unique_readings")
-    api.add_resource(TotalReadings, "/api/total_readings")
-
+    api.add_resource(UniqueReadings, "/api/stats_unique_readings")  # [GET]
+    api.add_resource(TotalReadings, "/api/stats_total_readings")    # [GET]
+    api.add_resource(ColorReadings, "/api/stats_color_readings")    # [GET]
 
 
     api.add_resource(UserApi, "/api/user/register")  # [POST]
