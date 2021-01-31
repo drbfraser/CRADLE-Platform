@@ -8,8 +8,8 @@ import data.crud as crud
 
 statsManager = StatsManager()
 
-
-#TODO
+ 
+#TODO 1
 #   * Brian's initial idea for statistics:
 #     * Display number of unique patients on which they have done one or more readings
 #     * Display number of readings completed (total)
@@ -17,6 +17,9 @@ statsManager = StatsManager()
 #     * Display total number of referrals sent; 
 #     * Display total number of patients referred
 #     * Display number of days during the time frame on which they completed one or more readings.
+
+#TODO 2
+#     * error checks 
 
 
 class Root(Resource):
@@ -38,8 +41,6 @@ class UniqueReadings(Resource):
                 endpoint = 'unique_patients')
     
     ## Get unique patients with >= 1 readings
-
-    #TODO error checks 
     def get():
         query_res = crud.get_unique_patients_with_readings()
         res = 0
@@ -59,7 +60,11 @@ class TotalReadings(Resource):
 
     ## Get total number of readings completed
     def get():
-        pass
+        query_res = crud.get_total_readings_completed()
+        res = 0
+        for row in query_res: 
+            res = row[0]
+        return jsonify({'total_readings':res})
 
 
 class ColorReadings(Resource):

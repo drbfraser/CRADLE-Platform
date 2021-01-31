@@ -39,7 +39,7 @@ from api.resources.referrals import Root as Referrals, SingleReferral
 def init(api):
     api.add_resource(AllStats, "/api/stats")  # [GET]
     api.add_resource(UniqueReadings, "/api/unique_readings")
-
+    api.add_resource(TotalReadings, "/api/total_readings")
 
 
 
