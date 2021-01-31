@@ -407,15 +407,16 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
+#TODO add role based queries
+
 def get_unique_patients_with_readings():
+    
     """
     Queries the database for unique patients with more than one reading 
 
     :return: A number of unique patients
     """
 
-    unique_patients = []
-    
     query = """SELECT COUNT(pat.patientId) as patients
         FROM(
             SELECT DISTINCT(P.patientId)
@@ -428,5 +429,25 @@ def get_unique_patients_with_readings():
         return result
     except Exception as e: 
         print(e)
+        return None
 
-    return unique_patients
+
+
+def get_total_readings_completed(): 
+    """
+    Queries the database for total number of readings completed
+
+    :return: Number of total readings
+    """
+
+    query = """
+            SELECT COUNT(R.readingId) 
+            FROM reading R
+            """
+
+    try:
+        result = db_session.execute(query)
+        return result
+    except Exception as e:
+        print(e)
+        return None

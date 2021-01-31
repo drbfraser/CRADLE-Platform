@@ -32,12 +32,14 @@ class Root(Resource):
 
 class UniqueReadings(Resource):
     @staticmethod
-    # @jwt_required
+    @jwt_required
     @swag_from("../../specifications/stats-unique-patients-get.yml", 
                 methods = ["GET"], 
                 endpoint = 'unique_patients')
     
     ## Get unique patients with >= 1 readings
+
+    #TODO error checks 
     def get():
         query_res = crud.get_unique_patients_with_readings()
         res = 0
@@ -51,8 +53,10 @@ class UniqueReadings(Resource):
 class TotalReadings(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-total-readings-get.yml")
-    
+    @swag_from("../../specifications/stats-total-readings-get.yml",
+        methods = ["GET"], 
+        endpoint = "stats_total_readings")
+
     ## Get total number of readings completed
     def get():
         pass
