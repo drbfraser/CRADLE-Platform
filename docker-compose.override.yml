@@ -30,11 +30,11 @@ services:
     #       to look at our MySQL database and run queries,
     #       uncomment this (don't commit the change!)
     #       Access it at localhost:33080
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin:latest
-        ports:
-            - "33080:80"
-        environment:
-            PMA_HOST: mysql
-            PMA_USER: ${DB_USERNAME}
-            PMA_PASSWORD: ${DB_PASSWORD}
+    # phpmyadmin:
+    #     image: phpmyadmin/phpmyadmin:latest
+    #     ports:
+    #         - "33080:80"
+    #     environment:
+    #         PMA_HOST: mysql
+    #         PMA_USER: ${DB_USERNAME}
+    #         PMA_PASSWORD: ${DB_PASSWORD}

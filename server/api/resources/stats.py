@@ -39,8 +39,7 @@ class UniqueReadings(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-unique-patients-get.yml", 
-                methods = ["GET"], 
-                endpoint = 'unique_patients')
+                methods = ["GET"])
     
     ## Get unique patients with >= 1 readings
     def get():
@@ -57,8 +56,8 @@ class TotalReadings(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-total-readings-get.yml",
-        methods = ["GET"], 
-        endpoint = "stats_total_readings")
+        methods = ["GET"]
+        )
 
     ## Get total number of readings completed
     def get():
@@ -73,8 +72,7 @@ class ColorReadings(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-color-readings-get.yml",
-            methods = ["GET"],
-            endpoint = "stats_color_readings")
+            methods = ["GET"])
 
     ## Get number of varying coloured readings (red up, yellow down, etc.)
     def get():
@@ -89,8 +87,7 @@ class SentReferrals(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-sent-referrals-get.yml", 
-            methods = ["GET"],
-            endpoint = "stats_sent_referrals")
+            methods = ["GET"])
 
     ## Get total number of sent referrals 
     def get():
@@ -111,11 +108,11 @@ class ReferredPatients(Resource):
         pass
 
 
-class TimeFrameReadings(Resource):
-    @staticmethod
-    @jwt_required
-    @swag_from("../../specifications/stats-time-framed-readings-get.yml")
+# class TimeFrameReadings(Resource):
+#     @staticmethod
+#     @jwt_required
+#     @swag_from("../../specifications/stats-time-framed-readings-get.yml")
 
-    ## Get number of days during specified time frame in which there was >= 1 reading completed
-    def get():
-        pass
+#     ## Get number of days during specified time frame in which there was >= 1 reading completed
+#     def get():
+#         pass

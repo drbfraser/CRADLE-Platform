@@ -1,0 +1,62 @@
+Get overall stats
+---
+tags:
+  - Stats
+responses:
+  200:
+    description: Overall stats
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            readingsPerMonth:
+              type: array
+              items: integer
+              example: [6, 21, 47, 36, 41, 30, 28, 22, 22, 26, 16, 0]
+            referralsPerMonth:
+              type: array
+              items: integer
+              example: [61, 1, 0, 2, 4, 4, 4, 8, 3, 10, 13, 0]
+            assessmentsPerMonth:
+              type: array
+              items: integer
+              example: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0]
+            pregnantWomenReferredPerMonth:
+              type: array
+              items: integer
+              example: [1, 1, 0, 2, 4, 4, 4, 8, 3, 10, 12, 0]
+            pregnantWomenAssessedPerMonth:
+              type: array
+              items: integer
+              example: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0]
+            womenReferredPerMonth:
+              type: array
+              items: integer
+              example: [1, 1, 0, 2, 4, 4, 4, 8, 3, 10, 12, 0]
+            womenAssessedPerMonth:
+              type: array
+              items: integer
+              example: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0]
+            uniquePeopleAssesedPerMonth:
+              type: array
+              items: integer
+              example: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0]
+            trafficLightStatusLastMonth:
+              type: object
+              properties:
+                green:
+                  type: integer
+                  example: 22
+                yellowUp:
+                  type: integer
+                  example: 12
+                yellowDown:
+                  type: integer
+                  example: 2
+                redUp:
+                  type: integer
+                  example: 11
+                redDown:
+                  type: integer
+                  example: 0
