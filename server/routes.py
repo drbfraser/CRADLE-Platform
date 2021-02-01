@@ -41,7 +41,7 @@ def init(api):
     api.add_resource(UniqueReadings, "/api/stats_unique_readings")  # [GET]
     api.add_resource(TotalReadings, "/api/stats_total_readings")    # [GET]
     api.add_resource(ColorReadings, "/api/stats_color_readings")    # [GET]
-
+    api.add_resource(SentReferrals, "/api/stats_sent_referrals")
 
     api.add_resource(UserApi, "/api/user/register")  # [POST]
     api.add_resource(UserAuthApi, "/api/user/auth")  # [POST]

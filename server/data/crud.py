@@ -409,7 +409,7 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 
 #TODO add role based queries
 
-def get_unique_patients_with_readings():
+def get_unique_patients_with_readings() -> List[M]:
     
     """
     Queries the database for unique patients with more than one reading 
@@ -433,7 +433,7 @@ def get_unique_patients_with_readings():
 
 
 
-def get_total_readings_completed(): 
+def get_total_readings_completed() -> List[M]: 
     """
     Queries the database for total number of readings completed
 
@@ -452,7 +452,7 @@ def get_total_readings_completed():
         return None
 
 
-def get_total_color_readings():
+def get_total_color_readings() -> List[M]:
     """
     Queries the database for total number different coloured readings (red up, yellow down, etc)
 
@@ -470,3 +470,24 @@ def get_total_color_readings():
     except Exception as e: 
         print(e)
         return None
+
+
+
+def get_sent_referrals() -> List[M]:
+    """
+    Queries the database for total number of sent referrals
+
+    :return: Total number of sent referrals
+    """ 
+
+    query = """
+        SELECT COUNT(R.id)
+        FROM referral R
+    """
+    
+    try:
+        result = db_session.execute(query)
+        return result 
+    except Exception as e:
+        print(e)
+        return None 

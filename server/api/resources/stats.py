@@ -21,6 +21,8 @@ statsManager = StatsManager()
 #TODO 2
 #     * error checks 
 
+#TODO 3
+#     * ask about query locations and maybe move the queries from CRUD
 
 class Root(Resource):
     @staticmethod
@@ -86,12 +88,18 @@ class ColorReadings(Resource):
 class SentReferrals(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-sent-referrals-get.yml")
+    @swag_from("../../specifications/stats-sent-referrals-get.yml", 
+            methods = ["GET"],
+            endpoint = "stats_sent_referrals")
 
     ## Get total number of sent referrals 
     def get():
-        pass
-
+        res = 0
+        query_res = crud.get_sent_referrals()
+        for row in query_res:
+            res = row[0]
+        return jsonify({'sent_referrals':res})
+        
 
 class ReferredPatients(Resource):
     @staticmethod
