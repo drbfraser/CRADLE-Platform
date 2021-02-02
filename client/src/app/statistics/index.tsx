@@ -92,26 +92,6 @@ export const StatisticsMenuItem: React.FC<IProps> = ({
             className={classes.listItemInner}
             button={true}
             component={Link}
-            to="/covid/collection">
-            <ListItemIcon classes={{ root: classes.icon }}>
-              <PollIcon fontSize="large" />
-            </ListItemIcon>
-            <ListItemText
-              disableTypography
-              className={classes.itemText}
-              primary={
-                <Typography className={classes.sidebar}>
-                  Covid-19 Collection
-                </Typography>
-              }
-            />
-          </ListItem>
-        </MenuItem>
-        <MenuItem>
-          <ListItem
-            className={classes.listItemInner}
-            button={true}
-            component={Link}
             to="/stats">
             <ListItemIcon classes={{ root: classes.icon }}>
               <PollIcon fontSize="large" />

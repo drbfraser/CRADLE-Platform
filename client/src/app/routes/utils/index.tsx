@@ -1,5 +1,4 @@
 import { AdminPage } from '../../../pages/admin';
-import { CovidCollectionPage } from '../../../pages/statistics/covidCollection';
 import { LoginPage } from '../../../pages/login';
 import { NotFoundPage } from '../../../pages/notFound';
 import { PatientPage } from '../../../pages/patient';
@@ -156,14 +155,6 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     to: `/stats`,
   },
-  {
-    component: CovidCollectionPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/covid/collection`,
-  },
   // {
   //   component: VideoSessionPage,
   //   exactPath: true,
@@ -186,7 +177,7 @@ type RoutesNames = Record<string, string>;
 export const routesNames: RoutesNames = appRoutes.reduce(
   (routes: RoutesNames, route: AppRoute): RoutesNames => {
     // * Special match for analytics
-    if (route.to === `/covid/collection` || route.to === `/stats`) {
+    if (route.to === `/stats`) {
       routes[route.to] = `Analytics`;
     } else {
       routes[route.to ?? ``] = route.name ?? ``;
