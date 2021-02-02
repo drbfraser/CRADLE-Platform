@@ -501,3 +501,12 @@ def get_referred_patients() -> List[M]:
     except Exception as e:
         print(e)
         return None
+
+
+def get_days_with_readings(days : [int]):
+    """Queries the database for number of days within specified timeframe 
+        which have more than one reading
+    
+    :return: number of days"""
+
+    return None

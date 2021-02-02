@@ -120,8 +120,8 @@ class TimeFrameReadings(Resource):
 
     ## Get number of days during specified time frame in which there was >= 1 reading completed
     def post():
-        json = request.get_json(force = True) 
+        json = request.get_json(force = True)
         # TODO validate the post request 
-        print(json)
+        print(json["timeframe"])
         res = 0 
         return jsonify({'days_with_readings': res})
