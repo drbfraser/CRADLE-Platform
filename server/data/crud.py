@@ -410,12 +410,9 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 #TODO add role based queries
 
 def get_unique_patients_with_readings() -> List[M]:
-    
-    """
-    Queries the database for unique patients with more than one reading 
+    """Queries the database for unique patients with more than one reading 
 
-    :return: A number of unique patients
-    """
+    :return: A number of unique patients"""
 
     query = """SELECT COUNT(pat.patientId) as patients
         FROM(
@@ -434,11 +431,9 @@ def get_unique_patients_with_readings() -> List[M]:
 
 
 def get_total_readings_completed() -> List[M]: 
-    """
-    Queries the database for total number of readings completed
+    """Queries the database for total number of readings completed
 
-    :return: Number of total readings
-    """
+    :return: Number of total readings"""
 
     query = """
             SELECT COUNT(R.readingId) 
@@ -453,11 +448,10 @@ def get_total_readings_completed() -> List[M]:
 
 
 def get_total_color_readings() -> List[M]:
-    """
-    Queries the database for total number different coloured readings (red up, yellow down, etc)
+    """Queries the database for total number different coloured readings (red up, yellow down, etc)
 
-    :return: Total number of respective coloured readings
-    """
+    :return: Total number of respective coloured readings"""
+
     query = """
             SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus) 
             FROM reading R
@@ -474,11 +468,9 @@ def get_total_color_readings() -> List[M]:
 
 
 def get_sent_referrals() -> List[M]:
-    """
-    Queries the database for total number of sent referrals
+    """ Queries the database for total number of sent referrals
 
-    :return: Total number of sent referrals
-    """ 
+    :return: Total number of sent referrals""" 
 
     query = """
         SELECT COUNT(R.id)
@@ -491,3 +483,21 @@ def get_sent_referrals() -> List[M]:
     except Exception as e:
         print(e)
         return None 
+
+
+def get_referred_patients() -> List[M]:
+    """Queries the database for total number of patients that have referrals
+
+    :return: Total number of referred patients"""
+
+    query = """
+        SELECT COUNT(DISTINCT( R.patientId))
+        FROM referral R
+    """
+    
+    try:
+        result = db_session.execute(query)
+        return result
+    except Exception as e:
+        print(e)
+        return None

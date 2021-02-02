@@ -11,11 +11,11 @@ statsManager = StatsManager()
  
 #TODO 1
 #   * Brian's initial idea for statistics:
-#     * Display number of unique patients on which they have done one or more readings
-#     * Display number of readings completed (total)
-#     * Display number of green, yellow up, yellow down, red up, and red down readings.
-#     * Display total number of referrals sent; 
-#     * Display total number of patients referred
+#     * Display number of unique patients on which they have done one or more readings ✔
+#     * Display number of readings completed (total) ✔ 
+#     * Display number of green, yellow up, yellow down, red up, and red down readings. ✔
+#     * Display total number of referrals sent; ✔
+#     * Display total number of patients referred ✔
 #     * Display number of days during the time frame on which they completed one or more readings.
 
 #TODO 2
@@ -56,8 +56,7 @@ class TotalReadings(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-total-readings-get.yml",
-        methods = ["GET"]
-        )
+                methods = ["GET"])
 
     ## Get total number of readings completed
     def get():
@@ -72,7 +71,7 @@ class ColorReadings(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-color-readings-get.yml",
-            methods = ["GET"])
+                methods = ["GET"])
 
     ## Get number of varying coloured readings (red up, yellow down, etc.)
     def get():
@@ -87,7 +86,7 @@ class SentReferrals(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-sent-referrals-get.yml", 
-            methods = ["GET"])
+                methods = ["GET"])
 
     ## Get total number of sent referrals 
     def get():
@@ -101,18 +100,28 @@ class SentReferrals(Resource):
 class ReferredPatients(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-referred-patients-get.yml")
+    @swag_from("../../specifications/stats-referred-patients-get.yml",
+                methods = ["GET"])
 
     ## Get number of referred patients
     def get():
-        pass
+        res = 0
+        query_res = crud.get_referred_patients()
+        for row in query_res:
+            res = row[0]
+        return jsonify({'patients_referered': res})
 
 
-# class TimeFrameReadings(Resource):
-#     @staticmethod
-#     @jwt_required
-#     @swag_from("../../specifications/stats-time-framed-readings-get.yml")
+class TimeFrameReadings(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from("../../specifications/stats-time-framed-readings-get.yml", 
+                methods = ["POST"])
 
-#     ## Get number of days during specified time frame in which there was >= 1 reading completed
-#     def get():
-#         pass
+    ## Get number of days during specified time frame in which there was >= 1 reading completed
+    def post():
+        json = request.get_json(force = True) 
+        # TODO validate the post request 
+        print(json)
+        res = 0 
+        return jsonify({'days_with_readings': res})
