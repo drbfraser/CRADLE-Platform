@@ -43,7 +43,7 @@ def init(api):
     api.add_resource(TotalReadings, "/api/stats_total_readings")    # [GET]
     api.add_resource(ColorReadings, "/api/stats_color_readings")    # [GET]
     api.add_resource(SentReferrals, "/api/stats_sent_referrals")    # [GET]
-    api.add_resource(ReferredPatients, "/api/stats_referred_patients")    # [GET]
+    api.add_resource(ReferredPatients, "/api/stats_referred_patients")    # POST
     api.add_resource(TimeFrameReadings, "/api/stats_timeframe")    # [GET]
 
 

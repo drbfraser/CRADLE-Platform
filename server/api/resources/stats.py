@@ -15,7 +15,7 @@ statsManager = StatsManager()
 #     * Display number of readings completed (total) ✔ 
 #     * Display number of green, yellow up, yellow down, red up, and red down readings. ✔
 #     * Display total number of referrals sent; ✔
-#     * Display total number of patients referred ✔
+#     * Display total number of patients referred you YOUR facility ✔
 #     * Display number of days during the time frame on which they completed one or more readings.
 
 #TODO 2
@@ -101,16 +101,19 @@ class ReferredPatients(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-referred-patients-get.yml",
-                methods = ["GET"])
+                methods = ["POST"])
 
     ## Get number of referred patients
-    def get():
+    def post():
+        json = request.get_json(force = True)
         res = 0
-        query_res = crud.get_referred_patients()
-        for row in query_res:
-            res = row[0]
-        return jsonify({'patients_referered': res})
-
+        query_res = crud.get_referred_patients(json['referral_facility'])
+        if (query_res is not None):
+            for row in query_res:
+                res = row[0]
+            return jsonify({'patients_referered': res})
+        else:
+            return jsonify({'error':"invalid query"})
 
 class TimeFrameReadings(Resource):
     @staticmethod

@@ -485,7 +485,7 @@ def get_sent_referrals() -> List[M]:
         return None 
 
 
-def get_referred_patients() -> List[M]:
+def get_referred_patients(facility: str) -> List[M]:
     """Queries the database for total number of patients that have referrals
 
     :return: Total number of referred patients"""
@@ -493,7 +493,8 @@ def get_referred_patients() -> List[M]:
     query = """
         SELECT COUNT(DISTINCT( R.patientId))
         FROM referral R
-    """
+        WHERE R.referralHealthFacilityName= "%s" """ % str(facility)
+
     
     try:
         result = db_session.execute(query)
