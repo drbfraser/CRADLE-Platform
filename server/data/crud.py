@@ -486,7 +486,7 @@ def get_sent_referrals() -> List[M]:
 
 
 def get_referred_patients(facility: str) -> List[M]:
-    """Queries the database for total number of patients that have referrals
+    """Queries the database for total number of patients that have referrals to specified facility
 
     :return: Total number of referred patients"""
 
