@@ -1,5 +1,3 @@
-import { FormikProps } from 'formik';
-
 export enum AssessmentField {
   investigation = 'investigation',
   finalDiagnosis = 'finalDiagnosis',
@@ -20,6 +18,14 @@ export const initialState = {
 
 export type AssessmentState = typeof initialState;
 
-export interface FormPageProps {
-  formikProps: FormikProps<AssessmentState>;
+export const getAssessmentState = async (
+  assessmentId: string | undefined
+): Promise<AssessmentState> => {
+  if (assessmentId === undefined) {
+    return { ...initialState };
+  }
+
+  // to-do fetch assessment from server
+
+  return { ...initialState };
 }

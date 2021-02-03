@@ -1,9 +1,11 @@
 import { AssessmentState } from './state';
 
-export const handleSubmit = async (
+export const handleSubmit = (
   patientId: string,
-  values: AssessmentState,
-  userId: number
+  assessmentId: string | undefined,
+  history: any,
+  setSubmitError: (error: boolean) => void
 ) => {
-  return false;
-};
+  return async (values: AssessmentState, { setSubmitting }: any) => {
+  }
+}
