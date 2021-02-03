@@ -1,10 +1,14 @@
+import { EndpointEnum } from "../../../src/server";
+import { BASE_URL } from "../../../src/server/utils";
+
+// field names here match /api/assessments
 export enum AssessmentField {
-  investigation = 'investigation',
-  finalDiagnosis = 'finalDiagnosis',
+  investigation = 'specialInvestigations',
+  finalDiagnosis = 'diagnosis',
   treatment = 'treatment',
-  medication = 'medication',
-  followUp = 'followUp',
-  followUpInstruc = 'followUpInstruc',
+  medication = 'medicationPrescribed',
+  followUp = 'followupNeeded',
+  followUpInstruc = 'followupInstructions',
 }
 
 export const initialState = {
@@ -25,7 +29,18 @@ export const getAssessmentState = async (
     return { ...initialState };
   }
 
-  // to-do fetch assessment from server
+  const fetchOptions = {
+    headers: {
+      Authorization: 'Bearer ' + localStorage.getItem('token'),
+    },
+  };
 
-  return { ...initialState };
-}
+  const resp = await fetch(
+    BASE_URL + EndpointEnum.ASSESSMENTS + '/' + assessmentId,
+    fetchOptions
+  );
+
+  const state = await resp.json();
+
+  return state;
+};

@@ -10,18 +10,20 @@ import Typography from '@material-ui/core/Typography';
 import { AssessmentForm } from './AssessmentForm';
 
 type RouteParams = {
-  patientId: string;
+  readingId: string;
   assessmentId: string | undefined;
 };
 
 export const NewAssessmentPage = () => {
   const classes = useStyles();
   const history = useHistory();
-  const { patientId, assessmentId } = useRouteMatch<RouteParams>().params;
+  const { readingId, assessmentId } = useRouteMatch<RouteParams>().params;
   const [formInitialState, setFormInitialState] = useState<AssessmentState>();
 
   useEffect(() => {
-    getAssessmentState(assessmentId).then((state) => setFormInitialState(state));
+    getAssessmentState(assessmentId).then((state) =>
+      setFormInitialState(state)
+    );
   }, [assessmentId]);
 
   return (
@@ -33,7 +35,7 @@ export const NewAssessmentPage = () => {
           </IconButton>
         </Tooltip>
         <Typography variant="h4">
-          {assessmentId !== undefined ? 'Update Assessment' : 'New Assessment'} {`for Patient ${patientId}`}
+          {`${(assessmentId !== undefined ? 'Update' : 'New')} Assessment`}
         </Typography>
       </div>
       <br />
@@ -42,7 +44,7 @@ export const NewAssessmentPage = () => {
       ) : (
         <AssessmentForm
           initialState={formInitialState}
-          patientId={patientId}
+          readingId={readingId}
           assessmentId={assessmentId}
         />
       )}

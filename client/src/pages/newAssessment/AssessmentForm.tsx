@@ -13,15 +13,19 @@ import { AssessmentField, AssessmentState } from './state';
 
 interface IProps {
   initialState: AssessmentState;
-  patientId: string;
+  readingId: string;
   assessmentId: string | undefined;
 }
 
-export const AssessmentForm = ({ initialState, patientId, assessmentId }: IProps) => {
+export const AssessmentForm = ({
+  initialState,
+  readingId,
+  assessmentId,
+}: IProps) => {
   const classes = useStyles();
   const history = useHistory();
   const [submitError, setSubmitError] = useState(false);
-  
+
   return (
     <>
       {submitError && (
@@ -33,12 +37,13 @@ export const AssessmentForm = ({ initialState, patientId, assessmentId }: IProps
       )}
       <Formik
         initialValues={initialState}
-        onSubmit={handleSubmit(patientId, assessmentId, history, setSubmitError)}
-      >
-        {({
-          values,
-          isSubmitting,
-        }) => (
+        onSubmit={handleSubmit(
+          readingId,
+          assessmentId,
+          history,
+          setSubmitError
+        )}>
+        {({ values, isSubmitting }) => (
           <Form>
             <Paper>
               <Box p={2}>
