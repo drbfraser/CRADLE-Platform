@@ -13,9 +13,6 @@ import SendIcon from '@material-ui/icons/Send';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { StatisticsPage } from '../../../pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import VideoChatPage from '../../../pages/videoChat';
-// import { VideoSessionPage } from '../../../pages/videoSession';
-import VideocamIcon from '@material-ui/icons/Videocam';
 import { makeUniqueId } from '../../../shared/utils';
 import { NewReadingPage } from '../../../pages/newReading';
 import { NewReadingObselete } from '../../../pages/newReadingObselete';
@@ -92,17 +89,6 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients`,
   },
   {
-    component: VideoChatPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    icon: <VideocamIcon fontSize="large" />,
-    inNavigation: true,
-    name: `Chat`,
-    private: true,
-    title: `Live Video Chat`,
-    to: `/chat`,
-  },
-  {
     component: ResourcesPage,
     exactPath: true,
     id: makeUniqueId(),
@@ -164,14 +150,6 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     to: `/covid/collection`,
   },
-  // {
-  //   component: VideoSessionPage,
-  //   exactPath: true,
-  //   id: makeUniqueId(),
-  //   inNavigation: false,
-  //   private: true,
-  //   to: `/chat/:roomId`,
-  // },
   {
     component: NotFoundPage,
     exactPath: false,
