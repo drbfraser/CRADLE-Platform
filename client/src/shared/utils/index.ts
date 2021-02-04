@@ -171,7 +171,7 @@ export const getExactAgeOrNot = (dob: string, isExactDob: boolean) => {
   if (isExactDob) {
     return moment().diff(dob, 'years');
   }
-  return `about ${moment().diff(dob, 'years')}`;
+  return `${moment().diff(dob, 'years')} (estimated)`;
 };
 
 export const getDOBForEstimatedAge = (age: number) => {
