@@ -19,10 +19,16 @@ class Root(Resource):
     )
     def post():
         json = request.get_json(force=True)
-        print(json)
         error_message = readings.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
+
+        try:
+            json.pop("temperature")
+            json.pop("respiratoryRate")
+            json.pop("oxygenSaturation")
+        except KeyError:
+            pass
 
         reading = marshal.unmarshal(Reading, json)
 
