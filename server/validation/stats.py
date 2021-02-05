@@ -16,12 +16,15 @@ def validate_timestamp(request_body: dict) -> Optional[str]:
     error_message = None
     required_keys = ["from", "to"]
     error_message = required_keys_present(request_body, required_keys)
-
     if error_message is not None:
         return error_message
 
     list_of_values = [request_body.get("from"), request_body.get("to")]
-    print(list_of_values)
+
+    for value in list_of_values:
+        error_message = values_correct_type(request_body,value, str)
+        if error_message is not None:
+            return error_message
 
     return error_message
 
@@ -43,14 +46,13 @@ def validate_time_frame_readings(request_body: dict) -> Optional[str]:
 
     error_message = None
     # Check for required keys
-    required_keys = ["timeframe"]
+    required_keys = ["timeframe"]    
     error_message = required_keys_present(request_body, required_keys)
     if error_message is not None:
         return error_message
 
     # Check that the json is valid
-    error_message = validate_time_frame_readings(request_body.get('timeframe'))
+    error_message = validate_timestamp(request_body.get('timeframe'))
     if error_message is not None:
         return error_message
 
-    return error_message
