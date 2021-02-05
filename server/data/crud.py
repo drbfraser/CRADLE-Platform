@@ -504,10 +504,21 @@ def get_referred_patients(facility: str) -> List[M]:
         return None
 
 
-def get_days_with_readings(days : [int]):
+def get_days_with_readings(days : [str]):
     """Queries the database for number of days within specified timeframe 
         which have more than one reading
     
     :return: number of days"""
+    
+    query = """
+        SELECT COUNT(R.readingId)
+        FROM reading R
+        WHERE dateTimeTaken BETWEEN %s AND %s""" %((str(days[0])),(str(days[1])))
 
-    return None
+
+    try: 
+        result = db_session.execute(query)
+        return result 
+    except Exception as e:
+        print(e)
+        return None

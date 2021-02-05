@@ -100,7 +100,7 @@ class SentReferrals(Resource):
 class ReferredPatients(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-referred-patients-get.yml",
+    @swag_from("../../specifications/stats-referred-patients-post.yml",
                 methods = ["POST"])
 
     ## Get number of referred patients
@@ -118,13 +118,19 @@ class ReferredPatients(Resource):
 class TimeFrameReadings(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-time-framed-readings-get.yml", 
+    @swag_from("../../specifications/stats-time-framed-readings-post.yml", 
                 methods = ["POST"])
 
     ## Get number of days during specified time frame in which there was >= 1 reading completed
     def post():
         json = request.get_json(force = True)
         # TODO validate the post request 
-        print(json["timeframe"])
-        res = 0 
-        return jsonify({'days_with_readings': res})
+        timeframe = json['timeframe']
+        days = [timeframe['from'], timeframe['to']]
+        query_res = crud.get_days_with_readings(days)
+        if (query_res is not None):
+            for row in query_res:
+                res = row[0]
+            return jsonify({'days_with_readings': res})
+        else:
+            return jsonify({'error': "invalid query"})
