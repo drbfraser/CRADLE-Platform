@@ -6,6 +6,8 @@ from manager.StatsManager import StatsManager
 
 import data.crud as crud
 
+from validation import stats
+
 statsManager = StatsManager()
 
  
@@ -124,7 +126,11 @@ class TimeFrameReadings(Resource):
     ## Get number of days during specified time frame in which there was >= 1 reading completed
     def post():
         json = request.get_json(force = True)
-        # TODO validate the post request 
+        error_message = stats.validate_time_frame_readings(json)
+        if error_message is not None:
+            return jsonify({'error': error_message})
+
+
         timeframe = json['timeframe']
         days = [timeframe['from'], timeframe['to']]
         query_res = crud.get_days_with_readings(days)
