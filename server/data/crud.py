@@ -511,10 +511,9 @@ def get_days_with_readings(days : [str]):
     :return: number of days"""
     
     query = """
-        SELECT COUNT(R.readingId)
+        SELECT COUNT(DISTINCT(FLOOR(R.dateTimeTaken / 86400)))
         FROM reading R
         WHERE dateTimeTaken BETWEEN %s AND %s""" %((str(days[0])),(str(days[1])))
-
 
     try: 
         result = db_session.execute(query)
