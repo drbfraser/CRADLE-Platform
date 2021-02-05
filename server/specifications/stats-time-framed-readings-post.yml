@@ -1,7 +1,26 @@
-Get number of days with readings in between 
+Get number of days with readings in between two dates
 ---
 tags:
   - Stats
+requestBody:
+  required: true
+  description: Number of days with more than one reading in between two dates
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          timeframe:
+            type: object
+            properties:
+              from:
+                type: integer
+                minimum: 0
+                example: 1546702448
+              to:
+                type: integer
+                minimum: from
+                example: 1547212259
 responses:
   200:
     description: Overall stats
@@ -10,3 +29,7 @@ responses:
         schema:
           type: object
           properties:
+            days_with_readings:
+              type: integer
+              example: 5
+
