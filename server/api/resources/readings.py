@@ -23,13 +23,6 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        try:
-            json.pop("temperature")
-            json.pop("respiratoryRate")
-            json.pop("oxygenSaturation")
-        except KeyError:
-            pass
-
         reading = marshal.unmarshal(Reading, json)
 
         if crud.read(Reading, readingId=reading.readingId):
