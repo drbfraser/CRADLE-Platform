@@ -99,7 +99,9 @@ export const NewReadingPage = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">New Reading for Patient {patientId}</Typography>
+        <Typography variant="h4">
+          New Reading for Patient {patientId}
+        </Typography>
       </div>
       <br />
       <Stepper activeStep={pageNum}>

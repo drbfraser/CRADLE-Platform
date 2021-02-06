@@ -35,7 +35,7 @@ export const NewAssessmentPage = () => {
           </IconButton>
         </Tooltip>
         <Typography variant="h4">
-          {`${(assessmentId !== undefined ? 'Update' : 'New')} Assessment`}
+          {`${assessmentId !== undefined ? 'Update' : 'New'} Assessment`}
         </Typography>
       </div>
       <br />

@@ -1,5 +1,5 @@
-import { EndpointEnum } from "../../../src/server";
-import { BASE_URL } from "../../../src/server/utils";
+import { EndpointEnum } from '../../../src/server';
+import { BASE_URL } from '../../../src/server/utils';
 
 // field names here match /api/assessments
 export enum AssessmentField {

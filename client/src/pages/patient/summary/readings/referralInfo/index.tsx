@@ -33,10 +33,10 @@ export const ReferralInfo: React.FC<IProps> = ({
 
   const manageAssessment = (): void => {
     onAddPatientRequired((): void => {
-      if(followUp) {
-        dispatch(push(`/assessments/edit/${readingId}/${followUp.id}`))
+      if (followUp) {
+        dispatch(push(`/assessments/edit/${readingId}/${followUp.id}`));
       } else {
-        dispatch(push(`/assessments/new/${readingId}`))
+        dispatch(push(`/assessments/new/${readingId}`));
       }
     }, `You haven't added this patient to your health facility. You need to do that before you can edit this patient. Would like to add this patient?`);
   };
