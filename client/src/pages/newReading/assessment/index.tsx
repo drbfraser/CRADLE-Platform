@@ -72,6 +72,7 @@ export const Assessment = ({ formikProps }: FormPageProps) => {
                 fullWidth
                 name={ReadingField.followUpInstruc}
                 label="Instructions for Follow-up"
+                required={formikProps.values[ReadingField.followUp]}
                 disabled={!formikProps.values[ReadingField.followUp]}
               />
             </Grid>

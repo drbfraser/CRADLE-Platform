@@ -109,6 +109,7 @@ export const AssessmentForm = ({
                         fullWidth
                         name={AssessmentField.followUpInstruc}
                         label="Instructions for Follow-up"
+                        required={values[AssessmentField.followUp]}
                         disabled={!values[AssessmentField.followUp]}
                       />
                     </Grid>
