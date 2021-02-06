@@ -15,9 +15,6 @@ def validate(request_body: dict) -> Optional[str]:
                             "bpSystolic" : 150, - required
                             "bpDiastolic" : 150, - required
                             "heartRateBPM" : 35, - required
-                            "respiratoryRate": 14,
-                            "oxygenSaturation": 99,
-                            "temperature": 37,
                             "isFlaggedForFollowup" : True,
                             "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"], - required
                             "dateTimeTaken": 868545,

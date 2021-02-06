@@ -25,15 +25,6 @@ requestBody:
           heartRateBPM:
             type: integer - required
             example: 80
-          respiratoryRate:
-            type: integer | Null
-            example: 50
-          oxygenSaturation:
-            type: integer | Null
-            example: 80
-          temperature:
-            type: integer | Null
-            example: 38
           isFlaggedForFollowup:
             type: boolean | Null
             example: true
@@ -101,15 +92,6 @@ responses:
             heartRateBPM:
               type: integer
               example: 80
-            respiratoryRate:
-              type: integer | Null
-              example: 50
-            oxygenSaturation:
-              type: integer | Null
-              example: 80
-            temperature:
-              type: integer | Null
-              example: 38
             isFlaggedForFollowup:
               type: boolean | Null
               example: true
