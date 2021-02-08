@@ -103,13 +103,11 @@ class ReferredPatients(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-referred-patients-post.yml",
-                methods = ["POST"])
+                methods = ["GET"])
 
     ## Get number of referred patients
-    def post():
-        json = request.get_json(force = True)
-        res = 0
-        query_res = crud.get_referred_patients(json['referral_facility'])
+    def get(referral_facility: str):
+        query_res = crud.get_referred_patients(referral_facility)
         if (query_res is not None):
             for row in query_res:
                 res = row[0]
