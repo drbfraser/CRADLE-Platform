@@ -2,7 +2,7 @@
 let URL = `/api`;
 
 if (process.env.NODE_ENV === `development`) {
-  URL = `http://localhost:5000/api`;
+  URL = `http://${window.location.hostname}:5000/api`;
 }
 
 export const BASE_URL = URL;
