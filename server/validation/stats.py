@@ -56,15 +56,3 @@ def validate_time_frame_readings(request_body: dict) -> Optional[str]:
     if error_message is not None:
         return error_message
 
-
-def validate_reffered_patients(request_body: dict) -> Optional[str]:
-    """
-    Returns error message if the api/referred-patients post request 
-    contains errors / data fields are not valid
-
-    :param request_body: Request as a dict object
-        {   
-            "referral_facility":
-        }
-    """
-    pass

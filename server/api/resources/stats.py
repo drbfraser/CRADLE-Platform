@@ -44,8 +44,8 @@ class UniqueReadings(Resource):
                 methods = ["GET"])
     
     ## Get unique patients with >= 1 readings
-    def get():
-        query_res = crud.get_unique_patients_with_readings()
+    def get(vht_id: int):
+        query_res = crud.get_unique_patients_with_readings(vht_id)
         res = 0
         for row in query_res: 
             res = row[0]
@@ -61,8 +61,8 @@ class TotalReadings(Resource):
                 methods = ["GET"])
 
     ## Get total number of readings completed
-    def get():
-        query_res = crud.get_total_readings_completed()
+    def get(vht_id: str):
+        query_res = crud.get_total_readings_completed(vht_id)
         res = 0
         for row in query_res: 
             res = row[0]
@@ -76,7 +76,7 @@ class ColorReadings(Resource):
                 methods = ["GET"])
 
     ## Get number of varying coloured readings (red up, yellow down, etc.)
-    def get():
+    def get(vht: int):
         query_res = crud.get_total_color_readings()
         res = {}
         for row in query_res: 
@@ -91,9 +91,9 @@ class SentReferrals(Resource):
                 methods = ["GET"])
 
     ## Get total number of sent referrals 
-    def get():
+    def get(vht: int):
         res = 0
-        query_res = crud.get_sent_referrals()
+        query_res = crud.get_sent_referrals(vht)
         for row in query_res:
             res = row[0]
         return jsonify({'sent_referrals':res})

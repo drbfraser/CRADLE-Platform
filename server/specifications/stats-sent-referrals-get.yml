@@ -2,6 +2,12 @@ Get number of sent referrals
 ---
 tags:
   - Stats
+parameters:
+- in: path
+  name: vht
+  required: true
+  schema: 
+    type: integer
 responses:
   200:
     description: Number of sent referrals 

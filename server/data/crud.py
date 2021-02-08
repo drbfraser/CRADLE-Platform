@@ -409,18 +409,22 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 
 #TODO add role based queries
 
-def get_unique_patients_with_readings() -> List[M]:
+def get_unique_patients_with_readings(vht: int) -> List[M]:
     """Queries the database for unique patients with more than one reading 
 
     :return: A number of unique patients"""
 
+    #TODO fix query
     query = """SELECT COUNT(pat.patientId) as patients
         FROM(
             SELECT DISTINCT(P.patientId)
             FROM patient P JOIN reading R ON P.patientId = R.patientId
+            WHERE R.userId = %s
             GROUP BY P.patientId
-            HAVING COUNT(R.readingID) > 0) as pat; 
-    """
+            HAVING COUNT(R.readingID) > 0 ) as pat
+    """ % str(vht)
+
+
     try: 
         result = db_session.execute(query)
         return result
@@ -430,7 +434,7 @@ def get_unique_patients_with_readings() -> List[M]:
 
 
 
-def get_total_readings_completed() -> List[M]: 
+def get_total_readings_completed(vht: int) -> List[M]: 
     """Queries the database for total number of readings completed
 
     :return: Number of total readings"""
@@ -438,7 +442,8 @@ def get_total_readings_completed() -> List[M]:
     query = """
             SELECT COUNT(R.readingId) 
             FROM reading R
-            """
+            WHERE R.userId = %s
+            """ % str(vht)
     try:
         result = db_session.execute(query)
         return result
@@ -447,7 +452,7 @@ def get_total_readings_completed() -> List[M]:
         return None
 
 
-def get_total_color_readings() -> List[M]:
+def get_total_color_readings(vht: int) -> List[M]:
     """Queries the database for total number different coloured readings (red up, yellow down, etc)
 
     :return: Total number of respective coloured readings"""
@@ -455,8 +460,9 @@ def get_total_color_readings() -> List[M]:
     query = """
             SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus) 
             FROM reading R
+            WHERE R.userId= %s
             GROUP BY R.trafficLightStatus
-            """
+            """ % str(vht)
 
     try:
         result = db_session.execute(query)
@@ -467,7 +473,7 @@ def get_total_color_readings() -> List[M]:
 
 
 
-def get_sent_referrals() -> List[M]:
+def get_sent_referrals(vht: int) -> List[M]:
     """ Queries the database for total number of sent referrals
 
     :return: Total number of sent referrals""" 
@@ -475,7 +481,8 @@ def get_sent_referrals() -> List[M]:
     query = """
         SELECT COUNT(R.id)
         FROM referral R
-    """
+        WHERE userId = %s
+    """ % str(vht)
     
     try:
         result = db_session.execute(query)
