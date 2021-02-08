@@ -2,18 +2,12 @@ Get number of patients referred to a facility
 ---
 tags:
   - Stats
-requestBody:
+parameters:
+- in: path
+  name: referral_facility
   required: true
-  description: Get patients with Referrals to facility 
-  content: 
-    application/json:
-      schema:
-        type: object
-        properties:
-          referral_facility:
-            type: string
-            example : H0000
-
+  schema:
+    type: string
 responses:
   200:
     description: Returns number of patients referred

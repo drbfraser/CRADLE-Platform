@@ -102,7 +102,7 @@ class SentReferrals(Resource):
 class ReferredPatients(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-referred-patients-post.yml",
+    @swag_from("../../specifications/stats-referred-patients-get.yml",
                 methods = ["GET"])
 
     ## Get number of referred patients
