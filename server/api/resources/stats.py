@@ -61,7 +61,7 @@ class TotalReadings(Resource):
                 methods = ["GET"])
 
     ## Get total number of readings completed
-    def get(vht_id: str):
+    def get(vht_id: int):
         query_res = crud.get_total_readings_completed(vht_id)
         res = 0
         for row in query_res: 
@@ -76,8 +76,8 @@ class ColorReadings(Resource):
                 methods = ["GET"])
 
     ## Get number of varying coloured readings (red up, yellow down, etc.)
-    def get(vht: int):
-        query_res = crud.get_total_color_readings()
+    def get(vht_id: int):
+        query_res = crud.get_total_color_readings(vht_id)
         res = {}
         for row in query_res: 
             res[row[0]] = row[1]
@@ -91,9 +91,9 @@ class SentReferrals(Resource):
                 methods = ["GET"])
 
     ## Get total number of sent referrals 
-    def get(vht: int):
+    def get(vht_id: int):
         res = 0
-        query_res = crud.get_sent_referrals(vht)
+        query_res = crud.get_sent_referrals(vht_id)
         for row in query_res:
             res = row[0]
         return jsonify({'sent_referrals':res})

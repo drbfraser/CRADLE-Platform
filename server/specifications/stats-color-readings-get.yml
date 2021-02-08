@@ -2,6 +2,12 @@ Get overall stats
 ---
 tags:
   - Stats
+parameters:
+- in: path
+  name: vht
+  required: true
+  schema: 
+    type: integer
 responses:
   200:
     description: Overall stats

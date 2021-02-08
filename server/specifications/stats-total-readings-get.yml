@@ -2,6 +2,12 @@ Get total number of readings taken
 ---
 tags:
   - Stats
+parameters:
+- in: path
+  name: vht
+  required: true
+  schema: 
+    type: integer
 responses:
   200:
     description: Return number of readings taken total
