@@ -13,9 +13,9 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { StatisticsPage } from '../../../pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { makeUniqueId } from '../../../shared/utils';
-import { NewAssessmentPage } from '../../../pages/newAssessment';
-import { NewPatientPage } from '../../../pages/newPatient';
-import { NewReadingPage } from '../../../pages/newReading';
+import { AssessmentFormPage } from '../../../pages/assessmentForm';
+import { PatientFormPage } from '../../../pages/patientForm';
+import { ReadingFormPage } from '../../../pages/readingForm';
 import PollIcon from '@material-ui/icons/Poll';
 
 export type AppRoute = {
@@ -35,7 +35,7 @@ export type AppRoute = {
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
   {
-    component: NewPatientPage,
+    component: PatientFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -43,7 +43,7 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients/new`,
   },
   {
-    component: NewPatientPage,
+    component: PatientFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -51,7 +51,7 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients/edit/:patientId`,
   },
   {
-    component: NewReadingPage,
+    component: ReadingFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -59,7 +59,7 @@ export const appRoutes: Array<AppRoute> = [
     to: `/readings/new/:patientId`,
   },
   {
-    component: NewAssessmentPage,
+    component: AssessmentFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -67,7 +67,7 @@ export const appRoutes: Array<AppRoute> = [
     to: `/assessments/new/:readingId`,
   },
   {
-    component: NewAssessmentPage,
+    component: AssessmentFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,

@@ -14,7 +14,7 @@ type RouteParams = {
   assessmentId: string | undefined;
 };
 
-export const NewAssessmentPage = () => {
+export const AssessmentFormPage = () => {
   const classes = useStyles();
   const history = useHistory();
   const { readingId, assessmentId } = useRouteMatch<RouteParams>().params;

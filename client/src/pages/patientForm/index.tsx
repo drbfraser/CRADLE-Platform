@@ -13,7 +13,7 @@ type RouteParams = {
   patientId: string | undefined;
 };
 
-export const NewPatientPage = () => {
+export const PatientFormPage = () => {
   const classes = useStyles();
   const history = useHistory();
   const { patientId } = useRouteMatch<RouteParams>().params;

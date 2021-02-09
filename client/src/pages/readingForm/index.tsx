@@ -26,7 +26,7 @@ type RouteParams = {
   patientId: string;
 };
 
-export const NewReadingPage = () => {
+export const ReadingFormPage = () => {
   const classes = useStyles();
   const history = useHistory();
   const { patientId } = useRouteMatch<RouteParams>().params;
