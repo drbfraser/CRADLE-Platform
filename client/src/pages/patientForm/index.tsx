@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { PatientForm } from './PatientForm';
-import { RouteComponentProps, useHistory } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import { getPatientState, PatientState } from './state';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -9,22 +9,19 @@ import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
 
-type Params = {
-  editId: string | undefined;
+type RouteParams = {
+  patientId: string | undefined;
 };
 
-export const EditPatientPage: React.FC<RouteComponentProps<Params>> = ({
-  match: {
-    params: { editId },
-  },
-}) => {
+export const PatientFormPage = () => {
   const classes = useStyles();
   const history = useHistory();
+  const { patientId } = useRouteMatch<RouteParams>().params;
   const [formInitialState, setFormInitialState] = useState<PatientState>();
 
   useEffect(() => {
-    getPatientState(editId).then((state) => setFormInitialState(state));
-  }, [editId]);
+    getPatientState(patientId).then((state) => setFormInitialState(state));
+  }, [patientId]);
 
   return (
     <div className={classes.container}>
@@ -35,7 +32,7 @@ export const EditPatientPage: React.FC<RouteComponentProps<Params>> = ({
           </IconButton>
         </Tooltip>
         <Typography variant="h4">
-          {editId !== undefined ? 'Edit Patient' : 'New Patient'}
+          {patientId !== undefined ? 'Edit Patient' : 'New Patient'}
         </Typography>
       </div>
       <br />
@@ -44,7 +41,7 @@ export const EditPatientPage: React.FC<RouteComponentProps<Params>> = ({
       ) : (
         <PatientForm
           initialState={formInitialState}
-          creatingNew={editId === undefined}
+          creatingNew={patientId === undefined}
         />
       )}
     </div>

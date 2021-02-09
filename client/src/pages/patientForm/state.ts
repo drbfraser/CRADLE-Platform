@@ -3,7 +3,7 @@ import {
   getAgeBasedOnDOB,
   getNumOfMonthsNumeric,
   getNumOfWeeks,
-} from '../../../src/shared/utils';
+} from '../../shared/utils';
 import { EndpointEnum } from '../../server';
 import { BASE_URL } from '../../server/utils';
 

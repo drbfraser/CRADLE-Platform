@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { RouteComponentProps, useHistory } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -22,17 +22,14 @@ import { ReduxState } from 'src/redux/reducers';
 import { useSelector } from 'react-redux';
 import { ActualUser } from '@types';
 
-type Params = {
+type RouteParams = {
   patientId: string;
 };
 
-export const NewReadingPage: React.FC<RouteComponentProps<Params>> = ({
-  match: {
-    params: { patientId },
-  },
-}) => {
+export const ReadingFormPage = () => {
   const classes = useStyles();
   const history = useHistory();
+  const { patientId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);
   const [pageNum, setPageNum] = useState(0);
 
@@ -102,7 +99,9 @@ export const NewReadingPage: React.FC<RouteComponentProps<Params>> = ({
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">New Reading for ID {patientId}</Typography>
+        <Typography variant="h4">
+          New Reading for Patient {patientId}
+        </Typography>
       </div>
       <br />
       <Stepper activeStep={pageNum}>

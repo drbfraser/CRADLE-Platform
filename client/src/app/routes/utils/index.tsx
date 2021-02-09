@@ -13,9 +13,9 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { StatisticsPage } from '../../../pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { makeUniqueId } from '../../../shared/utils';
-import { NewReadingPage } from '../../../pages/newReading';
-import { NewReadingObselete } from '../../../pages/newReadingObselete';
-import { EditPatientPage } from '../../../pages/editPatient';
+import { AssessmentFormPage } from '../../../pages/assessmentForm';
+import { PatientFormPage } from '../../../pages/patientForm';
+import { ReadingFormPage } from '../../../pages/readingForm';
 import PollIcon from '@material-ui/icons/Poll';
 
 export type AppRoute = {
@@ -35,7 +35,7 @@ export type AppRoute = {
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
   {
-    component: EditPatientPage,
+    component: PatientFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -43,15 +43,15 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients/new`,
   },
   {
-    component: EditPatientPage,
-    exactPath: false,
+    component: PatientFormPage,
+    exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/edit/:editId`,
+    to: `/patients/edit/:patientId`,
   },
   {
-    component: NewReadingPage,
+    component: ReadingFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -59,12 +59,20 @@ export const appRoutes: Array<AppRoute> = [
     to: `/readings/new/:patientId`,
   },
   {
-    component: NewReadingObselete,
+    component: AssessmentFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/assessments/new`,
+    to: `/assessments/new/:readingId`,
+  },
+  {
+    component: AssessmentFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/assessments/edit/:readingId/:assessmentId`,
   },
   {
     component: ReferralsPage,

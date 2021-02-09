@@ -9,11 +9,7 @@ import {
   Referral,
   ServerError,
 } from '@types';
-import {
-  GestationalAgeUnitEnum,
-  PatientStateEnum,
-  SexEnum,
-} from '../../../enums';
+import { PatientStateEnum } from '../../../enums';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 import {
   calculateShockIndex,
@@ -23,7 +19,6 @@ import {
 import { Dispatch } from 'redux';
 import { EndpointEnum } from '../../../server';
 import { MethodEnum } from '../../../server';
-import { formatPatientData } from '../../../pages/newReadingObselete/formatData';
 import { getPatientsWithReferrals } from './utils';
 import { goBack } from 'connected-react-router';
 
@@ -52,9 +47,6 @@ enum PatientsActionEnum {
   UPDATE_SELECTED_PATIENT_STATE = 'patients/UPDATE_SELECTED_PATIENT_STATE',
   SORT_PATIENTS_TABLE_PATIENTS = 'patients/SORT_PATIENTS_TABLE_PATIENTS',
   SORT_REFERRALS_TABLE_PATIENTS = 'patients/SORT_REFERRALS_TABLE_PATIENTS',
-  UPDATE_PATIENT_REQUESTED = 'patient/UPDATE_PATIENT_REQUESTED',
-  UPDATE_PATIENT_SUCCESS = 'patient/UPDATE_PATIENT_SUCCESS',
-  UPDATE_PATIENT_ERROR = 'patients/UPDATE_PATIENT_ERROR',
   CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME = 'patients/CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME',
   ADD_NEW_PATIENT = 'patients/ADD_NEW_PATIENT',
   AFTER_NEW_PATIENT_ADDED = 'patients/AFTER_NEW_PATIENT_ADDED',
@@ -167,15 +159,6 @@ export type PatientsAction =
   | {
       type: PatientsActionEnum.SORT_REFERRALS_TABLE_PATIENTS;
       payload: { sortedPatients: Array<Patient> };
-    }
-  | { type: PatientsActionEnum.UPDATE_PATIENT_REQUESTED }
-  | {
-      type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS;
-      payload: { updatedPatient: ReturnType<typeof formatPatientData> };
-    }
-  | {
-      type: PatientsActionEnum.UPDATE_PATIENT_ERROR;
-      payload: { error: ServerError };
     }
   | { type: PatientsActionEnum.CLEAR_UPDATE_PATIENT_REQUEST_OUTCOME }
   | {
@@ -345,43 +328,6 @@ export const getPatient = (
         onError: ({ message }: ServerError): PatientsAction => ({
           type: PatientsActionEnum.GET_PATIENT_ERROR,
           payload: { error: message },
-        }),
-      })
-    );
-  };
-};
-
-const updatePatientRequested = (): PatientsAction => ({
-  type: PatientsActionEnum.UPDATE_PATIENT_REQUESTED,
-});
-
-export interface IUpdatePatientArgs {
-  data: ReturnType<typeof formatPatientData>;
-}
-
-export const updatePatient = ({
-  data,
-}: IUpdatePatientArgs): Callback<Dispatch, ServerRequestAction> => {
-  return (dispatch: Dispatch) => {
-    dispatch(updatePatientRequested());
-
-    return dispatch(
-      serverRequestActionCreator({
-        endpoint: `${EndpointEnum.PATIENTS}/${data.patientId}${EndpointEnum.PATIENT_INFO}`,
-        method: MethodEnum.PUT,
-        data,
-        onSuccess: (): PatientsAction => ({
-          type: PatientsActionEnum.UPDATE_PATIENT_SUCCESS,
-          payload: {
-            updatedPatient: {
-              ...data,
-              gestationalTimestamp: data.gestationalTimestamp * 1000,
-            },
-          },
-        }),
-        onError: (error: ServerError): PatientsAction => ({
-          type: PatientsActionEnum.UPDATE_PATIENT_ERROR,
-          payload: { error },
         }),
       })
     );
@@ -648,7 +594,6 @@ export const patientsReducer = (
   switch (action.type) {
     case PatientsActionEnum.GET_PATIENTS_REQUESTED:
     case PatientsActionEnum.GET_REFERRALS_TABLE_PATIENTS_REQUESTED:
-    case PatientsActionEnum.UPDATE_PATIENT_REQUESTED:
     case PatientsActionEnum.CREATE_ASSESSMENT_REQUESTED:
     case PatientsActionEnum.UPDATE_ASSESSMENT_REQUESTED:
       return {
@@ -687,22 +632,6 @@ export const patientsReducer = (
         ),
         isLoading: false,
       };
-    case PatientsActionEnum.UPDATE_PATIENT_SUCCESS: {
-      return {
-        ...state,
-        success: `Patient updated successfully!`,
-        patientUpdated: true,
-        patient: {
-          ...(state.patient as Patient),
-          ...action.payload.updatedPatient,
-          gestationalAgeUnit: action.payload.updatedPatient
-            .gestationalAgeUnit as GestationalAgeUnitEnum,
-          patientSex: action.payload.updatedPatient.patientSex as SexEnum,
-          readings: state.patient?.readings ?? [],
-        },
-        isLoading: false,
-      };
-    }
     case PatientsActionEnum.CREATE_ASSESSMENT_SUCCESS:
     case PatientsActionEnum.UPDATE_ASSESSMENT_SUCCESS:
       return {
@@ -750,13 +679,6 @@ export const patientsReducer = (
         ...state,
         error: action.payload.error,
         isLoading: false,
-      };
-    case PatientsActionEnum.UPDATE_PATIENT_ERROR:
-      return {
-        ...state,
-        error: action.payload.error.message,
-        isLoading: false,
-        preventFetch: action.payload.error.status === 401,
       };
     case PatientsActionEnum.CLEAR_GET_PATIENT_ERROR:
     case PatientsActionEnum.CLEAR_GET_PATIENTS_ERROR:

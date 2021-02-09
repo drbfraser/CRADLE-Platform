@@ -3,9 +3,9 @@ import {
   getDOBForEstimatedAge,
   getTimestampFromMonths,
   getTimestampFromWeeks,
-} from '../../../src/shared/utils';
-import { EndpointEnum } from '../../../src/server';
-import { BASE_URL } from '../../../src/server/utils';
+} from '../../shared/utils';
+import { EndpointEnum } from '../../server';
+import { BASE_URL } from '../../server/utils';
 import { initialState, PatientField, PatientState, SEXES } from './state';
 
 // custom change handler when a field might affect other fields

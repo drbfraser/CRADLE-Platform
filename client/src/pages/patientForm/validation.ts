@@ -1,7 +1,4 @@
-import {
-  GESTATIONAL_AGE_UNITS,
-  getAgeBasedOnDOB,
-} from '../../../src/shared/utils';
+import { GESTATIONAL_AGE_UNITS, getAgeBasedOnDOB } from '../../shared/utils';
 import { PatientField, PatientState } from './state';
 
 // For writing + testing Regex, see: regex101.com
