@@ -167,7 +167,7 @@ export const getAgeBasedOnDOB = (value: string) => {
   return moment().diff(value, 'years');
 };
 
-export const getExactAgeOrNot = (dob: string, isExactDob: boolean) => {
+export const getAgeToDisplay = (dob: string, isExactDob: boolean) => {
   if (isExactDob) {
     return moment().diff(dob, 'years');
   }
