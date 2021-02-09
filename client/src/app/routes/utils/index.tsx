@@ -13,8 +13,6 @@ import SendIcon from '@material-ui/icons/Send';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { StatisticsPage } from '../../../pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import VideoChatPage from '../../../pages/videoChat';
-import VideocamIcon from '@material-ui/icons/Videocam';
 import { makeUniqueId } from '../../../shared/utils';
 import { NewAssessmentPage } from '../../../pages/newAssessment';
 import { NewPatientPage } from '../../../pages/newPatient';
@@ -97,17 +95,6 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     title: `Patients`,
     to: `/patients`,
-  },
-  {
-    component: VideoChatPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    icon: <VideocamIcon fontSize="large" />,
-    inNavigation: true,
-    name: `Chat`,
-    private: true,
-    title: `Live Video Chat`,
-    to: `/chat`,
   },
   {
     component: ResourcesPage,

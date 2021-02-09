@@ -70,7 +70,7 @@ export const App: React.FC = () => {
                 activeItem={activeItem}
                 setActiveItem={setActiveItem}
                 logout={{
-                  index: user?.roles.includes(RoleEnum.ADMIN) ? 4 : 3,
+                  index: user?.roles.includes(RoleEnum.ADMIN) ? 3 : 2,
                   component: <LogoutMenuItem />,
                 }}
                 statistics={{
