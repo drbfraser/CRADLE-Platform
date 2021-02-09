@@ -44,18 +44,18 @@ class StatsManager:
                 data: the array that holds the traffic light counters
     """
 
-    def calculate_traffic_light_helper(self, record, data):      
-        traffic_light_indexes = {TrafficLightEnum.GREEN.value:0,
-                                 TrafficLightEnum.YELLOW_UP.value:1,
-                                 TrafficLightEnum.YELLOW_DOWN.value:2,
-                                 TrafficLightEnum.RED_UP.value:3,
-                                 TrafficLightEnum.RED_DOWN.value:4
-                                 }
+    def calculate_traffic_light_helper(self, record, data):
+        traffic_light_indexes = {
+            TrafficLightEnum.GREEN.value: 0,
+            TrafficLightEnum.YELLOW_UP.value: 1,
+            TrafficLightEnum.YELLOW_DOWN.value: 2,
+            TrafficLightEnum.RED_UP.value: 3,
+            TrafficLightEnum.RED_DOWN.value: 4,
+        }
 
         index = traffic_light_indexes[record["trafficLightStatus"]]
         data[index] += 1
-        
-        
+
     """ 
         Description: calculates total number of readings, or referrals, or assessments per month for a given year (e.g 2020)
             Parameters: 

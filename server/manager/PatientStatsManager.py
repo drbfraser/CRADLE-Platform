@@ -14,7 +14,7 @@ readingManager = ReadingManager()
 
 class PatientStatsManager:
 
-    TRAFFIC_LIGHT_STAT = "trafficLightStatus" 
+    TRAFFIC_LIGHT_STAT = "trafficLightStatus"
 
     def get_traffic_light(self, item, data):
         yellow_up_index = 1
@@ -23,7 +23,7 @@ class PatientStatsManager:
         red_down_index = 4
         green_index = 0
 
-        ## TODO replace the old stuff once figure out where it gets called from 
+        ## TODO replace the old stuff once figure out where it gets called from
         # traffic_light_indexes = {"GREEN":0, "YELLOW_UP":1, "YELLOW_DOWN":2,"RED_UP":3, "RED_DOWN":4 }
         # key = item[TRAFFIC_LIGHT_STAT]
         # data[traffic_light_indexes[key]] += 1
@@ -105,9 +105,7 @@ class PatientStatsManager:
         # self.clean_up_data(heart_rate)
 
         # getting all traffic lights from day 1 for this patient
-        traffic_light_statuses = self.get_data(
-            TRAFFIC_LIGHT_STAT, readings, patient_id
-        )
+        traffic_light_statuses = self.get_data(TRAFFIC_LIGHT_STAT, readings, patient_id)
         # self.clean_up_data(traffic_light_statuses)
 
         # putting data into one object now

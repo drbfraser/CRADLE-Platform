@@ -402,19 +402,17 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
     )
 
 
-
-
-
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-#TODO add role based queries
+# TODO add role based queries
+
 
 def get_unique_patients_with_readings(vht: int) -> List[M]:
-    """Queries the database for unique patients with more than one reading 
+    """Queries the database for unique patients with more than one reading
 
     :return: A number of unique patients"""
 
-    #TODO fix query
+    # TODO fix query
     query = """SELECT COUNT(pat.patientId) as patients
         FROM(
             SELECT DISTINCT(P.patientId)
@@ -422,19 +420,19 @@ def get_unique_patients_with_readings(vht: int) -> List[M]:
             WHERE R.userId = %s
             GROUP BY P.patientId
             HAVING COUNT(R.readingID) > 0 ) as pat
-    """ % str(vht)
+    """ % str(
+        vht
+    )
 
-
-    try: 
+    try:
         result = db_session.execute(query)
         return result
-    except Exception as e: 
+    except Exception as e:
         print(e)
         return None
 
 
-
-def get_total_readings_completed(vht: int) -> List[M]: 
+def get_total_readings_completed(vht: int) -> List[M]:
     """Queries the database for total number of readings completed
 
     :return: Number of total readings"""
@@ -443,7 +441,9 @@ def get_total_readings_completed(vht: int) -> List[M]:
             SELECT COUNT(R.readingId) 
             FROM reading R
             WHERE R.userId = %s
-            """ % str(vht)
+            """ % str(
+        vht
+    )
     try:
         result = db_session.execute(query)
         return result
@@ -462,34 +462,37 @@ def get_total_color_readings(vht: int) -> List[M]:
             FROM reading R
             WHERE R.userId= %s
             GROUP BY R.trafficLightStatus
-            """ % str(vht)
+            """ % str(
+        vht
+    )
 
     try:
         result = db_session.execute(query)
         return result
-    except Exception as e: 
+    except Exception as e:
         print(e)
         return None
 
 
-
 def get_sent_referrals(vht: int) -> List[M]:
-    """ Queries the database for total number of sent referrals
+    """Queries the database for total number of sent referrals
 
-    :return: Total number of sent referrals""" 
+    :return: Total number of sent referrals"""
 
     query = """
         SELECT COUNT(R.id)
         FROM referral R
         WHERE userId = %s
-    """ % str(vht)
-    
+    """ % str(
+        vht
+    )
+
     try:
         result = db_session.execute(query)
-        return result 
+        return result
     except Exception as e:
         print(e)
-        return None 
+        return None
 
 
 def get_referred_patients(facility: str) -> List[M]:
@@ -500,9 +503,10 @@ def get_referred_patients(facility: str) -> List[M]:
     query = """
         SELECT COUNT(DISTINCT( R.patientId))
         FROM referral R
-        WHERE R.referralHealthFacilityName= "%s" """ % str(facility)
+        WHERE R.referralHealthFacilityName= "%s" """ % str(
+        facility
+    )
 
-    
     try:
         result = db_session.execute(query)
         return result
@@ -511,20 +515,23 @@ def get_referred_patients(facility: str) -> List[M]:
         return None
 
 
-def get_days_with_readings(days : [str]):
-    """Queries the database for number of days within specified timeframe 
+def get_days_with_readings(days: [str]):
+    """Queries the database for number of days within specified timeframe
         which have more than one reading
-    
+
     :return: number of days"""
-    
+
     query = """
         SELECT COUNT(DISTINCT(FLOOR(R.dateTimeTaken / 86400)))
         FROM reading R
-        WHERE dateTimeTaken BETWEEN %s AND %s""" %((str(days[0])),(str(days[1])))
+        WHERE dateTimeTaken BETWEEN %s AND %s""" % (
+        (str(days[0])),
+        (str(days[1])),
+    )
 
-    try: 
+    try:
         result = db_session.execute(query)
-        return result 
+        return result
     except Exception as e:
         print(e)
         return None
