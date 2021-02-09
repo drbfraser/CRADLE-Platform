@@ -167,6 +167,13 @@ export const getAgeBasedOnDOB = (value: string) => {
   return moment().diff(value, 'years');
 };
 
+export const getAgeToDisplay = (dob: string, isExactDob: boolean) => {
+  if (isExactDob) {
+    return moment().diff(dob, 'years');
+  }
+  return `${moment().diff(dob, 'years')} (estimated)`;
+};
+
 export const getDOBForEstimatedAge = (age: number) => {
   return moment()
     .subtract(age + 0.5, 'years')

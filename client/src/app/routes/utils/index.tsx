@@ -1,5 +1,4 @@
 import { AdminPage } from '../../../pages/admin';
-import { CovidCollectionPage } from '../../../pages/statistics/covidCollection';
 import { LoginPage } from '../../../pages/login';
 import { NotFoundPage } from '../../../pages/notFound';
 import { PatientPage } from '../../../pages/patient';
@@ -17,6 +16,7 @@ import { makeUniqueId } from '../../../shared/utils';
 import { NewAssessmentPage } from '../../../pages/newAssessment';
 import { NewPatientPage } from '../../../pages/newPatient';
 import { NewReadingPage } from '../../../pages/newReading';
+import PollIcon from '@material-ui/icons/Poll';
 
 export type AppRoute = {
   component:
@@ -97,6 +97,17 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients`,
   },
   {
+    component: StatisticsPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    icon: <PollIcon fontSize="large" />,
+    inNavigation: true,
+    name: `Statistics`,
+    private: true,
+    title: `Statistics`,
+    to: `/stats`,
+  },
+  {
     component: ResourcesPage,
     exactPath: true,
     id: makeUniqueId(),
@@ -143,22 +154,6 @@ export const appRoutes: Array<AppRoute> = [
     to: `/login`,
   },
   {
-    component: StatisticsPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/stats`,
-  },
-  {
-    component: CovidCollectionPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/covid/collection`,
-  },
-  {
     component: NotFoundPage,
     exactPath: false,
     id: makeUniqueId(),
@@ -171,12 +166,7 @@ type RoutesNames = Record<string, string>;
 
 export const routesNames: RoutesNames = appRoutes.reduce(
   (routes: RoutesNames, route: AppRoute): RoutesNames => {
-    // * Special match for analytics
-    if (route.to === `/covid/collection` || route.to === `/stats`) {
-      routes[route.to] = `Analytics`;
-    } else {
-      routes[route.to ?? ``] = route.name ?? ``;
-    }
+    routes[route.to ?? ``] = route.name ?? ``;
     return routes;
   },
   {}
