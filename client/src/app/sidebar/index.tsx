@@ -18,7 +18,6 @@ type CustomRoute = {
 interface IProps {
   activeItem: OrNull<string>;
   logout: CustomRoute;
-  statistics: CustomRoute;
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
 }
 
@@ -30,7 +29,6 @@ type SelectorState = {
 export const Sidebar: React.FC<IProps> = ({
   activeItem,
   logout,
-  statistics,
   setActiveItem,
 }) => {
   const { offsetFromTop } = useDimensionsContext();
@@ -66,18 +64,6 @@ export const Sidebar: React.FC<IProps> = ({
                   key={makeUniqueId()}
                   activeItem={activeItem}
                   appendedRoute={logout.component}
-                  route={route}
-                  updateActiveItem={updateActiveItem}
-                />
-              );
-            }
-
-            if (index === statistics.index) {
-              return (
-                <SidebarRoute
-                  key={makeUniqueId()}
-                  activeItem={activeItem}
-                  appendedRoute={statistics.component}
                   route={route}
                   updateActiveItem={updateActiveItem}
                 />
