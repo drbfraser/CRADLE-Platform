@@ -6,7 +6,6 @@ import Paper from '@material-ui/core/Paper';
 import { Field, Form, Formik } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import { Toast } from '../../../src/shared/components/toast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
@@ -23,7 +22,6 @@ export const AssessmentForm = ({
   assessmentId,
 }: IProps) => {
   const classes = useStyles();
-  const history = useHistory();
   const [submitError, setSubmitError] = useState(false);
 
   return (
@@ -37,12 +35,7 @@ export const AssessmentForm = ({
       )}
       <Formik
         initialValues={initialState}
-        onSubmit={handleSubmit(
-          readingId,
-          assessmentId,
-          history,
-          setSubmitError
-        )}>
+        onSubmit={handleSubmit(readingId, assessmentId, setSubmitError)}>
         {({ values, isSubmitting }) => (
           <Form>
             <Paper>

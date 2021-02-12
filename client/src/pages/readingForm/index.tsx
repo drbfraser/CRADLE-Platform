@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -21,6 +21,7 @@ import { Toast } from '../../shared/components/toast';
 import { ReduxState } from 'src/redux/reducers';
 import { useSelector } from 'react-redux';
 import { ActualUser } from '@types';
+import { goBackOrRedirect } from '../../shared/utils';
 
 type RouteParams = {
   patientId: string;
@@ -28,7 +29,6 @@ type RouteParams = {
 
 export const ReadingFormPage = () => {
   const classes = useStyles();
-  const history = useHistory();
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);
   const [pageNum, setPageNum] = useState(0);
@@ -72,7 +72,7 @@ export const ReadingFormPage = () => {
       const submitSuccess = await handleSubmit(patientId, values, userId);
 
       if (submitSuccess) {
-        history.goBack();
+        goBackOrRedirect(`/patients/${patientId}`);
       } else {
         setSubmitError(true);
         helpers.setSubmitting(false);
@@ -95,7 +95,8 @@ export const ReadingFormPage = () => {
       )}
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
-          <IconButton onClick={history.goBack}>
+          <IconButton
+            onClick={() => goBackOrRedirect(`/patients/${patientId}`)}>
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
