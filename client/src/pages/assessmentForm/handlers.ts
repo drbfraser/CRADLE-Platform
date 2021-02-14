@@ -1,4 +1,4 @@
-import { goBackOrRedirect } from '../../../src/shared/utils';
+import { goBackWithFallback } from '../../../src/shared/utils';
 import { EndpointEnum } from '../../../src/server';
 import { BASE_URL } from '../../../src/server/utils';
 import { AssessmentState } from './state';
@@ -36,7 +36,7 @@ export const handleSubmit = (
         throw new Error('Response failed with error code: ' + resp.status);
       }
 
-      goBackOrRedirect('/patients');
+      goBackWithFallback('/patients');
     } catch (e) {
       console.error(e);
       setSubmitError(true);

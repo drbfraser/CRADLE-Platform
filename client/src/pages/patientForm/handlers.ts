@@ -3,7 +3,7 @@ import {
   getDOBForEstimatedAge,
   getTimestampFromMonths,
   getTimestampFromWeeks,
-  goBackOrRedirect,
+  goBackWithFallback,
 } from '../../shared/utils';
 import { EndpointEnum } from '../../server';
 import { BASE_URL } from '../../server/utils';
@@ -145,7 +145,7 @@ export const handleSubmit = (
       if (creatingNew) {
         history.replace(patientPageUrl);
       } else {
-        goBackOrRedirect(patientPageUrl);
+        goBackWithFallback(patientPageUrl);
       }
     } catch (e) {
       console.error(e);

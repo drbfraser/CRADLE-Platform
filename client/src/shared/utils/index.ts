@@ -251,7 +251,7 @@ export const gestationalAgeValueMonthOptions = new Array(
     return Number(first.label) - Number(second.label);
   });
 
-export const goBackOrRedirect = (fallbackUrl: string) => {
+export const goBackWithFallback = (fallbackUrl: string) => {
   // browser new tab page + this page = 2, need more than 2 to go back
   if (history.length > 2) {
     history.goBack();

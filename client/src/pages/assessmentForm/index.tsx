@@ -8,7 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
 import { AssessmentForm } from './AssessmentForm';
-import { goBackOrRedirect } from '../../shared/utils';
+import { goBackWithFallback } from '../../shared/utils';
 
 type RouteParams = {
   readingId: string;
@@ -30,7 +30,7 @@ export const AssessmentFormPage = () => {
     <div className={classes.container}>
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
-          <IconButton onClick={() => goBackOrRedirect('/patients')}>
+          <IconButton onClick={() => goBackWithFallback('/patients')}>
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>

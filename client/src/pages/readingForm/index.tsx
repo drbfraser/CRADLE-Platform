@@ -21,7 +21,7 @@ import { Toast } from '../../shared/components/toast';
 import { ReduxState } from 'src/redux/reducers';
 import { useSelector } from 'react-redux';
 import { ActualUser } from '@types';
-import { goBackOrRedirect } from '../../shared/utils';
+import { goBackWithFallback } from '../../shared/utils';
 
 type RouteParams = {
   patientId: string;
@@ -72,7 +72,7 @@ export const ReadingFormPage = () => {
       const submitSuccess = await handleSubmit(patientId, values, userId);
 
       if (submitSuccess) {
-        goBackOrRedirect(`/patients/${patientId}`);
+        goBackWithFallback(`/patients/${patientId}`);
       } else {
         setSubmitError(true);
         helpers.setSubmitting(false);
@@ -96,7 +96,7 @@ export const ReadingFormPage = () => {
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackOrRedirect(`/patients/${patientId}`)}>
+            onClick={() => goBackWithFallback(`/patients/${patientId}`)}>
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
