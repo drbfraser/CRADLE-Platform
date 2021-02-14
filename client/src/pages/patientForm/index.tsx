@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { PatientForm } from './PatientForm';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useRouteMatch } from 'react-router-dom';
 import { getPatientState, PatientState } from './state';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
+import { goBackWithFallback } from '../../shared/utils';
 
 type RouteParams = {
   patientId: string | undefined;
@@ -15,7 +16,6 @@ type RouteParams = {
 
 export const PatientFormPage = () => {
   const classes = useStyles();
-  const history = useHistory();
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [formInitialState, setFormInitialState] = useState<PatientState>();
 
@@ -27,7 +27,8 @@ export const PatientFormPage = () => {
     <div className={classes.container}>
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
-          <IconButton onClick={history.goBack}>
+          <IconButton
+            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}>
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>

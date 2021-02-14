@@ -3,6 +3,7 @@ import {
   getDOBForEstimatedAge,
   getTimestampFromMonths,
   getTimestampFromWeeks,
+  goBackWithFallback,
 } from '../../shared/utils';
 import { EndpointEnum } from '../../server';
 import { BASE_URL } from '../../server/utils';
@@ -139,8 +140,13 @@ export const handleSubmit = (
       }
 
       const respJson = await resp.json();
+      const patientPageUrl = '/patients/' + respJson['patientId'];
 
-      history.push('/patients/' + respJson['patientId']);
+      if (creatingNew) {
+        history.replace(patientPageUrl);
+      } else {
+        goBackWithFallback(patientPageUrl);
+      }
     } catch (e) {
       console.error(e);
       setSubmitError(true);
