@@ -426,12 +426,11 @@ def get_unique_patients_with_readings(facility_id = "NULL",  vht = "NULL", args 
                     FROM (SELECT R.patientId FROM reading R 
                         JOIN user U ON R.userId = U.id
                         WHERE R.dateTimeTaken BETWEEN %s and %s
-                        AND (userId LIKE "%s" OR userId is NULL) OR (U.healthFacilityName LIKE "%s" or U.healthFacilityName is NULL)
+                        AND ((userId LIKE "%s" OR userId is NULL) OR (U.healthFacilityName LIKE "%s" or U.healthFacilityName is NULL))
                     ) as P 
                 JOIN reading R ON P.patientID = R.patientId
                 GROUP BY P.patientId
                 HAVING COUNT(R.readingId) > 0) as pat
-
     """ %(frm ,to, str(vht), str(facility_id))
 
     try:

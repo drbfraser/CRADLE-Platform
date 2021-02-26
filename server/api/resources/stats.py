@@ -45,7 +45,7 @@ class FacilityReadings(Resource):
         args = {"to": request.args.get("to"), "from":request.args.get("from")}
 
 
-        patients = crud.get_unique_patients_with_readings(args=args)    
+        patients = crud.get_unique_patients_with_readings(vht = "%",args=args)    
         print(patients)
         #parse args
         
