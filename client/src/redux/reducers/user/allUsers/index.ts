@@ -114,7 +114,7 @@ const updateUserRequest = (): AllUsersAction => ({
 
 export type UpdateUser = Pick<
   User,
-  'email' | 'firstName' | 'followups' | 'healthFacilityName' | 'username'
+  'email' | 'firstName' | 'healthFacilityName' | 'username'
 > & {
   newRoleIds: Array<number>;
   newVHTs: Array<VHT>;
