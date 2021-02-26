@@ -76,7 +76,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       component={TextField}
                       fullWidth
                       required
-                      inputProps={{maxLength: 50}}
+                      inputProps={{ maxLength: 50 }}
                       variant="outlined"
                       label="Patient ID"
                       name={PatientField.patientId}
@@ -95,7 +95,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       component={TextField}
                       fullWidth
                       required
-                      inputProps={{maxLength: 50}}
+                      inputProps={{ maxLength: 50 }}
                       variant="outlined"
                       label="Patient Name"
                       name={PatientField.patientName}
@@ -105,7 +105,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                     <Field
                       component={TextField}
                       fullWidth
-                      inputProps={{maxLength: 50}}
+                      inputProps={{ maxLength: 50 }}
                       variant="outlined"
                       label="Household Number"
                       name={PatientField.householdNumber}
@@ -161,7 +161,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                     <Field
                       component={TextField}
                       fullWidth
-                      inputProps={{maxLength: 20}}
+                      inputProps={{ maxLength: 20 }}
                       variant="outlined"
                       label="Zone"
                       name={PatientField.zone}
@@ -171,7 +171,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                     <Field
                       component={TextField}
                       fullWidth
-                      inputProps={{maxLength: 50}}
+                      inputProps={{ maxLength: 50 }}
                       variant="outlined"
                       label="Village"
                       name={PatientField.villageNumber}
