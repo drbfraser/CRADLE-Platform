@@ -423,12 +423,16 @@ def get_unique_patients_with_readings(vht: int, args) -> List[M]:
     query = """ SELECT COUNT(pat.patientId) as patients
                 FROM (
                     SELECT DISTINCT(P.patientId)
-                    FROM (SELECT R.patientId FROM reading R
-                            WHERE R.dateTimeTaken BETWEEN %s and %s) as P 
-                        JOIN reading R ON P.patientID = R.patientId
-                        WHERE R.userId=%s
-                        GROUP BY P.patientId
-                        HAVING COUNT(R.readingId) > 0) as pat
+                    FROM (SELECT R.patientId FROM reading R 
+                        JOIN user U ON R.userId = U.id
+                        WHERE R.dateTimeTaken BETWEEN %s and %s
+                        AND (userId = %s OR userId is NULL) OR (U.healthFacilityName = %s or U.healthFacilityName is NULL)
+                    ) as P 
+                JOIN reading R ON P.patientID = R.patientId
+                WHERE R.userId=%s
+                GROUP BY P.patientId
+                HAVING COUNT(R.readingId) > 0) as pat
+
     """ %(frm ,to, str(vht))
 
     try:
@@ -437,6 +441,8 @@ def get_unique_patients_with_readings(vht: int, args) -> List[M]:
     except Exception as e:
         print(e)
         return None
+
+
 
 
 def get_total_readings_completed(vht: int) -> List[M]:
