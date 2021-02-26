@@ -78,7 +78,6 @@ export const UserModal: React.FC<IProps> = ({
           userToUpdate: {
             email: currentUser.email,
             firstName: currentUser.firstName,
-            followups: currentUser.followups,
             healthFacilityName: healthFacilityName.value,
             newRoleIds: roleIds.map(
               ({ value }: AutocompleteOption<RoleEnum, number>): number => {
