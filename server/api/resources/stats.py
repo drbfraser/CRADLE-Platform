@@ -3,6 +3,7 @@ from flask import request, jsonify
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 from manager.StatsManager import StatsManager
+from flask import Response
 
 import data.crud as crud
 
@@ -11,7 +12,7 @@ from validation import stats
 statsManager = StatsManager()
 
 
-# TODO 1
+# *Required Stats
 #   * Brian's initial idea for statistics:
 #     * Display number of unique patients on which they have done one or more readings ✔
 #     * Display number of readings completed (total) ✔
@@ -20,11 +21,8 @@ statsManager = StatsManager()
 #     * Display total number of patients referred you YOUR facility ✔
 #     * Display number of days during the time frame on which they completed one or more readings.
 
-# TODO 2
-#     * error checks
 
-# TODO 3
-#     * ask about query locations and maybe move the queries from CRUD
+# TODO Add role checks and 400 errors 
 
 
 class Root(Resource):
@@ -32,10 +30,33 @@ class Root(Resource):
     @jwt_required
     @swag_from("../../specifications/stats-all.yml", methods=["GET"])
 
+    #TODO bunch up stats
     ## Get all statistics for patients
     def get():
         stats = statsManager.put_data_together()
         return stats
+
+
+class FacilityReadings(Resource):
+    @staticmethod
+    @jwt_required
+    
+    def get(facility_id: int):
+        args = {"to": request.args.get("to"), "from":request.args.get("from")}
+
+        
+        #parse args
+        
+
+
+
+
+class UserReadings(Resource):
+    @staticmethod
+    @jwt_required
+
+    def get(user_id: int):
+        pass
 
 
 class UniqueReadings(Resource):
@@ -49,7 +70,7 @@ class UniqueReadings(Resource):
         res = 0
         for row in query_res:
             res = row[0]
-        return jsonify({"unique_patients": res})
+        return Response(jsonify({"unique_patients": res}),status= 200)
 
 
 class TotalReadings(Resource):
@@ -63,7 +84,7 @@ class TotalReadings(Resource):
         res = 0
         for row in query_res:
             res = row[0]
-        return jsonify({"total_readings": res})
+        return {"total_readings": res},200
 
 
 class ColorReadings(Resource):
