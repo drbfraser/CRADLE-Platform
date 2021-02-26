@@ -47,6 +47,18 @@ class UserAllVHT(Resource):
         return vhtId_list
 
 
+
+
+
+class AdminPasswordChange(Resource):
+
+    def get(self):
+        return {'response': 'endpoint reached'}
+        
+    def post(self):
+        pass 
+
+
 # user/register [POST]
 class UserApi(Resource):
 
