@@ -407,7 +407,7 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 # TODO add role based queries
 
 
-def get_unique_patients_with_readings(vht: int, args) -> List[M]:
+def get_unique_patients_with_readings(facility_id = "NULL",  vht = "NULL", args = None) -> List[M]:
     """Queries the database for unique patients with more than one reading
 
     :return: A number of unique patients"""
@@ -426,14 +426,13 @@ def get_unique_patients_with_readings(vht: int, args) -> List[M]:
                     FROM (SELECT R.patientId FROM reading R 
                         JOIN user U ON R.userId = U.id
                         WHERE R.dateTimeTaken BETWEEN %s and %s
-                        AND (userId = %s OR userId is NULL) OR (U.healthFacilityName = %s or U.healthFacilityName is NULL)
+                        AND (userId LIKE "%s" OR userId is NULL) OR (U.healthFacilityName LIKE "%s" or U.healthFacilityName is NULL)
                     ) as P 
                 JOIN reading R ON P.patientID = R.patientId
-                WHERE R.userId=%s
                 GROUP BY P.patientId
                 HAVING COUNT(R.readingId) > 0) as pat
 
-    """ %(frm ,to, str(vht))
+    """ %(frm ,to, str(vht), str(facility_id))
 
     try:
         result = db_session.execute(query)
