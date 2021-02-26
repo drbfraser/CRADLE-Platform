@@ -1,7 +1,6 @@
 import {
   Callback,
   GlobalSearchPatient,
-  NewAssessment,
   OrNull,
   Patient,
   ServerError,
@@ -146,12 +145,6 @@ export const addPatientToHealthFacility = (
 export const resetAddedFromGlobalSearch = (): PatientsAction => ({
   type: PatientsActionEnum.RESET_ADDED_FROM_GLOBAL_SEARCH,
 });
-
-export interface ICreateAssessmentArgs {
-  data: NewAssessment;
-  readingId: string;
-  userId: number;
-}
 
 export type PatientsState = {
   addedFromGlobalSearch: boolean;
