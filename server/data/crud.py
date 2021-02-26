@@ -407,7 +407,7 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 # TODO add role based queries
 
 
-def get_unique_patients_with_readings(facility_id = "%",  vht = "%", args = None) -> List[M]:
+def get_unique_patients_with_readings(facility_id="%", vht="%", args=None) -> List[M]:
     """Queries the database for unique patients with more than one reading
 
     :return: A number of unique patients"""
@@ -431,16 +431,19 @@ def get_unique_patients_with_readings(facility_id = "%",  vht = "%", args = None
                 JOIN reading R ON P.patientID = R.patientId
                 GROUP BY P.patientId
                 HAVING COUNT(R.readingId) > 0) as pat
-    """ %(frm ,to, str(vht), str(facility_id))
+    """ % (
+        frm,
+        to,
+        str(vht),
+        str(facility_id),
+    )
 
     try:
         result = db_session.execute(query)
-        return(list(result)[0][0])
+        return list(result)[0][0]
     except Exception as e:
         print(e)
         return None
-
-
 
 
 def get_total_readings_completed(vht: int) -> List[M]:

@@ -22,7 +22,7 @@ statsManager = StatsManager()
 #     * Display number of days during the time frame on which they completed one or more readings.
 
 
-# TODO Add role checks and 400 errors 
+# TODO Add role checks and 400 errors
 
 
 class Root(Resource):
@@ -30,7 +30,7 @@ class Root(Resource):
     @jwt_required
     @swag_from("../../specifications/stats-all.yml", methods=["GET"])
 
-    #TODO bunch up stats
+    # TODO bunch up stats
     ## Get all statistics for patients
     def get():
         stats = statsManager.put_data_together()
@@ -40,23 +40,17 @@ class Root(Resource):
 class FacilityReadings(Resource):
     @staticmethod
     @jwt_required
-    
     def get(facility_id: str):
-        args = {"to": request.args.get("to"), "from":request.args.get("from")}
+        args = {"to": request.args.get("to"), "from": request.args.get("from")}
 
-
-        patients = crud.get_unique_patients_with_readings(args=args)    
+        patients = crud.get_unique_patients_with_readings(args=args)
         print(patients)
-        #parse args
-        
-
-
+        # parse args
 
 
 class UserReadings(Resource):
     @staticmethod
     @jwt_required
-
     def get(user_id: int):
         pass
 
@@ -72,7 +66,7 @@ class UniqueReadings(Resource):
         res = 0
         for row in query_res:
             res = row[0]
-        return Response(jsonify({"unique_patients": res}),status= 200)
+        return Response(jsonify({"unique_patients": res}), status=200)
 
 
 class TotalReadings(Resource):
@@ -86,7 +80,7 @@ class TotalReadings(Resource):
         res = 0
         for row in query_res:
             res = row[0]
-        return {"total_readings": res},200
+        return {"total_readings": res}, 200
 
 
 class ColorReadings(Resource):
