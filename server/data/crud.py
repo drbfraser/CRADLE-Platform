@@ -407,26 +407,33 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 # TODO add role based queries
 
 
-def get_unique_patients_with_readings(vht: int) -> List[M]:
+def get_unique_patients_with_readings(vht: int, args) -> List[M]:
     """Queries the database for unique patients with more than one reading
 
     :return: A number of unique patients"""
 
-    # TODO fix query
-    query = """SELECT COUNT(pat.patientId) as patients
-        FROM(
-            SELECT DISTINCT(P.patientId)
-            FROM patient P JOIN reading R ON P.patientId = R.patientId
-            WHERE R.userId = %s
-            GROUP BY P.patientId
-            HAVING COUNT(R.readingID) > 0 ) as pat
-    """ % str(
-        vht
-    )
+    frm = "0"
+    if args["from"] is not None:
+        frm = str(args["from"])
+
+    to = "2147483647"
+    if args["to"] is not None:
+        to = str(args["to"])
+
+    query = """ SELECT COUNT(pat.patientId) as patients
+                FROM (
+                    SELECT DISTINCT(P.patientId)
+                    FROM (SELECT R.patientId FROM reading R
+                            WHERE R.dateTimeTaken BETWEEN %s and %s) as P 
+                        JOIN reading R ON P.patientID = R.patientId
+                        WHERE R.userId=%s
+                        GROUP BY P.patientId
+                        HAVING COUNT(R.readingId) > 0) as pat
+    """ %(frm ,to, str(vht))
 
     try:
         result = db_session.execute(query)
-        return result
+        return(list(result)[0][0])
     except Exception as e:
         print(e)
         return None

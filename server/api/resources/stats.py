@@ -41,10 +41,12 @@ class FacilityReadings(Resource):
     @staticmethod
     @jwt_required
     
-    def get(facility_id: int):
+    def get(facility_id: str):
         args = {"to": request.args.get("to"), "from":request.args.get("from")}
 
-        
+
+        patients = crud.get_unique_patients_with_readings(1,args)    
+
         #parse args
         
 
