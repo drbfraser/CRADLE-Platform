@@ -50,9 +50,7 @@ class UserAllVHT(Resource):
 
 
 
-#Looks like users validate is really just a method to ensure that the payload that is being sent matches
-# the schema of the model that it corresponds to. I.e all the fields in the payload match a column in the 
-# designated table. Thats not what we want here, here we just want something custom. Look into the serializer?
+# To do: See if we can use the serializer here instead of a parser
 # api/admin/change_pass [POST]
 class AdminPasswordChange(Resource):
 
