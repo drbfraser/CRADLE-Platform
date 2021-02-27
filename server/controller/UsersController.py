@@ -66,26 +66,24 @@ class AdminPasswordChange(Resource):
         help="This field cannot be left blank!"
     )
 
-    
-    def get(self):
-        return {'response': 'endpoint reached'}
-
     def post(self):
 
         data = self.parser.parse_args()
-
-        #Find the given table and update the password
 
         # check if user exists
         user = User.query.filter_by(id=data["id"]).first()
         if user is None:
             return {"message": "This user does not exist"}, 400
 
+        if(len(data["password"]) < 6):
+            return {"message" : "The new password must be atleast 6 characters long"}, 400
+
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
         update_res = userManager.update("id", data["id"], data)
+        update_res.pop("password")
 
-        return update_res
+        return update_res, 200
 
 
 
