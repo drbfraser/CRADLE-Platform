@@ -53,6 +53,7 @@ class UserAllVHT(Resource):
 #Looks like users validate is really just a method to ensure that the payload that is being sent matches
 # the schema of the model that it corresponds to. I.e all the fields in the payload match a column in the 
 # designated table. Thats not what we want here, here we just want something custom. Look into the serializer?
+# api/admin/change_pass [POST]
 class AdminPasswordChange(Resource):
 
     parser = reqparse.RequestParser()
@@ -95,9 +96,33 @@ class AdminPasswordChange(Resource):
         return update_res, 200
 
 
+# /api/user/change_pass [POST]
 class UserPasswordChange(Resource):
+    
+    parser = reqparse.RequestParser()
+    parser.add_argument('old_password',
+        type = str,
+        required=True,
+        help="This field cannot be left blank!"
+    )
+    parser.add_argument('new_password',
+        type = str,
+        required=True,
+        help="This field cannot be left blank!"
+    )
+
+    @jwt_required
     def post(self): 
-        pass
+        data = self.parser.parse_args()
+        claims = get_jwt_claims()
+        print(claims)
+        user = User.query.filter_by(id=claims['user_id']).first()
+
+        if user and flask_bcrypt.check_password_hash(user.password, data["old_password"]):
+            return {"message" : "The password matches!"}
+
+
+        
         
 
 
