@@ -95,7 +95,9 @@ class AdminPasswordChange(Resource):
         return update_res, 200
 
 
-
+class UserPasswordChange(Resource):
+    def post(self): 
+        pass
         
 
 
