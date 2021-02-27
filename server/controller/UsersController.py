@@ -9,6 +9,7 @@ from flask_jwt_extended import (
     jwt_required,
     jwt_refresh_token_required,
     get_jwt_identity,
+    get_jwt_claims,
 )
 from manager.UserManager import UserManager
 from manager.RoleManager import RoleManager
@@ -52,6 +53,7 @@ class UserAllVHT(Resource):
 #Looks like users validate is really just a method to ensure that the payload that is being sent matches
 # the schema of the model that it corresponds to. I.e all the fields in the payload match a column in the 
 # designated table. Thats not what we want here, here we just want something custom. Look into the serializer?
+#@jwt_required
 class AdminPasswordChange(Resource):
 
     parser = reqparse.RequestParser()
@@ -65,7 +67,9 @@ class AdminPasswordChange(Resource):
         required=True,
         help="This field cannot be left blank!"
     )
-
+    #claims = get_jwt_claims()
+    #print(claims)
+    @jwt_required
     def post(self):
 
         data = self.parser.parse_args()
@@ -73,7 +77,7 @@ class AdminPasswordChange(Resource):
         # check if user exists
         user = User.query.filter_by(id=data["id"]).first()
         if user is None:
-            return {"message": "This user does not exist"}, 400
+            return {"message": "There is no user with this id"}, 400
 
         if(len(data["password"]) < 6):
             return {"message" : "The new password must be atleast 6 characters long"}, 400
@@ -163,6 +167,11 @@ class UserAuthApi(Resource):
                 data["healthFacilityName"] = user.healthFacilityName
                 data["isLoggedIn"] = True
                 data["userId"] = user.id
+                if(data["userId"] == 1):
+                    data["is_admin"] = True
+                else:
+                    data["is_admin"] = False
+
 
                 vhtList = []
                 data["vhtList"] = []
