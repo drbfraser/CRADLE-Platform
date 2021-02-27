@@ -115,11 +115,22 @@ class UserPasswordChange(Resource):
     def post(self): 
         data = self.parser.parse_args()
         claims = get_jwt_claims()
-        print(claims)
         user = User.query.filter_by(id=claims['user_id']).first()
 
         if user and flask_bcrypt.check_password_hash(user.password, data["old_password"]):
-            return {"message" : "The password matches!"}
+
+            data["password"] = flask_bcrypt.generate_password_hash(data["new_password"])
+
+            data.pop('old_password')
+            data.pop('new_password')
+
+            update_res = userManager.update("id", claims['user_id'], data)
+
+            update_res.pop("password")
+
+            return update_res, 200
+        else:
+            return {"error" : "The current password given does not match"}, 400
 
 
         
