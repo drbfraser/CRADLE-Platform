@@ -1,6 +1,6 @@
 import logging, json
 from flask import request, jsonify
-from flask_restful import Resource, abort
+from flask_restful import Resource, abort, reqparse
 from models import validate_user, User, UserSchema, Role
 from config import db, flask_bcrypt
 from flask_jwt_extended import (
@@ -49,14 +49,49 @@ class UserAllVHT(Resource):
 
 
 
-
+#Looks like users validate is really just a method to ensure that the payload that is being sent matches
+# the schema of the model that it corresponds to. I.e all the fields in the payload match a column in the 
+# designated table. Thats not what we want here, here we just want something custom. Look into the serializer?
 class AdminPasswordChange(Resource):
+
+    parser = reqparse.RequestParser()
+    parser.add_argument('email',
+        type = str,
+        required=True,
+        help="This field cannot be left blank!"
+    )
+    parser.add_argument('password',
+        type = str,
+        required=True,
+        help="This field cannot be left blank!"
+    )
+       parser.add_argument('id',
+        type = int,
+        required=True,
+        help="This field cannot be left blank!"
+    )
+
+    data = AdminPasswordChange.parser.parse_args()
 
     def get(self):
         return {'response': 'endpoint reached'}
-        
+
     def post(self):
-        pass 
+        #Find the given table and update the password
+
+        # check if user exists
+        user = User.query.filter_by(id=data["id"]).first()
+        if not user:
+            return {"message": "This user does not exist"}, 400
+
+        data["password"] = flask_bcrypt.generate_password_hash(data["password"])
+
+        data.pop("username")
+
+        userManager.update("id", data["id"], data)
+
+        
+
 
 
 # user/register [POST]
