@@ -55,40 +55,39 @@ class UserAllVHT(Resource):
 class AdminPasswordChange(Resource):
 
     parser = reqparse.RequestParser()
-    parser.add_argument('email',
-        type = str,
-        required=True,
-        help="This field cannot be left blank!"
-    )
     parser.add_argument('password',
         type = str,
         required=True,
         help="This field cannot be left blank!"
     )
-       parser.add_argument('id',
+    parser.add_argument('id',
         type = int,
         required=True,
         help="This field cannot be left blank!"
     )
 
-    data = AdminPasswordChange.parser.parse_args()
-
+    
     def get(self):
         return {'response': 'endpoint reached'}
 
     def post(self):
+
+        data = self.parser.parse_args()
+
         #Find the given table and update the password
 
         # check if user exists
         user = User.query.filter_by(id=data["id"]).first()
-        if not user:
+        if user is None:
             return {"message": "This user does not exist"}, 400
 
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
-        data.pop("username")
+        update_res = userManager.update("id", data["id"], data)
 
-        userManager.update("id", data["id"], data)
+        return update_res
+
+
 
         
 
