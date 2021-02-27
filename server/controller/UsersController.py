@@ -70,6 +70,7 @@ class AdminPasswordChange(Resource):
     
     
     @jwt_required
+    @swag_from("../specifications/admin-change-pass.yml", methods=["POST"])
     def post(self):
         
         data = self.parser.parse_args()
