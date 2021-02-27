@@ -41,10 +41,18 @@ class FacilityReadings(Resource):
     @staticmethod
     @jwt_required
     def get(facility_id: str):
-        args = {"to": request.args.get("to"), "from": request.args.get("from")}
 
-        patients = crud.get_unique_patients_with_readings(args=args)
-        print(patients)
+        #Big in date range
+        args = {"from": "0", "to":"2147483647"}
+        
+        if request.args.get("from") is not None:
+            args["from"] = str(request.args.get("from"))
+        if request.args.get("to") is not None:
+            args['to'] = str(request.args.get('to'))
+
+        patients = crud.get_unique_patients_with_readings(filter = args)
+        total_readings = crud.get_total_readings_completed(facility_id = facility_id,  filter = args)
+        print(f"{patients}, {total_readings}")
         # parse args
 
 

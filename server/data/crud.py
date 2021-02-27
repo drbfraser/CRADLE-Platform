@@ -407,18 +407,11 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 # TODO add role based queries
 
 
-def get_unique_patients_with_readings(facility_id="%", vht="%", args=None) -> List[M]:
+def get_unique_patients_with_readings(facility_id="%", vht="%", filter={}) -> List[M]:
     """Queries the database for unique patients with more than one reading
 
     :return: A number of unique patients"""
 
-    frm = "0"
-    if args["from"] is not None:
-        frm = str(args["from"])
-
-    to = "2147483647"
-    if args["to"] is not None:
-        to = str(args["to"])
 
     query = """ SELECT COUNT(pat.patientId) as patients
                 FROM (
@@ -426,41 +419,54 @@ def get_unique_patients_with_readings(facility_id="%", vht="%", args=None) -> Li
                     FROM (SELECT R.patientId FROM reading R 
                         JOIN user U ON R.userId = U.id
                         WHERE R.dateTimeTaken BETWEEN %s and %s
-                        AND ((userId LIKE "%s" OR userId is NULL) AND (U.healthFacilityName LIKE "%s" or U.healthFacilityName is NULL))
+                        AND (
+                            (userId LIKE "%s" OR userId is NULL) 
+                            AND (U.healthFacilityName LIKE "%s" or U.healthFacilityName is NULL)
+                        )
                     ) as P 
                 JOIN reading R ON P.patientID = R.patientId
                 GROUP BY P.patientId
                 HAVING COUNT(R.readingId) > 0) as pat
     """ % (
-        frm,
-        to,
+        filter.get("from"),
+        filter.get("to"),
         str(vht),
         str(facility_id),
     )
 
     try:
         result = db_session.execute(query)
-        return list(result)[0][0]
+        return list(result)
     except Exception as e:
         print(e)
         return None
 
 
-def get_total_readings_completed(vht: int) -> List[M]:
+
+def get_total_readings_completed(facility_id = "%", vht="%", filter = {}) -> List[M]:
     """Queries the database for total number of readings completed
 
     :return: Number of total readings"""
-
+    
     query = """
-            SELECT COUNT(R.readingId) 
-            FROM reading R
-            WHERE R.userId = %s
-            """ % str(
-        vht
+        SELECT COUNT(R.readingId)
+        FROM reading R
+        JOIN user U on U.id = R.userId
+        WHERE R.dateTimeTaken BETWEEN %s AND %s
+        AND (
+            (R.userId LIKE "%s" OR R.userId is NULL) 
+            AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)
+        )
+    """ % (
+        filter.get("from"),
+        filter.get("to"),
+        str(vht),
+        str(facility_id)
     )
+
     try:
         result = db_session.execute(query)
-        return result
+        return list(result)
     except Exception as e:
         print(e)
         return None
