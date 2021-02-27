@@ -407,7 +407,7 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 # TODO add role based queries
 
 
-def get_unique_patients_with_readings(facility_id="%", vht="%", filter={}) -> List[M]:
+def get_unique_patients_with_readings(facility="%", vht="%", filter={}) -> List[M]:
     """Queries the database for unique patients with more than one reading
 
     :return: A number of unique patients"""
@@ -431,7 +431,7 @@ def get_unique_patients_with_readings(facility_id="%", vht="%", filter={}) -> Li
         filter.get("from"),
         filter.get("to"),
         str(vht),
-        str(facility_id),
+        str(facility),
     )
 
     try:
@@ -443,8 +443,10 @@ def get_unique_patients_with_readings(facility_id="%", vht="%", filter={}) -> Li
 
 
 
-def get_total_readings_completed(facility_id = "%", vht="%", filter = {}) -> List[M]:
+def get_total_readings_completed(facility = "%", vht="%", filter = {}) -> List[M]:
     """Queries the database for total number of readings completed
+    
+    filter: filter date range, otherwise uses max range
 
     :return: Number of total readings"""
     
@@ -461,7 +463,7 @@ def get_total_readings_completed(facility_id = "%", vht="%", filter = {}) -> Lis
         filter.get("from"),
         filter.get("to"),
         str(vht),
-        str(facility_id)
+        str(facility)
     )
 
     try:
@@ -472,23 +474,32 @@ def get_total_readings_completed(facility_id = "%", vht="%", filter = {}) -> Lis
         return None
 
 
-def get_total_color_readings(vht: int) -> List[M]:
+def get_total_color_readings(facility = "%", vht="%", filter = {}) -> List[M]:
     """Queries the database for total number different coloured readings (red up, yellow down, etc)
+    filter: filter date range, otherwise uses max range
 
     :return: Total number of respective coloured readings"""
 
     query = """
-            SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus) 
-            FROM reading R
-            WHERE R.userId= %s
-            GROUP BY R.trafficLightStatus
-            """ % str(
-        vht
+        SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus) 
+        FROM reading R
+        JOIN user U on U.id = R.userId
+        WHERE R.dateTimeTaken BETWEEN %s AND %s
+        AND (
+            (R.userId LIKE "%s" OR R.userId is NULL) 
+            AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)
+        )
+        GROUP BY R.trafficLightStatus
+    """ % (
+        filter.get("from"),
+        filter.get("to"),
+        str(vht),
+        str(facility)
     )
 
     try:
         result = db_session.execute(query)
-        return result
+        return list(result)
     except Exception as e:
         print(e)
         return None

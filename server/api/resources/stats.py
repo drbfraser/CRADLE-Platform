@@ -50,8 +50,10 @@ class FacilityReadings(Resource):
         if request.args.get("to") is not None:
             args['to'] = str(request.args.get('to'))
 
-        patients = crud.get_unique_patients_with_readings(filter = args)
-        total_readings = crud.get_total_readings_completed(facility_id = facility_id,  filter = args)
+        patients = crud.get_unique_patients_with_readings(facility = facility_id, filter = args)
+        total_readings = crud.get_total_readings_completed(facility = facility_id,  filter = args)
+        color_readings = crud.get_total_color_readings(facility= facility_id, filter = args)
+
         print(f"{patients}, {total_readings}")
         # parse args
 
