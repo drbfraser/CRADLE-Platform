@@ -11,7 +11,6 @@ import { ReduxState } from '../redux/reducers';
 import { RoleEnum } from '../enums';
 import { Routes } from './routes';
 import { Sidebar } from './sidebar';
-import { StatisticsMenuItem } from './statistics';
 import { TopBar } from './topBar';
 import { routesNames } from './routes/utils';
 import { useSelector } from 'react-redux';
@@ -34,7 +33,6 @@ export const App: React.FC = () => {
   });
 
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
-  const [openStats, setOpenStats] = React.useState<boolean>(true);
 
   const { loggedIn, pathName, user } = useSelector(
     ({ user, router }: ReduxState): SelectorState => ({
@@ -46,7 +44,6 @@ export const App: React.FC = () => {
 
   React.useEffect(() => {
     setActiveItem(routesNames[pathName]);
-    setOpenStats(false);
   }, [pathName]);
 
   return (
@@ -70,18 +67,8 @@ export const App: React.FC = () => {
                 activeItem={activeItem}
                 setActiveItem={setActiveItem}
                 logout={{
-                  index: user?.roles.includes(RoleEnum.ADMIN) ? 3 : 2,
+                  index: user?.roles.includes(RoleEnum.ADMIN) ? 4 : 3,
                   component: <LogoutMenuItem />,
-                }}
-                statistics={{
-                  index: 2,
-                  component: (
-                    <StatisticsMenuItem
-                      activeItem={activeItem}
-                      openStats={openStats}
-                      setOpenStats={setOpenStats}
-                    />
-                  ),
                 }}
               />
             </Drawer>

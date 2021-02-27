@@ -1,6 +1,6 @@
 import { Patient } from '@types';
 import React from 'react';
-import { getAgeBasedOnDOB } from '../../../../../shared/utils';
+import { getAgeToDisplay } from '../../../../../shared/utils';
 
 interface IProps {
   patient: Patient;
@@ -17,7 +17,7 @@ export const BasicInformation: React.FC<IProps> = ({ patient }) => {
         <b>Age: </b>
         {patient.dob === undefined || patient.dob === null
           ? `N/A`
-          : getAgeBasedOnDOB(patient.dob)}
+          : getAgeToDisplay(patient.dob, patient.isExactDob)}
       </p>
       <p>
         <b>Sex: </b> {patient.patientSex} &nbsp;&nbsp;&nbsp;&nbsp;<b> Zone: </b>

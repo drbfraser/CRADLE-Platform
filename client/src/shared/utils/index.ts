@@ -8,6 +8,7 @@ import {
 
 import { TrafficLightEnum } from '../../enums';
 import moment from 'moment';
+import { history } from '../../redux/reducers/index';
 
 export { v4 as makeUniqueId } from 'uuid';
 
@@ -167,6 +168,13 @@ export const getAgeBasedOnDOB = (value: string) => {
   return moment().diff(value, 'years');
 };
 
+export const getAgeToDisplay = (dob: string, isExactDob: boolean) => {
+  if (isExactDob) {
+    return moment().diff(dob, 'years');
+  }
+  return `${moment().diff(dob, 'years')} (estimated)`;
+};
+
 export const getDOBForEstimatedAge = (age: number) => {
   return moment()
     .subtract(age + 0.5, 'years')
@@ -242,3 +250,12 @@ export const gestationalAgeValueMonthOptions = new Array(
 
     return Number(first.label) - Number(second.label);
   });
+
+export const goBackWithFallback = (fallbackUrl: string) => {
+  // browser new tab page + this page = 2, need more than 2 to go back
+  if (history.length > 2) {
+    history.goBack();
+  }
+
+  history.replace(fallbackUrl);
+};

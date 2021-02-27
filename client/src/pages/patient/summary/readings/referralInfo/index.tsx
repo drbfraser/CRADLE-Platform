@@ -1,12 +1,10 @@
 import { FollowUp, OrNull, Patient, Referral } from '@types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { Assessment } from './assessment';
 import Button from '@material-ui/core/Button';
-import { FormStatusEnum } from '../../../../../enums';
 import { Header } from './header';
 import React from 'react';
-import { ReduxState } from '../../../../../redux/reducers';
 import Typography from '@material-ui/core/Typography';
 import { push } from 'connected-react-router';
 import { useStyles } from './styles';
@@ -31,27 +29,15 @@ export const ReferralInfo: React.FC<IProps> = ({
 }) => {
   const classes = useStyles();
 
-  const userId = useSelector(
-    ({ user }: ReduxState): OrNull<number> => {
-      return user.current.data?.userId ?? null;
-    }
-  );
-
   const dispatch = useDispatch();
 
   const manageAssessment = (): void => {
     onAddPatientRequired((): void => {
-      dispatch(
-        push(`/assessments/new`, {
-          assessment: followUp,
-          patient: selectedPatient,
-          readingId,
-          userId,
-          status: followUp
-            ? FormStatusEnum.UPDATE_ASSESSMENT
-            : FormStatusEnum.ADD_ASSESSMENT,
-        })
-      );
+      if (followUp) {
+        dispatch(push(`/assessments/edit/${readingId}/${followUp.id}`));
+      } else {
+        dispatch(push(`/assessments/new/${readingId}`));
+      }
     }, `You haven't added this patient to your health facility. You need to do that before you can edit this patient. Would like to add this patient?`);
   };
 

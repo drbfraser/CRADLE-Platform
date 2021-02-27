@@ -1,5 +1,4 @@
 import { AdminPage } from '../../../pages/admin';
-import { CovidCollectionPage } from '../../../pages/statistics/covidCollection';
 import { LoginPage } from '../../../pages/login';
 import { NotFoundPage } from '../../../pages/notFound';
 import { PatientPage } from '../../../pages/patient';
@@ -14,9 +13,10 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { StatisticsPage } from '../../../pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { makeUniqueId } from '../../../shared/utils';
-import { NewReadingPage } from '../../../pages/newReading';
-import { NewReadingObselete } from '../../../pages/newReadingObselete';
-import { EditPatientPage } from '../../../pages/editPatient';
+import { AssessmentFormPage } from '../../../pages/assessmentForm';
+import { PatientFormPage } from '../../../pages/patientForm';
+import { ReadingFormPage } from '../../../pages/readingForm';
+import PollIcon from '@material-ui/icons/Poll';
 
 export type AppRoute = {
   component:
@@ -35,7 +35,7 @@ export type AppRoute = {
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
   {
-    component: EditPatientPage,
+    component: PatientFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -43,15 +43,15 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients/new`,
   },
   {
-    component: EditPatientPage,
-    exactPath: false,
+    component: PatientFormPage,
+    exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/edit/:editId`,
+    to: `/patients/edit/:patientId`,
   },
   {
-    component: NewReadingPage,
+    component: ReadingFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -59,12 +59,20 @@ export const appRoutes: Array<AppRoute> = [
     to: `/readings/new/:patientId`,
   },
   {
-    component: NewReadingObselete,
+    component: AssessmentFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/assessments/new`,
+    to: `/assessments/new/:readingId`,
+  },
+  {
+    component: AssessmentFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/assessments/edit/:readingId/:assessmentId`,
   },
   {
     component: ReferralsPage,
@@ -87,6 +95,17 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     title: `Patients`,
     to: `/patients`,
+  },
+  {
+    component: StatisticsPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    icon: <PollIcon fontSize="large" />,
+    inNavigation: true,
+    name: `Statistics`,
+    private: true,
+    title: `Statistics`,
+    to: `/stats`,
   },
   {
     component: ResourcesPage,
@@ -135,22 +154,6 @@ export const appRoutes: Array<AppRoute> = [
     to: `/login`,
   },
   {
-    component: StatisticsPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/stats`,
-  },
-  {
-    component: CovidCollectionPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/covid/collection`,
-  },
-  {
     component: NotFoundPage,
     exactPath: false,
     id: makeUniqueId(),
@@ -163,12 +166,7 @@ type RoutesNames = Record<string, string>;
 
 export const routesNames: RoutesNames = appRoutes.reduce(
   (routes: RoutesNames, route: AppRoute): RoutesNames => {
-    // * Special match for analytics
-    if (route.to === `/covid/collection` || route.to === `/stats`) {
-      routes[route.to] = `Analytics`;
-    } else {
-      routes[route.to ?? ``] = route.name ?? ``;
-    }
+    routes[route.to ?? ``] = route.name ?? ``;
     return routes;
   },
   {}
