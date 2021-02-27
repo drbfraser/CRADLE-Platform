@@ -28,9 +28,10 @@ jwt = JWTManager(app)
 #to represent admin
 @jwt.user_claims_loader
 def add_claims_to_jwt(identity):
+    isAdmin = False
     if(identity["userId"] == 1):
-        return{'is_admin': True}
-    return{'is_admin' : False}
+        isAdmin = True
+    return{'is_admin' : isAdmin}
 
 routes.init(config.api)
 

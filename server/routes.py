@@ -28,6 +28,7 @@ from api.resources.readings import Root as Readings, SingleReading
 from api.resources.referrals import Root as Referrals, SingleReferral
 
 
+
 def init(api):
     api.add_resource(AllStats, "/api/stats")  # [GET]
 
@@ -104,5 +105,6 @@ def init(api):
     )  # [GET]
 
     api.add_resource(AdminPasswordChange, '/api/admin/change_pass') #[POST]
-    
+    api.add_resource(UserPasswordChange, '/api/user/change_pass') #[POST]
+
     new_api.init_routes(api)
