@@ -113,6 +113,7 @@ class UserPasswordChange(Resource):
     )
 
     @jwt_required
+    @swag_from("../specifications/user-change-pass.yml", methods=["POST"])
     def post(self): 
         data = self.parser.parse_args()
         claims = get_jwt_claims()
