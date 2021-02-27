@@ -18,21 +18,21 @@ import routes
 from flask_jwt_extended import JWTManager
 
 
-
 app = config.app
 
-#The manager allows us to add more pieces of information into the jwt token
+# The manager allows us to add more pieces of information into the jwt token
 jwt = JWTManager(app)
 
-#To-Do: Create a whitelist that may be appended to, to increase the number of ids that are used
-#to represent admins automatically
+# To-Do: Create a whitelist that may be appended to, to increase the number of ids that are used
+# to represent admins automatically
 @jwt.user_claims_loader
 def add_claims_to_jwt(identity):
     isAdmin = False
     userId = identity["userId"]
-    if(identity["userId"] == 1):
+    if identity["userId"] == 1:
         isAdmin = True
-    return{'is_admin' : isAdmin, 'user_id' : userId}
+    return {"is_admin": isAdmin, "user_id": userId}
+
 
 routes.init(config.api)
 
@@ -48,7 +48,6 @@ else:
 print("Binding to " + host + ":" + port)
 
 import models  # needs to be after db instance
-
 
 
 if __name__ == "__main__":

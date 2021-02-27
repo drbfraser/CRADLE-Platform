@@ -48,44 +48,38 @@ class UserAllVHT(Resource):
         return vhtId_list
 
 
-
-
 # To do: See if we can use the serializer here instead of a parser
 # api/admin/change_pass [POST]
 class AdminPasswordChange(Resource):
 
     parser = reqparse.RequestParser()
-    parser.add_argument('password',
-        type = str,
-        required=True,
-        help="This field cannot be left blank!"
+    parser.add_argument(
+        "password", type=str, required=True, help="This field cannot be left blank!"
     )
-    parser.add_argument('id',
-        type = int,
-        required=True,
-        help="This field cannot be left blank!"
+    parser.add_argument(
+        "id", type=int, required=True, help="This field cannot be left blank!"
     )
-    
-    
+
     @jwt_required
     @swag_from("../specifications/admin-change-pass.yml", methods=["POST"])
     def post(self):
-        
+
         data = self.parser.parse_args()
         claims = get_jwt_claims()
 
-        if not claims['is_admin']:
-            return {'message': 'Admin privilege required'}, 401
+        if not claims["is_admin"]:
+            return {"message": "Admin privilege required"}, 401
 
         # check if user exists
         user = User.query.filter_by(id=data["id"]).first()
         if user is None:
             return {"message": "There is no user with this id"}, 400
-        
-        #check if password given is suitable
-        if(len(data["password"]) < 6):
-            return {"message" : "The new password must be atleast 6 characters long"}, 400
 
+        # check if password given is suitable
+        if len(data["password"]) < 6:
+            return {
+                "message": "The new password must be atleast 6 characters long"
+            }, 400
 
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
@@ -97,45 +91,39 @@ class AdminPasswordChange(Resource):
 
 # /api/user/change_pass [POST]
 class UserPasswordChange(Resource):
-    
+
     parser = reqparse.RequestParser()
-    parser.add_argument('old_password',
-        type = str,
-        required=True,
-        help="This field cannot be left blank!"
+    parser.add_argument(
+        "old_password", type=str, required=True, help="This field cannot be left blank!"
     )
-    parser.add_argument('new_password',
-        type = str,
-        required=True,
-        help="This field cannot be left blank!"
+    parser.add_argument(
+        "new_password", type=str, required=True, help="This field cannot be left blank!"
     )
 
     @jwt_required
     @swag_from("../specifications/user-change-pass.yml", methods=["POST"])
-    def post(self): 
+    def post(self):
         data = self.parser.parse_args()
         claims = get_jwt_claims()
-        user = User.query.filter_by(id=claims['user_id']).first()
+        user = User.query.filter_by(id=claims["user_id"]).first()
 
-        if user and flask_bcrypt.check_password_hash(user.password, data["old_password"]):
+        if user and flask_bcrypt.check_password_hash(
+            user.password, data["old_password"]
+        ):
 
             data["password"] = flask_bcrypt.generate_password_hash(data["new_password"])
 
-            data.pop('old_password')
-            data.pop('new_password')
+            
+            data.pop("old_password")
+            data.pop("new_password")
 
-            update_res = userManager.update("id", claims['user_id'], data)
+            update_res = userManager.update("id", claims["user_id"], data)
 
             update_res.pop("password")
 
             return update_res, 200
         else:
-            return {"error" : "The current password given does not match"}, 400
-
-
-        
-        
-
+            return {"error": "The current password given does not match"}, 400
 
 
 # user/register [POST]
@@ -208,10 +196,8 @@ class UserAuthApi(Resource):
                 data["roles"] = roles
                 data["firstName"] = user.firstName
                 data["healthFacilityName"] = user.healthFacilityName
-                data["isLoggedIn"] = True 
+                data["isLoggedIn"] = True
                 data["userId"] = user.id
-
-
 
                 vhtList = []
                 data["vhtList"] = []
