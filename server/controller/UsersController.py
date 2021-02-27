@@ -52,6 +52,7 @@ class UserAllVHT(Resource):
 # api/admin/change_pass [POST]
 class AdminPasswordChange(Resource):
 
+    # Ensure that we have the fields we want in JSON payload
     parser = reqparse.RequestParser()
     parser.add_argument(
         "password", type=str, required=True, help="This field cannot be left blank!"
@@ -67,6 +68,7 @@ class AdminPasswordChange(Resource):
         data = self.parser.parse_args()
         claims = get_jwt_claims()
 
+        # Prevent non-admin users from using this endpoint
         if not claims["is_admin"]:
             return {"message": "Admin privilege required"}, 401
 
@@ -83,6 +85,7 @@ class AdminPasswordChange(Resource):
 
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
+        # Update password
         update_res = userManager.update("id", data["id"], data)
         update_res.pop("password")
 
@@ -105,15 +108,18 @@ class UserPasswordChange(Resource):
     def post(self):
         data = self.parser.parse_args()
         claims = get_jwt_claims()
+
+        # Get all information about the user who is using this endpoint
         user = User.query.filter_by(id=claims["user_id"]).first()
 
+        # If old password and password we have on file match
         if user and flask_bcrypt.check_password_hash(
             user.password, data["old_password"]
         ):
 
             data["password"] = flask_bcrypt.generate_password_hash(data["new_password"])
 
-            
+            # If there are keys in the dictionary that don't match a column of the table update fails
             data.pop("old_password")
             data.pop("new_password")
 
@@ -123,7 +129,7 @@ class UserPasswordChange(Resource):
 
             return update_res, 200
         else:
-            return {"error": "The current password given does not match"}, 400
+            return {"error": "old_password incorrect"}, 400
 
 
 # user/register [POST]

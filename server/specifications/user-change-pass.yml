@@ -68,6 +68,6 @@ responses:
           properties:
             error:
               type: string
-              example: The current password given does not match
+              example: old_password incorrect
  
 
