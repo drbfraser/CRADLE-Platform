@@ -557,7 +557,7 @@ def get_referred_patients(facility = "%", filter = {}) -> List[M]:
         return None
 
 
-def get_days_with_readings(days: [str]):
+def get_days_with_readings(facility = "%", vht="%", filter = {}):
     """Queries the database for number of days within specified timeframe
         which have more than one reading
 
@@ -566,14 +566,22 @@ def get_days_with_readings(days: [str]):
     query = """
         SELECT COUNT(DISTINCT(FLOOR(R.dateTimeTaken / 86400)))
         FROM reading R
-        WHERE dateTimeTaken BETWEEN %s AND %s""" % (
-        (str(days[0])),
-        (str(days[1])),
+        JOIN user U ON U.id = R.userId
+        WHERE dateTimeTaken BETWEEN %s AND %s
+        AND (
+         	(R.userId LIKE "%s" OR R.userId IS NULL)
+			AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)   
+        )
+        """ % (
+        filter.get("from"),
+        filter.get("to"),
+        str(vht),
+        str(facility)
     )
 
     try:
         result = db_session.execute(query)
-        return result
+        return list(result)
     except Exception as e:
         print(e)
         return None

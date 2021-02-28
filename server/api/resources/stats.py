@@ -5,8 +5,8 @@ from flask_restful import Resource, abort
 from manager.StatsManager import StatsManager
 from flask import Response
 
+from models import TrafficLightEnum
 import data.crud as crud
-
 from validation import stats
 
 statsManager = StatsManager()
@@ -55,11 +55,23 @@ class FacilityReadings(Resource):
         patients = crud.get_unique_patients_with_readings(facility = facility_id, filter = args)
         total_readings = crud.get_total_readings_completed(facility = facility_id,  filter = args)
         #TODO: parse the result 
-        color_readings = crud.get_total_color_readings(facility= facility_id, filter = args)
+        color_readings_q = crud.get_total_color_readings(facility= facility_id, filter = args)
         total_referrals = crud.get_sent_referrals(facility = facility_id, filter = args) 
         referred_patients = crud.get_referred_patients(facility = facility_id, filter = args) 
+        days_with_readings = crud.get_days_with_readings(facility = facility_id, filter = args)
+        # print(f"{patients}, {total_readings}, {color_readings_q}, {total_referrals}, {referred_patients}, {days_with_readings}")
 
-        print(f"{patients}, {total_readings}, {color_readings}, {total_referrals}, {referred_patients}")
+        color_readings = {  TrafficLightEnum.GREEN.value:0, 
+                            TrafficLightEnum.YELLOW_UP.value: 0,
+                            TrafficLightEnum.YELLOW_DOWN.value: 0,
+                            TrafficLightEnum.RED_UP.value:0,
+                            TrafficLightEnum.RED_DOWN.value:0   }
+        for reading in color_readings_q:
+            if color_readings.get(reading[0]) is not None:
+                color_readings[reading[0]] = reading[1]
+        print(color_readings)
+        
+        return Response({"test":"test"}, status=200)
 
 
 class UserReadings(Resource):
