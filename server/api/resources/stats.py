@@ -42,7 +42,8 @@ class FacilityReadings(Resource):
     @jwt_required
     def get(facility_id: str):
 
-        #Big in date range
+        
+        #Big int date range
         args = {"from": "0", "to":"2147483647"}
         
         if request.args.get("from") is not None:
@@ -50,13 +51,15 @@ class FacilityReadings(Resource):
         if request.args.get("to") is not None:
             args['to'] = str(request.args.get('to'))
 
+        # Query all stats data 
         patients = crud.get_unique_patients_with_readings(facility = facility_id, filter = args)
         total_readings = crud.get_total_readings_completed(facility = facility_id,  filter = args)
+        #TODO: parse the result 
         color_readings = crud.get_total_color_readings(facility= facility_id, filter = args)
-        total_referrals = crud.get_sent_referrals(facility_id = facility_id, filter = args) 
-        
-        print(f"{patients}, {total_readings}")
-        # parse args
+        total_referrals = crud.get_sent_referrals(facility = facility_id, filter = args) 
+        referred_patients = crud.get_referred_patients(facility = facility_id, filter = args) 
+
+        print(f"{patients}, {total_readings}, {color_readings}, {total_referrals}, {referred_patients}")
 
 
 class UserReadings(Resource):

@@ -518,7 +518,7 @@ def get_sent_referrals(facility = "%", vht="%", filter = {}) -> List[M]:
             (R.userId LIKE "%s" OR R.userId IS NULL)
             AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName IS NULL)
         )
-    """ % str(
+    """ % (
         filter.get("from"),
         filter.get("to"),
         str(vht),
@@ -527,27 +527,31 @@ def get_sent_referrals(facility = "%", vht="%", filter = {}) -> List[M]:
 
     try:
         result = db_session.execute(query)
-        return result
+        return list(result)
     except Exception as e:
         print(e)
         return None
 
 
-def get_referred_patients(facility: str) -> List[M]:
+def get_referred_patients(facility = "%", filter = {}) -> List[M]:
     """Queries the database for total number of patients that have referrals to specified facility
 
     :return: Total number of referred patients"""
 
     query = """
-        SELECT COUNT(DISTINCT( R.patientId))
+        SELECT COUNT(DISTINCT(R.patientId))
         FROM referral R
-        WHERE R.referralHealthFacilityName= "%s" """ % str(
-        facility
+        WHERE R.dateReferred BETWEEN %s AND %s
+        AND (R.referralHealthFacilityName LIKE "%s" OR R.referralHealthFacilityName IS NULL) 
+        """ % (
+        filter.get("from"),
+        filter.get("to"),
+        str(facility)
     )
 
     try:
         result = db_session.execute(query)
-        return result
+        return list(result)
     except Exception as e:
         print(e)
         return None
