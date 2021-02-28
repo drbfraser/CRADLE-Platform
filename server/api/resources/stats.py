@@ -53,7 +53,8 @@ class FacilityReadings(Resource):
         patients = crud.get_unique_patients_with_readings(facility = facility_id, filter = args)
         total_readings = crud.get_total_readings_completed(facility = facility_id,  filter = args)
         color_readings = crud.get_total_color_readings(facility= facility_id, filter = args)
-
+        total_referrals = crud.get_sent_referrals(facility_id = facility_id, filter = args) 
+        
         print(f"{patients}, {total_readings}")
         # parse args
 

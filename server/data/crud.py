@@ -505,17 +505,24 @@ def get_total_color_readings(facility = "%", vht="%", filter = {}) -> List[M]:
         return None
 
 
-def get_sent_referrals(vht: int) -> List[M]:
+def get_sent_referrals(facility = "%", vht="%", filter = {}) -> List[M]:
     """Queries the database for total number of sent referrals
 
     :return: Total number of sent referrals"""
 
     query = """
-        SELECT COUNT(R.id)
-        FROM referral R
-        WHERE userId = %s
+        SELECT COUNT(R.id) FROM referral R
+        JOIN user U ON U.id = R.userId
+        WHERE R.dateReferred BETWEEN %s and %s
+        AND (
+            (R.userId LIKE "%s" OR R.userId IS NULL)
+            AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName IS NULL)
+        )
     """ % str(
-        vht
+        filter.get("from"),
+        filter.get("to"),
+        str(vht),
+        str(facility)
     )
 
     try:
