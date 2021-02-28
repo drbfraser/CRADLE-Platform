@@ -412,7 +412,6 @@ def get_unique_patients_with_readings(facility="%", vht="%", filter={}) -> List[
 
     :return: A number of unique patients"""
 
-
     query = """ SELECT COUNT(pat.patientId) as patients
                 FROM (
                     SELECT DISTINCT(P.patientId)
@@ -442,14 +441,13 @@ def get_unique_patients_with_readings(facility="%", vht="%", filter={}) -> List[
         return None
 
 
-
-def get_total_readings_completed(facility = "%", vht="%", filter = {}) -> List[M]:
+def get_total_readings_completed(facility="%", vht="%", filter={}) -> List[M]:
     """Queries the database for total number of readings completed
-    
+
     filter: filter date range, otherwise uses max range
 
     :return: Number of total readings"""
-    
+
     query = """
         SELECT COUNT(R.readingId)
         FROM reading R
@@ -463,7 +461,7 @@ def get_total_readings_completed(facility = "%", vht="%", filter = {}) -> List[M
         filter.get("from"),
         filter.get("to"),
         str(vht),
-        str(facility)
+        str(facility),
     )
 
     try:
@@ -474,7 +472,7 @@ def get_total_readings_completed(facility = "%", vht="%", filter = {}) -> List[M
         return None
 
 
-def get_total_color_readings(facility = "%", vht="%", filter = {}) -> List[M]:
+def get_total_color_readings(facility="%", vht="%", filter={}) -> List[M]:
     """Queries the database for total number different coloured readings (red up, yellow down, etc)
     filter: filter date range, otherwise uses max range
 
@@ -494,7 +492,7 @@ def get_total_color_readings(facility = "%", vht="%", filter = {}) -> List[M]:
         filter.get("from"),
         filter.get("to"),
         str(vht),
-        str(facility)
+        str(facility),
     )
 
     try:
@@ -505,7 +503,7 @@ def get_total_color_readings(facility = "%", vht="%", filter = {}) -> List[M]:
         return None
 
 
-def get_sent_referrals(facility = "%", vht="%", filter = {}) -> List[M]:
+def get_sent_referrals(facility="%", vht="%", filter={}) -> List[M]:
     """Queries the database for total number of sent referrals
 
     :return: Total number of sent referrals"""
@@ -522,7 +520,7 @@ def get_sent_referrals(facility = "%", vht="%", filter = {}) -> List[M]:
         filter.get("from"),
         filter.get("to"),
         str(vht),
-        str(facility)
+        str(facility),
     )
 
     try:
@@ -533,7 +531,7 @@ def get_sent_referrals(facility = "%", vht="%", filter = {}) -> List[M]:
         return None
 
 
-def get_referred_patients(facility = "%", filter = {}) -> List[M]:
+def get_referred_patients(facility="%", filter={}) -> List[M]:
     """Queries the database for total number of patients that have referrals to specified facility
 
     :return: Total number of referred patients"""
@@ -546,7 +544,7 @@ def get_referred_patients(facility = "%", filter = {}) -> List[M]:
         """ % (
         filter.get("from"),
         filter.get("to"),
-        str(facility)
+        str(facility),
     )
 
     try:
@@ -557,7 +555,7 @@ def get_referred_patients(facility = "%", filter = {}) -> List[M]:
         return None
 
 
-def get_days_with_readings(facility = "%", vht="%", filter = {}):
+def get_days_with_readings(facility="%", vht="%", filter={}):
     """Queries the database for number of days within specified timeframe
         which have more than one reading
 
@@ -576,7 +574,7 @@ def get_days_with_readings(facility = "%", vht="%", filter = {}):
         filter.get("from"),
         filter.get("to"),
         str(vht),
-        str(facility)
+        str(facility),
     )
 
     try:
