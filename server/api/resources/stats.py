@@ -54,24 +54,30 @@ class FacilityReadings(Resource):
         # Query all stats data 
         patients = crud.get_unique_patients_with_readings(facility = facility_id, filter = args)
         total_readings = crud.get_total_readings_completed(facility = facility_id,  filter = args)
-        #TODO: parse the result 
         color_readings_q = crud.get_total_color_readings(facility= facility_id, filter = args)
         total_referrals = crud.get_sent_referrals(facility = facility_id, filter = args) 
         referred_patients = crud.get_referred_patients(facility = facility_id, filter = args) 
         days_with_readings = crud.get_days_with_readings(facility = facility_id, filter = args)
-        # print(f"{patients}, {total_readings}, {color_readings_q}, {total_referrals}, {referred_patients}, {days_with_readings}")
 
         color_readings = {  TrafficLightEnum.GREEN.value:0, 
                             TrafficLightEnum.YELLOW_UP.value: 0,
                             TrafficLightEnum.YELLOW_DOWN.value: 0,
                             TrafficLightEnum.RED_UP.value:0,
                             TrafficLightEnum.RED_DOWN.value:0   }
+        
         for reading in color_readings_q:
             if color_readings.get(reading[0]) is not None:
                 color_readings[reading[0]] = reading[1]
-        print(color_readings)
         
-        return Response({"test":"test"}, status=200)
+        response = {
+            "patients_referred": referred_patients[0][0],
+            "sent_referrals":total_referrals[0][0],
+            "days_with_readings": days_with_readings[0][0],
+            "unique_patient_readings": patients[0][0],
+            "total_readings":total_readings[0][0],
+            "color_readings": color_readings
+        }
+        return response,200
 
 
 class UserReadings(Resource):
