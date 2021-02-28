@@ -1,13 +1,8 @@
-import { ChatState, chatReducer } from '../../pages/videoChat/reducers/chat';
 import {
   HealthFacilitiesState,
   healthFacilitiesReducer,
 } from '../reducers/healthFacilities';
 import { History, createBrowserHistory } from 'history';
-import {
-  NewReadingStatusState,
-  newReadingStatusReducer,
-} from '../reducers/newReadingStatus';
 import {
   PatientStatisticsState,
   patientStatisticsReducer,
@@ -22,9 +17,7 @@ import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 
 export type ReduxState = {
-  chat: ChatState;
   healthFacilities: HealthFacilitiesState;
-  newReadingStatus: NewReadingStatusState;
   patients: PatientsState;
   patientStatistics: PatientStatisticsState;
   statistics: StatisticsState;
@@ -34,9 +27,7 @@ export type ReduxState = {
 
 const createRootReducer = (history: History) => {
   return combineReducers({
-    chat: chatReducer,
     healthFacilities: healthFacilitiesReducer,
-    newReadingStatus: newReadingStatusReducer,
     patients: patientsReducer,
     patientStatistics: patientStatisticsReducer,
     router: connectRouter(history),

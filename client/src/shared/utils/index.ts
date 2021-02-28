@@ -1,10 +1,4 @@
-import {
-  GlobalSearchPatient,
-  OrNull,
-  OrUndefined,
-  Patient,
-  Reading,
-} from '@types';
+import { OrNull, OrUndefined, Reading } from '@types';
 
 import { TrafficLightEnum } from '../../enums';
 import moment from 'moment';
@@ -76,6 +70,7 @@ export const getNumOfMonths = (timestamp: number): number | string => {
   return numOfMonths === 0 ? `Less than 1` : numOfMonths;
 };
 
+// Function is not currently used but has a high likelihood of being useful in the future
 export const calculateShockIndex = (reading: Reading): TrafficLightEnum => {
   const RED_SYSTOLIC = 160;
   const RED_DIASTOLIC = 110;
@@ -122,20 +117,10 @@ export const getMomentDate = (dateS: OrNull<number>): moment.Moment => {
   return moment(dateS ?? 0);
 };
 
-export const getPrettyDate = (dateStr: number): string => {
-  // * Date comes in from the backend in seconds
-  // * Moment date requires milliseconds
-  return getMomentDate(dateStr * 1000).format('YYYY-MM-DD');
-};
-
 export const getPrettyDateTime = (dateStr: number): string => {
   // * Date comes in from the backend in seconds
   // * Moment date requires milliseconds
   return getMomentDate(dateStr * 1000).format('YYYY-MM-DD');
-};
-
-export const getPrettyDateYYYYmmDD = (dateStr: string): string => {
-  return moment(dateStr).format('YYYY-MM-DD');
 };
 
 export const getLatestReading = (readings: Array<Reading>): Reading => {
@@ -145,22 +130,6 @@ export const getLatestReading = (readings: Array<Reading>): Reading => {
       getMomentDate(reading.dateTimeTaken).valueOf()
   );
   return sortedReadings[0];
-};
-
-export const getLatestReadingDateTime = (
-  readings: Array<Reading>
-): OrNull<number> => {
-  return getLatestReading(readings).dateTimeTaken;
-};
-
-export const sortPatientsByLastReading = (
-  patient: Patient | GlobalSearchPatient,
-  otherPatient: Patient | GlobalSearchPatient
-): number => {
-  return (
-    getMomentDate(getLatestReadingDateTime(otherPatient.readings)).valueOf() -
-    getMomentDate(getLatestReadingDateTime(patient.readings)).valueOf()
-  );
 };
 
 //~~~~~~~ Calculate Age based on DOB ~~~~~~~~~~
@@ -185,71 +154,6 @@ export const GESTATIONAL_AGE_UNITS = {
   WEEKS: `GESTATIONAL_AGE_UNITS_WEEKS`,
   MONTHS: `GESTATIONAL_AGE_UNITS_MONTHS`,
 };
-
-export const INITIAL_URINE_TESTS = {
-  urineTestNit: ``,
-  urineTestBlood: ``,
-  urineTestLeuc: ``,
-  urineTestPro: ``,
-  urineTestGlu: ``,
-};
-
-export const URINE_TEST_CHEMICALS = {
-  LEUC: `Leukocytes`,
-  NIT: `Nitrites`,
-  GLU: `Glucose`,
-  PRO: `Protein`,
-  BLOOD: `Blood`,
-};
-
-export const monthsToWeeks = (value: string): string => {
-  return `${Number(value) * 4}`;
-};
-
-export const weeksToMonths = (value: string): string => {
-  const rawValue = Math.floor(Number(value) / 4);
-  return `${Math.max(1, rawValue)}`;
-};
-
-enum GestationLimitsEnum {
-  WEEKS = 43,
-  MONTHS = 10,
-}
-
-export const gestationalAgeValueWeekOptions = new Array(
-  GestationLimitsEnum.WEEKS
-)
-  .fill(null)
-  .map((_: null, index: number) => ({
-    label: `${index + 1}`,
-    value: `${index + 1}`,
-  }));
-
-export const gestationalAgeValueMonthOptions = new Array(
-  GestationLimitsEnum.MONTHS
-)
-  .fill(null)
-  .map((_: null, index: number) => ({
-    label: `${index + 1}`,
-    value: `${index + 1}`,
-  }))
-  .concat([
-    {
-      label: `Less than 1 month`,
-      value: `Less than 1`,
-    },
-  ])
-  .sort((first: { label: string }, second: { label: string }): number => {
-    if (first.label === `Less than 1 month`) {
-      return -1;
-    }
-
-    if (second.label === `Less than 1 month`) {
-      return 1;
-    }
-
-    return Number(first.label) - Number(second.label);
-  });
 
 export const goBackWithFallback = (fallbackUrl: string) => {
   // browser new tab page + this page = 2, need more than 2 to go back
