@@ -1,3 +1,4 @@
+import { apiFetch } from '../../../src/shared/utils/api';
 import { EndpointEnum } from '../../server';
 import { BASE_URL } from '../../server/utils';
 import { ReadingField, ReadingState } from './state';
@@ -62,20 +63,13 @@ export const handleSubmit = async (
   userId: number
 ) => {
   const submitValues = getSubmitObject(patientId, values, userId);
-
-  const fetchOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + localStorage.getItem('token'),
-    },
-    body: JSON.stringify(submitValues),
-  };
-
   const url = BASE_URL + EndpointEnum.READINGS;
 
   try {
-    const resp = await fetch(url, fetchOptions);
+    const resp = await apiFetch(url, {
+      method: 'POST',
+      body: JSON.stringify(submitValues),
+    });
 
     if (!resp.ok) {
       throw new Error('Response failed with error code: ' + resp.status);
