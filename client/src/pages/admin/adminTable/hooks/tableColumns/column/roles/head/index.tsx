@@ -1,8 +1,8 @@
-import { Callback, User } from '@types';
+import { Callback, User } from 'src/types';
 
 import React from 'react';
-import { SortOrderEnum } from '../../../../../../../../enums';
-import { SortToggle } from '../../../../../../../../shared/components/sortToggle';
+import { SortOrderEnum } from 'src/enums';
+import { SortToggle } from 'src/shared/components/sortToggle';
 import orderBy from 'lodash/orderBy';
 
 interface IProps {

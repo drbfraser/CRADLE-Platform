@@ -1,12 +1,12 @@
-import { Callback, User } from '@types';
+import { Callback, User } from 'src/types';
 
-import { AutocompleteOption } from '../../../../../shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 import { MUIDataTableColumn } from 'mui-datatables';
 import { useEmailColumn } from './column/email';
 import { useFirstNameColumn } from './column/firstName';
 import { useHealthFacilityColumn } from './column/healthFacility';
 import { useRolesColumn } from './column/roles';
-import { useStyles } from '../../../../../shared/components/table/styles';
+import { useStyles } from 'src/shared/components/table/styles';
 import { useTakeActionColumn } from './column/takeAction';
 
 // * Order of enums is important

@@ -1,6 +1,6 @@
-import { OrUndefined, Reading } from '@types';
+import { OrUndefined, Reading } from 'src/types';
 
-import { getLatestReadingWithReferral } from '../../../../../../../../shared/utils';
+import { getLatestReadingWithReferral } from 'src/shared/utils';
 
 export const getLatestDateReferred = (
   readings: Array<Reading>

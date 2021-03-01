@@ -4,11 +4,11 @@ import {
   getTimestampFromMonths,
   getTimestampFromWeeks,
   goBackWithFallback,
-} from '../../shared/utils';
-import { EndpointEnum } from '../../server';
-import { BASE_URL } from '../../server/utils';
+} from 'src/shared/utils';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 import { initialState, PatientField, PatientState, SEXES } from './state';
-import { apiFetch } from '../../../src/shared/utils/api';
+import { apiFetch } from 'src/shared/utils/api';
 
 // custom change handler when a field might affect other fields
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {

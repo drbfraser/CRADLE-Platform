@@ -2,11 +2,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import moment from 'moment';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { TrafficLight } from '../../../src/shared/components/trafficLight';
+import { TrafficLight } from 'src/shared/components/trafficLight';
 import { IReferral } from './types';
 import DoneIcon from '@material-ui/icons/Done';
 import ScheduleIcon from '@material-ui/icons/Schedule';
-import { useRowStyles } from '../../../src/shared/components/apiTable/rowStyles';
+import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
 
 interface IProps {
   row: IReferral;

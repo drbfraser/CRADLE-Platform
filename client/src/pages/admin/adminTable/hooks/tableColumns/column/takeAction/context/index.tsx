@@ -1,4 +1,4 @@
-import { AutocompleteOption } from '../../../../../../../../shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 import React from 'react';
 
 export interface ITakeActionContext {

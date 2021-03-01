@@ -3,10 +3,10 @@ import {
   getAgeBasedOnDOB,
   getNumOfMonthsNumeric,
   getNumOfWeeks,
-} from '../../shared/utils';
-import { EndpointEnum } from '../../server';
-import { BASE_URL } from '../../server/utils';
-import { apiFetch } from '../../../src/shared/utils/api';
+} from 'src/shared/utils';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
+import { apiFetch } from 'src/shared/utils/api';
 
 export const SEXES = {
   MALE: 'MALE',

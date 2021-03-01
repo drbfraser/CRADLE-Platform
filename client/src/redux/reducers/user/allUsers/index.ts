@@ -1,10 +1,10 @@
-import { EditUser, OrNull, ServerError, User, VHT } from '@types';
+import { EditUser, OrNull, ServerError, User, VHT } from 'src/types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from '../../../../server';
-import { MethodEnum } from '../../../../server';
-import { RoleEnum } from '../../../../enums';
+import { EndpointEnum } from 'src/server';
+import { MethodEnum } from 'src/server';
+import { RoleEnum } from 'src/enums';
 
 enum AllUsersActionEnum {
   CLEAR_REQUEST_OUTCOME = 'allUsers/CLEAR_REQUEST_OUTCOME',

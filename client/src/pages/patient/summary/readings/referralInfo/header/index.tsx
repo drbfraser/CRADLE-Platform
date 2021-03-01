@@ -2,7 +2,7 @@ import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { getPrettyDateTime } from '../../../../../../shared/utils';
+import { getPrettyDateTime } from 'src/shared/utils';
 import { useStyles } from './styles';
 
 interface IProps {

@@ -1,22 +1,22 @@
-import { Callback, OrNull, OrUndefined, User } from '@types';
+import { Callback, OrNull, OrUndefined, User } from 'src/types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import MUIDataTable from 'mui-datatables';
 import React from 'react';
-import { ReduxState } from '../../../redux/reducers';
-import { Toast } from '../../../shared/components/toast';
-import { clearAllVhtsRequestOutcome } from '../../../redux/reducers/user/allVhts';
-import { clearHealthFacilitiesRequestOutcome } from '../../../redux/reducers/healthFacilities';
-import { customRowRender } from '../../../shared/components/table/row';
+import { ReduxState } from 'src/redux/reducers';
+import { Toast } from 'src/shared/components/toast';
+import { clearAllVhtsRequestOutcome } from 'src/redux/reducers/user/allVhts';
+import { clearHealthFacilitiesRequestOutcome } from 'src/redux/reducers/healthFacilities';
+import { customRowRender } from 'src/shared/components/table/row';
 import { customToolbarRender } from './toolbar';
-import { updateRowsPerPage } from '../../../redux/reducers/user/allUsers';
+import { updateRowsPerPage } from 'src/redux/reducers/user/allUsers';
 import { useData } from './hooks/data';
-import { useHealthFacilityOptions } from '../../../shared/hooks/healthFacilityOptions';
-import { useLocalization } from '../../../shared/hooks/table/localization';
-import { useSearchChange } from '../../../shared/hooks/table/searchChange';
+import { useHealthFacilityOptions } from 'src/shared/hooks/healthFacilityOptions';
+import { useLocalization } from 'src/shared/hooks/table/localization';
+import { useSearchChange } from 'src/shared/hooks/table/searchChange';
 import { useStyles } from './styles';
 import { useTableColumns } from './hooks/tableColumns';
-import { useUpdatePageNumber } from '../../../shared/hooks/table/updatePageNumber';
+import { useUpdatePageNumber } from 'src/shared/hooks/table/updatePageNumber';
 import { useVHTOptions } from './hooks/vhtOptions';
 
 interface IProps {

@@ -1,8 +1,8 @@
 import { Divider, Header, Segment } from 'semantic-ui-react';
-import { FollowUp, OrNull } from '@types';
+import { FollowUp, OrNull } from 'src/types';
 
 import React from 'react';
-import { getPrettyDateTime } from '../../../../../../shared/utils';
+import { getPrettyDateTime } from 'src/shared/utils';
 
 interface IProps {
   followUp: OrNull<FollowUp>;

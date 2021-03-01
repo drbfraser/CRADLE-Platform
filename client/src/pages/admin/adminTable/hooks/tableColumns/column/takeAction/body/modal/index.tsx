@@ -4,17 +4,14 @@ import {
   UpdateUserKey,
   actionCreators,
 } from '../reducer';
-import { EditUser, OrNull, VHT } from '@types';
-import {
-  deleteUser,
-  updateUser,
-} from '../../../../../../../../../redux/reducers/user/allUsers';
+import { EditUser, OrNull, VHT } from 'src/types';
+import { deleteUser, updateUser } from 'src/redux/reducers/user/allUsers';
 
-import { AutocompleteOption } from '../../../../../../../../../shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 import { DeleteUserModal } from './deleteUser';
 import { EditUserModal } from './editUser';
 import React from 'react';
-import { RoleEnum } from '../../../../../../../../../enums';
+import { RoleEnum } from 'src/enums';
 import { useDispatch } from 'react-redux';
 
 interface IProps {

@@ -1,5 +1,5 @@
 import DialogContentText from '@material-ui/core/DialogContentText';
-import { DialogPopup } from '../../../../../../../../../../shared/components/dialogPopup';
+import { DialogPopup } from 'src/shared/components/dialogPopup';
 import React from 'react';
 
 interface IProps {

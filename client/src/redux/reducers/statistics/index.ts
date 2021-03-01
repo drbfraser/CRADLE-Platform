@@ -1,8 +1,8 @@
-import { OrNull, ServerError, Statistics } from '@types';
+import { OrNull, ServerError, Statistics } from 'src/types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from '../../../server';
+import { EndpointEnum } from 'src/server';
 
 enum StatisticsActionEnum {
   CLEAR_REQUEST_OUTCOME = 'statistics/CLEAR_REQUEST_OUTCOME',

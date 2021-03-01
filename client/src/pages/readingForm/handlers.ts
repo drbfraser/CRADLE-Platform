@@ -1,6 +1,6 @@
-import { apiFetch } from '../../../src/shared/utils/api';
-import { EndpointEnum } from '../../server';
-import { BASE_URL } from '../../server/utils';
+import { apiFetch } from 'src/shared/utils/api';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 import { ReadingField, ReadingState } from './state';
 import { getSymptomsFromFormState } from './symptoms/symptoms';
 

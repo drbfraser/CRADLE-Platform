@@ -1,4 +1,4 @@
-import { Callback, User } from '@types';
+import { Callback, User } from 'src/types';
 import {
   MUIDataTableColumn,
   MUIDataTableCustomHeadRenderer,

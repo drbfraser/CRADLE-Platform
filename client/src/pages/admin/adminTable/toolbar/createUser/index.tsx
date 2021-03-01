@@ -4,16 +4,16 @@ import { FormikHelpers, useFormik } from 'formik';
 import {
   clearRegisterUserRequestOutcome,
   registerUser,
-} from '../../../../../redux/reducers/user/allUsers';
+} from 'src/redux/reducers/user/allUsers';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { AutocompleteOption } from '../../../../../shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 import Button from '@material-ui/core/Button';
 import { CreateUserModal } from './modal';
-import { OrNull } from '@types';
+import { OrNull } from 'src/types';
 import React from 'react';
-import { ReduxState } from '../../../../../redux/reducers';
-import { Toast } from '../../../../../shared/components/toast';
+import { ReduxState } from 'src/redux/reducers';
+import { Toast } from 'src/shared/components/toast';
 
 export type CreateUserData = {
   email: string;

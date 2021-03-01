@@ -1,7 +1,7 @@
-import { OrNull, OrUndefined, User } from '@types';
+import { OrNull, OrUndefined, User } from 'src/types';
 
 import React from 'react';
-import { RoleEnum } from '../../../../../../enums';
+import { RoleEnum } from 'src/enums';
 import { getRoles } from '../../utils';
 
 interface IArgs {

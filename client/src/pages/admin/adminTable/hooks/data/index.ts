@@ -1,4 +1,4 @@
-import { Callback, OrNull, OrUndefined, User } from '@types';
+import { Callback, OrNull, OrUndefined, User } from 'src/types';
 
 import React from 'react';
 import { useFilterBySearchText } from './filterBySearchText';

@@ -1,12 +1,12 @@
-import { Callback, OrUndefined } from '@types';
+import { Callback, OrUndefined } from 'src/types';
 
 import { CreateUser } from './createUser';
-import { DefaultSearch } from '../../../../shared/components/defaultSearch';
+import { DefaultSearch } from 'src/shared/components/defaultSearch';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import React from 'react';
 import { useStyles as useLocalStyles } from './styles';
-import { useStyles } from '../../../../shared/styles/toolbar';
-import { useTimeout } from '../../../../shared/hooks/timeout';
+import { useStyles } from 'src/shared/styles/toolbar';
+import { useTimeout } from 'src/shared/hooks/timeout';
 
 interface IProps {
   loading: boolean;

@@ -1,6 +1,6 @@
-import { apiFetch } from '../../../src/shared/utils/api';
-import { EndpointEnum } from '../../../src/server';
-import { BASE_URL } from '../../../src/server/utils';
+import { apiFetch } from 'src/shared/utils/api';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 
 // field names here match /api/assessments
 export enum AssessmentField {

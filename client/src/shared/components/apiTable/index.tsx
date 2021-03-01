@@ -5,8 +5,9 @@ import { Toast } from '../toast';
 import { SortDir } from './types';
 import Pagination from './Pagination';
 import { HeaderRow } from './HeaderRow';
-import { BASE_URL } from '../../../../src/server/utils';
-import { EndpointEnum } from '../../../../src/server';
+import { BASE_URL } from 'src/server/utils';
+import { EndpointEnum } from 'src/server';
+import { apiFetch } from 'src/shared/utils/api';
 
 interface IProps {
   endpoint: EndpointEnum;
@@ -51,9 +52,6 @@ export const APITable = ({
     const controller = new AbortController();
 
     const fetchOptions = {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
       signal: controller.signal,
     };
 
@@ -67,7 +65,7 @@ export const APITable = ({
         sortDir: sortDir,
       });
 
-    fetch(BASE_URL + endpoint + params, fetchOptions)
+    apiFetch(BASE_URL + endpoint + params, fetchOptions)
       .then(async (resp) => {
         const json = await resp.json();
         setRows(json);

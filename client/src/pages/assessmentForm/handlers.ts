@@ -1,8 +1,8 @@
-import { goBackWithFallback } from '../../../src/shared/utils';
-import { EndpointEnum } from '../../../src/server';
-import { BASE_URL } from '../../../src/server/utils';
+import { goBackWithFallback } from 'src/shared/utils';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 import { AssessmentState } from './state';
-import { apiFetch } from '../../../src/shared/utils/api';
+import { apiFetch } from 'src/shared/utils/api';
 
 export const handleSubmit = (
   readingId: string,

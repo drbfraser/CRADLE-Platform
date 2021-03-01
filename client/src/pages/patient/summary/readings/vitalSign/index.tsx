@@ -1,5 +1,5 @@
 import React from 'react';
-import { Reading } from '@types';
+import { Reading } from 'src/types';
 import { useStyles } from './styles';
 
 interface IProps {

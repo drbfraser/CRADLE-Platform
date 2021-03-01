@@ -1,17 +1,17 @@
-import { OrNull, User } from '../../types';
+import { OrNull, User } from 'src/types';
 import {
   clearAllUsersRequestOutcome,
   getUsers,
   sortUsers,
   updatePageNumber,
   updateSearchText,
-} from '../../redux/reducers/user/allUsers';
+} from 'src/redux/reducers/user/allUsers';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AdminTable } from './adminTable';
 import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { Toast } from '../../shared/components/toast';
+import { ReduxState } from 'src/redux/reducers';
+import { Toast } from 'src/shared/components/toast';
 
 type SelectorState = {
   error: OrNull<string>;

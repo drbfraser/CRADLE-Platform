@@ -1,6 +1,6 @@
-import { Patient } from '@types';
+import { Patient } from 'src/types';
 import React from 'react';
-import { SexEnum } from '../../../../../enums';
+import { SexEnum } from 'src/enums';
 
 interface IProps {
   patient: Patient;

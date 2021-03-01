@@ -3,12 +3,12 @@ import {
   MUIDataTableCustomHeadRenderer,
 } from 'mui-datatables';
 
-import { AutocompleteOption } from '../../../../../../../shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 import React from 'react';
 import { TakeActionBody } from './body';
 import { TakeActionContextProvider } from './context';
 import { TakeActionHead } from './head';
-import { User } from '@types';
+import { User } from 'src/types';
 
 interface IArgs {
   headClass: string;

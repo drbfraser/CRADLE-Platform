@@ -1,4 +1,4 @@
-import { GlobalSearchPatient, OrNull, OrUndefined, Patient } from '@types';
+import { GlobalSearchPatient, OrNull, OrUndefined, Patient } from 'src/types';
 
 import React from 'react';
 

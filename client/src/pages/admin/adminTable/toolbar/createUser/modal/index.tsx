@@ -1,18 +1,18 @@
 import { FormikErrors, FormikTouched } from 'formik';
 
-import { AutocompleteInput } from '../../../../../../shared/components/input/autocomplete';
-import { AutocompleteOption } from '../../../../../../shared/components/input/autocomplete/utils';
-import { Callback } from '@types';
+import { AutocompleteInput } from 'src/shared/components/input/autocomplete';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
+import { Callback } from 'src/types';
 import { CreateUserData } from '..';
-import { DialogPopup } from '../../../../../../shared/components/dialogPopup';
+import { DialogPopup } from 'src/shared/components/dialogPopup';
 import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import React from 'react';
-import { RoleEnum } from '../../../../../../enums';
-import { TextInput } from '../../../../../../shared/components/input/text';
+import { RoleEnum } from 'src/enums';
+import { TextInput } from 'src/shared/components/input/text';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
-import { useHealthFacilityOptions } from '../../../../../../shared/hooks/healthFacilityOptions';
+import { useHealthFacilityOptions } from 'src/shared/hooks/healthFacilityOptions';
 import { useStyles } from './styles';
 
 interface IProps {

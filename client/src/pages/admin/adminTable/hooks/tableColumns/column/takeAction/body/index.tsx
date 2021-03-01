@@ -1,12 +1,12 @@
-import { OrNull, User } from '@types';
+import { OrNull, User } from 'src/types';
 import { actionCreators, initialState, reducer } from './reducer';
 
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import React from 'react';
-import { ReduxState } from '../../../../../../../../redux/reducers';
-import { RoleEnum } from '../../../../../../../../enums';
+import { ReduxState } from 'src/redux/reducers';
+import { RoleEnum } from 'src/enums';
 import Tooltip from '@material-ui/core/Tooltip';
 import { UserModal } from './modal';
 import { getRoles } from '../../../../utils';

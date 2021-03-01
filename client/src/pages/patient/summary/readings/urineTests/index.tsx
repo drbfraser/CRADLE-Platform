@@ -1,4 +1,4 @@
-import { OrNull, UrineTests as UrineTestsType } from '@types';
+import { OrNull, UrineTests as UrineTestsType } from 'src/types';
 
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';

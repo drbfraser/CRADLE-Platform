@@ -1,4 +1,4 @@
-import { RoleEnum } from '../../../../../enums';
+import { RoleEnum } from 'src/enums';
 
 export const getRoles = (roleIds: Array<number>): Array<RoleEnum> => {
   const roles = Object.values(RoleEnum);

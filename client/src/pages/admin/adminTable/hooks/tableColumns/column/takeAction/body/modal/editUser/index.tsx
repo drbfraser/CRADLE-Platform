@@ -1,12 +1,12 @@
-import { AutocompleteInput } from '../../../../../../../../../../shared/components/input/autocomplete';
-import { AutocompleteOption } from '../../../../../../../../../../shared/components/input/autocomplete/utils';
-import { DialogPopup } from '../../../../../../../../../../shared/components/dialogPopup';
-import { EditUser } from '@types';
+import { AutocompleteInput } from 'src/shared/components/input/autocomplete';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
+import { DialogPopup } from 'src/shared/components/dialogPopup';
+import { EditUser } from 'src/types';
 import React from 'react';
-import { RoleEnum } from '../../../../../../../../../../enums';
-import { TextInput } from '../../../../../../../../../../shared/components/input/text';
+import { RoleEnum } from 'src/enums';
+import { TextInput } from 'src/shared/components/input/text';
 import { UpdateOptionsKey } from '../../reducer';
-import { roleOptions } from '../../../../../../../../utils';
+import { roleOptions } from 'src/pages/admin/utils';
 import { useStyles } from './styles';
 import { useTakeActionsContext } from '../../../context/hooks';
 
