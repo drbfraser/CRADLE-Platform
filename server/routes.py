@@ -17,12 +17,6 @@ from api.resources.stats import (
     Root as AllStats,
     FacilityReadings,
     UserReadings,
-    UniqueReadings,
-    TotalReadings,
-    ColorReadings,
-    SentReferrals,
-    ReferredPatients,
-    TimeFrameReadings,
 )
 
 from api.resources.patientAssociations import Root as PatientAssociations
