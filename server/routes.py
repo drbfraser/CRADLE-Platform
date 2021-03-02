@@ -16,6 +16,7 @@ from api.resources.assessments import (
 from api.resources.stats import (
     Root as AllStats,
     FacilityReadings,
+    UserReadings,
     UniqueReadings,
     TotalReadings,
     ColorReadings,
@@ -53,6 +54,10 @@ def init(api):
     api.add_resource(
         FacilityReadings, "/api/stats/facility/<string:facility_id>"
     )  # [GET]
+
+    api.add_resource(
+        UserReadings, "/api/stats/user/<int:user_id>"
+    )
 
     api.add_resource(UserApi, "/api/user/register")  # [POST]
     api.add_resource(UserAuthApi, "/api/user/auth")  # [POST]
