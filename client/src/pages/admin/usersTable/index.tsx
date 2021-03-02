@@ -34,7 +34,7 @@ type SelectorState = {
   rowsPerPage: number;
 };
 
-export const AdminTable: React.FC<IProps> = (props) => {
+export const UsersTable: React.FC<IProps> = (props) => {
   const { error, rowsPerPage } = useSelector(
     ({ healthFacilities, user }: ReduxState): SelectorState => {
       return {
@@ -95,7 +95,7 @@ export const AdminTable: React.FC<IProps> = (props) => {
       <MUIDataTable
         columns={tableColumns}
         data={users}
-        title="Manage Users"
+        title="Users"
         options={{
           customRowRender: customRowRender({ rowClassName: classes.row }),
           customToolbar: customToolbarRender({

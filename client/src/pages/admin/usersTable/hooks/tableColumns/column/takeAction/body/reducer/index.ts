@@ -2,7 +2,7 @@ import { EditUser, OrNull, User, VHT } from 'src/types';
 
 import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 import { RoleEnum } from 'src/enums';
-import { getRoles } from 'src/pages/admin/adminTable/hooks/utils';
+import { getRoles } from 'src/pages/admin/usersTable/hooks/utils';
 
 export enum ActionTypeEnum {
   CLOSE_EDIT_USER_MODAL,
