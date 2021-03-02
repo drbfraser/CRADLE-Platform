@@ -41,16 +41,6 @@ from api.resources.referrals import Root as Referrals, SingleReferral
 
 def init(api):
     api.add_resource(AllStats, "/api/stats")  # [GET]
-    api.add_resource(UniqueReadings, "/api/stats_unique_readings/<int:vht_id>")  # [GET]
-    api.add_resource(TotalReadings, "/api/stats_total_readings/<int:vht_id>")  # [GET]
-    api.add_resource(ColorReadings, "/api/stats_color_readings/<int:vht_id>")  # [GET]
-    api.add_resource(SentReferrals, "/api/stats_sent_referrals/<int:vht_id>")  # [GET]
-    api.add_resource(
-        ReferredPatients, "/api/stats_referred_patients/<string:referral_facility>"
-    )  # GET
-    # TODO possibly change to a GET Method
-    api.add_resource(TimeFrameReadings, "/api/stats_timeframe")  # POST
-
     api.add_resource(
         FacilityReadings, "/api/stats/facility/<string:facility_id>"
     )  # [GET]
