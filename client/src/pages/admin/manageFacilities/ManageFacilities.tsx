@@ -8,14 +8,8 @@ import { Button, IconButton, Tooltip } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import { Toast } from 'src/shared/components/toast';
-
-interface IFacility {
-  about: string;
-  facilityType: string;
-  healthFacilityName: string;
-  healthFacilityPhoneNumber: string;
-  location: string;
-}
+import { IFacility } from './state';
+import EditFacility from './EditFacility';
 
 const columns = [
   'Facility Name',
@@ -33,20 +27,22 @@ export const ManageFacilities = () => {
   const styles = useStyles();
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
-  const [data, setData] = useState<(string | number)[][]>([]);
+  const [tableData, setTableData] = useState<(string | number)[][]>([]);
+  const [editPopupOpen, setEditPopupOpen] = useState(false);
+  const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
+
+  const getFacilities = async () => {
+    try {
+      const resp: IFacility[] = await (
+        await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES)
+      ).json();
+      setFacilities(resp);
+    } catch (e) {
+      setErrorLoading(true);
+    }
+  };
 
   useEffect(() => {
-    const getFacilities = async () => {
-      try {
-        const resp: IFacility[] = await (
-          await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES)
-        ).json();
-        setFacilities(resp);
-      } catch (e) {
-        setErrorLoading(true);
-      }
-    };
-
     getFacilities();
   }, []);
 
@@ -57,7 +53,7 @@ export const ManageFacilities = () => {
       f.location,
       idx,
     ]);
-    setData(rows);
+    setTableData(rows);
   }, [facilities]);
 
   const CreateFacilityButton = () => (
@@ -66,7 +62,10 @@ export const ManageFacilities = () => {
       color="primary"
       variant="contained"
       size="large"
-      onClick={() => alert('create')}>
+      onClick={() => {
+        setFacilityToEdit(undefined);
+        setEditPopupOpen(true);
+      }}>
       <AddIcon />
       New Facility
     </Button>
@@ -85,7 +84,11 @@ export const ManageFacilities = () => {
         ))}
         <td className={styles.cell}>
           <Tooltip placement="top" title="Edit Facility">
-            <IconButton onClick={() => alert(facility.healthFacilityName)}>
+            <IconButton
+              onClick={() => {
+                setFacilityToEdit(facility);
+                setEditPopupOpen(true);
+              }}>
               <CreateIcon />
             </IconButton>
           </Tooltip>
@@ -103,10 +106,16 @@ export const ManageFacilities = () => {
           clearMessage={() => setErrorLoading(false)}
         />
       )}
+      <EditFacility
+        open={editPopupOpen}
+        setOpen={setEditPopupOpen}
+        getFacilities={getFacilities}
+        facility={facilityToEdit}
+      />
       <MUIDataTable
         title="Health Care Facilities"
         columns={columns}
-        data={data}
+        data={tableData}
         options={{
           search: false,
           download: false,

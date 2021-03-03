@@ -8,7 +8,7 @@ import {
 } from 'src/redux/reducers/user/allUsers';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { UsersTable } from './usersTable';
+import { UsersTable } from './UsersTable';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';

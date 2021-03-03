@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Select, MenuItem, makeStyles } from '@material-ui/core';
-import { ManageUsers } from './ManageUsers';
-import { ManageFacilities } from './ManageFacilities';
+import { ManageUsers } from './manageUsers/ManageUsers';
+import { ManageFacilities } from './manageFacilities/ManageFacilities';
 
 const pageOptions = [
   {
