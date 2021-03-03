@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Select, MenuItem, makeStyles } from '@material-ui/core';
 import { ManageUsers } from './ManageUsers';
-import { ManageZones } from './ManageZones';
+import { ManageFacilities } from './ManageFacilities';
 
 const pageOptions = [
     {
@@ -9,8 +9,8 @@ const pageOptions = [
         component: ManageUsers
     },
     {
-        name: 'Zones',
-        component: ManageZones
+        name: 'Health Care Failities',
+        component: ManageFacilities
     }
 ];
 
