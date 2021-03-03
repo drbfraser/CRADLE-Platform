@@ -14,15 +14,23 @@ import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import { Toast } from 'src/shared/components/toast';
 import Alert from '@material-ui/lab/Alert';
+import { useDispatch } from 'react-redux';
+import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 
 interface IProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  getFacilities: () => Promise<void>;
+  refreshFacilities: () => Promise<void>;
   facility?: IFacility;
 }
 
-const EditFacility = ({ open, setOpen, getFacilities, facility }: IProps) => {
+const EditFacility = ({
+  open,
+  setOpen,
+  refreshFacilities,
+  facility,
+}: IProps) => {
+  const dispatch = useDispatch();
   const [submitError, setSubmitError] = useState(false);
 
   const handleSubmit = async (
@@ -39,7 +47,10 @@ const EditFacility = ({ open, setOpen, getFacilities, facility }: IProps) => {
         throw new Error('Request failed.');
       }
 
-      getFacilities();
+      // refresh the facility list used elsewhere in the application
+      dispatch(getHealthFacilityList());
+
+      refreshFacilities();
       setOpen(false);
     } catch (e) {
       setSubmitting(false);
@@ -92,7 +103,6 @@ const EditFacility = ({ open, setOpen, getFacilities, facility }: IProps) => {
                 <Field
                   component={TextField}
                   fullWidth
-                  required
                   inputProps={{ maxLength: 50 }}
                   variant="outlined"
                   label="Phone Number"
@@ -103,7 +113,6 @@ const EditFacility = ({ open, setOpen, getFacilities, facility }: IProps) => {
                 <Field
                   component={TextField}
                   fullWidth
-                  required
                   inputProps={{ maxLength: 50 }}
                   variant="outlined"
                   label="Location"
@@ -114,7 +123,6 @@ const EditFacility = ({ open, setOpen, getFacilities, facility }: IProps) => {
                 <Field
                   component={TextField}
                   fullWidth
-                  required
                   multiline
                   rows={3}
                   variant="outlined"
