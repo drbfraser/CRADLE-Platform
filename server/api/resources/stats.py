@@ -74,8 +74,8 @@ class Root(Resource):
 class FacilityReadings(Resource):
     @staticmethod
     @jwt_required
+    @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
-
         current_user = get_jwt_identity()
 
         if not validate_user_perms(current_user, {"facility": facility_id}):
@@ -123,10 +123,11 @@ class FacilityReadings(Resource):
 class UserReadings(Resource):
     @staticmethod
     @jwt_required
+    @swag_from("../../specifications/stats-user.yml", methods=["GET"])
+
     def get(user_id: int):
 
         current_user = get_jwt_identity()
-        user_roles = current_user.get("roles")
 
         if not validate_user_perms(current_user, {"user_id": user_id}):
             return {"Error": "Invalid Permissions"}, 401
