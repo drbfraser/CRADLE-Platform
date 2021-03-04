@@ -20,17 +20,6 @@ from validation import stats
 statsManager = StatsManager()
 
 
-# *Required Stats
-#   * Brian's initial idea for statistics:
-#     * Display number of unique patients on which they have done one or more readings ✔
-#     * Display number of readings completed (total) ✔
-#     * Display number of green, yellow up, yellow down, red up, and red down readings. ✔
-#     * Display total number of referrals sent; ✔
-#     * Display total number of patients referred you YOUR facility ✔
-#     * Display number of days during the time frame on which they completed one or more readings.
-
-
-
 def create_color_readings(color_readings_q):
     color_readings = {
         TrafficLightEnum.GREEN.value: 0,
@@ -47,16 +36,19 @@ def create_color_readings(color_readings_q):
     return color_readings
 
 
-def validate_user_perms(jwt_info, request): 
+def validate_user_perms(jwt_info, request):
     canAccess = True
-    
-    roles = jwt_info.get('roles')
-    vhts = jwt_info.get('vhtList')
+
+    roles = jwt_info.get("roles")
+    vhts = jwt_info.get("vhtList")
 
     if RoleEnum.ADMIN.value in roles:
         return canAccess
     elif RoleEnum.HCW.value in roles:
-        if request.get("facility") == jwt_info.get("healthFacilityName") or request.get("user_id") in vhts:
+        if (
+            request.get("facility") == jwt_info.get("healthFacilityName")
+            or request.get("user_id") in vhts
+        ):
             return canAccess
     elif RoleEnum.CHO.value in roles:
         if request.get("user_id") in vhts:
@@ -64,7 +56,7 @@ def validate_user_perms(jwt_info, request):
     elif RoleEnum.VHT.value in roles:
         if request.get("user_id") == jwt_info.get("userId"):
             return canAccess
-    
+
     return not canAccess
 
 
@@ -80,14 +72,13 @@ class Root(Resource):
 
 
 class FacilityReadings(Resource):
-
     @staticmethod
     @jwt_required
     def get(facility_id: str):
 
         current_user = get_jwt_identity()
 
-        if not validate_user_perms(current_user, {"facility" : facility_id}):
+        if not validate_user_perms(current_user, {"facility": facility_id}):
             return {"Error": "Invalid Permissions"}, 401
 
         # Big int date range
@@ -115,9 +106,8 @@ class FacilityReadings(Resource):
         days_with_readings = crud.get_days_with_readings(
             facility=facility_id, filter=args
         )
-        
-        color_readings = create_color_readings(color_readings_q)
 
+        color_readings = create_color_readings(color_readings_q)
 
         response = {
             "patients_referred": referred_patients[0][0],
@@ -131,20 +121,18 @@ class FacilityReadings(Resource):
 
 
 class UserReadings(Resource):
-
     @staticmethod
     @jwt_required
     def get(user_id: int):
-        
+
         current_user = get_jwt_identity()
         user_roles = current_user.get("roles")
 
-        if not validate_user_perms(current_user, {"user_id" : user_id}):
+        if not validate_user_perms(current_user, {"user_id": user_id}):
             return {"Error": "Invalid Permissions"}, 401
 
-        #Date ranges from 0 to max big int value
+        # Date ranges from 0 to max big int value
         args = {"from": "0", "to": "2147483647"}
-
 
         if request.args.get("from") is not None:
             args["from"] = str(request.args.get("from"))
@@ -152,20 +140,12 @@ class UserReadings(Resource):
             args["to"] = str(request.args.get("to"))
 
         # Query all stats data
-        patients = crud.get_unique_patients_with_readings(
-            user=user_id, filter=args
-        )
-        total_readings = crud.get_total_readings_completed(
-            user=user_id, filter=args
-        )
-        color_readings_q = crud.get_total_color_readings(
-            user=user_id, filter=args
-        )
+        patients = crud.get_unique_patients_with_readings(user=user_id, filter=args)
+        total_readings = crud.get_total_readings_completed(user=user_id, filter=args)
+        color_readings_q = crud.get_total_color_readings(user=user_id, filter=args)
         total_referrals = crud.get_sent_referrals(user=user_id, filter=args)
 
-        days_with_readings = crud.get_days_with_readings(
-            user=user_id, filter=args
-        )
+        days_with_readings = crud.get_days_with_readings(user=user_id, filter=args)
 
         color_readings = create_color_readings(color_readings_q)
 
@@ -179,4 +159,3 @@ class UserReadings(Resource):
         }
 
         return response, 200
-

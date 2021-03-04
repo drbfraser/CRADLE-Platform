@@ -404,6 +404,7 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
+
 def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List[M]:
     """Queries the database for unique patients with more than one reading
 
