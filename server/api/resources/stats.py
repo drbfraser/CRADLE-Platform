@@ -47,6 +47,27 @@ def create_color_readings(color_readings_q):
     return color_readings
 
 
+def validate_user_perms(jwt_info, request): 
+    canAccess = True
+    
+    roles = jwt_info.get('roles')
+    vhts = jwt_info.get('vhtList')
+
+    if RoleEnum.ADMIN.value in roles:
+        return canAccess
+    elif RoleEnum.HCW.value in roles:
+        if request.get("facility") == jwt_info.get("healthFacilityName") or request.get("user_id") in vhts:
+            return canAccess
+    elif RoleEnum.CHO.value in roles:
+        if request.get("user_id") in vhts:
+            return canAccess
+    elif RoleEnum.VHT.value in roles:
+        if request.get("user_id") == jwt_info.get("userId"):
+            return canAccess
+    
+    return not canAccess
+
+
 class Root(Resource):
     @staticmethod
     @jwt_required
@@ -65,9 +86,9 @@ class FacilityReadings(Resource):
     def get(facility_id: str):
 
         current_user = get_jwt_identity()
-        user_roles = current_user.get("roles")
 
-        print (user_roles)
+        if not validate_user_perms(current_user, {"facility" : facility_id}):
+            return {"Error": "Invalid Permissions"}, 401
 
         # Big int date range
         args = {"from": "0", "to": "2147483647"}
@@ -117,6 +138,9 @@ class UserReadings(Resource):
         
         current_user = get_jwt_identity()
         user_roles = current_user.get("roles")
+
+        if not validate_user_perms(current_user, {"user_id" : user_id}):
+            return {"Error": "Invalid Permissions"}, 401
 
         #Date ranges from 0 to max big int value
         args = {"from": "0", "to": "2147483647"}
