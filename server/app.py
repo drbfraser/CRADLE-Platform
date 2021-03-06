@@ -15,26 +15,8 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import config
 import routes
-from flask_jwt_extended import JWTManager
-
 
 app = config.app
-
-# The manager allows us to add more pieces of information into the jwt token
-jwt = JWTManager(app)
-
-# To-Do: Create a whitelist that may be appended to, to increase the number of ids that are used
-# to represent admins automatically
-# Adding is_admin and user_id information onto each jwt token
-@jwt.user_claims_loader
-def add_claims_to_jwt(identity):
-    isAdmin = False
-    userId = identity["userId"]
-    if identity["userId"] == 1:
-        isAdmin = True
-    return {"is_admin": isAdmin, "user_id": userId}
-
-
 routes.init(config.api)
 
 host = "0.0.0.0"
