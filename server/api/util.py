@@ -89,3 +89,20 @@ def current_user() -> User:
     """
     identity = jwt.get_jwt_identity()
     return crud.read(User, id=identity["userId"])
+
+
+def isGoodPassword(password: str) -> bool:
+    """
+    Returns a Boolean indicating if the password inputted meets the desired characteristics or not
+
+    :param password: The password string to evaluate
+    """
+    # To-Do: if anything requirments are necessary for a good password (having a number or special character
+    # etc, these should be added here as well)
+
+    passlength = False
+
+    if len(password) > 5:
+        passlength = True
+
+    return passlength

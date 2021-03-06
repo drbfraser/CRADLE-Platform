@@ -15,6 +15,7 @@ from manager.UserManager import UserManager
 from manager.RoleManager import RoleManager
 from flasgger import swag_from
 from api.decorator import roles_required
+from api.util import isGoodPassword
 
 
 userManager = UserManager()
@@ -75,7 +76,7 @@ class AdminPasswordChange(Resource):
             return {"message": "There is no user with this id"}, 400
 
         # check if password given is suitable
-        if len(data["password"]) < 6:
+        if not isGoodPassword(data["password"]):
             return {
                 "message": "The new password must be atleast 6 characters long"
             }, 400
@@ -104,6 +105,13 @@ class UserPasswordChange(Resource):
     @swag_from("../specifications/user-change-pass.yml", methods=["POST"])
     def post(self):
         data = self.parser.parse_args()
+
+        # check if password given is suitable
+        if not isGoodPassword(data["new_password"]):
+            return {
+                "message": "The new password must be atleast 6 characters long"
+            }, 400
+
         identity = get_jwt_identity()
 
         # Get all information about the user who is using this endpoint
@@ -120,6 +128,7 @@ class UserPasswordChange(Resource):
             data.pop("old_password")
             data.pop("new_password")
 
+            # Perform update
             update_res = userManager.update("id", identity["userId"], data)
 
             update_res.pop("password")
