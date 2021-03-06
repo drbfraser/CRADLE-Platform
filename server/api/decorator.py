@@ -27,7 +27,7 @@ def roles_required(listOfRoles):
             if flag:
                 return fn(*args, **kwargs)
             else:
-                return {"Error": "This user does not have the required privilege"}, 401
+                return {"message": "This user does not have the required privilege"}, 401
 
         return decorator
 

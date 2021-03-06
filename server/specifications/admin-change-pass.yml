@@ -1,4 +1,4 @@
-Change a users password. Must be logged in as admin (user id = 1) to use this.
+Change a users password. Must be logged in as admin to use this.
 ---
 tags:
   - Admin
@@ -14,7 +14,7 @@ requestBody:
             example: 2
           password:
             type: string
-            example: hcw123
+            example: hcw1234567
 
 responses:
   200:
@@ -68,7 +68,7 @@ responses:
           properties:
             message:
               type: string
-              example: Admin privilege required
+              example: This user does not have the required privilege
   400:
     description: |
       The new password that is to be assigned is below the minimum required length of a password. 
@@ -79,6 +79,6 @@ responses:
           properties:
             message:
               type: string
-              example: The new password must be atleast 6 characters long
+              example: The new password must be at least 8 characters long
 
 
