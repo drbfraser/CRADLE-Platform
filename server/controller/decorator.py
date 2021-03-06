@@ -35,13 +35,19 @@ from flask_jwt_extended import get_jwt_claims
 # Here is a custom decorator that verifies the JWT is present in the request,
 # as well as insuring that the JWT has a claim indicating that this user is
 # an administrator
-def admin_required():
+def roles_required(listOfRoles):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
             identity = get_jwt_identity()
-            if identity['roles'] == ['ADMIN']:
+            flag = False
+            print(listOfRoles)
+            print(identity['roles'])
+            for item in listOfRoles:
+                if item.name in identity['roles']:
+                    flag = True
+            if flag:
                 return fn(*args, **kwargs)
             else:
                 return {'message' : 'error'}, 401

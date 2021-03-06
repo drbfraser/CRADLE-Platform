@@ -1,7 +1,7 @@
 import logging, json
 from flask import request, jsonify
 from flask_restful import Resource, abort, reqparse
-from models import validate_user, User, UserSchema, Role
+from models import validate_user, User, UserSchema, Role, RoleEnum
 from config import db, flask_bcrypt
 from flask_jwt_extended import (
     create_access_token,
@@ -14,7 +14,8 @@ from flask_jwt_extended import (
 from manager.UserManager import UserManager
 from manager.RoleManager import RoleManager
 from flasgger import swag_from
-from .decorator import admin_required
+from .decorator import roles_required
+
 
 userManager = UserManager()
 roleManager = RoleManager()
@@ -62,11 +63,14 @@ class AdminPasswordChange(Resource):
         "id", type=int, required=True, help="This field cannot be left blank!"
     )
 
-    @admin_required()
+    # listForAccess = [RoleEnum.ADMIN]
+    
+    @roles_required([RoleEnum.ADMIN])
     def get(self):
-        identity = get_jwt_identity()
-        print(identity['roles'])
-        pass
+        # identity = get_jwt_identity()
+        # print(identity['roles'])
+        print(RoleEnum.ADMIN.name)
+        
 
 
 
