@@ -40,11 +40,11 @@ def admin_required():
         @wraps(fn)
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
-            claims = get_jwt_claims()
-            if claims['is_admin']:
+            identity = get_jwt_identity()
+            if identity['roles'] == ['ADMIN']:
                 return fn(*args, **kwargs)
             else:
-                return {'error' : 'error'}, 401
+                return {'message' : 'error'}, 401
         return decorator
 
     return wrapper
