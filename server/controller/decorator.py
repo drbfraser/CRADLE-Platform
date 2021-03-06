@@ -42,8 +42,6 @@ def roles_required(listOfRoles):
             verify_jwt_in_request()
             identity = get_jwt_identity()
             flag = False
-            print(listOfRoles)
-            print(identity['roles'])
             for item in listOfRoles:
                 if item.name in identity['roles']:
                     flag = True

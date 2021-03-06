@@ -63,13 +63,13 @@ class AdminPasswordChange(Resource):
         "id", type=int, required=True, help="This field cannot be left blank!"
     )
 
-    # listForAccess = [RoleEnum.ADMIN]
-    
-    @roles_required([RoleEnum.ADMIN])
+
+
+    @roles_required([RoleEnum.ADMIN, RoleEnum.HCW, RoleEnum.VHT])
     def get(self):
         # identity = get_jwt_identity()
         # print(identity['roles'])
-        print(RoleEnum.ADMIN.name)
+        pass
         
 
 
