@@ -14,7 +14,7 @@ from flask_jwt_extended import (
 from manager.UserManager import UserManager
 from manager.RoleManager import RoleManager
 from flasgger import swag_from
-from .decorator import roles_required
+from api.decorator import roles_required
 
 
 userManager = UserManager()
@@ -62,17 +62,6 @@ class AdminPasswordChange(Resource):
     parser.add_argument(
         "id", type=int, required=True, help="This field cannot be left blank!"
     )
-
-
-
-    @roles_required([RoleEnum.ADMIN, RoleEnum.HCW, RoleEnum.VHT])
-    def get(self):
-        # identity = get_jwt_identity()
-        # print(identity['roles'])
-        pass
-        
-
-
 
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/admin-change-pass.yml", methods=["POST"])
