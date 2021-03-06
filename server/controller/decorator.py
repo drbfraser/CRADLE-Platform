@@ -32,9 +32,6 @@ from flask_jwt_extended import get_jwt_claims
 #     return wrapper
 
 
-# Here is a custom decorator that verifies the JWT is present in the request,
-# as well as insuring that the JWT has a claim indicating that this user is
-# an administrator
 def roles_required(listOfRoles):
     def wrapper(fn):
         @wraps(fn)
@@ -48,7 +45,7 @@ def roles_required(listOfRoles):
             if flag:
                 return fn(*args, **kwargs)
             else:
-                return {'message' : 'error'}, 401
+                return {'Error' : 'This user does not have the required privilege'}, 401
         return decorator
 
     return wrapper

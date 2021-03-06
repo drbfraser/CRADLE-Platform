@@ -74,16 +74,11 @@ class AdminPasswordChange(Resource):
 
 
 
-    @jwt_required
+    @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/admin-change-pass.yml", methods=["POST"])
     def post(self):
 
         data = self.parser.parse_args()
-        claims = get_jwt_claims()
-
-        # Prevent non-admin users from using this endpoint
-        if not claims["is_admin"]:
-            return {"message": "Admin privilege required"}, 401
 
         # check if user exists
         user = User.query.filter_by(id=data["id"]).first()
@@ -120,10 +115,10 @@ class UserPasswordChange(Resource):
     @swag_from("../specifications/user-change-pass.yml", methods=["POST"])
     def post(self):
         data = self.parser.parse_args()
-        claims = get_jwt_claims()
+        identity = get_jwt_identity()
 
         # Get all information about the user who is using this endpoint
-        user = User.query.filter_by(id=claims["user_id"]).first()
+        user = User.query.filter_by(id=identity["userId"]).first()
 
         # If old password and password we have on file match
         if user and flask_bcrypt.check_password_hash(
@@ -136,7 +131,7 @@ class UserPasswordChange(Resource):
             data.pop("old_password")
             data.pop("new_password")
 
-            update_res = userManager.update("id", claims["user_id"], data)
+            update_res = userManager.update("id", identity["userId"], data)
 
             update_res.pop("password")
 
