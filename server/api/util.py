@@ -102,7 +102,7 @@ def isGoodPassword(password: str) -> bool:
 
     passlength = False
 
-    if len(password) > 5:
+    if len(password) > 7:
         passlength = True
 
     return passlength

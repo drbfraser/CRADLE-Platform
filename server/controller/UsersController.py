@@ -78,7 +78,7 @@ class AdminPasswordChange(Resource):
         # check if password given is suitable
         if not isGoodPassword(data["password"]):
             return {
-                "message": "The new password must be atleast 6 characters long"
+                "message": "The new password must be atleast 8 characters long"
             }, 400
 
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
@@ -109,7 +109,7 @@ class UserPasswordChange(Resource):
         # check if password given is suitable
         if not isGoodPassword(data["new_password"]):
             return {
-                "message": "The new password must be atleast 6 characters long"
+                "message": "The new password must be atleast 8 characters long"
             }, 400
 
         identity = get_jwt_identity()
