@@ -62,7 +62,7 @@ class AdminPasswordChange(Resource):
         "id", type=int, required=True, help="This field cannot be left blank!"
     )
 
-    @jwt_required
+    @admin_required()
     def get(self):
         identity = get_jwt_identity()
         print(identity['roles'])
