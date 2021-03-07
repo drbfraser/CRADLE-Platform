@@ -52,10 +52,6 @@ class Root(Resource):
         error_message = facilities.validate(data)
         print(data)
 
-        #facility = marshal.unmarshal(HealthFacility, json)
-        # print(facility)
-        # print(dir(HealthFacility))
-
         crud.update(HealthFacility, data, healthFacilityName=data['healthFacilityName'])
 
         return {"message" : 'Hit the endpoint!'}, 200

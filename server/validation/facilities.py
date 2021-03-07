@@ -1,6 +1,6 @@
 from typing import Optional
 from validation.validate import required_keys_present, values_correct_type
-#from ..models import HealthFacility
+from models import HealthFacility
 
 
 def validate(request_body: dict) -> Optional[str]:
@@ -25,7 +25,7 @@ def validate(request_body: dict) -> Optional[str]:
     #     'location' 
     #     ]
 
-    #EXPECTED_KEYS = dir(HealthFacility)
+    EXPECTED_KEYS = dir(HealthFacility)
 
     error_message = None
 
@@ -41,5 +41,8 @@ def validate(request_body: dict) -> Optional[str]:
         return error_message
 
     #Check that no extra keys are in the payload
+    for key in request_body:
+        if key not in EXPECTED_KEYS:
+            request_body.pop(key)
 
     return error_message
