@@ -110,7 +110,8 @@ export const ManageFacilities = () => {
         open={editPopupOpen}
         setOpen={setEditPopupOpen}
         refreshFacilities={getFacilities}
-        facility={facilityToEdit}
+        facilities={facilities}
+        editFacility={facilityToEdit}
       />
       <MUIDataTable
         title="Health Care Facilities"

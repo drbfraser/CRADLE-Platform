@@ -6,14 +6,18 @@ import {
   DialogContent,
   DialogTitle,
 } from '@material-ui/core';
-import { FacilityField, IFacility, validationSchema } from './state';
+import {
+  FacilityField,
+  facilityTemplate,
+  getValidationSchema,
+  IFacility,
+} from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { apiFetch } from 'src/shared/utils/api';
 import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import { Toast } from 'src/shared/components/toast';
-import Alert from '@material-ui/lab/Alert';
 import { useDispatch } from 'react-redux';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 
@@ -21,17 +25,20 @@ interface IProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   refreshFacilities: () => Promise<void>;
-  facility?: IFacility;
+  facilities: IFacility[];
+  editFacility?: IFacility;
 }
 
 const EditFacility = ({
   open,
   setOpen,
   refreshFacilities,
-  facility,
+  facilities,
+  editFacility,
 }: IProps) => {
   const dispatch = useDispatch();
   const [submitError, setSubmitError] = useState(false);
+  const creatingNew = editFacility === undefined;
 
   const handleSubmit = async (
     values: IFacility,
@@ -72,23 +79,16 @@ const EditFacility = ({
         onClose={() => setOpen(false)}
         maxWidth="sm"
         fullWidth>
-        <DialogTitle>{facility ? 'Edit' : 'Create'} Facility</DialogTitle>
+        <DialogTitle>{creatingNew ? 'Create' : 'Edit'} Facility</DialogTitle>
         <DialogContent>
           <Formik
-            initialValues={facility ?? {}}
-            validationSchema={validationSchema}
+            initialValues={editFacility ?? facilityTemplate}
+            validationSchema={getValidationSchema(
+              creatingNew ? facilities.map((f) => f.healthFacilityName) : []
+            )}
             onSubmit={handleSubmit}>
-            {({ isSubmitting }) => (
+            {({ isSubmitting, isValid }) => (
               <Form>
-                {facility && (
-                  <>
-                    <Alert severity="info">
-                      Editing facilities is not yet available.
-                    </Alert>
-                    <br />
-                    <br />
-                  </>
-                )}
                 <Field
                   component={TextField}
                   fullWidth
@@ -97,6 +97,7 @@ const EditFacility = ({
                   variant="outlined"
                   label="Facility Name"
                   name={FacilityField.name}
+                  disabled={!creatingNew}
                 />
                 <br />
                 <br />
@@ -133,11 +134,9 @@ const EditFacility = ({
                   <Button type="button" onClick={() => setOpen(false)}>
                     Cancel
                   </Button>
-                  {facility === undefined && (
-                    <Button type="submit" disabled={isSubmitting}>
-                      Save
-                    </Button>
-                  )}
+                  <Button type="submit" disabled={isSubmitting || !isValid}>
+                    {creatingNew ? 'Create' : 'Save'}
+                  </Button>
                 </DialogActions>
               </Form>
             )}
