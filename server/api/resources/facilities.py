@@ -45,3 +45,10 @@ class Root(Resource):
         facility = marshal.unmarshal(HealthFacility, json)
         crud.create(facility)
         return marshal.marshal(facility), 201
+
+    def put(self):
+
+        # json = request.get_json(force=True)
+        # error_message = facilities.validate(json)
+
+        return {"message" : 'Hit the endpoint!'}, 200
