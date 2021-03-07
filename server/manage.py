@@ -9,6 +9,8 @@ from flask_script import Manager
 from config import app, db, flask_bcrypt
 from models import *
 from database.ReadingRepoNew import ReadingRepo
+from random import randint
+
 
 manager = Manager(app)
 
@@ -330,6 +332,36 @@ def getDateTime(dateStr):
     return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
 
 
+def generatePhoneNumbers():
+    prefix = "+256"
+    area_codes = [
+        414,
+        456,
+        434,
+        454,
+        464,
+        4644,
+        4654,
+        4714,
+        4734,
+        4764,
+        4814,
+        4834,
+        4854,
+        4864,
+        4895,
+    ]
+    n = len(area_codes)
+    post_fixes = [
+        "".join(["{}".format(randint(0, 9)) for num in range(0, n)]) for x in range(15)
+    ]
+
+    numbers = []
+    for i in range(n):
+        numbers.append(prefix + "-" + str(area_codes[i]) + "-" + post_fixes[i])
+    return numbers
+
+
 if __name__ == "__main__":
     NUM_OF_PATIENTS = 100
 
@@ -357,7 +389,23 @@ if __name__ == "__main__":
         "Has specialized equipment",
         "Urgent requests only",
     ]
-    facilityLocation = ["District 1", "District 2", "District 3", "District 4"]
+    facilityLocation = [
+        "Kampala",
+        "Kaliro",
+        "Jinja",
+        "Mbale",
+        "Mityana",
+        "Mubende",
+        "Masindi",
+        "Gulu",
+        "Lira",
+        "Arua",
+        "Masaka",
+        "Fort Portal",
+        "Mbarara",
+        "Kabale",
+        "Iganga",
+    ]
     facilityPhoneNumbers = [
         "+256-413-837484",
         "+256-223-927484",
@@ -373,3 +421,21 @@ if __name__ == "__main__":
     d1 = datetime.strptime("1/1/2019 12:01 AM", "%m/%d/%Y %I:%M %p")
     d2 = datetime.today().replace(microsecond=0)
     manager.run()
+
+    # area_codes = {
+    #     "Kampala": 414,
+    #     "Kaliro": 456,
+    #     "Jinja": 434,
+    #     "Mbale": 454,
+    #     "Mityana": 464,
+    #     "Mubende": 4644,
+    #     "Masindi": 4654,
+    #     "Gulu": 4714,
+    #     "Lira": 4734,
+    #     "Arua": 4764,
+    #     "Masaka": 4814,
+    #     "Fort Portal": 4834,
+    #     "Mbarara": 4854,
+    #     "Kabale": 4864,
+    #     "Iganga": 4895,
+    # }
