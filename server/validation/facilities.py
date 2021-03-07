@@ -17,15 +17,6 @@ def validate(request_body: dict) -> Optional[str]:
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    # EXPECTED_KEYS = [
-    #     'healthFacilityName',
-    #     'healthFacilityPhoneNumber',
-    #     'about',
-    #     'facilityType',
-    #     'location' 
-    #     ]
-
-    EXPECTED_KEYS = dir(HealthFacility)
 
     error_message = None
 
@@ -39,10 +30,5 @@ def validate(request_body: dict) -> Optional[str]:
     error_message = values_correct_type(request_body, ["healthFacilityName"], str)
     if error_message is not None:
         return error_message
-
-    #Check that no extra keys are in the payload
-    for key in request_body:
-        if key not in EXPECTED_KEYS:
-            request_body.pop(key)
 
     return error_message

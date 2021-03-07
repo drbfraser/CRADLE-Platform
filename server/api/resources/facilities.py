@@ -1,7 +1,7 @@
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
-from flask_restful import Resource, abort
+from flask_restful import Resource, abort, reqparse
 
 import api.util as util
 import data.crud as crud
@@ -12,6 +12,14 @@ from validation import facilities
 
 # /api/facilities
 class Root(Resource):
+
+    parser = reqparse.RequestParser()
+    parser.add_argument('healthFacilityName',
+                        type=str,
+                        required=True,
+                        help="This field cannot be left blank!"
+                        )
+
     @staticmethod
     @jwt_required
     @swag_from(
@@ -50,8 +58,16 @@ class Root(Resource):
 
         data = request.get_json(force=True)
         error_message = facilities.validate(data)
-        print(data)
+        if error_message is not None:
+            abort(400, message=error_message)
+        
+        if crud.read(HealthFacility, healthFacilityName=data['healthFacilityName']) is None:
 
+            facility = marshal.unmarshal(HealthFacility, data)
+            crud.create(facility)
+            return marshal.marshal(facility), 201
         crud.update(HealthFacility, data, healthFacilityName=data['healthFacilityName'])
+
+
 
         return {"message" : 'Hit the endpoint!'}, 200
