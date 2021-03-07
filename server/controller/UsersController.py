@@ -121,19 +121,17 @@ class UserPasswordChange(Resource):
         if user and flask_bcrypt.check_password_hash(
             user.password, data["old_password"]
         ):
-
-            data["password"] = flask_bcrypt.generate_password_hash(data["new_password"])
-
-            # If there are keys in the dictionary that don't match a column of the table update fails
-            data.pop("old_password")
-            data.pop("new_password")
+            #Create new dictionary with just keys we want to replace
+            updated_payload = {
+                'password' : flask_bcrypt.generate_password_hash(data["new_password"])
+            }
 
             # Perform update
-            update_res = userManager.update("id", identity["userId"], data)
+            update_response = userManager.update("id", identity["userId"], updated_payload)
 
-            update_res.pop("password")
+            update_response.pop("password")
 
-            return update_res, 200
+            return update_response, 200
         else:
             return {"error": "old_password incorrect"}, 400
 

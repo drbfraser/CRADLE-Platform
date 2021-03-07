@@ -10,21 +10,22 @@ from flask_jwt_extended import (
 )
 
 
-def roles_required(listOfRoles):
+def roles_required(accepted_roles):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
 
-            # Verify we have a JWT
+            # Ensure that user is first and foremost actually logged in
             verify_jwt_in_request()
-            identity = get_jwt_identity()
-            flag = False
+            user_info = get_jwt_identity()
+            user_has_permissions = False
 
-            # Check that at least one the roles required is in the JWT.
-            for item in listOfRoles:
-                if item.name in identity["roles"]:
-                    flag = True
-            if flag:
+            # Check that at least one of the accepted roles is in the JWT.
+            for role in accepted_roles:
+                if role.name in user_info["roles"]:
+                    user_has_permissions = True
+
+            if user_has_permissions:
                 return fn(*args, **kwargs)
             else:
                 return {"message": "This user does not have the required privilege"}, 401
