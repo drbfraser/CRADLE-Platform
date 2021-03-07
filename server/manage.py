@@ -9,7 +9,8 @@ from flask_script import Manager
 from config import app, db, flask_bcrypt
 from models import *
 from database.ReadingRepoNew import ReadingRepo
-from random import randint
+from random import randint, choice
+from string import ascii_lowercase, digits
 
 
 manager = Manager(app)
@@ -88,12 +89,14 @@ def seed_test_data():
     create_user("cho@cho.com", "TestCHO", "cho123", "H0000", "CHO")
 
     print("Creating test patients, readings, referrals...")
+
+    # create_patient_reading_referral(
+    #     "400260", generateRandomReadingID(), 2, "AA", 35, "MALE", "1001"
+    # )
+
     create_patient_reading_referral(
-        "400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001"
-    )
-    create_patient_reading_referral(
-        "204652",
-        "def-456-fg3-fh5k",
+        str(randint(100000, 500000)),
+        generateRandomReadingID(),
         2,
         "BB",
         40,
@@ -328,6 +331,29 @@ def getRandomDate():
     return int(new_date.strftime("%s"))
 
 
+def generateRandomReadingID():
+    pool = ascii_lowercase + digits
+    reading_id = (
+        "".join([choice(pool) for _ in range(3)])
+        + "-"
+        + "".join([choice(pool) for _ in range(3)])
+        + "-"
+        + "".join([choice(pool) for _ in range(3)])
+        + "-"
+        + "".join([choice(pool) for _ in range(4)])
+    )
+    return reading_id
+
+
+def getRandomName(file):
+    line = next(file)
+    for num, line in enumerate(file, 2):
+        if random.randrange(num):
+            continue
+        name = line
+    return name
+
+
 def getDateTime(dateStr):
     return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
 
@@ -363,7 +389,7 @@ def generatePhoneNumbers():
 
 
 if __name__ == "__main__":
-    NUM_OF_PATIENTS = 100
+    NUM_OF_PATIENTS = 250
 
     patientList = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
     random.shuffle(patientList)
@@ -380,8 +406,14 @@ if __name__ == "__main__":
         "1007",
         "1008",
         "1009",
+        "1010",
+        "1011",
+        "1012",
+        "1013",
+        "1014",
+        "1015",
     ]
-    healthFacilityList = ["H1233", "H2555", "H3445", "H5123"]
+    healthFacilityList = ["H1233", "H1321", "H2111", "H2555", "H3124", "H3445", "H5123"]
     facilityType = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
     facilityAbout = [
         "Has minimal resources",
@@ -406,12 +438,8 @@ if __name__ == "__main__":
         "Kabale",
         "Iganga",
     ]
-    facilityPhoneNumbers = [
-        "+256-413-837484",
-        "+256-223-927484",
-        "+256-245-748573",
-        "+256-847-0947584",
-    ]
+    facilityPhoneNumbers = generatePhoneNumbers()
+
     symptomsList = ["HEADACHE", "BLURRED VISION", "ABDO PAIN", "BLEEDING", "FEVERISH"]
     sexList = ["FEMALE", "MALE"]
     bpSystolicList = list(np.random.normal(120, 35, 1000).astype(int))
