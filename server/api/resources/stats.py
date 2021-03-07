@@ -29,11 +29,11 @@ def query_stats_data(args, facility_id="%", user_id="%"):
     )[0][0]
     color_readings_q = crud.get_total_color_readings(
         facility=facility_id, user=user_id, filter=args
-    )[0][0]
+    )
     total_referrals = crud.get_sent_referrals(facility=facility_id, filter=args)[0][0]
 
     referred_patients = None
-    if user_id is not "%":
+    if user_id is "%":
         referred_patients = crud.get_referred_patients(
             facility=facility_id, filter=args
         )[0][0]
@@ -103,8 +103,7 @@ class Root(Resource):
     ## Get all statistics for patients
     def get():
         stats = statsManager.put_data_together()
-        return stats,200
-
+        return stats, 200
 
 
 class AllStats(Resource):
@@ -171,6 +170,6 @@ class UserReadings(Resource):
         if request.args.get("to") is not None:
             args["to"] = str(request.args.get("to"))
 
-        response = query_stats_data(args, user_id = user_id)
+        response = query_stats_data(args, user_id=user_id)
 
         return response, 200
