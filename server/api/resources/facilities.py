@@ -14,12 +14,12 @@ from validation import facilities
 class Root(Resource):
 
     parser = reqparse.RequestParser()
-    parser.add_argument('healthFacilityName',
-                        type=str,
-                        required=True,
-                        help="This field cannot be left blank!"
-                        )
-
+    parser.add_argument('healthFacilityName',  type=str, required=True, help="This field cannot be left blank!")
+    parser.add_argument('healthFacilityPhoneNumber')
+    parser.add_argument('about')
+    parser.add_argument('facilityType')
+    parser.add_argument('location')
+    
     @staticmethod
     @jwt_required
     @swag_from(
@@ -44,8 +44,11 @@ class Root(Resource):
         methods=["POST"],
         endpoint="facilities",
     )
+
     def post():
-        json = request.get_json(force=True)
+
+        json = Root.parser.parse_args()
+        print(json)
         error_message = facilities.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
@@ -56,7 +59,7 @@ class Root(Resource):
 
     def put(self):
 
-        data = request.get_json(force=True)
+        data = self.parser.parse_args()
         error_message = facilities.validate(data)
         if error_message is not None:
             abort(400, message=error_message)
