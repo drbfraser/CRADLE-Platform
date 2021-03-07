@@ -1,7 +1,7 @@
 import logging, json
 from flask import request, jsonify
-from flask_restful import Resource, abort
-from models import validate_user, User, UserSchema, Role
+from flask_restful import Resource, abort, reqparse
+from models import validate_user, User, UserSchema, Role, RoleEnum
 from config import db, flask_bcrypt
 from flask_jwt_extended import (
     create_access_token,
@@ -9,10 +9,14 @@ from flask_jwt_extended import (
     jwt_required,
     jwt_refresh_token_required,
     get_jwt_identity,
+    get_jwt_claims,
 )
 from manager.UserManager import UserManager
 from manager.RoleManager import RoleManager
 from flasgger import swag_from
+from api.decorator import roles_required
+from api.util import isGoodPassword
+
 
 userManager = UserManager()
 roleManager = RoleManager()
@@ -45,6 +49,93 @@ class UserAllVHT(Resource):
         if vhtId_list is None:
             return []
         return vhtId_list
+
+
+# To do: See if we can use the serializer here instead of a parser
+# api/admin/change_pass [POST]
+class AdminPasswordChange(Resource):
+
+    # Ensure that we have the fields we want in JSON payload
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "password", type=str, required=True, help="This field cannot be left blank!"
+    )
+    parser.add_argument(
+        "id", type=int, required=True, help="This field cannot be left blank!"
+    )
+
+    @roles_required([RoleEnum.ADMIN])
+    @swag_from("../specifications/admin-change-pass.yml", methods=["POST"])
+    def post(self):
+
+        data = self.parser.parse_args()
+
+        # check if user exists
+        user = User.query.filter_by(id=data["id"]).first()
+        if user is None:
+            return {"message": "There is no user with this id"}, 400
+
+        # check if password given is suitable
+        if not isGoodPassword(data["password"]):
+            return {
+                "message": "The new password must be at least 8 characters long"
+            }, 400
+
+        data["password"] = flask_bcrypt.generate_password_hash(data["password"])
+
+        # Update password
+        update_res = userManager.update("id", data["id"], data)
+        update_res.pop("password")
+
+        return update_res, 200
+
+
+# /api/user/change_pass [POST]
+class UserPasswordChange(Resource):
+
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "old_password", type=str, required=True, help="This field cannot be left blank!"
+    )
+    parser.add_argument(
+        "new_password", type=str, required=True, help="This field cannot be left blank!"
+    )
+
+    @jwt_required
+    @swag_from("../specifications/user-change-pass.yml", methods=["POST"])
+    def post(self):
+        data = self.parser.parse_args()
+
+        # check if password given is suitable
+        if not isGoodPassword(data["new_password"]):
+            return {
+                "message": "The new password must be at least 8 characters long"
+            }, 400
+
+        identity = get_jwt_identity()
+
+        # Get all information about the user who is using this endpoint
+        user = User.query.filter_by(id=identity["userId"]).first()
+
+        # If old password and password we have on file match
+        if user and flask_bcrypt.check_password_hash(
+            user.password, data["old_password"]
+        ):
+            # Create new dictionary with just keys we want to replace
+            updated_payload = {
+                "password": flask_bcrypt.generate_password_hash(data["new_password"])
+            }
+
+            # Perform update
+            update_response = userManager.update(
+                "id", identity["userId"], updated_payload
+            )
+
+            update_response.pop("password")
+
+            return update_response, 200
+        else:
+            return {"error": "old_password incorrect"}, 400
 
 
 # user/register [POST]
