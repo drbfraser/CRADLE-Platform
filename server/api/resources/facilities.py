@@ -48,32 +48,37 @@ class Root(Resource):
 
     def post():
 
-        json = Root.parser.parse_args()
-        print(json)
-        json = util.filterPairsWithNone(json)
-        print(json)
-        error_message = facilities.validate(json)
-        if error_message is not None:
-            abort(400, message=error_message)
-
-        facility = marshal.unmarshal(HealthFacility, json)
+        #Get key-value pairs from parser and remove pairs with a None value
+        data = Root.parser.parse_args()
+        data = util.filterPairsWithNone(data)
+        
+        #Create a DB Model instance for the new facility and load into DB
+        facility = marshal.unmarshal(HealthFacility, data)
         crud.create(facility)
-        return marshal.marshal(facility), 201
+        return data, 201
 
     def put(self):
 
-        data = self.parser.parse_args()
-        error_message = facilities.validate(data)
-        if error_message is not None:
-            abort(400, message=error_message)
-        
+        #Get key-value pairs from parser and remove pairs with a None value
+        data = Root.parser.parse_args()
+        data = util.filterPairsWithNone(data)
+
+        #If the facility does not exist, we create
         if crud.read(HealthFacility, healthFacilityName=data['healthFacilityName']) is None:
 
             facility = marshal.unmarshal(HealthFacility, data)
             crud.create(facility)
-            return marshal.marshal(facility), 201
-        crud.update(HealthFacility, data, healthFacilityName=data['healthFacilityName'])
+            return data, 201
+
+        #Update existing facility    
+        else:
+            crud.update(HealthFacility, data, healthFacilityName=data['healthFacilityName'])
+
+            #Query the DB model instance for the updated facility and convert to dict for return
+            facility = crud.read(HealthFacility, healthFacilityName=data['healthFacilityName'])
+            facilityDict = marshal.marshal(facility)
+
+            return facilityDict
+            #return {'message' : 'Facility updated'}, 200
 
 
-
-        return {"message" : 'Hit the endpoint!'}, 200
