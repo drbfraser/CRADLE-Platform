@@ -28,7 +28,9 @@ def roles_required(accepted_roles):
             if user_has_permissions:
                 return fn(*args, **kwargs)
             else:
-                return {"message": "This user does not have the required privilege"}, 401
+                return {
+                    "message": "This user does not have the required privilege"
+                }, 401
 
         return decorator
 

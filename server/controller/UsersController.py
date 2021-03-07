@@ -121,13 +121,15 @@ class UserPasswordChange(Resource):
         if user and flask_bcrypt.check_password_hash(
             user.password, data["old_password"]
         ):
-            #Create new dictionary with just keys we want to replace
+            # Create new dictionary with just keys we want to replace
             updated_payload = {
-                'password' : flask_bcrypt.generate_password_hash(data["new_password"])
+                "password": flask_bcrypt.generate_password_hash(data["new_password"])
             }
 
             # Perform update
-            update_response = userManager.update("id", identity["userId"], updated_payload)
+            update_response = userManager.update(
+                "id", identity["userId"], updated_payload
+            )
 
             update_response.pop("password")
 
