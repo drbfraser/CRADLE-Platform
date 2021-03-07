@@ -13,6 +13,7 @@ from validation import facilities
 # /api/facilities
 class Root(Resource):
 
+    #Ensuring that we select only these keys from the JSON payload
     parser = reqparse.RequestParser()
     parser.add_argument('healthFacilityName',  type=str, required=True, help="This field cannot be left blank!")
     parser.add_argument('healthFacilityPhoneNumber')
@@ -48,6 +49,8 @@ class Root(Resource):
     def post():
 
         json = Root.parser.parse_args()
+        print(json)
+        json = util.filterPairsWithNone(json)
         print(json)
         error_message = facilities.validate(json)
         if error_message is not None:
