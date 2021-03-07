@@ -20,6 +20,41 @@ from validation import stats
 statsManager = StatsManager()
 
 
+def query_stats_data(args, facility_id="%", user_id="%"):
+    patients = crud.get_unique_patients_with_readings(
+        facility=facility_id, user=user_id, filter=args
+    )[0][0]
+    total_readings = crud.get_total_readings_completed(
+        facility=facility_id, user=user_id, filter=args
+    )[0][0]
+    color_readings_q = crud.get_total_color_readings(
+        facility=facility_id, user=user_id, filter=args
+    )[0][0]
+    total_referrals = crud.get_sent_referrals(facility=facility_id, filter=args)[0][0]
+
+    referred_patients = None
+    if user_id is not "%":
+        referred_patients = crud.get_referred_patients(
+            facility=facility_id, filter=args
+        )[0][0]
+    days_with_readings = crud.get_days_with_readings(
+        facility=facility_id, user=user_id, filter=args
+    )[0][0]
+
+    color_readings = create_color_readings(color_readings_q)
+
+    response_json = {
+        "patients_referred": referred_patients,
+        "sent_referrals": total_referrals,
+        "days_with_readings": days_with_readings,
+        "unique_patient_readings": patients,
+        "total_readings": total_readings,
+        "color_readings": color_readings,
+    }
+
+    return response_json
+
+
 def create_color_readings(color_readings_q):
     color_readings = {
         TrafficLightEnum.GREEN.value: 0,
@@ -68,7 +103,31 @@ class Root(Resource):
     ## Get all statistics for patients
     def get():
         stats = statsManager.put_data_together()
-        return stats
+        return stats,200
+
+
+
+class AllStats(Resource):
+    @staticmethod
+    @jwt_required
+
+    ## Get all statistics for patients
+    def get():
+        cur_user = get_jwt_identity()
+        if RoleEnum.ADMIN.value not in cur_user.get("roles"):
+            return {"Error": "Invalid Permissions"}, 401
+
+        # Big int date range
+        args = {"from": "0", "to": "2147483647"}
+
+        if request.args.get("from") is not None:
+            args["from"] = str(request.args.get("from"))
+        if request.args.get("to") is not None:
+            args["to"] = str(request.args.get("to"))
+
+        response = query_stats_data(args)
+
+        return response, 200
 
 
 class FacilityReadings(Resource):
@@ -89,34 +148,7 @@ class FacilityReadings(Resource):
         if request.args.get("to") is not None:
             args["to"] = str(request.args.get("to"))
 
-        # Query all stats data
-        patients = crud.get_unique_patients_with_readings(
-            facility=facility_id, filter=args
-        )
-        total_readings = crud.get_total_readings_completed(
-            facility=facility_id, filter=args
-        )
-        color_readings_q = crud.get_total_color_readings(
-            facility=facility_id, filter=args
-        )
-        total_referrals = crud.get_sent_referrals(facility=facility_id, filter=args)
-        referred_patients = crud.get_referred_patients(
-            facility=facility_id, filter=args
-        )
-        days_with_readings = crud.get_days_with_readings(
-            facility=facility_id, filter=args
-        )
-
-        color_readings = create_color_readings(color_readings_q)
-
-        response = {
-            "patients_referred": referred_patients[0][0],
-            "sent_referrals": total_referrals[0][0],
-            "days_with_readings": days_with_readings[0][0],
-            "unique_patient_readings": patients[0][0],
-            "total_readings": total_readings[0][0],
-            "color_readings": color_readings,
-        }
+        response = query_stats_data(args, facility_id=facility_id)
         return response, 200
 
 
@@ -139,23 +171,6 @@ class UserReadings(Resource):
         if request.args.get("to") is not None:
             args["to"] = str(request.args.get("to"))
 
-        # Query all stats data
-        patients = crud.get_unique_patients_with_readings(user=user_id, filter=args)
-        total_readings = crud.get_total_readings_completed(user=user_id, filter=args)
-        color_readings_q = crud.get_total_color_readings(user=user_id, filter=args)
-        total_referrals = crud.get_sent_referrals(user=user_id, filter=args)
-
-        days_with_readings = crud.get_days_with_readings(user=user_id, filter=args)
-
-        color_readings = create_color_readings(color_readings_q)
-
-        response = {
-            "patients_referred": None,
-            "sent_referrals": total_referrals[0][0],
-            "days_with_readings": days_with_readings[0][0],
-            "unique_patient_readings": patients[0][0],
-            "total_readings": total_readings[0][0],
-            "color_readings": color_readings,
-        }
+        response = query_stats_data(args, user_id = user_id)
 
         return response, 200

@@ -14,7 +14,8 @@ from api.resources.assessments import (
     UpdateAssessment,
 )
 from api.resources.stats import (
-    Root as AllStats,
+    Root as GeneralStats,
+    AllStats,
     FacilityReadings,
     UserReadings,
 )
@@ -34,7 +35,9 @@ from api.resources.referrals import Root as Referrals, SingleReferral
 
 
 def init(api):
-    api.add_resource(AllStats, "/api/stats")  # [GET]
+    api.add_resource(GeneralStats, "/api/stats")  # [GET]
+    api.add_resource(AllStats, "/api/stats/all")  # [GET]
+
     api.add_resource(
         FacilityReadings, "/api/stats/facility/<string:facility_id>"
     )  # [GET]
