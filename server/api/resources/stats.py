@@ -124,7 +124,6 @@ class UserReadings(Resource):
     @staticmethod
     @jwt_required
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
-
     def get(user_id: int):
 
         current_user = get_jwt_identity()
