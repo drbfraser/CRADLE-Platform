@@ -107,6 +107,7 @@ def isGoodPassword(password: str) -> bool:
 
     return passlength
 
+
 def filterPairsWithNone(payload: dict) -> dict:
     """
     Returns  dict with all the key-value pairs wherein the value is not None
@@ -114,9 +115,9 @@ def filterPairsWithNone(payload: dict) -> dict:
     :param payload: The dictionary to evaluate
     """
 
-    updated_data = {} 
-    for k,v in payload.items():
+    updated_data = {}
+    for k, v in payload.items():
         if payload[k] is not None:
             updated_data[k] = v
-    
+
     return updated_data

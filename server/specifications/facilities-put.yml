@@ -1,0 +1,64 @@
+Update an existing facility
+---
+tags:
+  - Facilities
+requestBody:
+  required: true
+  description: PUT request body for /api/facilities
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          healthFacilityName:
+            type: string - required
+            example: H5123
+          healthFacilityPhoneNumber:
+            type: string | Null
+            example: 555-555-5555
+          location:
+            type: string | Null
+            example: District 5
+          facilityType:
+            type: string | Null
+            enum: [HCF_2, HCF_3, HCF_4, HOSPITAL]
+            example: HOSPITAL
+          about:
+            type: string | Null
+            example: Sample health centre
+responses:
+  200:
+    description: Facility has been updated, details of that facility returned
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            healthFacilityName:
+              type: string - required
+              example: H5123
+            healthFacilityPhoneNumber:
+              type: string | Null
+              example: 555-555-5555
+            location:
+              type: string | Null
+              example: District 5
+            facilityType:
+              type: string | Null
+              enum: [HCF_2, HCF_3, HCF_4, HOSPITAL]
+              example: HOSPITAL
+            about:
+              type: string | Null
+              example: Sample health centre
+
+responses:
+  400:
+    description: There is no facility listed with that name
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            Error:
+              type: string
+              example: There is no facility with this name!

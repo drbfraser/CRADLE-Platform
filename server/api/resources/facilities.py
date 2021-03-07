@@ -9,18 +9,22 @@ import data.marshal as marshal
 from models import HealthFacility
 
 
-
 # /api/facilities
 class Root(Resource):
 
-    #Ensuring that we select only these keys from the JSON payload
+    # Ensuring that we select only these keys from the JSON payload
     parser = reqparse.RequestParser()
-    parser.add_argument('healthFacilityName',  type=str, required=True, help="This field cannot be left blank!")
-    parser.add_argument('healthFacilityPhoneNumber')
-    parser.add_argument('about')
-    parser.add_argument('facilityType')
-    parser.add_argument('location')
-    
+    parser.add_argument(
+        "healthFacilityName",
+        type=str,
+        required=True,
+        help="This field cannot be left blank!",
+    )
+    parser.add_argument("healthFacilityPhoneNumber")
+    parser.add_argument("about")
+    parser.add_argument("facilityType")
+    parser.add_argument("location")
+
     @staticmethod
     @jwt_required
     @swag_from(
@@ -45,40 +49,50 @@ class Root(Resource):
         methods=["POST"],
         endpoint="facilities",
     )
-
     def post():
 
-        #Get key-value pairs from parser and remove pairs with a None value
+        # Get key-value pairs from parser and remove pairs with a None value
         data = Root.parser.parse_args()
         data = util.filterPairsWithNone(data)
-        
-        #Create a DB Model instance for the new facility and load into DB
+
+        # Create a DB Model instance for the new facility and load into DB
         facility = marshal.unmarshal(HealthFacility, data)
         crud.create(facility)
-        return data, 201
 
+        #Convert back to dict for return
+        facilityDict = marshal.marshal(facility)
+        return facilityDict, 201
+
+    @jwt_required
+    @swag_from(
+        "../../specifications/facilities-put.yml",
+        methods=["PUT"],
+        endpoint="facilities",
+    )
     def put(self):
 
-        #Get key-value pairs from parser and remove pairs with a None value
+        # Get key-value pairs from parser and remove pairs with a None value
         data = Root.parser.parse_args()
         data = util.filterPairsWithNone(data)
 
-        #If the facility does not exist, we create
-        if crud.read(HealthFacility, healthFacilityName=data['healthFacilityName']) is None:
+        # If the facility does not exist, return error
+        if (
+            crud.read(HealthFacility, healthFacilityName=data["healthFacilityName"])
+            is None
+        ):
+            return {"Error" : "There is no facility with this name!"}, 400
 
-            facility = marshal.unmarshal(HealthFacility, data)
-            crud.create(facility)
-            return data, 201
-
-        #Update existing facility    
+        # Update existing facility
         else:
-            crud.update(HealthFacility, data, healthFacilityName=data['healthFacilityName'])
+            crud.update(
+                HealthFacility, data, healthFacilityName=data["healthFacilityName"]
+            )
 
-            #Query the DB model instance for the updated facility and convert to dict for return
-            facility = crud.read(HealthFacility, healthFacilityName=data['healthFacilityName'])
+            # Query the DB model instance for the updated facility and convert to dict for return
+            facility = crud.read(
+                HealthFacility, healthFacilityName=data["healthFacilityName"]
+            )
             facilityDict = marshal.marshal(facility)
 
-            return facilityDict
-            #return {'message' : 'Facility updated'}, 200
-
-
+            return facilityDict, 200
+            
