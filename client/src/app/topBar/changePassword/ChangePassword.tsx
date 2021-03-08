@@ -45,6 +45,7 @@ const ChangePassword = ({ open, onClose }: IProps) => {
         throw new Error();
       }
 
+      setSubmitError(false);
       setSubmitSuccess(true);
       onClose();
     } catch (e) {
