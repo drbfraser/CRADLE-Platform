@@ -2,7 +2,6 @@ from typing import Optional
 from validation.validate import required_keys_present, values_correct_type
 
 
-
 def validate(request_body: dict) -> Optional[str]:
     """
     Returns an error message if the /api/facilities post request
