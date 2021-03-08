@@ -13,6 +13,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
+from api.decorator import roles_required
 from models import TrafficLightEnum, RoleEnum
 import data.crud as crud
 from validation import stats
@@ -71,30 +72,6 @@ def create_color_readings(color_readings_q):
     return color_readings
 
 
-def validate_user_perms(jwt_info, request):
-    canAccess = True
-
-    roles = jwt_info.get("roles")
-    vhts = jwt_info.get("vhtList")
-
-    if RoleEnum.ADMIN.value in roles:
-        return canAccess
-    elif RoleEnum.HCW.value in roles:
-        if (
-            request.get("facility") == jwt_info.get("healthFacilityName")
-            or request.get("user_id") in vhts
-        ):
-            return canAccess
-    elif RoleEnum.CHO.value in roles:
-        if request.get("user_id") in vhts:
-            return canAccess
-    elif RoleEnum.VHT.value in roles:
-        if request.get("user_id") == jwt_info.get("userId"):
-            return canAccess
-
-    return not canAccess
-
-
 class Root(Resource):
     @staticmethod
     @jwt_required
@@ -102,6 +79,7 @@ class Root(Resource):
 
     ## Get all statistics for patients
     def get():
+
         stats = statsManager.put_data_together()
         return stats, 200
 
@@ -109,14 +87,11 @@ class Root(Resource):
 class AllStats(Resource):
     @staticmethod
     @jwt_required
-
+    @roles_required([RoleEnum.ADMIN])
     ## Get all statistics for patients
     def get():
-        cur_user = get_jwt_identity()
-        if RoleEnum.ADMIN.value not in cur_user.get("roles"):
-            return {"Error": "Invalid Permissions"}, 401
 
-        # Big int date range
+        # Date filters default to max range
         args = {"from": "0", "to": "2147483647"}
 
         if request.args.get("from") is not None:
@@ -132,14 +107,10 @@ class AllStats(Resource):
 class FacilityReadings(Resource):
     @staticmethod
     @jwt_required
+    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW])
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
-        current_user = get_jwt_identity()
 
-        if not validate_user_perms(current_user, {"facility": facility_id}):
-            return {"Error": "Invalid Permissions"}, 401
-
-        # Big int date range
         args = {"from": "0", "to": "2147483647"}
 
         if request.args.get("from") is not None:
@@ -154,15 +125,10 @@ class FacilityReadings(Resource):
 class UserReadings(Resource):
     @staticmethod
     @jwt_required
+    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
 
-        current_user = get_jwt_identity()
-
-        if not validate_user_perms(current_user, {"user_id": user_id}):
-            return {"Error": "Invalid Permissions"}, 401
-
-        # Date ranges from 0 to max big int value
         args = {"from": "0", "to": "2147483647"}
 
         if request.args.get("from") is not None:
