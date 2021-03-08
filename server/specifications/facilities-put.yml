@@ -51,7 +51,6 @@ responses:
               type: string | Null
               example: Sample health centre
 
-responses:
   400:
     description: There is no facility listed with that name
     content:
