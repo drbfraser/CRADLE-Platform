@@ -63,5 +63,10 @@ class Root(Resource):
         crud.create(facility)
 
         # Convert back to dict for return
-        facilityDict = marshal.marshal(facility)
+        facilityDict = marshal.marshal(
+            crud.read(
+                HealthFacility,
+                healthFacilityName=data['healthFacilityName']
+                )
+            )
         return facilityDict, 201
