@@ -4,7 +4,7 @@ import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { useStyles } from './styles';
-import { goBackWithFallback } from '../../../../../shared/utils';
+import { goBackWithFallback } from 'src/shared/utils';
 
 interface IProps {
   title: string;

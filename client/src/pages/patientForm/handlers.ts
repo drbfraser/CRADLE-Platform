@@ -4,10 +4,11 @@ import {
   getTimestampFromMonths,
   getTimestampFromWeeks,
   goBackWithFallback,
-} from '../../shared/utils';
-import { EndpointEnum } from '../../server';
-import { BASE_URL } from '../../server/utils';
+} from 'src/shared/utils';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 import { initialState, PatientField, PatientState, SEXES } from './state';
+import { apiFetch } from 'src/shared/utils/api';
 
 // custom change handler when a field might affect other fields
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
@@ -48,19 +49,12 @@ export const handleBlurPatientId = (
 
     const patientId = e.target.value;
     if (patientId.length !== 0) {
-      const fetchOptions = {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem('token'),
-        },
-      };
-
-      fetch(
+      apiFetch(
         BASE_URL +
           EndpointEnum.PATIENTS +
           '/' +
           patientId +
-          EndpointEnum.PATIENT_INFO,
-        fetchOptions
+          EndpointEnum.PATIENT_INFO
       )
         .then((resp) =>
           setExistingPatientId(resp.status === 200 ? patientId : null)
@@ -115,25 +109,20 @@ export const handleSubmit = (
     delete patientData[PatientField.estimatedAge];
     delete patientData[PatientField.gestationalAge];
 
-    const fetchOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
-      body: JSON.stringify(patientData),
-    };
-
     let url = BASE_URL + EndpointEnum.PATIENTS;
+    let method = 'POST';
 
     if (!creatingNew) {
       url +=
         '/' + patientData[PatientField.patientId] + EndpointEnum.PATIENT_INFO;
-      fetchOptions.method = 'PUT';
+      method = 'PUT';
     }
 
     try {
-      const resp = await fetch(url, fetchOptions);
+      const resp = await apiFetch(url, {
+        method: method,
+        body: JSON.stringify(patientData),
+      });
 
       if (!resp.ok) {
         throw new Error('Response failed with error code: ' + resp.status);

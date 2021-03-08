@@ -7,7 +7,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { getPatientStatistics } from '../../../../redux/reducers/patientStatistics';
+import { getPatientStatistics } from 'src/redux/reducers/patientStatistics';
 import { useDispatch } from 'react-redux';
 import { useStyles } from './styles';
 import { useTrafficLights } from './hooks/trafficLights';

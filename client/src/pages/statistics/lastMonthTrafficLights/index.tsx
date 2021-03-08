@@ -1,8 +1,8 @@
-import { OrNull, Statistics } from '@types';
+import { OrNull, Statistics } from 'src/types';
 
 import { Bar } from 'react-chartjs-2';
 import { Card } from 'semantic-ui-react';
-import { Loader } from '../../../shared/components/loader';
+import { Loader } from 'src/shared/components/loader';
 import React from 'react';
 import { useChart } from './hooks';
 import { useStyles as useLocalStyles } from './styles';

@@ -1,4 +1,4 @@
-import { SymptomEnum } from '../../../../../enums';
+import { SymptomEnum } from 'src/enums';
 
 export const toggleNoneSymptom = (
   noneCurrentlySelected: boolean

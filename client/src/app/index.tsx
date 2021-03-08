@@ -1,14 +1,14 @@
-import { ActualUser, OrNull } from '@types';
+import { ActualUser, OrNull } from 'src/types';
 
-import { ContextProvider } from '../context';
+import { ContextProvider } from 'src/context';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { DimensionsContextProvider } from './context';
 import Drawer from '@material-ui/core/Drawer';
 import { LogoutMenuItem } from './logout';
 import { Pathname } from 'history';
 import React from 'react';
-import { ReduxState } from '../redux/reducers';
-import { RoleEnum } from '../enums';
+import { ReduxState } from 'src/redux/reducers';
+import { RoleEnum } from 'src/enums';
 import { Routes } from './routes';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';

@@ -1,4 +1,4 @@
-import { TrafficLightEnum } from '../../../../../enums';
+import { TrafficLightEnum } from 'src/enums';
 
 export const trafficLightLabels = Object.values(TrafficLightEnum)
   .filter(

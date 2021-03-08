@@ -1,8 +1,8 @@
-import { OrNull, OrUndefined, Reading } from '@types';
+import { OrNull, OrUndefined, Reading } from 'src/types';
 
-import { TrafficLightEnum } from '../../enums';
+import { TrafficLightEnum } from 'src/enums';
 import moment from 'moment';
-import { history } from '../../redux/reducers/index';
+import { history } from 'src/redux/reducers/index';
 
 export { v4 as makeUniqueId } from 'uuid';
 

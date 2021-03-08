@@ -36,8 +36,12 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": "."
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
     "node_modules",
     "build",
@@ -46,9 +50,5 @@
     "webpack",
     "jest",
     "src/setupTests.ts"
-  ],
-  "extends": "./tsconfig.paths.json",
-  "include": [
-    "src"
   ]
 }

@@ -1,6 +1,6 @@
-import { Patient } from '@types';
+import { Patient } from 'src/types';
 import React from 'react';
-import { getAgeToDisplay } from '../../../../../shared/utils';
+import { getAgeToDisplay } from 'src/shared/utils';
 
 interface IProps {
   patient: Patient;

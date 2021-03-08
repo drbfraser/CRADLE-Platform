@@ -1,4 +1,4 @@
-import { StatisticsDataset, YearGlobalStatistics } from '@types';
+import { StatisticsDataset, YearGlobalStatistics } from 'src/types';
 
 export const womenReferredPerMonth = (
   data: YearGlobalStatistics

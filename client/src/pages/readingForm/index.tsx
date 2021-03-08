@@ -17,11 +17,11 @@ import Step from '@material-ui/core/Step/Step';
 import { initialState, ReadingState } from './state';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
 import { handleSubmit } from './handlers';
-import { Toast } from '../../shared/components/toast';
+import { Toast } from 'src/shared/components/toast';
 import { ReduxState } from 'src/redux/reducers';
 import { useSelector } from 'react-redux';
-import { ActualUser } from '@types';
-import { goBackWithFallback } from '../../shared/utils';
+import { ActualUser } from 'src/types';
+import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
   patientId: string;

@@ -8,7 +8,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
-import { goBackWithFallback } from '../../shared/utils';
+import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
   patientId: string | undefined;
