@@ -62,7 +62,6 @@ class Root(Resource):
         facility = marshal.unmarshal(HealthFacility, data)
         crud.create(facility)
 
-        #Convert back to dict for return
+        # Convert back to dict for return
         facilityDict = marshal.marshal(facility)
         return facilityDict, 201
-

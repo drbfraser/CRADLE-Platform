@@ -303,7 +303,6 @@ class UserEdit(Resource):
 
 # user/delete/<int:id>
 class UserDelete(Resource):
-    
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/user-delete.yml", methods=["DELETE"])
     def delete(self, id=None):
