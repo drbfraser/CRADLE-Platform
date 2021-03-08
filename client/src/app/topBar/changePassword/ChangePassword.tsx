@@ -32,7 +32,10 @@ const ChangePassword = ({ open, onClose }: IProps) => {
   const handleSubmit = async (values: IPasswordForm) => {
     const init = {
       method: 'POST',
-      body: JSON.stringify(values),
+      body: JSON.stringify({
+        [PasswordField.currentPass]: values[PasswordField.currentPass],
+        [PasswordField.newPass]: values[PasswordField.newPass],
+      }),
     };
 
     try {
@@ -96,6 +99,17 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                   variant="outlined"
                   label="New Password"
                   name={PasswordField.newPass}
+                />
+                <br />
+                <br />
+                <Field
+                  component={TextField}
+                  type="password"
+                  fullWidth
+                  required
+                  variant="outlined"
+                  label="Confirm New Password"
+                  name={PasswordField.confirmNewPass}
                 />
                 <DialogActions>
                   <Button type="button" onClick={onClose}>
