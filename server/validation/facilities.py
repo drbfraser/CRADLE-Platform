@@ -1,6 +1,6 @@
 from typing import Optional
 from validation.validate import required_keys_present, values_correct_type
-from models import HealthFacility
+
 
 
 def validate(request_body: dict) -> Optional[str]:
