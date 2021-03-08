@@ -88,6 +88,8 @@ class AllStats(Resource):
     @staticmethod
     @jwt_required
     @roles_required([RoleEnum.ADMIN])
+    @swag_from("../../specifications/stats.yml", methods=["GET"])
+
     ## Get all statistics for patients
     def get():
 
