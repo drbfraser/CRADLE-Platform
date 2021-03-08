@@ -68,7 +68,7 @@ def init(api):
 
     api.add_resource(
         Facilities, "/api/facilities", endpoint="facilities"
-    )  # [GET, POST, PUT]
+    )  # [GET, POST]
 
     api.add_resource(Patients, "/api/patients", endpoint="patients")  # [GET, POST]
     api.add_resource(
