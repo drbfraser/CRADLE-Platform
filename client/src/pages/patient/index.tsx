@@ -1,16 +1,13 @@
-import { OrNull, Patient } from '@types';
-import {
-  clearGetPatientError,
-  getPatient,
-} from '../../redux/reducers/patients';
+import { OrNull, Patient } from 'src/types';
+import { clearGetPatientError, getPatient } from 'src/redux/reducers/patients';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Loader } from '../../shared/components/loader';
+import { Loader } from 'src/shared/components/loader';
 import { PatientSummary } from './summary';
 import React from 'react';
-import { ReduxState } from '../../redux/reducers';
+import { ReduxState } from 'src/redux/reducers';
 import { RouteComponentProps } from 'react-router-dom';
-import { Toast } from '../../shared/components/toast';
+import { Toast } from 'src/shared/components/toast';
 
 type SelectorState = {
   error: OrNull<string>;

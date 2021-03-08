@@ -1,11 +1,11 @@
-import { GestationalAgeUnitEnum } from '../../../../enums';
+import { GestationalAgeUnitEnum } from 'src/enums';
 
 import { BasicInformation } from './basicInformation';
 import { Divider } from 'semantic-ui-react';
 import { GestationalAge } from './gestationalAge';
 import { HistoryItem } from './historyItem';
 import Paper from '@material-ui/core/Paper';
-import { Patient } from '@types';
+import { Patient } from 'src/types';
 import React from 'react';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import Typography from '@material-ui/core/Typography';

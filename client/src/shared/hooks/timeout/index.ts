@@ -1,4 +1,4 @@
-import { OrUndefined } from '@types';
+import { OrUndefined } from 'src/types';
 import React from 'react';
 
 interface IArgs {

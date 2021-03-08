@@ -1,14 +1,14 @@
 import {
   CurrentUserState,
   getCurrentUser,
-} from '../../../redux/reducers/user/currentUser';
+} from 'src/redux/reducers/user/currentUser';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Loader } from '../../../shared/components/loader';
+import { Loader } from 'src/shared/components/loader';
 import React from 'react';
-import { ReduxState } from '../../../redux/reducers';
-import { RoleEnum } from '../../../enums';
+import { ReduxState } from 'src/redux/reducers';
+import { RoleEnum } from 'src/enums';
 
 interface IProps {
   component:

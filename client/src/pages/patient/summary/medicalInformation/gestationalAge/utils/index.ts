@@ -1,7 +1,7 @@
 import {
   GestationalAgeUnitDisplayEnum,
   GestationalAgeUnitEnum,
-} from '../../../../../../enums';
+} from 'src/enums';
 
 export const unitOptions = [
   {

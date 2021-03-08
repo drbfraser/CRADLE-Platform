@@ -1,8 +1,8 @@
 import AssessmentIcon from '@material-ui/icons/Assessment';
-import { OrNull } from '@types';
+import { OrNull } from 'src/types';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { getPrettyDateTime } from '../../../../../shared/utils';
+import { getPrettyDateTime } from 'src/shared/utils';
 import { useStyles } from './styles';
 
 interface IProps {

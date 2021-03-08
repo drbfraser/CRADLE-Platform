@@ -1,4 +1,4 @@
-import { OrNull, UrineTests as UrineTestsType } from '@types';
+import { OrNull, UrineTests as UrineTestsType } from 'src/types';
 
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
@@ -6,12 +6,19 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { urineTestChemicals } from '../../../../../shared/components/form/urineTest';
 import { useStyles } from './styles';
 
 interface IProps {
   urineTests: OrNull<UrineTestsType>;
 }
+
+const urineTestChemicals = {
+  LEUC: 'Leukocytes',
+  NIT: 'Nitrites',
+  GLU: 'Glucose',
+  PRO: 'Protein',
+  BLOOD: 'Blood',
+};
 
 export const UrineTests: React.FC<IProps> = ({ urineTests }) => {
   const classes = useStyles();

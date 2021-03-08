@@ -6,7 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import { Field, Form, Formik } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import React, { useState } from 'react';
-import { Toast } from '../../../src/shared/components/toast';
+import { Toast } from 'src/shared/components/toast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
 

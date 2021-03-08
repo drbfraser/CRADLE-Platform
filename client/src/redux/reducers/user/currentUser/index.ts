@@ -1,9 +1,9 @@
-import { ActualUser, Callback, OrNull, ServerError } from '@types';
+import { ActualUser, Callback, OrNull, ServerError } from 'src/types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from '../../../../server';
-import { MethodEnum } from '../../../../server';
+import { EndpointEnum } from 'src/server';
+import { MethodEnum } from 'src/server';
 import { push } from 'connected-react-router';
 
 export enum CurrentUserActionEnum {

@@ -1,4 +1,4 @@
-import { Callback, OrUndefined } from '@types';
+import { Callback, OrUndefined } from 'src/types';
 
 import { DefaultSearch } from '../../defaultSearch';
 import LinearProgress from '@material-ui/core/LinearProgress';

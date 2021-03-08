@@ -1,4 +1,4 @@
-import { Patient, Reading } from '@types';
+import { Patient, Reading } from 'src/types';
 
 import Grid from '@material-ui/core/Grid';
 import { Header } from './header';
@@ -7,7 +7,7 @@ import Paper from '@material-ui/core/Paper';
 import React from 'react';
 import { ReferralInfo } from './referralInfo';
 import { Symptoms } from './symptoms';
-import { TrafficLight } from '../../../../shared/components/trafficLight';
+import { TrafficLight } from 'src/shared/components/trafficLight';
 import { UrineTests } from './urineTests';
 import { useReadings } from './hooks';
 import { useStyles } from './styles';

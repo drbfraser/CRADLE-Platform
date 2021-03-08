@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrafficLightStatistics } from '@types';
+import { TrafficLightStatistics } from 'src/types';
 import { trafficLightLabels } from './utils';
 
 interface IArgs {

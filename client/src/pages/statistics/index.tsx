@@ -1,8 +1,8 @@
-import { Statistics as GlobalStatisticsType, OrNull } from '@types';
+import { Statistics as GlobalStatisticsType, OrNull } from 'src/types';
 import {
   clearStatisticsRequestOutcome,
   getStatistics,
-} from '../../redux/reducers/statistics';
+} from 'src/redux/reducers/statistics';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AllAssessedWomenStatsitics } from './allAssessedWomen';
@@ -11,8 +11,8 @@ import { GlobalStatistics } from './global';
 import { HealthFacilityStatistics } from './healthFacility';
 import { LastMonthTrafficLightsStatistics } from './lastMonthTrafficLights';
 import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { Toast } from '../../shared/components/toast';
+import { ReduxState } from 'src/redux/reducers';
+import { Toast } from 'src/shared/components/toast';
 import { useStyles } from './styles';
 
 type SelectorState = {

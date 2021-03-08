@@ -170,6 +170,7 @@ def get_sql_shared_query() -> str:
         "rf.comment as rf_comment, "
         "rf.isAssessed as rf_isAssessed, "
         "rf.referralHealthFacilityName as rf_referralHealthFacilityName, "
+        "rf.userId as rf_userId, "
         "rf.patientId as rf_patientId, "
         "rf.readingId as rf_readingId, "
         "rf.dateReferred as rf_dateReferred, "

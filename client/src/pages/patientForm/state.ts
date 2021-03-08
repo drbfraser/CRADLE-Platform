@@ -3,9 +3,10 @@ import {
   getAgeBasedOnDOB,
   getNumOfMonthsNumeric,
   getNumOfWeeks,
-} from '../../shared/utils';
-import { EndpointEnum } from '../../server';
-import { BASE_URL } from '../../server/utils';
+} from 'src/shared/utils';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
+import { apiFetch } from 'src/shared/utils/api';
 
 export const SEXES = {
   MALE: 'MALE',
@@ -55,19 +56,12 @@ export const getPatientState = async (
     return { ...initialState };
   }
 
-  const fetchOptions = {
-    headers: {
-      Authorization: 'Bearer ' + localStorage.getItem('token'),
-    },
-  };
-
-  const resp = await fetch(
+  const resp = await apiFetch(
     BASE_URL +
       EndpointEnum.PATIENTS +
       '/' +
       patientId +
-      EndpointEnum.PATIENT_INFO,
-    fetchOptions
+      EndpointEnum.PATIENT_INFO
   );
 
   const state = await resp.json();

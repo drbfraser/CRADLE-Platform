@@ -1,8 +1,8 @@
 import moment from 'moment';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { useRowStyles } from '../../../src/shared/components/apiTable/rowStyles';
-import { TrafficLight } from '../../../src/shared/components/trafficLight';
+import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
+import { TrafficLight } from 'src/shared/components/trafficLight';
 import { IPatient } from './types';
 
 interface IProps {

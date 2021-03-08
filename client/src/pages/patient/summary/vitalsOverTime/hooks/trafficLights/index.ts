@@ -1,7 +1,7 @@
-import { OrNull, PatientStatistics, StatisticsDataset } from '@types';
+import { OrNull, PatientStatistics, StatisticsDataset } from 'src/types';
 
-import { ReduxState } from '../../../../../../redux/reducers';
-import { TrafficLightEnum } from '../../../../../../enums';
+import { ReduxState } from 'src/redux/reducers';
+import { TrafficLightEnum } from 'src/enums';
 import { useSelector } from 'react-redux';
 
 type TrafficLights = {

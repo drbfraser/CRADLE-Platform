@@ -1,18 +1,16 @@
-import { OrNull, PatientStatistics, ServerError } from '@types';
+import { OrNull, PatientStatistics, ServerError } from 'src/types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from '../../../server';
+import { EndpointEnum } from 'src/server';
 
 enum PatientStatisticsActionEnum {
-  CLEAR_REQUEST_OUTCOME = 'patientStatistics/CLEAR_REQUEST_OUTCOME',
   GET_PATIENT_STATISTICS_REQUESTED = 'patientStatistics/GET_PATIENT_STATISTICS_REQUESTED',
   GET_PATIENT_STATISTICS_ERROR = 'patientStatistics/GET_PATIENT_STATISTICS_ERROR',
   GET_PATIENT_STATISTICS_SUCCESS = 'patientStatistics/GET_PATIENT_STATISTICS_SUCCESS',
 }
 
 type PatientStatisticsAction =
-  | { type: PatientStatisticsActionEnum.CLEAR_REQUEST_OUTCOME }
   | { type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_REQUESTED }
   | {
       type: PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_ERROR;
@@ -53,10 +51,6 @@ export const getPatientStatistics = (
   };
 };
 
-export const clearPatientStatisticsRequestOutcome = (): PatientStatisticsAction => ({
-  type: PatientStatisticsActionEnum.CLEAR_REQUEST_OUTCOME,
-});
-
 export type PatientStatisticsState = {
   data: OrNull<PatientStatistics>;
   error: boolean;
@@ -76,9 +70,6 @@ export const patientStatisticsReducer = (
   action: PatientStatisticsAction
 ): PatientStatisticsState => {
   switch (action.type) {
-    case PatientStatisticsActionEnum.CLEAR_REQUEST_OUTCOME: {
-      return { ...initialState, data: state.data };
-    }
     case PatientStatisticsActionEnum.GET_PATIENT_STATISTICS_REQUESTED: {
       return {
         ...initialState,

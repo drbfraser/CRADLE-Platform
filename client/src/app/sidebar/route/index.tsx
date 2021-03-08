@@ -1,4 +1,4 @@
-import { Callback, OrNull, OrUndefined } from '@types';
+import { Callback, OrNull, OrUndefined } from 'src/types';
 
 import { AppRoute } from '../../routes/utils';
 import { Link } from 'react-router-dom';
@@ -7,7 +7,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { useDimensionsContext } from '../../context/hooks';
+import { useDimensionsContext } from 'src/app/context/hooks';
 import { useStyles } from '../../styles';
 
 interface IProps {

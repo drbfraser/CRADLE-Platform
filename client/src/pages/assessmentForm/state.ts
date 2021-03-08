@@ -1,5 +1,6 @@
-import { EndpointEnum } from '../../../src/server';
-import { BASE_URL } from '../../../src/server/utils';
+import { apiFetch } from 'src/shared/utils/api';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 
 // field names here match /api/assessments
 export enum AssessmentField {
@@ -29,15 +30,8 @@ export const getAssessmentState = async (
     return { ...initialState };
   }
 
-  const fetchOptions = {
-    headers: {
-      Authorization: 'Bearer ' + localStorage.getItem('token'),
-    },
-  };
-
-  const resp = await fetch(
-    BASE_URL + EndpointEnum.ASSESSMENTS + '/' + assessmentId,
-    fetchOptions
+  const resp = await apiFetch(
+    BASE_URL + EndpointEnum.ASSESSMENTS + '/' + assessmentId
   );
 
   const state = await resp.json();

@@ -7,6 +7,7 @@ export enum EndpointEnum {
   DELETE = '/delete',
   EDIT = '/edit',
   HEALTH_FACILITY_LIST = '/facilities?simplified=true',
+  HEALTH_FACILITIES = '/facilities',
   PATIENTS = '/patients',
   PATIENT_INFO = '/info' /* /patients/{PATIENT_ID}/info */,
   PATIENT_ASSOCIATIONS = '/patientAssociations',
