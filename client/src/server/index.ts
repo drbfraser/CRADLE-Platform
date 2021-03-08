@@ -4,6 +4,7 @@ export enum EndpointEnum {
   ASSESSMENT_UPDATE = '/assessmentUpdate',
   AUTH = '/auth',
   CURRENT = '/current',
+  CHANGE_PASS = '/user/change_pass',
   DELETE = '/delete',
   EDIT = '/edit',
   HEALTH_FACILITY_LIST = '/facilities?simplified=true',
