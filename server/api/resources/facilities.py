@@ -8,6 +8,9 @@ import data.crud as crud
 import data.marshal as marshal
 from models import HealthFacility
 
+from api.decorator import roles_required
+from models import RoleEnum
+
 
 # /api/facilities
 class Root(Resource):
@@ -43,7 +46,7 @@ class Root(Resource):
             return [marshal.marshal(f) for f in facilities]
 
     @staticmethod
-    @jwt_required
+    @roles_required([RoleEnum.ADMIN])
     @swag_from(
         "../../specifications/facilities-post.yml",
         methods=["POST"],
@@ -63,36 +66,3 @@ class Root(Resource):
         facilityDict = marshal.marshal(facility)
         return facilityDict, 201
 
-    @jwt_required
-    @swag_from(
-        "../../specifications/facilities-put.yml",
-        methods=["PUT"],
-        endpoint="facilities",
-    )
-    def put(self):
-
-        # Get key-value pairs from parser and remove pairs with a None value
-        data = Root.parser.parse_args()
-        data = util.filterPairsWithNone(data)
-
-        # If the facility does not exist, return error
-        if (
-            crud.read(HealthFacility, healthFacilityName=data["healthFacilityName"])
-            is None
-        ):
-            return {"Error" : "There is no facility with this name!"}, 400
-
-        # Update existing facility
-        else:
-            crud.update(
-                HealthFacility, data, healthFacilityName=data["healthFacilityName"]
-            )
-
-            # Query the DB model instance for the updated facility and convert to dict for return
-            facility = crud.read(
-                HealthFacility, healthFacilityName=data["healthFacilityName"]
-            )
-            facilityDict = marshal.marshal(facility)
-
-            return facilityDict, 200
-            
