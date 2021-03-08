@@ -1,7 +1,7 @@
-import { Loader } from '../../../../../shared/components/loader';
+import { Loader } from 'src/shared/components/loader';
 import React from 'react';
 import { useStyles } from './styles';
-import { useTimeout } from '../../../../../shared/hooks/timeout';
+import { useTimeout } from 'src/shared/hooks/timeout';
 
 export const Content: React.FC = ({ children }) => {
   const classes = useStyles();

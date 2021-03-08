@@ -1,6 +1,6 @@
-import { StatisticsDataset, YearGlobalStatistics } from '@types';
+import { StatisticsDataset, YearGlobalStatistics } from 'src/types';
 
-import { MonthEnum } from '../../../../enums';
+import { MonthEnum } from 'src/enums';
 import React from 'react';
 
 interface IArgs {

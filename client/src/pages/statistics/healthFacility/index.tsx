@@ -1,6 +1,6 @@
-import { OrNull, Statistics } from '@types';
+import { OrNull, Statistics } from 'src/types';
 
-import { Loader } from '../../../shared/components/loader';
+import { Loader } from 'src/shared/components/loader';
 import React from 'react';
 import { Statistic as SemanticStatistic } from 'semantic-ui-react';
 import { Statistic } from '../statistic';

@@ -1,5 +1,5 @@
-import { Reading } from '@types';
-import { getMomentDate } from '../../../../../../shared/utils';
+import { Reading } from 'src/types';
+import { getMomentDate } from 'src/shared/utils';
 
 export const sortReadings = (readings: Array<Reading>) => {
   return readings.sort(

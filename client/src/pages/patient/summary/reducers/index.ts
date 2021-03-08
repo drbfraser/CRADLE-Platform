@@ -1,4 +1,4 @@
-import { OrNull } from '@types';
+import { OrNull } from 'src/types';
 
 export enum ActionTypeEnum {
   HIDE_PROMPT,

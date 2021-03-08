@@ -1,8 +1,8 @@
-import { OrNull, PatientStatistics, ServerError } from '@types';
+import { OrNull, PatientStatistics, ServerError } from 'src/types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from '../../../server';
+import { EndpointEnum } from 'src/server';
 
 enum PatientStatisticsActionEnum {
   GET_PATIENT_STATISTICS_REQUESTED = 'patientStatistics/GET_PATIENT_STATISTICS_REQUESTED',

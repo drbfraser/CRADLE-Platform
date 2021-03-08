@@ -2,7 +2,7 @@ import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import IconButton from '@material-ui/core/IconButton';
 import React from 'react';
-import { SortOrderEnum } from '../../../enums';
+import { SortOrderEnum } from 'src/enums';
 import Tooltip from '@material-ui/core/Tooltip';
 
 interface IProps {

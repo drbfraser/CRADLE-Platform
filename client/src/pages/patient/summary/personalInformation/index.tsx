@@ -2,7 +2,7 @@ import { BasicInformation } from './basicInformation';
 import Button from '@material-ui/core/Button/Button';
 import { Divider } from 'semantic-ui-react';
 import Paper from '@material-ui/core/Paper';
-import { Patient } from '@types';
+import { Patient } from 'src/types';
 import React from 'react';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import Typography from '@material-ui/core/Typography';

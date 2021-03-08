@@ -2,10 +2,10 @@ import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
 import {
   GestationalAgeUnitDisplayEnum,
   GestationalAgeUnitEnum,
-} from '../../../../../enums';
-import { getNumOfMonths, getNumOfWeeks } from '../../../../../shared/utils';
+} from 'src/enums';
+import { getNumOfMonths, getNumOfWeeks } from 'src/shared/utils';
 
-import { Callback } from '@types';
+import { Callback } from 'src/types';
 import React from 'react';
 import { unitOptions } from './utils';
 import { useStyles } from './styles';

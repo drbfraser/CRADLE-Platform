@@ -4,13 +4,13 @@ import {
   OrNull,
   Patient,
   ServerError,
-} from '@types';
-import { PatientStateEnum } from '../../../enums';
+} from 'src/types';
+import { PatientStateEnum } from 'src/enums';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from '../../../server';
-import { MethodEnum } from '../../../server';
+import { EndpointEnum } from 'src/server';
+import { MethodEnum } from 'src/server';
 import { goBack } from 'connected-react-router';
 
 enum PatientsActionEnum {

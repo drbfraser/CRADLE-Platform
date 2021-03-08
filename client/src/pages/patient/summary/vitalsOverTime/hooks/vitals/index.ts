@@ -1,8 +1,8 @@
-import { OrNull, PatientStatistics, StatisticsDataset } from '@types';
+import { OrNull, PatientStatistics, StatisticsDataset } from 'src/types';
 
-import { MonthEnum } from '../../../../../../enums';
+import { MonthEnum } from 'src/enums';
 import React from 'react';
-import { ReduxState } from '../../../../../../redux/reducers';
+import { ReduxState } from 'src/redux/reducers';
 import { average } from './utils';
 import { useSelector } from 'react-redux';
 

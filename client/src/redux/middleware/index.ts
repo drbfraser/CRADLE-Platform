@@ -1,10 +1,8 @@
-import { BASE_URL } from '../../server/utils';
-import { EndpointEnum } from '../../server';
+import { BASE_URL } from 'src/server/utils';
+import { EndpointEnum } from 'src/server';
 import { MakeServerRequestEnum } from '../reducers/utils';
-import { MethodEnum } from '../../server';
 import axios from 'axios';
-import jwt_decode from 'jwt-decode';
-import { logoutUser } from '../reducers/user/currentUser';
+import { getApiToken } from 'src/shared/utils/api';
 
 export const requestMiddleware = () => ({ dispatch }: any) => (
   next: any
@@ -14,34 +12,16 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
     return;
   }
 
-  let token = localStorage.getItem(`token`);
-  const decodedToken = token ? jwt_decode<{ exp: number }>(token) : null;
-  const currentTime = new Date().getTime() / 1000;
   const { endpoint, method, data, onSuccess, onError } = action.payload;
 
-  const renewToken =
-    decodedToken &&
-    currentTime > decodedToken.exp &&
-    endpoint !== `${EndpointEnum.USER}${EndpointEnum.AUTH}`;
+  let authHeader = {};
 
-  if (renewToken) {
-    const refreshToken = localStorage.refresh;
-    try {
-      const response = await axios({
-        method: MethodEnum.POST,
-        url: `${BASE_URL}${EndpointEnum.USER}${EndpointEnum.AUTH}${EndpointEnum.REFRESH}`,
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      });
-      localStorage.setItem('token', response.data.token);
-      token = localStorage.token;
-    } catch (error) {
-      console.error(error);
-      dispatch(logoutUser());
-    }
+  if (endpoint !== `${EndpointEnum.USER}${EndpointEnum.AUTH}`) {
+    const token = await getApiToken();
+
+    authHeader = {
+      Authorization: `Bearer ${token}`,
+    };
   }
 
   axios({
@@ -50,7 +30,7 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...authHeader,
     },
     data: data,
   })

@@ -1,6 +1,6 @@
 import DialogContentText from '@material-ui/core/DialogContentText';
 import { DialogPopup } from '../../components/dialogPopup';
-import { OrNull } from '@types';
+import { OrNull } from 'src/types';
 import React from 'react';
 import { useStyles } from './styles';
 
