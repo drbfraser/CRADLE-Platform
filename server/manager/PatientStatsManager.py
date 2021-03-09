@@ -7,10 +7,6 @@ import json
 
 readingManager = ReadingManager()
 
-# TODO: Add error handling
-# TODO: Update init
-# TODO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
-
 
 class PatientStatsManager:
 
@@ -22,11 +18,6 @@ class PatientStatsManager:
         red_up_index = 3
         red_down_index = 4
         green_index = 0
-
-        ## TODO replace the old stuff once figure out where it gets called from
-        # traffic_light_indexes = {"GREEN":0, "YELLOW_UP":1, "YELLOW_DOWN":2,"RED_UP":3, "RED_DOWN":4 }
-        # key = item[TRAFFIC_LIGHT_STAT]
-        # data[traffic_light_indexes[key]] += 1
 
         ## Refactor using above dict
         if item[TRAFFIC_LIGHT_STAT] == "YELLOW_UP":
@@ -94,19 +85,15 @@ class PatientStatsManager:
 
         # getting all bpSystolic readings for each month
         bp_systolic = self.get_data("bpSystolic", readings, patient_id)
-        # self.clean_up_data(bp_systolic)
 
         # getting all bpDiastolic readings for each month
         bp_diastolic = self.get_data("bpDiastolic", readings, patient_id)
-        # self.clean_up_data(bp_diastolic)
 
         # getting all heart rate readings for each month
         heart_rate = self.get_data("heartRateBPM", readings, patient_id)
-        # self.clean_up_data(heart_rate)
 
         # getting all traffic lights from day 1 for this patient
         traffic_light_statuses = self.get_data(TRAFFIC_LIGHT_STAT, readings, patient_id)
-        # self.clean_up_data(traffic_light_statuses)
 
         # putting data into one object now
         data = {
