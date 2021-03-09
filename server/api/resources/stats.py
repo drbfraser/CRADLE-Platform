@@ -75,7 +75,7 @@ def create_color_readings(color_readings_q):
 class Root(Resource):
     @staticmethod
     @jwt_required
-    @swag_from("../../specifications/stats-all.yml", methods=["GET"])
+    @swag_from("../../specifications/stats.yml", methods=["GET"])
 
     ## Get all statistics for patients
     def get():
@@ -88,7 +88,7 @@ class AllStats(Resource):
     @staticmethod
     @jwt_required
     @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/stats.yml", methods=["GET"])
+    @swag_from("../../specifications/stats-all.yml", methods=["GET"])
 
     ## Get all statistics for patients
     def get():

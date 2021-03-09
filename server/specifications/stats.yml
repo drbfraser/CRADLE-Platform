@@ -1,65 +1,62 @@
-Get statistics for all VHTs and Facilities
+Get overall stats
 ---
 tags:
   - Stats
-parameters:
-  - in: query
-    name: from
-    schema:
-      type: integer
-  - in: query
-    name: to
-    schema:
-      type: integer
-
 responses:
   200:
-    description: 
+    description: Overall stats
     content:
       application/json:
         schema:
           type: object
           properties:
-            patients_referred:
-              type: integer
-              example : 2
-            sent_referrals: 
-              type: integer
-              example : 58
-            days_with_readings:
-              type: integer
-              example: 5
-            unique_patients:
-              type: integer
-              example: 102 
-            total_readings:
-              type: int
-              example: 295
-            color_readings:
+            readingsPerMonth:
+              type: array
+              items: integer
+              example: [6, 21, 47, 36, 41, 30, 28, 22, 22, 26, 16, 0]
+            referralsPerMonth:
+              type: array
+              items: integer
+              example: [61, 1, 0, 2, 4, 4, 4, 8, 3, 10, 13, 0]
+            assessmentsPerMonth:
+              type: array
+              items: integer
+              example: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0]
+            pregnantWomenReferredPerMonth:
+              type: array
+              items: integer
+              example: [1, 1, 0, 2, 4, 4, 4, 8, 3, 10, 12, 0]
+            pregnantWomenAssessedPerMonth:
+              type: array
+              items: integer
+              example: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0]
+            womenReferredPerMonth:
+              type: array
+              items: integer
+              example: [1, 1, 0, 2, 4, 4, 4, 8, 3, 10, 12, 0]
+            womenAssessedPerMonth:
+              type: array
+              items: integer
+              example: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0]
+            uniquePeopleAssesedPerMonth:
+              type: array
+              items: integer
+              example: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0]
+            trafficLightStatusLastMonth:
               type: object
               properties:
-                GREEN:
-                  type: integer
-                  example: 116
-                'YELLOW_DOWN': 
+                green:
                   type: integer
                   example: 22
-                'YELLOW_UP':
+                yellowUp:
                   type: integer
-                  example: 95
-                'RED_DOWN':
+                  example: 12
+                yellowDown:
                   type: integer
-                  example: 4
-                'RED_UP':
+                  example: 2
+                redUp:
                   type: integer
-                  example: 58 
-  401:
-    description: Invalid user role for accessing this data
-    content:
-      application/json:
-        schema:
-          type: object
-          properties:
-            error:
-              type: string
-              example: Invalid Permissions
+                  example: 11
+                redDown:
+                  type: integer
+                  example: 0
