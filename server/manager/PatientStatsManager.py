@@ -7,12 +7,11 @@ import json
 
 readingManager = ReadingManager()
 
-# TODO: Add error handling
-# TODO: Update init
-# TODO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
-
 
 class PatientStatsManager:
+
+    TRAFFIC_LIGHT_STAT = "trafficLightStatus"
+
     def get_traffic_light(self, item, data):
         yellow_up_index = 1
         yellow_down_index = 2
@@ -20,15 +19,16 @@ class PatientStatsManager:
         red_down_index = 4
         green_index = 0
 
-        if item["trafficLightStatus"] == "YELLOW_UP":
+        ## Refactor using above dict
+        if item[TRAFFIC_LIGHT_STAT] == "YELLOW_UP":
             data[yellow_up_index] += 1
-        if item["trafficLightStatus"] == "YELLOW_DOWN":
+        if item[TRAFFIC_LIGHT_STAT] == "YELLOW_DOWN":
             data[yellow_down_index] += 1
-        if item["trafficLightStatus"] == "RED_UP":
+        if item[TRAFFIC_LIGHT_STAT] == "RED_UP":
             data[red_up_index] += 1
-        if item["trafficLightStatus"] == "RED_DOWN":
+        if item[TRAFFIC_LIGHT_STAT] == "RED_DOWN":
             data[red_down_index] += 1
-        if item["trafficLightStatus"] == "GREEN":
+        if item[TRAFFIC_LIGHT_STAT] == "GREEN":
             data[green_index] += 1
 
     """
@@ -41,14 +41,14 @@ class PatientStatsManager:
 
     def get_data(self, dataNeeded, table, patient_id):
 
-        if dataNeeded == "trafficLightStatus":
+        if dataNeeded == TRAFFIC_LIGHT_STAT:
             data = [0, 0, 0, 0, 0]
         else:
             data = [[], [], [], [], [], [], [], [], [], [], [], []]
 
         for item in table:
             if patient_id == item["patientId"]:
-                if dataNeeded == "trafficLightStatus":
+                if dataNeeded == TRAFFIC_LIGHT_STAT:
                     # do traffic light status stuff here
                     self.get_traffic_light(item, data)
                 else:
@@ -85,21 +85,15 @@ class PatientStatsManager:
 
         # getting all bpSystolic readings for each month
         bp_systolic = self.get_data("bpSystolic", readings, patient_id)
-        # self.clean_up_data(bp_systolic)
 
         # getting all bpDiastolic readings for each month
         bp_diastolic = self.get_data("bpDiastolic", readings, patient_id)
-        # self.clean_up_data(bp_diastolic)
 
         # getting all heart rate readings for each month
         heart_rate = self.get_data("heartRateBPM", readings, patient_id)
-        # self.clean_up_data(heart_rate)
 
         # getting all traffic lights from day 1 for this patient
-        traffic_light_statuses = self.get_data(
-            "trafficLightStatus", readings, patient_id
-        )
-        # self.clean_up_data(traffic_light_statuses)
+        traffic_light_statuses = self.get_data(TRAFFIC_LIGHT_STAT, readings, patient_id)
 
         # putting data into one object now
         data = {

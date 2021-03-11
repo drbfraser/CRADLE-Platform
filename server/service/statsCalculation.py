@@ -30,22 +30,17 @@ def get_stats_data(data_needed, readings: Reading):
 
 
 def get_traffic_light(readings, data):
-    green_index = 0
-    yellow_up_index = 1
-    yellow_down_index = 2
-    red_up_index = 3
-    red_down_index = 4
+
+    traffic_light_indexes = {
+        TrafficLightEnum.GREEN: 0,
+        TrafficLightEnum.YELLOW_UP: 1,
+        TrafficLightEnum.YELLOW_DOWN: 2,
+        TrafficLightEnum.RED_UP: 3,
+        TrafficLightEnum.RED_DOWN: 4,
+    }
 
     for reading in readings:
-        if reading.trafficLightStatus == TrafficLightEnum.YELLOW_UP:
-            data[yellow_up_index] += 1
-        if reading.trafficLightStatus == TrafficLightEnum.YELLOW_DOWN:
-            data[yellow_down_index] += 1
-        if reading.trafficLightStatus == TrafficLightEnum.RED_UP:
-            data[red_up_index] += 1
-        if reading.trafficLightStatus == TrafficLightEnum.RED_DOWN:
-            data[red_down_index] += 1
-        if reading.trafficLightStatus == TrafficLightEnum.GREEN:
-            data[green_index] += 1
+        index = traffic_light_indexes[reading.trafficLightStatus]
+        data[index] += 1
 
     return data

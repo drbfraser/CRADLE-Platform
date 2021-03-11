@@ -7,13 +7,19 @@ import api as new_api
 from controller.PasswordResetController import *
 from controller.SMSController import *
 from controller.PatientsController import *
-from controller.StatsController import *
 from controller.UsersController import *
 from api.resources.assessments import (
     Root as Assessments,
     SingleAssessment,
     UpdateAssessment,
 )
+from api.resources.stats import (
+    Root as GeneralStats,
+    AllStats,
+    FacilityReadings,
+    UserReadings,
+)
+
 from api.resources.patientAssociations import Root as PatientAssociations
 from api.resources.facilities import Root as Facilities
 from api.resources.patients import (
@@ -29,7 +35,14 @@ from api.resources.referrals import Root as Referrals, SingleReferral
 
 
 def init(api):
-    api.add_resource(AllStats, "/api/stats")  # [GET]
+    api.add_resource(GeneralStats, "/api/stats")  # [GET]
+    api.add_resource(AllStats, "/api/stats/all")  # [GET]
+
+    api.add_resource(
+        FacilityReadings, "/api/stats/facility/<string:facility_id>"
+    )  # [GET]
+
+    api.add_resource(UserReadings, "/api/stats/user/<int:user_id>")
 
     api.add_resource(UserApi, "/api/user/register")  # [POST]
     api.add_resource(UserAuthApi, "/api/user/auth")  # [POST]
