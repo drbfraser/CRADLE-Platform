@@ -358,36 +358,6 @@ def getDateTime(dateStr):
     return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
 
 
-def generatePhoneNumbers():
-    prefix = "+256"
-    area_codes = [
-        414,
-        456,
-        434,
-        454,
-        464,
-        4644,
-        4654,
-        4714,
-        4734,
-        4764,
-        4814,
-        4834,
-        4854,
-        4864,
-        4895,
-    ]
-    n = len(area_codes)
-    post_fixes = [
-        "".join(["{}".format(randint(0, 9)) for num in range(0, n)]) for x in range(15)
-    ]
-
-    numbers = []
-    for i in range(n):
-        numbers.append(prefix + "-" + str(area_codes[i]) + "-" + post_fixes[i])
-    return numbers
-
-
 if __name__ == "__main__":
     NUM_OF_PATIENTS = 250
 
@@ -413,7 +383,9 @@ if __name__ == "__main__":
         "1014",
         "1015",
     ]
-    healthFacilityList = ["H1233", "H1321", "H2111", "H2555", "H3124", "H3445", "H5123"]
+    healthFacilityList = ["H1233", "H1321", "H2111", "H2555", "H3124", "H3445", "H5123", "H6321", 
+                        "H8911","H9312"]
+    
     facilityType = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
     facilityAbout = [
         "Has minimal resources",
