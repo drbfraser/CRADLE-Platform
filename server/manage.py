@@ -118,16 +118,14 @@ def seed():
     print("Seeding health facilities...")
 
     healthfacility_schema = HealthFacilitySchema()
-    counter = 0
-    for hf in healthFacilityList:
+    for hf,index in enumerate(healthFacilityList):
         hf_schema = {
             "healthFacilityName": hf,
-            "healthFacilityPhoneNumber": facilityPhoneNumbers[counter],
-            "facilityType": facilityType[counter],
-            "about": facilityAbout[counter],
-            "location": facilityLocation[counter],
+            "healthFacilityPhoneNumber": facilityPhoneNumbers[index],
+            "facilityType": facilityType[randint(0,3)],
+            "about": facilityAbout[randint(0,3)],
+            "location": facilityLocation[index],
         }
-        counter += 1
         db.session.add(healthfacility_schema.load(hf_schema))
 
     seed_test_data()
@@ -138,7 +136,6 @@ def seed():
     reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
     for patientId in patientList:
-
         # get random patient
         p1 = {
             "patientId": patientId,
@@ -345,13 +342,17 @@ def generateRandomReadingID():
     return reading_id
 
 
-def getRandomName(file):
+def getRandomNameAndSex(file):
     line = next(file)
     for num, line in enumerate(file, 2):
         if random.randrange(num):
             continue
-        name = line
-    return name
+        person = line
+        person = person.split(" - ")
+        print(person)
+        # name = person[0]
+        # sex = person[1]
+    return person
 
 
 def getDateTime(dateStr):
@@ -378,12 +379,12 @@ def generatePhoneNumbers():
     ]
     n = len(area_codes)
     post_fixes = [
-        "".join(["{}".format(randint(0, 9)) for num in range(0, n)]) for x in range(15)
+        "".join(["{}".format(randint(0, 9)) for num in range(0, 6)]) for x in range(n)
     ]
 
     numbers = []
     for i in range(n):
-        "".join(["{}".format(randint(0, 9)) for num in range(0, 6)]) for x in range(len(area_codes))
+        numbers.append(prefix + "-" + str(area_codes[i]) + "-" + post_fixes[i])
     return numbers
 
 def generateHealthFacilities():
@@ -393,13 +394,25 @@ def generateHealthFacilities():
     ]
     return sorted(facilities)
 
-
 def generateVillages():
     n = 15
     villages = ["1"+
         "".join(["{}".format(randint(0,9)) for num in range(0,3)]) for x in range(n)    
     ]
     return villages
+
+def getRandomNameAndSex(file):
+    line = next(file)
+    for num, line in enumerate(file, 2):
+        if random.randrange(num):
+            continue
+        person = line
+        name,sex = person.split(" - ")
+
+    return name,sex.rstrip()
+
+
+
 
 if __name__ == "__main__":
     NUM_OF_PATIENTS = 250
@@ -423,7 +436,7 @@ if __name__ == "__main__":
 
     #Get cities
     f = open("./database/seed_data/cities.txt")
-    facilityLocation = [line.split("\n")[0] for line in f.readlines()]
+    facilityLocation = [line.rstrip() for line in f.readlines()]
 
     facilityPhoneNumbers = generatePhoneNumbers()
 
