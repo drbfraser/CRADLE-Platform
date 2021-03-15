@@ -118,12 +118,12 @@ def seed():
     print("Seeding health facilities...")
 
     healthfacility_schema = HealthFacilitySchema()
-    for index,hf in enumerate(healthFacilityList):
+    for index, hf in enumerate(healthFacilityList):
         hf_schema = {
             "healthFacilityName": hf,
             "healthFacilityPhoneNumber": facilityPhoneNumbers[index],
-            "facilityType": facilityType[randint(0,3)],
-            "about": facilityAbout[randint(0,3)],
+            "facilityType": facilityType[randint(0, 3)],
+            "about": facilityAbout[randint(0, 3)],
             "location": facilityLocation[index],
         }
         db.session.add(healthfacility_schema.load(hf_schema))
@@ -135,7 +135,6 @@ def seed():
     patient_schema = PatientSchema()
     reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
-
 
     for patientId in patientList:
         # get random patient
@@ -367,6 +366,7 @@ def getRandomNameAndSex(file):
 def getDateTime(dateStr):
     return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
 
+
 def generatePhoneNumbers():
     prefix = "+256"
     area_codes = [
@@ -398,17 +398,19 @@ def generatePhoneNumbers():
 
 
 def generateHealthFacilities():
-    n = 15 
-    facilities = ["H"+ 
-        "".join(["{}".format(randint(0,9)) for num in range(0,4)]) for x in range(n)    
+    n = 15
+    facilities = [
+        "H" + "".join(["{}".format(randint(0, 9)) for num in range(0, 4)])
+        for x in range(n)
     ]
     return sorted(facilities)
 
 
 def generateVillages():
     n = 15
-    villages = ["1"+
-        "".join(["{}".format(randint(0,9)) for num in range(0,3)]) for x in range(n)    
+    villages = [
+        "1" + "".join(["{}".format(randint(0, 9)) for num in range(0, 3)])
+        for x in range(n)
     ]
     return villages
 
@@ -419,19 +421,20 @@ def getRandomNameAndSex(file):
         if random.randrange(num):
             continue
         person = line
-        name,sex = person.split(" - ")
-    
-    return name,sex.rstrip()
+        name, sex = person.split(" - ")
+
+    return name, sex.rstrip()
+
 
 def getRandomDOB():
     format = "%Y-%m-%d"
-    start = time.mktime(time.strptime("1950-1-1",format))
-    end = time.mktime(time.strptime("2010-1-1",format))
-    rand_range=  random.random()
+    start = time.mktime(time.strptime("1950-1-1", format))
+    end = time.mktime(time.strptime("2010-1-1", format))
+    rand_range = random.random()
 
     ptime = start + rand_range * (end - start)
 
-    return(time.strftime(format, time.localtime(ptime)))
+    return time.strftime(format, time.localtime(ptime))
 
 
 if __name__ == "__main__":
@@ -444,8 +447,7 @@ if __name__ == "__main__":
     usersList = [1, 2, 3, 4]
     villageList = generateVillages()
     healthFacilityList = generateHealthFacilities()
-        
-    
+
     facilityType = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
     facilityAbout = [
         "Has minimal resources",
@@ -454,7 +456,7 @@ if __name__ == "__main__":
         "Urgent requests only",
     ]
 
-    #Get cities
+    # Get cities
     f = open("./database/seed_data/cities.txt")
     facilityLocation = [line.rstrip() for line in f.readlines()]
 
