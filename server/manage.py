@@ -11,7 +11,7 @@ from models import *
 from database.ReadingRepoNew import ReadingRepo
 from random import randint, choice
 from string import ascii_lowercase, digits
-
+import time
 
 manager = Manager(app)
 
@@ -135,17 +135,26 @@ def seed():
     patient_schema = PatientSchema()
     reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
+
+    names_f = open("./database/seed_data/names.txt")
+
     for patientId in patientList:
         # get random patient
+        name, sex = getRandomNameAndSex(names_f)
+        if sex == "MALE":
+            pregnant = "false"
+        else:
+            pregnant = str(bool(random.getrandbits(1))).lower()
+
         p1 = {
             "patientId": patientId,
-            "patientName": getRandomInitials(),
+            "patientName": name,
             "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
             "gestationalTimestamp": 1587068710,
             "villageNumber": getRandomVillage(),
-            "patientSex": "FEMALE",
-            "isPregnant": "true",
-            "dob": "2004-01-01",
+            "patientSex": sex,
+            "isPregnant": pregnant,
+            "dob": getRandomDOB(),
             "isExactDob": "false",
         }
         db.session.add(patient_schema.load(p1))
@@ -387,6 +396,7 @@ def generatePhoneNumbers():
         numbers.append(prefix + "-" + str(area_codes[i]) + "-" + post_fixes[i])
     return numbers
 
+
 def generateHealthFacilities():
     n = 15 
     facilities = ["H"+ 
@@ -394,12 +404,14 @@ def generateHealthFacilities():
     ]
     return sorted(facilities)
 
+
 def generateVillages():
     n = 15
     villages = ["1"+
         "".join(["{}".format(randint(0,9)) for num in range(0,3)]) for x in range(n)    
     ]
     return villages
+
 
 def getRandomNameAndSex(file):
     line = next(file)
@@ -411,7 +423,15 @@ def getRandomNameAndSex(file):
 
     return name,sex.rstrip()
 
+def getRandomDOB():
+    format = "%Y-%m-%d"
+    start = time.mktime(time.strptime("1950-1-1",format))
+    end = time.mktime(time.strptime("2010-1-1",format))
+    rand_range=  random.random()
 
+    ptime = start + rand_range * (end - start)
+
+    return(time.strftime(format, time.localtime(ptime)))
 
 
 if __name__ == "__main__":
