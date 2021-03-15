@@ -118,7 +118,7 @@ def seed():
     print("Seeding health facilities...")
 
     healthfacility_schema = HealthFacilitySchema()
-    for hf,index in enumerate(healthFacilityList):
+    for index,hf in enumerate(healthFacilityList):
         hf_schema = {
             "healthFacilityName": hf,
             "healthFacilityPhoneNumber": facilityPhoneNumbers[index],
@@ -136,10 +136,10 @@ def seed():
     reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
 
-    names_f = open("./database/seed_data/names.txt")
 
     for patientId in patientList:
         # get random patient
+        names_f = open("./database/seed_data/names.txt")
         name, sex = getRandomNameAndSex(names_f)
         if sex == "MALE":
             pregnant = "false"
@@ -420,7 +420,7 @@ def getRandomNameAndSex(file):
             continue
         person = line
         name,sex = person.split(" - ")
-
+    
     return name,sex.rstrip()
 
 def getRandomDOB():
