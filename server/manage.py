@@ -420,8 +420,11 @@ if __name__ == "__main__":
         "Has specialized equipment",
         "Urgent requests only",
     ]
+
+    #Get cities
     f = open("./database/seed_data/cities.txt")
     facilityLocation = [line.split("\n")[0] for line in f.readlines()]
+
     facilityPhoneNumbers = generatePhoneNumbers()
 
     symptomsList = ["HEADACHE", "BLURRED VISION", "ABDO PAIN", "BLEEDING", "FEVERISH"]
