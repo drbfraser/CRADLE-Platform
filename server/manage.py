@@ -386,6 +386,20 @@ def generatePhoneNumbers():
         "".join(["{}".format(randint(0, 9)) for num in range(0, 6)]) for x in range(len(area_codes))
     return numbers
 
+def generateHealthFacilities():
+    n = 15 
+    facilities = ["H"+ 
+        "".join(["{}".format(randint(0,9)) for num in range(0,4)]) for x in range(n)    
+    ]
+    return sorted(facilities)
+
+
+def generateVillages():
+    n = 15
+    villages = ["1"+
+        "".join(["{}".format(randint(0,9)) for num in range(0,3)]) for x in range(n)    
+    ]
+    return villages
 
 if __name__ == "__main__":
     NUM_OF_PATIENTS = 250
@@ -395,25 +409,9 @@ if __name__ == "__main__":
     patientList = list(map(str, patientList))
 
     usersList = [1, 2, 3, 4]
-    villageList = [
-        "1001",
-        "1002",
-        "1003",
-        "1004",
-        "1005",
-        "1006",
-        "1007",
-        "1008",
-        "1009",
-        "1010",
-        "1011",
-        "1012",
-        "1013",
-        "1014",
-        "1015",
-    ]
-    healthFacilityList = ["H1233", "H1321", "H2111", "H2555", "H3124", "H3445", "H5123", "H6321", 
-                        "H8911","H9312"]
+    villageList = generateVillages()
+    healthFacilityList = generateHealthFacilities()
+        
     
     facilityType = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
     facilityAbout = [
