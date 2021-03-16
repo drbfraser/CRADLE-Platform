@@ -13,33 +13,29 @@ import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
 import { Toast } from 'src/shared/components/toast';
 import { apiFetch } from 'src/shared/utils/api';
-import {
-  initialValues,
-  IPasswordForm,
-  PasswordField,
-  validationSchema,
-} from './state';
+import { fieldLabels, passwordValidationSchema, UserField } from './state';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
+  userId: number;
 }
 
-const ChangePassword = ({ open, onClose }: IProps) => {
+const ResetPassword = ({ open, onClose, userId }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const handleSubmit = async (values: IPasswordForm) => {
+  const handleSubmit = async (values: { [UserField.password]: string }) => {
     const init = {
       method: 'POST',
       body: JSON.stringify({
-        [PasswordField.currentPass]: values[PasswordField.currentPass],
-        [PasswordField.newPass]: values[PasswordField.newPass],
+        id: userId,
+        [UserField.password]: values[UserField.password],
       }),
     };
 
     try {
-      const resp = await apiFetch(BASE_URL + EndpointEnum.CHANGE_PASS, init);
+      const resp = await apiFetch(BASE_URL + EndpointEnum.RESET_PASS, init);
 
       if (!resp.ok) {
         throw new Error();
@@ -58,26 +54,25 @@ const ChangePassword = ({ open, onClose }: IProps) => {
       {submitSuccess && (
         <Toast
           status="success"
-          message="Password change successful!"
+          message="Password reset successful!"
           clearMessage={() => setSubmitSuccess(false)}
         />
       )}
-      <Dialog open={open} maxWidth="xs" fullWidth>
-        <DialogTitle>Change Password</DialogTitle>
+      <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+        <DialogTitle>Reset Password</DialogTitle>
         <DialogContent>
           {submitError && (
             <>
               <Alert severity="error" onClose={() => setSubmitError(false)}>
-                Unable to change your password. Did you enter your current
-                password correctly?
+                Something went wrong resetting the password. Please try again.
               </Alert>
               <br />
               <br />
             </>
           )}
           <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
+            initialValues={{} as any}
+            validationSchema={passwordValidationSchema}
             onSubmit={handleSubmit}>
             {({ isSubmitting }) => (
               <Form>
@@ -87,8 +82,8 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                   fullWidth
                   required
                   variant="outlined"
-                  label="Current Password"
-                  name={PasswordField.currentPass}
+                  label={fieldLabels[UserField.password]}
+                  name={UserField.password}
                 />
                 <br />
                 <br />
@@ -98,26 +93,15 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                   fullWidth
                   required
                   variant="outlined"
-                  label="New Password"
-                  name={PasswordField.newPass}
-                />
-                <br />
-                <br />
-                <Field
-                  component={TextField}
-                  type="password"
-                  fullWidth
-                  required
-                  variant="outlined"
-                  label="Confirm New Password"
-                  name={PasswordField.confirmNewPass}
+                  label={fieldLabels[UserField.confirmPassword]}
+                  name={UserField.confirmPassword}
                 />
                 <DialogActions>
                   <Button type="button" onClick={onClose}>
                     Cancel
                   </Button>
                   <Button type="submit" disabled={isSubmitting}>
-                    Change
+                    Reset
                   </Button>
                 </DialogActions>
               </Form>
@@ -129,4 +113,4 @@ const ChangePassword = ({ open, onClose }: IProps) => {
   );
 };
 
-export default ChangePassword;
+export default ResetPassword;

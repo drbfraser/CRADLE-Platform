@@ -7,9 +7,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button, IconButton, Tooltip } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
+import DeleteForever from '@material-ui/icons/DeleteForever';
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import { Toast } from 'src/shared/components/toast';
 import EditUser from './EditUser';
 import { IUserGet } from './state';
+import ResetPassword from './ResetPassword';
 
 const columns = [
   'First Name',
@@ -30,7 +33,8 @@ export const ManageUsers = () => {
   const [users, setUsers] = useState<IUserGet[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
-  const [userToEdit, setUserToEdit] = useState<IUserGet>();
+  const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
+  const [popupUser, setPopupUser] = useState<IUserGet>();
 
   const getUsers = async () => {
     try {
@@ -66,7 +70,7 @@ export const ManageUsers = () => {
       variant="contained"
       size="large"
       onClick={() => {
-        setUserToEdit(undefined);
+        setPopupUser(undefined);
         setEditPopupOpen(true);
       }}>
       <AddIcon />
@@ -86,13 +90,27 @@ export const ManageUsers = () => {
           </td>
         ))}
         <td className={styles.cell}>
-          <Tooltip placement="top" title="Edit Facility">
+          <Tooltip placement="top" title="Edit User">
             <IconButton
               onClick={() => {
-                setUserToEdit(user);
+                setPopupUser(user);
                 setEditPopupOpen(true);
               }}>
               <CreateIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip placement="top" title="Reset Password">
+            <IconButton
+              onClick={() => {
+                setPopupUser(user);
+                setPasswordPopupOpen(true);
+              }}>
+              <VpnKeyIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip placement="top" title="Delete User">
+            <IconButton onClick={() => alert('Not yet implemented')}>
+              <DeleteForever />
             </IconButton>
           </Tooltip>
         </td>
@@ -111,10 +129,15 @@ export const ManageUsers = () => {
       )}
       <EditUser
         open={editPopupOpen}
-        setOpen={setEditPopupOpen}
+        onClose={() => setEditPopupOpen(false)}
         refreshUsers={getUsers}
         users={users}
-        editUser={userToEdit}
+        editUser={popupUser}
+      />
+      <ResetPassword
+        open={passwordPopupOpen}
+        onClose={() => setPasswordPopupOpen(false)}
+        userId={popupUser?.id ?? -1}
       />
       <MUIDataTable
         title="Users"

@@ -64,7 +64,7 @@ export const fieldLabels = {
   [UserField.confirmPassword]: 'Confirm Password',
 };
 
-const validationShape = {
+const detailsValidationShape = {
   [UserField.firstName]: Yup.string()
     .label(fieldLabels[UserField.firstName])
     .required(),
@@ -77,14 +77,24 @@ const validationShape = {
   [UserField.role]: Yup.string().label(fieldLabels[UserField.role]).required(),
 };
 
-export const editValidationSchema = Yup.object().shape(validationShape);
-export const newValidationSchema = Yup.object().shape({
-  ...validationShape,
+const passwordValidationShape = {
   [UserField.password]: Yup.string()
     .label(fieldLabels[UserField.password])
     .required()
     .min(8),
   [UserField.confirmPassword]: Yup.string()
     .label(fieldLabels[UserField.confirmPassword])
+    .required()
     .oneOf([Yup.ref(UserField.password)], 'Passwords must match'),
+};
+
+export const newValidationSchema = Yup.object().shape({
+  ...detailsValidationShape,
+  ...passwordValidationShape,
 });
+
+export const editValidationSchema = Yup.object().shape(detailsValidationShape);
+
+export const passwordValidationSchema = Yup.object().shape(
+  passwordValidationShape
+);

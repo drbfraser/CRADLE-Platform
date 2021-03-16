@@ -27,13 +27,13 @@ import { useHealthFacilityOptions } from 'src/shared/hooks/healthFacilityOptions
 
 interface IProps {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  onClose: () => void;
   refreshUsers: () => Promise<void>;
   users: IUserGet[];
   editUser?: IUserGet;
 }
 
-const EditUser = ({ open, setOpen, refreshUsers, users, editUser }: IProps) => {
+const EditUser = ({ open, onClose, refreshUsers, users, editUser }: IProps) => {
   const dispatch = useDispatch();
   const healthFacilityOptions = useHealthFacilityOptions();
   const [submitError, setSubmitError] = useState(false);
@@ -57,7 +57,7 @@ const EditUser = ({ open, setOpen, refreshUsers, users, editUser }: IProps) => {
       dispatch(getHealthFacilityList());
 
       refreshUsers();
-      setOpen(false);
+      onClose();
     } catch (e) {
       setSubmitting(false);
       setSubmitError(true);
@@ -73,11 +73,7 @@ const EditUser = ({ open, setOpen, refreshUsers, users, editUser }: IProps) => {
           clearMessage={() => setSubmitError(false)}
         />
       )}
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        maxWidth="sm"
-        fullWidth>
+      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} User</DialogTitle>
         <DialogContent>
           <Formik
@@ -167,7 +163,7 @@ const EditUser = ({ open, setOpen, refreshUsers, users, editUser }: IProps) => {
                   </>
                 )}
                 <DialogActions>
-                  <Button type="button" onClick={() => setOpen(false)}>
+                  <Button type="button" onClick={onClose}>
                     Cancel
                   </Button>
                   <Button type="submit" disabled={isSubmitting || !isValid}>
