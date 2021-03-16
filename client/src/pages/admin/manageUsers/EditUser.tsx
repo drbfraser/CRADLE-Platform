@@ -5,11 +5,15 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  MenuItem,
 } from '@material-ui/core';
 import {
-  FacilityField,
+  UserField,
   IUserEdit,
   IUserGet,
+  newValidationSchema,
+  editValidationSchema,
+  userRoles,
 } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { TextField } from 'formik-material-ui';
@@ -19,6 +23,7 @@ import { EndpointEnum } from 'src/server';
 import { Toast } from 'src/shared/components/toast';
 import { useDispatch } from 'react-redux';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
+import { useHealthFacilityOptions } from 'src/shared/hooks/healthFacilityOptions';
 
 interface IProps {
   open: boolean;
@@ -28,14 +33,9 @@ interface IProps {
   editUser?: IUserGet;
 }
 
-const EditUser = ({
-  open,
-  setOpen,
-  refreshUsers,
-  users,
-  editUser,
-}: IProps) => {
+const EditUser = ({ open, setOpen, refreshUsers, users, editUser }: IProps) => {
   const dispatch = useDispatch();
+  const healthFacilityOptions = useHealthFacilityOptions();
   const [submitError, setSubmitError] = useState(false);
   const creatingNew = editUser === undefined;
 
@@ -82,6 +82,9 @@ const EditUser = ({
         <DialogContent>
           <Formik
             initialValues={editUser ?? {}}
+            validationSchema={
+              creatingNew ? newValidationSchema : editValidationSchema
+            }
             onSubmit={handleSubmit}>
             {({ isSubmitting, isValid }) => (
               <Form>
@@ -89,43 +92,80 @@ const EditUser = ({
                   component={TextField}
                   fullWidth
                   required
-                  inputProps={{ maxLength: 50 }}
+                  inputProps={{ maxLength: 25 }}
                   variant="outlined"
-                  label="Facility Name"
-                  name={FacilityField.name}
-                  disabled={!creatingNew}
+                  label="First Name"
+                  name={UserField.firstName}
                 />
                 <br />
                 <br />
                 <Field
                   component={TextField}
                   fullWidth
-                  inputProps={{ maxLength: 50 }}
+                  required
+                  inputProps={{ maxLength: 120 }}
                   variant="outlined"
-                  label="Phone Number"
-                  name={FacilityField.phoneNumber}
+                  label="Email"
+                  name={UserField.email}
                 />
                 <br />
                 <br />
                 <Field
                   component={TextField}
                   fullWidth
-                  inputProps={{ maxLength: 50 }}
+                  select
+                  required
                   variant="outlined"
-                  label="Location"
-                  name={FacilityField.location}
-                />
+                  label="Health Facility"
+                  name={UserField.healthFacilityName}>
+                  {Object.entries(healthFacilityOptions).map(
+                    ([_, { label, value }]) => (
+                      <MenuItem key={value} value={value}>
+                        {label}
+                      </MenuItem>
+                    )
+                  )}
+                </Field>
                 <br />
                 <br />
                 <Field
                   component={TextField}
                   fullWidth
-                  multiline
-                  rows={3}
+                  select
+                  required
                   variant="outlined"
-                  label="About"
-                  name={FacilityField.about}
-                />
+                  label="Role"
+                  name={UserField.role}>
+                  {Object.entries(userRoles).map(([value, name]) => (
+                    <MenuItem key={value} value={value}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Field>
+                {creatingNew && (
+                  <>
+                    <br />
+                    <br />
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      label="Password"
+                      name={UserField.password}
+                    />
+                    <br />
+                    <br />
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      label="Confirm Password"
+                      name={UserField.confirmPassword}
+                    />
+                  </>
+                )}
                 <DialogActions>
                   <Button type="button" onClick={() => setOpen(false)}>
                     Cancel

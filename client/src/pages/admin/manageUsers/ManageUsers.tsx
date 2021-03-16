@@ -53,7 +53,7 @@ export const ManageUsers = () => {
       u.firstName,
       u.email,
       u.healthFacilityName,
-      u.roleIds.join(", "),
+      u.roleIds.join(', '),
       idx,
     ]);
     setTableData(rows);
