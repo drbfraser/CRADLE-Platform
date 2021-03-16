@@ -22,6 +22,7 @@ statsManager = StatsManager()
 
 
 def query_stats_data(args, facility_id="%", user_id="%"):
+
     patients = crud.get_unique_patients_with_readings(
         facility=facility_id, user=user_id, filter=args
     )[0][0]
@@ -33,11 +34,6 @@ def query_stats_data(args, facility_id="%", user_id="%"):
     )
     total_referrals = crud.get_sent_referrals(facility=facility_id, filter=args)[0][0]
 
-    referred_patients = None
-    if user_id is "%":
-        referred_patients = crud.get_referred_patients(
-            facility=facility_id, filter=args
-        )[0][0]
     days_with_readings = crud.get_days_with_readings(
         facility=facility_id, user=user_id, filter=args
     )[0][0]
@@ -45,13 +41,18 @@ def query_stats_data(args, facility_id="%", user_id="%"):
     color_readings = create_color_readings(color_readings_q)
 
     response_json = {
-        "patients_referred": referred_patients,
         "sent_referrals": total_referrals,
         "days_with_readings": days_with_readings,
         "unique_patient_readings": patients,
         "total_readings": total_readings,
         "color_readings": color_readings,
     }
+
+    if user_id == "%":
+        referred_patients = crud.get_referred_patients(
+            facility=facility_id, filter=args
+        )[0][0]
+        response_json["patients_referred"] = referred_patients
 
     return response_json
 
