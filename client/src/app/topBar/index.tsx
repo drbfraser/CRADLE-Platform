@@ -1,4 +1,4 @@
-import { ActualUser, OrNull } from '@types';
+import { ActualUser, OrNull } from 'src/types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -6,8 +6,8 @@ import AppImg from './img/app_icon.png';
 import { Icon } from 'semantic-ui-react';
 import IconButton from '@material-ui/core/IconButton';
 import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { RoleEnum } from '../../enums';
+import { ReduxState } from 'src/redux/reducers';
+import { RoleEnum } from 'src/enums';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { push } from 'connected-react-router';

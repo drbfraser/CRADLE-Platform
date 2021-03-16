@@ -1,21 +1,21 @@
-import { AdminPage } from '../../../pages/admin';
-import { LoginPage } from '../../../pages/login';
-import { NotFoundPage } from '../../../pages/notFound';
-import { PatientPage } from '../../../pages/patient';
-import { PatientsPage } from '../../../pages/patients';
+import { AdminPage } from 'src/pages/admin';
+import { LoginPage } from 'src/pages/login';
+import { NotFoundPage } from 'src/pages/notFound';
+import { PatientPage } from 'src/pages/patient';
+import { PatientsPage } from 'src/pages/patients';
 import React from 'react';
-import { ReferralsPage } from '../../../pages/referrals';
-import { ResourcesPage } from '../../../pages/resources';
+import { ReferralsPage } from 'src/pages/referrals';
+import { ResourcesPage } from 'src/pages/resources';
 import { RouteComponentProps } from 'react-router-dom';
 import SchoolIcon from '@material-ui/icons/School';
 import SendIcon from '@material-ui/icons/Send';
 import SettingsIcon from '@material-ui/icons/Settings';
-import { StatisticsPage } from '../../../pages/statistics';
+import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import { makeUniqueId } from '../../../shared/utils';
-import { AssessmentFormPage } from '../../../pages/assessmentForm';
-import { PatientFormPage } from '../../../pages/patientForm';
-import { ReadingFormPage } from '../../../pages/readingForm';
+import { makeUniqueId } from 'src/shared/utils';
+import { AssessmentFormPage } from 'src/pages/assessmentForm';
+import { PatientFormPage } from 'src/pages/patientForm';
+import { ReadingFormPage } from 'src/pages/readingForm';
 import PollIcon from '@material-ui/icons/Poll';
 
 export type AppRoute = {

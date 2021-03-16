@@ -1,7 +1,8 @@
-import { goBackWithFallback } from '../../../src/shared/utils';
-import { EndpointEnum } from '../../../src/server';
-import { BASE_URL } from '../../../src/server/utils';
+import { goBackWithFallback } from 'src/shared/utils';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 import { AssessmentState } from './state';
+import { apiFetch } from 'src/shared/utils/api';
 
 export const handleSubmit = (
   readingId: string,
@@ -20,17 +21,11 @@ export const handleSubmit = (
     const assessmentData = JSON.parse(JSON.stringify(values));
     assessmentData['readingId'] = readingId;
 
-    const fetchOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + localStorage.getItem('token'),
-      },
-      body: JSON.stringify(assessmentData),
-    };
-
     try {
-      const resp = await fetch(url, fetchOptions);
+      const resp = await apiFetch(url, {
+        method: 'POST',
+        body: JSON.stringify(assessmentData),
+      });
 
       if (!resp.ok) {
         throw new Error('Response failed with error code: ' + resp.status);

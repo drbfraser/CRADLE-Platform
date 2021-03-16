@@ -1,10 +1,10 @@
-import { HealthFacility, OrNull } from '@types';
+import { HealthFacility, OrNull } from 'src/types';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { AutocompleteOption } from '../../../shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 import React from 'react';
-import { ReduxState } from '../../../redux/reducers';
-import { getHealthFacilityList } from '../../../redux/reducers/healthFacilities';
+import { ReduxState } from 'src/redux/reducers';
+import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 
 export const useHealthFacilityOptions = (): Array<
   AutocompleteOption<string, string>

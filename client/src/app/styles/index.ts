@@ -1,6 +1,6 @@
 import { Theme, makeStyles } from '@material-ui/core/styles';
 
-import { OrUndefined } from '@types';
+import { OrUndefined } from 'src/types';
 
 interface IProps {
   drawerWidth?: number;

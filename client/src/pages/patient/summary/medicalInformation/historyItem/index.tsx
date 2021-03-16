@@ -2,7 +2,7 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import { OrNull } from '@types';
+import { OrNull } from 'src/types';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 

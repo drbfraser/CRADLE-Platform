@@ -4,7 +4,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { logoutUser } from '../../redux/reducers/user/currentUser';
+import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { useDimensionsContext } from '../context/hooks';
 import { useDispatch } from 'react-redux';
 import { useStyles } from '../styles';

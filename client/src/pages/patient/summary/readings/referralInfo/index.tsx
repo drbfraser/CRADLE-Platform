@@ -1,4 +1,4 @@
-import { FollowUp, OrNull, Patient, Referral } from '@types';
+import { FollowUp, OrNull, Patient, Referral } from 'src/types';
 import { useDispatch } from 'react-redux';
 
 import { Assessment } from './assessment';

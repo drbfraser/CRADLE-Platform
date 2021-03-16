@@ -1,4 +1,4 @@
-import { OrNull, OrUndefined } from '@types';
+import { OrNull, OrUndefined } from 'src/types';
 import Snackbar, { SnackbarCloseReason } from '@material-ui/core/Snackbar';
 
 import Alert from '@material-ui/lab/Alert';

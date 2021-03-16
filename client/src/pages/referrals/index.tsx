@@ -3,8 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { debounce } from 'lodash';
 import React, { useState } from 'react';
-import { EndpointEnum } from '../../../src/server';
-import { APITable } from '../../../src/shared/components/apiTable';
+import { EndpointEnum } from 'src/server';
+import { APITable } from 'src/shared/components/apiTable';
 import { ReferralRow } from './ReferralRow';
 
 const columns = {

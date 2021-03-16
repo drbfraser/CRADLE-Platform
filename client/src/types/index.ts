@@ -4,9 +4,9 @@ import {
   RoleEnum,
   SexEnum,
   TrafficLightEnum,
-} from '../enums';
+} from 'src/enums';
 
-import { AutocompleteOption } from '../shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 
 export type Callback<T, U = void> = (args: T) => U;
 

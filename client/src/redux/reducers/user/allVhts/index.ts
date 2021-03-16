@@ -1,8 +1,8 @@
-import { OrNull, ServerError, VHT } from '@types';
+import { OrNull, ServerError, VHT } from 'src/types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from '../../../../server';
+import { EndpointEnum } from 'src/server';
 
 enum AllVhtsActionEnum {
   GET_VHTS_REQUESTED = 'allVhts/GET_VHTS_REQUESTED',
