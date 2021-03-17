@@ -136,10 +136,14 @@ def seed():
     reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
 
+    fnames, lnames = getRandomNameAndSex()
+    numNames = 61
     for patientId in patientList:
         # get random patient
-        names_f = open("./database/seed_data/names.txt")
-        name, sex = getRandomNameAndSex(names_f)
+        name,sex = fnames[randint(1,numNames)].split(" - ")
+        sex = sex.rstrip()
+        lname = lnames[randint(1,numNames)]
+
         if sex == "MALE":
             pregnant = "false"
         else:
@@ -147,7 +151,7 @@ def seed():
 
         p1 = {
             "patientId": patientId,
-            "patientName": name,
+            "patientName": name +" " +lname,
             "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
             "gestationalTimestamp": 1587068710,
             "villageNumber": getRandomVillage(),
@@ -350,17 +354,15 @@ def generateRandomReadingID():
     return reading_id
 
 
-def getRandomNameAndSex(file):
-    line = next(file)
-    for num, line in enumerate(file, 2):
-        if random.randrange(num):
-            continue
-        person = line
-        person = person.split(" - ")
-        print(person)
-        # name = person[0]
-        # sex = person[1]
-    return person
+def getRandomNameAndSex():
+    fnames = open("./database/seed_data/names.txt")
+    lnames = open("./database/seed_data/lastnames.txt")
+
+    fnames = fnames.readlines()
+    lnames = lnames.readlines()
+
+    return fnames,lnames    
+
 
 
 def getDateTime(dateStr):
@@ -415,15 +417,15 @@ def generateVillages():
     return villages
 
 
-def getRandomNameAndSex(file):
-    line = next(file)
-    for num, line in enumerate(file, 2):
-        if random.randrange(num):
-            continue
-        person = line
-        name, sex = person.split(" - ")
+# def getRandomNameAndSex(file):
+#     line = next(file)
+#     for num, line in enumerate(file, 2):
+#         if random.randrange(num):
+#             continue
+#         person = line
+#         name, sex = person.split(" - ")
 
-    return name, sex.rstrip()
+#     return name, sex.rstrip()
 
 
 def getRandomDOB():
