@@ -2,6 +2,7 @@ import random
 import string
 import uuid
 import datetime
+import time
 import numpy as np
 from random import randrange
 from datetime import timedelta, datetime
@@ -11,7 +12,7 @@ from models import *
 from database.ReadingRepoNew import ReadingRepo
 from random import randint, choice
 from string import ascii_lowercase, digits
-import time
+from models import SexEnum
 
 manager = Manager(app)
 
@@ -98,7 +99,7 @@ def seed_test_data():
         str(randint(100000, 500000)),
         generateRandomReadingID(),
         2,
-        "BB",
+        "Amai Oluwusi",
         40,
         "FEMALE",
         "1002",
@@ -106,8 +107,6 @@ def seed_test_data():
         "GESTATIONAL_AGE_UNITS_WEEKS",
         1592339808,
     )
-    # TODO: Add more data here
-
     print("Finished seeding minimal test data")
 
 
@@ -137,22 +136,29 @@ def seed():
     referral_schema = ReferralSchema()
 
     fnames, lnames = getRandomNameAndSex()
-    numNames = 61
+    numNames = 66
     for patientId in patientList:
         # get random patient
-        name,sex = fnames[randint(1,numNames)].split(" - ")
+        person = randint(0,numNames)
+        name,sex = fnames[person].split(" - ")
         sex = sex.rstrip()
-        lname = lnames[randint(1,numNames)]
+        lname = lnames[randint(0,118)].rstrip()
 
-        if sex == "MALE":
-            pregnant = "false"
+        if sex == SexEnum.MALE.value:
+            pregnant = False
         else:
-            pregnant = str(bool(random.getrandbits(1))).lower()
+            pregnant = bool(random.getrandbits(1))
+
+        
+        gestational_age_unit = None
+        gestational_units = ["GESTATIONAL_AGE_UNITS_WEEKS", "GESTATIONAL_AGE_UNITS_MONTHS"]
+        if sex == SexEnum.FEMALE.value and pregnant:
+            gestational_age_unit = random.choice(gestational_units)
 
         p1 = {
             "patientId": patientId,
             "patientName": name +" " +lname,
-            "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+            "gestationalAgeUnit": gestational_age_unit,
             "gestationalTimestamp": 1587068710,
             "villageNumber": getRandomVillage(),
             "patientSex": sex,
@@ -416,16 +422,6 @@ def generateVillages():
     ]
     return villages
 
-
-# def getRandomNameAndSex(file):
-#     line = next(file)
-#     for num, line in enumerate(file, 2):
-#         if random.randrange(num):
-#             continue
-#         person = line
-#         name, sex = person.split(" - ")
-
-#     return name, sex.rstrip()
 
 
 def getRandomDOB():
