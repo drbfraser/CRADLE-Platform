@@ -137,7 +137,8 @@ def seed():
 
     fnames, lnames = getRandomNameAndSex()
     numNames = 66
-    for patientId in patientList:
+
+    for count, patientId in enumerate(patientList):
         # get random patient
         person = randint(0,numNames)
         name,sex = fnames[person].split(" - ")
@@ -155,7 +156,7 @@ def seed():
         gestational_units = ["GESTATIONAL_AGE_UNITS_WEEKS", "GESTATIONAL_AGE_UNITS_MONTHS"]
         if sex == SexEnum.FEMALE.value and pregnant:
             gestational_age_unit = random.choice(gestational_units)
-            gestational_timestamp = 0
+            gestational_timestamp = getRandomPregnancyDate()
 
         p1 = {
             "patientId": patientId,
@@ -166,7 +167,7 @@ def seed():
             "patientSex": sex,
             "isPregnant": pregnant,
             "dob": getRandomDOB(),
-            "isExactDob": "false",
+            "isExactDob": bool(random.getrandbits(1)),
         }
         db.session.add(patient_schema.load(p1))
         db.session.commit()
@@ -202,10 +203,13 @@ def seed():
                     "dateReferred": r1["dateTimeTaken"]
                     + int(timedelta(days=10).total_seconds()),
                     "referralHealthFacilityName": healthFacilityName,
-                    "comment": sex + random.choice(referral_comments),
+                    "comment": name + random.choice(referral_comments),
                 }
                 db.session.add(referral_schema.load(referral1))
                 db.session.commit()
+
+        if (count % 25) == 0:
+            print("{} Patients have been generated :)".format(count))
 
     print("Complete!")
 
@@ -350,6 +354,11 @@ def getRandomDate():
     return int(new_date.strftime("%s"))
 
 
+def getRandomPregnancyDate():
+    max_preg = randint(1, 273)
+    date = datetime.today() - timedelta(max_preg)
+    return int(date.strftime("%s"))
+
 def generateRandomReadingID():
     pool = ascii_lowercase + digits
     reading_id = (
@@ -440,7 +449,7 @@ def getRandomDOB():
 
 
 if __name__ == "__main__":
-    NUM_OF_PATIENTS = 250
+    NUM_OF_PATIENTS = 1000
 
     patientList = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
     random.shuffle(patientList)
