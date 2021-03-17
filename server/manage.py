@@ -151,15 +151,17 @@ def seed():
 
         
         gestational_age_unit = None
+        gestational_timestamp = None
         gestational_units = ["GESTATIONAL_AGE_UNITS_WEEKS", "GESTATIONAL_AGE_UNITS_MONTHS"]
         if sex == SexEnum.FEMALE.value and pregnant:
             gestational_age_unit = random.choice(gestational_units)
+            gestational_timestamp = 0
 
         p1 = {
             "patientId": patientId,
             "patientName": name +" " +lname,
             "gestationalAgeUnit": gestational_age_unit,
-            "gestationalTimestamp": 1587068710,
+            "gestationalTimestamp": gestational_timestamp,
             "villageNumber": getRandomVillage(),
             "patientSex": sex,
             "isPregnant": pregnant,
@@ -191,14 +193,16 @@ def seed():
             }
             ReadingRepo().create(r1)
 
-            if i == numOfReadings - 1 and random.choice([True, False]):
+            referral_comments = [" needs help!", " is doing fine!", " is seeking urgent care!"]
+            #TODO create more referrals 
+            if random.choice([True, False]):
                 referral1 = {
                     "patientId": patientId,
                     "readingId": readingId,
                     "dateReferred": r1["dateTimeTaken"]
                     + int(timedelta(days=10).total_seconds()),
                     "referralHealthFacilityName": healthFacilityName,
-                    "comment": "She needs help!",
+                    "comment": sex + random.choice(referral_comments),
                 }
                 db.session.add(referral_schema.load(referral1))
                 db.session.commit()
