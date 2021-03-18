@@ -140,31 +140,32 @@ def seed():
     referral_schema = ReferralSchema()
 
     fnames, lnames = getRandomNameAndSex()
-    numNames = 66
 
     for count, patientId in enumerate(patientList):
         # get random patient
-        person = randint(0,numNames)
-        name,sex = fnames[person].split(" - ")
+        person = randint(0, len(fnames) - 1)
+        name, sex = fnames[person].split(" - ")
         sex = sex.rstrip()
-        lname = lnames[randint(0,118)].rstrip()
+        lname = lnames[randint(0, len(lnames) - 1)].rstrip()
 
         if sex == SexEnum.MALE.value:
             pregnant = False
         else:
             pregnant = bool(random.getrandbits(1))
 
-        
         gestational_age_unit = None
         gestational_timestamp = None
-        gestational_units = ["GESTATIONAL_AGE_UNITS_WEEKS", "GESTATIONAL_AGE_UNITS_MONTHS"]
+        gestational_units = [
+            "GESTATIONAL_AGE_UNITS_WEEKS",
+            "GESTATIONAL_AGE_UNITS_MONTHS",
+        ]
         if sex == SexEnum.FEMALE.value and pregnant:
             gestational_age_unit = random.choice(gestational_units)
             gestational_timestamp = getRandomPregnancyDate()
 
         p1 = {
             "patientId": patientId,
-            "patientName": name +" " +lname,
+            "patientName": name + " " + lname,
             "gestationalAgeUnit": gestational_age_unit,
             "gestationalTimestamp": gestational_timestamp,
             "villageNumber": getRandomVillage(),
@@ -198,10 +199,15 @@ def seed():
             }
             ReadingRepo().create(r1)
 
-            referral_comments = [" needs help!", " is doing fine!", " is seeking urgent care!"]
-            #TODO create more referrals 
+            referral_comments = [
+                " needs help!",
+                " is doing fine!",
+                " is seeking urgent care!",
+            ]
+            # TODO create more referrals
             if random.choice([True, False]):
                 referral1 = {
+                    "userId": getRandomUser(),
                     "patientId": patientId,
                     "readingId": readingId,
                     "dateReferred": r1["dateTimeTaken"]
@@ -212,13 +218,14 @@ def seed():
                 db.session.add(referral_schema.load(referral1))
                 db.session.commit()
 
-        if (count % 25) == 0:
-            print("{} Patients have been generated :)".format(count))
+        if count > 0 and count % 25 == 0:
+            print("{}/{} Patients have been seeded".format(count, len(patientList)))
 
+    print("{}/{} Patients have been seeded".format(count + 1, len(patientList)))
     print("Complete!")
-    
+
     end = time.time()
-    print("The seed script took: {} seconds".format(round(end-start,3)))
+    print("The seed script took: {} seconds".format(round(end - start, 3)))
 
 
 def create_user(email, name, password, hf_name, role):
@@ -366,6 +373,7 @@ def getRandomPregnancyDate():
     date = datetime.today() - timedelta(max_preg)
     return int(date.strftime("%s"))
 
+
 def generateRandomReadingID():
     pool = ascii_lowercase + digits
     reading_id = (
@@ -387,8 +395,7 @@ def getRandomNameAndSex():
     fnames = fnames.readlines()
     lnames = lnames.readlines()
 
-    return fnames,lnames    
-
+    return fnames, lnames
 
 
 def getDateTime(dateStr):
@@ -443,7 +450,6 @@ def generateVillages():
     return villages
 
 
-
 def getRandomDOB():
     format = "%Y-%m-%d"
     start = time.mktime(time.strptime("1950-1-1", format))
@@ -456,7 +462,7 @@ def getRandomDOB():
 
 
 if __name__ == "__main__":
-    NUM_OF_PATIENTS = 500
+    NUM_OF_PATIENTS = 250
 
     patientList = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
     random.shuffle(patientList)
