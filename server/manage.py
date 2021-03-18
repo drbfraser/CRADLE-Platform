@@ -4,6 +4,7 @@ import uuid
 import datetime
 import time
 import numpy as np
+import sys
 from random import randrange
 from datetime import timedelta, datetime
 from flask_script import Manager
@@ -13,6 +14,7 @@ from database.ReadingRepoNew import ReadingRepo
 from random import randint, choice
 from string import ascii_lowercase, digits
 from models import SexEnum
+
 
 manager = Manager(app)
 
@@ -113,6 +115,8 @@ def seed_test_data():
 # USAGE: python manage.py seed
 @manager.command
 def seed():
+    start = time.time()
+
     # SEED health facilities
     print("Seeding health facilities...")
 
@@ -212,6 +216,9 @@ def seed():
             print("{} Patients have been generated :)".format(count))
 
     print("Complete!")
+    
+    end = time.time()
+    print("The seed script took: {} seconds".format(round(end-start,3)))
 
 
 def create_user(email, name, password, hf_name, role):
@@ -449,7 +456,7 @@ def getRandomDOB():
 
 
 if __name__ == "__main__":
-    NUM_OF_PATIENTS = 1000
+    NUM_OF_PATIENTS = 500
 
     patientList = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
     random.shuffle(patientList)
