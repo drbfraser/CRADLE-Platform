@@ -93,15 +93,14 @@ def seed_test_data():
 
     print("Creating test patients, readings, referrals...")
 
-    # create_patient_reading_referral(
-    #     "400260", generateRandomReadingID(), 2, "AA", 35, "MALE", "1001"
-    # )
-
     create_patient_reading_referral(
-        str(randint(100000, 500000)),
-        generateRandomReadingID(),
+        "400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001"
+    )
+    create_patient_reading_referral(
+        "204652",
+        "def-456-fg3-fh5k",
         2,
-        "Amai Oluwusi",
+        "BB",
         40,
         "FEMALE",
         "1002",
@@ -109,6 +108,7 @@ def seed_test_data():
         "GESTATIONAL_AGE_UNITS_WEEKS",
         1592339808,
     )
+
     print("Finished seeding minimal test data")
 
 
