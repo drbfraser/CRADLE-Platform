@@ -142,7 +142,7 @@ class UserPasswordChange(Resource):
 class UserApi(Resource):
 
     # Create a new user
-    @jwt_required
+    @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/user-register.yml", methods=["POST"])
     def post(self):
         # register user endpoint
@@ -263,7 +263,7 @@ class UserEdit(Resource):
         return raw_req_body
 
     # edit user with id
-    @jwt_required
+    @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/user-edit.yml", methods=["PUT"])
     def put(self, id):
 
@@ -303,7 +303,7 @@ class UserEdit(Resource):
 
 # user/delete/<int:id>
 class UserDelete(Resource):
-    @jwt_required
+    @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/user-delete.yml", methods=["DELETE"])
     def delete(self, id=None):
         current_user = get_jwt_identity()

@@ -1,8 +1,13 @@
-Get statistics for all VHTs and Facilities
+Get statistics for a facility
 ---
 tags:
   - Stats
 parameters:
+  - in: path
+    name: facility_name
+    required: true
+    schema: 
+      type: string
   - in: query
     name: from
     schema:
