@@ -254,6 +254,17 @@ class UserTokenApi(Resource):
         return current_user, 200
 
 
+# What I will recieve in payload + the id from the path
+# {
+#   email: string;
+#   firstName: string;
+#   healthFacilityName: string;
+#   role: string; (enum)
+#   supervises: number[];
+# }
+
+
+# This put request is what needs to be rewritten 
 # user/edit/<int:id> [PUT]
 class UserEdit(Resource):
     @staticmethod
@@ -284,11 +295,6 @@ class UserEdit(Resource):
             # add user to role
             roleManager.add_user_to_role(id, new_user["newRoleIds"])
             new_user.pop("newRoleIds", None)
-
-        # update user password
-        new_passwords = new_user.get("new_password")
-        if new_passwords is not None:
-            userManager.update(id, new_user["new_password"])
 
         update_res = userManager.update("id", id, new_user)
 
