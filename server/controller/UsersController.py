@@ -286,22 +286,26 @@ class UserEdit(Resource):
     @swag_from("../specifications/user-edit.yml", methods=["PUT"])
     def put(self, id):
 
-        # validate inputs
+        # Ensure we have id
         if not id:
             abort(400, message="User ID is required")
 
+        #Parse the arguments that we want
         new_user = filterPairsWithNone(Userparser.parse_args()) 
 
+        # Ensure that id is valid
+        if(crud.read(User, id=id)) is None:
+            return {'message' : 'no user with this id'}, 400
+
+        # If supervises field is given add vht's to cho's list
         newVhtIds = new_user.get("supervises")
         if newVhtIds is not None:
-            # add vht to CHO's vht list
             crud.add_vht_to_supervise(id, new_user["supervises"])
             new_user.pop("supervises", None)
 
-        try: 
-            crud.update(User, new_user,id=id)
-        except AttributeError:
-            return {'message' : 'no user with this id'}, 400
+        # Update User
+        crud.update(User, new_user,id=id)
+    
 
         userDict = marshal.marshal(
             crud.read(User, id=id)
