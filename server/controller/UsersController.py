@@ -154,45 +154,54 @@ class UserPasswordChange(Resource):
 # user/register [POST]
 class UserRegisterApi(Resource):
 
+    registerParser = Userparser.copy()
+    registerParser.add_argument("password", type=str, required=True, help="This field cannot be left blank!")
+
     # Create a new user
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/user-register.yml", methods=["POST"])
     def post(self):
-        # register user endpoint
-        data = validate_user(request.get_json())
-        if data["ok"]:
-            data = data["data"]
 
-            # check if user exists
-            user = User.query.filter_by(email=data["email"]).first()
-            if user:
-                return {"message": "Email has already been taken"}, 400
+        new_user = filterPairsWithNone(self.registerParser.parse_args())
+        return new_user, 200
 
-            # get password
-            data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
-            # find the role of the user
-            role = Role.query.filter_by(name=data["role"]).first()
-            if (
-                role
-                and data["role"] == "ADMIN"
-                and data["healthFacilityName"] == "Null"
-            ):
-                data["healthFacilityName"] = None
-            del data["role"]
+        # # register user endpoint
+        # data = validate_user(request.get_json())
 
-            # Add a new user to db
-            user_schema = UserSchema()
-            new_user = user_schema.load(data, session=db.session)
+        # if data["ok"]:
+        #     data = data["data"]
 
-            role.users.append(new_user)  # add new user to their role
+        #     # check if user exists
+        #     user = User.query.filter_by(email=data["email"]).first()
+        #     if user:
+        #         return {"message": "Email has already been taken"}, 400
 
-            db.session.add(role)  # add user and role
-            db.session.commit()
+        #     # get password
+        #     data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
-            return new_user.id, 201
-        else:
-            return {"message": "Please check the fields"}, 400
+        #     # find the role of the user
+        #     role = Role.query.filter_by(name=data["role"]).first()
+        #     if (
+        #         role
+        #         and data["role"] == "ADMIN"
+        #         and data["healthFacilityName"] == "Null"
+        #     ):
+        #         data["healthFacilityName"] = None
+        #     del data["role"]
+
+        #     # Add a new user to db
+        #     user_schema = UserSchema()
+        #     new_user = user_schema.load(data, session=db.session)
+
+        #     role.users.append(new_user)  # add new user to their role
+
+        #     db.session.add(role)  # add user and role
+        #     db.session.commit()
+
+        #     return new_user.id, 201
+        # else:
+        #     return {"message": "Please check the fields"}, 400
 
 
 # user/auth [POST]
