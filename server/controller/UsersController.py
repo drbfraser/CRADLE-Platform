@@ -18,7 +18,7 @@ from api.decorator import roles_required
 from api.util import isGoodPassword
 from data import crud
 from data import marshal
-from models import User
+from models import User, supervises
 
 userManager = UserManager()
 roleManager = RoleManager()
@@ -287,31 +287,31 @@ class UserEdit(Resource):
         new_user = UserEdit._get_request_body()
 
 
-        newVhtIds = new_user.get("newVhtIds")
+        newVhtIds = new_user.get("vhtList")
+
+        # crud.read(User, )
 
         #So this can be none!
         if newVhtIds is not None:
             # add vht to CHO's vht list
-            roleManager.add_vht_to_supervise(id, new_user["newVhtIds"])
-            new_user.pop("newVhtIds", None)
+            crud.add_vht_to_supervise(id, new_user["vhtList"])
+            new_user.pop("vhtList", None)
 
-        newRoleIds = new_user.get("newRoleIds")
-        if newRoleIds is not None:
-            # add user to role
-            roleManager.add_user_to_role(id, new_user["newRoleIds"])
-            new_user.pop("newRoleIds", None)
+        # newRoleIds = new_user.get("newRoleIds")
+        # if newRoleIds is not None:
+        #     # add user to role
+        #     roleManager.add_user_to_role(id, new_user["newRoleIds"])
+        #     new_user.pop("newRoleIds", None)
 
-        # user = marshal.unmarshal(User, new_user)
-
-        try: 
-            crud.update(User, new_user,id=id)
-        except AttributeError:
-            return {'message' : 'no user with this id'}, 400
+        # try: 
+        crud.update(User, new_user,id=id)
+        # except AttributeError:
+        #     return {'message' : 'no user with this id'}, 400
 
         userDict = marshal.marshal(
             crud.read(User, id=id)
         )
-        
+
         userDict.pop('password')
 
         return userDict
