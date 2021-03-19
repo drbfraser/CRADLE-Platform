@@ -90,11 +90,6 @@ class User(db.Model):
     )
 
 
-
-    # roleSpecified = db.Column(
-    #     db.String(50), db.ForeignKey("role.name"), nullable=True
-    # )
-
     # RELATIONSHIPS
     healthFacility = db.relationship(
         "HealthFacility", backref=db.backref("users", lazy=True)

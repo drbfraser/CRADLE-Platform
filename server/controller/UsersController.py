@@ -19,9 +19,20 @@ from api.util import isGoodPassword
 from data import crud
 from data import marshal
 from models import User, supervises
+import enum
+from api.util import filterPairsWithNone
 
 userManager = UserManager()
 roleManager = RoleManager()
+
+
+Userparser = reqparse.RequestParser()
+Userparser.add_argument("email", type=str, required=True, help="This field cannot be left blank!")
+Userparser.add_argument("firstName", type=str, required=True, help="This field cannot be left blank!")
+Userparser.add_argument("healthFacilityName", type=str, required=True, help="This field cannot be left blank!")
+Userparser.add_argument("role", type=str, required=True, help="This field cannot be left blank!")
+Userparser.add_argument("supervises")
+
 
 # user/all [POST]
 class UserAll(Resource):
@@ -284,29 +295,19 @@ class UserEdit(Resource):
         if not id:
             abort(400, message="User ID is required")
 
-        new_user = UserEdit._get_request_body()
 
 
+        new_user = filterPairsWithNone(Userparser.parse_args()) 
         newVhtIds = new_user.get("vhtList")
-
-        # crud.read(User, )
-
-        #So this can be none!
         if newVhtIds is not None:
             # add vht to CHO's vht list
             crud.add_vht_to_supervise(id, new_user["vhtList"])
             new_user.pop("vhtList", None)
 
-        # newRoleIds = new_user.get("newRoleIds")
-        # if newRoleIds is not None:
-        #     # add user to role
-        #     roleManager.add_user_to_role(id, new_user["newRoleIds"])
-        #     new_user.pop("newRoleIds", None)
-
-        # try: 
-        crud.update(User, new_user,id=id)
-        # except AttributeError:
-        #     return {'message' : 'no user with this id'}, 400
+        try: 
+            crud.update(User, new_user,id=id)
+        except AttributeError:
+            return {'message' : 'no user with this id'}, 400
 
         userDict = marshal.marshal(
             crud.read(User, id=id)
@@ -315,20 +316,6 @@ class UserEdit(Resource):
         userDict.pop('password')
 
         return userDict
-        
-
-        
-        # print(user.firstName)
-
-        # update_res = userManager.update("id", id, new_user)
-
-        # if not update_res:
-        #     abort(400, message=f'No user exists with id "{id}"')
-        # else:
-        #     # Removed unnecessary return payload fields for security purposes
-        #     update_res.pop("password")
-        #     update_res.pop("username")
-        #     return update_res
 
 
 # user/delete/<int:id>
