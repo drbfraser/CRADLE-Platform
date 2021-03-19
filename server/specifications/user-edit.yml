@@ -30,7 +30,7 @@ requestBody:
           supervises:
             type: array
             items: integer
-            example: []
+            example: [3, 6]
 responses:
   200:
     description: New user information
@@ -41,22 +41,16 @@ responses:
           properties:
             email:
               type: string
-              example: alice@gmail.com
-            roleIds:
-              type: array
-              items: integer
-              example: [2, 3]
+              example: test@cho.com
+            role:
+              type: string
+              example: HCW
             firstName:
               type: string
-              example: Alice
+              example: Bob
             healthFacilityName:
               type: string
-              example: H2555
-    
-            supervises:
-              type: array
-              items: integer
-              example: [6]
+              example: H0000
             id:
               type: integer
               example: 3
