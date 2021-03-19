@@ -83,7 +83,7 @@ def update(m: Type[M], changes: dict, **kwargs):
     :return: The updated model
     """
     model = read(m, **kwargs)
-    print(dir(model))
+  
     for k, v in changes.items():
         setattr(model, k, v)
     db_session.commit()

@@ -152,7 +152,7 @@ class UserPasswordChange(Resource):
 
 
 # user/register [POST]
-class UserApi(Resource):
+class UserRegisterApi(Resource):
 
     # Create a new user
     @roles_required([RoleEnum.ADMIN])
@@ -279,7 +279,7 @@ class UserTokenApi(Resource):
 
 # This put request is what needs to be rewritten 
 # user/edit/<int:id> [PUT]
-class UserEdit(Resource):
+class UserApi(Resource):
 
     # edit user with id
     @roles_required([RoleEnum.ADMIN])
