@@ -16,7 +16,9 @@ from manager.RoleManager import RoleManager
 from flasgger import swag_from
 from api.decorator import roles_required
 from api.util import isGoodPassword
-
+from data import crud
+from data import marshal
+from models import User
 
 userManager = UserManager()
 roleManager = RoleManager()
@@ -284,7 +286,10 @@ class UserEdit(Resource):
 
         new_user = UserEdit._get_request_body()
 
+
         newVhtIds = new_user.get("newVhtIds")
+
+        #So this can be none!
         if newVhtIds is not None:
             # add vht to CHO's vht list
             roleManager.add_vht_to_supervise(id, new_user["newVhtIds"])
@@ -296,15 +301,34 @@ class UserEdit(Resource):
             roleManager.add_user_to_role(id, new_user["newRoleIds"])
             new_user.pop("newRoleIds", None)
 
-        update_res = userManager.update("id", id, new_user)
+        # user = marshal.unmarshal(User, new_user)
 
-        if not update_res:
-            abort(400, message=f'No user exists with id "{id}"')
-        else:
-            # Removed unnecessary return payload fields for security purposes
-            update_res.pop("password")
-            update_res.pop("username")
-            return update_res
+        try: 
+            crud.update(User, new_user,id=id)
+        except AttributeError:
+            return {'message' : 'no user with this id'}, 400
+
+        userDict = marshal.marshal(
+            crud.read(User, id=id)
+        )
+        
+        userDict.pop('password')
+
+        return userDict
+        
+
+        
+        # print(user.firstName)
+
+        # update_res = userManager.update("id", id, new_user)
+
+        # if not update_res:
+        #     abort(400, message=f'No user exists with id "{id}"')
+        # else:
+        #     # Removed unnecessary return payload fields for security purposes
+        #     update_res.pop("password")
+        #     update_res.pop("username")
+        #     return update_res
 
 
 # user/delete/<int:id>
