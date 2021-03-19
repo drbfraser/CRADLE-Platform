@@ -15,22 +15,19 @@ requestBody:
       schema:
         type: object
         properties:
-          username:
-            type: string
-          email:
-            type: string
-            example: alice@gmail.com
-          healthFacilityName:
-            type: string
-            example: H2555
           firstName:
             type: string
-            example: Alice
-          newRoleIds:
-            type: array
-            items: integer
-            example: [2, 3]
-          newVhtIds:
+            example: Bob
+          email:
+            type: string
+            example: test@cho.com
+          healthFacilityName:
+            type: string
+            example: H0000
+          role:
+            type: string
+            example: CHO
+          supervises:
             type: array
             items: integer
             example: []
@@ -55,20 +52,11 @@ responses:
             healthFacilityName:
               type: string
               example: H2555
-            healthFacility:
-              type: string
-              example: H2555
-            vhtList:
+    
+            supervises:
               type: array
               items: integer
-              example: []
-            referrals:
-              type: array
-              example: []
-            followups:
-              type: array
-              items: integer
-              example: [1, 2, 3, 4]
+              example: [6]
             id:
               type: integer
               example: 3
