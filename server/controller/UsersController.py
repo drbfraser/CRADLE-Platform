@@ -280,11 +280,6 @@ class UserTokenApi(Resource):
 # This put request is what needs to be rewritten 
 # user/edit/<int:id> [PUT]
 class UserEdit(Resource):
-    @staticmethod
-    def _get_request_body():
-        raw_req_body = request.get_json(force=True)
-        print("Request body: " + json.dumps(raw_req_body, indent=2, sort_keys=True))
-        return raw_req_body
 
     # edit user with id
     @roles_required([RoleEnum.ADMIN])
@@ -295,14 +290,13 @@ class UserEdit(Resource):
         if not id:
             abort(400, message="User ID is required")
 
-
-
         new_user = filterPairsWithNone(Userparser.parse_args()) 
-        newVhtIds = new_user.get("vhtList")
+
+        newVhtIds = new_user.get("supervises")
         if newVhtIds is not None:
             # add vht to CHO's vht list
-            crud.add_vht_to_supervise(id, new_user["vhtList"])
-            new_user.pop("vhtList", None)
+            crud.add_vht_to_supervise(id, new_user["supervises"])
+            new_user.pop("supervises", None)
 
         try: 
             crud.update(User, new_user,id=id)
