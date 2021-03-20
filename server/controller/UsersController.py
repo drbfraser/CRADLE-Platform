@@ -92,11 +92,11 @@ class AdminPasswordChange(Resource):
         if user is None:
             return {"message": "There is no user with this id"}, 400
 
-        # check if password given is suitable
-        if not isGoodPassword(data["password"]):
-            return {
-                "message": "The new password must be at least 8 characters long"
-            }, 400
+        # # check if password given is suitable
+        # if not isGoodPassword(data["password"]):
+        #     return {
+        #         "message": "The new password must be at least 8 characters long"
+        #     }, 400
 
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
@@ -107,7 +107,7 @@ class AdminPasswordChange(Resource):
         return update_res, 200
 
 
-# /api/user/change_pass [POST]
+# /api/user/current/change_pass [POST]
 class UserPasswordChange(Resource):
 
     parser = reqparse.RequestParser()
@@ -132,7 +132,7 @@ class UserPasswordChange(Resource):
         identity = get_jwt_identity()
 
         # Get all information about the user who is using this endpoint
-        user = User.query.filter_by(id=identity["userId"]).first()
+        user = crud.read(User, id=identity['userId'])
 
         # If old password and password we have on file match
         if user and flask_bcrypt.check_password_hash(
@@ -144,13 +144,9 @@ class UserPasswordChange(Resource):
             }
 
             # Perform update
-            update_response = userManager.update(
-                "id", identity["userId"], updated_payload
-            )
-
-            update_response.pop("password")
-
-            return update_response, 200
+            crud.update(User, updated_payload, id=identity['userId'])
+    
+            return {'message' : 'Success! Password has been changed'}, 200
         else:
             return {"error": "old_password incorrect"}, 400
 

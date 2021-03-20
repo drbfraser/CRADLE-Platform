@@ -51,7 +51,7 @@ def init(api):
     api.add_resource(UserAll, "/api/user/all")  # [GET]
 
     api.add_resource(UserApi, "/api/user/<int:id>")  # [GET, PUT, DELETE]
-    
+
     api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]
 
     api.add_resource(
@@ -118,6 +118,6 @@ def init(api):
     )  # [GET]
 
     api.add_resource(AdminPasswordChange, "/api/admin/change_pass")  # [POST]
-    api.add_resource(UserPasswordChange, "/api/user/change_pass")  # [POST]
+    api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]
 
     new_api.init_routes(api)
