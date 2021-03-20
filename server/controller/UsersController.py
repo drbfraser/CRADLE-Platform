@@ -20,7 +20,11 @@ from data import crud
 from data import marshal
 from models import User, supervises
 import enum
-from api.util import filterPairsWithNone, getDictionaryOfUserInfo
+from api.util import (
+    filterPairsWithNone,
+    getDictionaryOfUserInfo,
+    doesUserExist,
+)
 
 userManager = UserManager()
 roleManager = RoleManager()
@@ -69,7 +73,7 @@ class UserAllVHT(Resource):
 
 
 
-# api/admin/change_pass [POST]
+# api/user/{int:id}/change_pass [POST]
 class AdminPasswordChange(Resource):
 
     # Ensure that we have the fields we want in JSON payload
@@ -83,28 +87,26 @@ class AdminPasswordChange(Resource):
 
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/admin-change-pass.yml", methods=["POST"])
-    def post(self):
+    def post(self, id):
 
         data = self.parser.parse_args()
 
         # check if user exists
-        user = User.query.filter_by(id=data["id"]).first()
-        if user is None:
+        if not doesUserExist(data['id']):
             return {"message": "There is no user with this id"}, 400
 
-        # # check if password given is suitable
-        # if not isGoodPassword(data["password"]):
-        #     return {
-        #         "message": "The new password must be at least 8 characters long"
-        #     }, 400
+        # check if password given is suitable
+        if not isGoodPassword(data["password"]):
+            return {
+                "message": "The new password must be at least 8 characters long"
+            }, 400
 
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
         # Update password
-        update_res = userManager.update("id", data["id"], data)
-        update_res.pop("password")
+        crud.update(User, data, id=data['id'])
 
-        return update_res, 200
+        return {'message' : 'Success! Password has been changed'}, 200
 
 
 # /api/user/current/change_pass [POST]
@@ -319,11 +321,6 @@ class UserApi(Resource):
             abort(400, message="User ID is required")
 
         return getDictionaryOfUserInfo(id)
-
-
-        
-  
-
 
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/user-delete.yml", methods=["DELETE"])

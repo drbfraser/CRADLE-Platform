@@ -145,3 +145,18 @@ def getDictionaryOfUserInfo(id: int) -> dict:
     userDict.pop('password')
     return userDict
 
+def doesUserExist(id: int) -> bool:
+    '''
+    Takes in id of the user and does a read to see if this user exists or not.
+    :param id: The user's id
+
+    '''
+
+    user = crud.read(User, id=id)
+    if user is None:
+        return False
+    else:
+        return True
+
+
+

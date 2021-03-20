@@ -117,7 +117,7 @@ def init(api):
         endpoint="single_referral",
     )  # [GET]
 
-    api.add_resource(AdminPasswordChange, "/api/admin/change_pass")  # [POST]
+    api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
     api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]
 
     new_api.init_routes(api)
