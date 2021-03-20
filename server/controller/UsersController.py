@@ -334,6 +334,25 @@ class UserApi(Resource):
         userDict.pop('password')
         return userDict
 
+    @roles_required([RoleEnum.ADMIN])
+    def delete(self, id):
+
+        # Ensure we have id
+        if not id:
+            abort(400, message="User ID is required")
+
+        # Ensure that id is valid
+        user = crud.read(User, id=id)
+        if(user) is None:
+            return {'message' : 'no user with this id'}, 400
+
+        crud.delete(user)
+
+        return {'message' : 'User deleted'}, 200
+
+            
+
+
 
 
 
