@@ -155,9 +155,10 @@ class UserPasswordChange(Resource):
             return {"error": "old_password incorrect"}, 400
 
 
-# user/register [POST]
+# api/user/register [POST]
 class UserRegisterApi(Resource):
 
+    #Allow for parsing a password
     registerParser = Userparser.copy()
     registerParser.add_argument("password", type=str, required=True, help="This field cannot be left blank!")
 
@@ -166,6 +167,7 @@ class UserRegisterApi(Resource):
     @swag_from("../specifications/user-register.yml", methods=["POST"])
     def post(self):
 
+        # Parse args
         new_user = filterPairsWithNone(self.registerParser.parse_args())
 
         # Ensure that email is unique
@@ -176,61 +178,24 @@ class UserRegisterApi(Resource):
         if(new_user['role'] not in supported_roles):
             return {'message' : 'Not a supported role'}, 400
 
-
+        #Encrypt pass
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
-        print(new_user)
         listOfVhts = new_user.pop('supervises', None)
-        print(listOfVhts)
-
+        
+        #Create the new user
         userModel = marshal.unmarshal(User, new_user)
         crud.create(userModel)
 
+        #Viewing the results of the creation
         createdUser = marshal.marshal(crud.read(User, email=new_user['email']))
         createdUser.pop('password')
         createdUserId = createdUser.get('id')
 
+        #Updating the supervises table if necessary as well
         if(new_user['role'] == 'CHO' and listOfVhts is not None):
             crud.add_vht_to_supervise(createdUserId, listOfVhts)
 
         return createdUser, 200
-
-
-        # # register user endpoint
-        # data = validate_user(request.get_json())
-
-        # if data["ok"]:
-        #     data = data["data"]
-
-        #     # check if user exists
-        #     user = User.query.filter_by(email=data["email"]).first()
-        #     if user:
-        #         return {"message": "Email has already been taken"}, 400
-
-        #     # get password
-        #     data["password"] = flask_bcrypt.generate_password_hash(data["password"])
-
-        #     # find the role of the user
-        #     role = Role.query.filter_by(name=data["role"]).first()
-        #     if (
-        #         role
-        #         and data["role"] == "ADMIN"
-        #         and data["healthFacilityName"] == "Null"
-        #     ):
-        #         data["healthFacilityName"] = None
-        #     del data["role"]
-
-        #     # Add a new user to db
-        #     user_schema = UserSchema()
-        #     new_user = user_schema.load(data, session=db.session)
-
-        #     role.users.append(new_user)  # add new user to their role
-
-        #     db.session.add(role)  # add user and role
-        #     db.session.commit()
-
-        #     return new_user.id, 201
-        # else:
-        #     return {"message": "Please check the fields"}, 400
 
 
 # user/auth [POST]
@@ -305,18 +270,8 @@ class UserTokenApi(Resource):
         return current_user, 200
 
 
-# What I will recieve in payload + the id from the path
-# {
-#   email: string;
-#   firstName: string;
-#   healthFacilityName: string;
-#   role: string; (enum)
-#   supervises: number[];
-# }
 
-
-# This put request is what needs to be rewritten 
-# user/edit/<int:id> [PUT]
+# api/user/<int:id> [PUT]
 class UserApi(Resource):
 
     # edit user with id

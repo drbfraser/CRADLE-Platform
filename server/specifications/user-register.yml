@@ -11,20 +11,20 @@ requestBody:
         properties:
           email:
             type: string
-            example: vht@vht.com
+            example: test8@cho.com
           password:
             type: string
-            example: vht123
+            example: cho123
           firstName:
             type: string
-            example: Bob
+            example: Alice
           healthFacilityName:
             type: string
-            example: H3445
+            example: H0000
           role:
             type: string
             enum: [ADMIN, HCW, VHT, CHO]
-            example: VHT
+            example: CHO
 responses:
   200:
     description: OK
@@ -32,4 +32,20 @@ responses:
       application/json:
         schema:
           type: object
-          examples: {}
+          properties:
+            id:
+              type: int
+              example: 17
+            email:
+              type: string
+              example: test8@cho.com
+            firstName:
+              type: string
+              example: Alice
+            healthFacilityName:
+              type: string
+              example: H0000
+            role:
+              type: string
+              enum: [ADMIN, HCW, VHT, CHO]
+              example: CHO
