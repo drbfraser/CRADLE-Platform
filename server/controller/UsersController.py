@@ -267,9 +267,9 @@ class UserTokenApi(Resource):
     @swag_from("../specifications/user-current.yml", methods=["GET"])
     def get(self):
         tokenData = get_jwt_identity()
-        userId = tokenData['id']
+        userId = tokenData['userId']
 
-        return current_user, 200
+        return getDictionaryOfUserInfo(userId), 200
 
 
 

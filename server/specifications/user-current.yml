@@ -13,23 +13,20 @@ responses:
             email:
               type: string
               example: cho@cho.com
-            roles:
-              type: array
-              items: string
-              example: [CHO]
+            role:
+              type: string
+              example: CHO
             firstName:
               type: string
-              example: Bob
+              example: TestCHO
             healthFacilityName:
               type: string
-              example: H3445
-            isLoggedIn:
-              type: boolean
-              example: true
-            userId:
+              example: H0000
+            id:
               type: integer
-              example: 1
-            vhtList:
+              example: 4
+            supervises:
               type: array
               items: integer
-              example: [1, 2, 3]
+              example: [5, 6]
+
