@@ -33,6 +33,10 @@ Userparser.add_argument("healthFacilityName", type=str, required=True, help="Thi
 Userparser.add_argument("role", type=str, required=True, help="This field cannot be left blank!")
 Userparser.add_argument("supervises")
 
+supported_roles = []
+for role in RoleEnum:
+    supported_roles.append(role.name)
+
 
 # user/all [POST]
 class UserAll(Resource):
@@ -167,6 +171,10 @@ class UserRegisterApi(Resource):
         # Ensure that email is unique
         if(crud.read(User, email=new_user['email'])) is not None:
             return {'message' : 'there is already a user with this email'}, 400
+
+        if(new_user['role'] not in supported_roles):
+            return {'message' : 'Not a supported role'}, 400
+
 
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
 
@@ -319,6 +327,9 @@ class UserApi(Resource):
         # Ensure that id is valid
         if(crud.read(User, id=id)) is None:
             return {'message' : 'no user with this id'}, 400
+
+        if(new_user['role'] not in supported_roles):
+            return {'message' : 'Not a supported role'}, 400
 
         # If supervises field is given add vht's to cho's list
         newVhtIds = new_user.get("supervises")
