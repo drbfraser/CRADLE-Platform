@@ -31,7 +31,7 @@ Userparser.add_argument("email", type=str, required=True, help="This field canno
 Userparser.add_argument("firstName", type=str, required=True, help="This field cannot be left blank!")
 Userparser.add_argument("healthFacilityName", type=str, required=True, help="This field cannot be left blank!")
 Userparser.add_argument("role", type=str, required=True, help="This field cannot be left blank!")
-Userparser.add_argument("supervises")
+Userparser.add_argument("supervises", type=int, action='append')
 
 supported_roles = []
 for role in RoleEnum:
@@ -68,7 +68,7 @@ class UserAllVHT(Resource):
         return vhtId_list
 
 
-# To do: See if we can use the serializer here instead of a parser
+
 # api/admin/change_pass [POST]
 class AdminPasswordChange(Resource):
 
@@ -172,18 +172,25 @@ class UserRegisterApi(Resource):
         if(crud.read(User, email=new_user['email'])) is not None:
             return {'message' : 'there is already a user with this email'}, 400
 
+        #Ensure that role is supported
         if(new_user['role'] not in supported_roles):
             return {'message' : 'Not a supported role'}, 400
 
 
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
+        print(new_user)
+        listOfVhts = new_user.pop('supervises', None)
+        print(listOfVhts)
 
         userModel = marshal.unmarshal(User, new_user)
-
         crud.create(userModel)
 
         createdUser = marshal.marshal(crud.read(User, email=new_user['email']))
         createdUser.pop('password')
+        createdUserId = createdUser.get('id')
+
+        if(new_user['role'] == 'CHO' and listOfVhts is not None):
+            crud.add_vht_to_supervise(createdUserId, listOfVhts)
 
         return createdUser, 200
 
@@ -323,6 +330,7 @@ class UserApi(Resource):
 
         #Parse the arguments that we want
         new_user = filterPairsWithNone(Userparser.parse_args()) 
+        print(new_user)
 
         # Ensure that id is valid
         if(crud.read(User, id=id)) is None:
