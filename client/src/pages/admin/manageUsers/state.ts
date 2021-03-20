@@ -64,18 +64,20 @@ export const fieldLabels = {
   [UserField.confirmPassword]: 'Confirm Password',
 };
 
-const detailsValidationShape = {
+const detailsValidationShape = (emailsInUse: string[]) => ({
   [UserField.firstName]: Yup.string()
     .label(fieldLabels[UserField.firstName])
     .required(),
   [UserField.email]: Yup.string()
     .label(fieldLabels[UserField.email])
-    .required(),
+    .required()
+    .email('Please enter a valid email address')
+    .notOneOf(emailsInUse, 'This email address is already in use'),
   [UserField.healthFacilityName]: Yup.string()
     .label(fieldLabels[UserField.healthFacilityName])
     .required(),
   [UserField.role]: Yup.string().label(fieldLabels[UserField.role]).required(),
-};
+});
 
 const passwordValidationShape = {
   [UserField.password]: Yup.string()
@@ -88,12 +90,21 @@ const passwordValidationShape = {
     .oneOf([Yup.ref(UserField.password)], 'Passwords must match'),
 };
 
-export const newValidationSchema = Yup.object().shape({
-  ...detailsValidationShape,
-  ...passwordValidationShape,
-});
+export const newEditValidationSchema = (
+  creatingNew: boolean,
+  emailsInUse: string[]
+) => {
+  let shape = detailsValidationShape(emailsInUse);
 
-export const editValidationSchema = Yup.object().shape(detailsValidationShape);
+  if (creatingNew) {
+    shape = {
+      ...shape,
+      ...passwordValidationShape,
+    };
+  }
+
+  return Yup.object().shape(shape);
+};
 
 export const passwordValidationSchema = Yup.object().shape(
   passwordValidationShape

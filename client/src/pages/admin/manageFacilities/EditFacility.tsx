@@ -26,12 +26,7 @@ interface IProps {
   editFacility?: IFacility;
 }
 
-const EditFacility = ({
-  open,
-  onClose,
-  facilities,
-  editFacility,
-}: IProps) => {
+const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const creatingNew = editFacility === undefined;
 
@@ -65,11 +60,7 @@ const EditFacility = ({
           clearMessage={() => setSubmitError(false)}
         />
       )}
-      <Dialog
-        open={open}
-        onClose={onClose}
-        maxWidth="sm"
-        fullWidth>
+      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} Facility</DialogTitle>
         <DialogContent>
           <Formik

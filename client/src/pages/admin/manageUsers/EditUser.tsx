@@ -11,8 +11,7 @@ import {
   UserField,
   IUserEdit,
   IUserGet,
-  newValidationSchema,
-  editValidationSchema,
+  newEditValidationSchema,
   userRoles,
 } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
@@ -34,6 +33,9 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
   const healthFacilityOptions = useHealthFacilityOptions();
   const [submitError, setSubmitError] = useState(false);
   const creatingNew = editUser === undefined;
+  const emailsInUse = users
+    .filter((u) => u.id != editUser?.id)
+    .map((u) => u.email);
 
   const handleSubmit = async (
     values: IUserEdit,
@@ -70,9 +72,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
         <DialogContent>
           <Formik
             initialValues={editUser ?? {}}
-            validationSchema={
-              creatingNew ? newValidationSchema : editValidationSchema
-            }
+            validationSchema={newEditValidationSchema(creatingNew, emailsInUse)}
             onSubmit={handleSubmit}>
             {({ isSubmitting, isValid }) => (
               <Form>

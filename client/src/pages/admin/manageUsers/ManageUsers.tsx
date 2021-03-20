@@ -32,7 +32,9 @@ const columns = [
 
 export const ManageUsers = () => {
   const styles = useStyles();
-  const currentUserId = useSelector<ReduxState>(state => state.user.current.data!.userId) as number;
+  const currentUserId = useSelector<ReduxState>(
+    (state) => state.user.current.data!.userId
+  ) as number;
   const [errorLoading, setErrorLoading] = useState(false);
   const [users, setUsers] = useState<IUserGet[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
@@ -85,28 +87,30 @@ export const ManageUsers = () => {
 
   const rowActions = [
     {
-      tooltip: "Edit User",
+      tooltip: 'Edit User',
       setOpen: setEditPopupOpen,
       Icon: CreateIcon,
     },
     {
-      tooltip: "Reset Password",
+      tooltip: 'Reset Password',
       setOpen: setPasswordPopupOpen,
       Icon: VpnKeyIcon,
     },
     {
-      tooltip: "Delete User",
+      tooltip: 'Delete User',
       setOpen: setDeletePopupOpen,
       Icon: DeleteForever,
       disableForCurrentUser: true,
     },
-  ]
+  ];
 
   const Row = ({ row }: { row: (string | number)[] }) => {
     const cells = row.slice(0, -1);
     const user = users[row.slice(-1)[0] as number];
     const isCurrentUser = user?.id === currentUserId;
-    const actions = isCurrentUser ? rowActions.filter(a => !a.disableForCurrentUser) : rowActions;
+    const actions = isCurrentUser
+      ? rowActions.filter((a) => !a.disableForCurrentUser)
+      : rowActions;
 
     return (
       <tr className={styles.row}>
@@ -116,19 +120,20 @@ export const ManageUsers = () => {
           </td>
         ))}
         <td className={styles.cell}>
-          {
-            actions.map(action => (
-              <Tooltip placement="top" title={action.tooltip}>
-                <IconButton
-                  onClick={() => {
-                    setPopupUser(user);
-                    action.setOpen(true)
-                  }}>
-                  <action.Icon />
-                </IconButton>
-              </Tooltip>
-            ))
-          }
+          {actions.map((action) => (
+            <Tooltip
+              key={action.tooltip}
+              placement="top"
+              title={action.tooltip}>
+              <IconButton
+                onClick={() => {
+                  setPopupUser(user);
+                  action.setOpen(true);
+                }}>
+                <action.Icon />
+              </IconButton>
+            </Tooltip>
+          ))}
         </td>
       </tr>
     );
@@ -156,7 +161,7 @@ export const ManageUsers = () => {
         open={passwordPopupOpen}
         onClose={() => setPasswordPopupOpen(false)}
         userId={popupUser?.id ?? -1}
-        name={popupUser?.firstName ?? ""}
+        name={popupUser?.firstName ?? ''}
       />
       <DeleteUser
         open={deletePopupOpen}
@@ -165,7 +170,7 @@ export const ManageUsers = () => {
           getUsers();
         }}
         userId={popupUser?.id ?? -1}
-        name={popupUser?.firstName ?? ""}
+        name={popupUser?.firstName ?? ''}
       />
       <MUIDataTable
         title="Users"

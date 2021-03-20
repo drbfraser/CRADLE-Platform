@@ -25,8 +25,9 @@ const DeleteUser = ({ open, onClose, userId, name }: IProps) => {
 
   const handleDelete = async () => {
     try {
-      const resp = await apiFetch(BASE_URL + EndpointEnum.DELETE_USER + String(userId), {
-        method: 'DELETE'
+      const url = BASE_URL + EndpointEnum.DELETE_USER + String(userId);
+      const resp = await apiFetch(url, {
+        method: 'DELETE',
       });
 
       if (!resp.ok) {
@@ -61,7 +62,8 @@ const DeleteUser = ({ open, onClose, userId, name }: IProps) => {
         <DialogTitle>Delete User: {name}</DialogTitle>
         <DialogContent>
           <Alert severity="warning">
-            Are you sure you want to delete {name}'s account? This action is permanent and cannot be undone.
+            Are you sure you want to delete {name}&apos;s account? This action
+            is permanent and cannot be undone.
           </Alert>
           <br />
           <DialogActions>

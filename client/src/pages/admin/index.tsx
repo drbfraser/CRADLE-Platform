@@ -11,16 +11,16 @@ const pages = [
   {
     name: 'Health Care Facilities',
     Component: ManageFacilities,
-  }
-]
+  },
+];
 
-const panes = pages.map(p => ({
+const panes = pages.map((p) => ({
   menuItem: p.name,
   render: () => (
-    <Tab.Pane style={{padding: 0}}>
+    <Tab.Pane style={{ padding: 0 }}>
       <p.Component />
     </Tab.Pane>
-  )
-}))
+  ),
+}));
 
-export const AdminPage = () => <Tab panes={panes} />
+export const AdminPage = () => <Tab panes={panes} />;
