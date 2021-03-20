@@ -10,6 +10,8 @@ import CreateIcon from '@material-ui/icons/Create';
 import { Toast } from 'src/shared/components/toast';
 import { IFacility } from './state';
 import EditFacility from './EditFacility';
+import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
+import { useDispatch } from 'react-redux';
 
 const columns = [
   'Facility Name',
@@ -25,6 +27,7 @@ const columns = [
 
 export const ManageFacilities = () => {
   const styles = useStyles();
+  const dispatch = useDispatch();
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
@@ -108,8 +111,11 @@ export const ManageFacilities = () => {
       )}
       <EditFacility
         open={editPopupOpen}
-        setOpen={setEditPopupOpen}
-        refreshFacilities={getFacilities}
+        onClose={() => {
+          setEditPopupOpen(false);
+          dispatch(getHealthFacilityList());
+          getFacilities();
+        }}
         facilities={facilities}
         editFacility={facilityToEdit}
       />

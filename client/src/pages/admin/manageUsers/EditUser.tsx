@@ -21,20 +21,16 @@ import { apiFetch } from 'src/shared/utils/api';
 import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import { Toast } from 'src/shared/components/toast';
-import { useDispatch } from 'react-redux';
-import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useHealthFacilityOptions } from 'src/shared/hooks/healthFacilityOptions';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  refreshUsers: () => Promise<void>;
   users: IUserGet[];
   editUser?: IUserGet;
 }
 
-const EditUser = ({ open, onClose, refreshUsers, users, editUser }: IProps) => {
-  const dispatch = useDispatch();
+const EditUser = ({ open, onClose, users, editUser }: IProps) => {
   const healthFacilityOptions = useHealthFacilityOptions();
   const [submitError, setSubmitError] = useState(false);
   const creatingNew = editUser === undefined;
@@ -53,10 +49,6 @@ const EditUser = ({ open, onClose, refreshUsers, users, editUser }: IProps) => {
         throw new Error('Request failed.');
       }
 
-      // refresh the facility list used elsewhere in the application
-      dispatch(getHealthFacilityList());
-
-      refreshUsers();
       onClose();
     } catch (e) {
       setSubmitting(false);
@@ -147,6 +139,7 @@ const EditUser = ({ open, onClose, refreshUsers, users, editUser }: IProps) => {
                       fullWidth
                       required
                       variant="outlined"
+                      type="password"
                       label="Password"
                       name={UserField.password}
                     />
@@ -157,6 +150,7 @@ const EditUser = ({ open, onClose, refreshUsers, users, editUser }: IProps) => {
                       fullWidth
                       required
                       variant="outlined"
+                      type="password"
                       label="Confirm Password"
                       name={UserField.confirmPassword}
                     />

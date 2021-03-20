@@ -13,6 +13,9 @@ import { Toast } from 'src/shared/components/toast';
 import EditUser from './EditUser';
 import { IUserGet } from './state';
 import ResetPassword from './ResetPassword';
+import DeleteUser from './DeleteUser';
+import { useSelector } from 'react-redux';
+import { ReduxState } from 'src/redux/reducers';
 
 const columns = [
   'First Name',
@@ -29,11 +32,13 @@ const columns = [
 
 export const ManageUsers = () => {
   const styles = useStyles();
+  const currentUserId = useSelector<ReduxState>(state => state.user.current.data!.userId) as number;
   const [errorLoading, setErrorLoading] = useState(false);
   const [users, setUsers] = useState<IUserGet[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
+  const [deletePopupOpen, setDeletePopupOpen] = useState(false);
   const [popupUser, setPopupUser] = useState<IUserGet>();
 
   const getUsers = async () => {
@@ -78,9 +83,30 @@ export const ManageUsers = () => {
     </Button>
   );
 
+  const rowActions = [
+    {
+      tooltip: "Edit User",
+      setOpen: setEditPopupOpen,
+      Icon: CreateIcon,
+    },
+    {
+      tooltip: "Reset Password",
+      setOpen: setPasswordPopupOpen,
+      Icon: VpnKeyIcon,
+    },
+    {
+      tooltip: "Delete User",
+      setOpen: setDeletePopupOpen,
+      Icon: DeleteForever,
+      disableForCurrentUser: true,
+    },
+  ]
+
   const Row = ({ row }: { row: (string | number)[] }) => {
     const cells = row.slice(0, -1);
     const user = users[row.slice(-1)[0] as number];
+    const isCurrentUser = user?.id === currentUserId;
+    const actions = isCurrentUser ? rowActions.filter(a => !a.disableForCurrentUser) : rowActions;
 
     return (
       <tr className={styles.row}>
@@ -90,29 +116,19 @@ export const ManageUsers = () => {
           </td>
         ))}
         <td className={styles.cell}>
-          <Tooltip placement="top" title="Edit User">
-            <IconButton
-              onClick={() => {
-                setPopupUser(user);
-                setEditPopupOpen(true);
-              }}>
-              <CreateIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip placement="top" title="Reset Password">
-            <IconButton
-              onClick={() => {
-                setPopupUser(user);
-                setPasswordPopupOpen(true);
-              }}>
-              <VpnKeyIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip placement="top" title="Delete User">
-            <IconButton onClick={() => alert('Not yet implemented')}>
-              <DeleteForever />
-            </IconButton>
-          </Tooltip>
+          {
+            actions.map(action => (
+              <Tooltip placement="top" title={action.tooltip}>
+                <IconButton
+                  onClick={() => {
+                    setPopupUser(user);
+                    action.setOpen(true)
+                  }}>
+                  <action.Icon />
+                </IconButton>
+              </Tooltip>
+            ))
+          }
         </td>
       </tr>
     );
@@ -129,14 +145,25 @@ export const ManageUsers = () => {
       )}
       <EditUser
         open={editPopupOpen}
-        onClose={() => setEditPopupOpen(false)}
-        refreshUsers={getUsers}
+        onClose={() => {
+          setEditPopupOpen(false);
+          getUsers();
+        }}
         users={users}
         editUser={popupUser}
       />
       <ResetPassword
         open={passwordPopupOpen}
         onClose={() => setPasswordPopupOpen(false)}
+        userId={popupUser?.id ?? -1}
+        name={popupUser?.firstName ?? ""}
+      />
+      <DeleteUser
+        open={deletePopupOpen}
+        onClose={() => {
+          setDeletePopupOpen(false);
+          getUsers();
+        }}
         userId={popupUser?.id ?? -1}
         name={popupUser?.firstName ?? ""}
       />

@@ -6,6 +6,7 @@ export enum EndpointEnum {
   CURRENT = '/current',
   CHANGE_PASS = '/user/change_pass',
   RESET_PASS = '/admin/change_pass',
+  DELETE_USER = '/user/delete/',
   DELETE = '/delete',
   EDIT = '/edit',
   HEALTH_FACILITY_LIST = '/facilities?simplified=true',
