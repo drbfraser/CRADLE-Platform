@@ -57,19 +57,31 @@ class UserAll(Resource):
         return users
 
 
-# user/vhts [GET]
+# api/user/vhts [GET]
 class UserAllVHT(Resource):
 
-    # get all VHT Ids
+    # get all VHT's Info
     @jwt_required
     @swag_from("../specifications/user-vhts.yml", methods=["GET"])
     def get(self):
-        logging.debug("Received request: GET user/vhts")
 
-        vhtId_list = userManager.read_all_vhts()
-        if vhtId_list is None:
+        vhtModelList = crud.find(User, User.role==RoleEnum.VHT.name)
+
+        vhtDictionaryList = []
+        for vht in vhtModelList: 
+            vhtDict = marshal.marshal(vht)
+            vhtDictionaryList.append(
+                {
+                    "id":vht.id,
+                    "email" : vht.email, 
+                    "healthFacilityName" : vht.healthFacilityName,
+                    "firstName" : vht.firstName
+                }
+            )
+
+        if vhtDictionaryList is None:
             return []
-        return vhtId_list
+        return vhtDictionaryList
 
 
 
@@ -251,7 +263,7 @@ class UserAuthTokenRefreshApi(Resource):
         return {"token": new_token}, 200
 
 
-# user/current
+# /api/user/current
 # Get identity of current user with jwt token
 class UserTokenApi(Resource):
     @jwt_required
