@@ -20,7 +20,7 @@ from data import crud
 from data import marshal
 from models import User, supervises
 import enum
-from api.util import filterPairsWithNone
+from api.util import filterPairsWithNone, getDictionaryOfUserInfo
 
 userManager = UserManager()
 roleManager = RoleManager()
@@ -266,12 +266,14 @@ class UserTokenApi(Resource):
     @jwt_required
     @swag_from("../specifications/user-current.yml", methods=["GET"])
     def get(self):
-        current_user = get_jwt_identity()
+        tokenData = get_jwt_identity()
+        userId = tokenData['id']
+
         return current_user, 200
 
 
 
-# api/user/<int:id> [GET, PUT]
+# api/user/<int:id> [GET, PUT, DELETE]
 class UserApi(Resource):
 
     # edit user with id
@@ -319,22 +321,16 @@ class UserApi(Resource):
         # Ensure we have id
         if not id:
             abort(400, message="User ID is required")
+
+        return getDictionaryOfUserInfo(id)
+
+
         
   
-        user = crud.read(User, id=id)
-        userDict = marshal.marshal(user)
 
-        #The vhtlist has to be marshalled manually
-        vhtList = []
-        for user in user.vhtList:
-            vhtList.append(user.id)
-        userDict['supervises'] = vhtList
-
-        
-        userDict.pop('password')
-        return userDict
 
     @roles_required([RoleEnum.ADMIN])
+    @swag_from("../specifications/user-delete.yml", methods=["DELETE"])
     def delete(self, id):
 
         # Ensure we have id
@@ -351,25 +347,3 @@ class UserApi(Resource):
         return {'message' : 'User deleted'}, 200
 
             
-
-
-
-
-
-# user/delete/<int:id>
-class UserDelete(Resource):
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from("../specifications/user-delete.yml", methods=["DELETE"])
-    def delete(self, id=None):
-        current_user = get_jwt_identity()
-        if "ADMIN" in current_user["roles"]:
-            if id:
-                logging.debug("Received request: DELETE /user/delete/<id>")
-                del_res = userManager.delete("id", id)
-                if not del_res:
-                    abort(400, message=f'No user exists with id "{id}"')
-            else:
-                abort(400, message="No id supplied for user delete")
-        else:
-            abort(400, message="Only Admins can delete users")
-        return {}
