@@ -50,7 +50,7 @@ def init(api):
     api.add_resource(UserTokenApi, "/api/user/current")  # [GET]
     api.add_resource(UserAll, "/api/user/all")  # [GET]
 
-    api.add_resource(UserApi, "/api/user/<int:id>")  # [PUT]
+    api.add_resource(UserApi, "/api/user/<int:id>")  # [GET, PUT]
 
     api.add_resource(UserDelete, "/api/user/delete/<int:id>")  # [DELETE]
     api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]

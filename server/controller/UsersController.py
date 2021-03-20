@@ -276,7 +276,7 @@ class UserApi(Resource):
 
     # edit user with id
     @roles_required([RoleEnum.ADMIN])
-    @swag_from("../specifications/user-edit.yml", methods=["PUT"])
+    @swag_from("../specifications/user-put.yml", methods=["PUT"])
     def put(self, id):
 
         # Ensure we have id
@@ -312,38 +312,27 @@ class UserApi(Resource):
 
         return userDict
 
+    @jwt_required
+    @swag_from("../specifications/user-get.yml", methods=["GET"])
     def get(self, id):
 
         # Ensure we have id
         if not id:
             abort(400, message="User ID is required")
         
-        # userDict = marshal.marshal(
-        #     crud.read(User, id=id)
-        # )
-
-        # # user = crud.read(User, id=id)
-        # user = User.query.filter_by(id=id).first()
-        # print(user.firstName)
-        # for item in user.vhtList:
-        #     print(item)
-
+  
         user = crud.read(User, id=id)
+        userDict = marshal.marshal(user)
 
+        #The vhtlist has to be marshalled manually
         vhtList = []
-        
         for user in user.vhtList:
             vhtList.append(user.id)
-        
-        print(vhtList)
+        userDict['supervises'] = vhtList
 
         
-
-
-
-        # userDict.pop('password')
-
-        # return userDict
+        userDict.pop('password')
+        return userDict
 
 
 
