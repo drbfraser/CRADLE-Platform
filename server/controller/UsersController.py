@@ -196,53 +196,49 @@ class UserRegisterApi(Resource):
 # user/auth [POST]
 class UserAuthApi(Resource):
 
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "email", type=str, required=True, help="This field cannot be left blank!"
+    )
+    parser.add_argument(
+        "password", type=str, required=True, help="This field cannot be left blank!"
+    )
+
     # login to account
     @swag_from("../specifications/user-auth.yml", methods=["POST"])
     def post(self):
-        data = validate_user(request.get_json())
-        if data["ok"]:
-            data = data["data"]
+        data = self.parser.parse_args()
+        user = crud.read(User, email=data["email"])
 
-            user = User.query.filter_by(email=data["email"]).first()
+        if user and flask_bcrypt.check_password_hash(
+            user.password, data["password"]
+        ):
+            del data["password"]
 
-            if user and flask_bcrypt.check_password_hash(
-                user.password, data["password"]
-            ):
-                del data["password"]
+            # setup any extra user params
+            data["role"] = user.role
+            data["firstName"] = user.firstName
+            data["healthFacilityName"] = user.healthFacilityName
+            data["isLoggedIn"] = True
+            data["userId"] = user.id
 
-                # setup any extra user params
-                roles = []
-                if user.roleIds:
-                    for role in user.roleIds:
-                        roles.append(role.name.name)
+            vhtList = []
+            data["supervises"] = []
+            if data["role"] == RoleEnum.CHO.name:
+                if user.vhtList:
+                    for user in user.vhtList:
+                        vhtList.append(user.id)
+                    data["supervises"] = vhtList
 
-                data["roles"] = roles
-                data["firstName"] = user.firstName
-                data["healthFacilityName"] = user.healthFacilityName
-                data["isLoggedIn"] = True
-                data["userId"] = user.id
+            access_token = create_access_token(identity=data)
+            refresh_token = create_refresh_token(identity=data)
+            data["token"] = access_token
+            data["refresh"] = refresh_token
 
-                vhtList = []
-                data["vhtList"] = []
-                if "CHO" in roles:
-                    if user.vhtList:
-                        for user in user.vhtList:
-                            vhtList.append(user.id)
-                        data["vhtList"] = vhtList
-
-                access_token = create_access_token(identity=data)
-                refresh_token = create_refresh_token(identity=data)
-                data["token"] = access_token
-                data["refresh"] = refresh_token
-
-                return data, 200
-            else:
-                return {"message": "Invalid email or password"}, 401
+            return data, 200
         else:
-            return (
-                {"message": "Bad request parameters"},
-                400,
-            )
+            return {"message": "Invalid email or password"}, 401
+  
 
 
 # user/auth/refresh_token
