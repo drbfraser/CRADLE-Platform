@@ -271,7 +271,7 @@ class UserTokenApi(Resource):
 
 
 
-# api/user/<int:id> [PUT]
+# api/user/<int:id> [GET, PUT]
 class UserApi(Resource):
 
     # edit user with id
@@ -285,7 +285,7 @@ class UserApi(Resource):
 
         #Parse the arguments that we want
         new_user = filterPairsWithNone(Userparser.parse_args()) 
-        print(new_user)
+        
 
         # Ensure that id is valid
         if(crud.read(User, id=id)) is None:
@@ -311,6 +311,41 @@ class UserApi(Resource):
         userDict.pop('password')
 
         return userDict
+
+    def get(self, id):
+
+        # Ensure we have id
+        if not id:
+            abort(400, message="User ID is required")
+        
+        # userDict = marshal.marshal(
+        #     crud.read(User, id=id)
+        # )
+
+        # # user = crud.read(User, id=id)
+        # user = User.query.filter_by(id=id).first()
+        # print(user.firstName)
+        # for item in user.vhtList:
+        #     print(item)
+
+        user = crud.read(User, id=id)
+
+        vhtList = []
+        
+        for user in user.vhtList:
+            vhtList.append(user.id)
+        
+        print(vhtList)
+
+        
+
+
+
+        # userDict.pop('password')
+
+        # return userDict
+
+
 
 
 # user/delete/<int:id>
