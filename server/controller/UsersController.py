@@ -163,7 +163,21 @@ class UserRegisterApi(Resource):
     def post(self):
 
         new_user = filterPairsWithNone(self.registerParser.parse_args())
-        return new_user, 200
+
+        # Ensure that email is unique
+        if(crud.read(User, email=new_user['email'])) is not None:
+            return {'message' : 'there is already a user with this email'}, 400
+
+        new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
+
+        userModel = marshal.unmarshal(User, new_user)
+
+        crud.create(userModel)
+
+        createdUser = marshal.marshal(crud.read(User, email=new_user['email']))
+        createdUser.pop('password')
+
+        return createdUser, 200
 
 
         # # register user endpoint

@@ -108,9 +108,12 @@ class Database:
         :return: A list containing dictionaries mapping column names to values or
                  ``None`` if the query returned no results
         """
+        print('Got here!')
         all_entries = self.table.query.all()
+        print('Got here too!')
         if all_entries:
             return self.models_to_list(all_entries)
+        print('Got here three!')
         return None
 
     def update(self, key: str, value: Any, new_data: dict) -> Optional[dict]:
