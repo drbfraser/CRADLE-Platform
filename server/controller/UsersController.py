@@ -81,9 +81,6 @@ class AdminPasswordChange(Resource):
     parser.add_argument(
         "password", type=str, required=True, help="This field cannot be left blank!"
     )
-    parser.add_argument(
-        "id", type=int, required=True, help="This field cannot be left blank!"
-    )
 
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/admin-change-pass.yml", methods=["POST"])
@@ -92,7 +89,7 @@ class AdminPasswordChange(Resource):
         data = self.parser.parse_args()
 
         # check if user exists
-        if not doesUserExist(data['id']):
+        if not doesUserExist(id):
             return {"message": "There is no user with this id"}, 400
 
         # check if password given is suitable
@@ -104,7 +101,7 @@ class AdminPasswordChange(Resource):
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
         # Update password
-        crud.update(User, data, id=data['id'])
+        crud.update(User, data, id=id)
 
         return {'message' : 'Success! Password has been changed'}, 200
 
