@@ -138,6 +138,7 @@ export const ManageUsers = () => {
         open={passwordPopupOpen}
         onClose={() => setPasswordPopupOpen(false)}
         userId={popupUser?.id ?? -1}
+        name={popupUser?.firstName ?? ""}
       />
       <MUIDataTable
         title="Users"

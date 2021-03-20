@@ -19,9 +19,10 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   userId: number;
+  name: string;
 }
 
-const ResetPassword = ({ open, onClose, userId }: IProps) => {
+const ResetPassword = ({ open, onClose, userId, name }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -59,7 +60,7 @@ const ResetPassword = ({ open, onClose, userId }: IProps) => {
         />
       )}
       <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-        <DialogTitle>Reset Password</DialogTitle>
+        <DialogTitle>Reset Password: {name}</DialogTitle>
         <DialogContent>
           {submitError && (
             <>
