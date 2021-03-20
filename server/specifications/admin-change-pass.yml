@@ -1,7 +1,13 @@
 Change a users password. Must be logged in as admin to use this.
 ---
 tags:
-  - Admin
+  - User
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
 requestBody:
   required: true
   content:
@@ -9,9 +15,6 @@ requestBody:
       schema:
         type: object
         properties:
-          id:
-            type: int
-            example: 2
           password:
             type: string
             example: hcw1234567
@@ -25,39 +28,9 @@ responses:
         schema:
           type: object
           properties:
-            healthFacilityName:
+            message:
               type: string
-              example: H0000
-            associations:
-              type: list
-              example: []
-            firstName:
-              type: string
-              example: Brian
-            email:
-              type: string
-              example: hcw@hcw.com
-            referrals:
-              type: list
-              example: []
-            id: 
-              type: int
-              example: 2
-            vhtList:
-              type: list
-              example: []
-            healthFacility: 
-              type: string
-              example: H0000
-            roleIds: 
-              type: list
-              example: [2]
-            followups: 
-              type: list
-              example: []
-            username: 
-              type: string
-              example: NULL
+              example: Success! Password has been changed 
   401:
     description: |
       Attempting to access this endpoint without being logged in as an administrator
