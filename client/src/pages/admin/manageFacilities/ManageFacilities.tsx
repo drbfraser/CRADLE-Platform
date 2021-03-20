@@ -118,6 +118,7 @@ export const ManageFacilities = () => {
         columns={columns}
         data={tableData}
         options={{
+          elevation: 0,
           search: false,
           download: false,
           print: false,
