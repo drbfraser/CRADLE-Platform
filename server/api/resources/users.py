@@ -350,7 +350,7 @@ class UserApi(Resource):
 
         return getDictionaryOfUserInfo(id)
 
-    @roles_required([RoleEnum.ADMIN])
+    #@roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-delete.yml", methods=["DELETE"])
     def delete(self, id):
 
@@ -359,7 +359,8 @@ class UserApi(Resource):
             abort(400, message="User ID is required")
 
         # Ensure that id is valid
-        if not doesUserExist(id):
+        user = crud.read(User, id=id)
+        if user is None:
             return {"message": "no user with this id"}, 400
 
         crud.delete(user)

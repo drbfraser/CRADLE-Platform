@@ -195,6 +195,7 @@ def create_user(email, name, password, hf_name, role):
         "firstName": name,
         "password": flask_bcrypt.generate_password_hash(password),
         "healthFacilityName": hf_name,
+        "role" : role,
     }
     user_schema = UserSchema()
     user_role = Role.query.filter_by(name=role).first()
