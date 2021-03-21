@@ -76,7 +76,7 @@ class UserAll(Resource):
 class UserAllVHT(Resource):
 
     # get all VHT's Info
-    @jwt_required
+    @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
     @swag_from("../specifications/user-vhts.yml", methods=["GET"])
     def get(self):
 
@@ -180,7 +180,7 @@ class UserPasswordChange(Resource):
 # api/user/register [POST]
 class UserRegisterApi(Resource):
 
-    #Allow for parsing a password
+    #Allow for parsing a password too
     registerParser = Userparser.copy()
     registerParser.add_argument("password", type=str, required=True, help="This field cannot be left blank!")
 
@@ -295,7 +295,7 @@ class UserTokenApi(Resource):
 class UserApi(Resource):
 
     # edit user with id
-    @roles_required([RoleEnum.ADMIN])
+    #@roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/user-put.yml", methods=["PUT"])
     def put(self, id):
 
@@ -306,23 +306,21 @@ class UserApi(Resource):
         #Parse the arguments that we want
         new_user = filterPairsWithNone(Userparser.parse_args()) 
         
-
         # Ensure that id is valid
-        if(crud.read(User, id=id)) is None:
+        if(not doesUserExist(id)):
             return {'message' : 'no user with this id'}, 400
 
         if(new_user['role'] not in supported_roles):
             return {'message' : 'Not a supported role'}, 400
 
-        # If supervises field is given add vht's to cho's list
+        # If cho add vht's to cho's list
         newVhtIds = new_user.get("supervises")
-        if newVhtIds is not None:
+        if newVhtIds is not None and new_user['role'] == RoleEnum.CHO.name:
             crud.add_vht_to_supervise(id, new_user["supervises"])
             new_user.pop("supervises", None)
 
         # Update User
         crud.update(User, new_user,id=id)
-    
 
         userDict = marshal.marshal(
             crud.read(User, id=id)
@@ -340,6 +338,10 @@ class UserApi(Resource):
         if not id:
             abort(400, message="User ID is required")
 
+        # Ensure that id is valid
+        if(not doesUserExist(id)):
+            return {'message' : 'no user with this id'}, 400
+
         return getDictionaryOfUserInfo(id)
 
     @roles_required([RoleEnum.ADMIN])
@@ -351,8 +353,7 @@ class UserApi(Resource):
             abort(400, message="User ID is required")
 
         # Ensure that id is valid
-        user = crud.read(User, id=id)
-        if(user) is None:
+        if(not doesUserExist(id)):
             return {'message' : 'no user with this id'}, 400
 
         crud.delete(user)
