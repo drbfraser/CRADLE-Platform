@@ -7,7 +7,6 @@ import api as new_api
 from controller.PasswordResetController import *
 from controller.SMSController import *
 from controller.PatientsController import *
-from controller.UsersController import *
 from api.resources.assessments import (
     Root as Assessments,
     SingleAssessment,
@@ -32,6 +31,7 @@ from api.resources.patients import (
 )
 from api.resources.readings import Root as Readings, SingleReading
 from api.resources.referrals import Root as Referrals, SingleReferral
+from api.resources.users import *
 
 
 def init(api):
