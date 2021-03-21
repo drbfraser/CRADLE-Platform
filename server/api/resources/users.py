@@ -50,7 +50,7 @@ for role in RoleEnum:
     supported_roles.append(role.name)
 
 
-# user/all [POST]
+# api/user/all [GET]
 class UserAll(Resource):
 
     # get all users
@@ -232,7 +232,7 @@ class UserRegisterApi(Resource):
         return createdUser, 200
 
 
-# user/auth [POST]
+# api/user/auth [POST]
 class UserAuthApi(Resource):
 
     parser = reqparse.RequestParser()
@@ -277,7 +277,7 @@ class UserAuthApi(Resource):
             return {"message": "Invalid email or password"}, 401
 
 
-# user/auth/refresh_token
+# api/user/auth/refresh_token
 class UserAuthTokenRefreshApi(Resource):
     @jwt_refresh_token_required
     @swag_from("../specifications/user-auth-refresh.yml", methods=["POST"])
