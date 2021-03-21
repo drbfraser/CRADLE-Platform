@@ -49,12 +49,30 @@ class UserAll(Resource):
     @jwt_required
     @swag_from("../specifications/user-all.yml", methods=["GET"])
     def get(self):
-        logging.debug("Received request: GET user/all")
 
-        users = userManager.read_all_no_password()
-        if users is None:
+        userModelList = crud.read_all(User)
+        userDictList = []
+
+        for user in userModelList:
+
+            userDict = marshal.marshal(user)
+            userDict.pop('password')
+            
+            userRole = userDict.get('role', None)  
+            if(userRole == RoleEnum.CHO.name):
+
+                vhtList = []
+
+                for vht in user.vhtList:
+                    vhtList.append(vht.id)
+
+                userDict['supervises'] = vhtList
+
+            userDictList.append(userDict)
+            
+        if userDictList is None:
             abort(404, message="No users currently exist.")
-        return users
+        return userDictList
 
 
 # api/user/vhts [GET]
