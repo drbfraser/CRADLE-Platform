@@ -5,6 +5,7 @@ import datetime
 import time
 import numpy as np
 import sys
+import json
 from random import randrange
 from datetime import timedelta, datetime
 from flask_script import Manager
@@ -121,13 +122,13 @@ def seed():
     print("Seeding health facilities...")
 
     healthfacility_schema = HealthFacilitySchema()
-    for index, hf in enumerate(healthFacilityList):
+    for index, hf in enumerate(facilityLocation["locations"]):
         hf_schema = {
-            "healthFacilityName": hf,
-            "healthFacilityPhoneNumber": facilityPhoneNumbers[index],
-            "facilityType": facilityType[randint(0, 3)],
-            "about": facilityAbout[randint(0, 3)],
-            "location": facilityLocation[index],
+            "healthFacilityName": getFacilityName(index),
+            "healthFacilityPhoneNumber": getFacilityPhoneNumber(hf["code"]),
+            "facilityType": getFacilityType(),
+            "about": getFacilityAbout(),
+            "location": hf["city"],
         }
         db.session.add(healthfacility_schema.load(hf_schema))
 
@@ -204,7 +205,6 @@ def seed():
                 " is doing fine!",
                 " is seeking urgent care!",
             ]
-            # TODO create more referrals
             if random.choice([True, False]):
                 referral1 = {
                     "userId": getRandomUser(),
@@ -404,36 +404,26 @@ def getDateTime(dateStr):
 
 def generatePhoneNumbers():
     prefix = "+256"
-    area_codes = [
-        414,
-        456,
-        434,
-        454,
-        464,
-        4644,
-        4654,
-        4714,
-        4734,
-        4764,
-        4814,
-        4834,
-        4854,
-        4864,
-        4895,
-    ]
+
+    area_codes = [loc["code"] for loc in facilityLocation["locations"]]
     n = len(area_codes)
     post_fixes = [
         "".join(["{}".format(randint(0, 9)) for num in range(0, 6)]) for x in range(n)
     ]
 
-    numbers = []
+    numbers = {}
     for i in range(n):
-        numbers.append(prefix + "-" + str(area_codes[i]) + "-" + post_fixes[i])
+        numbers[area_codes[i]] = prefix + "-" + str(area_codes[i]) + "-" + post_fixes[i]
+
     return numbers
 
 
+def getFacilityPhoneNumber(area_code):
+    return facilityPhoneNumbers[area_code]
+
+
 def generateHealthFacilities():
-    n = 15
+    n = len(facilityLocation["locations"])
     facilities = [
         "H" + "".join(["{}".format(randint(0, 9)) for num in range(0, 4)])
         for x in range(n)
@@ -442,7 +432,7 @@ def generateHealthFacilities():
 
 
 def generateVillages():
-    n = 15
+    n = len(facilityLocation["locations"])
     villages = [
         "1" + "".join(["{}".format(randint(0, 9)) for num in range(0, 3)])
         for x in range(n)
@@ -461,12 +451,28 @@ def getRandomDOB():
     return time.strftime(format, time.localtime(ptime))
 
 
+def getFacilityName(index):
+    return healthFacilityList[index]
+
+
+def getFacilityType():
+    return random.choice(facilityType)
+
+
+def getFacilityAbout():
+    return random.choice(facilityAbout)
+
+
 if __name__ == "__main__":
     NUM_OF_PATIENTS = 250
 
     patientList = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
     random.shuffle(patientList)
     patientList = list(map(str, patientList))
+
+    # Get cities
+    with open("./database/seed_data/cities.json") as f:
+        facilityLocation = json.load(f)
 
     usersList = [1, 2, 3, 4]
     villageList = generateVillages()
@@ -479,10 +485,6 @@ if __name__ == "__main__":
         "Has specialized equipment",
         "Urgent requests only",
     ]
-
-    # Get cities
-    f = open("./database/seed_data/cities.txt")
-    facilityLocation = [line.rstrip() for line in f.readlines()]
 
     facilityPhoneNumbers = generatePhoneNumbers()
 
