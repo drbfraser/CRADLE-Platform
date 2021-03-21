@@ -4,7 +4,7 @@ tags:
   - User
 responses:
   200:
-    description: A list of all users
+    description: A list of dictionaries containing information about all users
     content:
       application/json:
         schema:
@@ -14,31 +14,20 @@ responses:
             properties:
               email:
                 type: string
-                example: admin@admin.com
-              username:
+                example: cho@cho.com
+              role:
                 type: string
-              roleIds:
-                type: array
-                items: integer
-                example: [3]
-              followups:
-                type: array
-                items: integer
-                example: [1, 2, 3, 4]
+                example: CHO
               healthFacilityName:
                 type: string
-                example: H3445
+                example: H0000
               firstName:
                 type: string
                 example: Bob
-              vhtList:
+              supervises:
                 type: array
                 items: integer
                 example: [1, 2, 3]
-              referrals:
-                type: array
-                items: object
-                example: []
               id:
                 type: integer
-                example: 1
+                example: 3
