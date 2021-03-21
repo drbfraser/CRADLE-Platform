@@ -90,7 +90,6 @@ class User(db.Model):
         db.String(50), db.ForeignKey("healthfacility.healthFacilityName"), nullable=True
     )
 
-
     # RELATIONSHIPS
     healthFacility = db.relationship(
         "HealthFacility", backref=db.backref("users", lazy=True)

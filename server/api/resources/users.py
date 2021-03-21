@@ -26,13 +26,24 @@ from api.util import (
     doesUserExist,
 )
 
-#Building a parsert that will be used over several apis for Users
+# Building a parsert that will be used over several apis for Users
 Userparser = reqparse.RequestParser()
-Userparser.add_argument("email", type=str, required=True, help="This field cannot be left blank!")
-Userparser.add_argument("firstName", type=str, required=True, help="This field cannot be left blank!")
-Userparser.add_argument("healthFacilityName", type=str, required=True, help="This field cannot be left blank!")
-Userparser.add_argument("role", type=str, required=True, help="This field cannot be left blank!")
-Userparser.add_argument("supervises", type=int, action='append')
+Userparser.add_argument(
+    "email", type=str, required=True, help="This field cannot be left blank!"
+)
+Userparser.add_argument(
+    "firstName", type=str, required=True, help="This field cannot be left blank!"
+)
+Userparser.add_argument(
+    "healthFacilityName",
+    type=str,
+    required=True,
+    help="This field cannot be left blank!",
+)
+Userparser.add_argument(
+    "role", type=str, required=True, help="This field cannot be left blank!"
+)
+Userparser.add_argument("supervises", type=int, action="append")
 
 supported_roles = []
 for role in RoleEnum:
@@ -53,20 +64,20 @@ class UserAll(Resource):
         for user in userModelList:
 
             userDict = marshal.marshal(user)
-            userDict.pop('password')
-            
-            userRole = userDict.get('role', None)  
-            if(userRole == RoleEnum.CHO.name):
+            userDict.pop("password")
+
+            userRole = userDict.get("role", None)
+            if userRole == RoleEnum.CHO.name:
 
                 vhtList = []
 
                 for vht in user.vhtList:
                     vhtList.append(vht.id)
 
-                userDict['supervises'] = vhtList
+                userDict["supervises"] = vhtList
 
             userDictList.append(userDict)
-            
+
         if userDictList is None:
             abort(404, message="No users currently exist.")
         return userDictList
@@ -80,24 +91,23 @@ class UserAllVHT(Resource):
     @swag_from("../specifications/user-vhts.yml", methods=["GET"])
     def get(self):
 
-        vhtModelList = crud.find(User, User.role==RoleEnum.VHT.name)
+        vhtModelList = crud.find(User, User.role == RoleEnum.VHT.name)
 
         vhtDictionaryList = []
-        for vht in vhtModelList: 
+        for vht in vhtModelList:
             vhtDict = marshal.marshal(vht)
             vhtDictionaryList.append(
                 {
-                    "id":vht.id,
-                    "email" : vht.email, 
-                    "healthFacilityName" : vht.healthFacilityName,
-                    "firstName" : vht.firstName
+                    "id": vht.id,
+                    "email": vht.email,
+                    "healthFacilityName": vht.healthFacilityName,
+                    "firstName": vht.firstName,
                 }
             )
 
         if vhtDictionaryList is None:
             return []
         return vhtDictionaryList
-
 
 
 # api/user/{int:id}/change_pass [POST]
@@ -130,7 +140,7 @@ class AdminPasswordChange(Resource):
         # Update password
         crud.update(User, data, id=id)
 
-        return {'message' : 'Success! Password has been changed'}, 200
+        return {"message": "Success! Password has been changed"}, 200
 
 
 # /api/user/current/change_pass [POST]
@@ -158,7 +168,7 @@ class UserPasswordChange(Resource):
         identity = get_jwt_identity()
 
         # Get all information about the user who is using this endpoint
-        user = crud.read(User, id=identity['userId'])
+        user = crud.read(User, id=identity["userId"])
 
         # If old password and password we have on file match
         if user and flask_bcrypt.check_password_hash(
@@ -170,9 +180,9 @@ class UserPasswordChange(Resource):
             }
 
             # Perform update
-            crud.update(User, updated_payload, id=identity['userId'])
-    
-            return {'message' : 'Success! Password has been changed'}, 200
+            crud.update(User, updated_payload, id=identity["userId"])
+
+            return {"message": "Success! Password has been changed"}, 200
         else:
             return {"error": "old_password incorrect"}, 400
 
@@ -180,9 +190,11 @@ class UserPasswordChange(Resource):
 # api/user/register [POST]
 class UserRegisterApi(Resource):
 
-    #Allow for parsing a password too
+    # Allow for parsing a password too
     registerParser = Userparser.copy()
-    registerParser.add_argument("password", type=str, required=True, help="This field cannot be left blank!")
+    registerParser.add_argument(
+        "password", type=str, required=True, help="This field cannot be left blank!"
+    )
 
     # Create a new user
     @roles_required([RoleEnum.ADMIN])
@@ -193,28 +205,28 @@ class UserRegisterApi(Resource):
         new_user = filterPairsWithNone(self.registerParser.parse_args())
 
         # Ensure that email is unique
-        if(crud.read(User, email=new_user['email'])) is not None:
-            return {'message' : 'there is already a user with this email'}, 400
+        if (crud.read(User, email=new_user["email"])) is not None:
+            return {"message": "there is already a user with this email"}, 400
 
-        #Ensure that role is supported
-        if(new_user['role'] not in supported_roles):
-            return {'message' : 'Not a supported role'}, 400
+        # Ensure that role is supported
+        if new_user["role"] not in supported_roles:
+            return {"message": "Not a supported role"}, 400
 
-        #Encrypt pass
+        # Encrypt pass
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
-        listOfVhts = new_user.pop('supervises', None)
-        
-        #Create the new user
+        listOfVhts = new_user.pop("supervises", None)
+
+        # Create the new user
         userModel = marshal.unmarshal(User, new_user)
         crud.create(userModel)
 
-        #Viewing the results of the creation
-        createdUser = marshal.marshal(crud.read(User, email=new_user['email']))
-        createdUser.pop('password')
-        createdUserId = createdUser.get('id')
+        # Viewing the results of the creation
+        createdUser = marshal.marshal(crud.read(User, email=new_user["email"]))
+        createdUser.pop("password")
+        createdUserId = createdUser.get("id")
 
-        #Updating the supervises table if necessary as well
-        if(new_user['role'] == 'CHO' and listOfVhts is not None):
+        # Updating the supervises table if necessary as well
+        if new_user["role"] == "CHO" and listOfVhts is not None:
             crud.add_vht_to_supervise(createdUserId, listOfVhts)
 
         return createdUser, 200
@@ -237,9 +249,7 @@ class UserAuthApi(Resource):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
 
-        if user and flask_bcrypt.check_password_hash(
-            user.password, data["password"]
-        ):
+        if user and flask_bcrypt.check_password_hash(user.password, data["password"]):
             del data["password"]
 
             # setup any extra user params
@@ -265,7 +275,6 @@ class UserAuthApi(Resource):
             return data, 200
         else:
             return {"message": "Invalid email or password"}, 401
-  
 
 
 # user/auth/refresh_token
@@ -285,17 +294,16 @@ class UserTokenApi(Resource):
     @swag_from("../specifications/user-current.yml", methods=["GET"])
     def get(self):
         tokenData = get_jwt_identity()
-        userId = tokenData['userId']
+        userId = tokenData["userId"]
 
         return getDictionaryOfUserInfo(userId), 200
-
 
 
 # api/user/<int:id> [GET, PUT, DELETE]
 class UserApi(Resource):
 
     # edit user with id
-    #@roles_required([RoleEnum.ADMIN])
+    # @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/user-put.yml", methods=["PUT"])
     def put(self, id):
 
@@ -303,30 +311,28 @@ class UserApi(Resource):
         if not id:
             abort(400, message="User ID is required")
 
-        #Parse the arguments that we want
-        new_user = filterPairsWithNone(Userparser.parse_args()) 
-        
-        # Ensure that id is valid
-        if(not doesUserExist(id)):
-            return {'message' : 'no user with this id'}, 400
+        # Parse the arguments that we want
+        new_user = filterPairsWithNone(Userparser.parse_args())
 
-        if(new_user['role'] not in supported_roles):
-            return {'message' : 'Not a supported role'}, 400
+        # Ensure that id is valid
+        if not doesUserExist(id):
+            return {"message": "no user with this id"}, 400
+
+        if new_user["role"] not in supported_roles:
+            return {"message": "Not a supported role"}, 400
 
         # If cho add vht's to cho's list
         newVhtIds = new_user.get("supervises")
-        if newVhtIds is not None and new_user['role'] == RoleEnum.CHO.name:
+        if newVhtIds is not None and new_user["role"] == RoleEnum.CHO.name:
             crud.add_vht_to_supervise(id, new_user["supervises"])
             new_user.pop("supervises", None)
 
         # Update User
-        crud.update(User, new_user,id=id)
+        crud.update(User, new_user, id=id)
 
-        userDict = marshal.marshal(
-            crud.read(User, id=id)
-        )
+        userDict = marshal.marshal(crud.read(User, id=id))
 
-        userDict.pop('password')
+        userDict.pop("password")
 
         return userDict
 
@@ -339,8 +345,8 @@ class UserApi(Resource):
             abort(400, message="User ID is required")
 
         # Ensure that id is valid
-        if(not doesUserExist(id)):
-            return {'message' : 'no user with this id'}, 400
+        if not doesUserExist(id):
+            return {"message": "no user with this id"}, 400
 
         return getDictionaryOfUserInfo(id)
 
@@ -353,11 +359,9 @@ class UserApi(Resource):
             abort(400, message="User ID is required")
 
         # Ensure that id is valid
-        if(not doesUserExist(id)):
-            return {'message' : 'no user with this id'}, 400
+        if not doesUserExist(id):
+            return {"message": "no user with this id"}, 400
 
         crud.delete(user)
 
-        return {'message' : 'User deleted'}, 200
-
-            
+        return {"message": "User deleted"}, 200

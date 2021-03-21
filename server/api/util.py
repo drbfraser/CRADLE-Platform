@@ -123,40 +123,38 @@ def filterPairsWithNone(payload: dict) -> dict:
 
     return updated_data
 
+
 def getDictionaryOfUserInfo(id: int) -> dict:
 
-    '''
+    """
     Takes in an id and returns all of the information about a user from the users table
     and from the supervises table
 
     :param id: The user's id
-    '''
+    """
 
     user = crud.read(User, id=id)
     userDict = marshal.marshal(user)
 
-    #The vhtlist has to be marshalled manually
+    # The vhtlist has to be marshalled manually
     vhtList = []
     for user in user.vhtList:
         vhtList.append(user.id)
-    userDict['supervises'] = vhtList
+    userDict["supervises"] = vhtList
 
-    
-    userDict.pop('password')
+    userDict.pop("password")
     return userDict
 
+
 def doesUserExist(id: int) -> bool:
-    '''
+    """
     Takes in id of the user and does a read to see if this user exists or not.
     :param id: The user's id
 
-    '''
+    """
 
     user = crud.read(User, id=id)
     if user is None:
         return False
     else:
         return True
-
-
-
