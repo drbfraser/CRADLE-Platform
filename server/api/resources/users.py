@@ -55,7 +55,7 @@ class UserAll(Resource):
 
     # get all users
     @roles_required([RoleEnum.ADMIN])
-    @swag_from("../specifications/user-all.yml", methods=["GET"])
+    @swag_from("../../specifications/user-all.yml", methods=["GET"])
     def get(self):
 
         userModelList = crud.read_all(User)
@@ -88,7 +88,7 @@ class UserAllVHT(Resource):
 
     # get all VHT's Info
     @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
-    @swag_from("../specifications/user-vhts.yml", methods=["GET"])
+    @swag_from("../../specifications/user-vhts.yml", methods=["GET"])
     def get(self):
 
         vhtModelList = crud.find(User, User.role == RoleEnum.VHT.name)
@@ -120,7 +120,7 @@ class AdminPasswordChange(Resource):
     )
 
     @roles_required([RoleEnum.ADMIN])
-    @swag_from("../specifications/admin-change-pass.yml", methods=["POST"])
+    @swag_from("../../specifications/admin-change-pass.yml", methods=["POST"])
     def post(self, id):
 
         data = self.parser.parse_args()
@@ -155,7 +155,7 @@ class UserPasswordChange(Resource):
     )
 
     @jwt_required
-    @swag_from("../specifications/user-change-pass.yml", methods=["POST"])
+    @swag_from("../../specifications/user-change-pass.yml", methods=["POST"])
     def post(self):
         data = self.parser.parse_args()
 
@@ -198,7 +198,7 @@ class UserRegisterApi(Resource):
 
     # Create a new user
     @roles_required([RoleEnum.ADMIN])
-    @swag_from("../specifications/user-register.yml", methods=["POST"])
+    @swag_from("../../specifications/user-register.yml", methods=["POST"])
     def post(self):
 
         # Parse args
@@ -244,7 +244,7 @@ class UserAuthApi(Resource):
     )
 
     # login to account
-    @swag_from("../specifications/user-auth.yml", methods=["POST"])
+    @swag_from("../../specifications/user-auth.yml", methods=["POST"])
     def post(self):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
@@ -280,7 +280,7 @@ class UserAuthApi(Resource):
 # api/user/auth/refresh_token
 class UserAuthTokenRefreshApi(Resource):
     @jwt_refresh_token_required
-    @swag_from("../specifications/user-auth-refresh.yml", methods=["POST"])
+    @swag_from("../../specifications/user-auth-refresh.yml", methods=["POST"])
     def post(self):
         current_user = get_jwt_identity()
         new_token = create_access_token(identity=current_user, fresh=False)
@@ -291,7 +291,7 @@ class UserAuthTokenRefreshApi(Resource):
 # Get identity of current user with jwt token
 class UserTokenApi(Resource):
     @jwt_required
-    @swag_from("../specifications/user-current.yml", methods=["GET"])
+    @swag_from("../../specifications/user-current.yml", methods=["GET"])
     def get(self):
         tokenData = get_jwt_identity()
         userId = tokenData["userId"]
@@ -304,7 +304,7 @@ class UserApi(Resource):
 
     # edit user with id
     # @roles_required([RoleEnum.ADMIN])
-    @swag_from("../specifications/user-put.yml", methods=["PUT"])
+    @swag_from("../../specifications/user-put.yml", methods=["PUT"])
     def put(self, id):
 
         # Ensure we have id
@@ -337,7 +337,7 @@ class UserApi(Resource):
         return userDict
 
     @jwt_required
-    @swag_from("../specifications/user-get.yml", methods=["GET"])
+    @swag_from("../../specifications/user-get.yml", methods=["GET"])
     def get(self, id):
 
         # Ensure we have id
@@ -351,7 +351,7 @@ class UserApi(Resource):
         return getDictionaryOfUserInfo(id)
 
     @roles_required([RoleEnum.ADMIN])
-    @swag_from("../specifications/user-delete.yml", methods=["DELETE"])
+    @swag_from("../../specifications/user-delete.yml", methods=["DELETE"])
     def delete(self, id):
 
         # Ensure we have id
