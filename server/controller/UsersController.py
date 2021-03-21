@@ -26,10 +26,7 @@ from api.util import (
     doesUserExist,
 )
 
-userManager = UserManager()
-roleManager = RoleManager()
-
-
+#Building a parsert that will be used over several apis for Users
 Userparser = reqparse.RequestParser()
 Userparser.add_argument("email", type=str, required=True, help="This field cannot be left blank!")
 Userparser.add_argument("firstName", type=str, required=True, help="This field cannot be left blank!")
@@ -46,7 +43,7 @@ for role in RoleEnum:
 class UserAll(Resource):
 
     # get all users
-    @jwt_required
+    @roles_required([RoleEnum.ADMIN])
     @swag_from("../specifications/user-all.yml", methods=["GET"])
     def get(self):
 
