@@ -15,7 +15,8 @@
 
 #     d["firstNames"].append({"name":name, "sex":sex})
 
-import json 
+import json
+
 # with open ("names.json", "w") as f:
 #     json.dump(d, f,indent=4)
 
@@ -29,7 +30,8 @@ def getNames():
 fnames, lnames = getNames()
 
 import random
+
 person = random.choice(fnames)
 name, sex = person["name"], person["sex"]
 
-print(name,sex)
+print(name, sex)

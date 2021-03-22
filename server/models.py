@@ -456,6 +456,7 @@ user_schema = {
     "additionalProperties": False,
 }
 
+
 class VillageSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True

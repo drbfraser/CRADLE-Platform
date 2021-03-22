@@ -118,15 +118,14 @@ def seed_test_data():
 def seed():
     start = time.time()
 
-    # SEED villages 
-    print ("Seeding Villages...")
+    # SEED villages
+    print("Seeding Villages...")
     village_schema = VillageSchema()
-    for village in villageList: 
+    for village in villageList:
         v_schema = {
             "villageNumber": village,
         }
         db.session.add(village_schema.load(v_schema))
-
 
     # SEED health facilities
     print("Seeding health facilities...")
@@ -401,7 +400,7 @@ def getNames():
     with open("./database/seed_data/names.json") as f:
         names = json.load(f)
         return names["firstNames"], names["lastNames"]
-    
+
 
 def getDateTime(dateStr):
     return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
