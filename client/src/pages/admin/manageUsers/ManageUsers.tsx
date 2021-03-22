@@ -4,7 +4,13 @@ import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import MUIDataTable from 'mui-datatables';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, IconButton, TextField, Tooltip } from '@material-ui/core';
+import {
+  Button,
+  LinearProgress,
+  IconButton,
+  TextField,
+  Tooltip,
+} from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForever from '@material-ui/icons/DeleteForever';
@@ -35,6 +41,7 @@ export const ManageUsers = () => {
   const currentUserId = useSelector<ReduxState>(
     (state) => state.user.current.data!.userId
   ) as number;
+  const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [users, setUsers] = useState<IUserGet[]>([]);
   const [search, setSearch] = useState('');
@@ -51,6 +58,7 @@ export const ManageUsers = () => {
       ).json();
 
       setUsers(resp);
+      setLoading(false);
     } catch (e) {
       setErrorLoading(true);
     }
@@ -214,6 +222,15 @@ export const ManageUsers = () => {
           responsive: 'standard',
           customToolbar: Toolbar,
           customRowRender: (row, i) => <Row key={i} row={row} />,
+          textLabels: {
+            body: {
+              noMatch: loading ? (
+                <LinearProgress />
+              ) : (
+                'Sorry, no matching users found.'
+              ),
+            },
+          },
         }}
       />
     </div>

@@ -4,7 +4,13 @@ import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import MUIDataTable from 'mui-datatables';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, IconButton, TextField, Tooltip } from '@material-ui/core';
+import {
+  Button,
+  IconButton,
+  LinearProgress,
+  TextField,
+  Tooltip,
+} from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import { Toast } from 'src/shared/components/toast';
@@ -28,6 +34,7 @@ const columns = [
 export const ManageFacilities = () => {
   const styles = useStyles();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [search, setSearch] = useState('');
@@ -40,7 +47,9 @@ export const ManageFacilities = () => {
       const resp: IFacility[] = await (
         await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES)
       ).json();
+
       setFacilities(resp);
+      setLoading(false);
     } catch (e) {
       setErrorLoading(true);
     }
@@ -159,6 +168,15 @@ export const ManageFacilities = () => {
           responsive: 'standard',
           customToolbar: Toolbar,
           customRowRender: (row, i) => <Row key={i} row={row} />,
+          textLabels: {
+            body: {
+              noMatch: loading ? (
+                <LinearProgress />
+              ) : (
+                'Sorry, no matching facilities found.'
+              ),
+            },
+          },
         }}
       />
     </div>
