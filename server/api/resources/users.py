@@ -65,7 +65,7 @@ class UserAll(Resource):
 
             userDict = marshal.marshal(user)
             userDict.pop("password")
-            
+
             vhtList = []
 
             for vht in user.vhtList:
