@@ -34,7 +34,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const creatingNew = editUser === undefined;
   const emailsInUse = users
-    .filter((u) => u.id != editUser?.id)
+    .filter((u) => u.id !== editUser?.id)
     .map((u) => u.email);
 
   const handleSubmit = async (

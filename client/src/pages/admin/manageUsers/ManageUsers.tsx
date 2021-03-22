@@ -4,7 +4,7 @@ import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import MUIDataTable from 'mui-datatables';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, IconButton, Tooltip } from '@material-ui/core';
+import { Button, IconButton, TextField, Tooltip } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForever from '@material-ui/icons/DeleteForever';
@@ -37,6 +37,7 @@ export const ManageUsers = () => {
   ) as number;
   const [errorLoading, setErrorLoading] = useState(false);
   const [users, setUsers] = useState<IUserGet[]>([]);
+  const [search, setSearch] = useState('');
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
@@ -60,29 +61,53 @@ export const ManageUsers = () => {
   }, []);
 
   useEffect(() => {
-    const rows = users.map((u, idx) => [
-      u.firstName,
-      u.email,
-      u.healthFacilityName,
-      u.roleIds.join(', '),
-      idx,
-    ]);
-    setTableData(rows);
-  }, [users]);
+    const searchLowerCase = search.toLowerCase().trim();
 
-  const CreateUserButton = () => (
-    <Button
-      className={styles.button}
-      color="primary"
-      variant="contained"
-      size="large"
-      onClick={() => {
-        setPopupUser(undefined);
-        setEditPopupOpen(true);
-      }}>
-      <AddIcon />
-      New User
-    </Button>
+    const userFilter = (user: IUserGet) => {
+      return (
+        user.firstName.toLowerCase().startsWith(searchLowerCase) ||
+        user.email.toLowerCase().startsWith(searchLowerCase) ||
+        user.healthFacilityName.toLowerCase().startsWith(searchLowerCase)
+      );
+    };
+
+    const rows = users
+      .filter(userFilter)
+      .map((u, idx) => [
+        u.firstName,
+        u.email,
+        u.healthFacilityName,
+        u.roleIds.join(', '),
+        idx,
+      ]);
+
+    setTableData(rows);
+  }, [users, search]);
+
+  const Toolbar = () => (
+    <>
+      <TextField
+        type="text"
+        variant="outlined"
+        size="small"
+        placeholder="Search..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      &nbsp; &nbsp;
+      <Button
+        className={styles.button}
+        color="primary"
+        variant="contained"
+        size="large"
+        onClick={() => {
+          setPopupUser(undefined);
+          setEditPopupOpen(true);
+        }}>
+        <AddIcon />
+        New User
+      </Button>
+    </>
   );
 
   const rowActions = [
@@ -187,7 +212,7 @@ export const ManageUsers = () => {
           selectableRows: 'none',
           rowHover: false,
           responsive: 'standard',
-          customToolbar: () => <CreateUserButton />,
+          customToolbar: Toolbar,
           customRowRender: (row, i) => <Row key={i} row={row} />,
         }}
       />

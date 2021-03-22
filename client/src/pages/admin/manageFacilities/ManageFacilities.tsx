@@ -4,7 +4,7 @@ import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import MUIDataTable from 'mui-datatables';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, IconButton, Tooltip } from '@material-ui/core';
+import { Button, IconButton, TextField, Tooltip } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import { Toast } from 'src/shared/components/toast';
@@ -30,6 +30,7 @@ export const ManageFacilities = () => {
   const dispatch = useDispatch();
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
+  const [search, setSearch] = useState('');
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
@@ -50,28 +51,50 @@ export const ManageFacilities = () => {
   }, []);
 
   useEffect(() => {
-    const rows = facilities.map((f, idx) => [
-      f.healthFacilityName,
-      f.healthFacilityPhoneNumber,
-      f.location,
-      idx,
-    ]);
-    setTableData(rows);
-  }, [facilities]);
+    const searchLowerCase = search.toLowerCase().trim();
 
-  const CreateFacilityButton = () => (
-    <Button
-      className={styles.button}
-      color="primary"
-      variant="contained"
-      size="large"
-      onClick={() => {
-        setFacilityToEdit(undefined);
-        setEditPopupOpen(true);
-      }}>
-      <AddIcon />
-      New Facility
-    </Button>
+    const facilityFilter = (facility: IFacility) => {
+      return (
+        facility.healthFacilityName.toLowerCase().startsWith(searchLowerCase) ||
+        facility.location.toLowerCase().startsWith(searchLowerCase)
+      );
+    };
+
+    const rows = facilities
+      .filter(facilityFilter)
+      .map((f, idx) => [
+        f.healthFacilityName,
+        f.healthFacilityPhoneNumber,
+        f.location,
+        idx,
+      ]);
+    setTableData(rows);
+  }, [facilities, search]);
+
+  const Toolbar = () => (
+    <>
+      <TextField
+        type="text"
+        variant="outlined"
+        size="small"
+        placeholder="Search..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      &nbsp; &nbsp;
+      <Button
+        className={styles.button}
+        color="primary"
+        variant="contained"
+        size="large"
+        onClick={() => {
+          setFacilityToEdit(undefined);
+          setEditPopupOpen(true);
+        }}>
+        <AddIcon />
+        New Facility
+      </Button>
+    </>
   );
 
   const Row = ({ row }: { row: (string | number)[] }) => {
@@ -134,7 +157,7 @@ export const ManageFacilities = () => {
           selectableRows: 'none',
           rowHover: false,
           responsive: 'standard',
-          customToolbar: () => <CreateFacilityButton />,
+          customToolbar: Toolbar,
           customRowRender: (row, i) => <Row key={i} row={row} />,
         }}
       />
