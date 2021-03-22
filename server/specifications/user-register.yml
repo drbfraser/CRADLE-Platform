@@ -25,6 +25,11 @@ requestBody:
             type: string
             enum: [ADMIN, HCW, VHT, CHO]
             example: CHO
+          supervises:
+            type: array
+            items: integer
+            example: [2]
+
 responses:
   200:
     description: OK

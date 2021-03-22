@@ -44,7 +44,7 @@ responses:
               example: test@cho.com
             role:
               type: string
-              example: HCW
+              example: CHO
             firstName:
               type: string
               example: Bob
