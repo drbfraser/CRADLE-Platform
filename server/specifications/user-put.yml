@@ -54,3 +54,7 @@ responses:
             id:
               type: integer
               example: 3
+            supervises:
+              type: array
+              items: integer
+              example: [2]

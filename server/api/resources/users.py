@@ -76,7 +76,7 @@ class UserAll(Resource):
             userDictList.append(userDict)
 
         if userDictList is None:
-            abort(404, message="No users currently exist.")
+            return {"message": "no users currently exist"}, 404
         return userDictList
 
 
@@ -306,7 +306,7 @@ class UserApi(Resource):
 
         # Ensure we have id
         if not id:
-            abort(400, message="User ID is required")
+            return {"message": "must provide an id"}, 400
 
         # Parse the arguments that we want
         new_user = filterPairsWithNone(UserParser.parse_args())
@@ -327,11 +327,7 @@ class UserApi(Resource):
         # Update User
         crud.update(User, new_user, id=id)
 
-        userDict = marshal.marshal(crud.read(User, id=id))
-
-        userDict.pop("password")
-
-        return userDict
+        return getDictionaryOfUserInfo(id)
 
     @jwt_required
     @swag_from("../../specifications/user-get.yml", methods=["GET"])
@@ -339,7 +335,7 @@ class UserApi(Resource):
 
         # Ensure we have id
         if not id:
-            abort(400, message="User ID is required")
+            return {"message": "must provide an id"}, 400
 
         # Ensure that id is valid
         if not doesUserExist(id):
@@ -353,7 +349,7 @@ class UserApi(Resource):
 
         # Ensure we have id
         if not id:
-            abort(400, message="User ID is required")
+            return {"message": "must provide an id"}, 400
 
         # Ensure that id is valid
         user = crud.read(User, id=id)
