@@ -125,7 +125,7 @@ def seed():
     for index, hf in enumerate(facilityLocation["locations"]):
         hf_schema = {
             "healthFacilityName": getFacilityName(index),
-            "healthFacilityPhoneNumber": getFacilityPhoneNumber(hf["code"]),
+            "healthFacilityPhoneNumber": getFacilityPhoneNumber(hf["areaCode"]),
             "facilityType": getFacilityType(),
             "about": getFacilityAbout(),
             "location": hf["city"],
@@ -140,14 +140,13 @@ def seed():
     reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
 
-    fnames, lnames = getRandomNameAndSex()
+    fnames, lnames = getNames()
 
     for count, patientId in enumerate(patientList):
         # get random patient
-        person = randint(0, len(fnames) - 1)
-        name, sex = fnames[person].split(" - ")
-        sex = sex.rstrip()
-        lname = lnames[randint(0, len(lnames) - 1)].rstrip()
+        person = random.choice(fnames)
+        name, sex = person["name"], person["sex"]
+        lname = random.choice(lnames)
 
         if sex == SexEnum.MALE.value:
             pregnant = False
@@ -388,15 +387,11 @@ def generateRandomReadingID():
     return reading_id
 
 
-def getRandomNameAndSex():
-    fnames = open("./database/seed_data/names.txt")
-    lnames = open("./database/seed_data/lastnames.txt")
-
-    fnames = fnames.readlines()
-    lnames = lnames.readlines()
-
-    return fnames, lnames
-
+def getNames():
+    with open("./database/seed_data/names.json") as f:
+        names = json.load(f)
+        return names["firstNames"], names["lastNames"]
+    
 
 def getDateTime(dateStr):
     return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
@@ -405,7 +400,7 @@ def getDateTime(dateStr):
 def generatePhoneNumbers():
     prefix = "+256"
 
-    area_codes = [loc["code"] for loc in facilityLocation["locations"]]
+    area_codes = [loc["areaCode"] for loc in facilityLocation["locations"]]
     n = len(area_codes)
     post_fixes = [
         "".join(["{}".format(randint(0, 9)) for num in range(0, 6)]) for x in range(n)

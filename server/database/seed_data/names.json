@@ -1,0 +1,393 @@
+{
+    "firstNames": [
+        {
+            "name": "Abena",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Ada",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Adah",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Adana",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Adanna",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Adanya",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Alika",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Ama",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Amadi",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Amai",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Amare",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Amari",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Ami",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Amina",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Asha",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Bahati",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Bibsbebe",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Binah",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Binta",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Bisa",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Bolanle",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Bunme",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Jamila",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Kali",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Latrice",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Lulu",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Machelle",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Malika",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Makena",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Nala",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Neema",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Sarama",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Tamala",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Tayla",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Zina",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Zuri",
+            "sex": "FEMALE"
+        },
+        {
+            "name": "Armani",
+            "sex": "MALE"
+        },
+        {
+            "name": "Ashanti",
+            "sex": "MALE"
+        },
+        {
+            "name": "Imani",
+            "sex": "MALE"
+        },
+        {
+            "name": "Ivory",
+            "sex": "MALE"
+        },
+        {
+            "name": "Chike",
+            "sex": "MALE"
+        },
+        {
+            "name": "Dakarai",
+            "sex": "MALE"
+        },
+        {
+            "name": "Davu",
+            "sex": "MALE"
+        },
+        {
+            "name": "Ekon",
+            "sex": "MALE"
+        },
+        {
+            "name": "Hamidi",
+            "sex": "MALE"
+        },
+        {
+            "name": "Issa",
+            "sex": "MALE"
+        },
+        {
+            "name": "Jabari",
+            "sex": "MALE"
+        },
+        {
+            "name": "Kasim",
+            "sex": "MALE"
+        },
+        {
+            "name": "Kellan",
+            "sex": "MALE"
+        },
+        {
+            "name": "Kendi",
+            "sex": "MALE"
+        },
+        {
+            "name": "Kwame",
+            "sex": "MALE"
+        },
+        {
+            "name": "Mosi",
+            "sex": "MALE"
+        },
+        {
+            "name": "Odion",
+            "sex": "MALE"
+        },
+        {
+            "name": "Omari",
+            "sex": "MALE"
+        },
+        {
+            "name": "Salim",
+            "sex": "MALE"
+        },
+        {
+            "name": "Saleem",
+            "sex": "MALE"
+        },
+        {
+            "name": "Taj",
+            "sex": "MALE"
+        },
+        {
+            "name": "Zain",
+            "sex": "MALE"
+        },
+        {
+            "name": "Senegal",
+            "sex": "MALE"
+        },
+        {
+            "name": "Abayomi",
+            "sex": "MALE"
+        },
+        {
+            "name": "Abiola",
+            "sex": "MALE"
+        },
+        {
+            "name": "Ade",
+            "sex": "MALE"
+        },
+        {
+            "name": "Adeben",
+            "sex": "MALE"
+        },
+        {
+            "name": "Amarey",
+            "sex": "MALE"
+        },
+        {
+            "name": "Aren",
+            "sex": "MALE"
+        },
+        {
+            "name": "Azibo",
+            "sex": "MALE"
+        },
+        {
+            "name": "Bobo",
+            "sex": "MALE"
+        }
+    ],
+    "lastNames": [
+        "Abara",
+        "Abebe",
+        "Abimbola",
+        "Abiodun",
+        "Abioye",
+        "Acheampong",
+        "Achebe",
+        "Adebayo",
+        "Adebisi",
+        "Adebowale",
+        "Adeleke",
+        "Adegoke",
+        "Adekunle",
+        "Adelakun",
+        "Ademola",
+        "Adesina",
+        "Adesiyan",
+        "Adeyemi",
+        "Adisa",
+        "Afia",
+        "Afolabi",
+        "Afolayan",
+        "Agrinya",
+        "Agu",
+        "Aguta",
+        "Agwuegbo",
+        "Akinjide",
+        "Akintola",
+        "Akinyemi",
+        "Akpabio",
+        "Aku",
+        "Alaneme",
+        "Alasa",
+        "Alioune",
+        "Amaechi",
+        "Amaike",
+        "Ameziane",
+        "Anenih",
+        "Aniefuna",
+        "Anotidaishe",
+        "Apara",
+        "Asaju",
+        "Awolowo",
+        "Babangida",
+        "Bankole",
+        "Banmeke",
+        "Biobaku",
+        "Buhle",
+        "Chamapiwa",
+        "Chidozie",
+        "Chidubem",
+        "Chuke",
+        "Chukwunyelu",
+        "Dogo",
+        "Eesuola",
+        "Egebe",
+        "Eke",
+        "Ele",
+        "Emem",
+        "Etienam",
+        "Falade",
+        "Folorunsho",
+        "Furaha",
+        "Gcobani",
+        "Gowon",
+        "Igbinedion",
+        "Igwe",
+        "Ihejirika",
+        "Jelani",
+        "Kanye",
+        "Keita",
+        "Kenyatta",
+        "Kikelomo",
+        "Ladipo",
+        "Mensah",
+        "Mmeremikwu",
+        "Mwanajuma",
+        "Ndiaye",
+        "Nenge",
+        "Nnadi",
+        "Nnamani",
+        "Nwachukwu",
+        "Nwadike",
+        "Obama",
+        "Obi",
+        "Obiakolam",
+        "Okiro",
+        "Okoro",
+        "Okoye",
+        "Okpara",
+        "Okusanya",
+        "Oladele",
+        "Oladoyinbo",
+        "Olanrewaju",
+        "Olatunji",
+        "Olowe",
+        "Oluwusi",
+        "Omenma",
+        "Omenuko",
+        "Onai",
+        "Onyeneme",
+        "Onyilogwu",
+        "Opeyemi",
+        "Orji",
+        "Osei",
+        "Otueome",
+        "Owusu",
+        "Oyekan",
+        "Oyinlola",
+        "Popoola",
+        "Sarpong",
+        "Selassie",
+        "Temitope",
+        "Tersoo",
+        "Toure",
+        "Uduike",
+        "Umburter",
+        "Zadzisai",
+        "Zivai"
+    ]
+}
