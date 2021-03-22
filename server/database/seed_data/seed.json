@@ -389,5 +389,67 @@
         "Umburter",
         "Zadzisai",
         "Zivai"
+    ],
+    "locations":[
+        {
+            "city":"Kampala",
+            "areaCode":414
+        },
+        {
+            "city":"Kaliro",
+            "areaCode":456
+        },
+        {
+            "city":"Jinja",
+            "areaCode":434
+        },
+        {
+            "city":"Mbale",
+            "areaCode":454
+        },
+        {
+            "city":"Mityana",
+            "areaCode":464
+        },
+        {
+            "city":"Mubende",
+            "areaCode":4644
+        },
+        {
+            "city":"Masindi",
+            "areaCode":4654
+        },
+        {
+            "city":"Gulu",
+            "areaCode":4714
+        },
+        {
+            "city":"Lira",
+            "areaCode":4734
+        },
+        {
+            "city":"Arua",
+            "areaCode":4764
+        },
+        {
+            "city":"Masaka",
+            "areaCode":4814
+        },
+        {
+            "city":"Fort Portal",
+            "areaCode":4834
+        },
+        {
+            "city":"Mbarara",
+            "areaCode":4854
+        },
+        {
+            "city":"Kabale",
+            "areaCode":4864
+        },
+        {
+            "city":"Iganga",
+            "areaCode":4895
+        }
     ]
 }

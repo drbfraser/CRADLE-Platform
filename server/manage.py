@@ -131,7 +131,7 @@ def seed():
     print("Seeding health facilities...")
 
     healthfacility_schema = HealthFacilitySchema()
-    for index, hf in enumerate(facilityLocation["locations"]):
+    for index, hf in enumerate(facilityLocations):
         hf_schema = {
             "healthFacilityName": getFacilityName(index),
             "healthFacilityPhoneNumber": getFacilityPhoneNumber(hf["areaCode"]),
@@ -397,7 +397,7 @@ def generateRandomReadingID():
 
 
 def getNames():
-    with open("./database/seed_data/names.json") as f:
+    with open("./database/seed_data/seed.json") as f:
         names = json.load(f)
         return names["firstNames"], names["lastNames"]
 
@@ -409,7 +409,7 @@ def getDateTime(dateStr):
 def generatePhoneNumbers():
     prefix = "+256"
 
-    area_codes = [loc["areaCode"] for loc in facilityLocation["locations"]]
+    area_codes = [loc["areaCode"] for loc in facilityLocations]
     n = len(area_codes)
     post_fixes = [
         "".join(["{}".format(randint(0, 9)) for num in range(0, 6)]) for x in range(n)
@@ -427,7 +427,7 @@ def getFacilityPhoneNumber(area_code):
 
 
 def generateHealthFacilities():
-    n = len(facilityLocation["locations"])
+    n = len(facilityLocations)
     facilities = [
         "H" + "".join(["{}".format(randint(0, 9)) for num in range(0, 4)])
         for x in range(n)
@@ -436,7 +436,7 @@ def generateHealthFacilities():
 
 
 def generateVillages():
-    n = len(facilityLocation["locations"])
+    n = len(facilityLocations)
     villages = [
         "1" + "".join(["{}".format(randint(0, 9)) for num in range(0, 3)])
         for x in range(n)
@@ -475,8 +475,8 @@ if __name__ == "__main__":
     patientList = list(map(str, patientList))
 
     # Get cities
-    with open("./database/seed_data/cities.json") as f:
-        facilityLocation = json.load(f)
+    with open("./database/seed_data/seed.json") as f:
+        facilityLocations = json.load(f)["locations"]
 
     usersList = [1, 2, 3, 4]
     villageList = generateVillages()
