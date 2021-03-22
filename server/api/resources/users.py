@@ -26,24 +26,24 @@ from api.util import (
     doesUserExist,
 )
 
-# Building a parsert that will be used over several apis for Users
-Userparser = reqparse.RequestParser()
-Userparser.add_argument(
+# Building a parser that will be used over several apis for Users
+UserParser = reqparse.RequestParser()
+UserParser.add_argument(
     "email", type=str, required=True, help="This field cannot be left blank!"
 )
-Userparser.add_argument(
+UserParser.add_argument(
     "firstName", type=str, required=True, help="This field cannot be left blank!"
 )
-Userparser.add_argument(
+UserParser.add_argument(
     "healthFacilityName",
     type=str,
     required=True,
     help="This field cannot be left blank!",
 )
-Userparser.add_argument(
+UserParser.add_argument(
     "role", type=str, required=True, help="This field cannot be left blank!"
 )
-Userparser.add_argument("supervises", type=int, action="append")
+UserParser.add_argument("supervises", type=int, action="append")
 
 supported_roles = []
 for role in RoleEnum:
@@ -65,16 +65,13 @@ class UserAll(Resource):
 
             userDict = marshal.marshal(user)
             userDict.pop("password")
+            
+            vhtList = []
 
-            userRole = userDict.get("role", None)
-            if userRole == RoleEnum.CHO.name:
+            for vht in user.vhtList:
+                vhtList.append(vht.id)
 
-                vhtList = []
-
-                for vht in user.vhtList:
-                    vhtList.append(vht.id)
-
-                userDict["supervises"] = vhtList
+            userDict["supervises"] = vhtList
 
             userDictList.append(userDict)
 
@@ -191,7 +188,7 @@ class UserPasswordChange(Resource):
 class UserRegisterApi(Resource):
 
     # Allow for parsing a password too
-    registerParser = Userparser.copy()
+    registerParser = UserParser.copy()
     registerParser.add_argument(
         "password", type=str, required=True, help="This field cannot be left blank!"
     )
@@ -312,7 +309,7 @@ class UserApi(Resource):
             abort(400, message="User ID is required")
 
         # Parse the arguments that we want
-        new_user = filterPairsWithNone(Userparser.parse_args())
+        new_user = filterPairsWithNone(UserParser.parse_args())
 
         # Ensure that id is valid
         if not doesUserExist(id):

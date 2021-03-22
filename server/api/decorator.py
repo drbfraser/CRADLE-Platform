@@ -20,7 +20,7 @@ def roles_required(accepted_roles):
             user_info = get_jwt_identity()
             user_has_permissions = False
 
-            # Check that at least one of the accepted roles is in the JWT.
+            # Check that one of the accepted roles is in the JWT.
             for role in accepted_roles:
                 if role.name == user_info["role"]:
                     user_has_permissions = True
