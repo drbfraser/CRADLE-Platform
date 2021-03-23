@@ -224,7 +224,7 @@ class UserRegisterApi(Resource):
         createdUser.pop("password")
         createdUserId = createdUser.get("id")
 
-        #Calling the id, userId for uniformity in the response
+        # Calling the id, userId for uniformity in the response
         createdUser["userId"] = createdUser["id"]
         createdUserId = createdUser.pop("id")
 
@@ -302,7 +302,7 @@ class UserTokenApi(Resource):
         return getDictionaryOfUserInfo(userId), 200
 
 
-# api/user/<int:id> [GET, PUT, DELETE]
+# api/user/<int:userId> [GET, PUT, DELETE]
 class UserApi(Resource):
 
     # edit user with id

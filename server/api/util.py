@@ -144,7 +144,7 @@ def getDictionaryOfUserInfo(id: int) -> dict:
 
     userDict.pop("password")
 
-    #Just for uniformity in the names of the keys
+    # Just for uniformity in the names of the keys
     userDict["userId"] = userDict["id"]
     userDict.pop("id")
 
