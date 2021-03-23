@@ -313,16 +313,19 @@ def add_vht_to_supervise(cho_id: int, vht_ids: List):
     # find the cho
     cho = User.query.filter_by(id=cho_id).first()
 
-    # check CHO role is actually CHO
-
     cho.vhtList = []
     db_session.commit()
+
+    # Allows for removing all vhts from supervisee list
+    if vht_ids is None:
+        return
 
     # add vhts to CHO's vhtList
     for vht_id in vht_ids:
         vht = User.query.filter_by(id=vht_id).first()
         cho.vhtList.append(vht)
         db_session.add(cho)
+
     db_session.commit()
 
 
