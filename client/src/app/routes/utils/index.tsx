@@ -1,24 +1,22 @@
-import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { AdminPage } from '../../../pages/admin';
-import { CovidCollectionPage } from '../../../pages/statistics/covidCollection';
-import { LoginPage } from '../../../pages/login';
-import { NewReading } from '../../../pages/newReading';
-import { NotFoundPage } from '../../../pages/notFound';
-import { PatientPage } from '../../../pages/patient';
-import { PatientsPage } from '../../../pages/patients';
+import { AdminPage } from 'src/pages/admin';
+import { LoginPage } from 'src/pages/login';
+import { NotFoundPage } from 'src/pages/notFound';
+import { PatientPage } from 'src/pages/patient';
+import { PatientsPage } from 'src/pages/patients';
 import React from 'react';
-import { ReferralsPage } from '../../../pages/referrals';
-import { ResourcesPage } from '../../../pages/resources';
+import { ReferralsPage } from 'src/pages/referrals';
+import { ResourcesPage } from 'src/pages/resources';
 import { RouteComponentProps } from 'react-router-dom';
 import SchoolIcon from '@material-ui/icons/School';
 import SendIcon from '@material-ui/icons/Send';
 import SettingsIcon from '@material-ui/icons/Settings';
-import { StatisticsPage } from '../../../pages/statistics';
+import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import { VideoChatPage } from '../../../pages/videoChat';
-import { VideoSessionPage } from '../../../pages/videoSession';
-import VideocamIcon from '@material-ui/icons/Videocam';
-import { makeUniqueId } from '../../../shared/utils';
+import { makeUniqueId } from 'src/shared/utils';
+import { AssessmentFormPage } from 'src/pages/assessmentForm';
+import { PatientFormPage } from 'src/pages/patientForm';
+import { ReadingFormPage } from 'src/pages/readingForm';
+import PollIcon from '@material-ui/icons/Poll';
 
 export type AppRoute = {
   component:
@@ -37,15 +35,44 @@ export type AppRoute = {
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
   {
-    component: NewReading,
+    component: PatientFormPage,
     exactPath: true,
     id: makeUniqueId(),
-    icon: <AddCircleIcon fontSize="large" />,
-    inNavigation: true,
-    name: `Reading`,
+    inNavigation: false,
     private: true,
-    title: `Patient & Reading`,
-    to: `/readings/new`,
+    to: `/patients/new`,
+  },
+  {
+    component: PatientFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/patients/edit/:patientId`,
+  },
+  {
+    component: ReadingFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/readings/new/:patientId`,
+  },
+  {
+    component: AssessmentFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/assessments/new/:readingId`,
+  },
+  {
+    component: AssessmentFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/assessments/edit/:readingId/:assessmentId`,
   },
   {
     component: ReferralsPage,
@@ -70,15 +97,15 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients`,
   },
   {
-    component: VideoChatPage,
+    component: StatisticsPage,
     exactPath: true,
     id: makeUniqueId(),
-    icon: <VideocamIcon fontSize="large" />,
+    icon: <PollIcon fontSize="large" />,
     inNavigation: true,
-    name: `Chat`,
+    name: `Statistics`,
     private: true,
-    title: `Live Video Chat`,
-    to: `/chat`,
+    title: `Statistics`,
+    to: `/stats`,
   },
   {
     component: ResourcesPage,
@@ -127,30 +154,6 @@ export const appRoutes: Array<AppRoute> = [
     to: `/login`,
   },
   {
-    component: StatisticsPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/stats`,
-  },
-  {
-    component: CovidCollectionPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/covid/collection`,
-  },
-  {
-    component: VideoSessionPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/chat/:roomId`,
-  },
-  {
     component: NotFoundPage,
     exactPath: false,
     id: makeUniqueId(),
@@ -163,12 +166,7 @@ type RoutesNames = Record<string, string>;
 
 export const routesNames: RoutesNames = appRoutes.reduce(
   (routes: RoutesNames, route: AppRoute): RoutesNames => {
-    // * Special match for analytics
-    if (route.to === `/covid/collection` || route.to === `/stats`) {
-      routes[route.to] = `Analytics`;
-    } else {
-      routes[route.to ?? ``] = route.name ?? ``;
-    }
+    routes[route.to ?? ``] = route.name ?? ``;
     return routes;
   },
   {}

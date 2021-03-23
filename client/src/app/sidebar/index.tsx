@@ -1,12 +1,12 @@
 import { AppRoute, appRoutes } from '../routes/utils';
 
 import List from '@material-ui/core/List';
-import { OrNull } from '@types';
+import { OrNull } from 'src/types';
 import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { RoleEnum } from '../../enums';
+import { ReduxState } from 'src/redux/reducers';
+import { RoleEnum } from 'src/enums';
 import { SidebarRoute } from './route';
-import { makeUniqueId } from '../../shared/utils';
+import { makeUniqueId } from 'src/shared/utils';
 import { useDimensionsContext } from '../context/hooks';
 import { useSelector } from 'react-redux';
 
@@ -18,7 +18,6 @@ type CustomRoute = {
 interface IProps {
   activeItem: OrNull<string>;
   logout: CustomRoute;
-  statistics: CustomRoute;
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
 }
 
@@ -30,7 +29,6 @@ type SelectorState = {
 export const Sidebar: React.FC<IProps> = ({
   activeItem,
   logout,
-  statistics,
   setActiveItem,
 }) => {
   const { offsetFromTop } = useDimensionsContext();
@@ -66,18 +64,6 @@ export const Sidebar: React.FC<IProps> = ({
                   key={makeUniqueId()}
                   activeItem={activeItem}
                   appendedRoute={logout.component}
-                  route={route}
-                  updateActiveItem={updateActiveItem}
-                />
-              );
-            }
-
-            if (index === statistics.index) {
-              return (
-                <SidebarRoute
-                  key={makeUniqueId()}
-                  activeItem={activeItem}
-                  appendedRoute={statistics.component}
                   route={route}
                   updateActiveItem={updateActiveItem}
                 />

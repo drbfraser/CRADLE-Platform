@@ -143,6 +143,8 @@ def seed():
             "villageNumber": getRandomVillage(),
             "patientSex": "FEMALE",
             "isPregnant": "true",
+            "dob": "2004-01-01",
+            "isExactDob": "false",
         }
         db.session.add(patient_schema.load(p1))
         db.session.commit()
@@ -229,6 +231,8 @@ def create_patient_reading_referral(
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "true",
+            "dob": "2004-01-01",
+            "isExactDob": False,
         }
     else:
         patient = {
@@ -237,6 +241,8 @@ def create_patient_reading_referral(
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "false",
+            "dob": "2004-01-01",
+            "isExactDob": False,
         }
 
     reading = {
@@ -247,6 +253,7 @@ def create_patient_reading_referral(
         "bpSystolic": 50,
         "bpDiastolic": 60,
         "heartRateBPM": 70,
+        "trafficLightStatus": "YELLOW_DOWN",
         "symptoms": "FEVERISH",
     }
 

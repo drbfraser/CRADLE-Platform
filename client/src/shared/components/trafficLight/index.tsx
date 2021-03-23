@@ -3,7 +3,7 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import { ReactComponent as GreenTraffic } from './icons/green.svg';
 import React from 'react';
 import { ReactComponent as RedTraffic } from './icons/red.svg';
-import { TrafficLightEnum } from '../../../enums';
+import { TrafficLightEnum } from 'src/enums';
 import Typography from '@material-ui/core/Typography';
 import { ReactComponent as YellowTraffic } from './icons/yellow.svg';
 import { useStyles } from './styles';
@@ -52,10 +52,24 @@ export const TrafficLight: React.FC<IProps> = ({ className, status }) => {
           );
         }
         case TrafficLightEnum.GREEN: {
-          return <GreenTraffic className={classes.trafficLight} />;
+          return (
+            <>
+              <GreenTraffic className={classes.trafficLight} />
+              <ArrowDownwardIcon
+                className={classes.trafficLightArrow}
+                style={{ visibility: 'hidden' }}
+              />
+            </>
+          );
         }
         default: {
-          return <Typography variant="h5">N/A</Typography>;
+          return (
+            <Typography
+              variant="h5"
+              style={{ height: '60px', lineHeight: '60px' }}>
+              N/A
+            </Typography>
+          );
         }
       }
     },

@@ -1,4 +1,4 @@
-import { Patient, Reading } from '@types';
+import { Patient, Reading } from 'src/types';
 
 import React from 'react';
 import { sortReadings } from './utils';

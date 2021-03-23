@@ -50,6 +50,12 @@ class Root(Resource):
 
         return follow_up.id, 201
 
+    @staticmethod
+    @jwt_required
+    def get():
+        follow_ups = crud.read_all(FollowUp)
+        return [marshal.marshal(f) for f in follow_ups]
+
 
 # /api/assessments/<int:assessment_id>
 class SingleAssessment(Resource):
@@ -68,16 +74,18 @@ class SingleAssessment(Resource):
         return marshal.marshal(follow_up)
 
 
-# /api/assessmentUpdate
+# /api/assessmentUpdate/<int:assessment_id>
 class UpdateAssessment(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
         "../../specifications/assessments-update-post.yml",
         methods=["POST"],
-        endpoint="update_assessment",
+        endpoint="assessmentUpdate",
     )
-    def post():
+    def post(assessment_id: int):
+        if not assessment_id:
+            abort(404, message=f"Assessment id is required")
         json = request.get_json(force=True)
 
         json["dateAssessed"] = get_current_time()
@@ -86,21 +94,16 @@ class UpdateAssessment(Resource):
         user = util.current_user()
         json["healthcareWorkerId"] = user.id
 
+        assessment = crud.read(FollowUp, id=assessment_id)
+        if not assessment:
+            abort(404, message=f"No assessment with id {assessment_id}")
+
+        json["readingId"] = assessment.readingId
+
         error_message = assessments.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
 
-        follow_up = marshal.unmarshal(FollowUp, json)
+        crud.update(FollowUp, json, id=assessment.id)
 
-        # Check that reading id which doesn’t reference an existing reading in the database
-        reading = crud.read(Reading, readingId=follow_up.readingId)
-        if not reading:
-            abort(404, message=f"No reading with id {follow_up.readingId}")
-
-        updatedAssessment = crud.read(FollowUp, id=json["id"])
-        if not updatedAssessment:
-            abort(404, message=f"No assessment with id { json['id'] }")
-
-        crud.update(FollowUp, json, id=updatedAssessment.id)
-
-        return updatedAssessment.id, 201
+        return assessment.id, 201

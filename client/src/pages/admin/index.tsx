@@ -1,84 +1,48 @@
-import { OrNull, User } from '../../types';
-import {
-  clearAllUsersRequestOutcome,
-  getUsers,
-  sortUsers,
-  updatePageNumber,
-  updateSearchText,
-} from '../../redux/reducers/user/allUsers';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { Select, MenuItem, makeStyles } from '@material-ui/core';
+import { ManageUsers } from './manageUsers/ManageUsers';
+import { ManageFacilities } from './manageFacilities/ManageFacilities';
 
-import { AdminTable } from './adminTable';
-import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { Toast } from '../../shared/components/toast';
+const pageOptions = [
+  {
+    name: 'Users',
+    component: ManageUsers,
+  },
+  {
+    name: 'Health Care Failities',
+    component: ManageFacilities,
+  },
+];
 
-type SelectorState = {
-  error: OrNull<string>;
-  loading: boolean;
-  pageNumber: number;
-  success: OrNull<string>;
-  users: OrNull<Array<User>>;
-  searchText?: string;
-};
-
-export const AdminPage: React.FC = () => {
-  const {
-    error,
-    success,
-    loading,
-    pageNumber,
-    searchText,
-    users,
-  } = useSelector(
-    ({ user }: ReduxState): SelectorState => ({
-      error: user.allUsers.error ? user.allUsers.message : null,
-      loading: user.allUsers.loading,
-      pageNumber: user.allUsers.pageNumber,
-      success: user.allUsers.success,
-      searchText: user.allUsers.searchText,
-      users: user.allUsers.data,
-    })
-  );
-
-  const dispatch = useDispatch();
-
-  React.useEffect((): void => {
-    dispatch(getUsers());
-  }, [dispatch]);
-
-  const handleSortUsers = (sortedUsers: OrNull<Array<User>>): void => {
-    dispatch(sortUsers(sortedUsers));
-  };
-
-  const handlePageNumberChange = (page: number): void => {
-    dispatch(updatePageNumber(page));
-  };
-
-  const handleSearchTextChange = (text?: string): void => {
-    dispatch(updateSearchText(text));
-  };
-
-  const clearMessage = (): void => {
-    dispatch(clearAllUsersRequestOutcome());
-  };
+export const AdminPage = () => {
+  const styles = useStyles();
+  const [page, setPage] = useState(0);
+  const PageComponent = pageOptions[page].component;
 
   return (
     <>
-      <Toast
-        message={error ?? success}
-        clearMessage={clearMessage}
-        status={error ? `error` : `success`}
-      />
-      <AdminTable
-        data={users}
-        pageNumber={pageNumber}
-        loading={loading}
-        sortUsers={handleSortUsers}
-        updatePageNumber={handlePageNumberChange}
-        updateSearchText={handleSearchTextChange}
-        searchText={searchText}
-      />
+      <h3>
+        Manage &nbsp;
+        <Select
+          className={styles.manageDropdown}
+          value={page}
+          onChange={(e) => setPage(parseInt(e.target.value as string))}
+          displayEmpty>
+          {pageOptions.map((option, i) => (
+            <MenuItem key={i} value={i}>
+              {option.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </h3>
+      <PageComponent />
     </>
   );
 };
+
+const useStyles = makeStyles({
+  manageDropdown: {
+    fontWeight: 600,
+    fontSize: 20,
+  },
+});

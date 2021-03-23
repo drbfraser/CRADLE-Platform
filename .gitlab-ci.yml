@@ -7,11 +7,13 @@ stages:
 variables:
   STAGING_BRANCH: "master"
   PROD_BRANCH: "prod"
+  NODE_IMAGE: "node:14"
+  PYTHON_IMAGE: "python:3.9.1-buster"
 
 frontend build:
   stage: build
   needs: []
-  image: node:10
+  image: $NODE_IMAGE
   tags:
     - docker
   rules:
@@ -37,7 +39,7 @@ frontend build:
 backend unit tests:
   stage: test
   needs: []
-  image: python:3.7.6-buster
+  image: $PYTHON_IMAGE
   tags:
     - docker
   rules:
@@ -50,12 +52,16 @@ backend unit tests:
     - pip install --upgrade pip
     - pip install -r requirements.txt
   script:
-    - python -m pytest tests
+    - python -m pytest --junitxml=report.xml tests
+  artifacts:
+    when: always
+    reports:
+      junit: server/report.xml
 
 backend system tests:
   stage: test
   needs: []
-  image: python:3.7.6-buster
+  image: $PYTHON_IMAGE
   tags:
     - docker
   rules:
@@ -87,12 +93,16 @@ backend system tests:
     - python3 db.py rebuild --no-docker
     - python3 manage.py seed_test_data
   script:
-    - python -m pytest systemTests
+    - python -m pytest --junitxml=report.xml systemTests
+  artifacts:
+    when: always
+    reports:
+      junit: server/report.xml
 
 frontend lint:
   stage: format
   needs: []
-  image: node:10
+  image: $NODE_IMAGE
   tags:
     - docker
   rules:
@@ -109,7 +119,7 @@ frontend lint:
 frontend format:
   stage: format
   needs: []
-  image: node:10
+  image: $NODE_IMAGE
   tags:
     - docker
   rules:
@@ -118,14 +128,15 @@ frontend format:
         - client/**/*
       when: always
   before_script:
-    - npm install prettier --global
+    # Prettier version here should match version in package.json
+    - npm install prettier@^2.2.0 --global
   script:
     - prettier --check "client/src/**/*.{ts,tsx}"
 
 backend format:
   stage: format
   needs: []
-  image: python:3.7.6-buster
+  image: $PYTHON_IMAGE
   tags:
     - docker
   rules:

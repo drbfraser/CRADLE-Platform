@@ -1,17 +1,16 @@
-import { ActualUser, OrNull } from '@types';
+import { ActualUser, OrNull } from 'src/types';
 
-import { ContextProvider } from '../context';
+import { ContextProvider } from 'src/context';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { DimensionsContextProvider } from './context';
 import Drawer from '@material-ui/core/Drawer';
 import { LogoutMenuItem } from './logout';
 import { Pathname } from 'history';
 import React from 'react';
-import { ReduxState } from '../redux/reducers';
-import { RoleEnum } from '../enums';
+import { ReduxState } from 'src/redux/reducers';
+import { RoleEnum } from 'src/enums';
 import { Routes } from './routes';
 import { Sidebar } from './sidebar';
-import { StatisticsMenuItem } from './statistics';
 import { TopBar } from './topBar';
 import { routesNames } from './routes/utils';
 import { useSelector } from 'react-redux';
@@ -34,7 +33,6 @@ export const App: React.FC = () => {
   });
 
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
-  const [openStats, setOpenStats] = React.useState<boolean>(true);
 
   const { loggedIn, pathName, user } = useSelector(
     ({ user, router }: ReduxState): SelectorState => ({
@@ -46,7 +44,6 @@ export const App: React.FC = () => {
 
   React.useEffect(() => {
     setActiveItem(routesNames[pathName]);
-    setOpenStats(false);
   }, [pathName]);
 
   return (
@@ -70,18 +67,8 @@ export const App: React.FC = () => {
                 activeItem={activeItem}
                 setActiveItem={setActiveItem}
                 logout={{
-                  index: user?.roles.includes(RoleEnum.ADMIN) ? 5 : 4,
+                  index: user?.roles.includes(RoleEnum.ADMIN) ? 4 : 3,
                   component: <LogoutMenuItem />,
-                }}
-                statistics={{
-                  index: 2,
-                  component: (
-                    <StatisticsMenuItem
-                      activeItem={activeItem}
-                      openStats={openStats}
-                      setOpenStats={setOpenStats}
-                    />
-                  ),
                 }}
               />
             </Drawer>

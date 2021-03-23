@@ -11,8 +11,9 @@ reduce preventable maternal deaths in Ugandan villages.
 ## Sites and Servers
 
 * Issue tracking is managed via JIRA at: https://icradle.atlassian.net
-* `master` is continuously deployed on: https://cmpt373-lockdown.cs.surrey.sfu.ca
-* `prod` will be continuously deployed on a DigitalOcean / Vultr VPS in the future
+* `master` is continuously deployed on: https://staging.cradleplatform.com (SFU server)
+* `prod` is deployed on: https://cradleplatform.com (Vultr server)
+   * Note that the deployment job must be manually run from the CI/CD Jobs list
 
 ## Setup Instructions
 
@@ -35,3 +36,28 @@ the previously mentioned admin user is added along with a few additional users:
 | hcw@hcw.com        | hcw123   | HCW   - Healthcare Worker    |
 | cho@cho.com        | cho123   | CHO   - Chief Health Officer |
 | vht@vht.com        | vht123   | VHT   - Village Health Team  |
+
+## Contributors
+
+| Name | Email |
+| --- | --- |
+| Brian Fraser | bfraser@sfu.ca |
+| Jeffrey Leung | jyl52@sfu.ca |
+| Kat Siu | kysiu@sfu.ca |
+| Kevin Le | lekevinl@sfu.ca |
+| Keyi Huang | keyih@sfu.ca |
+| Matt Doyle | mwdoyle@sfu.ca |
+| Vinson Ly | vinsonl@sfu.ca |
+| Sachin Raturi | sraturi@sfu.ca |
+| Simran Gulati | sgulati@sfu.ca |
+| Quintin Sim | ksim@sfu.ca |
+| Kisub Song | kisubs@sfu.ca |
+| Waswa Olunga | wolunga@sfu.ca |
+| Jeremy Schwartz | jdschwar@sfu.ca |
+| Avneet Toor | a_toor22@hotmail.com |
+| Faraz Fazlalizadeh | ffazlali@sfu.ca |
+| Ethan Hinchliff | ehinchli@sfu.ca |
+| Brian Marwood | bmarwood@sfu.ca |
+| Paul Ngo | paul_ngo@sfu.ca |
+| Ali Tohidi | atohidi@sfu.ca |
+| Liyang Zhou | lza132@sfu.ca |

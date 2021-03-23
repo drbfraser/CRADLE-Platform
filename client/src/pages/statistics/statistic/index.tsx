@@ -1,6 +1,6 @@
 import React from 'react';
 import { Statistic as SemanticStatistic } from 'semantic-ui-react';
-import { YearGlobalStatistics } from '@types';
+import { YearGlobalStatistics } from 'src/types';
 import { useCurrentMonthContext } from '../context/currentMonth/hooks';
 import { useStyles } from '../styles';
 

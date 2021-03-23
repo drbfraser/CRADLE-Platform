@@ -1,4 +1,4 @@
-import { OrNull, Patient, Reading } from '@types';
+import { OrNull, Patient, Reading } from 'src/types';
 
 export const getPatientsWithReferrals = (
   patients: OrNull<Array<Patient>>

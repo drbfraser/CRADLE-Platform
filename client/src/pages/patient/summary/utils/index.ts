@@ -1,5 +1,5 @@
-import { OrNull, Patient, Reading } from '@types';
-import { getLatestReading, getMomentDate } from '../../../../shared/utils';
+import { OrNull, Patient, Reading } from 'src/types';
+import { getLatestReading, getMomentDate } from 'src/shared/utils';
 
 export const average = (monthlyArray: Array<number>): number => {
   return (

@@ -1,6 +1,6 @@
 ## Warning
 
-A manual development environment is not recommended. It is highly recommended you run CRADLE within Docker so the environments are consistent between development, staging and production. See `dev_env_setup.md`.
+This guide is no longer up to date and may not work properly. A manual development environment is not recommended. It is highly recommended you run CRADLE within Docker so the environments are consistent between development, staging and production. See `dev_env_setup.md`.
 
 ## What you'll need 
 

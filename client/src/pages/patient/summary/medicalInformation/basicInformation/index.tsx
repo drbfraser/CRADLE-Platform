@@ -1,7 +1,6 @@
-import { Patient } from '@types';
+import { Patient } from 'src/types';
 import React from 'react';
-import { SexEnum } from '../../../../../enums';
-import { getAgeBasedOnDOB } from '../../../../../shared/utils';
+import { SexEnum } from 'src/enums';
 
 interface IProps {
   patient: Patient;
@@ -10,18 +9,6 @@ interface IProps {
 export const BasicInformation: React.FC<IProps> = ({ patient }) => {
   return (
     <>
-      <p>
-        <b>ID: </b> {patient.patientId}
-      </p>
-      <p>
-        <b>Age: </b>
-        {patient.dob === undefined || patient.dob === null
-          ? `N/A`
-          : getAgeBasedOnDOB(patient.dob)}
-      </p>
-      <p>
-        <b>Sex: </b> {patient.patientSex}
-      </p>
       {patient.patientSex === SexEnum.FEMALE && (
         <p>
           <b>Pregnant: </b> {patient.isPregnant ? `Yes` : `No`}

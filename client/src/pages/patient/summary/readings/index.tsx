@@ -1,13 +1,13 @@
-import { Patient, Reading } from '@types';
+import { Patient, Reading } from 'src/types';
 
 import Grid from '@material-ui/core/Grid';
 import { Header } from './header';
-import { Heart } from './heart';
+import { VitalSign } from './vitalSign';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
 import { ReferralInfo } from './referralInfo';
 import { Symptoms } from './symptoms';
-import { TrafficLight } from '../../../../shared/components/trafficLight';
+import { TrafficLight } from 'src/shared/components/trafficLight';
 import { UrineTests } from './urineTests';
 import { useReadings } from './hooks';
 import { useStyles } from './styles';
@@ -38,7 +38,7 @@ export const PatientReadings: React.FC<IProps> = ({
                 <Header dateTimeTaken={reading.dateTimeTaken} />
                 <div className={classes.reading}>
                   <TrafficLight status={reading.trafficLightStatus} />
-                  <Heart reading={reading} />
+                  <VitalSign reading={reading} />
                   <Symptoms symptoms={reading.symptoms} />
                   <UrineTests urineTests={reading.urineTests} />
                 </div>

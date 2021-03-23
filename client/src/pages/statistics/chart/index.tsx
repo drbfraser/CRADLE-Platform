@@ -1,4 +1,4 @@
-import { StatisticsDataset, YearGlobalStatistics } from '@types';
+import { StatisticsDataset, YearGlobalStatistics } from 'src/types';
 
 import { Card } from 'semantic-ui-react';
 import { Line } from 'react-chartjs-2';

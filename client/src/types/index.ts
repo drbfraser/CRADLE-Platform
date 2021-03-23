@@ -4,9 +4,9 @@ import {
   RoleEnum,
   SexEnum,
   TrafficLightEnum,
-} from '../enums';
+} from 'src/enums';
 
-import { AutocompleteOption } from '../shared/components/input/autocomplete/utils';
+import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -23,6 +23,9 @@ export type Reading = {
   appVersion: OrNull<string>;
   bpDiastolic: number;
   bpSystolic: number;
+  respiratoryRate: number;
+  oxygenSaturation: number;
+  temperature: number;
   dateLastSaved: OrNull<number>;
   dateRecheckVitalsNeeded: OrNull<number>;
   dateTimeTaken: OrNull<number>;
@@ -57,13 +60,6 @@ export type UrineTests = {
   urineTestGlu: string;
 };
 
-export type NewReading = {
-  bpSystolic: string;
-  bpDiastolic: string;
-  heartRateBPM: string;
-  urineTests: Record<keyof UrineTests, string>;
-} & Pick<Reading, 'isFlaggedForFollowup'>;
-
 export type Patient = {
   dob: OrNull<string>;
   drugHistory: OrNull<string>;
@@ -82,23 +78,8 @@ export type Patient = {
   tableData: { id: number };
   zone: OrNull<string>;
   isExactDob: boolean;
+  householdNumber: OrNull<string>;
 };
-
-export type EditedPatient = Pick<
-  Patient,
-  | 'dob'
-  | 'drugHistory'
-  | 'gestationalAgeUnit'
-  | 'gestationalTimestamp'
-  | 'isPregnant'
-  | 'medicalHistory'
-  | 'patientAge'
-  | 'patientId'
-  | 'patientName'
-  | 'patientSex'
-  | 'villageNumber'
-  | 'zone'
->;
 
 export type GlobalSearchPatient = {
   patientName: string;
@@ -148,44 +129,6 @@ export type EditUser = Omit<
 export type VHT = {
   id: number;
   email: string;
-};
-
-export type CheckedItems = {
-  none: boolean;
-  headache: boolean;
-  bleeding: boolean;
-  blurredVision: boolean;
-  feverish: boolean;
-  abdominalPain: boolean;
-  unwell: boolean;
-  other: boolean;
-  otherSymptoms: string;
-};
-
-export type SelectedUser = {
-  email: string;
-  firstName: string;
-  healthFacilityName: string;
-  dropdownSelections: any[];
-  vhtDropdownSelections: any[];
-  roleIds: Array<string>;
-};
-
-export type PatientNewReading = {
-  dob: OrNull<string>;
-  drugHistory: OrNull<string>;
-  gestationalAgeUnit: string;
-  gestationalAgeValue: string;
-  gestationalTimestamp: OrNull<number>;
-  isPregnant: boolean;
-  medicalHistory: OrNull<string>;
-  patientAge: OrNull<string>;
-  patientId: string;
-  patientName: string;
-  patientSex: string;
-  villageNumber: string;
-  zone: OrNull<string>;
-  isExactDob: boolean;
 };
 
 export type TrafficLightStatistics = {

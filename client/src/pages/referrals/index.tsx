@@ -1,111 +1,62 @@
-import { OrNull, Patient } from '@types';
-import {
-  clearGetReferralsTablePatientsError,
-  getReferralsTablePatients,
-  sortReferralsTablePatients,
-  updateReferralsTablePageNumber,
-  updateReferralsTableSearchText,
-  updateTableDataOnSelectedPatientChange,
-} from '../../redux/reducers/patients';
-import { useDispatch, useSelector } from 'react-redux';
+import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import { debounce } from 'lodash';
+import React, { useState } from 'react';
+import { EndpointEnum } from 'src/server';
+import { APITable } from 'src/shared/components/apiTable';
+import { ReferralRow } from './ReferralRow';
 
-import React from 'react';
-import { ReduxState } from '../../redux/reducers';
-import { ReferralTable } from './referralTable';
-import { Toast } from '../../shared/components/toast';
-import { push } from 'connected-react-router';
-
-type SelectorState = {
-  selectedPatient: OrNull<Patient>;
-  patients: OrNull<Array<Patient>>;
-  fetchingPatients: boolean;
-  gettingPatientsError: OrNull<string>;
-  pageNumber: number;
-  preventFetch: boolean;
-  searchText?: string;
+const columns = {
+  patientName: 'Patient Name',
+  patientId: 'Patient ID',
+  villageNumber: 'Village',
+  trafficLightStatus: 'Vital Sign',
+  dateReferred: 'Date Referred',
+  isAssessed: 'Assessment',
 };
 
-export const ReferralsPage: React.FC = () => {
-  const {
-    selectedPatient,
-    patients,
-    fetchingPatients,
-    gettingPatientsError,
-    pageNumber,
-    preventFetch,
-    searchText,
-  } = useSelector(
-    (state: ReduxState): SelectorState => ({
-      selectedPatient: state.patients.patient,
-      patients: state.patients.referralsTablePatientsList,
-      fetchingPatients: state.patients.isLoading,
-      gettingPatientsError: state.patients.error,
-      pageNumber: state.patients.referralsTablePageNumber,
-      preventFetch: state.patients.preventFetch,
-      searchText: state.patients.referralsTableSearchText,
-    })
-  );
+export const ReferralsPage = () => {
+  const classes = useStyles();
+  const [search, setSearch] = useState('');
 
-  const dispatch = useDispatch();
-
-  React.useEffect((): void => {
-    if (
-      !preventFetch &&
-      !fetchingPatients &&
-      !gettingPatientsError &&
-      patients === null
-    ) {
-      dispatch(getReferralsTablePatients());
-    }
-  }, [
-    patients,
-    fetchingPatients,
-    gettingPatientsError,
-    dispatch,
-    preventFetch,
-  ]);
-
-  React.useEffect((): void => {
-    dispatch(updateTableDataOnSelectedPatientChange());
-  }, [dispatch, selectedPatient]);
-
-  const clearError = (): void => {
-    dispatch(clearGetReferralsTablePatientsError());
-  };
-
-  const goToPatientPage = (selectedPatient: { patientId: string }): void => {
-    dispatch(push(`/patients/${selectedPatient.patientId}`));
-  };
-
-  const updatePageNumber = (pageNumber: number): void => {
-    dispatch(updateReferralsTablePageNumber(pageNumber));
-  };
-
-  const updateSearchText = (searchText?: string): void => {
-    dispatch(updateReferralsTableSearchText(searchText));
-  };
-
-  const sortPatients = (sortedPatients: Array<Patient>): void => {
-    dispatch(sortReferralsTablePatients(sortedPatients));
-  };
+  // ensure that we wait until the user has stopped typing
+  const debounceSetSearch = debounce(setSearch, 500);
 
   return (
-    <>
-      <Toast
-        status="error"
-        message={gettingPatientsError}
-        clearMessage={clearError}
+    <Paper className={classes.wrapper}>
+      <div className={classes.topWrapper}>
+        <h2 className={classes.title}>Referrals</h2>
+        <TextField
+          className={classes.search}
+          label="Search"
+          placeholder="Patient ID or Name"
+          variant="outlined"
+          onChange={(e) => debounceSetSearch(e.target.value)}
+        />
+      </div>
+      <APITable
+        endpoint={EndpointEnum.REFERRALS}
+        search={search}
+        columns={columns}
+        rowKey={'referralId'}
+        RowComponent={ReferralRow}
       />
-      <ReferralTable
-        pageNumber={pageNumber}
-        searchText={searchText}
-        onPatientSelected={goToPatientPage}
-        data={patients}
-        loading={fetchingPatients}
-        updatePageNumber={updatePageNumber}
-        updateSearchText={updateSearchText}
-        sortPatients={sortPatients}
-      />
-    </>
+    </Paper>
   );
 };
+
+const useStyles = makeStyles({
+  wrapper: {
+    backgroundColor: '#fff',
+  },
+  topWrapper: {
+    padding: 15,
+  },
+  title: {
+    display: 'inline-block',
+  },
+  search: {
+    float: 'right',
+  },
+});

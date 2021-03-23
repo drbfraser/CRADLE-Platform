@@ -1,4 +1,4 @@
-import { Callback } from '@types';
+import { Callback } from 'src/types';
 import React from 'react';
 
 interface IArgs {
