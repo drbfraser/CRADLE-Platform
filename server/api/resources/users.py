@@ -72,6 +72,8 @@ class UserAll(Resource):
                 vhtList.append(vht.id)
 
             userDict["supervises"] = vhtList
+            userDict["userId"] = userDict["id"]
+            userDict.pop("id")
 
             userDictList.append(userDict)
 
@@ -95,7 +97,7 @@ class UserAllVHT(Resource):
             vhtDict = marshal.marshal(vht)
             vhtDictionaryList.append(
                 {
-                    "id": vht.id,
+                    "userId": vht.id,
                     "email": vht.email,
                     "healthFacilityName": vht.healthFacilityName,
                     "firstName": vht.firstName,
@@ -107,7 +109,7 @@ class UserAllVHT(Resource):
         return vhtDictionaryList
 
 
-# api/user/{int:id}/change_pass [POST]
+# api/user/{int: userId}/change_pass [POST]
 class AdminPasswordChange(Resource):
 
     # Ensure that we have the fields we want in JSON payload
@@ -221,6 +223,10 @@ class UserRegisterApi(Resource):
         createdUser = marshal.marshal(crud.read(User, email=new_user["email"]))
         createdUser.pop("password")
         createdUserId = createdUser.get("id")
+
+        #Calling the id, userId for uniformity in the response
+        createdUser["userId"] = createdUser["id"]
+        createdUserId = createdUser.pop("id")
 
         # Updating the supervises table if necessary as well
         if new_user["role"] == "CHO" and listOfVhts is not None:

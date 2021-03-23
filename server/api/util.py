@@ -143,6 +143,11 @@ def getDictionaryOfUserInfo(id: int) -> dict:
     userDict["supervises"] = vhtList
 
     userDict.pop("password")
+
+    #Just for uniformity in the names of the keys
+    userDict["userId"] = userDict["id"]
+    userDict.pop("id")
+
     return userDict
 
 
