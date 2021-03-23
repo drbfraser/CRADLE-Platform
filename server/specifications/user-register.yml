@@ -38,7 +38,7 @@ responses:
         schema:
           type: object
           properties:
-            id:
+            userId:
               type: int
               example: 17
             email:
@@ -54,3 +54,6 @@ responses:
               type: string
               enum: [ADMIN, HCW, VHT, CHO]
               example: CHO
+            supervises:
+              type: int
+              example: [3, 6]
