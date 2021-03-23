@@ -44,6 +44,11 @@ export enum SexDisplayEnum {
   OTHER = 'Other',
 }
 
+export enum GestationalAgeUnitEnum {
+  WEEKS = 'WEEKS',
+  MONTHS = 'MONTHS',
+}
+
 export enum GestationalAgeUnitDisplayEnum {
   WEEKS = 'Weeks',
   MONTHS = 'Months',
@@ -56,11 +61,6 @@ export enum TrafficLightEnum {
   RED_UP = 'RED_UP',
   RED_DOWN = 'RED_DOWN',
   NONE = 'NONE',
-}
-
-export enum GestationalAgeUnitEnum {
-  WEEKS = 'GESTATIONAL_AGE_UNITS_WEEKS',
-  MONTHS = 'GESTATIONAL_AGE_UNITS_MONTHS',
 }
 
 // * Order of enums is important
