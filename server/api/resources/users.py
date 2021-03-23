@@ -219,20 +219,16 @@ class UserRegisterApi(Resource):
         userModel = marshal.unmarshal(User, new_user)
         crud.create(userModel)
 
-        # Viewing the results of the creation
+        # Getting the id of the created user
         createdUser = marshal.marshal(crud.read(User, email=new_user["email"]))
         createdUser.pop("password")
         createdUserId = createdUser.get("id")
-
-        # Calling the id, userId for uniformity in the response
-        createdUser["userId"] = createdUser["id"]
-        createdUserId = createdUser.pop("id")
 
         # Updating the supervises table if necessary as well
         if new_user["role"] == "CHO" and listOfVhts is not None:
             crud.add_vht_to_supervise(createdUserId, listOfVhts)
 
-        return createdUser, 200
+        return getDictionaryOfUserInfo(createdUserId), 200
 
 
 # api/user/auth [POST]
