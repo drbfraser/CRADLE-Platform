@@ -29,7 +29,7 @@ responses:
             healthFacilityName:
               type: string
               example: H0000
-            id:
+            userId:
               type: integer
               example: 4
             supervises:

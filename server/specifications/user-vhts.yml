@@ -15,7 +15,7 @@ responses:
               email:
                 type: string
                 example: vht@vht.com
-              id:
+              userId:
                 type: integer
                 example: 3
               healthFacilityName:

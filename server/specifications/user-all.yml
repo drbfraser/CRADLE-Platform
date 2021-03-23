@@ -28,6 +28,6 @@ responses:
                 type: array
                 items: integer
                 example: [1, 2, 3]
-              id:
+              userId:
                 type: integer
                 example: 3
