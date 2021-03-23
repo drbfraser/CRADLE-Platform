@@ -1,7 +1,13 @@
-Register a user
+Edit user
 ---
 tags:
   - User
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
 requestBody:
   required: true
   content:
@@ -9,51 +15,46 @@ requestBody:
       schema:
         type: object
         properties:
-          email:
-            type: string
-            example: test8@cho.com
-          password:
-            type: string
-            example: cho123
           firstName:
             type: string
-            example: Alice
+            example: Bob
+          email:
+            type: string
+            example: test@cho.com
           healthFacilityName:
             type: string
             example: H0000
           role:
             type: string
-            enum: [ADMIN, HCW, VHT, CHO]
             example: CHO
           supervises:
             type: array
             items: integer
-            example: [2]
-
+            example: [3, 6]
 responses:
   200:
-    description: OK
+    description: New user information
     content:
       application/json:
         schema:
           type: object
           properties:
-            userId:
-              type: int
-              example: 17
             email:
               type: string
-              example: test8@cho.com
+              example: test@cho.com
+            role:
+              type: string
+              example: CHO
             firstName:
               type: string
-              example: Alice
+              example: Bob
             healthFacilityName:
               type: string
               example: H0000
-            role:
-              type: string
-              enum: [ADMIN, HCW, VHT, CHO]
-              example: CHO
+            userId:
+              type: integer
+              example: 3
             supervises:
-              type: int
-              example: [3, 6]
+              type: array
+              items: integer
+              example: [2]

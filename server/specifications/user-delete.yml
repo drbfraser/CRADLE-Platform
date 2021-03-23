@@ -15,4 +15,7 @@ responses:
       application/json:
         schema:
           type: object
-          example: {}
+          properties:
+            message:
+              type: string
+              example: User deleted

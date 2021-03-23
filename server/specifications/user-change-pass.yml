@@ -25,39 +25,10 @@ responses:
         schema:
           type: object
           properties:
-            healthFacilityName:
+            message:
               type: string
-              example: H0000
-            associations:
-              type: list
-              example: []
-            firstName:
-              type: string
-              example: Brian
-            email:
-              type: string
-              example: hcw@hcw.com
-            referrals:
-              type: list
-              example: []
-            id: 
-              type: int
-              example: 2
-            vhtList:
-              type: list
-              example: []
-            healthFacility: 
-              type: string
-              example: H0000
-            roleIds: 
-              type: list
-              example: [2]
-            followups: 
-              type: list
-              example: []
-            username: 
-              type: string
-              example: NULL
+              example: Success! Password has been changed 
+ 
   400:
     description: |
       The current password required for authentication did not match

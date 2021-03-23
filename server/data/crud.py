@@ -83,6 +83,7 @@ def update(m: Type[M], changes: dict, **kwargs):
     :return: The updated model
     """
     model = read(m, **kwargs)
+
     for k, v in changes.items():
         setattr(model, k, v)
     db_session.commit()
@@ -305,6 +306,27 @@ def read_all_referral_for_user(user: User, **kwargs) -> List[M]:
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+
+def add_vht_to_supervise(cho_id: int, vht_ids: List):
+
+    # find the cho
+    cho = User.query.filter_by(id=cho_id).first()
+
+    cho.vhtList = []
+    db_session.commit()
+
+    # Allows for removing all vhts from supervisee list
+    if vht_ids is None:
+        return
+
+    # add vhts to CHO's vhtList
+    for vht_id in vht_ids:
+        vht = User.query.filter_by(id=vht_id).first()
+        cho.vhtList.append(vht)
+        db_session.add(cho)
+
+    db_session.commit()
 
 
 def read_all_patients_db() -> List[M]:
