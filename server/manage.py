@@ -98,7 +98,7 @@ def seed_test_data():
         "FEMALE",
         "1002",
         True,
-        "GESTATIONAL_AGE_UNITS_WEEKS",
+        "WEEKS",
         1592339808,
     )
     # TODO: Add more data here
@@ -138,7 +138,7 @@ def seed():
         p1 = {
             "patientId": patientId,
             "patientName": getRandomInitials(),
-            "gestationalAgeUnit": "GESTATIONAL_AGE_UNITS_WEEKS",
+            "gestationalAgeUnit": "WEEKS",
             "gestationalTimestamp": 1587068710,
             "villageNumber": getRandomVillage(),
             "patientSex": "FEMALE",

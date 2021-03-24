@@ -1,4 +1,5 @@
-import { GESTATIONAL_AGE_UNITS, getAgeBasedOnDOB } from 'src/shared/utils';
+import { GestationalAgeUnitEnum } from 'src/enums';
+import { getAgeBasedOnDOB } from 'src/shared/utils';
 import { PatientField, PatientState } from './state';
 
 // For writing + testing Regex, see: regex101.com
@@ -71,12 +72,12 @@ const validateGestational = (values: PatientState, errors: any) => {
   const unit = values[PatientField.gestationalAgeUnit];
   const age = parseInt(values[PatientField.gestationalAge]);
 
-  if (unit === GESTATIONAL_AGE_UNITS.WEEKS) {
+  if (unit === GestationalAgeUnitEnum.WEEKS) {
     if (isNaN(age) || !(age >= 0 && age <= 60)) {
       errors[PatientField.gestationalAge] =
         'Please enter between 0 and 60 weeks.';
     }
-  } else if (unit === GESTATIONAL_AGE_UNITS.MONTHS) {
+  } else if (unit === GestationalAgeUnitEnum.MONTHS) {
     if (isNaN(age) || !(age >= 0 && age <= 13)) {
       errors[PatientField.gestationalAge] =
         'Please enter between 0 and 13 months.';
