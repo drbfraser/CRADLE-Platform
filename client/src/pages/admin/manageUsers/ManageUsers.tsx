@@ -2,16 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { apiFetch } from 'src/shared/utils/api';
 import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
-import MUIDataTable from 'mui-datatables';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  Button,
-  LinearProgress,
-  IconButton,
-  TextField,
-  Tooltip,
-} from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
+import { IconButton, Tooltip } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForever from '@material-ui/icons/DeleteForever';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
@@ -23,6 +14,8 @@ import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
 import { IUser } from 'src/types';
 import { userRoles } from 'src/enums';
+import { useAdminStyles } from '../adminStyles';
+import AdminTable from '../AdminTable';
 
 const columns = [
   'First Name',
@@ -38,7 +31,7 @@ const columns = [
 ];
 
 export const ManageUsers = () => {
-  const styles = useStyles();
+  const styles = useAdminStyles();
   const currentUserId = useSelector<ReduxState>(
     (state) => state.user.current.data!.userId
   ) as number;
@@ -92,32 +85,6 @@ export const ManageUsers = () => {
 
     setTableData(rows);
   }, [users, search]);
-
-  const Toolbar = () => (
-    <>
-      <TextField
-        type="text"
-        variant="outlined"
-        size="small"
-        placeholder="Search..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      &nbsp; &nbsp;
-      <Button
-        className={styles.button}
-        color="primary"
-        variant="contained"
-        size="large"
-        onClick={() => {
-          setPopupUser(undefined);
-          setEditPopupOpen(true);
-        }}>
-        <AddIcon />
-        New User
-      </Button>
-    </>
-  );
 
   const rowActions = [
     {
@@ -206,54 +173,20 @@ export const ManageUsers = () => {
         userId={popupUser?.userId ?? -1}
         name={popupUser?.firstName ?? ''}
       />
-      <MUIDataTable
+      <AdminTable
         title="Users"
-        columns={columns}
-        data={tableData}
-        options={{
-          elevation: 0,
-          search: false,
-          download: false,
-          print: false,
-          viewColumns: false,
-          filter: false,
-          selectToolbarPlacement: 'none',
-          selectableRows: 'none',
-          rowHover: false,
-          responsive: 'standard',
-          customToolbar: Toolbar,
-          customRowRender: (row, i) => <Row key={i} row={row} />,
-          textLabels: {
-            body: {
-              noMatch: loading ? (
-                <LinearProgress />
-              ) : (
-                'Sorry, no matching users found.'
-              ),
-            },
-          },
+        newBtnLabel="New User"
+        newBtnOnClick={() => {
+          setPopupUser(undefined);
+          setEditPopupOpen(true);
         }}
+        search={search}
+        setSearch={setSearch}
+        columns={columns}
+        Row={Row}
+        data={tableData}
+        loading={loading}
       />
     </div>
   );
 };
-
-const useStyles = makeStyles({
-  tableContainer: {
-    '& .MuiTableCell-head': {
-      fontWeight: 'bold',
-    },
-    '& .MuiTableSortLabel-icon': {
-      marginTop: 15,
-    },
-  },
-  row: {
-    borderBottom: '1px solid #ddd',
-  },
-  cell: {
-    padding: '4px 16px',
-  },
-  button: {
-    height: '100%',
-  },
-});

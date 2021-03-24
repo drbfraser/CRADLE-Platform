@@ -21,9 +21,6 @@ export type Reading = {
   appVersion: OrNull<string>;
   bpDiastolic: number;
   bpSystolic: number;
-  respiratoryRate: number;
-  oxygenSaturation: number;
-  temperature: number;
   dateLastSaved: OrNull<number>;
   dateRecheckVitalsNeeded: OrNull<number>;
   dateTimeTaken: OrNull<number>;
@@ -96,23 +93,17 @@ export interface IUser {
   supervises: number[];
 }
 
+export interface IUserWithTokens extends IUser {
+  token: string;
+  refresh: string;
+}
+
 export interface IVHT {
   userId: number;
   email: string;
   firstName: string;
   healthFacilityName: string;
 }
-
-export type ActualUser = Pick<
-  IUser,
-  'email' | 'firstName' | 'healthFacilityName' | 'supervises'
-> & {
-  isLoggedIn: boolean;
-  refresh: string;
-  role: UserRoleEnum;
-  token: string;
-  userId: number;
-};
 
 export type TrafficLightStatistics = {
   green: number;

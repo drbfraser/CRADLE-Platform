@@ -2,22 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { apiFetch } from 'src/shared/utils/api';
 import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
-import MUIDataTable from 'mui-datatables';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  Button,
-  IconButton,
-  LinearProgress,
-  TextField,
-  Tooltip,
-} from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
+import { IconButton, Tooltip } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 import { Toast } from 'src/shared/components/toast';
 import { IFacility } from './state';
 import EditFacility from './EditFacility';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useDispatch } from 'react-redux';
+import { useAdminStyles } from '../adminStyles';
+import AdminTable from '../AdminTable';
 
 const columns = [
   'Facility Name',
@@ -32,7 +25,7 @@ const columns = [
 ];
 
 export const ManageFacilities = () => {
-  const styles = useStyles();
+  const styles = useAdminStyles();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
@@ -80,32 +73,6 @@ export const ManageFacilities = () => {
     setTableData(rows);
   }, [facilities, search]);
 
-  const Toolbar = () => (
-    <>
-      <TextField
-        type="text"
-        variant="outlined"
-        size="small"
-        placeholder="Search..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      &nbsp; &nbsp;
-      <Button
-        className={styles.button}
-        color="primary"
-        variant="contained"
-        size="large"
-        onClick={() => {
-          setFacilityToEdit(undefined);
-          setEditPopupOpen(true);
-        }}>
-        <AddIcon />
-        New Facility
-      </Button>
-    </>
-  );
-
   const Row = ({ row }: { row: (string | number)[] }) => {
     const cells = row.slice(0, -1);
     const facility = facilities[row.slice(-1)[0] as number];
@@ -151,54 +118,20 @@ export const ManageFacilities = () => {
         facilities={facilities}
         editFacility={facilityToEdit}
       />
-      <MUIDataTable
+      <AdminTable
         title="Health Care Facilities"
-        columns={columns}
-        data={tableData}
-        options={{
-          elevation: 0,
-          search: false,
-          download: false,
-          print: false,
-          viewColumns: false,
-          filter: false,
-          selectToolbarPlacement: 'none',
-          selectableRows: 'none',
-          rowHover: false,
-          responsive: 'standard',
-          customToolbar: Toolbar,
-          customRowRender: (row, i) => <Row key={i} row={row} />,
-          textLabels: {
-            body: {
-              noMatch: loading ? (
-                <LinearProgress />
-              ) : (
-                'Sorry, no matching facilities found.'
-              ),
-            },
-          },
+        newBtnLabel="New Facility"
+        newBtnOnClick={() => {
+          setFacilityToEdit(undefined);
+          setEditPopupOpen(true);
         }}
+        search={search}
+        setSearch={setSearch}
+        columns={columns}
+        Row={Row}
+        data={tableData}
+        loading={loading}
       />
     </div>
   );
 };
-
-const useStyles = makeStyles({
-  tableContainer: {
-    '& .MuiTableCell-head': {
-      fontWeight: 'bold',
-    },
-    '& .MuiTableSortLabel-icon': {
-      marginTop: 15,
-    },
-  },
-  row: {
-    borderBottom: '1px solid #ddd',
-  },
-  cell: {
-    padding: '4px 16px',
-  },
-  button: {
-    height: '100%',
-  },
-});

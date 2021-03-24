@@ -20,7 +20,7 @@ import { handleSubmit } from './handlers';
 import { Toast } from 'src/shared/components/toast';
 import { ReduxState } from 'src/redux/reducers';
 import { useSelector } from 'react-redux';
-import { ActualUser } from 'src/types';
+import { IUserWithTokens } from 'src/types';
 import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
@@ -35,7 +35,7 @@ export const ReadingFormPage = () => {
 
   // TODO: remove userId once the backend grabs the userId instead
   const userId = useSelector(
-    (state: ReduxState) => (state.user.current.data as ActualUser).userId
+    (state: ReduxState) => (state.user.current.data as IUserWithTokens).userId
   );
 
   const pages = [

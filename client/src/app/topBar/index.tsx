@@ -1,4 +1,4 @@
-import { ActualUser, OrNull } from 'src/types';
+import { IUserWithTokens, OrNull } from 'src/types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -17,7 +17,7 @@ import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import ChangePassword from './changePassword/ChangePassword';
 
 interface IProps {
-  user: OrNull<ActualUser>;
+  user: OrNull<IUserWithTokens>;
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
 }
 

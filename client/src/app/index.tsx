@@ -1,4 +1,4 @@
-import { ActualUser, OrNull } from 'src/types';
+import { IUserWithTokens, OrNull } from 'src/types';
 
 import { ContextProvider } from 'src/context';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -18,7 +18,7 @@ import { useStyles } from './styles';
 
 type SelectorState = {
   loggedIn: boolean;
-  user: OrNull<ActualUser>;
+  user: OrNull<IUserWithTokens>;
   pathName: Pathname;
 };
 
