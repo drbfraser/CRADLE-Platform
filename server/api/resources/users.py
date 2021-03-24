@@ -320,12 +320,13 @@ class UserApi(Resource):
         if new_user["role"] not in supported_roles:
             return {"message": "Not a supported role"}, 400
 
-        # If cho add vht's to cho's list
+        supervises = []
         if new_user["role"] == RoleEnum.CHO.name:
-            crud.add_vht_to_supervise(id, new_user.get("supervises"))
-            new_user.pop("supervises", None)
+            supervises = new_user.get("supervises")
 
-        # Update User
+        crud.add_vht_to_supervise(id, supervises)
+        new_user.pop("supervises", None)
+
         crud.update(User, new_user, id=id)
 
         return getDictionaryOfUserInfo(id)
