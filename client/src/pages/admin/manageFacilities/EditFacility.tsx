@@ -60,7 +60,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
           clearMessage={() => setSubmitError(false)}
         />
       )}
-      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} Facility</DialogTitle>
         <DialogContent>
           <Formik

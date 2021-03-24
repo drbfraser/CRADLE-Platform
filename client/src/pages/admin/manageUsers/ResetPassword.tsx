@@ -65,7 +65,7 @@ const ResetPassword = ({ open, onClose, userId, name }: IProps) => {
           clearMessage={() => setSubmitSuccess(false)}
         />
       )}
-      <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <Dialog open={open} maxWidth="xs" fullWidth>
         <DialogTitle>Reset Password: {name}</DialogTitle>
         <DialogContent>
           {submitError && (

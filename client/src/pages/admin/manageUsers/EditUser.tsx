@@ -80,7 +80,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
           clearMessage={() => setSubmitError(false)}
         />
       )}
-      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} User</DialogTitle>
         <DialogContent>
           <Formik
