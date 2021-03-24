@@ -17,17 +17,18 @@ import DeleteForever from '@material-ui/icons/DeleteForever';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import { Toast } from 'src/shared/components/toast';
 import EditUser from './EditUser';
-import { IUserGet } from './state';
 import ResetPassword from './ResetPassword';
 import DeleteUser from './DeleteUser';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
+import { IUser } from 'src/types';
+import { userRoles } from 'src/enums';
 
 const columns = [
   'First Name',
   'Email',
   'Health Facility',
-  'Roles',
+  'Role',
   {
     name: 'Take Action',
     options: {
@@ -43,18 +44,18 @@ export const ManageUsers = () => {
   ) as number;
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
-  const [users, setUsers] = useState<IUserGet[]>([]);
+  const [users, setUsers] = useState<IUser[]>([]);
   const [search, setSearch] = useState('');
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
-  const [popupUser, setPopupUser] = useState<IUserGet>();
+  const [popupUser, setPopupUser] = useState<IUser>();
 
   const getUsers = async () => {
     try {
-      const resp: IUserGet[] = await (
-        await apiFetch(BASE_URL + EndpointEnum.USER + EndpointEnum.ALL)
+      const resp: IUser[] = await (
+        await apiFetch(BASE_URL + EndpointEnum.USER_ALL)
       ).json();
 
       setUsers(resp);
@@ -71,7 +72,7 @@ export const ManageUsers = () => {
   useEffect(() => {
     const searchLowerCase = search.toLowerCase().trim();
 
-    const userFilter = (user: IUserGet) => {
+    const userFilter = (user: IUser) => {
       return (
         user.firstName.toLowerCase().startsWith(searchLowerCase) ||
         user.email.toLowerCase().startsWith(searchLowerCase) ||
@@ -85,7 +86,7 @@ export const ManageUsers = () => {
         u.firstName,
         u.email,
         u.healthFacilityName,
-        u.roleIds.join(', '),
+        userRoles[u.role],
         idx,
       ]);
 
@@ -140,7 +141,7 @@ export const ManageUsers = () => {
   const Row = ({ row }: { row: (string | number)[] }) => {
     const cells = row.slice(0, -1);
     const user = users[row.slice(-1)[0] as number];
-    const isCurrentUser = user?.id === currentUserId;
+    const isCurrentUser = user?.userId === currentUserId;
     const actions = isCurrentUser
       ? rowActions.filter((a) => !a.disableForCurrentUser)
       : rowActions;
@@ -193,7 +194,7 @@ export const ManageUsers = () => {
       <ResetPassword
         open={passwordPopupOpen}
         onClose={() => setPasswordPopupOpen(false)}
-        userId={popupUser?.id ?? -1}
+        userId={popupUser?.userId ?? -1}
         name={popupUser?.firstName ?? ''}
       />
       <DeleteUser
@@ -202,7 +203,7 @@ export const ManageUsers = () => {
           setDeletePopupOpen(false);
           getUsers();
         }}
-        userId={popupUser?.id ?? -1}
+        userId={popupUser?.userId ?? -1}
         name={popupUser?.firstName ?? ''}
       />
       <MUIDataTable

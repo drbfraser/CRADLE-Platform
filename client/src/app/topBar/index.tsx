@@ -7,7 +7,7 @@ import { Icon } from 'semantic-ui-react';
 import IconButton from '@material-ui/core/IconButton';
 import React, { useState } from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { RoleEnum } from 'src/enums';
+import { userRoles } from 'src/enums';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { push } from 'connected-react-router';
@@ -31,23 +31,6 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
     const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
     const classes = useStyles();
-
-    const getRole = (roles?: Array<RoleEnum>): string => {
-      if (!roles) {
-        return ``;
-      }
-
-      if (roles.includes(RoleEnum.ADMIN)) {
-        return `ADMIN`;
-      } else if (roles.includes(RoleEnum.HCW)) {
-        return `Healthcare Worker`;
-      } else if (roles.includes(RoleEnum.CHO)) {
-        return `CHO`;
-      } else if (roles.includes(RoleEnum.VHT)) {
-        return `VHT`;
-      }
-      return ``;
-    };
 
     const dispatch = useDispatch();
 
@@ -82,7 +65,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
                 <Icon name="user circle" size="large" />
                 <div>
                   <Typography variant="body1" noWrap>
-                    {user?.firstName} ({getRole(user?.roles)})
+                    {user?.firstName} ({user ? userRoles[user.role] : ''})
                   </Typography>
                   {user?.healthFacilityName && (
                     <Typography variant="body2" noWrap>

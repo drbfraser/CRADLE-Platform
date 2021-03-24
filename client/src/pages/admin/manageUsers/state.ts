@@ -1,35 +1,5 @@
 import * as Yup from 'yup';
 
-export interface IUserGet {
-  id: number;
-  email: string;
-  firstName: string;
-  healthFacilityName: string;
-  roleIds: number[];
-  vhtList: number[];
-}
-
-export interface IUserRegister {
-  email: string;
-  password: string;
-  firstName: string;
-  healthFacilityName: string;
-  role: string;
-}
-
-export interface IUserEdit {
-  email: string;
-  firstName: string;
-  healthFacilityName: string;
-  newRoleIds: number[];
-  newVhtIds: number[];
-}
-
-export interface IVHT {
-  id: number;
-  email: string;
-}
-
 export enum UserField {
   firstName = 'firstName',
   email = 'email',
@@ -39,20 +9,6 @@ export enum UserField {
   password = 'password',
   confirmPassword = 'confirmPassword',
 }
-
-export enum UserRole {
-  VHT = 'VHT',
-  CHO = 'CHO',
-  HCW = 'HCW',
-  ADMIN = 'ADMIN',
-}
-
-export const userRoles = {
-  [UserRole.VHT]: 'VHT',
-  [UserRole.CHO]: 'CHO',
-  [UserRole.HCW]: 'HCW',
-  [UserRole.ADMIN]: 'Admin',
-};
 
 export const fieldLabels = {
   [UserField.firstName]: 'First Name',

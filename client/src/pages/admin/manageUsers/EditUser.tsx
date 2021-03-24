@@ -7,13 +7,7 @@ import {
   DialogTitle,
   MenuItem,
 } from '@material-ui/core';
-import {
-  UserField,
-  IUserEdit,
-  IUserGet,
-  newEditValidationSchema,
-  userRoles,
-} from './state';
+import { UserField, newEditValidationSchema } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { apiFetch } from 'src/shared/utils/api';
@@ -21,12 +15,14 @@ import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import { Toast } from 'src/shared/components/toast';
 import { useHealthFacilityOptions } from 'src/shared/hooks/healthFacilityOptions';
+import { IUser } from 'src/types';
+import { userRoles } from 'src/enums';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  users: IUserGet[];
-  editUser?: IUserGet;
+  users: IUser[];
+  editUser?: IUser;
 }
 
 const EditUser = ({ open, onClose, users, editUser }: IProps) => {
@@ -34,18 +30,26 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const creatingNew = editUser === undefined;
   const emailsInUse = users
-    .filter((u) => u.id !== editUser?.id)
+    .filter((u) => u.userId !== editUser?.userId)
     .map((u) => u.email);
 
   const handleSubmit = async (
-    values: IUserEdit,
-    { setSubmitting }: FormikHelpers<IUserEdit>
+    values: IUser,
+    { setSubmitting }: FormikHelpers<IUser>
   ) => {
     try {
-      const resp = await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES, {
-        method: 'POST',
+      const url =
+        BASE_URL +
+        (editUser
+          ? EndpointEnum.USER + String(editUser.userId)
+          : EndpointEnum.USER_REGISTER);
+
+      const init = {
+        method: creatingNew ? 'POST' : 'PUT',
         body: JSON.stringify(values),
-      });
+      };
+
+      const resp = await apiFetch(url, init);
 
       if (!resp.ok) {
         throw new Error('Request failed.');

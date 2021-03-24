@@ -30,13 +30,14 @@ const ResetPassword = ({ open, onClose, userId, name }: IProps) => {
     const init = {
       method: 'POST',
       body: JSON.stringify({
-        id: userId,
         [UserField.password]: values[UserField.password],
       }),
     };
 
     try {
-      const resp = await apiFetch(BASE_URL + EndpointEnum.RESET_PASS, init);
+      const url =
+        BASE_URL + EndpointEnum.USER + String(userId) + EndpointEnum.RESET_PASS;
+      const resp = await apiFetch(url, init);
 
       if (!resp.ok) {
         throw new Error();

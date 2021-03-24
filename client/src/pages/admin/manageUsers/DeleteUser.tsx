@@ -25,7 +25,7 @@ const DeleteUser = ({ open, onClose, userId, name }: IProps) => {
 
   const handleDelete = async () => {
     try {
-      const url = BASE_URL + EndpointEnum.DELETE_USER + String(userId);
+      const url = BASE_URL + EndpointEnum.USER + String(userId);
       const resp = await apiFetch(url, {
         method: 'DELETE',
       });

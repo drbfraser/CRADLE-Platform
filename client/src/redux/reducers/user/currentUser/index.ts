@@ -70,7 +70,7 @@ export const loginUser = (
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${EndpointEnum.USER}${EndpointEnum.AUTH}`,
+        endpoint: EndpointEnum.AUTH,
         method: MethodEnum.POST,
         data,
         onSuccess: ({ data }: { data: ActualUser }): CurrentUserAction => {
@@ -104,7 +104,7 @@ export const getCurrentUser = (): ((
 
     return dispatch(
       serverRequestActionCreator({
-        endpoint: `${EndpointEnum.USER}${EndpointEnum.CURRENT}`,
+        endpoint: EndpointEnum.USER_CURRENT,
         onSuccess: ({
           data: currentUser,
         }: {
