@@ -1,5 +1,4 @@
 import {
-  GESTATIONAL_AGE_UNITS,
   getDOBForEstimatedAge,
   getTimestampFromMonths,
   getTimestampFromWeeks,
@@ -9,6 +8,7 @@ import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
 import { initialState, PatientField, PatientState, SEXES } from './state';
 import { apiFetch } from 'src/shared/utils/api';
+import { GestationalAgeUnitEnum } from 'src/enums';
 
 // custom change handler when a field might affect other fields
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
@@ -93,12 +93,12 @@ export const handleSubmit = (
 
     if (patientData[PatientField.isPregnant]) {
       switch (patientData[PatientField.gestationalAgeUnit]) {
-        case GESTATIONAL_AGE_UNITS.WEEKS:
+        case GestationalAgeUnitEnum.WEEKS:
           patientData.gestationalTimestamp = getTimestampFromWeeks(
             patientData[PatientField.gestationalAge]
           );
           break;
-        case GESTATIONAL_AGE_UNITS.MONTHS:
+        case GestationalAgeUnitEnum.MONTHS:
           patientData.gestationalTimestamp = getTimestampFromMonths(
             patientData[PatientField.gestationalAge]
           );
