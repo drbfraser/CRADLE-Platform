@@ -32,18 +32,20 @@ def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
     :param **kwargs: all the optional query values
     :return: A list of patients
     """
-    roles = [r.name.value for r in user.roleIds]
-    if "ADMIN" in roles:
+
+    role = user.role
+    if role == "ADMIN":
         return admin_patient_view(**kwargs)
-    elif "HCW" in roles:
+    elif role == "HCW":
         return admin_patient_view(**kwargs)
         # return hcw_patient_view(user)
-    elif "CHO" in roles:
+    elif role == "CHO":
         return cho_patient_view(user, **kwargs)
-    elif "VHT" in roles:
+    elif role == "VHT":
+        # could check if individual vht referral is needed here
         return vht_patient_view(user, **kwargs)
     else:
-        raise ValueError("user does not contain an roles")
+        raise ValueError("User has an invalid role")
 
 
 def admin_patient_view(**kwargs) -> List[Patient]:
@@ -110,19 +112,20 @@ def referral_view_for_user(user: User, **kwargs) -> List[Referral]:
     :param user: The user to get referrals for
     :return: A list of referrals
     """
-    roles = [r.name.value for r in user.roleIds]
-    if "ADMIN" in roles:
+
+    role = user.role
+    if role == "ADMIN":
         return admin_referral_view(**kwargs)
-    elif "HCW" in roles:
+    elif role == "HCW":
         return admin_referral_view(**kwargs)
         # return hcw_referral_view(user)
-    elif "CHO" in roles:
+    elif role == "CHO":
         return cho_referral_view(user, **kwargs)
-    elif "VHT" in roles:
+    elif role == "VHT":
         # could check if individual vht referral is needed here
         return vht_referral_view(user, **kwargs)
     else:
-        raise ValueError("user does not contain any roles")
+        raise ValueError("User has an invalid role")
 
 
 def admin_referral_view(**kwargs) -> List[Referral]:
