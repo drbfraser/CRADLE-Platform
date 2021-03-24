@@ -13,7 +13,12 @@ import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
 import { Toast } from 'src/shared/components/toast';
 import { apiFetch } from 'src/shared/utils/api';
-import { fieldLabels, passwordValidationSchema, UserField } from './state';
+import {
+  fieldLabels,
+  passwordValidationSchema,
+  resetPasswordTemplate,
+  UserField,
+} from './state';
 
 interface IProps {
   open: boolean;
@@ -73,7 +78,7 @@ const ResetPassword = ({ open, onClose, userId, name }: IProps) => {
             </>
           )}
           <Formik
-            initialValues={{} as any}
+            initialValues={resetPasswordTemplate}
             validationSchema={passwordValidationSchema}
             onSubmit={handleSubmit}>
             {({ isSubmitting }) => (

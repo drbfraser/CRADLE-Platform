@@ -65,3 +65,18 @@ export const newEditValidationSchema = (
 export const passwordValidationSchema = Yup.object().shape(
   passwordValidationShape
 );
+
+export const newUserTemplate = {
+  [UserField.firstName]: '',
+  [UserField.email]: '',
+  [UserField.healthFacilityName]: '',
+  [UserField.role]: '',
+  [UserField.supervises]: [] as number[],
+  [UserField.password]: '',
+  [UserField.confirmPassword]: '',
+};
+
+export const resetPasswordTemplate = {
+  [UserField.password]: '',
+  [UserField.confirmPassword]: '',
+};

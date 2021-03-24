@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   MenuItem,
 } from '@material-ui/core';
-import { UserField, newEditValidationSchema } from './state';
+import {
+  UserField,
+  newEditValidationSchema,
+  newUserTemplate,
+  fieldLabels,
+} from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { apiFetch } from 'src/shared/utils/api';
@@ -16,7 +22,7 @@ import { EndpointEnum } from 'src/server';
 import { Toast } from 'src/shared/components/toast';
 import { useHealthFacilityOptions } from 'src/shared/hooks/healthFacilityOptions';
 import { IUser } from 'src/types';
-import { userRoles } from 'src/enums';
+import { UserRoleEnum, userRoles } from 'src/enums';
 
 interface IProps {
   open: boolean;
@@ -46,7 +52,10 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
 
       const init = {
         method: creatingNew ? 'POST' : 'PUT',
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          supervises: values.role === UserRoleEnum.CHO ? values.supervises : [],
+        }),
       };
 
       const resp = await apiFetch(url, init);
@@ -75,10 +84,10 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} User</DialogTitle>
         <DialogContent>
           <Formik
-            initialValues={editUser ?? {}}
+            initialValues={editUser ?? newUserTemplate}
             validationSchema={newEditValidationSchema(creatingNew, emailsInUse)}
             onSubmit={handleSubmit}>
-            {({ isSubmitting, isValid }) => (
+            {({ values, isSubmitting, isValid }) => (
               <Form>
                 <Field
                   component={TextField}
@@ -86,7 +95,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                   required
                   inputProps={{ maxLength: 25 }}
                   variant="outlined"
-                  label="First Name"
+                  label={fieldLabels[UserField.firstName]}
                   name={UserField.firstName}
                 />
                 <br />
@@ -97,7 +106,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                   required
                   inputProps={{ maxLength: 120 }}
                   variant="outlined"
-                  label="Email"
+                  label={fieldLabels[UserField.email]}
                   name={UserField.email}
                 />
                 <br />
@@ -108,7 +117,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                   select
                   required
                   variant="outlined"
-                  label="Health Facility"
+                  label={fieldLabels[UserField.healthFacilityName]}
                   name={UserField.healthFacilityName}>
                   {Object.entries(healthFacilityOptions).map(
                     ([_, { label, value }]) => (
@@ -126,7 +135,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                   select
                   required
                   variant="outlined"
-                  label="Role"
+                  label={fieldLabels[UserField.role]}
                   name={UserField.role}>
                   {Object.entries(userRoles).map(([value, name]) => (
                     <MenuItem key={value} value={value}>
@@ -134,6 +143,43 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                     </MenuItem>
                   ))}
                 </Field>
+                {values.role === UserRoleEnum.CHO && (
+                  <>
+                    <br />
+                    <br />
+                    <Field
+                      component={TextField}
+                      variant="outlined"
+                      fullWidth
+                      select
+                      SelectProps={{
+                        multiple: true,
+                        renderValue: (ids: number[]) =>
+                          ids
+                            .map(
+                              (id) =>
+                                users.find((u) => u.userId === id)?.firstName ??
+                                'Unknown'
+                            )
+                            .join(', '),
+                      }}
+                      label={fieldLabels[UserField.supervises]}
+                      name={UserField.supervises}>
+                      {users
+                        .filter((u) => u.role === UserRoleEnum.VHT)
+                        .map((user) => (
+                          <MenuItem key={user.userId} value={user.userId}>
+                            <Checkbox
+                              checked={
+                                values.supervises.indexOf(user.userId) >= 0
+                              }
+                            />
+                            {user.firstName} (ID: {user.userId})
+                          </MenuItem>
+                        ))}
+                    </Field>
+                  </>
+                )}
                 {creatingNew && (
                   <>
                     <br />
@@ -144,7 +190,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                       required
                       variant="outlined"
                       type="password"
-                      label="Password"
+                      label={fieldLabels[UserField.password]}
                       name={UserField.password}
                     />
                     <br />
@@ -155,7 +201,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                       required
                       variant="outlined"
                       type="password"
-                      label="Confirm Password"
+                      label={fieldLabels[UserField.confirmPassword]}
                       name={UserField.confirmPassword}
                     />
                   </>
