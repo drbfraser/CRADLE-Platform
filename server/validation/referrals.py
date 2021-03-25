@@ -14,7 +14,7 @@ def validate(request_body: dict) -> Optional[str]:
                         "referralId":"e9b1d6b0-a098-4c0a-ab47-bda85a1890c7",
                         "patient":{
                                 "gestationalTimestamp":two_weeks_ago,
-                                "gestationalAgeUnit":"GESTATIONAL_AGE_UNITS_MONTHS",
+                                "gestationalAgeUnit":"MONTHS",
                                 "patientId":"2",
                                 "patientName":"A",
                                 "dob":"2000-01-01",

@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-local="http://localhost:5000"
-heroku="http://cradle-platform.herokuapp.com"
-
-echo $local

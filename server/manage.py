@@ -106,7 +106,7 @@ def seed_test_data():
         "FEMALE",
         "1002",
         True,
-        "GESTATIONAL_AGE_UNITS_WEEKS",
+        "WEEKS",
         1592339808,
     )
 
@@ -183,6 +183,20 @@ def seed():
             "dob": getRandomDOB(),
             "isExactDob": bool(random.getrandbits(1)),
         }
+
+        # p1 = {
+        #     "patientId": patientId,
+        #     "patientName": getRandomInitials(),
+        #     "gestationalAgeUnit": "WEEKS",
+        #     "gestationalTimestamp": 1587068710,
+        #     "villageNumber": getRandomVillage(),
+        #     "patientSex": sex,
+        #     "isPregnant": pregnant,
+        #     "dob": getRandomDOB(),
+        #     "isExactDob": bool(random.getrandbits(1)),
+        # }
+
+
         db.session.add(patient_schema.load(p1))
         db.session.commit()
 
