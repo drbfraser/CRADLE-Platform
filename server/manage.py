@@ -14,7 +14,7 @@ from models import *
 from database.ReadingRepoNew import ReadingRepo
 from random import randint, choice
 from string import ascii_lowercase, digits
-from models import SexEnum
+from models import SexEnum, GestationalAgeUnitEnum
 
 
 manager = Manager(app)
@@ -165,9 +165,11 @@ def seed():
         gestational_age_unit = None
         gestational_timestamp = None
         gestational_units = [
-            "GESTATIONAL_AGE_UNITS_WEEKS",
-            "GESTATIONAL_AGE_UNITS_MONTHS",
+            GestationalAgeUnitEnum.WEEKS.value,
+            GestationalAgeUnitEnum.MONTHS.value,
+            GestationalAgeUnitEnum.DAYS.value,
         ]
+        
         if sex == SexEnum.FEMALE.value and pregnant:
             gestational_age_unit = random.choice(gestational_units)
             gestational_timestamp = getRandomPregnancyDate()
