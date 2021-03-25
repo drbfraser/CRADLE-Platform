@@ -150,12 +150,19 @@ def seed():
     referral_schema = ReferralSchema()
 
     fnames, lnames = getNames()
-
+    generated_names = set()
     for count, patientId in enumerate(patientList):
         # get random patient
         person = random.choice(fnames)
         name, sex = person["name"], person["sex"]
         lname = random.choice(lnames)
+
+        while(name+lname in generated_names):
+            person = random.choice(fnames)
+            name, sex = person["name"], person["sex"]
+            lname = random.choice(lnames)
+
+        generated_names.add(name+lname)
 
         if sex == SexEnum.MALE.value:
             pregnant = False
@@ -185,19 +192,6 @@ def seed():
             "dob": getRandomDOB(),
             "isExactDob": bool(random.getrandbits(1)),
         }
-
-        # p1 = {
-        #     "patientId": patientId,
-        #     "patientName": getRandomInitials(),
-        #     "gestationalAgeUnit": "WEEKS",
-        #     "gestationalTimestamp": 1587068710,
-        #     "villageNumber": getRandomVillage(),
-        #     "patientSex": sex,
-        #     "isPregnant": pregnant,
-        #     "dob": getRandomDOB(),
-        #     "isExactDob": bool(random.getrandbits(1)),
-        # }
-
 
         db.session.add(patient_schema.load(p1))
         db.session.commit()
