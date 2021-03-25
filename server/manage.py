@@ -169,7 +169,7 @@ def seed():
             GestationalAgeUnitEnum.MONTHS.value,
             GestationalAgeUnitEnum.DAYS.value,
         ]
-        
+
         if sex == SexEnum.FEMALE.value and pregnant:
             gestational_age_unit = random.choice(gestational_units)
             gestational_timestamp = getRandomPregnancyDate()
@@ -444,10 +444,15 @@ def getFacilityPhoneNumber(area_code):
 
 def generateHealthFacilities():
     n = len(facilityLocations)
-    facilities = [
-        "H" + "".join(["{}".format(randint(0, 9)) for num in range(0, 4)])
-        for x in range(n)
-    ]
+    
+    # Sets are unique element lists, prevents from having duplicates 
+    facilities = set()
+    while (len(facilities) < n):
+        facilities.add("H" + "".join(["{}".format(randint(0, 9)) for num in range(0, 4)]))
+    
+    facilities = list(facilities)   
+
+
     return sorted(facilities)
 
 
