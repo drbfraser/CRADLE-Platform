@@ -230,12 +230,16 @@ def seed():
                 " is seeking urgent care!",
             ]
             if random.choice([True, False]):
+                # Cap the referral date at today, if it goes into future
+                refer_date = min(
+                    r1["dateTimeTaken"] + int(timedelta(days=10).total_seconds()),
+                    int(datetime.now().timestamp()),
+                )
                 referral1 = {
                     "userId": getRandomUser(),
                     "patientId": patientId,
                     "readingId": readingId,
-                    "dateReferred": r1["dateTimeTaken"]
-                    + int(timedelta(days=10).total_seconds()),
+                    "dateReferred": refer_date,
                     "referralHealthFacilityName": healthFacilityName,
                     "comment": name + random.choice(referral_comments),
                 }
@@ -464,10 +468,10 @@ def generateHealthFacilities():
 
 def generateVillages():
     n = len(facilityLocations)
-    villages = [
-        "1" + "".join(["{}".format(randint(0, 9)) for num in range(0, 3)])
-        for x in range(n)
-    ]
+    villages = set()
+    while len(villages) < n:
+        villages.add("1" + "".join(["{}".format(randint(0, 9)) for num in range(0, 3)]))
+    villages = list(villages)
     return villages
 
 
