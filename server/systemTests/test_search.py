@@ -55,7 +55,7 @@ def test_pass_search_partial_initials():
 
 
 def test_pass_search_full_patient_id():
-    full_patient_id = "204652"
+    full_patient_id = "48300028162"
     url = BASE_URL + "/api/patient/global/" + full_patient_id
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()

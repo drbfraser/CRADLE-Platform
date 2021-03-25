@@ -95,11 +95,11 @@ def seed_test_data():
     print("Creating test patients, readings, referrals...")
 
     create_patient_reading_referral(
-        "400260", "abc-123-de2-a74a", 2, "AA", 35, "MALE", "1001"
+        "48300028232", "001e69da-d974-4059-a0a2-4b0a9c8e3a10", 2, "AA", 35, "MALE", "1001",False
     )
     create_patient_reading_referral(
-        "204652",
-        "def-456-fg3-fh5k",
+        "48300028162",
+        "00024cd4-fef9-4ecd-a551-81c86af84c4e",
         2,
         "BB",
         40,
@@ -109,7 +109,11 @@ def seed_test_data():
         "WEEKS",
         1592339808,
     )
-
+    #204652
+    #400260
+    #def-456-fg3-fh5k
+    #abc-123-de2-a74a
+    #001e69da-d974-4059-a0a2-4b0a9c8e3a10
     print("Finished seeding minimal test data")
 
 
@@ -279,6 +283,11 @@ def create_patient_reading_referral(
     import data.marshal as marshal
     from models import Patient
 
+    patient_schema = PatientSchema()
+    reading_schema = ReadingSchema()
+    referral_schema = ReferralSchema()
+
+
     """
     Creates a patient in the database.
     """
@@ -327,10 +336,12 @@ def create_patient_reading_referral(
         "comment": "They need help!",
     }
 
-    reading["referral"] = referral
-    patient["readings"] = [reading]
-    model = marshal.unmarshal(Patient, patient)
-    crud.create(model)
+    db.session.add(patient_schema.load(patient))
+    db.session.commit()
+    ReadingRepo().create(reading)
+    db.session.add(referral_schema.load(referral))
+    db.session.commit()
+
 
 
 def getRandomInitials():
