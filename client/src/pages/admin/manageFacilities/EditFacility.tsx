@@ -18,25 +18,15 @@ import { apiFetch } from 'src/shared/utils/api';
 import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import { Toast } from 'src/shared/components/toast';
-import { useDispatch } from 'react-redux';
-import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 
 interface IProps {
   open: boolean;
-  setOpen: (open: boolean) => void;
-  refreshFacilities: () => Promise<void>;
+  onClose: () => void;
   facilities: IFacility[];
   editFacility?: IFacility;
 }
 
-const EditFacility = ({
-  open,
-  setOpen,
-  refreshFacilities,
-  facilities,
-  editFacility,
-}: IProps) => {
-  const dispatch = useDispatch();
+const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const creatingNew = editFacility === undefined;
 
@@ -54,11 +44,7 @@ const EditFacility = ({
         throw new Error('Request failed.');
       }
 
-      // refresh the facility list used elsewhere in the application
-      dispatch(getHealthFacilityList());
-
-      refreshFacilities();
-      setOpen(false);
+      onClose();
     } catch (e) {
       setSubmitting(false);
       setSubmitError(true);
@@ -74,11 +60,7 @@ const EditFacility = ({
           clearMessage={() => setSubmitError(false)}
         />
       )}
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        maxWidth="sm"
-        fullWidth>
+      <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} Facility</DialogTitle>
         <DialogContent>
           <Formik
@@ -131,7 +113,7 @@ const EditFacility = ({
                   name={FacilityField.about}
                 />
                 <DialogActions>
-                  <Button type="button" onClick={() => setOpen(false)}>
+                  <Button type="button" onClick={onClose}>
                     Cancel
                   </Button>
                   <Button type="submit" disabled={isSubmitting || !isValid}>

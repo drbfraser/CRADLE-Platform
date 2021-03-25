@@ -5,43 +5,10 @@ export enum FormStatusEnum {
   UPDATE_ASSESSMENT,
 }
 
-// * Role ids start from 1 to 4 in the order below
-// * Order must be maintained for use in edit user form
-// * in the admin page
-export enum UserOptionEnum {
-  VHT = 1,
-  HCW = 2,
-  ADMIN = 3,
-  CHO = 4,
-}
-
-export enum UserOptionDisplayEnum {
-  VHT = 'VHT',
-  HCW = 'HCW',
-  CHO = 'CHO',
-  ADMIN = 'ADMIN',
-}
-
-export enum YesNoEnum {
-  YES = 1,
-  NO = 0,
-}
-
-export enum YesNoDisplayEnum {
-  YES = 'Yes',
-  NO = 'No',
-}
-
 export enum SexEnum {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
   OTHER = 'OTHER',
-}
-
-export enum SexDisplayEnum {
-  MALE = 'Male',
-  FEMALE = 'Female',
-  OTHER = 'Other',
 }
 
 export enum GestationalAgeUnitEnum {
@@ -63,14 +30,19 @@ export enum TrafficLightEnum {
   NONE = 'NONE',
 }
 
-// * Order of enums is important
-// * Must match order used by the server
-export enum RoleEnum {
+export enum UserRoleEnum {
   VHT = 'VHT',
+  CHO = 'CHO',
   HCW = 'HCW',
   ADMIN = 'ADMIN',
-  CHO = 'CHO',
 }
+
+export const userRoles = {
+  [UserRoleEnum.VHT]: 'VHT',
+  [UserRoleEnum.CHO]: 'CHO',
+  [UserRoleEnum.HCW]: 'HCW',
+  [UserRoleEnum.ADMIN]: 'Admin',
+};
 
 export enum PatientStateEnum {
   ADD = 'Add',

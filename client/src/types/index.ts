@@ -1,12 +1,10 @@
 import {
   GestationalAgeUnitEnum,
   PatientStateEnum,
-  RoleEnum,
   SexEnum,
   TrafficLightEnum,
+  UserRoleEnum,
 } from 'src/enums';
-
-import { AutocompleteOption } from 'src/shared/components/input/autocomplete/utils';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -23,9 +21,6 @@ export type Reading = {
   appVersion: OrNull<string>;
   bpDiastolic: number;
   bpSystolic: number;
-  respiratoryRate: number;
-  oxygenSaturation: number;
-  temperature: number;
   dateLastSaved: OrNull<number>;
   dateRecheckVitalsNeeded: OrNull<number>;
   dateTimeTaken: OrNull<number>;
@@ -89,47 +84,26 @@ export type GlobalSearchPatient = {
   state: PatientStateEnum;
 };
 
-export type User = {
-  associations: unknown;
+export interface IUser {
+  userId: number;
   email: string;
   firstName: string;
-  followups: unknown;
-  healthFacility: string;
   healthFacilityName: string;
-  id: number;
-  referrals: unknown;
-  roleIds: Array<number>;
-  tableData: {
-    id: number;
-  };
-  username: OrNull<string>;
-  vhtList: Array<VHT>;
-};
+  role: UserRoleEnum;
+  supervises: number[];
+}
 
-export type ActualUser = Pick<
-  User,
-  'email' | 'firstName' | 'healthFacilityName' | 'vhtList'
-> & {
-  isLoggedIn: boolean;
-  refresh: string;
-  roles: Array<RoleEnum>;
+export interface IUserWithTokens extends IUser {
   token: string;
+  refresh: string;
+}
+
+export interface IVHT {
   userId: number;
-};
-
-export type EditUser = Omit<
-  User,
-  'healthFacilityName' | 'roleIds' | 'vhtList'
-> & {
-  healthFacilityName: AutocompleteOption<string, string>;
-  roleIds: Array<AutocompleteOption<RoleEnum, number>>;
-  vhtList: Array<AutocompleteOption<string, number>>;
-};
-
-export type VHT = {
-  id: number;
   email: string;
-};
+  firstName: string;
+  healthFacilityName: string;
+}
 
 export type TrafficLightStatistics = {
   green: number;

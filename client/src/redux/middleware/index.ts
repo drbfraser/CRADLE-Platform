@@ -16,7 +16,7 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
 
   let authHeader = {};
 
-  if (endpoint !== `${EndpointEnum.USER}${EndpointEnum.AUTH}`) {
+  if (endpoint !== EndpointEnum.AUTH) {
     const token = await getApiToken();
 
     authHeader = {

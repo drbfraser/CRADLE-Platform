@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { apiFetch } from 'src/shared/utils/api';
 import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
-import MUIDataTable from 'mui-datatables';
-import { makeStyles } from '@material-ui/core/styles';
-import { Button, IconButton, Tooltip } from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
+import { IconButton, Tooltip } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 import { Toast } from 'src/shared/components/toast';
 import { IFacility } from './state';
 import EditFacility from './EditFacility';
+import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
+import { useDispatch } from 'react-redux';
+import { useAdminStyles } from '../adminStyles';
+import AdminTable from '../AdminTable';
 
 const columns = [
   'Facility Name',
@@ -24,9 +25,12 @@ const columns = [
 ];
 
 export const ManageFacilities = () => {
-  const styles = useStyles();
+  const styles = useAdminStyles();
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
+  const [search, setSearch] = useState('');
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
@@ -36,7 +40,9 @@ export const ManageFacilities = () => {
       const resp: IFacility[] = await (
         await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES)
       ).json();
+
       setFacilities(resp);
+      setLoading(false);
     } catch (e) {
       setErrorLoading(true);
     }
@@ -47,29 +53,25 @@ export const ManageFacilities = () => {
   }, []);
 
   useEffect(() => {
-    const rows = facilities.map((f, idx) => [
-      f.healthFacilityName,
-      f.healthFacilityPhoneNumber,
-      f.location,
-      idx,
-    ]);
-    setTableData(rows);
-  }, [facilities]);
+    const searchLowerCase = search.toLowerCase().trim();
 
-  const CreateFacilityButton = () => (
-    <Button
-      className={styles.button}
-      color="primary"
-      variant="contained"
-      size="large"
-      onClick={() => {
-        setFacilityToEdit(undefined);
-        setEditPopupOpen(true);
-      }}>
-      <AddIcon />
-      New Facility
-    </Button>
-  );
+    const facilityFilter = (facility: IFacility) => {
+      return (
+        facility.healthFacilityName.toLowerCase().startsWith(searchLowerCase) ||
+        facility.location.toLowerCase().startsWith(searchLowerCase)
+      );
+    };
+
+    const rows = facilities
+      .filter(facilityFilter)
+      .map((f, idx) => [
+        f.healthFacilityName,
+        f.healthFacilityPhoneNumber,
+        f.location,
+        idx,
+      ]);
+    setTableData(rows);
+  }, [facilities, search]);
 
   const Row = ({ row }: { row: (string | number)[] }) => {
     const cells = row.slice(0, -1);
@@ -108,49 +110,28 @@ export const ManageFacilities = () => {
       )}
       <EditFacility
         open={editPopupOpen}
-        setOpen={setEditPopupOpen}
-        refreshFacilities={getFacilities}
+        onClose={() => {
+          setEditPopupOpen(false);
+          dispatch(getHealthFacilityList());
+          getFacilities();
+        }}
         facilities={facilities}
         editFacility={facilityToEdit}
       />
-      <MUIDataTable
+      <AdminTable
         title="Health Care Facilities"
-        columns={columns}
-        data={tableData}
-        options={{
-          search: false,
-          download: false,
-          print: false,
-          viewColumns: false,
-          filter: false,
-          selectToolbarPlacement: 'none',
-          selectableRows: 'none',
-          rowHover: false,
-          responsive: 'standard',
-          customToolbar: () => <CreateFacilityButton />,
-          customRowRender: (row, i) => <Row key={i} row={row} />,
+        newBtnLabel="New Facility"
+        newBtnOnClick={() => {
+          setFacilityToEdit(undefined);
+          setEditPopupOpen(true);
         }}
+        search={search}
+        setSearch={setSearch}
+        columns={columns}
+        Row={Row}
+        data={tableData}
+        loading={loading}
       />
     </div>
   );
 };
-
-const useStyles = makeStyles({
-  tableContainer: {
-    '& .MuiTableCell-head': {
-      fontWeight: 'bold',
-    },
-    '& .MuiTableSortLabel-icon': {
-      marginTop: 15,
-    },
-  },
-  row: {
-    borderBottom: '1px solid #ddd',
-  },
-  cell: {
-    padding: '4px 16px',
-  },
-  button: {
-    height: '100%',
-  },
-});

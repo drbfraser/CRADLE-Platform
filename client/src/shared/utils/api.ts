@@ -20,7 +20,7 @@ export const getApiToken = async () => {
 
       const response = await axios({
         method: MethodEnum.POST,
-        url: `${BASE_URL}${EndpointEnum.USER}${EndpointEnum.AUTH}${EndpointEnum.REFRESH}`,
+        url: `${BASE_URL}${EndpointEnum.REFRESH}`,
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
