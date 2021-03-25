@@ -95,7 +95,14 @@ def seed_test_data():
     print("Creating test patients, readings, referrals...")
 
     create_patient_reading_referral(
-        "48300028232", "001e69da-d974-4059-a0a2-4b0a9c8e3a10", 2, "AA", 35, "MALE", "1001",False
+        "48300028232",
+        "001e69da-d974-4059-a0a2-4b0a9c8e3a10",
+        2,
+        "AA",
+        35,
+        "MALE",
+        "1001",
+        False,
     )
     create_patient_reading_referral(
         "48300028162",
@@ -109,11 +116,11 @@ def seed_test_data():
         "WEEKS",
         1592339808,
     )
-    #204652
-    #400260
-    #def-456-fg3-fh5k
-    #abc-123-de2-a74a
-    #001e69da-d974-4059-a0a2-4b0a9c8e3a10
+    # 204652
+    # 400260
+    # def-456-fg3-fh5k
+    # abc-123-de2-a74a
+    # 001e69da-d974-4059-a0a2-4b0a9c8e3a10
     print("Finished seeding minimal test data")
 
 
@@ -161,12 +168,12 @@ def seed():
         name, sex = person["name"], person["sex"]
         lname = random.choice(lnames)
 
-        while(name+lname in generated_names):
+        while name + lname in generated_names:
             person = random.choice(fnames)
             name, sex = person["name"], person["sex"]
             lname = random.choice(lnames)
 
-        generated_names.add(name+lname)
+        generated_names.add(name + lname)
 
         if sex == SexEnum.MALE.value:
             pregnant = False
@@ -287,7 +294,6 @@ def create_patient_reading_referral(
     reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
 
-
     """
     Creates a patient in the database.
     """
@@ -341,7 +347,6 @@ def create_patient_reading_referral(
     ReadingRepo().create(reading)
     db.session.add(referral_schema.load(referral))
     db.session.commit()
-
 
 
 def getRandomInitials():
@@ -449,14 +454,15 @@ def getFacilityPhoneNumber(area_code):
 
 def generateHealthFacilities():
     n = len(facilityLocations)
-    
-    # Sets are unique element lists, prevents from having duplicates 
-    facilities = set()
-    while (len(facilities) < n):
-        facilities.add("H" + "".join(["{}".format(randint(0, 9)) for num in range(0, 4)]))
-    
-    facilities = list(facilities)   
 
+    # Sets are unique element lists, prevents from having duplicates
+    facilities = set()
+    while len(facilities) < n:
+        facilities.add(
+            "H" + "".join(["{}".format(randint(0, 9)) for num in range(0, 4)])
+        )
+
+    facilities = list(facilities)
 
     return sorted(facilities)
 
