@@ -16,9 +16,13 @@ export enum EndpointEnum {
   READINGS = '/readings',
   REFRESH = '/refresh_token',
   STATISTICS = '/stats',
+  STATS_ALL = '/stats/all',
+  STATS_FACILITY = '/stats/facility',
+  STATS_USER = '/stats/user',
   REGISTER = '/register',
   USER = '/user',
   VHTS = '/vhts',
+  ALL_VHTS = '/user/vhts',
 }
 
 export enum MethodEnum {
