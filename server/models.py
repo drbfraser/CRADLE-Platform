@@ -463,6 +463,14 @@ user_schema = {
 }
 
 
+class VillageSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = Village
+        load_instance = True
+        include_relationships = True
+
+
 def validate_user(data):
     try:
         validate(data, user_schema)
