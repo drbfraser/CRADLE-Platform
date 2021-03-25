@@ -166,7 +166,12 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                       label={fieldLabels[UserField.supervises]}
                       name={UserField.supervises}>
                       {users
-                        .filter((u) => u.role === UserRoleEnum.VHT)
+                        .filter(
+                          (u) =>
+                            editUser?.supervises.includes(u.userId) ||
+                            (u.role === UserRoleEnum.VHT &&
+                              u.userId !== editUser?.userId)
+                        )
                         .map((user) => (
                           <MenuItem key={user.userId} value={user.userId}>
                             <Checkbox

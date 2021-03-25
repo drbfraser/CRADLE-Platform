@@ -11,21 +11,26 @@ import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
 import { Toast } from 'src/shared/components/toast';
 import { apiFetch } from 'src/shared/utils/api';
+import { IUser } from 'src/types';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  userId: number;
-  name: string;
+  deleteUser: IUser | undefined;
 }
 
-const DeleteUser = ({ open, onClose, userId, name }: IProps) => {
+const DeleteUser = ({ open, onClose, deleteUser }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const name = deleteUser?.firstName ?? '';
 
   const handleDelete = async () => {
+    if (!deleteUser) {
+      return;
+    }
+
     try {
-      const url = BASE_URL + EndpointEnum.USER + String(userId);
+      const url = BASE_URL + EndpointEnum.USER + String(deleteUser.userId);
       const resp = await apiFetch(url, {
         method: 'DELETE',
       });

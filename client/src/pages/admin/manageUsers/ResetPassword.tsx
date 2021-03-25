@@ -13,6 +13,7 @@ import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
 import { Toast } from 'src/shared/components/toast';
 import { apiFetch } from 'src/shared/utils/api';
+import { IUser } from 'src/types';
 import {
   fieldLabels,
   passwordValidationSchema,
@@ -23,15 +24,18 @@ import {
 interface IProps {
   open: boolean;
   onClose: () => void;
-  userId: number;
-  name: string;
+  resetUser: IUser | undefined;
 }
 
-const ResetPassword = ({ open, onClose, userId, name }: IProps) => {
+const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const handleSubmit = async (values: { [UserField.password]: string }) => {
+    if (!resetUser) {
+      return;
+    }
+
     const init = {
       method: 'POST',
       body: JSON.stringify({
@@ -41,7 +45,11 @@ const ResetPassword = ({ open, onClose, userId, name }: IProps) => {
 
     try {
       const url =
-        BASE_URL + EndpointEnum.USER + String(userId) + EndpointEnum.RESET_PASS;
+        BASE_URL +
+        EndpointEnum.USER +
+        String(resetUser.userId) +
+        EndpointEnum.RESET_PASS;
+
       const resp = await apiFetch(url, init);
 
       if (!resp.ok) {
@@ -66,7 +74,7 @@ const ResetPassword = ({ open, onClose, userId, name }: IProps) => {
         />
       )}
       <Dialog open={open} maxWidth="xs" fullWidth>
-        <DialogTitle>Reset Password: {name}</DialogTitle>
+        <DialogTitle>Reset Password: {resetUser?.firstName ?? ''}</DialogTitle>
         <DialogContent>
           {submitError && (
             <>

@@ -161,8 +161,7 @@ export const ManageUsers = () => {
       <ResetPassword
         open={passwordPopupOpen}
         onClose={() => setPasswordPopupOpen(false)}
-        userId={popupUser?.userId ?? -1}
-        name={popupUser?.firstName ?? ''}
+        resetUser={popupUser}
       />
       <DeleteUser
         open={deletePopupOpen}
@@ -170,8 +169,7 @@ export const ManageUsers = () => {
           setDeletePopupOpen(false);
           getUsers();
         }}
-        userId={popupUser?.userId ?? -1}
-        name={popupUser?.firstName ?? ''}
+        deleteUser={popupUser}
       />
       <AdminTable
         title="Users"
