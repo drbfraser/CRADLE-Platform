@@ -1,8 +1,8 @@
 from typing import Tuple
 
 import manager.FilterHelper as filter
-from database.PatientRepoNew import PatientRepo
-from database.ReadingRepoNew import ReadingRepo
+from database.PatientRepo import PatientRepo
+from database.ReadingRepo import ReadingRepo
 from database.UserRepo import UserRepo
 from manager.GlobalSearchHelper import to_global_search_patient
 from manager.Manager import Manager

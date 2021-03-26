@@ -1,12 +1,7 @@
 from functools import wraps
-from flask import Flask
-from flask import jsonify
 from flask_jwt_extended import (
-    create_access_token,
-    JWTManager,
     verify_jwt_in_request,
     get_jwt_identity,
-    get_jwt_claims,
 )
 
 

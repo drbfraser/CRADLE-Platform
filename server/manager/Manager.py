@@ -7,9 +7,6 @@ Usage:
     passing in the mysql table during instantiation
 """
 
-import collections
-import logging
-
 
 class Manager:
     def __init__(self, database):

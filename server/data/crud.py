@@ -29,7 +29,7 @@ def create(model: M, refresh=False):
         db_session.refresh(model)
 
 
-def create_all_patients(model: [Patient]):
+def create_all_patients(model: List[Patient]):
     """
     add_all list of model into the database.
 

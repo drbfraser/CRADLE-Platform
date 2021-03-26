@@ -1,12 +1,10 @@
-from database.ReadingRepoNew import ReadingRepo
+from database.ReadingRepo import ReadingRepo
 from manager.Manager import Manager
 from manager import patientManager
-from manager.urineTestManager import urineTestManager
+from manager.UrineTestManager import UrineTestManager
 import logging
-from marshmallow import ValidationError
 
-urineTestManager = urineTestManager()
-import uuid
+UrineTestManager = UrineTestManager()
 
 
 class ReadingManager(Manager):
@@ -19,12 +17,10 @@ class ReadingManager(Manager):
             patient = patientManager.create(patient_reading_data["patient"])
 
         patient_reading_data["reading"]["patientId"] = patient_id
-        # get the symptoms array
-        symptomArray = patient_reading_data["reading"]["symptoms"]
+
         # need to save urine test data from reading for urine test creation
         reading = self.create_reading(patient_reading_data["reading"])
-        # clearlogging.debug(reading["patient"])
-        # return all created data
+
         return {"reading": reading, "patient": patient}
 
     def create_reading(self, reading):
@@ -46,10 +42,10 @@ class ReadingManager(Manager):
 
     def add_urine_test(self, reading, urineTestData):
         # if a urine test already exits for reading, throw an error, otherwise create the urine test reading
-        existingReading = urineTestManager.read("readingId", reading["readingId"])
+        existingReading = UrineTestManager.read("readingId", reading["readingId"])
         if existingReading is None:
             urineTestData["readingId"] = reading["readingId"]
-            urineTests = urineTestManager.create(urineTestData)
+            urineTests = UrineTestManager.create(urineTestData)
             logging.debug("urine test created")
             reading["urineTests"] = urineTests
             return reading
@@ -63,5 +59,5 @@ class ReadingManager(Manager):
         symtoms = reading_json["symptoms"]
         # convert the symptoms into an array
         reading_json["symptoms"] = symtoms.split(",")
-        reading_json["urineTests"] = urineTestManager.read("readingId", reading)
+        reading_json["urineTests"] = UrineTestManager.read("readingId", reading)
         return reading_json

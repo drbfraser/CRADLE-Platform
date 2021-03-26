@@ -1,3 +1,4 @@
+from typing import List
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
@@ -23,7 +24,7 @@ class UpdatesPatients(Resource):
         if not timestamp:
             abort(400, message="'since' query parameter is required")
 
-        patients_to_be_added: [Patient] = []
+        patients_to_be_added: List[Patient] = []
         #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
         json = request.get_json(force=True)
         for p in json:

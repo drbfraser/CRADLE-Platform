@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 from flask_script import Manager
 from config import app, db, flask_bcrypt
 from models import *
-from database.ReadingRepoNew import ReadingRepo
+from database.ReadingRepo import ReadingRepo
 from random import randint, choice
 from string import ascii_lowercase, digits
 

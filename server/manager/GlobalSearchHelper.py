@@ -1,4 +1,4 @@
-from manager.ReadingManagerNew import ReadingManager
+from manager.ReadingManager import ReadingManager
 
 readingManager = ReadingManager()
 
