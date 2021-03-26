@@ -1,25 +1,19 @@
-import logging, json
-from flask import request, jsonify
-from flask_restful import Resource, abort, reqparse
-from models import validate_user, User, UserSchema, Role, RoleEnum
-from config import db, flask_bcrypt
+from flask_restful import Resource, reqparse
+from models import User, RoleEnum
+from config import flask_bcrypt
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
     jwt_refresh_token_required,
     get_jwt_identity,
-    get_jwt_claims,
 )
-from manager.UserManager import UserManager
-from manager.RoleManager import RoleManager
 from flasgger import swag_from
 from api.decorator import roles_required
 from api.util import isGoodPassword
 from data import crud
 from data import marshal
-from models import User, supervises
-import enum
+from models import User
 from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
@@ -47,7 +41,7 @@ UserParser.add_argument("supervises", type=int, action="append")
 
 supported_roles = []
 for role in RoleEnum:
-    supported_roles.append(role.name)
+    supported_roles.append(role.value)
 
 
 # api/user/all [GET]
@@ -90,7 +84,7 @@ class UserAllVHT(Resource):
     @swag_from("../../specifications/user-vhts.yml", methods=["GET"])
     def get(self):
 
-        vhtModelList = crud.find(User, User.role == RoleEnum.VHT.name)
+        vhtModelList = crud.find(User, User.role == RoleEnum.VHT.value)
 
         vhtDictionaryList = []
         for vht in vhtModelList:
@@ -260,7 +254,7 @@ class UserAuthApi(Resource):
 
             vhtList = []
             data["supervises"] = []
-            if data["role"] == RoleEnum.CHO.name:
+            if data["role"] == RoleEnum.CHO.value:
                 if user.vhtList:
                     for user in user.vhtList:
                         vhtList.append(user.id)
@@ -321,7 +315,7 @@ class UserApi(Resource):
             return {"message": "Not a supported role"}, 400
 
         supervises = []
-        if new_user["role"] == RoleEnum.CHO.name:
+        if new_user["role"] == RoleEnum.CHO.value:
             supervises = new_user.get("supervises")
 
         crud.add_vht_to_supervise(id, supervises)

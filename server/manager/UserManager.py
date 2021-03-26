@@ -1,10 +1,6 @@
 from database.UserRepo import UserRepo
 from manager.Manager import Manager
 
-from manager.RoleManager import RoleManager
-
-roleManager = RoleManager()
-
 
 class UserManager(Manager):
     def __init__(self):
@@ -16,15 +12,3 @@ class UserManager(Manager):
             user.pop("password", None)
 
         return users_query
-
-    # returns a list of VHT objects (id + email)
-    def read_all_vhts(self):
-        vht_list = []
-        users_query = self.read_all()
-        for user in users_query:
-            if user["roleIds"]:
-                role_names = roleManager.get_role_names(user["roleIds"])
-                if "VHT" in role_names:
-                    vht_list.append({"id": user["id"], "email": user["email"]})
-
-        return vht_list

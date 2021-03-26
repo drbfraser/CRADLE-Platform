@@ -4,7 +4,6 @@
 """
 
 import api as new_api
-from controller.PasswordResetController import *
 from controller.SMSController import *
 from controller.PatientsController import *
 from api.resources.assessments import (
@@ -57,9 +56,6 @@ def init(api):
     api.add_resource(
         PatientGlobalSearch, "/api/patient/global/<string:search>"
     )  # [GET]
-
-    api.add_resource(ForgotPassword, "/api/forgot")  # [POST]
-    api.add_resource(ResetPassword, "/api/reset/<string:reset_token>")  # [PUT]
 
     api.add_resource(SMS, "/api/sms")
 

@@ -21,7 +21,7 @@ from typing import List
 
 import data.crud as crud
 import service.assoc as assoc
-from models import Patient, Referral, User, PatientAssociations
+from models import Patient, Referral, RoleEnum, User, PatientAssociations
 
 
 def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
@@ -34,14 +34,14 @@ def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
     """
 
     role = user.role
-    if role == "ADMIN":
+    if role == RoleEnum.ADMIN.value:
         return admin_patient_view(**kwargs)
-    elif role == "HCW":
+    elif role == RoleEnum.HCW.value:
         return admin_patient_view(**kwargs)
         # return hcw_patient_view(user)
-    elif role == "CHO":
+    elif role == RoleEnum.CHO.value:
         return cho_patient_view(user, **kwargs)
-    elif role == "VHT":
+    elif role == RoleEnum.VHT.value:
         # could check if individual vht referral is needed here
         return vht_patient_view(user, **kwargs)
     else:
@@ -114,14 +114,14 @@ def referral_view_for_user(user: User, **kwargs) -> List[Referral]:
     """
 
     role = user.role
-    if role == "ADMIN":
+    if role == RoleEnum.ADMIN.value:
         return admin_referral_view(**kwargs)
-    elif role == "HCW":
+    elif role == RoleEnum.HCW.value:
         return admin_referral_view(**kwargs)
         # return hcw_referral_view(user)
-    elif role == "CHO":
+    elif role == RoleEnum.CHO.value:
         return cho_referral_view(user, **kwargs)
-    elif role == "VHT":
+    elif role == RoleEnum.VHT.value:
         # could check if individual vht referral is needed here
         return vht_referral_view(user, **kwargs)
     else:

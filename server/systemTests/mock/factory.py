@@ -178,19 +178,15 @@ class UserFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         import data
         from config import flask_bcrypt
-        from models import User, Role
+        from models import User
 
         d = dict(**kwargs)
-        role_name = d["role"]
-        del d["role"]  # not an actual user field so delete if from the args
 
         # Hash the user's password so that they can login
         d["password"] = flask_bcrypt.generate_password_hash(d["password"])
 
         user = marshal.unmarshal(User, d)
         crud.create(user)
-        role = crud.read(Role, name=role_name)
-        user.roleIds = [role]
         data.db_session.commit()
         return user
 

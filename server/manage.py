@@ -14,7 +14,6 @@ from models import *
 from database.ReadingRepoNew import ReadingRepo
 from random import randint, choice
 from string import ascii_lowercase, digits
-from models import SexEnum, GestationalAgeUnitEnum
 
 
 manager = Manager(app)
@@ -61,16 +60,8 @@ def seed_minimal(email="admin123@admin.com", password="admin123"):
     db.session.add(hf_schema.load(hf))
     db.session.commit()
 
-    print("Seeding user roles...")
-    role_vht = Role(name="VHT")
-    role_hcw = Role(name="HCW")
-    role_admin = Role(name="ADMIN")
-    role_cho = Role(name="CHO")
-    db.session.add_all([role_vht, role_hcw, role_admin, role_cho])
-    db.session.commit()
-
     print("Creating admin user...")
-    create_user(email, "Admin", password, "H0000", "ADMIN")
+    create_user(email, "Admin", password, "H0000", RoleEnum.ADMIN.value)
 
     print("Finished seeding minimal data set")
 
@@ -88,9 +79,9 @@ def seed_test_data():
 
     # Add the rest of the users.
     print("Creating test users...")
-    create_user("hcw@hcw.com", "Brian", "hcw123", "H0000", "HCW")
-    create_user("vht@vht.com", "TestVHT", "vht123", "H0000", "VHT")
-    create_user("cho@cho.com", "TestCHO", "cho123", "H0000", "CHO")
+    create_user("hcw@hcw.com", "Brian", "hcw123", "H0000", RoleEnum.HCW.value)
+    create_user("vht@vht.com", "TestVHT", "vht123", "H0000", RoleEnum.VHT.value)
+    create_user("cho@cho.com", "TestCHO", "cho123", "H0000", RoleEnum.CHO.value)
 
     print("Creating test patients, readings, referrals...")
 
@@ -268,9 +259,7 @@ def create_user(email, name, password, hf_name, role):
         "role": role,
     }
     user_schema = UserSchema()
-    user_role = Role.query.filter_by(name=role).first()
-    user_role.users.append(user_schema.load(user, session=db.session))
-    db.session.add(user_role)
+    db.session.add(user_schema.load(user))
     db.session.commit()
 
 
