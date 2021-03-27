@@ -104,7 +104,11 @@ class UpdatesReadings(Resource):
                     patients_on_server_chache.add(patient_on_server.patientId)
 
             if crud.read(Reading, readingId=r.get("readingId")):
-                crud.update(Reading, {"dateRecheckVitalsNeeded": r.get("dateRecheckVitalsNeeded")}, readingId=r.get("readingId"))
+                crud.update(
+                    Reading,
+                    {"dateRecheckVitalsNeeded": r.get("dateRecheckVitalsNeeded")},
+                    readingId=r.get("readingId"),
+                )
             else:
                 error_message = readings.validate(r)
                 if error_message is not None:
