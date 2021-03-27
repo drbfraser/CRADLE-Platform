@@ -6,11 +6,14 @@ from manager.FollowUpManager import FollowUpManager  # assessment data
 import json
 from models import TrafficLightEnum, FollowUp
 from data import crud
+from database.FollowUpRepo import FollowUpRepo
 
 patientManager = PatientManager()
 referralManager = ReferralManager()
 readingManager = ReadingManager()
 followupManager = FollowUpManager()
+
+followupRepo = FollowUpRepo()
 
 
 # TODO: Add error handling
@@ -183,7 +186,7 @@ class StatsManager:
         readings = readingManager.read_all()
         referrals = referralManager.read_all()
         assessments = followupManager.read_all()
-        listOfFollowupModels = crud.read_all(FollowUp)
+        listOfFollowupModels = followupRepo.read_all()
         print(listOfFollowupModels)
         print(assessments)
         data_to_return = {}

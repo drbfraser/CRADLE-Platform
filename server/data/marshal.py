@@ -162,12 +162,12 @@ def __unmarshal_reading(d: dict) -> Reading:
     return reading
 
 
-def models_to_list(self, models: List[Any]) -> List[dict]:
-    """
-    Converts a list of models into a list of dictionaries mapping column names
-    to values.
+# def models_to_list(models: List[Any]) -> List[dict]:
+#     """
+#     Converts a list of models into a list of dictionaries mapping column names
+#     to values.
 
-    :param models: A list of models
-    :return: A list of dictionaries
-    """
-    return self.schema(many=True).dump(models)
+#     :param models: A list of models
+#     :return: A list of dictionaries
+#     """
+#     return self.schema(many=True).dump(models)
