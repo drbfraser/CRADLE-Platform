@@ -24,7 +24,6 @@ class UpdatesPatients(Resource):
             abort(400, message="'since' query parameter is required")
 
         patients_to_be_added: [Patient] = []
-        #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
         json = request.get_json(force=True)
         for p in json:
             patient_on_server = crud.read(Patient, patientId=p.get("patientId"))
@@ -92,16 +91,15 @@ class UpdatesReadings(Resource):
         if not timestamp:
             abort(400, message="'since' query parameter is required")
 
-        #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
         json = request.get_json(force=True)
-        patients_on_server_chache = set()
+        patients_on_server_cache = set()
         for r in json:
-            if r.get("patientId") not in patients_on_server_chache:
+            if r.get("patientId") not in patients_on_server_cache:
                 patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
                 if patient_on_server is None:
                     continue
                 else:
-                    patients_on_server_chache.add(patient_on_server.patientId)
+                    patients_on_server_cache.add(patient_on_server.patientId)
 
             if crud.read(Reading, readingId=r.get("readingId")):
                 crud.update(
@@ -118,7 +116,7 @@ class UpdatesReadings(Resource):
                 crud.create(reading, refresh=True)
 
         user = util.current_user()
-        #     TODO: create custome DB calls for referral and followup
+        #     TODO: create custom DB calls for referral and followup
 
         all_patients = view.patient_view_for_user(user)
         new_readings = []
