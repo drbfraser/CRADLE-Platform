@@ -1,15 +1,15 @@
 from datetime import date
 from manager.PatientManager import PatientManager  # patient data
 from manager.ReadingManager import ReadingManager  # reading data
-from manager.ReferralManager import ReferralManager  # referral data
 import json
 from models import TrafficLightEnum, FollowUp
 from database.FollowUpRepo import FollowUpRepo # assessment data
+from database.ReferralRepo import ReferralRepo  # referral data
 
 patientManager = PatientManager()
-referralManager = ReferralManager()
 readingManager = ReadingManager()
 followupRepo = FollowUpRepo()
+referralRepo = ReferralRepo()
 
 
 # TODO: Add error handling
@@ -180,7 +180,7 @@ class StatsManager:
 
     def put_data_together(self):
         readings = readingManager.read_all()
-        referrals = referralManager.read_all()
+        referrals = referralRepo.read_all()
         assessments = followupRepo.read_all()
         data_to_return = {}
 
