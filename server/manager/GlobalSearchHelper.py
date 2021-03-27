@@ -1,9 +1,7 @@
-from manager.ReadingManager import ReadingManager
-
-readingManager = ReadingManager()
-
+from database.ReadingRepo import ReadingRepo
 from database.ReferralRepo import ReferralRepo
 
+readingRepo = ReadingRepo() 
 referralRepo = ReferralRepo()
 
 
@@ -23,7 +21,7 @@ def to_global_search_patient(patient):
             reading_json = {
                 "dateReferred": None,
             }
-            reading_data = readingManager.read("readingId", reading)
+            reading_data = readingRepo.read("readingId", reading)
             reading_json["dateTimeTaken"] = reading_data["dateTimeTaken"]
             reading_json["trafficLightStatus"] = reading_data["trafficLightStatus"]
 
