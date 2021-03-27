@@ -515,9 +515,9 @@ if __name__ == "__main__":
 
     symptomsList = ["HEADACHE", "BLURRED VISION", "ABDO PAIN", "BLEEDING", "FEVERISH"]
     sexList = ["FEMALE", "MALE"]
-    bpSystolicList = list(np.random.normal(120, 35, 1000).astype(int))
-    bpDiastolicList = list(np.random.normal(80, 25, 1000).astype(int))
-    heartRateList = list(np.random.normal(60, 17, 1000).astype(int))
+    bpSystolicList = np.clip(np.random.normal(120, 35, 1000).astype(int), 50, 300)
+    bpDiastolicList = np.clip(np.random.normal(80, 25, 1000).astype(int), 30, 200)
+    heartRateList = np.clip(np.random.normal(60, 17, 1000).astype(int), 30, 250)
 
     d1 = datetime.strptime("1/1/2019 12:01 AM", "%m/%d/%Y %I:%M %p")
     d2 = datetime.today().replace(microsecond=0)
