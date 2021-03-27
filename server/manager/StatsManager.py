@@ -4,7 +4,8 @@ from manager.ReadingManager import ReadingManager  # reading data
 from manager.ReferralManager import ReferralManager  # referral data
 from manager.FollowUpManager import FollowUpManager  # assessment data
 import json
-from models import TrafficLightEnum
+from models import TrafficLightEnum, FollowUp
+from data import crud
 
 patientManager = PatientManager()
 referralManager = ReferralManager()
@@ -182,6 +183,9 @@ class StatsManager:
         readings = readingManager.read_all()
         referrals = referralManager.read_all()
         assessments = followupManager.read_all()
+        listOfFollowupModels = crud.read_all(FollowUp)
+        print(listOfFollowupModels)
+        print(assessments)
         data_to_return = {}
 
         # getting readings per month
