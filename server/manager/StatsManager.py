@@ -1,13 +1,13 @@
 from datetime import date
 from manager.PatientManager import PatientManager  # patient data
-from manager.ReadingManager import ReadingManager  # reading data
 import json
 from models import TrafficLightEnum, FollowUp
 from database.FollowUpRepo import FollowUpRepo # assessment data
 from database.ReferralRepo import ReferralRepo  # referral data
+from database.ReadingRepo import ReadingRepo  # reading data
 
 patientManager = PatientManager()
-readingManager = ReadingManager()
+readingRepo = ReadingRepo()
 followupRepo = FollowUpRepo()
 referralRepo = ReferralRepo()
 
@@ -146,7 +146,7 @@ class StatsManager:
         collected_patients_assessed = []
         if table:
             for record in table:
-                reading = readingManager.read("readingId", record["reading"])
+                reading = readingRepo.read("readingId", record["reading"])
                 dates = self.calculate_dates_helper(record, "dateAssessed")
                 if dates["record_year"] != dates["current_year"]:
                     continue
@@ -179,7 +179,7 @@ class StatsManager:
         }
 
     def put_data_together(self):
-        readings = readingManager.read_all()
+        readings = readingRepo.read_all()
         referrals = referralRepo.read_all()
         assessments = followupRepo.read_all()
         data_to_return = {}
