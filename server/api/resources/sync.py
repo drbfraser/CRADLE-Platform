@@ -76,40 +76,6 @@ class UpdatesPatients(Resource):
             p for p in all_patients if p["lastEdited"] > timestamp
         ]
 
-        #  ~~~~~~~~~~~~~~~~~ old logic ~~~~~~~~~~~~~~~~~~~~
-        # New patients are patients who are created after the timestamp
-        # new_patients = [
-        #     p["patientId"] for p in all_patients if p["created"] > timestamp
-        # ]
-
-        # Edited patients are patients who were created before the timestamp but
-        # edited after it
-        # edited_patients = [
-        #     p["patientId"]
-        #     for p in all_patients
-        #     if p["created"] < p["lastEdited"]
-        #     and p["created"] <= timestamp < p["lastEdited"]
-        # ]
-
-        # New readings created after the timestamp for patients who where created before
-        # the timestamp
-        # readings = []
-
-        # New followups which were created after the timestamp for readings which were
-        # created before the timestamp
-        # followups = []
-        #
-        # for p in all_patients:
-        #     for r in p["readings"]:
-        #         r_time = int(r["dateTimeTaken"])
-        #         if p["created"] <= timestamp < r_time:
-        #             readings.append(r["readingId"])
-        #
-        #         if r["followup"] and r_time < timestamp < int(
-        #             r["followup"]["dateAssessed"]
-        #         ):
-        #             followups.append(r["followup"]["id"])
-
         return {
             "total": len(all_patients_edited_or_new),
             "patients": all_patients_edited_or_new,
