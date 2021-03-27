@@ -2,9 +2,9 @@ from manager.ReadingManager import ReadingManager
 
 readingManager = ReadingManager()
 
-from manager.ReferralManager import ReferralManager
+from database.ReferralRepo import ReferralRepo
 
-referralManager = ReferralManager()
+referralRepo = ReferralRepo()
 
 
 def to_global_search_patient(patient):
@@ -29,7 +29,7 @@ def to_global_search_patient(patient):
 
             # add referral if exists in reading
             if reading_data["referral"]:
-                top_ref = referralManager.read("id", reading_data["referral"])
+                top_ref = referralRepo.read("id", reading_data["referral"])
                 reading_json["dateReferred"] = top_ref["dateReferred"]
 
             # add reading dateReferred data to array
