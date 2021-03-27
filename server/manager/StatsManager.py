@@ -2,17 +2,13 @@ from datetime import date
 from manager.PatientManager import PatientManager  # patient data
 from manager.ReadingManager import ReadingManager  # reading data
 from manager.ReferralManager import ReferralManager  # referral data
-from manager.FollowUpManager import FollowUpManager  # assessment data
 import json
 from models import TrafficLightEnum, FollowUp
-from data import crud
-from database.FollowUpRepo import FollowUpRepo
+from database.FollowUpRepo import FollowUpRepo # assessment data
 
 patientManager = PatientManager()
 referralManager = ReferralManager()
 readingManager = ReadingManager()
-followupManager = FollowUpManager()
-
 followupRepo = FollowUpRepo()
 
 
@@ -185,10 +181,7 @@ class StatsManager:
     def put_data_together(self):
         readings = readingManager.read_all()
         referrals = referralManager.read_all()
-        assessments = followupManager.read_all()
-        listOfFollowupModels = followupRepo.read_all()
-        print(listOfFollowupModels)
-        print(assessments)
+        assessments = followupRepo.read_all()
         data_to_return = {}
 
         # getting readings per month
