@@ -49,25 +49,58 @@ export const getTimestampFromMonths = (months: string): number => {
   return gestationalDate.getTime() / 1000;
 };
 
-export const getNumOfWeeks = (timestamp: number): number => {
+export const getWeeksDays = (timestamp: number): string => {
   const todaysDate = new Date();
-  const gestationalDate = new Date(timestamp * 1000);
-  const difference = todaysDate.getTime() - gestationalDate.getTime();
-  return Math.round(difference / (7 * 24 * 60 * 60 * 1000)) || 1;
+  const timestampDate = new Date(timestamp * 1000);
+  const difference = todaysDate.getTime() - timestampDate.getTime();
+  let days = Math.round(difference / (24 * 60 * 60 * 1000));
+
+  if(days === 0) {
+    return 'Less than a day';
+  }
+
+  if(days < 7) {
+    return `${days} day(s)`
+  }
+
+  const weeks = Math.floor(days / 7);
+  days = days % 7;
+
+  return `${weeks} week(s) and ${days} day(s)`
+}
+
+export const getNumOfWeeksNumeric = (timestamp: number): number => {
+  const todaysDate = new Date();
+  const timestampDate = new Date(timestamp * 1000);
+  const difference = todaysDate.getTime() - timestampDate.getTime();
+  return Math.round(difference / (7 * 24 * 60 * 60 * 1000));
 };
+
+export const getNumOfWeeks = (timestamp: number): string => {
+  const numOfWeeks = getNumOfWeeksNumeric(timestamp);
+  if(numOfWeeks === 0) {
+    return 'Less than 1 week'
+  }
+
+  return `${numOfWeeks} weeks(s)`
+}
 
 export const getNumOfMonthsNumeric = (timestamp: number): number => {
   const todaysDate = new Date();
-  const gestationalDate = new Date(timestamp * 1000);
-  const difference = todaysDate.getTime() - gestationalDate.getTime();
+  const timestampDate = new Date(timestamp * 1000);
+  const difference = todaysDate.getTime() - timestampDate.getTime();
   const numOfMonths = Math.floor(difference / (4 * 7 * 24 * 60 * 60 * 1000));
 
   return numOfMonths;
 };
 
-export const getNumOfMonths = (timestamp: number): number | string => {
+export const getNumOfMonths = (timestamp: number): string => {
   const numOfMonths = getNumOfMonthsNumeric(timestamp);
-  return numOfMonths === 0 ? `Less than 1` : numOfMonths;
+  if(numOfMonths === 0) {
+    return 'Less than 1 month'
+  }
+
+  return `${numOfMonths} month(s)`
 };
 
 // Function is not currently used but has a high likelihood of being useful in the future

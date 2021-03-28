@@ -1,7 +1,7 @@
 import {
   getAgeBasedOnDOB,
   getNumOfMonthsNumeric,
-  getNumOfWeeks,
+  getNumOfWeeksNumeric,
 } from 'src/shared/utils';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
@@ -83,7 +83,7 @@ export const getPatientState = async (
   if (state[PatientField.isPregnant]) {
     switch (state[PatientField.gestationalAgeUnit]) {
       case GestationalAgeUnitEnum.WEEKS:
-        state[PatientField.gestationalAge] = getNumOfWeeks(
+        state[PatientField.gestationalAge] = getNumOfWeeksNumeric(
           state.gestationalTimestamp
         );
         break;
