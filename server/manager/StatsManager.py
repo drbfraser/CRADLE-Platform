@@ -1,5 +1,6 @@
 from datetime import date
 import json
+from data import crud, marshal
 from models import (
     TrafficLightEnum,
     FollowUp,
@@ -12,14 +13,6 @@ from models import (
     PatientSchema
 )
 
-from database.ReferralRepo import ReferralRepo  # referral data
-
-from database.PatientRepo import PatientRepo # patient data
-from data import crud, marshal
-
-
-referralRepo = ReferralRepo()
-patientRepo = PatientRepo()
 
 # TODO: Add error handling
 # TODO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
@@ -156,7 +149,9 @@ class StatsManager:
         collected_patients_assessed = []
         if table:
             for record in table:
-                reading = crud.read(Reading, readingId=record["reading"])
+
+                reading = marshal.marshal(crud.read(Reading, readingId=record["reading"]))
+
                 dates = self.calculate_dates_helper(record, "dateAssessed")
                 if dates["record_year"] != dates["current_year"]:
                     continue
