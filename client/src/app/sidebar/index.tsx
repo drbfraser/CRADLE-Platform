@@ -4,7 +4,7 @@ import List from '@material-ui/core/List';
 import { OrNull } from 'src/types';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { RoleEnum } from 'src/enums';
+import { UserRoleEnum } from 'src/enums';
 import { SidebarRoute } from './route';
 import { makeUniqueId } from 'src/shared/utils';
 import { useDimensionsContext } from '../context/hooks';
@@ -36,7 +36,7 @@ export const Sidebar: React.FC<IProps> = ({
   const { admin, loggedIn } = useSelector(
     ({ user }: ReduxState): SelectorState => {
       return {
-        admin: user.current.data?.roles.includes(RoleEnum.ADMIN),
+        admin: user.current.data?.role === UserRoleEnum.ADMIN,
         loggedIn: user.current.loggedIn,
       };
     }

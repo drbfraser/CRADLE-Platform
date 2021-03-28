@@ -24,8 +24,7 @@ def associate_by_user_role(patient: Patient, user: User):
     :param patient: A patient
     :param user: The user making the association
     """
-    roles = [r.name for r in user.roleIds]
-    if RoleEnum.HCW in roles:
+    if user.role == RoleEnum.HCW.value:
         if not has_association(patient, facility=user.healthFacility):
             associate(patient, facility=user.healthFacility)
     else:

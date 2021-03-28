@@ -1,10 +1,6 @@
 export enum EndpointEnum {
-  ALL = '/all',
   ASSESSMENTS = '/assessments',
   ASSESSMENT_UPDATE = '/assessmentUpdate',
-  AUTH = '/auth',
-  CURRENT = '/current',
-  CHANGE_PASS = '/user/change_pass',
   DELETE = '/delete',
   EDIT = '/edit',
   HEALTH_FACILITY_LIST = '/facilities?simplified=true',
@@ -14,11 +10,16 @@ export enum EndpointEnum {
   PATIENT_ASSOCIATIONS = '/patientAssociations',
   REFERRALS = '/referrals',
   READINGS = '/readings',
-  REFRESH = '/refresh_token',
   STATISTICS = '/stats',
-  REGISTER = '/register',
-  USER = '/user',
+  AUTH = '/user/auth',
+  REFRESH = '/user/auth/refresh_token',
+  USER = '/user/',
+  USER_ALL = '/user/all',
+  USER_CURRENT = '/user/current',
+  USER_REGISTER = '/user/register',
   VHTS = '/vhts',
+  CHANGE_PASS = '/user/current/change_pass',
+  RESET_PASS = '/change_pass',
 }
 
 export enum MethodEnum {

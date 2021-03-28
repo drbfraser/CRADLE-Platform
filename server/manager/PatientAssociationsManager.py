@@ -1,6 +1,6 @@
 from database.PatientAssociationsRepo import PatientAssociationsRepo
-from database.PatientRepoNew import PatientRepo
-from database.HealthFacilityRepoNew import HealthFacilityRepo
+from database.PatientRepo import PatientRepo
+from database.HealthFacilityRepo import HealthFacilityRepo
 from database.UserRepo import UserRepo
 from manager.Manager import Manager
 from models import Patient, HealthFacility, User, PatientAssociations

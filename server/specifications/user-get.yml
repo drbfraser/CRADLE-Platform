@@ -1,10 +1,17 @@
-Current user
+Getting a particular user's information
 ---
 tags:
   - User
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+
 responses:
   200:
-    description: Information of current user
+    description:  Requested user information
     content:
       application/json:
         schema:
@@ -29,4 +36,3 @@ responses:
               type: array
               items: integer
               example: [5, 6]
-

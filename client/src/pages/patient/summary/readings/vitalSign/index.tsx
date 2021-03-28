@@ -20,21 +20,6 @@ export const VitalSign: React.FC<IProps> = ({ reading }) => {
       <p>
         <b>Heart Rate: </b> {reading.heartRateBPM} bpm
       </p>
-      {reading.respiratoryRate && (
-        <p>
-          <b>Respiratory Rate: </b> {reading.respiratoryRate} bpm
-        </p>
-      )}
-      {reading.oxygenSaturation && (
-        <p>
-          <b>Oxygen Saturation: </b> {reading.oxygenSaturation}%
-        </p>
-      )}
-      {reading.temperature && (
-        <p>
-          <b>Temperature: </b> {reading.temperature}°C
-        </p>
-      )}
     </div>
   );
 };
