@@ -7,7 +7,9 @@ from models import (
     ReadingSchema,
     FollowUpSchema,
     Referral,
-    ReferralSchema
+    ReferralSchema,
+    Patient,
+    PatientSchema
 )
 
 from database.ReferralRepo import ReferralRepo  # referral data
@@ -114,7 +116,8 @@ class StatsManager:
                 dates = self.calculate_dates_helper(record, "dateReferred")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = patientRepo.read("patientId", record["patientId"])
+                
+                patient = marshal.marshal(crud.read(Patient, patientId=record["patientId"]))
 
                 # checking for referrals for women (unique)
                 if (
@@ -157,7 +160,7 @@ class StatsManager:
                 dates = self.calculate_dates_helper(record, "dateAssessed")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = patientRepo.read("patientId", reading["patientId"])
+                patient = marshal.marshal(crud.read(Patient, patientId=reading["patientId"]))
                 # women that were assessed (unique)
                 if (
                     patient["patientSex"] == "FEMALE"
