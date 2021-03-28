@@ -1,14 +1,21 @@
 from datetime import date
 import json
-from models import TrafficLightEnum, FollowUp, Reading, ReadingSchema
-from database.FollowUpRepo import FollowUpRepo # assessment data
+from models import (
+    TrafficLightEnum,
+    FollowUp,
+    Reading, 
+    ReadingSchema,
+    FollowUpSchema,
+    Referral,
+    ReferralSchema
+)
+
 from database.ReferralRepo import ReferralRepo  # referral data
 
 from database.PatientRepo import PatientRepo # patient data
 from data import crud, marshal
 
 
-followupRepo = FollowUpRepo()
 referralRepo = ReferralRepo()
 patientRepo = PatientRepo()
 
@@ -179,10 +186,11 @@ class StatsManager:
         }
 
     def put_data_together(self):
+        
         readings = marshal.models_to_list(crud.read_all(Reading), ReadingSchema)
+        referrals = marshal.models_to_list(crud.read_all(Referral), ReferralSchema)
+        assessments = marshal.models_to_list(crud.read_all(FollowUp), FollowUpSchema)
 
-        referrals = referralRepo.read_all()
-        assessments = followupRepo.read_all()
         data_to_return = {}
 
         # getting readings per month
