@@ -5,7 +5,7 @@ from database.PatientRepo import PatientRepo
 from database.UserRepo import UserRepo
 from manager.Manager import Manager
 from models import Patient
-
+from data import crud, marshal
 readingRepo = ReadingRepo()
 referralRepo = ReferralRepo()
 
@@ -16,7 +16,13 @@ class PatientManager(Manager):
 
     def get_global_search_patients(self, current_user, search):
         def __make_gs_patient_dict(p: Patient, is_added: bool) -> dict:
-            patient_dict = PatientRepo().model_to_dict(p)
+
+            #patient_dict = PatientRepo().model_to_dict(p)
+            # print(patient_dict)
+
+            patient_dict = marshal.marshal(p)
+            # print(patient_dict)
+
             patient_dict["state"] = "Added" if is_added else "Add"
             return patient_dict
 
