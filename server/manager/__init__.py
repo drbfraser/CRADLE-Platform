@@ -3,4 +3,3 @@ from database.PatientRepo import PatientRepo
 
 
 patientManager = Manager(PatientRepo)
-
