@@ -1,16 +1,17 @@
 from datetime import date
-from manager.PatientManager import PatientManager  # patient data
 import json
 from models import TrafficLightEnum, FollowUp
 from database.FollowUpRepo import FollowUpRepo # assessment data
 from database.ReferralRepo import ReferralRepo  # referral data
 from database.ReadingRepo import ReadingRepo  # reading data
+from database.PatientRepo import PatientRepo # patient data
+from data import crud
 
-patientManager = PatientManager()
+
 readingRepo = ReadingRepo()
 followupRepo = FollowUpRepo()
 referralRepo = ReferralRepo()
-
+patientRepo = PatientRepo()
 
 # TODO: Add error handling
 # TODO: Stats are pretty outdated, need to clean up and refactor once we have new client requirements
@@ -107,7 +108,7 @@ class StatsManager:
                 dates = self.calculate_dates_helper(record, "dateReferred")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = patientManager.read("patientId", record["patientId"])
+                patient = patientRepo.read("patientId", record["patientId"])
 
                 # checking for referrals for women (unique)
                 if (
@@ -150,7 +151,7 @@ class StatsManager:
                 dates = self.calculate_dates_helper(record, "dateAssessed")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = patientManager.read("patientId", reading["patientId"])
+                patient = patientRepo.read("patientId", reading["patientId"])
                 # women that were assessed (unique)
                 if (
                     patient["patientSex"] == "FEMALE"
