@@ -1,11 +1,8 @@
-from flask import request, session
+from flask import request
 from flask import Response
 from flask_restful import Resource, abort
-from flask import current_app
-from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 import json
-import jwt
 import requests
 
 

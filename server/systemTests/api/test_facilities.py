@@ -1,5 +1,4 @@
 import pytest
-from typing import List
 
 import data.crud as crud
 from models import HealthFacility

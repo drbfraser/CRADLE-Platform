@@ -1,48 +1,26 @@
-import React, { useState } from 'react';
-import { Select, MenuItem, makeStyles } from '@material-ui/core';
+import React from 'react';
+import { Tab } from 'semantic-ui-react';
 import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManageFacilities } from './manageFacilities/ManageFacilities';
 
-const pageOptions = [
+const pages = [
   {
     name: 'Users',
-    component: ManageUsers,
+    Component: ManageUsers,
   },
   {
-    name: 'Health Care Failities',
-    component: ManageFacilities,
+    name: 'Health Care Facilities',
+    Component: ManageFacilities,
   },
 ];
 
-export const AdminPage = () => {
-  const styles = useStyles();
-  const [page, setPage] = useState(0);
-  const PageComponent = pageOptions[page].component;
+const panes = pages.map((p) => ({
+  menuItem: p.name,
+  render: () => (
+    <Tab.Pane style={{ padding: 0 }}>
+      <p.Component />
+    </Tab.Pane>
+  ),
+}));
 
-  return (
-    <>
-      <h3>
-        Manage &nbsp;
-        <Select
-          className={styles.manageDropdown}
-          value={page}
-          onChange={(e) => setPage(parseInt(e.target.value as string))}
-          displayEmpty>
-          {pageOptions.map((option, i) => (
-            <MenuItem key={i} value={i}>
-              {option.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </h3>
-      <PageComponent />
-    </>
-  );
-};
-
-const useStyles = makeStyles({
-  manageDropdown: {
-    fontWeight: 600,
-    fontSize: 20,
-  },
-});
+export const AdminPage = () => <Tab panes={panes} />;

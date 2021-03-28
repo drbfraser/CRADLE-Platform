@@ -3,9 +3,6 @@ from flask_restful import abort
 from utils import pprint
 
 from database.ReferralRepo import ReferralRepo
-from database.PatientRepoNew import PatientRepo
-from database.ReadingRepoNew import ReadingRepo
-from database.HealthFacilityRepoNew import HealthFacilityRepo
 
 from models import Patient, HealthFacility, Reading
 from validation.ReferralValidator import ReferralValidator
@@ -14,9 +11,9 @@ from manager.Manager import Manager
 
 from manager import patientManager, healthFacilityManager
 from manager.PatientAssociationsManager import PatientAssociationsManager
-from manager.ReadingManagerNew import ReadingManager as ReadingManagerNew
+from manager.ReadingManager import ReadingManager
 
-readingManager = ReadingManagerNew()
+readingManager = ReadingManager()
 validator = ReferralValidator()
 
 

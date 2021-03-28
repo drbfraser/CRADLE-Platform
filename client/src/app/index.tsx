@@ -1,4 +1,4 @@
-import { ActualUser, OrNull } from 'src/types';
+import { IUserWithTokens, OrNull } from 'src/types';
 
 import { ContextProvider } from 'src/context';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -8,7 +8,7 @@ import { LogoutMenuItem } from './logout';
 import { Pathname } from 'history';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { RoleEnum } from 'src/enums';
+import { UserRoleEnum } from 'src/enums';
 import { Routes } from './routes';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
@@ -18,7 +18,7 @@ import { useStyles } from './styles';
 
 type SelectorState = {
   loggedIn: boolean;
-  user: OrNull<ActualUser>;
+  user: OrNull<IUserWithTokens>;
   pathName: Pathname;
 };
 
@@ -67,7 +67,7 @@ export const App: React.FC = () => {
                 activeItem={activeItem}
                 setActiveItem={setActiveItem}
                 logout={{
-                  index: user?.roles.includes(RoleEnum.ADMIN) ? 4 : 3,
+                  index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
                   component: <LogoutMenuItem />,
                 }}
               />

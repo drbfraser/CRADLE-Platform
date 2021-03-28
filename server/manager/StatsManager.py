@@ -1,11 +1,10 @@
-from datetime import datetime, date
-from manager.Manager import Manager
-from manager.PatientManagerNew import PatientManager  # patient data
-from manager.ReadingManagerNew import ReadingManager  # reading data
+from datetime import date
+from manager.PatientManager import PatientManager  # patient data
+from manager.ReadingManager import ReadingManager  # reading data
 from manager.ReferralManager import ReferralManager  # referral data
 from manager.FollowUpManager import FollowUpManager  # assessment data
 import json
-from models import Reading, ReadingSchema, TrafficLightEnum
+from models import TrafficLightEnum
 
 patientManager = PatientManager()
 referralManager = ReferralManager()
