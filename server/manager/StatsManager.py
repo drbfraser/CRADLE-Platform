@@ -1,14 +1,13 @@
 from datetime import date
 import json
-from models import TrafficLightEnum, FollowUp
+from models import TrafficLightEnum, FollowUp, Reading, ReadingSchema
 from database.FollowUpRepo import FollowUpRepo # assessment data
 from database.ReferralRepo import ReferralRepo  # referral data
-from database.ReadingRepo import ReadingRepo  # reading data
+
 from database.PatientRepo import PatientRepo # patient data
-from data import crud
+from data import crud, marshal
 
 
-readingRepo = ReadingRepo()
 followupRepo = FollowUpRepo()
 referralRepo = ReferralRepo()
 patientRepo = PatientRepo()
@@ -147,7 +146,7 @@ class StatsManager:
         collected_patients_assessed = []
         if table:
             for record in table:
-                reading = readingRepo.read("readingId", record["reading"])
+                reading = crud.read(Reading, readingId=record["reading"])
                 dates = self.calculate_dates_helper(record, "dateAssessed")
                 if dates["record_year"] != dates["current_year"]:
                     continue
@@ -180,7 +179,8 @@ class StatsManager:
         }
 
     def put_data_together(self):
-        readings = readingRepo.read_all()
+        readings = marshal.models_to_list(crud.read_all(Reading), ReadingSchema)
+
         referrals = referralRepo.read_all()
         assessments = followupRepo.read_all()
         data_to_return = {}
