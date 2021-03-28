@@ -1,86 +1,83 @@
+import * as Yup from 'yup';
 import { GestationalAgeUnitEnum } from 'src/enums';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
-import { PatientField, PatientState } from './state';
-
-// For writing + testing Regex, see: regex101.com
-
-export const validateForm = (values: PatientState): any => {
-  const errors: any = {};
-
-  validatePatientId(values, errors);
-  validatePatientName(values, errors);
-  validateDobOrAge(values, errors);
-  validateVillage(values, errors);
-  validateGestational(values, errors);
-
-  return errors;
-};
-
-const validatePatientId = (values: PatientState, errors: any) => {
-  const patientId = values[PatientField.patientId];
-
-  if (patientId.length === 0 || patientId.length > 15 || isNaN(+patientId)) {
-    errors[PatientField.patientId] = 'A valid patient ID is required.';
-  }
-};
-
-const validatePatientName = (values: PatientState, errors: any) => {
-  const patientName = values[PatientField.patientName];
-
-  // a name consists of one or more word characters (w) and may include: . ' -
-  // e.g. John A. Smith-O'Hare
-  if (/^\w[\w.'\- ]*$/.test(patientName) === false) {
-    errors[PatientField.patientName] = 'A valid patient name is required.';
-  }
-};
-
-const validateDobOrAge = (values: PatientState, errors: any) => {
-  if (values[PatientField.isExactDob]) {
-    const age = getAgeBasedOnDOB(values[PatientField.dob]);
-
-    if (!ageIsValid(age)) {
-      errors[PatientField.dob] =
-        'Please enter a valid date of birth corresponding to an age between 15 - 65.';
-    }
-  } else {
-    if (!ageIsValid(parseInt(values[PatientField.estimatedAge]))) {
-      errors[PatientField.estimatedAge] =
-        'Please enter a valid age between 15 - 65.';
-    }
-  }
-};
+import { PatientField } from './state';
 
 const ageIsValid = (age: number): boolean => {
   return age >= 15 && age <= 65;
 };
 
-const validateVillage = (values: PatientState, errors: any) => {
-  // if a village number is entered, it must consist of 1 or more numbers
-  if (
-    values[PatientField.villageNumber] !== '' &&
-    /^[0-9]+$/.test(values[PatientField.villageNumber]) === false
-  ) {
-    errors[PatientField.villageNumber] = 'Village number must be numeric.';
-  }
-};
-
-const validateGestational = (values: PatientState, errors: any) => {
-  if (!values[PatientField.isPregnant]) {
-    return;
-  }
-
-  const unit = values[PatientField.gestationalAgeUnit];
-  const age = parseInt(values[PatientField.gestationalAge]);
-
-  if (unit === GestationalAgeUnitEnum.WEEKS) {
-    if (isNaN(age) || !(age >= 0 && age <= 60)) {
-      errors[PatientField.gestationalAge] =
-        'Please enter between 0 and 60 weeks.';
-    }
-  } else if (unit === GestationalAgeUnitEnum.MONTHS) {
-    if (isNaN(age) || !(age >= 0 && age <= 13)) {
-      errors[PatientField.gestationalAge] =
-        'Please enter between 0 and 13 months.';
-    }
-  }
-};
+export const patientValidationSchema = (creatingNew: boolean) =>
+  Yup.object().shape({
+    // no validation if patient ID field is disabled when editing existing patient
+    [PatientField.patientId]: !creatingNew
+      ? Yup.string()
+      : Yup.number()
+          .typeError('A valid patient ID is required.')
+          .integer('A valid patient ID is required.')
+          .test(
+            'length',
+            'A valid patient ID is required.',
+            (pId) => String(pId).length > 0 && String(pId).length <= 15
+          ),
+    // For writing + testing Regex, see: regex101.com
+    [PatientField.patientName]: Yup.string()
+      .label('Name')
+      .matches(/^\w[\w.'\- ]*$/, 'Name is not valid.')
+      .required(),
+    [PatientField.isExactDob]: Yup.boolean(),
+    [PatientField.dob]: Yup.date().when(PatientField.isExactDob, {
+      is: true,
+      then: Yup.date().test(
+        'valid-dob',
+        'Please enter a valid date of birth corresponding to an age between 15 - 65.',
+        (date) => ageIsValid(getAgeBasedOnDOB(date))
+      ),
+    }),
+    [PatientField.estimatedAge]: Yup.number().when(PatientField.isExactDob, {
+      is: false,
+      then: Yup.number()
+        .integer('Please enter a valid age between 15 - 65.')
+        .test('valid-age', 'Please enter a valid age between 15 - 65.', (age) =>
+          ageIsValid(age)
+        ),
+    }),
+    [PatientField.villageNumber]: Yup.number()
+      .typeError('Village number must be numeric')
+      .integer('Village number must be numeric')
+      .min(1, 'Village number must be numeric'),
+    [PatientField.isPregnant]: Yup.boolean(),
+    [PatientField.gestationalAgeDays]: Yup.number()
+      .label('Days pregnant')
+      .when([PatientField.isPregnant, PatientField.gestationalAgeUnit], {
+        is: (isPregnant, gestationalAgeUnit) =>
+          isPregnant && gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS,
+        then: Yup.number()
+          .integer('Please enter between 0 and 6 days.')
+          .min(0, 'Please enter between 0 and 6 days.')
+          .max(6, 'Please enter between 0 and 6 days.')
+          .required('Please enter between 0 and 6 days.'),
+      }),
+    [PatientField.gestationalAgeWeeks]: Yup.number()
+      .label('Weeks pregnant')
+      .when([PatientField.isPregnant, PatientField.gestationalAgeUnit], {
+        is: (isPregnant, gestationalAgeUnit) =>
+          isPregnant && gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS,
+        then: Yup.number()
+          .integer('Please enter between 0 and 60 weeks.')
+          .min(0, 'Please enter between 0 and 60 weeks.')
+          .max(60, 'Please enter between 0 and 60 weeks.')
+          .required('Please enter between 0 and 60 weeks.'),
+      }),
+    [PatientField.gestationalAgeMonths]: Yup.number()
+      .label('Months pregnant')
+      .when([PatientField.isPregnant, PatientField.gestationalAgeUnit], {
+        is: (isPregnant, gestationalAgeUnit) =>
+          isPregnant && gestationalAgeUnit === GestationalAgeUnitEnum.MONTHS,
+        then: Yup.number()
+          .integer('Please enter between 0 and 13 months.')
+          .min(0, 'Please enter between 0 and 13 months.')
+          .max(13, 'Please enter between 0 and 13 months.')
+          .required('Please enter between 0 and 13 months.'),
+      }),
+  });

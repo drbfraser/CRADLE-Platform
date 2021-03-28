@@ -1,6 +1,8 @@
 import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
 import {
-  GestationalAgeUnitEnum, gestationalAgeUnitFormatters, gestationalAgeUnitLabels,
+  GestationalAgeUnitEnum,
+  gestationalAgeUnitFormatters,
+  gestationalAgeUnitLabels,
 } from 'src/enums';
 
 import { Callback } from 'src/types';
@@ -31,9 +33,9 @@ export const GestationalAge: React.FC<IProps> = ({
 
   const unitOptions = [
     {
-      key: GestationalAgeUnitEnum.DAYS,
-      text: gestationalAgeUnitLabels[GestationalAgeUnitEnum.DAYS],
-      value: GestationalAgeUnitEnum.DAYS,
+      key: GestationalAgeUnitEnum.WEEKS,
+      text: gestationalAgeUnitLabels[GestationalAgeUnitEnum.WEEKS],
+      value: GestationalAgeUnitEnum.WEEKS,
     },
     {
       key: GestationalAgeUnitEnum.MONTHS,
@@ -47,7 +49,9 @@ export const GestationalAge: React.FC<IProps> = ({
       {gestationalTimestamp ? (
         <p>
           <b>Gestational Age: </b>
-          {gestationalAgeUnitFormatters[gestationalAgeUnit](gestationalTimestamp)}
+          {gestationalAgeUnitFormatters[gestationalAgeUnit](
+            gestationalTimestamp
+          )}
         </p>
       ) : null}
       <Form.Field
