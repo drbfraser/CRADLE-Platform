@@ -4,13 +4,13 @@ from data import crud, marshal
 from models import (
     TrafficLightEnum,
     FollowUp,
-    Reading, 
+    Reading,
     ReadingSchema,
     FollowUpSchema,
     Referral,
     ReferralSchema,
     Patient,
-    PatientSchema
+    PatientSchema,
 )
 
 
@@ -109,8 +109,10 @@ class StatsManager:
                 dates = self.calculate_dates_helper(record, "dateReferred")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                
-                patient = marshal.marshal(crud.read(Patient, patientId=record["patientId"]))
+
+                patient = marshal.marshal(
+                    crud.read(Patient, patientId=record["patientId"])
+                )
 
                 # checking for referrals for women (unique)
                 if (
@@ -150,12 +152,16 @@ class StatsManager:
         if table:
             for record in table:
 
-                reading = marshal.marshal(crud.read(Reading, readingId=record["reading"]))
+                reading = marshal.marshal(
+                    crud.read(Reading, readingId=record["reading"])
+                )
 
                 dates = self.calculate_dates_helper(record, "dateAssessed")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = marshal.marshal(crud.read(Patient, patientId=reading["patientId"]))
+                patient = marshal.marshal(
+                    crud.read(Patient, patientId=reading["patientId"])
+                )
                 # women that were assessed (unique)
                 if (
                     patient["patientSex"] == "FEMALE"
@@ -184,7 +190,7 @@ class StatsManager:
         }
 
     def put_data_together(self):
-        
+
         readings = marshal.models_to_list(crud.read_all(Reading), ReadingSchema)
         referrals = marshal.models_to_list(crud.read_all(Referral), ReferralSchema)
         assessments = marshal.models_to_list(crud.read_all(FollowUp), FollowUpSchema)

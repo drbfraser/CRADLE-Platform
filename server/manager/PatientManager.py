@@ -6,11 +6,11 @@ from database.UserRepo import UserRepo
 from manager.Manager import Manager
 from models import Patient
 
-readingRepo = ReadingRepo() 
+readingRepo = ReadingRepo()
 referralRepo = ReferralRepo()
 
-class PatientManager(Manager):
 
+class PatientManager(Manager):
     def __init__(self):
         Manager.__init__(self, PatientRepo)
 
