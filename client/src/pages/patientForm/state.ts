@@ -1,5 +1,4 @@
 import {
-  GESTATIONAL_AGE_UNITS,
   getAgeBasedOnDOB,
   getNumOfMonthsNumeric,
   getNumOfWeeks,
@@ -7,6 +6,7 @@ import {
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
 import { apiFetch } from 'src/shared/utils/api';
+import { GestationalAgeUnitEnum } from 'src/enums';
 
 export const SEXES = {
   MALE: 'MALE',
@@ -42,7 +42,7 @@ export const initialState = {
   [PatientField.patientSex]: SEXES.MALE,
   [PatientField.isPregnant]: false,
   [PatientField.gestationalAge]: '',
-  [PatientField.gestationalAgeUnit]: GESTATIONAL_AGE_UNITS.WEEKS,
+  [PatientField.gestationalAgeUnit]: GestationalAgeUnitEnum.WEEKS,
   [PatientField.drugHistory]: '',
   [PatientField.medicalHistory]: '',
 };
@@ -82,12 +82,12 @@ export const getPatientState = async (
 
   if (state[PatientField.isPregnant]) {
     switch (state[PatientField.gestationalAgeUnit]) {
-      case GESTATIONAL_AGE_UNITS.WEEKS:
+      case GestationalAgeUnitEnum.WEEKS:
         state[PatientField.gestationalAge] = getNumOfWeeks(
           state.gestationalTimestamp
         );
         break;
-      case GESTATIONAL_AGE_UNITS.MONTHS:
+      case GestationalAgeUnitEnum.MONTHS:
         state[PatientField.gestationalAge] = getNumOfMonthsNumeric(
           state.gestationalTimestamp
         );

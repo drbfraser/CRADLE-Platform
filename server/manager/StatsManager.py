@@ -1,16 +1,17 @@
-from datetime import datetime, date
-from manager.Manager import Manager
-from manager.PatientManagerNew import PatientManager  # patient data
-from manager.ReadingManagerNew import ReadingManager  # reading data
-from manager.ReferralManager import ReferralManager  # referral data
-from manager.FollowUpManager import FollowUpManager  # assessment data
+from datetime import date
 import json
-from models import Reading, ReadingSchema
-
-patientManager = PatientManager()
-referralManager = ReferralManager()
-readingManager = ReadingManager()
-followupManager = FollowUpManager()
+from data import crud, marshal
+from models import (
+    TrafficLightEnum,
+    FollowUp,
+    Reading,
+    ReadingSchema,
+    FollowUpSchema,
+    Referral,
+    ReferralSchema,
+    Patient,
+    PatientSchema,
+)
 
 
 # TODO: Add error handling
@@ -45,22 +46,16 @@ class StatsManager:
     """
 
     def calculate_traffic_light_helper(self, record, data):
-        yellow_up_index = 1
-        yellow_down_index = 2
-        red_up_index = 3
-        red_down_index = 4
-        green_index = 0
+        traffic_light_indexes = {
+            TrafficLightEnum.GREEN.value: 0,
+            TrafficLightEnum.YELLOW_UP.value: 1,
+            TrafficLightEnum.YELLOW_DOWN.value: 2,
+            TrafficLightEnum.RED_UP.value: 3,
+            TrafficLightEnum.RED_DOWN.value: 4,
+        }
 
-        if record["trafficLightStatus"] == "YELLOW_UP":
-            data[yellow_up_index] += 1
-        if record["trafficLightStatus"] == "YELLOW_DOWN":
-            data[yellow_down_index] += 1
-        if record["trafficLightStatus"] == "RED_UP":
-            data[red_up_index] += 1
-        if record["trafficLightStatus"] == "RED_DOWN":
-            data[red_down_index] += 1
-        if record["trafficLightStatus"] == "GREEN":
-            data[green_index] += 1
+        index = traffic_light_indexes[record["trafficLightStatus"]]
+        data[index] += 1
 
     """ 
         Description: calculates total number of readings, or referrals, or assessments per month for a given year (e.g 2020)
@@ -91,7 +86,9 @@ class StatsManager:
             for record in table:
                 dates = self.calculate_dates_helper(record, "dateTimeTaken")
                 if dates["record_year"] == dates["current_year"]:
+                    month_data_needed_for = 1
                     if dates["record_month"] == month_data_needed_for:
+
                         self.calculate_traffic_light_helper(record, data)
         return data
 
@@ -112,7 +109,10 @@ class StatsManager:
                 dates = self.calculate_dates_helper(record, "dateReferred")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = patientManager.read("patientId", record["patientId"])
+
+                patient = marshal.marshal(
+                    crud.read(Patient, patientId=record["patientId"])
+                )
 
                 # checking for referrals for women (unique)
                 if (
@@ -151,11 +151,17 @@ class StatsManager:
         collected_patients_assessed = []
         if table:
             for record in table:
-                reading = readingManager.read("readingId", record["reading"])
+
+                reading = marshal.marshal(
+                    crud.read(Reading, readingId=record["reading"])
+                )
+
                 dates = self.calculate_dates_helper(record, "dateAssessed")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = patientManager.read("patientId", reading["patientId"])
+                patient = marshal.marshal(
+                    crud.read(Patient, patientId=reading["patientId"])
+                )
                 # women that were assessed (unique)
                 if (
                     patient["patientSex"] == "FEMALE"
@@ -184,9 +190,11 @@ class StatsManager:
         }
 
     def put_data_together(self):
-        readings = readingManager.read_all()
-        referrals = referralManager.read_all()
-        assessments = followupManager.read_all()
+
+        readings = marshal.models_to_list(crud.read_all(Reading), ReadingSchema)
+        referrals = marshal.models_to_list(crud.read_all(Referral), ReferralSchema)
+        assessments = marshal.models_to_list(crud.read_all(FollowUp), FollowUpSchema)
+
         data_to_return = {}
 
         # getting readings per month

@@ -79,7 +79,7 @@ const ChangePassword = ({ open, onClose }: IProps) => {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}>
-            {({ isSubmitting, isValid }) => (
+            {({ isSubmitting }) => (
               <Form>
                 <Field
                   component={TextField}

@@ -32,6 +32,12 @@ class SexEnum(enum.Enum):
     OTHER = "OTHER"
 
 
+class GestationalAgeUnitEnum(enum.Enum):
+    MONTHS = "MONTHS"
+    WEEKS = "WEEKS"
+    DAYS = "DAYS"
+
+
 class TrafficLightEnum(enum.Enum):
     NONE = "NONE"
     GREEN = "GREEN"
@@ -52,14 +58,6 @@ class FacilityTypeEnum(enum.Enum):
 # HELPER CLASSES
 #
 
-
-userRole = db.Table(
-    "userrole",
-    db.Column("id", db.Integer, primary_key=True),
-    # FOREIGN KEYS
-    db.Column("userId", db.Integer, db.ForeignKey("user.id")),
-    db.Column("roleId", db.Integer, db.ForeignKey("role.id")),
-)
 
 supervises = db.Table(
     "supervises",
@@ -82,6 +80,7 @@ class User(db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password = db.Column(db.String(128))
+    role = db.Column(db.String(50))
 
     # FOREIGN KEYS
     healthFacilityName = db.Column(
@@ -92,9 +91,7 @@ class User(db.Model):
     healthFacility = db.relationship(
         "HealthFacility", backref=db.backref("users", lazy=True)
     )
-    roleIds = db.relationship(
-        "Role", secondary=userRole, backref=db.backref("users", lazy=True)
-    )
+
     referrals = db.relationship("Referral", backref=db.backref("users", lazy=True))
     vhtList = db.relationship(
         "User",
@@ -109,15 +106,6 @@ class User(db.Model):
 
     def __repr__(self):
         return "<User {}>".format(self.username)
-
-
-class Role(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Enum(RoleEnum), nullable=False)
-
-    @staticmethod
-    def schema():
-        return RoleSchema
 
 
 class Referral(db.Model):
@@ -172,7 +160,7 @@ class Patient(db.Model):
     patientName = db.Column(db.String(50))
     patientSex = db.Column(db.Enum(SexEnum), nullable=False)
     isPregnant = db.Column(db.Boolean)
-    gestationalAgeUnit = db.Column(db.String(50))
+    gestationalAgeUnit = db.Column(db.Enum(GestationalAgeUnitEnum), nullable=True)
     gestationalTimestamp = db.Column(db.BigInteger)
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
@@ -234,7 +222,7 @@ class Reading(db.Model):
             or self.bpDiastolic is None
             or self.heartRateBPM is None
         ):
-            return TrafficLightEnum.NONE.name
+            return TrafficLightEnum.NONE.value
 
         shock_index = self.heartRateBPM / self.bpSystolic
 
@@ -248,15 +236,15 @@ class Reading(db.Model):
         is_shock = shock_index >= shock_medium
 
         if is_severe_shock:
-            traffic_light = TrafficLightEnum.RED_DOWN.name
+            traffic_light = TrafficLightEnum.RED_DOWN.value
         elif is_bp_very_high:
-            traffic_light = TrafficLightEnum.RED_UP.name
+            traffic_light = TrafficLightEnum.RED_UP.value
         elif is_shock:
-            traffic_light = TrafficLightEnum.YELLOW_DOWN.name
+            traffic_light = TrafficLightEnum.YELLOW_DOWN.value
         elif is_bp_high:
-            traffic_light = TrafficLightEnum.YELLOW_UP.name
+            traffic_light = TrafficLightEnum.YELLOW_UP.value
         else:
-            traffic_light = TrafficLightEnum.GREEN.name
+            traffic_light = TrafficLightEnum.GREEN.value
 
         return traffic_light
 
@@ -387,14 +375,6 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-class RoleSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        include_fk = True
-        model = Role
-        load_instance = True
-        include_relationships = True
-
-
 class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
     facilityType = EnumField(FacilityTypeEnum, by_value=True)
 
@@ -455,6 +435,14 @@ user_schema = {
     "required": ["email", "password"],
     "additionalProperties": False,
 }
+
+
+class VillageSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = Village
+        load_instance = True
+        include_relationships = True
 
 
 def validate_user(data):

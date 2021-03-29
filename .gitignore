@@ -137,6 +137,7 @@ server/.sessions/
 .vscode/
 client/src/containers/home/interview.java
 endpoints.md
+.devcontainer
 
 **/.idea/
 

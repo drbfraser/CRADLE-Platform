@@ -1,0 +1,60 @@
+Edit user
+---
+tags:
+  - User
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          firstName:
+            type: string
+            example: Bob
+          email:
+            type: string
+            example: test@cho.com
+          healthFacilityName:
+            type: string
+            example: H0000
+          role:
+            type: string
+            example: CHO
+          supervises:
+            type: array
+            items: integer
+            example: [3, 6]
+responses:
+  200:
+    description: New user information
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: test@cho.com
+            role:
+              type: string
+              example: CHO
+            firstName:
+              type: string
+              example: Bob
+            healthFacilityName:
+              type: string
+              example: H0000
+            userId:
+              type: integer
+              example: 3
+            supervises:
+              type: array
+              items: integer
+              example: [2]

@@ -1,0 +1,70 @@
+Get statistics for a facility
+---
+tags:
+  - Stats
+parameters:
+  - in: path
+    name: facility_name
+    required: true
+    schema: 
+      type: string
+  - in: query
+    name: from
+    schema:
+      type: integer
+  - in: query
+    name: to
+    schema:
+      type: integer
+
+responses:
+  200:
+    description: 
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            patients_referred:
+              type: integer
+              example : 2
+            sent_referrals: 
+              type: integer
+              example : 58
+            days_with_readings:
+              type: integer
+              example: 5
+            unique_patients:
+              type: integer
+              example: 102 
+            total_readings:
+              type: int
+              example: 295
+            color_readings:
+              type: object
+              properties:
+                GREEN:
+                  type: integer
+                  example: 116
+                'YELLOW_DOWN': 
+                  type: integer
+                  example: 22
+                'YELLOW_UP':
+                  type: integer
+                  example: 95
+                'RED_DOWN':
+                  type: integer
+                  example: 4
+                'RED_UP':
+                  type: integer
+                  example: 58 
+  401:
+    description: Invalid user role for accessing this data
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Invalid Permissions

@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import Any, Dict, Type
+from typing import Any, Dict, Type, List
 
-from data.crud import M
+from data.crud import M, read_all
 from models import Patient, Reading, Referral, FollowUp
 
 
@@ -160,3 +160,16 @@ def __unmarshal_reading(d: dict) -> Reading:
         d["symptoms"] = ",".join(d["symptoms"])
     reading = __load(Reading, d)
     return reading
+
+
+def models_to_list(models: List[Any], schema) -> List[dict]:
+    """
+    Converts a list of models into a list of dictionaries mapping column names
+    to values.
+
+    :param models: A list of models
+    :param schema: The schema of the models
+    :return: A list of dictionaries
+    """
+
+    return schema(many=True).dump(models)

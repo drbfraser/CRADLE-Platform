@@ -150,11 +150,6 @@ export const getDOBForEstimatedAge = (age: number) => {
     .format('YYYY-MM-DD');
 };
 
-export const GESTATIONAL_AGE_UNITS = {
-  WEEKS: `GESTATIONAL_AGE_UNITS_WEEKS`,
-  MONTHS: `GESTATIONAL_AGE_UNITS_MONTHS`,
-};
-
 export const goBackWithFallback = (fallbackUrl: string) => {
   // browser new tab page + this page = 2, need more than 2 to go back
   if (history.length > 2) {

@@ -1,3 +1,4 @@
+from typing import List
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
@@ -23,8 +24,7 @@ class UpdatesPatients(Resource):
         if not timestamp:
             abort(400, message="'since' query parameter is required")
 
-        patients_to_be_added: [Patient] = []
-        #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        patients_to_be_added: List[Patient] = []
         json = request.get_json(force=True)
         for p in json:
             patient_on_server = crud.read(Patient, patientId=p.get("patientId"))
@@ -76,40 +76,6 @@ class UpdatesPatients(Resource):
             p for p in all_patients if p["lastEdited"] > timestamp
         ]
 
-        #  ~~~~~~~~~~~~~~~~~ old logic ~~~~~~~~~~~~~~~~~~~~
-        # New patients are patients who are created after the timestamp
-        # new_patients = [
-        #     p["patientId"] for p in all_patients if p["created"] > timestamp
-        # ]
-
-        # Edited patients are patients who were created before the timestamp but
-        # edited after it
-        # edited_patients = [
-        #     p["patientId"]
-        #     for p in all_patients
-        #     if p["created"] < p["lastEdited"]
-        #     and p["created"] <= timestamp < p["lastEdited"]
-        # ]
-
-        # New readings created after the timestamp for patients who where created before
-        # the timestamp
-        # readings = []
-
-        # New followups which were created after the timestamp for readings which were
-        # created before the timestamp
-        # followups = []
-        #
-        # for p in all_patients:
-        #     for r in p["readings"]:
-        #         r_time = int(r["dateTimeTaken"])
-        #         if p["created"] <= timestamp < r_time:
-        #             readings.append(r["readingId"])
-        #
-        #         if r["followup"] and r_time < timestamp < int(
-        #             r["followup"]["dateAssessed"]
-        #         ):
-        #             followups.append(r["followup"]["id"])
-
         return {
             "total": len(all_patients_edited_or_new),
             "patients": all_patients_edited_or_new,
@@ -126,19 +92,22 @@ class UpdatesReadings(Resource):
         if not timestamp:
             abort(400, message="'since' query parameter is required")
 
-        #  ~~~~~~~~~~~~~~~~~~~~~~ new Logic ~~~~~~~~~~~~~~~~~~~~~~~~~~
         json = request.get_json(force=True)
-        patients_on_server_chache = set()
+        patients_on_server_cache = set()
         for r in json:
-            if r.get("patientId") not in patients_on_server_chache:
+            if r.get("patientId") not in patients_on_server_cache:
                 patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
                 if patient_on_server is None:
                     continue
                 else:
-                    patients_on_server_chache.add(patient_on_server.patientId)
+                    patients_on_server_cache.add(patient_on_server.patientId)
 
             if crud.read(Reading, readingId=r.get("readingId")):
-                continue
+                crud.update(
+                    Reading,
+                    {"dateRecheckVitalsNeeded": r.get("dateRecheckVitalsNeeded")},
+                    readingId=r.get("readingId"),
+                )
             else:
                 error_message = readings.validate(r)
                 if error_message is not None:
@@ -148,7 +117,7 @@ class UpdatesReadings(Resource):
                 crud.create(reading, refresh=True)
 
         user = util.current_user()
-        #     TODO: create custome DB calls for referral and followup
+        #     TODO: create custom DB calls for referral and followup
 
         all_patients = view.patient_view_for_user(user)
         new_readings = []

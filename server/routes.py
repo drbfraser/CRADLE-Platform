@@ -4,16 +4,20 @@
 """
 
 import api as new_api
-from controller.PasswordResetController import *
 from controller.SMSController import *
 from controller.PatientsController import *
-from controller.StatsController import *
-from controller.UsersController import *
 from api.resources.assessments import (
     Root as Assessments,
     SingleAssessment,
     UpdateAssessment,
 )
+from api.resources.stats import (
+    Root as GeneralStats,
+    AllStats,
+    FacilityReadings,
+    UserReadings,
+)
+
 from api.resources.patientAssociations import Root as PatientAssociations
 from api.resources.facilities import Root as Facilities
 from api.resources.patients import (
@@ -26,26 +30,32 @@ from api.resources.patients import (
 )
 from api.resources.readings import Root as Readings, SingleReading
 from api.resources.referrals import Root as Referrals, SingleReferral
+from api.resources.users import *
 
 
 def init(api):
-    api.add_resource(AllStats, "/api/stats")  # [GET]
+    api.add_resource(GeneralStats, "/api/stats")  # [GET]
+    api.add_resource(AllStats, "/api/stats/all")  # [GET]
 
-    api.add_resource(UserApi, "/api/user/register")  # [POST]
+    api.add_resource(
+        FacilityReadings, "/api/stats/facility/<string:facility_id>"
+    )  # [GET]
+
+    api.add_resource(UserReadings, "/api/stats/user/<int:user_id>")
+
+    api.add_resource(UserRegisterApi, "/api/user/register")  # [POST]
     api.add_resource(UserAuthApi, "/api/user/auth")  # [POST]
     api.add_resource(UserAuthTokenRefreshApi, "/api/user/auth/refresh_token")  # [POST]
     api.add_resource(UserTokenApi, "/api/user/current")  # [GET]
     api.add_resource(UserAll, "/api/user/all")  # [GET]
-    api.add_resource(UserEdit, "/api/user/edit/<int:id>")  # [POST]
-    api.add_resource(UserDelete, "/api/user/delete/<int:id>")  # [DELETE]
+
+    api.add_resource(UserApi, "/api/user/<int:id>")  # [GET, PUT, DELETE]
+
     api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]
 
     api.add_resource(
         PatientGlobalSearch, "/api/patient/global/<string:search>"
     )  # [GET]
-
-    api.add_resource(ForgotPassword, "/api/forgot")  # [POST]
-    api.add_resource(ResetPassword, "/api/reset/<string:reset_token>")  # [PUT]
 
     api.add_resource(SMS, "/api/sms")
 
@@ -103,7 +113,7 @@ def init(api):
         endpoint="single_referral",
     )  # [GET]
 
-    api.add_resource(AdminPasswordChange, "/api/admin/change_pass")  # [POST]
-    api.add_resource(UserPasswordChange, "/api/user/change_pass")  # [POST]
+    api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
+    api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]
 
     new_api.init_routes(api)

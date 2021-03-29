@@ -17,7 +17,7 @@ requestBody:
             example: admin123
 responses:
   200:
-    description: A list of all VHTs
+    description: A list of information about the user
     content:
       application/json:
         schema:
@@ -25,11 +25,10 @@ responses:
           properties:
             email:
               type: string
-              example: admin@admin.com
-            roles:
-              type: array
-              items: string
-              example: [ADMIN]
+              example: admin123@admin.com
+            role:
+              type: string
+              example: ADMIN
             firstName:
               type: string
               example: Bob
@@ -42,7 +41,7 @@ responses:
             userId:
               type: integer
               example: 1
-            vhtList:
+            supervises:
               type: array
               items: integer
               example: [1, 2, 3]

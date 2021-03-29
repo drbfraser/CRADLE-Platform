@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Loader } from 'src/shared/components/loader';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { RoleEnum } from 'src/enums';
+import { UserRoleEnum } from 'src/enums';
 
 interface IProps {
   component:
@@ -43,7 +43,7 @@ export const PrivateRoute: React.FC<IProps> = (props) => {
   }
 
   if (currentUser.loggedIn) {
-    const admin = currentUser.data?.roles.includes(RoleEnum.ADMIN);
+    const admin = currentUser.data?.role === UserRoleEnum.ADMIN;
 
     // * Prevent non-admins from accessing admin pages
     if (

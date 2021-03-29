@@ -6,7 +6,6 @@ import Button from '@material-ui/core/Button/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik, Form, Field } from 'formik';
 import { Toast } from 'src/shared/components/toast';
-import { GESTATIONAL_AGE_UNITS } from 'src/shared/utils';
 import { PatientField, PatientState, SEXES } from './state';
 import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
 import { ToggleButtonGroup } from 'formik-material-ui-lab';
@@ -17,6 +16,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { validateForm } from './validation';
 import { useHistory } from 'react-router-dom';
 import { PatientIDExists } from './PatientIDExists';
+import { GestationalAgeUnitEnum } from 'src/enums';
 import {
   handleChangeCustom,
   handleBlurPatientId,
@@ -24,8 +24,8 @@ import {
 } from './handlers';
 
 const gestationalAgeUnitOptions = [
-  { name: 'Weeks', value: GESTATIONAL_AGE_UNITS.WEEKS },
-  { name: 'Months', value: GESTATIONAL_AGE_UNITS.MONTHS },
+  { name: 'Weeks', value: GestationalAgeUnitEnum.WEEKS },
+  { name: 'Months', value: GestationalAgeUnitEnum.MONTHS },
 ];
 
 const sexOptions = [

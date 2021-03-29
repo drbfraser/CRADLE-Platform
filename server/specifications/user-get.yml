@@ -1,0 +1,38 @@
+Getting a particular user's information
+---
+tags:
+  - User
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+
+responses:
+  200:
+    description:  Requested user information
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: cho@cho.com
+            role:
+              type: string
+              example: CHO
+            firstName:
+              type: string
+              example: TestCHO
+            healthFacilityName:
+              type: string
+              example: H0000
+            userId:
+              type: integer
+              example: 4
+            supervises:
+              type: array
+              items: integer
+              example: [5, 6]

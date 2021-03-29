@@ -34,8 +34,8 @@ requestBody:
             example: 1592339808
           gestationalAgeUnit:
             type: string | Null - required if isPregnant = true
-            enum: [GESTATIONAL_AGE_UNITS_WEEKS, GESTATIONAL_AGE_UNITS_MONTHS]
-            example: GESTATIONAL_AGE_UNITS_WEEKS
+            enum: [WEEKS, MONTHS, DAYS]
+            example: WEEKS
           zone:
             type: string | Null
             example: 1
@@ -84,8 +84,8 @@ responses:
               example: 1592339808
             gestationalAgeUnit:
               type: string | Null - required if isPregnant = true
-              enum: [GESTATIONAL_AGE_UNITS_WEEKS, GESTATIONAL_AGE_UNITS_MONTHS]
-              example: GESTATIONAL_AGE_UNITS_WEEKS
+              enum: [WEEKS, MONTHS, DAYS]
+              example: WEEKS
             zone:
               type: string | Null
               example: 1
