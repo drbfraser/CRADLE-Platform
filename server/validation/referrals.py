@@ -17,20 +17,13 @@ def validate(request_body: dict) -> Optional[str]:
     """
     error_message = None
 
-    fields = [
-        "comment",
-        "readingId",
-        "referralHealthFacilityName",
-    ]
-
     error_message = required_keys_present(
         request_body,
-        fields,
+        [
+            "readingId",
+            "referralHealthFacilityName",
+        ],
     )
-
-    for key in request_body:
-        if key not in fields:
-            return "The key '" + key + "' is not a valid field or is set server-side"
 
     if error_message is not None:
         return error_message
@@ -38,5 +31,15 @@ def validate(request_body: dict) -> Optional[str]:
     error_message = values_correct_type(request_body, ["readingId"], str)
     if error_message is not None:
         return error_message
+
+    all_fields = [
+        "comment",
+        "readingId",
+        "referralHealthFacilityName",
+    ]
+
+    for key in request_body:
+        if key not in all_fields:
+            return "The key '" + key + "' is not a valid field or is set server-side"
 
     return error_message
