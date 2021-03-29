@@ -1,4 +1,4 @@
-import { GestationalAgeUnitEnum, SexEnum } from 'src/enums';
+import { SexEnum } from 'src/enums';
 
 import { Divider } from 'semantic-ui-react';
 import { GestationalAge } from './gestationalAge';
@@ -25,14 +25,6 @@ export const MedicalInformation: React.FC<IProps> = ({ selectedPatient }) => {
     ),
   });
 
-  // * Allows toggling gestational age unit in medical information
-  const [
-    gestationalAgeUnit,
-    setGestationalAgeUnit,
-  ] = React.useState<GestationalAgeUnitEnum>(
-    selectedPatient.gestationalAgeUnit
-  );
-
   return (
     <Paper className={classes.paper}>
       <Typography className={classes.header} component="h3" variant="h5">
@@ -46,12 +38,7 @@ export const MedicalInformation: React.FC<IProps> = ({ selectedPatient }) => {
             <b>Pregnant: </b> {selectedPatient.isPregnant ? `Yes` : `No`}
           </p>
         )}
-        <GestationalAge
-          gestationalAgeUnit={gestationalAgeUnit}
-          gestationalTimestamp={selectedPatient.gestationalTimestamp}
-          pregnant={selectedPatient.isPregnant}
-          updateGestationalAgeUnit={setGestationalAgeUnit}
-        />
+        <GestationalAge patient={selectedPatient} />
         <HistoryItem
           title="Drug history"
           history={selectedPatient.drugHistory}
