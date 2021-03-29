@@ -2,7 +2,6 @@ import { Statistic } from 'semantic-ui-react';
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Data, ColorReading } from '../utils';
-// import { StatisticCard } from './StatisticCard';
 import { Bar } from 'react-chartjs-2';
 
 interface IProps {
@@ -50,7 +49,6 @@ export const StatisticDashboard: React.FC<IProps> = ({
   const options = {
     legend: {
       labels: {
-        // This more specific font property overrides the global property
         fontColor: 'black',
       },
     },
@@ -69,12 +67,14 @@ export const StatisticDashboard: React.FC<IProps> = ({
     <div>
       <div className={classes.center}>
         <Statistic.Group className={classes.statisticGroup}>
-          <Statistic horizontal className={classes.statistic}>
-            <Statistic.Value>{data.patients_referred}</Statistic.Value>
-            <Statistic.Label className={classes.verticalWriting}>
-              Patient Referred
-            </Statistic.Label>
-          </Statistic>
+          {data.patients_referred !== undefined && (
+            <Statistic horizontal className={classes.statistic}>
+              <Statistic.Value>{data.patients_referred}</Statistic.Value>
+              <Statistic.Label className={classes.verticalWriting}>
+                Patient Referred
+              </Statistic.Label>
+            </Statistic>
+          )}
 
           <Statistic horizontal className={classes.statistic}>
             <Statistic.Value>{data.days_with_readings}</Statistic.Value>
@@ -104,8 +104,9 @@ export const StatisticDashboard: React.FC<IProps> = ({
             </Statistic.Label>
           </Statistic>
         </Statistic.Group>
+        <br />
 
-        <h2>Traffic lights during this period</h2>
+        <h2>Traffic lights</h2>
         <div className={classes.chart}>
           <Bar data={barData} options={options} />
         </div>
@@ -144,20 +145,3 @@ const useStyles = makeStyles((theme) => ({
     alignItems: `center`,
   },
 }));
-
-{
-  /* <StatisticCard
-data={data.patients_referred}
-label="Patient Referred"
-/>
-<StatisticCard
-data={data.days_with_readings}
-label="Days With Readings"
-/>
-<StatisticCard data={data.sent_referrals} label="Referrals Sent" />
-<StatisticCard data={data.total_readings} label="Total Readings" />
-<StatisticCard
-data={data.unique_patient_readings}
-label="Unique Patient Readings"
-/> */
-}

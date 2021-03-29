@@ -5,21 +5,25 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 
 import { MyStatistics } from './myStatistics';
-import VHTStatistics from './VHTStatistics';
-import { ActualUser, OrNull } from 'src/types';
-import { RoleEnum } from 'src/enums';
-import FacilityStatistics from './facilityStatistics';
+import { VHTStatistics } from './VHTStatistics';
+import { IUserWithTokens, OrNull } from 'src/types';
+import { UserRoleEnum } from 'src/enums';
+import { FacilityStatistics } from './facilityStatistics';
 import { AllStatistics } from './allStatistics';
-import AllVHTStatistics from './allVHTStatistics';
-import { useEffect } from 'react';
+import { AllUsers } from './allUsers';
+import { AllFacilities } from './allFacilities';
+import { Toast } from 'src/shared/components/toast';
 
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import Grid from '@material-ui/core/Grid';
+import { startOfDay, endOfDay, subDays } from 'date-fns';
+import { DateRangePicker } from 'rsuite';
+import 'rsuite/dist/styles/rsuite-default.css';
+
 import { useState } from 'react';
+import { RangeType } from 'rsuite/lib/DateRangePicker';
+import { AllVHTs } from './allVHTs.tsx';
 
 type User = {
-  user: OrNull<ActualUser>;
+  user: OrNull<IUserWithTokens>;
 };
 
 export default function NewStatistics() {
@@ -29,66 +33,120 @@ export default function NewStatistics() {
     })
   );
 
-  const [startDate, setStartDate] = useState(new Date('2021/02/14'));
+  const [errorLoading, setErrorLoading] = useState(false);
 
-  const handleStartDateChange = (date: Date) => {
-    setStartDate(date);
-    console.log(startDate);
-  };
+  const isCHO = user?.role === UserRoleEnum.CHO;
+  const isHWC = user?.role === UserRoleEnum.HCW;
+  const isADMIN = user?.role === UserRoleEnum.ADMIN;
+  const userId = user?.userId;
+  const myFacilityName = user?.healthFacilityName;
+  const supervisedVHTs = user?.supervises;
 
-  const [endDate, setEndDate] = useState(new Date());
+  const customDateRanges: RangeType[] = [
+    {
+      label: 'This Week',
+      value: [startOfDay(subDays(new Date(), 6)), endOfDay(new Date())],
+    },
+    {
+      label: 'Last Week',
+      value: [
+        startOfDay(subDays(new Date(), 13)),
+        endOfDay(subDays(new Date(), 7)),
+      ],
+    },
+    {
+      label: 'Last 14 Days',
+      value: [startOfDay(subDays(new Date(), 13)), endOfDay(new Date())],
+    },
+    {
+      label: 'Last 30 Days',
+      value: [startOfDay(subDays(new Date(), 29)), endOfDay(new Date())],
+    },
+  ];
 
-  const handleEndDateChange = (date: Date) => {
-    setEndDate(date);
-    console.log(endDate);
-  };
+  const [dateRange, setDateRange] = useState([
+    subDays(new Date(), 30),
+    new Date(),
+  ]);
 
-  const isCHO = user?.roles.includes(RoleEnum.CHO);
-  const isHWC = user?.roles.includes(RoleEnum.HCW);
-  const isADMIN = user?.roles.includes(RoleEnum.ADMIN);
-  // const hasVHTList = !(user?.vhtList.length === 0 || user?.vhtList == null);
-
-  useEffect(() => {
-    console.log(user?.vhtList.length === 0);
-    console.log(user);
-  }, []);
+  function handleDateRangeChange(value: any) {
+    setDateRange(value);
+  }
 
   return (
     <div>
-      <Grid container spacing={3}>
-        <Grid item xs={3}>
-          <h4>From</h4>
-          <DatePicker
-            dateFormat="dd/MM/yyyy"
-            selected={startDate}
-            onChange={handleStartDateChange}
-          />
-        </Grid>
-        <Grid item xs={3}>
-          <h4>To</h4>
-          <DatePicker
-            dateFormat="dd/MM/yyyy"
-            selected={endDate}
-            onChange={handleEndDateChange}
-          />
-        </Grid>
-      </Grid>
+      {errorLoading && (
+        <Toast
+          status="error"
+          message="Something went wrong loading all user lists. Please try again."
+          clearMessage={() => setErrorLoading(false)}
+        />
+      )}
+
+      <DateRangePicker
+        size="lg"
+        value={[dateRange[0], dateRange[1]]}
+        onChange={handleDateRangeChange}
+        ranges={customDateRanges}
+      />
       <Tabs>
         <TabList>
           <Tab>My Statistics</Tab>
-          {(isHWC || isADMIN) && <Tab>My Facility</Tab>}
-          {(isCHO || isADMIN) && <Tab>My VHTs</Tab>}
-          {(isHWC || isADMIN) && <Tab>All VHTs</Tab>}
+          {isCHO && <Tab>My VHTs</Tab>}
+          {isHWC && <Tab>All VHTs</Tab>}
+          {isHWC && <Tab>My Facility</Tab>}
+          {isADMIN && <Tab>All Users</Tab>}
+          {isADMIN && <Tab>All Facilities</Tab>}
           {isADMIN && <Tab>All Users and Facilities</Tab>}
         </TabList>
 
         <TabPanel>
-          <MyStatistics from={startDate} to={endDate} />
+          <MyStatistics userId={userId} from={dateRange[0]} to={dateRange[1]} />
         </TabPanel>
-        <TabPanel>{(isHWC || isADMIN) && <FacilityStatistics />}</TabPanel>
-        <TabPanel>{(isCHO || isADMIN) && <VHTStatistics />}</TabPanel>
-        <TabPanel>{(isHWC || isADMIN) && <AllVHTStatistics />}</TabPanel>
-        <TabPanel>{isADMIN && <AllStatistics isAdmin={isADMIN} />}</TabPanel>
+
+        {isCHO && (
+          <TabPanel>
+            <VHTStatistics
+              supervisedVHTs={supervisedVHTs}
+              from={dateRange[0]}
+              to={dateRange[1]}
+            />
+          </TabPanel>
+        )}
+
+        {isHWC && (
+          <TabPanel>
+            <AllVHTs from={dateRange[0]} to={dateRange[1]} />
+          </TabPanel>
+        )}
+
+        {isHWC && (
+          <TabPanel>
+            <FacilityStatistics
+              facilityName={myFacilityName}
+              from={dateRange[0]}
+              to={dateRange[1]}
+            />
+          </TabPanel>
+        )}
+
+        {isADMIN && (
+          <TabPanel>
+            <AllUsers from={dateRange[0]} to={dateRange[1]} />
+          </TabPanel>
+        )}
+
+        {isADMIN && (
+          <TabPanel>
+            <AllFacilities from={dateRange[0]} to={dateRange[1]} />
+          </TabPanel>
+        )}
+
+        {isADMIN && (
+          <TabPanel>
+            <AllStatistics from={dateRange[0]} to={dateRange[1]} />
+          </TabPanel>
+        )}
       </Tabs>
     </div>
   );

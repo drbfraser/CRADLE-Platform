@@ -25,6 +25,7 @@ export enum EndpointEnum {
   VHTS = '/vhts',
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
+  FACILITIES_ALL = '/facilities',
 }
 
 export enum MethodEnum {

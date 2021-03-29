@@ -93,6 +93,14 @@ export interface IUser {
   supervises: number[];
 }
 
+export interface IFacility {
+  about: string;
+  facilityType: string;
+  healthFacilityName: string;
+  healthFacilityPhoneNumber: string;
+  location: string;
+}
+
 export interface IUserWithTokens extends IUser {
   token: string;
   refresh: string;

@@ -1,34 +1,36 @@
 import { useEffect } from 'react';
-import { getStatisticData } from '../utils';
+import {
+  getUserStatisticData,
+  initialData,
+  initialColorReading,
+} from '../utils';
 import React, { useState } from 'react';
-import { initialData, initialColorReading } from '../utils';
 import { StatisticDashboard } from '../utils/StatisticDashboard';
 import { Toast } from 'src/shared/components/toast';
 
 interface IProps {
+  userId: number | undefined;
   from: Date;
   to: Date;
 }
 
-export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
+export const MyStatistics: React.FC<IProps> = ({ userId, from, to }) => {
   const [data, setData] = useState(initialData);
   const [errorLoading, setErrorLoading] = useState(false);
   const [colorReading, setColorReading] = useState(initialColorReading);
-  // const currentTimestamp = Math.floor(Date.now() / 1000);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getStatisticData(from.getTime() / 1000, to.getTime() / 1000)
+    getUserStatisticData(userId, from.getTime() / 1000, to.getTime() / 1000)
       .then((response) => {
         setData(response);
         setColorReading(response);
         setLoading(true);
-        console.log(data);
       })
       .catch((err) => {
         setErrorLoading(true);
       });
-  }, []);
+  }, [from, to]);
 
   return (
     <div>
@@ -39,7 +41,10 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
           clearMessage={() => setErrorLoading(false)}
         />
       )}
-      <h1>During this period, you has assessed:</h1>
+      <h3>During this period, you has assessed:</h3>
+      <br />
+      <br />
+
       {loading && (
         <StatisticDashboard data={data} colorReading={colorReading} />
       )}

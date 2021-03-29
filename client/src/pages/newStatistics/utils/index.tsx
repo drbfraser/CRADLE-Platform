@@ -49,8 +49,32 @@ export const initialColorReading: ColorReading = {
   },
 };
 
-export const getStatisticData = async (from: number, to: number) => {
-  const url = BASE_URL + EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`;
+export const getAllVHTInformationData = async () => {
+  const url = BASE_URL + EndpointEnum.ALL_VHTS;
+  try {
+    const res = await apiFetch(url, {
+      method: 'GET',
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        'Getting All VHT Information Response failed with error code: ' +
+          res.status
+      );
+    }
+    return res.json();
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const getUserStatisticData = async (
+  userId: number | undefined,
+  from: number,
+  to: number
+) => {
+  const url =
+    BASE_URL + EndpointEnum.STATS_USER + `/${userId}?from=${from}&to=${to}`;
   try {
     const res = await apiFetch(url, {
       method: 'GET',
@@ -110,8 +134,8 @@ export const getAllUserAndFacilitiesData = async (from: number, to: number) => {
   }
 };
 
-export const getAllVHT = async (from: number, to: number) => {
-  const url = BASE_URL + EndpointEnum.ALL_VHTS + `?from=${from}&to=${to}`;
+export const getAllVHT = async () => {
+  const url = BASE_URL + EndpointEnum.ALL_VHTS;
   try {
     const res = await apiFetch(url, {
       method: 'GET',
@@ -120,6 +144,42 @@ export const getAllVHT = async (from: number, to: number) => {
     if (!res.ok) {
       throw new Error(
         'Getting All VHTs Data Response failed with error code: ' + res.status
+      );
+    }
+    return res.json();
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const getAllUsers = async () => {
+  const url = BASE_URL + EndpointEnum.USER_ALL;
+  try {
+    const res = await apiFetch(url, {
+      method: 'GET',
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        'Getting All Users Response failed with error code: ' + res.status
+      );
+    }
+    return res.json();
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const getAllFacilities = async () => {
+  const url = BASE_URL + EndpointEnum.FACILITIES_ALL;
+  try {
+    const res = await apiFetch(url, {
+      method: 'GET',
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        'Getting All Users Response failed with error code: ' + res.status
       );
     }
     return res.json();

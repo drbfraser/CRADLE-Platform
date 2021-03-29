@@ -6,19 +6,18 @@ import { StatisticDashboard } from '../utils/StatisticDashboard';
 import { Toast } from 'src/shared/components/toast';
 
 interface IProps {
-  isAdmin: boolean;
+  from: Date;
+  to: Date;
 }
 
-export const AllStatistics: React.FC<IProps> = ({ isAdmin }) => {
+export const AllStatistics: React.FC<IProps> = ({ from, to }) => {
   const [data, setData] = useState(initialData);
   const [colorReading, setColorReading] = useState(initialColorReading);
-  const currentTimestamp = Math.floor(Date.now() / 1000);
   const [loading, setLoading] = useState(false);
   const [errorLoading, setErrorLoading] = useState(false);
 
   useEffect(() => {
-    console.log(isAdmin);
-    getAllUserAndFacilitiesData(0, currentTimestamp)
+    getAllUserAndFacilitiesData(from.getTime() / 1000, to.getTime() / 1000)
       .then((response) => {
         setData(response);
         setColorReading(response);
@@ -27,7 +26,7 @@ export const AllStatistics: React.FC<IProps> = ({ isAdmin }) => {
       .catch((err) => {
         setErrorLoading(true);
       });
-  }, []);
+  }, [from, to]);
 
   return (
     <div>
@@ -38,7 +37,9 @@ export const AllStatistics: React.FC<IProps> = ({ isAdmin }) => {
           clearMessage={() => setErrorLoading(false)}
         />
       )}
-      <h1>During this period, all user and facilities have assessed:</h1>
+      <h3>During this period, all user and facilities have assessed:</h3>
+      <br />
+      <br />
       {loading && (
         <StatisticDashboard data={data} colorReading={colorReading} />
       )}
