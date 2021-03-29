@@ -11,7 +11,7 @@ parameters:
 
 responses:
   200:
-    description:  Requested patient information based on part of name or initials provided. 
+    description:  Requested patient information based on part of name or part of initials provided. 
     content:
       application/json:
         schema:

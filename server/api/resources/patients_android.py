@@ -15,8 +15,10 @@ from models import (
     ReferralSchema
 )
 from flasgger import swag_from
+import api.util as util
+import service.view as view
 
-## Functions that are only used for this endpoint ##
+## Functions that are only used for these endpoints ##
 
 def to_global_search_patient(patient):
 
@@ -73,7 +75,7 @@ def get_global_search_patients(current_user, search):
 #        For now search criteria could be:
 #           a portion/full match of the patient's id
 #           a portion/full match of the patient's initials
-class PatientGlobalSearch(Resource):
+class AndroidPatientGlobalSearch(Resource):
 
     # get all patient information (patientinfo, readings, and referrals)
     @jwt_required
@@ -88,3 +90,19 @@ class PatientGlobalSearch(Resource):
             return []
         else:
             return patients_readings_referrals
+
+
+# /api/mobile/patients/
+class AndroidPatients(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/android-patients-get.yml",
+        methods=["GET"],
+        endpoint="android_patient",
+    )
+    def get():
+        user = util.current_user()
+        patients = view.patient_view_for_user(user)
+
+        return patients, 200

@@ -23,7 +23,6 @@ from api.resources.facilities import Root as Facilities
 from api.resources.patients import (
     Root as Patients,
     SinglePatient,
-    AndroidPatients,
     PatientInfo,
     PatientStats,
     PatientReadings,
@@ -54,7 +53,7 @@ def init(api):
     api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]
 
     api.add_resource(
-        PatientGlobalSearch, "/api/patient/global/<string:search>"
+        AndroidPatientGlobalSearch, "/api/patient/global/<string:search>"
     )  # [GET]
 
     api.add_resource(SMS, "/api/sms")
