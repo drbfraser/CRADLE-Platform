@@ -163,8 +163,10 @@ def __unmarshal_reading(d: dict) -> Reading:
     reading = __load(Reading, d)
     return reading
 
+
 ## Functions taken from the original Database.py ##
 ## To-Do: Integrate them properly with the current marshal functions, it looks like there may be some overlap
+
 
 def models_to_list(models: List[Any], schema) -> List[dict]:
     """

@@ -424,8 +424,6 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
     )
 
 
-
-
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 
