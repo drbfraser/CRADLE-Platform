@@ -1,0 +1,47 @@
+Get a list of ALL patients and their basic information if they match search criteria. 
+---
+tags:
+  - Patient
+parameters:
+  - in: path
+    name: search
+    required: true
+    schema:
+      type: string
+
+responses:
+  200:
+    description:  Requested patient information based on part of name or initials provided. 
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              patientName:
+                type: string
+                example: Malika Adesina
+              patientId:
+                type: int
+                example: 48300029959
+              villageNumber:
+                type: int
+                example: 1724
+              readings:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    dateReferred:
+                      type: int
+                      example: 1589493994
+                    dateTimeTaken:
+                      type: int
+                      example: 1588629994
+                    trafficLightStatus:
+                      type: string
+                      example: GREEN
+              state:
+               type: string
+               example: Add

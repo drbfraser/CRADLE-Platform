@@ -14,6 +14,7 @@ from models import (
     ReadingSchema,
     ReferralSchema
 )
+from flasgger import swag_from
 
 ## Functions that are only used for this endpoint ##
 
@@ -76,6 +77,7 @@ class PatientGlobalSearch(Resource):
 
     # get all patient information (patientinfo, readings, and referrals)
     @jwt_required
+    @swag_from("../../specifications/patient-search-get.yml", methods=["GET"])
     def get(self, search):
         current_user = get_jwt_identity()
         patients_readings_referrals = get_global_search_patients(
