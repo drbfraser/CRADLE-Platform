@@ -1,9 +1,4 @@
-from database.ReadingRepo import ReadingRepo
-from database.ReferralRepo import ReferralRepo
 import manager.FilterHelper as filter
-from database.PatientRepo import PatientRepo
-from database.UserRepo import UserRepo
-from manager.Manager import Manager
 from models import (
     Patient, 
     PatientSchema,
@@ -14,13 +9,9 @@ from models import (
     ReferralSchema
 )
 from data import crud, marshal
-readingRepo = ReadingRepo()
-referralRepo = ReferralRepo()
 
 
-class PatientManager(Manager):
-    def __init__(self):
-        Manager.__init__(self, PatientRepo)
+class PatientManager():
 
     def get_global_search_patients(self, current_user, search):
         def __make_gs_patient_dict(p: Patient, is_added: bool) -> dict:
@@ -50,15 +41,13 @@ class PatientManager(Manager):
                 reading_json = {
                     "dateReferred": None,
                 }
-                # reading_data = readingRepo.read("readingId", reading)
+               
                 reading_data = marshal.model_to_dict(crud.read(Reading, readingId=reading), ReadingSchema)
                 reading_json["dateTimeTaken"] = reading_data["dateTimeTaken"]
                 reading_json["trafficLightStatus"] = reading_data["trafficLightStatus"]
 
                 # add referral if exists in reading
                 if reading_data["referral"]:
-                    # top_ref = referralRepo.read("id", reading_data["referral"])
-                    print(reading_data["referral"])
                     top_ref = marshal.model_to_dict(crud.read(Referral, id=reading_data["referral"]), ReferralSchema)
                     reading_json["dateReferred"] = top_ref["dateReferred"]
 
