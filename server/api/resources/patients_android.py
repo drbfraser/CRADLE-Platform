@@ -6,19 +6,20 @@ from flask_restful import Resource
 from data import crud, marshal
 import manager.FilterHelper as filter
 from models import (
-    Patient, 
+    Patient,
     PatientSchema,
     User,
     Reading,
     Referral,
     ReadingSchema,
-    ReferralSchema
+    ReferralSchema,
 )
 from flasgger import swag_from
 import api.util as util
 import service.view as view
 
 ## Functions that are only used for these endpoints ##
+
 
 def to_global_search_patient(patient):
 
@@ -37,14 +38,18 @@ def to_global_search_patient(patient):
             reading_json = {
                 "dateReferred": None,
             }
-            
-            reading_data = marshal.model_to_dict(crud.read(Reading, readingId=reading), ReadingSchema)
+
+            reading_data = marshal.model_to_dict(
+                crud.read(Reading, readingId=reading), ReadingSchema
+            )
             reading_json["dateTimeTaken"] = reading_data["dateTimeTaken"]
             reading_json["trafficLightStatus"] = reading_data["trafficLightStatus"]
 
             # add referral if exists in reading
             if reading_data["referral"]:
-                top_ref = marshal.model_to_dict(crud.read(Referral, id=reading_data["referral"]), ReferralSchema)
+                top_ref = marshal.model_to_dict(
+                    crud.read(Referral, id=reading_data["referral"]), ReferralSchema
+                )
                 reading_json["dateReferred"] = top_ref["dateReferred"]
 
             # add reading dateReferred data to array
@@ -55,17 +60,17 @@ def to_global_search_patient(patient):
 
     return global_search_patient
 
+
 def get_global_search_patients(current_user, search):
-        def __make_gs_patient_dict(p: Patient, is_added: bool) -> dict:
-            patient_dict = marshal.model_to_dict(p, PatientSchema)
-            patient_dict["state"] = "Added" if is_added else "Add"
-            return patient_dict
+    def __make_gs_patient_dict(p: Patient, is_added: bool) -> dict:
+        patient_dict = marshal.model_to_dict(p, PatientSchema)
+        patient_dict["state"] = "Added" if is_added else "Add"
+        return patient_dict
 
-        user = crud.read(User, id=current_user["userId"])
-        pairs = filter.annotated_global_patient_list(user, search)
-        patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
-        return [to_global_search_patient(p) for p in patients_query]
-
+    user = crud.read(User, id=current_user["userId"])
+    pairs = filter.annotated_global_patient_list(user, search)
+    patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
+    return [to_global_search_patient(p) for p in patients_query]
 
 
 # URI: api/patient/global/<string:search>
