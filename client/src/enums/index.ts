@@ -1,3 +1,5 @@
+import { getNumOfMonths, getNumOfWeeksDays } from 'src/shared/utils';
+
 export enum FormStatusEnum {
   ADD_NEW_READING = 1,
   EDIT_PATIENT_INFORMATION,
@@ -16,10 +18,15 @@ export enum GestationalAgeUnitEnum {
   MONTHS = 'MONTHS',
 }
 
-export enum GestationalAgeUnitDisplayEnum {
-  WEEKS = 'Weeks',
-  MONTHS = 'Months',
-}
+export const gestationalAgeUnitLabels = {
+  [GestationalAgeUnitEnum.WEEKS]: 'Weeks + Days',
+  [GestationalAgeUnitEnum.MONTHS]: 'Months',
+};
+
+export const gestationalAgeUnitFormatters = {
+  [GestationalAgeUnitEnum.WEEKS]: getNumOfWeeksDays,
+  [GestationalAgeUnitEnum.MONTHS]: getNumOfMonths,
+};
 
 export enum TrafficLightEnum {
   GREEN = 'GREEN',
