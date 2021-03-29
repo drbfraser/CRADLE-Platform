@@ -1,15 +1,17 @@
 from datetime import date
-from manager.PatientManager import PatientManager  # patient data
-from manager.ReadingManager import ReadingManager  # reading data
-from manager.ReferralManager import ReferralManager  # referral data
-from manager.FollowUpManager import FollowUpManager  # assessment data
 import json
-from models import TrafficLightEnum
-
-patientManager = PatientManager()
-referralManager = ReferralManager()
-readingManager = ReadingManager()
-followupManager = FollowUpManager()
+from data import crud, marshal
+from models import (
+    TrafficLightEnum,
+    FollowUp,
+    Reading,
+    ReadingSchema,
+    FollowUpSchema,
+    Referral,
+    ReferralSchema,
+    Patient,
+    PatientSchema,
+)
 
 
 # TODO: Add error handling
@@ -107,7 +109,10 @@ class StatsManager:
                 dates = self.calculate_dates_helper(record, "dateReferred")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = patientManager.read("patientId", record["patientId"])
+
+                patient = marshal.marshal(
+                    crud.read(Patient, patientId=record["patientId"])
+                )
 
                 # checking for referrals for women (unique)
                 if (
@@ -146,11 +151,17 @@ class StatsManager:
         collected_patients_assessed = []
         if table:
             for record in table:
-                reading = readingManager.read("readingId", record["reading"])
+
+                reading = marshal.marshal(
+                    crud.read(Reading, readingId=record["reading"])
+                )
+
                 dates = self.calculate_dates_helper(record, "dateAssessed")
                 if dates["record_year"] != dates["current_year"]:
                     continue
-                patient = patientManager.read("patientId", reading["patientId"])
+                patient = marshal.marshal(
+                    crud.read(Patient, patientId=reading["patientId"])
+                )
                 # women that were assessed (unique)
                 if (
                     patient["patientSex"] == "FEMALE"
@@ -179,9 +190,11 @@ class StatsManager:
         }
 
     def put_data_together(self):
-        readings = readingManager.read_all()
-        referrals = referralManager.read_all()
-        assessments = followupManager.read_all()
+
+        readings = marshal.models_to_list(crud.read_all(Reading), ReadingSchema)
+        referrals = marshal.models_to_list(crud.read_all(Referral), ReferralSchema)
+        assessments = marshal.models_to_list(crud.read_all(FollowUp), FollowUpSchema)
+
         data_to_return = {}
 
         # getting readings per month
