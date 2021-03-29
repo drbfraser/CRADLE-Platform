@@ -35,7 +35,6 @@ class SexEnum(enum.Enum):
 class GestationalAgeUnitEnum(enum.Enum):
     MONTHS = "MONTHS"
     WEEKS = "WEEKS"
-    DAYS = "DAYS"
 
 
 class TrafficLightEnum(enum.Enum):

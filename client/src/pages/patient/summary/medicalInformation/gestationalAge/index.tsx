@@ -1,13 +1,12 @@
 import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
 import {
-  GestationalAgeUnitDisplayEnum,
   GestationalAgeUnitEnum,
+  gestationalAgeUnitFormatters,
+  gestationalAgeUnitLabels,
 } from 'src/enums';
-import { getNumOfMonths, getNumOfWeeks } from 'src/shared/utils';
 
 import { Callback } from 'src/types';
 import React from 'react';
-import { unitOptions } from './utils';
 import { useStyles } from './styles';
 
 interface IProps {
@@ -32,25 +31,34 @@ export const GestationalAge: React.FC<IProps> = ({
     updateGestationalAgeUnit(value as GestationalAgeUnitEnum);
   };
 
+  const unitOptions = [
+    {
+      key: GestationalAgeUnitEnum.WEEKS,
+      text: gestationalAgeUnitLabels[GestationalAgeUnitEnum.WEEKS],
+      value: GestationalAgeUnitEnum.WEEKS,
+    },
+    {
+      key: GestationalAgeUnitEnum.MONTHS,
+      text: gestationalAgeUnitLabels[GestationalAgeUnitEnum.MONTHS],
+      value: GestationalAgeUnitEnum.MONTHS,
+    },
+  ];
+
   return pregnant ? (
     <div className={classes.container}>
       {gestationalTimestamp ? (
         <p>
           <b>Gestational Age: </b>
-          {gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
-            ? `${getNumOfWeeks(gestationalTimestamp)} week(s)`
-            : `${getNumOfMonths(gestationalTimestamp)} month(s)`}
+          {gestationalAgeUnitFormatters[gestationalAgeUnit](
+            gestationalTimestamp
+          )}
         </p>
       ) : null}
       <Form.Field
         name="gestationalUnits"
         control={Select}
         options={unitOptions}
-        placeholder={
-          gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
-            ? GestationalAgeUnitDisplayEnum.WEEKS
-            : GestationalAgeUnitDisplayEnum.MONTHS
-        }
+        placeholder={gestationalAgeUnitLabels[gestationalAgeUnit]}
         onChange={handleGestationalAgeUnitChange}
       />
     </div>

@@ -39,7 +39,7 @@ responses:
                 example: 1592339808
               gestationalAgeUnit:
                 type: string | Null
-                enum: [DAYS, WEEKS, MONTHS]
+                enum: [WEEKS, MONTHS]
                 example: WEEKS
               zone:
                 type: string | Null

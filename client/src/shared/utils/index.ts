@@ -21,16 +21,22 @@ export const getLatestReadingWithReferral = (
     })[0];
 };
 
+export const getTimestampFromWeeksDays = (
+  weeks: string,
+  days: string
+): number => {
+  const weeksInMillis = Number(weeks) * 7 * 24 * 60 * 60 * 1000;
+  const daysInMillis = Number(days) * 24 * 60 * 60 * 1000;
+  const timestampMillis = new Date().getTime() - weeksInMillis - daysInMillis;
+  const timestampSecs = timestampMillis / 1000;
+  return timestampSecs;
+};
+
 export const getTimestampFromWeeks = (weeks: string): number => {
-  const gestationalDate = new Date();
-
-  // * Set gestational time as difference between number of weeks and now
-  gestationalDate.setTime(
-    gestationalDate.getTime() - Number(weeks) * 7 * 24 * 60 * 60 * 1000
-  );
-
-  // * Convert to seconds
-  return gestationalDate.getTime() / 1000;
+  const weeksInMillis = Number(weeks) * 7 * 24 * 60 * 60 * 1000;
+  const timestampMillis = new Date().getTime() - weeksInMillis;
+  const timestampSecs = timestampMillis / 1000;
+  return timestampSecs;
 };
 
 export const getTimestampFromMonths = (months: string): number => {
@@ -49,25 +55,65 @@ export const getTimestampFromMonths = (months: string): number => {
   return gestationalDate.getTime() / 1000;
 };
 
-export const getNumOfWeeks = (timestamp: number): number => {
+export const getNumOfWeeksDaysNumeric = (timestamp: number) => {
   const todaysDate = new Date();
-  const gestationalDate = new Date(timestamp * 1000);
-  const difference = todaysDate.getTime() - gestationalDate.getTime();
-  return Math.round(difference / (7 * 24 * 60 * 60 * 1000)) || 1;
+  const timestampDate = new Date(timestamp * 1000);
+  const difference = todaysDate.getTime() - timestampDate.getTime();
+  const totalDays = Math.round(difference / (24 * 60 * 60 * 1000));
+  const weeks = Math.floor(totalDays / 7);
+
+  return {
+    weeks: weeks,
+    days: totalDays % 7,
+  };
+};
+
+export const getNumOfWeeksDays = (timestamp: number): string => {
+  const { weeks, days } = getNumOfWeeksDaysNumeric(timestamp);
+
+  if (weeks === 0) {
+    if (days === 0) {
+      return 'Less than a day';
+    } else {
+      return `${days} day(s)`;
+    }
+  }
+
+  return `${weeks} week(s) and ${days} day(s)`;
+};
+
+export const getNumOfWeeksNumeric = (timestamp: number): number => {
+  const todaysDate = new Date();
+  const timestampDate = new Date(timestamp * 1000);
+  const difference = todaysDate.getTime() - timestampDate.getTime();
+  return Math.round(difference / (7 * 24 * 60 * 60 * 1000));
+};
+
+export const getNumOfWeeks = (timestamp: number): string => {
+  const numOfWeeks = getNumOfWeeksNumeric(timestamp);
+  if (numOfWeeks === 0) {
+    return 'Less than 1 week';
+  }
+
+  return `${numOfWeeks} weeks(s)`;
 };
 
 export const getNumOfMonthsNumeric = (timestamp: number): number => {
   const todaysDate = new Date();
-  const gestationalDate = new Date(timestamp * 1000);
-  const difference = todaysDate.getTime() - gestationalDate.getTime();
+  const timestampDate = new Date(timestamp * 1000);
+  const difference = todaysDate.getTime() - timestampDate.getTime();
   const numOfMonths = Math.floor(difference / (4 * 7 * 24 * 60 * 60 * 1000));
 
   return numOfMonths;
 };
 
-export const getNumOfMonths = (timestamp: number): number | string => {
+export const getNumOfMonths = (timestamp: number): string => {
   const numOfMonths = getNumOfMonthsNumeric(timestamp);
-  return numOfMonths === 0 ? `Less than 1` : numOfMonths;
+  if (numOfMonths === 0) {
+    return 'Less than 1 month';
+  }
+
+  return `${numOfMonths} month(s)`;
 };
 
 // Function is not currently used but has a high likelihood of being useful in the future

@@ -1,7 +1,7 @@
 import {
   getDOBForEstimatedAge,
   getTimestampFromMonths,
-  getTimestampFromWeeks,
+  getTimestampFromWeeksDays,
   goBackWithFallback,
 } from 'src/shared/utils';
 import { EndpointEnum } from 'src/server';
@@ -13,16 +13,14 @@ import { GestationalAgeUnitEnum } from 'src/enums';
 // custom change handler when a field might affect other fields
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
   const resetGestational = () => {
-    setFieldValue(
-      PatientField.gestationalAge,
-      initialState[PatientField.gestationalAge],
-      false
-    );
-    setFieldValue(
+    [
+      PatientField.gestationalAgeDays,
+      PatientField.gestationalAgeWeeks,
+      PatientField.gestationalAgeMonths,
       PatientField.gestationalAgeUnit,
-      initialState[PatientField.gestationalAgeUnit],
-      false
-    );
+    ].forEach((field) => {
+      setFieldValue(field, initialState[field], false);
+    });
   };
 
   return (e: React.ChangeEvent<any>) => {
@@ -77,51 +75,56 @@ export const handleSubmit = (
   return async (values: PatientState, { setSubmitting }: any) => {
     setSubmitting(true);
 
-    // deep copy
-    const patientData = JSON.parse(JSON.stringify(values));
+    const valuesForServer = {
+      patientId: values[PatientField.patientId],
+      patientName: values[PatientField.patientName],
+      householdNumber: values[PatientField.householdNumber],
+      isExactDob: Boolean(values[PatientField.isExactDob]),
+      dob: values[PatientField.dob],
+      zone: values[PatientField.zone],
+      villageNumber: values[PatientField.villageNumber],
+      patientSex: values[PatientField.patientSex],
+      isPregnant: Boolean(values[PatientField.isPregnant]),
+      gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
+      gestationalTimestamp: 0,
+      drugHistory: 'Sample drug history',
+      medicalHistory: 'Sample medical history',
+    };
 
-    // modify the data to be what the server expects
-    patientData[PatientField.isExactDob] = Boolean(
-      patientData[PatientField.isExactDob]
-    );
-
-    if (!patientData[PatientField.isExactDob]) {
-      patientData[PatientField.dob] = getDOBForEstimatedAge(
-        patientData[PatientField.estimatedAge]
+    if (!valuesForServer.isExactDob) {
+      valuesForServer.dob = getDOBForEstimatedAge(
+        parseInt(values[PatientField.estimatedAge])
       );
     }
 
-    if (patientData[PatientField.isPregnant]) {
-      switch (patientData[PatientField.gestationalAgeUnit]) {
+    if (valuesForServer.isPregnant) {
+      switch (valuesForServer.gestationalAgeUnit) {
         case GestationalAgeUnitEnum.WEEKS:
-          patientData.gestationalTimestamp = getTimestampFromWeeks(
-            patientData[PatientField.gestationalAge]
+          valuesForServer.gestationalTimestamp = getTimestampFromWeeksDays(
+            values.gestationalAgeWeeks,
+            values.gestationalAgeDays
           );
           break;
         case GestationalAgeUnitEnum.MONTHS:
-          patientData.gestationalTimestamp = getTimestampFromMonths(
-            patientData[PatientField.gestationalAge]
+          valuesForServer.gestationalTimestamp = getTimestampFromMonths(
+            values.gestationalAgeMonths
           );
           break;
       }
     }
 
-    delete patientData[PatientField.estimatedAge];
-    delete patientData[PatientField.gestationalAge];
-
-    let url = BASE_URL + EndpointEnum.PATIENTS;
     let method = 'POST';
+    let url = BASE_URL + EndpointEnum.PATIENTS;
 
     if (!creatingNew) {
-      url +=
-        '/' + patientData[PatientField.patientId] + EndpointEnum.PATIENT_INFO;
       method = 'PUT';
+      url += '/' + values[PatientField.patientId] + EndpointEnum.PATIENT_INFO;
     }
 
     try {
       const resp = await apiFetch(url, {
         method: method,
-        body: JSON.stringify(patientData),
+        body: JSON.stringify(valuesForServer),
       });
 
       if (!resp.ok) {
