@@ -13,17 +13,12 @@ const guid = () => {
   });
 };
 
-const getSubmitObject = (
-  patientId: string,
-  values: ReadingState,
-  userId: number
-) => {
+const getSubmitObject = (patientId: string, values: ReadingState) => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const readingGuid = guid();
 
   // user ID and healthcare worker ID should be moved to the backend
   const submitValues = {
-    userId: userId,
     patientId: patientId,
     readingId: readingGuid,
     dateTimeTaken: currentTimestamp,
@@ -36,7 +31,6 @@ const getSubmitObject = (
       diagnosis: values[ReadingField.finalDiagnosis],
       followupInstructions: values[ReadingField.followUpInstruc],
       followupNeeded: values[ReadingField.followUp],
-      healthcareWorkerId: userId,
       medicationPrescribed: values[ReadingField.medication],
       readingId: readingGuid,
       specialInvestigations: values[ReadingField.investigation],
@@ -57,12 +51,8 @@ const getSubmitObject = (
   return submitValues;
 };
 
-export const handleSubmit = async (
-  patientId: string,
-  values: ReadingState,
-  userId: number
-) => {
-  const submitValues = getSubmitObject(patientId, values, userId);
+export const handleSubmit = async (patientId: string, values: ReadingState) => {
+  const submitValues = getSubmitObject(patientId, values);
   const url = BASE_URL + EndpointEnum.READINGS;
 
   try {

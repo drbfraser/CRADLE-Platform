@@ -1,6 +1,5 @@
-import { GestationalAgeUnitEnum } from 'src/enums';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/enums';
 
-import { BasicInformation } from './basicInformation';
 import { Divider } from 'semantic-ui-react';
 import { GestationalAge } from './gestationalAge';
 import { HistoryItem } from './historyItem';
@@ -42,7 +41,11 @@ export const MedicalInformation: React.FC<IProps> = ({ selectedPatient }) => {
       </Typography>
       <Divider />
       <div className={classes.content}>
-        <BasicInformation patient={selectedPatient} />
+        {selectedPatient.patientSex === SexEnum.FEMALE && (
+          <p>
+            <b>Pregnant: </b> {selectedPatient.isPregnant ? `Yes` : `No`}
+          </p>
+        )}
         <GestationalAge
           gestationalAgeUnit={gestationalAgeUnit}
           gestationalTimestamp={selectedPatient.gestationalTimestamp}
@@ -57,6 +60,11 @@ export const MedicalInformation: React.FC<IProps> = ({ selectedPatient }) => {
           title="Medical history"
           history={selectedPatient.medicalHistory}
         />
+        {selectedPatient.patientSex !== SexEnum.FEMALE &&
+          !selectedPatient.drugHistory &&
+          !selectedPatient.medicalHistory && (
+            <>No additional medical information.</>
+          )}
       </div>
     </Paper>
   );
