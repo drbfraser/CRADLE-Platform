@@ -1,7 +1,4 @@
-import {
-  getNumOfMonths,
-  getNumOfWeeksDays,
-} from 'src/shared/utils';
+import { getNumOfMonths, getNumOfWeeksDays } from 'src/shared/utils';
 
 export enum FormStatusEnum {
   ADD_NEW_READING = 1,
@@ -17,7 +14,6 @@ export enum SexEnum {
 }
 
 export enum GestationalAgeUnitEnum {
-  DAYS = 'DAYS',
   WEEKS = 'WEEKS',
   MONTHS = 'MONTHS',
 }

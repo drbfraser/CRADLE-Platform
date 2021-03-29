@@ -171,7 +171,6 @@ def seed():
         gestational_units = [
             GestationalAgeUnitEnum.WEEKS.value,
             GestationalAgeUnitEnum.MONTHS.value,
-            GestationalAgeUnitEnum.DAYS.value,
         ]
 
         if sex == SexEnum.FEMALE.value and pregnant:
