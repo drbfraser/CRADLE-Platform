@@ -179,7 +179,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                                 values.supervises.indexOf(user.userId) >= 0
                               }
                             />
-                            {user.firstName} (ID: {user.userId})
+                            {user.firstName} ({user.email})
                           </MenuItem>
                         ))}
                     </Field>
