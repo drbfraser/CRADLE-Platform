@@ -5,7 +5,7 @@
 
 import api as new_api
 from controller.SMSController import *
-from controller.PatientsController import *
+from api.resources.patients_android import *
 from api.resources.assessments import (
     Root as Assessments,
     SingleAssessment,
