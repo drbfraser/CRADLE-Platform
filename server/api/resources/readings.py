@@ -1,6 +1,7 @@
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
+from flask_jwt_extended.utils import get_jwt_identity
 from flask_restful import Resource, abort
 
 import data.crud as crud
@@ -22,6 +23,13 @@ class Root(Resource):
         error_message = readings.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
+
+        userId = get_jwt_identity()["userId"]
+
+        json["userId"] = userId
+
+        if json["followup"]:
+            json["followup"]["healthcareWorkerId"] = userId
 
         reading = marshal.unmarshal(Reading, json)
 

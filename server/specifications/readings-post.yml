@@ -35,18 +35,12 @@ requestBody:
           dateTimeTaken:
             type: Unix timestamp | Null
             example: 1551447833
-          userId:
-            type: integer | Null
-            example: 1
           followup:
             type: object
             properties:
               dateAssessed: 
                 type: Unix timestamp | Null
                 example: 1551447833
-              healthcareWorkerId:
-                type: integer | Null
-                example: 1
               diagnosis:
                 type: string | Null
                 example: Sample diagnosis

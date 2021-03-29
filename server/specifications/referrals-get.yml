@@ -15,19 +15,22 @@ responses:
               dateReferred:
                 type: string | Null
                 example: 1552311833
-              patientId:
-                type: integer
-                example: 48300053727
-              referralId:
-                type: integer
-                example: 1
               isAssessed:
                 type: boolean | Null
                 example: false
+              patientId:
+                type: integer
+                example: 48300053727
+              patientName:
+                type: string
+                example: MR
+              referralId:
+                type: integer
+                example: 1
               trafficLightStatus:
                 type: string
                 enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
                 example: GREEN
-              patientName:
+              villageNumber:
                 type: string
-                example: MR
+                example: 1093

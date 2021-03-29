@@ -67,6 +67,8 @@ def __marshal_referral(r: Referral) -> dict:
         del d["healthFacility"]
     if d.get("reading"):
         del d["reading"]
+    if d.get("patient"):
+        del d["patient"]
     return d
 
 

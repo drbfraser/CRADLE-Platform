@@ -12,7 +12,6 @@ def validate(request_body: dict) -> Optional[str]:
                             "dateAssessed": 1551447833, - required
                             "diagnosis": "patient is fine",
                             "medicationPrescribed": "tylenol",
-                            "healthcareWorkerId": 2,
                             "specialInvestigations": "bcccccccccddeeeff",
                             "treatment": "b",
                             "readingId": "asdasd82314278226313803", - required
@@ -29,7 +28,6 @@ def validate(request_body: dict) -> Optional[str]:
         "readingId",
         "followupNeeded",
         "dateAssessed",
-        "healthcareWorkerId",
     ]
     error_message = required_keys_present(request_body, required_keys)
     if error_message is not None:
