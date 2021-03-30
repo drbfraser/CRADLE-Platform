@@ -1,4 +1,5 @@
 import time
+from math import floor
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -63,14 +64,14 @@ class Root(Resource):
             abort(400, message="A referral has already been created for that reading")
 
         if not reading:
-            abort(400, message="Reading ID refers to a non-existant reading")
+            abort(400, message="Reading ID refers to a non-existent reading")
 
         if not healthFacility:
             abort(400, message="Health facility does not exist")
 
         json["patientId"] = reading.patientId
         json["userId"] = get_jwt_identity()["userId"]
-        json["dateReferred"] = time.time()
+        json["dateReferred"] = floor(time.time())
         json["isAssessed"] = False
 
         referral = marshal.unmarshal(Referral, json)
