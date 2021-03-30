@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   MenuItem,
+  TextField,
 } from '@material-ui/core';
 import {
   UserField,
@@ -15,12 +16,16 @@ import {
   fieldLabels,
 } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { TextField as FormikTextField } from 'formik-material-ui';
+import {
+  Autocomplete,
+  AutocompleteRenderInputParams,
+} from 'formik-material-ui-lab';
 import { apiFetch } from 'src/shared/utils/api';
 import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import { Toast } from 'src/shared/components/toast';
-import { useHealthFacilityOptions } from 'src/shared/hooks/healthFacilityOptions';
+import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { IUser } from 'src/types';
 import { UserRoleEnum, userRoles } from 'src/enums';
 
@@ -32,7 +37,7 @@ interface IProps {
 }
 
 const EditUser = ({ open, onClose, users, editUser }: IProps) => {
-  const healthFacilityOptions = useHealthFacilityOptions();
+  const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
   const creatingNew = editUser === undefined;
   const emailsInUse = users
@@ -87,10 +92,10 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
             initialValues={editUser ?? newUserTemplate}
             validationSchema={newEditValidationSchema(creatingNew, emailsInUse)}
             onSubmit={handleSubmit}>
-            {({ values, isSubmitting, isValid }) => (
+            {({ values, touched, errors, isSubmitting, isValid }) => (
               <Form>
                 <Field
-                  component={TextField}
+                  component={FormikTextField}
                   fullWidth
                   required
                   inputProps={{ maxLength: 25 }}
@@ -101,7 +106,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                 <br />
                 <br />
                 <Field
-                  component={TextField}
+                  component={FormikTextField}
                   fullWidth
                   required
                   inputProps={{ maxLength: 120 }}
@@ -112,25 +117,33 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                 <br />
                 <br />
                 <Field
-                  component={TextField}
+                  component={Autocomplete}
                   fullWidth
-                  select
-                  required
-                  variant="outlined"
-                  label={fieldLabels[UserField.healthFacilityName]}
-                  name={UserField.healthFacilityName}>
-                  {Object.entries(healthFacilityOptions).map(
-                    ([_, { label, value }]) => (
-                      <MenuItem key={value} value={value}>
-                        {label}
-                      </MenuItem>
-                    )
+                  name={UserField.healthFacilityName}
+                  options={healthFacilities}
+                  disableClearable={true}
+                  renderInput={(params: AutocompleteRenderInputParams) => (
+                    <TextField
+                      {...params}
+                      name={UserField.healthFacilityName}
+                      error={
+                        touched[UserField.healthFacilityName] &&
+                        !!errors[UserField.healthFacilityName]
+                      }
+                      helperText={
+                        touched[UserField.healthFacilityName]
+                          ? errors[UserField.healthFacilityName]
+                          : ''
+                      }
+                      label={fieldLabels[UserField.healthFacilityName]}
+                      variant="outlined"
+                      required
+                    />
                   )}
-                </Field>
-                <br />
+                />
                 <br />
                 <Field
-                  component={TextField}
+                  component={FormikTextField}
                   fullWidth
                   select
                   required
@@ -148,7 +161,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                     <br />
                     <br />
                     <Field
-                      component={TextField}
+                      component={FormikTextField}
                       variant="outlined"
                       fullWidth
                       select
@@ -190,7 +203,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                     <br />
                     <br />
                     <Field
-                      component={TextField}
+                      component={FormikTextField}
                       fullWidth
                       required
                       variant="outlined"
@@ -201,7 +214,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                     <br />
                     <br />
                     <Field
-                      component={TextField}
+                      component={FormikTextField}
                       fullWidth
                       required
                       variant="outlined"

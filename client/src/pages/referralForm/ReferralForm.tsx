@@ -1,15 +1,19 @@
-import { makeStyles, MenuItem } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
 import { Field, Form, Formik } from 'formik';
-import { TextField } from 'formik-material-ui';
+import {
+  Autocomplete,
+  AutocompleteRenderInputParams,
+} from 'formik-material-ui-lab';
 import React, { useState } from 'react';
 import { Toast } from 'src/shared/components/toast';
-import { useHealthFacilityOptions } from 'src/shared/hooks/healthFacilityOptions';
+import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { handleSubmit } from './handlers';
-import { initialState, ReferralField } from './state';
+import { initialState, ReferralField, validationSchema } from './state';
 
 interface IProps {
   readingId: string;
@@ -17,7 +21,7 @@ interface IProps {
 
 export const ReferralForm = ({ readingId }: IProps) => {
   const classes = useStyles();
-  const healthFacilityOptions = useHealthFacilityOptions();
+  const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
 
   return (
@@ -31,8 +35,9 @@ export const ReferralForm = ({ readingId }: IProps) => {
       )}
       <Formik
         initialValues={initialState}
+        validationSchema={validationSchema}
         onSubmit={handleSubmit(readingId, setSubmitError)}>
-        {({ isSubmitting }) => (
+        {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>
               <Box p={2}>
@@ -41,21 +46,32 @@ export const ReferralForm = ({ readingId }: IProps) => {
                   <Grid container spacing={3}>
                     <Grid item xs={12}>
                       <Field
-                        component={TextField}
+                        component={Autocomplete}
                         fullWidth
-                        select
-                        required
-                        variant="outlined"
-                        label="Refer To"
-                        name={ReferralField.healthFacility}>
-                        {Object.entries(healthFacilityOptions).map(
-                          ([_, { label, value }]) => (
-                            <MenuItem key={value} value={value}>
-                              {label}
-                            </MenuItem>
-                          )
+                        name={ReferralField.healthFacility}
+                        options={healthFacilities}
+                        disableClearable={true}
+                        renderInput={(
+                          params: AutocompleteRenderInputParams
+                        ) => (
+                          <TextField
+                            {...params}
+                            name={ReferralField.healthFacility}
+                            error={
+                              touched[ReferralField.healthFacility] &&
+                              !!errors[ReferralField.healthFacility]
+                            }
+                            helperText={
+                              touched[ReferralField.healthFacility]
+                                ? errors[ReferralField.healthFacility]
+                                : ''
+                            }
+                            label="Refer To"
+                            variant="outlined"
+                            required
+                          />
                         )}
-                      </Field>
+                      />
                     </Grid>
                     <Grid item xs={12}>
                       <Field
