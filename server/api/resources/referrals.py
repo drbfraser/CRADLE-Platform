@@ -1,6 +1,9 @@
+import time
+from math import floor
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
+from flask_jwt_extended.utils import get_jwt_identity
 from flask_restful import Resource, abort
 
 import api.util as util
@@ -8,7 +11,7 @@ import data.crud as crud
 import data.marshal as marshal
 import service.assoc as assoc
 import service.view as view
-from models import Referral
+from models import HealthFacility, Reading, Referral
 from validation import referrals
 import service.serialize as serialize
 
@@ -52,8 +55,27 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
+        reading = crud.read(Reading, readingId=json["readingId"])
+        healthFacility = crud.read(
+            HealthFacility, healthFacilityName=json["referralHealthFacilityName"]
+        )
+
+        if crud.read(Referral, readingId=json["readingId"]):
+            abort(400, message="A referral has already been created for that reading")
+
+        if not reading:
+            abort(400, message="Reading ID refers to a non-existent reading")
+
+        if not healthFacility:
+            abort(400, message="Health facility does not exist")
+
+        json["patientId"] = reading.patientId
+        json["userId"] = get_jwt_identity()["userId"]
+        json["dateReferred"] = floor(time.time())
+        json["isAssessed"] = False
+
         referral = marshal.unmarshal(Referral, json)
-        crud.create(referral)
+        crud.create(referral, refresh=True)
 
         # Creating a referral also associates the corresponding patient to the health
         # facility they were referred to.

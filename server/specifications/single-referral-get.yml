@@ -16,24 +16,27 @@ responses:
         schema:
           type: object
           properties:
-            readingId:
-              type: string
-              example: "8fd4689c-2895-45ff-b472-b45938ad19cb"
             comment:
               type: string | Null
-              example: "She needs help!"
+              example: They need help
             dateReferred:
               type: string | Null
               example: 1552311833
-            patientId:
-              type: integer
-              example: 48300053727
-            referralHealthFacilityName:
-              type: string | Null
-              example: H5123
             id:
               type: integer
               example: 1
             isAssessed:
               type: boolean | Null
               example: false
+            patientId:
+              type: integer
+              example: 48300053727
+            readingId:
+              type: string
+              example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+            referralHealthFacilityName:
+              type: string | Null
+              example: H0000
+            userId:
+              type: integer
+              example: 2

@@ -5,61 +5,47 @@ import {
   gestationalAgeUnitLabels,
 } from 'src/enums';
 
-import { Callback } from 'src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import { useStyles } from './styles';
+import { Patient } from 'src/types';
 
 interface IProps {
-  gestationalAgeUnit: GestationalAgeUnitEnum;
-  gestationalTimestamp: number;
-  pregnant: boolean;
-  updateGestationalAgeUnit: Callback<GestationalAgeUnitEnum>;
+  patient: Patient;
 }
 
-export const GestationalAge: React.FC<IProps> = ({
-  gestationalAgeUnit,
-  gestationalTimestamp,
-  pregnant,
-  updateGestationalAgeUnit,
-}) => {
+export const GestationalAge: React.FC<IProps> = ({ patient }) => {
   const classes = useStyles();
+  const [unit, setUnit] = useState(patient.gestationalAgeUnit);
+  const isPregnant = patient.isPregnant;
+  const timestamp = patient.gestationalTimestamp;
 
-  const handleGestationalAgeUnitChange = (
+  const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
+    key: unit,
+    text: gestationalAgeUnitLabels[unit],
+    value: unit,
+  }));
+
+  const handleUnitChange = (
     _: React.ChangeEvent<HTMLInputElement>,
     { value }: InputOnChangeData
-  ): void => {
-    updateGestationalAgeUnit(value as GestationalAgeUnitEnum);
+  ) => {
+    setUnit(value as GestationalAgeUnitEnum);
   };
 
-  const unitOptions = [
-    {
-      key: GestationalAgeUnitEnum.WEEKS,
-      text: gestationalAgeUnitLabels[GestationalAgeUnitEnum.WEEKS],
-      value: GestationalAgeUnitEnum.WEEKS,
-    },
-    {
-      key: GestationalAgeUnitEnum.MONTHS,
-      text: gestationalAgeUnitLabels[GestationalAgeUnitEnum.MONTHS],
-      value: GestationalAgeUnitEnum.MONTHS,
-    },
-  ];
-
-  return pregnant ? (
+  return isPregnant ? (
     <div className={classes.container}>
-      {gestationalTimestamp ? (
+      {timestamp ? (
         <p>
           <b>Gestational Age: </b>
-          {gestationalAgeUnitFormatters[gestationalAgeUnit](
-            gestationalTimestamp
-          )}
+          {gestationalAgeUnitFormatters[unit](timestamp)}
         </p>
       ) : null}
       <Form.Field
         name="gestationalUnits"
         control={Select}
         options={unitOptions}
-        placeholder={gestationalAgeUnitLabels[gestationalAgeUnit]}
-        onChange={handleGestationalAgeUnitChange}
+        placeholder={gestationalAgeUnitLabels[unit]}
+        onChange={handleUnitChange}
       />
     </div>
   ) : null;

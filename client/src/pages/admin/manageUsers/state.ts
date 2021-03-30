@@ -31,7 +31,8 @@ const detailsValidationShape = (emailsInUse: string[]) => ({
     .notOneOf(emailsInUse, 'This email address is already in use'),
   [UserField.healthFacilityName]: Yup.string()
     .label(fieldLabels[UserField.healthFacilityName])
-    .required(),
+    .required()
+    .nullable(),
   [UserField.role]: Yup.string().label(fieldLabels[UserField.role]).required(),
 });
 
@@ -69,7 +70,7 @@ export const passwordValidationSchema = Yup.object().shape(
 export const newUserTemplate = {
   [UserField.firstName]: '',
   [UserField.email]: '',
-  [UserField.healthFacilityName]: '',
+  [UserField.healthFacilityName]: null,
   [UserField.role]: '',
   [UserField.supervises]: [] as number[],
   [UserField.password]: '',
