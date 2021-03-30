@@ -14,7 +14,6 @@ export enum EndpointEnum {
   STATS_ALL = '/stats/all',
   STATS_FACILITY = '/stats/facility',
   STATS_USER = '/stats/user',
-  REGISTER = '/register',
   ALL_VHTS = '/user/vhts',
   AUTH = '/user/auth',
   REFRESH = '/user/auth/refresh_token',
@@ -25,7 +24,6 @@ export enum EndpointEnum {
   VHTS = '/vhts',
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
-  FACILITIES_ALL = '/facilities',
 }
 
 export enum MethodEnum {
