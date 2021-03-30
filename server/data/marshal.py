@@ -1,5 +1,7 @@
 from enum import Enum
-from typing import Any, Dict, Type, List
+from typing import Any, Dict, Type, List, Optional
+
+import collections
 
 from data.crud import M, read_all
 from models import Patient, Reading, Referral, FollowUp
@@ -162,6 +164,10 @@ def __unmarshal_reading(d: dict) -> Reading:
     return reading
 
 
+## Functions taken from the original Database.py ##
+## To-Do: Integrate them properly with the current marshal functions, it looks like there may be some overlap
+
+
 def models_to_list(models: List[Any], schema) -> List[dict]:
     """
     Converts a list of models into a list of dictionaries mapping column names
@@ -173,3 +179,18 @@ def models_to_list(models: List[Any], schema) -> List[dict]:
     """
 
     return schema(many=True).dump(models)
+
+
+def model_to_dict(model: Any, schema) -> Optional[dict]:
+    """
+    Converts a model into a dictionary mapping column names to values.
+
+    :param model: A model
+    :param schema: The schema of the model
+    :return: A dictionary or ``None`` if ``model`` is ``None``
+    """
+    if not model:
+        return None
+    if isinstance(model, collections.Mapping):  # Local database stub
+        return model
+    return schema().dump(model)
