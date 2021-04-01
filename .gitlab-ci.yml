@@ -33,6 +33,7 @@ frontend build:
   after_script:
     - tar -czvf frontend.tar.gz client/build
   artifacts:
+    expire_in: 1 week
     paths:
       - frontend.tar.gz
 
@@ -54,6 +55,7 @@ backend unit tests:
   script:
     - python -m pytest --junitxml=report.xml tests
   artifacts:
+    expire_in: 1 week
     when: always
     reports:
       junit: server/report.xml
@@ -96,6 +98,7 @@ backend system tests:
     - python -m pytest --junitxml=report.xml systemTests
   artifacts:
     when: always
+    expire_in: 1 week
     reports:
       junit: server/report.xml
 
