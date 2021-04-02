@@ -1,13 +1,15 @@
-import { getUserStatisticData } from '../utils';
 import React from 'react';
 import { StatisticDashboard } from '../utils/StatisticDashboard';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
 import { IUserWithTokens, OrNull } from 'src/types';
+import { Moment } from 'moment';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 
 interface IProps {
-  from: Date;
-  to: Date;
+  from: Moment;
+  to: Moment;
 }
 
 type User = {
@@ -20,6 +22,7 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
       user: user.current.data,
     })
   );
+  const userId = user?.userId;
 
   return (
     <div>
@@ -28,18 +31,13 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
       <br />
 
       <StatisticDashboard
-        getData={() =>
-          getUserStatisticData(
-            user!.userId,
-            from.getTime() / 1000,
-            to.getTime() / 1000
-          )
+        url={
+          BASE_URL +
+          EndpointEnum.STATS_USER +
+          `/${userId}?from=${from!.toDate().getTime() / 1000}&to=${
+            to!.toDate().getTime() / 1000
+          }`
         }
-        message={
-          'Something went wrong loading user statistics. Please try again.'
-        }
-        from={from}
-        to={to}
       />
     </div>
   );

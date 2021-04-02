@@ -5,13 +5,16 @@ import { Toast } from 'src/shared/components/toast';
 import { StatisticDashboardWithSelect } from '../utils/StatisticDashboardWithSelect';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { getAllUsers, getUserStatisticData } from '../utils';
+import { getAllUsers } from '../utils';
 import { makeStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
+import { Moment } from 'moment';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 
 interface IProps {
-  from: Date;
-  to: Date;
+  from: Moment;
+  to: Moment;
 }
 
 export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
@@ -60,19 +63,14 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
         <br />
         {user !== undefined && (
           <StatisticDashboardWithSelect
-            getData={() =>
-              getUserStatisticData(
-                user,
-                from.getTime() / 1000,
-                to.getTime() / 1000
-              )
+            url={
+              BASE_URL +
+              EndpointEnum.STATS_USER +
+              `/${user}?from=${from!.toDate().getTime() / 1000}&to=${
+                to!.toDate().getTime() / 1000
+              }`
             }
             select={user}
-            message={
-              'Something went wrong loading user statistics. Please try again.'
-            }
-            from={from}
-            to={to}
           />
         )}
       </div>
@@ -82,6 +80,7 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
+    flot: 'right',
     margin: theme.spacing(1),
     minWidth: 180,
   },

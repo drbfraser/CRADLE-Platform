@@ -6,20 +6,13 @@ import { Toast } from 'src/shared/components/toast';
 import { initialData, initialColorReading } from '../utils';
 import { useEffect } from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
+import { apiFetchSafe } from '../utils';
 
 interface IProps {
-  getData: () => Promise<any>;
-  message: string;
-  from: Date;
-  to: Date;
+  url: string;
 }
 
-export const StatisticDashboard: React.FC<IProps> = ({
-  getData,
-  message,
-  from,
-  to,
-}) => {
+export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
   const classes = useStyles();
 
   const [data, setData] = useState(initialData);
@@ -29,7 +22,7 @@ export const StatisticDashboard: React.FC<IProps> = ({
 
   useEffect(() => {
     setloaded(false);
-    getData()
+    apiFetchSafe(url)
       .then((response) => {
         setData(response);
         setColorReading(response);
@@ -38,7 +31,7 @@ export const StatisticDashboard: React.FC<IProps> = ({
       .catch((err) => {
         setErrorLoading(true);
       });
-  }, [getData, from, to]);
+  }, [url]);
 
   const barData = {
     labels: ['Green', 'Yellow Up', 'Yellow Down', 'Red Up', 'Red Down'],
@@ -86,7 +79,7 @@ export const StatisticDashboard: React.FC<IProps> = ({
       {errorLoading && (
         <Toast
           status="error"
-          message={message}
+          message="Something went wrong loading those statistics. Please check your internet connection and try again."
           clearMessage={() => setErrorLoading(false)}
         />
       )}
@@ -164,7 +157,7 @@ const useStyles = makeStyles((theme) => ({
     height: '50%',
   },
   statistic: {
-    width: 200,
+    width: 220,
     height: 100,
     padding: theme.spacing(1, 0, 1, 2),
     border: `1px solid rgb(211, 205, 205)`,

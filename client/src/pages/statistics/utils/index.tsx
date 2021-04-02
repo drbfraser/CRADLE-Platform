@@ -1,6 +1,13 @@
 import { apiFetch } from 'src/shared/utils/api';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
+import { UserRoleEnum } from 'src/enums';
+import { MyStatistics } from '../myStatistics';
+import { VHTStatistics } from '../VHTStatistics';
+import { MyFacility } from '../myFacility';
+import { AllStatistics } from '../allStatistics';
+import { UserStatistics } from '../userStatistics';
+import { FacilityStatistics } from '../facilityStatistics';
 
 export type Response = {
   patients_referred: number;
@@ -49,7 +56,50 @@ export const initialColorReading: ColorReading = {
   },
 };
 
-const apiFetchSafe = async (url: string) => {
+export const AllPanes = [
+  {
+    name: 'My Statistics',
+    Component: MyStatistics,
+    roles: [
+      UserRoleEnum.VHT,
+      UserRoleEnum.CHO,
+      UserRoleEnum.HCW,
+      UserRoleEnum.ADMIN,
+    ],
+  },
+  {
+    name: 'My VHTs',
+    Component: VHTStatistics,
+    roles: [UserRoleEnum.CHO],
+  },
+  {
+    name: 'VHT Statistics',
+    Component: VHTStatistics,
+    roles: [UserRoleEnum.HCW],
+  },
+  {
+    name: 'My Facility',
+    Component: MyFacility,
+    roles: [UserRoleEnum.HCW],
+  },
+  {
+    name: 'User Statistics',
+    Component: UserStatistics,
+    roles: [UserRoleEnum.ADMIN],
+  },
+  {
+    name: 'Facility Statistics',
+    Component: FacilityStatistics,
+    roles: [UserRoleEnum.ADMIN],
+  },
+  {
+    name: 'All Users and Facilities',
+    Component: AllStatistics,
+    roles: [UserRoleEnum.ADMIN],
+  },
+];
+
+export const apiFetchSafe = async (url: string) => {
   try {
     const res = await apiFetch(url);
 

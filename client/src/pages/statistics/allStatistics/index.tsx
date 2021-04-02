@@ -1,10 +1,12 @@
-import { getAllUserAndFacilitiesData } from '../utils';
 import React from 'react';
 import { StatisticDashboard } from '../utils/StatisticDashboard';
+import { Moment } from 'moment';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 
 interface IProps {
-  from: Date;
-  to: Date;
+  from: Moment;
+  to: Moment;
 }
 
 export const AllStatistics: React.FC<IProps> = ({ from, to }) => {
@@ -14,17 +16,13 @@ export const AllStatistics: React.FC<IProps> = ({ from, to }) => {
       <br />
       <br />
       <StatisticDashboard
-        getData={() =>
-          getAllUserAndFacilitiesData(
-            from.getTime() / 1000,
-            to.getTime() / 1000
-          )
+        url={
+          BASE_URL +
+          EndpointEnum.STATS_ALL +
+          `?from=${from!.toDate().getTime() / 1000}&to=${
+            to!.toDate().getTime() / 1000
+          }`
         }
-        message={
-          'Something went wrong loading all users and health care facilities statistics. Please try again.'
-        }
-        from={from}
-        to={to}
       />
     </div>
   );

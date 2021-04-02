@@ -5,13 +5,16 @@ import { Toast } from 'src/shared/components/toast';
 import { StatisticDashboardWithSelect } from '../utils/StatisticDashboardWithSelect';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { getAllFacilities, getFacilitiesData } from '../utils';
+import { getAllFacilities } from '../utils';
 import { makeStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
+import { Moment } from 'moment';
+import { EndpointEnum } from 'src/server';
+import { BASE_URL } from 'src/server/utils';
 
 interface IProps {
-  from: Date;
-  to: Date;
+  from: Moment | null;
+  to: Moment | null;
 }
 
 export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
@@ -60,19 +63,14 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
         <br />
         {facility !== '' && (
           <StatisticDashboardWithSelect
-            getData={() =>
-              getFacilitiesData(
-                facility,
-                from.getTime() / 1000,
-                to.getTime() / 1000
-              )
+            url={
+              BASE_URL +
+              EndpointEnum.STATS_FACILITY +
+              `/${facility}?from=${from!.toDate().getTime() / 1000}&to=${
+                to!.toDate().getTime() / 1000
+              }`
             }
             select={facility}
-            message={
-              'Something went wrong loading health care facilities. Please try again.'
-            }
-            from={from}
-            to={to}
           />
         )}
       </div>

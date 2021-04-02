@@ -1,23 +1,21 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
-import moment from 'moment';
-import { MyStatistics } from './myStatistics';
-import { MyVHTs } from './MyVHTs';
 import { IUserWithTokens, OrNull } from 'src/types';
-import { UserRoleEnum } from 'src/enums';
-import { MyFacility } from './myFacility';
-import { AllStatistics } from './allStatistics';
-import { UserStatistics } from './userStatistics';
-import { FacilityStatistics } from './facilityStatistics';
+import { AllPanes } from './utils';
 import { Toast } from 'src/shared/components/toast';
-import { DateRangePicker } from 'rsuite';
-import 'rsuite/dist/styles/rsuite-default.css';
 import { makeStyles } from '@material-ui/core/styles';
 import { useState } from 'react';
-import { RangeType } from 'rsuite/lib/DateRangePicker';
-import { VHTStatistics } from './VHTStatistics';
 import { Tab } from 'semantic-ui-react';
+import moment, { Moment } from 'moment';
+import 'react-dates/initialize';
+import 'react-dates/lib/css/_datepicker.css';
+import { DateRangePicker, FocusedInputShape } from 'react-dates';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Grid from '@material-ui/core/Grid';
 
 type User = {
   user: OrNull<IUserWithTokens>;
@@ -32,100 +30,33 @@ export default function NewStatistics() {
   );
 
   const [errorLoading, setErrorLoading] = useState(false);
+  const [startDate, setStartDate] = useState<Moment>(
+    moment().startOf('day').subtract(29, 'days')
+  );
+  const [endDate, setEndDate] = useState<Moment>(moment().endOf('day'));
+  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
+    null
+  );
+  const [presetDaterange, setPresetDaterange] = useState();
 
-  const allPanes = [
-    {
-      name: 'My Statistics',
-      Component: MyStatistics,
-      roles: [
-        UserRoleEnum.VHT,
-        UserRoleEnum.CHO,
-        UserRoleEnum.HCW,
-        UserRoleEnum.ADMIN,
-      ],
-    },
-    {
-      name: 'My VHTs',
-      Component: MyVHTs,
-      roles: [UserRoleEnum.CHO],
-    },
-    {
-      name: 'VHT Statistics',
-      Component: VHTStatistics,
-      roles: [UserRoleEnum.HCW],
-    },
-    {
-      name: 'My Facility',
-      Component: MyFacility,
-      roles: [UserRoleEnum.HCW],
-    },
-    {
-      name: 'User Statistics',
-      Component: UserStatistics,
-      roles: [UserRoleEnum.ADMIN],
-    },
-    {
-      name: 'Facility Statistics',
-      Component: FacilityStatistics,
-      roles: [UserRoleEnum.ADMIN],
-    },
-    {
-      name: 'All Users and Facilities',
-      Component: AllStatistics,
-      roles: [UserRoleEnum.ADMIN],
-    },
-  ];
+  const handleFocusChange = (arg: FocusedInputShape | null) => {
+    setFocusedInput(arg);
+  };
 
-  const panes = allPanes
-    .filter((p) => p?.roles.includes(user!.role))
-    .map((p) => ({
+  const panes = AllPanes.filter((p) => p?.roles.includes(user!.role)).map(
+    (p) => ({
       menuItem: p.name,
       render: () => (
         <Tab.Pane>
-          <p.Component from={dateRange[0]} to={dateRange[1]} />
+          <p.Component from={startDate} to={endDate} />
         </Tab.Pane>
       ),
-    }));
+    })
+  );
 
-  const customDateRanges: RangeType[] = [
-    {
-      label: 'This Week',
-      value: [
-        moment().startOf('day').subtract(6, 'days').toDate(),
-        moment().endOf('day').toDate(),
-      ],
-    },
-    {
-      label: 'Last Week',
-      value: [
-        moment().startOf('day').subtract(13, 'days').toDate(),
-        moment().endOf('day').subtract(7, 'days').toDate(),
-      ],
-    },
-    {
-      label: 'Last 14 Days',
-      value: [
-        moment().startOf('day').subtract(13, 'days').toDate(),
-        moment().endOf('day').toDate(),
-      ],
-    },
-    {
-      label: 'Last 30 Days',
-      value: [
-        moment().startOf('day').subtract(29, 'days').toDate(),
-        moment().endOf('day').toDate(),
-      ],
-    },
-  ];
-
-  const [dateRange, setDateRange] = useState([
-    moment().startOf('day').subtract(29, 'days').toDate(),
-    moment().endOf('day').toDate(),
-  ]);
-
-  function handleDateRangeChange(value: any) {
-    setDateRange(value);
-  }
+  const handleChange = (event: any) => {
+    setPresetDaterange(event.target.value);
+  };
 
   return (
     <div className={classes.root}>
@@ -137,12 +68,67 @@ export default function NewStatistics() {
         />
       )}
 
-      <DateRangePicker
-        size="lg"
-        value={[dateRange[0], dateRange[1]]}
-        onChange={handleDateRangeChange}
-        ranges={customDateRanges}
-      />
+      <Grid item className={classes.left}>
+        <DateRangePicker
+          regular={true}
+          startDate={startDate}
+          startDateId="startDate"
+          endDate={endDate}
+          endDateId="endDate"
+          onDatesChange={({ startDate, endDate }) => {
+            setStartDate(startDate!);
+            setEndDate(endDate!);
+          }}
+          focusedInput={focusedInput}
+          onFocusChange={handleFocusChange}
+          isOutsideRange={() => false}
+        />
+      </Grid>
+
+      <Grid item className={classes.right}>
+        <FormControl className={classes.formControl}>
+          <InputLabel className={classes.inputLabel}>
+            Preset date ranges
+          </InputLabel>
+          <Select
+            value={presetDaterange}
+            onChange={handleChange}
+            label="Please choose a preset date range">
+            <MenuItem
+              value="This Week"
+              onClick={() => {
+                setStartDate(moment().startOf('day').subtract(6, 'days'));
+                setEndDate(moment().endOf('day'));
+              }}>
+              This Week
+            </MenuItem>
+            <MenuItem
+              value="Last Week"
+              onClick={() => {
+                setStartDate(moment().startOf('day').subtract(13, 'days'));
+                setEndDate(moment().endOf('day').subtract(7, 'days'));
+              }}>
+              Last Week
+            </MenuItem>
+            <MenuItem
+              value="Last 14 Days"
+              onClick={() => {
+                setStartDate(moment().startOf('day').subtract(13, 'days'));
+                setEndDate(moment().endOf('day'));
+              }}>
+              Last 14 Days
+            </MenuItem>
+            <MenuItem
+              value="Last 28 Days"
+              onClick={() => {
+                setStartDate(moment().startOf('day').subtract(27, 'days'));
+                setEndDate(moment().endOf('day'));
+              }}>
+              Last 28 Days
+            </MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
       <br />
       <br />
 
@@ -158,6 +144,17 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     position: 'relative',
     resize: 'both',
-    // overflow: 'auto',
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 180,
+  },
+  left: {
+    float: 'left',
+    marginTop: '10px',
+  },
+  right: { margetLeft: '30px' },
+  inputLabel: {
+    fontSize: '50',
   },
 }));

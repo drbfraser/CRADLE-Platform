@@ -6,21 +6,16 @@ import { Toast } from 'src/shared/components/toast';
 import { initialData, initialColorReading } from '.';
 import { useEffect } from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
+import { apiFetchSafe } from '../utils';
 
 interface IProps {
-  getData: () => Promise<any>;
   select: string | undefined;
-  message: string;
-  from: Date;
-  to: Date;
+  url: string;
 }
 
 export const StatisticDashboardWithSelect: React.FC<IProps> = ({
-  getData,
   select,
-  message,
-  from,
-  to,
+  url,
 }) => {
   const classes = useStyles();
 
@@ -32,7 +27,7 @@ export const StatisticDashboardWithSelect: React.FC<IProps> = ({
   useEffect(() => {
     setloaded(false);
     if (select !== undefined) {
-      getData()
+      apiFetchSafe(url)
         .then((response) => {
           setData(response);
           setColorReading(response);
@@ -42,7 +37,7 @@ export const StatisticDashboardWithSelect: React.FC<IProps> = ({
           setErrorLoading(true);
         });
     }
-  }, [getData, select, from, to]);
+  }, [select, url]);
 
   const barData = {
     labels: ['Green', 'Yellow Up', 'Yellow Down', 'Red Up', 'Red Down'],
@@ -90,7 +85,7 @@ export const StatisticDashboardWithSelect: React.FC<IProps> = ({
       {errorLoading && (
         <Toast
           status="error"
-          message={message}
+          message="Something went wrong loading those statistics. Please check your internet connection and try again."
           clearMessage={() => setErrorLoading(false)}
         />
       )}
