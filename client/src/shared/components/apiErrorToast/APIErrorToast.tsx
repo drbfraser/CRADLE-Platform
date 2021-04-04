@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Alert from '@material-ui/lab/Alert';
 import {
   Button,
   Dialog,
@@ -8,25 +7,43 @@ import {
   DialogTitle,
   Link,
   makeStyles,
-  Snackbar,
   Typography,
 } from '@material-ui/core';
+import { Toast } from '../toast';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
 }
 
-const APIErrorSnackbar = ({ open, onClose }: IProps) => {
+const APIErrorToast = ({ open, onClose }: IProps) => {
   const styles = useStyles();
-  const [dialogOpen, setDialogOpen] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const Message = () => (
+    <>
+      Something went wrong - please try that again. Still having problems? Try
+      some{' '}
+      <Link
+        onClick={() => {
+          onClose();
+          setDialogOpen(true);
+        }}
+        className={styles.alertLink}>
+        troubleshooting steps
+      </Link>
+      .
+    </>
+  );
 
   const TroubleshootDialog = () => (
     <Dialog open={dialogOpen}>
-      <DialogTitle>Troubleshooting Steps</DialogTitle>
+      <DialogTitle className={styles.troubleshootTitle}>
+        Troubleshooting Steps
+      </DialogTitle>
       <DialogContent>
         <Typography component="div">
-          <ol>
+          <ol className={styles.troubleshootList}>
             <li>
               The CRADLE website requires an internet connection. Please verify
               you are connected to the internet by visiting a popular website.
@@ -41,13 +58,17 @@ const APIErrorSnackbar = ({ open, onClose }: IProps) => {
             </li>
             <li>
               If you have a connection to the internet and are able to access
-              CRADLE in a new tab, refresh CRADLE and try to perform the same
-              action again.
+              CRADLE from another device, refresh CRADLE and try to perform the
+              same action again.
+            </li>
+            <li>
+              If you&apos;re filling out a form, ensure that all data in the
+              form is valid prior to submitting.
             </li>
             <li>
               Still not working? Contact the person or organization who manages
-              your CRADLE instance, give them a detailed description of what you
-              tried to do (with screenshots, if possible) and ask that they
+              your CRADLE installation, give them a detailed description of what
+              you tried to do (with screenshots, if possible) and ask that they
               forward it to CRADLE&apos;s development team. Sorry you
               encountered an issue - we&apos;ll do our best to fix it!
             </li>
@@ -62,20 +83,12 @@ const APIErrorSnackbar = ({ open, onClose }: IProps) => {
 
   return (
     <>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={open}>
-        <Alert severity="error" variant="filled" onClose={onClose}>
-          Something went wrong - please try that again. Still having problems?
-          Try some{' '}
-          <Link
-            onClick={() => setDialogOpen(true)}
-            className={styles.alertLink}>
-            troubleshooting steps
-          </Link>
-          .
-        </Alert>
-      </Snackbar>
+      <Toast
+        severity="error"
+        open={open}
+        onClose={onClose}
+        message={<Message />}
+      />
       <TroubleshootDialog />
     </>
   );
@@ -89,6 +102,14 @@ const useStyles = makeStyles({
       cursor: 'pointer',
     },
   },
+  troubleshootTitle: {
+    paddingBottom: 0,
+  },
+  troubleshootList: {
+    '& li': {
+      marginBottom: 15,
+    },
+  },
 });
 
-export default APIErrorSnackbar;
+export default APIErrorToast;

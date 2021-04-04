@@ -17,8 +17,8 @@ import Step from '@material-ui/core/Step/Step';
 import { initialState, ReadingState } from './state';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
 import { handleSubmit } from './handlers';
-import { Toast } from 'src/shared/components/toast';
 import { goBackWithFallback } from 'src/shared/utils';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 type RouteParams = {
   patientId: string;
@@ -78,13 +78,7 @@ export const ReadingFormPage = () => {
 
   return (
     <div className={classes.container}>
-      {submitError && (
-        <Toast
-          status="error"
-          message="Something went wrong on our end. Please try that again."
-          clearMessage={() => setSubmitError(false)}
-        />
-      )}
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton

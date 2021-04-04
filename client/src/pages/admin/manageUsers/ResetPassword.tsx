@@ -5,12 +5,12 @@ import {
   DialogContent,
   DialogTitle,
 } from '@material-ui/core';
-import Alert from '@material-ui/lab/Alert';
 import { Formik, Form, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import React, { useState } from 'react';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
 import { apiFetch } from 'src/shared/utils/api';
 import { IUser } from 'src/types';
@@ -66,25 +66,16 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
 
   return (
     <>
-      {submitSuccess && (
-        <Toast
-          status="success"
-          message="Password reset successful!"
-          clearMessage={() => setSubmitSuccess(false)}
-        />
-      )}
+      <Toast
+        severity="success"
+        message="Password reset successful!"
+        open={submitSuccess}
+        onClose={() => setSubmitSuccess(false)}
+      />
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Dialog open={open} maxWidth="xs" fullWidth>
         <DialogTitle>Reset Password: {resetUser?.firstName ?? ''}</DialogTitle>
         <DialogContent>
-          {submitError && (
-            <>
-              <Alert severity="error" onClose={() => setSubmitError(false)}>
-                Something went wrong resetting the password. Please try again.
-              </Alert>
-              <br />
-              <br />
-            </>
-          )}
           <Formik
             initialValues={resetPasswordTemplate}
             validationSchema={passwordValidationSchema}

@@ -112,9 +112,11 @@ export const PatientSummary: React.FC<IProps> = ({ selectedPatient }) => {
   return (
     <>
       <Toast
-        status="error"
-        message={addingFromGlobalSearchError}
-        clearMessage={clearError}
+        severity="error"
+        message={addingFromGlobalSearchError ?? ''}
+        open={Boolean(addingFromGlobalSearchError)}
+        onClose={clearError}
+        transitionDuration={0}
       />
       <AddPatientPrompt
         adding={addingFromGlobalSearch}

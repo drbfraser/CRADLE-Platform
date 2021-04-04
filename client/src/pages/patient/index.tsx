@@ -51,7 +51,13 @@ export const PatientPage: React.FC<RouteComponentProps<Params>> = ({
 
   return (
     <>
-      <Toast status="error" message={error} clearMessage={clearError} />
+      <Toast
+        severity="error"
+        message={error ?? ''}
+        open={Boolean(error)}
+        onClose={clearError}
+        transitionDuration={0}
+      />
       <PatientSummary selectedPatient={patient} />
     </>
   );

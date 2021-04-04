@@ -24,10 +24,10 @@ import {
 import { apiFetch } from 'src/shared/utils/api';
 import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
-import { Toast } from 'src/shared/components/toast';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { IUser } from 'src/types';
 import { UserRoleEnum, userRoles } from 'src/enums';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 interface IProps {
   open: boolean;
@@ -78,13 +78,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
 
   return (
     <>
-      {submitError && (
-        <Toast
-          status="error"
-          message="Something went wrong saving. Please try again."
-          clearMessage={() => setSubmitError(false)}
-        />
-      )}
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} User</DialogTitle>
         <DialogContent>

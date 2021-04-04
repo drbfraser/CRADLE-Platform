@@ -25,13 +25,12 @@ export const LoginForm: React.FC = () => {
       password: ``,
     },
     validationSchema: Yup.object({
-      password: Yup.string()
-        .max(20, `Must be 20 characters or less`)
-        .min(6, `Must be at least 6 characters`)
-        .required(`Required`),
       email: Yup.string()
         .email(`Invalid email address`)
         .max(50, `Must be 50 characters or less`)
+        .required(`Required`),
+      password: Yup.string()
+        .min(6, `Must be at least 6 characters`)
         .required(`Required`),
     }),
     onSubmit: (values: LoginData) => {
@@ -45,7 +44,13 @@ export const LoginForm: React.FC = () => {
 
   return (
     <>
-      <Toast status="error" message={errorMessage} clearMessage={clearError} />
+      <Toast
+        severity="error"
+        message={errorMessage ?? ''}
+        open={Boolean(errorMessage)}
+        onClose={clearError}
+        transitionDuration={0}
+      />
       <form onSubmit={formik.handleSubmit}>
         <h1 className={classes.login}>Log In</h1>
         <h2>Email</h2>

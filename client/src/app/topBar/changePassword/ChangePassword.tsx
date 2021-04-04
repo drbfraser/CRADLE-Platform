@@ -55,13 +55,12 @@ const ChangePassword = ({ open, onClose }: IProps) => {
 
   return (
     <>
-      {submitSuccess && (
-        <Toast
-          status="success"
-          message="Password change successful!"
-          clearMessage={() => setSubmitSuccess(false)}
-        />
-      )}
+      <Toast
+        severity="success"
+        message="Password change successful!"
+        open={submitSuccess}
+        onClose={() => setSubmitSuccess(false)}
+      />
       <Dialog open={open} maxWidth="xs" fullWidth>
         <DialogTitle>Change Password</DialogTitle>
         <DialogContent>
