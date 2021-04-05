@@ -4,13 +4,13 @@ import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import { IconButton, Tooltip } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
-import { Toast } from 'src/shared/components/toast';
 import { IFacility } from './state';
 import EditFacility from './EditFacility';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useDispatch } from 'react-redux';
 import { useAdminStyles } from '../adminStyles';
 import AdminTable from '../AdminTable';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 const columns = [
   'Facility Name',
@@ -101,13 +101,10 @@ export const ManageFacilities = () => {
 
   return (
     <div className={styles.tableContainer}>
-      {errorLoading && (
-        <Toast
-          status="error"
-          message="Something went wrong loading the health care facilities. Please try again."
-          clearMessage={() => setErrorLoading(false)}
-        />
-      )}
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
+      />
       <EditFacility
         open={editPopupOpen}
         onClose={() => {

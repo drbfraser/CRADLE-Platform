@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import { Toast } from '../toast';
 import { SortDir } from './types';
 import Pagination from './Pagination';
 import { HeaderRow } from './HeaderRow';
 import { BASE_URL } from 'src/server/utils';
 import { EndpointEnum } from 'src/server';
 import { apiFetch } from 'src/shared/utils/api';
+import APIErrorToast from '../apiErrorToast/APIErrorToast';
 
 interface IProps {
   endpoint: EndpointEnum;
@@ -94,13 +94,10 @@ export const APITable = ({
 
   return (
     <>
-      {loadingError && (
-        <Toast
-          status="error"
-          message="Something went wrong on our end. Please try that again."
-          clearMessage={() => setLoadingError(false)}
-        />
-      )}
+      <APIErrorToast
+        open={loadingError}
+        onClose={() => setLoadingError(false)}
+      />
       <div className={classes.loadingWrapper}>
         {loading && <LinearProgress />}
       </div>

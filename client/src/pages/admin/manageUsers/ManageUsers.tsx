@@ -6,7 +6,6 @@ import { IconButton, Tooltip } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForever from '@material-ui/icons/DeleteForever';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
-import { Toast } from 'src/shared/components/toast';
 import EditUser from './EditUser';
 import ResetPassword from './ResetPassword';
 import DeleteUser from './DeleteUser';
@@ -16,6 +15,7 @@ import { IUser } from 'src/types';
 import { userRoles } from 'src/enums';
 import { useAdminStyles } from '../adminStyles';
 import AdminTable from '../AdminTable';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 const columns = [
   'First Name',
@@ -142,13 +142,10 @@ export const ManageUsers = () => {
 
   return (
     <div className={styles.tableContainer}>
-      {errorLoading && (
-        <Toast
-          status="error"
-          message="Something went wrong loading the users. Please try again."
-          clearMessage={() => setErrorLoading(false)}
-        />
-      )}
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
+      />
       <EditUser
         open={editPopupOpen}
         onClose={() => {

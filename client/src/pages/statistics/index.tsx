@@ -46,7 +46,13 @@ export const StatisticsPage: React.FC = () => {
 
   return (
     <>
-      <Toast status="error" message={message} clearMessage={clearError} />
+      <Toast
+        severity="error"
+        message={message ?? ''}
+        open={Boolean(message)}
+        onClose={clearError}
+        transitionDuration={0}
+      />
       <CurrentMonthContextProvider>
         <div className={classes.container}>
           <HealthFacilityStatistics

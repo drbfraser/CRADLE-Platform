@@ -9,6 +9,7 @@ import Alert from '@material-ui/lab/Alert';
 import React, { useState } from 'react';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
 import { apiFetch } from 'src/shared/utils/api';
 import { IUser } from 'src/types';
@@ -49,20 +50,13 @@ const DeleteUser = ({ open, onClose, deleteUser }: IProps) => {
 
   return (
     <>
-      {submitSuccess && (
-        <Toast
-          status="success"
-          message="User successfully deleted!"
-          clearMessage={() => setSubmitSuccess(false)}
-        />
-      )}
-      {submitError && (
-        <Toast
-          status="error"
-          message="Something went wrong deleting that user. Please try again."
-          clearMessage={() => setSubmitError(false)}
-        />
-      )}
+      <Toast
+        severity="success"
+        message="User successfully deleted!"
+        open={submitSuccess}
+        onClose={() => setSubmitSuccess(false)}
+      />
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
         <DialogTitle>Delete User: {name}</DialogTitle>
         <DialogContent>

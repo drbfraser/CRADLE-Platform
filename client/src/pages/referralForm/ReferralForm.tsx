@@ -10,7 +10,7 @@ import {
   AutocompleteRenderInputParams,
 } from 'formik-material-ui-lab';
 import React, { useState } from 'react';
-import { Toast } from 'src/shared/components/toast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { handleSubmit } from './handlers';
 import { initialState, ReferralField, validationSchema } from './state';
@@ -26,13 +26,7 @@ export const ReferralForm = ({ readingId }: IProps) => {
 
   return (
     <>
-      {submitError && (
-        <Toast
-          status="error"
-          message="Something went wrong on our end. Please try that again."
-          clearMessage={() => setSubmitError(false)}
-        />
-      )}
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}

@@ -5,7 +5,6 @@ import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik, Form, Field } from 'formik';
-import { Toast } from 'src/shared/components/toast';
 import {
   gestationalAgeUnitOptions,
   PatientField,
@@ -29,6 +28,7 @@ import {
   handleSubmit,
 } from './handlers';
 import { InputAdornment } from '@material-ui/core';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 interface IProps {
   initialState: PatientState;
@@ -46,13 +46,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
 
   return (
     <>
-      {submitError && (
-        <Toast
-          status="error"
-          message="Something went wrong on our end. Please try that again."
-          clearMessage={() => setSubmitError(false)}
-        />
-      )}
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
         validationSchema={patientValidationSchema(creatingNew)}

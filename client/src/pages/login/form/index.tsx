@@ -21,18 +21,12 @@ export const LoginForm: React.FC = () => {
   const dispatch = useDispatch();
   const formik = useFormik({
     initialValues: {
-      email: ``,
-      password: ``,
+      email: '',
+      password: '',
     },
     validationSchema: Yup.object({
-      password: Yup.string()
-        .max(20, `Must be 20 characters or less`)
-        .min(6, `Must be at least 6 characters`)
-        .required(`Required`),
-      email: Yup.string()
-        .email(`Invalid email address`)
-        .max(50, `Must be 50 characters or less`)
-        .required(`Required`),
+      email: Yup.string().required('Email is required'),
+      password: Yup.string().required('Password is required'),
     }),
     onSubmit: (values: LoginData) => {
       dispatch(loginUser(values));
@@ -45,14 +39,20 @@ export const LoginForm: React.FC = () => {
 
   return (
     <>
-      <Toast status="error" message={errorMessage} clearMessage={clearError} />
+      <Toast
+        severity="error"
+        message={errorMessage ?? ''}
+        open={Boolean(errorMessage)}
+        onClose={clearError}
+        transitionDuration={0}
+      />
       <form onSubmit={formik.handleSubmit}>
         <h1 className={classes.login}>Log In</h1>
         <h2>Email</h2>
         <input
           className={classes.inputStyle}
           placeholder="somebody@example.com"
-          {...formik.getFieldProps(`email`)}
+          {...formik.getFieldProps('email')}
         />
         {formik.touched.email && formik.errors.email ? (
           <div className={classes.formError}>{formik.errors.email}</div>
@@ -62,7 +62,7 @@ export const LoginForm: React.FC = () => {
           className={classes.inputStyle}
           placeholder="********"
           type="password"
-          {...formik.getFieldProps(`password`)}
+          {...formik.getFieldProps('password')}
         />
         {formik.touched.password && formik.errors.password ? (
           <div className={classes.formError}>{formik.errors.password}</div>
