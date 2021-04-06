@@ -146,7 +146,7 @@ class ExportStats(Resource):
     @staticmethod
     @jwt_required
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
-    #@swag_from("../../specifications/stats-export.yml")
+    @swag_from("../../specifications/stats-export.yml")
     def get(user_id: int):
         
         query_response = crud.get_export_data(user_id)
@@ -166,10 +166,10 @@ class ExportStats(Resource):
                             "name": entry[2],
                             "sex": entry[3],
                             "age": age,
-                            "pregnant": entry[5],
-                            "SBP": entry[6],
-                            "DBP": entry[7],
-                            "HR": entry[8],
+                            "pregnant": bool(entry[5]),
+                            "systolic_bp": entry[6],
+                            "diastolic_bp": entry[7],
+                            "heart_rate": entry[8],
                             "traffic_color": color, 
                             "traffic_arrow": arrow 
                             })

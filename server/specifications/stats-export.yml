@@ -1,0 +1,47 @@
+Get statistics for export
+---
+tags:
+  - Stats
+responses:
+  200:
+    description: Export statistics 
+    content:
+      application/json:
+        schema:
+          type: array
+          items: 
+            type: object
+            properties:
+              reading_date:
+                type: integer
+                example: 1560908812
+              patientId:
+                type: string
+                example: "48300045721"
+              name: 
+                type: string
+                example: "Issa Babangiada"
+              sex:
+                type: string
+                example: "MALE"
+              age:
+                type: integer
+                example: 60
+              pregnant:
+                type: boolean
+                example: false
+              systolic_bp: 
+                type: integer
+                example: 126
+              diastolic_bp: 
+                type: integer
+                example: 97
+              heart_rate: 
+                type: integer
+                example: 53
+              traffic_color:
+                type: string
+                example: "YELLOW"
+              traffic_arrow:
+                type: string
+                example: "UP"
