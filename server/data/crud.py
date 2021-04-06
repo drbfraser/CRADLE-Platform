@@ -603,3 +603,24 @@ def get_days_with_readings(facility="%", user="%", filter={}):
     except Exception as e:
         print(e)
         return None
+
+
+def get_export_data(user_id):
+    """Queries the database for statistics data for exporting
+
+    :return: list of data for a VHT"""
+    query = """
+        SELECT dateReferred, R.patientId, P.patientName, P.patientSex, P.dob, P.isPregnant, RD.bpSystolic, RD.bpDiastolic, RD.heartRateBPM, RD.trafficLightStatus   FROM `referral` R
+        JOIN patient P on P.patientId = R.patientId
+        JOIN reading RD on R.patientid = RD.patientId        
+        WHERE R.userId = %s
+    """ % (
+        str(user_id)
+    )
+
+    try: 
+        result = db_session.execute(query)
+        return list(result)
+    except Exception as e:
+        print(e)
+        return None

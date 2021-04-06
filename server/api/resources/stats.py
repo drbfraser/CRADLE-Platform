@@ -6,6 +6,12 @@ from manager.StatsManager import StatsManager
 
 from flask_jwt_extended import jwt_required
 
+import datetime as dt 
+from datetime import date
+from dateutil.relativedelta import relativedelta
+
+
+
 from api.decorator import roles_required
 from models import TrafficLightEnum, RoleEnum
 import data.crud as crud
@@ -132,5 +138,40 @@ class UserReadings(Resource):
             args["to"] = str(request.args.get("to"))
 
         response = query_stats_data(args, user_id=user_id)
+
+        return response, 200
+
+
+class ExportStats(Resource):
+    @staticmethod
+    @jwt_required
+    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
+    #@swag_from("../../specifications/stats-export.yml")
+    def get(user_id: int):
+        
+        query_response = crud.get_export_data(user_id)
+        response = []
+        for entry in query_response: 
+            age = relativedelta(date.today(), entry[4]).years
+            traffic_light = entry[9].split("_")
+
+            color = traffic_light[0]
+
+            arrow = None
+            if len(traffic_light) > 1: 
+                arrow = traffic_light[1]
+
+            response.append({'reading_date':entry[0], 
+                            "patientId": entry[1],
+                            "name": entry[2],
+                            "sex": entry[3],
+                            "age": age,
+                            "pregnant": entry[5],
+                            "SBP": entry[6],
+                            "DBP": entry[7],
+                            "HR": entry[8],
+                            "traffic_color": color, 
+                            "traffic_arrow": arrow 
+                            })
 
         return response, 200
