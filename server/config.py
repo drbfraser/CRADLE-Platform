@@ -13,6 +13,9 @@ import environs
 from flask_bcrypt import Bcrypt
 from flasgger import Swagger
 
+# Versioning system follows : https://semver.org/
+app_version = "1.0.0"
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
