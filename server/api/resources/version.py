@@ -4,7 +4,6 @@ from flasgger import swag_from
 
 # /api/version
 class Version(Resource):
-
     @swag_from("../../specifications/version.yml", methods=["GET"])
     def get(self):
-        return {'version' : config.app_version}, 200
+        return {"version": config.app_version}, 200
