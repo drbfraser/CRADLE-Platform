@@ -16,8 +16,6 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import config
 import routes
 
-version = "1.0.0"
-
 app = config.app
 routes.init(config.api)
 
