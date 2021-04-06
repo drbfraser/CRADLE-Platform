@@ -6,6 +6,7 @@
 import api as new_api
 from controller.SMSController import *
 from api.resources.patients_android import *
+from api.resources.version import *
 from api.resources.assessments import (
     Root as Assessments,
     SingleAssessment,
@@ -114,5 +115,7 @@ def init(api):
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
     api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]
+
+    api.add_resource(Version, "/api/version")  # [GET]
 
     new_api.init_routes(api)

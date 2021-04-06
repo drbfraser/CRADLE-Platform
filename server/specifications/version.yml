@@ -1,0 +1,16 @@
+Get version of web app
+---
+tags:
+  - Version
+responses:
+  200:
+    description: Version of app, follows https://semver.org/
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            version:
+              type: string
+              example: 1.0.0
+            
