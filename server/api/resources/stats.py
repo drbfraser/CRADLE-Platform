@@ -161,7 +161,7 @@ class ExportStats(Resource):
             if len(traffic_light) > 1: 
                 arrow = traffic_light[1]
 
-            response.append({'reading_date':entry[0], 
+            response.append({'referral_date':entry[0], 
                             "patientId": entry[1],
                             "name": entry[2],
                             "sex": entry[3],

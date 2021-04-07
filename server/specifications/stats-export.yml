@@ -9,36 +9,36 @@ responses:
       application/json:
         schema:
           type: array
-          items: 
+          items:
             type: object
             properties:
-              reading_date:
+              referral_date:
                 type: integer
-                example: 1560908812
+                example: 1588789808
               patientId:
                 type: string
                 example: "48300045721"
               name: 
                 type: string
-                example: "Issa Babangiada"
+                example: "Alika Ademola"
               sex:
                 type: string
-                example: "MALE"
+                example: "FEMALE"
               age:
                 type: integer
-                example: 60
+                example: 19
               pregnant:
                 type: boolean
-                example: false
+                example: true
               systolic_bp: 
                 type: integer
-                example: 126
+                example: 156
               diastolic_bp: 
                 type: integer
-                example: 97
+                example: 30
               heart_rate: 
                 type: integer
-                example: 53
+                example: 66
               traffic_color:
                 type: string
                 example: "YELLOW"
