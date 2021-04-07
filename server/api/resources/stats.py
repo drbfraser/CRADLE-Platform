@@ -6,10 +6,9 @@ from manager.StatsManager import StatsManager
 
 from flask_jwt_extended import jwt_required
 
-import datetime as dt 
+import datetime as dt
 from datetime import date
 from dateutil.relativedelta import relativedelta
-
 
 
 from api.decorator import roles_required
@@ -148,30 +147,33 @@ class ExportStats(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-export.yml")
     def get(user_id: int):
-        
+
         query_response = crud.get_export_data(user_id)
         response = []
-        for entry in query_response: 
+        for entry in query_response:
             age = relativedelta(date.today(), entry[4]).years
             traffic_light = entry[9].split("_")
 
             color = traffic_light[0]
 
             arrow = None
-            if len(traffic_light) > 1: 
+            if len(traffic_light) > 1:
                 arrow = traffic_light[1]
 
-            response.append({'referral_date':entry[0], 
-                            "patientId": entry[1],
-                            "name": entry[2],
-                            "sex": entry[3],
-                            "age": age,
-                            "pregnant": bool(entry[5]),
-                            "systolic_bp": entry[6],
-                            "diastolic_bp": entry[7],
-                            "heart_rate": entry[8],
-                            "traffic_color": color, 
-                            "traffic_arrow": arrow 
-                            })
+            response.append(
+                {
+                    "referral_date": entry[0],
+                    "patientId": entry[1],
+                    "name": entry[2],
+                    "sex": entry[3],
+                    "age": age,
+                    "pregnant": bool(entry[5]),
+                    "systolic_bp": entry[6],
+                    "diastolic_bp": entry[7],
+                    "heart_rate": entry[8],
+                    "traffic_color": color,
+                    "traffic_arrow": arrow,
+                }
+            )
 
         return response, 200

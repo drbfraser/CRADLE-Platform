@@ -620,7 +620,7 @@ def get_export_data(user_id):
         str(user_id)
     )
 
-    try: 
+    try:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
