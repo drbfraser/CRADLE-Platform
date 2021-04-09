@@ -107,9 +107,8 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from database.ReadingRepo import ReadingRepo
 
-        return ReadingRepo().create_model(dict(**kwargs))
+        return crud.create_model(dict(**kwargs), models.ReadingSchema)
 
 
 class ReferralFactory(ModelFactory):

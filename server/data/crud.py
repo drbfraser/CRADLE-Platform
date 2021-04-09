@@ -35,7 +35,8 @@ def create_model(new_data: dict, schema: S) -> Any:
     Constructs a model from a dictionary associating column names to values, inserts
     said model into the database, and then returns the model.
 
-    This method differs from ``create`` in that it returns the actual model instance. 
+    This method differs from ``create`` in that it returns the actual model instance,
+    as well as it takes in a dict rather than a model.
     This allows callers to take advantage of the various
     relations provided by the ORM instead of having to query those object manually.
 

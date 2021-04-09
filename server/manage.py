@@ -11,9 +11,9 @@ from datetime import timedelta, datetime
 from flask_script import Manager
 from config import app, db, flask_bcrypt
 from models import *
-from database.ReadingRepo import ReadingRepo
 from random import randint, choice
 from string import ascii_lowercase, digits
+import data.crud as crud
 
 
 manager = Manager(app)
@@ -212,7 +212,8 @@ def seed():
                 "heartRateBPM": getRandomHeartRateBPM(),
                 "symptoms": getRandomSymptoms(),
             }
-            ReadingRepo().create(r1)
+           
+            crud.create_model(r1, ReadingSchema)
 
             referral_comments = [
                 " needs help!",
@@ -332,7 +333,8 @@ def create_patient_reading_referral(
 
     db.session.add(patient_schema.load(patient))
     db.session.commit()
-    ReadingRepo().create(reading)
+    
+    crud.create_model(reading, ReadingSchema)
     db.session.add(referral_schema.load(referral))
     db.session.commit()
 
