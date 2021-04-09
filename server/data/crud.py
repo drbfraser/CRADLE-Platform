@@ -610,7 +610,7 @@ def get_export_data(user_id):
 
     :return: list of data for a VHT"""
     query = """
-        SELECT dateReferred,R.patientId, P.patientName, P.patientSex, P.dob, P.isPregnant, RD.bpSystolic, RD.bpDiastolic, RD.heartRateBPM, RD.trafficLightStatus 
+        SELECT R.dateReferred,R.patientId, P.patientName, P.patientSex, P.dob, P.isPregnant, RD.bpSystolic, RD.bpDiastolic, RD.heartRateBPM, RD.trafficLightStatus 
         FROM referral R
         JOIN patient P on P.patientId = R.patientId
         JOIN reading RD on R.readingId = RD.readingId
@@ -621,8 +621,15 @@ def get_export_data(user_id):
     )
 
     try:
-        result = db_session.execute(query)
-        return list(result)
+        resultproxy = db_session.execute(query)
+        row = {}
+        result = []
+        #Transform ResultProxy into a dict of items
+        for rowproxy in resultproxy:
+            for col, val in rowproxy.items():
+                row = {**row, **{col:val}}
+            result.append(row)
+        return result
     except Exception as e:
         print(e)
         return None

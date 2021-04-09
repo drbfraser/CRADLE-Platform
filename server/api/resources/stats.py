@@ -6,7 +6,6 @@ from manager.StatsManager import StatsManager
 
 from flask_jwt_extended import jwt_required
 
-import datetime as dt
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -151,8 +150,8 @@ class ExportStats(Resource):
         query_response = crud.get_export_data(user_id)
         response = []
         for entry in query_response:
-            age = relativedelta(date.today(), entry[4]).years
-            traffic_light = entry[9].split("_")
+            age = relativedelta(date.today(), entry["dob"]).years
+            traffic_light = entry["trafficLightStatus"].split("_")
 
             color = traffic_light[0]
 
@@ -162,15 +161,15 @@ class ExportStats(Resource):
 
             response.append(
                 {
-                    "referral_date": entry[0],
-                    "patientId": entry[1],
-                    "name": entry[2],
-                    "sex": entry[3],
+                    "referral_date": entry["dateReferred"],
+                    "patientId": entry["patientId"],
+                    "name": entry["patientName"],
+                    "sex": entry["patientSex"],
                     "age": age,
-                    "pregnant": bool(entry[5]),
-                    "systolic_bp": entry[6],
-                    "diastolic_bp": entry[7],
-                    "heart_rate": entry[8],
+                    "pregnant": bool(entry["isPregnant"]),
+                    "systolic_bp": entry["bpSystolic"],
+                    "diastolic_bp": entry["bpDiastolic"],
+                    "heart_rate": entry["heartRateBPM"],
                     "traffic_color": color,
                     "traffic_arrow": arrow,
                 }
