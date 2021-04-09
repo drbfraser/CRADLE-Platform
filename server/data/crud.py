@@ -29,6 +29,24 @@ def create(model: M, refresh=False):
         db_session.refresh(model)
 
 
+def create_model(new_data: dict, schema) -> Any:
+    """
+    Constructs a model from a dictionary associating column names to values, inserts
+    said model into the database, and then returns the model.
+
+    This method differs from ``create`` in that it returns the actual model instance. 
+    This allows callers to take advantage of the various
+    relations provided by the ORM instead of having to query those object manually.
+
+    :param new_data: A dictionary mapping column names to values
+    :return: A model instance
+    """
+    new_model = schema().load(new_data, session=db.session)
+    create(new_model)
+    return new_model
+
+
+
 def create_all_patients(model: List[Patient]):
     """
     add_all list of model into the database.
