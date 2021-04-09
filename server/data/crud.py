@@ -624,10 +624,10 @@ def get_export_data(user_id):
         resultproxy = db_session.execute(query)
         row = {}
         result = []
-        #Transform ResultProxy into a dict of items
+        # Transform ResultProxy into a dict of items
         for rowproxy in resultproxy:
             for col, val in rowproxy.items():
-                row = {**row, **{col:val}}
+                row = {**row, **{col: val}}
             result.append(row)
         return result
     except Exception as e:
