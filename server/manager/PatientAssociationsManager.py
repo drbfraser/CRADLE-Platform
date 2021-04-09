@@ -1,7 +1,6 @@
 from database.PatientAssociationsRepo import PatientAssociationsRepo
 from database.PatientRepo import PatientRepo
 from database.HealthFacilityRepo import HealthFacilityRepo
-from database.UserRepo import UserRepo
 from manager.Manager import Manager
 from models import Patient, HealthFacility, User, PatientAssociations
 from typing import List
@@ -14,7 +13,6 @@ class PatientAssociationsManager(Manager):
         Manager.__init__(self, PatientAssociationsRepo)
         self.patient_repo = PatientRepo()
         self.facility_repo = HealthFacilityRepo()
-        self.user_repo = UserRepo()
 
     def associate(
         self, patient: Patient, facility: HealthFacility, user: User
@@ -53,7 +51,7 @@ class PatientAssociationsManager(Manager):
         """
         patient = self.patient_repo.select_one(patientId=patient_id)
         facility = self.facility_repo.select_one(healthFacilityName=facility_name)
-        user = self.user_repo.select_one(id=user_id)
+        user = crud.read(User, id=user_id)
 
         if not patient or not facility or not user:
             raise ValueError("patient, facility, or user not found")
