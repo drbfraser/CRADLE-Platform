@@ -123,22 +123,20 @@ class UserReadings(Resource):
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
         facility_id = "%"
+        jwt = get_jwt_identity()
 
-        role = get_jwt_identity()["role"]
-
-        if role == RoleEnum.VHT.value:
+        role = jwt["role"]
+        if role == RoleEnum.VHT.value and user_id != jwt["userId"]:
             return "Unauthorized to view this endpoint", 401
 
         if role == RoleEnum.HCW.value:
-            facility_id = get_jwt_identity()[
-                "healthFacilityName"
-            ]  # Limit query to this facility only
+            facility_id = jwt["healthFacilityName"]  # Limit query to this facility only
 
         if role == RoleEnum.CHO.value:
-            user_list = crud.get_supervised_vhts(get_jwt_identity()["userId"])
+            user_list = crud.get_supervised_vhts(jwt["userId"])
             user_list = [(lambda user: user[0])(user) for user in user_list]
             if user_id not in user_list:
-                return "This VHT is not accessible", 401
+                return "Unauthorized to view statistics for this VHT", 401
 
         args = {"from": "0", "to": "2147483647"}
 
