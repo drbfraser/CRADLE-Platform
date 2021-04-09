@@ -42,7 +42,7 @@ def create_model(new_data: dict, schema: S) -> Any:
     :param new_data: A dictionary mapping column names to values
     :return: A model instance
     """
-    new_model = schema().load(new_data, session=db.session)
+    new_model = schema().load(new_data, session=db_session)
     create(new_model)
     return new_model
 

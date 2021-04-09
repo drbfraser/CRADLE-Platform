@@ -133,10 +133,8 @@ class ReferralFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from database.ReferralRepo import ReferralRepo
 
-        return ReferralRepo().create_model(dict(**kwargs))
-
+        return crud.create_model(dict(**kwargs), models.ReferralSchema)
 
 class FollowUpFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
