@@ -157,8 +157,8 @@ class FollowUpFactory(ModelFactory):
     def _do_create(self, **kwargs) -> Any:
         from database.FollowUpRepo import FollowUpRepo
 
-        return FollowUpRepo().create_model(dict(**kwargs))
-        # return crud.create_model(dict(**kwargs), models.FollowUpSchema)
+        # return FollowUpRepo().create_model(dict(**kwargs))
+        return crud.create_model(dict(**kwargs), models.FollowUpSchema)
 
 
 class UserFactory(ModelFactory):
