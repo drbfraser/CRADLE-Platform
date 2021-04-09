@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from typing import Any
 import data.crud as crud
 import data.marshal as marshal
+import models as models
 
 
 class ModelFactory:
@@ -157,6 +158,7 @@ class FollowUpFactory(ModelFactory):
         from database.FollowUpRepo import FollowUpRepo
 
         return FollowUpRepo().create_model(dict(**kwargs))
+        # return crud.create_model(dict(**kwargs), models.FollowUpSchema)
 
 
 class UserFactory(ModelFactory):

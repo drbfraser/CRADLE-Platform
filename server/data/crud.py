@@ -1,4 +1,4 @@
-from typing import List, Optional, Type, TypeVar
+from typing import List, Optional, Type, TypeVar, Any
 
 from data import db_session
 from models import Patient, Referral, User, PatientAssociations
@@ -6,6 +6,7 @@ import service.serialize as serialize
 import service.sqlStrings as SQL
 
 M = TypeVar("M")
+S = TypeVar("S")
 
 
 def create(model: M, refresh=False):
@@ -29,7 +30,7 @@ def create(model: M, refresh=False):
         db_session.refresh(model)
 
 
-def create_model(new_data: dict, schema) -> Any:
+def create_model(new_data: dict, schema: S) -> Any:
     """
     Constructs a model from a dictionary associating column names to values, inserts
     said model into the database, and then returns the model.
