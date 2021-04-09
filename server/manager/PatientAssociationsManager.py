@@ -5,6 +5,8 @@ from database.UserRepo import UserRepo
 from manager.Manager import Manager
 from models import Patient, HealthFacility, User, PatientAssociations
 from typing import List
+import data.crud as crud
+
 
 
 class PatientAssociationsManager(Manager):
@@ -52,6 +54,7 @@ class PatientAssociationsManager(Manager):
         patient = self.patient_repo.select_one(patientId=patient_id)
         facility = self.facility_repo.select_one(healthFacilityName=facility_name)
         user = self.user_repo.select_one(id=user_id)
+
         if not patient or not facility or not user:
             raise ValueError("patient, facility, or user not found")
         return self.associate(patient, facility, user)
