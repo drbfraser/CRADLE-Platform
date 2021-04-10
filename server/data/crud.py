@@ -48,7 +48,6 @@ def create_model(new_data: dict, schema: S) -> Any:
     return new_model
 
 
-
 def create_all_patients(model: List[Patient]):
     """
     add_all list of model into the database.

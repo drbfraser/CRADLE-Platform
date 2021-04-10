@@ -134,6 +134,7 @@ class ReferralFactory(ModelFactory):
 
         return crud.create_model(dict(**kwargs), models.ReferralSchema)
 
+
 class FollowUpFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super(FollowUpFactory, self).__init__(
