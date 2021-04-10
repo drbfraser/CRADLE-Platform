@@ -54,7 +54,7 @@ def associate(patient: Patient, facility: HealthFacility = None, user: User = No
 
 
 def associate_by_id(
-    self, patient_id: str, facility_name: str, user_id: int
+    patient_id: str, facility_name: str, user_id: int
 ) -> PatientAssociations:
     """
     Creates a 3-way association between a patient, facility, and a user identified
@@ -74,7 +74,7 @@ def associate_by_id(
 
     if not patient or not facility or not user:
         raise ValueError("patient, facility, or user not found")
-    return self.associate(patient, facility, user)
+    return associate(patient, facility, user)
 
 
 
