@@ -1,15 +1,10 @@
-from database.PatientAssociationsRepo import PatientAssociationsRepo
-from manager.Manager import Manager
 from models import Patient, HealthFacility, User, PatientAssociations
 from typing import List
 import data.crud as crud
 
 
 
-class PatientAssociationsManager(Manager):
-    def __init__(self):
-        Manager.__init__(self, PatientAssociationsRepo)
-
+class PatientAssociationsManager:
 
     def associate(
         self, patient: Patient, facility: HealthFacility, user: User
@@ -29,7 +24,7 @@ class PatientAssociationsManager(Manager):
             healthFacilityName=facility.healthFacilityName,
             userId=user.id,
         )
-        self.database.add(associations)
+        crud.create(associations)
         return associations
 
     def associate_by_id(
