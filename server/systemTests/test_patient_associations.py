@@ -1,10 +1,12 @@
 from service.PatientAssociationsManager import (
     PatientAssociationsManager,
+)
+
+from service.assoc import(
     patients_for_user,
     patients_at_facility,
     has_association,
 )
-
 
 def test_patients_for_user_only_returns_patients_associated_with_user(
     patient_factory, facility_factory, user_factory

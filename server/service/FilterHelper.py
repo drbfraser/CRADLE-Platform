@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from models import Patient, User
-from service.PatientAssociationsManager import (
+from service.assoc import (
     patients_at_facility,
     patients_for_user,
     has_association,
