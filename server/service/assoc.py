@@ -77,8 +77,6 @@ def associate_by_id(
     return associate(patient, facility, user)
 
 
-
-
 def has_association(
     patient: Patient = None, facility: HealthFacility = None, user: User = None
 ) -> bool:

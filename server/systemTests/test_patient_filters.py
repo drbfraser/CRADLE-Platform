@@ -1,6 +1,7 @@
 import service.FilterHelper as filter
 import service.assoc as assoc
 
+
 def test_patients_for_hcw(user_factory, facility_factory, patient_factory):
     f = facility_factory.create(healthFacilityName="F")
     u1 = user_factory.create(email="u1@a", healthFacilityName="F")
@@ -8,7 +9,6 @@ def test_patients_for_hcw(user_factory, facility_factory, patient_factory):
     p1 = patient_factory.create(patientId="9001")
     p2 = patient_factory.create(patientId="9002")
 
-    
     assoc.associate(p1, f, u1)
     assoc.associate(p2, f, u2)
 
@@ -25,7 +25,6 @@ def test_patients_for_cho(database, user_factory, facility_factory, patient_fact
     u1.vhtList.append(u2)
     database.session.commit()
 
-    
     assoc.associate(p1, f, u1)
     assoc.associate(p2, f, u2)
 
@@ -44,7 +43,6 @@ def test_patients_for_vht(user_factory, facility_factory, patient_factory):
     p1 = patient_factory.create(patientId="9001")
     p2 = patient_factory.create(patientId="9002")
 
-    
     assoc.associate(p1, f, u1)
     assoc.associate(p2, f, u2)
 
