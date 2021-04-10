@@ -3,9 +3,7 @@ from typing import List
 import data.crud as crud
 
 
-
 class PatientAssociationsManager:
-
     def associate(
         self, patient: Patient, facility: HealthFacility, user: User
     ) -> PatientAssociations:
@@ -43,7 +41,7 @@ class PatientAssociationsManager:
         """
 
         patient = crud.read(Patient, patientId=patient_id)
-        facility = crud.read(HealthFacility,healthFacilityName=facility_name)
+        facility = crud.read(HealthFacility, healthFacilityName=facility_name)
         user = crud.read(User, id=user_id)
 
         if not patient or not facility or not user:

@@ -212,7 +212,7 @@ def seed():
                 "heartRateBPM": getRandomHeartRateBPM(),
                 "symptoms": getRandomSymptoms(),
             }
-           
+
             crud.create_model(r1, ReadingSchema)
 
             referral_comments = [
@@ -333,7 +333,7 @@ def create_patient_reading_referral(
 
     db.session.add(patient_schema.load(patient))
     db.session.commit()
-    
+
     crud.create_model(reading, ReadingSchema)
     db.session.add(referral_schema.load(referral))
     db.session.commit()
