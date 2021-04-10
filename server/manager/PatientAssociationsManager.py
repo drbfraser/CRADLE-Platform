@@ -1,5 +1,4 @@
 from database.PatientAssociationsRepo import PatientAssociationsRepo
-from database.HealthFacilityRepo import HealthFacilityRepo
 from manager.Manager import Manager
 from models import Patient, HealthFacility, User, PatientAssociations
 from typing import List
@@ -10,7 +9,7 @@ import data.crud as crud
 class PatientAssociationsManager(Manager):
     def __init__(self):
         Manager.__init__(self, PatientAssociationsRepo)
-        self.facility_repo = HealthFacilityRepo()
+
 
     def associate(
         self, patient: Patient, facility: HealthFacility, user: User
@@ -49,7 +48,7 @@ class PatientAssociationsManager(Manager):
         """
 
         patient = crud.read(Patient, patientId=patient_id)
-        facility = self.facility_repo.select_one(healthFacilityName=facility_name)
+        facility = crud.read(HealthFacility,healthFacilityName=facility_name)
         user = crud.read(User, id=user_id)
 
         if not patient or not facility or not user:

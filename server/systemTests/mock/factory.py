@@ -202,6 +202,4 @@ class HealthFacilityFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from database.HealthFacilityRepo import HealthFacilityRepo
-
-        return HealthFacilityRepo().create_model(dict(**kwargs))
+        return crud.create_model(dict(**kwargs), models.HealthFacilitySchema)
