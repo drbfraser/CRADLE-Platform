@@ -4,7 +4,7 @@
 """
 
 import api as new_api
-from controller.SMSController import *
+from api.resources.SMS import *
 from api.resources.patients_android import *
 from api.resources.version import *
 from api.resources.assessments import (
