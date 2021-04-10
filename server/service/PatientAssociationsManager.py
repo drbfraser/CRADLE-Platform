@@ -47,6 +47,3 @@ class PatientAssociationsManager:
         if not patient or not facility or not user:
             raise ValueError("patient, facility, or user not found")
         return self.associate(patient, facility, user)
-
-
-
