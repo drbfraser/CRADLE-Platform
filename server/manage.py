@@ -413,7 +413,7 @@ def generateRandomReadingID():
 
 
 def getNames():
-    with open("./seed_data/seed.json") as f:
+    with open("./data/seed_data/seed.json") as f:
         names = json.load(f)
         return names["firstNames"], names["lastNames"]
 
@@ -497,7 +497,7 @@ if __name__ == "__main__":
     patientList = list(map(str, patientList))
 
     # Get cities
-    with open("./seed_data/seed.json") as f:
+    with open("./data/seed_data/seed.json") as f:
         facilityLocations = json.load(f)["locations"]
 
     usersList = [1, 2, 3, 4]
