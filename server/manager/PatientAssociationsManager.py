@@ -1,5 +1,4 @@
 from database.PatientAssociationsRepo import PatientAssociationsRepo
-from database.PatientRepo import PatientRepo
 from database.HealthFacilityRepo import HealthFacilityRepo
 from manager.Manager import Manager
 from models import Patient, HealthFacility, User, PatientAssociations
@@ -11,7 +10,6 @@ import data.crud as crud
 class PatientAssociationsManager(Manager):
     def __init__(self):
         Manager.__init__(self, PatientAssociationsRepo)
-        self.patient_repo = PatientRepo()
         self.facility_repo = HealthFacilityRepo()
 
     def associate(
@@ -49,7 +47,8 @@ class PatientAssociationsManager(Manager):
         :except ValueError: If any of the identifiers don't identify a value
         :return: An association object
         """
-        patient = self.patient_repo.select_one(patientId=patient_id)
+
+        patient = crud.read(Patient, patientId=patient_id)
         facility = self.facility_repo.select_one(healthFacilityName=facility_name)
         user = crud.read(User, id=user_id)
 

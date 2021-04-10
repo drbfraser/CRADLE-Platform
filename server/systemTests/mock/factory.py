@@ -78,9 +78,8 @@ class PatientFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from database.PatientRepo import PatientRepo
 
-        return PatientRepo().create_model(dict(**kwargs))
+        return crud.create_model(dict(**kwargs), models.PatientSchema)
 
 
 class ReadingFactory(ModelFactory):
