@@ -1,4 +1,4 @@
-from manager.PatientAssociationsManager import (
+from service.PatientAssociationsManager import (
     PatientAssociationsManager,
     patients_for_user,
     patients_at_facility,

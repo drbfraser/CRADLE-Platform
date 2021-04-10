@@ -1,5 +1,5 @@
-import manager.FilterHelper as filter
-from manager.PatientAssociationsManager import PatientAssociationsManager
+import service.FilterHelper as filter
+from service.PatientAssociationsManager import PatientAssociationsManager
 
 
 def test_patients_for_hcw(user_factory, facility_factory, patient_factory):
