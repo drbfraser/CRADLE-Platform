@@ -8,7 +8,7 @@ from flask_jwt_extended import jwt_required
 
 from datetime import date
 from dateutil.relativedelta import relativedelta
-
+from models import User
 
 from api.decorator import roles_required
 from models import TrafficLightEnum, RoleEnum
@@ -81,9 +81,9 @@ class Root(Resource):
         return stats, 200
 
 
+# api/stats/all [GET]
 class AllStats(Resource):
     @staticmethod
-    @jwt_required
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/stats-all.yml", methods=["GET"])
 
@@ -103,6 +103,7 @@ class AllStats(Resource):
         return response, 200
 
 
+# api/stats/facility/<string:facility_id> [GET]
 class FacilityReadings(Resource):
     @staticmethod
     @jwt_required
@@ -121,9 +122,9 @@ class FacilityReadings(Resource):
         return response, 200
 
 
+# api/stats/user/<int:user_id> [GET]
 class UserReadings(Resource):
     @staticmethod
-    @jwt_required
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
@@ -140,12 +141,15 @@ class UserReadings(Resource):
         return response, 200
 
 
+# api/stats/export/<int:user_id> [GET]
 class ExportStats(Resource):
     @staticmethod
-    @jwt_required
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-export.yml")
     def get(user_id: int):
+
+        if crud.read(User, id=user_id) == None:
+            return "User with this ID does not exist", 404
 
         query_response = crud.get_export_data(user_id)
         response = []
