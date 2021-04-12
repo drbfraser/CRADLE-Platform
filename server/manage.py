@@ -14,6 +14,8 @@ from models import *
 from random import randint, choice
 from string import ascii_lowercase, digits
 import data.crud as crud
+import data.marshal as marshal
+import service.invariant as invariant
 
 
 manager = Manager(app)
@@ -213,7 +215,11 @@ def seed():
                 "symptoms": getRandomSymptoms(),
             }
 
-            crud.create_model(r1, ReadingSchema)
+            # crud.create_model(r1, ReadingSchema)
+            r1Model = marshal.unmarshal(Reading, r1)
+            invariant.resolve_reading_invariants(r1Model)
+            crud.create(r1Model, refresh=True)
+
 
             referral_comments = [
                 " needs help!",
@@ -334,7 +340,12 @@ def create_patient_reading_referral(
     db.session.add(patient_schema.load(patient))
     db.session.commit()
 
-    crud.create_model(reading, ReadingSchema)
+    # crud.create_model(reading, ReadingSchema)
+    readingModel = marshal.unmarshal(Reading, reading)
+    invariant.resolve_reading_invariants(readingModel)
+    crud.create(readingModel, refresh=True)
+
+
     db.session.add(referral_schema.load(referral))
     db.session.commit()
 
