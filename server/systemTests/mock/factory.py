@@ -107,11 +107,11 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        
-        readingModel = marshal.unmarshal(models.Reading, dict(**kwargs)) 
+
+        readingModel = marshal.unmarshal(models.Reading, dict(**kwargs))
         invariant.resolve_reading_invariants(readingModel)
         crud.create(readingModel, refresh=True)
-        
+
         return readingModel
 
 
