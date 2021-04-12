@@ -56,8 +56,6 @@ def init(api):
         AndroidPatientGlobalSearch, "/api/patient/global/<string:search>"
     )  # [GET]
 
-
-
     #### New Endpoints ####
     api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST]
     api.add_resource(
