@@ -5,6 +5,7 @@ import collections
 
 from data.crud import M, read_all
 from models import Patient, Reading, Referral, FollowUp
+import service.invariant as invariant
 
 
 def marshal(obj: Any, shallow=False) -> dict:
@@ -163,6 +164,9 @@ def __unmarshal_reading(d: dict) -> Reading:
     if d.get("symptoms") is not None:
         d["symptoms"] = ",".join(d["symptoms"])
     reading = __load(Reading, d)
+
+    invariant.resolve_reading_invariants(reading)
+    
     return reading
 
 

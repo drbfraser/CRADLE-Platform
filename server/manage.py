@@ -217,7 +217,6 @@ def seed():
 
 
             r1Model = marshal.unmarshal(Reading, r1)
-            invariant.resolve_reading_invariants(r1Model)
             crud.create(r1Model, refresh=True)
 
 
@@ -342,7 +341,6 @@ def create_patient_reading_referral(
 
  
     readingModel = marshal.unmarshal(Reading, reading)
-    invariant.resolve_reading_invariants(readingModel)
     crud.create(readingModel, refresh=True)
 
 
