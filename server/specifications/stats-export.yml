@@ -2,6 +2,12 @@ Get statistics for export
 ---
 tags:
   - Stats
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    schema: 
+      type: integer
 responses:
   200:
     description: Export statistics 
