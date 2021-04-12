@@ -4,7 +4,6 @@
 """
 
 import api as new_api
-from api.resources.SMS import *
 from api.resources.patients_android import *
 from api.resources.version import *
 from api.resources.assessments import (
@@ -57,7 +56,7 @@ def init(api):
         AndroidPatientGlobalSearch, "/api/patient/global/<string:search>"
     )  # [GET]
 
-    api.add_resource(SMS, "/api/sms")
+
 
     #### New Endpoints ####
     api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST]
