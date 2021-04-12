@@ -7,8 +7,6 @@ Note that the majority of these are set in the Docker Compose file for consisten
 * `DB_HOSTNAME` - The hostname of the database.
 * `DB_PORT` - The port of the host specified by `DB_HOSTNAME` to connect to.
 * `JWT_SECRET_KEY` - the secret key used by Flask for access tokens
-* `EMAIL_USER` - The username of an email used for the SMTP server. Preferably use a Gmail account
-* `EMAIL_PASSWORD` - The password to the corresponding email fo the SMTP server
 
 ## Environment File
 Create a `.env` file in the `cradle-platform` directory (the values may be any arbitrary values):
