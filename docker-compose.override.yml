@@ -35,6 +35,6 @@ services:
     #     ports:
     #         - "33080:80"
     #     environment:
-    #         PMA_HOST: mysql
+    #         PMA_HOST: cradle_mysql
     #         PMA_USER: ${DB_USERNAME}
     #         PMA_PASSWORD: ${DB_PASSWORD}

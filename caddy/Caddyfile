@@ -14,7 +14,7 @@
 
     handle /api/* {
         # Route API requests to Flask
-        reverse_proxy flask:5000
+        reverse_proxy cradle_flask:5000
     }
 
     handle {

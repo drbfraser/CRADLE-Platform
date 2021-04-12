@@ -17,7 +17,7 @@ services:
     mysql:
         restart: always
     caddy:
-        container_name: caddy
+        container_name: cradle_caddy
         image: caddy:2.0.0
         restart: always
         volumes:

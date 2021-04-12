@@ -8,26 +8,23 @@
 version: "3.7"
 services:
     flask:
-        container_name: flask
+        container_name: cradle_flask
         build:
             context: ./server
         volumes:
             - ./server:/usr/src/server
         environment:
             PORT: 5000
-            DB_HOSTNAME: mysql
+            DB_HOSTNAME: cradle_mysql
             DB_PORT: 3306
             DB_NAME: cradle
             DB_USERNAME: ${DB_USERNAME}
             DB_PASSWORD: ${DB_PASSWORD}
             JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-            # TO-DO: remove
-            EMAIL_USER: sample_user@gmail.com
-            EMAIL_PASSWORD: password
         depends_on: 
             - mysql
     mysql:
-        container_name: mysql
+        container_name: cradle_mysql
         image: mysql:5.7
         volumes:
             - mysql_data:/var/lib/mysql

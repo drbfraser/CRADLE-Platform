@@ -80,7 +80,7 @@ echo -e "\n${BLUE}Waiting for MySQL to start...${COLOR_OFF}"
 sleep 10;
 
 echo -e "${BLUE}Upgrading database schema...${COLOR_OFF}\n"
-docker exec flask flask db upgrade
+docker exec cradle_flask flask db upgrade
 
 echo -e "\n${BLUE}"
 echo -e "Data seeding options:"
@@ -93,13 +93,13 @@ echo -e "${COLOR_OFF}"
 
 case $OPTION in
     1)
-        docker exec flask python ./manage.py seed_minimal
+        docker exec cradle_flask python ./manage.py seed_minimal
         ;;
     2)
-        docker exec flask python ./manage.py seed_test_data
+        docker exec cradle_flask python ./manage.py seed_test_data
         ;;
     3)
-        docker exec flask python ./manage.py seed
+        docker exec cradle_flask python ./manage.py seed
         ;;
 esac
 
