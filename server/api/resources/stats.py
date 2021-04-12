@@ -66,7 +66,6 @@ def create_color_readings(color_readings_q):
 
 class Root(Resource):
     @staticmethod
-    @jwt_required
     @swag_from("../../specifications/stats.yml", methods=["GET"])
 
     ## Get all statistics for patients
@@ -75,10 +74,9 @@ class Root(Resource):
         stats = statsManager.put_data_together()
         return stats, 200
 
-
+# api/stats/all [GET]
 class AllStats(Resource):
     @staticmethod
-    @jwt_required
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/stats-all.yml", methods=["GET"])
 
@@ -97,10 +95,9 @@ class AllStats(Resource):
 
         return response, 200
 
-
+# api/stats/facility/<string:facility_id> [GET]
 class FacilityReadings(Resource):
     @staticmethod
-    @jwt_required
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW])
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
@@ -115,11 +112,10 @@ class FacilityReadings(Resource):
         response = query_stats_data(args, facility_id=facility_id)
         return response, 200
 
-
+# api/stats/user/<int:user_id> [GET]
 class UserReadings(Resource):
     @staticmethod
-    @jwt_required
-    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW])
+    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
         facility_id = "%"
