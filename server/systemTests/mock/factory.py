@@ -3,6 +3,7 @@ from typing import Any
 import data.crud as crud
 import data.marshal as marshal
 import models as models
+import service.invariant as invariant
 
 
 class ModelFactory:
@@ -106,8 +107,12 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
-        return crud.create_model(dict(**kwargs), models.ReadingSchema)
+        
+        readingModel = marshal.unmarshal(models.Reading, dict(**kwargs)) 
+        invariant.resolve_reading_invariants(readingModel)
+        crud.create(readingModel, refresh=True)
+        
+        return readingModel
 
 
 class ReferralFactory(ModelFactory):
