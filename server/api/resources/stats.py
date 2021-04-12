@@ -74,6 +74,7 @@ class Root(Resource):
         stats = statsManager.put_data_together()
         return stats, 200
 
+
 # api/stats/all [GET]
 class AllStats(Resource):
     @staticmethod
@@ -95,6 +96,7 @@ class AllStats(Resource):
 
         return response, 200
 
+
 # api/stats/facility/<string:facility_id> [GET]
 class FacilityReadings(Resource):
     @staticmethod
@@ -111,6 +113,7 @@ class FacilityReadings(Resource):
 
         response = query_stats_data(args, facility_id=facility_id)
         return response, 200
+
 
 # api/stats/user/<int:user_id> [GET]
 class UserReadings(Resource):
