@@ -1,10 +1,9 @@
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource
-from manager.StatsManager import StatsManager
+from service.StatsManager import StatsManager
 
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -71,7 +70,6 @@ def create_color_readings(color_readings_q):
 
 class Root(Resource):
     @staticmethod
-    @jwt_required
     @swag_from("../../specifications/stats.yml", methods=["GET"])
 
     ## Get all statistics for patients
@@ -106,7 +104,6 @@ class AllStats(Resource):
 # api/stats/facility/<string:facility_id> [GET]
 class FacilityReadings(Resource):
     @staticmethod
-    @jwt_required
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW])
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
@@ -128,6 +125,21 @@ class UserReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
+        facility_id = "%"
+        jwt = get_jwt_identity()
+
+        role = jwt["role"]
+        if role == RoleEnum.VHT.value and user_id != jwt["userId"]:
+            return "Unauthorized to view this endpoint", 401
+
+        if role == RoleEnum.HCW.value:
+            facility_id = jwt["healthFacilityName"]  # Limit query to this facility only
+
+        if role == RoleEnum.CHO.value:
+            user_list = crud.get_supervised_vhts(jwt["userId"])
+            user_list = [(lambda user: user[0])(user) for user in user_list]
+            if user_id not in user_list:
+                return "Unauthorized to view statistics for this VHT", 401
 
         args = {"from": "0", "to": "2147483647"}
 
@@ -136,7 +148,7 @@ class UserReadings(Resource):
         if request.args.get("to") is not None:
             args["to"] = str(request.args.get("to"))
 
-        response = query_stats_data(args, user_id=user_id)
+        response = query_stats_data(args, user_id=user_id, facility_id=facility_id)
 
         return response, 200
 

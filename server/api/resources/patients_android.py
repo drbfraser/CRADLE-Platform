@@ -4,7 +4,7 @@ from flask_jwt_extended import (
 )
 from flask_restful import Resource
 from data import crud, marshal
-import manager.FilterHelper as filter
+import service.FilterHelper as filter
 from models import (
     Patient,
     PatientSchema,

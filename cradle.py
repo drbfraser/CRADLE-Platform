@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# IMPORTANT NOTE:
+# This script has not been updated since the Docker and deployment structure has changed.
+# It is likely that it no longer works properly. Since it is essentially a wrapper around
+# docker-compose, it is recommended to use docker-compose commands moving forward to avoid 
+# the need to update this script every time something changes.
+
 # Cradle development manager script. Specifically designed for docker environments with
 # limited support for manual environments.
 #
