@@ -111,6 +111,11 @@ def update(m: Type[M], changes: dict, **kwargs):
 
     for k, v in changes.items():
         setattr(model, k, v)
+
+    # Ensures that any reading that is entered into the DB is correctly formatted
+    if isinstance(model, Reading):
+        invariant.resolve_reading_invariants(model)
+
     db_session.commit()
 
 
