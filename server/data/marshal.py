@@ -166,7 +166,7 @@ def __unmarshal_reading(d: dict) -> Reading:
     reading = __load(Reading, d)
 
     invariant.resolve_reading_invariants(reading)
-    
+
     return reading
 
 

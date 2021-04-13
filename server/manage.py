@@ -215,10 +215,8 @@ def seed():
                 "symptoms": getRandomSymptoms(),
             }
 
-
             r1Model = marshal.unmarshal(Reading, r1)
             crud.create(r1Model, refresh=True)
-
 
             referral_comments = [
                 " needs help!",
@@ -339,10 +337,8 @@ def create_patient_reading_referral(
     db.session.add(patient_schema.load(patient))
     db.session.commit()
 
- 
     readingModel = marshal.unmarshal(Reading, reading)
     crud.create(readingModel, refresh=True)
-
 
     db.session.add(referral_schema.load(referral))
     db.session.commit()
