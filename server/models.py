@@ -197,6 +197,13 @@ class Reading(db.Model):
     retestOfPreviousReadingIds = db.Column(db.String(100))
     isFlaggedForFollowup = db.Column(db.Boolean)
 
+    lastEdited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+
     # FOREIGN KEYS
     userId = db.Column(
         db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
