@@ -603,3 +603,22 @@ def get_days_with_readings(facility="%", user="%", filter={}):
     except Exception as e:
         print(e)
         return None
+
+
+def get_supervised_vhts(user_id):
+    """Queries db for the list of VHTs supervised by this CHO"""
+    query = """
+        SELECT vhtId 
+        FROM user U
+        JOIN supervises S on U.id = S.choId
+        WHERE U.id = %s
+    """ % str(
+        user_id
+    )
+
+    try:
+        result = db_session.execute(query)
+        return list(result)
+    except Exception as e:
+        print(e)
+        return None
