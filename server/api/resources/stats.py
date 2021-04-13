@@ -155,9 +155,11 @@ class ExportStats(Resource):
         response = []
         for entry in query_response:
             age = relativedelta(date.today(), entry["dob"]).years
-            traffic_light = entry["trafficLightStatus"].split("_")
-
-            color = traffic_light[0]
+            traffic_light = entry.get("trafficLightStatus")
+            color = None
+            if traffic_light:
+                traffic_light = traffic_light.split("_")
+                color = traffic_light[0]
 
             arrow = None
             if len(traffic_light) > 1:
@@ -165,15 +167,15 @@ class ExportStats(Resource):
 
             response.append(
                 {
-                    "referral_date": entry["dateReferred"],
-                    "patientId": entry["patientId"],
-                    "name": entry["patientName"],
-                    "sex": entry["patientSex"],
+                    "referral_date": entry.get("dateReferred"),
+                    "patientId": entry.get("patientId"),
+                    "name": entry.get("patientName"),
+                    "sex": entry.get("patientSex"),
                     "age": age,
-                    "pregnant": bool(entry["isPregnant"]),
-                    "systolic_bp": entry["bpSystolic"],
-                    "diastolic_bp": entry["bpDiastolic"],
-                    "heart_rate": entry["heartRateBPM"],
+                    "pregnant": bool(entry.get("isPregnant")),
+                    "systolic_bp": entry.get("bpSystolic"),
+                    "diastolic_bp": entry.get("bpDiastolic"),
+                    "heart_rate": entry.get("heartRateBPM"),
                     "traffic_color": color,
                     "traffic_arrow": arrow,
                 }

@@ -612,8 +612,8 @@ def get_export_data(user_id):
     query = """
         SELECT R.dateReferred,R.patientId, P.patientName, P.patientSex, P.dob, P.isPregnant, RD.bpSystolic, RD.bpDiastolic, RD.heartRateBPM, RD.trafficLightStatus 
         FROM referral R
-        JOIN patient P on P.patientId = R.patientId
         JOIN reading RD on R.readingId = RD.readingId
+        JOIN patient P on P.patientId = R.patientId
         WHERE R.userId = %s
         ORDER BY R.patientId  DESC
     """ % (
