@@ -1,7 +1,7 @@
 from flasgger import swag_from
 from flask import request
 from flask_restful import Resource
-from manager.StatsManager import StatsManager
+from service.StatsManager import StatsManager
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
 

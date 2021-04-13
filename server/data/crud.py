@@ -1,11 +1,13 @@
-from typing import List, Optional, Type, TypeVar
+from typing import List, Optional, Type, TypeVar, Any
 
 from data import db_session
-from models import Patient, Referral, User, PatientAssociations
+from models import Patient, Referral, User, PatientAssociations, Reading
 import service.serialize as serialize
 import service.sqlStrings as SQL
+import service.invariant as invariant
 
 M = TypeVar("M")
+S = TypeVar("S")
 
 
 def create(model: M, refresh=False):
@@ -23,10 +25,33 @@ def create(model: M, refresh=False):
                     the database; this involves an additional query so only use it if
                     necessary
     """
+
+    # Ensures that any reading that is entered into the DB is correctly formatted
+    if isinstance(model, Reading):
+        invariant.resolve_reading_invariants(model)
+
     db_session.add(model)
     db_session.commit()
     if refresh:
         db_session.refresh(model)
+
+
+def create_model(new_data: dict, schema: S) -> Any:
+    """
+    Constructs a model from a dictionary associating column names to values, inserts
+    said model into the database, and then returns the model.
+
+    This method differs from ``create`` in that it returns the actual model instance,
+    as well as it takes in a dict rather than a model.
+    This allows callers to take advantage of the various
+    relations provided by the ORM instead of having to query those object manually.
+
+    :param new_data: A dictionary mapping column names to values
+    :return: A model instance
+    """
+    new_model = schema().load(new_data, session=db_session)
+    create(new_model)
+    return new_model
 
 
 def create_all_patients(model: List[Patient]):
@@ -86,6 +111,11 @@ def update(m: Type[M], changes: dict, **kwargs):
 
     for k, v in changes.items():
         setattr(model, k, v)
+
+    # Ensures that any reading that is entered into the DB is correctly formatted
+    if isinstance(model, Reading):
+        invariant.resolve_reading_invariants(model)
+
     db_session.commit()
 
 
