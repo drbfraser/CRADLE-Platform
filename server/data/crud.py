@@ -1,9 +1,10 @@
 from typing import List, Optional, Type, TypeVar, Any
 
 from data import db_session
-from models import Patient, Referral, User, PatientAssociations
+from models import Patient, Referral, User, PatientAssociations, Reading
 import service.serialize as serialize
 import service.sqlStrings as SQL
+import service.invariant as invariant
 
 M = TypeVar("M")
 S = TypeVar("S")
@@ -24,6 +25,11 @@ def create(model: M, refresh=False):
                     the database; this involves an additional query so only use it if
                     necessary
     """
+
+    # Ensures that any reading that is entered into the DB is correctly formatted
+    if isinstance(model, Reading):
+        invariant.resolve_reading_invariants(model)
+
     db_session.add(model)
     db_session.commit()
     if refresh:
