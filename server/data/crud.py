@@ -635,6 +635,36 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         return None
 
 
+def get_export_data(user_id):
+    """Queries the database for statistics data for exporting
+
+    :return: list of data for a VHT"""
+    query = """
+        SELECT R.dateReferred,R.patientId, P.patientName, P.patientSex, P.dob, P.isPregnant, RD.bpSystolic, RD.bpDiastolic, RD.heartRateBPM, RD.trafficLightStatus 
+        FROM referral R
+        JOIN reading RD on R.readingId = RD.readingId
+        JOIN patient P on P.patientId = R.patientId
+        WHERE R.userId = %s
+        ORDER BY R.patientId  DESC
+    """ % (
+        str(user_id)
+    )
+
+    try:
+        resultproxy = db_session.execute(query)
+        row = {}
+        result = []
+        # Transform ResultProxy into a dict of items
+        for rowproxy in resultproxy:
+            for col, val in rowproxy.items():
+                row = {**row, **{col: val}}
+            result.append(row)
+        return result
+    except Exception as e:
+        print(e)
+        return None
+
+
 def get_supervised_vhts(user_id):
     """Queries db for the list of VHTs supervised by this CHO"""
     query = """

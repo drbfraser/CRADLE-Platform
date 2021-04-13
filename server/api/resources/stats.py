@@ -5,6 +5,10 @@ from service.StatsManager import StatsManager
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from datetime import date
+from dateutil.relativedelta import relativedelta
+from models import User
+
 from api.decorator import roles_required
 from models import TrafficLightEnum, RoleEnum
 import data.crud as crud
@@ -145,5 +149,48 @@ class UserReadings(Resource):
             args["to"] = str(request.args.get("to"))
 
         response = query_stats_data(args, user_id=user_id, facility_id=facility_id)
+
+        return response, 200
+
+
+# api/stats/export/<int:user_id> [GET]
+class ExportStats(Resource):
+    @staticmethod
+    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW])
+    @swag_from("../../specifications/stats-export.yml")
+    def get(user_id: int):
+
+        if crud.read(User, id=user_id) == None:
+            return "User with this ID does not exist", 404
+
+        query_response = crud.get_export_data(user_id)
+        response = []
+        for entry in query_response:
+            age = relativedelta(date.today(), entry["dob"]).years
+            traffic_light = entry.get("trafficLightStatus")
+            color = None
+            if traffic_light:
+                traffic_light = traffic_light.split("_")
+                color = traffic_light[0]
+
+            arrow = None
+            if len(traffic_light) > 1:
+                arrow = traffic_light[1]
+
+            response.append(
+                {
+                    "referral_date": entry.get("dateReferred"),
+                    "patientId": entry.get("patientId"),
+                    "name": entry.get("patientName"),
+                    "sex": entry.get("patientSex"),
+                    "age": age,
+                    "pregnant": bool(entry.get("isPregnant")),
+                    "systolic_bp": entry.get("bpSystolic"),
+                    "diastolic_bp": entry.get("bpDiastolic"),
+                    "heart_rate": entry.get("heartRateBPM"),
+                    "traffic_color": color,
+                    "traffic_arrow": arrow,
+                }
+            )
 
         return response, 200
