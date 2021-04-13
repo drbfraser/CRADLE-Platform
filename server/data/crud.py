@@ -660,6 +660,9 @@ def get_export_data(user_id):
                 row = {**row, **{col: val}}
             result.append(row)
         return result
+    except Exception as e:
+        print(e)
+        return None
 
 
 def get_supervised_vhts(user_id):
