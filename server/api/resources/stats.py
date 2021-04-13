@@ -144,7 +144,7 @@ class UserReadings(Resource):
 # api/stats/export/<int:user_id> [GET]
 class ExportStats(Resource):
     @staticmethod
-    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
+    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW])
     @swag_from("../../specifications/stats-export.yml")
     def get(user_id: int):
 
