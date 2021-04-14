@@ -90,11 +90,8 @@ class AllStats(Resource):
 
         # Date filters default to max range
         args = {"from": "0", "to": "2147483647"}
-
-        if request.args.get("from") is not None:
-            args["from"] = str(request.args.get("from"))
-        if request.args.get("to") is not None:
-            args["to"] = str(request.args.get("to"))
+        args["from"] = str(request.args.get("from", default=0, type=str))
+        args["to"] = str(request.args.get("to", default="2147483647", type=str))
 
         response = query_stats_data(args)
 
@@ -109,11 +106,8 @@ class FacilityReadings(Resource):
     def get(facility_id: str):
 
         args = {"from": "0", "to": "2147483647"}
-
-        if request.args.get("from") is not None:
-            args["from"] = str(request.args.get("from"))
-        if request.args.get("to") is not None:
-            args["to"] = str(request.args.get("to"))
+        args["from"] = str(request.args.get("from", default=0, type=str))
+        args["to"] = str(request.args.get("to", default="2147483647", type=str))
 
         response = query_stats_data(args, facility_id=facility_id)
         return response, 200
@@ -142,11 +136,8 @@ class UserReadings(Resource):
                 return "Unauthorized to view statistics for this VHT", 401
 
         args = {"from": "0", "to": "2147483647"}
-
-        if request.args.get("from") is not None:
-            args["from"] = str(request.args.get("from"))
-        if request.args.get("to") is not None:
-            args["to"] = str(request.args.get("to"))
+        args["from"] = str(request.args.get("from", default=0, type=str))
+        args["to"] = str(request.args.get("to", default="2147483647", type=str))
 
         response = query_stats_data(args, user_id=user_id, facility_id=facility_id)
 
@@ -160,10 +151,14 @@ class ExportStats(Resource):
     @swag_from("../../specifications/stats-export.yml")
     def get(user_id: int):
 
+        args = {"from": "0", "to": "2147483647"}
+        args["from"] = str(request.args.get("from", default=0, type=str))
+        args["to"] = str(request.args.get("to", default="2147483647", type=str))
+
         if crud.read(User, id=user_id) == None:
             return "User with this ID does not exist", 404
 
-        query_response = crud.get_export_data(user_id)
+        query_response = crud.get_export_data(user_id, args)
         response = []
         for entry in query_response:
             age = relativedelta(date.today(), entry["dob"]).years

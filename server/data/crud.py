@@ -635,7 +635,7 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         return None
 
 
-def get_export_data(user_id):
+def get_export_data(user_id, filter):
     """Queries the database for statistics data for exporting
 
     :return: list of data for a VHT"""
@@ -644,10 +644,12 @@ def get_export_data(user_id):
         FROM referral R
         JOIN reading RD on R.readingId = RD.readingId
         JOIN patient P on P.patientId = R.patientId
-        WHERE R.userId = %s
+        WHERE R.userId = %s AND R.dateReferred BETWEEN %s AND %s
         ORDER BY R.patientId  DESC
     """ % (
-        str(user_id)
+        str(user_id),
+        filter.get("from"),
+        filter.get("to"),
     )
 
     try:
