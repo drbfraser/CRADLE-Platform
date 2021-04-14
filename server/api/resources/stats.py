@@ -70,6 +70,13 @@ def create_color_readings(color_readings_q):
     return color_readings
 
 
+def get_filter_data(request):
+    filter = {}
+    filter["from"] = str(request.args.get("from", default="0", type=str))
+    filter["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
+    return filter
+
+
 class Root(Resource):
     @staticmethod
     @swag_from("../../specifications/stats.yml", methods=["GET"])
@@ -91,13 +98,9 @@ class AllStats(Resource):
     def get():
 
         # Date filters default to max range
-        args = {}
-        args["from"] = str(request.args.get("from", default="0", type=str))
-        args["to"] = str(
-            request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str)
-        )
+        filter = get_filter_data(request)
 
-        response = query_stats_data(args)
+        response = query_stats_data(filter)
 
         return response, 200
 
@@ -109,13 +112,9 @@ class FacilityReadings(Resource):
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
 
-        args = {}
-        args["from"] = str(request.args.get("from", default="0", type=str))
-        args["to"] = str(
-            request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str)
-        )
+        filter = get_filter_data(request)
 
-        response = query_stats_data(args, facility_id=facility_id)
+        response = query_stats_data(filter, facility_id=facility_id)
         return response, 200
 
 
@@ -141,13 +140,9 @@ class UserReadings(Resource):
             if user_id not in user_list:
                 return "Unauthorized to view statistics for this VHT", 401
 
-        args = {}
-        args["from"] = str(request.args.get("from", default="0", type=str))
-        args["to"] = str(
-            request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str)
-        )
+        filter = get_filter_data(request)
 
-        response = query_stats_data(args, user_id=user_id, facility_id=facility_id)
+        response = query_stats_data(filter, user_id=user_id, facility_id=facility_id)
 
         return response, 200
 
@@ -159,16 +154,12 @@ class ExportStats(Resource):
     @swag_from("../../specifications/stats-export.yml")
     def get(user_id: int):
 
-        args = {}
-        args["from"] = str(request.args.get("from", default="0", type=str))
-        args["to"] = str(
-            request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str)
-        )
+        filter = get_filter_data(request)
 
         if crud.read(User, id=user_id) == None:
             return "User with this ID does not exist", 404
 
-        query_response = crud.get_export_data(user_id, args)
+        query_response = crud.get_export_data(user_id, filter)
         response = []
         for entry in query_response:
             age = relativedelta(date.today(), entry["dob"]).years
