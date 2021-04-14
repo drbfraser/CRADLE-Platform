@@ -13,7 +13,9 @@ from api.decorator import roles_required
 from models import TrafficLightEnum, RoleEnum
 import data.crud as crud
 
+
 statsManager = StatsManager()
+MYSQL_BIGINT_MAX = (2**63) - 1
 
 
 def query_stats_data(args, facility_id="%", user_id="%"):
@@ -89,9 +91,9 @@ class AllStats(Resource):
     def get():
 
         # Date filters default to max range
-        args = {"from": "0", "to": "2147483647"}
-        args["from"] = str(request.args.get("from", default=0, type=str))
-        args["to"] = str(request.args.get("to", default="2147483647", type=str))
+        args = {}
+        args["from"] = str(request.args.get("from", default="0", type=str))
+        args["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
 
         response = query_stats_data(args)
 
@@ -105,9 +107,9 @@ class FacilityReadings(Resource):
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
 
-        args = {"from": "0", "to": "2147483647"}
-        args["from"] = str(request.args.get("from", default=0, type=str))
-        args["to"] = str(request.args.get("to", default="2147483647", type=str))
+        args = {}
+        args["from"] = str(request.args.get("from", default="0", type=str))
+        args["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
 
         response = query_stats_data(args, facility_id=facility_id)
         return response, 200
@@ -135,9 +137,9 @@ class UserReadings(Resource):
             if user_id not in user_list:
                 return "Unauthorized to view statistics for this VHT", 401
 
-        args = {"from": "0", "to": "2147483647"}
-        args["from"] = str(request.args.get("from", default=0, type=str))
-        args["to"] = str(request.args.get("to", default="2147483647", type=str))
+        args = {}
+        args["from"] = str(request.args.get("from", default="0", type=str))
+        args["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
 
         response = query_stats_data(args, user_id=user_id, facility_id=facility_id)
 
@@ -151,9 +153,9 @@ class ExportStats(Resource):
     @swag_from("../../specifications/stats-export.yml")
     def get(user_id: int):
 
-        args = {"from": "0", "to": "2147483647"}
-        args["from"] = str(request.args.get("from", default=0, type=str))
-        args["to"] = str(request.args.get("to", default="2147483647", type=str))
+        args = {}
+        args["from"] = str(request.args.get("from", default="0", type=str))
+        args["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
 
         if crud.read(User, id=user_id) == None:
             return "User with this ID does not exist", 404
