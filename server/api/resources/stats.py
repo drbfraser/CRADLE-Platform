@@ -15,7 +15,7 @@ import data.crud as crud
 
 
 statsManager = StatsManager()
-MYSQL_BIGINT_MAX = (2**63) - 1
+MYSQL_BIGINT_MAX = (2 ** 63) - 1
 
 
 def query_stats_data(args, facility_id="%", user_id="%"):
@@ -93,7 +93,9 @@ class AllStats(Resource):
         # Date filters default to max range
         args = {}
         args["from"] = str(request.args.get("from", default="0", type=str))
-        args["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
+        args["to"] = str(
+            request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str)
+        )
 
         response = query_stats_data(args)
 
@@ -109,7 +111,9 @@ class FacilityReadings(Resource):
 
         args = {}
         args["from"] = str(request.args.get("from", default="0", type=str))
-        args["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
+        args["to"] = str(
+            request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str)
+        )
 
         response = query_stats_data(args, facility_id=facility_id)
         return response, 200
@@ -139,7 +143,9 @@ class UserReadings(Resource):
 
         args = {}
         args["from"] = str(request.args.get("from", default="0", type=str))
-        args["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
+        args["to"] = str(
+            request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str)
+        )
 
         response = query_stats_data(args, user_id=user_id, facility_id=facility_id)
 
@@ -155,7 +161,9 @@ class ExportStats(Resource):
 
         args = {}
         args["from"] = str(request.args.get("from", default="0", type=str))
-        args["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
+        args["to"] = str(
+            request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str)
+        )
 
         if crud.read(User, id=user_id) == None:
             return "User with this ID does not exist", 404
