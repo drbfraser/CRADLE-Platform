@@ -8,6 +8,14 @@ parameters:
     required: true
     schema: 
       type: integer
+  - in: query
+    name: from
+    schema:
+      type: integer
+  - in: query
+    name: to
+    schema:
+      type: integer
 responses:
   200:
     description: Export statistics 
