@@ -39,11 +39,7 @@ const ChangePassword = ({ open, onClose }: IProps) => {
     };
 
     try {
-      const resp = await apiFetch(BASE_URL + EndpointEnum.CHANGE_PASS, init);
-
-      if (!resp.ok) {
-        throw new Error();
-      }
+      await apiFetch(BASE_URL + EndpointEnum.CHANGE_PASS, init);
 
       setSubmitError(false);
       setSubmitSuccess(true);

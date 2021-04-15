@@ -57,8 +57,7 @@ export const handleBlurPatientId = (
         .then((resp) =>
           setExistingPatientId(resp.status === 200 ? patientId : null)
         )
-        .catch((e) => {
-          console.error(e);
+        .catch(() => {
           setExistingPatientId(null);
         });
     } else {
@@ -126,10 +125,6 @@ export const handleSubmit = (
         method: method,
         body: JSON.stringify(valuesForServer),
       });
-
-      if (!resp.ok) {
-        throw new Error('Response failed with error code: ' + resp.status);
-      }
 
       const respJson = await resp.json();
       const patientPageUrl = '/patients/' + respJson['patientId'];
