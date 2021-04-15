@@ -1,64 +1,68 @@
-import { OrNull, Patient } from 'src/types';
-import { clearGetPatientError, getPatient } from 'src/redux/reducers/patients';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { Grid, Divider } from '@material-ui/core';
+import { Header } from './Header';
+import { MedicalInfo } from './MedicalInfo';
+import { PersonalInfo } from './PersonalInfo';
+import { ReadingCard } from './ReadingCard/ReadingCard';
+import { VitalsGraph } from './VitalsGraph';
+import { Patient } from 'src/types';
+import { useRouteMatch } from 'react-router-dom';
+import { apiFetch } from 'src/shared/utils/api';
+import { EndpointEnum } from 'src/server';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { BASE_URL } from 'src/server/utils';
 
-import { Loader } from 'src/shared/components/loader';
-import { PatientSummary } from './summary';
-import React from 'react';
-import { ReduxState } from 'src/redux/reducers';
-import { RouteComponentProps } from 'react-router-dom';
-import { Toast } from 'src/shared/components/toast';
-
-type SelectorState = {
-  error: OrNull<string>;
-  loading: boolean;
-  patient: OrNull<Patient>;
+type RouteParams = {
+  patientId: string;
 };
 
-type Params = {
-  id: string;
-};
+export const PatientPage = () => {
+  const { patientId } = useRouteMatch<RouteParams>().params;
+  const [patient, setPatient] = useState<Patient>();
+  const [errorLoading, setErrorLoading] = useState(false);
 
-export const PatientPage: React.FC<RouteComponentProps<Params>> = ({
-  match: {
-    params: { id },
-  },
-}) => {
-  const { error, loading, patient } = useSelector(
-    ({ patients }: ReduxState): SelectorState => {
-      return {
-        error: patients.error,
-        loading: patients.isLoading,
-        patient: patients.patient,
-      };
-    }
-  );
-  const dispatch = useDispatch();
-
-  React.useEffect((): void => {
-    if (id) {
-      dispatch(getPatient(id));
-    }
-  }, [dispatch, id]);
-
-  if (loading || !patient) {
-    return <Loader message="Getting patient information..." show={true} />;
-  }
-
-  const clearError = (): void => {
-    dispatch(clearGetPatientError());
-  };
+  useEffect(() => {
+    apiFetch(BASE_URL + EndpointEnum.PATIENTS + `/${patientId}`)
+      .then((resp) => resp.json())
+      .then((patient) => {
+        setPatient(patient);
+      })
+      .catch(() => {
+        setErrorLoading(true);
+      });
+  }, [patientId]);
 
   return (
     <>
-      <Toast
-        severity="error"
-        message={error ?? ''}
-        open={Boolean(error)}
-        onClose={clearError}
-        transitionDuration={0}
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
       />
-      <PatientSummary selectedPatient={patient} />
+      <Header patient={patient} />
+      <br />
+      <Divider />
+      <br />
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <PersonalInfo patient={patient} />
+          <br />
+          <MedicalInfo patient={patient} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <VitalsGraph patientId={patientId} />
+        </Grid>
+      </Grid>
+      <br />
+      <Divider />
+      <br />
+      {patient?.readings
+        .sort((r1, r2) => (r2.dateTimeTaken ?? 0) - (r1.dateTimeTaken ?? 0))
+        .map((r) => (
+          <React.Fragment key={r.readingId}>
+            <ReadingCard reading={r} />
+            <br />
+          </React.Fragment>
+        ))}
     </>
   );
 };
