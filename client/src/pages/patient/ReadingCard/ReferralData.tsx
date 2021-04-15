@@ -1,10 +1,16 @@
 import React from 'react';
-import { Typography, Button } from '@material-ui/core';
+import {
+  Typography,
+  Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@material-ui/core';
 import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { Reading } from 'src/types';
 import { getPrettyDateTime } from 'src/shared/utils';
-import { Divider, Header, Segment } from 'semantic-ui-react';
 import { useHistory } from 'react-router-dom';
 
 interface IProps {
@@ -69,60 +75,67 @@ export const ReferralData = ({ reading }: IProps) => {
             onClick={handleCreateReferral}>
             Create Referral
           </Button>
+          <br />
         </>
       )}
-
-      {followUp && (
-        <Segment>
-          {followUp.specialInvestigations && (
-            <>
-              <Header size="small">Special Investigations + Results:</Header>
-              <p>{followUp.specialInvestigations}</p>
-              <Divider />
-            </>
-          )}
-          {followUp.diagnosis && (
-            <>
-              <Header size="small">Final Diagnosis:</Header>
-              <p>{followUp.diagnosis}</p>
-              <Divider />
-            </>
-          )}
-          {followUp.treatment && (
-            <>
-              <Header size="small">Treatment/Operation:</Header>
-              <p>{followUp.treatment}</p>
-              <Divider />
-            </>
-          )}
-          {followUp.medicationPrescribed && (
-            <>
-              <Header size="small">Medication Prescribed:</Header>
-              <p>{followUp.medicationPrescribed || 'N/A'}</p>
-              <Divider />
-            </>
-          )}
-          {followUp.followupInstructions && (
-            <>
-              <Header size="small">Followup Instructions:</Header>
-              <p>{followUp.followupInstructions}</p>
-              <Divider />
-            </>
-          )}
-          <p>
-            <b>Assessed By: </b>
-            {`Healthcare Worker ${followUp.healthcareWorkerId}` ?? `N/A`}
-          </p>
-          <p>
-            <b>Date Last Assessed:</b>{' '}
-            {getPrettyDateTime(followUp.dateAssessed)}
-          </p>
-        </Segment>
-      )}
-      {referral && (
+      <br />
+      {referral && !followUp && (
         <Button color="primary" variant="outlined" onClick={handleAssess}>
-          {followUp ? `Update Assessment` : `Assess`}
+          Assess
         </Button>
+      )}
+      {followUp && (
+        <Accordion>
+          <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
+            <Typography>
+              <b>Assessment</b>
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div>
+              {[
+                {
+                  label: 'Assessed By',
+                  value:
+                    `Healthcare Worker ${followUp.healthcareWorkerId}` ?? `N/A`,
+                },
+                {
+                  label: 'Date Last Assessed',
+                  value: getPrettyDateTime(followUp.dateAssessed),
+                },
+                {
+                  label: 'Special Investigations + Results',
+                  value: followUp.specialInvestigations,
+                },
+                {
+                  label: 'Final Diagnosis',
+                  value: followUp.diagnosis,
+                },
+                {
+                  label: 'Treatment/Operation',
+                  value: followUp.treatment,
+                },
+                {
+                  label: 'Medication Prescribed',
+                  value: followUp.medicationPrescribed,
+                },
+                {
+                  label: 'Followup Instructions',
+                  value: followUp.followupInstructions,
+                },
+              ]
+                .filter((info) => Boolean(info.value))
+                .map((info) => (
+                  <p key={info.label}>
+                    <b>{info.label}:</b> {info.value}
+                  </p>
+                ))}
+              <Button color="primary" variant="outlined" onClick={handleAssess}>
+                Update Assessment
+              </Button>
+            </div>
+          </AccordionDetails>
+        </Accordion>
       )}
     </div>
   );

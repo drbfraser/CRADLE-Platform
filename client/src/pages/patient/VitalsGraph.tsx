@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Paper, Typography, Divider, Box } from '@material-ui/core';
+import { Paper, Typography, Divider, Box, makeStyles } from '@material-ui/core';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import { Line, Bar } from 'react-chartjs-2';
 import { Button } from 'semantic-ui-react';
@@ -9,7 +9,7 @@ import { EndpointEnum } from 'src/server';
 import Alert from '@material-ui/lab/Alert';
 import { Skeleton } from '@material-ui/lab';
 import { PatientStatistics } from 'src/types';
-import { MonthEnum, TrafficLightEnum } from 'src/enums';
+import { MonthEnum, trafficLightColors, TrafficLightEnum } from 'src/enums';
 
 interface IProps {
   patientId: string;
@@ -21,6 +21,7 @@ enum ChartOption {
 }
 
 export const VitalsGraph = ({ patientId }: IProps) => {
+  const styles = useStyles();
   const [errorLoading, setErrorLoading] = useState(false);
   const [chartSelected, setChartSelected] = useState(ChartOption.VITALS);
   const [patientStats, setPatientStats] = useState<PatientStatistics>();
@@ -55,26 +56,28 @@ export const VitalsGraph = ({ patientId }: IProps) => {
             Show Traffic Lights
           </Button>
         </Button.Group>
+        <br />
+        <br />
         {errorLoading ? (
-          <>
-            <br />
-            <br />
-            <Alert severity="error">
-              Something went wrong trying to load the vitals for that patient.
-              Please try refreshing.
-            </Alert>
-          </>
+          <Alert severity="error">
+            Something went wrong trying to load the vitals for that patient.
+            Please try refreshing.
+          </Alert>
         ) : patientStats ? (
           <div>
             {chartSelected === ChartOption.VITALS && (
               <>
-                <h4>Average Vitals Over Time:</h4>
+                <h4 className={styles.noMargin}>Average Vitals Over Time:</h4>
+                <br />
                 <Line data={getVitalsData(patientStats)} />
               </>
             )}
             {chartSelected === ChartOption.TRAFFIC_LIGHTS && (
               <>
-                <h4>Traffic Lights From All Readings:</h4>
+                <h4 className={styles.noMargin}>
+                  Traffic Lights From All Readings:
+                </h4>
+                <br />
                 <Bar
                   data={getTrafficLightData(patientStats)}
                   options={barChartOptions}
@@ -89,6 +92,12 @@ export const VitalsGraph = ({ patientId }: IProps) => {
     </Paper>
   );
 };
+
+const useStyles = makeStyles({
+  noMargin: {
+    margin: 0,
+  },
+});
 
 const getVitalsData = (stats: PatientStatistics) => {
   const MONTHS_IN_YEAR = 12;
@@ -128,7 +137,9 @@ const getVitalsData = (stats: PatientStatistics) => {
       borderColor: `rgba(${d.color},1)`,
       pointRadius: 5,
       data: d.data
-        ? Array(MONTHS_IN_YEAR).map((_, i) => average(d.data?.[i] ?? []))
+        ? Array(MONTHS_IN_YEAR)
+            .fill(null)
+            .map((_, i) => average(d.data?.[i] ?? []))
         : [],
     })),
   };
@@ -140,7 +151,13 @@ const getTrafficLightData = (stats: PatientStatistics) => ({
     .map((value) => value.replace('_', ' ')),
   datasets: [
     {
-      backgroundColor: [`green`, `yellow`, `yellow`, `red`, `red`],
+      backgroundColor: [
+        trafficLightColors[TrafficLightEnum.GREEN],
+        trafficLightColors[TrafficLightEnum.YELLOW_UP],
+        trafficLightColors[TrafficLightEnum.YELLOW_DOWN],
+        trafficLightColors[TrafficLightEnum.RED_UP],
+        trafficLightColors[TrafficLightEnum.RED_DOWN],
+      ],
       data: Object.values(stats.trafficLightCountsFromDay1),
     },
   ],

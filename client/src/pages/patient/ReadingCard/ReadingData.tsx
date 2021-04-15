@@ -52,12 +52,9 @@ export const ReadingData = ({ reading }: IProps) => {
       )}
       {reading.urineTests && (
         <Accordion>
-          <AccordionSummary
-            expandIcon={<KeyboardArrowDownIcon />}
-            aria-controls="urine-tests-content"
-            id="urine-tests-header">
+          <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
             <Typography>
-              <b>Urine Tests Result</b>
+              <b>Urine Test Result</b>
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -85,7 +82,7 @@ export const ReadingData = ({ reading }: IProps) => {
                 },
               ].map((info) => (
                 <p key={info.label}>
-                  <b>{info.label}</b> {info.value}
+                  <b>{info.label}:</b> {info.value}
                 </p>
               ))}
             </div>

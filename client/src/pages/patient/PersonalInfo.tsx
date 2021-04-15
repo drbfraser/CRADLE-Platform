@@ -27,8 +27,7 @@ export const PersonalInfo = ({ patient }: IProps) => {
           <div>
             <p>
               <b>ID: </b> {patient.patientId} &nbsp;&nbsp;&nbsp;&nbsp;
-              <b>Village: </b>
-              {patient.villageNumber ? patient.villageNumber : `N/A`}
+              <b>Sex: </b> {patient.patientSex}
             </p>
             <p>
               <b>Age: </b>
@@ -37,9 +36,11 @@ export const PersonalInfo = ({ patient }: IProps) => {
                 : getAgeToDisplay(patient.dob, patient.isExactDob)}
             </p>
             <p>
-              <b>Sex: </b> {patient.patientSex} &nbsp;&nbsp;&nbsp;&nbsp;
               <b> Zone: </b>
               {patient.zone ? patient.zone : `N/A`}
+              &nbsp;&nbsp;&nbsp;&nbsp;
+              <b>Village: </b>
+              {patient.villageNumber ? patient.villageNumber : `N/A`}
             </p>
             <p>
               <b>Household number: </b>

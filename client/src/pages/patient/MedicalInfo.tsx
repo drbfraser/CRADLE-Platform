@@ -59,6 +59,7 @@ export const MedicalInfo = ({ patient }: IProps) => {
           placeholder={gestationalAgeUnitLabels[unit]}
           onChange={handleUnitChange}
         />
+        <br />
       </div>
     ) : (
       <></>
