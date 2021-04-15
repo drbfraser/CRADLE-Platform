@@ -4,7 +4,7 @@ import { Header } from './Header';
 import { MedicalInfo } from './MedicalInfo';
 import { PersonalInfo } from './PersonalInfo';
 import { ReadingCard } from './ReadingCard/ReadingCard';
-import { VitalsGraph } from './VitalsGraph';
+import { PatientStats } from './PatientStats';
 import { Patient } from 'src/types';
 import { useRouteMatch } from 'react-router-dom';
 import { apiFetch } from 'src/shared/utils/api';
@@ -49,7 +49,7 @@ export const PatientPage = () => {
           <MedicalInfo patient={patient} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <VitalsGraph patientId={patientId} />
+          <PatientStats patientId={patientId} />
         </Grid>
       </Grid>
       <br />

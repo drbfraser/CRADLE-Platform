@@ -24,11 +24,6 @@ interface IProps {
   patient?: Patient;
 }
 
-interface HistoryItemProps {
-  title: string;
-  history: string | null;
-}
-
 export const MedicalInfo = ({ patient }: IProps) => {
   const GestationalAge = () => {
     const [unit, setUnit] = useState(patient!.gestationalAgeUnit);
@@ -65,6 +60,11 @@ export const MedicalInfo = ({ patient }: IProps) => {
       <></>
     );
   };
+
+  interface HistoryItemProps {
+    title: string;
+    history: string | null;
+  }
 
   const HistoryItem = ({ title, history }: HistoryItemProps) =>
     history ? (

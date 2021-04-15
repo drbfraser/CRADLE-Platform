@@ -20,7 +20,7 @@ enum ChartOption {
   TRAFFIC_LIGHTS = 'traffic_lights',
 }
 
-export const VitalsGraph = ({ patientId }: IProps) => {
+export const PatientStats = ({ patientId }: IProps) => {
   const styles = useStyles();
   const [errorLoading, setErrorLoading] = useState(false);
   const [chartSelected, setChartSelected] = useState(ChartOption.VITALS);
@@ -40,7 +40,7 @@ export const VitalsGraph = ({ patientId }: IProps) => {
     <Paper>
       <Box p={3}>
         <Typography variant="h5" component="h3">
-          <FavoriteIcon fontSize="large" /> &nbsp; Vitals Over Time
+          <FavoriteIcon fontSize="large" /> &nbsp; Patient Stats
         </Typography>
         <Divider />
         <br />
@@ -48,7 +48,7 @@ export const VitalsGraph = ({ patientId }: IProps) => {
           <Button
             active={chartSelected === ChartOption.VITALS}
             onClick={() => setChartSelected(ChartOption.VITALS)}>
-            Show Vitals Over Time
+            Show Vitals This Year
           </Button>
           <Button
             active={chartSelected === ChartOption.TRAFFIC_LIGHTS}
@@ -60,14 +60,14 @@ export const VitalsGraph = ({ patientId }: IProps) => {
         <br />
         {errorLoading ? (
           <Alert severity="error">
-            Something went wrong trying to load the vitals for that patient.
+            Something went wrong trying to load the stats for that patient.
             Please try refreshing.
           </Alert>
         ) : patientStats ? (
           <div>
             {chartSelected === ChartOption.VITALS && (
               <>
-                <h4 className={styles.noMargin}>Average Vitals Over Time:</h4>
+                <h4 className={styles.noMargin}>Average Vitals This Year:</h4>
                 <br />
                 <Line data={getVitalsData(patientStats)} />
               </>
@@ -103,6 +103,10 @@ const getVitalsData = (stats: PatientStatistics) => {
   const MONTHS_IN_YEAR = 12;
 
   const average = (monthlyArray: number[]) => {
+    if (monthlyArray.length === 0) {
+      return undefined;
+    }
+
     return (
       monthlyArray.reduce((total, value) => total + value, 0) /
       monthlyArray.length
