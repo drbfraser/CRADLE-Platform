@@ -15,6 +15,46 @@ interface IProps {
 }
 
 export const ExportStatistics: React.FC<IProps> = ({ url }) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <div>
+      <Button
+        color="primary"
+        variant="contained"
+        size="large"
+        onClick={handleClickOpen}>
+        Export Data
+      </Button>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>{'Export Statistics Data as a CSV file'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Please click on the following link to download the CSV file.
+            Download time is subject to internet speed.
+            {open && <DownloadCSV url={url} />}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary" autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
+const DownloadCSV: React.FC<IProps> = ({ url }) => {
   const headers = [
     { label: 'Referral Date', key: 'parsed_date' },
     { label: 'Referral Time', key: 'parsed_time' },
@@ -32,15 +72,6 @@ export const ExportStatistics: React.FC<IProps> = ({ url }) => {
   const [data, setData] = useState<IStatistic[]>([]);
   const [, setloaded] = useState(false);
   const [errorLoading, setErrorLoading] = useState(false);
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   useEffect(() => {
     const getExportedData = async () => {
@@ -57,41 +88,15 @@ export const ExportStatistics: React.FC<IProps> = ({ url }) => {
     };
     getExportedData();
   }, [url]);
-
   return (
     <div>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      <Button
-        color="primary"
-        variant="contained"
-        size="large"
-        onClick={handleClickOpen}>
-        Export Data
-      </Button>
-      {open && (
-        <div>
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>{'Export Statistics Data as a CSV file'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                Please click on the following link to download the CSV file.
-                Download time is subject to internet speed.
-              </DialogContentText>
-              <CSVLink data={data} headers={headers} filename={'stats.csv'}>
-                Download stats.csv
-              </CSVLink>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose} color="primary" autoFocus>
-                Close
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </div>
-      )}
+      <CSVLink data={data} headers={headers} filename={'stats.csv'}>
+        Download stats.csv
+      </CSVLink>
     </div>
   );
 };

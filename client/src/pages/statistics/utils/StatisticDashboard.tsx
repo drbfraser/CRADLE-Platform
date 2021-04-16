@@ -5,7 +5,7 @@ import { Bar } from 'react-chartjs-2';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { initialData, initialColorReading } from '../utils';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { apiFetchSafe } from '../utils';
+import { apiFetch } from 'src/shared/utils/api';
 
 interface IProps {
   url: string;
@@ -21,7 +21,8 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
 
   useEffect(() => {
     setloaded(false);
-    apiFetchSafe(url)
+    apiFetch(url)
+      .then((response) => response.json())
       .then((response) => {
         setData(response);
         setColorReading(response);

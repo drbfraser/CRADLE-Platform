@@ -139,6 +139,7 @@ export function StatisticsPage() {
             setStartDate(startDate!);
             setEndDate(endDate!);
           }}
+          readOnly
           focusedInput={focusedInput}
           onFocusChange={handleFocusChange}
           isOutsideRange={() => false}
