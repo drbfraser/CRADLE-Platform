@@ -124,7 +124,6 @@ class UserReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
-        facility_id = "%"
         jwt = get_jwt_identity()
 
         role = jwt["role"]
@@ -132,7 +131,9 @@ class UserReadings(Resource):
             return "Unauthorized to view this endpoint", 401
 
         if role == RoleEnum.HCW.value:
-            facility_id = jwt["healthFacilityName"]  # Limit query to this facility only
+            user = crud.read(User, id=user_id)
+            if jwt["healthFacilityName"] != user.healthFacilityName:
+                return "Unauthorized to view statistics for this VHT", 401
 
         if role == RoleEnum.CHO.value:
             user_list = crud.get_supervised_vhts(jwt["userId"])
@@ -142,7 +143,7 @@ class UserReadings(Resource):
 
         filter = get_filter_data(request)
 
-        response = query_stats_data(filter, user_id=user_id, facility_id=facility_id)
+        response = query_stats_data(filter, user_id=user_id)
 
         return response, 200
 
