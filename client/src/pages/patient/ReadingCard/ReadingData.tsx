@@ -23,7 +23,7 @@ export const ReadingData = ({ reading }: IProps) => {
 
   return (
     <>
-      <Typography component="h3" variant="h5">
+      <Typography variant="h5">
         <AssessmentIcon fontSize="large" />
         Reading
       </Typography>
@@ -66,19 +66,19 @@ export const ReadingData = ({ reading }: IProps) => {
                 },
                 {
                   label: 'Nitrites',
-                  value: reading.urineTests.urineTestLeuc,
+                  value: reading.urineTests.urineTestNit,
                 },
                 {
                   label: 'Glucose',
-                  value: reading.urineTests.urineTestLeuc,
+                  value: reading.urineTests.urineTestGlu,
                 },
                 {
                   label: 'Protein',
-                  value: reading.urineTests.urineTestLeuc,
+                  value: reading.urineTests.urineTestPro,
                 },
                 {
                   label: 'Blood',
-                  value: reading.urineTests.urineTestLeuc,
+                  value: reading.urineTests.urineTestBlood,
                 },
               ].map((info) => (
                 <p key={info.label}>

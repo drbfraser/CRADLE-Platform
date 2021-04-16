@@ -35,7 +35,7 @@ export const ReferralData = ({ reading }: IProps) => {
   };
 
   return (
-    <div>
+    <>
       {referral ? (
         <>
           <Typography variant="h5">
@@ -66,9 +66,7 @@ export const ReferralData = ({ reading }: IProps) => {
         </>
       ) : (
         <>
-          <Typography variant="h5" component="h3">
-            No Referral
-          </Typography>
+          <Typography variant="h5">No Referral</Typography>
           <Button
             color="primary"
             variant="outlined"
@@ -137,6 +135,6 @@ export const ReferralData = ({ reading }: IProps) => {
           </AccordionDetails>
         </Accordion>
       )}
-    </div>
+    </>
   );
 };
