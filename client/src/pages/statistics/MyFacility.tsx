@@ -1,15 +1,17 @@
 import React from 'react';
-import { StatisticDashboard } from '../utils/StatisticDashboard';
+import { StatisticDashboard } from './utils/StatisticDashboard';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
 import { IUserWithTokens, OrNull } from 'src/types';
-import { Moment } from 'moment';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
+import { useStatisticsStyles } from './utils/statisticStyles';
 
 interface IProps {
-  from: Moment;
-  to: Moment;
+  from: number;
+  to: number;
 }
 
 type User = {
@@ -23,17 +25,21 @@ export const MyFacility: React.FC<IProps> = ({ from, to }) => {
     })
   );
   const facilityName = user!.healthFacilityName;
-
+  const classes = useStatisticsStyles();
   return (
     <div>
-      <h3>During this period, your facility has assessed:</h3>
+      <Typography variant="h5" gutterBottom>
+        During this period, your facility has assessed:
+      </Typography>
+      <br />
+
+      <Divider className={classes.divider} />
+      <br />
       <StatisticDashboard
         url={
           BASE_URL +
           EndpointEnum.STATS_FACILITY +
-          `/${facilityName}?from=${from!.toDate().getTime() / 1000}&to=${
-            to!.toDate().getTime() / 1000
-          }`
+          `/${facilityName}?from=${from!}&to=${to!}`
         }
       />
     </div>

@@ -1,10 +1,9 @@
 import { Statistic } from 'semantic-ui-react';
-import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useState, useEffect } from 'react';
+import { useStatisticsStyles } from './statisticStyles';
 import { Bar } from 'react-chartjs-2';
 import { Toast } from 'src/shared/components/toast';
 import { initialData, initialColorReading } from '../utils';
-import { useEffect } from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { apiFetchSafe } from '../utils';
 
@@ -13,7 +12,7 @@ interface IProps {
 }
 
 export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
-  const classes = useStyles();
+  const classes = useStatisticsStyles();
 
   const [data, setData] = useState(initialData);
   const [colorReading, setColorReading] = useState(initialColorReading);
@@ -142,38 +141,3 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
     </div>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  container: {
-    margin: 'auto',
-  },
-  statisticGroup: {
-    paddingBlockEnd: `${theme.spacing(2)}px`,
-  },
-  chart: {
-    position: 'relative',
-    margin: 'auto',
-    width: `60%`,
-    height: '50%',
-  },
-  statistic: {
-    width: 220,
-    height: 100,
-    padding: theme.spacing(1, 0, 1, 2),
-    border: `1px solid rgb(211, 205, 205)`,
-    borderRadius: 7,
-    boxShadow: `3px 1px rgb(211, 205, 205)`,
-  },
-  verticalWriting: {
-    width: 100,
-    margin: theme.spacing(0, `auto`),
-  },
-  center: {
-    display: `flex`,
-    flexDirection: `column`,
-    alignItems: `center`,
-  },
-  skeleton: {
-    margin: 'auto',
-  },
-}));

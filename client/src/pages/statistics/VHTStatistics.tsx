@@ -2,23 +2,26 @@ import React, { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import { useEffect } from 'react';
-import { getAllVHT } from '../utils';
+import { getAllVHT } from './utils/index';
 import { Toast } from 'src/shared/components/toast';
-import { StatisticDashboardWithSelect } from '../utils/StatisticDashboardWithSelect';
+import { StatisticDashboard } from './utils/StatisticDashboard';
 import { IVHT } from 'src/types';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
 import { IUserWithTokens, OrNull } from 'src/types';
-import { Moment } from 'moment';
 import { UserRoleEnum } from 'src/enums';
 import FormControl from '@material-ui/core/FormControl';
-import { makeStyles } from '@material-ui/core/styles';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
+import { useStatisticsStyles } from './utils/statisticStyles';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
+import { Divider } from '@material-ui/core';
+import { ExportStatistics } from './utils/ExportStatistics';
 
 interface IProps {
-  from: Moment;
-  to: Moment;
+  from: number;
+  to: number;
 }
 
 type User = {
@@ -31,12 +34,12 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
       user: user.current.data,
     })
   );
-  const classes = useStyles();
+  const classes = useStatisticsStyles();
 
   const supervisedVHTs = user!.supervises;
   const [vhts, setVhts] = useState<IVHT[]>([]);
   const [errorLoading, setErrorLoading] = useState(false);
-  const [vht, setVht] = useState();
+  const [vht, setVht] = useState('');
 
   const handleChange = (event: any) => {
     setVht(event.target.value);
@@ -63,10 +66,27 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
       )}
       {user?.role.includes(UserRoleEnum.CHO) &&
       (supervisedVHTs === undefined || supervisedVHTs.length === 0) ? (
-        <h1>There are no VHTs under your supervision.</h1>
+        <Typography variant="h5" gutterBottom>
+          There are no VHTs under your supervision.
+        </Typography>
       ) : (
         <div>
-          <h3>Please select a VHT from the list:</h3>
+          <Box className={classes.floatLeft}>
+            <Typography variant="h5" gutterBottom>
+              Please select a VHT from the list:
+            </Typography>
+          </Box>
+          <Box className={classes.floatRight}>
+            {vht !== '' && (
+              <ExportStatistics
+                url={
+                  BASE_URL +
+                  EndpointEnum.STATS_USER_EXPORT +
+                  `/${vht}?from=${from}&to=${to}`
+                }
+              />
+            )}
+          </Box>
 
           {user?.role.includes(UserRoleEnum.CHO) ? (
             <FormControl className={classes.formControl}>
@@ -94,27 +114,20 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
           )}
           <br />
           <br />
-          {vht !== undefined && (
-            <StatisticDashboardWithSelect
-              url={
-                BASE_URL +
-                EndpointEnum.STATS_USER +
-                `/${vht}?from=${from!.toDate().getTime() / 1000}&to=${
-                  to!.toDate().getTime() / 1000
-                }`
-              }
-              select={vht}
-            />
+          {vht !== '' && (
+            <div>
+              <Divider className={classes.divider} />
+              <StatisticDashboard
+                url={
+                  BASE_URL +
+                  EndpointEnum.STATS_USER +
+                  `/${vht}?from=${from!}&to=${to!}`
+                }
+              />
+            </div>
           )}
         </div>
       )}
     </div>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 180,
-  },
-}));

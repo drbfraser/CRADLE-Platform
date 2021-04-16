@@ -14,6 +14,7 @@ export enum EndpointEnum {
   STATS_ALL = '/stats/all',
   STATS_FACILITY = '/stats/facility',
   STATS_USER = '/stats/user',
+  STATS_USER_EXPORT = '/stats/export',
   ALL_VHTS = '/user/vhts',
   AUTH = '/user/auth',
   REFRESH = '/user/auth/refresh_token',

@@ -2,23 +2,24 @@ import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { IFacility } from 'src/types';
 import { Toast } from 'src/shared/components/toast';
-import { StatisticDashboardWithSelect } from '../utils/StatisticDashboardWithSelect';
+import { StatisticDashboard } from './utils/StatisticDashboard';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { getAllFacilities } from '../utils';
-import { makeStyles } from '@material-ui/core/styles';
+import { getAllFacilities } from './utils';
+import { useStatisticsStyles } from './utils/statisticStyles';
 import FormControl from '@material-ui/core/FormControl';
-import { Moment } from 'moment';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
 interface IProps {
-  from: Moment | null;
-  to: Moment | null;
+  from: number | null;
+  to: number | null;
 }
 
 export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
-  const classes = useStyles();
+  const classes = useStatisticsStyles();
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [facility, setFacility] = useState('');
   const [errorLoading, setErrorLoading] = useState(false);
@@ -47,7 +48,9 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
         />
       )}
       <div>
-        <h3>Please select a facility from the list:</h3>
+        <Typography variant="h5" gutterBottom className={classes.floatLeft}>
+          Please select a facility from the list:
+        </Typography>
 
         <FormControl className={classes.formControl}>
           <Select value={facility} onChange={handleChange} labelWidth={20}>
@@ -60,27 +63,20 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
         </FormControl>
 
         <br />
-        <br />
         {facility !== '' && (
-          <StatisticDashboardWithSelect
-            url={
-              BASE_URL +
-              EndpointEnum.STATS_FACILITY +
-              `/${facility}?from=${from!.toDate().getTime() / 1000}&to=${
-                to!.toDate().getTime() / 1000
-              }`
-            }
-            select={facility}
-          />
+          <div>
+            <Divider className={classes.divider} />
+            <br />
+            <StatisticDashboard
+              url={
+                BASE_URL +
+                EndpointEnum.STATS_FACILITY +
+                `/${facility}?from=${from!}&to=${to!}`
+              }
+            />
+          </div>
         )}
       </div>
     </div>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 180,
-  },
-}));

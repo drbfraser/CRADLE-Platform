@@ -1,13 +1,6 @@
 import { apiFetch } from 'src/shared/utils/api';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
-import { UserRoleEnum } from 'src/enums';
-import { MyStatistics } from '../myStatistics';
-import { VHTStatistics } from '../VHTStatistics';
-import { MyFacility } from '../myFacility';
-import { AllStatistics } from '../allStatistics';
-import { UserStatistics } from '../userStatistics';
-import { FacilityStatistics } from '../facilityStatistics';
 
 export type Response = {
   patients_referred: number;
@@ -56,48 +49,22 @@ export const initialColorReading: ColorReading = {
   },
 };
 
-export const AllPanes = [
-  {
-    name: 'My Statistics',
-    Component: MyStatistics,
-    roles: [
-      UserRoleEnum.VHT,
-      UserRoleEnum.CHO,
-      UserRoleEnum.HCW,
-      UserRoleEnum.ADMIN,
-    ],
-  },
-  {
-    name: 'My VHTs',
-    Component: VHTStatistics,
-    roles: [UserRoleEnum.CHO],
-  },
-  {
-    name: 'VHT Statistics',
-    Component: VHTStatistics,
-    roles: [UserRoleEnum.HCW],
-  },
-  {
-    name: 'My Facility',
-    Component: MyFacility,
-    roles: [UserRoleEnum.HCW],
-  },
-  {
-    name: 'User Statistics',
-    Component: UserStatistics,
-    roles: [UserRoleEnum.ADMIN],
-  },
-  {
-    name: 'Facility Statistics',
-    Component: FacilityStatistics,
-    roles: [UserRoleEnum.ADMIN],
-  },
-  {
-    name: 'All Users and Facilities',
-    Component: AllStatistics,
-    roles: [UserRoleEnum.ADMIN],
-  },
-];
+export interface IStatistic {
+  referral_date: number;
+  parsed_date: string;
+  parsed_time: string;
+  parsed_pregnant: string;
+  patientId: string;
+  name: string;
+  sex: string;
+  age: number;
+  pregnant: boolean;
+  systolic_bp: number;
+  diastolic_bp: number;
+  heart_rate: number;
+  traffic_color: string;
+  traffic_arrow: string;
+}
 
 export const apiFetchSafe = async (url: string) => {
   try {
@@ -145,4 +112,15 @@ export const getFacilitiesData = async (
     BASE_URL +
       EndpointEnum.STATS_FACILITY +
       `/${healthFacilityName}?from=${from}&to=${to}`
+  );
+
+export const getUserExportData = async (
+  userId: number | undefined,
+  from: number,
+  to: number
+) =>
+  apiFetchSafe(
+    BASE_URL +
+      EndpointEnum.STATS_USER_EXPORT +
+      `/${userId}?from=${from}&to=${to}`
   );
