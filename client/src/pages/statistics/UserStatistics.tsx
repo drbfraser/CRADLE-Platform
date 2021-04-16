@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { IUser } from 'src/types';
-import { Toast } from 'src/shared/components/toast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
@@ -42,14 +42,10 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
 
   return (
     <div>
-      {errorLoading && (
-        <Toast
-          severity="error"
-          message="Something went wrong loading the all VHT information. Please try again."
-          open={errorLoading}
-          onClose={() => setErrorLoading(false)}
-        />
-      )}
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
+      />
       <Box className={classes.floatLeft}>
         <Typography variant="h5" gutterBottom>
           Please select a user from the list:

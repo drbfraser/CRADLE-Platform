@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { IFacility } from 'src/types';
-import { Toast } from 'src/shared/components/toast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
@@ -40,14 +40,10 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
 
   return (
     <div>
-      {errorLoading && (
-        <Toast
-          severity="error"
-          message="Something went wrong loading health care facilities. Please try again."
-          open={errorLoading}
-          onClose={() => setErrorLoading(false)}
-        />
-      )}
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
+      />
       <div>
         <Typography variant="h5" gutterBottom className={classes.floatLeft}>
           Please select a facility from the list:

@@ -3,7 +3,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import { useEffect } from 'react';
 import { getAllVHT } from './utils/index';
-import { Toast } from 'src/shared/components/toast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import { IVHT } from 'src/types';
 import { useSelector } from 'react-redux';
@@ -57,14 +57,10 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
 
   return (
     <div>
-      {errorLoading && (
-        <Toast
-          severity="error"
-          message="Something went wrong loading the all VHT information. Please try again."
-          open={errorLoading}
-          onClose={() => setErrorLoading(false)}
-        />
-      )}
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
+      />
       {user?.role.includes(UserRoleEnum.CHO) &&
       (supervisedVHTs === undefined || supervisedVHTs.length === 0) ? (
         <Typography variant="h5" gutterBottom>

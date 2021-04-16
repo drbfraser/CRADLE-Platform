@@ -1,7 +1,7 @@
 import { CSVLink } from 'react-csv';
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from 'src/shared/utils/api';
-import { Toast } from 'src/shared/components/toast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IStatistic } from './index';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -42,34 +42,28 @@ export const ExportStatistics: React.FC<IProps> = ({ url }) => {
     setOpen(false);
   };
 
-  const getExportedData = async () => {
-    try {
-      const response: IStatistic[] = await (await apiFetch(url)).json();
-      response.forEach((ele) => {
-        parseData(ele);
-      });
-      setData(response);
-      setloaded(true);
-    } catch (e) {
-      setErrorLoading(true);
-    }
-  };
-
   useEffect(() => {
+    const getExportedData = async () => {
+      try {
+        const response: IStatistic[] = await (await apiFetch(url)).json();
+        response.forEach((ele) => {
+          parseData(ele);
+        });
+        setData(response);
+        setloaded(true);
+      } catch (e) {
+        setErrorLoading(true);
+      }
+    };
     getExportedData();
   }, [url]);
 
   return (
     <div>
-      {errorLoading && (
-        <Toast
-          severity="error"
-          message="Something went wrong exporting those statistics. Please check your internet connection and try again."
-          open={errorLoading}
-          onClose={() => setErrorLoading(false)}
-        />
-      )}
-
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
+      />
       <Button
         color="primary"
         variant="contained"

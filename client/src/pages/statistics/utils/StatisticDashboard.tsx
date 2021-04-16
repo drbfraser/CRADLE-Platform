@@ -2,7 +2,7 @@ import { Statistic } from 'semantic-ui-react';
 import React, { useState, useEffect } from 'react';
 import { useStatisticsStyles } from './statisticStyles';
 import { Bar } from 'react-chartjs-2';
-import { Toast } from 'src/shared/components/toast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { initialData, initialColorReading } from '../utils';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { apiFetchSafe } from '../utils';
@@ -58,11 +58,16 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
 
   const options = {
     legend: {
-      labels: {
-        fontColor: 'black',
-      },
+      display: false,
     },
     scales: {
+      xAxes: [
+        {
+          ticks: {
+            fontSize: 10,
+          },
+        },
+      ],
       yAxes: [
         {
           ticks: {
@@ -75,14 +80,10 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
 
   return (
     <div>
-      {errorLoading && (
-        <Toast
-          severity="error"
-          message="Something went wrong loading those statistics. Please check your internet connection and try again."
-          onClose={() => setErrorLoading(false)}
-          open={errorLoading}
-        />
-      )}
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
+      />
       {!loaded && (
         <Skeleton
           className={classes.skeleton}
