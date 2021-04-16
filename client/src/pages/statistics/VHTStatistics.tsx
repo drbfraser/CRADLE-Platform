@@ -119,7 +119,7 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
                   url={
                     BASE_URL +
                     EndpointEnum.STATS_USER +
-                    `/${vht}?from=${from!}&to=${to!}`
+                    `/${vht}?from=${from}&to=${to}`
                   }
                 />
               )}

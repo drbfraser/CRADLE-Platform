@@ -70,7 +70,7 @@ const allPanes = [
   },
 ];
 
-export default function Statistics() {
+export function StatisticsPage() {
   const classes = useStatisticsStyles();
   const { user } = useSelector(
     ({ user }: ReduxState): User => ({
@@ -98,10 +98,12 @@ export default function Statistics() {
       menuItem: p.name,
       render: () => (
         <Tab.Pane>
-          <p.Component
-            from={startDate!.toDate().getTime() / 1000}
-            to={endDate!.toDate().getTime() / 1000}
-          />
+          {startDate && endDate && (
+            <p.Component
+              from={startDate?.toDate().getTime() / 1000}
+              to={endDate?.toDate().getTime() / 1000}
+            />
+          )}
         </Tab.Pane>
       ),
     }));

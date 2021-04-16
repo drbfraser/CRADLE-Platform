@@ -14,8 +14,8 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
 interface IProps {
-  from: number | null;
-  to: number | null;
+  from: number;
+  to: number;
 }
 
 export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
@@ -69,7 +69,7 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
                 url={
                   BASE_URL +
                   EndpointEnum.STATS_FACILITY +
-                  `/${facility}?from=${from!}&to=${to!}`
+                  `/${facility}?from=${from}&to=${to}`
                 }
               />
             )}

@@ -10,7 +10,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import SchoolIcon from '@material-ui/icons/School';
 import SendIcon from '@material-ui/icons/Send';
 import SettingsIcon from '@material-ui/icons/Settings';
-import Statistics from 'src/pages/statistics';
+import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
 import { AssessmentFormPage } from 'src/pages/assessmentForm';
@@ -106,7 +106,7 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients`,
   },
   {
-    component: Statistics,
+    component: StatisticsPage,
     exactPath: true,
     id: makeUniqueId(),
     icon: <PollIcon fontSize="large" />,

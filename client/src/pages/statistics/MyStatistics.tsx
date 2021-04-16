@@ -56,7 +56,7 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
           url={
             BASE_URL +
             EndpointEnum.STATS_USER +
-            `/${userId}?from=${from!}&to=${to}`
+            `/${userId}?from=${from}&to=${to}`
           }
         />
       )}

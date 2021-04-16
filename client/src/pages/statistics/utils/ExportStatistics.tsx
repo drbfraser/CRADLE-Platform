@@ -71,29 +71,33 @@ export const ExportStatistics: React.FC<IProps> = ({ url }) => {
         onClick={handleClickOpen}>
         Export Data
       </Button>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{'Export Statistics Data as a CSV file'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Please click on the following link to download the CSV file.
-            Download time is subject to internet speed.
-          </DialogContentText>
-          <CSVLink data={data} headers={headers} filename={'stats.csv'}>
-            Download stats.csv
-          </CSVLink>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary" autoFocus>
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {open && (
+        <div>
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>{'Export Statistics Data as a CSV file'}</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Please click on the following link to download the CSV file.
+                Download time is subject to internet speed.
+              </DialogContentText>
+              <CSVLink data={data} headers={headers} filename={'stats.csv'}>
+                Download stats.csv
+              </CSVLink>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} color="primary" autoFocus>
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+      )}
     </div>
   );
 };
 
-function parseData(ele: IStatistic) {
-  const time = new Date(ele.referral_date * 1000);
+function parseData(row: IStatistic) {
+  const time = new Date(row.referral_date * 1000);
   const months = [
     'Jan',
     'Feb',
@@ -114,9 +118,9 @@ function parseData(ele: IStatistic) {
   const hour = time.getHours();
   const min = time.getMinutes();
   const sec = time.getSeconds();
-  ele.parsed_date = date + ' ' + month + ' ' + year;
-  ele.parsed_time = hour + ':' + min + ':' + sec;
-  if (ele.sex === 'FEMALE') {
-    ele.parsed_pregnant = ele.pregnant === true ? 'Yes' : 'No';
+  row.parsed_date = date + ' ' + month + ' ' + year;
+  row.parsed_time = hour + ':' + min + ':' + sec;
+  if (row.sex === 'FEMALE') {
+    row.parsed_pregnant = row.pregnant === true ? 'Yes' : 'No';
   }
 }

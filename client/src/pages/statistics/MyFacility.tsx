@@ -40,7 +40,7 @@ export const MyFacility: React.FC<IProps> = ({ from, to }) => {
           url={
             BASE_URL +
             EndpointEnum.STATS_FACILITY +
-            `/${facilityName}?from=${from!}&to=${to!}`
+            `/${facilityName}?from=${from}&to=${to}`
           }
         />
       )}

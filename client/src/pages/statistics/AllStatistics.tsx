@@ -24,7 +24,7 @@ export const AllStatistics: React.FC<IProps> = ({ from, to }) => {
       <br />
       {from && to && (
         <StatisticDashboard
-          url={BASE_URL + EndpointEnum.STATS_ALL + `?from=${from!}&to=${to!}`}
+          url={BASE_URL + EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`}
         />
       )}
     </div>

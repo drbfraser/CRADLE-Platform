@@ -88,8 +88,8 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
         <Skeleton
           className={classes.skeleton}
           variant="rect"
-          width={800}
-          height={400}
+          width={900}
+          height={700}
         />
       )}
       {loaded && (
