@@ -6,9 +6,9 @@ import {
 } from 'src/shared/utils';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
-import { initialState, PatientField, PatientState, SEXES } from './state';
+import { initialState, PatientField, PatientState } from './state';
 import { apiFetch } from 'src/shared/utils/api';
-import { GestationalAgeUnitEnum } from 'src/enums';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/enums';
 
 // custom change handler when a field might affect other fields
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
@@ -28,7 +28,7 @@ export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
 
     if (
       e.target.name === PatientField.patientSex &&
-      e.target.value === SEXES.MALE
+      e.target.value === SexEnum.MALE
     ) {
       setFieldValue(PatientField.isPregnant, false, false);
       resetGestational();
@@ -57,8 +57,7 @@ export const handleBlurPatientId = (
         .then((resp) =>
           setExistingPatientId(resp.status === 200 ? patientId : null)
         )
-        .catch((e) => {
-          console.error(e);
+        .catch(() => {
           setExistingPatientId(null);
         });
     } else {
@@ -87,8 +86,8 @@ export const handleSubmit = (
       isPregnant: Boolean(values[PatientField.isPregnant]),
       gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
       gestationalTimestamp: 0,
-      drugHistory: 'Sample drug history',
-      medicalHistory: 'Sample medical history',
+      drugHistory: values[PatientField.drugHistory],
+      medicalHistory: values[PatientField.medicalHistory],
     };
 
     if (!valuesForServer.isExactDob) {
@@ -126,10 +125,6 @@ export const handleSubmit = (
         method: method,
         body: JSON.stringify(valuesForServer),
       });
-
-      if (!resp.ok) {
-        throw new Error('Response failed with error code: ' + resp.status);
-      }
 
       const respJson = await resp.json();
       const patientPageUrl = '/patients/' + respJson['patientId'];

@@ -10,8 +10,12 @@ export enum FormStatusEnum {
 export enum SexEnum {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
-  OTHER = 'OTHER',
 }
+
+export const sexOptions = {
+  [SexEnum.MALE]: 'Male',
+  [SexEnum.FEMALE]: 'Female',
+};
 
 export enum GestationalAgeUnitEnum {
   WEEKS = 'WEEKS',
@@ -36,6 +40,15 @@ export enum TrafficLightEnum {
   RED_DOWN = 'RED_DOWN',
   NONE = 'NONE',
 }
+
+export const trafficLightColors = {
+  [TrafficLightEnum.GREEN]: '#8ACA55',
+  [TrafficLightEnum.YELLOW_UP]: '#E6DA4F',
+  [TrafficLightEnum.YELLOW_DOWN]: '#E6B74F',
+  [TrafficLightEnum.RED_UP]: '#E6574F',
+  [TrafficLightEnum.RED_DOWN]: '#D6272F',
+  [TrafficLightEnum.NONE]: 'rgba(0,0,0,0)',
+};
 
 export enum UserRoleEnum {
   VHT = 'VHT',

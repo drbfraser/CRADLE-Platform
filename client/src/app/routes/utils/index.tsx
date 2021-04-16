@@ -144,7 +144,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/:id`,
+    to: `/patients/:patientId`,
   },
   {
     component: LoginPage,

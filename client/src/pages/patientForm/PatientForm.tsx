@@ -5,13 +5,7 @@ import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik, Form, Field } from 'formik';
-import {
-  gestationalAgeUnitOptions,
-  PatientField,
-  PatientState,
-  SEXES,
-  sexOptions,
-} from './state';
+import { gestationalAgeUnitOptions, PatientField, PatientState } from './state';
 import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
 import { ToggleButtonGroup } from 'formik-material-ui-lab';
 import ToggleButton from '@material-ui/lab/ToggleButton';
@@ -21,7 +15,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { patientValidationSchema } from './validation';
 import { useHistory } from 'react-router-dom';
 import { PatientIDExists } from './PatientIDExists';
-import { GestationalAgeUnitEnum } from 'src/enums';
+import { GestationalAgeUnitEnum, SexEnum, sexOptions } from 'src/enums';
 import {
   handleChangeCustom,
   handleBlurPatientId,
@@ -180,9 +174,9 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                           handleChange,
                           setFieldValue
                         )}>
-                        {sexOptions.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.name}
+                        {Object.entries(sexOptions).map(([value, name]) => (
+                          <MenuItem key={value} value={value}>
+                            {name}
                           </MenuItem>
                         ))}
                       </Field>
@@ -195,7 +189,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       name={PatientField.isPregnant}
                       onChange={handleChangeCustom(handleChange, setFieldValue)}
                       Label={{ label: 'Pregnant' }}
-                      disabled={!(values.patientSex === SEXES.FEMALE)}
+                      disabled={!(values.patientSex === SexEnum.FEMALE)}
                     />
                   </Grid>
                   <Grid item md={4} sm={12}>

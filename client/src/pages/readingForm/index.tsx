@@ -108,6 +108,7 @@ export const ReadingFormPage = () => {
             <PageComponent formikProps={formikProps} />
             <br />
             <Button
+              variant="outlined"
               color="primary"
               onClick={() => setPageNum(pageNum - 1)}
               disabled={pageNum === 0 || formikProps.isSubmitting}>

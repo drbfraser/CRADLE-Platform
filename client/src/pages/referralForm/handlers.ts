@@ -16,14 +16,10 @@ export const handleSubmit = (
     });
 
     try {
-      const resp = await apiFetch(url, {
+      await apiFetch(url, {
         method: 'POST',
         body: postBody,
       });
-
-      if (!resp.ok) {
-        throw new Error('Response failed with error code: ' + resp.status);
-      }
 
       goBackWithFallback('/patients');
     } catch (e) {

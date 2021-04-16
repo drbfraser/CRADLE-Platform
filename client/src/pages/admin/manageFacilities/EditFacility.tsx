@@ -35,14 +35,10 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
     { setSubmitting }: FormikHelpers<IFacility>
   ) => {
     try {
-      const resp = await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES, {
+      await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES, {
         method: 'POST',
         body: JSON.stringify(values),
       });
-
-      if (!resp.ok) {
-        throw new Error('Request failed.');
-      }
 
       onClose();
     } catch (e) {

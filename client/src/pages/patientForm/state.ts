@@ -8,16 +8,6 @@ import { BASE_URL } from 'src/server/utils';
 import { apiFetch } from 'src/shared/utils/api';
 import { GestationalAgeUnitEnum, gestationalAgeUnitLabels } from 'src/enums';
 
-export const SEXES = {
-  MALE: 'MALE',
-  FEMALE: 'FEMALE',
-};
-
-export const sexOptions = [
-  { name: 'Male', value: SEXES.MALE },
-  { name: 'Female', value: SEXES.FEMALE },
-];
-
 export const gestationalAgeUnitOptions = [
   {
     name: gestationalAgeUnitLabels[GestationalAgeUnitEnum.WEEKS],
@@ -57,7 +47,7 @@ export const initialState = {
   [PatientField.estimatedAge]: '',
   [PatientField.zone]: '',
   [PatientField.villageNumber]: '',
-  [PatientField.patientSex]: SEXES.MALE,
+  [PatientField.patientSex]: '',
   [PatientField.isPregnant]: false,
   [PatientField.gestationalAgeDays]: '',
   [PatientField.gestationalAgeWeeks]: '',
@@ -100,7 +90,7 @@ export const getPatientState = async (patientId: string | undefined) => {
     [PatientField.gestationalAgeDays]: initialState.gestationalAgeDays,
     [PatientField.gestationalAgeWeeks]: initialState.gestationalAgeWeeks,
     [PatientField.gestationalAgeMonths]: initialState.gestationalAgeMonths,
-    [PatientField.gestationalAgeUnit]: data.gestationalAgeUnit,
+    [PatientField.gestationalAgeUnit]: data.gestationalAgeUnit ?? '',
     [PatientField.drugHistory]: data.drugHistory,
     [PatientField.medicalHistory]: data.medicalHistory,
   };

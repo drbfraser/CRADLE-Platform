@@ -22,14 +22,10 @@ export const handleSubmit = (
     assessmentData['readingId'] = readingId;
 
     try {
-      const resp = await apiFetch(url, {
+      await apiFetch(url, {
         method: 'POST',
         body: JSON.stringify(assessmentData),
       });
-
-      if (!resp.ok) {
-        throw new Error('Response failed with error code: ' + resp.status);
-      }
 
       goBackWithFallback('/patients');
     } catch (e) {
