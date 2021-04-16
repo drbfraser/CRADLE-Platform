@@ -33,22 +33,22 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        follow_up = marshal.unmarshal(FollowUp, json)
+        assessment = marshal.unmarshal(FollowUp, json)
 
         # Check that reading id which doesn’t reference an existing reading in the database
-        reading = crud.read(Reading, readingId=follow_up.readingId)
+        reading = crud.read(Reading, readingId=assessment.readingId)
         if not reading:
-            abort(404, message=f"No reading with id {follow_up.readingId}")
+            abort(404, message=f"No reading with id {assessment.readingId}")
 
-        crud.create(follow_up)
+        crud.create(assessment)
 
         # Creating an assessment also marks any referral attached to the associated
         # reading as "assessed"
-        if follow_up.reading.referral:
-            follow_up.reading.referral.isAssessed = True
+        if assessment.reading.referral:
+            assessment.reading.referral.isAssessed = True
             data.db_session.commit()
 
-        return follow_up.id, 201
+        return assessment.id, 201
 
     @staticmethod
     @jwt_required
@@ -105,5 +105,9 @@ class UpdateAssessment(Resource):
             abort(400, message=error_message)
 
         crud.update(FollowUp, json, id=assessment.id)
+
+        if assessment.reading.referral:
+            assessment.reading.referral.isAssessed = True
+            data.db_session.commit()
 
         return assessment.id, 201

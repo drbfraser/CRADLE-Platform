@@ -56,14 +56,10 @@ export const handleSubmit = async (patientId: string, values: ReadingState) => {
   const url = BASE_URL + EndpointEnum.READINGS;
 
   try {
-    const resp = await apiFetch(url, {
+    await apiFetch(url, {
       method: 'POST',
       body: JSON.stringify(submitValues),
     });
-
-    if (!resp.ok) {
-      throw new Error('Response failed with error code: ' + resp.status);
-    }
   } catch (e) {
     console.error(e);
     return false;

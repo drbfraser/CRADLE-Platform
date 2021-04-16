@@ -63,11 +63,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
         }),
       };
 
-      const resp = await apiFetch(url, init);
-
-      if (!resp.ok) {
-        throw new Error('Request failed.');
-      }
+      await apiFetch(url, init);
 
       onClose();
     } catch (e) {
