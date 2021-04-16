@@ -50,11 +50,7 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
         String(resetUser.userId) +
         EndpointEnum.RESET_PASS;
 
-      const resp = await apiFetch(url, init);
-
-      if (!resp.ok) {
-        throw new Error();
-      }
+      await apiFetch(url, init);
 
       setSubmitError(false);
       setSubmitSuccess(true);

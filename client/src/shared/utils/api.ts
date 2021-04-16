@@ -53,5 +53,11 @@ export const apiFetch = async (
       Authorization: `Bearer ${token}`,
       ...init?.headers,
     },
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error('apiFetch() failed with HTTP status: ' + resp.status);
+    }
+
+    return resp;
   });
 };

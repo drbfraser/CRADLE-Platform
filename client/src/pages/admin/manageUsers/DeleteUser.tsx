@@ -32,13 +32,9 @@ const DeleteUser = ({ open, onClose, deleteUser }: IProps) => {
 
     try {
       const url = BASE_URL + EndpointEnum.USER + String(deleteUser.userId);
-      const resp = await apiFetch(url, {
+      await apiFetch(url, {
         method: 'DELETE',
       });
-
-      if (!resp.ok) {
-        throw new Error();
-      }
 
       setSubmitError(false);
       setSubmitSuccess(true);
