@@ -4,8 +4,8 @@
 """
 
 import api as new_api
-from controller.SMSController import *
-from controller.PatientsController import *
+from api.resources.patients_android import *
+from api.resources.version import *
 from api.resources.assessments import (
     Root as Assessments,
     SingleAssessment,
@@ -16,6 +16,7 @@ from api.resources.stats import (
     AllStats,
     FacilityReadings,
     UserReadings,
+    ExportStats,
 )
 
 from api.resources.patientAssociations import Root as PatientAssociations
@@ -23,7 +24,6 @@ from api.resources.facilities import Root as Facilities
 from api.resources.patients import (
     Root as Patients,
     SinglePatient,
-    AndroidPatients,
     PatientInfo,
     PatientStats,
     PatientReadings,
@@ -40,6 +40,7 @@ def init(api):
     api.add_resource(
         FacilityReadings, "/api/stats/facility/<string:facility_id>"
     )  # [GET]
+    api.add_resource(ExportStats, "/api/stats/export/<int:user_id>")  # [GET]
 
     api.add_resource(UserReadings, "/api/stats/user/<int:user_id>")
 
@@ -54,10 +55,8 @@ def init(api):
     api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]
 
     api.add_resource(
-        PatientGlobalSearch, "/api/patient/global/<string:search>"
+        AndroidPatientGlobalSearch, "/api/patient/global/<string:search>"
     )  # [GET]
-
-    api.add_resource(SMS, "/api/sms")
 
     #### New Endpoints ####
     api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST]
@@ -115,5 +114,7 @@ def init(api):
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
     api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]
+
+    api.add_resource(Version, "/api/version")  # [GET]
 
     new_api.init_routes(api)

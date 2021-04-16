@@ -53,7 +53,7 @@ All the Docker images will build and then the Docker containers will start. You 
 Now it's time to run the database migrations. Once the containers have fully started, run the following command. If you did not use the `-d` option above, you may need to launch a new terminal.
 
 ```
-docker exec flask flask db upgrade
+docker exec cradle_flask flask db upgrade
 ```
 
 ## 5. Seeding Data
@@ -64,10 +64,10 @@ Data seeding is handled by the `manage.py` script in the `server` directory. The
 * `seed_test_data`: seeds data required to run the unit tests
 * `seed`: seeds a generous amount of random data
 
-In order to seed data, run `docker exec flask python manage.py [SEED_OPTION]` where `[SEED_OPTION]` is one of the options listed above. For example:
+In order to seed data, run `docker exec cradle_flask python manage.py [SEED_OPTION]` where `[SEED_OPTION]` is one of the options listed above. For example:
 
 ```
-docker exec flask python manage.py seed_test_data
+docker exec cradle_flask python manage.py seed_test_data
 ```
 
 ## 6. Run the NPM Dev Server

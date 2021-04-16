@@ -16,7 +16,6 @@ parameters:
     name: to
     schema:
       type: integer
-
 responses:
   200:
     description: 

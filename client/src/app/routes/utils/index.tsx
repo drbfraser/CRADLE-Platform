@@ -17,6 +17,7 @@ import { AssessmentFormPage } from 'src/pages/assessmentForm';
 import { PatientFormPage } from 'src/pages/patientForm';
 import { ReadingFormPage } from 'src/pages/readingForm';
 import PollIcon from '@material-ui/icons/Poll';
+import { ReferralFormPage } from 'src/pages/referralForm';
 
 export type AppRoute = {
   component:
@@ -73,6 +74,14 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/assessments/edit/:readingId/:assessmentId`,
+  },
+  {
+    component: ReferralFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/referrals/new/:readingId`,
   },
   {
     component: ReferralsPage,

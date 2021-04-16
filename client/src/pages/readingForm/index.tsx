@@ -17,11 +17,8 @@ import Step from '@material-ui/core/Step/Step';
 import { initialState, ReadingState } from './state';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
 import { handleSubmit } from './handlers';
-import { Toast } from 'src/shared/components/toast';
-import { ReduxState } from 'src/redux/reducers';
-import { useSelector } from 'react-redux';
-import { IUserWithTokens } from 'src/types';
 import { goBackWithFallback } from 'src/shared/utils';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 type RouteParams = {
   patientId: string;
@@ -32,11 +29,6 @@ export const ReadingFormPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);
   const [pageNum, setPageNum] = useState(0);
-
-  // TODO: remove userId once the backend grabs the userId instead
-  const userId = useSelector(
-    (state: ReduxState) => (state.user.current.data as IUserWithTokens).userId
-  );
 
   const pages = [
     {
@@ -69,7 +61,7 @@ export const ReadingFormPage = () => {
     helpers: FormikHelpers<ReadingState>
   ) => {
     if (isFinalPage) {
-      const submitSuccess = await handleSubmit(patientId, values, userId);
+      const submitSuccess = await handleSubmit(patientId, values);
 
       if (submitSuccess) {
         goBackWithFallback(`/patients/${patientId}`);
@@ -86,13 +78,7 @@ export const ReadingFormPage = () => {
 
   return (
     <div className={classes.container}>
-      {submitError && (
-        <Toast
-          status="error"
-          message="Something went wrong on our end. Please try that again."
-          clearMessage={() => setSubmitError(false)}
-        />
-      )}
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton

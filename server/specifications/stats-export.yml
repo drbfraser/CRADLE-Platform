@@ -1,0 +1,61 @@
+Get statistics for export
+---
+tags:
+  - Stats
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    schema: 
+      type: integer
+  - in: query
+    name: from
+    schema:
+      type: integer
+  - in: query
+    name: to
+    schema:
+      type: integer
+responses:
+  200:
+    description: Export statistics 
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              referral_date:
+                type: integer
+                example: 1588789808
+              patientId:
+                type: string
+                example: "48300045721"
+              name: 
+                type: string
+                example: "Alika Ademola"
+              sex:
+                type: string
+                example: "FEMALE"
+              age:
+                type: integer
+                example: 19
+              pregnant:
+                type: boolean
+                example: true
+              systolic_bp: 
+                type: integer
+                example: 156
+              diastolic_bp: 
+                type: integer
+                example: 30
+              heart_rate: 
+                type: integer
+                example: 66
+              traffic_color:
+                type: string
+                example: "YELLOW"
+              traffic_arrow:
+                type: string
+                example: "UP"

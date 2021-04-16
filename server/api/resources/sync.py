@@ -125,18 +125,18 @@ class UpdatesReadings(Resource):
         new_followup = []
         for p in all_patients:
             for r in p["readings"]:
-                if r["dateTimeTaken"] > timestamp:
+                if r["lastEdited"] > timestamp:
                     new_readings.append(r)
                 if (
                     r["referral"]
                     and r["referral"]["dateReferred"] > timestamp
-                    and r["dateTimeTaken"] < timestamp
+                    and r["lastEdited"] <= timestamp
                 ):
                     new_referral.append(r["referral"])
                 if (
                     r["followup"]
                     and r["followup"]["dateAssessed"] > timestamp
-                    and r["dateTimeTaken"] < timestamp
+                    and r["lastEdited"] <= timestamp
                 ):
                     new_followup.append(r["followup"])
 

@@ -5,15 +5,20 @@ import Grid from '@material-ui/core/Grid/Grid';
 import Button from '@material-ui/core/Button/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik, Form, Field } from 'formik';
-import { Toast } from 'src/shared/components/toast';
-import { PatientField, PatientState, SEXES } from './state';
+import {
+  gestationalAgeUnitOptions,
+  PatientField,
+  PatientState,
+  SEXES,
+  sexOptions,
+} from './state';
 import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
 import { ToggleButtonGroup } from 'formik-material-ui-lab';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
-import { validateForm } from './validation';
+import { patientValidationSchema } from './validation';
 import { useHistory } from 'react-router-dom';
 import { PatientIDExists } from './PatientIDExists';
 import { GestationalAgeUnitEnum } from 'src/enums';
@@ -22,16 +27,8 @@ import {
   handleBlurPatientId,
   handleSubmit,
 } from './handlers';
-
-const gestationalAgeUnitOptions = [
-  { name: 'Weeks', value: GestationalAgeUnitEnum.WEEKS },
-  { name: 'Months', value: GestationalAgeUnitEnum.MONTHS },
-];
-
-const sexOptions = [
-  { name: 'Male', value: SEXES.MALE },
-  { name: 'Female', value: SEXES.FEMALE },
-];
+import { InputAdornment } from '@material-ui/core';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 interface IProps {
   initialState: PatientState;
@@ -49,16 +46,10 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
 
   return (
     <>
-      {submitError && (
-        <Toast
-          status="error"
-          message="Something went wrong on our end. Please try that again."
-          clearMessage={() => setSubmitError(false)}
-        />
-      )}
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
-        validate={validateForm}
+        validationSchema={patientValidationSchema(creatingNew)}
         onSubmit={handleSubmit(creatingNew, history, setSubmitError)}>
         {({
           values,
@@ -71,7 +62,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
             <Paper>
               <Box p={2}>
                 <Grid container spacing={2}>
-                  <Grid item md={4}>
+                  <Grid item md={4} sm={12}>
                     <Field
                       component={TextField}
                       fullWidth
@@ -90,7 +81,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       <PatientIDExists patientId={existingPatientId} />
                     )}
                   </Grid>
-                  <Grid item md={4}>
+                  <Grid item md={4} sm={12}>
                     <Field
                       component={TextField}
                       fullWidth
@@ -101,7 +92,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       name={PatientField.patientName}
                     />
                   </Grid>
-                  <Grid item md={4}>
+                  <Grid item md={4} sm={12}>
                     <Field
                       component={TextField}
                       fullWidth
@@ -111,7 +102,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       name={PatientField.householdNumber}
                     />
                   </Grid>
-                  <Grid item md={4}>
+                  <Grid item md={4} sm={12}>
                     <Field
                       component={ToggleButtonGroup}
                       exclusive
@@ -131,7 +122,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       </ToggleButton>
                     </Field>
                   </Grid>
-                  <Grid item md={4}>
+                  <Grid item md={4} sm={12}>
                     {values.isExactDob ? (
                       <Field
                         component={TextField}
@@ -157,7 +148,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       />
                     )}
                   </Grid>
-                  <Grid item md={2}>
+                  <Grid item md={2} sm={12}>
                     <Field
                       component={TextField}
                       fullWidth
@@ -167,7 +158,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       name={PatientField.zone}
                     />
                   </Grid>
-                  <Grid item md={2}>
+                  <Grid item md={2} sm={12}>
                     <Field
                       component={TextField}
                       fullWidth
@@ -177,7 +168,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       name={PatientField.villageNumber}
                     />
                   </Grid>
-                  <Grid item md={2}>
+                  <Grid item md={2} sm={12}>
                     <FormControl fullWidth variant="outlined">
                       <InputLabel>Gender</InputLabel>
                       <Field
@@ -197,7 +188,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       </Field>
                     </FormControl>
                   </Grid>
-                  <Grid item md={2}>
+                  <Grid item md={2} sm={12}>
                     <Field
                       component={CheckboxWithLabel}
                       type="checkbox"
@@ -207,19 +198,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       disabled={!(values.patientSex === SEXES.FEMALE)}
                     />
                   </Grid>
-                  <Grid item md={4}>
-                    <Field
-                      component={TextField}
-                      fullWidth
-                      variant="outlined"
-                      type="number"
-                      label="Gestational Age"
-                      name={PatientField.gestationalAge}
-                      required={values.isPregnant}
-                      disabled={!values.isPregnant}
-                    />
-                  </Grid>
-                  <Grid item md={4}>
+                  <Grid item md={4} sm={12}>
                     <FormControl fullWidth variant="outlined">
                       <InputLabel>Gestational Age Unit</InputLabel>
                       <Field
@@ -237,7 +216,70 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       </Field>
                     </FormControl>
                   </Grid>
-                  <Grid item md={6}>
+                  <Grid item md={4} sm={12}>
+                    {values.gestationalAgeUnit ===
+                    GestationalAgeUnitEnum.MONTHS ? (
+                      <Field
+                        component={TextField}
+                        fullWidth
+                        variant="outlined"
+                        type="number"
+                        name={PatientField.gestationalAgeMonths}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              months
+                            </InputAdornment>
+                          ),
+                        }}
+                        required={values.isPregnant}
+                        disabled={!values.isPregnant}
+                      />
+                    ) : (
+                      <Grid container>
+                        <Grid item md={5} sm={12}>
+                          <Field
+                            component={TextField}
+                            fullWidth
+                            variant="outlined"
+                            type="number"
+                            name={PatientField.gestationalAgeWeeks}
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  weeks
+                                </InputAdornment>
+                              ),
+                            }}
+                            required={values.isPregnant}
+                            disabled={!values.isPregnant}
+                          />
+                        </Grid>
+                        <Grid item md={2} sm={12}>
+                          <div className={classes.weeksDaysPlus}>+</div>
+                        </Grid>
+                        <Grid item md={5} sm={12}>
+                          <Field
+                            component={TextField}
+                            fullWidth
+                            variant="outlined"
+                            type="number"
+                            name={PatientField.gestationalAgeDays}
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  days
+                                </InputAdornment>
+                              ),
+                            }}
+                            required={values.isPregnant}
+                            disabled={!values.isPregnant}
+                          />
+                        </Grid>
+                      </Grid>
+                    )}
+                  </Grid>
+                  <Grid item md={6} sm={12}>
                     <Field
                       component={TextField}
                       fullWidth
@@ -248,7 +290,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       name={PatientField.drugHistory}
                     />
                   </Grid>
-                  <Grid item md={6}>
+                  <Grid item md={6} sm={12}>
                     <Field
                       component={TextField}
                       fullWidth
@@ -287,5 +329,9 @@ const useStyles = makeStyles({
   },
   right: {
     float: 'right',
+  },
+  weeksDaysPlus: {
+    textAlign: 'center',
+    fontSize: 35,
   },
 });

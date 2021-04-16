@@ -63,9 +63,10 @@ export const ExportStatistics: React.FC<IProps> = ({ url }) => {
     <div>
       {errorLoading && (
         <Toast
-          status="error"
+          severity="error"
           message="Something went wrong exporting those statistics. Please check your internet connection and try again."
-          clearMessage={() => setErrorLoading(false)}
+          open={errorLoading}
+          onClose={() => setErrorLoading(false)}
         />
       )}
 

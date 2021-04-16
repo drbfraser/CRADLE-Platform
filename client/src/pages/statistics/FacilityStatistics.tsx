@@ -42,9 +42,10 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
     <div>
       {errorLoading && (
         <Toast
-          status="error"
+          severity="error"
           message="Something went wrong loading health care facilities. Please try again."
-          clearMessage={() => setErrorLoading(false)}
+          open={errorLoading}
+          onClose={() => setErrorLoading(false)}
         />
       )}
       <div>

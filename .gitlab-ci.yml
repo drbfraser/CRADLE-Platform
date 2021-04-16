@@ -33,6 +33,7 @@ frontend build:
   after_script:
     - tar -czvf frontend.tar.gz client/build
   artifacts:
+    expire_in: 1 week
     paths:
       - frontend.tar.gz
 
@@ -55,6 +56,7 @@ backend unit tests:
     - python -m pytest --junitxml=report.xml tests
   artifacts:
     when: always
+    expire_in: 1 week
     reports:
       junit: server/report.xml
 
@@ -72,8 +74,6 @@ backend system tests:
   variables:
     DB_USERNAME: "root"
     DB_PASSWORD: "ci-password"
-    EMAIL_USER: "ci@ci.com"
-    EMAIL_PASSWORD: "ci-password"
     DB_HOSTNAME: "mysql"
     DB_PORT: "3306"
     DB_NAME: "cradle"
@@ -96,6 +96,7 @@ backend system tests:
     - python -m pytest --junitxml=report.xml systemTests
   artifacts:
     when: always
+    expire_in: 1 week
     reports:
       junit: server/report.xml
 
@@ -160,11 +161,12 @@ deploy staging:
     - when: never
   script:
     - cp /var/cradle/.env ./.env
+    - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml build
     - tar -xvf frontend.tar.gz
     - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d
     # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
-    - docker exec flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/mysql/3306'; do sleep 1; done;" &>-
-    - docker exec flask flask db upgrade
+    - docker exec cradle_flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/cradle_mysql/3306'; do sleep 1; done;" &>-
+    - docker exec cradle_flask flask db upgrade
 
 deploy prod:
   stage: deploy
@@ -177,8 +179,9 @@ deploy prod:
     - when: never
   script:
     - cp /var/cradle/.env ./.env
+    - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml build
     - tar -xvf frontend.tar.gz
     - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d
     # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
-    - docker exec flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/mysql/3306'; do sleep 1; done;" &>-
-    - docker exec flask flask db upgrade
+    - docker exec cradle_flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/cradle_mysql/3306'; do sleep 1; done;" &>-
+    - docker exec cradle_flask flask db upgrade

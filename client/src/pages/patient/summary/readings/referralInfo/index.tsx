@@ -41,6 +41,10 @@ export const ReferralInfo: React.FC<IProps> = ({
     }, `You haven't added this patient to your health facility. You need to do that before you can edit this patient. Would like to add this patient?`);
   };
 
+  const createReferral = () => {
+    dispatch(push(`/referrals/new/${readingId}`));
+  };
+
   return (
     <div className={classes.container}>
       {referral ? (
@@ -50,19 +54,28 @@ export const ReferralInfo: React.FC<IProps> = ({
             dateReferred={referral.dateReferred}
             healthFacilityName={referral.referralHealthFacilityName}
           />
-          {!followUp && (
+          {Boolean(referral.comment) && (
             <div className={classes.comment}>
               <Typography>
-                <b>Comment:</b>
+                <b>Referral Comment:</b>
               </Typography>
               <Typography variant="subtitle1">{referral.comment}</Typography>
             </div>
           )}
         </>
       ) : (
-        <Typography variant="h5" component="h3">
-          No Referral
-        </Typography>
+        <>
+          <Typography variant="h5" component="h3">
+            No Referral
+          </Typography>
+          <Button
+            className={classes.button}
+            color="primary"
+            variant="outlined"
+            onClick={createReferral}>
+            Create Referral
+          </Button>
+        </>
       )}
       <Assessment followUp={followUp} />
       {referral && (

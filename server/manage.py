@@ -11,9 +11,11 @@ from datetime import timedelta, datetime
 from flask_script import Manager
 from config import app, db, flask_bcrypt
 from models import *
-from database.ReadingRepo import ReadingRepo
 from random import randint, choice
 from string import ascii_lowercase, digits
+import data.crud as crud
+import data.marshal as marshal
+import service.invariant as invariant
 
 
 manager = Manager(app)
@@ -171,7 +173,6 @@ def seed():
         gestational_units = [
             GestationalAgeUnitEnum.WEEKS.value,
             GestationalAgeUnitEnum.MONTHS.value,
-            GestationalAgeUnitEnum.DAYS.value,
         ]
 
         if sex == SexEnum.FEMALE.value and pregnant:
@@ -213,7 +214,9 @@ def seed():
                 "heartRateBPM": getRandomHeartRateBPM(),
                 "symptoms": getRandomSymptoms(),
             }
-            ReadingRepo().create(r1)
+
+            r1Model = marshal.unmarshal(Reading, r1)
+            crud.create(r1Model, refresh=True)
 
             referral_comments = [
                 " needs help!",
@@ -333,7 +336,10 @@ def create_patient_reading_referral(
 
     db.session.add(patient_schema.load(patient))
     db.session.commit()
-    ReadingRepo().create(reading)
+
+    readingModel = marshal.unmarshal(Reading, reading)
+    crud.create(readingModel, refresh=True)
+
     db.session.add(referral_schema.load(referral))
     db.session.commit()
 
@@ -412,7 +418,7 @@ def generateRandomReadingID():
 
 
 def getNames():
-    with open("./database/seed_data/seed.json") as f:
+    with open("./data/seed_data/seed.json") as f:
         names = json.load(f)
         return names["firstNames"], names["lastNames"]
 
@@ -496,7 +502,7 @@ if __name__ == "__main__":
     patientList = list(map(str, patientList))
 
     # Get cities
-    with open("./database/seed_data/seed.json") as f:
+    with open("./data/seed_data/seed.json") as f:
         facilityLocations = json.load(f)["locations"]
 
     usersList = [1, 2, 3, 4]

@@ -2,6 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from typing import Any
 import data.crud as crud
 import data.marshal as marshal
+import models as models
+import service.invariant as invariant
 
 
 class ModelFactory:
@@ -77,9 +79,8 @@ class PatientFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from database.PatientRepo import PatientRepo
 
-        return PatientRepo().create_model(dict(**kwargs))
+        return crud.create_model(dict(**kwargs), models.PatientSchema)
 
 
 class ReadingFactory(ModelFactory):
@@ -106,9 +107,11 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from database.ReadingRepo import ReadingRepo
 
-        return ReadingRepo().create_model(dict(**kwargs))
+        readingModel = marshal.unmarshal(models.Reading, dict(**kwargs))
+        crud.create(readingModel, refresh=True)
+
+        return readingModel
 
 
 class ReferralFactory(ModelFactory):
@@ -132,9 +135,8 @@ class ReferralFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from database.ReferralRepo import ReferralRepo
 
-        return ReferralRepo().create_model(dict(**kwargs))
+        return crud.create_model(dict(**kwargs), models.ReferralSchema)
 
 
 class FollowUpFactory(ModelFactory):
@@ -154,9 +156,8 @@ class FollowUpFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from database.FollowUpRepo import FollowUpRepo
 
-        return FollowUpRepo().create_model(dict(**kwargs))
+        return crud.create_model(dict(**kwargs), models.FollowUpSchema)
 
 
 class UserFactory(ModelFactory):
@@ -206,6 +207,4 @@ class HealthFacilityFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        from database.HealthFacilityRepo import HealthFacilityRepo
-
-        return HealthFacilityRepo().create_model(dict(**kwargs))
+        return crud.create_model(dict(**kwargs), models.HealthFacilitySchema)

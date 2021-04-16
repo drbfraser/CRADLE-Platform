@@ -1,6 +1,5 @@
-import { GestationalAgeUnitEnum } from 'src/enums';
+import { SexEnum } from 'src/enums';
 
-import { BasicInformation } from './basicInformation';
 import { Divider } from 'semantic-ui-react';
 import { GestationalAge } from './gestationalAge';
 import { HistoryItem } from './historyItem';
@@ -26,14 +25,6 @@ export const MedicalInformation: React.FC<IProps> = ({ selectedPatient }) => {
     ),
   });
 
-  // * Allows toggling gestational age unit in medical information
-  const [
-    gestationalAgeUnit,
-    setGestationalAgeUnit,
-  ] = React.useState<GestationalAgeUnitEnum>(
-    selectedPatient.gestationalAgeUnit
-  );
-
   return (
     <Paper className={classes.paper}>
       <Typography className={classes.header} component="h3" variant="h5">
@@ -42,13 +33,12 @@ export const MedicalInformation: React.FC<IProps> = ({ selectedPatient }) => {
       </Typography>
       <Divider />
       <div className={classes.content}>
-        <BasicInformation patient={selectedPatient} />
-        <GestationalAge
-          gestationalAgeUnit={gestationalAgeUnit}
-          gestationalTimestamp={selectedPatient.gestationalTimestamp}
-          pregnant={selectedPatient.isPregnant}
-          updateGestationalAgeUnit={setGestationalAgeUnit}
-        />
+        {selectedPatient.patientSex === SexEnum.FEMALE && (
+          <p>
+            <b>Pregnant: </b> {selectedPatient.isPregnant ? `Yes` : `No`}
+          </p>
+        )}
+        <GestationalAge patient={selectedPatient} />
         <HistoryItem
           title="Drug history"
           history={selectedPatient.drugHistory}
@@ -57,6 +47,11 @@ export const MedicalInformation: React.FC<IProps> = ({ selectedPatient }) => {
           title="Medical history"
           history={selectedPatient.medicalHistory}
         />
+        {selectedPatient.patientSex !== SexEnum.FEMALE &&
+          !selectedPatient.drugHistory &&
+          !selectedPatient.medicalHistory && (
+            <>No additional medical information.</>
+          )}
       </div>
     </Paper>
   );

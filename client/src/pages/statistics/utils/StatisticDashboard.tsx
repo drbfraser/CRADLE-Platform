@@ -77,9 +77,10 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
     <div>
       {errorLoading && (
         <Toast
-          status="error"
+          severity="error"
           message="Something went wrong loading those statistics. Please check your internet connection and try again."
-          clearMessage={() => setErrorLoading(false)}
+          onClose={() => setErrorLoading(false)}
+          open={errorLoading}
         />
       )}
       {!loaded && (
