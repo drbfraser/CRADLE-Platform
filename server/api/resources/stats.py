@@ -137,7 +137,7 @@ class UserReadings(Resource):
         if role == RoleEnum.CHO.value:
             user_list = crud.get_supervised_vhts(jwt["userId"])
             user_list = [(lambda user: user[0])(user) for user in user_list]
-            if user_id not in user_list:
+            if user_id not in user_list and user_id != jwt["userId"]:
                 return "Unauthorized to view statistics for this VHT", 401
 
         filter = get_filter_data(request)
