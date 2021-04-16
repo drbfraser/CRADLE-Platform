@@ -114,13 +114,15 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
           {vht !== '' && (
             <div>
               <Divider className={classes.divider} />
-              <StatisticDashboard
-                url={
-                  BASE_URL +
-                  EndpointEnum.STATS_USER +
-                  `/${vht}?from=${from!}&to=${to!}`
-                }
-              />
+              {from && to && (
+                <StatisticDashboard
+                  url={
+                    BASE_URL +
+                    EndpointEnum.STATS_USER +
+                    `/${vht}?from=${from!}&to=${to!}`
+                  }
+                />
+              )}
             </div>
           )}
         </div>

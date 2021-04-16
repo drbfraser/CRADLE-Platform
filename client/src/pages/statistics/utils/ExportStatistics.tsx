@@ -22,8 +22,8 @@ export const ExportStatistics: React.FC<IProps> = ({ url }) => {
     { label: 'Name', key: 'name' },
     { label: 'Gender', key: 'sex' },
     { label: 'Pregnant', key: 'parsed_pregnant' },
-    { label: 'Systolic', key: 'systolic_bp' },
-    { label: 'Diastolic', key: 'diastolic_bp' },
+    { label: 'Systolic Blood Pressure', key: 'systolic_bp' },
+    { label: 'Diastolic Blood Pressure', key: 'diastolic_bp' },
     { label: 'Heart Rate', key: 'heart_rate' },
     { label: 'Traffic Color', key: 'traffic_color' },
     { label: 'Traffic Arror', key: 'traffic_arrow' },
@@ -71,18 +71,12 @@ export const ExportStatistics: React.FC<IProps> = ({ url }) => {
         onClick={handleClickOpen}>
         Export Data
       </Button>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">
-          {'Export Statistics Data as a CSV file'}
-        </DialogTitle>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>{'Export Statistics Data as a CSV file'}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Please click the following link to download the CSV file. Download
-            time is subject to internet speed.
+          <DialogContentText>
+            Please click on the following link to download the CSV file.
+            Download time is subject to internet speed.
           </DialogContentText>
           <CSVLink data={data} headers={headers} filename={'stats.csv'}>
             Download stats.csv

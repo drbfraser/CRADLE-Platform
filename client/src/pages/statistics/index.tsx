@@ -110,6 +110,11 @@ export default function Statistics() {
     setPresetDaterange(event.target.value);
   };
 
+  const setDateRange = (start: number, end: number) => {
+    setStartDate(moment().startOf('day').subtract(start, 'days'));
+    setEndDate(moment().endOf('day').subtract(end, 'days'));
+  };
+
   return (
     <div className={classes.root}>
       {errorLoading && (
@@ -147,38 +152,35 @@ export default function Statistics() {
             Preset date ranges
           </InputLabel>
           <Select
-            value={presetDaterange}
+            value={presetDaterange ? presetDaterange : ''}
             onChange={handleChange}
             label="Preset date ranges">
+            <MenuItem value={undefined} disabled></MenuItem>
             <MenuItem
               value="This Week"
               onClick={() => {
-                setStartDate(moment().startOf('day').subtract(6, 'days'));
-                setEndDate(moment().endOf('day'));
+                setDateRange(6, 0);
               }}>
               This Week
             </MenuItem>
             <MenuItem
               value="Last Week"
               onClick={() => {
-                setStartDate(moment().startOf('day').subtract(13, 'days'));
-                setEndDate(moment().endOf('day').subtract(7, 'days'));
+                setDateRange(13, 7);
               }}>
               Last Week
             </MenuItem>
             <MenuItem
               value="Last 14 Days"
               onClick={() => {
-                setStartDate(moment().startOf('day').subtract(13, 'days'));
-                setEndDate(moment().endOf('day'));
+                setDateRange(13, 0);
               }}>
               Last 14 Days
             </MenuItem>
             <MenuItem
               value="Last 28 Days"
               onClick={() => {
-                setStartDate(moment().startOf('day').subtract(27, 'days'));
-                setEndDate(moment().endOf('day'));
+                setDateRange(27, 0);
               }}>
               Last 28 Days
             </MenuItem>

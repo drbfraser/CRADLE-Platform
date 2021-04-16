@@ -51,13 +51,15 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
 
       <Divider className={classes.divider} />
       <br />
-      <StatisticDashboard
-        url={
-          BASE_URL +
-          EndpointEnum.STATS_USER +
-          `/${userId}?from=${from!}&to=${to}`
-        }
-      />
+      {from && to && (
+        <StatisticDashboard
+          url={
+            BASE_URL +
+            EndpointEnum.STATS_USER +
+            `/${userId}?from=${from!}&to=${to}`
+          }
+        />
+      )}
     </div>
   );
 };
