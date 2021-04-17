@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import { useEffect } from 'react';
-import { getAllVHT } from './utils/index';
+import { apiFetch } from 'src/shared/utils/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import { IVHT } from 'src/types';
@@ -46,15 +46,18 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
   };
 
   useEffect(() => {
-    getAllVHT()
-      .then((response) => {
+    const getAllVHT = async () => {
+      try {
+        const response: IVHT[] = await (
+          await apiFetch(BASE_URL + EndpointEnum.ALL_VHTS)
+        ).json();
         setVhts(response);
-      })
-      .catch((err) => {
+      } catch (e) {
         setErrorLoading(true);
-      });
+      }
+    };
+    getAllVHT();
   }, []);
-
   return (
     <div>
       <APIErrorToast
@@ -114,15 +117,13 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
           {vht !== '' && (
             <div>
               <Divider className={classes.divider} />
-              {from && to && (
-                <StatisticDashboard
-                  url={
-                    BASE_URL +
-                    EndpointEnum.STATS_USER +
-                    `/${vht}?from=${from}&to=${to}`
-                  }
-                />
-              )}
+              <StatisticDashboard
+                url={
+                  BASE_URL +
+                  EndpointEnum.STATS_USER +
+                  `/${vht}?from=${from}&to=${to}`
+                }
+              />
             </div>
           )}
         </div>

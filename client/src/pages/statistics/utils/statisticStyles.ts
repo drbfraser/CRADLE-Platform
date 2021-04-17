@@ -54,6 +54,7 @@ export const useStatisticsStyles = makeStyles((theme) => ({
     flexDirection: `column`,
     alignItems: `center`,
   },
+  skeletonContainer: { display: 'grid' },
   skeleton: {
     margin: 'auto',
   },

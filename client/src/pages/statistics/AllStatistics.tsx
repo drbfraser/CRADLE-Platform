@@ -17,16 +17,14 @@ export const AllStatistics: React.FC<IProps> = ({ from, to }) => {
   return (
     <div>
       <Typography variant="h5" gutterBottom>
-        During this period, users and facilities have assessed:
+        During this period, all users and facilities have assessed:
       </Typography>
       <br />
       <Divider className={classes.divider} />
       <br />
-      {from && to && (
-        <StatisticDashboard
-          url={BASE_URL + EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`}
-        />
-      )}
+      <StatisticDashboard
+        url={BASE_URL + EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`}
+      />
     </div>
   );
 };

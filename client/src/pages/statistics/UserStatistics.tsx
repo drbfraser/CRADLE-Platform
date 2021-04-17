@@ -5,9 +5,9 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { getAllUsers } from './utils';
 import { useStatisticsStyles } from './utils/statisticStyles';
 import FormControl from '@material-ui/core/FormControl';
+import { apiFetch } from 'src/shared/utils/api';
 import { EndpointEnum } from 'src/server';
 import { BASE_URL } from 'src/server/utils';
 import Typography from '@material-ui/core/Typography';
@@ -31,13 +31,17 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
   };
 
   useEffect(() => {
-    getAllUsers()
-      .then((response) => {
+    const getAllUsers = async () => {
+      try {
+        const response: IUser[] = await (
+          await apiFetch(BASE_URL + EndpointEnum.USER_ALL)
+        ).json();
         setUsers(response);
-      })
-      .catch((err) => {
+      } catch (e) {
         setErrorLoading(true);
-      });
+      }
+    };
+    getAllUsers();
   }, []);
 
   return (
@@ -80,15 +84,13 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
         <div>
           <Divider className={classes.divider} />
           <br />
-          {from && to && (
-            <StatisticDashboard
-              url={
-                BASE_URL +
-                EndpointEnum.STATS_USER +
-                `/${user}?from=${from}&to=${to}`
-              }
-            />
-          )}
+          <StatisticDashboard
+            url={
+              BASE_URL +
+              EndpointEnum.STATS_USER +
+              `/${user}?from=${from}&to=${to}`
+            }
+          />
         </div>
       )}
     </div>

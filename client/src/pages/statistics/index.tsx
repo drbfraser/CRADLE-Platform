@@ -79,10 +79,10 @@ export function StatisticsPage() {
   );
 
   const [errorLoading, setErrorLoading] = useState(false);
-  const [startDate, setStartDate] = useState<Moment>(
+  const [startDate, setStartDate] = useState<Moment | null>(
     moment().startOf('day').subtract(29, 'days')
   );
-  const [endDate, setEndDate] = useState<Moment>(moment().endOf('day'));
+  const [endDate, setEndDate] = useState<Moment | null>(moment().endOf('day'));
   const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
     null
   );
@@ -100,8 +100,8 @@ export function StatisticsPage() {
         <Tab.Pane>
           {startDate && endDate && (
             <p.Component
-              from={startDate?.toDate().getTime() / 1000}
-              to={endDate?.toDate().getTime() / 1000}
+              from={startDate.toDate().getTime() / 1000}
+              to={endDate.toDate().getTime() / 1000}
             />
           )}
         </Tab.Pane>
@@ -136,8 +136,8 @@ export function StatisticsPage() {
           endDate={endDate}
           endDateId="endDate"
           onDatesChange={({ startDate, endDate }) => {
-            setStartDate(startDate!);
-            setEndDate(endDate!);
+            setStartDate(startDate);
+            setEndDate(endDate);
           }}
           readOnly
           focusedInput={focusedInput}

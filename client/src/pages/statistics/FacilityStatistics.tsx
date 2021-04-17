@@ -5,7 +5,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { getAllFacilities } from './utils';
+import { apiFetch } from 'src/shared/utils/api';
 import { useStatisticsStyles } from './utils/statisticStyles';
 import FormControl from '@material-ui/core/FormControl';
 import { EndpointEnum } from 'src/server';
@@ -29,13 +29,17 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
   };
 
   useEffect(() => {
-    getAllFacilities()
-      .then((response) => {
+    const getAllFacilities = async () => {
+      try {
+        const response: IFacility[] = await (
+          await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES)
+        ).json();
         setFacilities(response);
-      })
-      .catch((err) => {
+      } catch (e) {
         setErrorLoading(true);
-      });
+      }
+    };
+    getAllFacilities();
   }, []);
 
   return (
@@ -64,15 +68,13 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
           <div>
             <Divider className={classes.divider} />
             <br />
-            {from && to && (
-              <StatisticDashboard
-                url={
-                  BASE_URL +
-                  EndpointEnum.STATS_FACILITY +
-                  `/${facility}?from=${from}&to=${to}`
-                }
-              />
-            )}
+            <StatisticDashboard
+              url={
+                BASE_URL +
+                EndpointEnum.STATS_FACILITY +
+                `/${facility}?from=${from}&to=${to}`
+              }
+            />
           </div>
         )}
       </div>

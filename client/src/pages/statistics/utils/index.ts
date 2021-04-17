@@ -1,7 +1,3 @@
-import { apiFetch } from 'src/shared/utils/api';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
-
 export type Response = {
   patients_referred: number;
   sent_referrals: number;
@@ -65,25 +61,3 @@ export interface IStatistic {
   traffic_color: string;
   traffic_arrow: string;
 }
-
-export const apiFetchSafe = async (url: string) => {
-  try {
-    const res = await apiFetch(url);
-
-    if (!res.ok) {
-      throw new Error(`Fetch from: ${url} failed with status: ${res.status}`);
-    }
-    return res.json();
-  } catch (err) {
-    throw new Error(err);
-  }
-};
-
-export const getAllUsers = async () =>
-  apiFetchSafe(BASE_URL + EndpointEnum.USER_ALL);
-
-export const getAllVHT = async () =>
-  apiFetchSafe(BASE_URL + EndpointEnum.ALL_VHTS);
-
-export const getAllFacilities = async () =>
-  apiFetchSafe(BASE_URL + EndpointEnum.HEALTH_FACILITIES);

@@ -38,7 +38,7 @@ export const ExportStatistics: React.FC<IProps> = ({ url }) => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{'Export Statistics Data as a CSV file'}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText component={'div'}>
             Please click on the following link to download the CSV file.
             Download time is subject to internet speed.
             {open && <DownloadCSV url={url} />}
@@ -88,6 +88,7 @@ const DownloadCSV: React.FC<IProps> = ({ url }) => {
     };
     getExportedData();
   }, [url]);
+
   return (
     <div>
       <APIErrorToast

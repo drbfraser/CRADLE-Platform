@@ -35,15 +35,13 @@ export const MyFacility: React.FC<IProps> = ({ from, to }) => {
 
       <Divider className={classes.divider} />
       <br />
-      {from && to && (
-        <StatisticDashboard
-          url={
-            BASE_URL +
-            EndpointEnum.STATS_FACILITY +
-            `/${facilityName}?from=${from}&to=${to}`
-          }
-        />
-      )}
+      <StatisticDashboard
+        url={
+          BASE_URL +
+          EndpointEnum.STATS_FACILITY +
+          `/${facilityName}?from=${from}&to=${to}`
+        }
+      />
     </div>
   );
 };
