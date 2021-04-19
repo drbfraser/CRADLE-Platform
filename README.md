@@ -61,3 +61,8 @@ the previously mentioned admin user is added along with a few additional users:
 | Paul Ngo | paul_ngo@sfu.ca |
 | Ali Tohidi | atohidi@sfu.ca |
 | Liyang Zhou | lza132@sfu.ca |
+| Dev Arora | deva@sfu.ca |
+| Devon Lutz | dlutz@sfu.ca |
+| Mikhail Alexeev | malexeev@sfu.ca |
+| Syed Naufal Mahmood | syedm@sfu.ca |
+| Ting Yi | tingy@sfu.ca |
