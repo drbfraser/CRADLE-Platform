@@ -94,14 +94,6 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
           <Statistic.Group className={classes.statisticGroup}>
             {[
               {
-                label: 'Patients Referred',
-                value: data.patients_referred,
-              },
-              {
-                label: 'Total Referrals Sent',
-                value: data.sent_referrals,
-              },
-              {
                 label: 'Days with Readings',
                 value: data.days_with_readings,
               },
@@ -113,9 +105,17 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
                 label: 'Total Readings',
                 value: data.total_readings,
               },
+              {
+                label: 'Patients Referred',
+                value: data.patients_referred,
+              },
+              {
+                label: 'Referrals Sent',
+                value: data.sent_referrals,
+              },
             ].map(
               (stat, i) =>
-                Boolean(stat.value) && (
+                stat.value !== undefined && (
                   <Statistic key={i} horizontal className={classes.statistic}>
                     <Statistic.Value>{stat.value}</Statistic.Value>
                     <Statistic.Label className={classes.verticalWriting}>
@@ -127,7 +127,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
           </Statistic.Group>
           <br />
 
-          <h2>Traffic lights</h2>
+          <h2>Reading Traffic Lights</h2>
           <div className={classes.chart}>
             <Bar data={barData} options={options} />
           </div>

@@ -33,11 +33,11 @@ export const ExportStatistics = ({ url }: IProps) => {
         variant="contained"
         size="large"
         onClick={handleClickOpen}>
-        Export Data
+        Export Referrals
       </Button>
 
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{'Export Statistics Data as a CSV file'}</DialogTitle>
+        <DialogTitle>Export Referral Data</DialogTitle>
         <DialogContent>
           <DialogContentText component={'div'}>
             Please click on the following link to download the CSV file.
