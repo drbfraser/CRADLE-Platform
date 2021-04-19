@@ -1,7 +1,7 @@
 import React from 'react';
 import { StatisticDashboard } from './utils/StatisticDashboard';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
+import { API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import Typography from '@material-ui/core/Typography';
 import { useStatisticsStyles } from './utils/statisticStyles';
 import Divider from '@material-ui/core/Divider';
@@ -19,11 +19,10 @@ export const AllStatistics: React.FC<IProps> = ({ from, to }) => {
       <Typography variant="h5" gutterBottom>
         During this period, all users and facilities have assessed:
       </Typography>
-      <br />
       <Divider className={classes.divider} />
       <br />
       <StatisticDashboard
-        url={BASE_URL + EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`}
+        url={API_URL + EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`}
       />
     </div>
   );

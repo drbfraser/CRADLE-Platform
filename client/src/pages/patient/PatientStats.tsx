@@ -3,13 +3,13 @@ import { Paper, Typography, Divider, Box, makeStyles } from '@material-ui/core';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import { Line, Bar } from 'react-chartjs-2';
 import { Button } from 'semantic-ui-react';
-import { BASE_URL } from 'src/server/utils';
-import { apiFetch } from 'src/shared/utils/api';
-import { EndpointEnum } from 'src/server';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import Alert from '@material-ui/lab/Alert';
 import { Skeleton } from '@material-ui/lab';
-import { PatientStatistics } from 'src/types';
-import { MonthEnum, trafficLightColors, TrafficLightEnum } from 'src/enums';
+import { PatientStatistics } from 'src/shared/types';
+import { TrafficLightEnum } from 'src/shared/enums';
+import { trafficLightColors } from 'src/shared/constants';
 
 interface IProps {
   patientId: string;
@@ -28,7 +28,7 @@ export const PatientStats = ({ patientId }: IProps) => {
 
   useEffect(() => {
     apiFetch(
-      BASE_URL +
+      API_URL +
         `${EndpointEnum.PATIENTS}/${patientId}${EndpointEnum.STATISTICS}`
     )
       .then((resp) => resp.json())
@@ -132,7 +132,7 @@ const getVitalsData = (stats: PatientStatistics) => {
   ];
 
   return {
-    labels: Object.values(MonthEnum),
+    labels: monthsLabels,
     datasets: datasets.map((d) => ({
       label: d.label,
       fill: false,
@@ -188,3 +188,18 @@ const barChartOptions = {
     ],
   },
 };
+
+const monthsLabels = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];

@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
-import { IFacility } from 'src/types';
+import { IFacility } from 'src/shared/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { apiFetch } from 'src/shared/utils/api';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import { useStatisticsStyles } from './utils/statisticStyles';
 import FormControl from '@material-ui/core/FormControl';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
@@ -32,7 +31,7 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
     const getAllFacilities = async () => {
       try {
         const response: IFacility[] = await (
-          await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES)
+          await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)
         ).json();
         setFacilities(response);
       } catch (e) {
@@ -70,7 +69,7 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
             <br />
             <StatisticDashboard
               url={
-                BASE_URL +
+                API_URL +
                 EndpointEnum.STATS_FACILITY +
                 `/${facility}?from=${from}&to=${to}`
               }

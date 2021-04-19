@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paper, Typography, Divider, Button, Box } from '@material-ui/core';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
-import { Patient } from 'src/types';
+import { Patient } from 'src/shared/types';
 import { getAgeToDisplay } from 'src/shared/utils';
 import { Skeleton } from '@material-ui/lab';
 import { useHistory } from 'react-router-dom';

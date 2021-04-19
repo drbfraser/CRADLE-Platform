@@ -1,5 +1,5 @@
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { OrUndefined } from 'src/types';
+import { OrUndefined } from 'src/shared/types';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { useStyles } from './styles';

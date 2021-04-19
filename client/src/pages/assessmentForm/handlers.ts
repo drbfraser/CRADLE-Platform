@@ -1,8 +1,7 @@
 import { goBackWithFallback } from 'src/shared/utils';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
 import { AssessmentState } from './state';
-import { apiFetch } from 'src/shared/utils/api';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 
 export const handleSubmit = (
   readingId: string,
@@ -10,7 +9,7 @@ export const handleSubmit = (
   setSubmitError: (error: boolean) => void
 ) => {
   return async (values: AssessmentState, { setSubmitting }: any) => {
-    let url = BASE_URL;
+    let url = API_URL;
 
     if (assessmentId !== undefined) {
       url += EndpointEnum.ASSESSMENT_UPDATE + '/' + assessmentId;

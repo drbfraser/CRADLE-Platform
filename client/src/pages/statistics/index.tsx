@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
-import { IUserWithTokens, OrNull } from 'src/types';
 import { Toast } from 'src/shared/components/toast';
 import { useState } from 'react';
 import { Tab } from 'semantic-ui-react';
@@ -14,7 +13,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
-import { UserRoleEnum } from 'src/enums';
+import { UserRoleEnum } from 'src/shared/enums';
 import { MyStatistics } from './MyStatistics';
 import { VHTStatistics } from './VHTStatistics';
 import { MyFacility } from './MyFacility';
@@ -22,10 +21,6 @@ import { AllStatistics } from './AllStatistics';
 import { UserStatistics } from './UserStatistics';
 import { FacilityStatistics } from './FacilityStatistics';
 import { useStatisticsStyles } from './utils/statisticStyles';
-
-type User = {
-  user: OrNull<IUserWithTokens>;
-};
 
 const allPanes = [
   {
@@ -72,11 +67,7 @@ const allPanes = [
 
 export function StatisticsPage() {
   const classes = useStatisticsStyles();
-  const { user } = useSelector(
-    ({ user }: ReduxState): User => ({
-      user: user.current.data,
-    })
-  );
+  const user = useSelector((state: ReduxState) => state.user.current.data);
 
   const [errorLoading, setErrorLoading] = useState(false);
   const [startDate, setStartDate] = useState<Moment | null>(
@@ -86,7 +77,7 @@ export function StatisticsPage() {
   const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
     null
   );
-  const [presetDaterange, setPresetDaterange] = useState();
+  const [presetDateRange, setPresetDateRange] = useState();
 
   const handleFocusChange = (arg: FocusedInputShape | null) => {
     setFocusedInput(arg);
@@ -109,7 +100,7 @@ export function StatisticsPage() {
     }));
 
   const handleChange = (event: any) => {
-    setPresetDaterange(event.target.value);
+    setPresetDateRange(event.target.value);
   };
 
   const setDateRange = (start: number, end: number) => {
@@ -155,7 +146,7 @@ export function StatisticsPage() {
             Preset date ranges
           </InputLabel>
           <Select
-            value={presetDaterange ? presetDaterange : ''}
+            value={presetDateRange ? presetDateRange : ''}
             onChange={handleChange}
             label="Preset date ranges">
             <MenuItem value={undefined} disabled></MenuItem>

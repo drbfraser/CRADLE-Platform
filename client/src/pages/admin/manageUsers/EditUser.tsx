@@ -21,13 +21,13 @@ import {
   Autocomplete,
   AutocompleteRenderInputParams,
 } from 'formik-material-ui-lab';
-import { apiFetch } from 'src/shared/utils/api';
-import { BASE_URL } from 'src/server/utils';
-import { EndpointEnum } from 'src/server';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
-import { IUser } from 'src/types';
-import { UserRoleEnum, userRoles } from 'src/enums';
+import { IUser } from 'src/shared/types';
+import { UserRoleEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { userRoleLabels } from 'src/shared/constants';
 
 interface IProps {
   open: boolean;
@@ -50,7 +50,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
   ) => {
     try {
       const url =
-        BASE_URL +
+        API_URL +
         (editUser
           ? EndpointEnum.USER + String(editUser.userId)
           : EndpointEnum.USER_REGISTER);
@@ -140,7 +140,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                   variant="outlined"
                   label={fieldLabels[UserField.role]}
                   name={UserField.role}>
-                  {Object.entries(userRoles).map(([value, name]) => (
+                  {Object.entries(userRoleLabels).map(([value, name]) => (
                     <MenuItem key={value} value={value}>
                       {name}
                     </MenuItem>

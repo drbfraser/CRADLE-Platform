@@ -1,13 +1,43 @@
+export enum SexEnum {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+}
+
+export enum GestationalAgeUnitEnum {
+  WEEKS = 'WEEKS',
+  MONTHS = 'MONTHS',
+}
+
+export enum TrafficLightEnum {
+  GREEN = 'GREEN',
+  YELLOW_UP = 'YELLOW_UP',
+  YELLOW_DOWN = 'YELLOW_DOWN',
+  RED_UP = 'RED_UP',
+  RED_DOWN = 'RED_DOWN',
+  NONE = 'NONE',
+}
+
+export enum UserRoleEnum {
+  VHT = 'VHT',
+  CHO = 'CHO',
+  HCW = 'HCW',
+  ADMIN = 'ADMIN',
+}
+
+export enum MethodEnum {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE',
+}
+
 export enum EndpointEnum {
   ASSESSMENTS = '/assessments',
   ASSESSMENT_UPDATE = '/assessmentUpdate',
-  DELETE = '/delete',
-  EDIT = '/edit',
   HEALTH_FACILITY_LIST = '/facilities?simplified=true',
   HEALTH_FACILITIES = '/facilities',
   PATIENTS = '/patients',
   PATIENT_INFO = '/info' /* /patients/{PATIENT_ID}/info */,
-  PATIENT_ASSOCIATIONS = '/patientAssociations',
   REFERRALS = '/referrals',
   READINGS = '/readings',
   STATISTICS = '/stats',
@@ -22,14 +52,6 @@ export enum EndpointEnum {
   USER_ALL = '/user/all',
   USER_CURRENT = '/user/current',
   USER_REGISTER = '/user/register',
-  VHTS = '/vhts',
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
-}
-
-export enum MethodEnum {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE',
 }

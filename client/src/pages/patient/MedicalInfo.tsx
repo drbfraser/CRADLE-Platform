@@ -10,15 +10,14 @@ import {
 } from '@material-ui/core';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import { Patient } from 'src/types';
+import { Patient } from 'src/shared/types';
 import { Skeleton } from '@material-ui/lab';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
+import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
 import {
-  GestationalAgeUnitEnum,
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
-  SexEnum,
-} from 'src/enums';
-import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
+} from 'src/shared/constants';
 
 interface IProps {
   patient?: Patient;

@@ -3,10 +3,10 @@ import {
   getNumOfMonthsNumeric,
   getNumOfWeeksDaysNumeric,
 } from 'src/shared/utils';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
-import { apiFetch } from 'src/shared/utils/api';
-import { GestationalAgeUnitEnum, gestationalAgeUnitLabels } from 'src/enums';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
+import { GestationalAgeUnitEnum } from 'src/shared/enums';
+import { gestationalAgeUnitLabels } from 'src/shared/constants';
 
 export const gestationalAgeUnitOptions = [
   {
@@ -66,7 +66,7 @@ export const getPatientState = async (patientId: string | undefined) => {
 
   const data = await (
     await apiFetch(
-      BASE_URL +
+      API_URL +
         EndpointEnum.PATIENTS +
         '/' +
         patientId +

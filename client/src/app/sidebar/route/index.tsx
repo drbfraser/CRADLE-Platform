@@ -1,4 +1,4 @@
-import { Callback, OrNull, OrUndefined } from 'src/types';
+import { Callback, OrNull, OrUndefined } from 'src/shared/types';
 
 import { AppRoute } from '../../routes/utils';
 import { Link } from 'react-router-dom';

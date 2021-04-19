@@ -5,12 +5,11 @@ import { MedicalInfo } from './MedicalInfo';
 import { PersonalInfo } from './PersonalInfo';
 import { ReadingCard } from './ReadingCard/ReadingCard';
 import { PatientStats } from './PatientStats';
-import { Patient } from 'src/types';
+import { Patient } from 'src/shared/types';
 import { useRouteMatch } from 'react-router-dom';
-import { apiFetch } from 'src/shared/utils/api';
-import { EndpointEnum } from 'src/server';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { BASE_URL } from 'src/server/utils';
 
 type RouteParams = {
   patientId: string;
@@ -22,7 +21,7 @@ export const PatientPage = () => {
   const [errorLoading, setErrorLoading] = useState(false);
 
   useEffect(() => {
-    apiFetch(BASE_URL + EndpointEnum.PATIENTS + `/${patientId}`)
+    apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
       .then((resp) => resp.json())
       .then((patient) => {
         setPatient(patient);

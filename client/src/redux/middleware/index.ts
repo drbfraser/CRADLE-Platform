@@ -1,8 +1,8 @@
-import { BASE_URL } from 'src/server/utils';
-import { EndpointEnum } from 'src/server';
+import { API_URL } from 'src/shared/api';
 import { MakeServerRequestEnum } from '../reducers/utils';
 import axios from 'axios';
-import { getApiToken } from 'src/shared/utils/api';
+import { getApiToken } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 
 export const requestMiddleware = () => ({ dispatch }: any) => (
   next: any
@@ -26,7 +26,7 @@ export const requestMiddleware = () => ({ dispatch }: any) => (
 
   axios({
     method: method,
-    url: `${BASE_URL}${endpoint}`,
+    url: `${API_URL}${endpoint}`,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',

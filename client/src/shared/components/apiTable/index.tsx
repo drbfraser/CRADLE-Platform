@@ -4,9 +4,8 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import { SortDir } from './types';
 import Pagination from './Pagination';
 import { HeaderRow } from './HeaderRow';
-import { BASE_URL } from 'src/server/utils';
-import { EndpointEnum } from 'src/server';
-import { apiFetch } from 'src/shared/utils/api';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 
 interface IProps {
@@ -65,7 +64,7 @@ export const APITable = ({
         sortDir: sortDir,
       });
 
-    apiFetch(BASE_URL + endpoint + params, fetchOptions)
+    apiFetch(API_URL + endpoint + params, fetchOptions)
       .then(async (resp) => {
         const json = await resp.json();
         setRows(json);

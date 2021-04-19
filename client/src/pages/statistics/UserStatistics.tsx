@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
-import { IUser } from 'src/types';
+import { IUser } from 'src/shared/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import { useStatisticsStyles } from './utils/statisticStyles';
 import FormControl from '@material-ui/core/FormControl';
-import { apiFetch } from 'src/shared/utils/api';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import Box from '@material-ui/core/Box';
@@ -34,7 +33,7 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
     const getAllUsers = async () => {
       try {
         const response: IUser[] = await (
-          await apiFetch(BASE_URL + EndpointEnum.USER_ALL)
+          await apiFetch(API_URL + EndpointEnum.USER_ALL)
         ).json();
         setUsers(response);
       } catch (e) {
@@ -59,7 +58,7 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
         {user !== '' && (
           <ExportStatistics
             url={
-              BASE_URL +
+              API_URL +
               EndpointEnum.STATS_USER_EXPORT +
               `/${user}?from=${from}&to=${to}`
             }
@@ -78,7 +77,6 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
       </FormControl>
 
       <br />
-      <br />
 
       {user !== '' && (
         <div>
@@ -86,7 +84,7 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
           <br />
           <StatisticDashboard
             url={
-              BASE_URL +
+              API_URL +
               EndpointEnum.STATS_USER +
               `/${user}?from=${from}&to=${to}`
             }

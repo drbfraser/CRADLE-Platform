@@ -1,25 +1,10 @@
-import { OrNull, OrUndefined, Reading } from 'src/types';
+import { OrNull, Reading } from 'src/shared/types';
 
-import { TrafficLightEnum } from 'src/enums';
+import { TrafficLightEnum } from 'src/shared/enums';
 import moment from 'moment';
 import { history } from 'src/redux/reducers/index';
 
 export { v4 as makeUniqueId } from 'uuid';
-
-export const getLatestReadingWithReferral = (
-  readings: Array<Reading>
-): OrUndefined<Reading> => {
-  // * Sort readings in ascending order of date reading was taken
-  // * Therefore, first reading is the last one to be taken
-  return readings
-    .filter((reading: Reading): boolean => Boolean(reading.referral))
-    .sort((reading: Reading, otherReading: Reading): number => {
-      return (
-        getMomentDate(otherReading.dateTimeTaken).valueOf() -
-        getMomentDate(reading.dateTimeTaken).valueOf()
-      );
-    })[0];
-};
 
 export const getTimestampFromWeeksDays = (
   weeks: string,
@@ -178,7 +163,6 @@ export const getLatestReading = (readings: Array<Reading>): Reading => {
   return sortedReadings[0];
 };
 
-//~~~~~~~ Calculate Age based on DOB ~~~~~~~~~~
 export const getAgeBasedOnDOB = (value: string) => {
   return moment().diff(value, 'years');
 };

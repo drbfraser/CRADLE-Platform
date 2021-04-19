@@ -1,4 +1,4 @@
-import { TrafficLightEnum } from 'src/enums';
+import { TrafficLightEnum } from 'src/shared/enums';
 
 export interface IReferral {
   referralId: string;

@@ -1,10 +1,10 @@
 import { AppRoute, appRoutes } from '../routes/utils';
 
 import List from '@material-ui/core/List';
-import { OrNull } from 'src/types';
+import { OrNull } from 'src/shared/types';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { UserRoleEnum } from 'src/enums';
+import { UserRoleEnum } from 'src/shared/enums';
 import { SidebarRoute } from './route';
 import { makeUniqueId } from 'src/shared/utils';
 import { useDimensionsContext } from '../context/hooks';

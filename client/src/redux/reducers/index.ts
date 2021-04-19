@@ -3,7 +3,6 @@ import {
   healthFacilitiesReducer,
 } from '../reducers/healthFacilities';
 import { History, createBrowserHistory } from 'history';
-import { StatisticsState, statisticsReducer } from '../reducers/statistics';
 import { UserState, userReducer } from '../reducers/user';
 
 import { CurrentUserActionEnum } from '../reducers/user/currentUser';
@@ -13,7 +12,6 @@ import { connectRouter } from 'connected-react-router';
 
 export type ReduxState = {
   healthFacilities: HealthFacilitiesState;
-  statistics: StatisticsState;
   user: UserState;
   router: RouterState;
 };
@@ -22,7 +20,6 @@ const createRootReducer = (history: History) => {
   return combineReducers({
     healthFacilities: healthFacilitiesReducer,
     router: connectRouter(history),
-    statistics: statisticsReducer,
     user: userReducer,
   });
 };

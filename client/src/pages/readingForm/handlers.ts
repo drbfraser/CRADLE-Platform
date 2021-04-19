@@ -1,6 +1,5 @@
-import { apiFetch } from 'src/shared/utils/api';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import { ReadingField, ReadingState } from './state';
 import { getSymptomsFromFormState } from './symptoms/symptoms';
 
@@ -53,7 +52,7 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
 
 export const handleSubmit = async (patientId: string, values: ReadingState) => {
   const submitValues = getSubmitObject(patientId, values);
-  const url = BASE_URL + EndpointEnum.READINGS;
+  const url = API_URL + EndpointEnum.READINGS;
 
   try {
     await apiFetch(url, {
