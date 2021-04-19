@@ -1,9 +1,8 @@
 from flasgger import swag_from
 from flask import request
 from flask_restful import Resource
-from service.StatsManager import StatsManager
 
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity
 
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -14,7 +13,6 @@ from models import TrafficLightEnum, RoleEnum
 import data.crud as crud
 
 
-statsManager = StatsManager()
 MYSQL_BIGINT_MAX = (2 ** 63) - 1
 
 
@@ -29,7 +27,9 @@ def query_stats_data(args, facility_id="%", user_id="%"):
     color_readings_q = crud.get_total_color_readings(
         facility=facility_id, user=user_id, filter=args
     )
-    total_referrals = crud.get_sent_referrals(facility=facility_id, filter=args)[0][0]
+    total_referrals = crud.get_sent_referrals(
+        facility=facility_id, user=user_id, filter=args
+    )[0][0]
 
     days_with_readings = crud.get_days_with_readings(
         facility=facility_id, user=user_id, filter=args
@@ -77,17 +77,6 @@ def get_filter_data(request):
     return filter
 
 
-class Root(Resource):
-    @staticmethod
-    @swag_from("../../specifications/stats.yml", methods=["GET"])
-
-    ## Get all statistics for patients
-    def get():
-
-        stats = statsManager.put_data_together()
-        return stats, 200
-
-
 # api/stats/all [GET]
 class AllStats(Resource):
     @staticmethod
@@ -108,14 +97,47 @@ class AllStats(Resource):
 # api/stats/facility/<string:facility_id> [GET]
 class FacilityReadings(Resource):
     @staticmethod
-    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW])
+    @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
+
+        jwt = get_jwt_identity()
+
+        if (
+            jwt["role"] == RoleEnum.HCW.value
+            and jwt["healthFacilityName"] != facility_id
+        ):
+            return "Unauthorized to view this facility", 401
 
         filter = get_filter_data(request)
 
         response = query_stats_data(filter, facility_id=facility_id)
         return response, 200
+
+
+def hasPermissionToViewUser(user_id):
+    jwt = get_jwt_identity()
+    role = jwt["role"]
+    isCurrentUser = jwt["userId"] == user_id
+
+    if isCurrentUser:
+        return True
+
+    if role == RoleEnum.VHT.value:
+        return False
+
+    if role == RoleEnum.CHO.value:
+        supervised = crud.get_supervised_vhts(jwt["userId"])
+        supervised = [(lambda user: user[0])(user) for user in supervised]
+        if user_id not in supervised:
+            return False
+
+    if role == RoleEnum.HCW.value:
+        user = crud.read(User, id=user_id)
+        if jwt["healthFacilityName"] != user.healthFacilityName:
+            return False
+
+    return True
 
 
 # api/stats/user/<int:user_id> [GET]
@@ -124,22 +146,9 @@ class UserReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
-        jwt = get_jwt_identity()
 
-        role = jwt["role"]
-        if role == RoleEnum.VHT.value and user_id != jwt["userId"]:
+        if not hasPermissionToViewUser(user_id):
             return "Unauthorized to view this endpoint", 401
-
-        if role == RoleEnum.HCW.value:
-            user = crud.read(User, id=user_id)
-            if jwt["healthFacilityName"] != user.healthFacilityName:
-                return "Unauthorized to view statistics for this VHT", 401
-
-        if role == RoleEnum.CHO.value:
-            user_list = crud.get_supervised_vhts(jwt["userId"])
-            user_list = [(lambda user: user[0])(user) for user in user_list]
-            if user_id not in user_list and user_id != jwt["userId"]:
-                return "Unauthorized to view statistics for this VHT", 401
 
         filter = get_filter_data(request)
 
@@ -151,7 +160,7 @@ class UserReadings(Resource):
 # api/stats/export/<int:user_id> [GET]
 class ExportStats(Resource):
     @staticmethod
-    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW])
+    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-export.yml")
     def get(user_id: int):
 
@@ -159,6 +168,9 @@ class ExportStats(Resource):
 
         if crud.read(User, id=user_id) == None:
             return "User with this ID does not exist", 404
+
+        if not hasPermissionToViewUser(user_id):
+            return "Unauthorized to view this endpoint", 401
 
         query_response = crud.get_export_data(user_id, filter)
         response = []

@@ -12,7 +12,6 @@ from api.resources.assessments import (
     UpdateAssessment,
 )
 from api.resources.stats import (
-    Root as GeneralStats,
     AllStats,
     FacilityReadings,
     UserReadings,
@@ -34,7 +33,6 @@ from api.resources.users import *
 
 
 def init(api):
-    api.add_resource(GeneralStats, "/api/stats")  # [GET]
     api.add_resource(AllStats, "/api/stats/all")  # [GET]
 
     api.add_resource(
