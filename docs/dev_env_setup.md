@@ -81,10 +81,30 @@ npm start
 ```
 
 ## Start Developing!
+
 - Navigate to http://localhost:3000/ to check out the React client running in your browser, communicating to the server hosted at http://localhost:5000/ which is communicating with MySQL!
 - You will be able work on the client-side and server-side code, all while being able to enjoy hot-reloading!
+- Make sure to check out the API documentation at http://localhost:5000/apidocs
 - Once the initial setup is completed, you'll only need to run `docker-compose up` in the `cradle-platform` directory and `npm start` in the client directory to start Cradle.
 - If using Docker Desktop, you may also start / restart / stop the containers from within the GUI.
+
+## Database Changes
+
+- If working on the backend, when you make database changes you'll need to create migrations: run `docker exec cradle_flask flask db migrate` to do so
+
+- If database changes have been made (by you or other team members), run `docker exec cradle_flask flask db upgrade` to upgrade your database schema
+
+## Reseeding your Database
+
+If something has gone wrong and you're having issues with your database, you can always wipe it and reseed. To do so, with your Docker containers off:
+
+1. Run `docker container ls -a` and look for a container named `cradle_mysql` or similar
+2. Remove the container by running `docker container rm cradle_mysql` (using the container name identified above)
+3. Run `docker volume ls` and look for the volume associated with the MySQL database. It's likely named `cradle-platform_mysql_data` or something similar
+4. Remove the Docker volume: `docker volume rm cradle-platform_mysql_data` (using the volume name identified above)
+5. Start your Docker containers: `docker-compose up`
+6. Upgrade your daabase schema: `docker exec cradle_flask flask db upgrade`
+7. Reseed: `docker exec cradle_flask python manage.py seed` (see setup above for more seed options)
 
 <hr>
 
