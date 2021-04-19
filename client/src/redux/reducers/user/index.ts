@@ -1,4 +1,4 @@
-import { CurrentUserState, currentUserReducer } from './currentUser';
+import { currentUserReducer, CurrentUserState } from './currentUser';
 
 import { combineReducers } from 'redux';
 

@@ -1,4 +1,4 @@
-import { IUserWithTokens, OrNull } from 'src/types';
+import { IUserWithTokens, OrNull } from 'src/shared/types';
 
 import { ContextProvider } from 'src/context';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -8,7 +8,7 @@ import { LogoutMenuItem } from './logout';
 import { Pathname } from 'history';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { UserRoleEnum } from 'src/enums';
+import { UserRoleEnum } from 'src/shared/enums';
 import { Routes } from './routes';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';

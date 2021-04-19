@@ -1,8 +1,8 @@
-import { HealthFacility, OrNull, ServerError } from 'src/types';
+import { HealthFacility, OrNull, ServerError } from 'src/shared/types';
 import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from 'src/server';
+import { EndpointEnum } from 'src/shared/enums';
 
 enum HealthFacilitiesActionEnum {
   GET_HEALTH_FACILITY_REQUESTED = 'healthFacility/GET_HEALTH_FACILITY_REQUESTED',

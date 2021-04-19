@@ -1,4 +1,4 @@
-import { HealthFacility, OrNull } from 'src/types';
+import { HealthFacility, OrNull } from 'src/shared/types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import React from 'react';

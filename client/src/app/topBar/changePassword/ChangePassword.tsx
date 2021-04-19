@@ -9,10 +9,9 @@ import Alert from '@material-ui/lab/Alert';
 import { Formik, Form, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import React, { useState } from 'react';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
 import { Toast } from 'src/shared/components/toast';
-import { apiFetch } from 'src/shared/utils/api';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import {
   initialValues,
   IPasswordForm,
@@ -39,7 +38,7 @@ const ChangePassword = ({ open, onClose }: IProps) => {
     };
 
     try {
-      await apiFetch(BASE_URL + EndpointEnum.CHANGE_PASS, init);
+      await apiFetch(API_URL + EndpointEnum.CHANGE_PASS, init);
 
       setSubmitError(false);
       setSubmitSuccess(true);

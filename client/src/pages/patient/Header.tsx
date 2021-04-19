@@ -9,7 +9,7 @@ import {
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import AddIcon from '@material-ui/icons/Add';
 import { goBackWithFallback } from 'src/shared/utils';
-import { Patient } from 'src/types';
+import { Patient } from 'src/shared/types';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { useHistory } from 'react-router-dom';
 

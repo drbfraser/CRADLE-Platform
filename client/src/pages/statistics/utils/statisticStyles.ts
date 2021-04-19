@@ -19,7 +19,7 @@ export const useStatisticsStyles = makeStyles((theme) => ({
     float: 'right',
   },
   divider: {
-    margin: '20px 0 20px 0',
+    margin: '20px 0',
   },
   right: { marginBottom: '10px' },
   inputLabel: {
@@ -53,9 +53,5 @@ export const useStatisticsStyles = makeStyles((theme) => ({
     display: `flex`,
     flexDirection: `column`,
     alignItems: `center`,
-  },
-  skeletonContainer: { display: 'grid' },
-  skeleton: {
-    margin: 'auto',
   },
 }));

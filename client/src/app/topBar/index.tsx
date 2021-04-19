@@ -1,4 +1,4 @@
-import { IUserWithTokens, OrNull } from 'src/types';
+import { IUserWithTokens, OrNull } from 'src/shared/types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -7,7 +7,6 @@ import { Icon } from 'semantic-ui-react';
 import IconButton from '@material-ui/core/IconButton';
 import React, { useState } from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { userRoles } from 'src/enums';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { push } from 'connected-react-router';
@@ -15,6 +14,7 @@ import { useStyles } from './styles';
 import { Menu, MenuItem } from '@material-ui/core';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import ChangePassword from './changePassword/ChangePassword';
+import { userRoleLabels } from 'src/shared/constants';
 
 interface IProps {
   user: OrNull<IUserWithTokens>;
@@ -65,7 +65,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
                 <Icon name="user circle" size="large" />
                 <div>
                   <Typography variant="body1" noWrap>
-                    {user?.firstName} ({user ? userRoles[user.role] : ''})
+                    {user?.firstName} ({user ? userRoleLabels[user.role] : ''})
                   </Typography>
                   {user?.healthFacilityName && (
                     <Typography variant="body2" noWrap>

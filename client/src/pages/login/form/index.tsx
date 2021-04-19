@@ -7,7 +7,7 @@ import {
 } from 'src/redux/reducers/user/currentUser';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { OrNull } from 'src/types';
+import { OrNull } from 'src/shared/types';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';

@@ -1,10 +1,14 @@
-import { IUserWithTokens, Callback, OrNull, ServerError } from 'src/types';
+import {
+  IUserWithTokens,
+  Callback,
+  OrNull,
+  ServerError,
+} from 'src/shared/types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
-import { EndpointEnum } from 'src/server';
-import { MethodEnum } from 'src/server';
 import { push } from 'connected-react-router';
+import { EndpointEnum, MethodEnum } from 'src/shared/enums';
 
 export enum CurrentUserActionEnum {
   CLEAR_CURRENT_USER_ERROR = 'currentUser/CLEAR_CURRENT_USER_ERROR',

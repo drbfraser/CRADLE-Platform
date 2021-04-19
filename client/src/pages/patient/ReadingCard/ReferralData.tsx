@@ -9,7 +9,7 @@ import {
 import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import { Reading } from 'src/types';
+import { Reading } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 

@@ -2,10 +2,10 @@ import React from 'react';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
-import { IUserWithTokens, OrNull } from 'src/types';
+import { IUserWithTokens, OrNull } from 'src/shared/types';
 import { useStatisticsStyles } from './utils/statisticStyles';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
+import { API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import Typography from '@material-ui/core/Typography';
 import { ExportStatistics } from './utils/ExportStatistics';
 import Box from '@material-ui/core/Box';
@@ -39,7 +39,7 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
       <Box className={classes.floatRight}>
         <ExportStatistics
           url={
-            BASE_URL +
+            API_URL +
             EndpointEnum.STATS_USER_EXPORT +
             `/${userId}?from=${from}&to=${to}`
           }
@@ -53,9 +53,7 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
       <br />
       <StatisticDashboard
         url={
-          BASE_URL +
-          EndpointEnum.STATS_USER +
-          `/${userId}?from=${from}&to=${to}`
+          API_URL + EndpointEnum.STATS_USER + `/${userId}?from=${from}&to=${to}`
         }
       />
     </div>

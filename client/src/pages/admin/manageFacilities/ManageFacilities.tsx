@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { apiFetch } from 'src/shared/utils/api';
-import { BASE_URL } from 'src/server/utils';
-import { EndpointEnum } from 'src/server';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import { IconButton, Tooltip } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 import { IFacility } from './state';
@@ -38,7 +37,7 @@ export const ManageFacilities = () => {
   const getFacilities = async () => {
     try {
       const resp: IFacility[] = await (
-        await apiFetch(BASE_URL + EndpointEnum.HEALTH_FACILITIES)
+        await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)
       ).json();
 
       setFacilities(resp);

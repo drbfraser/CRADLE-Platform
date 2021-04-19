@@ -1,10 +1,9 @@
 import {
   GestationalAgeUnitEnum,
-  PatientStateEnum,
   SexEnum,
   TrafficLightEnum,
   UserRoleEnum,
-} from 'src/enums';
+} from 'src/shared/enums';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -76,14 +75,6 @@ export type Patient = {
   householdNumber: OrNull<string>;
 };
 
-export type GlobalSearchPatient = {
-  patientName: string;
-  patientId: string;
-  villageNumber: string;
-  readings: Array<Reading>;
-  state: PatientStateEnum;
-};
-
 export interface IUser {
   userId: number;
   email: string;
@@ -113,7 +104,7 @@ export interface IVHT {
   healthFacilityName: string;
 }
 
-export type TrafficLightStatistics = {
+export type PatientTrafficLightStats = {
   green: number;
   yellowUp: number;
   yellowDown: number;
@@ -121,7 +112,7 @@ export type TrafficLightStatistics = {
   redDown: number;
 };
 
-export type YearPatientStatistics = [
+export type PatientMonthlyStats = [
   Array<number>,
   Array<number>,
   Array<number>,
@@ -137,37 +128,10 @@ export type YearPatientStatistics = [
 ];
 
 export type PatientStatistics = {
-  trafficLightCountsFromDay1: TrafficLightStatistics;
-  bpSystolicReadingsMonthly?: YearPatientStatistics;
-  bpDiastolicReadingsMonthly?: YearPatientStatistics;
-  heartRateReadingsMonthly?: YearPatientStatistics;
-};
-
-export type YearGlobalStatistics = [
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number
-];
-
-export type Statistics = {
-  assessmentsPerMonth: YearGlobalStatistics;
-  readingsPerMonth: YearGlobalStatistics;
-  referralsPerMonth: YearGlobalStatistics;
-  pregnantWomenAssessedPerMonth: YearGlobalStatistics;
-  pregnantWomenReferredPerMonth: YearGlobalStatistics;
-  trafficLightStatusLastMonth: TrafficLightStatistics;
-  uniquePeopleAssesedPerMonth: YearGlobalStatistics;
-  womenAssessedPerMonth: YearGlobalStatistics;
-  womenReferredPerMonth: YearGlobalStatistics;
+  trafficLightCountsFromDay1: PatientTrafficLightStats;
+  bpSystolicReadingsMonthly?: PatientMonthlyStats;
+  bpDiastolicReadingsMonthly?: PatientMonthlyStats;
+  heartRateReadingsMonthly?: PatientMonthlyStats;
 };
 
 export type NewAssessment = {
@@ -197,16 +161,6 @@ export type Referral = {
   readingId: string;
   referralHealthFacilityName: string;
   userId: OrNull<number>;
-};
-
-export type StatisticsDataset<Label, Data, BackgroundColor = string> = {
-  backgroundColor: BackgroundColor;
-  data: Data;
-  label?: Label;
-  fill?: false;
-  lineTension?: 0.1;
-  borderColor?: string;
-  pointRadius?: 1;
 };
 
 export type HealthFacility = string;

@@ -7,12 +7,11 @@ import {
 } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import React, { useState } from 'react';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
-import { apiFetch } from 'src/shared/utils/api';
-import { IUser } from 'src/types';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
+import { IUser } from 'src/shared/types';
 
 interface IProps {
   open: boolean;
@@ -31,7 +30,7 @@ const DeleteUser = ({ open, onClose, deleteUser }: IProps) => {
     }
 
     try {
-      const url = BASE_URL + EndpointEnum.USER + String(deleteUser.userId);
+      const url = API_URL + EndpointEnum.USER + String(deleteUser.userId);
       await apiFetch(url, {
         method: 'DELETE',
       });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Paper, Box, makeStyles } from '@material-ui/core';
-import { Reading } from 'src/types';
+import { Reading } from 'src/shared/types';
 import { ReadingData } from './ReadingData';
 import { ReferralData } from './ReferralData';
 

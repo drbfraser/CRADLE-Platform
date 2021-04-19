@@ -2,9 +2,9 @@ import React from 'react';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
-import { IUserWithTokens, OrNull } from 'src/types';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
+import { IUserWithTokens, OrNull } from 'src/shared/types';
+import { API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import { useStatisticsStyles } from './utils/statisticStyles';
@@ -31,13 +31,11 @@ export const MyFacility: React.FC<IProps> = ({ from, to }) => {
       <Typography variant="h5" gutterBottom>
         During this period, your facility has assessed:
       </Typography>
-      <br />
-
       <Divider className={classes.divider} />
       <br />
       <StatisticDashboard
         url={
-          BASE_URL +
+          API_URL +
           EndpointEnum.STATS_FACILITY +
           `/${facilityName}?from=${from}&to=${to}`
         }

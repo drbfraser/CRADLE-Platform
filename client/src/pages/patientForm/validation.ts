@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { GestationalAgeUnitEnum } from 'src/enums';
+import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
 import { PatientField } from './state';
 

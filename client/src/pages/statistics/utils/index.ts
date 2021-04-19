@@ -1,13 +1,6 @@
-export type Response = {
-  patients_referred: number;
-  sent_referrals: number;
-  days_with_readings: number;
-  unique_patient_readings: number;
-  total_readings: number;
-  color_readings: ColorReading;
-};
+import { TrafficLightEnum } from 'src/shared/enums';
 
-export type Data = {
+export type StatsData = {
   patients_referred: number;
   sent_referrals: number;
   days_with_readings: number;
@@ -15,19 +8,7 @@ export type Data = {
   total_readings: number;
 };
 
-export type ColorReading = {
-  color_readings: TrafficLight;
-};
-
-export type TrafficLight = {
-  GREEN: number;
-  YELLOW_UP: number;
-  YELLOW_DOWN: number;
-  RED_UP: number;
-  RED_DOWN: number;
-};
-
-export const initialData: Data = {
+export const initialStatsData: StatsData = {
   patients_referred: 0,
   sent_referrals: 0,
   days_with_readings: 0,
@@ -35,17 +16,15 @@ export const initialData: Data = {
   total_readings: 0,
 };
 
-export const initialColorReading: ColorReading = {
-  color_readings: {
-    GREEN: 0,
-    YELLOW_UP: 0,
-    YELLOW_DOWN: 0,
-    RED_UP: 0,
-    RED_DOWN: 0,
-  },
+export const initialColorReading = {
+  [TrafficLightEnum.GREEN]: 0,
+  [TrafficLightEnum.YELLOW_UP]: 0,
+  [TrafficLightEnum.YELLOW_DOWN]: 0,
+  [TrafficLightEnum.RED_UP]: 0,
+  [TrafficLightEnum.RED_DOWN]: 0,
 };
 
-export interface IStatistic {
+export interface IExportStatRow {
   referral_date: number;
   parsed_date: string;
   parsed_time: string;

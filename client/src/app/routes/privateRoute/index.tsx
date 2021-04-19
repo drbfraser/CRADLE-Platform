@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Loader } from 'src/shared/components/loader';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { UserRoleEnum } from 'src/enums';
+import { UserRoleEnum } from 'src/shared/enums';
 
 interface IProps {
   component:

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { apiFetch } from 'src/shared/utils/api';
-import { BASE_URL } from 'src/server/utils';
-import { EndpointEnum } from 'src/server';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
 import { IconButton, Tooltip } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForever from '@material-ui/icons/DeleteForever';
@@ -11,11 +10,11 @@ import ResetPassword from './ResetPassword';
 import DeleteUser from './DeleteUser';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
-import { IUser } from 'src/types';
-import { userRoles } from 'src/enums';
+import { IUser } from 'src/shared/types';
 import { useAdminStyles } from '../adminStyles';
 import AdminTable from '../AdminTable';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { userRoleLabels } from 'src/shared/constants';
 
 const columns = [
   'First Name',
@@ -48,7 +47,7 @@ export const ManageUsers = () => {
   const getUsers = async () => {
     try {
       const resp: IUser[] = await (
-        await apiFetch(BASE_URL + EndpointEnum.USER_ALL)
+        await apiFetch(API_URL + EndpointEnum.USER_ALL)
       ).json();
 
       setUsers(resp);
@@ -79,7 +78,7 @@ export const ManageUsers = () => {
         u.firstName,
         u.email,
         u.healthFacilityName,
-        userRoles[u.role],
+        userRoleLabels[u.role],
         idx,
       ]);
 

@@ -5,7 +5,7 @@ import {
   AccordionDetails,
   AccordionSummary,
 } from '@material-ui/core';
-import { Reading } from 'src/types';
+import { Reading } from 'src/shared/types';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { getPrettyDateTime } from 'src/shared/utils';
 import AssessmentIcon from '@material-ui/icons/Assessment';

@@ -8,12 +8,11 @@ import {
 import { Formik, Form, Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import React, { useState } from 'react';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
-import { apiFetch } from 'src/shared/utils/api';
-import { IUser } from 'src/types';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
+import { IUser } from 'src/shared/types';
 import {
   fieldLabels,
   passwordValidationSchema,
@@ -45,7 +44,7 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
 
     try {
       const url =
-        BASE_URL +
+        API_URL +
         EndpointEnum.USER +
         String(resetUser.userId) +
         EndpointEnum.RESET_PASS;

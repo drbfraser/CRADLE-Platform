@@ -1,9 +1,12 @@
-import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { reduxStore } from 'src/redux/store';
-import { MethodEnum, EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
+import { MethodEnum, EndpointEnum } from './enums';
+
+export const API_URL =
+  process.env.NODE_ENV === `development`
+    ? `http://${window.location.hostname}:5000/api`
+    : '/api';
 
 export const getApiToken = async () => {
   let token = localStorage.getItem(`token`);
@@ -18,18 +21,23 @@ export const getApiToken = async () => {
     if (shouldRefreshToken) {
       const refreshToken = localStorage.refresh;
 
-      const response = await axios({
+      const init = {
         method: MethodEnum.POST,
-        url: `${BASE_URL}${EndpointEnum.REFRESH}`,
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           Authorization: `Bearer ${refreshToken}`,
         },
-      });
-      console.log(response);
-      localStorage.setItem('token', response.data.token);
-      token = localStorage.token;
+      };
+
+      const resp = await fetch(`${API_URL}${EndpointEnum.REFRESH}`, init);
+
+      if (!resp.ok) {
+        throw new Error('Refresh token error: HTTP status: ' + resp.status);
+      }
+
+      token = (await resp.json()).data.token;
+      localStorage.setItem('token', token!);
     }
   } catch (error) {
     console.error(error);

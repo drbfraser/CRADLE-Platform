@@ -3,9 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useStatisticsStyles } from './statisticStyles';
 import { Bar } from 'react-chartjs-2';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { initialData, initialColorReading } from '../utils';
+import { initialStatsData, initialColorReading } from '../utils';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { apiFetch } from 'src/shared/utils/api';
+import { apiFetch } from 'src/shared/api';
+import { trafficLightColors } from 'src/shared/constants';
+import { TrafficLightEnum } from 'src/shared/enums';
 
 interface IProps {
   url: string;
@@ -14,7 +16,7 @@ interface IProps {
 export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
   const classes = useStatisticsStyles();
 
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState(initialStatsData);
   const [colorReading, setColorReading] = useState(initialColorReading);
   const [loaded, setloaded] = useState(false);
   const [errorLoading, setErrorLoading] = useState(false);
@@ -25,10 +27,10 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
       .then((response) => response.json())
       .then((response) => {
         setData(response);
-        setColorReading(response);
+        setColorReading(response.color_readings);
         setloaded(true);
       })
-      .catch((err) => {
+      .catch(() => {
         setErrorLoading(true);
       });
   }, [url]);
@@ -39,18 +41,18 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
       {
         label: 'Traffic Light',
         data: [
-          colorReading.color_readings.GREEN,
-          colorReading.color_readings.YELLOW_UP,
-          colorReading.color_readings.YELLOW_DOWN,
-          colorReading.color_readings.RED_UP,
-          colorReading.color_readings.RED_DOWN,
+          colorReading[TrafficLightEnum.GREEN],
+          colorReading[TrafficLightEnum.YELLOW_UP],
+          colorReading[TrafficLightEnum.YELLOW_DOWN],
+          colorReading[TrafficLightEnum.RED_UP],
+          colorReading[TrafficLightEnum.RED_DOWN],
         ],
         backgroundColor: [
-          '#289672',
-          '#ffd384',
-          '#ffab73',
-          '#f05454',
-          '#af2d2d',
+          trafficLightColors[TrafficLightEnum.GREEN],
+          trafficLightColors[TrafficLightEnum.YELLOW_UP],
+          trafficLightColors[TrafficLightEnum.YELLOW_DOWN],
+          trafficLightColors[TrafficLightEnum.RED_UP],
+          trafficLightColors[TrafficLightEnum.RED_DOWN],
         ],
         borderWidth: 0,
       },
@@ -85,57 +87,47 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      {!loaded && (
-        <Skeleton
-          variant="rect"
-          className={classes.skeleton}
-          width="60vw"
-          height="50vh"
-        />
-      )}
-      {loaded && (
+      {!loaded ? (
+        <Skeleton variant="rect" height={700} />
+      ) : (
         <div className={classes.center}>
           <Statistic.Group className={classes.statisticGroup}>
-            {data.patients_referred !== undefined && (
-              <Statistic horizontal className={classes.statistic}>
-                <Statistic.Value>{data.patients_referred}</Statistic.Value>
-                <Statistic.Label className={classes.verticalWriting}>
-                  Patient Referred
-                </Statistic.Label>
-              </Statistic>
+            {[
+              {
+                label: 'Days with Readings',
+                value: data.days_with_readings,
+              },
+              {
+                label: 'Unique Patient Readings',
+                value: data.unique_patient_readings,
+              },
+              {
+                label: 'Total Readings',
+                value: data.total_readings,
+              },
+              {
+                label: 'Patients Referred',
+                value: data.patients_referred,
+              },
+              {
+                label: 'Referrals Sent',
+                value: data.sent_referrals,
+              },
+            ].map(
+              (stat, i) =>
+                stat.value !== undefined && (
+                  <Statistic key={i} horizontal className={classes.statistic}>
+                    <Statistic.Value>{stat.value}</Statistic.Value>
+                    <Statistic.Label className={classes.verticalWriting}>
+                      {stat.label}
+                    </Statistic.Label>
+                  </Statistic>
+                )
             )}
-
-            <Statistic horizontal className={classes.statistic}>
-              <Statistic.Value>{data.days_with_readings}</Statistic.Value>
-              <Statistic.Label className={classes.verticalWriting}>
-                Days With Readings
-              </Statistic.Label>
-            </Statistic>
-
-            <Statistic horizontal className={classes.statistic}>
-              <Statistic.Value>{data.sent_referrals}</Statistic.Value>
-              <Statistic.Label className={classes.verticalWriting}>
-                Referrals Sent
-              </Statistic.Label>
-            </Statistic>
-
-            <Statistic horizontal className={classes.statistic}>
-              <Statistic.Value>{data.total_readings}</Statistic.Value>
-              <Statistic.Label className={classes.verticalWriting}>
-                Total Readings
-              </Statistic.Label>
-            </Statistic>
-
-            <Statistic horizontal className={classes.statistic}>
-              <Statistic.Value>{data.unique_patient_readings}</Statistic.Value>
-              <Statistic.Label className={classes.verticalWriting}>
-                Unique Patient Readings
-              </Statistic.Label>
-            </Statistic>
           </Statistic.Group>
           <br />
 
-          <h2>Traffic lights</h2>
+          <h2>Reading Traffic Lights</h2>
           <div className={classes.chart}>
             <Bar data={barData} options={options} />
           </div>

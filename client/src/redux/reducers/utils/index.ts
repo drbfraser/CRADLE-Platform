@@ -1,6 +1,6 @@
 import { Method as AxiosMethod } from 'axios';
-import { Callback } from 'src/types';
-import { MethodEnum } from 'src/server';
+import { MethodEnum } from 'src/shared/enums';
+import { Callback } from 'src/shared/types';
 
 export enum MakeServerRequestEnum {
   MAKE_SERVER_REQUEST = 'MAKE_SERVER_REQUEST',

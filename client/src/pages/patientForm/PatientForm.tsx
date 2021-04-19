@@ -15,7 +15,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { patientValidationSchema } from './validation';
 import { useHistory } from 'react-router-dom';
 import { PatientIDExists } from './PatientIDExists';
-import { GestationalAgeUnitEnum, SexEnum, sexOptions } from 'src/enums';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 import {
   handleChangeCustom,
   handleBlurPatientId,
@@ -23,6 +23,7 @@ import {
 } from './handlers';
 import { InputAdornment } from '@material-ui/core';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { sexOptions } from 'src/shared/constants';
 
 interface IProps {
   initialState: PatientState;

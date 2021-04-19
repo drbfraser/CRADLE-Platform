@@ -4,11 +4,10 @@ import {
   getTimestampFromWeeksDays,
   goBackWithFallback,
 } from 'src/shared/utils';
-import { EndpointEnum } from 'src/server';
-import { BASE_URL } from 'src/server/utils';
 import { initialState, PatientField, PatientState } from './state';
-import { apiFetch } from 'src/shared/utils/api';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/enums';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { EndpointEnum } from 'src/shared/enums';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 
 // custom change handler when a field might affect other fields
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
@@ -48,7 +47,7 @@ export const handleBlurPatientId = (
     const patientId = e.target.value;
     if (patientId.length !== 0) {
       apiFetch(
-        BASE_URL +
+        API_URL +
           EndpointEnum.PATIENTS +
           '/' +
           patientId +
@@ -113,7 +112,7 @@ export const handleSubmit = (
     }
 
     let method = 'POST';
-    let url = BASE_URL + EndpointEnum.PATIENTS;
+    let url = API_URL + EndpointEnum.PATIENTS;
 
     if (!creatingNew) {
       method = 'PUT';

@@ -3,7 +3,7 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import { ReactComponent as GreenTraffic } from './icons/green.svg';
 import React from 'react';
 import { ReactComponent as RedTraffic } from './icons/red.svg';
-import { TrafficLightEnum } from 'src/enums';
+import { TrafficLightEnum } from 'src/shared/enums';
 import Typography from '@material-ui/core/Typography';
 import { ReactComponent as YellowTraffic } from './icons/yellow.svg';
 import { useStyles } from './styles';
