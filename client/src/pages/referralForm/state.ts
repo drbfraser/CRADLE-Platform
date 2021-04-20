@@ -8,8 +8,10 @@ export enum ReferralField {
 
 export const initialState = {
   [ReferralField.comment]: '',
-  [ReferralField.healthFacility]: null,
+  [ReferralField.healthFacility]: null as string | null,
 };
+
+export type ReferralState = typeof initialState;
 
 export const validationSchema = Yup.object().shape({
   [ReferralField.healthFacility]: Yup.string()
@@ -17,5 +19,3 @@ export const validationSchema = Yup.object().shape({
     .required()
     .nullable(),
 });
-
-export type ReferralState = typeof initialState;

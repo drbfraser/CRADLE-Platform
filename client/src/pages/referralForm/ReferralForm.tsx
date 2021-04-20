@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+import { TextField as FormikTextField } from 'formik-material-ui';
 import { Field, Form, Formik } from 'formik';
 import {
   Autocomplete,
@@ -69,7 +70,7 @@ export const ReferralForm = ({ readingId }: IProps) => {
                     </Grid>
                     <Grid item xs={12}>
                       <Field
-                        component={TextField}
+                        component={FormikTextField}
                         variant="outlined"
                         fullWidth
                         multiline
