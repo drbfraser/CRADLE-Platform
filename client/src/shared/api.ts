@@ -16,10 +16,14 @@ export const getApiToken = async () => {
     const currentTime = new Date().getTime() / 1000;
 
     const shouldRefreshToken =
-      !decodedToken || currentTime > decodedToken.exp + 5;
+      !decodedToken || currentTime > decodedToken.exp + 30;
 
     if (shouldRefreshToken) {
       const refreshToken = localStorage.refresh;
+
+      if (!refreshToken) {
+        throw new Error();
+      }
 
       const init = {
         method: MethodEnum.POST,
@@ -33,14 +37,13 @@ export const getApiToken = async () => {
       const resp = await fetch(`${API_URL}${EndpointEnum.REFRESH}`, init);
 
       if (!resp.ok) {
-        throw new Error('Refresh token error: HTTP status: ' + resp.status);
+        throw new Error();
       }
 
       token = (await resp.json()).data.token;
       localStorage.setItem('token', token!);
     }
-  } catch (error) {
-    console.error(error);
+  } catch (e) {
     reduxStore.dispatch(logoutUser());
   }
 
