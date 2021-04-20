@@ -15,9 +15,9 @@ reduce preventable maternal deaths in Ugandan villages.
 * `prod` is deployed on: https://cradleplatform.com (Vultr server)
    * Note that the deployment job must be manually run from the CI/CD Jobs list
 
-## Setup Instructions
+## Development Setup & Information
 
-Please follow the setup instructions located in [docs/dev_env_setup.md](docs/dev_env_setup.md).
+See [docs/development.md](docs/development.md).
 
 ## Default Usernames & Passwords
 
@@ -61,3 +61,8 @@ the previously mentioned admin user is added along with a few additional users:
 | Paul Ngo | paul_ngo@sfu.ca |
 | Ali Tohidi | atohidi@sfu.ca |
 | Liyang Zhou | lza132@sfu.ca |
+| Dev Arora | deva@sfu.ca |
+| Devon Lutz | dlutz@sfu.ca |
+| Mikhail Alexeev | malexeev@sfu.ca |
+| Syed Naufal Mahmood | syedm@sfu.ca |
+| Ting Yi | tingy@sfu.ca |
