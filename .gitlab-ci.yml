@@ -147,7 +147,7 @@ backend format:
       when: always
   before_script:
     - pip install --upgrade pip
-    - pip install black
+    - pip install black==20.8b1
   script:
     - black --check --exclude 'server/migrations/.*' server
 
