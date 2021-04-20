@@ -15,9 +15,9 @@ reduce preventable maternal deaths in Ugandan villages.
 * `prod` is deployed on: https://cradleplatform.com (Vultr server)
    * Note that the deployment job must be manually run from the CI/CD Jobs list
 
-## Setup Instructions
+## Development Setup & Information
 
-Please follow the setup instructions located in [docs/dev_env_setup.md](docs/dev_env_setup.md).
+See [docs/development.md](docs/development.md).
 
 ## Default Usernames & Passwords
 

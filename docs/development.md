@@ -2,19 +2,17 @@
 
 ## 1. Install Required Programs
 
-You'll need to install the following:
+You'll need to install Docker and NodeJS + NPM.
 
-- Linux, macOS or Windows 10 Pro / Education / Enterprise
-  - Windows 10 Education is available for free for SFU students from https://sfu.onthehub.com/WebStore/ProductsByMajorVersionList.aspx
-- Docker: https://www.docker.com/products/docker-desktop
-  - You will need to run the `docker` and `docker-compose` commands 
-- Node + NPM: https://nodejs.org/en/download/
+Follow this guide to install Docker: https://docs.docker.com/get-docker/
+  - If on Windows 10 Home, you'll need to first [enable WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+  - If you're on Windows / macOS, follow Docker Desktop's "Getting Started" guide. It'll introduce you to the basics of Docker and give you an easy way to verify it's correctly installed.
 
-In particular, if you're on Windows / macOS, follow Docker Desktop's "Getting Started" guide. It'll introduce you to the basics of Docker and give you an easy way to verify it's correctly installed.
+Install NodeJS 14 LTS from here: https://nodejs.org/en/
 
 ## 2. Cloning the Repo
 
-Prior to cloning the repo, ensure you have registered your SSH key with Gitlab (out of the scope of this guide).
+Prior to cloning the repo, ensure you have registered your SSH key with GitLab (out of the scope of this guide).
 
 Then run:
 ```
@@ -25,17 +23,17 @@ git clone https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git
 
 Create a file named `.env` (extension only file) in the `cradle-platform` directory containing the following:
 ```
+JWT_SECRET_KEY=[A_SECRET_KEY]
 DB_USERNAME=[A_DATABASE_USERNAME]
 DB_PASSWORD=[A_DATABASE_PASSWORD]
-JWT_SECRET_KEY=[A_SECRET_KEY]
 ```
 
 For example:
 
 ```
+JWT_SECRET_KEY=supersecretkey
 DB_USERNAME=user
 DB_PASSWORD=abcd1234
-JWT_SECRET_KEY=supersecretkey
 ```
 
 Note you may set these to any arbitrary values.
@@ -48,9 +46,9 @@ From your OS's terminal (such as PowerShell in Windows) run:
 docker-compose up
 ```
 
-All the Docker images will build and then the Docker containers will start. You may add the `-d` option to run the Docker containers in the background.
+All the Docker images will build and then the Docker containers will start. You may add the `-d` option to run the Docker containers in the background, although that makes it more difficult to see log messages from Flask and MySQL.
 
-Now it's time to run the database migrations. Once the containers have fully started, run the following command. If you did not use the `-d` option above, you may need to launch a new terminal.
+Now it's time to run the database migrations. Once the containers have fully started, run the following command in a new terminal window.
 
 ```
 docker exec cradle_flask flask db upgrade
@@ -84,15 +82,53 @@ npm start
 
 - Navigate to http://localhost:3000/ to check out the React client running in your browser, communicating to the server hosted at http://localhost:5000/ which is communicating with MySQL!
 - You will be able work on the client-side and server-side code, all while being able to enjoy hot-reloading!
+
+
+---
+
+
+# Development
+
+## General Tips
+
 - Make sure to check out the API documentation at http://localhost:5000/apidocs
-- Once the initial setup is completed, you'll only need to run `docker-compose up` in the `cradle-platform` directory and `npm start` in the client directory to start Cradle.
+
+- Once the initial setup is completed, you'll only need to run `docker-compose up` in the `cradle-platform` directory and `npm start` in the client directory to run Cradle.
+
 - If using Docker Desktop, you may also start / restart / stop the containers from within the GUI.
+
+## Code Formatting
+
+In order to pass the pipeline (and for readability) your code must be properly formatted.
+
+### Frontend
+
+Frontend code is formatted using Prettier and must pass ESLint. Run `npm run format` in the `client` directory to format all frontend files and run a lint check.
+
+### Backend
+
+Backend code is formatted using Black. With your Docker containers running, run `docker exec cradle_flask black .` to format all backend files.
+
+## Package Changes
+
+It's always best to avoid adding additional dependencies to the project if possible. Try to use existing packages rather than installing a new one.
+
+### Frontend
+
+- New packages can be installed in the frontend by running `npm install PACKAGE_NAME` in the `client` folder
+-  If another team member has installed a new package, you'll need to run `npm install`
+
+### Backend
+
+- New packages can be installed in the backend by running `docker exec cradle_flask pip install PACKAGE_NAME` with your Docker containers running
+- If another team member has installed a new package, you'll need to run `docker-compose build` with your Docker containers off
 
 ## Database Changes
 
 - If working on the backend, when you make database changes you'll need to create migrations: run `docker exec cradle_flask flask db migrate` to do so
 
 - If database changes have been made (by you or other team members), run `docker exec cradle_flask flask db upgrade` to upgrade your database schema
+
 
 ## Reseeding your Database
 
@@ -106,7 +142,6 @@ If something has gone wrong and you're having issues with your database, you can
 6. Upgrade your daabase schema: `docker exec cradle_flask flask db upgrade`
 7. Reseed: `docker exec cradle_flask python manage.py seed` (see setup above for more seed options)
 
-<hr>
 
 ## Useful Tools / Dev Software
 
