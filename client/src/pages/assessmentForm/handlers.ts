@@ -17,21 +17,22 @@ export const handleSubmit = (
       url += EndpointEnum.ASSESSMENTS;
     }
 
-    const assessmentData = JSON.parse(JSON.stringify(values));
-    assessmentData['readingId'] = readingId;
+    const postBody = JSON.stringify({
+      readingId: readingId,
+      ...values,
+    });
 
     try {
       await apiFetch(url, {
         method: 'POST',
-        body: JSON.stringify(assessmentData),
+        body: postBody,
       });
 
       goBackWithFallback('/patients');
     } catch (e) {
       console.error(e);
       setSubmitError(true);
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
 };

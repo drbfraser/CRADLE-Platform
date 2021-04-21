@@ -24,8 +24,7 @@ export const handleSubmit = (
     } catch (e) {
       console.error(e);
       setSubmitError(true);
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
 };
