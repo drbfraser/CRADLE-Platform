@@ -9,6 +9,7 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { useDimensionsContext } from 'src/app/context/hooks';
 import { useStyles } from '../../styles';
+import {SideBarContext} from "../../../context/SideBarContext";
 
 interface IProps {
   activeItem: OrNull<string>;
@@ -24,7 +25,7 @@ export const SidebarRoute: React.FC<IProps> = ({
   appendedRoute,
 }) => {
   const { drawerWidth, offsetFromTop } = useDimensionsContext();
-
+  const {isSideBarOpen} = React.useContext(SideBarContext);
   const classes = useStyles({ drawerWidth, offsetFromTop });
 
   if (!route.to) {
@@ -47,7 +48,7 @@ export const SidebarRoute: React.FC<IProps> = ({
           disableTypography={true}
           className={classes.itemText}
           primary={
-            <Typography className={classes.sidebar}>{route.title}</Typography>
+            <Typography className={classes.sidebar}>{isSideBarOpen?route.title:""}</Typography>
           }
         />
       </ListItem>
