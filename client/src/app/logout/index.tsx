@@ -20,7 +20,6 @@ export const LogoutMenuItem: React.FC = () => {
   };
 
   return (
-    
     <ListItem className={classes.listItem} button={true} onClick={handleLogout}>
       <ListItemIcon classes={{ root: classes.icon }}>
         <ExitToAppIcon fontSize="large" />

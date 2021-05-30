@@ -7,8 +7,7 @@ import { UserRoleEnum } from 'src/shared/enums';
 import { SidebarRoute } from './route';
 import { makeUniqueId } from 'src/shared/utils';
 import { useDimensionsContext } from '../context/hooks';
-import { useSelector } from 'react-redux'; 
-
+import { useSelector } from 'react-redux';
 
 type CustomRoute = {
   index: number;

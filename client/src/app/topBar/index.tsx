@@ -26,7 +26,7 @@ interface IProps {
 }
 
 export const TopBar = React.forwardRef<HTMLElement, IProps>(
-  ({ user, setActiveItem, open, handleOpen}, ref) => {
+  ({ user, setActiveItem, open, handleOpen }, ref) => {
     const loggedIn = useSelector(({ user }: ReduxState): boolean => {
       return user.current.loggedIn;
     });
@@ -55,14 +55,12 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
 
     const toggleSidebar = () => {
       handleOpen(!open);
-    }
+    };
 
     return (
       <AppBar className={classes.appBar} position="fixed" ref={ref}>
         <Toolbar>
-          <IconButton
-            onClick={toggleSidebar}
-            color="inherit">
+          <IconButton onClick={toggleSidebar} color="inherit">
             {open ? <MenuOpenIcon /> : <MenuIcon />}
           </IconButton>
           <img alt="appIcon" src={AppImg} className="appIcon" />

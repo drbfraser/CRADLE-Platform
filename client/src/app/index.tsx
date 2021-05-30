@@ -16,7 +16,6 @@ import { routesNames } from './routes/utils';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
 
-
 type SelectorState = {
   loggedIn: boolean;
   user: OrNull<IUserWithTokens>;
@@ -53,30 +52,36 @@ export const App: React.FC = () => {
         drawerWidth={drawerWidth.current}
         offsetFromTop={offsetFromTop.current}>
         <CssBaseline />
-          <div className={classes.root}>
-            <TopBar ref={topBar} user={user} setActiveItem={setActiveItem} open={open} handleOpen={setOpen}/>
-            {loggedIn && open ? (
-                  <Drawer
-                    className={classes.drawer}
-                    variant='persistent'
-                    classes={{
-                    paper: classes.drawerPaper,
-                    }}
-                    open={open}
-                    anchor="left">
-                    <div className={classes.toolbar} />
-                    <Sidebar
-                      activeItem={activeItem}
-                      setActiveItem={setActiveItem}
-                      logout={{
-                        index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
-                        component: <LogoutMenuItem />,
-                      }}
-                    />
-                  </Drawer>
-            ) : null}
-            <Routes topBarOffset={topBar.current?.offsetHeight} />
-          </div>
+        <div className={classes.root}>
+          <TopBar
+            ref={topBar}
+            user={user}
+            setActiveItem={setActiveItem}
+            open={open}
+            handleOpen={setOpen}
+          />
+          {loggedIn && open ? (
+            <Drawer
+              className={classes.drawer}
+              variant="persistent"
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+              open={open}
+              anchor="left">
+              <div className={classes.toolbar} />
+              <Sidebar
+                activeItem={activeItem}
+                setActiveItem={setActiveItem}
+                logout={{
+                  index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
+                  component: <LogoutMenuItem />,
+                }}
+              />
+            </Drawer>
+          ) : null}
+          <Routes topBarOffset={topBar.current?.offsetHeight} />
+        </div>
       </DimensionsContextProvider>
     </ContextProvider>
   );
