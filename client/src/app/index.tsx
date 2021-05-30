@@ -1,7 +1,7 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 
 import { ContextProvider } from 'src/context';
-import { SideBarProvider, SideBarContext } from './../context/SideBarContext';
+import { SideBarProvider} from './../context/SideBarContext';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { DimensionsContextProvider } from './context';
 import Drawer from '@material-ui/core/Drawer';
@@ -18,7 +18,6 @@ import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
 
 
-
 type SelectorState = {
   loggedIn: boolean;
   user: OrNull<IUserWithTokens>;
@@ -26,17 +25,16 @@ type SelectorState = {
 };
 
 export const App: React.FC = () => {
-  const {isSideBarOpen} = React.useContext(SideBarContext);
-  const drawerWidth = React.useRef<number>(isSideBarOpen?120:40);
+  const drawerWidth = React.useRef<number>(120);
   const offsetFromTop = React.useRef<number>(36);
   const topBar = React.useRef<OrNull<HTMLElement>>(null);
-
   const classes = useStyles({
     drawerWidth: drawerWidth.current,
     offsetFromTop: offsetFromTop.current,
   });
 
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
+  const [open, setOpen] = React.useState<boolean>(true);
 
   const { loggedIn, pathName, user } = useSelector(
     ({ user, router }: ReduxState): SelectorState => ({
@@ -56,32 +54,33 @@ export const App: React.FC = () => {
         drawerWidth={drawerWidth.current}
         offsetFromTop={offsetFromTop.current}>
         <CssBaseline />
-        <div className={classes.root}>
-          <TopBar ref={topBar} user={user} setActiveItem={setActiveItem} />
-          {loggedIn ? (
-            <SideBarProvider>
-                <Drawer
-                  className={classes.drawer}
-                  variant="permanent"
-                  classes={{
-                   paper: classes.drawerPaper,
-                  }}
-                  anchor="left">
-                  <div className={classes.toolbar} />
-                  <Sidebar
-                    activeItem={activeItem}
-                    setActiveItem={setActiveItem}
-                    logout={{
-                      index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
-                      component: <LogoutMenuItem />,
+        <SideBarProvider>
+          <div className={classes.root}>
+            <TopBar ref={topBar} user={user} setActiveItem={setActiveItem} handleToggleSidebar={setOpen}/>
+            {loggedIn && open ? (
+                  <Drawer
+                    className={classes.drawer}
+                    variant='persistent'
+                    classes={{
+                    paper: classes.drawerPaper,
                     }}
-                  />
-                </Drawer>
-            </SideBarProvider>
+                    open={open}
+                    anchor="left">
+                    <div className={classes.toolbar} />
+                    <Sidebar
+                      activeItem={activeItem}
+                      setActiveItem={setActiveItem}
+                      logout={{
+                        index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
+                        component: <LogoutMenuItem />,
+                      }}
+                    />
+                  </Drawer>
+            ) : null}
             
-          ) : null}
-          <Routes topBarOffset={topBar.current?.offsetHeight} />
-        </div>
+            <Routes topBarOffset={topBar.current?.offsetHeight} />
+          </div>
+        </SideBarProvider>
       </DimensionsContextProvider>
     </ContextProvider>
   );

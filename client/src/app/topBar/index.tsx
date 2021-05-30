@@ -5,6 +5,8 @@ import AppBar from '@material-ui/core/AppBar';
 import AppImg from './img/app_icon.png';
 import { Icon } from 'semantic-ui-react';
 import IconButton from '@material-ui/core/IconButton';
+import MenuOpenIcon from '@material-ui/icons/MenuOpen';
+import MenuIcon from '@material-ui/icons/Menu';
 import React, { useState } from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -15,20 +17,23 @@ import { Menu, MenuItem } from '@material-ui/core';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import ChangePassword from './changePassword/ChangePassword';
 import { userRoleLabels } from 'src/shared/constants';
+import { SideBarContext } from '../../context/SideBarContext';
 
 interface IProps {
   user: OrNull<IUserWithTokens>;
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
+  handleToggleSidebar: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const TopBar = React.forwardRef<HTMLElement, IProps>(
-  ({ user, setActiveItem }, ref) => {
+  ({ user, setActiveItem, handleToggleSidebar}, ref) => {
     const loggedIn = useSelector(({ user }: ReduxState): boolean => {
       return user.current.loggedIn;
     });
 
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
     const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+    const {isSideBarOpen, setIsSideBarOpen} = React.useContext(SideBarContext);
 
     const classes = useStyles();
 
@@ -49,9 +54,19 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
       dispatch(logoutUser());
     };
 
+    const toggleSidebar = () => {
+      setIsSideBarOpen(!isSideBarOpen);
+      handleToggleSidebar(!isSideBarOpen);
+    }
+
     return (
       <AppBar className={classes.appBar} position="fixed" ref={ref}>
         <Toolbar>
+          <IconButton
+            onClick={toggleSidebar}
+            color="inherit">
+            {isSideBarOpen ? <MenuOpenIcon /> : <MenuIcon />}
+          </IconButton>
           <img alt="appIcon" src={AppImg} className="appIcon" />
           <Typography className={classes.title} noWrap={true}>
             CRADLE
