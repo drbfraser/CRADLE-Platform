@@ -17,23 +17,22 @@ import { Menu, MenuItem } from '@material-ui/core';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import ChangePassword from './changePassword/ChangePassword';
 import { userRoleLabels } from 'src/shared/constants';
-import { SideBarContext } from '../../context/SideBarContext';
 
 interface IProps {
   user: OrNull<IUserWithTokens>;
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
-  handleToggleSidebar: React.Dispatch<React.SetStateAction<boolean>>;
+  open: boolean;
+  handleOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const TopBar = React.forwardRef<HTMLElement, IProps>(
-  ({ user, setActiveItem, handleToggleSidebar}, ref) => {
+  ({ user, setActiveItem, open, handleOpen}, ref) => {
     const loggedIn = useSelector(({ user }: ReduxState): boolean => {
       return user.current.loggedIn;
     });
 
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
     const [changePasswordOpen, setChangePasswordOpen] = useState(false);
-    const {isSideBarOpen, setIsSideBarOpen} = React.useContext(SideBarContext);
 
     const classes = useStyles();
 
@@ -55,8 +54,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
     };
 
     const toggleSidebar = () => {
-      setIsSideBarOpen(!isSideBarOpen);
-      handleToggleSidebar(!isSideBarOpen);
+      handleOpen(!open);
     }
 
     return (
@@ -65,7 +63,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
           <IconButton
             onClick={toggleSidebar}
             color="inherit">
-            {isSideBarOpen ? <MenuOpenIcon /> : <MenuIcon />}
+            {open ? <MenuOpenIcon /> : <MenuIcon />}
           </IconButton>
           <img alt="appIcon" src={AppImg} className="appIcon" />
           <Typography className={classes.title} noWrap={true}>

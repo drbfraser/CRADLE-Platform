@@ -1,7 +1,6 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 
 import { ContextProvider } from 'src/context';
-import { SideBarProvider} from './../context/SideBarContext';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { DimensionsContextProvider } from './context';
 import Drawer from '@material-ui/core/Drawer';
@@ -54,9 +53,8 @@ export const App: React.FC = () => {
         drawerWidth={drawerWidth.current}
         offsetFromTop={offsetFromTop.current}>
         <CssBaseline />
-        <SideBarProvider>
           <div className={classes.root}>
-            <TopBar ref={topBar} user={user} setActiveItem={setActiveItem} handleToggleSidebar={setOpen}/>
+            <TopBar ref={topBar} user={user} setActiveItem={setActiveItem} open={open} handleOpen={setOpen}/>
             {loggedIn && open ? (
                   <Drawer
                     className={classes.drawer}
@@ -77,10 +75,8 @@ export const App: React.FC = () => {
                     />
                   </Drawer>
             ) : null}
-            
             <Routes topBarOffset={topBar.current?.offsetHeight} />
           </div>
-        </SideBarProvider>
       </DimensionsContextProvider>
     </ContextProvider>
   );

@@ -8,11 +8,9 @@ import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { useDimensionsContext } from '../context/hooks';
 import { useDispatch } from 'react-redux';
 import { useStyles } from '../styles';
-import {SideBarContext} from '../../context/SideBarContext'
 
 export const LogoutMenuItem: React.FC = () => {
   const { drawerWidth, offsetFromTop } = useDimensionsContext();
-  const {isSideBarOpen} = React.useContext(SideBarContext);
   const classes = useStyles({ drawerWidth, offsetFromTop });
 
   const dispatch = useDispatch();
@@ -30,7 +28,7 @@ export const LogoutMenuItem: React.FC = () => {
       <ListItemText
         disableTypography
         className={classes.itemText}
-        primary={<Typography className={classes.sidebar}>{isSideBarOpen?"Logout":""}</Typography>}
+        primary={<Typography className={classes.sidebar}>Logout</Typography>}
       />
     </ListItem>
   );
