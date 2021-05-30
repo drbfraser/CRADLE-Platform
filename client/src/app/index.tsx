@@ -15,6 +15,7 @@ import { TopBar } from './topBar';
 import { routesNames } from './routes/utils';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
+import { isMobile } from 'react-device-detect';
 
 type SelectorState = {
   loggedIn: boolean;
@@ -23,7 +24,7 @@ type SelectorState = {
 };
 
 export const App: React.FC = () => {
-  const drawerWidth = React.useRef<number>(120);
+  const drawerWidth = React.useRef<number>(200);
   const offsetFromTop = React.useRef<number>(36);
   const topBar = React.useRef<OrNull<HTMLElement>>(null);
   const classes = useStyles({
@@ -32,7 +33,7 @@ export const App: React.FC = () => {
   });
 
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
-  const [open, setOpen] = React.useState<boolean>(true);
+  const [open, setOpen] = React.useState<boolean>(isMobile ? false : true);
 
   const { loggedIn, pathName, user } = useSelector(
     ({ user, router }: ReduxState): SelectorState => ({
