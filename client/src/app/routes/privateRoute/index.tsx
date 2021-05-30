@@ -25,11 +25,9 @@ export enum AdminRoutesEnum {
 }
 
 export const PrivateRoute: React.FC<IProps> = (props) => {
-  const currentUser = useSelector(
-    ({ user }: ReduxState): CurrentUserState => {
-      return user.current;
-    }
-  );
+  const currentUser = useSelector(({ user }: ReduxState): CurrentUserState => {
+    return user.current;
+  });
   const dispatch = useDispatch();
 
   React.useEffect((): void => {

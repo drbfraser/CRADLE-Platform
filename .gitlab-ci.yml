@@ -130,7 +130,7 @@ frontend format:
       when: always
   before_script:
     # Prettier version here should match version in package.json
-    - npm install prettier@^2.2.0 --global
+    - npm install prettier@2.3.0 --global
   script:
     - prettier --check "client/src/**/*.{ts,tsx}"
 
