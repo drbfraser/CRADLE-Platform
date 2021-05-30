@@ -15,21 +15,10 @@ export const Routes: React.FC<IProps> = ({ topBarOffset }) => {
   return (
     <main className={classes.content}>
       <Switch>
-        {appRoutes.map(
-          (route: AppRoute): JSX.Element => {
-            if (route.private) {
-              return (
-                <PrivateRoute
-                  key={route.id}
-                  exact={route.exactPath}
-                  path={route.to}
-                  component={route.component}
-                />
-              );
-            }
-
+        {appRoutes.map((route: AppRoute): JSX.Element => {
+          if (route.private) {
             return (
-              <Route
+              <PrivateRoute
                 key={route.id}
                 exact={route.exactPath}
                 path={route.to}
@@ -37,7 +26,16 @@ export const Routes: React.FC<IProps> = ({ topBarOffset }) => {
               />
             );
           }
-        )}
+
+          return (
+            <Route
+              key={route.id}
+              exact={route.exactPath}
+              path={route.to}
+              component={route.component}
+            />
+          );
+        })}
       </Switch>
     </main>
   );
