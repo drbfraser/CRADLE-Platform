@@ -68,7 +68,7 @@ export const Sidebar: React.FC<IProps> = ({
               );
             }
 
-            // * Prevent non-admins from seeing admin sidebar option
+            // * Prevent non-admins from seeing admin sidebar tab
             if (!admin && route.to === `/admin`) {
               return null;
             }
