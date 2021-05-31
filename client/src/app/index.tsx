@@ -52,6 +52,8 @@ export const App: React.FC = () => {
     setIsSidebarOpen(isBigScreen);
   }, [isBigScreen]);
 
+  const handleCloseSidebar = () => setIsSidebarOpen(false);
+
   return (
     <ContextProvider>
       <DimensionsContextProvider
@@ -69,11 +71,12 @@ export const App: React.FC = () => {
           {loggedIn && isSidebarOpen ? (
             <Drawer
               className={classes.drawer}
-              variant="persistent"
+              variant={isBigScreen ? 'persistent' : 'temporary'}
               classes={{
                 paper: classes.drawerPaper,
               }}
               open={isSidebarOpen}
+              onClose={handleCloseSidebar}
               anchor="left">
               <div className={classes.toolbar} />
               <Sidebar
