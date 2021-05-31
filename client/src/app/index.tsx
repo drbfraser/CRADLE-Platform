@@ -15,7 +15,7 @@ import { TopBar } from './topBar';
 import { routesNames } from './routes/utils';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
-import { isMobile } from 'react-device-detect';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 type SelectorState = {
   loggedIn: boolean;
@@ -31,9 +31,10 @@ export const App: React.FC = () => {
     drawerWidth: drawerWidth.current,
     offsetFromTop: offsetFromTop.current,
   });
-
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
-  const [open, setOpen] = React.useState<boolean>(isMobile ? false : true);
+  const isBigScreen = useMediaQuery('(min-width:800px)');
+  const [isSidebarOpen, setIsSidebarOpen] =
+    React.useState<boolean>(isBigScreen);
 
   const { loggedIn, pathName, user } = useSelector(
     ({ user, router }: ReduxState): SelectorState => ({
@@ -47,6 +48,10 @@ export const App: React.FC = () => {
     setActiveItem(routesNames[pathName]);
   }, [pathName]);
 
+  React.useEffect(() => {
+    setIsSidebarOpen(isBigScreen);
+  }, [isBigScreen]);
+
   return (
     <ContextProvider>
       <DimensionsContextProvider
@@ -58,17 +63,17 @@ export const App: React.FC = () => {
             ref={topBar}
             user={user}
             setActiveItem={setActiveItem}
-            open={open}
-            handleOpen={setOpen}
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
           />
-          {loggedIn && open ? (
+          {loggedIn && isSidebarOpen ? (
             <Drawer
               className={classes.drawer}
               variant="persistent"
               classes={{
                 paper: classes.drawerPaper,
               }}
-              open={open}
+              open={isSidebarOpen}
               anchor="left">
               <div className={classes.toolbar} />
               <Sidebar

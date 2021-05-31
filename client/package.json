@@ -64,7 +64,6 @@
     "react-chartjs-2": "^2.11.1",
     "react-csv": "^2.0.3",
     "react-dates": "^21.8.0",
-    "react-device-detect": "^1.17.0",
     "react-dom": "16.9.0",
     "react-redux": "7.2.0",
     "react-router-dom": "5.2.0",

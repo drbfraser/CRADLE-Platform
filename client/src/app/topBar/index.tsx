@@ -21,12 +21,12 @@ import { userRoleLabels } from 'src/shared/constants';
 interface IProps {
   user: OrNull<IUserWithTokens>;
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
-  open: boolean;
-  handleOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const TopBar = React.forwardRef<HTMLElement, IProps>(
-  ({ user, setActiveItem, open, handleOpen }, ref) => {
+  ({ user, setActiveItem, isSidebarOpen, setIsSidebarOpen }, ref) => {
     const loggedIn = useSelector(({ user }: ReduxState): boolean => {
       return user.current.loggedIn;
     });
@@ -54,15 +54,18 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
     };
 
     const toggleSidebar = () => {
-      handleOpen(!open);
+      setIsSidebarOpen(!isSidebarOpen);
     };
 
     return (
       <AppBar className={classes.appBar} position="fixed" ref={ref}>
         <Toolbar>
-          <IconButton onClick={toggleSidebar} color="inherit">
-            {open ? <MenuOpenIcon /> : <MenuIcon />}
-          </IconButton>
+          {loggedIn && (
+            <IconButton onClick={toggleSidebar} color="inherit">
+              {isSidebarOpen ? <MenuOpenIcon /> : <MenuIcon />}
+            </IconButton>
+          )}
+
           <img alt="appIcon" src={AppImg} className="appIcon" />
           <Typography className={classes.title} noWrap={true}>
             CRADLE
