@@ -1,5 +1,4 @@
 import { AppRoute, appRoutes } from '../routes/utils';
-
 import List from '@material-ui/core/List';
 import { OrNull } from 'src/shared/types';
 import React from 'react';
@@ -32,7 +31,6 @@ export const Sidebar: React.FC<IProps> = ({
   setActiveItem,
 }) => {
   const { offsetFromTop } = useDimensionsContext();
-
   const { admin, loggedIn } = useSelector(
     ({ user }: ReduxState): SelectorState => {
       return {

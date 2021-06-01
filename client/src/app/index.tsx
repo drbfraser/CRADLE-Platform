@@ -15,6 +15,7 @@ import { TopBar } from './topBar';
 import { routesNames } from './routes/utils';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 type SelectorState = {
   loggedIn: boolean;
@@ -26,13 +27,14 @@ export const App: React.FC = () => {
   const drawerWidth = React.useRef<number>(200);
   const offsetFromTop = React.useRef<number>(36);
   const topBar = React.useRef<OrNull<HTMLElement>>(null);
-
   const classes = useStyles({
     drawerWidth: drawerWidth.current,
     offsetFromTop: offsetFromTop.current,
   });
-
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
+  const isBigScreen = useMediaQuery('(min-width:800px)');
+  const [isSidebarOpen, setIsSidebarOpen] =
+    React.useState<boolean>(isBigScreen);
 
   const { loggedIn, pathName, user } = useSelector(
     ({ user, router }: ReduxState): SelectorState => ({
@@ -46,6 +48,12 @@ export const App: React.FC = () => {
     setActiveItem(routesNames[pathName]);
   }, [pathName]);
 
+  React.useEffect(() => {
+    setIsSidebarOpen(isBigScreen);
+  }, [isBigScreen]);
+
+  const handleCloseSidebar = () => setIsSidebarOpen(false);
+
   return (
     <ContextProvider>
       <DimensionsContextProvider
@@ -53,14 +61,22 @@ export const App: React.FC = () => {
         offsetFromTop={offsetFromTop.current}>
         <CssBaseline />
         <div className={classes.root}>
-          <TopBar ref={topBar} user={user} setActiveItem={setActiveItem} />
-          {loggedIn ? (
+          <TopBar
+            ref={topBar}
+            user={user}
+            setActiveItem={setActiveItem}
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
+          {loggedIn && isSidebarOpen ? (
             <Drawer
               className={classes.drawer}
-              variant="permanent"
+              variant={isBigScreen ? 'persistent' : 'temporary'}
               classes={{
                 paper: classes.drawerPaper,
               }}
+              open={isSidebarOpen}
+              onClose={handleCloseSidebar}
               anchor="left">
               <div className={classes.toolbar} />
               <Sidebar

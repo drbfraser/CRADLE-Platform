@@ -11,7 +11,6 @@ import { useStyles } from '../styles';
 
 export const LogoutMenuItem: React.FC = () => {
   const { drawerWidth, offsetFromTop } = useDimensionsContext();
-
   const classes = useStyles({ drawerWidth, offsetFromTop });
 
   const dispatch = useDispatch();
