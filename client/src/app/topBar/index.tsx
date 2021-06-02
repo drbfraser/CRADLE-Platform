@@ -27,7 +27,10 @@ interface IProps {
 }
 
 export const TopBar = React.forwardRef<HTMLElement, IProps>(
-  ({ user, setActiveItem, isSidebarOpen, setIsSidebarOpen, isBigScreen }, ref) => {
+  (
+    { user, setActiveItem, isSidebarOpen, setIsSidebarOpen, isBigScreen },
+    ref
+  ) => {
     const loggedIn = useSelector(({ user }: ReduxState): boolean => {
       return user.current.loggedIn;
     });
@@ -58,19 +61,20 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
       setIsSidebarOpen(!isSidebarOpen);
     };
 
-
-const showUserDetails = () => {
-      return (<div>
-        <Typography variant="body1" noWrap>
-          {user?.firstName} ({user ? userRoleLabels[user.role] : ''})
-        </Typography>
-        {user?.healthFacilityName && (
-          <Typography variant="body2" noWrap>
-            Healthcare Facility: {user?.healthFacilityName}
+    const showUserDetails = () => {
+      return (
+        <div>
+          <Typography variant="body1" noWrap>
+            {user?.firstName} ({user ? userRoleLabels[user.role] : ''})
           </Typography>
-        )}
-      </div>);
-    }
+          {user?.healthFacilityName && (
+            <Typography variant="body2" noWrap>
+              Healthcare Facility: {user?.healthFacilityName}
+            </Typography>
+          )}
+        </div>
+      );
+    };
 
     return (
       <AppBar className={classes.appBar} position="fixed" ref={ref}>
@@ -82,9 +86,11 @@ const showUserDetails = () => {
           )}
 
           <img alt="appIcon" src={AppImg} className="appIcon" />
-          {isBigScreen && (<Typography className={classes.title} noWrap={true}>
-            CRADLE
-          </Typography>)}
+          {isBigScreen && (
+            <Typography className={classes.title} noWrap={true}>
+              CRADLE
+            </Typography>
+          )}
           {loggedIn && (
             <div className={classes.navRightIcons}>
               <IconButton
@@ -107,7 +113,9 @@ const showUserDetails = () => {
                   vertical: 'top',
                   horizontal: 'center',
                 }}>
-                {isBigScreen ? null : <MenuItem disabled>{showUserDetails()}</MenuItem>}
+                {isBigScreen ? null : (
+                  <MenuItem disabled>{showUserDetails()}</MenuItem>
+                )}
                 <MenuItem onClick={handleChangePassword}>
                   Change Password
                 </MenuItem>

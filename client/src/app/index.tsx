@@ -33,8 +33,9 @@ export const App: React.FC = () => {
   });
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
   const isBigScreen = useMediaQuery('(min-width:800px)');
-  const [isSidebarOpen, setIsSidebarOpen] =
-    React.useState<boolean>(isBigScreen);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState<boolean>(
+    isBigScreen
+  );
 
   const { loggedIn, pathName, user } = useSelector(
     ({ user, router }: ReduxState): SelectorState => ({
