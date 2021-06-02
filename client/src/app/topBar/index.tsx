@@ -23,10 +23,11 @@ interface IProps {
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isBigScreen: boolean;
 }
 
 export const TopBar = React.forwardRef<HTMLElement, IProps>(
-  ({ user, setActiveItem, isSidebarOpen, setIsSidebarOpen }, ref) => {
+  ({ user, setActiveItem, isSidebarOpen, setIsSidebarOpen, isBigScreen }, ref) => {
     const loggedIn = useSelector(({ user }: ReduxState): boolean => {
       return user.current.loggedIn;
     });
@@ -57,6 +58,20 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
       setIsSidebarOpen(!isSidebarOpen);
     };
 
+
+const showUserDetails = () => {
+      return (<div>
+        <Typography variant="body1" noWrap>
+          {user?.firstName} ({user ? userRoleLabels[user.role] : ''})
+        </Typography>
+        {user?.healthFacilityName && (
+          <Typography variant="body2" noWrap>
+            Healthcare Facility: {user?.healthFacilityName}
+          </Typography>
+        )}
+      </div>);
+    }
+
     return (
       <AppBar className={classes.appBar} position="fixed" ref={ref}>
         <Toolbar>
@@ -67,9 +82,9 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
           )}
 
           <img alt="appIcon" src={AppImg} className="appIcon" />
-          <Typography className={classes.title} noWrap={true}>
+          {isBigScreen && (<Typography className={classes.title} noWrap={true}>
             CRADLE
-          </Typography>
+          </Typography>)}
           {loggedIn && (
             <div className={classes.navRightIcons}>
               <IconButton
@@ -77,16 +92,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
                 color="inherit"
                 onClick={(e) => setMenuAnchorEl(e.currentTarget)}>
                 <Icon name="user circle" size="large" />
-                <div>
-                  <Typography variant="body1" noWrap>
-                    {user?.firstName} ({user ? userRoleLabels[user.role] : ''})
-                  </Typography>
-                  {user?.healthFacilityName && (
-                    <Typography variant="body2" noWrap>
-                      Healthcare Facility: {user?.healthFacilityName}
-                    </Typography>
-                  )}
-                </div>
+                {isBigScreen ? showUserDetails() : null}
               </IconButton>
               <Menu
                 anchorEl={menuAnchorEl}
@@ -101,6 +107,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
                   vertical: 'top',
                   horizontal: 'center',
                 }}>
+                {isBigScreen ? null : <MenuItem disabled>{showUserDetails()}</MenuItem>}
                 <MenuItem onClick={handleChangePassword}>
                   Change Password
                 </MenuItem>
