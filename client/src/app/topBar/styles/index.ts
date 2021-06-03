@@ -7,12 +7,9 @@ export const useStyles = makeStyles((theme: Theme) => ({
   },
   toolbarButtons: {
     marginLeft: `auto`,
-    marginRight: -12,
   },
   toolbarButtonsPadded: {
     marginLeft: `auto`,
-    paddingLeft: 30,
-    paddingRight: 30,
   },
   title: {
     fontFamily: `Open Sans`,

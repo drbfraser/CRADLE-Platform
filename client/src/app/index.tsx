@@ -67,6 +67,7 @@ export const App: React.FC = () => {
             setActiveItem={setActiveItem}
             isSidebarOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}
+            isBigScreen={isBigScreen}
           />
           {loggedIn && isSidebarOpen ? (
             <Drawer
