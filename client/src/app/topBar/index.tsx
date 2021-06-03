@@ -98,7 +98,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
                 color="inherit"
                 onClick={(e) => setMenuAnchorEl(e.currentTarget)}>
                 <Icon name="user circle" size="large" />
-                {isBigScreen ? showUserDetails() : null}
+                {isBigScreen && showUserDetails()}
               </IconButton>
               <Menu
                 anchorEl={menuAnchorEl}
@@ -113,7 +113,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
                   vertical: 'top',
                   horizontal: 'center',
                 }}>
-                {isBigScreen ? null : (
+                {isBigScreen && (
                   <MenuItem disabled>{showUserDetails()}</MenuItem>
                 )}
                 <MenuItem onClick={handleChangePassword}>
