@@ -7,6 +7,7 @@ import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface IProps {
   endpoint: EndpointEnum;
@@ -91,6 +92,8 @@ export const APITable = ({
     }
   };
 
+  const isBigScreen = useMediaQuery('(min-width:560px)');
+
   return (
     <>
       <APIErrorToast
@@ -103,14 +106,16 @@ export const APITable = ({
       {rows.length ? (
         <div className={classes.tableWrapper}>
           <table className={classes.table}>
-            {/* <thead>
-              <HeaderRow
-                columns={columns}
-                sortBy={sortBy}
-                sortDir={sortDir}
-                handleSort={handleSort}
-              />
-            </thead> */}
+            {isBigScreen && (
+              <thead>
+                <HeaderRow
+                  columns={columns}
+                  sortBy={sortBy}
+                  sortDir={sortDir}
+                  handleSort={handleSort}
+                />
+              </thead>
+            )}
             <tbody>
               {rows.map((r: any) => (
                 <RowComponent key={r[rowKey]} row={r} />

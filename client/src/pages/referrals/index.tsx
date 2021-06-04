@@ -24,19 +24,19 @@ export const ReferralsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
-  const isBigScreen = useMediaQuery('(min-width:640px)');
+  const isBigScreen = useMediaQuery('(min-width:420px)');
 
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>
         <h2 className={classes.title}>Referrals</h2>
-        {/* <TextField
-          className={classes.search}
+        <TextField
+          className={isBigScreen ? classes.search : classes.searchThin}
           label="Search"
           placeholder="Patient ID or Name"
           variant="outlined"
           onChange={(e) => debounceSetSearch(e.target.value)}
-        /> */}
+        />
       </div>
       <APITable
         endpoint={EndpointEnum.REFERRALS}
@@ -61,5 +61,8 @@ const useStyles = makeStyles({
   },
   search: {
     float: 'right',
+  },
+  searchThin: {
+    marginLeft: 1,
   },
 });

@@ -7,8 +7,8 @@ import { IReferral } from './types';
 import DoneIcon from '@material-ui/icons/Done';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { Theme } from '@material-ui/core';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface IProps {
   row: IReferral;
@@ -22,8 +22,6 @@ export const ReferralRow = ({ row }: IProps) => {
   const handleClick = () => {
     history.push('/patients/' + row.patientId);
   };
-
-  const isBigScreen = useMediaQuery('(min-width:640px)');
 
   return (
     <tr className={classes.row} onClick={handleClick}>
@@ -92,5 +90,6 @@ const StyledCell = ({
   label,
 }: StyledCellProps) => {
   const classes = useCellStyles({ label });
-  return <td className={classes.root}>{children}</td>;
+  const isBigScreen = useMediaQuery('(min-width:560px)');
+  return <td className={isBigScreen ? "" : classes.root}>{children}</td>;
 }
