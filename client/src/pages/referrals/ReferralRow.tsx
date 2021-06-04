@@ -7,6 +7,8 @@ import { IReferral } from './types';
 import DoneIcon from '@material-ui/icons/Done';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { Theme } from '@material-ui/core';
 
 interface IProps {
   row: IReferral;
@@ -21,18 +23,24 @@ export const ReferralRow = ({ row }: IProps) => {
     history.push('/patients/' + row.patientId);
   };
 
+  const isBigScreen = useMediaQuery('(min-width:640px)');
+
   return (
     <tr className={classes.row} onClick={handleClick}>
-      <td>
+      {/* <td>
         <span style={{ fontSize: '30px' }}>{row.patientName}</span>
-      </td>
-      <td>{row.patientId}</td>
-      <td>{row.villageNumber}</td>
-      <td className={classes.cellPadding}>
+      </td> */}
+      <StyledCell label="Patient Name">{row.patientName}</StyledCell>
+      <StyledCell label="Patient ID">{row.patientId}</StyledCell>
+      <StyledCell label="Village">{row.villageNumber}</StyledCell>
+      {/* <td className={classes.cellPadding}>
         <TrafficLight status={row.trafficLightStatus} />
-      </td>
-      <td>{moment(row.dateReferred * 1000).format('YYYY-MM-DD')}</td>
-      <td>
+      </td> */}
+      <StyledCell label="Vital Sign"> </StyledCell>
+      <StyledCell label="Date Referred">
+        {moment(row.dateReferred * 1000).format('YYYY-MM-DD')}
+      </StyledCell>
+      <StyledCell label="Assessment">
         {row.isAssessed ? (
           <>
             <DoneIcon className={classesIcon.green} /> Complete
@@ -42,7 +50,7 @@ export const ReferralRow = ({ row }: IProps) => {
             <ScheduleIcon className={classesIcon.red} /> Pending
           </>
         )}
-      </td>
+      </StyledCell>
     </tr>
   );
 };
@@ -55,3 +63,34 @@ const useStyles = makeStyles({
     color: '#4caf50',
   },
 });
+
+interface StyleProps {
+  label: string;
+}
+
+const useCellStyles = makeStyles<Theme, StyleProps>(theme => ({
+  root: {
+    display: 'flex',
+    fontSize: '14px',
+    '&:before': {
+      content: ({ label }) => `"${label}"`,
+      fontSize: '14px',
+      fontWeight: 'bold',
+      width: '160px',
+      minWidth: '160px',
+    },
+  },
+}));
+
+interface StyledCellProps {
+  children: any;
+  label: string;
+}
+
+const StyledCell = ({
+  children,
+  label,
+}: StyledCellProps) => {
+  const classes = useCellStyles({ label });
+  return <td className={classes.root}>{children}</td>;
+}

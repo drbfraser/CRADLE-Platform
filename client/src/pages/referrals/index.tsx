@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
 import { ReferralRow } from './ReferralRow';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 const columns = {
   patientName: 'Patient Name',
@@ -23,17 +24,19 @@ export const ReferralsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
+  const isBigScreen = useMediaQuery('(min-width:640px)');
+
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>
         <h2 className={classes.title}>Referrals</h2>
-        <TextField
+        {/* <TextField
           className={classes.search}
           label="Search"
           placeholder="Patient ID or Name"
           variant="outlined"
           onChange={(e) => debounceSetSearch(e.target.value)}
-        />
+        /> */}
       </div>
       <APITable
         endpoint={EndpointEnum.REFERRALS}

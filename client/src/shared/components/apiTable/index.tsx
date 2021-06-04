@@ -103,14 +103,14 @@ export const APITable = ({
       {rows.length ? (
         <div className={classes.tableWrapper}>
           <table className={classes.table}>
-            <thead>
+            {/* <thead>
               <HeaderRow
                 columns={columns}
                 sortBy={sortBy}
                 sortDir={sortDir}
                 handleSort={handleSort}
               />
-            </thead>
+            </thead> */}
             <tbody>
               {rows.map((r: any) => (
                 <RowComponent key={r[rowKey]} row={r} />
