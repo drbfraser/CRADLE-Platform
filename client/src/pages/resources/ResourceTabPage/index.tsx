@@ -8,9 +8,8 @@ import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
-// import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-// import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 interface IProps {
   posterImgSrc: any[];
   posterImgUrl: string;
@@ -19,6 +18,11 @@ interface IProps {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    center: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     root: {
       maxWidth: '100%',
       flexGrow: 1,
@@ -26,7 +30,6 @@ const useStyles = makeStyles((theme: Theme) =>
     header: {
       textAlign: 'center',
       paddingLeft: theme.spacing(4),
-      width: '640px',
       backgroundColor: '#15152B',
       color: '#F2F2F2',
     },
@@ -45,6 +48,7 @@ function ResourceTabPage(props: IProps): JSX.Element {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const maxSteps = props.posterImgSrc.length;
+  const isBigScreen = useMediaQuery('(min-width:800px)');
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -53,55 +57,64 @@ function ResourceTabPage(props: IProps): JSX.Element {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
-  return (
-    <div style={{ display: 'flex' }}>
-      <div className="margin" style={{ width: '640px' }}>
-        <Paper square elevation={0} className={classes.header}>
-          <Typography>{props.posterImgSrc[activeStep].label}</Typography>
-        </Paper>
-        <img
-          alt="Resources"
-          className={classes.img}
-          src={props.posterImgSrc[activeStep].imgPath}
-        />
 
-        <MobileStepper
-          style={{ width: '640px' }}
-          variant="progress"
-          steps={maxSteps}
-          position="static"
-          activeStep={activeStep}
-          className={classes.root}
-          nextButton={
-            <Button
-              size="small"
-              onClick={handleNext}
-              disabled={activeStep === maxSteps - 1}>
-              Next
-            </Button>
-          }
-          backButton={
-            <Button
-              size="small"
-              onClick={handleBack}
-              disabled={activeStep === 0}>
-              Back
-            </Button>
-          }
-        />
-        {/* <img alt="education" className="education-img" src={props.posterImgSrc} /> */}
-        <p>
-          <a
-            href={props.posterImgUrl}
-            rel="noopener noreferrer"
-            target="_blank">
-            Click to view/download PDF
-          </a>
-        </p>
+  return (
+    <>
+      <div className={classes.center}>
+        <div
+          className="margin"
+          style={{ width: isBigScreen ? '640px' : '340px' }}>
+          <Paper
+            square
+            elevation={0}
+            className={classes.header}
+            style={{ width: isBigScreen ? '640px' : '340px' }}>
+            <Typography>{props.posterImgSrc[activeStep].label}</Typography>
+          </Paper>
+          <img
+            alt="Resources"
+            className={classes.img}
+            src={props.posterImgSrc[activeStep].imgPath}
+          />
+
+          <MobileStepper
+            style={{ width: isBigScreen ? '640px' : '340px' }}
+            variant="progress"
+            steps={maxSteps}
+            position="static"
+            activeStep={activeStep}
+            className={classes.root}
+            nextButton={
+              <Button
+                size="small"
+                onClick={handleNext}
+                disabled={activeStep === maxSteps - 1}>
+                Next
+              </Button>
+            }
+            backButton={
+              <Button
+                size="small"
+                onClick={handleBack}
+                disabled={activeStep === 0}>
+                Back
+              </Button>
+            }
+          />
+          {/* <img alt="education" className="education-img" src={props.posterImgSrc} /> */}
+          <p>
+            <a
+              href={props.posterImgUrl}
+              rel="noopener noreferrer"
+              target="_blank">
+              Click to view/download PDF
+            </a>
+          </p>
+        </div>
       </div>
       <div className="centered-flexbox margin">
         <iframe
-          width="640"
+          width={isBigScreen ? '640' : '340'}
           height="480"
           src={props.videoUrl}
           title="Youtube video"
@@ -109,7 +122,7 @@ function ResourceTabPage(props: IProps): JSX.Element {
           allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen></iframe>
       </div>
-    </div>
+    </>
   );
 }
 
