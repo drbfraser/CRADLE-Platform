@@ -179,10 +179,10 @@ export function StatisticsPage() {
             </MenuItem>
           </Select>
         </FormControl>
-        <br />
+        <br />  
         <br />
 
-        <Tab panes={panes} />
+        <Tab menu={{secondary:true, pointing:true, className:classes.tabStyle}} panes={panes} />
       </Grid>
     </div>
   );
