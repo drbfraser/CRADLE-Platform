@@ -56,6 +56,7 @@ const useStyles = makeStyles({
     padding: 15,
   },
   wrapperThin: {
+    marginLeft: '16px',
     padding: 15,
   },
 });

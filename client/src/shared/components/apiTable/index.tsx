@@ -7,7 +7,7 @@ import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+// import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface IProps {
   endpoint: EndpointEnum;
@@ -15,6 +15,7 @@ interface IProps {
   columns: any;
   rowKey: string;
   RowComponent: ({ row }: any) => JSX.Element;
+  isTransformed: boolean;
 }
 
 export const APITable = ({
@@ -23,6 +24,7 @@ export const APITable = ({
   columns,
   rowKey, // a unique value in the row, e.g. patientId for patients
   RowComponent,
+  isTransformed: isBigScreen,
 }: IProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +94,7 @@ export const APITable = ({
     }
   };
 
-  const isBigScreen = useMediaQuery('(min-width:560px)');
+  // const isBigScreen = useMediaQuery('(min-width:560px)');
 
   return (
     <>

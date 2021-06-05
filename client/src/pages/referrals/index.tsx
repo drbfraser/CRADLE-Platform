@@ -24,7 +24,8 @@ export const ReferralsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
-  const isBigScreen = useMediaQuery('(min-width:420px)');
+  const isBigScreen = useMediaQuery('(min-width:440px)');
+  const isTransformed = useMediaQuery('(min-width:560px)')
 
   return (
     <Paper className={classes.wrapper}>
@@ -44,6 +45,7 @@ export const ReferralsPage = () => {
         columns={columns}
         rowKey={'referralId'}
         RowComponent={ReferralRow}
+        isTransformed={isTransformed}
       />
     </Paper>
   );
@@ -63,6 +65,7 @@ const useStyles = makeStyles({
     float: 'right',
   },
   searchThin: {
+    display: 'block',
     marginLeft: 1,
   },
 });
