@@ -26,24 +26,28 @@ const AdminTable = (props: IProps) => {
 
   const Toolbar = () => (
     <>
-      <TextField
-        type="text"
-        variant="outlined"
-        size="small"
-        placeholder="Search..."
-        value={props.search}
-        onChange={(e) => props.setSearch(e.target.value)}
-      />
-      &nbsp; &nbsp;
-      <Button
-        className={styles.button}
-        color="primary"
-        variant="contained"
-        size="large"
-        onClick={props.newBtnOnClick}>
-        <AddIcon />
-        {props.newBtnLabel}
-      </Button>
+      <div className="centered-flexbox margin">
+        <TextField
+          type="text"
+          variant="outlined"
+          size="small"
+          placeholder="Search..."
+          value={props.search}
+          onChange={(e) => props.setSearch(e.target.value)}
+        />
+      </div>
+
+      <div className="centered-flexbox margin">
+        <Button
+          className={styles.button}
+          color="primary"
+          variant="contained"
+          size="large"
+          onClick={props.newBtnOnClick}>
+          <AddIcon />
+          {props.newBtnLabel}
+        </Button>
+      </div>
     </>
   );
 

@@ -15,19 +15,8 @@ import { useAdminStyles } from '../adminStyles';
 import AdminTable from '../AdminTable';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { userRoleLabels } from 'src/shared/constants';
-
-const columns = [
-  'First Name',
-  'Email',
-  'Health Facility',
-  'Role',
-  {
-    name: 'Take Action',
-    options: {
-      sort: false,
-    },
-  },
-];
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ManageUsers = () => {
   const styles = useAdminStyles();
@@ -43,6 +32,41 @@ export const ManageUsers = () => {
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
   const [popupUser, setPopupUser] = useState<IUser>();
+  const isTransformed = useMediaQuery('(min-width:900px)');
+
+  const columns = [
+    {
+      name: 'First Name',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Email',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Health Facility',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Role',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Take Action',
+      options: {
+        sort: false,
+        display: isTransformed ? true : false,
+      },
+    },
+  ];
 
   const getUsers = async () => {
     try {
@@ -112,7 +136,7 @@ export const ManageUsers = () => {
       ? rowActions.filter((a) => !a.disableForCurrentUser)
       : rowActions;
 
-    return (
+    return isTransformed ? (
       <tr className={styles.row}>
         {cells.map((item, i) => (
           <td className={styles.cell} key={i}>
@@ -135,6 +159,37 @@ export const ManageUsers = () => {
             </Tooltip>
           ))}
         </td>
+      </tr>
+    ) : (
+      <tr className={styles.row}>
+        <TableCell label="First Name" isTransformed={isTransformed}>
+          {cells[0]}
+        </TableCell>
+        <TableCell label="Email" isTransformed={isTransformed}>
+          {cells[1]}
+        </TableCell>
+        <TableCell label="Health Facility" isTransformed={isTransformed}>
+          {cells[2]}
+        </TableCell>
+        <TableCell label="Role" isTransformed={isTransformed}>
+          {cells[3]}
+        </TableCell>
+        <TableCell label="Take Action" isTransformed={isTransformed}>
+          {actions.map((action) => (
+            <Tooltip
+              key={action.tooltip}
+              placement="top"
+              title={action.tooltip}>
+              <IconButton
+                onClick={() => {
+                  setPopupUser(user);
+                  action.setOpen(true);
+                }}>
+                <action.Icon />
+              </IconButton>
+            </Tooltip>
+          ))}
+        </TableCell>
       </tr>
     );
   };
