@@ -8,20 +8,10 @@ import EditFacility from './EditFacility';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useDispatch } from 'react-redux';
 import { useAdminStyles } from '../adminStyles';
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import AdminTable from '../AdminTable';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-
-const columns = [
-  'Facility Name',
-  'Phone Number',
-  'Location',
-  {
-    name: 'Take Action',
-    options: {
-      sort: false,
-    },
-  },
-];
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ManageFacilities = () => {
   const styles = useAdminStyles();
@@ -33,6 +23,35 @@ export const ManageFacilities = () => {
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
+  const isTransformed = useMediaQuery('(min-width:800px)');
+
+  const columns = [
+    {
+      name: 'Facility Name',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Phone Number',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Location',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Take Action',
+      options: {
+        sort: false,
+        display: isTransformed ? true : false,
+      },
+    },
+  ];
 
   const getFacilities = async () => {
     try {
@@ -76,7 +95,7 @@ export const ManageFacilities = () => {
     const cells = row.slice(0, -1);
     const facility = facilities[row.slice(-1)[0] as number];
 
-    return (
+    return isTransformed ? (
       <tr className={styles.row}>
         {cells.map((item, i) => (
           <td className={styles.cell} key={i}>
@@ -94,6 +113,29 @@ export const ManageFacilities = () => {
             </IconButton>
           </Tooltip>
         </td>
+      </tr>
+    ) : (
+      <tr className={styles.row}>
+        <TableCell label="Facility Name" isTransformed={isTransformed}>
+          {cells[0]}
+        </TableCell>
+        <TableCell label="Phone Number" isTransformed={isTransformed}>
+          {cells[1]}
+        </TableCell>
+        <TableCell label="Location" isTransformed={isTransformed}>
+          {cells[2]}
+        </TableCell>
+        <TableCell label="Take Action" isTransformed={isTransformed}>
+          <Tooltip placement="top" title="Edit Facility">
+            <IconButton
+              onClick={() => {
+                setFacilityToEdit(facility);
+                setEditPopupOpen(true);
+              }}>
+              <CreateIcon />
+            </IconButton>
+          </Tooltip>
+        </TableCell>
       </tr>
     );
   };
