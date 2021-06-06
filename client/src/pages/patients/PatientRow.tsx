@@ -24,7 +24,7 @@ export const PatientRow = ({ row }: IProps) => {
   return (
     <tr className={classes.row} onClick={handleClick}>
       <TableCell label="Patient Name" isTransformed={isTransformed}>
-        <span style={{ fontSize: '20px' }}>{row.patientName}</span>
+        <span style={{ fontSize: '18px' }}>{row.patientName}</span>
       </TableCell>
       <TableCell label="Patient ID" isTransformed={isTransformed}>
         {row.patientId}
@@ -32,10 +32,9 @@ export const PatientRow = ({ row }: IProps) => {
       <TableCell label="Village" isTransformed={isTransformed}>
         {row.villageNumber}
       </TableCell>
-      {/* <td className={classes.cellPadding}>
+      <TableCell label="Vital Sign" isTransformed={isTransformed}>
         <TrafficLight status={row.trafficLightStatus} />
-      </td> */}
-      <TableCell label="Vital Sign" isTransformed={isTransformed}> </TableCell>
+      </TableCell>
       <TableCell label="Last Reading Date" isTransformed={isTransformed}>
         {row.dateTimeTaken === null
           ? 'No reading'

@@ -23,12 +23,13 @@ interface StyleProps {
 
 const useCellStyles = makeStyles<Theme, StyleProps>(theme => ({
     root: {
-        padding: '4px',
+        padding: '5px 0',
     },
     thin: {
         display: 'flex',
         fontSize: '14px',
-        padding: '4px',
+        padding: '2px',
+        textAlign: 'left',
         '&:before': {
         content: ({ label }) => `"${label}"`,
             display: 'flex',
@@ -36,8 +37,8 @@ const useCellStyles = makeStyles<Theme, StyleProps>(theme => ({
             fontSize: '14px',
             fontWeight: 'bold',
             width: '30%',
-            minWidth: '140px',
-            marginLeft: '16px',
+            minWidth: '132px',
+            marginLeft: theme.spacing(2),
         },
     },
 }));

@@ -28,7 +28,7 @@ export const ReferralRow = ({ row }: IProps) => {
   return (
     <tr className={classes.row} onClick={handleClick}>
       <TableCell label="Patient Name" isTransformed={isTransformed}>
-        <span style={{ fontSize: '20px' }}>{row.patientName}</span>
+        <span style={{ fontSize: '18px' }}>{row.patientName}</span>
       </TableCell>
       <TableCell label="Patient ID" isTransformed={isTransformed}>
         {row.patientId}
@@ -36,10 +36,9 @@ export const ReferralRow = ({ row }: IProps) => {
       <TableCell label="Village" isTransformed={isTransformed}>
         {row.villageNumber}
       </TableCell>
-      {/* <td className={classes.cellPadding}>
+      <TableCell label="Vital Sign" isTransformed={isTransformed}>
         <TrafficLight status={row.trafficLightStatus} />
-      </td> */}
-      <TableCell label="Vital Sign" isTransformed={isTransformed}> </TableCell>
+      </TableCell>
       <TableCell label="Date Referred" isTransformed={isTransformed}>
         {moment(row.dateReferred * 1000).format('YYYY-MM-DD')}
       </TableCell>
@@ -61,8 +60,10 @@ export const ReferralRow = ({ row }: IProps) => {
 const useStyles = makeStyles({
   red: {
     color: '#f44336',
+    padding: '2px',
   },
   green: {
     color: '#4caf50',
+    padding: '2px',
   },
 });

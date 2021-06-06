@@ -4,10 +4,10 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import { SortDir } from './types';
 import Pagination from './Pagination';
 import { HeaderRow } from './HeaderRow';
+import { SortBy } from './SortBy';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
-// import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface IProps {
   endpoint: EndpointEnum;
@@ -24,7 +24,7 @@ export const APITable = ({
   columns,
   rowKey, // a unique value in the row, e.g. patientId for patients
   RowComponent,
-  isTransformed: isBigScreen,
+  isTransformed,
 }: IProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,8 +94,6 @@ export const APITable = ({
     }
   };
 
-  // const isBigScreen = useMediaQuery('(min-width:560px)');
-
   return (
     <>
       <APIErrorToast
@@ -105,10 +103,18 @@ export const APITable = ({
       <div className={classes.loadingWrapper}>
         {loading && <LinearProgress />}
       </div>
+      {!isTransformed && (
+        <SortBy
+          columns={columns}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          handleSort={handleSort}
+        />
+      )}
       {rows.length ? (
-        <div className={classes.tableWrapper}>
+        <div className={isTransformed ? classes.tableWrapper : ""}>
           <table className={classes.table}>
-            {isBigScreen && (
+            {isTransformed && (
               <thead>
                 <HeaderRow
                   columns={columns}
