@@ -30,6 +30,7 @@ const useCellStyles = makeStyles<Theme, StyleProps>(theme => ({
         fontSize: '14px',
         padding: '2px',
         textAlign: 'left',
+        marginRight: theme.spacing(1),
         '&:before': {
         content: ({ label }) => `"${label}"`,
             display: 'flex',

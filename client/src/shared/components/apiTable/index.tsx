@@ -3,8 +3,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { SortDir } from './types';
 import Pagination from './Pagination';
+import SortBy from './SortBy';
+import ScrollArrow from './ScrollArrow';
 import { HeaderRow } from './HeaderRow';
-import { SortBy } from './SortBy';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
@@ -46,6 +47,7 @@ export const APITable = ({
       return;
     } else {
       prevPage.current = page;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     setLoading(true);
@@ -143,6 +145,7 @@ export const APITable = ({
         setPage={setPage}
         setLimit={setLimit}
       />
+      <ScrollArrow />
     </>
   );
 };

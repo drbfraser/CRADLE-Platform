@@ -16,7 +16,7 @@ interface SortByProps {
   handleSort: (col: string) => void;
 }
 
-export const SortBy = ({
+const SortBy = ({
   columns,
   sortBy,
   sortDir,
@@ -54,6 +54,8 @@ export const SortBy = ({
     </div>
   );
 }
+
+export default SortBy;
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
