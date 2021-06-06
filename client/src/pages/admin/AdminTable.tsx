@@ -8,6 +8,7 @@ import MUIDataTable, {
   MUIDataTableProps,
 } from 'mui-datatables';
 import { useAdminStyles } from './adminStyles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface IProps {
   title: string;
@@ -19,36 +20,34 @@ interface IProps {
   Row: ({ row }: { row: any[] }) => JSX.Element;
   data: MUIDataTableProps['data'];
   loading: boolean;
+  isTransformed: boolean;
 }
 
 const AdminTable = (props: IProps) => {
   const styles = useAdminStyles();
+  const isBigScreen = useMediaQuery('(min-width:500px)');
 
   const Toolbar = () => (
-    <>
-      <div className="centered-flexbox margin">
-        <TextField
-          type="text"
-          variant="outlined"
-          size="small"
-          placeholder="Search..."
-          value={props.search}
-          onChange={(e) => props.setSearch(e.target.value)}
-        />
-      </div>
-
-      <div className="centered-flexbox margin">
-        <Button
-          className={styles.button}
-          color="primary"
-          variant="contained"
-          size="large"
-          onClick={props.newBtnOnClick}>
-          <AddIcon />
-          {props.newBtnLabel}
-        </Button>
-      </div>
-    </>
+    <div className={props.isTransformed ? styles.right : ''}>
+      <TextField
+        type="text"
+        variant="outlined"
+        size={props.isTransformed ? 'medium' : 'small'}
+        placeholder="Search..."
+        value={props.search}
+        onChange={(e) => props.setSearch(e.target.value)}
+      />
+      <Button
+        className={styles.button}
+        color="primary"
+        variant="contained"
+        size="large"
+        style={{ marginTop: isBigScreen ? 0 : 10 }}
+        onClick={props.newBtnOnClick}>
+        <AddIcon />
+        {props.newBtnLabel}
+      </Button>
+    </div>
   );
 
   return (

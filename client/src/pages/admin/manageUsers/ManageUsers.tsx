@@ -235,6 +235,7 @@ export const ManageUsers = () => {
         Row={Row}
         data={tableData}
         loading={loading}
+        isTransformed={isTransformed}
       />
     </div>
   );

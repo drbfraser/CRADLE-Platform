@@ -17,8 +17,10 @@ export const useAdminStyles = makeStyles({
   },
   button: {
     height: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    margin: 'auto',
+    marginLeft: 10,
+  },
+  right: {
+    float: 'right',
+    height: 56,
   },
 });

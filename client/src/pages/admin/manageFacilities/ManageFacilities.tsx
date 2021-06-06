@@ -169,6 +169,7 @@ export const ManageFacilities = () => {
         Row={Row}
         data={tableData}
         loading={loading}
+        isTransformed={isTransformed}
       />
     </div>
   );
