@@ -136,31 +136,7 @@ export const ManageUsers = () => {
       ? rowActions.filter((a) => !a.disableForCurrentUser)
       : rowActions;
 
-    return isTransformed ? (
-      <tr className={styles.row}>
-        {cells.map((item, i) => (
-          <td className={styles.cell} key={i}>
-            {item}
-          </td>
-        ))}
-        <td className={styles.cell}>
-          {actions.map((action) => (
-            <Tooltip
-              key={action.tooltip}
-              placement="top"
-              title={action.tooltip}>
-              <IconButton
-                onClick={() => {
-                  setPopupUser(user);
-                  action.setOpen(true);
-                }}>
-                <action.Icon />
-              </IconButton>
-            </Tooltip>
-          ))}
-        </td>
-      </tr>
-    ) : (
+    return (
       <tr className={styles.row}>
         <TableCell label="First Name" isTransformed={isTransformed}>
           {cells[0]}

@@ -95,26 +95,7 @@ export const ManageFacilities = () => {
     const cells = row.slice(0, -1);
     const facility = facilities[row.slice(-1)[0] as number];
 
-    return isTransformed ? (
-      <tr className={styles.row}>
-        {cells.map((item, i) => (
-          <td className={styles.cell} key={i}>
-            {item}
-          </td>
-        ))}
-        <td className={styles.cell}>
-          <Tooltip placement="top" title="Edit Facility">
-            <IconButton
-              onClick={() => {
-                setFacilityToEdit(facility);
-                setEditPopupOpen(true);
-              }}>
-              <CreateIcon />
-            </IconButton>
-          </Tooltip>
-        </td>
-      </tr>
-    ) : (
+    return (
       <tr className={styles.row}>
         <TableCell label="Facility Name" isTransformed={isTransformed}>
           {cells[0]}
