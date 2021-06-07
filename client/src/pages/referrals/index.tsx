@@ -6,16 +6,8 @@ import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
 import { ReferralRow } from './ReferralRow';
+import { COLUMNS, BREAKPOINT } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-
-const columns = {
-  patientName: 'Patient Name',
-  patientId: 'Patient ID',
-  villageNumber: 'Village',
-  trafficLightStatus: 'Vital Sign',
-  dateReferred: 'Date Referred',
-  isAssessed: 'Assessment',
-};
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -25,7 +17,7 @@ export const ReferralsPage = () => {
   const debounceSetSearch = debounce(setSearch, 500);
 
   const isBigScreen = useMediaQuery('(min-width:440px)');
-  const isTransformed = useMediaQuery('(min-width:560px)')
+  const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   return (
     <Paper className={classes.wrapper}>
@@ -42,7 +34,7 @@ export const ReferralsPage = () => {
       <APITable
         endpoint={EndpointEnum.REFERRALS}
         search={search}
-        columns={columns}
+        columns={COLUMNS}
         rowKey={'referralId'}
         RowComponent={ReferralRow}
         isTransformed={isTransformed}

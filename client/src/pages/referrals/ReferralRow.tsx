@@ -8,6 +8,7 @@ import DoneIcon from '@material-ui/icons/Done';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import { COLUMNS, BREAKPOINT } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface IProps {
@@ -23,26 +24,28 @@ export const ReferralRow = ({ row }: IProps) => {
     history.push('/patients/' + row.patientId);
   };
 
-  const isTransformed = useMediaQuery('(min-width:560px)');
+  const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   return (
     <tr className={classes.row} onClick={handleClick}>
-      <TableCell label="Patient Name" isTransformed={isTransformed}>
+      <TableCell label={COLUMNS.patientName} isTransformed={isTransformed}>
         <span style={{ fontSize: '18px' }}>{row.patientName}</span>
       </TableCell>
-      <TableCell label="Patient ID" isTransformed={isTransformed}>
+      <TableCell label={COLUMNS.patientId} isTransformed={isTransformed}>
         {row.patientId}
-        </TableCell>
-      <TableCell label="Village" isTransformed={isTransformed}>
+      </TableCell>
+      <TableCell label={COLUMNS.villageNumber} isTransformed={isTransformed}>
         {row.villageNumber}
       </TableCell>
-      <TableCell label="Vital Sign" isTransformed={isTransformed}>
+      <TableCell
+        label={COLUMNS.trafficLightStatus}
+        isTransformed={isTransformed}>
         <TrafficLight status={row.trafficLightStatus} />
       </TableCell>
-      <TableCell label="Date Referred" isTransformed={isTransformed}>
+      <TableCell label={COLUMNS.dateReferred} isTransformed={isTransformed}>
         {moment(row.dateReferred * 1000).format('YYYY-MM-DD')}
       </TableCell>
-      <TableCell label="Assessment" isTransformed={isTransformed}>
+      <TableCell label={COLUMNS.isAssessed} isTransformed={isTransformed}>
         {row.isAssessed ? (
           <>
             <DoneIcon className={classesIcon.green} /> Complete

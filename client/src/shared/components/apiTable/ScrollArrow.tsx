@@ -6,13 +6,13 @@ import VerticalAlignTopIcon from '@material-ui/icons/VerticalAlignTop';
 const ScrollArrow = () => {
   const classes = useStyles();
 
-  const [isBigOffset, setIsBigOffset] = useState(false)
+  const [isBigOffset, setIsBigOffset] = useState(false);
 
   const checkPageOffset = () => {
-    if (!isBigOffset && window.pageYOffset > 400){
-      setIsBigOffset(true)
-    } else if (isBigOffset && window.pageYOffset <= 400){
-      setIsBigOffset(false)
+    if (!isBigOffset && window.pageYOffset > 400) {
+      setIsBigOffset(true);
+    } else if (isBigOffset && window.pageYOffset <= 400) {
+      setIsBigOffset(false);
     }
   };
 
@@ -20,18 +20,17 @@ const ScrollArrow = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  window.addEventListener('scroll', checkPageOffset)
+  window.addEventListener('scroll', checkPageOffset);
 
   return (
     <IconButton
       className={classes.iconButton}
       onClick={scrollToTop}
-      style={{ display: isBigOffset ? 'flex' : 'none' }}
-    >
+      style={{ display: isBigOffset ? 'flex' : 'none' }}>
       <VerticalAlignTopIcon />
     </IconButton>
   );
-}
+};
 
 export default ScrollArrow;
 

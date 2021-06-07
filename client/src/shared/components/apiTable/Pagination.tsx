@@ -29,8 +29,8 @@ const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
 
   return (
     <div className={isBigScreen ? classes.wrapper : classes.wrapperThin}>
-      Records {startRecordNum} - {endRecordNum}.
-      {isBigScreen ? " " : <br />}Rows per page: &nbsp;
+      Records {startRecordNum} - {endRecordNum}.{isBigScreen ? ' ' : <br />}Rows
+      per page: &nbsp;
       <Select
         value={limit}
         onChange={(e) => setLimit(e.target.value as number)}>

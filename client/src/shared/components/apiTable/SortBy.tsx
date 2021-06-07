@@ -16,12 +16,7 @@ interface SortByProps {
   handleSort: (col: string) => void;
 }
 
-const SortBy = ({
-  columns,
-  sortBy,
-  sortDir,
-  handleSort,
-}: SortByProps) => {
+const SortBy = ({ columns, sortBy, sortDir, handleSort }: SortByProps) => {
   const classes = useStyles();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,28 +27,22 @@ const SortBy = ({
     <div>
       <FormControl className={classes.formControl}>
         <InputLabel>Sort by</InputLabel>
-        <Select
-          value={sortBy}
-          onChange={handleChange}
-        >
+        <Select value={sortBy} onChange={handleChange}>
           {Object.entries(columns).map(([col, name]) => (
-            <MenuItem key={col} value={col}>{name}</MenuItem>
+            <MenuItem key={col} value={col}>
+              {name}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
       <IconButton
         className={classes.iconButton}
-        onClick={() => handleSort(sortBy)}
-      >
-        {sortDir === SortDir.ASC ? (
-          <ArrowDownwardIcon />
-        ) : (
-          <ArrowUpwardIcon />
-        )}
+        onClick={() => handleSort(sortBy)}>
+        {sortDir === SortDir.ASC ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
       </IconButton>
     </div>
   );
-}
+};
 
 export default SortBy;
 
@@ -66,5 +55,5 @@ const useStyles = makeStyles((theme) => ({
   iconButton: {
     verticalAlign: 'bottom',
     marginLeft: theme.spacing(1),
-  }
+  },
 }));

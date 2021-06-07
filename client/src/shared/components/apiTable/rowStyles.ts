@@ -9,7 +9,4 @@ export const useRowStyles = makeStyles({
       backgroundColor: '#f8f8f8',
     },
   },
-  // cellPadding: {
-  //   padding: '5px 0',
-  // },
 });

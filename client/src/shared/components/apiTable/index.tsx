@@ -114,7 +114,7 @@ export const APITable = ({
         />
       )}
       {rows.length ? (
-        <div className={isTransformed ? classes.tableWrapper : ""}>
+        <div className={isTransformed ? classes.tableWrapper : ''}>
           <table className={classes.table}>
             {isTransformed && (
               <thead>
