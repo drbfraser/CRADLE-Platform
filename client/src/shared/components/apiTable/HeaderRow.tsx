@@ -24,9 +24,9 @@ export const HeaderRow = ({ columns, sortBy, sortDir, handleSort }: IProps) => {
           <IconButton onClick={() => handleSort(col)}>
             {sortBy === col ? (
               sortDir === SortDir.ASC ? (
-                <ArrowDownwardIcon />
-              ) : (
                 <ArrowUpwardIcon />
+              ) : (
+                <ArrowDownwardIcon />
               )
             ) : (
               <SortIcon />

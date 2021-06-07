@@ -38,7 +38,7 @@ const SortBy = ({ columns, sortBy, sortDir, handleSort }: SortByProps) => {
       <IconButton
         className={classes.iconButton}
         onClick={() => handleSort(sortBy)}>
-        {sortDir === SortDir.ASC ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
+        {sortDir === SortDir.ASC ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
       </IconButton>
     </div>
   );
