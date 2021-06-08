@@ -35,9 +35,8 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
   const history = useHistory();
   const [submitError, setSubmitError] = useState(false);
   // for *new* patients only, track whether the patient ID already exists
-  const [existingPatientId, setExistingPatientId] = useState<string | null>(
-    null
-  );
+  const [existingPatientId, setExistingPatientId] =
+    useState<string | null>(null);
 
   return (
     <>
