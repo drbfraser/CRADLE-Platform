@@ -22,7 +22,10 @@ export const ReadingCard = ({ reading }: IProps) => {
           <Grid item xs={12} sm={6}>
             <ReadingData reading={reading} />
           </Grid>
-          <Grid item xs={12} sm={6}
+          <Grid
+            item
+            xs={12}
+            sm={6}
             className={isBigScreen ? styles.borderLeft : styles.borderTop}>
             <ReferralData reading={reading} />
           </Grid>
