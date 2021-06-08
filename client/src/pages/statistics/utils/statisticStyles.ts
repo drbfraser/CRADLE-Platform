@@ -2,7 +2,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 export const useStatisticsStyles = makeStyles((theme) => ({
   root: {
-    width: '95%',
+    width: '100%',
     margin: 0,
     height: '100%',
     position: 'relative',
@@ -46,12 +46,17 @@ export const useStatisticsStyles = makeStyles((theme) => ({
   chart: {
     position: 'relative',
     margin: 'auto',
-    width: `60%`,
-    height: '50%',
+    width: `100%`,
+    height: '100%',
   },
   center: {
     display: `flex`,
     flexDirection: `column`,
     alignItems: `center`,
+  },
+  tabStyle: {
+    display: `fluid`,
+    flexDirection: `row`,
+    flexWrap: `wrap`,
   },
 }));
