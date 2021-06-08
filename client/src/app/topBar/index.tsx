@@ -113,7 +113,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
                   vertical: 'top',
                   horizontal: 'center',
                 }}>
-                {isBigScreen && (
+                {!isBigScreen && (
                   <MenuItem disabled>{showUserDetails()}</MenuItem>
                 )}
                 <MenuItem onClick={handleChangePassword}>

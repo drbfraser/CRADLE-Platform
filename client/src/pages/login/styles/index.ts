@@ -11,7 +11,7 @@ export const useStyles = makeStyles({
     display: `flex`,
     flexDirection: `row`,
     justifyContent: `center`,
-    height: `calc(62vh + 54px)`,
+    height: `calc(50vh + 60px)`,
     alignItems: `center`,
     position: `relative`,
     [`& > *`]: {

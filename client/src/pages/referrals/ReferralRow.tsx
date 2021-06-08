@@ -7,6 +7,9 @@ import { IReferral } from './types';
 import DoneIcon from '@material-ui/icons/Done';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import { COLUMNS, BREAKPOINT } from './constants';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface IProps {
   row: IReferral;
@@ -21,18 +24,28 @@ export const ReferralRow = ({ row }: IProps) => {
     history.push('/patients/' + row.patientId);
   };
 
+  const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
+
   return (
     <tr className={classes.row} onClick={handleClick}>
-      <td>
-        <span style={{ fontSize: '30px' }}>{row.patientName}</span>
-      </td>
-      <td>{row.patientId}</td>
-      <td>{row.villageNumber}</td>
-      <td className={classes.cellPadding}>
+      <TableCell label={COLUMNS.patientName} isTransformed={isTransformed}>
+        <span style={{ fontSize: '18px' }}>{row.patientName}</span>
+      </TableCell>
+      <TableCell label={COLUMNS.patientId} isTransformed={isTransformed}>
+        {row.patientId}
+      </TableCell>
+      <TableCell label={COLUMNS.villageNumber} isTransformed={isTransformed}>
+        {row.villageNumber}
+      </TableCell>
+      <TableCell
+        label={COLUMNS.trafficLightStatus}
+        isTransformed={isTransformed}>
         <TrafficLight status={row.trafficLightStatus} />
-      </td>
-      <td>{moment(row.dateReferred * 1000).format('YYYY-MM-DD')}</td>
-      <td>
+      </TableCell>
+      <TableCell label={COLUMNS.dateReferred} isTransformed={isTransformed}>
+        {moment(row.dateReferred * 1000).format('YYYY-MM-DD')}
+      </TableCell>
+      <TableCell label={COLUMNS.isAssessed} isTransformed={isTransformed}>
         {row.isAssessed ? (
           <>
             <DoneIcon className={classesIcon.green} /> Complete
@@ -42,7 +55,7 @@ export const ReferralRow = ({ row }: IProps) => {
             <ScheduleIcon className={classesIcon.red} /> Pending
           </>
         )}
-      </td>
+      </TableCell>
     </tr>
   );
 };
@@ -50,8 +63,10 @@ export const ReferralRow = ({ row }: IProps) => {
 const useStyles = makeStyles({
   red: {
     color: '#f44336',
+    padding: '2px',
   },
   green: {
     color: '#4caf50',
+    padding: '2px',
   },
 });

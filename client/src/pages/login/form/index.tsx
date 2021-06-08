@@ -25,8 +25,8 @@ export const LoginForm: React.FC = () => {
       password: '',
     },
     validationSchema: Yup.object({
-      email: Yup.string().required('Email is required'),
-      password: Yup.string().required('Password is required'),
+      email: Yup.string().required('Email is required.'),
+      password: Yup.string().required('Password is required.'),
     }),
     onSubmit: (values: LoginData) => {
       dispatch(loginUser(values));

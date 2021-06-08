@@ -5,6 +5,7 @@ import Select from '@material-ui/core/Select';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import { makeStyles } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface IProps {
   dataLen: number;
@@ -24,9 +25,12 @@ const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
   // guess that if we're at the limit there are more
   const canPageForward = dataLen === limit;
 
+  const isBigScreen = useMediaQuery('(min-width:560px)');
+
   return (
-    <div className={classes.wrapper}>
-      Records {startRecordNum} - {endRecordNum}. Rows per page: &nbsp;
+    <div className={isBigScreen ? classes.wrapper : classes.wrapperThin}>
+      Records {startRecordNum} - {endRecordNum}.{isBigScreen ? ' ' : <br />}Rows
+      per page: &nbsp;
       <Select
         value={limit}
         onChange={(e) => setLimit(e.target.value as number)}>
@@ -49,6 +53,10 @@ export default Pagination;
 const useStyles = makeStyles({
   wrapper: {
     textAlign: 'right',
+    padding: 15,
+  },
+  wrapperThin: {
+    marginLeft: '5px',
     padding: 15,
   },
 });
