@@ -24,7 +24,7 @@ const urineTestOptions = ['NAD', '+', '++', '+++'];
 export const VitalSigns = ({ formikProps }: FormPageProps) => {
   return (
     <Grid container spacing={2}>
-      <Grid item md>
+      <Grid item md={6} sm={12}>
         <Paper>
           <Box p={2}>
             <h2>Vital Signs</h2>
@@ -79,7 +79,7 @@ export const VitalSigns = ({ formikProps }: FormPageProps) => {
           </Box>
         </Paper>
       </Grid>
-      <Grid item md>
+      <Grid item md={6} sm={12} xs={12}>
         <Paper>
           <Box p={2}>
             <h2>

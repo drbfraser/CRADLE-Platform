@@ -46,12 +46,12 @@ export const PatientStats = ({ patientId }: IProps) => {
         <br />
         <Menu fluid widths={2}>
           <Menu.Item
-            name='Show Vitals This Year'
+            name="Show Vitals This Year"
             active={chartSelected === ChartOption.VITALS}
             onClick={() => setChartSelected(ChartOption.VITALS)}
           />
           <Menu.Item
-            name='Show Traffic Lights'
+            name="Show Traffic Lights"
             active={chartSelected === ChartOption.TRAFFIC_LIGHTS}
             onClick={() => setChartSelected(ChartOption.TRAFFIC_LIGHTS)}
           />
@@ -66,8 +66,10 @@ export const PatientStats = ({ patientId }: IProps) => {
             {chartSelected === ChartOption.VITALS && (
               <>
                 <h4 className={styles.noMargin}>Average Vitals This Year:</h4>
-                <Line data={getVitalsData(patientStats)}
-                  options={{maintainAspectRatio: false}}/>
+                <Line
+                  data={getVitalsData(patientStats)}
+                  options={{ maintainAspectRatio: false }}
+                />
               </>
             )}
             {chartSelected === ChartOption.TRAFFIC_LIGHTS && (
@@ -96,7 +98,7 @@ const useStyles = makeStyles({
   },
   graph: {
     margin: 0,
-    maxHeight: 250,
+    maxHeight: 300,
   },
 });
 

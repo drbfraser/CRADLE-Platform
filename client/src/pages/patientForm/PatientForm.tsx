@@ -35,8 +35,9 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
   const history = useHistory();
   const [submitError, setSubmitError] = useState(false);
   // for *new* patients only, track whether the patient ID already exists
-  const [existingPatientId, setExistingPatientId] =
-    useState<string | null>(null);
+  const [existingPatientId, setExistingPatientId] = useState<string | null>(
+    null
+  );
 
   return (
     <>
@@ -162,7 +163,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       name={PatientField.villageNumber}
                     />
                   </Grid>
-                  <Grid item md={2} sm={12}>
+                  <Grid item md={4} sm={12} xs={12}>
                     <FormControl fullWidth variant="outlined">
                       <InputLabel>Gender</InputLabel>
                       <Field
