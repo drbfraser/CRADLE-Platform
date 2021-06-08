@@ -8,20 +8,10 @@ import EditFacility from './EditFacility';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useDispatch } from 'react-redux';
 import { useAdminStyles } from '../adminStyles';
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import AdminTable from '../AdminTable';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-
-const columns = [
-  'Facility Name',
-  'Phone Number',
-  'Location',
-  {
-    name: 'Take Action',
-    options: {
-      sort: false,
-    },
-  },
-];
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ManageFacilities = () => {
   const styles = useAdminStyles();
@@ -33,6 +23,35 @@ export const ManageFacilities = () => {
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
+  const isTransformed = useMediaQuery('(min-width:800px)');
+
+  const columns = [
+    {
+      name: 'Facility Name',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Phone Number',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Location',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Take Action',
+      options: {
+        sort: false,
+        display: isTransformed ? true : false,
+      },
+    },
+  ];
 
   const getFacilities = async () => {
     try {
@@ -78,12 +97,16 @@ export const ManageFacilities = () => {
 
     return (
       <tr className={styles.row}>
-        {cells.map((item, i) => (
-          <td className={styles.cell} key={i}>
-            {item}
-          </td>
-        ))}
-        <td className={styles.cell}>
+        <TableCell label="Facility Name" isTransformed={isTransformed}>
+          {cells[0]}
+        </TableCell>
+        <TableCell label="Phone Number" isTransformed={isTransformed}>
+          {cells[1]}
+        </TableCell>
+        <TableCell label="Location" isTransformed={isTransformed}>
+          {cells[2]}
+        </TableCell>
+        <TableCell label="Take Action" isTransformed={isTransformed}>
           <Tooltip placement="top" title="Edit Facility">
             <IconButton
               onClick={() => {
@@ -93,7 +116,7 @@ export const ManageFacilities = () => {
               <CreateIcon />
             </IconButton>
           </Tooltip>
-        </td>
+        </TableCell>
       </tr>
     );
   };
@@ -127,6 +150,7 @@ export const ManageFacilities = () => {
         Row={Row}
         data={tableData}
         loading={loading}
+        isTransformed={isTransformed}
       />
     </div>
   );

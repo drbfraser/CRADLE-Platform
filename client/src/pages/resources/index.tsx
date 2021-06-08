@@ -52,7 +52,18 @@ class HelpPageComponent extends Component<IProps> {
 
     return (
       <div>
-        <Tab panes={panes} />
+        <Tab
+          menu={{
+            secondary: true,
+            pointing: true,
+            className: {
+              display: `fluid`,
+              flexDirection: `row`,
+              flexWrap: `wrap`,
+            },
+          }}
+          panes={panes}
+        />
       </div>
     );
   }

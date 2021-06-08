@@ -25,7 +25,7 @@ interface StyleProps {
 
 const useCellStyles = makeStyles<Theme, StyleProps>((theme) => ({
   root: {
-    padding: '5px 0',
+    padding: '5px 16px',
   },
   thin: {
     display: 'flex',

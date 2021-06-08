@@ -23,4 +23,13 @@ const panes = pages.map((p) => ({
   ),
 }));
 
-export const AdminPage = () => <Tab panes={panes} />;
+export const AdminPage = () => (
+  <Tab
+    menu={{
+      secondary: true,
+      pointing: true,
+      className: { display: `fluid`, flexDirection: `row`, flexWrap: `wrap` },
+    }}
+    panes={panes}
+  />
+);
