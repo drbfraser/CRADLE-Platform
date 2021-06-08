@@ -3,6 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { SortDir } from './types';
 import Pagination from './Pagination';
+import SortBy from './SortBy';
+import ScrollArrow from './ScrollArrow';
 import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
@@ -14,6 +16,7 @@ interface IProps {
   columns: any;
   rowKey: string;
   RowComponent: ({ row }: any) => JSX.Element;
+  isTransformed: boolean;
 }
 
 export const APITable = ({
@@ -22,6 +25,7 @@ export const APITable = ({
   columns,
   rowKey, // a unique value in the row, e.g. patientId for patients
   RowComponent,
+  isTransformed,
 }: IProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +47,7 @@ export const APITable = ({
       return;
     } else {
       prevPage.current = page;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     setLoading(true);
@@ -100,17 +105,27 @@ export const APITable = ({
       <div className={classes.loadingWrapper}>
         {loading && <LinearProgress />}
       </div>
+      {!isTransformed && (
+        <SortBy
+          columns={columns}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          handleSort={handleSort}
+        />
+      )}
       {rows.length ? (
-        <div className={classes.tableWrapper}>
+        <div className={isTransformed ? classes.tableWrapper : ''}>
           <table className={classes.table}>
-            <thead>
-              <HeaderRow
-                columns={columns}
-                sortBy={sortBy}
-                sortDir={sortDir}
-                handleSort={handleSort}
-              />
-            </thead>
+            {isTransformed && (
+              <thead>
+                <HeaderRow
+                  columns={columns}
+                  sortBy={sortBy}
+                  sortDir={sortDir}
+                  handleSort={handleSort}
+                />
+              </thead>
+            )}
             <tbody>
               {rows.map((r: any) => (
                 <RowComponent key={r[rowKey]} row={r} />
@@ -130,6 +145,7 @@ export const APITable = ({
         setPage={setPage}
         setLimit={setLimit}
       />
+      <ScrollArrow />
     </>
   );
 };
