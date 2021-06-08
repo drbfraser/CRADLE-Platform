@@ -6,15 +6,8 @@ import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
 import { ReferralRow } from './ReferralRow';
-
-const columns = {
-  patientName: 'Patient Name',
-  patientId: 'Patient ID',
-  villageNumber: 'Village',
-  trafficLightStatus: 'Vital Sign',
-  dateReferred: 'Date Referred',
-  isAssessed: 'Assessment',
-};
+import { COLUMNS, BREAKPOINT } from './constants';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -23,12 +16,15 @@ export const ReferralsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
+  const isBigScreen = useMediaQuery('(min-width:440px)');
+  const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
+
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>
         <h2 className={classes.title}>Referrals</h2>
         <TextField
-          className={classes.search}
+          className={isBigScreen ? classes.search : classes.searchThin}
           label="Search"
           placeholder="Patient ID or Name"
           variant="outlined"
@@ -38,9 +34,10 @@ export const ReferralsPage = () => {
       <APITable
         endpoint={EndpointEnum.REFERRALS}
         search={search}
-        columns={columns}
+        columns={COLUMNS}
         rowKey={'referralId'}
         RowComponent={ReferralRow}
+        isTransformed={isTransformed}
       />
     </Paper>
   );
@@ -58,5 +55,9 @@ const useStyles = makeStyles({
   },
   search: {
     float: 'right',
+  },
+  searchThin: {
+    display: 'block',
+    marginLeft: 1,
   },
 });
