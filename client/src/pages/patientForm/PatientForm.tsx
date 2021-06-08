@@ -162,7 +162,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       name={PatientField.villageNumber}
                     />
                   </Grid>
-                  <Grid item md={2} sm={12}>
+                  <Grid item md={4} sm={12} xs={12}>
                     <FormControl fullWidth variant="outlined">
                       <InputLabel>Gender</InputLabel>
                       <Field

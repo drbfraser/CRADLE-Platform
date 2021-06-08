@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Paper, Typography, Divider, Box, makeStyles } from '@material-ui/core';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import { Line, Bar } from 'react-chartjs-2';
-import { Button } from 'semantic-ui-react';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import Alert from '@material-ui/lab/Alert';
@@ -10,6 +9,7 @@ import { Skeleton } from '@material-ui/lab';
 import { PatientStatistics } from 'src/shared/types';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { trafficLightColors } from 'src/shared/constants';
+import { Menu } from 'semantic-ui-react';
 
 interface IProps {
   patientId: string;
@@ -44,32 +44,32 @@ export const PatientStats = ({ patientId }: IProps) => {
         </Typography>
         <Divider />
         <br />
-        <Button.Group fluid={true}>
-          <Button
+        <Menu fluid widths={2}>
+          <Menu.Item
+            name="Show Vitals This Year"
             active={chartSelected === ChartOption.VITALS}
-            onClick={() => setChartSelected(ChartOption.VITALS)}>
-            Show Vitals This Year
-          </Button>
-          <Button
+            onClick={() => setChartSelected(ChartOption.VITALS)}
+          />
+          <Menu.Item
+            name="Show Traffic Lights"
             active={chartSelected === ChartOption.TRAFFIC_LIGHTS}
-            onClick={() => setChartSelected(ChartOption.TRAFFIC_LIGHTS)}>
-            Show Traffic Lights
-          </Button>
-        </Button.Group>
-        <br />
-        <br />
+            onClick={() => setChartSelected(ChartOption.TRAFFIC_LIGHTS)}
+          />
+        </Menu>
         {errorLoading ? (
           <Alert severity="error">
             Something went wrong trying to load the stats for that patient.
             Please try refreshing.
           </Alert>
         ) : patientStats ? (
-          <div>
+          <div className={styles.graph}>
             {chartSelected === ChartOption.VITALS && (
               <>
                 <h4 className={styles.noMargin}>Average Vitals This Year:</h4>
-                <br />
-                <Line data={getVitalsData(patientStats)} />
+                <Line
+                  data={getVitalsData(patientStats)}
+                  options={{ maintainAspectRatio: false }}
+                />
               </>
             )}
             {chartSelected === ChartOption.TRAFFIC_LIGHTS && (
@@ -77,7 +77,6 @@ export const PatientStats = ({ patientId }: IProps) => {
                 <h4 className={styles.noMargin}>
                   Traffic Lights From All Readings:
                 </h4>
-                <br />
                 <Bar
                   data={getTrafficLightData(patientStats)}
                   options={barChartOptions}
@@ -96,6 +95,10 @@ export const PatientStats = ({ patientId }: IProps) => {
 const useStyles = makeStyles({
   noMargin: {
     margin: 0,
+  },
+  graph: {
+    margin: 0,
+    maxHeight: 300,
   },
 });
 
@@ -135,7 +138,7 @@ const getVitalsData = (stats: PatientStatistics) => {
     labels: monthsLabels,
     datasets: datasets.map((d) => ({
       label: d.label,
-      fill: false,
+      fill: true,
       lineTension: 0.1,
       backgroundColor: `rgba(${d.color},0.4)`,
       borderColor: `rgba(${d.color},1)`,
@@ -168,6 +171,7 @@ const getTrafficLightData = (stats: PatientStatistics) => ({
 });
 
 const barChartOptions = {
+  maintainAspectRatio: false,
   legend: {
     display: false,
   },
