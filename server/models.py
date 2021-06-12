@@ -348,6 +348,24 @@ class PatientAssociations(db.Model):
         return PatientAssociationsSchema
 
 
+class PregnancyHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patientId = db.Column(
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        nullable=False,
+    )
+    startDate = db.Column(db.BigInteger, nullable=False)
+    endDate = db.Column(db.BigInteger, nullable=True, default=None)
+    outcome = db.Column(db.Text)
+
+    # RELATIONSHIPS
+    patient = db.relationship("Patient", backref=db.backref("pregnancy", lazy=True))
+
+    @staticmethod
+    def schema():
+        return PregnancyHistorySchema
+
+
 #
 # SCHEMAS
 #
@@ -424,6 +442,14 @@ class PatientAssociationsSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = PatientAssociations
+        load_instance = True
+        include_relationships = True
+
+
+class PregnancyHistorySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = PregnancyHistory
         load_instance = True
         include_relationships = True
 
