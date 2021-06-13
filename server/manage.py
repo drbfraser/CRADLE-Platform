@@ -87,27 +87,32 @@ def seed_test_data():
 
     print("Creating test patients, readings, referrals...")
 
-    create_patient_reading_referral(
+    create_patient_reading_referral_pregnancy(
         "49300028161",
         "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         2,
-        "AA",
+        "BB",
         35,
         "MALE",
         "1001",
         False,
     )
-    create_patient_reading_referral(
+    create_patient_reading_referral_pregnancy(
         "49300028162",
         "11111111-d974-4059-a0a2-4b0a9c8e3a10",
         2,
-        "BB",
-        40,
+        "AA",
+        30,
         "FEMALE",
         "1002",
         True,
         "WEEKS",
         1592339808,
+    )
+    create_pregnancy_history(
+        "49300028162",
+        1547341217,
+        1570928417,
     )
     print("Finished seeding minimal test data")
 
@@ -266,7 +271,7 @@ def create_user(email, name, password, hf_name, role):
     db.session.commit()
 
 
-def create_patient_reading_referral(
+def create_patient_reading_referral_pregnancy(
     patientId,
     readingId,
     userId,
@@ -278,13 +283,10 @@ def create_patient_reading_referral(
     gestAgeUnit=None,
     gestTimestamp=None,
 ):
-    import data.crud as crud
-    import data.marshal as marshal
-    from models import Patient
-
     patient_schema = PatientSchema()
     reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
+    pregnancy_schema = PregnancyHistorySchema()
 
     """
     Creates a patient in the database.
@@ -300,6 +302,10 @@ def create_patient_reading_referral(
             "isPregnant": "true",
             "dob": "2004-01-01",
             "isExactDob": False,
+        }
+        pregnancy = {
+            "patientId": patientId,
+            "startDate": gestTimestamp,
         }
     else:
         patient = {
@@ -341,6 +347,26 @@ def create_patient_reading_referral(
     crud.create(readingModel, refresh=True)
 
     db.session.add(referral_schema.load(referral))
+    db.session.commit()
+
+    db.session.add(pregnancy_schema.load(pregnancy))
+    db.session.commit()
+
+
+def create_pregnancy_history(
+    patientId,
+    startDate,
+    endDate=None,
+):
+    pregnancy_schema = PregnancyHistorySchema()
+
+    pregnancy = {
+        "patientId": patientId,
+        "startDate": startDate,
+        "endDate": endDate,
+    }
+
+    db.session.add(pregnancy_schema.load(pregnancy))
     db.session.commit()
 
 
