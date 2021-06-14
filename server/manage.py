@@ -317,6 +317,7 @@ def create_patient_reading_referral_pregnancy(
             "dob": "2004-01-01",
             "isExactDob": False,
         }
+        pregnancy = None
 
     reading = {
         "userId": userId,
@@ -349,8 +350,9 @@ def create_patient_reading_referral_pregnancy(
     db.session.add(referral_schema.load(referral))
     db.session.commit()
 
-    db.session.add(pregnancy_schema.load(pregnancy))
-    db.session.commit()
+    if pregnancy:
+        db.session.add(pregnancy_schema.load(pregnancy))
+        db.session.commit()
 
 
 def create_pregnancy_history(
