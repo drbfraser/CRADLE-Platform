@@ -292,6 +292,7 @@ def __make_full_patient(patient_id: str, reading_ids: List[str]) -> dict:
         "gestationalTimestamp": 1595211991,
         "medicalHistory": "TEST_FULL: This is fully fleshed out medical history for testing.",
         "drugHistory": "TEST_FULL: This is fully fleshed out drug history for testing.",
+        "allergy": "TEST_FULL: This is fully fleshed out allergy field for testing.",
         "zone": "9999",
         "dob": "1995-08-23",
         "isExactDob": True,
