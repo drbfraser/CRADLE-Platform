@@ -113,6 +113,7 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
         "lastEdited",
         "base",
         "isExactDob",
+        "allergy",
     ]
     for key in request_body:
         if key not in patient_keys:
