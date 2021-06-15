@@ -306,6 +306,7 @@ def create_patient_reading_referral_pregnancy(
         pregnancy = {
             "patientId": patientId,
             "startDate": gestTimestamp,
+            "defaultTimeUnit": gestAgeUnit,
         }
     else:
         patient = {
@@ -359,12 +360,14 @@ def create_pregnancy_history(
     patientId,
     startDate,
     endDate=None,
+    defaultTimeUnit="WEEKS",
 ):
     pregnancy_schema = PregnancyHistorySchema()
 
     pregnancy = {
         "patientId": patientId,
         "startDate": startDate,
+        "defaultTimeUnit": defaultTimeUnit,
         "endDate": endDate,
     }
 

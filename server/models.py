@@ -355,8 +355,16 @@ class PregnancyHistory(db.Model):
         nullable=False,
     )
     startDate = db.Column(db.BigInteger, nullable=False)
+    defaultTimeUnit = db.Column(db.Enum(GestationalAgeUnitEnum))
     endDate = db.Column(db.BigInteger, nullable=True, default=None)
     outcome = db.Column(db.Text)
+    lastEdited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+
 
     # RELATIONSHIPS
     patient = db.relationship("Patient", backref=db.backref("pregnancy", lazy=True))
