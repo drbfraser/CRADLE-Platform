@@ -302,7 +302,7 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       multiline
                       rows={4}
                       variant="outlined"
-                      label="Allergy"
+                      label="Allergies"
                       name={PatientField.allergy}
                     />
                   </Grid>
