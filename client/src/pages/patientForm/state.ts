@@ -36,7 +36,7 @@ export enum PatientField {
   gestationalAgeUnit = 'gestationalAgeUnit',
   drugHistory = 'drugHistory',
   medicalHistory = 'medicalHistory',
-  allergy = 'allergy'
+  allergy = 'allergy',
 }
 
 export const initialState = {

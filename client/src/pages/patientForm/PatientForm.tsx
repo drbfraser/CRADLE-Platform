@@ -297,13 +297,13 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                   </Grid>
                   <Grid item md={6} sm={12}>
                     <Field
-                        component={TextField}
-                        fullWidth
-                        multiline
-                        rows={4}
-                        variant="outlined"
-                        label="Allergy"
-                        name={PatientField.allergy}
+                      component={TextField}
+                      fullWidth
+                      multiline
+                      rows={4}
+                      variant="outlined"
+                      label="Allergy"
+                      name={PatientField.allergy}
                     />
                   </Grid>
                 </Grid>
