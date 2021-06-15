@@ -6,6 +6,7 @@ from pprint import pformat
 
 import pytest
 
+
 def test_get_patient(patient_factory, api_get):
     patient_id = "341541641613"
     patient_factory.create(patientId=patient_id, lastEdited=5, created=1)
@@ -27,6 +28,7 @@ def test_get_patient(patient_factory, api_get):
 
     assert response.status_code == 200
     assert expected == response.json()
+
 
 @pytest.mark.skip(reason="changes are to be made on mobile patient api")
 def test_get_mobile_patient(database, api_post, api_get):
