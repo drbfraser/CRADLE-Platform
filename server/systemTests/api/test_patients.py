@@ -28,153 +28,154 @@ def test_get_patient(patient_factory, api_get):
     assert expected == response.json()
 
 
-# def test_get_mobile_patient(database, api_post, api_get):
-#     patient_ids = []
-#     reading_ids = []
-#     try:
-#         p = __make_patient("222266667", ["893ddaad-1ebd-46fb-928b-ad0640115aa1"])
-#         patient_ids.append("222266667")
-#         reading_ids.append("893ddaad-1ebd-46fb-928b-ad0640115aa1")
-#         response = api_post(endpoint="/api/patients", json=p)
-#         database.session.commit()
-#         assert response.status_code == 201
+@pytest.mark.skip(reason="changes are to be made on mobile patient api")
+def test_get_mobile_patient(database, api_post, api_get):
+    patient_ids = []
+    reading_ids = []
+    try:
+        p = __make_patient("222266667", ["893ddaad-1ebd-46fb-928b-ad0640115aa1"])
+        patient_ids.append("222266667")
+        reading_ids.append("893ddaad-1ebd-46fb-928b-ad0640115aa1")
+        response = api_post(endpoint="/api/patients", json=p)
+        database.session.commit()
+        assert response.status_code == 201
 
-#         # Make the patient IDs so that they're on both sides of the patient IDs.
-#         p = __make_full_patient("9999", ["7f60bbb3-c49d-425f-825c-681c8330b61d"])
-#         patient_ids.append("9999")
-#         reading_ids.append("7f60bbb3-c49d-425f-825c-681c8330b61d")
-#         response = api_post(endpoint="/api/patients", json=p)
-#         database.session.commit()
-#         assert response.status_code == 201
+        # Make the patient IDs so that they're on both sides of the patient IDs.
+        p = __make_full_patient("9999", ["7f60bbb3-c49d-425f-825c-681c8330b61d"])
+        patient_ids.append("9999")
+        reading_ids.append("7f60bbb3-c49d-425f-825c-681c8330b61d")
+        response = api_post(endpoint="/api/patients", json=p)
+        database.session.commit()
+        assert response.status_code == 201
 
-#         # Make the patient IDs so that they're on both sides of the patient IDs
-#         p = __make_full_patient("999955551", ["978e870e-c542-428a-a8bf-dabb0e52bff3"])
-#         patient_ids.append("999955551")
-#         reading_ids.append("978e870e-c542-428a-a8bf-dabb0e52bff3")
-#         response = api_post(endpoint="/api/patients", json=p)
-#         database.session.commit()
-#         assert response.status_code == 201
+        # Make the patient IDs so that they're on both sides of the patient IDs
+        p = __make_full_patient("999955551", ["978e870e-c542-428a-a8bf-dabb0e52bff3"])
+        patient_ids.append("999955551")
+        reading_ids.append("978e870e-c542-428a-a8bf-dabb0e52bff3")
+        response = api_post(endpoint="/api/patients", json=p)
+        database.session.commit()
+        assert response.status_code == 201
 
-#         for p in patient_ids:
-#             patient = crud.read(Patient, patientId=p)
-#             assert patient is not None
+        for p in patient_ids:
+            patient = crud.read(Patient, patientId=p)
+            assert patient is not None
 
-#         # Add a more fleshed-out reading to the first patient.
-#         reading = __make_reading(
-#             reading_id="123dabdd-5des-7ufh-23fd-qd4308143651", patient_id=patient_ids[0]
-#         )
-#         reading_ids.append("123dabdd-5des-7ufh-23fd-qd4308143651")
-#         reading_response = api_post(endpoint="/api/readings", json=reading)
-#         database.session.commit()
-#         assert reading_response.status_code == 201
+        # Add a more fleshed-out reading to the first patient.
+        reading = __make_reading(
+            reading_id="123dabdd-5des-7ufh-23fd-qd4308143651", patient_id=patient_ids[0]
+        )
+        reading_ids.append("123dabdd-5des-7ufh-23fd-qd4308143651")
+        reading_response = api_post(endpoint="/api/readings", json=reading)
+        database.session.commit()
+        assert reading_response.status_code == 201
 
-#         # Add a more minimal reading to the first patient.
-#         reading = __make_reading_no_extra_vitals(
-#             reading_id="526292b7-53d0-4e7e-8a96-f66f061477ff", patient_id=patient_ids[0]
-#         )
-#         reading_ids.append("526292b7-53d0-4e7e-8a96-f66f061477ff")
-#         reading_response = api_post(endpoint="/api/readings", json=reading)
-#         database.session.commit()
-#         assert reading_response.status_code == 201
+        # Add a more minimal reading to the first patient.
+        reading = __make_reading_no_extra_vitals(
+            reading_id="526292b7-53d0-4e7e-8a96-f66f061477ff", patient_id=patient_ids[0]
+        )
+        reading_ids.append("526292b7-53d0-4e7e-8a96-f66f061477ff")
+        reading_response = api_post(endpoint="/api/readings", json=reading)
+        database.session.commit()
+        assert reading_response.status_code == 201
 
-#         # Add another fleshed-out reading to the first patient.
-#         reading = __make_reading(
-#             reading_id="2ab4f830-3cc0-4e98-bff3-174a9dcc630a", patient_id=patient_ids[0]
-#         )
-#         reading_ids.append("2ab4f830-3cc0-4e98-bff3-174a9dcc630a")
-#         reading_response = api_post(endpoint="/api/readings", json=reading)
-#         database.session.commit()
-#         assert reading_response.status_code == 201
+        # Add another fleshed-out reading to the first patient.
+        reading = __make_reading(
+            reading_id="2ab4f830-3cc0-4e98-bff3-174a9dcc630a", patient_id=patient_ids[0]
+        )
+        reading_ids.append("2ab4f830-3cc0-4e98-bff3-174a9dcc630a")
+        reading_response = api_post(endpoint="/api/readings", json=reading)
+        database.session.commit()
+        assert reading_response.status_code == 201
 
-#         for r in reading_ids:
-#             reading = crud.read(Reading, readingId=r)
-#             assert reading is not None
+        for r in reading_ids:
+            reading = crud.read(Reading, readingId=r)
+            assert reading is not None
 
-#         # Get all the patients from /api/mobile/patients.
-#         responseMobile = api_get(endpoint="/api/mobile/patients")
-#         assert responseMobile.status_code == 200
+        # Get all the patients from /api/mobile/patients.
+        responseMobile = api_get(endpoint="/api/mobile/patients")
+        assert responseMobile.status_code == 200
 
-#         # Setup an error message to return when an assert fails.
-#         # Note: Since this is usually tested with the test seed data, there will
-#         # be more than just 1 patient here.
-#         patient_number_info = (
-#             f"There were {len(responseMobile.json())} patients "
-#             + "returned by api/mobile/patients. Dumping them all now:\n"
-#             + pformat(responseMobile.json(), width=48)
-#             + "\n"
-#             + "========================================================"
-#         )
+        # Setup an error message to return when an assert fails.
+        # Note: Since this is usually tested with the test seed data, there will
+        # be more than just 1 patient here.
+        patient_number_info = (
+            f"There were {len(responseMobile.json())} patients "
+            + "returned by api/mobile/patients. Dumping them all now:\n"
+            + pformat(responseMobile.json(), width=48)
+            + "\n"
+            + "========================================================"
+        )
 
-#         # Loop through every single patient in the database.
-#         # For every patient in the database (as admin user, /api/mobile/patients returns
-#         # all the patients), get the patient info from the /api/patients/:id endpont
-#         # and then determine if they match.
-#         for patient_from_mobile_patients in responseMobile.json():
-#             patient_id = patient_from_mobile_patients["patientId"]
-#             # Validate that the GET requests for /api/patients/{patient_id} and
-#             # /api/mobile/patients give back the same information.
-#             # We first validate that the patient info returned is consistent.
+        # Loop through every single patient in the database.
+        # For every patient in the database (as admin user, /api/mobile/patients returns
+        # all the patients), get the patient info from the /api/patients/:id endpont
+        # and then determine if they match.
+        for patient_from_mobile_patients in responseMobile.json():
+            patient_id = patient_from_mobile_patients["patientId"]
+            # Validate that the GET requests for /api/patients/{patient_id} and
+            # /api/mobile/patients give back the same information.
+            # We first validate that the patient info returned is consistent.
 
-#             # Get the patient from the /api/patients/:id endpoint.
-#             response_patients_get = api_get(endpoint=f"/api/patients/{patient_id}")
-#             assert response_patients_get.status_code == 200
-#             patient_from_patients_api = response_patients_get.json()
+            # Get the patient from the /api/patients/:id endpoint.
+            response_patients_get = api_get(endpoint=f"/api/patients/{patient_id}")
+            assert response_patients_get.status_code == 200
+            patient_from_patients_api = response_patients_get.json()
 
-#             # Check that both results are basically equal.
-#             __assert_dicts_are_equal(
-#                 patient_from_mobile_patients,
-#                 patient_from_patients_api,
-#                 f"patient {patient_id} from api/mobile/patients",
-#                 f"patient {patient_id} from api/patients/:id",
-#                 other_error_messages=patient_number_info,
-#                 # Validate the readings later.
-#                 ignored_keys=["readings"],
-#             )
+            # Check that both results are basically equal.
+            __assert_dicts_are_equal(
+                patient_from_mobile_patients,
+                patient_from_patients_api,
+                f"patient {patient_id} from api/mobile/patients",
+                f"patient {patient_id} from api/patients/:id",
+                other_error_messages=patient_number_info,
+                # Validate the readings later.
+                ignored_keys=["readings"],
+            )
 
-#             # Validate the readings now. We check that they both have the same readings.
-#             # Loop through both of them in case one readings list is different from the other.
-#             for readingFromMobile in patient_from_mobile_patients["readings"]:
-#                 # From the reading from the api/mobile/patients, find the corresponding reading
-#                 # from the api/patients/:id endpoint
-#                 current_reading_id = readingFromMobile["readingId"]
-#                 readingFromNormalApi = [
-#                     r
-#                     for r in patient_from_patients_api["readings"]
-#                     if r["readingId"] == current_reading_id
-#                 ][0]
-#                 # Check that they give the exact same information.
-#                 __assert_dicts_are_equal(
-#                     readingFromMobile,
-#                     readingFromNormalApi,
-#                     f"reading {current_reading_id} from api/mobile/patients",
-#                     f"reading {current_reading_id} from api/patients/:id",
-#                     other_error_messages=patient_number_info,
-#                     ignored_keys=["userId"],
-#                 )
-#             for readingFromNormalApi in patient_from_patients_api["readings"]:
-#                 # From the reading from the api/patients/:id, find the corresponding reading
-#                 # from the api/mobile/patients endpoint
-#                 current_reading_id = readingFromNormalApi["readingId"]
-#                 readingFromMobile = [
-#                     r
-#                     for r in patient_from_mobile_patients["readings"]
-#                     if r["readingId"] == current_reading_id
-#                 ][0]
-#                 # Check that they give the exact same information.
-#                 __assert_dicts_are_equal(
-#                     readingFromMobile,
-#                     readingFromNormalApi,
-#                     f"reading {current_reading_id} from api/mobile/patients",
-#                     f"reading {current_reading_id} from api/patients/:id",
-#                     other_error_messages=patient_number_info,
-#                     ignored_keys=["userId"],
-#                 )
+            # Validate the readings now. We check that they both have the same readings.
+            # Loop through both of them in case one readings list is different from the other.
+            for readingFromMobile in patient_from_mobile_patients["readings"]:
+                # From the reading from the api/mobile/patients, find the corresponding reading
+                # from the api/patients/:id endpoint
+                current_reading_id = readingFromMobile["readingId"]
+                readingFromNormalApi = [
+                    r
+                    for r in patient_from_patients_api["readings"]
+                    if r["readingId"] == current_reading_id
+                ][0]
+                # Check that they give the exact same information.
+                __assert_dicts_are_equal(
+                    readingFromMobile,
+                    readingFromNormalApi,
+                    f"reading {current_reading_id} from api/mobile/patients",
+                    f"reading {current_reading_id} from api/patients/:id",
+                    other_error_messages=patient_number_info,
+                    ignored_keys=["userId"],
+                )
+            for readingFromNormalApi in patient_from_patients_api["readings"]:
+                # From the reading from the api/patients/:id, find the corresponding reading
+                # from the api/mobile/patients endpoint
+                current_reading_id = readingFromNormalApi["readingId"]
+                readingFromMobile = [
+                    r
+                    for r in patient_from_mobile_patients["readings"]
+                    if r["readingId"] == current_reading_id
+                ][0]
+                # Check that they give the exact same information.
+                __assert_dicts_are_equal(
+                    readingFromMobile,
+                    readingFromNormalApi,
+                    f"reading {current_reading_id} from api/mobile/patients",
+                    f"reading {current_reading_id} from api/patients/:id",
+                    other_error_messages=patient_number_info,
+                    ignored_keys=["userId"],
+                )
 
-#     finally:
-#         for r in reading_ids:
-#             crud.delete_by(Reading, readingId=r)
-#         for p in patient_ids:
-#             crud.delete_by(Patient, patientId=p)
+    finally:
+        for r in reading_ids:
+            crud.delete_by(Reading, readingId=r)
+        for p in patient_ids:
+            crud.delete_by(Patient, patientId=p)
 
 
 def test_create_patient_with_nested_readings(database, api_post):
