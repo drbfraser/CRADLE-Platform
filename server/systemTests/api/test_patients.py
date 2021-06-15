@@ -4,6 +4,8 @@ import data.crud as crud
 from models import Patient, Reading, TrafficLightEnum
 from pprint import pformat
 
+import pytest
+
 
 def test_get_patient(patient_factory, api_get):
     patient_id = "341541641613"
