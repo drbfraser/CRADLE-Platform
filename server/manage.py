@@ -110,7 +110,9 @@ def seed_test_data():
         1592339808,
     )
     create_pregnancy_history(
-        "49300028162", 1547341217, 1570928417,
+        "49300028162",
+        1547341217,
+        1570928417,
     )
     print("Finished seeding minimal test data")
 
@@ -355,7 +357,10 @@ def create_patient_reading_referral_pregnancy(
 
 
 def create_pregnancy_history(
-    patientId, startDate, endDate=None, defaultTimeUnit="WEEKS",
+    patientId,
+    startDate,
+    endDate=None,
+    defaultTimeUnit="WEEKS",
 ):
     pregnancy_schema = PregnancyHistorySchema()
 
