@@ -55,6 +55,7 @@ export type UrineTests = {
 };
 
 export type Patient = {
+  allergy: OrNull<string>;
   dob: OrNull<string>;
   drugHistory: OrNull<string>;
   gestationalAgeUnit: GestationalAgeUnitEnum;

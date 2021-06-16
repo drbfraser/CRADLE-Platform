@@ -57,6 +57,9 @@ responses:
             drugHistory:
               type: string | Null
               example: Sample drug history
+            allergy:
+              type: string | Null
+              example: Sample allergy
             created:
               type: Unix timestamp
               example: 1592339808
