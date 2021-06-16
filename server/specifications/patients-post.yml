@@ -48,9 +48,6 @@ requestBody:
           drugHistory:
             type: string | Null
             example: Sample drug history
-          allergy:
-            type: string | Null
-            example: Sample allergy
           isExactDob:
             type: boolean
             example: true

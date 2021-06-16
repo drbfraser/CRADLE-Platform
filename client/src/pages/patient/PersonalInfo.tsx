@@ -46,10 +46,6 @@ export const PersonalInfo = ({ patient }: IProps) => {
               <b>Household number: </b>
               {patient.householdNumber ? patient.householdNumber : `N/A`}
             </p>
-            <p>
-              <b>Allergies: </b>
-              {patient.allergy ? patient.allergy : `N/A`}
-            </p>
             <Button
               color="primary"
               variant="outlined"

@@ -36,7 +36,6 @@ export enum PatientField {
   gestationalAgeUnit = 'gestationalAgeUnit',
   drugHistory = 'drugHistory',
   medicalHistory = 'medicalHistory',
-  allergy = 'allergy',
 }
 
 export const initialState = {
@@ -56,7 +55,6 @@ export const initialState = {
   [PatientField.gestationalAgeUnit]: GestationalAgeUnitEnum.WEEKS,
   [PatientField.drugHistory]: '',
   [PatientField.medicalHistory]: '',
-  [PatientField.allergy]: '',
 };
 
 export type PatientState = typeof initialState;
@@ -95,7 +93,6 @@ export const getPatientState = async (patientId: string | undefined) => {
     [PatientField.gestationalAgeUnit]: data.gestationalAgeUnit ?? '',
     [PatientField.drugHistory]: data.drugHistory,
     [PatientField.medicalHistory]: data.medicalHistory,
-    [PatientField.allergy]: data.allergy,
   };
 
   if (patientState.isPregnant) {
