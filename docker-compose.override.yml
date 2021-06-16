@@ -38,3 +38,6 @@ services:
     #         PMA_HOST: cradle_mysql
     #         PMA_USER: ${DB_USERNAME}
     #         PMA_PASSWORD: ${DB_PASSWORD}
+    mysql:
+        ports:
+            - 3306:3306
