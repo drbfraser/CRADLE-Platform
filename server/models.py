@@ -348,6 +348,7 @@ class PatientAssociations(db.Model):
     def schema():
         return PatientAssociationsSchema
 
+
 class MedicalRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patientId = db.Column(
@@ -510,6 +511,7 @@ class VillageSchema(ma.SQLAlchemyAutoSchema):
         model = Village
         load_instance = True
         include_relationships = True
+
 
 class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
