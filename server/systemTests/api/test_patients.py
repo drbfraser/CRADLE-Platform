@@ -4,6 +4,8 @@ import data.crud as crud
 from models import Patient, Reading, TrafficLightEnum
 from pprint import pformat
 
+import pytest
+
 
 def test_get_patient(patient_factory, api_get):
     patient_id = "341541641613"
@@ -28,6 +30,7 @@ def test_get_patient(patient_factory, api_get):
     assert expected == response.json()
 
 
+@pytest.mark.skip(reason="changes are to be made on mobile patient api")
 def test_get_mobile_patient(database, api_post, api_get):
     patient_ids = []
     reading_ids = []
