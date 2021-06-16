@@ -10,7 +10,7 @@ parameters:
       type: integer
 requestBody:
   required: true
-  description: POST request body for /api/pregnancies/patients/<string:patient_id>
+  description: POST request body for /api/patients/<string:patient_id>/pregnancies
   content:
     application/json:
       schema:
@@ -18,7 +18,7 @@ requestBody:
 
 responses:
   201:
-    description: POST response body for /api/pregnancies/patients/<string:patient_id>
+    description: POST response body for /api/patients/<string:patient_id>/pregnancies
     content:
       application/json:
         schema:

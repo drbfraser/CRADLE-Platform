@@ -31,6 +31,19 @@ def serialize_referral(r: any):
     return data
 
 
+def serialize_pregnancy(p: any):
+    data = {
+        "pregnancyId": p.id,
+        "patientId": p.patientId,
+        "startDate": p.startDate,
+        "defaultTimeUnit": p.defaultTimeUnit,
+        "endDate": p.endDate,
+        "outcome": p.outcome,
+        "lastEdited": p.lastEdited,
+    }
+    return data
+
+
 def serialize_patient_sql_to_dict(d: any, row: any) -> dict:
     for column, value in row.items():
         if value is None:

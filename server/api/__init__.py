@@ -45,9 +45,9 @@ def __init_referral_resources(api: Api):
 def __init_pregnancy_resources(api: Api):
     import api.resources.pregnancies as p
 
-    api.add_resource(p.Root, "/api/pregnancies/patients/<string:patient_id>", endpoint="pregnancy_root")
+    api.add_resource(p.Root, "/api/patients/<string:patient_id>/pregnancies", endpoint="pregnancy_root")
+    api.add_resource(p.PregnancyStatus, "/api/patients/<string:patient_id>/pregnancies/status")
     api.add_resource(p.SinglePregnancy, "/api/pregnancies/<string:pregnancy_id>")
-    api.add_resource(p.PregnancyStatus, "/api/pregnancies/patients/<string:patient_id>/status")
 
 
 def __init_assessment_resources(api: Api):

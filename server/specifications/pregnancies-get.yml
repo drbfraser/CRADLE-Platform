@@ -10,7 +10,7 @@ parameters:
       type: integer
 responses:
   200:
-    description: GET response body for /api/pregnancies/patients/<string:patient_id>
+    description: GET response body for /api/patients/<string:patient_id>/pregnancies
     content:
       application/json:
         schema:

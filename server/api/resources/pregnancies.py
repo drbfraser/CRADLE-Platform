@@ -12,7 +12,7 @@ from validation import pregnancies
 from utils import get_current_time
 
 
-# /api/pregnancies/patients/<string:patient_id>
+# /api/patients/<string:patient_id>/pregnancies
 class Root(Resource):
     @staticmethod
     @jwt_required
@@ -21,7 +21,9 @@ class Root(Resource):
         methods=["Get"],
         endpoint="pregnancies",
     )
-    def get():
+    def get(patient_id: str):
+        # todo: add sort support
+
         crud.read_all(Pregnancy)
 
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
@@ -33,10 +35,10 @@ class Root(Resource):
         methods=["POST"],
         endpoint="pregnancies",
     )
-    def post():
+    def post(patient_id: str):
         json = request.get_json(force=True)
 
-        error = pregnancies.validate(json)
+        error = pregnancies.validate_post_request(json, patient_id)
         if error:
             abort(400, message=error)
 
@@ -47,6 +49,25 @@ class Root(Resource):
         crud.create(pregnancy, refresh=True)
 
         return marshal.marshal(pregnancy), 201
+
+
+# /api/patients/<string:patient_id>/pregnancies/status
+class PregnancyStatus(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/pregnancy-status-get.yml",
+        methods=["GET"],
+        endpoint="pregnancy_status",
+    )
+    def get(patient_id: str):
+        pregnancy = crud.get_pregnancy_status(patient_id)
+        print('******************')
+        print(pregnancy)
+        if not pregnancy:
+            return "", 204
+
+        return marshal.marshal(pregnancy)
 
 
 # /api/pregnancies/<string:pregnancy_id>
@@ -75,6 +96,8 @@ class SinglePregnancy(Resource):
     def put(pregnancy_id: str):
         json = request.get_json(force=True)
 
+        # todo: add validation for patientId
+
         error = pregnancies.validate_put_request(json, pregnancy_id)
         if error:
             abort(400, message=error)
@@ -82,22 +105,5 @@ class SinglePregnancy(Resource):
         crud.update(Pregnancy, json, id=pregnancy_id)
 
         pregnancy = crud.read(Pregnancy, id=pregnancy_id)
-
-        return marshal.marshal(pregnancy)
-
-
-# /api/pregnancies/patients/<string:patient_id>/status
-class PregnancyStatus(Resource):
-    @staticmethod
-    @jwt_required
-    @swag_from(
-        "../../specifications/pregnancy-status-get.yml",
-        methods=["GET"],
-        endpoint="pregnancy_status",
-    )
-    def get(patient_id: str):
-        pregnancy = crud.get_pregnancy_status(patient_id)
-        if not pregnancy:
-            return "", 204
 
         return marshal.marshal(pregnancy)

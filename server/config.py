@@ -81,3 +81,15 @@ app.json_encoder = JSONEncoder
 db = SQLAlchemy(app)
 migrate = Migrate(app, db, compare_type=True)
 ma = Marshmallow(app)
+
+
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+
+from models import *
+
+app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
+
+admin = Admin(app, name='microblog', template_mode='bootstrap3')
+admin.add_view(ModelView(Pregnancy, db.session))
+admin.add_view(ModelView(Referral, db.session))
