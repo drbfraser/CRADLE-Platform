@@ -286,7 +286,7 @@ def create_patient_reading_referral_pregnancy(
     patient_schema = PatientSchema()
     reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
-    pregnancy_schema = PregnancyHistorySchema()
+    pregnancy_schema = PregnancySchema()
 
     """
     Creates a patient in the database.
@@ -362,7 +362,7 @@ def create_pregnancy_history(
     endDate=None,
     defaultTimeUnit="WEEKS",
 ):
-    pregnancy_schema = PregnancyHistorySchema()
+    pregnancy_schema = PregnancySchema()
 
     pregnancy = {
         "patientId": patientId,

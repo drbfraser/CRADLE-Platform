@@ -348,7 +348,7 @@ class PatientAssociations(db.Model):
         return PatientAssociationsSchema
 
 
-class PregnancyHistory(db.Model):
+class Pregnancy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patientId = db.Column(
         db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
@@ -370,7 +370,7 @@ class PregnancyHistory(db.Model):
 
     @staticmethod
     def schema():
-        return PregnancyHistorySchema
+        return PregnancySchema
 
 
 #
@@ -453,10 +453,10 @@ class PatientAssociationsSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-class PregnancyHistorySchema(ma.SQLAlchemyAutoSchema):
+class PregnancySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = PregnancyHistory
+        model = Pregnancy
         load_instance = True
         include_relationships = True
 
