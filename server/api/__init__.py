@@ -10,6 +10,7 @@ def init_routes(api: Api):
     __init_patients_resources(api)
     __init_readings_resources(api)
     __init_referral_resources(api)
+    __init_pregnancy_resources(api)
     __init_assessment_resources(api)
     __init_facilities_resources(api)
     __init_sync_resources(api)
@@ -39,6 +40,14 @@ def __init_referral_resources(api: Api):
 
     api.add_resource(r.Root, "/api/referrals", endpoint="referral_root")
     api.add_resource(r.SingleReferral, "/api/referrals/<int:referral_id>")
+
+
+def __init_pregnancy_resources(api: Api):
+    import api.resources.pregnancies as p
+
+    api.add_resource(p.Root, "/api/pregnancies/patients/<string:patient_id>", endpoint="pregnancy_root")
+    api.add_resource(p.SinglePregnancy, "/api/pregnancies/<string:pregnancy_id>")
+    api.add_resource(p.PregnancyStatus, "/api/pregnancies/patients/<string:patient_id>/status")
 
 
 def __init_assessment_resources(api: Api):

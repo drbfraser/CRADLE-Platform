@@ -12,7 +12,7 @@ from validation import pregnancies
 from utils import get_current_time
 
 
-# /api/pregnancies
+# /api/pregnancies/patients/<string:patient_id>
 class Root(Resource):
     @staticmethod
     @jwt_required
@@ -22,9 +22,7 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def get():
-        sortDir = util.query_param_sortDir(request, name="sortDir")
-
-        crud.read_all(Pregnancy, sortDir=sortDir)
+        crud.read_all(Pregnancy)
 
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
 
@@ -88,8 +86,8 @@ class SinglePregnancy(Resource):
         return marshal.marshal(pregnancy)
 
 
-# /api/pregnancies/<string:patient_id>/status
-class LatestPregnancy(Resource):
+# /api/pregnancies/patients/<string:patient_id>/status
+class PregnancyStatus(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
