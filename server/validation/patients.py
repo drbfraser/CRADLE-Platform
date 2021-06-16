@@ -22,8 +22,7 @@ def validate(request_body: dict) -> Optional[str]:
                             "gestationalTimestamp": 1587068710, - required if isPregnant = True
                             "gestationalAgeUnit": "WEEKS", - required isPregnant = True
                             "drugHistory": "too much tylenol",
-                            "medicalHistory": "not enough advil",
-                            "allergy": "seafood",
+                            "medicalHistory": "not enough advil"
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
     """
@@ -114,7 +113,6 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
         "lastEdited",
         "base",
         "isExactDob",
-        "allergy",
     ]
     for key in request_body:
         if key not in patient_keys:

@@ -87,7 +87,6 @@ export const handleSubmit = (
       gestationalTimestamp: 0,
       drugHistory: values[PatientField.drugHistory],
       medicalHistory: values[PatientField.medicalHistory],
-      allergy: values[PatientField.allergy],
     };
 
     if (!valuesForServer.isExactDob) {

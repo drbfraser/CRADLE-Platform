@@ -163,7 +163,6 @@ class Patient(db.Model):
     gestationalTimestamp = db.Column(db.BigInteger)
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
-    allergy = db.Column(db.Text)
     zone = db.Column(db.String(20))
     dob = db.Column(db.Date)
     isExactDob = db.Column(db.Boolean)

@@ -21,7 +21,6 @@ valid_json = {
     "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
-    "allergy": "seafood",
 }
 
 # Patient is pregnant but gestationalTimestamp is missing
@@ -38,7 +37,6 @@ missing_gestational_timestamp = {
     "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
-    "allergy": "seafood",
 }
 
 # gestationalTimestamp must be less than or equal to 43 weeks/10 months
@@ -56,7 +54,6 @@ invalid_gestational_timestamp = {
     "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
-    "allergy": "seafood",
 }
 
 # patientName must be type string
@@ -74,7 +71,6 @@ not_type_string = {
     "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
-    "allergy": "seafood",
 }
 
 # patientId must be type int
@@ -92,7 +88,6 @@ not_type_int = {
     "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
-    "allergy": "seafood",
 }
 
 # patientId must be less than or equal to 14 digits long
@@ -110,7 +105,6 @@ patient_id_too_long = {
     "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
-    "allergy": "seafood",
 }
 
 # dob must be in YYYY-mm-dd format
@@ -128,7 +122,6 @@ incorrect_dob_format = {
     "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
-    "allergy": "seafood",
 }
 
 
