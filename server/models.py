@@ -348,6 +348,31 @@ class PatientAssociations(db.Model):
         return PatientAssociationsSchema
 
 
+class Pregnancy(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patientId = db.Column(
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        nullable=False,
+    )
+    startDate = db.Column(db.BigInteger, nullable=False)
+    defaultTimeUnit = db.Column(db.Enum(GestationalAgeUnitEnum))
+    endDate = db.Column(db.BigInteger, nullable=True, default=None)
+    outcome = db.Column(db.Text)
+    lastEdited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+
+    # RELATIONSHIPS
+    patient = db.relationship("Patient", backref=db.backref("pregnancy", lazy=True))
+
+    @staticmethod
+    def schema():
+        return PregnancySchema
+
+
 #
 # SCHEMAS
 #
@@ -424,6 +449,14 @@ class PatientAssociationsSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = PatientAssociations
+        load_instance = True
+        include_relationships = True
+
+
+class PregnancySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = Pregnancy
         load_instance = True
         include_relationships = True
 
