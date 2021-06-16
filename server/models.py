@@ -360,7 +360,7 @@ class MedicalRecord(db.Model):
         nullable=False,
         default=get_current_time,
     )
-    dateLastEdited = db.Column(
+    lastEdited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,

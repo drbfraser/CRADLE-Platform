@@ -1,4 +1,4 @@
-"""empty message
+"""add medical record table
 
 Revision ID: 0363083ecb2c
 Revises: a8ad53e6717c
@@ -24,7 +24,7 @@ def upgrade():
     sa.Column('information', sa.Text(), nullable=False),
     sa.Column('isDrugRecord', sa.Boolean(), nullable=False),
     sa.Column('dateCreated', sa.BigInteger(), nullable=False),
-    sa.Column('dateLastEdited', sa.BigInteger(), nullable=False),
+    sa.Column('lastEdited', sa.BigInteger(), nullable=False),
     sa.ForeignKeyConstraint(['patientId'], ['patient.patientId'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
