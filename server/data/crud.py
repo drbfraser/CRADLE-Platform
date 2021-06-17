@@ -462,10 +462,11 @@ def get_pregnancy_status(patient_id: str):
     """
     return (
         db_session.query(Pregnancy)
-            .filter_by(patientId=patient_id)
-            .order_by(Pregnancy.startDate.desc())
-            .first()
+        .filter_by(patientId=patient_id)
+        .order_by(Pregnancy.startDate.desc())
+        .first()
     )
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 

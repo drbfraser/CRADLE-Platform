@@ -27,10 +27,13 @@ responses:
             pregnancyId:
               type: integer
               example: 1001
+            patientId:
+              type: integer
+              example: 120000
             startDate:
               type: Unix timestamp | Null
               example: 1620000002
-            defultTimeUnit:
+            defaultTimeUnit:
               type: string | Null
               enum: [WEEKS, MONTHS]
               example: WEEKS
@@ -42,7 +45,4 @@ responses:
               example: Mode of delivery assisted birth
             lastEdited:
               type: Unix timestamp
-              example: 1620000002
-            base: 
-              type: Unix timestamp | Null
               example: 1620000002

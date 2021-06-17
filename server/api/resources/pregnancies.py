@@ -7,6 +7,7 @@ import api.util as util
 import data.crud as crud
 import data.marshal as marshal
 import service.serialize as serialize
+import service.view as view
 from models import Pregnancy
 from validation import pregnancies
 from utils import get_current_time
@@ -22,9 +23,7 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def get(patient_id: str):
-        # todo: add sort support
-
-        crud.read_all(Pregnancy)
+        pregnancies = crud.read_all(Pregnancy, patientId=patient_id)
 
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
 
@@ -62,8 +61,7 @@ class PregnancyStatus(Resource):
     )
     def get(patient_id: str):
         pregnancy = crud.get_pregnancy_status(patient_id)
-        print('******************')
-        print(pregnancy)
+
         if not pregnancy:
             return "", 204
 
@@ -95,8 +93,6 @@ class SinglePregnancy(Resource):
     )
     def put(pregnancy_id: str):
         json = request.get_json(force=True)
-
-        # todo: add validation for patientId
 
         error = pregnancies.validate_put_request(json, pregnancy_id)
         if error:

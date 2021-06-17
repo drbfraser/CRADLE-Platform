@@ -29,7 +29,11 @@ from api.resources.patients import (
 )
 from api.resources.readings import Root as Readings, SingleReading
 from api.resources.referrals import Root as Referrals, SingleReferral
-from api.resources.pregnancies import Root as Pregnancies, SinglePregnancy, PregnancyStatus
+from api.resources.pregnancies import (
+    Root as Pregnancies,
+    SinglePregnancy,
+    PregnancyStatus,
+)
 from api.resources.users import *
 
 
@@ -112,9 +116,9 @@ def init(api):
     )  # [GET]
 
     api.add_resource(
-        Pregnancies, 
-        "/api/patients/<string:patient_id>/pregnancies", 
-        endpoint="pregnancies"
+        Pregnancies,
+        "/api/patients/<string:patient_id>/pregnancies",
+        endpoint="pregnancies",
     )  # [GET, POST]
     api.add_resource(
         PregnancyStatus,

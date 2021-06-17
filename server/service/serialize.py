@@ -36,7 +36,6 @@ def serialize_pregnancy(p: any):
         "pregnancyId": p.id,
         "patientId": p.patientId,
         "startDate": p.startDate,
-        "defaultTimeUnit": p.defaultTimeUnit,
         "endDate": p.endDate,
         "outcome": p.outcome,
         "lastEdited": p.lastEdited,
