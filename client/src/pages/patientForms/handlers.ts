@@ -36,78 +36,75 @@ export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
   };
 };
 
-export const handleSubmit = (
+export const handleSubmit = async (
+  values: PatientState,
   creatingNew: boolean,
-  history: any,
-  setSubmitError: (error: boolean) => void
+  history: any
 ) => {
-  return async (values: PatientState, { setSubmitting }: any) => {
-    setSubmitting(true);
-    const submitValues = {
-      patientId: values[PatientField.patientId],
-      patientName: values[PatientField.patientName],
-      householdNumber: values[PatientField.householdNumber],
-      isExactDob: Boolean(values[PatientField.isExactDob]),
-      dob: values[PatientField.dob],
-      zone: values[PatientField.zone],
-      villageNumber: values[PatientField.villageNumber],
-      patientSex: values[PatientField.patientSex],
-      isPregnant: Boolean(values[PatientField.isPregnant]),
-      gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
-      gestationalTimestamp: 0,
-      drugHistory: values[PatientField.drugHistory],
-      medicalHistory: values[PatientField.medicalHistory],
-      allergy: values[PatientField.allergy],
-    };
-
-    if (!submitValues.isExactDob) {
-      submitValues.dob = getDOBForEstimatedAge(
-        parseInt(values[PatientField.estimatedAge])
-      );
-    }
-
-    if (submitValues.isPregnant) {
-      switch (submitValues.gestationalAgeUnit) {
-        case GestationalAgeUnitEnum.WEEKS:
-          submitValues.gestationalTimestamp = getTimestampFromWeeksDays(
-            values.gestationalAgeWeeks,
-            values.gestationalAgeDays
-          );
-          break;
-        case GestationalAgeUnitEnum.MONTHS:
-          submitValues.gestationalTimestamp = getTimestampFromMonths(
-            values.gestationalAgeMonths
-          );
-          break;
-      }
-    }
-
-    let method = 'POST';
-    let url = API_URL + EndpointEnum.PATIENTS;
-
-    if (!creatingNew) {
-      method = 'PUT';
-      url += '/' + values[PatientField.patientId] + EndpointEnum.PATIENT_INFO;
-    }
-
-    try {
-      const resp = await apiFetch(url, {
-        method: method,
-        body: JSON.stringify(submitValues),
-      });
-
-      const respJson = await resp.json();
-      const patientPageUrl = '/patients/' + respJson['patientId'];
-
-      if (creatingNew) {
-        history.replace(patientPageUrl);
-      } else {
-        goBackWithFallback(patientPageUrl);
-      }
-    } catch (e) {
-      console.error(e);
-      setSubmitError(true);
-      setSubmitting(false);
-    }
+  const submitValues = {
+    patientId: values[PatientField.patientId],
+    patientName: values[PatientField.patientName],
+    householdNumber: values[PatientField.householdNumber],
+    isExactDob: Boolean(values[PatientField.isExactDob]),
+    dob: values[PatientField.dob],
+    zone: values[PatientField.zone],
+    villageNumber: values[PatientField.villageNumber],
+    patientSex: values[PatientField.patientSex],
+    isPregnant: Boolean(values[PatientField.isPregnant]),
+    gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
+    gestationalTimestamp: 0,
+    drugHistory: values[PatientField.drugHistory],
+    medicalHistory: values[PatientField.medicalHistory],
+    allergy: values[PatientField.allergy],
   };
+
+  if (!submitValues.isExactDob) {
+    submitValues.dob = getDOBForEstimatedAge(
+      parseInt(values[PatientField.estimatedAge])
+    );
+  }
+
+  if (submitValues.isPregnant) {
+    switch (submitValues.gestationalAgeUnit) {
+      case GestationalAgeUnitEnum.WEEKS:
+        submitValues.gestationalTimestamp = getTimestampFromWeeksDays(
+          values.gestationalAgeWeeks,
+          values.gestationalAgeDays
+        );
+        break;
+      case GestationalAgeUnitEnum.MONTHS:
+        submitValues.gestationalTimestamp = getTimestampFromMonths(
+          values.gestationalAgeMonths
+        );
+        break;
+    }
+  }
+
+  let method = 'POST';
+  let url = API_URL + EndpointEnum.PATIENTS;
+
+  if (!creatingNew) {
+    method = 'PUT';
+    url += '/' + values[PatientField.patientId] + EndpointEnum.PATIENT_INFO;
+  }
+
+  try {
+    const resp = await apiFetch(url, {
+      method: method,
+      body: JSON.stringify(submitValues),
+    });
+
+    const respJson = await resp.json();
+    const patientPageUrl = '/patients/' + respJson['patientId'];
+
+    if (creatingNew) {
+      history.replace(patientPageUrl);
+    } else {
+      goBackWithFallback(patientPageUrl);
+    }
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+  return true;
 };

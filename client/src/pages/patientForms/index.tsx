@@ -57,7 +57,7 @@ export const NewPatientPage = () => {
     helpers: FormikHelpers<PatientState>
   ) => {
     if (isFinalPage) {
-      handleSubmit(true, history, setSubmitError);
+      handleSubmit(values, true, history);
     } else {
       helpers.setTouched({});
       helpers.setSubmitting(false);
