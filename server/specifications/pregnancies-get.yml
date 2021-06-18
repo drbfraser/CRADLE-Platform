@@ -27,10 +27,6 @@ responses:
               startDate:
                 type: Unix timestamp | Null
                 example: 1620000002
-              defaultTimeUnit:
-                type: string | Null
-                enum: [WEEKS, MONTHS]
-                example: WEEKS
               endDate:
                 type: Unix timestamp | Null
                 example: 1620000002

@@ -107,7 +107,19 @@ def seed_test_data():
         "1002",
         True,
         "WEEKS",
-        1592339808,
+        1610925778,
+    )
+    create_patient_reading_referral_pregnancy(
+        "49300028163",
+        "11111111-d974-4059-a0a2-4b0a9c8e3a10",
+        2,
+        "AB",
+        25,
+        "FEMALE",
+        "1002",
+        True,
+        "MONTHS",
+        1592448477,
     )
     create_pregnancy_history(
         "49300028162",
