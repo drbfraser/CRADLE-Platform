@@ -47,7 +47,7 @@ class Root(Resource):
 
         crud.create(pregnancy, refresh=True)
 
-        return marshal.marshal_pregnancy(pregnancy), 201
+        return marshal.marshal(pregnancy), 201
 
 
 # /api/patients/<string:patient_id>/pregnancies/status
@@ -62,7 +62,10 @@ class PregnancyStatus(Resource):
     def get(patient_id: str):
         pregnancy = crud.get_pregnancy_status(patient_id)
 
-        return marshal.marshal_pregnancy(pregnancy)
+        if not p:
+            return {"isPregnant": False}
+
+        return marshal.marshal(pregnancy)
 
 
 # /api/pregnancies/<string:pregnancy_id>
@@ -79,7 +82,7 @@ class SinglePregnancy(Resource):
         if not pregnancy:
             abort(404, message=f"No pregnancy with id {pregnancy_id}")
 
-        return marshal.marshal_pregnancy(pregnancy)
+        return marshal.marshal(pregnancy)
 
     @staticmethod
     @jwt_required
@@ -99,4 +102,4 @@ class SinglePregnancy(Resource):
 
         pregnancy = crud.read(Pregnancy, id=pregnancy_id)
 
-        return marshal.marshal_pregnancy(pregnancy)
+        return marshal.marshal(pregnancy)
