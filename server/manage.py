@@ -111,7 +111,7 @@ def seed_test_data():
     )
     create_patient_reading_referral_pregnancy(
         "49300028163",
-        "11111111-d974-4059-a0a2-4b0a9c8e3a10",
+        "22222222-d974-4059-a0a2-4b0a9c8e3a10",
         2,
         "AB",
         25,
