@@ -62,7 +62,7 @@ class PregnancyStatus(Resource):
     def get(patient_id: str):
         pregnancy = crud.get_pregnancy_status(patient_id)
 
-        if not p:
+        if not pregnancy:
             return {"isPregnant": False}
 
         return marshal.marshal(pregnancy)
