@@ -10,22 +10,44 @@ import {
 } from '@material-ui/core';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import { Patient } from 'src/shared/types';
 import { Skeleton } from '@material-ui/lab';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
+import { Patient, Pregnancy } from 'src/shared/types';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 import {
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
 } from 'src/shared/constants';
+import { getNumOfWeeksNumeric } from 'src/shared/utils';
 
 interface IProps {
   patient?: Patient;
+  pregnancy?: Pregnancy;
 }
 
-export const MedicalInfo = ({ patient }: IProps) => {
+export const MedicalInfo = ({ patient, pregnancy }: IProps) => {
+  const PregnancyStatus = () => {
+    let status = 'No';
+
+    if (pregnancy!.isPregnant) {
+      status = 'Yes';
+      if (getNumOfWeeksNumeric(pregnancy!.startDate) > 40) {
+        status = 'Is the patient still pregnant?';
+      }
+    }
+
+    return (
+      <div>
+        <p>
+          <b>Pregnant: </b> {status}
+        </p>
+        {pregnancy?.isPregnant && <GestationalAge />}
+      </div>
+    );
+  };
+
   const GestationalAge = () => {
-    const [unit, setUnit] = useState(patient!.gestationalAgeUnit);
+    const [unit, setUnit] = useState(pregnancy!.defaultTimeUnit);
 
     const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
       key: unit,
@@ -40,14 +62,14 @@ export const MedicalInfo = ({ patient }: IProps) => {
       setUnit(value as GestationalAgeUnitEnum);
     };
 
-    return patient?.isPregnant && patient?.gestationalTimestamp ? (
+    return (
       <div>
         <p>
           <b>Gestational Age: </b>
-          {gestationalAgeUnitFormatters[unit](patient!.gestationalTimestamp)}
+          {gestationalAgeUnitFormatters[unit](pregnancy!.startDate)}
         </p>
         <Form.Field
-          name="gestationalUnits"
+          name="gestationalAgeUnits"
           control={Select}
           options={unitOptions}
           placeholder={gestationalAgeUnitLabels[unit]}
@@ -55,8 +77,6 @@ export const MedicalInfo = ({ patient }: IProps) => {
         />
         <br />
       </div>
-    ) : (
-      <></>
     );
   };
 
@@ -89,12 +109,7 @@ export const MedicalInfo = ({ patient }: IProps) => {
         <br />
         {patient ? (
           <div>
-            {patient.patientSex === SexEnum.FEMALE && (
-              <p>
-                <b>Pregnant: </b> {patient.isPregnant ? `Yes` : `No`}
-              </p>
-            )}
-            <GestationalAge />
+            {patient.patientSex === SexEnum.FEMALE && <PregnancyStatus />}
             <HistoryItem title="Drug history" history={patient.drugHistory} />
             <HistoryItem
               title="Medical history"
