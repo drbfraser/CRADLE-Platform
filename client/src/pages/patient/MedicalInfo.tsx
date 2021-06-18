@@ -28,13 +28,51 @@ interface IProps {
 export const MedicalInfo = ({ patient, pregnancy }: IProps) => {
   const PregnancyStatus = () => {
     let status = 'No';
+    let isTimedOut = false;
 
     if (pregnancy!.isPregnant) {
       status = 'Yes';
       if (getNumOfWeeksNumeric(pregnancy!.startDate) > 40) {
         status = 'Is the patient still pregnant?';
+        isTimedOut = true;
       }
     }
+
+    const GestationalAge = () => {
+      const [unit, setUnit] = useState(pregnancy!.defaultTimeUnit);
+
+      const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
+        key: unit,
+        text: gestationalAgeUnitLabels[unit],
+        value: unit,
+      }));
+
+      const handleUnitChange = (
+        _: React.ChangeEvent<HTMLInputElement>,
+        { value }: InputOnChangeData
+      ) => {
+        setUnit(value as GestationalAgeUnitEnum);
+      };
+
+      return (
+        <div>
+          <p>
+            <b>Gestational Age: </b>
+            <span style={isTimedOut ? { color: 'red' } : {}}>
+              {gestationalAgeUnitFormatters[unit](pregnancy!.startDate)}
+            </span>
+          </p>
+          <Form.Field
+            name="gestationalAgeUnits"
+            control={Select}
+            options={unitOptions}
+            placeholder={gestationalAgeUnitLabels[unit]}
+            onChange={handleUnitChange}
+          />
+          <br />
+        </div>
+      );
+    };
 
     return (
       <div>
@@ -42,40 +80,6 @@ export const MedicalInfo = ({ patient, pregnancy }: IProps) => {
           <b>Pregnant: </b> {status}
         </p>
         {pregnancy?.isPregnant && <GestationalAge />}
-      </div>
-    );
-  };
-
-  const GestationalAge = () => {
-    const [unit, setUnit] = useState(pregnancy!.defaultTimeUnit);
-
-    const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
-      key: unit,
-      text: gestationalAgeUnitLabels[unit],
-      value: unit,
-    }));
-
-    const handleUnitChange = (
-      _: React.ChangeEvent<HTMLInputElement>,
-      { value }: InputOnChangeData
-    ) => {
-      setUnit(value as GestationalAgeUnitEnum);
-    };
-
-    return (
-      <div>
-        <p>
-          <b>Gestational Age: </b>
-          {gestationalAgeUnitFormatters[unit](pregnancy!.startDate)}
-        </p>
-        <Form.Field
-          name="gestationalAgeUnits"
-          control={Select}
-          options={unitOptions}
-          placeholder={gestationalAgeUnitLabels[unit]}
-          onChange={handleUnitChange}
-        />
-        <br />
       </div>
     );
   };
