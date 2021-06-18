@@ -11,7 +11,7 @@ export const MedicalInfoForm = ({ formikProps }: FormPageProps) => {
     <Paper>
       <Box p={2}>
         <h2>Medical Information</h2>
-        <Grid container>
+        <Grid container spacing={2}>
           <Grid item md={6} sm={12}>
             <Field
               component={TextField}

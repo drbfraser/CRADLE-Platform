@@ -24,7 +24,7 @@ export const PregnancyInfoForm = ({ formikProps }: FormPageProps) => {
     <Paper>
       <Box p={2}>
         <h2>Pregnancy Information</h2>
-        <Grid container>
+        <Grid container spacing={2}>
           <Grid item md={2} sm={12}>
             <Field
               component={CheckboxWithLabel}

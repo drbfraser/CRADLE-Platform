@@ -3,8 +3,8 @@ import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid/Grid';
 import { makeStyles } from '@material-ui/core/styles';
-import { Field } from 'formik';
-import { PatientField, FormPageProps } from '../state';
+import { Field, FormikProps } from 'formik';
+import { PatientField, PatientState } from '../state';
 import { Select, TextField } from 'formik-material-ui';
 import { ToggleButtonGroup } from 'formik-material-ui-lab';
 import ToggleButton from '@material-ui/lab/ToggleButton';
@@ -16,7 +16,12 @@ import { handleBlurPatientId } from './handlers';
 import { handleChangeCustom } from '../handlers';
 import { sexOptions } from 'src/shared/constants';
 
-export const PersonalInfoForm = ({ formikProps }: FormPageProps) => {
+interface IProps {
+  formikProps: FormikProps<PatientState>;
+  creatingNew: boolean;
+}
+
+export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
   const classes = useStyles();
   // for *new* patients only, track whether the patient ID already exists
   const [existingPatientId, setExistingPatientId] =
@@ -38,6 +43,7 @@ export const PersonalInfoForm = ({ formikProps }: FormPageProps) => {
                 formikProps.handleBlur,
                 setExistingPatientId
               )}
+              disabled={!creatingNew}
             />
             {existingPatientId != null && (
               <PatientIDExists patientId={existingPatientId} />

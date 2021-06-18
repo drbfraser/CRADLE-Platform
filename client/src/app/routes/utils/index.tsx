@@ -3,7 +3,8 @@ import { LoginPage } from 'src/pages/login';
 import { NotFoundPage } from 'src/pages/notFound';
 import { PatientPage } from 'src/pages/patient';
 import { PatientsPage } from 'src/pages/patients';
-import { NewPatientPage } from 'src/pages/patientForms';
+import { NewPatientPage } from 'src/pages/patientForms/newPatientForm';
+import { EditPersonalInfoPage } from 'src/pages/patientForms/editPersonalInfoForm';
 import React from 'react';
 import { ReferralsPage } from 'src/pages/referrals';
 import { ResourcesPage } from 'src/pages/resources';
@@ -59,6 +60,14 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/patients/edit/:patientId`,
+  },
+  {
+    component: EditPersonalInfoPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/patients/testedit/:patientId`,
   },
   {
     component: ReadingFormPage,

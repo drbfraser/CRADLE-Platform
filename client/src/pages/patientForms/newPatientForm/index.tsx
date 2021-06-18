@@ -5,21 +5,21 @@ import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
 import { Button } from '@material-ui/core';
-import { PersonalInfoForm } from './personalInfoForm';
-import { PregnancyInfoForm } from './pregnancyInfoForm';
-import { MedicalInfoForm } from './MedicalInfoForm';
+import { PersonalInfoForm } from '../personalInfoForm';
+import { PregnancyInfoForm } from '../pregnancyInfoForm';
+import { MedicalInfoForm } from '../medicalInfoForm';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import Stepper from '@material-ui/core/Stepper/Stepper';
 import StepLabel from '@material-ui/core/StepLabel/StepLabel';
 import Step from '@material-ui/core/Step/Step';
-import { initialState, PatientState } from './state';
-import { handleSubmit } from './handlers';
+import { initialState, PatientState } from '../state';
+import { handleSubmit } from '../handlers';
 import { goBackWithFallback } from 'src/shared/utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { personalInfoValidationSchema } from './personalInfoForm/validation';
-import { pregnancyInfoValidationSchema } from './pregnancyInfoForm/validation';
+import { personalInfoValidationSchema } from '../personalInfoForm/validation';
+import { pregnancyInfoValidationSchema } from '../pregnancyInfoForm/validation';
 import { useHistory } from 'react-router-dom';
 
 export const NewPatientPage = () => {
@@ -93,7 +93,7 @@ export const NewPatientPage = () => {
         validationSchema={pages[pageNum].validationSchema}>
         {(formikProps: FormikProps<PatientState>) => (
           <Form>
-            <PageComponent formikProps={formikProps} />
+            <PageComponent formikProps={formikProps} creatingNew={true} />
             <br />
             <Button
               variant="outlined"
