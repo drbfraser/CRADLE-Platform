@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { PersonalInfoForm } from '../personalInfoForm';
-import { useRouteMatch } from 'react-router-dom';
+import { useRouteMatch, useHistory } from 'react-router-dom';
 import { getPatientState, PatientState } from '../state';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -11,9 +11,9 @@ import Typography from '@material-ui/core/Typography';
 import { Button } from '@material-ui/core';
 import { Form, Formik, FormikProps, FormikHelpers } from 'formik';
 import { goBackWithFallback } from 'src/shared/utils';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from '../handlers';
 import { personalInfoValidationSchema } from '../personalInfoForm/validation';
-import { useHistory } from 'react-router-dom';
 
 type RouteParams = {
   patientId: string | undefined;
@@ -24,6 +24,7 @@ export const EditPersonalInfoPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
   const history = useHistory();
   const [formInitialState, setFormInitialState] = useState<PatientState>();
+  const [submitError, setSubmitError] = useState(false);
 
   useEffect(() => {
     getPatientState(patientId).then((state) => setFormInitialState(state));
@@ -33,11 +34,12 @@ export const EditPersonalInfoPage = () => {
     values: PatientState,
     helpers: FormikHelpers<PatientState>
   ) => {
-    handleSubmit(values, false, history);
+    handleSubmit(values, false, history, setSubmitError, helpers.setSubmitting);
   };
 
   return (
     <div className={classes.container}>
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -16,7 +16,6 @@ import { initialState, PatientState } from '../state';
 import { handleSubmit } from '../handlers';
 import { goBackWithFallback } from 'src/shared/utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { personalInfoValidationSchema } from '../personalInfoForm/validation';
 import { pregnancyInfoValidationSchema } from '../pregnancyInfoForm/validation';
@@ -57,7 +56,13 @@ export const NewPatientPage = () => {
     helpers: FormikHelpers<PatientState>
   ) => {
     if (isFinalPage) {
-      handleSubmit(values, true, history);
+      handleSubmit(
+        values,
+        true,
+        history,
+        setSubmitError,
+        helpers.setSubmitting
+      );
     } else {
       helpers.setTouched({});
       helpers.setSubmitting(false);

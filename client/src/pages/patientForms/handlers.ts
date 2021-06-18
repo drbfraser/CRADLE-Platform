@@ -1,7 +1,10 @@
 import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import {
+  EndpointEnum,
+  GestationalAgeUnitEnum,
+  SexEnum,
+} from 'src/shared/enums';
 import { initialState, PatientField, PatientState } from './state';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 import {
   getDOBForEstimatedAge,
   getTimestampFromMonths,
@@ -39,8 +42,12 @@ export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
 export const handleSubmit = async (
   values: PatientState,
   creatingNew: boolean,
-  history: any
+  history: any,
+  setSubmitError: React.Dispatch<React.SetStateAction<any>>,
+  setSubmitting: React.Dispatch<React.SetStateAction<any>>
 ) => {
+  setSubmitting(true);
+
   const submitValues = {
     patientId: values[PatientField.patientId],
     patientName: values[PatientField.patientName],
@@ -104,6 +111,8 @@ export const handleSubmit = async (
     }
   } catch (e) {
     console.error(e);
+    setSubmitError(true);
+    setSubmitting(false);
     return false;
   }
   return true;
