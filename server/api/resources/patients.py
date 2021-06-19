@@ -236,3 +236,23 @@ class PatientReadings(Resource):
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(r) for r in patient.readings]
+
+
+# /api/patients/<string:patient_id>/medical_info
+class PatientMedicalInfo(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/patient-medical-info-get.yml",
+        methods=["GET"],
+        endpoint="patient-medical-info",
+    )
+    def get(patient_id: str):
+        records = crud.get_medical_info(patient_id)
+
+        medicalInfo = dict()
+        for record in records:
+            if record:
+                medicalInfo.update(marshal.marshal(record))
+
+        return medicalInfo
