@@ -4,7 +4,7 @@ import { NotFoundPage } from 'src/pages/notFound';
 import { PatientPage } from 'src/pages/patient';
 import { PatientsPage } from 'src/pages/patients';
 import { NewPatientPage } from 'src/pages/patientForms/newPatientForm';
-import { EditPersonalInfoPage } from 'src/pages/patientForms/editPersonalInfoForm';
+import { EditPatientPage } from 'src/pages/patientForms/editForm';
 import React from 'react';
 import { ReferralsPage } from 'src/pages/referrals';
 import { ResourcesPage } from 'src/pages/resources';
@@ -16,7 +16,6 @@ import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
 import { AssessmentFormPage } from 'src/pages/assessmentForm';
-import { PatientFormPage } from 'src/pages/patientForm';
 import { ReadingFormPage } from 'src/pages/readingForm';
 import PollIcon from '@material-ui/icons/Poll';
 import { ReferralFormPage } from 'src/pages/referralForm';
@@ -43,31 +42,15 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/testnew`,
-  },
-  {
-    component: PatientFormPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
     to: `/patients/new`,
   },
   {
-    component: PatientFormPage,
+    component: EditPatientPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/edit/:patientId`,
-  },
-  {
-    component: EditPersonalInfoPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/patients/testedit/:patientId`,
+    to: `/patients/edit/:editId/:patientId`,
   },
   {
     component: ReadingFormPage,

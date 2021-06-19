@@ -7,7 +7,9 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Button,
 } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { Patient } from 'src/shared/types';
@@ -18,12 +20,19 @@ import {
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
 } from 'src/shared/constants';
+import { useHistory } from 'react-router-dom';
 
 interface IProps {
   patient?: Patient;
 }
 
 export const MedicalInfo = ({ patient }: IProps) => {
+  const classes = useStyles();
+  const history = useHistory();
+
+  const handleEditClick = (editId: string) =>
+    history.push(`/patients/edit/${editId}/${patient?.patientId}`);
+
   const GestationalAge = () => {
     const [unit, setUnit] = useState(patient!.gestationalAgeUnit);
 
@@ -63,21 +72,32 @@ export const MedicalInfo = ({ patient }: IProps) => {
   interface HistoryItemProps {
     title: string;
     history: string | null;
+    editId: string;
   }
 
-  const HistoryItem = ({ title, history }: HistoryItemProps) =>
-    history ? (
-      <Accordion>
-        <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
-          <Typography>{title}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>{history}</Typography>
-        </AccordionDetails>
-      </Accordion>
-    ) : (
-      <></>
-    );
+  const HistoryItem = ({ title, history, editId }: HistoryItemProps) => (
+    <Accordion>
+      <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
+        <Typography style={{ flex: 1 }}> {title} </Typography>
+        <Button
+          color="primary"
+          variant="outlined"
+          className={classes.right}
+          onClick={() => handleEditClick(editId)}>
+          {history ? 'Edit' : 'Add'}
+        </Button>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Typography>
+          {history ? (
+            history
+          ) : (
+            <>No additional {title.toLowerCase()} information.</>
+          )}
+        </Typography>
+      </AccordionDetails>
+    </Accordion>
+  );
 
   return (
     <Paper>
@@ -95,16 +115,17 @@ export const MedicalInfo = ({ patient }: IProps) => {
               </p>
             )}
             <GestationalAge />
-            <HistoryItem title="Drug history" history={patient.drugHistory} />
             <HistoryItem
-              title="Medical history"
-              history={patient.medicalHistory}
+              title="Drug History"
+              history={patient.drugHistory}
+              editId="drugHistory"
             />
-            {patient.patientSex !== SexEnum.FEMALE &&
-              !patient.drugHistory &&
-              !patient.medicalHistory && (
-                <>No additional medical information.</>
-              )}
+
+            <HistoryItem
+              title="Medical History"
+              history={patient.medicalHistory}
+              editId="medicalHistory"
+            />
           </div>
         ) : (
           <Skeleton variant="rect" height={200} />
@@ -113,3 +134,9 @@ export const MedicalInfo = ({ patient }: IProps) => {
     </Paper>
   );
 };
+
+const useStyles = makeStyles({
+  right: {
+    float: 'right',
+  },
+});

@@ -14,21 +14,55 @@ import { goBackWithFallback } from 'src/shared/utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from '../handlers';
 import { personalInfoValidationSchema } from '../personalInfoForm/validation';
+import { MedicalInfoForm } from '../medicalInfoForm';
+import { NotFoundPage } from 'src/pages/notFound';
+
+type Page = {
+  name: string;
+  component: any;
+  validationSchema: any;
+  isDrugRecord?: boolean;
+};
 
 type RouteParams = {
   patientId: string | undefined;
+  editId: string;
 };
 
-export const EditPersonalInfoPage = () => {
+const pages: { [key: string]: Page } = {
+  personalInfo: {
+    name: 'Personal Information',
+    component: PersonalInfoForm,
+    validationSchema: personalInfoValidationSchema(true),
+  },
+  drugHistory: {
+    name: 'Drug History',
+    component: MedicalInfoForm,
+    validationSchema: undefined,
+    isDrugRecord: true,
+  },
+  medicalHistory: {
+    name: 'Medical History',
+    component: MedicalInfoForm,
+    validationSchema: undefined,
+    isDrugRecord: false,
+  },
+};
+
+export const EditPatientPage = () => {
   const classes = useStyles();
-  const { patientId } = useRouteMatch<RouteParams>().params;
   const history = useHistory();
-  const [formInitialState, setFormInitialState] = useState<PatientState>();
+  const { patientId, editId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);
+  const [formInitialState, setFormInitialState] = useState<PatientState>();
 
   useEffect(() => {
     getPatientState(patientId).then((state) => setFormInitialState(state));
   }, [patientId]);
+
+  if (!Object.prototype.hasOwnProperty.call(pages, editId)) {
+    return <NotFoundPage />;
+  }
 
   const handleEdit = async (
     values: PatientState,
@@ -36,6 +70,8 @@ export const EditPersonalInfoPage = () => {
   ) => {
     handleSubmit(values, false, history, setSubmitError, helpers.setSubmitting);
   };
+
+  const PageComponent = pages[editId].component;
 
   return (
     <div className={classes.container}>
@@ -47,7 +83,7 @@ export const EditPersonalInfoPage = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">Edit Patient</Typography>
+        <Typography variant="h4">Edit {pages[editId].name}</Typography>
       </div>
       <br />
       {formInitialState === undefined ? (
@@ -59,7 +95,11 @@ export const EditPersonalInfoPage = () => {
           validationSchema={personalInfoValidationSchema(false)}>
           {(formikProps: FormikProps<PatientState>) => (
             <Form>
-              <PersonalInfoForm formikProps={formikProps} creatingNew={false} />
+              <PageComponent
+                formikProps={formikProps}
+                creatingNew={false}
+                isDrugRecord={pages[editId].isDrugRecord}
+              />
               <br />
               <Button
                 variant="contained"
