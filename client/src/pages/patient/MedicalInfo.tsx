@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Paper,
   Typography,
@@ -10,10 +10,15 @@ import {
 } from '@material-ui/core';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import { Skeleton } from '@material-ui/lab';
+import { Alert, Skeleton } from '@material-ui/lab';
 import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
 import { Patient, Pregnancy } from 'src/shared/types';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
+import { apiFetch, API_URL } from 'src/shared/api';
+import {
+  EndpointEnum,
+  GestationalAgeUnitEnum,
+  SexEnum,
+} from 'src/shared/enums';
 import {
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
@@ -22,10 +27,29 @@ import { getNumOfWeeksNumeric } from 'src/shared/utils';
 
 interface IProps {
   patient?: Patient;
-  pregnancy?: Pregnancy;
+  patientId: string;
 }
 
-export const MedicalInfo = ({ patient, pregnancy }: IProps) => {
+export const MedicalInfo = ({ patient, patientId }: IProps) => {
+  const [pregnancy, setPregnancy] = useState<Pregnancy>();
+  const [errorLoading, setErrorLoading] = useState(false);
+
+  useEffect(() => {
+    apiFetch(
+      API_URL +
+        EndpointEnum.PATIENTS +
+        `/${patientId}` +
+        EndpointEnum.PREGNANCY_STATUS
+    )
+      .then((resp) => resp.json())
+      .then((pregnancy) => {
+        setPregnancy(pregnancy);
+      })
+      .catch(() => {
+        setErrorLoading(true);
+      });
+  }, [patientId]);
+
   const PregnancyStatus = () => {
     let status = 'No';
     let isTimedOut = false;
@@ -111,7 +135,12 @@ export const MedicalInfo = ({ patient, pregnancy }: IProps) => {
         </Typography>
         <Divider />
         <br />
-        {patient ? (
+        {errorLoading ? (
+          <Alert severity="error">
+            Something went wrong trying to load patient's pregnancy status.
+            Please try refreshing.
+          </Alert>
+        ) : patient && pregnancy ? (
           <div>
             {patient.patientSex === SexEnum.FEMALE && <PregnancyStatus />}
             <HistoryItem title="Drug history" history={patient.drugHistory} />

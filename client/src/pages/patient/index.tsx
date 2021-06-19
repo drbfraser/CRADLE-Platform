@@ -5,7 +5,7 @@ import { MedicalInfo } from './MedicalInfo';
 import { PersonalInfo } from './PersonalInfo';
 import { ReadingCard } from './ReadingCard/ReadingCard';
 import { PatientStats } from './PatientStats';
-import { Patient, Pregnancy } from 'src/shared/types';
+import { Patient } from 'src/shared/types';
 import { useRouteMatch } from 'react-router-dom';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
@@ -18,18 +18,12 @@ type RouteParams = {
 export const PatientPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [patient, setPatient] = useState<Patient>();
-  const [pregnancy, setPregnancy] = useState<Pregnancy>();
   const [errorLoading, setErrorLoading] = useState(false);
 
   useEffect(() => {
-    const urlPatient = API_URL + EndpointEnum.PATIENTS + `/${patientId}`;
-    const urlPregnancy = urlPatient + EndpointEnum.PREGNANCY_STATUS;
-    const fetchPatient = apiFetch(urlPatient).then((resp) => resp.json());
-    const fetchPregnancy = apiFetch(urlPregnancy).then((resp) => resp.json());
-
-    Promise.all([fetchPatient, fetchPregnancy])
-      .then(([patient, pregnancy]) => {
-        setPregnancy(pregnancy);
+    apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
+      .then((resp) => resp.json())
+      .then((patient) => {
         setPatient(patient);
       })
       .catch(() => {
@@ -51,7 +45,7 @@ export const PatientPage = () => {
         <Grid item xs={12} md={6}>
           <PersonalInfo patient={patient} />
           <br />
-          <MedicalInfo patient={patient} pregnancy={pregnancy} />
+          <MedicalInfo patient={patient} patientId={patientId} />
         </Grid>
         <Grid item xs={12} md={6}>
           <PatientStats patientId={patientId} />
