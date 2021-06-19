@@ -136,8 +136,8 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         <br />
         {errorLoading ? (
           <Alert severity="error">
-            Something went wrong trying to load patient's pregnancy status.
-            Please try refreshing.
+            Something went wrong trying to load patient&rsquo;s pregnancy
+            status. Please try refreshing.
           </Alert>
         ) : patient && pregnancy ? (
           <div>
