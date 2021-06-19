@@ -14,6 +14,10 @@ import { goBackWithFallback } from 'src/shared/utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from '../handlers';
 import { personalInfoValidationSchema } from '../personalInfoForm/validation';
+import {
+  drugHistoryValidationSchema,
+  medicalHistoryValidationSchema,
+} from '../medicalInfoForm/validation';
 import { MedicalInfoForm } from '../medicalInfoForm';
 import { NotFoundPage } from 'src/pages/notFound';
 
@@ -33,18 +37,18 @@ const pages: { [key: string]: Page } = {
   personalInfo: {
     name: 'Personal Information',
     component: PersonalInfoForm,
-    validationSchema: personalInfoValidationSchema(true),
+    validationSchema: personalInfoValidationSchema(false),
   },
   drugHistory: {
     name: 'Drug History',
     component: MedicalInfoForm,
-    validationSchema: undefined,
+    validationSchema: drugHistoryValidationSchema,
     isDrugRecord: true,
   },
   medicalHistory: {
     name: 'Medical History',
     component: MedicalInfoForm,
-    validationSchema: undefined,
+    validationSchema: medicalHistoryValidationSchema,
     isDrugRecord: false,
   },
 };
@@ -92,7 +96,7 @@ export const EditPatientPage = () => {
         <Formik
           initialValues={formInitialState}
           onSubmit={handleEdit}
-          validationSchema={personalInfoValidationSchema(false)}>
+          validationSchema={pages[editId].validationSchema}>
           {(formikProps: FormikProps<PatientState>) => (
             <Form>
               <PageComponent
