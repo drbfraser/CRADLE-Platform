@@ -51,15 +51,11 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
   }, [patientId]);
 
   const PregnancyStatus = () => {
-    let status = 'No';
-    let isTimedOut = false;
+    const status = pregnancy!.isPregnant ? 'Yes' : 'No';
 
+    let isTimedOut = false;
     if (pregnancy!.isPregnant) {
-      status = 'Yes';
-      if (getNumOfWeeksNumeric(pregnancy!.startDate) > 40) {
-        status = 'Is the patient still pregnant?';
-        isTimedOut = true;
-      }
+      isTimedOut = getNumOfWeeksNumeric(pregnancy!.startDate) > 40;
     }
 
     const GestationalAge = () => {
@@ -104,6 +100,9 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
           <b>Pregnant: </b> {status}
         </p>
         {pregnancy?.isPregnant && <GestationalAge />}
+        {isTimedOut && (
+          <Alert severity="warning">Is the patient still pregnant?</Alert>
+        )}
       </div>
     );
   };
