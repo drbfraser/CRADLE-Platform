@@ -208,3 +208,14 @@ class HealthFacilityFactory(ModelFactory):
 
     def _do_create(self, **kwargs) -> Any:
         return crud.create_model(dict(**kwargs), models.HealthFacilitySchema)
+
+
+class PregnancyFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super(PregnancyFactory, self).__init__(db)
+
+    def create(self, **kwargs) -> Any:
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), models.PregnancySchema)

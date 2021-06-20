@@ -94,12 +94,6 @@ def __marshal_pregnancy(p: Pregnancy) -> dict:
     # Remove relationship object
     if d.get("patient"):
         del d["patient"]
-
-    if p.endDate:
-        d["isPregnant"] = False
-    else:
-        d["isPregnant"] = True
-
     return d
 
 

@@ -65,7 +65,14 @@ class PregnancyStatus(Resource):
         if not pregnancy:
             return {"isPregnant": False}
 
-        return marshal.marshal(pregnancy)
+        result = marshal.marshal(pregnancy)
+
+        if pregnancy.endDate:
+            result.update({"isPregnant": False})
+        else:
+            result.update({"isPregnant": True})
+
+        return result
 
 
 # /api/pregnancies/<string:pregnancy_id>
@@ -94,12 +101,12 @@ class SinglePregnancy(Resource):
     def put(pregnancy_id: str):
         json = request.get_json(force=True)
 
-        error = pregnancies.validate_put_request(json, pregnancy_id)
-        if error:
-            abort(400, message=error)
+        # error = pregnancies.validate_put_request(json, pregnancy_id)
+        # if error:
+        #     abort(400, message=error)
 
         crud.update(Pregnancy, json, id=pregnancy_id)
 
         pregnancy = crud.read(Pregnancy, id=pregnancy_id)
-
+        
         return marshal.marshal(pregnancy)
