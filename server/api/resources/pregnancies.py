@@ -41,13 +41,18 @@ class Root(Resource):
         if error:
             abort(400, message=error)
 
-        pregnancy = marshal.unmarshal(Pregnancy, json)
+        if "id" in json:
+            pregnancy_id = json.get("id")
+            if crud.read(Pregnancy, id=pregnancy_id):
+                abort(
+                    409, message=f"A pregnancy with ID {pregnancy_id} already exists."
+                )
 
-        pregnancy.lastEdited = get_current_time()
+        new_pregnancy = marshal.unmarshal(Pregnancy, json)
 
-        crud.create(pregnancy, refresh=True)
+        crud.create(new_pregnancy, refresh=True)
 
-        return marshal.marshal(pregnancy), 201
+        return marshal.marshal(new_pregnancy), 201
 
 
 # /api/patients/<string:patient_id>/pregnancies/status
@@ -101,12 +106,17 @@ class SinglePregnancy(Resource):
     def put(pregnancy_id: str):
         json = request.get_json(force=True)
 
-        # error = pregnancies.validate_put_request(json, pregnancy_id)
-        # if error:
-        #     abort(400, message=error)
+        if "patientId" in json:
+            patient_id = crud.read(Pregnancy, id=pregnancy_id).patientId
+            if json.get("patientId") != patient_id:
+                abort(400, message="Patient ID cannot be changed.")
+
+        error = pregnancies.validate_put_request(json, pregnancy_id)
+        if error:
+            abort(400, message=error)
 
         crud.update(Pregnancy, json, id=pregnancy_id)
 
-        pregnancy = crud.read(Pregnancy, id=pregnancy_id)
-        
-        return marshal.marshal(pregnancy)
+        new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+
+        return marshal.marshal(new_pregnancy)

@@ -16,7 +16,7 @@ responses:
         schema:
           type: object
           properties:
-            pregnancyId:
+            id:
               type: integer
               example: 1001
             patientId:

@@ -215,6 +215,14 @@ class PregnancyFactory(ModelFactory):
         super(PregnancyFactory, self).__init__(db)
 
     def create(self, **kwargs) -> Any:
+        """
+        Creates a new pregnancy.
+
+        :param kwargs: Keyword arguments
+        :primary key pregnancyId: Unique ID of the new pregnancy
+        :foreign key patientId: ID of the patient to associate the new pregnancy with
+        :return: A ``Pregnancy`` model
+        """
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
