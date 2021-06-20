@@ -17,8 +17,8 @@ import { personalInfoValidationSchema } from '../personalInfoForm/validation';
 import {
   drugHistoryValidationSchema,
   medicalHistoryValidationSchema,
-} from '../medicalInfoForm/validation';
-import { MedicalInfoForm } from '../medicalInfoForm';
+} from '../medicalForm/validation';
+import { MedicalInfoForm } from '../medicalForm';
 import { NotFoundPage } from 'src/pages/notFound';
 
 type Page = {

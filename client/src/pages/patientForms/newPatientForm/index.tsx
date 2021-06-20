@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import { Button } from '@material-ui/core';
 import { PersonalInfoForm } from '../personalInfoForm';
 import { PregnancyInfoForm } from '../pregnancyInfoForm';
-import { MedicalInfoForm } from '../medicalInfoForm';
+import { MedicalInfoForm } from '../medicalForm';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import Stepper from '@material-ui/core/Stepper/Stepper';
 import StepLabel from '@material-ui/core/StepLabel/StepLabel';
