@@ -10,7 +10,6 @@ import service.serialize as serialize
 import service.view as view
 from models import Pregnancy
 from validation import pregnancies
-from utils import get_current_time
 
 
 # /api/patients/<string:patient_id>/pregnancies
@@ -35,20 +34,20 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def post(patient_id: str):
-        json = request.get_json(force=True)
+        request_body = request.get_json(force=True)
 
-        error = pregnancies.validate_post_request(json, patient_id)
+        error = pregnancies.validate_post_request(request_body, patient_id)
         if error:
             abort(400, message=error)
 
-        if "id" in json:
-            pregnancy_id = json.get("id")
+        if "id" in request_body:
+            pregnancy_id = request_body.get("id")
             if crud.read(Pregnancy, id=pregnancy_id):
                 abort(
                     409, message=f"A pregnancy with ID {pregnancy_id} already exists."
                 )
 
-        new_pregnancy = marshal.unmarshal(Pregnancy, json)
+        new_pregnancy = marshal.unmarshal(Pregnancy, request_body)
 
         crud.create(new_pregnancy, refresh=True)
 
@@ -104,18 +103,18 @@ class SinglePregnancy(Resource):
         endpoint="single_pregnancy",
     )
     def put(pregnancy_id: str):
-        json = request.get_json(force=True)
+        request_body = request.get_json(force=True)
 
-        if "patientId" in json:
+        if "patientId" in request_body:
             patient_id = crud.read(Pregnancy, id=pregnancy_id).patientId
-            if json.get("patientId") != patient_id:
+            if request_body.get("patientId") != patient_id:
                 abort(400, message="Patient ID cannot be changed.")
 
-        error = pregnancies.validate_put_request(json, pregnancy_id)
+        error = pregnancies.validate_put_request(request_body, pregnancy_id)
         if error:
             abort(400, message=error)
 
-        crud.update(Pregnancy, json, id=pregnancy_id)
+        crud.update(Pregnancy, request_body, id=pregnancy_id)
 
         new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
 
