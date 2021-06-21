@@ -96,7 +96,7 @@ def test_invalid_pregnancy_not_created(
     pregnancy_factory, patient_id, preganancy_later, api_post
 ):
     pregnancy_factory.create(**preganancy_later)
-    
+
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/pregnancies",
         json=preganancy_later,
