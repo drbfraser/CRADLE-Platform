@@ -15,6 +15,13 @@ requestBody:
     application/json:
       schema:
         type: object
+        properties:
+          endDate:
+            type: Unix timestamp | Null
+            example: 1620000002
+          outcome:
+            type: string | Null
+            example: Mode of delivery assisted birth
 
 responses:
   200:
@@ -30,9 +37,6 @@ responses:
             patientId:
               type: integer
               example: 120000
-            isPregnant:
-              type: boolean
-              example: true
             startDate:
               type: Unix timestamp | Null
               example: 1620000002
