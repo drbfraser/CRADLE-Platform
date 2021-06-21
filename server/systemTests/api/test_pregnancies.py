@@ -34,17 +34,21 @@ def test_put_pregnancy(pregnancy_factory, preganancy_later, api_put):
 
 
 def test_post_pregnancy(patient_id, preganancy_later, api_post):
-    response = api_post(
-        endpoint=f"/api/patients/{patient_id}/pregnancies",
-        json=preganancy_later,
-    )
+    try:
+        response = api_post(
+            endpoint=f"/api/patients/{patient_id}/pregnancies",
+            json=preganancy_later,
+        )
 
-    pregnancy_id = preganancy_later["id"]
-    new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+        pregnancy_id = preganancy_later["id"]
+        new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
 
-    assert response.status_code == 201
-    assert new_pregnancy.patientId == patient_id
-    assert new_pregnancy.startDate == preganancy_later["startDate"]
+        assert response.status_code == 201
+        assert new_pregnancy.patientId == patient_id
+        assert new_pregnancy.startDate == preganancy_later["startDate"]
+
+    finally:
+        crud.delete_by(Pregnancy, id=pregnancy_id)
 
 
 def test_get_pregnancy_list(
