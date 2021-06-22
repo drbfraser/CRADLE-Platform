@@ -1,0 +1,43 @@
+Get pregnancy status of a patient
+---
+tags:
+  - Pregnancies
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/pregnancies/status
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1001
+            patientId:
+              type: integer
+              example: 120000
+            isPregnant:
+              type: boolean
+              example: true
+            startDate:
+              type: Unix timestamp | Null
+              example: 1620000002
+            defaultTimeUnit:
+              type: string | Null
+              enum: [WEEKS, MONTHS]
+              example: WEEKS
+            endDate:
+              type: Unix timestamp | Null
+              example: 1620000002
+            outcome:
+              type: string | Null
+              example: Mode of delivery assisted birth
+            lastEdited:
+              type: Unix timestamp
+              example: 1620000002

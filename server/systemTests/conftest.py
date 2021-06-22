@@ -178,7 +178,7 @@ def api(url: str):
 
 
 @pytest.fixture
-def patient_factory(database) -> factory.ReadingFactory:
+def patient_factory(database) -> factory.PatientFactory:
     yield from __make_factory(database, factory.PatientFactory)
 
 
@@ -205,6 +205,11 @@ def user_factory(database) -> factory.UserFactory:
 @pytest.fixture
 def facility_factory(database) -> factory.HealthFacilityFactory:
     yield from __make_factory(database, factory.HealthFacilityFactory)
+
+
+@pytest.fixture
+def pregnancy_factory(database) -> factory.PregnancyFactory:
+    yield from __make_factory(database, factory.PregnancyFactory)
 
 
 #
