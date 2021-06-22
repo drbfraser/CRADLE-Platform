@@ -105,14 +105,14 @@ class SinglePregnancy(Resource):
     def put(pregnancy_id: str):
         request_body = request.get_json(force=True)
 
+        error = pregnancies.validate_put_request(request_body, pregnancy_id)
+        if error:
+            abort(400, message=error)
+
         if "patientId" in request_body:
             patient_id = crud.read(Pregnancy, id=pregnancy_id).patientId
             if request_body.get("patientId") != patient_id:
                 abort(400, message="Patient ID cannot be changed.")
-
-        error = pregnancies.validate_put_request(request_body, pregnancy_id)
-        if error:
-            abort(400, message=error)
 
         crud.update(Pregnancy, request_body, id=pregnancy_id)
 
