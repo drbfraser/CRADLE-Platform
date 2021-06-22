@@ -10,11 +10,12 @@ def init_routes(api: Api):
     __init_patients_resources(api)
     __init_readings_resources(api)
     __init_referral_resources(api)
-    __init_pregnancy_resources(api)
     __init_assessment_resources(api)
     __init_facilities_resources(api)
     __init_sync_resources(api)
     __init_patient_associations_resources(api)
+    __init_pregnancy_resources(api)
+    __init_medicalrecord_resources(api)
 
 
 def __init_patients_resources(api: Api):
@@ -40,20 +41,6 @@ def __init_referral_resources(api: Api):
 
     api.add_resource(r.Root, "/api/referrals", endpoint="referral_root")
     api.add_resource(r.SingleReferral, "/api/referrals/<int:referral_id>")
-
-
-def __init_pregnancy_resources(api: Api):
-    import api.resources.pregnancies as p
-
-    api.add_resource(
-        p.Root,
-        "/api/patients/<string:patient_id>/pregnancies",
-        endpoint="pregnancy_root",
-    )
-    api.add_resource(
-        p.PregnancyStatus, "/api/patients/<string:patient_id>/pregnancies/status"
-    )
-    api.add_resource(p.SinglePregnancy, "/api/pregnancies/<string:pregnancy_id>")
 
 
 def __init_assessment_resources(api: Api):
@@ -85,3 +72,28 @@ def __init_patient_associations_resources(api: Api):
     api.add_resource(
         r.Root, "/api/patientAssociations", endpoint="patientAssociations_root"
     )
+
+
+def __init_pregnancy_resources(api: Api):
+    import api.resources.pregnancies as p
+
+    api.add_resource(
+        p.Root,
+        "/api/patients/<string:patient_id>/pregnancies",
+        endpoint="pregnancy_root",
+    )
+    api.add_resource(
+        p.PregnancyStatus, "/api/patients/<string:patient_id>/pregnancies/status"
+    )
+    api.add_resource(p.SinglePregnancy, "/api/pregnancies/<string:pregnancy_id>")
+
+
+def __init_medicalrecord_resources(api: Api):
+    import api.resources.medicalRecords as m
+
+    api.add_resource(
+        m.Root,
+        "/api/patients/<string:patient_id>/medicalrecords",
+        endpoint="medicalRecord_root",
+    )
+    api.add_resource(m.SingleMedicalRecord, "/api/medicalrecords/<string:pregnancy_id>")

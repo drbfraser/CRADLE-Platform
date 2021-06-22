@@ -1,7 +1,7 @@
 from typing import List, Optional, Type, TypeVar, Any
 
 from data import db_session
-from models import Patient, Pregnancy, Referral, User, PatientAssociations, Reading
+from models import Patient, Referral, User, PatientAssociations, Reading, Pregnancy, MedicalRecord
 import service.serialize as serialize
 import service.sqlStrings as SQL
 import service.invariant as invariant
@@ -466,6 +466,36 @@ def get_pregnancy_status(patient_id: str):
         .order_by(Pregnancy.startDate.desc())
         .first()
     )
+
+
+def get_medical_info(patient_id: str):
+    """
+    Queries the database for a patient's current medical info
+
+    :return: A list storing a pregnancy, a medical, and a drug record
+    """
+    pregnancy = (
+        db_session.query(Pregnancy)
+        .filter_by(patientId=patient_id)
+        .order_by(Pregnancy.startDate.desc())
+        .first()
+    )
+
+    medical = (
+        db_session.query(MedicalRecord)
+        .filter_by(patientId=patient_id, isDrugRecord=False)
+        .order_by(MedicalRecord.dateCreated.desc())
+        .first()
+    )
+
+    drug = (
+        db_session.query(MedicalRecord)
+        .filter_by(patientId=patient_id, isDrugRecord=True)
+        .order_by(MedicalRecord.dateCreated.desc())
+        .first()
+    )
+
+    return pregnancy, medical, drug
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #

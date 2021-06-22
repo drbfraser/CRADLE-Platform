@@ -26,6 +26,7 @@ from api.resources.patients import (
     PatientInfo,
     PatientStats,
     PatientReadings,
+    PatientMedicalInfo,
 )
 from api.resources.readings import Root as Readings, SingleReading
 from api.resources.referrals import Root as Referrals, SingleReferral
@@ -33,6 +34,10 @@ from api.resources.pregnancies import (
     Root as Pregnancies,
     SinglePregnancy,
     PregnancyStatus,
+)
+from api.resources.medicalRecords import (
+    Root as MedicalRecords,
+    SingleMedicalRecord,
 )
 from api.resources.users import *
 
@@ -102,6 +107,11 @@ def init(api):
         "/api/patients/<string:patient_id>/readings",
         endpoint="patient_readings",
     )  # [GET]
+    api.add_resource(
+        PatientMedicalInfo,
+        "/api/patients/<string:patient_id>/medical_info",
+        endpoint="patient_medical_info",
+    )  # [GET]
 
     api.add_resource(Readings, "/api/readings", endpoint="readings")  # [POST]
     api.add_resource(
@@ -129,6 +139,17 @@ def init(api):
         SinglePregnancy,
         "/api/pregnancies/<string:pregnancy_id>",
         endpoint="single_pregnancy",
+    )  # [GET, PUT]
+
+    api.add_resource(
+        MedicalRecords,
+        "/api/patients/<string:patient_id>/medicalrecords",
+        endpoint="medicalRecords",
+    )  # [GET, POST]
+    api.add_resource(
+        SingleMedicalRecord,
+        "/api/medicalrecords/<string:pregnancy_id>",
+        endpoint="single_medicalrecord",
     )  # [GET, PUT]
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]

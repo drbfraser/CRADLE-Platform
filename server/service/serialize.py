@@ -43,6 +43,18 @@ def serialize_pregnancy(p: any):
     return data
 
 
+def serialize_medicalrecord(r: any):
+    data = {
+        "medicalRecordId": r.id,
+        "patientId": r.patientId,
+        "information": r.information,
+        "isDrugRecord": r.isDrugRecord,
+        "dateCreated": r.dateCreated,
+        "lastEdited": r.lastEdited,
+    }
+    return data
+
+
 def serialize_patient_sql_to_dict(d: any, row: any) -> dict:
     for column, value in row.items():
         if value is None:

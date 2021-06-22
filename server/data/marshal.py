@@ -4,7 +4,7 @@ from typing import Any, Dict, Type, List, Optional
 import collections
 
 from data.crud import M, read_all
-from models import Patient, Reading, Referral, FollowUp, Pregnancy
+from models import Patient, Reading, Referral, FollowUp, Pregnancy, MedicalRecord
 import service.invariant as invariant
 
 
@@ -26,6 +26,8 @@ def marshal(obj: Any, shallow=False) -> dict:
         return __marshal_followup(obj)
     elif isinstance(obj, Pregnancy):
         return __marshal_pregnancy(obj)
+    elif isinstance(obj, MedicalRecord):
+        return __marshal_medicalrecord(obj)
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -90,6 +92,15 @@ def __marshal_followup(f: FollowUp) -> dict:
 
 def __marshal_pregnancy(p: Pregnancy) -> dict:
     d = vars(p).copy()
+    __pre_process(d)
+    # Remove relationship object
+    if d.get("patient"):
+        del d["patient"]
+    return d
+
+
+def __marshal_medicalrecord(r: MedicalRecord) -> dict:
+    d = vars(r).copy()
     __pre_process(d)
     # Remove relationship object
     if d.get("patient"):

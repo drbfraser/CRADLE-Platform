@@ -245,14 +245,14 @@ class PatientMedicalInfo(Resource):
     @swag_from(
         "../../specifications/patient-medical-info-get.yml",
         methods=["GET"],
-        endpoint="patient-medical-info",
+        endpoint="patient_medical_info",
     )
     def get(patient_id: str):
         records = crud.get_medical_info(patient_id)
 
-        medicalInfo = dict()
+        medical_info = dict()
         for record in records:
             if record:
-                medicalInfo.update(marshal.marshal(record))
+                medical_info.update(marshal.marshal(record))
 
-        return medicalInfo
+        return medical_info
