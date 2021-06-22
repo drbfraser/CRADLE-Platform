@@ -10,7 +10,6 @@ import service.serialize as serialize
 import service.view as view
 from models import Pregnancy
 from validation import pregnancies
-from utils import get_current_time
 
 
 # /api/patients/<string:patient_id>/pregnancies
@@ -35,19 +34,24 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def post(patient_id: str):
-        json = request.get_json(force=True)
+        request_body = request.get_json(force=True)
 
-        error = pregnancies.validate_post_request(json, patient_id)
+        error = pregnancies.validate_post_request(request_body, patient_id)
         if error:
             abort(400, message=error)
 
-        pregnancy = marshal.unmarshal(Pregnancy, json)
+        if "id" in request_body:
+            pregnancy_id = request_body.get("id")
+            if crud.read(Pregnancy, id=pregnancy_id):
+                abort(
+                    409, message=f"A pregnancy with ID {pregnancy_id} already exists."
+                )
 
-        pregnancy.lastEdited = get_current_time()
+        new_pregnancy = marshal.unmarshal(Pregnancy, request_body)
 
-        crud.create(pregnancy, refresh=True)
+        crud.create(new_pregnancy, refresh=True)
 
-        return marshal.marshal(pregnancy), 201
+        return marshal.marshal(new_pregnancy), 201
 
 
 # /api/patients/<string:patient_id>/pregnancies/status
@@ -65,7 +69,14 @@ class PregnancyStatus(Resource):
         if not pregnancy:
             return {"isPregnant": False}
 
-        return marshal.marshal(pregnancy)
+        result = marshal.marshal(pregnancy)
+
+        if pregnancy.endDate:
+            result.update({"isPregnant": False})
+        else:
+            result.update({"isPregnant": True})
+
+        return result
 
 
 # /api/pregnancies/<string:pregnancy_id>
@@ -92,14 +103,19 @@ class SinglePregnancy(Resource):
         endpoint="single_pregnancy",
     )
     def put(pregnancy_id: str):
-        json = request.get_json(force=True)
+        request_body = request.get_json(force=True)
 
-        error = pregnancies.validate_put_request(json, pregnancy_id)
+        error = pregnancies.validate_put_request(request_body, pregnancy_id)
         if error:
             abort(400, message=error)
 
-        crud.update(Pregnancy, json, id=pregnancy_id)
+        if "patientId" in request_body:
+            patient_id = crud.read(Pregnancy, id=pregnancy_id).patientId
+            if request_body.get("patientId") != patient_id:
+                abort(400, message="Patient ID cannot be changed.")
 
-        pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+        crud.update(Pregnancy, request_body, id=pregnancy_id)
 
-        return marshal.marshal(pregnancy)
+        new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+
+        return marshal.marshal(new_pregnancy)

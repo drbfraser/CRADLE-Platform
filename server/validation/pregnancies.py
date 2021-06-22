@@ -27,6 +27,10 @@ def validate_post_request(request_body: dict, patient_id: str) -> Optional[str]:
     if error:
         return error
 
+    error = __validate(request_body)
+    if error:
+        return error
+
     error = values_correct_type(request_body, ["patientId"], int)
     if error:
         return error
@@ -45,20 +49,30 @@ def validate_put_request(request_body: dict, pregnancy_id: str) -> Optional[str]
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    error = required_keys_present(
-        request_body,
-        [
-            "pregnancyId",
-            "patientId",
-            "startDate",
-        ],
-    )
+    error = __validate(request_body)
     if error:
         return error
 
-    error = values_correct_type(request_body, ["patientId", "pregnancyId"], int)
+    error = values_correct_type(request_body, ["patientId", "id"], int)
     if error:
         return error
 
-    if request_body.get("pregnancyId") != pregnancy_id:
-        return "Pregnancy ID does not match."
+    if "id" in request_body and request_body.get("id") != pregnancy_id:
+        return "Pregnancy ID cannot be changed."
+
+
+def __validate(request_body):
+    pregnancy_keys = [
+        "id",
+        "patientId",
+        "startDate",
+        "defaultTimeUnit",
+        "endDate",
+        "outcome",
+        "lastEdited",
+        "isPregnant",
+    ]
+
+    for key in request_body:
+        if key not in pregnancy_keys:
+            return f"{key} is not a valid key in pregnancy."

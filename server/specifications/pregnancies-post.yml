@@ -15,6 +15,23 @@ requestBody:
     application/json:
       schema:
         type: object
+        properties:
+          patientId:
+            type: integer
+            example: 120000
+          startDate:
+            type: Unix timestamp | Null
+            example: 1620000002
+          defaultTimeUnit:
+            type: string | Null
+            enum: [WEEKS, MONTHS]
+            example: WEEKS
+          endDate:
+            type: Unix timestamp | Null
+            example: 1620000002
+          outcome:
+            type: string | Null
+            example: Mode of delivery assisted birth
 
 responses:
   201:
@@ -24,15 +41,12 @@ responses:
         schema:
           type: object
           properties:
-            pregnancyId:
+            id:
               type: integer
               example: 1001
             patientId:
               type: integer
               example: 120000
-            isPregnant:
-              type: boolean
-              example: true
             startDate:
               type: Unix timestamp | Null
               example: 1620000002
@@ -49,3 +63,4 @@ responses:
             lastEdited:
               type: Unix timestamp
               example: 1620000002
+              

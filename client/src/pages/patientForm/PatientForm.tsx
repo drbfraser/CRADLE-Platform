@@ -295,6 +295,17 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
                       name={PatientField.medicalHistory}
                     />
                   </Grid>
+                  <Grid item md={6} sm={12}>
+                    <Field
+                      component={TextField}
+                      fullWidth
+                      multiline
+                      rows={4}
+                      variant="outlined"
+                      label="Allergies"
+                      name={PatientField.allergy}
+                    />
+                  </Grid>
                 </Grid>
               </Box>
             </Paper>

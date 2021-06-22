@@ -16,15 +16,12 @@ responses:
         schema:
           type: object
           properties:
-            pregnancyId:
+            id:
               type: integer
               example: 1001
             patientId:
               type: integer
               example: 120000
-            isPregnant:
-              type: boolean
-              example: true
             startDate:
               type: Unix timestamp | Null
               example: 1620000002
