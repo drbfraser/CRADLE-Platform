@@ -1,7 +1,7 @@
 from typing import List, Optional, Type, TypeVar, Any
 
 from data import db_session
-from models import Patient, Referral, User, PatientAssociations, Reading
+from models import Patient, Pregnancy, Referral, User, PatientAssociations, Reading
 import service.serialize as serialize
 import service.sqlStrings as SQL
 import service.invariant as invariant
@@ -451,6 +451,20 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
         "SELECT * from supervises s inner join "
         "user u on s.vhtId = u.id "
         "where choId = " + str(cho_id)
+    )
+
+
+def get_pregnancy_status(patient_id: str):
+    """
+    Queries the database for the latest pregnancy for a patient
+
+    :return: A pregnancy record
+    """
+    return (
+        db_session.query(Pregnancy)
+        .filter_by(patientId=patient_id)
+        .order_by(Pregnancy.startDate.desc())
+        .first()
     )
 
 
