@@ -24,6 +24,8 @@ def marshal(obj: Any, shallow=False) -> dict:
         return __marshal_referral(obj)
     elif isinstance(obj, FollowUp):
         return __marshal_followup(obj)
+    elif isinstance(obj, Pregnancy):
+        return __marshal_pregnancy(obj)
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -83,6 +85,15 @@ def __marshal_followup(f: FollowUp) -> dict:
         del d["healthFacility"]
     if d.get("reading"):
         del d["reading"]
+    return d
+
+
+def __marshal_pregnancy(p: Pregnancy) -> dict:
+    d = vars(p).copy()
+    __pre_process(d)
+    # Remove relationship object
+    if d.get("patient"):
+        del d["patient"]
     return d
 
 
