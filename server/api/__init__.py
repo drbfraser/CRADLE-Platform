@@ -15,7 +15,7 @@ def init_routes(api: Api):
     __init_sync_resources(api)
     __init_patient_associations_resources(api)
     __init_pregnancy_resources(api)
-    __init_medicalrecord_resources(api)
+    __init_medical_record_resources(api)
 
 
 def __init_patients_resources(api: Api):
@@ -88,12 +88,14 @@ def __init_pregnancy_resources(api: Api):
     api.add_resource(p.SinglePregnancy, "/api/pregnancies/<string:pregnancy_id>")
 
 
-def __init_medicalrecord_resources(api: Api):
+def __init_medical_record_resources(api: Api):
     import api.resources.medicalRecords as m
 
     api.add_resource(
         m.Root,
-        "/api/patients/<string:patient_id>/medicalrecords",
+        "/api/patients/<string:patient_id>/medical_records",
         endpoint="medicalRecord_root",
     )
-    api.add_resource(m.SingleMedicalRecord, "/api/medicalrecords/<string:pregnancy_id>")
+    api.add_resource(
+        m.SingleMedicalRecord, "/api/medical_records/<string:pregnancy_id>"
+    )

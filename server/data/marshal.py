@@ -27,7 +27,7 @@ def marshal(obj: Any, shallow=False) -> dict:
     elif isinstance(obj, Pregnancy):
         return __marshal_pregnancy(obj)
     elif isinstance(obj, MedicalRecord):
-        return __marshal_medicalrecord(obj)
+        return __marshal_medical_record(obj)
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -99,7 +99,7 @@ def __marshal_pregnancy(p: Pregnancy) -> dict:
     return d
 
 
-def __marshal_medicalrecord(r: MedicalRecord) -> dict:
+def __marshal_medical_record(r: MedicalRecord) -> dict:
     d = vars(r).copy()
     __pre_process(d)
     # Remove relationship object

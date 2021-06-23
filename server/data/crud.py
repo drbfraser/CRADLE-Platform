@@ -1,7 +1,15 @@
 from typing import List, Optional, Type, TypeVar, Any
 
 from data import db_session
-from models import Patient, Referral, User, PatientAssociations, Reading, Pregnancy, MedicalRecord
+from models import (
+    Patient,
+    Referral,
+    User,
+    PatientAssociations,
+    Reading,
+    Pregnancy,
+    MedicalRecord,
+)
 import service.serialize as serialize
 import service.sqlStrings as SQL
 import service.invariant as invariant

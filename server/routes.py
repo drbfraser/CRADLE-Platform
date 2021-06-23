@@ -143,13 +143,13 @@ def init(api):
 
     api.add_resource(
         MedicalRecords,
-        "/api/patients/<string:patient_id>/medicalrecords",
+        "/api/patients/<string:patient_id>/medical_records",
         endpoint="medicalRecords",
     )  # [GET, POST]
     api.add_resource(
         SingleMedicalRecord,
-        "/api/medicalrecords/<string:pregnancy_id>",
-        endpoint="single_medicalrecord",
+        "/api/medical_records/<string:record_id>",
+        endpoint="single_medical_record",
     )  # [GET, PUT]
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]

@@ -43,7 +43,7 @@ def serialize_pregnancy(p: any):
     return data
 
 
-def serialize_medicalrecord(r: any):
+def serialize_medical_record(r: any):
     data = {
         "medicalRecordId": r.id,
         "patientId": r.patientId,
