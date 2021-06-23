@@ -68,11 +68,6 @@ class Root(Resource):
         patient.created = creation_time
         patient.lastEdited = creation_time
 
-        # medicalRecords = patient.medicalRecords
-        # pregnancy = patient.pregnancy
-
-        # crud.create(medicalRecords, refresh=True)
-        # crud.create(pregnancy, refresh=True)
         crud.create(patient, refresh=True)
 
         # Associate the patient with the user who created them

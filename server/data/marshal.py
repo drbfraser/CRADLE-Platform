@@ -166,7 +166,7 @@ def __unmarshal_patient(d: dict) -> Patient:
     return patient
 
 
-def makeMedRecFromPatient(patient: dict):
+def makeMedRecFromPatient(patient: dict) -> MedicalRecord:
     drugRec = {}
     medRec = {}
     if patient["drugHistory"]:
@@ -184,18 +184,18 @@ def makeMedRecFromPatient(patient: dict):
     del patient["drugHistory"]
     del patient["medicalHistory"]
 
-    recs = []
+    records = []
     if drugRec:
-        recs.append(drugRec)
+        records.append(drugRec)
     if medRec:
-        recs.append(medRec)
+        records.append(medRec)
 
-    medRecords = [unmarshal(MedicalRecord, m) for m in recs]
+    medicalRecord = [unmarshal(MedicalRecord, m) for m in records]
 
-    return medRecords
+    return medicalRecord
 
 
-def makePregnancyFromPatient(patient: dict) -> dict:
+def makePregnancyFromPatient(patient: dict) -> Pregnancy:
     pregnancyObj = {}
     if patient["isPregnant"]:
         pregnancyObj = {
