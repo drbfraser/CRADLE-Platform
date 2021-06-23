@@ -3,8 +3,9 @@ import { LoginPage } from 'src/pages/login';
 import { NotFoundPage } from 'src/pages/notFound';
 import { PatientPage } from 'src/pages/patient';
 import { PatientsPage } from 'src/pages/patients';
-import { NewPatientPage } from 'src/pages/patientForms/newPatientForm';
-import { EditPatientPage } from 'src/pages/patientForms/editForm';
+// import { NewPatientPage } from 'src/pages/patientForms/newPatientForm';
+// import { EditPatientPage } from 'src/pages/patientForms/editForm';
+import { PatientFormPage } from 'src/pages/patientForms';
 import React from 'react';
 import { ReferralsPage } from 'src/pages/referrals';
 import { ResourcesPage } from 'src/pages/resources';
@@ -37,7 +38,7 @@ export type AppRoute = {
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
   {
-    component: NewPatientPage,
+    component: PatientFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
@@ -45,7 +46,7 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients/new`,
   },
   {
-    component: EditPatientPage,
+    component: PatientFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,

@@ -4,8 +4,7 @@ import {
   getNumOfWeeksDaysNumeric,
 } from 'src/shared/utils';
 import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
-import { GestationalAgeUnitEnum } from 'src/shared/enums';
+import { EndpointEnum, GestationalAgeUnitEnum } from 'src/shared/enums';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
 import { FormikProps } from 'formik';
 

@@ -29,6 +29,7 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
   return (
     <Paper>
       <Box p={2}>
+        {creatingNew && <h2>Personal Information</h2>}
         <Grid container spacing={2}>
           <Grid item md={4} sm={12}>
             <Field

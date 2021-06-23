@@ -84,7 +84,7 @@ export const MedicalInfo = ({ patient }: IProps) => {
           variant="outlined"
           className={classes.right}
           onClick={() => handleEditClick(editId)}>
-          {history ? 'Edit' : 'Add'}
+          {history ? 'Update' : 'Add'}
         </Button>
       </AccordionSummary>
       <AccordionDetails>
