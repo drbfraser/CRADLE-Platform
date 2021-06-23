@@ -180,20 +180,22 @@ def __unmarshal_patient(d: dict) -> Patient:
 def makeMedRecFromPatient(patient: dict) -> MedicalRecord:
     drugRec = {}
     medRec = {}
-    if patient["drugHistory"]:
-        drugRec = {
-            "patientId": patient["patientId"],
-            "information": patient["drugHistory"],
-            "isDrugRecord": True,
-        }
-    if patient["medicalHistory"]:
-        medRec = {
-            "patientId": patient["patientId"],
-            "information": patient["medicalHistory"],
-            "isDrugRecord": False,
-        }
-    del patient["drugHistory"]
-    del patient["medicalHistory"]
+    if "drugHistory" in patient:
+        if patient["drugHistory"]:
+            drugRec = {
+                "patientId": patient["patientId"],
+                "information": patient["drugHistory"],
+                "isDrugRecord": True,
+            }
+        del patient["drugHistory"]
+    if "medicalHistory" in patient:
+        if patient["medicalHistory"]:
+            medRec = {
+                "patientId": patient["patientId"],
+                "information": patient["medicalHistory"],
+                "isDrugRecord": False,
+            }
+        del patient["medicalHistory"]
 
     records = []
     if drugRec:
@@ -202,7 +204,6 @@ def makeMedRecFromPatient(patient: dict) -> MedicalRecord:
         records.append(medRec)
 
     medicalRecord = [unmarshal(MedicalRecord, m) for m in records]
-
     return medicalRecord
 
 
@@ -214,9 +215,12 @@ def makePregnancyFromPatient(patient: dict) -> Pregnancy:
             "startDate": patient["gestationalTimestamp"],
             "defaultTimeUnit": patient["gestationalAgeUnit"],
         }
+
     del patient["isPregnant"]
-    del patient["gestationalTimestamp"]
-    del patient["gestationalAgeUnit"]
+    if "gestationalTimestamp" in patient:
+        del patient["gestationalTimestamp"]
+    if "gestationalAgeUnit" in patient:
+        del patient["gestationalAgeUnit"]
 
     if pregnancyObj:
         pregnancy = [unmarshal(Pregnancy, pregnancyObj)]

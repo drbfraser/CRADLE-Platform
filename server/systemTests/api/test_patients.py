@@ -15,7 +15,6 @@ def test_get_patient(patient_factory, api_get):
         "patientId": patient_id,
         "patientName": "Test",
         "patientSex": "FEMALE",
-        "isPregnant": False,
         "zone": "37",
         "villageNumber": "37",
         "created": 1,
@@ -256,9 +255,9 @@ def test_invalid_patient_not_created(patient_factory, api_post):
     patient = {
         "patientId": patient_id,
         "patientSex": "FEMALE",
-        "isPregnant": False,
         "zone": "37",
         "villageNumber": "37",
+        "isPregnant": False,
         "created": 1,
         "lastEdited": 5,
         "base": 5,
