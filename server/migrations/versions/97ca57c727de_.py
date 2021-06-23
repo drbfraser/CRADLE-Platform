@@ -1,4 +1,4 @@
-"""empty message
+"""Remove pregnancy, drug, and medical info from patient table
 
 Revision ID: 97ca57c727de
 Revises: 0363083ecb2c
