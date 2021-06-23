@@ -249,10 +249,4 @@ class PatientMedicalInfo(Resource):
     )
     def get(patient_id: str):
         records = crud.get_medical_info(patient_id)
-
-        medical_info = dict()
-        for record in records:
-            if record:
-                medical_info.update(marshal.marshal(record))
-
-        return medical_info
+        return marshal.marshal_patient_medical_info(**records)

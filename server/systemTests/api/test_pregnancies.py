@@ -107,32 +107,3 @@ def test_invalid_pregnancy_not_created(
     )
 
     assert response.status_code == 409
-
-
-@pytest.fixture
-def patient_id():
-    return "49300028163"
-
-
-@pytest.fixture
-def pregnancy_earlier(patient_id):
-    return {
-        "id": 60360714,
-        "patientId": patient_id,
-        "startDate": 1561011126,
-        "defaultTimeUnit": "MONTHS",
-        "endDate": 1584684726,
-        "outcome": "Mode of delivery: forceps",
-        "lastEdited": 1584684726,
-    }
-
-
-@pytest.fixture
-def pregnancy_later(patient_id):
-    return {
-        "id": 60360715,
-        "patientId": patient_id,
-        "startDate": 1600150326,
-        "defaultTimeUnit": "WEEKS",
-        "lastEdited": 1600150326,
-    }

@@ -70,11 +70,8 @@ class PregnancyStatus(Resource):
             return {"isPregnant": False}
 
         result = marshal.marshal(pregnancy)
-
-        if pregnancy.endDate:
-            result.update({"isPregnant": False})
-        else:
-            result.update({"isPregnant": True})
+        
+        result["isPregnant"] = False if pregnancy.endDate else True
 
         return result
 

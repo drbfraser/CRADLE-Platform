@@ -117,9 +117,6 @@ def seed_test_data():
         25,
         "FEMALE",
         "1002",
-        True,
-        "MONTHS",
-        1592448477,
     )
     create_pregnancy_history(
         "49300028162",

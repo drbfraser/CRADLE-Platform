@@ -10,7 +10,7 @@ import service.serialize as serialize
 import service.view as view
 from models import MedicalRecord
 
-# from validation import medicalRecords
+from validation import medicalRecords
 from utils import get_current_time
 
 
@@ -38,9 +38,9 @@ class Root(Resource):
     def post(patient_id: str):
         request_body = request.get_json(force=True)
 
-        # error = medicalRecords.validate_post_request(request_body, patient_id)
-        # if error:
-        #     abort(400, message=error)
+        error = medicalRecords.validate_post_request(request_body, patient_id)
+        if error:
+            abort(400, message=error)
 
         if "id" in request_body:
             record_id = request_body.get("id")
@@ -84,9 +84,9 @@ class SingleMedicalRecord(Resource):
     def put(record_id: str):
         request_body = request.get_json(force=True)
 
-        # error = medicalRecords.validate_put_request(request_body, record_id)
-        # if error:
-        #     abort(400, message=error)
+        error = medicalRecords.validate_put_request(request_body, record_id)
+        if error:
+            abort(400, message=error)
 
         if "patientId" in request_body:
             patient_id = crud.read(MedicalRecord, id=record_id).patientId

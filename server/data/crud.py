@@ -480,7 +480,7 @@ def get_medical_info(patient_id: str):
     """
     Queries the database for a patient's current medical info
 
-    :return: A list storing a pregnancy, a medical, and a drug record
+    :return: A dict storing a pregnancy, a medical, and a drug record
     """
     pregnancy = (
         db_session.query(Pregnancy)
@@ -503,7 +503,11 @@ def get_medical_info(patient_id: str):
         .first()
     )
 
-    return pregnancy, medical, drug
+    return {
+        "pregnancy": pregnancy,
+        "medical": medical,
+        "drug": drug,
+    }
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
