@@ -12,7 +12,7 @@ import service.invariant as invariant
 import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
-from models import Patient
+from models import MedicalRecord, Patient
 from utils import get_current_time
 from validation import patients
 
@@ -68,6 +68,11 @@ class Root(Resource):
         patient.created = creation_time
         patient.lastEdited = creation_time
 
+        # medicalRecords = patient.medicalRecords
+        # pregnancy = patient.pregnancy
+
+        # crud.create(medicalRecords, refresh=True)
+        # crud.create(pregnancy, refresh=True)
         crud.create(patient, refresh=True)
 
         # Associate the patient with the user who created them
