@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Paper,
   Typography,
@@ -10,53 +10,100 @@ import {
 } from '@material-ui/core';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import { Patient } from 'src/shared/types';
-import { Skeleton } from '@material-ui/lab';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
+import { Alert, Skeleton } from '@material-ui/lab';
 import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
+import { Patient, Pregnancy } from 'src/shared/types';
+import { apiFetch, API_URL } from 'src/shared/api';
+import {
+  EndpointEnum,
+  GestationalAgeUnitEnum,
+  SexEnum,
+} from 'src/shared/enums';
 import {
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
 } from 'src/shared/constants';
+import { getNumOfWeeksNumeric } from 'src/shared/utils';
 
 interface IProps {
   patient?: Patient;
+  patientId: string;
 }
 
-export const MedicalInfo = ({ patient }: IProps) => {
-  const GestationalAge = () => {
-    const [unit, setUnit] = useState(patient!.gestationalAgeUnit);
+export const MedicalInfo = ({ patient, patientId }: IProps) => {
+  const [pregnancy, setPregnancy] = useState<Pregnancy>();
+  const [errorLoading, setErrorLoading] = useState(false);
 
-    const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
-      key: unit,
-      text: gestationalAgeUnitLabels[unit],
-      value: unit,
-    }));
+  useEffect(() => {
+    apiFetch(
+      API_URL +
+        EndpointEnum.PATIENTS +
+        `/${patientId}` +
+        EndpointEnum.PREGNANCY_STATUS
+    )
+      .then((resp) => resp.json())
+      .then((pregnancy) => {
+        setPregnancy(pregnancy);
+      })
+      .catch(() => {
+        setErrorLoading(true);
+      });
+  }, [patientId]);
 
-    const handleUnitChange = (
-      _: React.ChangeEvent<HTMLInputElement>,
-      { value }: InputOnChangeData
-    ) => {
-      setUnit(value as GestationalAgeUnitEnum);
+  const PregnancyStatus = () => {
+    const status = pregnancy!.isPregnant ? 'Yes' : 'No';
+
+    let isTimedOut = false;
+    if (pregnancy!.isPregnant) {
+      isTimedOut = getNumOfWeeksNumeric(pregnancy!.startDate) > 40;
+    }
+
+    const GestationalAge = () => {
+      const [unit, setUnit] = useState(pregnancy!.defaultTimeUnit);
+
+      const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
+        key: unit,
+        text: gestationalAgeUnitLabels[unit],
+        value: unit,
+      }));
+
+      const handleUnitChange = (
+        _: React.ChangeEvent<HTMLInputElement>,
+        { value }: InputOnChangeData
+      ) => {
+        setUnit(value as GestationalAgeUnitEnum);
+      };
+
+      return (
+        <div>
+          <p>
+            <b>Gestational Age: </b>
+            <span style={isTimedOut ? { color: 'red' } : {}}>
+              {gestationalAgeUnitFormatters[unit](pregnancy!.startDate)}
+            </span>
+          </p>
+          <Form.Field
+            name="gestationalAgeUnits"
+            control={Select}
+            options={unitOptions}
+            placeholder={gestationalAgeUnitLabels[unit]}
+            onChange={handleUnitChange}
+          />
+          <br />
+        </div>
+      );
     };
 
-    return patient?.isPregnant && patient?.gestationalTimestamp ? (
+    return (
       <div>
         <p>
-          <b>Gestational Age: </b>
-          {gestationalAgeUnitFormatters[unit](patient!.gestationalTimestamp)}
+          <b>Pregnant: </b> {status}
         </p>
-        <Form.Field
-          name="gestationalUnits"
-          control={Select}
-          options={unitOptions}
-          placeholder={gestationalAgeUnitLabels[unit]}
-          onChange={handleUnitChange}
-        />
-        <br />
+        {pregnancy?.isPregnant && <GestationalAge />}
+        {isTimedOut && (
+          <Alert severity="warning">Is the patient still pregnant?</Alert>
+        )}
       </div>
-    ) : (
-      <></>
     );
   };
 
@@ -87,14 +134,14 @@ export const MedicalInfo = ({ patient }: IProps) => {
         </Typography>
         <Divider />
         <br />
-        {patient ? (
+        {errorLoading ? (
+          <Alert severity="error">
+            Something went wrong trying to load patient&rsquo;s pregnancy
+            status. Please try refreshing.
+          </Alert>
+        ) : patient && pregnancy ? (
           <div>
-            {patient.patientSex === SexEnum.FEMALE && (
-              <p>
-                <b>Pregnant: </b> {patient.isPregnant ? `Yes` : `No`}
-              </p>
-            )}
-            <GestationalAge />
+            {patient.patientSex === SexEnum.FEMALE && <PregnancyStatus />}
             <HistoryItem title="Drug history" history={patient.drugHistory} />
             <HistoryItem
               title="Medical history"

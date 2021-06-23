@@ -165,3 +165,13 @@ export type Referral = {
 };
 
 export type HealthFacility = string;
+
+export type Pregnancy = {
+  id: string;
+  patientId: string;
+  isPregnant: boolean;
+  startDate: number;
+  defaultTimeUnit: GestationalAgeUnitEnum;
+  endDate: OrNull<number>;
+  outcome: OrNull<string>;
+};

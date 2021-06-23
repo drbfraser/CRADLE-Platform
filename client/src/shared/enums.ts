@@ -38,6 +38,7 @@ export enum EndpointEnum {
   HEALTH_FACILITIES = '/facilities',
   PATIENTS = '/patients',
   PATIENT_INFO = '/info' /* /patients/{PATIENT_ID}/info */,
+  PREGNANCY_STATUS = '/pregnancies/status',
   REFERRALS = '/referrals',
   READINGS = '/readings',
   STATISTICS = '/stats',
