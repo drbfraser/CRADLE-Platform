@@ -27,6 +27,7 @@ import {
 } from 'src/shared/constants';
 import { useHistory } from 'react-router-dom';
 import { getNumOfWeeksNumeric } from 'src/shared/utils';
+import { OrNull } from 'src/shared/types';
 
 interface IProps {
   patient?: Patient;
@@ -34,10 +35,13 @@ interface IProps {
 }
 
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
-    const classes = useStyles();
-    const history = useHistory();
-    const [pregnancy, setPregnancy] = useState<Pregnancy>();
+  const classes = useStyles();
+  const history = useHistory();
+  const [pregnancy, setPregnancy] = useState<Pregnancy>();
   const [errorLoading, setErrorLoading] = useState(false);
+
+  const handleEditClick = (editId: string) =>
+    history.push(`/patients/edit/${editId}/${patient?.patientId}`);
 
   useEffect(() => {
     apiFetch(
@@ -72,8 +76,6 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         value: unit,
       }));
 
-        const handleEditClick = (editId: string) =>
-            history.push(`/patients/edit/${editId}/${patient?.patientId}`);
       const handleUnitChange = (
         _: React.ChangeEvent<HTMLInputElement>,
         { value }: InputOnChangeData
@@ -116,7 +118,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
 
   interface HistoryItemProps {
     title: string;
-    history: string | null;
+    history: OrNull<string> | undefined;
     editId: string;
   }
 
@@ -160,22 +162,22 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         ) : patient && pregnancy ? (
           <div>
             {patient.patientSex === SexEnum.FEMALE && <PregnancyStatus />}
-            <HistoryItem title="Drug history" history={patient.drugHistory} />
-            <HistoryItem
-              title="Drug History"
-              history={patient.drugHistory}
-              editId="drugHistory"
-            />
-
-            <HistoryItem
-              title="Medical History"
-              history={patient.medicalHistory}
-              editId="medicalHistory"
-            />
           </div>
         ) : (
           <Skeleton variant="rect" height={200} />
         )}
+        <br />
+        <HistoryItem
+          title="Drug History"
+          history={patient?.drugHistory}
+          editId="drugHistory"
+        />
+
+        <HistoryItem
+          title="Medical History"
+          history={patient?.medicalHistory}
+          editId="medicalHistory"
+        />
       </Box>
     </Paper>
   );
