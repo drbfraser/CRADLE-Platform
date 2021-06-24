@@ -1,0 +1,48 @@
+Edit a medical/drug record
+---
+tags:
+  - Medical Records
+parameters:
+  - in: path
+    name: record_id
+    required: true
+    schema:
+      type: integer
+requestBody:
+  required: true
+  description: PUT request body for /api/medical_records/<string:record_id>
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+            information:
+              type: string
+              example: Pregnancy induced hypertension
+
+responses:
+  200:
+    description: PUT response body for /api/medical_records/<string:record_id>
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1001
+            patientId:
+              type: integer
+              example: 120000
+            information:
+              type: string
+              example: Pregnancy induced hypertension
+            isDrugRecord:
+              type: boolean
+              example: false
+            dateCreated:
+              type: Unix timestamp
+              example: 1620000002
+            lastEdited:
+              type: Unix timestamp
+              example: 1620000002

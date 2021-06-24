@@ -144,7 +144,7 @@ def init(api):
     api.add_resource(
         MedicalRecords,
         "/api/patients/<string:patient_id>/medical_records",
-        endpoint="medicalRecords",
+        endpoint="medical_records",
     )  # [GET, POST]
     api.add_resource(
         SingleMedicalRecord,

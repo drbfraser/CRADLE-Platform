@@ -34,7 +34,6 @@ def serialize_referral(r: any):
 def serialize_pregnancy(p: any):
     data = {
         "pregnancyId": p.id,
-        "patientId": p.patientId,
         "startDate": p.startDate,
         "endDate": p.endDate,
         "outcome": p.outcome,
@@ -46,7 +45,6 @@ def serialize_pregnancy(p: any):
 def serialize_medical_record(r: any):
     data = {
         "medicalRecordId": r.id,
-        "patientId": r.patientId,
         "information": r.information,
         "dateCreated": r.dateCreated,
         "lastEdited": r.lastEdited,

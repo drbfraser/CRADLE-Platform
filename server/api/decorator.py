@@ -35,16 +35,22 @@ def roles_required(accepted_roles):
     return wrapper
 
 
-def patient_association_required(fn):
-    def decorator(patient_id, *args, **kwargs):
-        verify_jwt_in_request()
+def patient_association_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(patient_id, *args, **kwargs):
+            verify_jwt_in_request()
 
-        identity = get_jwt_identity()
-        if identity["role"] == RoleEnum.VHT.value:
-            user_id = identity["userId"]
-            if not crud.read(PatientAssociations, patientId=patient_id, userId=user_id):
-                return {"message": "Unauthorized to patient information."}, 401
+            identity = get_jwt_identity()
+            if identity["role"] == RoleEnum.VHT.value:
+                user_id = identity["userId"]
+                if not crud.read(
+                    PatientAssociations, patientId=patient_id, userId=user_id
+                ):
+                    return {"message": "Unauthorized to patient information."}, 401
 
-        return fn(patient_id, *args, **kwargs)
+            return fn(patient_id, *args, **kwargs)
 
-    return decorator
+        return decorator
+
+    return wrapper

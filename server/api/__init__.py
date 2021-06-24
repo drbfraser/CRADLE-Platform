@@ -94,7 +94,7 @@ def __init_medical_record_resources(api: Api):
     api.add_resource(
         m.Root,
         "/api/patients/<string:patient_id>/medical_records",
-        endpoint="medicalRecord_root",
+        endpoint="medical_record_root",
     )
     api.add_resource(
         m.SingleMedicalRecord, "/api/medical_records/<string:pregnancy_id>"

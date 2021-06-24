@@ -1,0 +1,56 @@
+Create a new medical/drug record
+---
+tags:
+  - Medical Records
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
+requestBody:
+  required: true
+  description: POST request body for /api/patients/<string:patient_id>/medical_records
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          patientId:
+            type: integer
+            example: 120000
+          information:
+            type: string
+            example: Pregnancy induced hypertension
+          isDrugRecord:
+            type: boolean
+            example: false
+
+
+responses:
+  201:
+    description: POST response body for /api/patients/<string:patient_id>/medical_records
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1001
+            patientId:
+              type: integer
+              example: 120000
+            information:
+              type: string
+              example: Pregnancy induced hypertension
+            isDrugRecord:
+              type: boolean
+              example: false
+            dateCreated:
+              type: Unix timestamp
+              example: 1620000002
+            lastEdited:
+              type: Unix timestamp
+              example: 1620000002
+              

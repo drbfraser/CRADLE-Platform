@@ -16,7 +16,7 @@ from api.decorator import patient_association_required
 # /api/patients/<string:patient_id>/medical_records
 class Root(Resource):
     @staticmethod
-    @patient_association_required
+    @patient_association_required()
     @swag_from(
         "../../specifications/medical-records-get.yml",
         methods=["Get"],
@@ -32,7 +32,7 @@ class Root(Resource):
         }
 
     @staticmethod
-    @patient_association_required
+    @patient_association_required()
     @swag_from(
         "../../specifications/medical-records-post.yml",
         methods=["POST"],

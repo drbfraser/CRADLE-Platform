@@ -1,4 +1,4 @@
-Get a list of all pregnancy records of a patient
+Get a patient's past pregnancy records stored in a list
 ---
 tags:
   - Pregnancies
@@ -18,12 +18,9 @@ responses:
           items:
             type: object
             properties:
-              id:
+              pregnancyId:
                 type: integer
                 example: 1001
-              patientId:
-                type: integer
-                example: 120000
               startDate:
                 type: Unix timestamp | Null
                 example: 1620000002

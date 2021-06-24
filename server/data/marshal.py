@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, Type, List, Optional
+from typing import Any, Dict, Type, List, Optional, Union
 
 import collections
 
@@ -24,9 +24,7 @@ def marshal(obj: Any, shallow=False) -> dict:
         return __marshal_referral(obj)
     elif isinstance(obj, FollowUp):
         return __marshal_followup(obj)
-    elif isinstance(obj, Pregnancy):
-        return __marshal_pregnancy(obj)
-    elif isinstance(obj, MedicalRecord):
+    elif isinstance(obj, (MedicalRecord, Pregnancy)):
         return __marshal_medical_record(obj)
     else:
         d = vars(obj).copy()
@@ -121,16 +119,7 @@ def __marshal_followup(f: FollowUp) -> dict:
     return d
 
 
-def __marshal_pregnancy(p: Pregnancy) -> dict:
-    d = vars(p).copy()
-    __pre_process(d)
-    # Remove relationship object
-    if d.get("patient"):
-        del d["patient"]
-    return d
-
-
-def __marshal_medical_record(r: MedicalRecord) -> dict:
+def __marshal_medical_record(r: Union[MedicalRecord, Pregnancy]) -> dict:
     d = vars(r).copy()
     __pre_process(d)
     # Remove relationship object

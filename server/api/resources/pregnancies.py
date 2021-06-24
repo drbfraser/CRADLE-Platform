@@ -17,7 +17,7 @@ from api.decorator import patient_association_required
 # /api/patients/<string:patient_id>/pregnancies
 class Root(Resource):
     @staticmethod
-    @patient_association_required
+    @patient_association_required()
     @swag_from(
         "../../specifications/pregnancies-get.yml",
         methods=["Get"],
@@ -29,7 +29,7 @@ class Root(Resource):
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
 
     @staticmethod
-    @patient_association_required
+    @patient_association_required()
     @swag_from(
         "../../specifications/pregnancies-post.yml",
         methods=["POST"],
