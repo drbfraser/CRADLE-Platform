@@ -1,5 +1,3 @@
-import pytest
-
 import data.crud as crud
 from models import MedicalRecord
 
@@ -15,7 +13,6 @@ def test_get_record(medical_record_factory, medical_record, api_get):
     response_body = response.json()
     del response_body["dateCreated"]
     del response_body["lastEdited"]
-
     assert response_body == medical_record
 
 
@@ -53,7 +50,7 @@ def test_post_record(patient_id, drug_record, api_post):
         crud.delete_by(MedicalRecord, id=record_id)
 
 
-def test_get_record_list(
+def test_get_record_lists(
     medical_record_factory, patient_id, medical_record, drug_record, api_get
 ):
     medical_record_factory.create(**medical_record)
@@ -64,7 +61,8 @@ def test_get_record_list(
     )
 
     assert response.status_code == 200
-    assert len(response.json()) >= 2
+    assert len(response.json()["medical"]) >= 1
+    assert len(response.json()["drug"]) >= 1
 
 
 def test_invalid_record_not_updated(medical_record_factory, drug_record, api_put):

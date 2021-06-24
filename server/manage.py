@@ -123,6 +123,10 @@ def seed_test_data():
         1547341217,
         1570928417,
     )
+    create_patient_association(
+        "49300028163",
+        3,
+    )
     print("Finished seeding minimal test data")
 
 
@@ -381,6 +385,18 @@ def create_pregnancy_history(
     }
 
     db.session.add(pregnancy_schema.load(pregnancy))
+    db.session.commit()
+
+
+def create_patient_association(patientId, userId):
+    schema = PatientAssociationsSchema()
+
+    association = {
+        "patientId": patientId,
+        "userId": userId,
+    }
+
+    db.session.add(schema.load(association))
     db.session.commit()
 
 

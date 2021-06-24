@@ -10,12 +10,14 @@ import service.serialize as serialize
 import service.view as view
 from models import Pregnancy
 from validation import pregnancies
+from utils import get_current_time
+from api.decorator import patient_association_required
 
 
 # /api/patients/<string:patient_id>/pregnancies
 class Root(Resource):
     @staticmethod
-    @jwt_required
+    @patient_association_required
     @swag_from(
         "../../specifications/pregnancies-get.yml",
         methods=["Get"],
@@ -27,7 +29,7 @@ class Root(Resource):
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
 
     @staticmethod
-    @jwt_required
+    @patient_association_required
     @swag_from(
         "../../specifications/pregnancies-post.yml",
         methods=["POST"],
@@ -48,6 +50,8 @@ class Root(Resource):
                 )
 
         new_pregnancy = marshal.unmarshal(Pregnancy, request_body)
+
+        new_pregnancy.lastEdited = get_current_time()
 
         crud.create(new_pregnancy, refresh=True)
 
@@ -70,7 +74,7 @@ class PregnancyStatus(Resource):
             return {"isPregnant": False}
 
         result = marshal.marshal(pregnancy)
-        
+
         result["isPregnant"] = False if pregnancy.endDate else True
 
         return result
@@ -110,6 +114,8 @@ class SinglePregnancy(Resource):
             patient_id = crud.read(Pregnancy, id=pregnancy_id).patientId
             if request_body.get("patientId") != patient_id:
                 abort(400, message="Patient ID cannot be changed.")
+
+        request_body["lastEdited"] = get_current_time()
 
         crud.update(Pregnancy, request_body, id=pregnancy_id)
 

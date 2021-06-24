@@ -15,7 +15,6 @@ def pregnancy_earlier(patient_id):
         "defaultTimeUnit": "MONTHS",
         "endDate": 1584684726,
         "outcome": "Mode of delivery: forceps",
-        "lastEdited": 1584684726,
     }
 
 
@@ -26,7 +25,6 @@ def pregnancy_later(patient_id):
         "patientId": patient_id,
         "startDate": 1600150326,
         "defaultTimeUnit": "WEEKS",
-        "lastEdited": 1600150326,
     }
 
 

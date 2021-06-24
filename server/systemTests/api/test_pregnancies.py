@@ -1,5 +1,3 @@
-import pytest
-
 import data.crud as crud
 from models import Pregnancy
 
@@ -12,7 +10,10 @@ def test_get_pregnancy(pregnancy_factory, pregnancy_earlier, api_get):
     response = api_get(endpoint=f"/api/pregnancies/{pregnancy_id}")
 
     assert response.status_code == 200
-    assert response.json() == pregnancy_earlier
+
+    response_body = response.json()
+    del response_body["lastEdited"]
+    assert response_body == pregnancy_earlier
 
 
 def test_put_pregnancy(pregnancy_factory, pregnancy_later, api_put):
@@ -75,10 +76,12 @@ def test_get_pregnancy_status(
         endpoint=f"/api/patients/{patient_id}/pregnancies/status",
     )
 
-    pregnancy_later["isPregnant"] = True
-
     assert response.status_code == 200
-    assert response.json() == pregnancy_later
+
+    pregnancy_later["isPregnant"] = True
+    response_body = response.json()
+    del response_body["lastEdited"]
+    assert response_body == pregnancy_later
 
 
 def test_invalid_pregnancy_not_updated(pregnancy_factory, pregnancy_later, api_put):

@@ -48,7 +48,6 @@ def serialize_medical_record(r: any):
         "medicalRecordId": r.id,
         "patientId": r.patientId,
         "information": r.information,
-        "isDrugRecord": r.isDrugRecord,
         "dateCreated": r.dateCreated,
         "lastEdited": r.lastEdited,
     }

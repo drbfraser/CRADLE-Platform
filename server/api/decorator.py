@@ -4,6 +4,9 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
+import data.crud as crud
+from models import PatientAssociations, RoleEnum
+
 
 def roles_required(accepted_roles):
     def wrapper(fn):
@@ -30,3 +33,18 @@ def roles_required(accepted_roles):
         return decorator
 
     return wrapper
+
+
+def patient_association_required(fn):
+    def decorator(patient_id, *args, **kwargs):
+        verify_jwt_in_request()
+
+        identity = get_jwt_identity()
+        if identity["role"] == RoleEnum.VHT.value:
+            user_id = identity["userId"]
+            if not crud.read(PatientAssociations, patientId=patient_id, userId=user_id):
+                return {"message": "Unauthorized to patient information."}, 401
+
+        return fn(patient_id, *args, **kwargs)
+
+    return decorator

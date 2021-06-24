@@ -3,33 +3,36 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
-import api.util as util
 import data.crud as crud
 import data.marshal as marshal
 import service.serialize as serialize
 import service.view as view
 from models import MedicalRecord
-
 from validation import medicalRecords
 from utils import get_current_time
+from api.decorator import patient_association_required
 
 
 # /api/patients/<string:patient_id>/medical_records
 class Root(Resource):
     @staticmethod
-    @jwt_required
+    @patient_association_required
     @swag_from(
         "../../specifications/medical-records-get.yml",
         methods=["Get"],
         endpoint="medical_records",
     )
     def get(patient_id: str):
-        medicalRecords = crud.read_all(MedicalRecord, patientId=patient_id)
+        medical = crud.read_all(MedicalRecord, patientId=patient_id, isDrugRecord=False)
+        drug = crud.read_all(MedicalRecord, patientId=patient_id, isDrugRecord=True)
 
-        return [serialize.serialize_medical_record(r) for r in medicalRecords]
+        return {
+            "medical": [serialize.serialize_medical_record(r) for r in medical],
+            "drug": [serialize.serialize_medical_record(r) for r in drug],
+        }
 
     @staticmethod
-    @jwt_required
+    @patient_association_required
     @swag_from(
         "../../specifications/medical-records-post.yml",
         methods=["POST"],

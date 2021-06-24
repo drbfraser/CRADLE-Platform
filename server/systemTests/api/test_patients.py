@@ -1,10 +1,9 @@
+import pytest
 from typing import List
 
 import data.crud as crud
 from models import Patient, Reading, TrafficLightEnum
 from pprint import pformat
-
-import pytest
 
 
 def test_get_patient(patient_factory, api_get):
@@ -31,7 +30,14 @@ def test_get_patient(patient_factory, api_get):
 
 
 def test_get_patient_medical_info(
-    pregnancy_factory, medical_record_factory, patient_id, pregnancy_earlier, pregnancy_later, medical_record, drug_record, api_get
+    pregnancy_factory,
+    medical_record_factory,
+    patient_id,
+    pregnancy_earlier,
+    pregnancy_later,
+    medical_record,
+    drug_record,
+    api_get,
 ):
     def test_pregnancy_info(pregnancy):
         pregnancy_factory.create(**pregnancy)
@@ -60,10 +66,8 @@ def test_get_patient_medical_info(
     )
 
     assert response.status_code == 200
-
-    response_body = response.json()
-    assert response_body["medicalHistory"] == medical_record["information"]
-    assert response_body["drugHistory"] == drug_record["information"]
+    assert response.json()["medicalHistory"] == medical_record["information"]
+    assert response.json()["drugHistory"] == drug_record["information"]
 
 
 @pytest.mark.skip(reason="changes are to be made on mobile patient api")

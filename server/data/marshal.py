@@ -34,7 +34,9 @@ def marshal(obj: Any, shallow=False) -> dict:
         return d
 
 
-def marshal_patient_medical_info(pregnancy: Pregnancy, medical: MedicalRecord, drug: MedicalRecord) -> dict:
+def marshal_patient_medical_info(
+    pregnancy: Pregnancy, medical: MedicalRecord, drug: MedicalRecord
+) -> dict:
     """
     Recursively marshals an object to a dictionary.
 
@@ -53,13 +55,12 @@ def marshal_patient_medical_info(pregnancy: Pregnancy, medical: MedicalRecord, d
         medical_info.update(info)
     else:
         medical_info["isPregnant"] = False
-    
+
     if medical:
         medical_info["medicalHistory"] = medical.information
-    
+
     if drug:
         medical_info["drugHistory"] = drug.information
-
 
     return medical_info
 
