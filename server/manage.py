@@ -92,7 +92,7 @@ def seed_test_data():
         "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         2,
         "BB",
-        35,
+        "1994-01-01",
         "MALE",
         "1001",
         False,
@@ -102,7 +102,7 @@ def seed_test_data():
         "11111111-d974-4059-a0a2-4b0a9c8e3a10",
         2,
         "AA",
-        30,
+        "1992-01-01",
         "FEMALE",
         "1002",
         True,
@@ -114,7 +114,7 @@ def seed_test_data():
         "22222222-d974-4059-a0a2-4b0a9c8e3a10",
         2,
         "AB",
-        25,
+        "1998-01-01",
         "FEMALE",
         "1002",
     )
@@ -122,6 +122,16 @@ def seed_test_data():
         "49300028162",
         1547341217,
         1570928417,
+    )
+    create_medical_record(
+        "49300028162",
+        "Pregnancy induced hypertension\nStarted on Labetalol 200mg three times daily two weeks ago",
+        False,
+    )
+    create_medical_record(
+        "49300028162",
+        "Aspirin 75mg\nLabetalol 200mg three times daily",
+        True,
     )
     create_patient_association(
         "49300028163",
@@ -289,7 +299,7 @@ def create_patient_reading_referral_pregnancy(
     readingId,
     userId,
     name,
-    age,
+    dob,
     sex,
     villageNum,
     isPregnant=False,
@@ -313,7 +323,7 @@ def create_patient_reading_referral_pregnancy(
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "true",
-            "dob": "2004-01-01",
+            "dob": dob,
             "isExactDob": False,
         }
         pregnancy = {
@@ -328,7 +338,7 @@ def create_patient_reading_referral_pregnancy(
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "false",
-            "dob": "2004-01-01",
+            "dob": dob,
             "isExactDob": False,
         }
         pregnancy = None
@@ -375,7 +385,7 @@ def create_pregnancy_history(
     endDate=None,
     defaultTimeUnit="WEEKS",
 ):
-    pregnancy_schema = PregnancySchema()
+    schema = PregnancySchema()
 
     pregnancy = {
         "patientId": patientId,
@@ -384,7 +394,20 @@ def create_pregnancy_history(
         "endDate": endDate,
     }
 
-    db.session.add(pregnancy_schema.load(pregnancy))
+    db.session.add(schema.load(pregnancy))
+    db.session.commit()
+
+
+def create_medical_record(patientId, info, isDrugRecord):
+    schema = MedicalRecordSchema()
+
+    record = {
+        "patientId": patientId,
+        "information": info,
+        "isDrugRecord": isDrugRecord,
+    }
+
+    db.session.add(schema.load(record))
     db.session.commit()
 
 
