@@ -47,7 +47,7 @@ def patient_association_required():
                 if not crud.read(
                     PatientAssociations, patientId=patient_id, userId=user_id
                 ):
-                    return {"message": "Unauthorized to patient information."}, 401
+                    return {"message": "Unauthorized to access this patient."}, 403
 
             return fn(patient_id, *args, **kwargs)
 
