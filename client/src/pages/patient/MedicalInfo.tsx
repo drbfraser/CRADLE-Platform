@@ -14,7 +14,7 @@ import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { Alert, Skeleton } from '@material-ui/lab';
 import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
-import { Patient, Pregnancy } from 'src/shared/types';
+import { Patient, PatientMedicalInfo } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
 import {
   EndpointEnum,
@@ -37,7 +37,7 @@ interface IProps {
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const classes = useStyles();
   const history = useHistory();
-  const [pregnancy, setPregnancy] = useState<Pregnancy>();
+  const [info, setInfo] = useState<PatientMedicalInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
 
   const handleEditClick = (editId: string) =>
@@ -48,11 +48,11 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       API_URL +
         EndpointEnum.PATIENTS +
         `/${patientId}` +
-        EndpointEnum.PREGNANCY_STATUS
+        EndpointEnum.MEDICAL_INFO
     )
       .then((resp) => resp.json())
-      .then((pregnancy) => {
-        setPregnancy(pregnancy);
+      .then((info) => {
+        setInfo(info);
       })
       .catch(() => {
         setErrorLoading(true);
@@ -60,15 +60,15 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
   }, [patientId]);
 
   const PregnancyStatus = () => {
-    const status = pregnancy!.isPregnant ? 'Yes' : 'No';
+    const status = info!.isPregnant ? 'Yes' : 'No';
 
-    let isTimedOut = false;
-    if (pregnancy!.isPregnant) {
-      isTimedOut = getNumOfWeeksNumeric(pregnancy!.startDate) > 40;
+    let hasTimedOut = false;
+    if (info!.isPregnant) {
+      hasTimedOut = getNumOfWeeksNumeric(info!.gestationalTimestamp) > 40;
     }
 
     const GestationalAge = () => {
-      const [unit, setUnit] = useState(pregnancy!.defaultTimeUnit);
+      const [unit, setUnit] = useState(info!.gestationalAgeUnit);
 
       const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
         key: unit,
@@ -87,8 +87,8 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         <div>
           <p>
             <b>Gestational Age: </b>
-            <span style={isTimedOut ? { color: 'red' } : {}}>
-              {gestationalAgeUnitFormatters[unit](pregnancy!.startDate)}
+            <span style={hasTimedOut ? { color: 'red' } : {}}>
+              {gestationalAgeUnitFormatters[unit](info!.gestationalTimestamp)}
             </span>
           </p>
           <Form.Field
@@ -108,10 +108,11 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         <p>
           <b>Pregnant: </b> {status}
         </p>
-        {pregnancy?.isPregnant && <GestationalAge />}
-        {isTimedOut && (
+        {info?.isPregnant && <GestationalAge />}
+        {hasTimedOut && (
           <Alert severity="warning">Is the patient still pregnant?</Alert>
         )}
+        <br />
       </div>
     );
   };
@@ -159,25 +160,25 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
             Something went wrong trying to load patient&rsquo;s pregnancy
             status. Please try refreshing.
           </Alert>
-        ) : patient && pregnancy ? (
+        ) : info ? (
           <div>
-            {patient.patientSex === SexEnum.FEMALE && <PregnancyStatus />}
+            {patient && patient.patientSex === SexEnum.FEMALE && (
+              <PregnancyStatus />
+            )}
+            <HistoryItem
+              title="Medical History"
+              history={info?.medicalHistory}
+              editId="medicalHistory"
+            />
+            <HistoryItem
+              title="Drug History"
+              history={info?.drugHistory}
+              editId="drugHistory"
+            />
           </div>
         ) : (
           <Skeleton variant="rect" height={200} />
         )}
-        <br />
-        <HistoryItem
-          title="Drug History"
-          history={patient?.drugHistory}
-          editId="drugHistory"
-        />
-
-        <HistoryItem
-          title="Medical History"
-          history={patient?.medicalHistory}
-          editId="medicalHistory"
-        />
       </Box>
     </Paper>
   );

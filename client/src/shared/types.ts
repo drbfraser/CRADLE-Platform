@@ -76,6 +76,14 @@ export type Patient = {
   householdNumber: OrNull<string>;
 };
 
+export type PatientMedicalInfo = {
+  isPregnant: boolean;
+  gestationalTimestamp: number;
+  gestationalAgeUnit: GestationalAgeUnitEnum;
+  medicalHistory: OrNull<string>;
+  drugHistory: OrNull<string>;
+};
+
 export interface IUser {
   userId: number;
   email: string;
@@ -165,13 +173,3 @@ export type Referral = {
 };
 
 export type HealthFacility = string;
-
-export type Pregnancy = {
-  id: string;
-  patientId: string;
-  isPregnant: boolean;
-  startDate: number;
-  defaultTimeUnit: GestationalAgeUnitEnum;
-  endDate: OrNull<number>;
-  outcome: OrNull<string>;
-};
