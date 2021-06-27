@@ -47,6 +47,7 @@ def marshal_patient_medical_info(
     if pregnancy and not pregnancy.endDate:
         info = {
             "isPregnant": True,
+            "pregnancyId": pregnancy.id,
             "gestationalTimestamp": pregnancy.startDate,
             "gestationalAgeUnit": pregnancy.defaultTimeUnit.value,
         }
@@ -55,10 +56,18 @@ def marshal_patient_medical_info(
         medical_info["isPregnant"] = False
 
     if medical:
-        medical_info["medicalHistory"] = medical.information
+        info = {
+            "medicalHistoryId": medical.id,
+            "medicalHistory": medical.information,
+        }
+        medical_info.update(info)
 
     if drug:
-        medical_info["drugHistory"] = drug.information
+        info = {
+            "drugHistoryId": drug.id,
+            "drugHistory": drug.information,
+        }
+        medical_info.update(info)
 
     return medical_info
 
