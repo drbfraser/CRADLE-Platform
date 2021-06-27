@@ -21,7 +21,7 @@ def test_put_pregnancy(pregnancy_factory, pregnancy_later, api_put):
 
     pregnancy_id = pregnancy_later["id"]
     end_date = 1623737526
-    outcome = "Mode of delivery: assisted birth"
+    outcome = "Baby born at 8 months."
     response = api_put(
         endpoint=f"/api/pregnancies/{pregnancy_id}",
         json={"endDate": end_date, "outcome": outcome},

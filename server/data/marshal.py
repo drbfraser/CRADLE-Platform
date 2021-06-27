@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, Type, List, Optional, Union
+from typing import Any, Dict, Type, List, Optional
 
 import collections
 
@@ -24,7 +24,9 @@ def marshal(obj: Any, shallow=False) -> dict:
         return __marshal_referral(obj)
     elif isinstance(obj, FollowUp):
         return __marshal_followup(obj)
-    elif isinstance(obj, (MedicalRecord, Pregnancy)):
+    elif isinstance(obj, Pregnancy):
+        return __marshal_pregnancy(obj)
+    elif isinstance(obj, MedicalRecord):
         return __marshal_medical_record(obj)
     else:
         d = vars(obj).copy()
@@ -128,12 +130,28 @@ def __marshal_followup(f: FollowUp) -> dict:
     return d
 
 
-def __marshal_medical_record(r: Union[MedicalRecord, Pregnancy]) -> dict:
-    d = vars(r).copy()
+def __marshal_pregnancy(p: Pregnancy) -> dict:
+    d = vars(p).copy()
     __pre_process(d)
     # Remove relationship object
     if d.get("patient"):
         del d["patient"]
+    return d
+
+
+def __marshal_medical_record(r: MedicalRecord) -> dict:
+    d = {
+        "id": r.id,
+        "patientId": r.patientId,
+        "dataCreated": r.dateCreated,
+        "lastEdited": r.lastEdited,
+    }
+
+    if r.isDrugRecord:
+        d["drugHistory"] = r.information
+    else:
+        d["medicalHistory"] = r.information
+
     return d
 
 
@@ -178,6 +196,8 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_patient(d)
     elif m is Reading:
         return __unmarshal_reading(d)
+    elif m is MedicalRecord:
+        return __unmarshal_medical_record(d)
     else:
         return __load(m, d)
 
@@ -211,7 +231,6 @@ def __unmarshal_patient(d: dict) -> Patient:
 
 
 def __unmarshal_reading(d: dict) -> Reading:
-
     # Convert "symptoms" from array to string, if plural number of symptoms
     symptomsGiven = d.get("symptoms")
     if symptomsGiven is not None:
@@ -223,6 +242,18 @@ def __unmarshal_reading(d: dict) -> Reading:
     invariant.resolve_reading_invariants(reading)
 
     return reading
+
+
+def __unmarshal_medical_record(d: dict) -> MedicalRecord:
+    d["isDrugRecord"] = "drugHistory" in d
+    if d["isDrugRecord"]:
+        d["information"] = d["drugHistory"]
+        del d["drugHistory"]
+    else:
+        d["information"] = d["medicalHistory"]
+        del d["medicalHistory"]
+
+    return __load(MedicalRecord, d)
 
 
 ## Functions taken from the original Database.py ##

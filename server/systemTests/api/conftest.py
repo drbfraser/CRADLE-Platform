@@ -14,7 +14,7 @@ def pregnancy_earlier(patient_id):
         "startDate": 1561011126,
         "defaultTimeUnit": "MONTHS",
         "endDate": 1584684726,
-        "outcome": "Mode of delivery: forceps",
+        "outcome": "Baby born at 9 months - spontaneous vaginal delivery. Baby weighed 3kg.",
     }
 
 
@@ -29,38 +29,20 @@ def pregnancy_later(patient_id):
 
 
 @pytest.fixture
-def medical_hisory():
-    return """
-        Pregnancy induced hypertension - onset 5 months
-        Started on Labetalol 200mg three times daily two weeks ago.
-        Dose increased to 300mg three times daily yesterday.
-    """
-
-
-@pytest.fixture
-def drug_hisory():
-    return """
-        No known drug allergies.
-        Aspirin 75mg
-        Labetalol 300mg three times daily.
-    """
-
-
-@pytest.fixture
-def medical_record(patient_id, medical_hisory):
+def medical_record(patient_id):
     return {
-        "id": 60360714,
+        "id": 60360716,
         "patientId": patient_id,
-        "information": medical_hisory,
+        "information": "Pregnancy induced hypertension - onset 5 months.",
         "isDrugRecord": False,
     }
 
 
 @pytest.fixture
-def drug_record(patient_id, drug_hisory):
+def drug_record(patient_id):
     return {
-        "id": 60360715,
+        "id": 60360717,
         "patientId": patient_id,
-        "information": drug_hisory,
+        "information": "Labetalol 300mg three times daily.",
         "isDrugRecord": True,
     }

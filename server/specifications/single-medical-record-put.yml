@@ -16,7 +16,7 @@ requestBody:
       schema:
         type: object
         properties:
-            information:
+            medicalHistory:
               type: string
               example: Pregnancy induced hypertension
 
@@ -34,12 +34,9 @@ responses:
             patientId:
               type: integer
               example: 120000
-            information:
+            medicalHistory:
               type: string
               example: Pregnancy induced hypertension
-            isDrugRecord:
-              type: boolean
-              example: false
             dateCreated:
               type: Unix timestamp
               example: 1620000002
