@@ -199,8 +199,11 @@ def seed():
         p1 = {
             "patientId": patientId,
             "patientName": name + " " + lname,
+            "gestationalAgeUnit": gestational_age_unit,
+            "gestationalTimestamp": gestational_timestamp,
             "villageNumber": getRandomVillage(),
             "patientSex": sex,
+            "isPregnant": pregnant,
             "dob": getRandomDOB(),
             "isExactDob": bool(random.getrandbits(1)),
         }
@@ -314,8 +317,11 @@ def create_patient_reading_referral_pregnancy(
         patient = {
             "patientId": patientId,
             "patientName": name,
+            "gestationalAgeUnit": gestAgeUnit,
+            "gestationalTimestamp": gestTimestamp,
             "villageNumber": villageNum,
             "patientSex": sex,
+            "isPregnant": "true",
             "dob": "2004-01-01",
             "isExactDob": False,
         }
@@ -330,6 +336,7 @@ def create_patient_reading_referral_pregnancy(
             "patientName": name,
             "villageNumber": villageNum,
             "patientSex": sex,
+            "isPregnant": "false",
             "dob": "2004-01-01",
             "isExactDob": False,
         }

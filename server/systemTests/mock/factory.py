@@ -63,6 +63,7 @@ class PatientFactory(ModelFactory):
             db,
             patientName="Test",
             patientSex="FEMALE",
+            isPregnant=False,
             zone="37",
             villageNumber="37",
         )
