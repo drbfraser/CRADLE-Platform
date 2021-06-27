@@ -118,7 +118,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
                 `/patients/edit/pregnancyInfo/${patient?.patientId}/${pregnancy?.id}`
               )
             }>
-            Update Pregnancy
+            Update/Close Pregnancy
           </Button>
         ) : (
           <>

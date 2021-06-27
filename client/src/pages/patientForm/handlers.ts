@@ -130,7 +130,7 @@ export const handlePregnancyInfo = async (
     patientId: values[PatientField.patientId],
     defaultTimeUnit: values[PatientField.defaultTimeUnit],
     startDate: 0,
-    endDate: null,
+    endDate: values[PatientField.endDate] || undefined,
     outcome: values[PatientField.outcome],
   };
 
@@ -146,6 +146,14 @@ export const handlePregnancyInfo = async (
         values.gestationalAgeMonths
       );
       break;
+  }
+
+  if (values[PatientField.endDate]) {
+    submitValues.endDate = (
+      Date.parse(values[PatientField.endDate]) / 1000
+    ).toString();
+  } else {
+    submitValues.endDate = undefined;
   }
 
   let method = 'POST';

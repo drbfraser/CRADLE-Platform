@@ -4,11 +4,7 @@ import {
   getNumOfWeeksDaysNumeric,
 } from 'src/shared/utils';
 import { apiFetch, API_URL } from 'src/shared/api';
-import {
-  GestationalAgeUnitEnum,
-  EndpointEnum,
-  SexEnum,
-} from 'src/shared/enums';
+import { GestationalAgeUnitEnum, EndpointEnum } from 'src/shared/enums';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
 import { FormikProps } from 'formik';
 
@@ -86,7 +82,7 @@ export const getPatientState = async (
     return { ...initialState };
   }
 
-  //Fetch user information by default if edit id is undefined
+  //Fetch user information by default if editId is undefined
   if (patientId && editId === undefined) {
     editId = 'personalInfo';
   }
@@ -99,6 +95,7 @@ export const getPatientState = async (
     pregnancyInfo: {
       endpoint: EndpointEnum.PREGNANCIES + '/' + pregnancyId,
     },
+    //TODO: Update medical endpoints here with the new drug and medical history API
     drugHistory: {
       endpoint:
         EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO,
@@ -107,7 +104,6 @@ export const getPatientState = async (
       endpoint:
         EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO,
     },
-    //TODO: Update medical endpoints here
   };
 
   const data = await (await apiFetch(API_URL + pages[editId!].endpoint)).json();
@@ -137,11 +133,10 @@ export const getPatientState = async (
     [PatientField.medicalHistory]: data.medicalHistory,
     [PatientField.allergy]: data.allergy,
     [PatientField.outcome]: data.outcome,
-    [PatientField.endDate]: data.endDate,
+    [PatientField.endDate]: data.endDate ? data.endDate : initialState.endDate,
   };
 
   if (data.id) {
-    patientState.patientSex = SexEnum.FEMALE;
     patientState.gestationalAgeDays = String(
       getNumOfWeeksDaysNumeric(data.startDate).days
     );

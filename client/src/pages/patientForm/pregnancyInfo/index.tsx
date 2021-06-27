@@ -9,13 +9,12 @@ import {
   gestationalAgeUnitOptions,
   PatientState,
 } from '../state';
-import { GestationalAgeUnitEnum } from 'src/shared/enums';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
-import { InputAdornment } from '@material-ui/core';
+import { InputAdornment, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { SexEnum } from 'src/shared/enums';
 import { handleChangeCustom } from '../handlers';
 
 interface IProps {
@@ -59,7 +58,7 @@ export const PregnancyInfoForm = ({
                 component={Select}
                 fullWidth
                 label="Gestational Age Unit"
-                name={PatientField.gestationalAgeUnit}
+                name={PatientField.defaultTimeUnit}
                 required={(creatingNew && isPregnant) || creatingNewPregnancy}
                 disabled={creatingNew && !isPregnant}>
                 {gestationalAgeUnitOptions.map((option) => (
@@ -131,7 +130,46 @@ export const PregnancyInfoForm = ({
               </Grid>
             )}
           </Grid>
+          {!creatingNew && !creatingNewPregnancy && (
+            <>
+              <Grid item md={4} sm={12}>
+                <Field
+                  component={TextField}
+                  fullWidth
+                  variant="outlined"
+                  type="date"
+                  label="End Date"
+                  name={PatientField.endDate}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  required={formikProps.values.outcome}
+                />
+              </Grid>
+              <Grid item md={6} sm={12}>
+                <Field
+                  component={TextField}
+                  fullWidth
+                  multiline
+                  rows={4}
+                  variant="outlined"
+                  label="Outcome"
+                  name={PatientField.outcome}
+                />
+              </Grid>
+            </>
+          )}
         </Grid>
+        {!creatingNew && !creatingNewPregnancy && (
+          <Typography color="textSecondary" variant="caption">
+            Filling in end date and outcome will close this pregnancy
+          </Typography>
+        )}
+        {formikProps.values.patientSex === SexEnum.MALE && (
+          <Typography color="textSecondary" variant="caption">
+            Cannot fill because the patient is Male, click Next
+          </Typography>
+        )}
       </Box>
     </Paper>
   );
