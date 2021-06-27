@@ -128,7 +128,7 @@ export const handlePregnancyInfo = async (
 
   const submitValues = {
     patientId: values[PatientField.patientId],
-    defaultTimeUnit: values[PatientField.gestationalAgeUnit],
+    defaultTimeUnit: values[PatientField.defaultTimeUnit],
     startDate: 0,
     endDate: null,
     outcome: values[PatientField.outcome],
