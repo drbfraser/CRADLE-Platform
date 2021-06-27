@@ -117,3 +117,67 @@ export const handleSubmit = async (
   }
   return true;
 };
+
+export const handlePregnancyInfo = async (
+  creatingNewPregnancy: boolean,
+  values: PatientState,
+  setSubmitError: React.Dispatch<React.SetStateAction<any>>,
+  setSubmitting: React.Dispatch<React.SetStateAction<any>>
+) => {
+  setSubmitting(true);
+
+  const submitValues = {
+    patientId: values[PatientField.patientId],
+    defaultTimeUnit: values[PatientField.gestationalAgeUnit],
+    startDate: 0,
+    endDate: null,
+    outcome: values[PatientField.outcome],
+  };
+
+  switch (submitValues.defaultTimeUnit) {
+    case GestationalAgeUnitEnum.WEEKS:
+      submitValues.startDate = getTimestampFromWeeksDays(
+        values.gestationalAgeWeeks,
+        values.gestationalAgeDays
+      );
+      break;
+    case GestationalAgeUnitEnum.MONTHS:
+      submitValues.startDate = getTimestampFromMonths(
+        values.gestationalAgeMonths
+      );
+      break;
+  }
+
+  let method = 'POST';
+  let url =
+    API_URL +
+    EndpointEnum.PATIENTS +
+    '/' +
+    values[PatientField.patientId] +
+    EndpointEnum.PREGNANCIES;
+  if (!creatingNewPregnancy) {
+    method = 'PUT';
+    url =
+      API_URL +
+      EndpointEnum.PREGNANCIES +
+      '/' +
+      values[PatientField.pregnancyId];
+  }
+
+  try {
+    const resp = await apiFetch(url, {
+      method: method,
+      body: JSON.stringify(submitValues),
+    });
+
+    const respJson = await resp.json();
+    const patientPageUrl = '/patients/' + respJson['patientId'];
+    goBackWithFallback(patientPageUrl);
+  } catch (e) {
+    console.error(e);
+    setSubmitError(true);
+    setSubmitting(false);
+    return false;
+  }
+  return true;
+};

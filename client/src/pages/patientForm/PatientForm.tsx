@@ -13,7 +13,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Step from '@material-ui/core/Step/Step';
 import { PatientState } from './state';
-import { handleSubmit } from './handlers';
+import { handleSubmit, handlePregnancyInfo } from './handlers';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { personalInfoValidationSchema } from './personalInfo/validation';
@@ -30,6 +30,7 @@ interface PatientFormProps {
   patientId?: string;
   initialState: PatientState;
   creatingNew: boolean;
+  creatingNewPregnancy: boolean;
 }
 
 export const PatientForm = ({
@@ -37,6 +38,7 @@ export const PatientForm = ({
   patientId,
   initialState,
   creatingNew,
+  creatingNewPregnancy,
 }: PatientFormProps) => {
   const classes = useStyles();
   const theme = useTheme();
@@ -58,7 +60,11 @@ export const PatientForm = ({
       name: 'Pregnancy Information',
       component: PregnancyInfoForm,
       validationSchema: pregnancyInfoValidationSchema,
-      title: creatingNew ? 'New Patient' : '',
+      title: creatingNewPregnancy
+        ? 'Add New Pregnancy'
+        : editId
+        ? 'Update Pregnancy'
+        : 'New Patient',
     },
     {
       editId: editId === 'drugHistory' ? 'drugHistory' : 'medicalHistory',
@@ -82,11 +88,13 @@ export const PatientForm = ({
     },
   ];
 
-  const initPageNum = creatingNew
-    ? 0
-    : pages.findIndex((page) => {
+  const initPageNum = editId
+    ? pages.findIndex((page) => {
         return page.editId === editId;
-      });
+      })
+    : creatingNewPregnancy
+    ? 1
+    : 0;
   const [pageNum, setPageNum] = useState(initPageNum);
   const PageComponent = pages[pageNum].component;
   const isFinalPage = pageNum === pages.length - 1;
@@ -95,14 +103,23 @@ export const PatientForm = ({
     values: PatientState,
     helpers: FormikHelpers<PatientState>
   ) => {
-    if (editId) {
-      handleSubmit(
-        values,
-        false,
-        history,
-        setSubmitError,
-        helpers.setSubmitting
-      );
+    if (editId || creatingNewPregnancy) {
+      if (pages[pageNum].editId === 'pregnancyInfo') {
+        handlePregnancyInfo(
+          creatingNewPregnancy,
+          values,
+          setSubmitError,
+          helpers.setSubmitting
+        );
+      } else {
+        handleSubmit(
+          values,
+          false,
+          history,
+          setSubmitError,
+          helpers.setSubmitting
+        );
+      }
     } else if (isFinalPage) {
       handleSubmit(
         values,
@@ -130,7 +147,7 @@ export const PatientForm = ({
         </Tooltip>
         <Typography variant="h4">{pages[pageNum].title}</Typography>
       </div>
-      {creatingNew && (
+      {creatingNew && !creatingNewPregnancy && (
         <Stepper
           activeStep={pageNum}
           orientation={isBigScreen ? 'horizontal' : 'vertical'}>
@@ -152,9 +169,10 @@ export const PatientForm = ({
               formikProps={formikProps}
               creatingNew={creatingNew}
               isDrugRecord={pages[pageNum].isDrugRecord}
+              creatingNewPregnancy={creatingNewPregnancy}
             />
             <br />
-            {editId === undefined && (
+            {creatingNew && (
               <Button
                 variant="outlined"
                 color="primary"
@@ -169,7 +187,11 @@ export const PatientForm = ({
               className={classes.right}
               type="submit"
               disabled={formikProps.isSubmitting}>
-              {editId ? 'Save' : isFinalPage ? 'Create' : 'Next'}
+              {editId || creatingNewPregnancy
+                ? 'Save'
+                : isFinalPage
+                ? 'Create'
+                : 'Next'}
             </Button>
           </Form>
         )}

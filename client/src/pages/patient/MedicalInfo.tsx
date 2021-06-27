@@ -84,27 +84,56 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       };
 
       return (
-        <div>
-          <p>
-            <b>Gestational Age: </b>
-            <span style={isTimedOut ? { color: 'red' } : {}}>
-              {gestationalAgeUnitFormatters[unit](pregnancy!.startDate)}
-            </span>
-          </p>
-          <Form.Field
-            name="gestationalAgeUnits"
-            control={Select}
-            options={unitOptions}
-            placeholder={gestationalAgeUnitLabels[unit]}
-            onChange={handleUnitChange}
-          />
-          <br />
-        </div>
+        <>
+          <div>
+            <p>
+              <b>Gestational Age: </b>
+              <span style={isTimedOut ? { color: 'red' } : {}}>
+                {gestationalAgeUnitFormatters[unit](pregnancy!.startDate)}
+              </span>
+            </p>
+            <Form.Field
+              name="gestationalAgeUnits"
+              control={Select}
+              options={unitOptions}
+              placeholder={gestationalAgeUnitLabels[unit]}
+              onChange={handleUnitChange}
+            />
+
+            <br />
+          </div>
+        </>
       );
     };
 
     return (
       <div>
+        {pregnancy!.isPregnant ? (
+          <Button
+            color="primary"
+            variant="outlined"
+            className={classes.right}
+            onClick={() =>
+              history.push(
+                `/patients/edit/pregnancyInfo/${patient?.patientId}/${pregnancy?.id}`
+              )
+            }>
+            Update Pregnancy
+          </Button>
+        ) : (
+          <>
+            <Button
+              color="primary"
+              variant="outlined"
+              className={classes.right}
+              onClick={() =>
+                history.push(`/patients/newPregnancy/${patient?.patientId}`)
+              }>
+              Add New Pregnancy
+            </Button>
+            <br />
+          </>
+        )}
         <p>
           <b>Pregnant: </b> {status}
         </p>
@@ -159,14 +188,19 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
             Something went wrong trying to load patient&rsquo;s pregnancy
             status. Please try refreshing.
           </Alert>
-        ) : patient && pregnancy ? (
+        ) : patient ? (
           <div>
-            {patient.patientSex === SexEnum.FEMALE && <PregnancyStatus />}
+            {patient.patientSex === SexEnum.FEMALE && (
+              <>
+                <PregnancyStatus />
+                <br />
+              </>
+            )}
           </div>
         ) : (
           <Skeleton variant="rect" height={200} />
         )}
-        <br />
+
         <HistoryItem
           title="Drug History"
           history={patient?.drugHistory}
