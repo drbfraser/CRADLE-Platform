@@ -71,7 +71,7 @@ type Page = {
 
 export const getPatientState = async (
   patientId: string | undefined,
-  pregnancyId: string | undefined,
+  universalMedicalId: string | undefined,
   editId: string | undefined
 ) => {
   if (patientId === undefined) {
@@ -89,16 +89,14 @@ export const getPatientState = async (
         EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO,
     },
     pregnancyInfo: {
-      endpoint: EndpointEnum.PREGNANCIES + '/' + pregnancyId,
+      endpoint: EndpointEnum.PREGNANCIES + '/' + universalMedicalId,
     },
     //TODO: Update medical endpoints here with the new drug and medical history API
     drugHistory: {
-      endpoint:
-        EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO,
+      endpoint: EndpointEnum.MEDICAL_RECORDS + '/' + universalMedicalId,
     },
     medicalHistory: {
-      endpoint:
-        EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO,
+      endpoint: EndpointEnum.MEDICAL_RECORDS + '/' + universalMedicalId,
     },
   };
 

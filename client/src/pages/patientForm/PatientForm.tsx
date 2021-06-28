@@ -13,7 +13,11 @@ import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Step from '@material-ui/core/Step/Step';
 import { PatientState } from './state';
-import { handleSubmit, handlePregnancyInfo } from './handlers';
+import {
+  handleSubmit,
+  handlePregnancyInfo,
+  handleMedicalRecordInfo,
+} from './handlers';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { personalInfoValidationSchema } from './personalInfo/validation';
@@ -84,8 +88,8 @@ export const PatientForm = ({
         : undefined,
       title: editId
         ? editId === 'drugHistory'
-          ? 'Update Drug History'
-          : 'Update Medical History'
+          ? 'Add/Update Drug History'
+          : 'Add/Update Medical History'
         : 'New Patient',
     },
   ];
@@ -111,6 +115,16 @@ export const PatientForm = ({
           pregnancyId,
           creatingNewPregnancy,
           values,
+          setSubmitError,
+          helpers.setSubmitting
+        );
+      } else if (
+        pages[pageNum].editId === 'drugHistory' ||
+        pages[pageNum].editId === 'medicalHistory'
+      ) {
+        handleMedicalRecordInfo(
+          values,
+          pages[pageNum].isDrugRecord,
           setSubmitError,
           helpers.setSubmitting
         );

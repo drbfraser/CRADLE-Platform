@@ -40,9 +40,6 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const [info, setInfo] = useState<PatientMedicalInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
 
-  const handleEditClick = (editId: string) =>
-    history.push(`/patients/edit/${editId}/${patient?.patientId}`);
-
   useEffect(() => {
     apiFetch(
       API_URL +
@@ -144,26 +141,48 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
 
   interface HistoryItemProps {
     title: string;
-    history: OrNull<string> | undefined;
+    historyRecord: OrNull<string> | undefined;
     editId: string;
+    medicalRecordId: string | undefined;
   }
 
-  const HistoryItem = ({ title, history, editId }: HistoryItemProps) => (
+  const HistoryItem = ({
+    title,
+    historyRecord,
+    editId,
+    medicalRecordId,
+  }: HistoryItemProps) => (
     <Accordion>
       <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
         <Typography style={{ flex: 1 }}> {title} </Typography>
-        <Button
-          color="primary"
-          variant="outlined"
-          className={classes.right}
-          onClick={() => handleEditClick(editId)}>
-          {history ? 'Update' : 'Add'}
-        </Button>
+        {medicalRecordId ? (
+          <Button
+            color="primary"
+            variant="outlined"
+            className={classes.right}
+            onClick={() =>
+              history.push(
+                `/patients/edit/${editId}/${patient?.patientId}/${medicalRecordId}`
+              )
+            }>
+            Update
+          </Button>
+        ) : (
+          <Button
+            color="primary"
+            variant="outlined"
+            className={classes.right}
+            onClick={() =>
+              history.push(`/patients/edit/${editId}/${patient?.patientId}`)
+            }>
+            Add
+          </Button>
+        )}
       </AccordionSummary>
       <AccordionDetails>
         <Typography>
-          {history ? (
-            history
+          {historyRecord ? (
+            historyRecord
           ) : (
             <>No additional {title.toLowerCase()} information.</>
           )}
@@ -192,13 +211,15 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
             )}
             <HistoryItem
               title="Medical History"
-              history={info?.medicalHistory}
+              historyRecord={info?.medicalHistory}
               editId="medicalHistory"
+              medicalRecordId={info.medicalHistoryId}
             />
             <HistoryItem
               title="Drug History"
-              history={info?.drugHistory}
+              historyRecord={info?.drugHistory}
               editId="drugHistory"
+              medicalRecordId={info.drugHistoryId}
             />
           </div>
         ) : (

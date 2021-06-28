@@ -186,3 +186,46 @@ export const handlePregnancyInfo = async (
   }
   return true;
 };
+
+export const handleMedicalRecordInfo = async (
+  values: PatientState,
+  isDrugRecord: boolean | undefined,
+  setSubmitError: React.Dispatch<React.SetStateAction<any>>,
+  setSubmitting: React.Dispatch<React.SetStateAction<any>>
+) => {
+  setSubmitting(true);
+
+  const submitValues = isDrugRecord
+    ? {
+        patientId: values[PatientField.patientId],
+        drugHistory: values[PatientField.drugHistory],
+      }
+    : {
+        patientId: values[PatientField.patientId],
+        medicalHistory: values[PatientField.medicalHistory],
+      };
+
+  const url =
+    API_URL +
+    EndpointEnum.PATIENTS +
+    '/' +
+    values[PatientField.patientId] +
+    EndpointEnum.MEDICAL_RECORDS;
+
+  try {
+    const resp = await apiFetch(url, {
+      method: 'POST',
+      body: JSON.stringify(submitValues),
+    });
+
+    const respJson = await resp.json();
+    const patientPageUrl = '/patients/' + respJson['patientId'];
+    goBackWithFallback(patientPageUrl);
+  } catch (e) {
+    console.error(e);
+    setSubmitError(true);
+    setSubmitting(false);
+    return false;
+  }
+  return true;
+};
