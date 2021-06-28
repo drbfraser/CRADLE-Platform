@@ -105,31 +105,30 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
 
     return (
       <div>
-        {pregnancy!.isPregnant ? (
+        {info!.isPregnant ? (
           <Button
             color="primary"
             variant="outlined"
             className={classes.right}
             onClick={() =>
               history.push(
-                `/patients/edit/pregnancyInfo/${patient?.patientId}/${pregnancy?.id}`
+                `/patients/edit/pregnancyInfo/${patient?.patientId}/${
+                  info!.pregnancyId
+                }`
               )
             }>
             Update/Close Pregnancy
           </Button>
         ) : (
-          <>
-            <Button
-              color="primary"
-              variant="outlined"
-              className={classes.right}
-              onClick={() =>
-                history.push(`/patients/newPregnancy/${patient?.patientId}`)
-              }>
-              Add New Pregnancy
-            </Button>
-            <br />
-          </>
+          <Button
+            color="primary"
+            variant="outlined"
+            className={classes.right}
+            onClick={() =>
+              history.push(`/patients/newPregnancy/${patient?.patientId}`)
+            }>
+            Add New Pregnancy
+          </Button>
         )}
         <p>
           <b>Pregnant: </b> {status}
@@ -138,6 +137,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         {hasTimedOut && (
           <Alert severity="warning">Is the patient still pregnant?</Alert>
         )}
+        {!info?.isPregnant && <br />}
       </div>
     );
   };

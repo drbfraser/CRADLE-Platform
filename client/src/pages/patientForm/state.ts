@@ -37,8 +37,8 @@ export enum PatientField {
   drugHistory = 'drugHistory',
   medicalHistory = 'medicalHistory',
   allergy = 'allergy',
-  outcome = 'outcome',
-  endDate = 'endDate',
+  pregnancyOutcome = 'pregnancyOutcome',
+  pregnancyEndDate = 'pregnancyEndDate',
 }
 
 export const initialState = {
@@ -59,8 +59,8 @@ export const initialState = {
   [PatientField.drugHistory]: '',
   [PatientField.medicalHistory]: '',
   [PatientField.allergy]: '',
-  [PatientField.outcome]: '',
-  [PatientField.endDate]: '',
+  [PatientField.pregnancyOutcome]: '',
+  [PatientField.pregnancyEndDate]: '',
 };
 
 export type PatientState = typeof initialState;
@@ -126,19 +126,20 @@ export const getPatientState = async (
     [PatientField.drugHistory]: data.drugHistory,
     [PatientField.medicalHistory]: data.medicalHistory,
     [PatientField.allergy]: data.allergy,
-    [PatientField.outcome]: data.outcome,
-    [PatientField.endDate]: data.endDate ? data.endDate : initialState.endDate,
+    [PatientField.pregnancyOutcome]: data.pregnancyOutcome ?? '',
+    [PatientField.pregnancyEndDate]:
+      data.pregnancyEndDate ?? initialState.pregnancyEndDate,
   };
 
-  if (data.id) {
+  if (data.id && data.gestationalAgeUnit) {
     patientState.gestationalAgeDays = String(
-      getNumOfWeeksDaysNumeric(data.startDate).days
+      getNumOfWeeksDaysNumeric(data.pregnancyStartDate).days
     );
     patientState.gestationalAgeWeeks = String(
-      getNumOfWeeksDaysNumeric(data.startDate).weeks
+      getNumOfWeeksDaysNumeric(data.pregnancyStartDate).weeks
     );
     patientState.gestationalAgeMonths = String(
-      getNumOfMonthsNumeric(data.startDate)
+      getNumOfMonthsNumeric(data.pregnancyStartDate)
     );
   }
 

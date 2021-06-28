@@ -131,8 +131,8 @@ export const handlePregnancyInfo = async (
     patientId: values[PatientField.patientId],
     gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
     pregnancyStartDate: 0,
-    endDate: values[PatientField.endDate] || undefined,
-    outcome: values[PatientField.outcome],
+    pregnancyEndDate: values[PatientField.pregnancyEndDate] || undefined,
+    pregnancyOutcome: values[PatientField.pregnancyOutcome],
   };
 
   switch (submitValues.gestationalAgeUnit) {
@@ -149,12 +149,12 @@ export const handlePregnancyInfo = async (
       break;
   }
 
-  if (values[PatientField.endDate]) {
-    submitValues.endDate = (
-      Date.parse(values[PatientField.endDate]) / 1000
+  if (values[PatientField.pregnancyEndDate]) {
+    submitValues.pregnancyEndDate = (
+      Date.parse(values[PatientField.pregnancyEndDate]) / 1000
     ).toString();
   } else {
-    submitValues.endDate = undefined;
+    submitValues.pregnancyEndDate = undefined;
   }
 
   let method = 'POST';

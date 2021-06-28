@@ -139,11 +139,11 @@ export const PregnancyInfoForm = ({
                   variant="outlined"
                   type="date"
                   label="End Date"
-                  name={PatientField.endDate}
+                  name={PatientField.pregnancyEndDate}
                   InputLabelProps={{
                     shrink: true,
                   }}
-                  required={formikProps.values.outcome}
+                  required={Boolean(formikProps.values.pregnancyOutcome)}
                 />
               </Grid>
               <Grid item md={6} sm={12}>
@@ -154,7 +154,7 @@ export const PregnancyInfoForm = ({
                   rows={4}
                   variant="outlined"
                   label="Outcome"
-                  name={PatientField.outcome}
+                  name={PatientField.pregnancyOutcome}
                 />
               </Grid>
             </>
