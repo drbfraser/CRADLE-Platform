@@ -112,6 +112,7 @@ export const PatientForm = ({
     if (editId || creatingNewPregnancy) {
       if (pages[pageNum].editId === 'pregnancyInfo') {
         handlePregnancyInfo(
+          patientId,
           pregnancyId,
           creatingNewPregnancy,
           values,
@@ -123,6 +124,7 @@ export const PatientForm = ({
         pages[pageNum].editId === 'medicalHistory'
       ) {
         handleMedicalRecordInfo(
+          patientId,
           values,
           pages[pageNum].isDrugRecord,
           setSubmitError,

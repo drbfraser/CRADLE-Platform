@@ -74,13 +74,23 @@ export const getPatientState = async (
   universalMedicalId: string | undefined,
   editId: string | undefined
 ) => {
+  //Return when creating new patient
   if (patientId === undefined) {
     return { ...initialState };
   }
 
-  //Fetch user information by default if editId is undefined
+  //Return when creating new pregnancy
   if (patientId && editId === undefined) {
-    editId = 'personalInfo';
+    return { ...initialState };
+  }
+
+  //Return when creating new medical/drug history record
+  if (
+    patientId &&
+    (editId === 'medicalHistory' || editId === 'drugHistory') &&
+    universalMedicalId === undefined
+  ) {
+    return { ...initialState };
   }
 
   const pages: { [key: string]: Page } = {

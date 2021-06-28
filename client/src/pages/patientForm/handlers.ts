@@ -124,6 +124,7 @@ export const handleSubmit = async (
 };
 
 export const handlePregnancyInfo = async (
+  patientId: string | undefined,
   pregnancyId: string | undefined,
   creatingNewPregnancy: boolean,
   values: PatientState,
@@ -133,7 +134,7 @@ export const handlePregnancyInfo = async (
   setSubmitting(true);
 
   const submitValues = {
-    patientId: values[PatientField.patientId],
+    patientId: patientId,
     gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
     pregnancyStartDate: 0,
     pregnancyEndDate: values[PatientField.pregnancyEndDate] || undefined,
@@ -167,7 +168,7 @@ export const handlePregnancyInfo = async (
     API_URL +
     EndpointEnum.PATIENTS +
     '/' +
-    values[PatientField.patientId] +
+    patientId +
     EndpointEnum.PREGNANCIES;
   if (!creatingNewPregnancy) {
     method = 'PUT';
@@ -193,20 +194,20 @@ export const handlePregnancyInfo = async (
 };
 
 export const handleMedicalRecordInfo = async (
+  patientId: string | undefined,
   values: PatientState,
   isDrugRecord: boolean | undefined,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
   setSubmitting: React.Dispatch<React.SetStateAction<any>>
 ) => {
   setSubmitting(true);
-
   const submitValues = isDrugRecord
     ? {
-        patientId: values[PatientField.patientId],
+        patientId: patientId,
         drugHistory: values[PatientField.drugHistory],
       }
     : {
-        patientId: values[PatientField.patientId],
+        patientId: patientId,
         medicalHistory: values[PatientField.medicalHistory],
       };
 
@@ -214,7 +215,7 @@ export const handleMedicalRecordInfo = async (
     API_URL +
     EndpointEnum.PATIENTS +
     '/' +
-    values[PatientField.patientId] +
+    patientId +
     EndpointEnum.MEDICAL_RECORDS;
 
   try {
