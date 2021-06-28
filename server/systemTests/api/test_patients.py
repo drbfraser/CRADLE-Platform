@@ -232,7 +232,7 @@ def __make_full_patient_no_readings(patient_id: str, date: int) -> dict:
         "patientSex": "FEMALE",
         "isPregnant": True,
         "gestationalAgeUnit": "MONTHS",
-        "gestationalTimestamp": date,
+        "pregnancyStartDate": date,
         "medicalHistory": "TEST_FULL: This is fully fleshed out medical history for testing.",
         "drugHistory": "TEST_FULL: This is fully fleshed out drug history for testing.",
         "zone": "9999",

@@ -29,7 +29,7 @@ requestBody:
           villageNumber:
             type: string | Null
             example: 5
-          gestationalTimestamp:
+          pregnancyStartDate:
             type: Unix timestamp | Null - required if isPregnant = true
             example: 1592339808
           gestationalAgeUnit:

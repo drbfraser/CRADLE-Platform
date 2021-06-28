@@ -212,13 +212,13 @@ def makePregnancyFromPatient(patient: dict) -> Pregnancy:
     if patient["isPregnant"]:
         pregnancyObj = {
             "patientId": patient["patientId"],
-            "startDate": patient["gestationalTimestamp"],
+            "startDate": patient["pregnancyStartDate"],
             "defaultTimeUnit": patient["gestationalAgeUnit"],
         }
 
     del patient["isPregnant"]
-    if "gestationalTimestamp" in patient:
-        del patient["gestationalTimestamp"]
+    if "pregnancyStartDate" in patient:
+        del patient["pregnancyStartDate"]
     if "gestationalAgeUnit" in patient:
         del patient["gestationalAgeUnit"]
 
