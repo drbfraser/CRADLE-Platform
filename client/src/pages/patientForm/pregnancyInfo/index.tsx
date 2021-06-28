@@ -58,7 +58,7 @@ export const PregnancyInfoForm = ({
                 component={Select}
                 fullWidth
                 label="Gestational Age Unit"
-                name={PatientField.defaultTimeUnit}
+                name={PatientField.gestationalAgeUnit}
                 required={(creatingNew && isPregnant) || creatingNewPregnancy}
                 disabled={creatingNew && !isPregnant}>
                 {gestationalAgeUnitOptions.map((option) => (

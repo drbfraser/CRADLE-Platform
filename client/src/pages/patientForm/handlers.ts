@@ -129,21 +129,21 @@ export const handlePregnancyInfo = async (
 
   const submitValues = {
     patientId: values[PatientField.patientId],
-    defaultTimeUnit: values[PatientField.defaultTimeUnit],
-    startDate: 0,
+    gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
+    pregnancyStartDate: 0,
     endDate: values[PatientField.endDate] || undefined,
     outcome: values[PatientField.outcome],
   };
 
-  switch (submitValues.defaultTimeUnit) {
+  switch (submitValues.gestationalAgeUnit) {
     case GestationalAgeUnitEnum.WEEKS:
-      submitValues.startDate = getTimestampFromWeeksDays(
+      submitValues.pregnancyStartDate = getTimestampFromWeeksDays(
         values.gestationalAgeWeeks,
         values.gestationalAgeDays
       );
       break;
     case GestationalAgeUnitEnum.MONTHS:
-      submitValues.startDate = getTimestampFromMonths(
+      submitValues.pregnancyStartDate = getTimestampFromMonths(
         values.gestationalAgeMonths
       );
       break;
