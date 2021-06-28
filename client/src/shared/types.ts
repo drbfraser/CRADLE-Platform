@@ -79,7 +79,7 @@ export type Patient = {
 export type PatientMedicalInfo = {
   isPregnant: boolean;
   pregnancyId: string;
-  gestationalTimestamp: number;
+  pregnancyStartDate: number;
   gestationalAgeUnit: GestationalAgeUnitEnum;
   medicalHistoryId: string;
   medicalHistory: OrNull<string>;

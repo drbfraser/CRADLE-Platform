@@ -64,7 +64,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
 
     let hasTimedOut = false;
     if (info!.isPregnant) {
-      hasTimedOut = getNumOfWeeksNumeric(info!.gestationalTimestamp) > 40;
+      hasTimedOut = getNumOfWeeksNumeric(info!.pregnancyStartDate) > 40;
     }
 
     const GestationalAge = () => {
@@ -88,7 +88,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
           <p>
             <b>Gestational Age: </b>
             <span style={hasTimedOut ? { color: 'red' } : {}}>
-              {gestationalAgeUnitFormatters[unit](info!.gestationalTimestamp)}
+              {gestationalAgeUnitFormatters[unit](info!.pregnancyStartDate)}
             </span>
           </p>
           <Form.Field
