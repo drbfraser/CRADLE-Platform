@@ -119,6 +119,7 @@ export const handleSubmit = async (
 };
 
 export const handlePregnancyInfo = async (
+  pregnancyId: string | undefined,
   creatingNewPregnancy: boolean,
   values: PatientState,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
@@ -165,11 +166,7 @@ export const handlePregnancyInfo = async (
     EndpointEnum.PREGNANCIES;
   if (!creatingNewPregnancy) {
     method = 'PUT';
-    url =
-      API_URL +
-      EndpointEnum.PREGNANCIES +
-      '/' +
-      values[PatientField.pregnancyId];
+    url = API_URL + EndpointEnum.PREGNANCIES + '/' + pregnancyId;
   }
 
   try {

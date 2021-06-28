@@ -28,6 +28,7 @@ import { goBackWithFallback } from 'src/shared/utils';
 interface PatientFormProps {
   editId: string;
   patientId?: string;
+  pregnancyId?: string;
   initialState: PatientState;
   creatingNew: boolean;
   creatingNewPregnancy: boolean;
@@ -36,6 +37,7 @@ interface PatientFormProps {
 export const PatientForm = ({
   editId,
   patientId,
+  pregnancyId,
   initialState,
   creatingNew,
   creatingNewPregnancy,
@@ -106,6 +108,7 @@ export const PatientForm = ({
     if (editId || creatingNewPregnancy) {
       if (pages[pageNum].editId === 'pregnancyInfo') {
         handlePregnancyInfo(
+          pregnancyId,
           creatingNewPregnancy,
           values,
           setSubmitError,

@@ -21,7 +21,6 @@ export const gestationalAgeUnitOptions = [
 
 export enum PatientField {
   patientId = 'patientId',
-  pregnancyId = 'pregnancyId',
   patientName = 'patientName',
   householdNumber = 'householdNumber',
   isExactDob = 'isExactDob',
@@ -45,7 +44,6 @@ export enum PatientField {
 
 export const initialState = {
   [PatientField.patientId]: '',
-  [PatientField.pregnancyId]: '',
   [PatientField.patientName]: '',
   [PatientField.householdNumber]: '',
   [PatientField.isExactDob]: true,
@@ -112,7 +110,6 @@ export const getPatientState = async (
 
   const patientState: PatientState = {
     [PatientField.patientId]: data.patientId,
-    [PatientField.pregnancyId]: data.id,
     [PatientField.patientName]: data.patientName,
     [PatientField.householdNumber]: data.householdNumber,
     [PatientField.isExactDob]: Boolean(data.isExactDob),

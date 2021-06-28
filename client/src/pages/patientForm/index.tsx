@@ -32,6 +32,7 @@ export const PatientFormPage = () => {
         <PatientForm
           initialState={formInitialState}
           patientId={patientId}
+          pregnancyId={pregnancyId}
           creatingNew={patientId === undefined}
           creatingNewPregnancy={
             patientId !== undefined && pregnancyId === undefined
