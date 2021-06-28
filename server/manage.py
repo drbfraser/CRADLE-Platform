@@ -222,6 +222,16 @@ def seed():
         db.session.add(patient_schema.load(p1))
         db.session.commit()
 
+        if pregnant:
+            pregnancy_schema = PregnancySchema()
+            pRecord = {
+                "patientId": patientId,
+                "startDate": gestational_timestamp,
+                "defaultTimeUnit": gestational_age_unit,
+            }
+            db.session.add(pregnancy_schema.load(pRecord))
+            db.session.commit()
+
         numOfReadings = random.randint(1, 5)
         dateList = [getRandomDate() for i in range(numOfReadings)]
         dateList.sort()

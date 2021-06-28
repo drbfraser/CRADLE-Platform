@@ -2,8 +2,10 @@ import pytest
 from typing import List
 
 import data.crud as crud
-from models import Patient, Reading, TrafficLightEnum
+from models import MedicalRecord, Patient, Pregnancy, Reading, TrafficLightEnum
 from pprint import pformat
+
+from utils import get_current_time
 
 
 def test_get_patient(patient_factory, api_get):
@@ -242,6 +244,46 @@ def test_create_patient_with_nested_readings(database, api_post):
         for r in reading_ids:
             crud.delete_by(Reading, readingId=r)
         crud.delete_by(Patient, patientId=patient_id)
+
+
+def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
+    patient_id = "8790160146141"
+    date = get_current_time()
+    p = __make_full_patient_no_readings(patient_id, date)
+
+    response = api_post(endpoint="/api/patients", json=p)
+    database.session.commit()
+
+    try:
+        assert response.status_code == 201
+        assert crud.read(Patient, patientId=patient_id) is not None
+        assert crud.read(Pregnancy, patientId=patient_id, startDate=date) is not None
+        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=False)
+        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=True)
+
+    finally:
+        crud.delete_by(Pregnancy, patientId=patient_id, startDate=date)
+        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=False)
+        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=True)
+        crud.delete_by(Patient, patientId=patient_id)
+
+
+def __make_full_patient_no_readings(patient_id: str, date: int) -> dict:
+    return {
+        "patientId": patient_id,
+        "patientName": "TEST_FULL",
+        "patientSex": "FEMALE",
+        "isPregnant": True,
+        "gestationalAgeUnit": "MONTHS",
+        "pregnancyStartDate": date,
+        "medicalHistory": "TEST_FULL: This is fully fleshed out medical history for testing.",
+        "drugHistory": "TEST_FULL: This is fully fleshed out drug history for testing.",
+        "zone": "9999",
+        "dob": "1995-08-23",
+        "isExactDob": True,
+        "villageNumber": "9999",
+        "householdNumber": "4544",
+    }
 
 
 def test_update_patient_name(patient_factory, api_put):
