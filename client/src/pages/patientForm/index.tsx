@@ -13,6 +13,7 @@ type RouteParams = {
 
 export const PatientFormPage = () => {
   const classes = useStyles();
+  //UniversalMedicalId stands for pregnancyId and medicalRecordId because they share the same route matching
   const { patientId, editId, universalMedicalId } =
     useRouteMatch<RouteParams>().params;
 

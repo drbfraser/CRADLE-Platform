@@ -59,7 +59,7 @@ export const handleSubmit = async (
     patientSex: values[PatientField.patientSex],
     isPregnant: Boolean(values[PatientField.isPregnant]),
     gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
-    gestationalTimestamp: 0,
+    pregnancyStartDate: 0,
     drugHistory: values[PatientField.drugHistory],
     medicalHistory: values[PatientField.medicalHistory],
     allergy: values[PatientField.allergy],
@@ -74,17 +74,22 @@ export const handleSubmit = async (
   if (submitValues.isPregnant) {
     switch (submitValues.gestationalAgeUnit) {
       case GestationalAgeUnitEnum.WEEKS:
-        submitValues.gestationalTimestamp = getTimestampFromWeeksDays(
+        submitValues.pregnancyStartDate = getTimestampFromWeeksDays(
           values.gestationalAgeWeeks,
           values.gestationalAgeDays
         );
         break;
       case GestationalAgeUnitEnum.MONTHS:
-        submitValues.gestationalTimestamp = getTimestampFromMonths(
+        submitValues.pregnancyStartDate = getTimestampFromMonths(
           values.gestationalAgeMonths
         );
         break;
     }
+  }
+
+  //TODO: remove this when we get rid of the old information in the Patient table
+  if (!submitValues.gestationalAgeUnit) {
+    submitValues.gestationalAgeUnit = GestationalAgeUnitEnum.WEEKS;
   }
 
   let method = 'POST';

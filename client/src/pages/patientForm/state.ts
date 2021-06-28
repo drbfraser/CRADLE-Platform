@@ -91,7 +91,6 @@ export const getPatientState = async (
     pregnancyInfo: {
       endpoint: EndpointEnum.PREGNANCIES + '/' + universalMedicalId,
     },
-    //TODO: Update medical endpoints here with the new drug and medical history API
     drugHistory: {
       endpoint: EndpointEnum.MEDICAL_RECORDS + '/' + universalMedicalId,
     },
@@ -101,8 +100,6 @@ export const getPatientState = async (
   };
 
   const data = await (await apiFetch(API_URL + pages[editId!].endpoint)).json();
-
-  console.log(data);
 
   const patientState: PatientState = {
     [PatientField.patientId]: data.patientId,
