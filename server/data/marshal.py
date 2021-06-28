@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, Type, List, Optional, Union
+from typing import Any, Dict, Type, List, Optional
 
 import collections
 
@@ -24,7 +24,9 @@ def marshal(obj: Any, shallow=False) -> dict:
         return __marshal_referral(obj)
     elif isinstance(obj, FollowUp):
         return __marshal_followup(obj)
-    elif isinstance(obj, (MedicalRecord, Pregnancy)):
+    elif isinstance(obj, Pregnancy):
+        return __marshal_pregnancy(obj)
+    elif isinstance(obj, MedicalRecord):
         return __marshal_medical_record(obj)
     else:
         d = vars(obj).copy()
@@ -47,7 +49,8 @@ def marshal_patient_medical_info(
     if pregnancy and not pregnancy.endDate:
         info = {
             "isPregnant": True,
-            "gestationalTimestamp": pregnancy.startDate,
+            "pregnancyId": pregnancy.id,
+            "pregnancyStartDate": pregnancy.startDate,
             "gestationalAgeUnit": pregnancy.defaultTimeUnit.value,
         }
         medical_info.update(info)
@@ -55,10 +58,18 @@ def marshal_patient_medical_info(
         medical_info["isPregnant"] = False
 
     if medical:
-        medical_info["medicalHistory"] = medical.information
+        info = {
+            "medicalHistoryId": medical.id,
+            "medicalHistory": medical.information,
+        }
+        medical_info.update(info)
 
     if drug:
-        medical_info["drugHistory"] = drug.information
+        info = {
+            "drugHistoryId": drug.id,
+            "drugHistory": drug.information,
+        }
+        medical_info.update(info)
 
     return medical_info
 
@@ -119,12 +130,31 @@ def __marshal_followup(f: FollowUp) -> dict:
     return d
 
 
-def __marshal_medical_record(r: Union[MedicalRecord, Pregnancy]) -> dict:
-    d = vars(r).copy()
-    __pre_process(d)
-    # Remove relationship object
-    if d.get("patient"):
-        del d["patient"]
+def __marshal_pregnancy(p: Pregnancy) -> dict:
+    return {
+        "id": p.id,
+        "patientId": p.patientId,
+        "pregnancyStartDate": p.startDate,
+        "gestationalAgeUnit": p.defaultTimeUnit.value,
+        "pregnancyEndDate": p.endDate,
+        "pregnancyOutcome": p.outcome,
+        "lastEdited": p.lastEdited,
+    }
+
+
+def __marshal_medical_record(r: MedicalRecord) -> dict:
+    d = {
+        "id": r.id,
+        "patientId": r.patientId,
+        "dataCreated": r.dateCreated,
+        "lastEdited": r.lastEdited,
+    }
+
+    if r.isDrugRecord:
+        d["drugHistory"] = r.information
+    else:
+        d["medicalHistory"] = r.information
+
     return d
 
 
@@ -202,7 +232,6 @@ def __unmarshal_patient(d: dict) -> Patient:
 
 
 def __unmarshal_reading(d: dict) -> Reading:
-
     # Convert "symptoms" from array to string, if plural number of symptoms
     symptomsGiven = d.get("symptoms")
     if symptomsGiven is not None:

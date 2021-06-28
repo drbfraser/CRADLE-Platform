@@ -52,7 +52,7 @@ def test_get_patient_medical_info(
         response_body = response.json()
         assert response_body["isPregnant"] == isPregnant
         if isPregnant:
-            assert response_body["gestationalTimestamp"] == pregnancy["startDate"]
+            assert response_body["pregnancyStartDate"] == pregnancy["startDate"]
             assert response_body["gestationalAgeUnit"] == pregnancy["defaultTimeUnit"]
 
     test_pregnancy_info(pregnancy_earlier)

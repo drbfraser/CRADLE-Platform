@@ -22,7 +22,7 @@ responses:
                 type: integer
                 example: 1001
               startDate:
-                type: Unix timestamp | Null
+                type: Unix timestamp
                 example: 1620000002
               endDate:
                 type: Unix timestamp | Null
@@ -33,4 +33,3 @@ responses:
               lastEdited:
                 type: Unix timestamp
                 example: 1620000002
-                

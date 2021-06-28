@@ -9,19 +9,19 @@ def validate_post_request(request_body: dict, patient_id: str) -> Optional[str]:
 
     :param request_body: The request body as a dict object
                         {
-                            "patientId": "120000", - required
-                            "startDate": 1620000002, - required
-                            "defaultTimeUnit": "WEEKS",
-                            "endDate": 1620000002,
-                            "outcome": "Mode of delivery assisted birth",
+                            "patientId": "120000",
+                            "pregnancyStartDate": 1620000002, - required
+                            "gestationalAgeUnit": "WEEKS", - required
+                            "pregnancyEndDate": 1620000002,
+                            "pregnancyOutcome": "Mode of delivery assisted birth",
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
     """
     error = required_keys_present(
         request_body,
         [
-            "patientId",
-            "startDate",
+            "pregnancyStartDate",
+            "gestationalAgeUnit",
         ],
     )
     if error:
@@ -35,7 +35,7 @@ def validate_post_request(request_body: dict, patient_id: str) -> Optional[str]:
     if error:
         return error
 
-    if request_body.get("patientId") != patient_id:
+    if "patientId" in request_body and request_body.get("patientId") != patient_id:
         return "Patient ID does not match."
 
 
@@ -65,10 +65,10 @@ def __validate(request_body):
     pregnancy_keys = [
         "id",
         "patientId",
-        "startDate",
-        "defaultTimeUnit",
-        "endDate",
-        "outcome",
+        "pregnancyStartDate",
+        "gestationalAgeUnit",
+        "pregnancyEndDate",
+        "pregnancyOutcome",
         "lastEdited",
         "isPregnant",
     ]

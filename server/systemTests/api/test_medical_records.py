@@ -9,11 +9,7 @@ def test_get_record(medical_record_factory, medical_record, api_get):
     response = api_get(endpoint=f"/api/medical_records/{record_id}")
 
     assert response.status_code == 200
-
-    response_body = response.json()
-    del response_body["dateCreated"]
-    del response_body["lastEdited"]
-    assert response_body == medical_record
+    assert response.json()["medicalHistory"] == medical_record["information"]
 
 
 def test_put_record(medical_record_factory, drug_record, api_put):
@@ -23,28 +19,31 @@ def test_put_record(medical_record_factory, drug_record, api_put):
     info = "Labetalol 200mg three times daily."
     response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
-        json={"information": info},
+        json={"drugHistory": info},
     )
 
     new_record = crud.read(MedicalRecord, id=record_id)
 
     assert response.status_code == 200
     assert new_record.information == info
+    assert new_record.isDrugRecord
 
 
-def test_post_record(patient_id, drug_record, api_post):
+def test_post_record(patient_id, medical_record, api_post):
     try:
+        record_id = medical_record["id"]
+        info = medical_record["information"]
         response = api_post(
             endpoint=f"/api/patients/{patient_id}/medical_records",
-            json=drug_record,
+            json={"id": record_id, "medicalHistory": info},
         )
 
-        record_id = drug_record["id"]
         new_record = crud.read(MedicalRecord, id=record_id)
 
         assert response.status_code == 201
         assert new_record.patientId == patient_id
-        assert new_record.information == drug_record["information"]
+        assert new_record.information == info
+        assert not new_record.isDrugRecord
 
     finally:
         crud.delete_by(MedicalRecord, id=record_id)
@@ -87,7 +86,7 @@ def test_invalid_record_not_created(
 
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/medical_records",
-        json=drug_record,
+        json={"id": drug_record["id"], "drugHistory": "Aspirin 75mg"},
     )
 
     assert response.status_code == 409
