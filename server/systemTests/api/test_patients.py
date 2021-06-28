@@ -258,12 +258,14 @@ def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
         assert response.status_code == 201
         assert crud.read(Patient, patientId=patient_id) is not None
         assert crud.read(Pregnancy, patientId=patient_id, startDate=date) is not None
-        assert crud.read(MedicalRecord, patientId=patient_id).isDrugRecord == False
-        assert crud.read(MedicalRecord, patientId=patient_id).isDrugRecord == True
-    except:
-        print("Failed")
-    # finally:
-    # crud.delete_by(Patient, patientId=patient_id)
+        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=False)
+        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=True)
+
+    finally:
+        crud.delete_by(Pregnancy, patientId=patient_id, startDate=date)
+        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=False)
+        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=True)
+        crud.delete_by(Patient, patientId=patient_id)
 
 
 def __make_full_patient_no_readings(patient_id: str, date: int) -> dict:
