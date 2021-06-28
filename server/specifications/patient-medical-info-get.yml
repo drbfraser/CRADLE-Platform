@@ -1,0 +1,34 @@
+Get a patient's current pregnancy, medical and drug record
+---
+tags:
+  - Patients
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/medical_info
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            isPregnant:
+              type: boolean
+              example: true
+            gestationalTimestamp:
+              type: Unix timestamp | Null
+              example: 1620000002
+            gestationalAgeUnit:
+              type: string | Null
+              enum: [WEEKS, MONTHS]
+              example: WEEKS
+            medicalHistory:
+              type: string | Null
+              example: Pregnancy induced hypertension
+            drugHistory:
+              type: string | Null
+              example: Aspirin 75mg

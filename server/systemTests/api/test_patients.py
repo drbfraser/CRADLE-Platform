@@ -1,11 +1,10 @@
+import pytest
 from typing import List
 
 import data.crud as crud
 from models import MedicalRecord, Patient, Pregnancy, Reading, TrafficLightEnum
 from pprint import pformat
 
-import pytest
-from systemTests.api.test_pregnancies import patient_id
 from utils import get_current_time
 
 
@@ -30,6 +29,47 @@ def test_get_patient(patient_factory, api_get):
 
     assert response.status_code == 200
     assert expected == response.json()
+
+
+def test_get_patient_medical_info(
+    pregnancy_factory,
+    medical_record_factory,
+    patient_id,
+    pregnancy_earlier,
+    pregnancy_later,
+    medical_record,
+    drug_record,
+    api_get,
+):
+    def test_pregnancy_info(pregnancy):
+        pregnancy_factory.create(**pregnancy)
+
+        response = api_get(
+            endpoint=f"/api/patients/{patient_id}/medical_info",
+        )
+
+        assert response.status_code == 200
+
+        isPregnant = "endDate" not in pregnancy
+        response_body = response.json()
+        assert response_body["isPregnant"] == isPregnant
+        if isPregnant:
+            assert response_body["pregnancyStartDate"] == pregnancy["startDate"]
+            assert response_body["gestationalAgeUnit"] == pregnancy["defaultTimeUnit"]
+
+    test_pregnancy_info(pregnancy_earlier)
+    test_pregnancy_info(pregnancy_later)
+
+    medical_record_factory.create(**medical_record)
+    medical_record_factory.create(**drug_record)
+
+    response = api_get(
+        endpoint=f"/api/patients/{patient_id}/medical_info",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["medicalHistory"] == medical_record["information"]
+    assert response.json()["drugHistory"] == drug_record["information"]
 
 
 @pytest.mark.skip(reason="changes are to be made on mobile patient api")

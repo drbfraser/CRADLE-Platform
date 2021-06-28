@@ -1,0 +1,33 @@
+Get a medical/drug record
+---
+tags:
+  - Medical Records 
+parameters:
+  - in: path
+    name: record_id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: GET response body for /api/medical_records/<string:record_id>
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1001
+            patientId:
+              type: integer
+              example: 120000
+            medicalHistory:
+              type: string
+              example: Pregnancy induced hypertension
+            dateCreated:
+              type: Unix timestamp
+              example: 1620000002
+            lastEdited:
+              type: Unix timestamp
+              example: 1620000002

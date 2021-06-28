@@ -4,7 +4,7 @@ from typing import Any, Dict, Type, List, Optional
 import collections
 
 from data.crud import M, read_all
-from models import Patient, Reading, Referral, FollowUp, MedicalRecord, Pregnancy
+from models import Patient, Reading, Referral, FollowUp, Pregnancy, MedicalRecord
 import service.invariant as invariant
 
 
@@ -26,10 +26,52 @@ def marshal(obj: Any, shallow=False) -> dict:
         return __marshal_followup(obj)
     elif isinstance(obj, Pregnancy):
         return __marshal_pregnancy(obj)
+    elif isinstance(obj, MedicalRecord):
+        return __marshal_medical_record(obj)
     else:
         d = vars(obj).copy()
         __pre_process(d)
         return d
+
+
+def marshal_patient_medical_info(
+    pregnancy: Pregnancy, medical: MedicalRecord, drug: MedicalRecord
+) -> dict:
+    """
+    Recursively marshals an object to a dictionary.
+
+    :param obj: The object to marshal
+    :param shallow: If true, only the top level fields will be marshalled
+    :return: A dictionary mapping fields to values
+    """
+    medical_info = dict()
+
+    if pregnancy and not pregnancy.endDate:
+        info = {
+            "isPregnant": True,
+            "pregnancyId": pregnancy.id,
+            "pregnancyStartDate": pregnancy.startDate,
+            "gestationalAgeUnit": pregnancy.defaultTimeUnit.value,
+        }
+        medical_info.update(info)
+    else:
+        medical_info["isPregnant"] = False
+
+    if medical:
+        info = {
+            "medicalHistoryId": medical.id,
+            "medicalHistory": medical.information,
+        }
+        medical_info.update(info)
+
+    if drug:
+        info = {
+            "drugHistoryId": drug.id,
+            "drugHistory": drug.information,
+        }
+        medical_info.update(info)
+
+    return medical_info
 
 
 def __marshal_patient(p: Patient, shallow) -> dict:
@@ -89,11 +131,30 @@ def __marshal_followup(f: FollowUp) -> dict:
 
 
 def __marshal_pregnancy(p: Pregnancy) -> dict:
-    d = vars(p).copy()
-    __pre_process(d)
-    # Remove relationship object
-    if d.get("patient"):
-        del d["patient"]
+    return {
+        "id": p.id,
+        "patientId": p.patientId,
+        "pregnancyStartDate": p.startDate,
+        "gestationalAgeUnit": p.defaultTimeUnit.value,
+        "pregnancyEndDate": p.endDate,
+        "pregnancyOutcome": p.outcome,
+        "lastEdited": p.lastEdited,
+    }
+
+
+def __marshal_medical_record(r: MedicalRecord) -> dict:
+    d = {
+        "id": r.id,
+        "patientId": r.patientId,
+        "dataCreated": r.dateCreated,
+        "lastEdited": r.lastEdited,
+    }
+
+    if r.isDrugRecord:
+        d["drugHistory"] = r.information
+    else:
+        d["medicalHistory"] = r.information
+
     return d
 
 
@@ -231,7 +292,6 @@ def makePregnancyFromPatient(patient: dict) -> Pregnancy:
 
 
 def __unmarshal_reading(d: dict) -> Reading:
-
     # Convert "symptoms" from array to string, if plural number of symptoms
     symptomsGiven = d.get("symptoms")
     if symptomsGiven is not None:

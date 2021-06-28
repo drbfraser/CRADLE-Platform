@@ -16,20 +16,17 @@ requestBody:
       schema:
         type: object
         properties:
-          patientId:
-            type: integer
-            example: 120000
-          startDate:
+          pregnancyStartDate:
             type: Unix timestamp | Null
             example: 1620000002
-          defaultTimeUnit:
+          gestationalAgeUnit:
             type: string | Null
             enum: [WEEKS, MONTHS]
             example: WEEKS
-          endDate:
+          pregnancyEndDate:
             type: Unix timestamp | Null
             example: 1620000002
-          outcome:
+          pregnancyOutcome:
             type: string | Null
             example: Mode of delivery assisted birth
 
@@ -47,20 +44,19 @@ responses:
             patientId:
               type: integer
               example: 120000
-            startDate:
-              type: Unix timestamp | Null
+            pregnancyStartDate:
+              type: Unix timestamp
               example: 1620000002
-            defaultTimeUnit:
+            gestationalAgeUnit:
               type: string | Null
               enum: [WEEKS, MONTHS]
               example: WEEKS
-            endDate:
+            pregnancyEndDate:
               type: Unix timestamp | Null
               example: 1620000002
-            outcome:
+            pregnancyOutcome:
               type: string | Null
               example: Mode of delivery assisted birth
             lastEdited:
               type: Unix timestamp
               example: 1620000002
-              
