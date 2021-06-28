@@ -10,12 +10,14 @@ import service.serialize as serialize
 import service.view as view
 from models import Pregnancy
 from validation import pregnancies
+from utils import get_current_time
+from api.decorator import patient_association_required
 
 
 # /api/patients/<string:patient_id>/pregnancies
 class Root(Resource):
     @staticmethod
-    @jwt_required
+    @patient_association_required()
     @swag_from(
         "../../specifications/pregnancies-get.yml",
         methods=["Get"],
@@ -27,7 +29,7 @@ class Root(Resource):
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
 
     @staticmethod
-    @jwt_required
+    @patient_association_required()
     @swag_from(
         "../../specifications/pregnancies-post.yml",
         methods=["POST"],
@@ -47,6 +49,8 @@ class Root(Resource):
                     409, message=f"A pregnancy with ID {pregnancy_id} already exists."
                 )
 
+        _process(request_body)
+        request_body["patientId"] = patient_id
         new_pregnancy = marshal.unmarshal(Pregnancy, request_body)
 
         crud.create(new_pregnancy, refresh=True)
@@ -69,14 +73,14 @@ class PregnancyStatus(Resource):
         if not pregnancy:
             return {"isPregnant": False}
 
-        result = marshal.marshal(pregnancy)
-
-        if pregnancy.endDate:
-            result.update({"isPregnant": False})
-        else:
-            result.update({"isPregnant": True})
-
-        return result
+        return {
+            "isPregnant": False if pregnancy.endDate else True,
+            "patientId": pregnancy.patientId,
+            "startDate": pregnancy.startDate,
+            "defaultTimeUnit": pregnancy.defaultTimeUnit.value,
+            "endDate": pregnancy.endDate,
+            "outcome": pregnancy.outcome,
+        }
 
 
 # /api/pregnancies/<string:pregnancy_id>
@@ -114,8 +118,21 @@ class SinglePregnancy(Resource):
             if request_body.get("patientId") != patient_id:
                 abort(400, message="Patient ID cannot be changed.")
 
+        _process(request_body)
         crud.update(Pregnancy, request_body, id=pregnancy_id)
 
         new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
 
         return marshal.marshal(new_pregnancy)
+
+
+def _process(d):
+    d["lastEdited"] = get_current_time()
+    if "pregnancyStartDate" in d:
+        d["startDate"] = d.pop("pregnancyStartDate")
+    if "gestationalAgeUnit" in d:
+        d["defaultTimeUnit"] = d.pop("gestationalAgeUnit")
+    if "pregnancyEndDate" in d:
+        d["endDate"] = d.pop("pregnancyEndDate")
+    if "pregnancyOutcome" in d:
+        d["outcome"] = d.pop("pregnancyOutcome")
