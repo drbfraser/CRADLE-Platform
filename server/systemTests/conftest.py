@@ -212,6 +212,11 @@ def pregnancy_factory(database) -> factory.PregnancyFactory:
     yield from __make_factory(database, factory.PregnancyFactory)
 
 
+@pytest.fixture
+def medical_record_factory(database) -> factory.MedicalRecordFactory:
+    yield from __make_factory(database, factory.MedicalRecordFactory)
+
+
 #
 # Generic Maker Functions
 #
