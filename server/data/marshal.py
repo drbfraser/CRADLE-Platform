@@ -50,7 +50,7 @@ def marshal_patient_medical_info(
         info = {
             "isPregnant": True,
             "pregnancyId": pregnancy.id,
-            "gestationalTimestamp": pregnancy.startDate,
+            "pregnancyStartDate": pregnancy.startDate,
             "gestationalAgeUnit": pregnancy.defaultTimeUnit.value,
         }
         medical_info.update(info)
@@ -131,12 +131,15 @@ def __marshal_followup(f: FollowUp) -> dict:
 
 
 def __marshal_pregnancy(p: Pregnancy) -> dict:
-    d = vars(p).copy()
-    __pre_process(d)
-    # Remove relationship object
-    if d.get("patient"):
-        del d["patient"]
-    return d
+    return {
+        "id": p.id,
+        "patientId": p.patientId,
+        "pregnancyStartDate": p.startDate,
+        "gestationalAgeUnit": p.defaultTimeUnit.value,
+        "pregnancyEndDate": p.endDate,
+        "pregnancyOutcome": p.outcome,
+        "lastEdited": p.lastEdited,
+    }
 
 
 def __marshal_medical_record(r: MedicalRecord) -> dict:
@@ -196,8 +199,6 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_patient(d)
     elif m is Reading:
         return __unmarshal_reading(d)
-    elif m is MedicalRecord:
-        return __unmarshal_medical_record(d)
     else:
         return __load(m, d)
 
@@ -242,18 +243,6 @@ def __unmarshal_reading(d: dict) -> Reading:
     invariant.resolve_reading_invariants(reading)
 
     return reading
-
-
-def __unmarshal_medical_record(d: dict) -> MedicalRecord:
-    d["isDrugRecord"] = "drugHistory" in d
-    if d["isDrugRecord"]:
-        d["information"] = d["drugHistory"]
-        del d["drugHistory"]
-    else:
-        d["information"] = d["medicalHistory"]
-        del d["medicalHistory"]
-
-    return __load(MedicalRecord, d)
 
 
 ## Functions taken from the original Database.py ##

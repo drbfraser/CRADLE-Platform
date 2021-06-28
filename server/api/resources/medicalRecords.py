@@ -53,8 +53,9 @@ class Root(Resource):
                     409, message=f"A medical record with ID {record_id} already exists."
                 )
 
+        _process(request_body)
         request_body["patientId"] = patient_id
-        request_body["lastEdited"] = request_body["dateCreated"] = get_current_time()
+        request_body["dateCreated"] = get_current_time()
         new_record = marshal.unmarshal(MedicalRecord, request_body)
 
         crud.create(new_record, refresh=True)
@@ -97,16 +98,17 @@ class SingleMedicalRecord(Resource):
             if request_body.get("patientId") != patient_id:
                 abort(400, message="Patient ID cannot be changed.")
 
-        record = {"lastEdited": get_current_time()}
-        record["isDrugRecord"] = "drugHistory" in request_body
-        record["information"] = (
-            request_body["drugHistory"]
-            if record["isDrugRecord"]
-            else request_body["medicalHistory"]
-        )
-
-        crud.update(MedicalRecord, record, id=record_id)
+        _process(request_body)
+        crud.update(MedicalRecord, request_body, id=record_id)
 
         new_record = crud.read(MedicalRecord, id=record_id)
 
         return marshal.marshal(new_record)
+
+
+def _process(d):
+    d["lastEdited"] = get_current_time()
+    d["isDrugRecord"] = "drugHistory" in d
+    d["information"] = (
+        d.pop("drugHistory") if d["isDrugRecord"] else d.pop("medicalHistory")
+    )
