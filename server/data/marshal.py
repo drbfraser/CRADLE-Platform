@@ -218,6 +218,9 @@ def __unmarshal_patient(d: dict) -> Patient:
     else:
         readings = []
 
+    medRecords = makeMedRecFromPatient(d)
+    pregnancy = makePregnancyFromPatient(d)
+
     # Since "base" doesn't have a column in the database, we must remove it from its
     # marshalled representation before converting back to an object.
     if d.get("base"):
@@ -227,8 +230,65 @@ def __unmarshal_patient(d: dict) -> Patient:
     patient = __load(Patient, d)
     if readings:
         patient.readings = readings
+    if medRecords:
+        patient.medicalRecord = medRecords
+    if pregnancy:
+        patient.pregnancy = pregnancy
 
     return patient
+
+
+def makeMedRecFromPatient(patient: dict) -> MedicalRecord:
+    drugRec = {}
+    medRec = {}
+    if "drugHistory" in patient:
+        if patient["drugHistory"]:
+            drugRec = {
+                "patientId": patient["patientId"],
+                "information": patient["drugHistory"],
+                "isDrugRecord": True,
+            }
+        del patient["drugHistory"]
+    if "medicalHistory" in patient:
+        if patient["medicalHistory"]:
+            medRec = {
+                "patientId": patient["patientId"],
+                "information": patient["medicalHistory"],
+                "isDrugRecord": False,
+            }
+        del patient["medicalHistory"]
+
+    records = []
+    if drugRec:
+        records.append(drugRec)
+    if medRec:
+        records.append(medRec)
+
+    medicalRecord = [unmarshal(MedicalRecord, m) for m in records]
+    return medicalRecord
+
+
+def makePregnancyFromPatient(patient: dict) -> Pregnancy:
+    pregnancyObj = {}
+    if patient["isPregnant"]:
+        pregnancyObj = {
+            "patientId": patient["patientId"],
+            "startDate": patient["pregnancyStartDate"],
+            "defaultTimeUnit": patient["gestationalAgeUnit"],
+        }
+
+    del patient["isPregnant"]
+    if "pregnancyStartDate" in patient:
+        del patient["pregnancyStartDate"]
+    if "gestationalAgeUnit" in patient:
+        del patient["gestationalAgeUnit"]
+
+    if pregnancyObj:
+        pregnancy = [unmarshal(Pregnancy, pregnancyObj)]
+    else:
+        pregnancy = []
+
+    return pregnancy
 
 
 def __unmarshal_reading(d: dict) -> Reading:

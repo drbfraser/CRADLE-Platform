@@ -17,7 +17,7 @@ valid_json = {
     "isExactDob": False,
     "zone": "15",
     "villageNumber": "50",
-    "gestationalTimestamp": two_weeks_ago,
+    "pregnancyStartDate": two_weeks_ago,
     "gestationalAgeUnit": "WEEKS",
     "drugHistory": "too much tylenol",
     "medicalHistory": "not enough advil",
@@ -25,7 +25,7 @@ valid_json = {
 }
 
 # Patient is pregnant but gestationalTimestamp is missing
-missing_gestational_timestamp = {
+missing_pregnancy_start_date = {
     "patientId": "123456",
     "patientName": "testName",
     "isPregnant": True,
@@ -42,7 +42,7 @@ missing_gestational_timestamp = {
 }
 
 # gestationalTimestamp must be less than or equal to 43 weeks/10 months
-invalid_gestational_timestamp = {
+invalid_pregnancy_start_date = {
     "patientId": "123456",
     "patientName": "testName",
     "isPregnant": True,
@@ -136,8 +136,8 @@ incorrect_dob_format = {
     "json, output",
     [
         (valid_json, type(None)),
-        (missing_gestational_timestamp, str),
-        (invalid_gestational_timestamp, str),
+        (missing_pregnancy_start_date, str),
+        (invalid_pregnancy_start_date, str),
         (not_type_string, str),
         (not_type_int, str),
         (patient_id_too_long, str),

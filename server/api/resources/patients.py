@@ -12,7 +12,7 @@ import service.invariant as invariant
 import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
-from models import Patient
+from models import MedicalRecord, Patient
 from utils import get_current_time
 from validation import patients
 
