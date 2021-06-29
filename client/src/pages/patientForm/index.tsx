@@ -8,22 +8,22 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 type RouteParams = {
   patientId: string | undefined;
   editId: string;
-  universalMedicalId: string | undefined;
+  universalRecordId: string | undefined;
 };
 
 export const PatientFormPage = () => {
   const classes = useStyles();
-  //UniversalMedicalId stands for pregnancyId and medicalRecordId because they share the same route matching
-  const { patientId, editId, universalMedicalId } =
+  //universalRecordId stands for pregnancyId and medicalRecordId because they share the same route matching
+  const { patientId, editId, universalRecordId } =
     useRouteMatch<RouteParams>().params;
 
   const [formInitialState, setFormInitialState] = useState<PatientState>();
 
   useEffect(() => {
-    getPatientState(patientId, universalMedicalId, editId).then((state) =>
+    getPatientState(patientId, universalRecordId, editId).then((state) =>
       setFormInitialState(state)
     );
-  }, [patientId, editId, universalMedicalId]);
+  }, [patientId, editId, universalRecordId]);
 
   return (
     <div className={classes.container}>
@@ -33,10 +33,10 @@ export const PatientFormPage = () => {
         <PatientForm
           initialState={formInitialState}
           patientId={patientId}
-          pregnancyId={universalMedicalId}
+          pregnancyId={universalRecordId}
           creatingNew={patientId === undefined}
           creatingNewPregnancy={
-            patientId !== undefined && universalMedicalId === undefined
+            patientId !== undefined && universalRecordId === undefined
           }
           editId={editId}
         />

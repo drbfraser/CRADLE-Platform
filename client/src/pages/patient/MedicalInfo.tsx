@@ -34,6 +34,11 @@ interface IProps {
   patientId: string;
 }
 
+interface MedicalInfoButtonProps {
+  redirectUrl: string;
+  text: string;
+}
+
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const classes = useStyles();
   const history = useHistory();
@@ -55,6 +60,18 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         setErrorLoading(true);
       });
   }, [patientId]);
+
+  const MedicalInfoButton = ({ redirectUrl, text }: MedicalInfoButtonProps) => {
+    return (
+      <Button
+        color="primary"
+        variant="outlined"
+        className={classes.right}
+        onClick={() => history.push(redirectUrl)}>
+        {text}
+      </Button>
+    );
+  };
 
   const PregnancyStatus = () => {
     const status = info!.isPregnant ? 'Yes' : 'No';
@@ -103,29 +120,17 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     return (
       <div>
         {info!.isPregnant ? (
-          <Button
-            color="primary"
-            variant="outlined"
-            className={classes.right}
-            onClick={() =>
-              history.push(
-                `/patients/edit/pregnancyInfo/${patient?.patientId}/${
-                  info!.pregnancyId
-                }`
-              )
-            }>
-            Update/Close Pregnancy
-          </Button>
+          <MedicalInfoButton
+            text="Update/Close Pregnancy"
+            redirectUrl={`/patients/${patient?.patientId}/edit/pregnancyInfo/${
+              info!.pregnancyId
+            }`}
+          />
         ) : (
-          <Button
-            color="primary"
-            variant="outlined"
-            className={classes.right}
-            onClick={() =>
-              history.push(`/patients/newPregnancy/${patient?.patientId}`)
-            }>
-            Add New Pregnancy
-          </Button>
+          <MedicalInfoButton
+            text="Add New Pregnancy"
+            redirectUrl={`/pregnancies/new/${patient?.patientId}`}
+          />
         )}
         <p>
           <b>Pregnant: </b> {status}
@@ -152,31 +157,19 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     editId,
     medicalRecordId,
   }: HistoryItemProps) => (
-    <Accordion>
+    <Accordion defaultExpanded={true}>
       <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
         <Typography style={{ flex: 1 }}> {title} </Typography>
         {medicalRecordId ? (
-          <Button
-            color="primary"
-            variant="outlined"
-            className={classes.right}
-            onClick={() =>
-              history.push(
-                `/patients/edit/${editId}/${patient?.patientId}/${medicalRecordId}`
-              )
-            }>
-            Update
-          </Button>
+          <MedicalInfoButton
+            text="Update"
+            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
+          />
         ) : (
-          <Button
-            color="primary"
-            variant="outlined"
-            className={classes.right}
-            onClick={() =>
-              history.push(`/patients/edit/${editId}/${patient?.patientId}`)
-            }>
-            Add
-          </Button>
+          <MedicalInfoButton
+            text="Add"
+            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}`}
+          />
         )}
       </AccordionSummary>
       <AccordionDetails>

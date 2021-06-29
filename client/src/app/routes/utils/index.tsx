@@ -49,7 +49,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/edit/:editId/:patientId`,
+    to: `/patients/:patientId/edit/:editId`,
   },
   {
     component: PatientFormPage,
@@ -57,7 +57,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/edit/:editId/:patientId/:universalMedicalId`,
+    to: `/patients/:patientId/edit/:editId/:universalRecordId`,
   },
   {
     component: PatientFormPage,
@@ -65,7 +65,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/newPregnancy/:patientId`,
+    to: `/pregnancies/new/:patientId`,
   },
   {
     component: ReadingFormPage,
