@@ -123,7 +123,6 @@ export const handlePregnancyInfo = async (
   setSubmitting(true);
 
   const submitValues = {
-    patientId: patientId,
     gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
     pregnancyStartDate: 0,
     pregnancyEndDate: values[PatientField.pregnancyEndDate] || undefined,
@@ -186,11 +185,9 @@ export const handleMedicalRecordInfo = async (
   setSubmitting(true);
   const submitValues = isDrugRecord
     ? {
-        patientId: patientId,
         drugHistory: values[PatientField.drugHistory],
       }
     : {
-        patientId: patientId,
         medicalHistory: values[PatientField.medicalHistory],
       };
 
