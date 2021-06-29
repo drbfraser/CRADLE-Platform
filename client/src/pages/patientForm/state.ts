@@ -139,16 +139,20 @@ export const getPatientState = async (
 
   if (data.id && data.gestationalAgeUnit) {
     patientState.gestationalAgeDays = String(
-      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, data.pregnancyEndDate).days
+      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, data.pregnancyEndDate)
+        .days
     );
     patientState.gestationalAgeWeeks = String(
-      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, data.pregnancyEndDate).weeks
+      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, data.pregnancyEndDate)
+        .weeks
     );
     patientState.gestationalAgeMonths = String(
       getNumOfMonthsNumeric(data.pregnancyStartDate, data.pregnancyEndDate)
     );
     if (data.pregnancyEndDate) {
-      patientState.pregnancyEndDate = String(getPrettyDateTime(data.pregnancyEndDate));
+      patientState.pregnancyEndDate = String(
+        getPrettyDateTime(data.pregnancyEndDate)
+      );
     }
   }
 

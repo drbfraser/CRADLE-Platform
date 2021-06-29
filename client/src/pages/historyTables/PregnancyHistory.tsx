@@ -23,7 +23,13 @@ interface IProps {
   isDrugRecord: boolean;
   patientId: string;
 }
-const colNames = ['Start Date (Approx)', 'End Date', 'Length', 'Outcome', 'Edit'];
+const colNames = [
+  'Start Date (Approx)',
+  'End Date',
+  'Length',
+  'Outcome',
+  'Edit',
+];
 
 export const PregnancyHistoryTable: React.FC<IProps> = ({
   isDrugRecord,
@@ -45,8 +51,8 @@ export const PregnancyHistoryTable: React.FC<IProps> = ({
         EndpointEnum.PREGNANCY_RECORDS
     )
       .then((resp) => resp.json())
-      .then((preg) => {
-        setPregnancies(preg);
+      .then((pregnancies) => {
+        setPregnancies(pregnancies);
       })
       .catch(() => {
         setErrorLoading(true);
@@ -104,9 +110,11 @@ export const PregnancyHistoryTable: React.FC<IProps> = ({
                 <TableCell label={colNames[4]} isTransformed={isTransformed}>
                   <IconButton
                     onClick={() => {
-                      history.push(`/patients/${patientId}/edit/pregnancyInfo/${p.pregnancyId}`)
+                      history.push(
+                        `/patients/${patientId}/edit/pregnancyInfo/${p.pregnancyId}`
+                      );
                     }}>
-                      <CreateIcon/>
+                    <CreateIcon />
                   </IconButton>
                 </TableCell>
               </tr>
