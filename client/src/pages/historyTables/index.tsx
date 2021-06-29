@@ -4,7 +4,7 @@ import { useRouteMatch } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { MedicalHistoryTable } from './MedicalHistory';
 import { DrugHistoryTable } from './DrugHistory';
-import { PregnancyHistoryTable } from './PregnancyHistory2';
+import { PregnancyHistoryTable } from './PregnancyHistory';
 
 const allPanes = [
   {

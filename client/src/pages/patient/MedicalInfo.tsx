@@ -89,7 +89,10 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
           <p>
             <b>Gestational Age: </b>
             <span style={hasTimedOut ? { color: 'red' } : {}}>
-              {gestationalAgeUnitFormatters[unit](info!.pregnancyStartDate)}
+              {gestationalAgeUnitFormatters[unit](
+                info!.pregnancyStartDate,
+                null
+              )}
             </span>
           </p>
           <Form.Field

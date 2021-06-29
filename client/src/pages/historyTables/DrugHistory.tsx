@@ -7,6 +7,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { GenericTable } from './genericTable';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import { getPrettyDateTime } from 'src/shared/utils';
 
 interface IProps {
   patientId: string;
@@ -51,8 +52,10 @@ export const DrugHistoryTable: React.FC<IProps> = ({ patientId }) => {
         <GenericTable
           rows={drugRecords.map((d) => (
             <TableRow key={d.medicalRecordId}>
-              <TableCell>{d.dateCreated}</TableCell>
-              <TableCell>{d.information}</TableCell>
+              <TableCell>{getPrettyDateTime(d.dateCreated)}</TableCell>
+              <TableCell>
+                {d.information ? d.information : 'No information'}
+              </TableCell>
             </TableRow>
           ))}
           columns={COLUMNS}

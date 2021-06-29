@@ -100,13 +100,13 @@ export const getPatientState = async (patientId: string | undefined) => {
 
   if (patientState.isPregnant) {
     patientState.gestationalAgeDays = String(
-      getNumOfWeeksDaysNumeric(data.gestationalTimestamp).days
+      getNumOfWeeksDaysNumeric(data.gestationalTimestamp, null).days
     );
     patientState.gestationalAgeWeeks = String(
-      getNumOfWeeksDaysNumeric(data.gestationalTimestamp).weeks
+      getNumOfWeeksDaysNumeric(data.gestationalTimestamp, null).weeks
     );
     patientState.gestationalAgeMonths = String(
-      getNumOfMonthsNumeric(data.gestationalTimestamp)
+      getNumOfMonthsNumeric(data.gestationalTimestamp, null)
     );
   }
 
