@@ -4,11 +4,13 @@ import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum, GestationalAgeUnitEnum } from 'src/shared/enums';
 import { Alert } from '@material-ui/lab';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { GenericTable } from './genericTable';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
+import { HistoryTable } from './HistoryTable';
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
 import { getPrettyDateTime } from 'src/shared/utils';
+import { useTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
 import {
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
@@ -18,12 +20,15 @@ interface IProps {
   isDrugRecord: boolean;
   patientId: string;
 }
-const COLUMNS = ['Start Date (Approx)', 'End Date', 'Length', 'Outcome'];
+const colNames = ['Start Date (Approx)', 'End Date', 'Length', 'Outcome'];
 
 export const PregnancyHistoryTable: React.FC<IProps> = ({
   isDrugRecord,
   patientId,
 }) => {
+  const classes = useRowStyles();
+  const theme = useTheme();
+  const isTransformed = useMediaQuery(theme.breakpoints.up('sm'));
   const [pregnancies, setPregnancies] = useState<Pregnancy[]>();
   const [errorLoading, setErrorLoading] = useState(false);
   const [unit, setUnit] = useState(GestationalAgeUnitEnum.MONTHS);
@@ -77,20 +82,25 @@ export const PregnancyHistoryTable: React.FC<IProps> = ({
             placeholder={gestationalAgeUnitLabels[unit]}
             onChange={handleUnitChange}
           />
-          <GenericTable
+          <HistoryTable
             rows={pregnancies.map((p) => (
-              <TableRow key={p.pregnancyId}>
-                <TableCell>{getPrettyDateTime(p.startDate)}</TableCell>
-                <TableCell>
+              <tr className={classes.row} key={p.pregnancyId}>
+                <TableCell label={colNames[0]} isTransformed={isTransformed}>
+                  {getPrettyDateTime(p.startDate)}
+                </TableCell>
+                <TableCell label={colNames[1]} isTransformed={isTransformed}>
                   {p.endDate ? getPrettyDateTime(p.endDate) : 'Ongoing'}
                 </TableCell>
-                <TableCell>
+                <TableCell label={colNames[2]} isTransformed={isTransformed}>
                   {gestationalAgeUnitFormatters[unit](p!.startDate, p!.endDate)}
                 </TableCell>
-                <TableCell>{p.outcome ? p.outcome : 'N/A'}</TableCell>
-              </TableRow>
+                <TableCell label={colNames[3]} isTransformed={isTransformed}>
+                  {p.outcome ? p.outcome : 'N/A'}
+                </TableCell>
+              </tr>
             ))}
-            columns={COLUMNS}
+            columns={colNames}
+            isTransformed={isTransformed}
           />
         </div>
       ) : (
