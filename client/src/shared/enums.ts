@@ -55,4 +55,6 @@ export enum EndpointEnum {
   USER_REGISTER = '/user/register',
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
+  PREGNANCY_RECORDS = '/pregnancies' /* /patients/{PATIENT_ID}/pregnancies */,
+  MEDICAL_HISTORY = '/medical_records' /* /patients/{PATIENT_ID}/medicalHistory */,
 }

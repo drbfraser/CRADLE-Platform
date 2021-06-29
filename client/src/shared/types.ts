@@ -54,6 +54,20 @@ export type UrineTests = {
   urineTestGlu: string;
 };
 
+export type MedicalRecord = {
+  dateCreated: number;
+  information: OrNull<string>;
+  lastEdited: number;
+  medicalRecordId: number;
+};
+
+export type Pregnancy = {
+  startDate: number;
+  endDate: OrNull<number>;
+  outcome: OrNull<string>;
+  pregnancyId: string;
+};
+
 export type Patient = {
   allergy: OrNull<string>;
   dob: OrNull<string>;
