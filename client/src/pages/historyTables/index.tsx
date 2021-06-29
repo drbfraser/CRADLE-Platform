@@ -32,7 +32,10 @@ export function HistoryTablesPage() {
     menuItem: p.name,
     render: () => (
       <Tab.Pane>
-        <p.Component patientId={patientId} isDrugRecord={p.name === "Drug History"? true : false}/>
+        <p.Component
+          patientId={patientId}
+          isDrugRecord={p.name === 'Drug History' ? true : false}
+        />
       </Tab.Pane>
     ),
   }));
@@ -43,9 +46,9 @@ export function HistoryTablesPage() {
         menu={{
           secondary: true,
           pointing: true,
+          className: classes.tabs,
         }}
         panes={panes}
-        className={classes.tabs}
       />
     </div>
   );
