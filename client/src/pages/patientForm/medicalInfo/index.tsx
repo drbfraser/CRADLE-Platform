@@ -20,7 +20,6 @@ export const MedicalInfoForm = ({
   return (
     <Paper>
       <Box p={2}>
-        {creatingNew && <h2>Medical Information</h2>}
         <Grid container spacing={2}>
           {(creatingNew || (!creatingNew && !isDrugRecord!)) && (
             <Grid item md={6} sm={12}>

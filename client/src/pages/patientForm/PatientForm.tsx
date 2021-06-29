@@ -13,7 +13,11 @@ import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Step from '@material-ui/core/Step/Step';
 import { PatientState } from './state';
-import { handleSubmit } from './handlers';
+import {
+  handleSubmit,
+  handlePregnancyInfo,
+  handleMedicalRecordInfo,
+} from './handlers';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { personalInfoValidationSchema } from './personalInfo/validation';
@@ -28,15 +32,19 @@ import { goBackWithFallback } from 'src/shared/utils';
 interface PatientFormProps {
   editId: string;
   patientId?: string;
+  pregnancyId?: string;
   initialState: PatientState;
   creatingNew: boolean;
+  creatingNewPregnancy: boolean;
 }
 
 export const PatientForm = ({
   editId,
   patientId,
+  pregnancyId,
   initialState,
   creatingNew,
+  creatingNewPregnancy,
 }: PatientFormProps) => {
   const classes = useStyles();
   const theme = useTheme();
@@ -58,7 +66,11 @@ export const PatientForm = ({
       name: 'Pregnancy Information',
       component: PregnancyInfoForm,
       validationSchema: pregnancyInfoValidationSchema,
-      title: creatingNew ? 'New Patient' : '',
+      title: creatingNewPregnancy
+        ? 'Add New Pregnancy'
+        : editId
+        ? 'Update/Close Pregnancy'
+        : 'New Patient',
     },
     {
       editId: editId === 'drugHistory' ? 'drugHistory' : 'medicalHistory',
@@ -76,17 +88,19 @@ export const PatientForm = ({
         : undefined,
       title: editId
         ? editId === 'drugHistory'
-          ? 'Update Drug History'
-          : 'Update Medical History'
+          ? 'Add/Update Drug History'
+          : 'Add/Update Medical History'
         : 'New Patient',
     },
   ];
 
-  const initPageNum = creatingNew
-    ? 0
-    : pages.findIndex((page) => {
+  const initPageNum = editId
+    ? pages.findIndex((page) => {
         return page.editId === editId;
-      });
+      })
+    : creatingNewPregnancy
+    ? 1
+    : 0;
   const [pageNum, setPageNum] = useState(initPageNum);
   const PageComponent = pages[pageNum].component;
   const isFinalPage = pageNum === pages.length - 1;
@@ -95,14 +109,38 @@ export const PatientForm = ({
     values: PatientState,
     helpers: FormikHelpers<PatientState>
   ) => {
-    if (editId) {
-      handleSubmit(
-        values,
-        false,
-        history,
-        setSubmitError,
-        helpers.setSubmitting
-      );
+    if (editId || creatingNewPregnancy) {
+      if (pages[pageNum].editId === 'pregnancyInfo') {
+        handlePregnancyInfo(
+          patientId,
+          pregnancyId,
+          creatingNewPregnancy,
+          values,
+          history,
+          setSubmitError,
+          helpers.setSubmitting
+        );
+      } else if (
+        pages[pageNum].editId === 'drugHistory' ||
+        pages[pageNum].editId === 'medicalHistory'
+      ) {
+        handleMedicalRecordInfo(
+          patientId,
+          values,
+          pages[pageNum].isDrugRecord,
+          history,
+          setSubmitError,
+          helpers.setSubmitting
+        );
+      } else {
+        handleSubmit(
+          values,
+          false,
+          history,
+          setSubmitError,
+          helpers.setSubmitting
+        );
+      }
     } else if (isFinalPage) {
       handleSubmit(
         values,
@@ -130,7 +168,7 @@ export const PatientForm = ({
         </Tooltip>
         <Typography variant="h4">{pages[pageNum].title}</Typography>
       </div>
-      {creatingNew && (
+      {creatingNew && !creatingNewPregnancy && (
         <Stepper
           activeStep={pageNum}
           orientation={isBigScreen ? 'horizontal' : 'vertical'}>
@@ -152,9 +190,10 @@ export const PatientForm = ({
               formikProps={formikProps}
               creatingNew={creatingNew}
               isDrugRecord={pages[pageNum].isDrugRecord}
+              creatingNewPregnancy={creatingNewPregnancy}
             />
             <br />
-            {editId === undefined && (
+            {creatingNew && (
               <Button
                 variant="outlined"
                 color="primary"
@@ -169,7 +208,11 @@ export const PatientForm = ({
               className={classes.right}
               type="submit"
               disabled={formikProps.isSubmitting}>
-              {editId ? 'Save' : isFinalPage ? 'Create' : 'Next'}
+              {editId || creatingNewPregnancy
+                ? 'Save'
+                : isFinalPage
+                ? 'Create'
+                : 'Next'}
             </Button>
           </Form>
         )}

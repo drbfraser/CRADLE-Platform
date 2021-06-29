@@ -108,6 +108,7 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
         "villageNumber",
         "gestationalTimestamp",
         "gestationalAgeUnit",
+        "pregnancyStartDate",
         "drugHistory",
         "medicalHistory",
         "zone",
@@ -137,6 +138,16 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
     ):
         error_message = check_gestational_age_under_limit(
             int(request_body.get("gestationalTimestamp"))
+        )
+    if error_message is not None:
+        return error_message
+
+    if (
+        "pregnancyStartDate" in request_body
+        and request_body.get("pregnancyStartDate") is not None
+    ):
+        error_message = check_gestational_age_under_limit(
+            int(request_body.get("pregnancyStartDate"))
         )
     if error_message is not None:
         return error_message
