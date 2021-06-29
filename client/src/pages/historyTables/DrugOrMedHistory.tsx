@@ -16,7 +16,10 @@ interface IProps {
 
 const COLUMNS = ['Date', 'Information'];
 
-export const DrugOrMedHistoryTable: React.FC<IProps> = ({ isDrugRecord, patientId }) => {
+export const DrugOrMedHistoryTable: React.FC<IProps> = ({
+  isDrugRecord,
+  patientId,
+}) => {
   const [history, setHistory] = useState<MedicalRecord[]>();
   const [errorLoading, setErrorLoading] = useState(false);
 
@@ -29,10 +32,8 @@ export const DrugOrMedHistoryTable: React.FC<IProps> = ({ isDrugRecord, patientI
     )
       .then((resp) => resp.json())
       .then((history) => {
-        if (isDrugRecord)
-          setHistory(history.drug);
-        else
-          setHistory(history.medical);
+        if (isDrugRecord) setHistory(history.drug);
+        else setHistory(history.medical);
       })
       .catch(() => {
         setErrorLoading(true);
