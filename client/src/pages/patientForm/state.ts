@@ -4,7 +4,7 @@ import {
   getNumOfWeeksDaysNumeric,
 } from 'src/shared/utils';
 import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum, GestationalAgeUnitEnum } from 'src/shared/enums';
+import { GestationalAgeUnitEnum, EndpointEnum } from 'src/shared/enums';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
 import { FormikProps } from 'formik';
 
@@ -37,6 +37,8 @@ export enum PatientField {
   drugHistory = 'drugHistory',
   medicalHistory = 'medicalHistory',
   allergy = 'allergy',
+  pregnancyOutcome = 'pregnancyOutcome',
+  pregnancyEndDate = 'pregnancyEndDate',
 }
 
 export const initialState = {
@@ -57,24 +59,57 @@ export const initialState = {
   [PatientField.drugHistory]: '',
   [PatientField.medicalHistory]: '',
   [PatientField.allergy]: '',
+  [PatientField.pregnancyOutcome]: '',
+  [PatientField.pregnancyEndDate]: '',
 };
 
 export type PatientState = typeof initialState;
 
-export const getPatientState = async (patientId: string | undefined) => {
+type Page = {
+  endpoint: string;
+};
+
+export const getPatientState = async (
+  patientId: string | undefined,
+  universalMedicalId: string | undefined,
+  editId: string | undefined
+) => {
+  //Return when creating new patient
   if (patientId === undefined) {
     return { ...initialState };
   }
 
-  const data = await (
-    await apiFetch(
-      API_URL +
-        EndpointEnum.PATIENTS +
-        '/' +
-        patientId +
-        EndpointEnum.PATIENT_INFO
-    )
-  ).json();
+  //Return when creating new pregnancy
+  if (patientId && editId === undefined) {
+    return { ...initialState };
+  }
+
+  //Return when creating new medical/drug history record
+  if (
+    patientId &&
+    (editId === 'medicalHistory' || editId === 'drugHistory') &&
+    universalMedicalId === undefined
+  ) {
+    return { ...initialState };
+  }
+
+  const pages: { [key: string]: Page } = {
+    personalInfo: {
+      endpoint:
+        EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO,
+    },
+    pregnancyInfo: {
+      endpoint: EndpointEnum.PREGNANCIES + '/' + universalMedicalId,
+    },
+    drugHistory: {
+      endpoint: EndpointEnum.MEDICAL_RECORDS + '/' + universalMedicalId,
+    },
+    medicalHistory: {
+      endpoint: EndpointEnum.MEDICAL_RECORDS + '/' + universalMedicalId,
+    },
+  };
+
+  const data = await (await apiFetch(API_URL + pages[editId!].endpoint)).json();
 
   const patientState: PatientState = {
     [PatientField.patientId]: data.patientId,
@@ -96,17 +131,20 @@ export const getPatientState = async (patientId: string | undefined) => {
     [PatientField.drugHistory]: data.drugHistory,
     [PatientField.medicalHistory]: data.medicalHistory,
     [PatientField.allergy]: data.allergy,
+    [PatientField.pregnancyOutcome]: data.pregnancyOutcome ?? '',
+    [PatientField.pregnancyEndDate]:
+      data.pregnancyEndDate ?? initialState.pregnancyEndDate,
   };
 
-  if (patientState.isPregnant) {
+  if (data.id && data.gestationalAgeUnit) {
     patientState.gestationalAgeDays = String(
-      getNumOfWeeksDaysNumeric(data.gestationalTimestamp).days
+      getNumOfWeeksDaysNumeric(data.pregnancyStartDate).days
     );
     patientState.gestationalAgeWeeks = String(
-      getNumOfWeeksDaysNumeric(data.gestationalTimestamp).weeks
+      getNumOfWeeksDaysNumeric(data.pregnancyStartDate).weeks
     );
     patientState.gestationalAgeMonths = String(
-      getNumOfMonthsNumeric(data.gestationalTimestamp)
+      getNumOfMonthsNumeric(data.pregnancyStartDate)
     );
   }
 

@@ -60,7 +60,7 @@ export type Patient = {
   drugHistory: OrNull<string>;
   gestationalAgeUnit: GestationalAgeUnitEnum;
   gestationalAgeValue: string;
-  gestationalTimestamp: number;
+  pregnancyStartDate: number;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
   needsAssessment: boolean;

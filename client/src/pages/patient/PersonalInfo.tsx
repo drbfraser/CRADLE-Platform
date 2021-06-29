@@ -13,7 +13,7 @@ interface IProps {
 export const PersonalInfo = ({ patient }: IProps) => {
   const history = useHistory();
   const handleEditClick = () =>
-    history.push(`/patients/edit/personalInfo/${patient?.patientId}`);
+    history.push(`/patients/${patient?.patientId}/edit/personalInfo`);
 
   return (
     <Paper>

@@ -34,14 +34,16 @@ interface IProps {
   patientId: string;
 }
 
+interface MedicalInfoButtonProps {
+  redirectUrl: string;
+  text: string;
+}
+
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const classes = useStyles();
   const history = useHistory();
   const [info, setInfo] = useState<PatientMedicalInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
-
-  const handleEditClick = (editId: string) =>
-    history.push(`/patients/edit/${editId}/${patient?.patientId}`);
 
   useEffect(() => {
     apiFetch(
@@ -58,6 +60,18 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         setErrorLoading(true);
       });
   }, [patientId]);
+
+  const MedicalInfoButton = ({ redirectUrl, text }: MedicalInfoButtonProps) => {
+    return (
+      <Button
+        color="primary"
+        variant="outlined"
+        className={classes.right}
+        onClick={() => history.push(redirectUrl)}>
+        {text}
+      </Button>
+    );
+  };
 
   const PregnancyStatus = () => {
     const status = info!.isPregnant ? 'Yes' : 'No';
@@ -105,6 +119,19 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
 
     return (
       <div>
+        {info!.isPregnant ? (
+          <MedicalInfoButton
+            text="Update/Close Pregnancy"
+            redirectUrl={`/patients/${patient?.patientId}/edit/pregnancyInfo/${
+              info!.pregnancyId
+            }`}
+          />
+        ) : (
+          <MedicalInfoButton
+            text="Add New Pregnancy"
+            redirectUrl={`/pregnancies/new/${patient?.patientId}`}
+          />
+        )}
         <p>
           <b>Pregnant: </b> {status}
         </p>
@@ -112,33 +139,43 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         {hasTimedOut && (
           <Alert severity="warning">Is the patient still pregnant?</Alert>
         )}
-        <br />
+        {!info?.isPregnant && <br />}
       </div>
     );
   };
 
   interface HistoryItemProps {
     title: string;
-    history: OrNull<string> | undefined;
+    historyRecord: OrNull<string> | undefined;
     editId: string;
+    medicalRecordId: string | undefined;
   }
 
-  const HistoryItem = ({ title, history, editId }: HistoryItemProps) => (
-    <Accordion>
+  const HistoryItem = ({
+    title,
+    historyRecord,
+    editId,
+    medicalRecordId,
+  }: HistoryItemProps) => (
+    <Accordion defaultExpanded={true}>
       <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
         <Typography style={{ flex: 1 }}> {title} </Typography>
-        <Button
-          color="primary"
-          variant="outlined"
-          className={classes.right}
-          onClick={() => handleEditClick(editId)}>
-          {history ? 'Update' : 'Add'}
-        </Button>
+        {medicalRecordId ? (
+          <MedicalInfoButton
+            text="Update"
+            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
+          />
+        ) : (
+          <MedicalInfoButton
+            text="Add"
+            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}`}
+          />
+        )}
       </AccordionSummary>
       <AccordionDetails>
         <Typography>
-          {history ? (
-            history
+          {historyRecord ? (
+            historyRecord
           ) : (
             <>No additional {title.toLowerCase()} information.</>
           )}
@@ -167,13 +204,15 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
             )}
             <HistoryItem
               title="Medical History"
-              history={info?.medicalHistory}
+              historyRecord={info?.medicalHistory}
               editId="medicalHistory"
+              medicalRecordId={info.medicalHistoryId}
             />
             <HistoryItem
               title="Drug History"
-              history={info?.drugHistory}
+              historyRecord={info?.drugHistory}
               editId="drugHistory"
+              medicalRecordId={info.drugHistoryId}
             />
           </div>
         ) : (
