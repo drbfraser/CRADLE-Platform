@@ -16,6 +16,7 @@ import { Alert, Skeleton } from '@material-ui/lab';
 import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
+import { Link } from 'react-router-dom';
 import {
   EndpointEnum,
   GestationalAgeUnitEnum,
@@ -102,7 +103,10 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
           <p>
             <b>Gestational Age: </b>
             <span style={hasTimedOut ? { color: 'red' } : {}}>
-              {gestationalAgeUnitFormatters[unit](info!.pregnancyStartDate)}
+              {gestationalAgeUnitFormatters[unit](
+                info!.pregnancyStartDate,
+                null
+              )}
             </span>
           </p>
           <Form.Field
@@ -189,6 +193,9 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       <Box p={3}>
         <Typography component="h3" variant="h5">
           <RecentActorsIcon fontSize="large" /> &nbsp; Medical Information
+          <Link to={'/history/' + patientId} className={classes.smallLink}>
+            View History
+          </Link>
         </Typography>
         <Divider />
         <br />
@@ -226,5 +233,9 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
 const useStyles = makeStyles({
   right: {
     float: 'right',
+  },
+  smallLink: {
+    float: 'right',
+    fontSize: 14,
   },
 });

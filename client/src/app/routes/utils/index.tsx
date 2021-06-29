@@ -18,6 +18,7 @@ import { AssessmentFormPage } from 'src/pages/assessmentForm';
 import { ReadingFormPage } from 'src/pages/readingForm';
 import PollIcon from '@material-ui/icons/Poll';
 import { ReferralFormPage } from 'src/pages/referralForm';
+import { HistoryTablesPage } from 'src/pages/historyTables';
 
 export type AppRoute = {
   component:
@@ -161,6 +162,16 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/patients/:patientId`,
+  },
+  {
+    component: HistoryTablesPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    name: `History`,
+    title: `History`,
+    private: true,
+    to: `/history/:patientId`,
   },
   {
     component: LoginPage,
