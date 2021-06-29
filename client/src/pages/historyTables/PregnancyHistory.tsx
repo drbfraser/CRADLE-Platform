@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { IconButton } from '@material-ui/core';
+import CreateIcon from '@material-ui/icons/Create';
+import { useHistory } from 'react-router-dom';
 import { Pregnancy } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum, GestationalAgeUnitEnum } from 'src/shared/enums';
@@ -20,12 +23,13 @@ interface IProps {
   isDrugRecord: boolean;
   patientId: string;
 }
-const colNames = ['Start Date (Approx)', 'End Date', 'Length', 'Outcome'];
+const colNames = ['Start Date (Approx)', 'End Date', 'Length', 'Outcome', 'Edit'];
 
 export const PregnancyHistoryTable: React.FC<IProps> = ({
   isDrugRecord,
   patientId,
 }) => {
+  const history = useHistory();
   const classes = useRowStyles();
   const theme = useTheme();
   const isTransformed = useMediaQuery(theme.breakpoints.up('sm'));
@@ -41,8 +45,8 @@ export const PregnancyHistoryTable: React.FC<IProps> = ({
         EndpointEnum.PREGNANCY_RECORDS
     )
       .then((resp) => resp.json())
-      .then((patient) => {
-        setPregnancies(patient);
+      .then((preg) => {
+        setPregnancies(preg);
       })
       .catch(() => {
         setErrorLoading(true);
@@ -68,12 +72,12 @@ export const PregnancyHistoryTable: React.FC<IProps> = ({
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      {errorLoading ? (
+      {errorLoading || !pregnancies ? (
         <Alert severity="error">
           Something went wrong trying to loading pregnancy history. Please try
           refreshing.
         </Alert>
-      ) : pregnancies ? (
+      ) : pregnancies.length > 0 ? (
         <div>
           <Form.Field
             name="gestationalAgeUnits"
@@ -96,6 +100,14 @@ export const PregnancyHistoryTable: React.FC<IProps> = ({
                 </TableCell>
                 <TableCell label={colNames[3]} isTransformed={isTransformed}>
                   {p.outcome ? p.outcome : 'N/A'}
+                </TableCell>
+                <TableCell label={colNames[4]} isTransformed={isTransformed}>
+                  <IconButton
+                    onClick={() => {
+                      history.push(`/patients/${patientId}/edit/pregnancyInfo/${p.pregnancyId}`)
+                    }}>
+                      <CreateIcon/>
+                  </IconButton>
                 </TableCell>
               </tr>
             ))}

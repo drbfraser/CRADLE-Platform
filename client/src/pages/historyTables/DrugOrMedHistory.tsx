@@ -51,12 +51,12 @@ export const DrugOrMedHistoryTable: React.FC<IProps> = ({
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      {errorLoading ? (
+      {errorLoading || !history ? (
         <Alert severity="error">
           Something went wrong when trying to load history. Please try
           refreshing.
         </Alert>
-      ) : history ? (
+      ) : history.length > 0 ? (
         <HistoryTable
           rows={history.map((h) => (
             <tr className={classes.row} key={h.medicalRecordId}>
