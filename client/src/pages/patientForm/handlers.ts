@@ -100,27 +100,15 @@ export const handleSubmit = async (
     url += '/' + values[PatientField.patientId] + EndpointEnum.PATIENT_INFO;
   }
 
-  try {
-    const resp = await apiFetch(url, {
-      method: method,
-      body: JSON.stringify(submitValues),
-    });
-
-    const respJson = await resp.json();
-    const patientPageUrl = '/patients/' + respJson['patientId'];
-
-    if (creatingNew) {
-      history.replace(patientPageUrl);
-    } else {
-      goBackWithFallback(patientPageUrl);
-    }
-  } catch (e) {
-    console.error(e);
-    setSubmitError(true);
-    setSubmitting(false);
-    return false;
-  }
-  return true;
+  await handleApiFetch(
+    url,
+    method,
+    submitValues,
+    creatingNew,
+    history,
+    setSubmitError,
+    setSubmitting
+  );
 };
 
 export const handlePregnancyInfo = async (
@@ -128,6 +116,7 @@ export const handlePregnancyInfo = async (
   pregnancyId: string | undefined,
   creatingNewPregnancy: boolean,
   values: PatientState,
+  history: any,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
   setSubmitting: React.Dispatch<React.SetStateAction<any>>
 ) => {
@@ -175,28 +164,22 @@ export const handlePregnancyInfo = async (
     url = API_URL + EndpointEnum.PREGNANCIES + '/' + pregnancyId;
   }
 
-  try {
-    const resp = await apiFetch(url, {
-      method: method,
-      body: JSON.stringify(submitValues),
-    });
-
-    const respJson = await resp.json();
-    const patientPageUrl = '/patients/' + respJson['patientId'];
-    goBackWithFallback(patientPageUrl);
-  } catch (e) {
-    console.error(e);
-    setSubmitError(true);
-    setSubmitting(false);
-    return false;
-  }
-  return true;
+  await handleApiFetch(
+    url,
+    method,
+    submitValues,
+    false,
+    history,
+    setSubmitError,
+    setSubmitting
+  );
 };
 
 export const handleMedicalRecordInfo = async (
   patientId: string | undefined,
   values: PatientState,
   isDrugRecord: boolean | undefined,
+  history: any,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
   setSubmitting: React.Dispatch<React.SetStateAction<any>>
 ) => {
@@ -218,15 +201,39 @@ export const handleMedicalRecordInfo = async (
     patientId +
     EndpointEnum.MEDICAL_RECORDS;
 
+  await handleApiFetch(
+    url,
+    'POST',
+    submitValues,
+    false,
+    history,
+    setSubmitError,
+    setSubmitting
+  );
+};
+
+const handleApiFetch = async (
+  url: string,
+  method: string,
+  submitValues: any,
+  creatingNew: boolean,
+  history: any,
+  setSubmitError: React.Dispatch<React.SetStateAction<any>>,
+  setSubmitting: React.Dispatch<React.SetStateAction<any>>
+) => {
   try {
     const resp = await apiFetch(url, {
-      method: 'POST',
+      method: method,
       body: JSON.stringify(submitValues),
     });
 
     const respJson = await resp.json();
     const patientPageUrl = '/patients/' + respJson['patientId'];
-    goBackWithFallback(patientPageUrl);
+    if (creatingNew) {
+      history.replace(patientPageUrl);
+    } else {
+      goBackWithFallback(patientPageUrl);
+    }
   } catch (e) {
     console.error(e);
     setSubmitError(true);

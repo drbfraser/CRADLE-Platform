@@ -34,7 +34,6 @@ export const PregnancyInfoForm = ({
   return (
     <Paper>
       <Box p={2}>
-        <h2>Pregnancy Information</h2>
         <Grid container spacing={2}>
           {creatingNew && (
             <Grid item md={2} sm={12}>

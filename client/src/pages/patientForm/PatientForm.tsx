@@ -116,6 +116,7 @@ export const PatientForm = ({
           pregnancyId,
           creatingNewPregnancy,
           values,
+          history,
           setSubmitError,
           helpers.setSubmitting
         );
@@ -127,6 +128,7 @@ export const PatientForm = ({
           patientId,
           values,
           pages[pageNum].isDrugRecord,
+          history,
           setSubmitError,
           helpers.setSubmitting
         );
