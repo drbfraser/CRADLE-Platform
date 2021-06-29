@@ -10,13 +10,14 @@ import TableRow from '@material-ui/core/TableRow';
 import { getPrettyDateTime } from 'src/shared/utils';
 
 interface IProps {
+  isDrugRecord: boolean;
   patientId: string;
 }
 
 const COLUMNS = ['Date', 'Information'];
 
-export const DrugHistoryTable: React.FC<IProps> = ({ patientId }) => {
-  const [drugRecords, setDrugRecords] = useState<MedicalRecord[]>();
+export const DrugOrMedHistoryTable: React.FC<IProps> = ({ isDrugRecord, patientId }) => {
+  const [history, setHistory] = useState<MedicalRecord[]>();
   const [errorLoading, setErrorLoading] = useState(false);
 
   useEffect(() => {
@@ -27,15 +28,16 @@ export const DrugHistoryTable: React.FC<IProps> = ({ patientId }) => {
         EndpointEnum.MEDICAL_HISTORY
     )
       .then((resp) => resp.json())
-      .then((drugRecords) => {
-        setDrugRecords(drugRecords.drug);
+      .then((history) => {
+        if (isDrugRecord)
+          setHistory(history.drug);
+        else
+          setHistory(history.medical);
       })
       .catch(() => {
         setErrorLoading(true);
       });
-  }, [patientId]);
-
-  console.log(drugRecords);
+  }, [patientId, isDrugRecord]);
 
   return (
     <>
@@ -45,23 +47,23 @@ export const DrugHistoryTable: React.FC<IProps> = ({ patientId }) => {
       />
       {errorLoading ? (
         <Alert severity="error">
-          Something went wrong trying to loading drug history. Please try
+          Something went wrong when trying to load history. Please try
           refreshing.
         </Alert>
-      ) : drugRecords ? (
+      ) : history ? (
         <GenericTable
-          rows={drugRecords.map((d) => (
-            <TableRow key={d.medicalRecordId}>
-              <TableCell>{getPrettyDateTime(d.dateCreated)}</TableCell>
+          rows={history.map((h) => (
+            <TableRow key={h.medicalRecordId}>
+              <TableCell>{getPrettyDateTime(h.dateCreated)}</TableCell>
               <TableCell>
-                {d.information ? d.information : 'No information'}
+                {h.information ? h.information : 'No information'}
               </TableCell>
             </TableRow>
           ))}
           columns={COLUMNS}
         />
       ) : (
-        <p>No drug records for this patient</p>
+        <p>No records for this patient</p>
       )}
     </>
   );

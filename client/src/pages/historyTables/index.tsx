@@ -2,8 +2,7 @@ import React from 'react';
 import { Tab } from 'semantic-ui-react';
 import { useRouteMatch } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import { MedicalHistoryTable } from './MedicalHistory';
-import { DrugHistoryTable } from './DrugHistory';
+import { DrugOrMedHistoryTable } from './DrugOrMedHistory';
 import { PregnancyHistoryTable } from './PregnancyHistory';
 
 const allPanes = [
@@ -13,11 +12,11 @@ const allPanes = [
   },
   {
     name: 'Medical History',
-    Component: MedicalHistoryTable,
+    Component: DrugOrMedHistoryTable,
   },
   {
     name: 'Drug History',
-    Component: DrugHistoryTable,
+    Component: DrugOrMedHistoryTable,
   },
 ];
 
@@ -33,7 +32,7 @@ export function HistoryTablesPage() {
     menuItem: p.name,
     render: () => (
       <Tab.Pane>
-        <p.Component patientId={patientId} />
+        <p.Component patientId={patientId} isDrugRecord={p.name === "Drug History"? true : false}/>
       </Tab.Pane>
     ),
   }));

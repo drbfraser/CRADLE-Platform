@@ -15,13 +15,13 @@ import {
 } from 'src/shared/constants';
 
 interface IProps {
-  isDrugHistory: boolean;
+  isDrugRecord: boolean;
   patientId: string;
 }
 const COLUMNS = ['Start Date (Approx)', 'End Date', 'Length', 'Outcome'];
 
 export const PregnancyHistoryTable: React.FC<IProps> = ({
-  isDrugHistory,
+  isDrugRecord,
   patientId,
 }) => {
   const [pregnancies, setPregnancies] = useState<Pregnancy[]>();
