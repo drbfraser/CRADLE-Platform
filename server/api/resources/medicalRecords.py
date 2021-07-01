@@ -3,6 +3,7 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
+import api.util as util
 import data.crud as crud
 import data.marshal as marshal
 import service.serialize as serialize
@@ -23,8 +24,15 @@ class Root(Resource):
         endpoint="medical_records",
     )
     def get(patient_id: str):
-        medical = crud.read_all(MedicalRecord, patientId=patient_id, isDrugRecord=False)
-        drug = crud.read_all(MedicalRecord, patientId=patient_id, isDrugRecord=True)
+        kwargs = {
+            "search": util.query_param_search(request, name="search"),
+            "sort_dir": util.query_param_sort_dir(request, name="sortDir"),
+            "page": util.query_param_page(request, name="page"),
+            "limit": util.query_param_limit(request, name="limit"),
+        }
+
+        medical = view.medical_record_view(patient_id, False, **kwargs)
+        drug = view.medical_record_view(patient_id, True, **kwargs)
 
         return {
             "medical": [serialize.serialize_medical_record(r) for r in medical],

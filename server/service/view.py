@@ -21,7 +21,7 @@ from typing import List
 
 import data.crud as crud
 import service.assoc as assoc
-from models import Patient, Referral, RoleEnum, User, PatientAssociations
+from models import MedicalRecord, Patient, Referral, RoleEnum, User, PatientAssociations, Pregnancy
 
 
 def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
@@ -191,3 +191,32 @@ def individual_vht_referral_view(user: User) -> List[Referral]:
     :return: A list of referrals
     """
     return user.referrals
+
+
+def pregnancy_view(patient_id, **kwargs) -> List[Pregnancy]:
+    """
+    Returns a list of pregnancies filtered by query criteria in keyword arguments.
+
+    :param patient_id: The ID of patient to get pregnancies for
+    :param **kwargs: Optional query criteria
+    :return: A list of pregnancies
+    """
+    if not kwargs:
+        return crud.read_all(Pregnancy, patientId=patient_id)
+    else:
+        return crud.read_all_admin_view(Pregnancy, patientId=patient_id, **kwargs)
+
+
+def medical_record_view(patient_id, is_drug_record, **kwargs) -> List[MedicalRecord]:
+    """
+    Returns a list of medical records filtered by query criteria in keyword arguments.
+
+    :param patient_id: The ID of patient to get medical records for
+    :param **kwargs: Optional query criteria
+    :return: A list of medical records
+    """
+    if not kwargs:
+        return crud.read_all(MedicalRecord, patientId=patient_id, isDrugRecord=is_drug_record)
+    else:
+        return crud.read_all_admin_view(MedicalRecord, patientId=patient_id, isDrugRecord=is_drug_record, **kwargs)
+        

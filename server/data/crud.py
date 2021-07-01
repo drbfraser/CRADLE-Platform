@@ -269,6 +269,8 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
         else:
             return db_session.execute(sql_str_table + sql_str)
+    
+    return db_session.execute(sql_str_table + sql_str)
 
 
 def read_all_patients_for_user(user: User, **kwargs) -> List[M]:

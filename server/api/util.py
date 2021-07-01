@@ -58,7 +58,7 @@ def query_param_sortBy(request: Request, name: str) -> str:
     return request.args.get(name, "patientName", type=str)
 
 
-def query_param_sortDir(request: Request, name: str) -> str:
+def query_param_sort_dir(request: Request, name: str) -> str:
     """
     Returns String if the request URL contains a page sortDir parameter.
 
