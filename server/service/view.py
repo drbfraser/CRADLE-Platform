@@ -204,7 +204,7 @@ def pregnancy_view(patient_id, **kwargs) -> List[Pregnancy]:
     if not kwargs:
         return crud.read_all(Pregnancy, patientId=patient_id)
     else:
-        return crud.read_all_admin_view(Pregnancy, patientId=patient_id, **kwargs)
+        return crud.read_all_for_patient_admin_view(Pregnancy, patient_id, **kwargs)
 
 
 def medical_record_view(patient_id, is_drug_record, **kwargs) -> List[MedicalRecord]:
@@ -216,7 +216,7 @@ def medical_record_view(patient_id, is_drug_record, **kwargs) -> List[MedicalRec
     :return: A list of medical records
     """
     if not kwargs:
-        return crud.read_all(MedicalRecord, patientId=patient_id, isDrugRecord=is_drug_record)
+        return crud.read_all(MedicalRecord, patientId=patient_id, is_drug_record=is_drug_record)
     else:
-        return crud.read_all_admin_view(MedicalRecord, patientId=patient_id, isDrugRecord=is_drug_record, **kwargs)
+        return crud.read_all_for_patient_admin_view(MedicalRecord, patient_id, is_drug_record=is_drug_record, **kwargs)
         

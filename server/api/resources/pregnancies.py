@@ -24,14 +24,9 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def get(patient_id: str):
-        kwargs = {
-            "search": util.query_param_search(request, name="search"),
-            "sort_dir": util.query_param_sort_dir(request, name="sortDir"),
-            "page": util.query_param_page(request, name="page"),
-            "limit": util.query_param_limit(request, name="limit"),
-        }
+        params = util.get_query_params(request)
 
-        pregnancies = view.pregnancy_view(patient_id, **kwargs)
+        pregnancies = view.pregnancy_view(patient_id, **params)
 
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
 

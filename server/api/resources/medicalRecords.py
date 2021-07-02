@@ -24,15 +24,10 @@ class Root(Resource):
         endpoint="medical_records",
     )
     def get(patient_id: str):
-        kwargs = {
-            "search": util.query_param_search(request, name="search"),
-            "sort_dir": util.query_param_sort_dir(request, name="sortDir"),
-            "page": util.query_param_page(request, name="page"),
-            "limit": util.query_param_limit(request, name="limit"),
-        }
+        params = util.get_query_params(request)
 
-        medical = view.medical_record_view(patient_id, False, **kwargs)
-        drug = view.medical_record_view(patient_id, True, **kwargs)
+        medical = view.medical_record_view(patient_id, False, **params)
+        drug = view.medical_record_view(patient_id, True, **params)
 
         return {
             "medical": [serialize.serialize_medical_record(r) for r in medical],

@@ -163,3 +163,15 @@ def doesUserExist(id: int) -> bool:
         return False
     else:
         return True
+
+
+def get_query_params(request: Request):
+    params = {
+        "search": request.args.get("search"),
+        "order_by": request.args.get("sortBy"),
+        "direction": request.args.get("sortDir"),
+        "limit": request.args.get("limit"),
+        "page": request.args.get("page"),
+    }
+
+    return {k: v for k, v in params.items() if v}
