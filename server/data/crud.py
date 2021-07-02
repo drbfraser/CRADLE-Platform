@@ -252,7 +252,6 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
 
     :return: A list of models from the database
     """
-
     search_param = (
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
@@ -272,25 +271,32 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
-def read_all_for_patient_admin_view(m: Type[M], patient_id, **kwargs) -> List[M]:
-    search = kwargs.get("search")
-    direction = asc if kwargs.get("direction") == 'asc' else desc
+def read_patient_records_admin_view(m: Type[M], patient_id, **kwargs) -> List[M]:
+    """
+    Queries the database for medical records of a patient
+
+    :param m: Type of model to query for
+    :param kwargs: Query params including search_text, order_by, direction, limit, page
+
+    :return: A list of models
+    """
+    search_text = kwargs.get("search_text")
+    direction = asc if kwargs.get("direction") == "asc" else desc
 
     query = db_session.query(m).filter_by(patientId=patient_id)
 
     if m.schema() == Pregnancy.schema():
-        if search:
-            query = query.filter(m.outcome.like(f'%{search}%'))
+        if search_text:
+            query = query.filter(m.outcome.like(f"%{search_text}%"))
 
         query = query.order_by(direction(m.startDate))
 
     if m.schema() == MedicalRecord.schema():
-        if search:
-            query = query.filter(m.information.like(f'%{search}%'))
+        if search_text:
+            query = query.filter(m.information.like(f"%{search_text}%"))
 
-        query = (
-            query.filter_by(isDrugRecord=kwargs.get("is_drug_record"))
-            .order_by(direction(m.dateCreated))
+        query = query.filter_by(isDrugRecord=kwargs.get("is_drug_record")).order_by(
+            direction(m.dateCreated)
         )
 
     limit = kwargs.get("limit")

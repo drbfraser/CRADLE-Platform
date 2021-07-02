@@ -21,7 +21,15 @@ from typing import List
 
 import data.crud as crud
 import service.assoc as assoc
-from models import MedicalRecord, Patient, Referral, RoleEnum, User, PatientAssociations, Pregnancy
+from models import (
+    MedicalRecord,
+    Patient,
+    Referral,
+    RoleEnum,
+    User,
+    PatientAssociations,
+    Pregnancy,
+)
 
 
 def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
@@ -204,7 +212,7 @@ def pregnancy_view(patient_id, **kwargs) -> List[Pregnancy]:
     if not kwargs:
         return crud.read_all(Pregnancy, patientId=patient_id)
     else:
-        return crud.read_all_for_patient_admin_view(Pregnancy, patient_id, **kwargs)
+        return crud.read_patient_records_admin_view(Pregnancy, patient_id, **kwargs)
 
 
 def medical_record_view(patient_id, is_drug_record, **kwargs) -> List[MedicalRecord]:
@@ -216,7 +224,10 @@ def medical_record_view(patient_id, is_drug_record, **kwargs) -> List[MedicalRec
     :return: A list of medical records
     """
     if not kwargs:
-        return crud.read_all(MedicalRecord, patientId=patient_id, is_drug_record=is_drug_record)
+        return crud.read_all(
+            MedicalRecord, patientId=patient_id, isDrugRecord=is_drug_record
+        )
     else:
-        return crud.read_all_for_patient_admin_view(MedicalRecord, patient_id, is_drug_record=is_drug_record, **kwargs)
-        
+        return crud.read_patient_records_admin_view(
+            MedicalRecord, patient_id, is_drug_record=is_drug_record, **kwargs
+        )

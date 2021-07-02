@@ -166,8 +166,15 @@ def doesUserExist(id: int) -> bool:
 
 
 def get_query_params(request: Request):
+    """
+    Extracts URL search params contained in the request.
+
+    :param request: Flask request object
+
+    :return: URL search params stored in a dictionary
+    """
     params = {
-        "search": request.args.get("search"),
+        "search_text": request.args.get("search"),
         "order_by": request.args.get("sortBy"),
         "direction": request.args.get("sortDir"),
         "limit": request.args.get("limit"),
