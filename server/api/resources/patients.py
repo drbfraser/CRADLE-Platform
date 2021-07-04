@@ -258,7 +258,7 @@ class PatientTimeline(Resource):
     @staticmethod
     @patient_association_required()
     @swag_from(
-        "../../specifications/patient-timeline.yml",
+        "../../specifications/patient-timeline-get.yml",
         methods=["GET"],
         endpoint="patient_timeline",
     )

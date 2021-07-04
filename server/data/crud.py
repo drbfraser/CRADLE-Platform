@@ -1,6 +1,6 @@
 from typing import List, Optional, Type, TypeVar, Any
 from collections import namedtuple
-from sqlalchemy.sql.expression import asc, desc, null, literal_column
+from sqlalchemy.sql.expression import text, asc, desc, null, literal
 
 from data import db_session
 from models import (
@@ -331,31 +331,31 @@ def read_patient_timeline(patient_id, **kwargs) -> List[Any]:
     limit = kwargs.get("limit", 5)
     page = kwargs.get("page", 1)
 
+    pregnancy_end = db_session.query(
+        literal(TITLE.pregnancy_end).label("title"),
+        Pregnancy.endDate.label("date"),
+        Pregnancy.outcome.label("information"),
+    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate != None)
+
     pregnancy_start = db_session.query(
-        literal_column(TITLE.pregnancy_start).label("title"),
-        Pregnancy.startDate.label("date"),
-        null().label("information"),
+        literal(TITLE.pregnancy_start), Pregnancy.startDate, null()
     ).filter(Pregnancy.patientId == patient_id)
 
-    pregnancy_end = db_session.query(
-        literal_column(TITLE.pregnancy_end), Pregnancy.endDate, Pregnancy.outcome
-    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate.is_not(None))
-
     medical_history = db_session.query(
-        literal_column(TITLE.medical_history),
+        literal(TITLE.medical_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(MedicalRecord.patientId == patient_id, not MedicalRecord.isDrugRecord)
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == False)
 
     drug_history = db_session.query(
-        literal_column(TITLE.drug_history),
+        literal(TITLE.drug_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord)
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == True)
 
-    query = pregnancy_start.union(
-        pregnancy_end, medical_history, drug_history
-    ).order_by(desc("date"))
+    query = pregnancy_end.union(
+        pregnancy_start, medical_history, drug_history
+    ).order_by(text("date desc"))
 
     return query.slice(*__get_slice_indexes(page, limit))
 

@@ -1,4 +1,5 @@
 import pytest
+import time
 from typing import List
 
 import data.crud as crud
@@ -70,6 +71,35 @@ def test_get_patient_medical_info(
     assert response.status_code == 200
     assert response.json()["medicalHistory"] == medical_record["information"]
     assert response.json()["drugHistory"] == drug_record["information"]
+
+
+def test_get_patient_timeline(
+    pregnancy_factory,
+    medical_record_factory,
+    patient_id,
+    pregnancy_earlier,
+    pregnancy_later,
+    medical_record,
+    drug_record,
+    api_get,
+):
+    pregnancy_factory.create(**pregnancy_earlier)
+    pregnancy_factory.create(**pregnancy_later)
+    medical_record_factory.create(**medical_record)
+    time.sleep(1)
+    medical_record_factory.create(**drug_record)
+
+    response = api_get(
+        endpoint=f"/api/patients/{patient_id}/timeline",
+    )
+
+    assert response.status_code == 200
+
+    timeline = response.json()
+    assert len(timeline) >= 5
+    assert timeline[0]["information"] == drug_record["information"]
+    assert timeline[2]["date"] == pregnancy_later["startDate"]
+    assert timeline[3]["date"] == pregnancy_earlier["endDate"]
 
 
 @pytest.mark.skip(reason="changes are to be made on mobile patient api")

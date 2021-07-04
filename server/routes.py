@@ -114,7 +114,7 @@ def init(api):
         endpoint="patient_medical_info",
     )  # [GET]
     api.add_resource(
-        PatientMedicalInfo,
+        PatientTimeline,
         "/api/patients/<string:patient_id>/timeline",
         endpoint="patient_timeline",
     )  # [GET]

@@ -51,8 +51,8 @@ def serialize_medical_record(r: any):
 def serialize_patient_timeline(r: any):
     return {
         "title": r.title,
-        "date": r.date,
         "information": r.information,
+        "date": r.date,
     }
 
 
