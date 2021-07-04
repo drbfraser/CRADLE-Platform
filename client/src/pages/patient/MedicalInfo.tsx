@@ -177,13 +177,11 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         )}
       </AccordionSummary>
       <AccordionDetails>
-        <Typography>
-          {historyRecord ? (
-            historyRecord
-          ) : (
-            <>No additional {title.toLowerCase()} information.</>
-          )}
-        </Typography>
+        {historyRecord ? (
+          <pre>{historyRecord}</pre>
+        ) : (
+          <>No additional {title.toLowerCase()} information.</>
+        )}
       </AccordionDetails>
     </Accordion>
   );

@@ -7,7 +7,7 @@ import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
 import { Paper, makeStyles, Box, Typography } from '@material-ui/core';
-import {  OrNull, MedicalRecord, Pregnancy } from 'src/shared/types';
+import { OrNull, MedicalRecord, Pregnancy } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { getPrettyDateTime } from 'src/shared/utils';
@@ -50,8 +50,8 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
 
       medicalHistoryRecords.drug.forEach(
         (medicalHistoryRecord: MedicalRecord) => {
-            recordList.push({
-            title:'Updated drug history',
+          recordList.push({
+            title: 'Updated drug history',
             date: medicalHistoryRecord.dateCreated,
             information: medicalHistoryRecord.information,
           });
@@ -59,8 +59,8 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
       );
       medicalHistoryRecords.medical.forEach(
         (medicalHistoryRecord: MedicalRecord) => {
-            recordList.push({
-            title:'Updated medical history',
+          recordList.push({
+            title: 'Updated medical history',
             date: medicalHistoryRecord.dateCreated,
             information: medicalHistoryRecord.information,
           });
@@ -68,13 +68,13 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
       );
       pregnancyRecords.forEach((pregnancyRecord: Pregnancy) => {
         recordList.push({
-          title:'Started pregnancy',
+          title: 'Started pregnancy',
           date: pregnancyRecord.startDate,
           information: '',
         });
         if (pregnancyRecord.endDate) {
-            recordList.push({
-            title:'Ended pregnancy',
+          recordList.push({
+            title: 'Ended pregnancy',
             date: pregnancyRecord.endDate,
             information: pregnancyRecord.outcome ?? 'Outcome not available',
           });
@@ -87,37 +87,47 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
     }
   };
 
+  const handleScroll = (event: any) => {
+    const { scrollHeight, scrollTop, clientHeight } = event.target;
+    const scroll = scrollHeight - scrollTop - clientHeight;
+
+    if (scroll === 0) {
+      //TODO: integrate new timeline API here
+      console.log('Reached bottom of the timeline');
+    }
+  };
+
   return (
     <Paper>
       <Box p={3}>
         <Typography component="h3" variant="h5">
           <RecentActorsIcon fontSize="large" /> &nbsp; Medical History Timeline
         </Typography>
-        <Timeline>
-        {
-            records?.sort((r1, r2) => (r2.date ?? 0) - (r1.date ?? 0))
-            .map((record, index)=>(
-            <TimelineItem key={index}>
-                <TimelineOppositeContent style={{ flex: 0.2 }}>
-          <Typography variant="body2" color="textSecondary">
-            {getPrettyDateTime(record.date)}
-          </Typography>
-        </TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineDot />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-              <Paper elevation={3} className={classes.paper}>
-              <b> {record.title} </b>
-                <Typography>{record.information}</Typography>
-              </Paper>
-            </TimelineContent>
-          </TimelineItem>
-            ))
-        }
-          
-        </Timeline>
+        <div className={classes.timeline} onScroll={handleScroll}>
+          <Timeline>
+            {records
+              ?.sort((r1, r2) => (r2.date ?? 0) - (r1.date ?? 0))
+              .map((record, index) => (
+                <TimelineItem key={index}>
+                  <TimelineOppositeContent style={{ flex: 0.2 }}>
+                    <Typography variant="body2" color="textSecondary">
+                      {getPrettyDateTime(record.date)}
+                    </Typography>
+                  </TimelineOppositeContent>
+                  <TimelineSeparator>
+                    <TimelineDot />
+                    <TimelineConnector />
+                  </TimelineSeparator>
+                  <TimelineContent>
+                    <Paper elevation={3} className={classes.paper}>
+                      <b> {record.title} </b>
+                      <Typography>{record.information}</Typography>
+                    </Paper>
+                  </TimelineContent>
+                </TimelineItem>
+              ))}
+          </Timeline>
+        </div>
       </Box>
     </Paper>
   );
@@ -129,5 +139,9 @@ const useStyles = makeStyles((theme) => ({
   },
   secondaryTail: {
     backgroundColor: theme.palette.secondary.main,
+  },
+  timeline: {
+    overflowY: 'auto',
+    height: '400px',
   },
 }));
