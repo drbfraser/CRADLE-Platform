@@ -47,11 +47,11 @@ export const PatientPage = () => {
           <PersonalInfo patient={patient} />
           <br />
           <MedicalInfo patient={patient} patientId={patientId} />
-          <br />
-          <HistoryTimeline patientId={patientId} />
         </Grid>
         <Grid item xs={12} md={6}>
           <PatientStats patientId={patientId} />
+          <br />
+          <HistoryTimeline patientId={patientId} />
         </Grid>
       </Grid>
       <br />

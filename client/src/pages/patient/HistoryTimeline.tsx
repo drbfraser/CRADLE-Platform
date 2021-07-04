@@ -6,8 +6,9 @@ import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
+import { Alert, Skeleton } from '@material-ui/lab';
 import { Paper, makeStyles, Box, Typography } from '@material-ui/core';
-import { OrNull, MedicalRecord, Pregnancy } from 'src/shared/types';
+import { TimelineRecord } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { getPrettyDateTime } from 'src/shared/utils';
@@ -17,84 +18,59 @@ interface IProps {
   patientId: string;
 }
 
-interface Record {
-  title: string;
-  date: number;
-  information?: OrNull<string>;
-}
-
 export const HistoryTimeline = ({ patientId }: IProps) => {
   const classes = useStyles();
-  const [records, setRecords] = useState<Record[]>();
+  const [records, setRecords] = useState<TimelineRecord[]>();
+  const [page, setPage] = useState(1);
+  const [endOfData, setEndOfData] = useState(false);
+  const [errorLoading, setErrorLoading] = useState(false);
+  const url =
+    API_URL +
+    EndpointEnum.PATIENTS +
+    `/${patientId}` +
+    EndpointEnum.PATIENT_TIMELINE;
 
   useEffect(() => {
-    getRecords(patientId);
-  }, [patientId]);
-
-  const getRecords = async (patientId: string) => {
-    try {
-      const recordList: Record[] = [];
-      const medicalHistoryRecords: any = await apiFetch(
-        API_URL +
-          EndpointEnum.PATIENTS +
-          `/${patientId}` +
-          EndpointEnum.MEDICAL_HISTORY
-      ).then((resp) => resp.json());
-
-      const pregnancyRecords: any = await apiFetch(
-        API_URL +
-          EndpointEnum.PATIENTS +
-          `/${patientId}` +
-          EndpointEnum.PREGNANCY_RECORDS
-      ).then((resp) => resp.json());
-
-      medicalHistoryRecords.drug.forEach(
-        (medicalHistoryRecord: MedicalRecord) => {
-          recordList.push({
-            title: 'Updated drug history',
-            date: medicalHistoryRecord.dateCreated,
-            information: medicalHistoryRecord.information,
-          });
-        }
-      );
-      medicalHistoryRecords.medical.forEach(
-        (medicalHistoryRecord: MedicalRecord) => {
-          recordList.push({
-            title: 'Updated medical history',
-            date: medicalHistoryRecord.dateCreated,
-            information: medicalHistoryRecord.information,
-          });
-        }
-      );
-      pregnancyRecords.forEach((pregnancyRecord: Pregnancy) => {
-        recordList.push({
-          title: 'Started pregnancy',
-          date: pregnancyRecord.startDate,
-          information: '',
-        });
-        if (pregnancyRecord.endDate) {
-          recordList.push({
-            title: 'Ended pregnancy',
-            date: pregnancyRecord.endDate,
-            information: pregnancyRecord.outcome ?? 'Outcome not available',
-          });
-        }
-      });
-      console.log(recordList);
-      setRecords(recordList);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    getRecords(url);
+    // eslint-disable-next-line
+  }, [url]);
 
   const handleScroll = (event: any) => {
     const { scrollHeight, scrollTop, clientHeight } = event.target;
     const scroll = scrollHeight - scrollTop - clientHeight;
 
-    if (scroll === 0) {
-      //TODO: integrate new timeline API here
-      console.log('Reached bottom of the timeline');
+    //User has reached the end of the scroll bar
+    if (scroll === 0 && !endOfData) {
+      getRecords(url);
     }
+  };
+
+  const getRecords = (url: string) => {
+    const params =
+      '?' +
+      new URLSearchParams({
+        limit: '5',
+        page: page.toString(),
+      });
+    apiFetch(url + params)
+      .then(async (resp) => {
+        const json = await resp.json();
+        if (
+          (page > 1 && json.length === 0) ||
+          (page === 1 && json.length > 0 && json.length < 5)
+        ) {
+          setEndOfData(true);
+        }
+        if (!records) {
+          setRecords(json);
+        } else {
+          setRecords([...records, ...json]);
+        }
+        setPage(page + 1);
+      })
+      .catch(() => {
+        setErrorLoading(true);
+      });
   };
 
   return (
@@ -105,9 +81,15 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
         </Typography>
         <div className={classes.timeline} onScroll={handleScroll}>
           <Timeline>
-            {records
-              ?.sort((r1, r2) => (r2.date ?? 0) - (r1.date ?? 0))
-              .map((record, index) => (
+            {errorLoading ? (
+              <Alert severity="error">
+                Something went wrong when trying to load history timeline.
+                Please try refreshing.
+              </Alert>
+            ) : !records ? (
+              <Skeleton variant="rect" height={200} />
+            ) : records.length > 0 ? (
+              records.map((record, index) => (
                 <TimelineItem key={index}>
                   <TimelineOppositeContent style={{ flex: 0.2 }}>
                     <Typography variant="body2" color="textSecondary">
@@ -121,11 +103,27 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
                   <TimelineContent>
                     <Paper elevation={3} className={classes.paper}>
                       <b> {record.title} </b>
-                      <Typography>{record.information}</Typography>
+                      <Typography style={{ whiteSpace: 'pre-line' }}>
+                        {record.information}
+                      </Typography>
                     </Paper>
                   </TimelineContent>
                 </TimelineItem>
-              ))}
+              ))
+            ) : (
+              <p>No records for this patient.</p>
+            )}
+            {endOfData && (
+              <TimelineItem>
+                <TimelineOppositeContent style={{ flex: 0.2 }} />
+                <TimelineDot />
+                <TimelineContent>
+                  <Paper elevation={3} className={classes.paper}>
+                    <b> End of records </b>
+                  </Paper>
+                </TimelineContent>
+              </TimelineItem>
+            )}
           </Timeline>
         </div>
       </Box>
@@ -142,6 +140,6 @@ const useStyles = makeStyles((theme) => ({
   },
   timeline: {
     overflowY: 'auto',
-    height: '400px',
+    maxHeight: '400px',
   },
 }));

@@ -68,6 +68,12 @@ export type Pregnancy = {
   pregnancyId: string;
 };
 
+export type TimelineRecord = {
+  title: string;
+  date: number;
+  information?: OrNull<string>;
+};
+
 export type Patient = {
   allergy: OrNull<string>;
   dob: OrNull<string>;
