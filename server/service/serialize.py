@@ -6,7 +6,7 @@ instead of using marshal on the whole Object.
 
 # simplify version of the patient API
 def serialize_patient(p: any):
-    data = {
+    return {
         "patientId": p.patientId,
         "patientName": p.patientName,
         "villageNumber": p.villageNumber,
@@ -15,11 +15,10 @@ def serialize_patient(p: any):
         else p.trafficLightStatus,
         "dateTimeTaken": "" if p.dateTimeTaken == "null" else p.dateTimeTaken,
     }
-    return data
 
 
 def serialize_referral(r: any):
-    data = {
+    return {
         "referralId": r.id,
         "patientId": r.patientId,
         "patientName": r.patientName,
@@ -28,28 +27,33 @@ def serialize_referral(r: any):
         "dateReferred": r.dateReferred,
         "isAssessed": r.isAssessed,
     }
-    return data
 
 
 def serialize_pregnancy(p: any):
-    data = {
+    return {
         "pregnancyId": p.id,
         "startDate": p.startDate,
         "endDate": p.endDate,
         "outcome": p.outcome,
         "lastEdited": p.lastEdited,
     }
-    return data
 
 
 def serialize_medical_record(r: any):
-    data = {
+    return {
         "medicalRecordId": r.id,
         "information": r.information,
         "dateCreated": r.dateCreated,
         "lastEdited": r.lastEdited,
     }
-    return data
+
+
+def serialize_patient_timeline(r: any):
+    return {
+        "title": r.title,
+        "information": r.information,
+        "date": r.date,
+    }
 
 
 def serialize_patient_sql_to_dict(d: any, row: any) -> dict:
