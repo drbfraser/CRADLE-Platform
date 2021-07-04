@@ -312,7 +312,8 @@ def read_patient_records_admin_view(m: Type[M], patient_id, **kwargs) -> List[M]
 
 def read_patient_timeline(patient_id, **kwargs) -> List[Any]:
     """
-    Queries the database for a patient's pregnancy, medical and drug records in chronological order.
+    Queries the database for a patient's pregnancy, medical and drug records in reverse
+    chronological order.
 
     :param kwargs: Query params including limit, page
 
