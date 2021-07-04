@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { Pregnancy } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum, GestationalAgeUnitEnum } from 'src/shared/enums';
-import { Alert } from '@material-ui/lab';
+import { Alert, Skeleton } from '@material-ui/lab';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { HistoryTable } from './HistoryTable';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
@@ -78,11 +78,13 @@ export const PregnancyHistoryTable: React.FC<IProps> = ({
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      {errorLoading || !pregnancies ? (
+      {errorLoading ? (
         <Alert severity="error">
           Something went wrong trying to loading pregnancy history. Please try
           refreshing.
         </Alert>
+      ) : !pregnancies ? (
+        <Skeleton variant="rect" height={200} />
       ) : pregnancies.length > 0 ? (
         <div>
           <Form.Field

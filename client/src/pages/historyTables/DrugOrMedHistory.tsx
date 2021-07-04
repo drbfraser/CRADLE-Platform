@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MedicalRecord } from 'src/shared/types';
-import { Alert } from '@material-ui/lab';
+import { Alert, Skeleton } from '@material-ui/lab';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -51,11 +51,13 @@ export const DrugOrMedHistoryTable: React.FC<IProps> = ({
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      {errorLoading || !history ? (
+      {errorLoading ? (
         <Alert severity="error">
           Something went wrong when trying to load history. Please try
           refreshing.
         </Alert>
+      ) : !history ? (
+        <Skeleton variant="rect" height={200} />
       ) : history.length > 0 ? (
         <HistoryTable
           rows={history.map((h) => (

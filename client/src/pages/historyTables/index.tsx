@@ -4,6 +4,7 @@ import { useRouteMatch } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { DrugOrMedHistoryTable } from './DrugOrMedHistory';
 import { PregnancyHistoryTable } from './PregnancyHistory';
+import { SexEnum } from 'src/shared/enums';
 
 const allPanes = [
   {
@@ -22,23 +23,27 @@ const allPanes = [
 
 type RouteParams = {
   patientId: string;
+  patientSex: SexEnum;
 };
 
 export function HistoryTablesPage() {
-  const { patientId } = useRouteMatch<RouteParams>().params;
+  const { patientId, patientSex } = useRouteMatch<RouteParams>().params;
   const classes = useStyles();
-
-  const panes = allPanes.map((p) => ({
-    menuItem: p.name,
-    render: () => (
-      <Tab.Pane>
-        <p.Component
-          patientId={patientId}
-          isDrugRecord={p.name === 'Drug History' ? true : false}
-        />
-      </Tab.Pane>
-    ),
-  }));
+  const panes = allPanes.map((p) =>
+    p.name === 'Pregnancy History' && patientSex === SexEnum.MALE
+      ? {}
+      : {
+          menuItem: p.name,
+          render: () => (
+            <Tab.Pane>
+              <p.Component
+                patientId={patientId}
+                isDrugRecord={p.name === 'Drug History' ? true : false}
+              />
+            </Tab.Pane>
+          ),
+        }
+  );
 
   return (
     <div>
