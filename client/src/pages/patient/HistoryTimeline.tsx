@@ -12,7 +12,7 @@ import { TimelineRecord } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { getPrettyDateTime } from 'src/shared/utils';
-import RecentActorsIcon from '@material-ui/icons/RecentActors';
+import HistoryIcon from '@material-ui/icons/History';
 
 interface IProps {
   patientId: string;
@@ -77,7 +77,7 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
     <Paper>
       <Box p={3}>
         <Typography component="h3" variant="h5">
-          <RecentActorsIcon fontSize="large" /> &nbsp; Medical History Timeline
+          <HistoryIcon fontSize="large" /> &nbsp; Medical History Timeline
         </Typography>
         <div className={classes.timeline} onScroll={handleScroll}>
           <Timeline>
