@@ -191,7 +191,9 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       <Box p={3}>
         <Typography component="h3" variant="h5">
           <RecentActorsIcon fontSize="large" /> &nbsp; Medical Information
-          <Link to={'/history/' + patientId} className={classes.smallLink}>
+          <Link
+            to={'/history/' + patientId + '/' + patient?.patientSex}
+            className={classes.smallLink}>
             View History
           </Link>
         </Typography>
