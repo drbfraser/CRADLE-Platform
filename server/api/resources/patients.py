@@ -12,9 +12,10 @@ import service.invariant as invariant
 import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
-from models import MedicalRecord, Patient
-from utils import get_current_time
+from models import Patient
 from validation import patients
+from utils import get_current_time
+from api.decorator import patient_association_required
 
 
 # /api/patients
@@ -241,7 +242,7 @@ class PatientReadings(Resource):
 # /api/patients/<string:patient_id>/medical_info
 class PatientMedicalInfo(Resource):
     @staticmethod
-    @jwt_required
+    @patient_association_required()
     @swag_from(
         "../../specifications/patient-medical-info-get.yml",
         methods=["GET"],
@@ -250,3 +251,18 @@ class PatientMedicalInfo(Resource):
     def get(patient_id: str):
         records = crud.get_medical_info(patient_id)
         return marshal.marshal_patient_medical_info(**records)
+
+
+# /api/patients/<string:patient_id>/timeline
+class PatientTimeline(Resource):
+    @staticmethod
+    @patient_association_required()
+    @swag_from(
+        "../../specifications/patient-timeline.yml",
+        methods=["GET"],
+        endpoint="patient_timeline",
+    )
+    def get(patient_id: str):
+        params = util.get_query_params(request)
+        records = view.timeline_view(patient_id, **params)
+        return [serialize.serialize_timeline_record(r) for r in records]
