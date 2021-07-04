@@ -1,5 +1,6 @@
 from typing import List, Optional, Type, TypeVar, Any
-from sqlalchemy import asc, desc
+from collections import namedtuple
+from sqlalchemy.sql.expression import asc, desc, null, literal_column
 
 from data import db_session
 from models import (
@@ -276,7 +277,7 @@ def read_patient_records_admin_view(m: Type[M], patient_id, **kwargs) -> List[M]
     Queries the database for medical records of a patient
 
     :param m: Type of model to query for
-    :param kwargs: Query params including search_text, order_by, direction, limit, page
+    :param kwargs: Query params including search_text, direction, limit, page
 
     :return: A list of models
     """
@@ -302,13 +303,61 @@ def read_patient_records_admin_view(m: Type[M], patient_id, **kwargs) -> List[M]
     limit = kwargs.get("limit")
 
     if limit:
-        page = int(kwargs.get("page", 1))
-        start = (page - 1) * int(limit)
-        stop = start + int(limit)
-        return query.slice(start, stop)
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
 
     else:
         return query.all()
+
+
+def read_patient_timeline(patient_id, **kwargs) -> List[Any]:
+    """
+    Queries the database for a patient's pregnancy, medical and drug records in chronological order.
+
+    :param kwargs: Query params including limit, page
+
+    :return: A list of models with the fields: title, date, information
+    """
+    Title = namedtuple(
+        "Title", "pregnancy_start pregnancy_end medical_history drug_history"
+    )
+    TITLE = Title(
+        "Started pregnancy",
+        "Ended pregnancy",
+        "Updated medical history",
+        "Updated drug history",
+    )
+
+    limit = kwargs.get("limit", 5)
+    page = kwargs.get("page", 1)
+
+    pregnancy_start = db_session.query(
+        literal_column(TITLE.pregnancy_start).label("title"),
+        Pregnancy.startDate.label("date"),
+        null().label("information"),
+    ).filter(Pregnancy.patientId == patient_id)
+
+    pregnancy_end = db_session.query(
+        literal_column(TITLE.pregnancy_end), Pregnancy.endDate, Pregnancy.outcome
+    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate.is_not(None))
+
+    medical_history = db_session.query(
+        literal_column(TITLE.medical_history),
+        MedicalRecord.dateCreated,
+        MedicalRecord.information,
+    ).filter(MedicalRecord.patientId == patient_id, not MedicalRecord.isDrugRecord)
+
+    drug_history = db_session.query(
+        literal_column(TITLE.drug_history),
+        MedicalRecord.dateCreated,
+        MedicalRecord.information,
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord)
+
+    query = pregnancy_start.union(
+        pregnancy_end, medical_history, drug_history
+    ).order_by(desc("date"))
+
+    return query.slice(*__get_slice_indexes(page, limit))
 
 
 def read_all_patients_for_user(user: User, **kwargs) -> List[M]:
@@ -780,3 +829,12 @@ def get_supervised_vhts(user_id):
     except Exception as e:
         print(e)
         return None
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~ Helper Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+
+def __get_slice_indexes(page, limit):
+    start = (int(page) - 1) * int(limit)
+    stop = start + int(limit)
+    return start, stop

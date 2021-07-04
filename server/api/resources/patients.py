@@ -264,5 +264,5 @@ class PatientTimeline(Resource):
     )
     def get(patient_id: str):
         params = util.get_query_params(request)
-        records = view.timeline_view(patient_id, **params)
-        return [serialize.serialize_timeline_record(r) for r in records]
+        records = crud.read_patient_timeline(patient_id, **params)
+        return [serialize.serialize_patient_timeline(r) for r in records]
