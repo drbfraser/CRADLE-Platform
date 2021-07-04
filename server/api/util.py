@@ -58,7 +58,7 @@ def query_param_sortBy(request: Request, name: str) -> str:
     return request.args.get(name, "patientName", type=str)
 
 
-def query_param_sortDir(request: Request, name: str) -> str:
+def query_param_sort_dir(request: Request, name: str) -> str:
     """
     Returns String if the request URL contains a page sortDir parameter.
 
@@ -163,3 +163,22 @@ def doesUserExist(id: int) -> bool:
         return False
     else:
         return True
+
+
+def get_query_params(request: Request):
+    """
+    Extracts URL search params contained in the request.
+
+    :param request: Flask request object
+
+    :return: URL search params stored in a dictionary
+    """
+    params = {
+        "search_text": request.args.get("search"),
+        "order_by": request.args.get("sortBy"),
+        "direction": request.args.get("sortDir"),
+        "limit": request.args.get("limit"),
+        "page": request.args.get("page"),
+    }
+
+    return {k: v for k, v in params.items() if v}

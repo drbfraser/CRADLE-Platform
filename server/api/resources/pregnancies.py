@@ -24,7 +24,9 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def get(patient_id: str):
-        pregnancies = crud.read_all(Pregnancy, patientId=patient_id)
+        params = util.get_query_params(request)
+
+        pregnancies = view.pregnancy_view(patient_id, **params)
 
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
 

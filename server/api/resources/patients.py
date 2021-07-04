@@ -31,7 +31,7 @@ class Root(Resource):
         limit = util.query_param_limit(request, name="limit")
         page = util.query_param_page(request, name="page")
         sort_by = util.query_param_sortBy(request, name="sortBy")
-        sort_dir = util.query_param_sortDir(request, name="sortDir")
+        sort_dir = util.query_param_sort_dir(request, name="sortDir")
         search = util.query_param_search(request, name="search")
 
         patients = view.patient_view_for_user(
