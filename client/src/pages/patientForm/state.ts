@@ -2,6 +2,7 @@ import {
   getAgeBasedOnDOB,
   getNumOfMonthsNumeric,
   getNumOfWeeksDaysNumeric,
+  getPrettyDateTime,
 } from 'src/shared/utils';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { GestationalAgeUnitEnum, EndpointEnum } from 'src/shared/enums';
@@ -138,14 +139,21 @@ export const getPatientState = async (
 
   if (data.id && data.gestationalAgeUnit) {
     patientState.gestationalAgeDays = String(
-      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, null).days
+      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, data.pregnancyEndDate)
+        .days
     );
     patientState.gestationalAgeWeeks = String(
-      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, null).weeks
+      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, data.pregnancyEndDate)
+        .weeks
     );
     patientState.gestationalAgeMonths = String(
-      getNumOfMonthsNumeric(data.pregnancyStartDate, null)
+      getNumOfMonthsNumeric(data.pregnancyStartDate, data.pregnancyEndDate)
     );
+    if (data.pregnancyEndDate) {
+      patientState.pregnancyEndDate = String(
+        getPrettyDateTime(data.pregnancyEndDate)
+      );
+    }
   }
 
   return patientState;
