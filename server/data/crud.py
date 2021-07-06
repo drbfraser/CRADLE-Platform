@@ -1,5 +1,6 @@
 from typing import List, Optional, Type, TypeVar, Any
 from collections import namedtuple
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import text, asc, desc, null, literal
 
 from data import db_session
@@ -272,7 +273,7 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
-def read_patient_records_admin_view(m: Type[M], patient_id, **kwargs) -> List[M]:
+def read_patient_records_admin_view(m: Type[M], patient_id: str, **kwargs) -> List[M]:
     """
     Queries the database for medical records of a patient
 
@@ -310,7 +311,7 @@ def read_patient_records_admin_view(m: Type[M], patient_id, **kwargs) -> List[M]
         return query.all()
 
 
-def read_patient_timeline(patient_id, **kwargs) -> List[Any]:
+def read_patient_timeline_admin_view(patient_id: str, **kwargs) -> List[Any]:
     """
     Queries the database for a patient's pregnancy, medical and drug records in reverse
     chronological order.
@@ -359,6 +360,40 @@ def read_patient_timeline(patient_id, **kwargs) -> List[Any]:
     ).order_by(text("date desc"))
 
     return query.slice(*__get_slice_indexes(page, limit))
+
+
+def read_mobile_patients(user_id: str):
+    mr = aliased(MedicalRecord)
+    dr = aliased(MedicalRecord)
+
+    query = (
+        db_session.query(
+            Patient.patientId,
+            Patient.patientName,
+            Patient.patientSex,
+            Patient.dob,
+            Patient.isExactDob,
+            Patient.zone,
+            Patient.villageNumber,
+            Patient.householdNumber,
+            Patient.allergy,
+            Patient.lastEdited,
+            mr.id.label("medicalHistoryId"),
+            mr.information.label("medicalHistory"),
+            dr.id.label("drugHistoryId"),
+            dr.information.label("drugHistory"),
+        )
+        .join(PatientAssociations)
+        .join(mr)
+        .join(dr)
+        .join(Pregnancy)
+        .filter(
+            PatientAssociations.userId == user_id,
+            mr.isDrugRecord == False,
+            dr.isDrugRecord == True,
+        )
+    )
+    return query.all()
 
 
 def read_all_patients_for_user(user: User, **kwargs) -> List[M]:

@@ -1,6 +1,6 @@
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
 
 import api.util as util
@@ -115,8 +115,22 @@ class AndroidPatients(Resource):
     def get():
         user = util.current_user()
         patients = view.patient_view_for_user(user)
-
         return patients, 200
+
+
+# /api/mobile/patients/
+class AndroidPatients(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/android-patients-get.yml",
+        methods=["GET"],
+        endpoint="android_patient",
+    )
+    def get():
+        user_id = get_jwt_identity()["userId"]
+        patients = crud.read_mobile_patients(user_id)
+        return patients
 
 
 # /api/patients/<string:patient_id>/info
