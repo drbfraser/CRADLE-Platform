@@ -7,7 +7,7 @@ import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
 import { Alert, Skeleton } from '@material-ui/lab';
-import { Paper, makeStyles, Box, Typography } from '@material-ui/core';
+import { Paper, makeStyles, Box, Typography, Divider } from '@material-ui/core';
 import { TimelineRecord } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
@@ -79,6 +79,7 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
         <Typography component="h3" variant="h5">
           <HistoryIcon fontSize="large" /> &nbsp; Medical History Timeline
         </Typography>
+        <Divider />
         <div className={classes.timeline} onScroll={handleScroll}>
           <Timeline>
             {errorLoading ? (

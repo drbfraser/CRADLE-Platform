@@ -125,14 +125,14 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       <div>
         {info!.isPregnant ? (
           <MedicalInfoButton
-            text="Update/Close Pregnancy"
+            text="Edit/Close"
             redirectUrl={`/patients/${patient?.patientId}/edit/pregnancyInfo/${
               info!.pregnancyId
             }`}
           />
         ) : (
           <MedicalInfoButton
-            text="Add New Pregnancy"
+            text="Add"
             redirectUrl={`/pregnancies/new/${patient?.patientId}`}
           />
         )}
