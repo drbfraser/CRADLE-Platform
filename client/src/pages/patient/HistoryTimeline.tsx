@@ -68,11 +68,12 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
           setRecords(json);
         } else {
           setRecords([...records, ...json]);
-          setIsFetching(false);
         }
+        setIsFetching(false);
         setPage(page + 1);
       })
       .catch(() => {
+        setIsFetching(false);
         setErrorLoading(true);
       });
   };
