@@ -5,6 +5,7 @@ import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
 import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import TimelineDot from '@material-ui/lab/TimelineDot';
 import { Alert, Skeleton } from '@material-ui/lab';
 import { Paper, makeStyles, Box, Typography, Divider } from '@material-ui/core';
@@ -23,6 +24,7 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
   const [records, setRecords] = useState<TimelineRecord[]>();
   const [page, setPage] = useState(1);
   const [endOfData, setEndOfData] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [errorLoading, setErrorLoading] = useState(false);
   const url =
     API_URL +
@@ -46,6 +48,7 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
   };
 
   const getRecords = (url: string) => {
+    setIsFetching(true);
     const params =
       '?' +
       new URLSearchParams({
@@ -65,6 +68,7 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
           setRecords(json);
         } else {
           setRecords([...records, ...json]);
+          setIsFetching(false);
         }
         setPage(page + 1);
       })
@@ -114,6 +118,8 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
             ) : (
               <p>No records for this patient.</p>
             )}
+            {isFetching && <CircularProgress className={classes.progress} />}
+
             {endOfData && (
               <TimelineItem>
                 <TimelineOppositeContent style={{ flex: 0.2 }} />
@@ -142,5 +148,8 @@ const useStyles = makeStyles((theme) => ({
   timeline: {
     overflowY: 'auto',
     maxHeight: '400px',
+  },
+  progress: {
+    marginLeft: '50%',
   },
 }));
