@@ -14,6 +14,7 @@ interface IProps {
   endpoint: string;
   search: string;
   columns: any;
+  sortableColumns: any;
   rowKey: string;
   initialSortBy: string;
   RowComponent: ({ row }: any) => JSX.Element;
@@ -27,6 +28,7 @@ export const APITable = ({
   endpoint,
   search,
   columns,
+  sortableColumns,
   rowKey, // a unique value in the row, e.g. patientId for patients
   initialSortBy,
   RowComponent,
@@ -81,8 +83,6 @@ export const APITable = ({
     apiFetch(API_URL + endpoint + params, fetchOptions)
       .then(async (resp) => {
         const json = await resp.json();
-        console.log(json);
-        console.log(isDrugRecord);
         if (isDrugRecord === true) {
           setRows(json.drug);
         } else if (isDrugRecord === false) {
@@ -125,6 +125,7 @@ export const APITable = ({
       {!isTransformed && (
         <SortBy
           columns={columns}
+          sortableColumns={sortableColumns}
           sortBy={sortBy}
           sortDir={sortDir}
           handleSort={handleSort}
@@ -137,6 +138,7 @@ export const APITable = ({
               <thead>
                 <HeaderRow
                   columns={columns}
+                  sortableColumns={sortableColumns}
                   sortBy={sortBy}
                   sortDir={sortDir}
                   handleSort={handleSort}

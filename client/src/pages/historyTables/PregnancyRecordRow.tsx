@@ -51,7 +51,12 @@ export const PregnancyRecordRow = ({
       <TableCell
         label={PREGNANCY_RECORD_COLUMNS.outcome}
         isTransformed={isTransformed}>
-        <Typography style={{ whiteSpace: 'pre-line' }}>
+        <Typography
+          style={{
+            whiteSpace: 'pre-line',
+            display: 'inline-block',
+            textAlign: 'left',
+          }}>
           {row.outcome ? row.outcome : 'N/A'}
         </Typography>
       </TableCell>

@@ -8,30 +8,39 @@ import { SortDir } from './types';
 
 interface IProps {
   columns: any;
+  sortableColumns: any;
   sortBy: string;
   sortDir: string;
   handleSort: (col: string) => void;
 }
 
-export const HeaderRow = ({ columns, sortBy, sortDir, handleSort }: IProps) => {
+export const HeaderRow = ({
+  columns,
+  sortBy,
+  sortableColumns,
+  sortDir,
+  handleSort,
+}: IProps) => {
   const classes = useStyles();
 
   return (
     <tr className={classes.row}>
-      {Object.entries(columns).map(([col, name]) => (
+      {Object.entries(columns).map(([col, name], index) => (
         <th className={classes.cell} key={col}>
           {name}
-          <IconButton onClick={() => handleSort(col)}>
-            {sortBy === col ? (
-              sortDir === SortDir.ASC ? (
-                <ArrowUpwardIcon />
+          {sortableColumns[index] && (
+            <IconButton onClick={() => handleSort(col)}>
+              {sortBy === col ? (
+                sortDir === SortDir.ASC ? (
+                  <ArrowUpwardIcon />
+                ) : (
+                  <ArrowDownwardIcon />
+                )
               ) : (
-                <ArrowDownwardIcon />
-              )
-            ) : (
-              <SortIcon />
-            )}
-          </IconButton>
+                <SortIcon />
+              )}
+            </IconButton>
+          )}
         </th>
       ))}
     </tr>

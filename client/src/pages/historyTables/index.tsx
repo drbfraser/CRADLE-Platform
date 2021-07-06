@@ -13,7 +13,12 @@ import {
 } from 'src/shared/enums';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
 import { debounce } from 'lodash';
-import { PREGNANCY_RECORD_COLUMNS, MEDICAL_RECORD_COLUMNS } from './constants';
+import {
+  PREGNANCY_RECORD_COLUMNS,
+  MEDICAL_RECORD_COLUMNS,
+  SORTABLE_MEDICAL_RECORD_COLUMNS,
+  SORTABLE_PREGNANCY_RECORD_COLUMNS,
+} from './constants';
 import { MedicalRecordRow } from './MedicalRecordRow';
 import { PregnancyRecordRow } from './PregnancyRecordRow';
 
@@ -59,6 +64,7 @@ export function HistoryTablesPage() {
       rowKey: 'medicalRecordId',
       initialSortBy: 'dateCreated',
       isDrugRecord: false,
+      SORTABLE_COLUMNS: SORTABLE_MEDICAL_RECORD_COLUMNS,
     },
     {
       name: 'Drug History',
@@ -69,6 +75,7 @@ export function HistoryTablesPage() {
       rowKey: 'medicalRecordId',
       initialSortBy: 'dateCreated',
       isDrugRecord: true,
+      SORTABLE_COLUMNS: SORTABLE_MEDICAL_RECORD_COLUMNS,
     },
     {
       name: 'Pregnancy History',
@@ -81,6 +88,7 @@ export function HistoryTablesPage() {
       rowKey: 'pregnancyId',
       initialSortBy: 'startDate',
       isDrugRecord: undefined,
+      SORTABLE_COLUMNS: SORTABLE_PREGNANCY_RECORD_COLUMNS,
     },
   ];
   const panes = allPanes.map((p) =>
@@ -119,6 +127,7 @@ export function HistoryTablesPage() {
                 endpoint={p.endpoint}
                 search={search}
                 columns={p.COLUMNS}
+                sortableColumns={p.SORTABLE_COLUMNS}
                 rowKey={p.rowKey}
                 initialSortBy={p.initialSortBy}
                 RowComponent={p.RowComponent}

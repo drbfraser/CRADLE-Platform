@@ -9,7 +9,7 @@ import { APITable } from 'src/shared/components/apiTable';
 import { PatientRow } from './PatientRow';
 import { useHistory } from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
-import { COLUMNS, BREAKPOINT } from './constants';
+import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const PatientsPage = () => {
@@ -54,6 +54,7 @@ export const PatientsPage = () => {
         endpoint={EndpointEnum.PATIENTS}
         search={search}
         columns={COLUMNS}
+        sortableColumns={SORTABLE_COLUMNS}
         rowKey={'patientId'}
         initialSortBy={'patientName'}
         RowComponent={PatientRow}

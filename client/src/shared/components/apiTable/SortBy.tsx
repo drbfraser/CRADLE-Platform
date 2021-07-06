@@ -11,12 +11,19 @@ import { SortDir } from './types';
 
 interface SortByProps {
   columns: { [key: string]: string };
+  sortableColumns: any;
   sortBy: string;
   sortDir: string;
   handleSort: (col: string) => void;
 }
 
-const SortBy = ({ columns, sortBy, sortDir, handleSort }: SortByProps) => {
+const SortBy = ({
+  columns,
+  sortableColumns,
+  sortBy,
+  sortDir,
+  handleSort,
+}: SortByProps) => {
   const classes = useStyles();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,11 +35,14 @@ const SortBy = ({ columns, sortBy, sortDir, handleSort }: SortByProps) => {
       <FormControl className={classes.formControl}>
         <InputLabel>Sort by</InputLabel>
         <Select value={sortBy} onChange={handleChange}>
-          {Object.entries(columns).map(([col, name]) => (
-            <MenuItem key={col} value={col}>
-              {name}
-            </MenuItem>
-          ))}
+          {Object.entries(columns).map(
+            ([col, name], index) =>
+              sortableColumns[index] && (
+                <MenuItem key={col} value={col}>
+                  {name}
+                </MenuItem>
+              )
+          )}
         </Select>
       </FormControl>
       <IconButton

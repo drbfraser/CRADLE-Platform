@@ -27,7 +27,12 @@ export const MedicalRecordRow = ({ row }: IProps) => {
       <TableCell
         label={MEDICAL_RECORD_COLUMNS.information}
         isTransformed={isTransformed}>
-        <Typography style={{ whiteSpace: 'pre-line' }}>
+        <Typography
+          style={{
+            whiteSpace: 'pre-line',
+            display: 'inline-block',
+            textAlign: 'left',
+          }}>
           {row.information ? row.information : 'No information'}
         </Typography>
       </TableCell>
