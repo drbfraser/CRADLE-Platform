@@ -7,16 +7,20 @@ import SortBy from './SortBy';
 import ScrollArrow from './ScrollArrow';
 import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
+import { useHistory } from 'react-router-dom';
 
 interface IProps {
-  endpoint: EndpointEnum;
+  endpoint: string;
   search: string;
   columns: any;
   rowKey: string;
+  initialSortBy: string;
   RowComponent: ({ row }: any) => JSX.Element;
   isTransformed: boolean;
+  isDrugRecord?: boolean | undefined;
+  patientId?: string;
+  gestationalAgeUnit?: string;
 }
 
 export const APITable = ({
@@ -24,16 +28,21 @@ export const APITable = ({
   search,
   columns,
   rowKey, // a unique value in the row, e.g. patientId for patients
+  initialSortBy,
   RowComponent,
   isTransformed,
+  isDrugRecord,
+  patientId,
+  gestationalAgeUnit,
 }: IProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [sortBy, setSortBy] = useState('patientName');
+  const [sortBy, setSortBy] = useState(initialSortBy);
   const [sortDir, setSortDir] = useState(SortDir.ASC);
+  const history = useHistory();
   const prevPage = useRef(1);
 
   const classes = useStyles();
@@ -72,7 +81,15 @@ export const APITable = ({
     apiFetch(API_URL + endpoint + params, fetchOptions)
       .then(async (resp) => {
         const json = await resp.json();
-        setRows(json);
+        console.log(json);
+        console.log(isDrugRecord);
+        if (isDrugRecord === true) {
+          setRows(json.drug);
+        } else if (isDrugRecord === false) {
+          setRows(json.medical);
+        } else {
+          setRows(json);
+        }
         setLoading(false);
       })
       .catch((e) => {
@@ -84,7 +101,7 @@ export const APITable = ({
 
     // if the user does something else, cancel the fetch
     return () => controller.abort();
-  }, [endpoint, limit, page, search, sortBy, sortDir]);
+  }, [endpoint, limit, page, search, sortBy, sortDir, isDrugRecord]);
 
   const handleSort = (col: string) => {
     if (col === sortBy) {
@@ -128,7 +145,13 @@ export const APITable = ({
             )}
             <tbody>
               {rows.map((r: any) => (
-                <RowComponent key={r[rowKey]} row={r} />
+                <RowComponent
+                  key={r[rowKey]}
+                  row={r}
+                  patientId={patientId}
+                  unit={gestationalAgeUnit}
+                  history={history}
+                />
               ))}
             </tbody>
           </table>

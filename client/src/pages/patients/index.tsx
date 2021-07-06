@@ -55,6 +55,7 @@ export const PatientsPage = () => {
         search={search}
         columns={COLUMNS}
         rowKey={'patientId'}
+        initialSortBy={'patientName'}
         RowComponent={PatientRow}
         isTransformed={isTransformed}
       />

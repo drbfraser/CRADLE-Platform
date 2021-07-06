@@ -36,6 +36,7 @@ export const ReferralsPage = () => {
         search={search}
         columns={COLUMNS}
         rowKey={'referralId'}
+        initialSortBy={'patientName'}
         RowComponent={ReferralRow}
         isTransformed={isTransformed}
       />
