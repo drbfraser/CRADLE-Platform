@@ -4,7 +4,6 @@ import { useRouteMatch } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import Paper from '@material-ui/core/Paper';
 import { APITable } from 'src/shared/components/apiTable';
 import {
   EndpointEnum,
@@ -35,7 +34,6 @@ export function HistoryTablesPage() {
 
   const debounceSetSearch = debounce(setSearch, 500);
 
-  const isBigScreen = useMediaQuery('(min-width:440px)');
   const isTransformed = useMediaQuery(`(min-width:560px)`);
 
   const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
@@ -65,6 +63,7 @@ export function HistoryTablesPage() {
       initialSortBy: 'dateCreated',
       isDrugRecord: false,
       SORTABLE_COLUMNS: SORTABLE_MEDICAL_RECORD_COLUMNS,
+      index: 0,
     },
     {
       name: 'Drug History',
@@ -76,6 +75,7 @@ export function HistoryTablesPage() {
       initialSortBy: 'dateCreated',
       isDrugRecord: true,
       SORTABLE_COLUMNS: SORTABLE_MEDICAL_RECORD_COLUMNS,
+      index: 1,
     },
     {
       name: 'Pregnancy History',
@@ -89,6 +89,7 @@ export function HistoryTablesPage() {
       initialSortBy: 'startDate',
       isDrugRecord: undefined,
       SORTABLE_COLUMNS: SORTABLE_PREGNANCY_RECORD_COLUMNS,
+      index: 2,
     },
   ];
   const panes = allPanes.map((p) =>
@@ -97,46 +98,45 @@ export function HistoryTablesPage() {
       : {
           menuItem: p.name,
           render: () => (
-            <Paper className={classes.wrapper}>
+            <Tab.Pane key={p.index} className={classes.wrapper}>
               <div className={classes.topWrapper}>
-                <h5 className={classes.title}>{p.name}</h5>
-
                 {p.name === 'Pregnancy History' && (
                   <>
-                    <br />
                     <Form.Field
                       name="gestationalAgeUnits"
                       control={Select}
                       options={unitOptions}
                       placeholder={gestationalAgeUnitLabels[unit]}
                       onChange={handleUnitChange}
-                      className={classes.title}
+                      className={isTransformed ? classes.selectField : ''}
                     />
+                    {!isTransformed && <br />}
                   </>
                 )}
-
                 <TextField
-                  className={isBigScreen ? classes.search : classes.searchThin}
+                  className={classes.search}
                   label="Search"
                   placeholder="Search"
                   variant="outlined"
                   onChange={(e) => debounceSetSearch(e.target.value)}
                 />
               </div>
-              <APITable
-                endpoint={p.endpoint}
-                search={search}
-                columns={p.COLUMNS}
-                sortableColumns={p.SORTABLE_COLUMNS}
-                rowKey={p.rowKey}
-                initialSortBy={p.initialSortBy}
-                RowComponent={p.RowComponent}
-                isTransformed={isTransformed}
-                isDrugRecord={p.isDrugRecord}
-                gestationalAgeUnit={unit}
-                patientId={patientId}
-              />
-            </Paper>
+              <div className={classes.table}>
+                <APITable
+                  endpoint={p.endpoint}
+                  search={search}
+                  columns={p.COLUMNS}
+                  sortableColumns={p.SORTABLE_COLUMNS}
+                  rowKey={p.rowKey}
+                  initialSortBy={p.initialSortBy}
+                  RowComponent={p.RowComponent}
+                  isTransformed={isTransformed}
+                  isDrugRecord={p.isDrugRecord}
+                  gestationalAgeUnit={unit}
+                  patientId={patientId}
+                />
+              </div>
+            </Tab.Pane>
           ),
         }
   );
@@ -164,17 +164,17 @@ const useStyles = makeStyles({
   search: {
     float: 'right',
   },
-  title: {
+  selectField: {
     display: 'inline-block',
   },
-  searchThin: {
-    display: 'block',
-    marginLeft: 1,
-  },
+
   topWrapper: {
     padding: 15,
   },
   wrapper: {
     backgroundColor: '#fff',
+  },
+  table: {
+    clear: 'right',
   },
 });
