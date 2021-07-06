@@ -10,6 +10,7 @@ import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { Typography } from '@material-ui/core';
 
 interface IProps {
   isDrugRecord: boolean;
@@ -66,7 +67,9 @@ export const DrugOrMedHistoryTable: React.FC<IProps> = ({
                 {getPrettyDateTime(h.dateCreated)}
               </TableCell>
               <TableCell label={colNames[1]} isTransformed={isTransformed}>
-                {h.information ? h.information : 'No information'}
+                <Typography style={{ whiteSpace: 'pre-line' }}>
+                  {h.information ? h.information : 'No information'}
+                </Typography>
               </TableCell>
             </tr>
           ))}

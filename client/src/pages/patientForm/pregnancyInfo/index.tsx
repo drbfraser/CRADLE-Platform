@@ -154,6 +154,7 @@ export const PregnancyInfoForm = ({
                   variant="outlined"
                   label="Outcome"
                   name={PatientField.pregnancyOutcome}
+                  required={Boolean(formikProps.values.pregnancyEndDate)}
                 />
               </Grid>
             </>

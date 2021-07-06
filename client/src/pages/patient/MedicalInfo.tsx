@@ -125,14 +125,14 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       <div>
         {info!.isPregnant ? (
           <MedicalInfoButton
-            text="Update/Close Pregnancy"
+            text="Edit/Close"
             redirectUrl={`/patients/${patient?.patientId}/edit/pregnancyInfo/${
               info!.pregnancyId
             }`}
           />
         ) : (
           <MedicalInfoButton
-            text="Add New Pregnancy"
+            text="Add"
             redirectUrl={`/pregnancies/new/${patient?.patientId}`}
           />
         )}
@@ -177,13 +177,13 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         )}
       </AccordionSummary>
       <AccordionDetails>
-        <Typography>
-          {historyRecord ? (
-            historyRecord
-          ) : (
-            <>No additional {title.toLowerCase()} information.</>
-          )}
-        </Typography>
+        {historyRecord ? (
+          <Typography style={{ whiteSpace: 'pre-line' }}>
+            {historyRecord}
+          </Typography>
+        ) : (
+          <>No additional {title.toLowerCase()} information.</>
+        )}
       </AccordionDetails>
     </Accordion>
   );

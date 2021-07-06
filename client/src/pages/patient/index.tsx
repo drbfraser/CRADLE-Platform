@@ -5,6 +5,7 @@ import { MedicalInfo } from './MedicalInfo';
 import { PersonalInfo } from './PersonalInfo';
 import { ReadingCard } from './ReadingCard/ReadingCard';
 import { PatientStats } from './PatientStats';
+import { HistoryTimeline } from './HistoryTimeline';
 import { Patient } from 'src/shared/types';
 import { useRouteMatch } from 'react-router-dom';
 import { apiFetch, API_URL } from 'src/shared/api';
@@ -49,6 +50,8 @@ export const PatientPage = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <PatientStats patientId={patientId} />
+          <br />
+          <HistoryTimeline patientId={patientId} />
         </Grid>
       </Grid>
       <br />

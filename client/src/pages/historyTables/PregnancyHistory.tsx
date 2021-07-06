@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IconButton } from '@material-ui/core';
+import { IconButton, Typography } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 import { useHistory } from 'react-router-dom';
 import { Pregnancy } from 'src/shared/types';
@@ -107,7 +107,9 @@ export const PregnancyHistoryTable: React.FC<IProps> = ({
                   {gestationalAgeUnitFormatters[unit](p!.startDate, p!.endDate)}
                 </TableCell>
                 <TableCell label={colNames[3]} isTransformed={isTransformed}>
-                  {p.outcome ? p.outcome : 'N/A'}
+                  <Typography style={{ whiteSpace: 'pre-line' }}>
+                    {p.outcome ? p.outcome : 'N/A'}
+                  </Typography>
                 </TableCell>
                 <TableCell label={colNames[4]} isTransformed={isTransformed}>
                   <IconButton
