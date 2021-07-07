@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
 import { ReferralRow } from './ReferralRow';
-import { COLUMNS, BREAKPOINT } from './constants';
+import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ReferralsPage = () => {
@@ -35,7 +35,9 @@ export const ReferralsPage = () => {
         endpoint={EndpointEnum.REFERRALS}
         search={search}
         columns={COLUMNS}
+        sortableColumns={SORTABLE_COLUMNS}
         rowKey={'referralId'}
+        initialSortBy={'patientName'}
         RowComponent={ReferralRow}
         isTransformed={isTransformed}
       />
