@@ -196,7 +196,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
           <Link
             to={'/history/' + patientId + '/' + patient?.patientSex}
             className={classes.smallLink}>
-            View History
+            View Past Records
           </Link>
         </Typography>
         <Divider />
