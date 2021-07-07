@@ -103,7 +103,22 @@ class SinglePatient(Resource):
         return marshal.marshal(patient)
 
 
-# /api/mobile/patients/
+# # /api/mobile/patients/
+# class AndroidPatients(Resource):
+#     @staticmethod
+#     @jwt_required
+#     @swag_from(
+#         "../../specifications/android-patients-get.yml",
+#         methods=["GET"],
+#         endpoint="android_patient",
+#     )
+#     def get():
+#         user = util.current_user()
+#         patients = view.patient_view_for_user(user)
+#         return patients, 200
+
+
+# /api/mobile/patients
 class AndroidPatients(Resource):
     @staticmethod
     @jwt_required
@@ -113,24 +128,9 @@ class AndroidPatients(Resource):
         endpoint="android_patient",
     )
     def get():
-        user = util.current_user()
-        patients = view.patient_view_for_user(user)
-        return patients, 200
-
-
-# /api/mobile/patients/
-class AndroidPatients(Resource):
-    @staticmethod
-    @jwt_required
-    @swag_from(
-        "../../specifications/android-patients-get.yml",
-        methods=["GET"],
-        endpoint="android_patient",
-    )
-    def get():
-        user_id = get_jwt_identity()["userId"]
-        patients = crud.read_mobile_patients(user_id)
-        return patients
+        user = get_jwt_identity()
+        patients = view.mobile_patient_view(user)
+        return [marshal.marshal_mobile_patient(p) for p in patients]
 
 
 # /api/patients/<string:patient_id>/info
@@ -278,5 +278,5 @@ class PatientTimeline(Resource):
     )
     def get(patient_id: str):
         params = util.get_query_params(request)
-        records = crud.read_patient_timeline(patient_id, **params)
+        records = crud.read_patient_timeline_admin_view(patient_id, **params)
         return [serialize.serialize_patient_timeline(r) for r in records]

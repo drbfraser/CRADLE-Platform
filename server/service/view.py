@@ -231,3 +231,12 @@ def medical_record_view(patient_id, is_drug_record, **kwargs) -> List[MedicalRec
         return crud.read_patient_records_admin_view(
             MedicalRecord, patient_id, is_drug_record=is_drug_record, **kwargs
         )
+
+
+def mobile_patient_view(user):
+    if user["role"] == RoleEnum.ADMIN.value or user["role"] == RoleEnum.HCW.value:
+        return crud.read_mobile_patients()
+    else:
+        user_id = user["userId"]
+        if user_id:
+            return crud.read_mobile_patients(user_id)

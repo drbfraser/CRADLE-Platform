@@ -28,6 +28,7 @@ from api.resources.patients import (
     PatientReadings,
     PatientMedicalInfo,
     PatientTimeline,
+    AndroidPatients,
 )
 from api.resources.readings import Root as Readings, SingleReading
 from api.resources.referrals import Root as Referrals, SingleReferral

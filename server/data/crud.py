@@ -1,7 +1,7 @@
 from typing import List, Optional, Type, TypeVar, Any
 from collections import namedtuple
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql.expression import text, asc, desc, null, literal
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_
 
 from data import db_session
 from models import (
@@ -362,9 +362,13 @@ def read_patient_timeline_admin_view(patient_id: str, **kwargs) -> List[Any]:
     return query.slice(*__get_slice_indexes(page, limit))
 
 
-def read_mobile_patients(user_id: str):
-    mr = aliased(MedicalRecord)
-    dr = aliased(MedicalRecord)
+def read_mobile_patients(user_id: Optional[str] = None):
+    p1 = aliased(Pregnancy)
+    p2 = aliased(Pregnancy)
+    m1 = aliased(MedicalRecord)
+    m2 = aliased(MedicalRecord)
+    m3 = aliased(MedicalRecord)
+    m4 = aliased(MedicalRecord)
 
     query = (
         db_session.query(
@@ -378,21 +382,44 @@ def read_mobile_patients(user_id: str):
             Patient.householdNumber,
             Patient.allergy,
             Patient.lastEdited,
-            mr.id.label("medicalHistoryId"),
-            mr.information.label("medicalHistory"),
-            dr.id.label("drugHistoryId"),
-            dr.information.label("drugHistory"),
+            p1.id.label("pregnancyId"),
+            p1.startDate.label("gestationalTimestamp"),
+            p1.defaultTimeUnit.label("gestationalAgeUnit"),
+            m1.id.label("medicalHistoryId"),
+            m1.information.label("medicalHistory"),
+            m3.id.label("drugHistoryId"),
+            m3.information.label("drugHistory"),
         )
-        .join(PatientAssociations)
-        .join(mr)
-        .join(dr)
-        .join(Pregnancy)
-        .filter(
-            PatientAssociations.userId == user_id,
-            mr.isDrugRecord == False,
-            dr.isDrugRecord == True,
+        .outerjoin(p1, and_(Patient.patientId == p1.patientId, p1.endDate == None))
+        .outerjoin(p2, and_(p1.patientId == p2.patientId, p1.startDate < p2.startDate))
+        .outerjoin(
+            m1, and_(Patient.patientId == m1.patientId, m1.isDrugRecord == False)
         )
+        .outerjoin(
+            m2,
+            and_(
+                m1.patientId == m2.patientId,
+                m1.dateCreated < m2.dateCreated,
+                m2.isDrugRecord == False,
+            ),
+        )
+        .outerjoin(m3, and_(Patient.patientId == m3.patientId, m3.isDrugRecord == True))
+        .outerjoin(
+            m4,
+            and_(
+                m3.patientId == m4.patientId,
+                m3.dateCreated < m4.dateCreated,
+                m4.isDrugRecord == True,
+            ),
+        )
+        .filter(p2.startDate == None, m2.dateCreated == None)
     )
+
+    if user_id:
+        query = query.join(PatientAssociations, Patient.associations).filter(
+            PatientAssociations.userId == user_id
+        )
+
     return query.all()
 
 

@@ -74,6 +74,18 @@ def marshal_patient_medical_info(
     return medical_info
 
 
+def marshal_mobile_patient(p: Any) -> dict:
+    d = p._asdict()
+    __pre_process(d)
+
+    if d.get("dob"):
+        d["dob"] = str(d["dob"])
+
+    d["base"] = d["lastEdited"]
+
+    return d
+
+
 def __marshal_patient(p: Patient, shallow) -> dict:
     d = vars(p).copy()
     __pre_process(d)
