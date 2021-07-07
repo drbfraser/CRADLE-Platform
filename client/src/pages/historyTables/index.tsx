@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { Tab, InputOnChangeData, Form, Select } from 'semantic-ui-react';
 import { useRouteMatch } from 'react-router-dom';
+import { Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { APITable } from 'src/shared/components/apiTable';
 import {
   EndpointEnum,
@@ -20,14 +24,17 @@ import {
 } from './constants';
 import { MedicalRecordRow } from './MedicalRecordRow';
 import { PregnancyRecordRow } from './PregnancyRecordRow';
+import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
   patientId: string;
+  patientName: string;
   patientSex: SexEnum;
 };
 
 export function HistoryTablesPage() {
-  const { patientId, patientSex } = useRouteMatch<RouteParams>().params;
+  const { patientId, patientName, patientSex } =
+    useRouteMatch<RouteParams>().params;
   const classes = useStyles();
   const [search, setSearch] = useState('');
   const [unit, setUnit] = useState(GestationalAgeUnitEnum.MONTHS);
@@ -149,6 +156,15 @@ export function HistoryTablesPage() {
 
   return (
     <div>
+      <div className={classes.title}>
+        <Tooltip title="Go back" placement="top">
+          <IconButton
+            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}>
+            <ChevronLeftIcon color="inherit" fontSize="large" />
+          </IconButton>
+        </Tooltip>
+        <Typography variant="h4">Past Records of {patientName}</Typography>
+      </div>
       <Tab
         menu={{
           secondary: true,
@@ -185,5 +201,9 @@ const useStyles = makeStyles({
   },
   table: {
     clear: 'right',
+  },
+  title: {
+    display: `flex`,
+    alignItems: `center`,
   },
 });

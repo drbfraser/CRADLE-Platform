@@ -171,7 +171,7 @@ export const appRoutes: Array<AppRoute> = [
     name: `History`,
     title: `History`,
     private: true,
-    to: `/history/:patientId/:patientSex`,
+    to: `/history/:patientId/:patientName/:patientSex`,
   },
   {
     component: LoginPage,

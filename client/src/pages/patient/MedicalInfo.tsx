@@ -194,7 +194,14 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         <Typography component="h3" variant="h5">
           <RecentActorsIcon fontSize="large" /> &nbsp; Medical Information
           <Link
-            to={'/history/' + patientId + '/' + patient?.patientSex}
+            to={
+              '/history/' +
+              patientId +
+              '/' +
+              patient?.patientName +
+              '/' +
+              patient?.patientSex
+            }
             className={classes.smallLink}>
             View Past Records
           </Link>
