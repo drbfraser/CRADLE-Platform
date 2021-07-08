@@ -362,7 +362,16 @@ def read_patient_timeline_admin_view(patient_id: str, **kwargs) -> List[Any]:
     return query.slice(*__get_slice_indexes(page, limit))
 
 
-def read_mobile_patients(user_id: Optional[str] = None):
+def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
+    """
+    Queries the database for all patients associated with the user including the latest
+    pregnancy, medical and durg records for each patient.
+
+    :param user_id: The user ID to filter patients wrt patient associations; None to get
+    all patients
+
+    :return: A list of patients
+    """
     p1 = aliased(Pregnancy)
     p2 = aliased(Pregnancy)
     m1 = aliased(MedicalRecord)

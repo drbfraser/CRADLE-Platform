@@ -1,0 +1,107 @@
+Get a list of patients and a list of readings
+---
+tags:
+  - Android
+responses:
+  200:
+    description: GET response body for /api/mobile/patients_and_readings
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            patients:
+              type: array
+              items:
+                type: object
+                properties:
+                  patientId:
+                    type: integer
+                    example: 49300000000
+                  patientName:
+                    type: string
+                    example: MR
+                  patientSex:
+                    type: string
+                    enum: [MALE, FEMALE]
+                    example: FEMALE
+                  dob:
+                    type: string
+                    example: "1990-01-01"
+                  isExactDob:
+                    type: boolean
+                    example: true
+                  zone:
+                    type: string | Null
+                    example: 10
+                  villageNumber:
+                    type: string | Null
+                    example: 10
+                  householdNumber:
+                    type: string | Null
+                    example: 10
+                  allergy:
+                    type: string | Null
+                    example: Penicillins
+                  pregnancyId:
+                    type: integer
+                    example: 1001
+                  gestationalTimestamp:
+                    type: Unix timestamp | Null
+                    example: 1620000002
+                  gestationalAgeUnit:
+                    type: string | Null
+                    enum: [WEEKS, MONTHS]
+                    example: WEEKS
+                  medicalHistoryId:
+                    type: integer
+                    example: 1001
+                  medicalHistory:
+                    type: string | Null
+                    example: Pregnancy induced hypertension
+                  drugHistoryId:
+                    type: integer
+                    example: 1002
+                  drugHistory:
+                    type: string | Null
+                    example: Aspirin 75mg
+                  lastEdited:
+                    type: Unix timestamp | Null
+                    example: 1620000002
+                  base:
+                    type: Unix timestamp | Null
+                    example: 1620000002
+            readings:
+              type: array
+              items:
+                type: object
+                properties:
+                  userId:
+                    type: integer | Null
+                    example: 1010
+                  patientId:
+                    type: integer
+                    example: 49300000000
+                  readingId:
+                    type: string
+                    example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+                  trafficLightStatus:
+                    type: string
+                    enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
+                    example: GREEN
+                  symptoms:
+                    type: array
+                    items: string
+                    example: ["HEADACHE"]
+                  bpSystolic:
+                    type: integer
+                    example: 100
+                  bpDiastolic:
+                    type: integer
+                    example: 70
+                  dateTimeTaken:
+                    type: Unix timestamp
+                    example: 1620000002
+                  heartRateBPM:
+                    type: integer
+                    example: 60

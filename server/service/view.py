@@ -201,7 +201,7 @@ def individual_vht_referral_view(user: User) -> List[Referral]:
     return user.referrals
 
 
-def pregnancy_view(patient_id, **kwargs) -> List[Pregnancy]:
+def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
     """
     Returns a list of pregnancies filtered by query criteria in keyword arguments.
 
@@ -215,7 +215,7 @@ def pregnancy_view(patient_id, **kwargs) -> List[Pregnancy]:
         return crud.read_patient_records_admin_view(Pregnancy, patient_id, **kwargs)
 
 
-def medical_record_view(patient_id, is_drug_record, **kwargs) -> List[MedicalRecord]:
+def medical_record_view(patient_id: str, is_drug_record: bool, **kwargs) -> List[MedicalRecord]:
     """
     Returns a list of medical records filtered by query criteria in keyword arguments.
 
@@ -233,10 +233,20 @@ def medical_record_view(patient_id, is_drug_record, **kwargs) -> List[MedicalRec
         )
 
 
-def mobile_patient_view(user):
+def mobile_patient_and_reading_view(user: dict) -> tuple:
+    """
+    Returns a list of patients and a list of readings associated with the user. 
+
+    :param user: JWT identity
+    :return: A tuple of two lists
+    """
     if user["role"] == RoleEnum.ADMIN.value or user["role"] == RoleEnum.HCW.value:
-        return crud.read_mobile_patients()
+        patients = crud.read_mobile_patients()
+        readings = crud.read_all_readings_db(True, None)
+        return patients, readings
     else:
         user_id = user["userId"]
         if user_id:
-            return crud.read_mobile_patients(user_id)
+            patients = crud.read_mobile_patients(user_id)
+            readings = crud.read_all_readings_db(False, user_id)
+            return patients, readings
