@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Tab, InputOnChangeData, Form, Select } from 'semantic-ui-react';
 import { useRouteMatch } from 'react-router-dom';
-import { Typography } from '@material-ui/core';
+import { Typography, Paper, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
@@ -25,6 +25,7 @@ import {
 import { MedicalRecordRow } from './MedicalRecordRow';
 import { PregnancyRecordRow } from './PregnancyRecordRow';
 import { goBackWithFallback } from 'src/shared/utils';
+import { HistoryTimeline } from './HistoryTimeline';
 
 type RouteParams = {
   patientId: string;
@@ -55,6 +56,43 @@ export function HistoryTablesPage() {
   ) => {
     setUnit(value as GestationalAgeUnitEnum);
   };
+
+  const TableViewPane = () => {
+    return (
+      <Paper>
+        <Box p={3}>
+          <Tab
+            menu={{
+              secondary: true,
+              pointing: true,
+              className: classes.tabs,
+            }}
+            panes={panes}
+          />
+        </Box>
+      </Paper>
+    );
+  };
+
+  const topPanes = [
+    {
+      name: 'Table View',
+      component: TableViewPane,
+      index: 0,
+    },
+    {
+      name: 'Timeline View',
+      component: HistoryTimeline,
+      index: 1,
+    },
+  ];
+
+  const outerPanes = topPanes.map((p) => ({
+    menuItem: p.name,
+    render: () => (
+      <p.component patientId={patientId} isTransformed={isTransformed} />
+    ),
+  }));
 
   const allPanes = [
     {
@@ -167,11 +205,12 @@ export function HistoryTablesPage() {
       </div>
       <Tab
         menu={{
-          secondary: true,
+          attached: true,
+          tabular: true,
           pointing: true,
-          className: classes.tabs,
+          className: classes.outerTabs,
         }}
-        panes={panes}
+        panes={outerPanes}
       />
     </div>
   );
@@ -182,6 +221,11 @@ const useStyles = makeStyles({
     display: 'fluid',
     flexDirection: 'row',
     flexWrap: 'wrap',
+  },
+  outerTabs: {
+    display: 'fluid',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   search: {
     width: '225px',
