@@ -32,7 +32,7 @@ def test_get_patient(patient_factory, api_get):
     assert expected == response.json()
 
 
-def test_get_patient_medical_info(
+def test_get_patient_medical_history(
     pregnancy_factory,
     medical_record_factory,
     patient_id,

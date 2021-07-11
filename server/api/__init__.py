@@ -27,7 +27,10 @@ def __init_patients_resources(api: Api):
     api.add_resource(r.PatientStats, "/api/patients/<string:patient_id>/stats")
     api.add_resource(r.PatientReadings, "/api/patients/<string:patient_id>/readings")
     api.add_resource(
-        r.PatientMedicalInfo, "/api/patients/<string:patient_id>/medical_info"
+        r.PatientPregnancySummary, "/api/patients/<string:patient_id>/pregnancy_summary"
+    )
+    api.add_resource(
+        r.PatientMedicalHistory, "/api/patients/<string:patient_id>/medical_history"
     )
     api.add_resource(r.PatientTimeline, "/api/patients/<string:patient_id>/timeline")
 

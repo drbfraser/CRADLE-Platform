@@ -34,44 +34,26 @@ def marshal(obj: Any, shallow=False) -> dict:
         return d
 
 
-def marshal_patient_medical_info(
-    pregnancy: Pregnancy, medical: MedicalRecord, drug: MedicalRecord
+def marshal_patient_medical_history(
+    medical: Optional[MedicalRecord] = None, drug: Optional[MedicalRecord] = None
 ) -> dict:
-    """
-    Recursively marshals an object to a dictionary.
-
-    :param obj: The object to marshal
-    :param shallow: If true, only the top level fields will be marshalled
-    :return: A dictionary mapping fields to values
-    """
-    medical_info = dict()
-
-    if pregnancy and not pregnancy.endDate:
-        info = {
-            "isPregnant": True,
-            "pregnancyId": pregnancy.id,
-            "pregnancyStartDate": pregnancy.startDate,
-            "gestationalAgeUnit": pregnancy.defaultTimeUnit.value,
-        }
-        medical_info.update(info)
-    else:
-        medical_info["isPregnant"] = False
+    records = dict()
 
     if medical:
         info = {
             "medicalHistoryId": medical.id,
             "medicalHistory": medical.information,
         }
-        medical_info.update(info)
+        records.update(info)
 
     if drug:
         info = {
             "drugHistoryId": drug.id,
             "drugHistory": drug.information,
         }
-        medical_info.update(info)
+        records.update(info)
 
-    return medical_info
+    return records
 
 
 def marshal_mobile_patient(p: Any) -> dict:
