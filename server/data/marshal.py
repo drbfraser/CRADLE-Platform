@@ -1,9 +1,10 @@
+import datetime
+import collections
+
 from enum import Enum
 from typing import Any, Dict, Type, List, Optional
 
-import collections
-
-from data.crud import M, read_all
+from data.crud import M
 from models import Patient, Reading, Referral, FollowUp, Pregnancy, MedicalRecord
 import service.invariant as invariant
 
@@ -32,6 +33,49 @@ def marshal(obj: Any, shallow=False) -> dict:
         d = vars(obj).copy()
         __pre_process(d)
         return d
+
+
+def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
+    summary = {
+        "isPregnant": False,
+        "pastPregnancies": list(),
+    }
+
+    if records:
+        record = records[0]
+        if not record.endDate:
+            current_pregnancy = {
+                "isPregnant": True,
+                "pregnancyId": record.id,
+                "pregnancyStartDate": record.startDate,
+                "gestationalAgeUnit": record.defaultTimeUnit.value,
+            }
+            summary.update(current_pregnancy)
+            del records[0]
+
+        past_pregnancies = list()
+        for record in records:
+            pregnancy = {
+                "pregnancyId": record.id,
+                "pregnancyOutcome": record.outcome,
+            }
+            if record.endDate:
+                start_date = datetime.date.fromtimestamp(record.startDate)
+                end_date = datetime.date.fromtimestamp(record.endDate)
+                gestation = (
+                    (end_date.year - start_date.year) * 12
+                    + end_date.month
+                    - start_date.month
+                )
+                info = {
+                    "birthyear": end_date.year,
+                    "gestationAtBirth": gestation,
+                }
+                pregnancy.update(info)
+            past_pregnancies.append(pregnancy)
+        summary["pastPregnancies"] = past_pregnancies
+
+    return summary
 
 
 def marshal_patient_medical_history(
