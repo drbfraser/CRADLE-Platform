@@ -38,7 +38,7 @@ export function HistoryTablesPage() {
     useRouteMatch<RouteParams>().params;
   const classes = useStyles();
   const [search, setSearch] = useState('');
-  const [unit, setUnit] = useState(GestationalAgeUnitEnum.MONTHS);
+  const [unit, setUnit] = useState(GestationalAgeUnitEnum.WEEKS);
 
   const debounceSetSearch = debounce(setSearch, 500);
 

@@ -166,6 +166,10 @@ export const getPrettyDateTime = (dateStr: number): string => {
   return getMomentDate(dateStr * 1000).format('YYYY-MM-DD');
 };
 
+export const getYearToDisplay = (timestamp: number) => {
+  return getMomentDate(timestamp * 1000).format('YYYY');
+};
+
 export const getLatestReading = (readings: Array<Reading>): Reading => {
   const sortedReadings = readings.sort(
     (reading: Reading, otherReading: Reading) =>

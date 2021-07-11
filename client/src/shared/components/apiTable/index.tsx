@@ -9,6 +9,7 @@ import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { useHistory } from 'react-router-dom';
+import { Pregnancy } from 'src/shared/types';
 
 interface IProps {
   endpoint: string;
@@ -58,7 +59,6 @@ export const APITable = ({
       return;
     } else {
       prevPage.current = page;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     setLoading(true);
@@ -87,6 +87,10 @@ export const APITable = ({
           setRows(json.drug);
         } else if (isDrugRecord === false) {
           setRows(json.medical);
+        }
+        //The case for previous pregnancies on the Patient page
+        else if (initialSortBy === 'endDate') {
+          setRows(json.filter((obj: Pregnancy) => obj.endDate));
         } else {
           setRows(json);
         }
@@ -101,7 +105,16 @@ export const APITable = ({
 
     // if the user does something else, cancel the fetch
     return () => controller.abort();
-  }, [endpoint, limit, page, search, sortBy, sortDir, isDrugRecord]);
+  }, [
+    endpoint,
+    limit,
+    page,
+    search,
+    sortBy,
+    sortDir,
+    isDrugRecord,
+    initialSortBy,
+  ]);
 
   const handleSort = (col: string) => {
     if (col === sortBy) {
