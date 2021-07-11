@@ -215,7 +215,9 @@ def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
         return crud.read_patient_records_admin_view(Pregnancy, patient_id, **kwargs)
 
 
-def medical_record_view(patient_id: str, is_drug_record: bool, **kwargs) -> List[MedicalRecord]:
+def medical_record_view(
+    patient_id: str, is_drug_record: bool, **kwargs
+) -> List[MedicalRecord]:
     """
     Returns a list of medical records filtered by query criteria in keyword arguments.
 
@@ -235,7 +237,7 @@ def medical_record_view(patient_id: str, is_drug_record: bool, **kwargs) -> List
 
 def mobile_patient_and_reading_view(user: dict) -> tuple:
     """
-    Returns a list of patients and a list of readings associated with the user. 
+    Returns a list of patients and a list of readings associated with the user.
 
     :param user: JWT identity
     :return: A tuple of two lists

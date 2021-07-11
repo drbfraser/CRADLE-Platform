@@ -70,7 +70,9 @@ def init(api):
         AndroidPatients, "/api/mobile/patients", endpoint="android_patient"
     )  # [GET]
     api.add_resource(
-        AndroidPatientsAndReadings, "/api/mobile/patients_and_readings", endpoint="android_patients_and_readings"
+        AndroidPatientsAndReadings,
+        "/api/mobile/patients_and_readings",
+        endpoint="android_patients_and_readings",
     )  # [GET]
 
     #### New Endpoints ####

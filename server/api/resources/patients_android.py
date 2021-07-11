@@ -129,4 +129,3 @@ class AndroidPatientsAndReadings(Resource):
             "patients": [marshal.marshal_mobile_patient(p) for p in patients],
             "readings": readings,
         }
-        
