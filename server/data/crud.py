@@ -283,7 +283,7 @@ def read_patient_records_admin_view(m: Type[M], patient_id: str, **kwargs) -> Li
     :return: A list of models
     """
     search_text = kwargs.get("search_text")
-    direction = asc if kwargs.get("direction") == "asc" else desc
+    direction = asc if kwargs.get("direction") == "ASC" else desc
 
     query = db_session.query(m).filter_by(patientId=patient_id)
 

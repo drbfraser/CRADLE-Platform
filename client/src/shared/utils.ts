@@ -196,7 +196,7 @@ export const goBackWithFallback = (fallbackUrl: string) => {
   // browser new tab page + this page = 2, need more than 2 to go back
   if (history.length > 2) {
     history.goBack();
+  } else {
+    history.replace(fallbackUrl);
   }
-
-  history.replace(fallbackUrl);
 };

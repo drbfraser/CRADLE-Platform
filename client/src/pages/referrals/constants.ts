@@ -7,5 +7,7 @@ export const COLUMNS = {
   isAssessed: 'Assessment',
 };
 
+export const SORTABLE_COLUMNS = [true, true, true, true, true, true];
+
 // Referrals table width breakpoint in px
 export const BREAKPOINT = 560;
