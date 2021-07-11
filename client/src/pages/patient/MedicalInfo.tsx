@@ -1,17 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Paper,
-  Typography,
-  Divider,
-  Box,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-} from '@material-ui/core';
+import { Paper, Typography, Divider, Box, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { Alert, Skeleton } from '@material-ui/lab';
 import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
@@ -153,6 +143,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     historyRecord: OrNull<string> | undefined;
     editId: string;
     medicalRecordId: string | undefined;
+    divider?: boolean;
   }
 
   const HistoryItem = ({
@@ -160,10 +151,14 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     historyRecord,
     editId,
     medicalRecordId,
+    divider,
   }: HistoryItemProps) => (
-    <Accordion defaultExpanded={true}>
-      <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
-        <Typography style={{ flex: 1 }}> {title} </Typography>
+    <div>
+      {divider && <Divider />}
+      <div
+        className={classes.historyItem}
+        style={{ marginTop: divider ? '15px' : '' }}>
+        <b style={{ flex: 1 }}> {title} </b>
         {medicalRecordId ? (
           <MedicalInfoButton
             text="Update"
@@ -175,8 +170,8 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
             redirectUrl={`/patients/${patient?.patientId}/edit/${editId}`}
           />
         )}
-      </AccordionSummary>
-      <AccordionDetails>
+      </div>
+      <div className={classes.historyItem}>
         {historyRecord ? (
           <Typography style={{ whiteSpace: 'pre-line' }}>
             {historyRecord}
@@ -184,8 +179,8 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         ) : (
           <>No additional {title.toLowerCase()} information.</>
         )}
-      </AccordionDetails>
-    </Accordion>
+      </div>
+    </div>
   );
 
   return (
@@ -223,12 +218,14 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
               historyRecord={info?.medicalHistory}
               editId="medicalHistory"
               medicalRecordId={info.medicalHistoryId}
+              divider={patient?.patientSex === SexEnum.FEMALE}
             />
             <HistoryItem
               title="Drug History"
               historyRecord={info?.drugHistory}
               editId="drugHistory"
               medicalRecordId={info.drugHistoryId}
+              divider={true}
             />
           </div>
         ) : (
@@ -246,5 +243,8 @@ const useStyles = makeStyles({
   smallLink: {
     float: 'right',
     fontSize: 14,
+  },
+  historyItem: {
+    marginBottom: '15px',
   },
 });
