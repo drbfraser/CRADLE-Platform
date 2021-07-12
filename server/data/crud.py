@@ -1,7 +1,7 @@
 from typing import List, Optional, Type, TypeVar, Any
 from collections import namedtuple
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
 
 from data import db_session
 from models import (
@@ -661,6 +661,28 @@ def get_patient_medical_history(patient_id: str):
         "medical": medical,
         "drug": drug,
     }
+
+
+def has_conflicting_pregnancy_record(
+    patient_id: str, start_date: int, end_date: Optional(int) = None
+) -> bool:
+    if not end_date:
+        query = db_session.query(Pregnancy).filter(
+            Pregnancy.patientId == patient_id,
+            or_(Pregnancy.endDate > start_date, Pregnancy.endDate == None),
+        )
+
+    else:
+        query = db_session.query(Pregnancy).filter(
+            Pregnancy.patientId == patient_id,
+            or_(
+                and_(Pregnancy.startDate < start_date, Pregnancy.endDate > start_date),
+                and_(Pregnancy.startDate < end_date, Pregnancy.endDate > end_date),
+                and_(Pregnancy.startDate < start_date, Pregnancy.endDate == None),
+            ),
+        )
+
+    return db_session.query(query.exists())
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
