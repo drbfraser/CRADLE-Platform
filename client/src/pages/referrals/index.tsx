@@ -8,6 +8,7 @@ import { EndpointEnum } from 'src/shared/enums';
 import { ReferralRow } from './ReferralRow';
 import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { SortDir } from 'src/shared/components/apiTable/types';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -38,6 +39,7 @@ export const ReferralsPage = () => {
         sortableColumns={SORTABLE_COLUMNS}
         rowKey={'referralId'}
         initialSortBy={'patientName'}
+        initialSortDir={SortDir.ASC}
         RowComponent={ReferralRow}
         isTransformed={isTransformed}
       />

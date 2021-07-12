@@ -21,7 +21,9 @@ export const PregnancyRow = ({ row, unit, patientId, history }: IProps) => {
   const isTransformed = useMediaQuery(`(min-width:600px)`);
 
   const handleClick = () => {
-    history.push('/patients/' + patientId);
+    history.push(
+      `/patients/${patientId}/edit/pregnancyInfo/${row.pregnancyId}`
+    );
   };
 
   return (

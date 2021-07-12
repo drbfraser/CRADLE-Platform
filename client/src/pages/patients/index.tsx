@@ -11,6 +11,7 @@ import { useHistory } from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
 import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { SortDir } from 'src/shared/components/apiTable/types';
 
 export const PatientsPage = () => {
   const classes = useStyles();
@@ -57,6 +58,7 @@ export const PatientsPage = () => {
         sortableColumns={SORTABLE_COLUMNS}
         rowKey={'patientId'}
         initialSortBy={'patientName'}
+        initialSortDir={SortDir.ASC}
         RowComponent={PatientRow}
         isTransformed={isTransformed}
       />

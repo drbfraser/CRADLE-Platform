@@ -26,7 +26,7 @@ import { MedicalRecordRow } from './MedicalRecordRow';
 import { PregnancyRecordRow } from './PregnancyRecordRow';
 import { goBackWithFallback } from 'src/shared/utils';
 import { HistoryTimeline } from './HistoryTimeline';
-
+import { SortDir } from 'src/shared/components/apiTable/types';
 type RouteParams = {
   patientId: string;
   patientName: string;
@@ -105,6 +105,7 @@ export function HistoryTablesPage() {
       RowComponent: PregnancyRecordRow,
       rowKey: 'pregnancyId',
       initialSortBy: 'startDate',
+      initialSortDir: SortDir.DESC,
       isDrugRecord: undefined,
       SORTABLE_COLUMNS: SORTABLE_PREGNANCY_RECORD_COLUMNS,
       index: 0,
@@ -117,10 +118,11 @@ export function HistoryTablesPage() {
         information: 'Information',
       },
       endpoint:
-        EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_HISTORY,
+        EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_RECORDS,
       RowComponent: MedicalRecordRow,
       rowKey: 'medicalRecordId',
       initialSortBy: 'dateCreated',
+      initialSortDir: SortDir.DESC,
       isDrugRecord: false,
       SORTABLE_COLUMNS: SORTABLE_MEDICAL_RECORD_COLUMNS,
       index: 1,
@@ -130,10 +132,11 @@ export function HistoryTablesPage() {
       name: 'Drug History',
       COLUMNS: MEDICAL_RECORD_COLUMNS,
       endpoint:
-        EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_HISTORY,
+        EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_RECORDS,
       RowComponent: MedicalRecordRow,
       rowKey: 'medicalRecordId',
       initialSortBy: 'dateCreated',
+      initialSortDir: SortDir.DESC,
       isDrugRecord: true,
       SORTABLE_COLUMNS: SORTABLE_MEDICAL_RECORD_COLUMNS,
       index: 2,
@@ -181,6 +184,7 @@ export function HistoryTablesPage() {
             sortableColumns={p.SORTABLE_COLUMNS}
             rowKey={p.rowKey}
             initialSortBy={p.initialSortBy}
+            initialSortDir={p.initialSortDir}
             RowComponent={p.RowComponent}
             isTransformed={isTransformed}
             isDrugRecord={p.isDrugRecord}

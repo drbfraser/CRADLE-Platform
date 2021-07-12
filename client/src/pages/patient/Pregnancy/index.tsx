@@ -18,6 +18,7 @@ import {
   gestationalAgeUnitFormatters,
 } from 'src/shared/constants';
 import { getNumOfWeeksNumeric } from 'src/shared/utils';
+import { SortDir } from 'src/shared/components/apiTable/types';
 interface IProps {
   patientId: string;
 }
@@ -145,6 +146,7 @@ export const PregnancyInfo = ({ patientId }: IProps) => {
               sortableColumns={SORTABLE_COLUMNS}
               rowKey={'pregnancyId'}
               initialSortBy={'endDate'}
+              initialSortDir={SortDir.DESC}
               RowComponent={PregnancyRow}
               isTransformed={isTransformed}
               gestationalAgeUnit={unit}

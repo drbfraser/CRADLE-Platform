@@ -17,6 +17,7 @@ interface IProps {
   sortableColumns: any;
   rowKey: string;
   initialSortBy: string;
+  initialSortDir: string;
   RowComponent: ({ row }: any) => JSX.Element;
   isTransformed: boolean;
   isDrugRecord?: boolean | undefined;
@@ -32,6 +33,7 @@ export const APITable = ({
   sortableColumns,
   rowKey, // a unique value in the row, e.g. patientId for patients
   initialSortBy,
+  initialSortDir,
   RowComponent,
   isTransformed,
   isDrugRecord,
@@ -45,7 +47,7 @@ export const APITable = ({
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [sortBy, setSortBy] = useState(initialSortBy);
-  const [sortDir, setSortDir] = useState(SortDir.ASC);
+  const [sortDir, setSortDir] = useState(initialSortDir);
   const history = useHistory();
   const prevPage = useRef(1);
 
