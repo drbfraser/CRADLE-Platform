@@ -2,7 +2,7 @@ import React from 'react';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
 import { getYearToDisplay } from 'src/shared/utils';
-import { Pregnancy } from 'src/shared/types';
+import { PastPregnancy } from 'src/shared/types';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { Typography } from '@material-ui/core';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
@@ -10,7 +10,7 @@ import { gestationalAgeUnitFormatters } from 'src/shared/constants';
 import { COLUMNS } from './constants';
 
 interface IProps {
-  row: Pregnancy;
+  row: PastPregnancy;
   unit: GestationalAgeUnitEnum;
   patientId: string;
   history: any;
@@ -27,12 +27,12 @@ export const PregnancyRow = ({ row, unit, patientId, history }: IProps) => {
   return (
     <tr className={classes.row} onClick={handleClick}>
       <TableCell label={COLUMNS.endDate} isTransformed={isTransformed}>
-        {getYearToDisplay(row.endDate!)}
+        {getYearToDisplay(row.pregnancyEndDate)}
       </TableCell>
       <TableCell label={COLUMNS.gestation} isTransformed={isTransformed}>
         {gestationalAgeUnitFormatters[unit ?? GestationalAgeUnitEnum.WEEKS](
-          row.startDate,
-          row.endDate
+          row.pregnancyStartDate,
+          row.pregnancyEndDate
         )}
       </TableCell>
       <TableCell label={COLUMNS.outcome} isTransformed={isTransformed}>
@@ -42,7 +42,7 @@ export const PregnancyRow = ({ row, unit, patientId, history }: IProps) => {
             display: 'inline-block',
             textAlign: 'left',
           }}>
-          {row.outcome ? row.outcome : 'N/A'}
+          {row.pregnancyOutcome ? row.pregnancyOutcome : 'N/A'}
         </Typography>
       </TableCell>
     </tr>

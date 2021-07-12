@@ -1,16 +1,23 @@
 import { Paper, Typography, Divider, Box } from '@material-ui/core';
 import { Form, Select, InputOnChangeData } from 'semantic-ui-react';
 import { makeStyles } from '@material-ui/core/styles';
+import { Alert } from '@material-ui/lab';
 import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
 import TextField from '@material-ui/core/TextField';
 import { debounce } from 'lodash';
 import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum, GestationalAgeUnitEnum } from 'src/shared/enums';
+import { PatientPregnancyInfo } from 'src/shared/types';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { COLUMNS, SORTABLE_COLUMNS } from './constants';
 import { PregnancyRow } from './PregnancyRow';
-import { gestationalAgeUnitLabels } from 'src/shared/constants';
+import { RedirectButton } from 'src/shared/components/redirectButton';
+import {
+  gestationalAgeUnitLabels,
+  gestationalAgeUnitFormatters,
+} from 'src/shared/constants';
+import { getNumOfWeeksNumeric } from 'src/shared/utils';
 interface IProps {
   patientId: string;
 }
@@ -19,6 +26,11 @@ export const PregnancyInfo = ({ patientId }: IProps) => {
   const classes = useStyles();
   const [search, setSearch] = useState('');
   const [unit, setUnit] = useState(GestationalAgeUnitEnum.WEEKS);
+  const [currentPregnancy, setCurrentPregnancy] =
+    useState<PatientPregnancyInfo>();
+
+  const debounceSetSearch = debounce(setSearch, 500);
+  const isTransformed = useMediaQuery(`(min-width:560px)`);
 
   const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
     key: unit,
@@ -33,9 +45,59 @@ export const PregnancyInfo = ({ patientId }: IProps) => {
     setUnit(value as GestationalAgeUnitEnum);
   };
 
-  // ensure that we wait until the user has stopped typing
-  const debounceSetSearch = debounce(setSearch, 500);
-  const isTransformed = useMediaQuery(`(min-width:560px)`);
+  const PregnancyStatus = () => {
+    const status = currentPregnancy!.isPregnant ? 'Yes' : 'No';
+
+    let hasTimedOut = false;
+    if (currentPregnancy!.isPregnant) {
+      hasTimedOut =
+        getNumOfWeeksNumeric(currentPregnancy!.pregnancyStartDate) > 40;
+    }
+
+    const GestationalAge = () => {
+      return (
+        <div>
+          <p>
+            <b>Gestational Age: </b>
+            <span style={hasTimedOut ? { color: 'red' } : {}}>
+              {gestationalAgeUnitFormatters[unit](
+                currentPregnancy!.pregnancyStartDate,
+                null
+              )}
+            </span>
+          </p>
+          <br />
+        </div>
+      );
+    };
+
+    return (
+      <div>
+        {currentPregnancy!.isPregnant ? (
+          <RedirectButton
+            text="Edit/Close"
+            redirectUrl={`/patients/${patientId}/edit/pregnancyInfo/${
+              currentPregnancy!.pregnancyId
+            }`}
+          />
+        ) : (
+          <RedirectButton
+            text="Add"
+            redirectUrl={`/pregnancies/new/${patientId}`}
+          />
+        )}
+        <p>
+          <b>Pregnant: </b> {status}
+        </p>
+        {currentPregnancy?.isPregnant && <GestationalAge />}
+        {hasTimedOut && (
+          <Alert severity="warning">Is the patient still pregnant?</Alert>
+        )}
+        {!currentPregnancy?.isPregnant && <br />}
+      </div>
+    );
+  };
+
   return (
     <Paper className={classes.wrapper}>
       <Box p={3}>
@@ -43,41 +105,54 @@ export const PregnancyInfo = ({ patientId }: IProps) => {
           <PregnantWomanIcon fontSize="large" /> &nbsp; Pregnancy Information
         </Typography>
         <Divider />
-        <div className={classes.topWrapper}>
-          <TextField
-            className={classes.search}
-            label="Search"
-            placeholder="Outcome"
-            variant="outlined"
-            onChange={(e) => debounceSetSearch(e.target.value)}
-          />
-          <Form.Field
-            name="gestationalAgeUnits"
-            control={Select}
-            options={unitOptions}
-            placeholder={gestationalAgeUnitLabels[unit]}
-            onChange={handleUnitChange}
-            className={
-              isTransformed ? classes.selectField : classes.selectFieldSmall
-            }
-          />
-        </div>
-        <APITable
-          endpoint={
-            EndpointEnum.PATIENTS +
-            `/${patientId}` +
-            EndpointEnum.PREGNANCY_RECORDS
-          }
-          search={search}
-          columns={COLUMNS}
-          sortableColumns={SORTABLE_COLUMNS}
-          rowKey={'pregnancyId'}
-          initialSortBy={'endDate'}
-          RowComponent={PregnancyRow}
-          isTransformed={isTransformed}
-          gestationalAgeUnit={unit}
-          patientId={patientId}
+        <Form.Field
+          name="gestationalAgeUnits"
+          control={Select}
+          options={unitOptions}
+          placeholder={gestationalAgeUnitLabels[unit]}
+          onChange={handleUnitChange}
+          className={classes.margin}
         />
+        <div className={classes.margin}>
+          <h4>Current Pregnancy</h4>
+          {currentPregnancy && <PregnancyStatus />}
+        </div>
+        <div>
+          <Divider />
+          <h4> Previous Obstetric History</h4>
+          <div>
+            <RedirectButton
+              text="Add"
+              redirectUrl={`/pregnancies/new/${patientId}`}
+            />
+            <TextField
+              className={classes.search}
+              label="Search"
+              placeholder="Outcome"
+              variant="outlined"
+              onChange={(e) => debounceSetSearch(e.target.value)}
+            />
+          </div>
+          <div className={classes.table}>
+            <APITable
+              endpoint={
+                EndpointEnum.PATIENTS +
+                `/${patientId}` +
+                EndpointEnum.PREGNANCY_SUMMARY
+              }
+              search={search}
+              columns={COLUMNS}
+              sortableColumns={SORTABLE_COLUMNS}
+              rowKey={'pregnancyId'}
+              initialSortBy={'endDate'}
+              RowComponent={PregnancyRow}
+              isTransformed={isTransformed}
+              gestationalAgeUnit={unit}
+              patientId={patientId}
+              setCurrentPregnancy={setCurrentPregnancy}
+            />
+          </div>
+        </div>
       </Box>
     </Paper>
   );
@@ -95,17 +170,11 @@ const useStyles = makeStyles({
     justifyContent: 'center',
   },
   search: {
-    width: '225px',
+    display: 'block',
+    width: 225,
   },
-  selectField: {
-    float: 'right',
-  },
-  selectFieldSmall: {
-    display: 'inline-block',
-    marginTop: '20px',
-  },
-  topWrapper: {
-    padding: 15,
+  margin: {
+    marginTop: 15,
   },
   wrapper: {
     backgroundColor: '#fff',

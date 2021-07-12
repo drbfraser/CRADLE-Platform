@@ -97,14 +97,24 @@ export type Patient = {
 };
 
 export type PatientMedicalInfo = {
-  isPregnant: boolean;
-  pregnancyId: string;
-  pregnancyStartDate: number;
-  gestationalAgeUnit: GestationalAgeUnitEnum;
   medicalHistoryId: string;
   medicalHistory: OrNull<string>;
   drugHistoryId: string;
   drugHistory: OrNull<string>;
+};
+
+export type PatientPregnancyInfo = {
+  gestationalAgeUnit: GestationalAgeUnitEnum;
+  isPregnant: boolean;
+  pregnancyId: string;
+  pregnancyStartDate: number;
+};
+
+export type PastPregnancy = {
+  pregnancyId: string;
+  pregnancyEndDate: number;
+  pregnancyOutcome: OrNull<string>;
+  pregnancyStartDate: number;
 };
 
 export interface IUser {
