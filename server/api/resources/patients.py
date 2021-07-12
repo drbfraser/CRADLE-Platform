@@ -245,7 +245,7 @@ class PatientMedicalHistory(Resource):
     @staticmethod
     @patient_association_required()
     @swag_from(
-        "../../specifications/patient-medical-info-get.yml",
+        "../../specifications/patient-medical-history-get.yml",
         methods=["GET"],
         endpoint="patient_medical_history",
     )
