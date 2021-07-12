@@ -1,0 +1,30 @@
+Get a patient's current medical record and drug record
+---
+tags:
+  - Patients
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/medical_history
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            medicalHistoryId:
+              type: integer | Null
+              example: 1001
+            medicalHistory:
+              type: string | Null
+              example: Pregnancy induced hypertension
+            drugHistoryId:
+              type: integer | Null
+              example: 1002
+            drugHistory:
+              type: string | Null
+              example: Aspirin 75mg

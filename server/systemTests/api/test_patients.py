@@ -32,40 +32,51 @@ def test_get_patient(patient_factory, api_get):
     assert expected == response.json()
 
 
-def test_get_patient_medical_info(
+def test_get_patient_pregnancy_summary(
     pregnancy_factory,
-    medical_record_factory,
     patient_id,
     pregnancy_earlier,
     pregnancy_later,
+    api_get,
+):
+    response = api_get(
+        endpoint=f"/api/patients/{patient_id}/pregnancy_summary",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["isPregnant"] == False
+    assert len(response.json()["pastPregnancies"]) == 0
+
+    pregnancy_factory.create(**pregnancy_earlier)
+    pregnancy_factory.create(**pregnancy_later)
+
+    response = api_get(
+        endpoint=f"/api/patients/{patient_id}/pregnancy_summary",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["isPregnant"] == True
+    assert response.json()["pregnancyStartDate"] == pregnancy_later["startDate"]
+    assert len(response.json()["pastPregnancies"]) == 1
+
+    past_pregnancy = response.json()["pastPregnancies"][0]
+    assert past_pregnancy["birthyear"] == 2020
+    assert past_pregnancy["gestationAtBirth"] == 9
+    assert past_pregnancy["pregnancyOutcome"] == pregnancy_earlier["outcome"]
+
+
+def test_get_patient_medical_history(
+    medical_record_factory,
+    patient_id,
     medical_record,
     drug_record,
     api_get,
 ):
-    def test_pregnancy_info(pregnancy):
-        pregnancy_factory.create(**pregnancy)
-
-        response = api_get(
-            endpoint=f"/api/patients/{patient_id}/medical_info",
-        )
-
-        assert response.status_code == 200
-
-        isPregnant = "endDate" not in pregnancy
-        response_body = response.json()
-        assert response_body["isPregnant"] == isPregnant
-        if isPregnant:
-            assert response_body["pregnancyStartDate"] == pregnancy["startDate"]
-            assert response_body["gestationalAgeUnit"] == pregnancy["defaultTimeUnit"]
-
-    test_pregnancy_info(pregnancy_earlier)
-    test_pregnancy_info(pregnancy_later)
-
     medical_record_factory.create(**medical_record)
     medical_record_factory.create(**drug_record)
 
     response = api_get(
-        endpoint=f"/api/patients/{patient_id}/medical_info",
+        endpoint=f"/api/patients/{patient_id}/medical_history",
     )
 
     assert response.status_code == 200
@@ -100,6 +111,42 @@ def test_get_patient_timeline(
     assert timeline[0]["information"] == drug_record["information"]
     assert timeline[2]["date"] == pregnancy_later["startDate"]
     assert timeline[3]["date"] == pregnancy_earlier["endDate"]
+
+
+def test_get_mobile_patient_list(
+    pregnancy_factory,
+    medical_record_factory,
+    patient_id,
+    patient_info,
+    pregnancy_earlier,
+    pregnancy_later,
+    medical_record,
+    drug_record,
+    api_get,
+):
+    pregnancy_factory.create(**pregnancy_earlier)
+    pregnancy_factory.create(**pregnancy_later)
+    medical_record_factory.create(**medical_record)
+    medical_record_factory.create(**drug_record)
+
+    response = api_get(endpoint="/api/mobile/patients_and_readings")
+
+    assert response.status_code == 200
+
+    patients = response.json().get("patients")
+    patient = None
+    for p in patients:
+        if p["patientId"] == patient_id:
+            patient = p
+            break
+
+    assert patient["dob"] == patient_info["dob"]
+    assert patient["pregnancyId"] == pregnancy_later["id"]
+    assert patient["gestationalTimestamp"] == pregnancy_later["startDate"]
+    assert patient["medicalHistoryId"] == medical_record["id"]
+    assert patient["medicalHistory"] == medical_record["information"]
+    assert patient["drugHistoryId"] == drug_record["id"]
+    assert patient["drugHistory"] == drug_record["information"]
 
 
 @pytest.mark.skip(reason="changes are to be made on mobile patient api")
@@ -276,6 +323,7 @@ def test_create_patient_with_nested_readings(database, api_post):
         crud.delete_by(Patient, patientId=patient_id)
 
 
+@pytest.mark.skip()
 def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
     patient_id = "8790160146141"
     date = get_current_time()

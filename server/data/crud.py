@@ -1,6 +1,7 @@
 from typing import List, Optional, Type, TypeVar, Any
 from collections import namedtuple
-from sqlalchemy.sql.expression import text, asc, desc, null, literal
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_
 
 from data import db_session
 from models import (
@@ -272,7 +273,7 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
-def read_patient_records_admin_view(m: Type[M], patient_id, **kwargs) -> List[M]:
+def read_patient_records_admin_view(m: Type[M], patient_id: str, **kwargs) -> List[M]:
     """
     Queries the database for medical records of a patient
 
@@ -310,7 +311,7 @@ def read_patient_records_admin_view(m: Type[M], patient_id, **kwargs) -> List[M]
         return query.all()
 
 
-def read_patient_timeline(patient_id, **kwargs) -> List[Any]:
+def read_patient_timeline_admin_view(patient_id: str, **kwargs) -> List[Any]:
     """
     Queries the database for a patient's pregnancy, medical and drug records in reverse
     chronological order.
@@ -359,6 +360,76 @@ def read_patient_timeline(patient_id, **kwargs) -> List[Any]:
     ).order_by(text("date desc"))
 
     return query.slice(*__get_slice_indexes(page, limit))
+
+
+def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
+    """
+    Queries the database for all patients associated with the user including the latest
+    pregnancy, medical and durg records for each patient.
+
+    :param user_id: The user ID to filter patients wrt patient associations; None to get
+    all patients
+
+    :return: A list of patients
+    """
+    p1 = aliased(Pregnancy)
+    p2 = aliased(Pregnancy)
+    m1 = aliased(MedicalRecord)
+    m2 = aliased(MedicalRecord)
+    m3 = aliased(MedicalRecord)
+    m4 = aliased(MedicalRecord)
+
+    query = (
+        db_session.query(
+            Patient.patientId,
+            Patient.patientName,
+            Patient.patientSex,
+            Patient.dob,
+            Patient.isExactDob,
+            Patient.zone,
+            Patient.villageNumber,
+            Patient.householdNumber,
+            Patient.allergy,
+            Patient.lastEdited,
+            p1.id.label("pregnancyId"),
+            p1.startDate.label("gestationalTimestamp"),
+            p1.defaultTimeUnit.label("gestationalAgeUnit"),
+            m1.id.label("medicalHistoryId"),
+            m1.information.label("medicalHistory"),
+            m3.id.label("drugHistoryId"),
+            m3.information.label("drugHistory"),
+        )
+        .outerjoin(p1, and_(Patient.patientId == p1.patientId, p1.endDate == None))
+        .outerjoin(p2, and_(p1.patientId == p2.patientId, p1.startDate < p2.startDate))
+        .outerjoin(
+            m1, and_(Patient.patientId == m1.patientId, m1.isDrugRecord == False)
+        )
+        .outerjoin(
+            m2,
+            and_(
+                m1.patientId == m2.patientId,
+                m1.dateCreated < m2.dateCreated,
+                m2.isDrugRecord == False,
+            ),
+        )
+        .outerjoin(m3, and_(Patient.patientId == m3.patientId, m3.isDrugRecord == True))
+        .outerjoin(
+            m4,
+            and_(
+                m3.patientId == m4.patientId,
+                m3.dateCreated < m4.dateCreated,
+                m4.isDrugRecord == True,
+            ),
+        )
+        .filter(p2.startDate == None, m2.dateCreated == None)
+    )
+
+    if user_id:
+        query = query.join(PatientAssociations, Patient.associations).filter(
+            PatientAssociations.userId == user_id
+        )
+
+    return query.all()
 
 
 def read_all_patients_for_user(user: User, **kwargs) -> List[M]:
@@ -566,19 +637,12 @@ def get_pregnancy_status(patient_id: str):
     )
 
 
-def get_medical_info(patient_id: str):
+def get_patient_medical_history(patient_id: str):
     """
-    Queries the database for a patient's current medical info
+    Queries the database for a patient's current medical history.
 
-    :return: A dict storing a pregnancy, a medical, and a drug record
+    :return: A dict storing a medical record and a drug record
     """
-    pregnancy = (
-        db_session.query(Pregnancy)
-        .filter_by(patientId=patient_id)
-        .order_by(Pregnancy.startDate.desc())
-        .first()
-    )
-
     medical = (
         db_session.query(MedicalRecord)
         .filter_by(patientId=patient_id, isDrugRecord=False)
@@ -594,7 +658,6 @@ def get_medical_info(patient_id: str):
     )
 
     return {
-        "pregnancy": pregnancy,
         "medical": medical,
         "drug": drug,
     }

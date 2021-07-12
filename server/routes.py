@@ -26,7 +26,8 @@ from api.resources.patients import (
     PatientInfo,
     PatientStats,
     PatientReadings,
-    PatientMedicalInfo,
+    PatientPregnancySummary,
+    PatientMedicalHistory,
     PatientTimeline,
 )
 from api.resources.readings import Root as Readings, SingleReading
@@ -66,6 +67,14 @@ def init(api):
     api.add_resource(
         AndroidPatientGlobalSearch, "/api/patient/global/<string:search>"
     )  # [GET]
+    api.add_resource(
+        AndroidPatients, "/api/mobile/patients", endpoint="android_patient"
+    )  # [GET]
+    api.add_resource(
+        AndroidPatientsAndReadings,
+        "/api/mobile/patients_and_readings",
+        endpoint="android_patients_and_readings",
+    )  # [GET]
 
     #### New Endpoints ####
     api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST]
@@ -93,9 +102,6 @@ def init(api):
         SinglePatient, "/api/patients/<string:patient_id>", endpoint="single_patient"
     )  # [GET]
     api.add_resource(
-        AndroidPatients, "/api/mobile/patients", endpoint="android_patient"
-    )  # [GET]
-    api.add_resource(
         PatientInfo, "/api/patients/<string:patient_id>/info", endpoint="patient_info"
     )  # [GET, PUT]
     api.add_resource(
@@ -109,9 +115,14 @@ def init(api):
         endpoint="patient_readings",
     )  # [GET]
     api.add_resource(
-        PatientMedicalInfo,
-        "/api/patients/<string:patient_id>/medical_info",
-        endpoint="patient_medical_info",
+        PatientPregnancySummary,
+        "/api/patients/<string:patient_id>/pregnancy_summary",
+        endpoint="patient_pregnancy_summary",
+    )  # [GET]
+    api.add_resource(
+        PatientMedicalHistory,
+        "/api/patients/<string:patient_id>/medical_history",
+        endpoint="patient_medical_history",
     )  # [GET]
     api.add_resource(
         PatientTimeline,

@@ -7,6 +7,17 @@ def patient_id():
 
 
 @pytest.fixture
+def patient_info(patient_id):
+    return {
+        "patientId": patient_id,
+        "patientName": "AB",
+        "patientSex": "FEMALE",
+        "dob": "1998-01-01",
+        "isExactDob": False,
+    }
+
+
+@pytest.fixture
 def pregnancy_earlier(patient_id):
     return {
         "id": 60360714,

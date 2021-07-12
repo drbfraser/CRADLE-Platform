@@ -1,9 +1,10 @@
+import datetime
+import collections
+
 from enum import Enum
 from typing import Any, Dict, Type, List, Optional
 
-import collections
-
-from data.crud import M, read_all
+from data.crud import M
 from models import Patient, Reading, Referral, FollowUp, Pregnancy, MedicalRecord
 import service.invariant as invariant
 
@@ -34,44 +35,81 @@ def marshal(obj: Any, shallow=False) -> dict:
         return d
 
 
-def marshal_patient_medical_info(
-    pregnancy: Pregnancy, medical: MedicalRecord, drug: MedicalRecord
+def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
+    summary = {
+        "isPregnant": False,
+        "pastPregnancies": list(),
+    }
+
+    if records:
+        record = records[0]
+        if not record.endDate:
+            current_pregnancy = {
+                "isPregnant": True,
+                "pregnancyId": record.id,
+                "pregnancyStartDate": record.startDate,
+                "gestationalAgeUnit": record.defaultTimeUnit.value,
+            }
+            summary.update(current_pregnancy)
+            del records[0]
+
+        past_pregnancies = list()
+        for record in records:
+            pregnancy = {
+                "pregnancyId": record.id,
+                "pregnancyOutcome": record.outcome,
+            }
+            if record.endDate:
+                start_date = datetime.date.fromtimestamp(record.startDate)
+                end_date = datetime.date.fromtimestamp(record.endDate)
+                gestation = (
+                    (end_date.year - start_date.year) * 12
+                    + end_date.month
+                    - start_date.month
+                )
+                info = {
+                    "birthyear": end_date.year,
+                    "gestationAtBirth": gestation,
+                }
+                pregnancy.update(info)
+            past_pregnancies.append(pregnancy)
+        summary["pastPregnancies"] = past_pregnancies
+
+    return summary
+
+
+def marshal_patient_medical_history(
+    medical: Optional[MedicalRecord] = None, drug: Optional[MedicalRecord] = None
 ) -> dict:
-    """
-    Recursively marshals an object to a dictionary.
-
-    :param obj: The object to marshal
-    :param shallow: If true, only the top level fields will be marshalled
-    :return: A dictionary mapping fields to values
-    """
-    medical_info = dict()
-
-    if pregnancy and not pregnancy.endDate:
-        info = {
-            "isPregnant": True,
-            "pregnancyId": pregnancy.id,
-            "pregnancyStartDate": pregnancy.startDate,
-            "gestationalAgeUnit": pregnancy.defaultTimeUnit.value,
-        }
-        medical_info.update(info)
-    else:
-        medical_info["isPregnant"] = False
+    records = dict()
 
     if medical:
         info = {
             "medicalHistoryId": medical.id,
             "medicalHistory": medical.information,
         }
-        medical_info.update(info)
+        records.update(info)
 
     if drug:
         info = {
             "drugHistoryId": drug.id,
             "drugHistory": drug.information,
         }
-        medical_info.update(info)
+        records.update(info)
 
-    return medical_info
+    return records
+
+
+def marshal_mobile_patient(p: Any) -> dict:
+    d = p._asdict()
+    __pre_process(d)
+
+    if d.get("dob"):
+        d["dob"] = str(d["dob"])
+
+    d["base"] = d["lastEdited"]
+
+    return d
 
 
 def __marshal_patient(p: Patient, shallow) -> dict:
