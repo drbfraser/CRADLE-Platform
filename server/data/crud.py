@@ -273,7 +273,7 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
-def read_patient_records_admin_view(m: Type[M], patient_id: str, **kwargs) -> List[M]:
+def read_patient_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
     """
     Queries the database for medical records of a patient
 
@@ -311,7 +311,24 @@ def read_patient_records_admin_view(m: Type[M], patient_id: str, **kwargs) -> Li
         return query.all()
 
 
-def read_patient_timeline_admin_view(patient_id: str, **kwargs) -> List[Any]:
+def read_patient_current_medical_record(
+    patient_id: str, is_drug_record: bool
+) -> MedicalRecord:
+    """
+    Queries the database for a patient's current medical or drug record.
+
+    :return: A medical or drug record
+    """
+    query = (
+        db_session.query(MedicalRecord)
+        .filter_by(patientId=patient_id, isDrugRecord=is_drug_record)
+        .order_by(MedicalRecord.dateCreated.desc())
+    )
+
+    return query.first()
+
+
+def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     """
     Queries the database for a patient's pregnancy, medical and drug records in reverse
     chronological order.
@@ -623,48 +640,8 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
     )
 
 
-def get_pregnancy_status(patient_id: str):
-    """
-    Queries the database for the latest pregnancy for a patient
-
-    :return: A pregnancy record
-    """
-    return (
-        db_session.query(Pregnancy)
-        .filter_by(patientId=patient_id)
-        .order_by(Pregnancy.startDate.desc())
-        .first()
-    )
-
-
-def get_patient_medical_history(patient_id: str):
-    """
-    Queries the database for a patient's current medical history.
-
-    :return: A dict storing a medical record and a drug record
-    """
-    medical = (
-        db_session.query(MedicalRecord)
-        .filter_by(patientId=patient_id, isDrugRecord=False)
-        .order_by(MedicalRecord.dateCreated.desc())
-        .first()
-    )
-
-    drug = (
-        db_session.query(MedicalRecord)
-        .filter_by(patientId=patient_id, isDrugRecord=True)
-        .order_by(MedicalRecord.dateCreated.desc())
-        .first()
-    )
-
-    return {
-        "medical": medical,
-        "drug": drug,
-    }
-
-
 def has_conflicting_pregnancy_record(
-    patient_id: str, start_date: int, end_date: Optional(int) = None
+    patient_id: str, start_date: int, end_date: Optional[int] = None
 ) -> bool:
     if not end_date:
         query = db_session.query(Pregnancy).filter(

@@ -62,31 +62,6 @@ class Root(Resource):
         return marshal.marshal(new_pregnancy), 201
 
 
-# /api/patients/<string:patient_id>/pregnancies/status
-class PregnancyStatus(Resource):
-    @staticmethod
-    @jwt_required
-    @swag_from(
-        "../../specifications/pregnancy-status-get.yml",
-        methods=["GET"],
-        endpoint="pregnancy_status",
-    )
-    def get(patient_id: str):
-        pregnancy = crud.get_pregnancy_status(patient_id)
-
-        if not pregnancy:
-            return {"isPregnant": False}
-
-        return {
-            "isPregnant": False if pregnancy.endDate else True,
-            "patientId": pregnancy.patientId,
-            "startDate": pregnancy.startDate,
-            "defaultTimeUnit": pregnancy.defaultTimeUnit.value,
-            "endDate": pregnancy.endDate,
-            "outcome": pregnancy.outcome,
-        }
-
-
 # /api/pregnancies/<string:pregnancy_id>
 class SinglePregnancy(Resource):
     @staticmethod
@@ -149,7 +124,7 @@ def _process_request_body(request_body):
         request_body["outcome"] = request_body.pop("pregnancyOutcome")
 
 
-def _check_conflict(request_body, patient_id, pregnancy_id):
+def _check_conflict(request_body, patient_id):
     start_date = request_body.get("startDate")
     end_date = request_body.get("endDate")
     if crud.has_conflicting_pregnancy_record(patient_id, start_date, end_date):

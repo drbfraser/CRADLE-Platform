@@ -84,23 +84,6 @@ def test_get_pregnancy_list(
     assert len(response.json()) >= 2
 
 
-@pytest.mark.skip()
-def test_get_pregnancy_status(
-    pregnancy_factory, patient_id, pregnancy_earlier, pregnancy_later, api_get
-):
-    pregnancy_factory.create(**pregnancy_earlier)
-    pregnancy_factory.create(**pregnancy_later)
-
-    response = api_get(
-        endpoint=f"/api/patients/{patient_id}/pregnancies/status",
-    )
-
-    assert response.status_code == 200
-
-    pregnancy_later["isPregnant"] = True
-    assert response.json() == pregnancy_later
-
-
 def test_invalid_pregnancy_not_updated(pregnancy_factory, pregnancy_later, api_put):
     pregnancy_factory.create(**pregnancy_later)
 
