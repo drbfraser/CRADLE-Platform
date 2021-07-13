@@ -45,29 +45,33 @@ def test_put_pregnancy(pregnancy_factory, pregnancy_later, api_put):
     assert new_pregnancy.outcome == outcome
 
 
-def test_post_pregnancy(patient_id, pregnancy_later, api_post):
-    try:
-        pregnancy_id = pregnancy_later["id"]
+def test_post_and_delete_pregnancy(
+    patient_id, pregnancy_later, database, api_post, api_delete
+):
+    pregnancy_id = pregnancy_later["id"]
 
-        pregnancy = {
-            "id": pregnancy_id,
-            "pregnancyStartDate": pregnancy_later["startDate"],
-            "gestationalAgeUnit": pregnancy_later["defaultTimeUnit"],
-        }
-        response = api_post(
-            endpoint=f"/api/patients/{patient_id}/pregnancies",
-            json=pregnancy,
-        )
+    pregnancy = {
+        "id": pregnancy_id,
+        "pregnancyStartDate": pregnancy_later["startDate"],
+        "gestationalAgeUnit": pregnancy_later["defaultTimeUnit"],
+    }
+    response = api_post(
+        endpoint=f"/api/patients/{patient_id}/pregnancies",
+        json=pregnancy,
+    )
 
-        new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+    new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
 
-        assert response.status_code == 201
-        assert new_pregnancy.patientId == patient_id
-        assert new_pregnancy.startDate == pregnancy_later["startDate"]
-        assert new_pregnancy.defaultTimeUnit.value == pregnancy_later["defaultTimeUnit"]
+    assert response.status_code == 201
+    assert new_pregnancy.patientId == patient_id
+    assert new_pregnancy.startDate == pregnancy_later["startDate"]
+    assert new_pregnancy.defaultTimeUnit.value == pregnancy_later["defaultTimeUnit"]
 
-    finally:
-        crud.delete_by(Pregnancy, id=pregnancy_id)
+    response = api_delete(endpoint=f"/api/pregnancies/{pregnancy_id}")
+    database.session.commit()
+
+    assert response.status_code == 200
+    assert crud.read(Pregnancy, id=pregnancy_id) is None
 
 
 def test_get_pregnancy_list(
@@ -76,9 +80,7 @@ def test_get_pregnancy_list(
     pregnancy_factory.create(**pregnancy_earlier)
     pregnancy_factory.create(**pregnancy_later)
 
-    response = api_get(
-        endpoint=f"/api/patients/{patient_id}/pregnancies",
-    )
+    response = api_get(endpoint=f"/api/patients/{patient_id}/pregnancies")
 
     assert response.status_code == 200
     assert len(response.json()) >= 2
