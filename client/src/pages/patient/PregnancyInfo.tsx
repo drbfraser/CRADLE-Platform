@@ -1,11 +1,15 @@
 import { Paper, Typography, Divider, Box } from '@material-ui/core';
 import { Form, Select, InputOnChangeData } from 'semantic-ui-react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { Alert, Skeleton } from '@material-ui/lab';
 import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
 import React, { useState, useEffect } from 'react';
-import { EndpointEnum, GestationalAgeUnitEnum } from 'src/shared/enums';
+import {
+  EndpointEnum,
+  GestationalAgeUnitEnum,
+  SexEnum,
+} from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { PatientPregnancyInfo } from 'src/shared/types';
 import { RedirectButton } from 'src/shared/components/redirectButton';
@@ -18,9 +22,10 @@ import {
 import { getNumOfWeeksNumeric, getYearToDisplay } from 'src/shared/utils';
 interface IProps {
   patientId: string;
+  patientName: string;
 }
 
-export const PregnancyInfo = ({ patientId }: IProps) => {
+export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   const classes = useStyles();
   const history = useHistory();
   const [currentPregnancyUnit, setCurrentPregnancyUnit] = useState(
@@ -140,6 +145,13 @@ export const PregnancyInfo = ({ patientId }: IProps) => {
       <Box p={3}>
         <Typography component="h3" variant="h5">
           <PregnantWomanIcon fontSize="large" /> Pregnancy Information
+          <Link
+            to={
+              '/history/' + patientId + '/' + patientName + '/' + SexEnum.FEMALE
+            }
+            className={classes.smallLink}>
+            View Past Records
+          </Link>
         </Typography>
         <Divider />
         {errorLoading ? (
@@ -213,5 +225,9 @@ const useStyles = makeStyles({
   title: {
     display: `flex`,
     alignItems: `center`,
+  },
+  smallLink: {
+    float: 'right',
+    fontSize: 14,
   },
 });

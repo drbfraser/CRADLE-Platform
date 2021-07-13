@@ -47,7 +47,10 @@ export const PatientPage = () => {
           <PersonalInfo patient={patient} />
           <br />
           {patient?.patientSex === SexEnum.FEMALE ? (
-            <PregnancyInfo patientId={patientId} />
+            <PregnancyInfo
+              patientId={patientId}
+              patientName={patient?.patientName}
+            />
           ) : (
             <MedicalInfo patient={patient} patientId={patientId} />
           )}

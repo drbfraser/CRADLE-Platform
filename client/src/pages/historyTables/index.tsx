@@ -47,7 +47,7 @@ export function HistoryTablesPage() {
   const [pregnancySearch, setPregnancySearch] = useState('');
   const [medicalHistorySearch, setMedicalHistorySearch] = useState('');
   const [drugHistorySearch, setDrugHistorySearch] = useState('');
-  const [unit, setUnit] = useState(GestationalAgeUnitEnum.WEEKS);
+  const [unit, setUnit] = useState(GestationalAgeUnitEnum.MONTHS);
 
   const debounceSetPregnancySearch = debounce(setPregnancySearch, 500);
   const debounceSetMedicalHistorySearch = debounce(
