@@ -656,10 +656,15 @@ def has_conflicting_pregnancy_record(
                 and_(Pregnancy.startDate < start_date, Pregnancy.endDate > start_date),
                 and_(Pregnancy.startDate < end_date, Pregnancy.endDate > end_date),
                 and_(Pregnancy.startDate < start_date, Pregnancy.endDate == None),
+                and_(
+                    Pregnancy.startDate > start_date,
+                    Pregnancy.startDate < end_date,
+                    Pregnancy.endDate == None,
+                ),
             ),
         )
 
-    return db_session.query(query.exists())
+    return db_session.query(query.exists()).scalar()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #

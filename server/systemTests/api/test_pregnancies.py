@@ -31,7 +31,7 @@ def test_put_pregnancy(pregnancy_factory, pregnancy_later, api_put):
     pregnancy_factory.create(**pregnancy_later)
 
     pregnancy_id = pregnancy_later["id"]
-    end_date = 1623737526
+    end_date = pregnancy_later["startDate"] + 2e7
     outcome = "Baby born at 8 months."
     response = api_put(
         endpoint=f"/api/pregnancies/{pregnancy_id}",
@@ -84,10 +84,12 @@ def test_get_pregnancy_list(
     assert len(response.json()) >= 2
 
 
-def test_invalid_pregnancy_not_updated(pregnancy_factory, pregnancy_later, api_put):
-    pregnancy_factory.create(**pregnancy_later)
+def test_invalid_pregnancy_not_updated(
+    pregnancy_factory, pregnancy_earlier, pregnancy_later, api_put
+):
+    pregnancy_factory.create(**pregnancy_earlier)
 
-    pregnancy_id = pregnancy_later["id"]
+    pregnancy_id = pregnancy_earlier["id"]
     response = api_put(
         endpoint=f"/api/pregnancies/{pregnancy_id}",
         json={"patientId": "0"},
@@ -96,18 +98,46 @@ def test_invalid_pregnancy_not_updated(pregnancy_factory, pregnancy_later, api_p
     pregnancy = crud.read(Pregnancy, id=pregnancy_id)
 
     assert response.status_code == 400
-    assert pregnancy.patientId == pregnancy_later["patientId"]
+    assert pregnancy.patientId == pregnancy_earlier["patientId"]
+
+    pregnancy_factory.create(**pregnancy_later)
+
+    pregnancy_id = pregnancy_later["id"]
+    start_date = pregnancy_earlier["endDate"] - 3e6
+    response = api_put(
+        endpoint=f"/api/pregnancies/{pregnancy_id}",
+        json={"pregnancyStartDate": start_date},
+    )
+
+    pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+
+    assert response.status_code == 409
+    assert pregnancy.startDate == pregnancy_later["startDate"]
+
+    pregnancy_id = pregnancy_earlier["id"]
+    end_date = pregnancy_later["startDate"] + 3e6
+    response = api_put(
+        endpoint=f"/api/pregnancies/{pregnancy_id}",
+        json={"pregnancyEndDate": end_date},
+    )
+
+    pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+
+    assert response.status_code == 409
+    assert pregnancy.endDate == pregnancy_earlier["endDate"]
 
 
 def test_invalid_pregnancy_not_created(
-    pregnancy_factory, patient_id, pregnancy_later, api_post
+    pregnancy_factory, patient_id, pregnancy_earlier, api_post
 ):
-    pregnancy_factory.create(**pregnancy_later)
+    pregnancy_factory.create(**pregnancy_earlier)
+    unit = pregnancy_earlier["defaultTimeUnit"]
 
+    start_date = pregnancy_earlier["endDate"] + 3e6
     pregnancy = {
-        "id": pregnancy_later["id"],
-        "pregnancyStartDate": pregnancy_later["startDate"],
-        "gestationalAgeUnit": pregnancy_later["defaultTimeUnit"],
+        "id": pregnancy_earlier["id"],
+        "pregnancyStartDate": start_date,
+        "gestationalAgeUnit": unit,
     }
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/pregnancies",
@@ -115,3 +145,32 @@ def test_invalid_pregnancy_not_created(
     )
 
     assert response.status_code == 409
+    assert crud.read(Pregnancy, patientId=patient_id, startDate=start_date) is None
+
+    start_date = pregnancy_earlier["endDate"] - 3e6
+    pregnancy = {
+        "pregnancyStartDate": start_date,
+        "gestationalAgeUnit": unit,
+    }
+    response = api_post(
+        endpoint=f"/api/patients/{patient_id}/pregnancies",
+        json=pregnancy,
+    )
+
+    assert response.status_code == 409
+    assert crud.read(Pregnancy, patientId=patient_id, startDate=start_date) is None
+
+    end_date = pregnancy_earlier["startDate"] + 3e6
+    start_date = end_date - 2e7
+    pregnancy = {
+        "pregnancyStartDate": start_date,
+        "gestationalAgeUnit": unit,
+        "pregnancyEndDate": end_date,
+    }
+    response = api_post(
+        endpoint=f"/api/patients/{patient_id}/pregnancies",
+        json=pregnancy,
+    )
+
+    assert response.status_code == 409
+    assert crud.read(Pregnancy, patientId=patient_id, startDate=start_date) is None
