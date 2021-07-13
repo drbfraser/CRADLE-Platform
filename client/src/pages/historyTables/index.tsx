@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tab, InputOnChangeData, Form, Select } from 'semantic-ui-react';
+import { Tab, InputOnChangeData, Form, Select, Menu } from 'semantic-ui-react';
 import { useRouteMatch } from 'react-router-dom';
 import { Typography, Paper, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -27,20 +27,34 @@ import { PregnancyRecordRow } from './PregnancyRecordRow';
 import { goBackWithFallback } from 'src/shared/utils';
 import { HistoryTimeline } from './HistoryTimeline';
 import { SortDir } from 'src/shared/components/apiTable/types';
+
 type RouteParams = {
   patientId: string;
   patientName: string;
   patientSex: SexEnum;
 };
 
+enum HistoryViewOption {
+  TABLE = 'table',
+  TIMELINE = 'timeline',
+}
+
 export function HistoryTablesPage() {
   const { patientId, patientName, patientSex } =
     useRouteMatch<RouteParams>().params;
   const classes = useStyles();
-  const [search, setSearch] = useState('');
+  const [viewSelected, setViewSelected] = useState(HistoryViewOption.TABLE);
+  const [pregnancySearch, setPregnancySearch] = useState('');
+  const [medicalHistorySearch, setMedicalHistorySearch] = useState('');
+  const [drugHistorySearch, setDrugHistorySearch] = useState('');
   const [unit, setUnit] = useState(GestationalAgeUnitEnum.WEEKS);
 
-  const debounceSetSearch = debounce(setSearch, 500);
+  const debounceSetPregnancySearch = debounce(setPregnancySearch, 500);
+  const debounceSetMedicalHistorySearch = debounce(
+    setMedicalHistorySearch,
+    500
+  );
+  const debounceSetDrugHistorySearch = debounce(setDrugHistorySearch, 500);
 
   const isTransformed = useMediaQuery(`(min-width:560px)`);
 
@@ -56,43 +70,6 @@ export function HistoryTablesPage() {
   ) => {
     setUnit(value as GestationalAgeUnitEnum);
   };
-
-  const TableViewPane = () => {
-    return (
-      <Paper>
-        <Box p={3}>
-          <Tab
-            menu={{
-              secondary: true,
-              pointing: true,
-              className: classes.tabs,
-            }}
-            panes={panes}
-          />
-        </Box>
-      </Paper>
-    );
-  };
-
-  const topPanes = [
-    {
-      name: 'Table View',
-      component: TableViewPane,
-      index: 0,
-    },
-    {
-      name: 'Timeline View',
-      component: HistoryTimeline,
-      index: 1,
-    },
-  ];
-
-  const outerPanes = topPanes.map((p) => ({
-    menuItem: p.name,
-    render: () => (
-      <p.component patientId={patientId} isTransformed={isTransformed} />
-    ),
-  }));
 
   const allPanes = [
     {
@@ -110,6 +87,8 @@ export function HistoryTablesPage() {
       SORTABLE_COLUMNS: SORTABLE_PREGNANCY_RECORD_COLUMNS,
       index: 0,
       searchText: 'Outcome',
+      search: pregnancySearch,
+      debounceSetSearch: debounceSetPregnancySearch,
     },
     {
       name: 'Medical History',
@@ -127,6 +106,8 @@ export function HistoryTablesPage() {
       SORTABLE_COLUMNS: SORTABLE_MEDICAL_RECORD_COLUMNS,
       index: 1,
       searchText: 'Information',
+      search: medicalHistorySearch,
+      debounceSetSearch: debounceSetMedicalHistorySearch,
     },
     {
       name: 'Drug History',
@@ -141,14 +122,17 @@ export function HistoryTablesPage() {
       SORTABLE_COLUMNS: SORTABLE_MEDICAL_RECORD_COLUMNS,
       index: 2,
       searchText: 'Information',
+      search: drugHistorySearch,
+      debounceSetSearch: debounceSetDrugHistorySearch,
     },
   ];
 
-  const panes = (
+  const filteredPanes =
     patientSex === SexEnum.MALE
       ? allPanes.filter((obj) => obj.name !== 'Pregnancy History')
-      : allPanes
-  ).map((p) => ({
+      : allPanes;
+
+  const panes = filteredPanes.map((p) => ({
     menuItem: p.name,
     render: () => (
       <Tab.Pane key={p.index} className={classes.wrapper}>
@@ -158,7 +142,8 @@ export function HistoryTablesPage() {
             label="Search"
             placeholder={p.searchText}
             variant="outlined"
-            onChange={(e) => debounceSetSearch(e.target.value)}
+            name={p.search}
+            onChange={(e) => p.debounceSetSearch(e.target.value)}
           />
           {p.name === 'Pregnancy History' && (
             <>
@@ -179,7 +164,7 @@ export function HistoryTablesPage() {
         <div className={classes.table}>
           <APITable
             endpoint={p.endpoint}
-            search={search}
+            search={p.search}
             columns={p.COLUMNS}
             sortableColumns={p.SORTABLE_COLUMNS}
             rowKey={p.rowKey}
@@ -207,15 +192,46 @@ export function HistoryTablesPage() {
         </Tooltip>
         <Typography variant="h4">Past Records of {patientName}</Typography>
       </div>
-      <Tab
-        menu={{
-          attached: true,
-          tabular: true,
-          pointing: true,
-          className: classes.outerTabs,
-        }}
-        panes={outerPanes}
-      />
+      <Menu fluid widths={2}>
+        <Menu.Item
+          name="Table View"
+          active={viewSelected === HistoryViewOption.TABLE}
+          onClick={() => setViewSelected(HistoryViewOption.TABLE)}
+        />
+        <Menu.Item
+          name="Timeline View"
+          active={viewSelected === HistoryViewOption.TIMELINE}
+          onClick={() => setViewSelected(HistoryViewOption.TIMELINE)}
+        />
+      </Menu>
+      <div>
+        {viewSelected === HistoryViewOption.TABLE && (
+          <Paper>
+            <Box p={3}>
+              <Tab
+                menu={{
+                  secondary: true,
+                  pointing: true,
+                  className: classes.tabs,
+                }}
+                panes={panes}
+                //Set search state value of the new active tab to empty
+                onTabChange={(_, tabProps) => {
+                  filteredPanes[
+                    Number(tabProps.activeIndex!)
+                  ].debounceSetSearch('');
+                }}
+              />
+            </Box>
+          </Paper>
+        )}
+        {viewSelected === HistoryViewOption.TIMELINE && (
+          <HistoryTimeline
+            patientId={patientId}
+            isTransformed={isTransformed}
+          />
+        )}
+      </div>
     </div>
   );
 }
