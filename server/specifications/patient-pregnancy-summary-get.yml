@@ -37,12 +37,12 @@ responses:
                   pregnancyId:
                     type: integer
                     example: 1001
-                  birthyear:
-                    type: integer
-                    example: 2020
-                  gestationAtBirth:
-                    type: integer
-                    example: 9
+                  pregnancyStartDate:
+                    type: Unix timestamp
+                    example: 1620000002
+                  pregnancyEndDate:
+                    type: Unix timestamp
+                    example: 1620000002
                   pregnancyOutcome:
                     type: string | Null
                     example: SVD
