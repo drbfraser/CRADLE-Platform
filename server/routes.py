@@ -150,7 +150,7 @@ def init(api):
         SinglePregnancy,
         "/api/pregnancies/<string:pregnancy_id>",
         endpoint="single_pregnancy",
-    )  # [GET, PUT]
+    )  # [GET, PUT, DELETE]
 
     api.add_resource(
         MedicalRecords,
@@ -161,7 +161,7 @@ def init(api):
         SingleMedicalRecord,
         "/api/medical_records/<string:record_id>",
         endpoint="single_medical_record",
-    )  # [GET, PUT]
+    )  # [GET, PUT, DELETE]
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
     api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]
