@@ -17,6 +17,17 @@ export const getTimestampFromWeeksDays = (
   return timestampSecs;
 };
 
+export const getTimestampFromWeeksDaysWithEndDate = (
+  weeks: string,
+  days: string,
+  endDate: string
+): number => {
+  const weeksInSeconds = Number(weeks) * 7 * 24 * 60 * 60;
+  const daysInSeconds = Number(days) * 24 * 60 * 60;
+  const timestamp = Number(endDate) - weeksInSeconds - daysInSeconds;
+  return timestamp;
+};
+
 export const getTimestampFromWeeks = (weeks: string): number => {
   const weeksInMillis = Number(weeks) * 7 * 24 * 60 * 60 * 1000;
   const timestampMillis = new Date().getTime() - weeksInMillis;
@@ -38,6 +49,17 @@ export const getTimestampFromMonths = (months: string): number => {
 
   // * Convert to seconds
   return gestationalDate.getTime() / 1000;
+};
+
+export const getTimestampFromMonthsWithEndDate = (
+  months: string,
+  endDate: string
+): number => {
+  if (months === `Less than 1`) {
+    return Number(endDate);
+  }
+  const timestampSecs = Number(endDate) - Number(months) * 4 * 7 * 24 * 60 * 60;
+  return timestampSecs;
 };
 
 export const getNumOfWeeksDaysNumeric = (

@@ -3,4 +3,4 @@ export const COLUMNS = {
   gestation: 'Gestation',
   outcome: 'Outcome',
 };
-export const SORTABLE_COLUMNS = [true, false, false];
+export const SORTABLE_COLUMNS = [false, false, false];

@@ -108,6 +108,7 @@ export type PatientPregnancyInfo = {
   isPregnant: boolean;
   pregnancyId: string;
   pregnancyStartDate: number;
+  pastPregnancies: PastPregnancy[];
 };
 
 export type PastPregnancy = {

@@ -9,6 +9,8 @@ import {
   getDOBForEstimatedAge,
   getTimestampFromMonths,
   getTimestampFromWeeksDays,
+  getTimestampFromWeeksDaysWithEndDate,
+  getTimestampFromMonthsWithEndDate,
   goBackWithFallback,
 } from 'src/shared/utils';
 
@@ -129,26 +131,44 @@ export const handlePregnancyInfo = async (
     pregnancyOutcome: values[PatientField.pregnancyOutcome],
   };
 
-  switch (submitValues.gestationalAgeUnit) {
-    case GestationalAgeUnitEnum.WEEKS:
-      submitValues.pregnancyStartDate = getTimestampFromWeeksDays(
-        values.gestationalAgeWeeks,
-        values.gestationalAgeDays
-      );
-      break;
-    case GestationalAgeUnitEnum.MONTHS:
-      submitValues.pregnancyStartDate = getTimestampFromMonths(
-        values.gestationalAgeMonths
-      );
-      break;
-  }
-
   if (values[PatientField.pregnancyEndDate]) {
     submitValues.pregnancyEndDate = (
       Date.parse(values[PatientField.pregnancyEndDate]) / 1000
     ).toString();
   } else {
     submitValues.pregnancyEndDate = undefined;
+  }
+
+  if (submitValues.pregnancyEndDate) {
+    switch (submitValues.gestationalAgeUnit) {
+      case GestationalAgeUnitEnum.WEEKS:
+        submitValues.pregnancyStartDate = getTimestampFromWeeksDaysWithEndDate(
+          values.gestationalAgeWeeks,
+          values.gestationalAgeDays,
+          submitValues.pregnancyEndDate
+        );
+        break;
+      case GestationalAgeUnitEnum.MONTHS:
+        submitValues.pregnancyStartDate = getTimestampFromMonthsWithEndDate(
+          values.gestationalAgeMonths,
+          submitValues.pregnancyEndDate
+        );
+        break;
+    }
+  } else {
+    switch (submitValues.gestationalAgeUnit) {
+      case GestationalAgeUnitEnum.WEEKS:
+        submitValues.pregnancyStartDate = getTimestampFromWeeksDays(
+          values.gestationalAgeWeeks,
+          values.gestationalAgeDays
+        );
+        break;
+      case GestationalAgeUnitEnum.MONTHS:
+        submitValues.pregnancyStartDate = getTimestampFromMonths(
+          values.gestationalAgeMonths
+        );
+        break;
+    }
   }
 
   let method = 'POST';

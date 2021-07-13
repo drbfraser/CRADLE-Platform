@@ -23,7 +23,6 @@ interface IProps {
   isDrugRecord?: boolean | undefined;
   patientId?: string;
   gestationalAgeUnit?: string;
-  setCurrentPregnancy?: any;
 }
 
 export const APITable = ({
@@ -39,7 +38,6 @@ export const APITable = ({
   isDrugRecord,
   patientId,
   gestationalAgeUnit,
-  setCurrentPregnancy,
 }: IProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,15 +84,12 @@ export const APITable = ({
     apiFetch(API_URL + endpoint + params, fetchOptions)
       .then(async (resp) => {
         const json = await resp.json();
+        //The case for drug history records on the past records page
         if (isDrugRecord === true) {
           setRows(json.drug);
+          //The case for medical history records on the past records page
         } else if (isDrugRecord === false) {
           setRows(json.medical);
-        }
-        //The case for previous pregnancies on the Patient page
-        else if (initialSortBy === 'endDate') {
-          setRows(json.pastPregnancies);
-          setCurrentPregnancy(json);
         } else {
           setRows(json);
         }
@@ -109,17 +104,7 @@ export const APITable = ({
 
     // if the user does something else, cancel the fetch
     return () => controller.abort();
-  }, [
-    endpoint,
-    limit,
-    page,
-    search,
-    sortBy,
-    sortDir,
-    isDrugRecord,
-    initialSortBy,
-    setCurrentPregnancy,
-  ]);
+  }, [endpoint, limit, page, search, sortBy, sortDir, isDrugRecord]);
 
   const handleSort = (col: string) => {
     if (col === sortBy) {
@@ -140,7 +125,7 @@ export const APITable = ({
       <div className={classes.loadingWrapper}>
         {loading && <LinearProgress />}
       </div>
-      {!isTransformed && (
+      {!isTransformed && initialSortBy && (
         <SortBy
           columns={columns}
           sortableColumns={sortableColumns}
