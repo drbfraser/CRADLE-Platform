@@ -372,6 +372,8 @@ def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
 
     :return: A list of patients
     """
+    # Aliased classes to be used in join clauses for geting the latest pregnancy, medical
+    # and drug records.
     p1 = aliased(Pregnancy)
     p2 = aliased(Pregnancy)
     m1 = aliased(MedicalRecord)
