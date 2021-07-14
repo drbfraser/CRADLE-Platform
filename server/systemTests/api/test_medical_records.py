@@ -29,24 +29,29 @@ def test_put_record(medical_record_factory, drug_record, api_put):
     assert new_record.isDrugRecord
 
 
-def test_post_record(patient_id, medical_record, api_post):
-    try:
-        record_id = medical_record["id"]
-        info = medical_record["information"]
-        response = api_post(
-            endpoint=f"/api/patients/{patient_id}/medical_records",
-            json={"id": record_id, "medicalHistory": info},
-        )
+def test_post_and_delete_record(
+    patient_id, medical_record, database, api_post, api_delete
+):
+    record_id = medical_record["id"]
 
-        new_record = crud.read(MedicalRecord, id=record_id)
+    record = {"id": record_id, "medicalHistory": medical_record["information"]}
+    response = api_post(
+        endpoint=f"/api/patients/{patient_id}/medical_records",
+        json=record,
+    )
 
-        assert response.status_code == 201
-        assert new_record.patientId == patient_id
-        assert new_record.information == info
-        assert not new_record.isDrugRecord
+    new_record = crud.read(MedicalRecord, id=record_id)
 
-    finally:
-        crud.delete_by(MedicalRecord, id=record_id)
+    assert response.status_code == 201
+    assert new_record.patientId == patient_id
+    assert new_record.information == record["medicalHistory"]
+    assert not new_record.isDrugRecord
+
+    response = api_delete(endpoint=f"/api/medical_records/{record_id}")
+    database.session.commit()
+
+    assert response.status_code == 200
+    assert crud.read(MedicalRecord, id=record_id) is None
 
 
 def test_get_record_lists(
@@ -55,9 +60,7 @@ def test_get_record_lists(
     medical_record_factory.create(**medical_record)
     medical_record_factory.create(**drug_record)
 
-    response = api_get(
-        endpoint=f"/api/patients/{patient_id}/medical_records",
-    )
+    response = api_get(endpoint=f"/api/patients/{patient_id}/medical_records")
 
     assert response.status_code == 200
     assert len(response.json()["medical"]) >= 1
