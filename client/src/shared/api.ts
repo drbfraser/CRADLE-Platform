@@ -66,9 +66,8 @@ export const apiFetch = async (
     },
   }).then((resp) => {
     if (!resp.ok) {
-      throw new Error('apiFetch() failed with HTTP status: ' + resp.status);
+      throw resp.status;
     }
-
     return resp;
   });
 };

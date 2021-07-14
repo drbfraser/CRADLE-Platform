@@ -51,6 +51,7 @@ export const PatientForm = ({
   const history = useHistory();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('sm'));
   const [submitError, setSubmitError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const pages = [
     {
       editId: 'personalInfo',
@@ -118,7 +119,8 @@ export const PatientForm = ({
           values,
           history,
           setSubmitError,
-          helpers.setSubmitting
+          helpers.setSubmitting,
+          setErrorMessage
         );
       } else if (
         pages[pageNum].editId === 'drugHistory' ||
@@ -158,7 +160,11 @@ export const PatientForm = ({
 
   return (
     <>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <APIErrorToast
+        open={submitError}
+        onClose={() => setSubmitError(false)}
+        errorMessage={errorMessage}
+      />
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton
