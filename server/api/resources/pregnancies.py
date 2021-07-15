@@ -100,7 +100,7 @@ class SinglePregnancy(Resource):
         if "startDate" not in request_body:
             request_body["startDate"] = pregnancy.startDate
 
-        _check_conflicts(request_body, pregnancy.patientId)
+        _check_conflicts(request_body, pregnancy.patientId, pregnancy_id)
 
         crud.update(Pregnancy, request_body, id=pregnancy_id)
         new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
@@ -133,10 +133,12 @@ def _process_request_body(request_body):
         request_body["outcome"] = request_body.pop("pregnancyOutcome")
 
 
-def _check_conflicts(request_body, patient_id):
+def _check_conflicts(request_body, patient_id, pregnancy_id=None):
     start_date = request_body.get("startDate")
     end_date = request_body.get("endDate")
-    if crud.has_conflicting_pregnancy_record(patient_id, start_date, end_date):
+    if crud.has_conflicting_pregnancy_record(
+        patient_id, start_date, end_date, pregnancy_id
+    ):
         abort(409, message="A conflict with existing pregnancy records occurred.")
 
 
