@@ -5,8 +5,9 @@ import { getPrettyDateTime } from 'src/shared/utils';
 import { MedicalRecord } from 'src/shared/types';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { Typography } from '@material-ui/core';
+import { Typography, IconButton } from '@material-ui/core';
 import { MEDICAL_RECORD_COLUMNS } from './constants';
+import DeleteForever from '@material-ui/icons/DeleteForever';
 
 interface IProps {
   row: MedicalRecord;
@@ -35,6 +36,13 @@ export const MedicalRecordRow = ({ row }: IProps) => {
           }}>
           {row.information ? row.information : 'No information'}
         </Typography>
+      </TableCell>
+      <TableCell
+        label={MEDICAL_RECORD_COLUMNS.action}
+        isTransformed={isTransformed}>
+        <IconButton>
+          <DeleteForever />
+        </IconButton>
       </TableCell>
     </tr>
   );

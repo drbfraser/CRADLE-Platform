@@ -7,6 +7,7 @@ import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { Typography, IconButton } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
+import DeleteForever from '@material-ui/icons/DeleteForever';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { gestationalAgeUnitFormatters } from 'src/shared/constants';
 import { PREGNANCY_RECORD_COLUMNS } from './constants';
@@ -61,7 +62,7 @@ export const PregnancyRecordRow = ({
         </Typography>
       </TableCell>
       <TableCell
-        label={PREGNANCY_RECORD_COLUMNS.edit}
+        label={PREGNANCY_RECORD_COLUMNS.action}
         isTransformed={isTransformed}>
         <IconButton
           onClick={() => {
@@ -70,6 +71,9 @@ export const PregnancyRecordRow = ({
             );
           }}>
           <CreateIcon />
+        </IconButton>
+        <IconButton>
+          <DeleteForever />
         </IconButton>
       </TableCell>
     </tr>
