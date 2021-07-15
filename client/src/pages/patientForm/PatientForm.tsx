@@ -29,7 +29,7 @@ import {
   medicalHistoryValidationSchema,
 } from './medicalInfo/validation';
 import { goBackWithFallback } from 'src/shared/utils';
-import { ConfirmDialog } from './../../shared/components/confirmDialog/index';
+import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 
 interface PatientFormProps {
   editId: string;
