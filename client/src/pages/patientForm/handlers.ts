@@ -231,6 +231,32 @@ export const handleMedicalRecordInfo = async (
   );
 };
 
+export const handleDeleteRecord = async (
+  editId: string,
+  universalRecordId: string,
+  history: any,
+  setSubmitError: React.Dispatch<React.SetStateAction<any>>,
+  setSubmitting: React.Dispatch<React.SetStateAction<any>>
+) => {
+  setSubmitting(true);
+
+  const endpoint =
+    editId === 'pregnancyInfo'
+      ? EndpointEnum.PREGNANCIES
+      : EndpointEnum.MEDICAL_RECORDS;
+  const url = `${API_URL}${endpoint}/${universalRecordId}`;
+
+  await handleApiFetch(
+    url,
+    'DELETE',
+    undefined,
+    false,
+    history,
+    setSubmitError,
+    setSubmitting
+  );
+};
+
 const handleApiFetch = async (
   url: string,
   method: string,
