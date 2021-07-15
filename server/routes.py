@@ -66,6 +66,14 @@ def init(api):
     api.add_resource(
         AndroidPatientGlobalSearch, "/api/patient/global/<string:search>"
     )  # [GET]
+    api.add_resource(
+        AndroidPatients, "/api/mobile/patients", endpoint="android_patient"
+    )  # [GET]
+    api.add_resource(
+        AndroidPatientsAndReadings,
+        "/api/mobile/patients_and_readings",
+        endpoint="android_patients_and_readings",
+    )  # [GET]
 
     #### New Endpoints ####
     api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST]
@@ -91,9 +99,6 @@ def init(api):
     api.add_resource(Patients, "/api/patients", endpoint="patients")  # [GET, POST]
     api.add_resource(
         SinglePatient, "/api/patients/<string:patient_id>", endpoint="single_patient"
-    )  # [GET]
-    api.add_resource(
-        AndroidPatients, "/api/mobile/patients", endpoint="android_patient"
     )  # [GET]
     api.add_resource(
         PatientInfo, "/api/patients/<string:patient_id>/info", endpoint="patient_info"

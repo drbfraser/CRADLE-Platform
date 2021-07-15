@@ -111,3 +111,21 @@ class AndroidPatients(Resource):
         patients = view.patient_view_for_user(user)
 
         return patients, 200
+
+
+# /api/mobile/patients_and_readings
+class AndroidPatientsAndReadings(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/android-patients-and-readings-get.yml",
+        methods=["GET"],
+        endpoint="android_patients_and_readings",
+    )
+    def get():
+        user = get_jwt_identity()
+        patients, readings = view.mobile_patient_and_reading_view(user)
+        return {
+            "patients": [marshal.marshal_mobile_patient(p) for p in patients],
+            "readings": readings,
+        }

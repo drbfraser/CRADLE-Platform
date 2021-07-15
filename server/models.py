@@ -367,7 +367,7 @@ class Pregnancy(db.Model):
     )
 
     # RELATIONSHIPS
-    patient = db.relationship("Patient", backref=db.backref("pregnancy", lazy=True))
+    patient = db.relationship("Patient", backref=db.backref("pregnancies", lazy=True))
 
     @staticmethod
     def schema():
@@ -395,7 +395,7 @@ class MedicalRecord(db.Model):
     )
 
     # RELATIONSHIPS
-    patient = db.relationship("Patient", backref=db.backref("medicalRecord", lazy=True))
+    patient = db.relationship("Patient", backref=db.backref("records", lazy=True))
 
     @staticmethod
     def schema():
