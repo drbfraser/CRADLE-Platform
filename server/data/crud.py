@@ -423,7 +423,7 @@ def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
                 m4.isDrugRecord == True,
             ),
         )
-        .filter(p2.startDate == None, m2.dateCreated == None)
+        .filter(p2.startDate == None, m2.dateCreated == None, m4.dateCreated == None)
     )
 
     if user_id:
