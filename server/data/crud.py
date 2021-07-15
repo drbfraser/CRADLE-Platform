@@ -641,24 +641,34 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
 
 
 def has_conflicting_pregnancy_record(
-    patient_id: str, start_date: int, end_date: Optional[int] = None
+    patient_id: str,
+    start_date: int,
+    end_date: Optional[int] = None,
+    pregnancy_id: Optional[int] = None,
 ) -> bool:
-    if not end_date:
-        query = db_session.query(Pregnancy).filter(
-            Pregnancy.patientId == patient_id,
-            or_(Pregnancy.endDate > start_date, Pregnancy.endDate == None),
-        )
+    query = db_session.query(Pregnancy).filter(Pregnancy.patientId == patient_id)
 
+    if pregnancy_id:
+        query = query.filter(Pregnancy.id != pregnancy_id)
+
+    if not end_date:
+        query = query.filter(
+            Pregnancy.patientId == patient_id,
+            or_(Pregnancy.endDate >= start_date, Pregnancy.endDate == None),
+        )
     else:
-        query = db_session.query(Pregnancy).filter(
+        query = query.filter(
             Pregnancy.patientId == patient_id,
             or_(
-                and_(Pregnancy.startDate < start_date, Pregnancy.endDate > start_date),
-                and_(Pregnancy.startDate < end_date, Pregnancy.endDate > end_date),
-                and_(Pregnancy.startDate < start_date, Pregnancy.endDate == None),
                 and_(
-                    Pregnancy.startDate > start_date,
-                    Pregnancy.startDate < end_date,
+                    Pregnancy.startDate <= start_date, Pregnancy.endDate >= start_date
+                ),
+                and_(Pregnancy.startDate >= start_date, Pregnancy.endDate <= end_date),
+                and_(Pregnancy.startDate <= end_date, Pregnancy.endDate >= end_date),
+                and_(Pregnancy.startDate <= start_date, Pregnancy.endDate == None),
+                and_(
+                    Pregnancy.startDate >= start_date,
+                    Pregnancy.startDate <= end_date,
                     Pregnancy.endDate == None,
                 ),
             ),
