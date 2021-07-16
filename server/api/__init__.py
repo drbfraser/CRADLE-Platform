@@ -88,9 +88,6 @@ def __init_pregnancy_resources(api: Api):
         "/api/patients/<string:patient_id>/pregnancies",
         endpoint="pregnancy_root",
     )
-    api.add_resource(
-        p.PregnancyStatus, "/api/patients/<string:patient_id>/pregnancies/status"
-    )
     api.add_resource(p.SinglePregnancy, "/api/pregnancies/<string:pregnancy_id>")
 
 

@@ -234,9 +234,7 @@ class PatientPregnancySummary(Resource):
         endpoint="patient_pregnancy_summary",
     )
     def get(patient_id: str):
-        pregnancies = crud.read_patient_records_admin_view(
-            Pregnancy, patient_id, direction="DESC"
-        )
+        pregnancies = crud.read_patient_records(Pregnancy, patient_id, direction="DESC")
         return marshal.marshal_patient_pregnancy_summary(pregnancies)
 
 
@@ -250,8 +248,9 @@ class PatientMedicalHistory(Resource):
         endpoint="patient_medical_history",
     )
     def get(patient_id: str):
-        records = crud.get_patient_medical_history(patient_id)
-        return marshal.marshal_patient_medical_history(**records)
+        medical = crud.read_patient_current_medical_record(patient_id, False)
+        drug = crud.read_patient_current_medical_record(patient_id, True)
+        return marshal.marshal_patient_medical_history(medical=medical, drug=drug)
 
 
 # /api/patients/<string:patient_id>/timeline
@@ -265,5 +264,5 @@ class PatientTimeline(Resource):
     )
     def get(patient_id: str):
         params = util.get_query_params(request)
-        records = crud.read_patient_timeline_admin_view(patient_id, **params)
+        records = crud.read_patient_timeline(patient_id, **params)
         return [serialize.serialize_patient_timeline(r) for r in records]
