@@ -273,6 +273,84 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
+def read_referrals(**kwargs) -> List[Referral]:
+    """
+    Queries the database for referrals
+
+    :param kwargs: Query params including search_text, order_by, direction, limit, page
+
+    :return: A list of referrals
+    """
+    order_by = kwargs.get("order_by", "")
+    direction = asc if kwargs.get("direction") == "ASC" else desc
+
+    query = (
+        db_session.query(
+            Referral.id,
+            Referral.dateReferred,
+            Referral.isAssessed,
+            Patient.patientId,
+            Patient.patientName,
+            Patient.villageNumber,
+            Reading.trafficLightStatus,
+        )
+        .join(Patient, Referral.patientId == Patient.patientId)
+        .join(Reading, Referral.readingId == Reading.readingId)
+        .order_by(direction(getattr(Referral, order_by, Referral.dateReferred)))
+    )
+
+    search_text = kwargs.get("search_text")
+    if search_text:
+        query = query.filter(
+            or_(Patient.patientId.like(f"%{search_text}%"), Patient.patientName.like(f"%{search_text}%"))
+        )
+
+    health_facility = kwargs.get("health_facility")
+    if health_facility:
+        query = query.filter(Referral.referralHealthFacilityName == health_facility)
+    
+    referrer = kwargs.get("referrer")
+    if referrer:
+        query = query.filter(Referral.userId == int(referrer))
+
+    date_range = kwargs.get("date_range")
+    if date_range:
+        start_date, end_date = date_range.split(":")
+        query = query.filter(
+            Referral.dateReferred >= int(start_date), Referral.dateReferred <= int(end_date)
+        )
+    
+    is_assessed = kwargs.get("is_assessed")
+    if is_assessed:
+        is_assessed = is_assessed == "1"
+        query = query.filter(Referral.isAssessed == is_assessed)
+
+    is_pregnant = kwargs.get("is_pregnant")
+    if is_pregnant:
+        is_pregnant = is_pregnant == "1"
+        pr = aliased(Pregnancy)
+        query = (
+            query.join(Pregnancy, and_(
+                Patient.patientId == Pregnancy.patientId, Pregnancy.endDate == None
+            ))
+            .outerjoin(pr, and_(
+                Patient.patientId == pr.patientId, Pregnancy.startDate < pr.startDate
+            ))
+            .filter(pr.startDate == None)
+        )
+
+    vital_signs = kwargs.get("vital_signs")
+    if vital_signs:
+        query = query.filter(Reading.trafficLightStatus == vital_signs)
+
+    limit = kwargs.get("limit")
+    if limit:
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
+    else:
+        return query.all()
+
+
 def read_patient_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
     """
     Queries the database for medical records of a patient

@@ -179,6 +179,12 @@ def get_query_params(request: Request):
         "direction": request.args.get("sortDir"),
         "limit": request.args.get("limit"),
         "page": request.args.get("page"),
+        "date_range": request.args.get("dateRange"),
+        "is_assessed": request.args.get("isAssessed"),
+        "is_pregnant": request.args.get("isPregnant"),
+        "vital_signs": request.args.get("vitalSigns"),
+        "referrer": request.args.get("referrer"),
+        "health_facility": request.args.get("healthFacility"),
     }
 
     return {k: v for k, v in params.items() if v}
