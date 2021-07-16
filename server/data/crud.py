@@ -223,13 +223,18 @@ def read_all_assoc_patients(m: Type[M], user: User, is_cho: bool) -> List[M]:
     :return: A list patient_list
     """
     if m.schema() == PatientAssociations.schema():
-
-        user_ids = get_user_ids_list(user.id, is_cho)
+        if user:
+            user_ids = get_user_ids_list(user.id, is_cho)
+        else:
+            user_ids = []
 
         # get all the patients
         patient_list = read_all_assoc_patients_db(user_ids)
         # get all reading + referral + followup
-        reading_list = read_all_readings_db(False, user_ids)
+        if user:
+            reading_list = read_all_readings_db(False, user_ids)
+        else:
+            reading_list = read_all_readings_db(True, user_ids)
 
         # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
         readingIdx = 0
@@ -241,7 +246,7 @@ def read_all_assoc_patients(m: Type[M], user: User, is_cho: bool) -> List[M]:
                 p["readings"].append(reading_list[readingIdx])
                 readingIdx += 1
 
-            del p["id"]
+            # del p["id"]
         return patient_list
 
 
@@ -444,9 +449,17 @@ def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
     )
 
     if user_id:
-        query = query.join(PatientAssociations, Patient.associations).filter(
-            PatientAssociations.userId == user_id
-        )
+        if type(user_id) == list:
+            query = query.join(PatientAssociations, Patient.associations).filter(
+                PatientAssociations.userId.in_(user_id)
+            )
+        else:
+            query = query.join(PatientAssociations, Patient.associations).filter(
+                PatientAssociations.userId == user_id
+            )
+
+    if type(user_id) == list:
+        query = query.order_by(asc(Patient.patientId))
 
     return query.all()
 
@@ -574,17 +587,12 @@ def read_all_assoc_patients_db(user_ids: str) -> List[M]:
     :return: A dictionary of Patients
     """
     # make DB call
-    patients = db_session.execute(
-        "SELECT * FROM patient p JOIN patient_associations pa "
-        "ON p.patientId = pa.patientId             "
-        " AND pa.userId IN (" + user_ids + ") ORDER BY p.patientId ASC"
-    )
+    patients = read_mobile_patients(user_ids)
 
     arr = []
     # make list of patients
     for pat_row in patients:
-        creat_dict = {}
-        creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
+        creat_dict = serialize.serialize_mobile_patient(pat_row)
         arr.append(creat_dict)
 
     return arr
