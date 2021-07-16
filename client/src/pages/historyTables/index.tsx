@@ -30,6 +30,8 @@ import { SortDir } from 'src/shared/components/apiTable/types';
 import { MedicalRecord, Pregnancy } from 'src/shared/types';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 import { apiFetch, API_URL } from 'src/shared/api';
+import { Toast } from 'src/shared/components/toast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 type RouteParams = {
   patientId: string;
@@ -55,6 +57,8 @@ export function HistoryTablesPage() {
   const [popupMedicalRecord, setPopupMedicalRecord] = useState<MedicalRecord>();
   const [popupPregnancyRecord, setPopupPregnancyRecord] = useState<Pregnancy>();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [refetch, setRefetch] = useState<boolean>(false);
 
   const debounceSetPregnancySearch = debounce(setPregnancySearch, 500);
@@ -95,6 +99,7 @@ export function HistoryTablesPage() {
       .then(() => {
         setPopupMedicalRecord(undefined);
         setPopupPregnancyRecord(undefined);
+        setSubmitSuccess(true);
         setIsDialogOpen(false);
         setRefetch(!refetch);
       })
@@ -102,6 +107,7 @@ export function HistoryTablesPage() {
         setPopupMedicalRecord(undefined);
         setPopupPregnancyRecord(undefined);
         setIsDialogOpen(false);
+        setSubmitError(true);
       });
   };
 
@@ -171,15 +177,6 @@ export function HistoryTablesPage() {
     render: () => (
       <Tab.Pane key={p.index} className={classes.wrapper}>
         <div className={classes.topWrapper}>
-          <ConfirmDialog
-            title="Delete Record?"
-            content="Are you sure you want to delete this record?"
-            open={isDialogOpen}
-            onClose={() => {
-              setIsDialogOpen(false);
-            }}
-            onConfirm={handleDeleteRecord}
-          />
           <TextField
             className={classes.search}
             label="Search"
@@ -229,6 +226,22 @@ export function HistoryTablesPage() {
 
   return (
     <div>
+      <Toast
+        severity="success"
+        message="Record successfully deleted!"
+        open={submitSuccess}
+        onClose={() => setSubmitSuccess(false)}
+      />
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <ConfirmDialog
+        title="Delete Record?"
+        content="Are you sure you want to delete this record?"
+        open={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+        }}
+        onConfirm={handleDeleteRecord}
+      />
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton
