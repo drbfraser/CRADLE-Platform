@@ -17,6 +17,8 @@ interface IProps {
   unit: GestationalAgeUnitEnum;
   patientId: string;
   history: any;
+  setDeletePopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setPopupRecord: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const PregnancyRecordRow = ({
@@ -24,6 +26,8 @@ export const PregnancyRecordRow = ({
   unit,
   patientId,
   history,
+  setDeletePopupOpen,
+  setPopupRecord,
 }: IProps) => {
   const classes = useRowStyles();
   const theme = useTheme();
@@ -72,7 +76,11 @@ export const PregnancyRecordRow = ({
           }}>
           <CreateIcon />
         </IconButton>
-        <IconButton>
+        <IconButton
+          onClick={() => {
+            setDeletePopupOpen(true);
+            setPopupRecord(row);
+          }}>
           <DeleteForever />
         </IconButton>
       </TableCell>

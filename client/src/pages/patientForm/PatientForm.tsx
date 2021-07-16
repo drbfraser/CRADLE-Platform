@@ -218,7 +218,6 @@ export const PatientForm = ({
                 <Button
                   variant="contained"
                   color="primary"
-                  className={classes.right}
                   onClick={() => setIsDialogOpen(true)}>
                   Delete
                 </Button>
@@ -244,7 +243,7 @@ export const PatientForm = ({
             <Button
               variant="contained"
               color="primary"
-              className={!editId && !universalRecordId ? classes.right : ''}
+              className={classes.right}
               type="submit"
               disabled={formikProps.isSubmitting}>
               {editId || creatingNewPregnancy

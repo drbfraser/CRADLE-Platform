@@ -27,6 +27,9 @@ import { PregnancyRecordRow } from './PregnancyRecordRow';
 import { goBackWithFallback } from 'src/shared/utils';
 import { HistoryTimeline } from './HistoryTimeline';
 import { SortDir } from 'src/shared/components/apiTable/types';
+import { MedicalRecord, Pregnancy } from 'src/shared/types';
+import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
+import { apiFetch, API_URL } from 'src/shared/api';
 
 type RouteParams = {
   patientId: string;
@@ -48,6 +51,11 @@ export function HistoryTablesPage() {
   const [medicalHistorySearch, setMedicalHistorySearch] = useState('');
   const [drugHistorySearch, setDrugHistorySearch] = useState('');
   const [unit, setUnit] = useState(GestationalAgeUnitEnum.MONTHS);
+
+  const [popupMedicalRecord, setPopupMedicalRecord] = useState<MedicalRecord>();
+  const [popupPregnancyRecord, setPopupPregnancyRecord] = useState<Pregnancy>();
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [refetch, setRefetch] = useState<boolean>(false);
 
   const debounceSetPregnancySearch = debounce(setPregnancySearch, 500);
   const debounceSetMedicalHistorySearch = debounce(
@@ -71,6 +79,32 @@ export function HistoryTablesPage() {
     setUnit(value as GestationalAgeUnitEnum);
   };
 
+  const handleDeleteRecord = async () => {
+    const universalRecordId = popupPregnancyRecord
+      ? popupPregnancyRecord.pregnancyId
+      : popupMedicalRecord
+      ? popupMedicalRecord.medicalRecordId
+      : '';
+    const endpoint = popupPregnancyRecord
+      ? EndpointEnum.PREGNANCIES
+      : EndpointEnum.MEDICAL_RECORDS;
+    const url = `${API_URL}${endpoint}/${universalRecordId}`;
+    apiFetch(url, {
+      method: 'DELETE',
+    })
+      .then(() => {
+        setPopupMedicalRecord(undefined);
+        setPopupPregnancyRecord(undefined);
+        setIsDialogOpen(false);
+        setRefetch(!refetch);
+      })
+      .catch(() => {
+        setPopupMedicalRecord(undefined);
+        setPopupPregnancyRecord(undefined);
+        setIsDialogOpen(false);
+      });
+  };
+
   const allPanes = [
     {
       name: 'Pregnancy History',
@@ -89,13 +123,11 @@ export function HistoryTablesPage() {
       searchText: 'Outcome',
       search: pregnancySearch,
       debounceSetSearch: debounceSetPregnancySearch,
+      setPopupRecord: setPopupPregnancyRecord,
     },
     {
       name: 'Medical History',
-      COLUMNS: {
-        dateCreated: 'Date',
-        information: 'Information',
-      },
+      COLUMNS: MEDICAL_RECORD_COLUMNS,
       endpoint:
         EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_RECORDS,
       RowComponent: MedicalRecordRow,
@@ -108,6 +140,7 @@ export function HistoryTablesPage() {
       searchText: 'Information',
       search: medicalHistorySearch,
       debounceSetSearch: debounceSetMedicalHistorySearch,
+      setPopupRecord: setPopupMedicalRecord,
     },
     {
       name: 'Drug History',
@@ -124,6 +157,7 @@ export function HistoryTablesPage() {
       searchText: 'Information',
       search: drugHistorySearch,
       debounceSetSearch: debounceSetDrugHistorySearch,
+      setPopupRecord: setPopupMedicalRecord,
     },
   ];
 
@@ -137,6 +171,15 @@ export function HistoryTablesPage() {
     render: () => (
       <Tab.Pane key={p.index} className={classes.wrapper}>
         <div className={classes.topWrapper}>
+          <ConfirmDialog
+            title="Delete Record?"
+            content="Are you sure you want to delete this record?"
+            open={isDialogOpen}
+            onClose={() => {
+              setIsDialogOpen(false);
+            }}
+            onConfirm={handleDeleteRecord}
+          />
           <TextField
             className={classes.search}
             label="Search"
@@ -175,6 +218,9 @@ export function HistoryTablesPage() {
             isDrugRecord={p.isDrugRecord}
             gestationalAgeUnit={unit}
             patientId={patientId}
+            setDeletePopupOpen={setIsDialogOpen}
+            setPopupRecord={p.setPopupRecord}
+            refetch={refetch}
           />
         </div>
       </Tab.Pane>

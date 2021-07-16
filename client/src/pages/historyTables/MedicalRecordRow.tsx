@@ -11,9 +11,15 @@ import DeleteForever from '@material-ui/icons/DeleteForever';
 
 interface IProps {
   row: MedicalRecord;
+  setDeletePopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setPopupRecord: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const MedicalRecordRow = ({ row }: IProps) => {
+export const MedicalRecordRow = ({
+  row,
+  setDeletePopupOpen,
+  setPopupRecord,
+}: IProps) => {
   const classes = useRowStyles();
   const theme = useTheme();
   const isTransformed = useMediaQuery(theme.breakpoints.up('sm'));
@@ -40,7 +46,11 @@ export const MedicalRecordRow = ({ row }: IProps) => {
       <TableCell
         label={MEDICAL_RECORD_COLUMNS.action}
         isTransformed={isTransformed}>
-        <IconButton>
+        <IconButton
+          onClick={() => {
+            setDeletePopupOpen(true);
+            setPopupRecord(row);
+          }}>
           <DeleteForever />
         </IconButton>
       </TableCell>
