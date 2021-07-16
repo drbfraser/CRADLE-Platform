@@ -1,3 +1,4 @@
+from api.resources import pregnancies
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -12,7 +13,7 @@ import service.invariant as invariant
 import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
-from models import Patient
+from models import Patient, Pregnancy
 from validation import patients
 from utils import get_current_time
 from api.decorator import patient_association_required
@@ -223,18 +224,34 @@ class PatientReadings(Resource):
         return [marshal.marshal(r) for r in patient.readings]
 
 
-# /api/patients/<string:patient_id>/medical_info
-class PatientMedicalInfo(Resource):
+# /api/patients/<string:patient_id>/pregnancy_summary
+class PatientPregnancySummary(Resource):
     @staticmethod
     @patient_association_required()
     @swag_from(
-        "../../specifications/patient-medical-info-get.yml",
+        "../../specifications/patient-pregnancy-summary-get.yml",
         methods=["GET"],
-        endpoint="patient_medical_info",
+        endpoint="patient_pregnancy_summary",
     )
     def get(patient_id: str):
-        records = crud.get_medical_info(patient_id)
-        return marshal.marshal_patient_medical_info(**records)
+        pregnancies = crud.read_patient_records_admin_view(
+            Pregnancy, patient_id, direction="DESC"
+        )
+        return marshal.marshal_patient_pregnancy_summary(pregnancies)
+
+
+# /api/patients/<string:patient_id>/medical_history
+class PatientMedicalHistory(Resource):
+    @staticmethod
+    @patient_association_required()
+    @swag_from(
+        "../../specifications/patient-medical-history-get.yml",
+        methods=["GET"],
+        endpoint="patient_medical_history",
+    )
+    def get(patient_id: str):
+        records = crud.get_patient_medical_history(patient_id)
+        return marshal.marshal_patient_medical_history(**records)
 
 
 # /api/patients/<string:patient_id>/timeline

@@ -639,19 +639,12 @@ def get_pregnancy_status(patient_id: str):
     )
 
 
-def get_medical_info(patient_id: str):
+def get_patient_medical_history(patient_id: str):
     """
-    Queries the database for a patient's current medical info
+    Queries the database for a patient's current medical history.
 
-    :return: A dict storing a pregnancy, a medical, and a drug record
+    :return: A dict storing a medical record and a drug record
     """
-    pregnancy = (
-        db_session.query(Pregnancy)
-        .filter_by(patientId=patient_id)
-        .order_by(Pregnancy.startDate.desc())
-        .first()
-    )
-
     medical = (
         db_session.query(MedicalRecord)
         .filter_by(patientId=patient_id, isDrugRecord=False)
@@ -667,7 +660,6 @@ def get_medical_info(patient_id: str):
     )
 
     return {
-        "pregnancy": pregnancy,
         "medical": medical,
         "drug": drug,
     }
