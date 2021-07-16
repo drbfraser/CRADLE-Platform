@@ -1,7 +1,7 @@
 from api.resources import pregnancies
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 import api.util as util

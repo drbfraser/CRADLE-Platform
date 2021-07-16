@@ -273,10 +273,12 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
-def read_referrals(**kwargs) -> List[Referral]:
+def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
     """
     Queries the database for referrals
 
+    :param user_id: The user ID to filter patients wrt patient associations; None to get
+    all patients
     :param kwargs: Query params including search_text, order_by, direction, limit, page
 
     :return: A list of referrals
@@ -294,32 +296,41 @@ def read_referrals(**kwargs) -> List[Referral]:
             Patient.villageNumber,
             Reading.trafficLightStatus,
         )
-        .join(Patient, Referral.patientId == Patient.patientId)
-        .join(Reading, Referral.readingId == Reading.readingId)
+        .join(Patient, Patient.referrals)
+        .join(Reading, Reading.referral)
         .order_by(direction(getattr(Referral, order_by, Referral.dateReferred)))
     )
+
+    if user_id:
+        query = query.join(PatientAssociations, Patient.associations).filter(
+            PatientAssociations.userId == user_id
+        )
 
     search_text = kwargs.get("search_text")
     if search_text:
         query = query.filter(
-            or_(Patient.patientId.like(f"%{search_text}%"), Patient.patientName.like(f"%{search_text}%"))
+            or_(
+                Patient.patientId.like(f"%{search_text}%"),
+                Patient.patientName.like(f"%{search_text}%"),
+            )
         )
 
     health_facility = kwargs.get("health_facility")
     if health_facility:
         query = query.filter(Referral.referralHealthFacilityName == health_facility)
-    
+
     referrer = kwargs.get("referrer")
     if referrer:
-        query = query.filter(Referral.userId == int(referrer))
+        query = query.filter(Referral.userId == referrer)
 
     date_range = kwargs.get("date_range")
     if date_range:
         start_date, end_date = date_range.split(":")
         query = query.filter(
-            Referral.dateReferred >= int(start_date), Referral.dateReferred <= int(end_date)
+            Referral.dateReferred >= start_date,
+            Referral.dateReferred <= end_date,
         )
-    
+
     is_assessed = kwargs.get("is_assessed")
     if is_assessed:
         is_assessed = is_assessed == "1"
@@ -330,12 +341,20 @@ def read_referrals(**kwargs) -> List[Referral]:
         is_pregnant = is_pregnant == "1"
         pr = aliased(Pregnancy)
         query = (
-            query.join(Pregnancy, and_(
-                Patient.patientId == Pregnancy.patientId, Pregnancy.endDate == None
-            ))
-            .outerjoin(pr, and_(
-                Patient.patientId == pr.patientId, Pregnancy.startDate < pr.startDate
-            ))
+            query.join(
+                Pregnancy,
+                and_(
+                    Patient.patientId == Pregnancy.patientId,
+                    Pregnancy.endDate == None,
+                ),
+            )
+            .outerjoin(
+                pr,
+                and_(
+                    Patient.patientId == pr.patientId,
+                    Pregnancy.startDate < pr.startDate,
+                ),
+            )
             .filter(pr.startDate == None)
         )
 
@@ -360,10 +379,10 @@ def read_patient_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
 
     :return: A list of models
     """
+    query = db_session.query(m).filter_by(patientId=patient_id)
+
     search_text = kwargs.get("search_text")
     direction = asc if kwargs.get("direction") == "ASC" else desc
-
-    query = db_session.query(m).filter_by(patientId=patient_id)
 
     if m.schema() == Pregnancy.schema():
         if search_text:
@@ -380,11 +399,9 @@ def read_patient_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
         )
 
     limit = kwargs.get("limit")
-
     if limit:
         page = kwargs.get("page", 1)
         return query.slice(*__get_slice_indexes(page, limit))
-
     else:
         return query.all()
 

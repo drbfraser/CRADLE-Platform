@@ -2,8 +2,10 @@ import time
 from math import floor
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended.utils import get_jwt_identity
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt_identity,
+)
 from flask_restful import Resource, abort
 
 import api.util as util
@@ -24,21 +26,9 @@ class Root(Resource):
         "../../specifications/referrals-get.yml", methods=["GET"], endpoint="referrals"
     )
     def get():
-        user = util.current_user()
-        limit = util.query_param_limit(request, name="limit")
-        page = util.query_param_page(request, name="page")
-        sort_by = util.query_param_sortBy(request, name="sortBy")
-        sort_dir = util.query_param_sort_dir(request, name="sortDir")
-        search = util.query_param_search(request, name="search")
-
-        referrals = view.referral_view_for_user(
-            user,
-            limit=limit,
-            page=page,
-            sortBy=sort_by,
-            sortDir=sort_dir,
-            search=search,
-        )
+        user = get_jwt_identity()
+        params = util.get_query_params(request)
+        referrals = view.referral_view(user, **params)
 
         return [serialize.serialize_referral(r) for r in referrals]
 
