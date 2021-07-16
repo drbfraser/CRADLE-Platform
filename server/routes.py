@@ -35,7 +35,6 @@ from api.resources.referrals import Root as Referrals, SingleReferral
 from api.resources.pregnancies import (
     Root as Pregnancies,
     SinglePregnancy,
-    PregnancyStatus,
 )
 from api.resources.medicalRecords import (
     Root as MedicalRecords,
@@ -148,15 +147,10 @@ def init(api):
         endpoint="pregnancies",
     )  # [GET, POST]
     api.add_resource(
-        PregnancyStatus,
-        "/api/patients/<string:patient_id>/pregnancies/status",
-        endpoint="pregnancy_status",
-    )  # [GET]
-    api.add_resource(
         SinglePregnancy,
         "/api/pregnancies/<string:pregnancy_id>",
         endpoint="single_pregnancy",
-    )  # [GET, PUT]
+    )  # [GET, PUT, DELETE]
 
     api.add_resource(
         MedicalRecords,
@@ -167,7 +161,7 @@ def init(api):
         SingleMedicalRecord,
         "/api/medical_records/<string:record_id>",
         endpoint="single_medical_record",
-    )  # [GET, PUT]
+    )  # [GET, PUT, DELETE]
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
     api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]
