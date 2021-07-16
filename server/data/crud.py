@@ -655,12 +655,10 @@ def has_conflicting_pregnancy_record(
 
     if not end_date:
         query = query.filter(
-            Pregnancy.patientId == patient_id,
             or_(Pregnancy.endDate >= start_date, Pregnancy.endDate == None),
         )
     else:
         query = query.filter(
-            Pregnancy.patientId == patient_id,
             or_(
                 and_(
                     Pregnancy.startDate <= start_date, Pregnancy.endDate >= start_date
