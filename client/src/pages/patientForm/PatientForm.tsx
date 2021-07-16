@@ -217,7 +217,7 @@ export const PatientForm = ({
               <>
                 <Button
                   variant="contained"
-                  color="primary"
+                  color="default"
                   onClick={() => setIsDialogOpen(true)}>
                   Delete
                 </Button>
