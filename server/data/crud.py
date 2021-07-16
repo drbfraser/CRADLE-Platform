@@ -296,8 +296,8 @@ def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
             Patient.villageNumber,
             Reading.trafficLightStatus,
         )
-        .join(Patient, Patient.referrals)
-        .join(Reading, Reading.referral)
+        .join(Patient, Referral.patient)
+        .join(Reading, Referral.reading)
         .order_by(direction(getattr(Referral, order_by, Referral.dateReferred)))
     )
 
@@ -337,8 +337,7 @@ def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
         query = query.filter(Referral.isAssessed == is_assessed)
 
     is_pregnant = kwargs.get("is_pregnant")
-    if is_pregnant:
-        is_pregnant = is_pregnant == "1"
+    if is_pregnant == "1":
         pr = aliased(Pregnancy)
         query = (
             query.join(

@@ -23,7 +23,7 @@ def serialize_referral(r: any):
         "patientId": r.patientId,
         "patientName": r.patientName,
         "villageNumber": r.villageNumber,
-        "trafficLightStatus": r.trafficLightStatus,
+        "trafficLightStatus": r.trafficLightStatus.value,
         "dateReferred": r.dateReferred,
         "isAssessed": r.isAssessed,
     }
