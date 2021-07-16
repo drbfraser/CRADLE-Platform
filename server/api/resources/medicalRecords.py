@@ -76,9 +76,7 @@ class SingleMedicalRecord(Resource):
         endpoint="single_medical_record",
     )
     def get(record_id: str):
-        record = crud.read(MedicalRecord, id=record_id)
-        if not record:
-            abort(404, message=f"No medical record with id {record_id}")
+        record = _get_medical_record(record_id)
 
         return marshal.marshal(record)
 
@@ -108,6 +106,19 @@ class SingleMedicalRecord(Resource):
 
         return marshal.marshal(new_record)
 
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-medical-record-delete.yml",
+        methods=["DELETE"],
+        endpoint="single_medical_record",
+    )
+    def delete(record_id: str):
+        record = _get_medical_record(record_id)
+        crud.delete(record)
+
+        return {"message": "Medical record deleted"}
+
 
 def _process_request_body(request_body):
     request_body["lastEdited"] = get_current_time()
@@ -117,3 +128,11 @@ def _process_request_body(request_body):
         if request_body["isDrugRecord"]
         else request_body.pop("medicalHistory")
     )
+
+
+def _get_medical_record(record_id):
+    record = crud.read(MedicalRecord, id=record_id)
+    if not record:
+        abort(404, message=f"No medical record with id {record_id}")
+
+    return record
