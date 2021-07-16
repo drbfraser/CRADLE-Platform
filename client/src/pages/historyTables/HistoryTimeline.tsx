@@ -17,9 +17,10 @@ import HistoryIcon from '@material-ui/icons/History';
 
 interface IProps {
   patientId: string;
+  isTransformed: boolean;
 }
 
-export const HistoryTimeline = ({ patientId }: IProps) => {
+export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
   const classes = useStyles();
   const [records, setRecords] = useState<TimelineRecord[]>();
   const [page, setPage] = useState(1);
@@ -52,7 +53,7 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
     const params =
       '?' +
       new URLSearchParams({
-        limit: '5',
+        limit: '20',
         page: page.toString(),
       });
     apiFetch(url + params)
@@ -60,7 +61,7 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
         const json = await resp.json();
         if (
           (page > 1 && json.length === 0) ||
-          (page === 1 && json.length > 0 && json.length < 5)
+          (page === 1 && json.length > 0 && json.length < 20)
         ) {
           setEndOfData(true);
         }
@@ -97,7 +98,8 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
             ) : records.length > 0 ? (
               records.map((record, index) => (
                 <TimelineItem key={index}>
-                  <TimelineOppositeContent style={{ flex: 0.2 }}>
+                  <TimelineOppositeContent
+                    style={{ flex: isTransformed ? 0.1 : 0.2 }}>
                     <Typography variant="body2" color="textSecondary">
                       {getPrettyDateTime(record.date)}
                     </Typography>
@@ -123,7 +125,9 @@ export const HistoryTimeline = ({ patientId }: IProps) => {
 
             {endOfData && (
               <TimelineItem>
-                <TimelineOppositeContent style={{ flex: 0.2 }} />
+                <TimelineOppositeContent
+                  style={{ flex: isTransformed ? 0.1 : 0.2 }}
+                />
                 <TimelineDot />
                 <TimelineContent>
                   <Paper elevation={3} className={classes.paper}>
@@ -148,7 +152,7 @@ const useStyles = makeStyles((theme) => ({
   },
   timeline: {
     overflowY: 'auto',
-    maxHeight: '400px',
+    height: '460px',
   },
   progress: {
     marginLeft: '50%',

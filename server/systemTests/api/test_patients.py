@@ -60,8 +60,6 @@ def test_get_patient_pregnancy_summary(
     assert len(response.json()["pastPregnancies"]) == 1
 
     past_pregnancy = response.json()["pastPregnancies"][0]
-    assert past_pregnancy["birthyear"] == 2020
-    assert past_pregnancy["gestationAtBirth"] == 9
     assert past_pregnancy["pregnancyOutcome"] == pregnancy_earlier["outcome"]
 
 
