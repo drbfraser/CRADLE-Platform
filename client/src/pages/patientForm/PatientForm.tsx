@@ -69,7 +69,7 @@ export const PatientForm = ({
       title: creatingNewPregnancy
         ? 'Add New Pregnancy'
         : editId
-        ? 'Update/Close Pregnancy'
+        ? 'Edit/Close Pregnancy'
         : 'New Patient',
     },
     {

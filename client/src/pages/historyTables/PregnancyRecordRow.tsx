@@ -41,7 +41,7 @@ export const PregnancyRecordRow = ({
         {row.endDate ? getPrettyDateTime(row.endDate) : 'Ongoing'}
       </TableCell>
       <TableCell
-        label={PREGNANCY_RECORD_COLUMNS.length}
+        label={PREGNANCY_RECORD_COLUMNS.gestation}
         isTransformed={isTransformed}>
         {gestationalAgeUnitFormatters[unit ?? GestationalAgeUnitEnum.WEEKS](
           row.startDate,

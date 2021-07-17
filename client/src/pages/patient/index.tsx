@@ -5,11 +5,11 @@ import { MedicalInfo } from './MedicalInfo';
 import { PersonalInfo } from './PersonalInfo';
 import { ReadingCard } from './ReadingCard/ReadingCard';
 import { PatientStats } from './PatientStats';
-import { HistoryTimeline } from './HistoryTimeline';
+import { PregnancyInfo } from './PregnancyInfo';
 import { Patient } from 'src/shared/types';
 import { useRouteMatch } from 'react-router-dom';
 import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import { EndpointEnum, SexEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 type RouteParams = {
@@ -46,12 +46,21 @@ export const PatientPage = () => {
         <Grid item xs={12} md={6}>
           <PersonalInfo patient={patient} />
           <br />
-          <MedicalInfo patient={patient} patientId={patientId} />
+          {patient?.patientSex === SexEnum.FEMALE ? (
+            <PregnancyInfo
+              patientId={patientId}
+              patientName={patient?.patientName}
+            />
+          ) : (
+            <MedicalInfo patient={patient} patientId={patientId} />
+          )}
         </Grid>
         <Grid item xs={12} md={6}>
           <PatientStats patientId={patientId} />
           <br />
-          <HistoryTimeline patientId={patientId} />
+          {patient?.patientSex === SexEnum.FEMALE && (
+            <MedicalInfo patient={patient} patientId={patientId} />
+          )}
         </Grid>
       </Grid>
       <br />

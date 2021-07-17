@@ -17,6 +17,7 @@ interface IProps {
   sortableColumns: any;
   rowKey: string;
   initialSortBy: string;
+  initialSortDir: string;
   RowComponent: ({ row }: any) => JSX.Element;
   isTransformed: boolean;
   isDrugRecord?: boolean | undefined;
@@ -31,6 +32,7 @@ export const APITable = ({
   sortableColumns,
   rowKey, // a unique value in the row, e.g. patientId for patients
   initialSortBy,
+  initialSortDir,
   RowComponent,
   isTransformed,
   isDrugRecord,
@@ -43,7 +45,7 @@ export const APITable = ({
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [sortBy, setSortBy] = useState(initialSortBy);
-  const [sortDir, setSortDir] = useState(SortDir.ASC);
+  const [sortDir, setSortDir] = useState(initialSortDir);
   const history = useHistory();
   const prevPage = useRef(1);
 
@@ -58,7 +60,6 @@ export const APITable = ({
       return;
     } else {
       prevPage.current = page;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     setLoading(true);
@@ -83,8 +84,10 @@ export const APITable = ({
     apiFetch(API_URL + endpoint + params, fetchOptions)
       .then(async (resp) => {
         const json = await resp.json();
+        //The case for drug history records on the past records page
         if (isDrugRecord === true) {
           setRows(json.drug);
+          //The case for medical history records on the past records page
         } else if (isDrugRecord === false) {
           setRows(json.medical);
         } else {
@@ -122,7 +125,7 @@ export const APITable = ({
       <div className={classes.loadingWrapper}>
         {loading && <LinearProgress />}
       </div>
-      {!isTransformed && (
+      {!isTransformed && initialSortBy && (
         <SortBy
           columns={columns}
           sortableColumns={sortableColumns}

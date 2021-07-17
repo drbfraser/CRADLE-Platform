@@ -7,7 +7,7 @@ export const SORTABLE_MEDICAL_RECORD_COLUMNS = [true, false];
 export const PREGNANCY_RECORD_COLUMNS = {
   startDate: 'Start Date (Approx)',
   endDate: 'End Date',
-  length: 'Length',
+  gestation: 'Gestation',
   outcome: 'Outcome',
   edit: 'Edit',
 };

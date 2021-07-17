@@ -1,48 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Paper,
-  Typography,
-  Divider,
-  Box,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-} from '@material-ui/core';
+import { Paper, Typography, Divider, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { Alert, Skeleton } from '@material-ui/lab';
-import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { Link } from 'react-router-dom';
-import {
-  EndpointEnum,
-  GestationalAgeUnitEnum,
-  SexEnum,
-} from 'src/shared/enums';
-import {
-  gestationalAgeUnitFormatters,
-  gestationalAgeUnitLabels,
-} from 'src/shared/constants';
-import { useHistory } from 'react-router-dom';
-import { getNumOfWeeksNumeric } from 'src/shared/utils';
+import { EndpointEnum } from 'src/shared/enums';
 import { OrNull } from 'src/shared/types';
+import { RedirectButton } from 'src/shared/components/redirectButton';
 
 interface IProps {
   patient?: Patient;
   patientId: string;
 }
 
-interface MedicalInfoButtonProps {
-  redirectUrl: string;
-  text: string;
-}
-
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const classes = useStyles();
-  const history = useHistory();
   const [info, setInfo] = useState<PatientMedicalInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
 
@@ -51,7 +25,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       API_URL +
         EndpointEnum.PATIENTS +
         `/${patientId}` +
-        EndpointEnum.MEDICAL_INFO
+        EndpointEnum.MEDICAL_HISTORY
     )
       .then((resp) => resp.json())
       .then((info) => {
@@ -62,97 +36,12 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       });
   }, [patientId]);
 
-  const MedicalInfoButton = ({ redirectUrl, text }: MedicalInfoButtonProps) => {
-    return (
-      <Button
-        color="primary"
-        variant="outlined"
-        className={classes.right}
-        onClick={() => history.push(redirectUrl)}>
-        {text}
-      </Button>
-    );
-  };
-
-  const PregnancyStatus = () => {
-    const status = info!.isPregnant ? 'Yes' : 'No';
-
-    let hasTimedOut = false;
-    if (info!.isPregnant) {
-      hasTimedOut = getNumOfWeeksNumeric(info!.pregnancyStartDate) > 40;
-    }
-
-    const GestationalAge = () => {
-      const [unit, setUnit] = useState(info!.gestationalAgeUnit);
-
-      const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
-        key: unit,
-        text: gestationalAgeUnitLabels[unit],
-        value: unit,
-      }));
-
-      const handleUnitChange = (
-        _: React.ChangeEvent<HTMLInputElement>,
-        { value }: InputOnChangeData
-      ) => {
-        setUnit(value as GestationalAgeUnitEnum);
-      };
-
-      return (
-        <div>
-          <p>
-            <b>Gestational Age: </b>
-            <span style={hasTimedOut ? { color: 'red' } : {}}>
-              {gestationalAgeUnitFormatters[unit](
-                info!.pregnancyStartDate,
-                null
-              )}
-            </span>
-          </p>
-          <Form.Field
-            name="gestationalAgeUnits"
-            control={Select}
-            options={unitOptions}
-            placeholder={gestationalAgeUnitLabels[unit]}
-            onChange={handleUnitChange}
-          />
-          <br />
-        </div>
-      );
-    };
-
-    return (
-      <div>
-        {info!.isPregnant ? (
-          <MedicalInfoButton
-            text="Edit/Close"
-            redirectUrl={`/patients/${patient?.patientId}/edit/pregnancyInfo/${
-              info!.pregnancyId
-            }`}
-          />
-        ) : (
-          <MedicalInfoButton
-            text="Add"
-            redirectUrl={`/pregnancies/new/${patient?.patientId}`}
-          />
-        )}
-        <p>
-          <b>Pregnant: </b> {status}
-        </p>
-        {info?.isPregnant && <GestationalAge />}
-        {hasTimedOut && (
-          <Alert severity="warning">Is the patient still pregnant?</Alert>
-        )}
-        {!info?.isPregnant && <br />}
-      </div>
-    );
-  };
-
   interface HistoryItemProps {
     title: string;
     historyRecord: OrNull<string> | undefined;
     editId: string;
     medicalRecordId: string | undefined;
+    divider?: boolean;
   }
 
   const HistoryItem = ({
@@ -161,22 +50,22 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     editId,
     medicalRecordId,
   }: HistoryItemProps) => (
-    <Accordion defaultExpanded={true}>
-      <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
-        <Typography style={{ flex: 1 }}> {title} </Typography>
+    <div>
+      <div className={classes.historyItem}>
+        <b style={{ flex: 1 }}> {title} </b>
         {medicalRecordId ? (
-          <MedicalInfoButton
+          <RedirectButton
             text="Update"
             redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
           />
         ) : (
-          <MedicalInfoButton
+          <RedirectButton
             text="Add"
             redirectUrl={`/patients/${patient?.patientId}/edit/${editId}`}
           />
         )}
-      </AccordionSummary>
-      <AccordionDetails>
+      </div>
+      <div className={classes.historyItem}>
         {historyRecord ? (
           <Typography style={{ whiteSpace: 'pre-line' }}>
             {historyRecord}
@@ -184,8 +73,8 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         ) : (
           <>No additional {title.toLowerCase()} information.</>
         )}
-      </AccordionDetails>
-    </Accordion>
+      </div>
+    </div>
   );
 
   return (
@@ -210,20 +99,18 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         <br />
         {errorLoading ? (
           <Alert severity="error">
-            Something went wrong trying to load patient&rsquo;s pregnancy
-            status. Please try refreshing.
+            Something went wrong trying to load patient&rsquo;s medical
+            information. Please try refreshing.
           </Alert>
         ) : info ? (
           <div>
-            {patient && patient.patientSex === SexEnum.FEMALE && (
-              <PregnancyStatus />
-            )}
             <HistoryItem
               title="Medical History"
               historyRecord={info?.medicalHistory}
               editId="medicalHistory"
               medicalRecordId={info.medicalHistoryId}
             />
+            <Divider className={classes.historyItem} />
             <HistoryItem
               title="Drug History"
               historyRecord={info?.drugHistory}
@@ -240,11 +127,11 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
 };
 
 const useStyles = makeStyles({
-  right: {
-    float: 'right',
-  },
   smallLink: {
     float: 'right',
     fontSize: 14,
+  },
+  historyItem: {
+    marginBottom: '15px',
   },
 });

@@ -5,12 +5,11 @@ import {
   SexEnum,
 } from 'src/shared/enums';
 import { initialState, PatientField, PatientState } from './state';
+import { getDOBForEstimatedAge, goBackWithFallback } from 'src/shared/utils';
 import {
-  getDOBForEstimatedAge,
-  getTimestampFromMonths,
-  getTimestampFromWeeksDays,
-  goBackWithFallback,
-} from 'src/shared/utils';
+  gestationalAgeUnitTimestamp,
+  gestationalAgeUnitTimestampWithEndDate,
+} from 'src/shared/constants';
 
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
   const resetGestational = () => {
@@ -72,19 +71,15 @@ export const handleSubmit = async (
   }
 
   if (submitValues.isPregnant) {
-    switch (submitValues.gestationalAgeUnit) {
-      case GestationalAgeUnitEnum.WEEKS:
-        submitValues.pregnancyStartDate = getTimestampFromWeeksDays(
-          values.gestationalAgeWeeks,
-          values.gestationalAgeDays
-        );
-        break;
-      case GestationalAgeUnitEnum.MONTHS:
-        submitValues.pregnancyStartDate = getTimestampFromMonths(
-          values.gestationalAgeMonths
-        );
-        break;
-    }
+    submitValues.pregnancyStartDate =
+      submitValues.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
+        ? gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.WEEKS](
+            values.gestationalAgeWeeks,
+            values.gestationalAgeDays
+          )
+        : gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.MONTHS](
+            values.gestationalAgeMonths
+          );
   }
 
   //TODO: remove this when we get rid of the old information in the Patient table
@@ -129,26 +124,36 @@ export const handlePregnancyInfo = async (
     pregnancyOutcome: values[PatientField.pregnancyOutcome],
   };
 
-  switch (submitValues.gestationalAgeUnit) {
-    case GestationalAgeUnitEnum.WEEKS:
-      submitValues.pregnancyStartDate = getTimestampFromWeeksDays(
-        values.gestationalAgeWeeks,
-        values.gestationalAgeDays
-      );
-      break;
-    case GestationalAgeUnitEnum.MONTHS:
-      submitValues.pregnancyStartDate = getTimestampFromMonths(
-        values.gestationalAgeMonths
-      );
-      break;
-  }
-
   if (values[PatientField.pregnancyEndDate]) {
     submitValues.pregnancyEndDate = (
       Date.parse(values[PatientField.pregnancyEndDate]) / 1000
     ).toString();
   } else {
     submitValues.pregnancyEndDate = undefined;
+  }
+
+  if (submitValues.pregnancyEndDate) {
+    submitValues.pregnancyStartDate =
+      submitValues.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
+        ? gestationalAgeUnitTimestampWithEndDate[GestationalAgeUnitEnum.WEEKS](
+            values.gestationalAgeWeeks,
+            values.gestationalAgeDays,
+            submitValues.pregnancyEndDate
+          )
+        : gestationalAgeUnitTimestampWithEndDate[GestationalAgeUnitEnum.MONTHS](
+            values.gestationalAgeMonths,
+            submitValues.pregnancyEndDate
+          );
+  } else {
+    submitValues.pregnancyStartDate =
+      submitValues.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
+        ? gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.WEEKS](
+            values.gestationalAgeWeeks,
+            values.gestationalAgeDays
+          )
+        : gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.MONTHS](
+            values.gestationalAgeMonths
+          );
   }
 
   let method = 'POST';
