@@ -36,8 +36,6 @@ def test_get_referral_list(
     create_referral(**referral2)
 
     response = api_get(endpoint="/api/referrals")
-    for r in response.json():
-        print(r["dateReferred"])
 
     assert response.status_code == 200
     assert any(r["dateReferred"] == date1 for r in response.json())

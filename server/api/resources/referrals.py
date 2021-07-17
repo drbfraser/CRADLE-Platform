@@ -27,7 +27,11 @@ class Root(Resource):
     )
     def get():
         user = get_jwt_identity()
+
         params = util.get_query_params(request)
+        if params.get("health_facility") and params["health_facility"] == "default":
+            params["health_facility"] = user["healthFacilityName"]
+
         referrals = view.referral_view(user, **params)
 
         return [serialize.serialize_referral(r) for r in referrals]

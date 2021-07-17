@@ -2,6 +2,7 @@ from typing import List, Optional, Type, TypeVar, Any
 from collections import namedtuple
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
+import operator
 
 from data import db_session
 from models import (
@@ -332,15 +333,16 @@ def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
         )
 
     is_assessed = kwargs.get("is_assessed")
-    if is_assessed:
+    if is_assessed == "1" or is_assessed == "0":
         is_assessed = is_assessed == "1"
         query = query.filter(Referral.isAssessed == is_assessed)
 
     is_pregnant = kwargs.get("is_pregnant")
-    if is_pregnant == "1":
+    if is_pregnant == "1" or is_pregnant == "0":
+        eq_op = operator.ne if is_pregnant == "1" else operator.eq
         pr = aliased(Pregnancy)
         query = (
-            query.join(
+            query.outerjoin(
                 Pregnancy,
                 and_(
                     Patient.patientId == Pregnancy.patientId,
@@ -354,7 +356,7 @@ def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
                     Pregnancy.startDate < pr.startDate,
                 ),
             )
-            .filter(pr.startDate == None)
+            .filter(eq_op(Pregnancy.startDate, None), pr.startDate == None)
         )
 
     vital_signs = kwargs.get("vital_signs")
