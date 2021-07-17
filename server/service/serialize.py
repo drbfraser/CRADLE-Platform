@@ -61,7 +61,8 @@ def serialize_mobile_patient(p: any):
         "patientId": p.patientId,
         "patientName": p.patientName,
         "patientSex": p.patientSex.value,
-        "isPregnant": True if p.gestationalTimestamp else False,
+        "isPregnant": True if p.pregnancyStartDate else False,
+        "gestationalTimestamp": p.pregnancyStartDate,
         "gestationalAgeUnit": p.gestationalAgeUnit.value
         if p.gestationalAgeUnit
         else "MONTHS",

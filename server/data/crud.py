@@ -246,7 +246,6 @@ def read_all_assoc_patients(m: Type[M], user: User, is_cho: bool) -> List[M]:
                 p["readings"].append(reading_list[readingIdx])
                 readingIdx += 1
 
-            # del p["id"]
         return patient_list
 
 
@@ -416,7 +415,7 @@ def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
             Patient.allergy,
             Patient.lastEdited,
             p1.id.label("pregnancyId"),
-            p1.startDate.label("gestationalTimestamp"),
+            p1.startDate.label("pregnancyStartDate"),
             p1.defaultTimeUnit.label("gestationalAgeUnit"),
             m1.id.label("medicalHistoryId"),
             m1.information.label("medicalHistory"),
