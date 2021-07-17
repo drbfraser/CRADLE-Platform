@@ -2,7 +2,8 @@ import data.crud as crud
 from models import MedicalRecord
 
 
-def test_get_record(medical_record_factory, medical_record, api_get):
+def test_get_record(create_patient, medical_record_factory, medical_record, api_get):
+    create_patient()
     medical_record_factory.create(**medical_record)
 
     record_id = medical_record["id"]
@@ -12,7 +13,8 @@ def test_get_record(medical_record_factory, medical_record, api_get):
     assert response.json()["medicalHistory"] == medical_record["information"]
 
 
-def test_put_record(medical_record_factory, drug_record, api_put):
+def test_put_record(create_patient, medical_record_factory, drug_record, api_put):
+    create_patient()
     medical_record_factory.create(**drug_record)
 
     record_id = drug_record["id"]
@@ -30,8 +32,9 @@ def test_put_record(medical_record_factory, drug_record, api_put):
 
 
 def test_post_and_delete_record(
-    patient_id, medical_record, database, api_post, api_delete
+    create_patient, patient_id, medical_record, database, api_post, api_delete
 ):
+    create_patient()
     record_id = medical_record["id"]
 
     record = {"id": record_id, "medicalHistory": medical_record["information"]}
@@ -55,8 +58,14 @@ def test_post_and_delete_record(
 
 
 def test_get_record_lists(
-    medical_record_factory, patient_id, medical_record, drug_record, api_get
+    create_patient,
+    medical_record_factory,
+    patient_id,
+    medical_record,
+    drug_record,
+    api_get,
 ):
+    create_patient()
     medical_record_factory.create(**medical_record)
     medical_record_factory.create(**drug_record)
 
@@ -67,7 +76,10 @@ def test_get_record_lists(
     assert len(response.json()["drug"]) >= 1
 
 
-def test_invalid_record_not_updated(medical_record_factory, drug_record, api_put):
+def test_invalid_record_not_updated(
+    create_patient, medical_record_factory, drug_record, api_put
+):
+    create_patient()
     medical_record_factory.create(**drug_record)
 
     record_id = drug_record["id"]
@@ -83,8 +95,9 @@ def test_invalid_record_not_updated(medical_record_factory, drug_record, api_put
 
 
 def test_invalid_record_not_created(
-    medical_record_factory, patient_id, drug_record, api_post
+    create_patient, medical_record_factory, patient_id, drug_record, api_post
 ):
+    create_patient()
     medical_record_factory.create(**drug_record)
 
     response = api_post(
