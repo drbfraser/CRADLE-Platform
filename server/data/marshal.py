@@ -58,20 +58,9 @@ def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
             pregnancy = {
                 "pregnancyId": record.id,
                 "pregnancyOutcome": record.outcome,
+                "pregnancyEndDate": record.endDate,
+                "pregnancyStartDate": record.startDate,
             }
-            if record.endDate:
-                start_date = datetime.date.fromtimestamp(record.startDate)
-                end_date = datetime.date.fromtimestamp(record.endDate)
-                gestation = (
-                    (end_date.year - start_date.year) * 12
-                    + end_date.month
-                    - start_date.month
-                )
-                info = {
-                    "birthyear": end_date.year,
-                    "gestationAtBirth": gestation,
-                }
-                pregnancy.update(info)
             past_pregnancies.append(pregnancy)
         summary["pastPregnancies"] = past_pregnancies
 

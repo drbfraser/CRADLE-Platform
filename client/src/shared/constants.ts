@@ -1,4 +1,11 @@
-import { getNumOfMonths, getNumOfWeeksDays } from 'src/shared/utils';
+import {
+  getNumOfMonths,
+  getNumOfWeeksDays,
+  getTimestampFromMonthsWithEndDate,
+  getTimestampFromWeeksDaysWithEndDate,
+  getTimestampFromMonths,
+  getTimestampFromWeeksDays,
+} from 'src/shared/utils';
 import {
   GestationalAgeUnitEnum,
   SexEnum,
@@ -14,6 +21,16 @@ export const gestationalAgeUnitLabels = {
 export const gestationalAgeUnitFormatters = {
   [GestationalAgeUnitEnum.WEEKS]: getNumOfWeeksDays,
   [GestationalAgeUnitEnum.MONTHS]: getNumOfMonths,
+};
+
+export const gestationalAgeUnitTimestamp = {
+  [GestationalAgeUnitEnum.WEEKS]: getTimestampFromWeeksDays,
+  [GestationalAgeUnitEnum.MONTHS]: getTimestampFromMonths,
+};
+
+export const gestationalAgeUnitTimestampWithEndDate = {
+  [GestationalAgeUnitEnum.WEEKS]: getTimestampFromWeeksDaysWithEndDate,
+  [GestationalAgeUnitEnum.MONTHS]: getTimestampFromMonthsWithEndDate,
 };
 
 export const sexOptions = {
