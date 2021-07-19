@@ -63,6 +63,7 @@ export const ReferralsPage = () => {
         initialSortDir={SortDir.ASC}
         RowComponent={ReferralRow}
         isTransformed={isTransformed}
+        referralFilter={filter}
       />
     </Paper>
   );

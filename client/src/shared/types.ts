@@ -207,12 +207,12 @@ export type Referral = {
 };
 
 export type ReferralFilter = {
-  healthFacilityName: OrNull<string>;
+  healthFacilityName: string;
   dateRange: string;
   referrer: string;
-  vitalSigns: TrafficLightEnum;
-  isAccessed: boolean;
-  isPregnant: boolean;
+  vitalSigns: TrafficLightEnum | undefined;
+  isAssessed: number | undefined;
+  isPregnant: number | undefined;
 };
 
 export type Referrer = {

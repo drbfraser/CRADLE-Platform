@@ -9,6 +9,8 @@ import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { useHistory } from 'react-router-dom';
+import { ReferralFilter } from 'src/shared/types';
+import { TrafficLightEnum } from 'src/shared/enums';
 
 interface IProps {
   endpoint: string;
@@ -23,6 +25,7 @@ interface IProps {
   isDrugRecord?: boolean | undefined;
   patientId?: string;
   gestationalAgeUnit?: string;
+  referralFilter?: ReferralFilter;
 }
 
 export const APITable = ({
@@ -38,6 +41,7 @@ export const APITable = ({
   isDrugRecord,
   patientId,
   gestationalAgeUnit,
+  referralFilter,
 }: IProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,17 +75,37 @@ export const APITable = ({
       signal: controller.signal,
     };
 
-    const params =
-      '?' +
-      new URLSearchParams({
-        limit: limit.toString(),
-        page: page.toString(),
-        search: search,
-        sortBy: sortBy,
-        sortDir: sortDir,
-      });
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      page: page.toString(),
+      search: search,
+      sortBy: sortBy,
+      sortDir: sortDir,
+    });
 
-    apiFetch(API_URL + endpoint + params, fetchOptions)
+    const referralFilterParams = referralFilter
+      ? new URLSearchParams({
+          healthFacility: referralFilter.healthFacilityName,
+          referrer: referralFilter.referrer,
+          dateRange: referralFilter.dateRange,
+          vitalSigns: referralFilter.vitalSigns
+            ? TrafficLightEnum[
+                referralFilter.vitalSigns as keyof typeof TrafficLightEnum
+              ]
+            : '',
+          isPregnant: referralFilter.isPregnant
+            ? referralFilter.isPregnant.toString()
+            : '',
+          isAssessed: referralFilter.isAssessed
+            ? referralFilter.isAssessed.toString()
+            : '',
+        })
+      : '';
+
+    apiFetch(
+      API_URL + endpoint + '?' + params + referralFilterParams,
+      fetchOptions
+    )
       .then(async (resp) => {
         const json = await resp.json();
         //The case for drug history records on the past records page
@@ -104,7 +128,16 @@ export const APITable = ({
 
     // if the user does something else, cancel the fetch
     return () => controller.abort();
-  }, [endpoint, limit, page, search, sortBy, sortDir, isDrugRecord]);
+  }, [
+    endpoint,
+    limit,
+    page,
+    search,
+    sortBy,
+    sortDir,
+    isDrugRecord,
+    referralFilter,
+  ]);
 
   const handleSort = (col: string) => {
     if (col === sortBy) {
