@@ -38,6 +38,29 @@ type VitalSign = {
   vitalSign: TrafficLightEnum;
 };
 
+const vitalSigns: VitalSign[] = [
+  {
+    name: 'Green',
+    vitalSign: TrafficLightEnum.GREEN,
+  },
+  {
+    name: 'Yellow Up',
+    vitalSign: TrafficLightEnum.YELLOW_UP,
+  },
+  {
+    name: 'Yellow Down',
+    vitalSign: TrafficLightEnum.YELLOW_DOWN,
+  },
+  {
+    name: 'Red Up',
+    vitalSign: TrafficLightEnum.RED_UP,
+  },
+  {
+    name: 'Red Down',
+    vitalSign: TrafficLightEnum.RED_DOWN,
+  },
+];
+
 export const FilterDialog = ({
   open,
   filter,
@@ -66,29 +89,6 @@ export const FilterDialog = ({
 
   const [isPregnant, setIsPregnant] = useState<number>();
   const [isAssessed, setIsAssessed] = useState<number>();
-
-  const vitalSigns: VitalSign[] = [
-    {
-      name: 'Green',
-      vitalSign: TrafficLightEnum.GREEN,
-    },
-    {
-      name: 'Yellow Up',
-      vitalSign: TrafficLightEnum.YELLOW_UP,
-    },
-    {
-      name: 'Yellow Down',
-      vitalSign: TrafficLightEnum.YELLOW_DOWN,
-    },
-    {
-      name: 'Red Up',
-      vitalSign: TrafficLightEnum.RED_UP,
-    },
-    {
-      name: 'Red Down',
-      vitalSign: TrafficLightEnum.RED_DOWN,
-    },
-  ];
 
   useEffect(() => {
     apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)
