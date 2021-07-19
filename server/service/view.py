@@ -201,6 +201,13 @@ def individual_vht_referral_view(user: User) -> List[Referral]:
 
 
 def referral_view(user: dict, **kwargs) -> List[Referral]:
+    """
+    Returns a list of referrals filtered by query criteria in keyword arguments.
+
+    :param user: JWT identity
+    :param **kwargs: Optional query criteria
+    :return: A list of referrals
+    """
     role = user["role"]
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
         return crud.read_referrals(**kwargs)
