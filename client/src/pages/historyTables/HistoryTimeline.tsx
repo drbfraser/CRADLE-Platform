@@ -80,66 +80,64 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
   };
 
   return (
-    <Paper>
-      <Box p={3}>
-        <Typography component="h3" variant="h5">
-          <HistoryIcon fontSize="large" /> &nbsp; Medical History Timeline
-        </Typography>
-        <Divider />
-        <div className={classes.timeline} onScroll={handleScroll}>
-          <Timeline>
-            {errorLoading ? (
-              <Alert severity="error">
-                Something went wrong when trying to load history timeline.
-                Please try refreshing.
-              </Alert>
-            ) : !records ? (
-              <Skeleton variant="rect" height={200} />
-            ) : records.length > 0 ? (
-              records.map((record, index) => (
-                <TimelineItem key={index}>
-                  <TimelineOppositeContent
-                    style={{ flex: isTransformed ? 0.1 : 0.2 }}>
-                    <Typography variant="body2" color="textSecondary">
-                      {getPrettyDateTime(record.date)}
-                    </Typography>
-                  </TimelineOppositeContent>
-                  <TimelineSeparator>
-                    <TimelineDot />
-                    <TimelineConnector />
-                  </TimelineSeparator>
-                  <TimelineContent>
-                    <Paper elevation={3} className={classes.paper}>
-                      <b> {record.title} </b>
-                      <Typography style={{ whiteSpace: 'pre-line' }}>
-                        {record.information}
-                      </Typography>
-                    </Paper>
-                  </TimelineContent>
-                </TimelineItem>
-              ))
-            ) : (
-              <p>No records for this patient.</p>
-            )}
-            {isFetching && <CircularProgress className={classes.progress} />}
-
-            {endOfData && (
-              <TimelineItem>
+    <Box p={3}>
+      <Typography component="h3" variant="h5">
+        <HistoryIcon fontSize="large" /> &nbsp; Medical History Timeline
+      </Typography>
+      <Divider />
+      <div className={classes.timeline} onScroll={handleScroll}>
+        <Timeline>
+          {errorLoading ? (
+            <Alert severity="error">
+              Something went wrong when trying to load history timeline. Please
+              try refreshing.
+            </Alert>
+          ) : !records ? (
+            <Skeleton variant="rect" height={200} />
+          ) : records.length > 0 ? (
+            records.map((record, index) => (
+              <TimelineItem key={index}>
                 <TimelineOppositeContent
-                  style={{ flex: isTransformed ? 0.1 : 0.2 }}
-                />
-                <TimelineDot />
+                  style={{ flex: isTransformed ? 0.1 : 0.2 }}>
+                  <Typography variant="body2" color="textSecondary">
+                    {getPrettyDateTime(record.date)}
+                  </Typography>
+                </TimelineOppositeContent>
+                <TimelineSeparator>
+                  <TimelineDot />
+                  <TimelineConnector />
+                </TimelineSeparator>
                 <TimelineContent>
                   <Paper elevation={3} className={classes.paper}>
-                    <b> End of records </b>
+                    <b> {record.title} </b>
+                    <Typography style={{ whiteSpace: 'pre-line' }}>
+                      {record.information}
+                    </Typography>
                   </Paper>
                 </TimelineContent>
               </TimelineItem>
-            )}
-          </Timeline>
-        </div>
-      </Box>
-    </Paper>
+            ))
+          ) : (
+            <p>No records for this patient.</p>
+          )}
+          {isFetching && <CircularProgress className={classes.progress} />}
+
+          {endOfData && (
+            <TimelineItem>
+              <TimelineOppositeContent
+                style={{ flex: isTransformed ? 0.1 : 0.2 }}
+              />
+              <TimelineDot />
+              <TimelineContent>
+                <Paper elevation={3} className={classes.paper}>
+                  <b> End of records </b>
+                </Paper>
+              </TimelineContent>
+            </TimelineItem>
+          )}
+        </Timeline>
+      </div>
+    </Box>
   );
 };
 

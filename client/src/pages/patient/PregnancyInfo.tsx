@@ -181,7 +181,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
               />
               <br />
               <Table className={classes.table}>
-                {info.pastPregnancies ? (
+                {info.pastPregnancies && info.pastPregnancies.length > 0 ? (
                   info.pastPregnancies.map((pastPregnancy, index) => (
                     <TableRow
                       hover={true}

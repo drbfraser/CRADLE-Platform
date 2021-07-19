@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Tab, InputOnChangeData, Form, Select, Menu } from 'semantic-ui-react';
+import { Tab, InputOnChangeData, Form, Select } from 'semantic-ui-react';
 import { useRouteMatch } from 'react-router-dom';
-import { Typography, Paper, Box } from '@material-ui/core';
+import { Typography, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
@@ -27,6 +27,11 @@ import { PregnancyRecordRow } from './PregnancyRecordRow';
 import { goBackWithFallback } from 'src/shared/utils';
 import { HistoryTimeline } from './HistoryTimeline';
 import { SortDir } from 'src/shared/components/apiTable/types';
+import { MedicalRecord, Pregnancy } from 'src/shared/types';
+import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { Toast } from 'src/shared/components/toast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 type RouteParams = {
   patientId: string;
@@ -34,20 +39,21 @@ type RouteParams = {
   patientSex: SexEnum;
 };
 
-enum HistoryViewOption {
-  TABLE = 'table',
-  TIMELINE = 'timeline',
-}
-
 export function HistoryTablesPage() {
   const { patientId, patientName, patientSex } =
     useRouteMatch<RouteParams>().params;
   const classes = useStyles();
-  const [viewSelected, setViewSelected] = useState(HistoryViewOption.TABLE);
   const [pregnancySearch, setPregnancySearch] = useState('');
   const [medicalHistorySearch, setMedicalHistorySearch] = useState('');
   const [drugHistorySearch, setDrugHistorySearch] = useState('');
   const [unit, setUnit] = useState(GestationalAgeUnitEnum.MONTHS);
+
+  const [popupMedicalRecord, setPopupMedicalRecord] = useState<MedicalRecord>();
+  const [popupPregnancyRecord, setPopupPregnancyRecord] = useState<Pregnancy>();
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
+  const [refetch, setRefetch] = useState<boolean>(false);
 
   const debounceSetPregnancySearch = debounce(setPregnancySearch, 500);
   const debounceSetMedicalHistorySearch = debounce(
@@ -71,6 +77,34 @@ export function HistoryTablesPage() {
     setUnit(value as GestationalAgeUnitEnum);
   };
 
+  const handleDeleteRecord = async () => {
+    const universalRecordId = popupPregnancyRecord
+      ? popupPregnancyRecord.pregnancyId
+      : popupMedicalRecord
+      ? popupMedicalRecord.medicalRecordId
+      : '';
+    const endpoint = popupPregnancyRecord
+      ? EndpointEnum.PREGNANCIES
+      : EndpointEnum.MEDICAL_RECORDS;
+    const url = `${API_URL}${endpoint}/${universalRecordId}`;
+    apiFetch(url, {
+      method: 'DELETE',
+    })
+      .then(() => {
+        setPopupMedicalRecord(undefined);
+        setPopupPregnancyRecord(undefined);
+        setSubmitSuccess(true);
+        setIsDialogOpen(false);
+        setRefetch(!refetch);
+      })
+      .catch(() => {
+        setPopupMedicalRecord(undefined);
+        setPopupPregnancyRecord(undefined);
+        setIsDialogOpen(false);
+        setSubmitError(true);
+      });
+  };
+
   const allPanes = [
     {
       name: 'Pregnancy History',
@@ -89,13 +123,11 @@ export function HistoryTablesPage() {
       searchText: 'Outcome',
       search: pregnancySearch,
       debounceSetSearch: debounceSetPregnancySearch,
+      setPopupRecord: setPopupPregnancyRecord,
     },
     {
       name: 'Medical History',
-      COLUMNS: {
-        dateCreated: 'Date',
-        information: 'Information',
-      },
+      COLUMNS: MEDICAL_RECORD_COLUMNS,
       endpoint:
         EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_RECORDS,
       RowComponent: MedicalRecordRow,
@@ -108,6 +140,7 @@ export function HistoryTablesPage() {
       searchText: 'Information',
       search: medicalHistorySearch,
       debounceSetSearch: debounceSetMedicalHistorySearch,
+      setPopupRecord: setPopupMedicalRecord,
     },
     {
       name: 'Drug History',
@@ -124,6 +157,12 @@ export function HistoryTablesPage() {
       searchText: 'Information',
       search: drugHistorySearch,
       debounceSetSearch: debounceSetDrugHistorySearch,
+      setPopupRecord: setPopupMedicalRecord,
+    },
+    {
+      name: 'Timeline',
+      Component: HistoryTimeline,
+      index: 3,
     },
   ];
 
@@ -136,53 +175,80 @@ export function HistoryTablesPage() {
     menuItem: p.name,
     render: () => (
       <Tab.Pane key={p.index} className={classes.wrapper}>
-        <div className={classes.topWrapper}>
-          <TextField
-            className={classes.search}
-            label="Search"
-            placeholder={p.searchText}
-            variant="outlined"
-            name={p.search}
-            onChange={(e) => p.debounceSetSearch(e.target.value)}
-          />
-          {p.name === 'Pregnancy History' && (
-            <>
-              <Form.Field
-                name="gestationalAgeUnits"
-                control={Select}
-                options={unitOptions}
-                placeholder={gestationalAgeUnitLabels[unit]}
-                onChange={handleUnitChange}
-                className={
-                  isTransformed ? classes.selectField : classes.selectFieldSmall
-                }
+        {p.name === 'Timeline' && p.Component ? (
+          <p.Component patientId={patientId} isTransformed={isTransformed} />
+        ) : (
+          <>
+            <div className={classes.topWrapper}>
+              <TextField
+                className={classes.search}
+                label="Search"
+                placeholder={p.searchText}
+                variant="outlined"
+                name={p.search}
+                onChange={(e) => p.debounceSetSearch!(e.target.value)}
               />
-              {!isTransformed && <br />}
-            </>
-          )}
-        </div>
-        <div className={classes.table}>
-          <APITable
-            endpoint={p.endpoint}
-            search={p.search}
-            columns={p.COLUMNS}
-            sortableColumns={p.SORTABLE_COLUMNS}
-            rowKey={p.rowKey}
-            initialSortBy={p.initialSortBy}
-            initialSortDir={p.initialSortDir}
-            RowComponent={p.RowComponent}
-            isTransformed={isTransformed}
-            isDrugRecord={p.isDrugRecord}
-            gestationalAgeUnit={unit}
-            patientId={patientId}
-          />
-        </div>
+              {p.name === 'Pregnancy History' && (
+                <>
+                  <Form.Field
+                    name="gestationalAgeUnits"
+                    control={Select}
+                    options={unitOptions}
+                    placeholder={gestationalAgeUnitLabels[unit]}
+                    onChange={handleUnitChange}
+                    className={
+                      isTransformed
+                        ? classes.selectField
+                        : classes.selectFieldSmall
+                    }
+                  />
+                  {!isTransformed && <br />}
+                </>
+              )}
+            </div>
+            <div className={classes.table}>
+              <APITable
+                endpoint={p.endpoint!}
+                search={p.search!}
+                columns={p.COLUMNS}
+                sortableColumns={p.SORTABLE_COLUMNS}
+                rowKey={p.rowKey!}
+                initialSortBy={p.initialSortBy!}
+                initialSortDir={p.initialSortDir!}
+                RowComponent={p.RowComponent!}
+                isTransformed={isTransformed}
+                isDrugRecord={p.isDrugRecord}
+                gestationalAgeUnit={unit}
+                patientId={patientId}
+                setDeletePopupOpen={setIsDialogOpen}
+                setPopupRecord={p.setPopupRecord}
+                refetch={refetch}
+              />
+            </div>
+          </>
+        )}
       </Tab.Pane>
     ),
   }));
 
   return (
     <div>
+      <Toast
+        severity="success"
+        message="Record successfully deleted!"
+        open={submitSuccess}
+        onClose={() => setSubmitSuccess(false)}
+      />
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <ConfirmDialog
+        title="Delete Record?"
+        content="Are you sure you want to delete this record?"
+        open={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+        }}
+        onConfirm={handleDeleteRecord}
+      />
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton
@@ -192,46 +258,23 @@ export function HistoryTablesPage() {
         </Tooltip>
         <Typography variant="h4">Past Records of {patientName}</Typography>
       </div>
-      <Menu fluid widths={2}>
-        <Menu.Item
-          name="Table View"
-          active={viewSelected === HistoryViewOption.TABLE}
-          onClick={() => setViewSelected(HistoryViewOption.TABLE)}
+      <Box p={3}>
+        <Tab
+          menu={{
+            secondary: true,
+            pointing: true,
+            className: classes.tabs,
+          }}
+          panes={panes}
+          //Set search state value of the new active tab to empty
+          onTabChange={(_, tabProps) => {
+            const index = Number(tabProps.activeIndex!);
+            if (index !== 3) {
+              filteredPanes[index].debounceSetSearch!('');
+            }
+          }}
         />
-        <Menu.Item
-          name="Timeline View"
-          active={viewSelected === HistoryViewOption.TIMELINE}
-          onClick={() => setViewSelected(HistoryViewOption.TIMELINE)}
-        />
-      </Menu>
-      <div>
-        {viewSelected === HistoryViewOption.TABLE && (
-          <Paper>
-            <Box p={3}>
-              <Tab
-                menu={{
-                  secondary: true,
-                  pointing: true,
-                  className: classes.tabs,
-                }}
-                panes={panes}
-                //Set search state value of the new active tab to empty
-                onTabChange={(_, tabProps) => {
-                  filteredPanes[
-                    Number(tabProps.activeIndex!)
-                  ].debounceSetSearch('');
-                }}
-              />
-            </Box>
-          </Paper>
-        )}
-        {viewSelected === HistoryViewOption.TIMELINE && (
-          <HistoryTimeline
-            patientId={patientId}
-            isTransformed={isTransformed}
-          />
-        )}
-      </div>
+      </Box>
     </div>
   );
 }

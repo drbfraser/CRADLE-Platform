@@ -129,7 +129,7 @@ export const PregnancyInfoForm = ({
               </Grid>
             )}
           </Grid>
-          {!creatingNew && !creatingNewPregnancy && (
+          {!creatingNew && (
             <>
               <Grid item md={4} sm={12}>
                 <Field
@@ -161,6 +161,12 @@ export const PregnancyInfoForm = ({
             </>
           )}
         </Grid>
+        {creatingNewPregnancy && (
+          <Typography color="textSecondary" variant="caption">
+            Only fill in end date and outcome if you want to add a completed
+            pregnancy
+          </Typography>
+        )}
         {!creatingNew && !creatingNewPregnancy && (
           <Typography color="textSecondary" variant="caption">
             Filling in end date and outcome will close this pregnancy

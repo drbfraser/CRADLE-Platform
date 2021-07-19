@@ -23,6 +23,9 @@ interface IProps {
   isDrugRecord?: boolean | undefined;
   patientId?: string;
   gestationalAgeUnit?: string;
+  setDeletePopupOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setPopupRecord?: React.Dispatch<React.SetStateAction<any>>;
+  refetch?: boolean;
 }
 
 export const APITable = ({
@@ -38,6 +41,9 @@ export const APITable = ({
   isDrugRecord,
   patientId,
   gestationalAgeUnit,
+  setDeletePopupOpen,
+  setPopupRecord,
+  refetch,
 }: IProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,7 +110,7 @@ export const APITable = ({
 
     // if the user does something else, cancel the fetch
     return () => controller.abort();
-  }, [endpoint, limit, page, search, sortBy, sortDir, isDrugRecord]);
+  }, [endpoint, limit, page, search, sortBy, sortDir, isDrugRecord, refetch]);
 
   const handleSort = (col: string) => {
     if (col === sortBy) {
@@ -156,6 +162,8 @@ export const APITable = ({
                   patientId={patientId}
                   unit={gestationalAgeUnit}
                   history={history}
+                  setDeletePopupOpen={setDeletePopupOpen}
+                  setPopupRecord={setPopupRecord}
                 />
               ))}
             </tbody>
