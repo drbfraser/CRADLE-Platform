@@ -140,7 +140,7 @@ def test_get_mobile_patient_list(
 
     assert patient["dob"] == patient_info["dob"]
     assert patient["pregnancyId"] == pregnancy_later["id"]
-    assert patient["gestationalTimestamp"] == pregnancy_later["startDate"]
+    assert patient["pregnancyStartDate"] == pregnancy_later["startDate"]
     assert patient["medicalHistoryId"] == medical_record["id"]
     assert patient["medicalHistory"] == medical_record["information"]
     assert patient["drugHistoryId"] == drug_record["id"]

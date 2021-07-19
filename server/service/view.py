@@ -64,7 +64,7 @@ def admin_patient_view(**kwargs) -> List[Patient]:
     """
     if not kwargs:
         # getting all the patient + readings + followups + urine tests
-        return crud.read_all(Patient)
+        return crud.read_all_assoc_patients(PatientAssociations, None, False)
     else:
         # getting information for patient table (Admin view)
         return crud.read_all_admin_view(Patient, **kwargs)
@@ -249,6 +249,6 @@ def mobile_patient_and_reading_view(user: dict) -> tuple:
     else:
         user_id = user["userId"]
         if user_id:
-            patients = crud.read_mobile_patients(user_id)
-            readings = crud.read_all_readings_db(False, user_id)
+            patients = crud.read_mobile_patients([user_id])
+            readings = crud.read_all_readings_db(False, [user_id])
             return patients, readings

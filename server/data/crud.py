@@ -223,13 +223,18 @@ def read_all_assoc_patients(m: Type[M], user: User, is_cho: bool) -> List[M]:
     :return: A list patient_list
     """
     if m.schema() == PatientAssociations.schema():
-
-        user_ids = get_user_ids_list(user.id, is_cho)
+        if user:
+            user_ids = get_user_ids_list(user.id, is_cho)
+        else:
+            user_ids = None
 
         # get all the patients
         patient_list = read_all_assoc_patients_db(user_ids)
         # get all reading + referral + followup
-        reading_list = read_all_readings_db(False, user_ids)
+        if user:
+            reading_list = read_all_readings_db(False, user_ids)
+        else:
+            reading_list = read_all_readings_db(True, user_ids)
 
         # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
         readingIdx = 0
@@ -241,7 +246,6 @@ def read_all_assoc_patients(m: Type[M], user: User, is_cho: bool) -> List[M]:
                 p["readings"].append(reading_list[readingIdx])
                 readingIdx += 1
 
-            del p["id"]
         return patient_list
 
 
@@ -379,7 +383,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     return query.slice(*__get_slice_indexes(page, limit))
 
 
-def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
+def read_mobile_patients(user_ids: Optional[List[int]] = None) -> List[Any]:
     """
     Queries the database for all patients associated with the user including the latest
     pregnancy, medical and durg records for each patient.
@@ -411,7 +415,7 @@ def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
             Patient.allergy,
             Patient.lastEdited,
             p1.id.label("pregnancyId"),
-            p1.startDate.label("gestationalTimestamp"),
+            p1.startDate.label("pregnancyStartDate"),
             p1.defaultTimeUnit.label("gestationalAgeUnit"),
             m1.id.label("medicalHistoryId"),
             m1.information.label("medicalHistory"),
@@ -443,10 +447,12 @@ def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
         .filter(p2.startDate == None, m2.dateCreated == None, m4.dateCreated == None)
     )
 
-    if user_id:
+    if user_ids:
         query = query.join(PatientAssociations, Patient.associations).filter(
-            PatientAssociations.userId == user_id
+            PatientAssociations.userId.in_(user_ids)
         )
+
+    query = query.order_by(asc(Patient.patientId))
 
     return query.all()
 
@@ -574,17 +580,12 @@ def read_all_assoc_patients_db(user_ids: str) -> List[M]:
     :return: A dictionary of Patients
     """
     # make DB call
-    patients = db_session.execute(
-        "SELECT * FROM patient p JOIN patient_associations pa "
-        "ON p.patientId = pa.patientId             "
-        " AND pa.userId IN (" + user_ids + ") ORDER BY p.patientId ASC"
-    )
+    patients = read_mobile_patients(user_ids)
 
     arr = []
     # make list of patients
     for pat_row in patients:
-        creat_dict = {}
-        creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
+        creat_dict = serialize.serialize_mobile_patient(pat_row)
         arr.append(creat_dict)
 
     return arr
