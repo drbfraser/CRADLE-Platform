@@ -274,17 +274,18 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
-def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
+def read_referrals(user_ids: Optional[List[int]] = None, **kwargs) -> List[Referral]:
     """
-    Queries the database for referrals
+    Queries the database for referrals filtered by query criteria in keyword arguments.
 
-    :param user_id: The user ID to filter patients wrt patient associations; None to get
-    all patients
-    :param kwargs: Query params including search_text, order_by, direction, limit, page
+    :param user_id: List of user IDs to filter patients wrt patient associations; None
+    to get all patients
+    :param kwargs: Query params including search_text, order_by, direction, limit, page,
+    health_facilities, referrers, date_range, is_assessed, is_pregnant
 
     :return: A list of referrals
     """
-    order_by = kwargs.get("order_by", "")
+    order_by = kwargs.get("order_by", "dateReferred")
     direction = asc if kwargs.get("direction") == "ASC" else desc
 
     query = (
@@ -299,12 +300,12 @@ def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
         )
         .join(Patient, Referral.patient)
         .join(Reading, Referral.reading)
-        .order_by(direction(getattr(Referral, order_by, Referral.dateReferred)))
+        .order_by(direction(order_by))
     )
 
-    if user_id:
+    if user_ids:
         query = query.join(PatientAssociations, Patient.associations).filter(
-            PatientAssociations.userId == user_id
+            PatientAssociations.userId.in_(user_ids)
         )
 
     search_text = kwargs.get("search_text")

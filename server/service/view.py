@@ -214,7 +214,7 @@ def referral_view(user: dict, **kwargs) -> List[Referral]:
     else:
         user_id = user["userId"]
         if user_id:
-            return crud.read_referrals(user_id, **kwargs)
+            return crud.read_referrals([user_id], **kwargs)
 
 
 def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
