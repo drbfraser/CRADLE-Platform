@@ -186,5 +186,5 @@ def get_query_params(request: Request):
         "referrers": list(filter(None, request.args.getlist("referrer"))),
         "health_facilities": list(filter(None, request.args.getlist("healthFacility"))),
     }
-    
+
     return {k: v for k, v in params.items() if v}
