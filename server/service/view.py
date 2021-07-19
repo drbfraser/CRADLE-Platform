@@ -209,12 +209,15 @@ def referral_view(user: dict, **kwargs) -> List[Referral]:
     :return: A list of referrals
     """
     role = user["role"]
+    user_id = int(user["userId"])
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
         return crud.read_referrals(**kwargs)
+    elif role == RoleEnum.CHO.value:
+        return crud.read_referrals(user_id, is_cho=True, **kwargs)
+    elif role == RoleEnum.VHT.value:
+        return crud.read_referrals(user_id, **kwargs)
     else:
-        user_id = user["userId"]
-        if user_id:
-            return crud.read_referrals([user_id], **kwargs)
+        raise ValueError("User has an invalid role.")
 
 
 def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
