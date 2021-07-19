@@ -211,10 +211,11 @@ def referral_view(user: dict, **kwargs) -> List[Referral]:
     role = user["role"]
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
         return crud.read_referrals(**kwargs)
-    else:
+    elif role == RoleEnum.CHO.value or role == RoleEnum.VHT.value:
         user_id = user["userId"]
-        if user_id:
-            return crud.read_referrals([user_id], **kwargs)
+        return crud.read_referrals([user_id], **kwargs)
+    else:
+        raise ValueError("User has an invalid role.")
 
 
 def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:

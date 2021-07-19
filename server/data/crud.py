@@ -1,4 +1,4 @@
-from typing import List, Optional, Type, TypeVar, Any
+from typing import List, Optional, Tuple, Type, TypeVar, Any
 from collections import namedtuple
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
@@ -289,9 +289,6 @@ def read_referrals(user_ids: Optional[List[int]] = None, **kwargs) -> List[Refer
 
     :return: A list of referrals
     """
-    order_by = kwargs.get("order_by", "dateReferred")
-    direction = asc if kwargs.get("direction") == "ASC" else desc
-
     query = (
         db_session.query(
             Referral.id,
@@ -304,7 +301,6 @@ def read_referrals(user_ids: Optional[List[int]] = None, **kwargs) -> List[Refer
         )
         .join(Patient, Referral.patient)
         .join(Reading, Referral.reading)
-        .order_by(direction(order_by))
     )
 
     if user_ids:
@@ -320,6 +316,13 @@ def read_referrals(user_ids: Optional[List[int]] = None, **kwargs) -> List[Refer
                 Patient.patientName.like(f"%{search_text}%"),
             )
         )
+
+    order_by = __get_order_by_column(
+        kwargs.get("order_by"), [Referral, Patient, Reading]
+    )
+    if order_by:
+        direction = asc if kwargs.get("direction") == "ASC" else desc
+        query = query.order_by(direction(order_by))
 
     health_facilities = kwargs.get("health_facilities")
     if health_facilities:
@@ -1010,7 +1013,14 @@ def get_supervised_vhts(user_id):
 # ~~~~~~~~~~~~~~~~~~~~~~~ Helper Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 
-def __get_slice_indexes(page, limit):
+def __get_order_by_column(order_by: Optional[str], models: list) -> Optional[any]:
+    if order_by:
+        for model in models:
+            if hasattr(model, order_by):
+                return getattr(model, order_by)
+
+
+def __get_slice_indexes(page: str, limit: str) -> Tuple[int, int]:
     start = (int(page) - 1) * int(limit)
     stop = start + int(limit)
     return start, stop
