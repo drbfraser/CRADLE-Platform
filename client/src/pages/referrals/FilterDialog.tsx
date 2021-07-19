@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
+import Box from '@material-ui/core/Box';
+import Chip from '@material-ui/core/Chip';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -43,8 +45,9 @@ export const FilterDialog = ({
 }: IProps) => {
   const classes = useStyles();
 
-  const [selectedHealthFacility, setSelectedHealthFacility] =
-    useState<IFacility>();
+  const [selectedHealthFacilities, setSelectedHealthFacilities] = useState<
+    IFacility[]
+  >([]);
   const [healthFacilities, setHealthFacilities] = useState<IFacility[]>([]);
 
   const [startDate, setStartDate] = useState<Moment | null>(null);
@@ -120,7 +123,7 @@ export const FilterDialog = ({
     if (!value) {
       return;
     }
-    setSelectedHealthFacility(value);
+    setSelectedHealthFacilities([...selectedHealthFacilities, value]);
   };
 
   const onReferrerSelect = (_event: any, value: Referrer) => {
@@ -130,12 +133,18 @@ export const FilterDialog = ({
     setSelectedReferrer(value);
   };
 
+  const handleDeleteFacilityChip = (index: number) => {
+    const newFacilities = [...selectedHealthFacilities];
+    newFacilities.splice(index, 1);
+    setSelectedHealthFacilities(newFacilities);
+  };
+
   const onConfirm = () => {
     setFilter({
       ...filter,
-      healthFacilityName: selectedHealthFacility
-        ? selectedHealthFacility.healthFacilityName
-        : '',
+      healthFacilityNames: selectedHealthFacilities.map(
+        (f) => f.healthFacilityName
+      ),
       dateRange:
         startDate && endDate
           ? `${startDate.toDate().getTime() / 1000}:${
@@ -147,6 +156,7 @@ export const FilterDialog = ({
       isPregnant: isPregnant,
       isAssessed: isAssessed,
     });
+    onClose();
   };
 
   return (
@@ -175,6 +185,17 @@ export const FilterDialog = ({
                 />
               )}
             />
+            <Box m={1.5} display="flex" flexWrap="wrap">
+              {selectedHealthFacilities.map((facility, index) => (
+                <Box m={0.5} key={facility.healthFacilityName}>
+                  <Chip
+                    label={facility.healthFacilityName}
+                    onDelete={() => handleDeleteFacilityChip(index)}
+                    color="primary"
+                  />
+                </Box>
+              ))}
+            </Box>
           </Grid>
 
           <Grid item md={12} sm={12}>

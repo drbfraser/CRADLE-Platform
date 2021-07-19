@@ -207,7 +207,7 @@ export type Referral = {
 };
 
 export type ReferralFilter = {
-  healthFacilityName: string;
+  healthFacilityNames: string[];
   dateRange: string;
   referrer: string;
   vitalSigns: TrafficLightEnum | undefined;

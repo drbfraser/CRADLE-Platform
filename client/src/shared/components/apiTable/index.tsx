@@ -91,8 +91,7 @@ export const APITable = ({
 
     const referralFilterParams = referralFilter
       ? new URLSearchParams({
-          healthFacility: referralFilter.healthFacilityName,
-          referrer: referralFilter.referrer,
+          //referrer: referralFilter.referrer,
           dateRange: referralFilter.dateRange,
           vitalSigns: referralFilter.vitalSigns
             ? TrafficLightEnum[
@@ -106,10 +105,16 @@ export const APITable = ({
             ? referralFilter.isAssessed.toString()
             : '',
         })
-      : '';
+      : new URLSearchParams();
+
+    if (referralFilter) {
+      referralFilter.healthFacilityNames.forEach((facilityName) =>
+        referralFilterParams.append('healthFacility', facilityName)
+      );
+    }
 
     apiFetch(
-      API_URL + endpoint + '?' + params + referralFilterParams,
+      API_URL + endpoint + '?' + params + '&' + referralFilterParams,
       fetchOptions
     )
       .then(async (resp) => {
@@ -134,7 +139,17 @@ export const APITable = ({
 
     // if the user does something else, cancel the fetch
     return () => controller.abort();
-  }, [endpoint, limit, page, search, sortBy, sortDir, isDrugRecord, refetch, referralFilter]);
+  }, [
+    endpoint,
+    limit,
+    page,
+    search,
+    sortBy,
+    sortDir,
+    isDrugRecord,
+    refetch,
+    referralFilter,
+  ]);
 
   const handleSort = (col: string) => {
     if (col === sortBy) {
