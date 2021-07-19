@@ -13,6 +13,7 @@ from models import (
     Reading,
     Pregnancy,
     MedicalRecord,
+    supervises,
 )
 import service.serialize as serialize
 import service.sqlStrings as SQL
@@ -278,11 +279,11 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
-def read_patients(user_ids: Optional[List[int]] = None, **kwargs) -> List[Patient]:
+def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Patient]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
 
-    :param user_ids: List of user IDs to filter patients wrt patient associations; None
+    :param user_id: ID of user to filter patients wrt patient associations; None
     to get all patients
     :param kwargs: Query params including search_text, order_by, direction, limit, page
 
@@ -309,10 +310,20 @@ def read_patients(user_ids: Optional[List[int]] = None, **kwargs) -> List[Patien
         .filter(rd.dateTimeTaken == None)
     )
 
-    if user_ids:
-        query = query.join(PatientAssociations, Patient.associations).filter(
-            PatientAssociations.userId.in_(user_ids)
-        )
+    if user_id is not None:
+        if kwargs.get("is_cho"):
+            sub = (
+                db_session.query(supervises.c.vhtId)
+                .filter(supervises.c.choId == user_id)
+                .subquery()
+            )
+            query = query.join(PatientAssociations, Patient.associations).filter(
+                PatientAssociations.userId.in_(sub)
+            )
+        else:
+            query = query.join(PatientAssociations, Patient.associations).filter(
+                PatientAssociations.userId == user_id
+            )
 
     search_text = kwargs.get("search_text")
     if search_text:
@@ -340,7 +351,7 @@ def read_referrals(user_ids: Optional[List[int]] = None, **kwargs) -> List[Refer
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
 
-    :param user_ids: List of user IDs to filter patients wrt patient associations; None
+    :param user_id: List of user IDs to filter patients wrt patient associations; None
     to get all patients
     :param kwargs: Query params including search_text, order_by, direction, limit, page,
     health_facilities, referrers, date_range, is_assessed, is_pregnant

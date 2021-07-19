@@ -200,6 +200,26 @@ def individual_vht_referral_view(user: User) -> List[Referral]:
     return user.referrals
 
 
+def patient_view(user: dict, **kwargs) -> List[Patient]:
+    """
+    Returns a list of patients filtered by query criteria in keyword arguments.
+
+    :param user: JWT identity
+    :param **kwargs: Optional query criteria
+    :return: A list of patients
+    """
+    role = user["role"]
+    user_id = int(user["userId"])
+    if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
+        return crud.read_patients(**kwargs)
+    elif role == RoleEnum.CHO.value:
+        return crud.read_patients(user_id, is_cho=True, **kwargs)
+    elif role == RoleEnum.VHT.value:
+        return crud.read_patients(user_id, **kwargs)
+    else:
+        raise ValueError("User has an invalid role.")
+
+
 def referral_view(user: dict, **kwargs) -> List[Referral]:
     """
     Returns a list of referrals filtered by query criteria in keyword arguments.
