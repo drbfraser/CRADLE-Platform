@@ -278,11 +278,69 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
+def read_patients(user_ids: Optional[List[int]] = None, **kwargs) -> List[Patient]:
+    """
+    Queries the database for patients filtered by query criteria in keyword arguments.
+
+    :param user_ids: List of user IDs to filter patients wrt patient associations; None
+    to get all patients
+    :param kwargs: Query params including search_text, order_by, direction, limit, page
+
+    :return: A list of patients
+    """
+    rd = aliased(Reading)
+
+    query = (
+        db_session.query(
+            Patient.patientId,
+            Patient.patientName,
+            Patient.villageNumber,
+            Reading.trafficLightStatus,
+            Reading.dateTimeTaken,
+        )
+        .outerjoin(Reading, Patient.readings)
+        .outerjoin(
+            rd,
+            and_(
+                Patient.patientId == rd.patientId,
+                Reading.dateTimeTaken < rd.dateTimeTaken,
+            ),
+        )
+        .filter(rd.dateTimeTaken == None)
+    )
+
+    if user_ids:
+        query = query.join(PatientAssociations, Patient.associations).filter(
+            PatientAssociations.userId.in_(user_ids)
+        )
+
+    search_text = kwargs.get("search_text")
+    if search_text:
+        query = query.filter(
+            or_(
+                Patient.patientId.like(f"%{search_text}%"),
+                Patient.patientName.like(f"%{search_text}%"),
+            )
+        )
+
+    order_by = __get_order_by_column(kwargs.get("order_by"), [Patient, Reading])
+    if order_by:
+        direction = asc if kwargs.get("direction") == "ASC" else desc
+        query = query.order_by(direction(order_by))
+
+    limit = kwargs.get("limit")
+    if limit:
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
+    else:
+        return query.all()
+
+
 def read_referrals(user_ids: Optional[List[int]] = None, **kwargs) -> List[Referral]:
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
 
-    :param user_id: List of user IDs to filter patients wrt patient associations; None
+    :param user_ids: List of user IDs to filter patients wrt patient associations; None
     to get all patients
     :param kwargs: Query params including search_text, order_by, direction, limit, page,
     health_facilities, referrers, date_range, is_assessed, is_pregnant
