@@ -12,6 +12,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import { FilterDialog } from './FilterDialog';
 import { ReferralFilter } from 'src/shared/types';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -38,13 +39,29 @@ export const ReferralsPage = () => {
           setFilter={setFilter}
           isTransformed={isTransformed}
         />
-        <Button
-          className={classes.right}
-          onClick={() => {
-            setIsFilterDialogOpen(true);
-          }}>
-          Advanced Search
-        </Button>
+        <ButtonGroup
+          orientation="vertical"
+          color="primary"
+          aria-label="vertical contained primary button group"
+          variant="text"
+          className={classes.right}>
+          <Button
+            onClick={() => {
+              setIsFilterDialogOpen(true);
+            }}>
+            Advanced Search
+          </Button>
+
+          {filter && (
+            <Button
+              onClick={() => {
+                setFilter(undefined);
+              }}>
+              Clear Filter
+            </Button>
+          )}
+        </ButtonGroup>
+
         <TextField
           className={isBigScreen ? classes.right : classes.searchThin}
           label="Search"
@@ -53,18 +70,20 @@ export const ReferralsPage = () => {
           onChange={(e) => debounceSetSearch(e.target.value)}
         />
       </div>
-      <APITable
-        endpoint={EndpointEnum.REFERRALS}
-        search={search}
-        columns={COLUMNS}
-        sortableColumns={SORTABLE_COLUMNS}
-        rowKey={'referralId'}
-        initialSortBy={'patientName'}
-        initialSortDir={SortDir.ASC}
-        RowComponent={ReferralRow}
-        isTransformed={isTransformed}
-        referralFilter={filter}
-      />
+      <div className={classes.table}>
+        <APITable
+          endpoint={EndpointEnum.REFERRALS}
+          search={search}
+          columns={COLUMNS}
+          sortableColumns={SORTABLE_COLUMNS}
+          rowKey={'referralId'}
+          initialSortBy={'patientName'}
+          initialSortDir={SortDir.ASC}
+          RowComponent={ReferralRow}
+          isTransformed={isTransformed}
+          referralFilter={filter}
+        />
+      </div>
     </Paper>
   );
 };
@@ -81,9 +100,13 @@ const useStyles = makeStyles({
   },
   right: {
     float: 'right',
+    padding: 10,
   },
   searchThin: {
     display: 'block',
     marginLeft: 1,
+  },
+  table: {
+    clear: 'right',
   },
 });

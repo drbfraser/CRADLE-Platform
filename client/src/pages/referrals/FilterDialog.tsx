@@ -22,6 +22,8 @@ import { TextField } from '@material-ui/core';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import DoneIcon from '@material-ui/icons/Done';
+import ScheduleIcon from '@material-ui/icons/Schedule';
 
 interface IProps {
   open: boolean;
@@ -107,6 +109,23 @@ export const FilterDialog = ({
       });
   }, []);
 
+  useEffect(() => {
+    if (filter === undefined) {
+      clearFilter();
+    }
+  }, [filter]);
+
+  const clearFilter = () => {
+    setSelectedHealthFacilities([]);
+    setSelectedReferrers([]);
+    setSelectedVitalSign(undefined);
+    setStartDate(null);
+    setEndDate(null);
+    setPresetDateRange(undefined);
+    setIsPregnant(undefined);
+    setIsAssessed(undefined);
+  };
+
   const handleChange = (event: any) => {
     setPresetDateRange(event.target.value);
   };
@@ -175,8 +194,9 @@ export const FilterDialog = ({
       <DialogTitle id="filter-dialog">Advanced Search</DialogTitle>
       <DialogContent className={classes.content}>
         <Grid container spacing={3}>
-          <Grid item md={12} sm={12}>
+          <Grid item md={12} sm={12} xs={12}>
             <b>Health Facility</b>
+            <br />
             <br />
             <Autocomplete
               id="facility-select"
@@ -204,7 +224,10 @@ export const FilterDialog = ({
             </Box>
           </Grid>
 
-          <Grid item md={12} sm={12}>
+          <Grid item md={12} sm={12} xs={12}>
+            <b>Date Range</b>
+            <br />
+            <br />
             <DateRangePicker
               regular={true}
               startDate={startDate}
@@ -274,8 +297,9 @@ export const FilterDialog = ({
               Clear
             </Button>
           </Grid>
-          <Grid item md={12} sm={12}>
+          <Grid item md={12} sm={12} xs={12}>
             <b>Referrer</b>
+            <br />
             <br />
             <Autocomplete
               id="referrer-select"
@@ -335,7 +359,7 @@ export const FilterDialog = ({
               />
             ))}
           </Grid>
-          <Grid item md={6} sm={12}>
+          <Grid item md={6} sm={6}>
             <b>Pregnant</b>
             <br />
             <FormControlLabel
@@ -363,7 +387,7 @@ export const FilterDialog = ({
               label="No"
             />
           </Grid>
-          <Grid item md={6} sm={12}>
+          <Grid item md={6} sm={6}>
             <b>Assessment Status</b>
             <br />
             <FormControlLabel
@@ -376,7 +400,11 @@ export const FilterDialog = ({
                   }
                 />
               }
-              label="Done"
+              label={
+                <>
+                  <DoneIcon className={classes.green} /> Complete
+                </>
+              }
             />
             <FormControlLabel
               control={
@@ -388,7 +416,11 @@ export const FilterDialog = ({
                   }
                 />
               }
-              label="Pending"
+              label={
+                <>
+                  <ScheduleIcon className={classes.red} /> Pending
+                </>
+              }
             />
           </Grid>
         </Grid>
@@ -396,6 +428,9 @@ export const FilterDialog = ({
       <DialogActions>
         <Button variant="contained" onClick={onClose} color="default">
           Cancel
+        </Button>
+        <Button variant="contained" onClick={clearFilter} color="default">
+          Clear All
         </Button>
         <Button variant="contained" onClick={onConfirm} color="primary">
           Apply Filter
@@ -420,13 +455,6 @@ export const useStyles = makeStyles((theme) => ({
     margin: '4px 8px',
     minWidth: 180,
   },
-  floatLeft: {
-    float: 'left',
-  },
-  floatRight: {
-    float: 'right',
-  },
-  right: { marginBottom: '10px' },
   inputLabel: {
     fontSize: '50',
   },
@@ -437,5 +465,13 @@ export const useStyles = makeStyles((theme) => ({
     display: `flex`,
     flexDirection: `column`,
     alignItems: `center`,
+  },
+  red: {
+    color: '#f44336',
+    padding: '2px',
+  },
+  green: {
+    color: '#4caf50',
+    padding: '2px',
   },
 }));
