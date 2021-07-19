@@ -39,6 +39,7 @@ export const PatientFormPage = () => {
             patientId !== undefined && universalRecordId === undefined
           }
           editId={editId}
+          universalRecordId={universalRecordId}
         />
       )}
     </div>

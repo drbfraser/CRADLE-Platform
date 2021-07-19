@@ -7,6 +7,7 @@ import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { Typography, IconButton } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
+import DeleteForever from '@material-ui/icons/DeleteForever';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { gestationalAgeUnitFormatters } from 'src/shared/constants';
 import { PREGNANCY_RECORD_COLUMNS } from './constants';
@@ -16,6 +17,8 @@ interface IProps {
   unit: GestationalAgeUnitEnum;
   patientId: string;
   history: any;
+  setDeletePopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setPopupRecord: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const PregnancyRecordRow = ({
@@ -23,6 +26,8 @@ export const PregnancyRecordRow = ({
   unit,
   patientId,
   history,
+  setDeletePopupOpen,
+  setPopupRecord,
 }: IProps) => {
   const classes = useRowStyles();
   const theme = useTheme();
@@ -61,7 +66,7 @@ export const PregnancyRecordRow = ({
         </Typography>
       </TableCell>
       <TableCell
-        label={PREGNANCY_RECORD_COLUMNS.edit}
+        label={PREGNANCY_RECORD_COLUMNS.action}
         isTransformed={isTransformed}>
         <IconButton
           onClick={() => {
@@ -70,6 +75,13 @@ export const PregnancyRecordRow = ({
             );
           }}>
           <CreateIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => {
+            setDeletePopupOpen(true);
+            setPopupRecord(row);
+          }}>
+          <DeleteForever />
         </IconButton>
       </TableCell>
     </tr>

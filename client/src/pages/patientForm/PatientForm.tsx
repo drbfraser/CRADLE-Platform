@@ -17,6 +17,7 @@ import {
   handleSubmit,
   handlePregnancyInfo,
   handleMedicalRecordInfo,
+  handleDeleteRecord,
 } from './handlers';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
@@ -28,11 +29,13 @@ import {
   medicalHistoryValidationSchema,
 } from './medicalInfo/validation';
 import { goBackWithFallback } from 'src/shared/utils';
+import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 
 interface PatientFormProps {
   editId: string;
   patientId?: string;
   pregnancyId?: string;
+  universalRecordId?: string;
   initialState: PatientState;
   creatingNew: boolean;
   creatingNewPregnancy: boolean;
@@ -42,6 +45,7 @@ export const PatientForm = ({
   editId,
   patientId,
   pregnancyId,
+  universalRecordId,
   initialState,
   creatingNew,
   creatingNewPregnancy,
@@ -51,6 +55,8 @@ export const PatientForm = ({
   const history = useHistory();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('sm'));
   const [submitError, setSubmitError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const pages = [
     {
       editId: 'personalInfo',
@@ -118,7 +124,8 @@ export const PatientForm = ({
           values,
           history,
           setSubmitError,
-          helpers.setSubmitting
+          helpers.setSubmitting,
+          setErrorMessage
         );
       } else if (
         pages[pageNum].editId === 'drugHistory' ||
@@ -158,7 +165,11 @@ export const PatientForm = ({
 
   return (
     <>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <APIErrorToast
+        open={submitError}
+        onClose={() => setSubmitError(false)}
+        errorMessage={errorMessage}
+      />
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton
@@ -202,6 +213,33 @@ export const PatientForm = ({
                 Back
               </Button>
             )}
+            {editId && universalRecordId && (
+              <>
+                <Button
+                  variant="contained"
+                  color="default"
+                  onClick={() => setIsDialogOpen(true)}>
+                  Delete
+                </Button>
+                <ConfirmDialog
+                  title="Delete Record?"
+                  content="Are you sure you want to delete this record?"
+                  open={isDialogOpen}
+                  onClose={() => {
+                    setIsDialogOpen(false);
+                  }}
+                  onConfirm={() =>
+                    handleDeleteRecord(
+                      editId,
+                      universalRecordId,
+                      history,
+                      setSubmitError,
+                      formikProps.setSubmitting
+                    ).then(() => setIsDialogOpen(false))
+                  }
+                />
+              </>
+            )}
             <Button
               variant="contained"
               color="primary"
@@ -232,5 +270,6 @@ const useStyles = makeStyles({
   },
   right: {
     float: 'right',
+    margin: 5,
   },
 });

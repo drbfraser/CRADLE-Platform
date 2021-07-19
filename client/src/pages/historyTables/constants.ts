@@ -1,15 +1,16 @@
 export const MEDICAL_RECORD_COLUMNS = {
   dateCreated: 'Date',
   information: 'Information',
+  action: 'Take Action',
 };
-export const SORTABLE_MEDICAL_RECORD_COLUMNS = [true, false];
+export const SORTABLE_MEDICAL_RECORD_COLUMNS = [true, false, false];
 
 export const PREGNANCY_RECORD_COLUMNS = {
   startDate: 'Start Date (Approx)',
   endDate: 'End Date',
   gestation: 'Gestation',
   outcome: 'Outcome',
-  edit: 'Edit',
+  action: 'Take Action',
 };
 export const SORTABLE_PREGNANCY_RECORD_COLUMNS = [
   true,

@@ -56,6 +56,30 @@ def serialize_patient_timeline(r: any):
     }
 
 
+def serialize_mobile_patient(p: any):
+    return {
+        "patientId": p.patientId,
+        "patientName": p.patientName,
+        "patientSex": p.patientSex.value,
+        "isPregnant": True if p.pregnancyStartDate else False,
+        "gestationalTimestamp": p.pregnancyStartDate,
+        "gestationalAgeUnit": p.gestationalAgeUnit.value
+        if p.gestationalAgeUnit
+        else "MONTHS",
+        "medicalHistory": p.medicalHistory,
+        "drugHistory": p.drugHistory,
+        "zone": p.zone,
+        "villageNumber": p.villageNumber,
+        "dob": str(p.dob),
+        "lastEdited": p.lastEdited,
+        "base": p.lastEdited,
+        "householdNumber": p.householdNumber,
+        "isExactDob": p.isExactDob,
+        "allergy": p.allergy,
+        "readings": [],
+    }
+
+
 def serialize_patient_sql_to_dict(d: any, row: any) -> dict:
     for column, value in row.items():
         if value is None:
