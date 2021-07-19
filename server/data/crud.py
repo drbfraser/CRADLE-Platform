@@ -226,7 +226,7 @@ def read_all_assoc_patients(m: Type[M], user: User, is_cho: bool) -> List[M]:
         if user:
             user_ids = get_user_ids_list(user.id, is_cho)
         else:
-            user_ids = []
+            user_ids = None
 
         # get all the patients
         patient_list = read_all_assoc_patients_db(user_ids)
@@ -383,7 +383,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     return query.slice(*__get_slice_indexes(page, limit))
 
 
-def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
+def read_mobile_patients(user_ids: Optional[List[int]] = None) -> List[Any]:
     """
     Queries the database for all patients associated with the user including the latest
     pregnancy, medical and durg records for each patient.
@@ -447,18 +447,12 @@ def read_mobile_patients(user_id: Optional[str] = None) -> List[Any]:
         .filter(p2.startDate == None, m2.dateCreated == None, m4.dateCreated == None)
     )
 
-    if user_id:
-        if type(user_id) == list:
-            query = query.join(PatientAssociations, Patient.associations).filter(
-                PatientAssociations.userId.in_(user_id)
-            )
-        else:
-            query = query.join(PatientAssociations, Patient.associations).filter(
-                PatientAssociations.userId == user_id
-            )
+    if user_ids:
+        query = query.join(PatientAssociations, Patient.associations).filter(
+            PatientAssociations.userId.in_(user_ids)
+        )
 
-    if type(user_id) == list:
-        query = query.order_by(asc(Patient.patientId))
+    query = query.order_by(asc(Patient.patientId))
 
     return query.all()
 

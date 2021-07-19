@@ -249,6 +249,6 @@ def mobile_patient_and_reading_view(user: dict) -> tuple:
     else:
         user_id = user["userId"]
         if user_id:
-            patients = crud.read_mobile_patients(user_id)
-            readings = crud.read_all_readings_db(False, user_id)
+            patients = crud.read_mobile_patients([user_id])
+            readings = crud.read_all_readings_db(False, [user_id])
             return patients, readings
