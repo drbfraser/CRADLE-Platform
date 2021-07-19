@@ -91,7 +91,6 @@ export const APITable = ({
 
     const referralFilterParams = referralFilter
       ? new URLSearchParams({
-          //referrer: referralFilter.referrer,
           dateRange: referralFilter.dateRange,
           vitalSigns: referralFilter.vitalSigns
             ? TrafficLightEnum[
@@ -110,6 +109,9 @@ export const APITable = ({
     if (referralFilter) {
       referralFilter.healthFacilityNames.forEach((facilityName) =>
         referralFilterParams.append('healthFacility', facilityName)
+      );
+      referralFilter.referrers.forEach((referrer) =>
+        referralFilterParams.append('referrer', referrer)
       );
     }
 

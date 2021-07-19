@@ -209,7 +209,7 @@ export type Referral = {
 export type ReferralFilter = {
   healthFacilityNames: string[];
   dateRange: string;
-  referrer: string;
+  referrers: string[];
   vitalSigns: TrafficLightEnum | undefined;
   isAssessed: number | undefined;
   isPregnant: number | undefined;

@@ -56,7 +56,7 @@ export const FilterDialog = ({
   const [focusedInput, setFocusedInput] =
     useState<FocusedInputShape | null>(null);
 
-  const [selectedReferrer, setSelectedReferrer] = useState<Referrer>();
+  const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
   const [referrers, setReferrers] = useState<Referrer[]>([]);
 
   const [selectedVitalSign, setSelectedVitalSign] =
@@ -130,13 +130,19 @@ export const FilterDialog = ({
     if (!value) {
       return;
     }
-    setSelectedReferrer(value);
+    setSelectedReferrers([...selectedReferrers, value]);
   };
 
   const handleDeleteFacilityChip = (index: number) => {
     const newFacilities = [...selectedHealthFacilities];
     newFacilities.splice(index, 1);
     setSelectedHealthFacilities(newFacilities);
+  };
+
+  const handleDeleteReferrerChip = (index: number) => {
+    const newReferrers = [...selectedReferrers];
+    newReferrers.splice(index, 1);
+    setSelectedReferrers(newReferrers);
   };
 
   const onConfirm = () => {
@@ -151,7 +157,7 @@ export const FilterDialog = ({
               endDate.toDate().getTime() / 1000
             }`
           : '',
-      referrer: selectedReferrer ? selectedReferrer.userId : '',
+      referrers: selectedReferrers.map((r) => r.userId),
       vitalSigns: selectedVitalSign,
       isPregnant: isPregnant,
       isAssessed: isAssessed,
@@ -262,6 +268,7 @@ export const FilterDialog = ({
               onClick={() => {
                 setStartDate(null);
                 setEndDate(null);
+                setPresetDateRange(undefined);
               }}
               color="default">
               Clear
@@ -285,6 +292,17 @@ export const FilterDialog = ({
                 />
               )}
             />
+            <Box m={1.5} display="flex" flexWrap="wrap">
+              {selectedReferrers.map((referrer, index) => (
+                <Box m={0.5} key={referrer.userId}>
+                  <Chip
+                    label={referrer.firstName}
+                    onDelete={() => handleDeleteReferrerChip(index)}
+                    color="primary"
+                  />
+                </Box>
+              ))}
+            </Box>
           </Grid>
           <Grid item>
             <b>Health Status</b>
