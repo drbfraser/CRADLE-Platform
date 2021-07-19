@@ -29,8 +29,8 @@ class Root(Resource):
         user = get_jwt_identity()
 
         params = util.get_query_params(request)
-        if params.get("health_facility") and params["health_facility"] == "default":
-            params["health_facility"] = user["healthFacilityName"]
+        if params.get("health_facilities") and "default" in params["health_facilities"]:
+            params["health_facilities"].append(user["healthFacilityName"])
 
         referrals = view.referral_view(user, **params)
 

@@ -316,13 +316,13 @@ def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
             )
         )
 
-    health_facility = kwargs.get("health_facility")
-    if health_facility:
-        query = query.filter(Referral.referralHealthFacilityName == health_facility)
+    health_facilities = kwargs.get("health_facilities")
+    if health_facilities:
+        query = query.filter(Referral.referralHealthFacilityName.in_(health_facilities))
 
-    referrer = kwargs.get("referrer")
-    if referrer:
-        query = query.filter(Referral.userId == referrer)
+    referrers = kwargs.get("referrers")
+    if referrers:
+        query = query.filter(Referral.userId.in_(referrers))
 
     date_range = kwargs.get("date_range")
     if date_range:
