@@ -183,8 +183,8 @@ def get_query_params(request: Request):
         "is_assessed": request.args.get("isAssessed"),
         "is_pregnant": request.args.get("isPregnant"),
         "vital_signs": request.args.get("vitalSigns"),
-        "referrer": request.args.get("referrer"),
-        "health_facility": request.args.get("healthFacility"),
+        "referrers": request.args.getlist("referrer"),
+        "health_facilities": request.args.getlist("healthFacility"),
     }
 
     return {k: v for k, v in params.items() if v}

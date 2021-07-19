@@ -113,7 +113,8 @@ export const handlePregnancyInfo = async (
   values: PatientState,
   history: any,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
-  setSubmitting: React.Dispatch<React.SetStateAction<any>>
+  setSubmitting: React.Dispatch<React.SetStateAction<any>>,
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) => {
   setSubmitting(true);
 
@@ -175,7 +176,8 @@ export const handlePregnancyInfo = async (
     false,
     history,
     setSubmitError,
-    setSubmitting
+    setSubmitting,
+    setErrorMessage
   );
 };
 
@@ -214,6 +216,32 @@ export const handleMedicalRecordInfo = async (
   );
 };
 
+export const handleDeleteRecord = async (
+  editId: string,
+  universalRecordId: string,
+  history: any,
+  setSubmitError: React.Dispatch<React.SetStateAction<any>>,
+  setSubmitting: React.Dispatch<React.SetStateAction<any>>
+) => {
+  setSubmitting(true);
+
+  const endpoint =
+    editId === 'pregnancyInfo'
+      ? EndpointEnum.PREGNANCIES
+      : EndpointEnum.MEDICAL_RECORDS;
+  const url = `${API_URL}${endpoint}/${universalRecordId}`;
+
+  await handleApiFetch(
+    url,
+    'DELETE',
+    undefined,
+    false,
+    history,
+    setSubmitError,
+    setSubmitting
+  );
+};
+
 const handleApiFetch = async (
   url: string,
   method: string,
@@ -221,26 +249,31 @@ const handleApiFetch = async (
   creatingNew: boolean,
   history: any,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
-  setSubmitting: React.Dispatch<React.SetStateAction<any>>
+  setSubmitting: React.Dispatch<React.SetStateAction<any>>,
+  setErrorMessage?: React.Dispatch<React.SetStateAction<string>>
 ) => {
-  try {
-    const resp = await apiFetch(url, {
-      method: method,
-      body: JSON.stringify(submitValues),
+  apiFetch(url, {
+    method: method,
+    body: JSON.stringify(submitValues),
+  })
+    .then((resp) => resp.json())
+    .then((respJson) => {
+      const patientPageUrl = '/patients/' + respJson['patientId'];
+      if (creatingNew) {
+        history.replace(patientPageUrl);
+      } else {
+        goBackWithFallback(patientPageUrl);
+      }
+    })
+    .catch((errorCode: number) => {
+      setSubmitError(true);
+      setSubmitting(false);
+      if (setErrorMessage && errorCode === 409) {
+        setErrorMessage(
+          'Failed to create pregnancy due to a conflict with the current pregnancy or previous pregnancies.'
+        );
+      }
+      return false;
     });
-
-    const respJson = await resp.json();
-    const patientPageUrl = '/patients/' + respJson['patientId'];
-    if (creatingNew) {
-      history.replace(patientPageUrl);
-    } else {
-      goBackWithFallback(patientPageUrl);
-    }
-  } catch (e) {
-    console.error(e);
-    setSubmitError(true);
-    setSubmitting(false);
-    return false;
-  }
   return true;
 };

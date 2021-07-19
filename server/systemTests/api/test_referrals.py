@@ -47,6 +47,14 @@ def test_get_referral_list(
     assert any(r["dateReferred"] == date1 for r in response.json())
     assert not any(r["dateReferred"] == date2 for r in response.json())
 
+    response = api_get(
+        endpoint=f"/api/referrals?healthFacility={facility1}&healthFacility={facility2}"
+    )
+
+    assert response.status_code == 200
+    assert any(r["dateReferred"] == date1 for r in response.json())
+    assert any(r["dateReferred"] == date2 for r in response.json())
+
     response = api_get(endpoint=f"/api/referrals?referrer={user1}")
 
     assert response.status_code == 200

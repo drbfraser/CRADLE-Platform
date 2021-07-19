@@ -64,7 +64,7 @@ def admin_patient_view(**kwargs) -> List[Patient]:
     """
     if not kwargs:
         # getting all the patient + readings + followups + urine tests
-        return crud.read_all(Patient)
+        return crud.read_all_assoc_patients(PatientAssociations, None, False)
     else:
         # getting information for patient table (Admin view)
         return crud.read_all_admin_view(Patient, **kwargs)
@@ -201,13 +201,20 @@ def individual_vht_referral_view(user: User) -> List[Referral]:
 
 
 def referral_view(user: dict, **kwargs) -> List[Referral]:
+    """
+    Returns a list of referrals filtered by query criteria in keyword arguments.
+
+    :param user: JWT identity
+    :param **kwargs: Optional query criteria
+    :return: A list of referrals
+    """
     role = user["role"]
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
         return crud.read_referrals(**kwargs)
     else:
         user_id = user["userId"]
         if user_id:
-            return crud.read_referrals(user_id, **kwargs)
+            return crud.read_referrals([user_id], **kwargs)
 
 
 def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
@@ -259,6 +266,6 @@ def mobile_patient_and_reading_view(user: dict) -> tuple:
     else:
         user_id = user["userId"]
         if user_id:
-            patients = crud.read_mobile_patients(user_id)
-            readings = crud.read_all_readings_db(False, user_id)
+            patients = crud.read_mobile_patients([user_id])
+            readings = crud.read_all_readings_db(False, [user_id])
             return patients, readings
