@@ -1,7 +1,8 @@
-from typing import List, Optional, Type, TypeVar, Any
+from typing import List, Optional, Tuple, Type, TypeVar, Any
 from collections import namedtuple
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
+import operator
 
 from data import db_session
 from models import (
@@ -12,6 +13,7 @@ from models import (
     Reading,
     Pregnancy,
     MedicalRecord,
+    supervises,
 )
 import service.serialize as serialize
 import service.sqlStrings as SQL
@@ -277,6 +279,90 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
+def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
+    """
+    Queries the database for referrals filtered by query criteria in keyword arguments.
+
+    :param user_id: ID of user to filter patients wrt patient associations; None
+    to get all patients
+    :param kwargs: Query params including search_text, order_by, direction, limit, page,
+    health_facilities, referrers, date_range, is_assessed, is_pregnant
+
+    :return: A list of referrals
+    """
+    query = (
+        db_session.query(
+            Referral.id,
+            Referral.dateReferred,
+            Referral.isAssessed,
+            Patient.patientId,
+            Patient.patientName,
+            Patient.villageNumber,
+            Reading.trafficLightStatus,
+        )
+        .join(Patient, Referral.patient)
+        .join(Reading, Referral.reading)
+    )
+
+    query = __filter_by_patient_association(query, user_id, **kwargs)
+    query = __filter_by_patient_search(query, **kwargs)
+    query = __order_by_column(query, [Referral, Patient, Reading], **kwargs)
+
+    health_facilities = kwargs.get("health_facilities")
+    if health_facilities:
+        query = query.filter(Referral.referralHealthFacilityName.in_(health_facilities))
+
+    referrers = kwargs.get("referrers")
+    if referrers:
+        query = query.filter(Referral.userId.in_(referrers))
+
+    date_range = kwargs.get("date_range")
+    if date_range:
+        start_date, end_date = date_range.split(":")
+        query = query.filter(
+            Referral.dateReferred >= start_date,
+            Referral.dateReferred <= end_date,
+        )
+
+    is_assessed = kwargs.get("is_assessed")
+    if is_assessed == "1" or is_assessed == "0":
+        is_assessed = is_assessed == "1"
+        query = query.filter(Referral.isAssessed == is_assessed)
+
+    is_pregnant = kwargs.get("is_pregnant")
+    if is_pregnant == "1" or is_pregnant == "0":
+        eq_op = operator.ne if is_pregnant == "1" else operator.eq
+        pr = aliased(Pregnancy)
+        query = (
+            query.outerjoin(
+                Pregnancy,
+                and_(
+                    Patient.patientId == Pregnancy.patientId,
+                    Pregnancy.endDate == None,
+                ),
+            )
+            .outerjoin(
+                pr,
+                and_(
+                    Patient.patientId == pr.patientId,
+                    Pregnancy.startDate < pr.startDate,
+                ),
+            )
+            .filter(eq_op(Pregnancy.startDate, None), pr.startDate == None)
+        )
+
+    vital_signs = kwargs.get("vital_signs")
+    if vital_signs:
+        query = query.filter(Reading.trafficLightStatus.in_(vital_signs))
+
+    limit = kwargs.get("limit")
+    if limit:
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
+    else:
+        return query.all()
+
+
 def read_patient_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
     """
     Queries the database for medical records of a patient
@@ -286,10 +372,10 @@ def read_patient_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
 
     :return: A list of models
     """
+    query = db_session.query(m).filter_by(patientId=patient_id)
+
     search_text = kwargs.get("search_text")
     direction = asc if kwargs.get("direction") == "ASC" else desc
-
-    query = db_session.query(m).filter_by(patientId=patient_id)
 
     if m.schema() == Pregnancy.schema():
         if search_text:
@@ -306,11 +392,9 @@ def read_patient_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
         )
 
     limit = kwargs.get("limit")
-
     if limit:
         page = kwargs.get("page", 1)
         return query.slice(*__get_slice_indexes(page, limit))
-
     else:
         return query.all()
 
@@ -913,7 +997,56 @@ def get_supervised_vhts(user_id):
 # ~~~~~~~~~~~~~~~~~~~~~~~ Helper Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 
-def __get_slice_indexes(page, limit):
+def __filter_by_patient_association(
+    query: Query, user_id: Optional[int], **kwargs
+) -> Query:
+    if user_id is not None:
+        if kwargs.get("is_cho"):
+            sub = (
+                db_session.query(supervises.c.vhtId)
+                .filter(supervises.c.choId == user_id)
+                .subquery()
+            )
+            query = query.join(PatientAssociations, Patient.associations).filter(
+                PatientAssociations.userId.in_(sub)
+            )
+        else:
+            query = query.join(PatientAssociations, Patient.associations).filter(
+                PatientAssociations.userId == user_id
+            )
+
+    return query
+
+
+def __filter_by_patient_search(query: Query, **kwargs) -> Query:
+    search_text = kwargs.get("search_text")
+    if search_text:
+        query = query.filter(
+            or_(
+                Patient.patientId.like(f"%{search_text}%"),
+                Patient.patientName.like(f"%{search_text}%"),
+            )
+        )
+
+    return query
+
+
+def __order_by_column(query: Query, models: list, **kwargs) -> Query:
+    def __get_column(models):
+        for model in models:
+            if hasattr(model, order_by):
+                return getattr(model, order_by)
+
+    order_by = kwargs.get("order_by")
+    if order_by:
+        direction = asc if kwargs.get("direction") == "ASC" else desc
+        column = __get_column(models)
+        query = query.order_by(direction(column))
+
+    return query
+
+
+def __get_slice_indexes(page: str, limit: str) -> Tuple[int, int]:
     start = (int(page) - 1) * int(limit)
     stop = start + int(limit)
     return start, stop

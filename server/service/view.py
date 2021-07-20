@@ -120,7 +120,6 @@ def referral_view_for_user(user: User, **kwargs) -> List[Referral]:
     :param user: The user to get referrals for
     :return: A list of referrals
     """
-
     role = user.role
     if role == RoleEnum.ADMIN.value:
         return admin_referral_view(**kwargs)
@@ -201,6 +200,26 @@ def individual_vht_referral_view(user: User) -> List[Referral]:
     return user.referrals
 
 
+def referral_view(user: dict, **kwargs) -> List[Referral]:
+    """
+    Returns a list of referrals filtered by query criteria in keyword arguments.
+
+    :param user: JWT identity
+    :param **kwargs: Optional query criteria
+    :return: A list of referrals
+    """
+    role = user["role"]
+    user_id = int(user["userId"])
+    if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
+        return crud.read_referrals(**kwargs)
+    elif role == RoleEnum.CHO.value:
+        return crud.read_referrals(user_id, is_cho=True, **kwargs)
+    elif role == RoleEnum.VHT.value:
+        return crud.read_referrals(user_id, **kwargs)
+    else:
+        raise ValueError("User has an invalid role.")
+
+
 def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
     """
     Returns a list of pregnancies filtered by query criteria in keyword arguments.
@@ -242,7 +261,8 @@ def mobile_patient_and_reading_view(user: dict) -> tuple:
     :param user: JWT identity
     :return: A tuple of two lists
     """
-    if user["role"] == RoleEnum.ADMIN.value or user["role"] == RoleEnum.HCW.value:
+    role = user["role"]
+    if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
         patients = crud.read_mobile_patients()
         readings = crud.read_all_readings_db(True, None)
         return patients, readings

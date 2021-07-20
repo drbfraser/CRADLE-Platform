@@ -3,18 +3,47 @@ import pytest
 
 @pytest.fixture
 def patient_id():
-    return "49300028163"
+    return "87356709248"
 
 
 @pytest.fixture
 def patient_info(patient_id):
     return {
         "patientId": patient_id,
-        "patientName": "AB",
+        "patientName": "Mary Brown",
         "patientSex": "FEMALE",
         "dob": "1998-01-01",
         "isExactDob": False,
     }
+
+
+@pytest.fixture
+def create_patient(database, patient_factory, patient_info):
+    def f():
+        database.session.commit()
+        patient_factory.create(**patient_info)
+
+    return f
+
+
+@pytest.fixture
+def create_referral(
+    patient_id, referral_factory, reading_factory, facility_factory, user_factory
+):
+    def f(reading_id, facility_name, user_id, date_referred, is_assessed):
+        reading_factory.create(readingId=reading_id, patientId=patient_id)
+        facility_factory.create(healthFacilityName=facility_name)
+        user_factory.create(id=user_id)
+        referral_factory.create(
+            patientId=patient_id,
+            readingId=reading_id,
+            userId=user_id,
+            dateReferred=date_referred,
+            referralHealthFacilityName=facility_name,
+            isAssessed=is_assessed,
+        )
+
+    return f
 
 
 @pytest.fixture
