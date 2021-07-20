@@ -206,4 +206,20 @@ export type Referral = {
   userId: OrNull<number>;
 };
 
+export type ReferralFilter = {
+  healthFacilityNames: string[];
+  dateRange: string;
+  referrers: string[];
+  vitalSigns: TrafficLightEnum | undefined;
+  isAssessed: string | undefined;
+  isPregnant: string | undefined;
+};
+
+export type Referrer = {
+  email: string;
+  firstName: string;
+  healthFacilityName: string;
+  userId: string;
+};
+
 export type HealthFacility = string;
