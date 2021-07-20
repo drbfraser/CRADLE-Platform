@@ -421,6 +421,9 @@ def read_mobile_patients(user_ids: Optional[List[int]] = None) -> List[Any]:
             m1.information.label("medicalHistory"),
             m3.id.label("drugHistoryId"),
             m3.information.label("drugHistory"),
+            p1.lastEdited.label("pLastEdited"),
+            m1.lastEdited.label("mLastEdited"),
+            m3.lastEdited.label("dLastEdited"),
         )
         .outerjoin(p1, and_(Patient.patientId == p1.patientId, p1.endDate == None))
         .outerjoin(p2, and_(p1.patientId == p2.patientId, p1.startDate < p2.startDate))

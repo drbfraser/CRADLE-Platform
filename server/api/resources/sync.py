@@ -29,6 +29,10 @@ class UpdatesPatients(Resource):
         for p in json:
             patient_on_server = crud.read(Patient, patientId=p.get("patientId"))
             if patient_on_server is None:
+
+                # Changing the key that comes from the android app to work with validation
+                p['pregnancyStartDate'] = p.pop("gestationalTimestamp")
+
                 error_message = patients.validate(p)
                 if error_message is not None:
                     abort(400, message=error_message)
@@ -73,7 +77,11 @@ class UpdatesPatients(Resource):
         #     TODO: optimize to get only patients
         all_patients = view.patient_view_for_user(user)
         all_patients_edited_or_new = [
-            p for p in all_patients if p["lastEdited"] > timestamp
+            p for p in all_patients 
+            if p["lastEdited"] > timestamp or 
+                p["pLastEdited"] > timestamp or 
+                p["mLastEdited"] > timestamp or 
+                p["dLastEdited"] > timestamp
         ]
 
         return {
