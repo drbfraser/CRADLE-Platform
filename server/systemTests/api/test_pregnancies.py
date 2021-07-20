@@ -1,11 +1,9 @@
-import pytest
-
 import data.crud as crud
 from models import Pregnancy
 
 
-def test_get_pregnancy(pregnancy_factory, pregnancy_earlier, api_get):
-    # patient_factory.create(patientId=patient_id)
+def test_get_pregnancy(create_patient, pregnancy_factory, pregnancy_earlier, api_get):
+    create_patient()
     pregnancy_factory.create(**pregnancy_earlier)
 
     pregnancy_id = pregnancy_earlier["id"]
@@ -27,7 +25,8 @@ def test_get_pregnancy(pregnancy_factory, pregnancy_earlier, api_get):
     assert response_body == expected
 
 
-def test_put_pregnancy(pregnancy_factory, pregnancy_later, api_put):
+def test_put_pregnancy(create_patient, pregnancy_factory, pregnancy_later, api_put):
+    create_patient()
     pregnancy_factory.create(**pregnancy_later)
 
     pregnancy_id = pregnancy_later["id"]
@@ -46,8 +45,9 @@ def test_put_pregnancy(pregnancy_factory, pregnancy_later, api_put):
 
 
 def test_post_and_delete_pregnancy(
-    patient_id, pregnancy_later, database, api_post, api_delete
+    create_patient, patient_id, pregnancy_later, database, api_post, api_delete
 ):
+    create_patient()
     pregnancy_id = pregnancy_later["id"]
 
     pregnancy = {
@@ -75,8 +75,14 @@ def test_post_and_delete_pregnancy(
 
 
 def test_get_pregnancy_list(
-    pregnancy_factory, patient_id, pregnancy_earlier, pregnancy_later, api_get
+    create_patient,
+    pregnancy_factory,
+    patient_id,
+    pregnancy_earlier,
+    pregnancy_later,
+    api_get,
 ):
+    create_patient()
     pregnancy_factory.create(**pregnancy_earlier)
     pregnancy_factory.create(**pregnancy_later)
 
@@ -87,8 +93,9 @@ def test_get_pregnancy_list(
 
 
 def test_invalid_pregnancy_not_updated(
-    pregnancy_factory, pregnancy_earlier, pregnancy_later, api_put
+    create_patient, pregnancy_factory, pregnancy_earlier, pregnancy_later, api_put
 ):
+    create_patient()
     pregnancy_factory.create(**pregnancy_earlier)
 
     pregnancy_id = pregnancy_earlier["id"]
@@ -130,8 +137,9 @@ def test_invalid_pregnancy_not_updated(
 
 
 def test_invalid_pregnancy_not_created(
-    pregnancy_factory, patient_id, pregnancy_earlier, api_post
+    create_patient, pregnancy_factory, patient_id, pregnancy_earlier, api_post
 ):
+    create_patient()
     pregnancy_factory.create(**pregnancy_earlier)
     unit = pregnancy_earlier["defaultTimeUnit"]
 

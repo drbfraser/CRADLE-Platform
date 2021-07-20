@@ -33,12 +33,14 @@ def test_get_patient(patient_factory, api_get):
 
 
 def test_get_patient_pregnancy_summary(
+    create_patient,
     pregnancy_factory,
     patient_id,
     pregnancy_earlier,
     pregnancy_later,
     api_get,
 ):
+    create_patient()
     response = api_get(
         endpoint=f"/api/patients/{patient_id}/pregnancy_summary",
     )
@@ -64,12 +66,14 @@ def test_get_patient_pregnancy_summary(
 
 
 def test_get_patient_medical_history(
+    create_patient,
     medical_record_factory,
     patient_id,
     medical_record,
     drug_record,
     api_get,
 ):
+    create_patient()
     medical_record_factory.create(**medical_record)
     medical_record_factory.create(**drug_record)
 
@@ -83,6 +87,7 @@ def test_get_patient_medical_history(
 
 
 def test_get_patient_timeline(
+    create_patient,
     pregnancy_factory,
     medical_record_factory,
     patient_id,
@@ -92,6 +97,7 @@ def test_get_patient_timeline(
     drug_record,
     api_get,
 ):
+    create_patient()
     pregnancy_factory.create(**pregnancy_earlier)
     pregnancy_factory.create(**pregnancy_later)
     medical_record_factory.create(**medical_record)
@@ -112,6 +118,7 @@ def test_get_patient_timeline(
 
 
 def test_get_mobile_patient_list(
+    create_patient,
     pregnancy_factory,
     medical_record_factory,
     patient_id,
@@ -122,6 +129,7 @@ def test_get_mobile_patient_list(
     drug_record,
     api_get,
 ):
+    create_patient()
     pregnancy_factory.create(**pregnancy_earlier)
     pregnancy_factory.create(**pregnancy_later)
     medical_record_factory.create(**medical_record)
