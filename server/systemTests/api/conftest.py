@@ -14,6 +14,7 @@ def patient_info(patient_id):
         "patientSex": "FEMALE",
         "dob": "1998-01-01",
         "isExactDob": False,
+        "villageNumber": "1001",
     }
 
 

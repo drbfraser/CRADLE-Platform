@@ -1,4 +1,3 @@
-from api.resources import pregnancies
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -27,25 +26,10 @@ class Root(Resource):
         "../../specifications/patients-get.yml", methods=["GET"], endpoint="patients"
     )
     def get():
-        user = util.current_user()
+        user = get_jwt_identity()
+        params = util.get_query_params(request)
+        patients = view.patient_view(user, **params)
 
-        # query parameters for later SQL use
-        limit = util.query_param_limit(request, name="limit")
-        page = util.query_param_page(request, name="page")
-        sort_by = util.query_param_sortBy(request, name="sortBy")
-        sort_dir = util.query_param_sort_dir(request, name="sortDir")
-        search = util.query_param_search(request, name="search")
-
-        patients = view.patient_view_for_user(
-            user,
-            limit=limit,
-            page=page,
-            sortBy=sort_by,
-            sortDir=sort_dir,
-            search=search,
-        )
-
-        # create JSON format
         return [serialize.serialize_patient(p) for p in patients]
 
     @staticmethod

@@ -32,6 +32,39 @@ def test_get_patient(patient_factory, api_get):
     assert expected == response.json()
 
 
+def test_get_patient_list(create_patient, patient_info, reading_factory, api_get):
+    create_patient()
+
+    patient_id = patient_info["patientId"]
+
+    reading_id1 = "w3d0aklrs4wenm6hk5z1"
+    date1 = 1604514300
+    reading_factory.create(
+        readingId=reading_id1, patientId=patient_id, dateTimeTaken=date1
+    )
+
+    reading_id2 = "w3d0aklrs4wenm6hk5z2"
+    date2 = date1 + 2e7
+    reading_factory.create(
+        readingId=reading_id2, patientId=patient_id, dateTimeTaken=date2
+    )
+
+    response = api_get(endpoint=f"/api/patients")
+
+    assert response.status_code == 200
+
+    patient = None
+    for p in response.json():
+        if p["patientId"] == patient_id:
+            patient = p
+            break
+
+    assert patient["patientName"] == patient_info["patientName"]
+    assert patient["villageNumber"] == patient_info["villageNumber"]
+    assert patient["trafficLightStatus"] == TrafficLightEnum.GREEN.value
+    assert patient["dateTimeTaken"] == date2
+
+
 def test_get_patient_pregnancy_summary(
     create_patient,
     pregnancy_factory,

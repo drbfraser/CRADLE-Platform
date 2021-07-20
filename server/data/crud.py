@@ -279,12 +279,55 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
+def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Patient]:
+    """
+    Queries the database for patients filtered by query criteria in keyword arguments.
+
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
+    all patients
+    :param kwargs: Query params including search_text, order_by, direction, limit, page
+
+    :return: A list of patients
+    """
+    rd = aliased(Reading)
+
+    query = (
+        db_session.query(
+            Patient.patientId,
+            Patient.patientName,
+            Patient.villageNumber,
+            Reading.trafficLightStatus,
+            Reading.dateTimeTaken,
+        )
+        .outerjoin(Reading, Patient.readings)
+        .outerjoin(
+            rd,
+            and_(
+                Patient.patientId == rd.patientId,
+                Reading.dateTimeTaken < rd.dateTimeTaken,
+            ),
+        )
+        .filter(rd.dateTimeTaken == None)
+    )
+
+    query = __filter_by_patient_association(query, user_id, **kwargs)
+    query = __filter_by_patient_search(query, **kwargs)
+    query = __order_by_column(query, [Patient, Reading], **kwargs)
+
+    limit = kwargs.get("limit")
+    if limit:
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
+    else:
+        return query.all()
+
+
 def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
 
-    :param user_id: ID of user to filter patients wrt patient associations; None
-    to get all patients
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
+    all patients
     :param kwargs: Query params including search_text, order_by, direction, limit, page,
     health_facilities, referrers, date_range, is_assessed, is_pregnant
 
