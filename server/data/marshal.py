@@ -258,9 +258,9 @@ def __unmarshal_patient(d: dict) -> Patient:
     if readings:
         patient.readings = readings
     if medRecords:
-        patient.medicalRecord = medRecords
+        patient.records = medRecords
     if pregnancy:
-        patient.pregnancy = pregnancy
+        patient.pregnancies = pregnancy
 
     return patient
 
