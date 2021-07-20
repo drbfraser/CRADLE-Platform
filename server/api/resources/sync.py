@@ -29,7 +29,8 @@ class UpdatesPatients(Resource):
         for p in json:
             patient_on_server = crud.read(Patient, patientId=p.get("patientId"))
             if patient_on_server is None:
-
+        
+            if "gestationalTimestamp" in p:
                 # Changing the key that comes from the android app to work with validation
                 p['pregnancyStartDate'] = p.pop("gestationalTimestamp")
 
