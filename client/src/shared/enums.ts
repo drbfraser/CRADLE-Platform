@@ -60,6 +60,7 @@ export enum EndpointEnum {
   USER_ALL = '/user/all',
   USER_CURRENT = '/user/current',
   USER_REGISTER = '/user/register',
+  USER_VHTS = '/user/vhts',
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
 }

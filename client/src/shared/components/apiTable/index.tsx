@@ -9,6 +9,8 @@ import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { useHistory } from 'react-router-dom';
+import { ReferralFilter } from 'src/shared/types';
+import { TrafficLightEnum } from 'src/shared/enums';
 
 interface IProps {
   endpoint: string;
@@ -23,6 +25,7 @@ interface IProps {
   isDrugRecord?: boolean | undefined;
   patientId?: string;
   gestationalAgeUnit?: string;
+  referralFilter?: ReferralFilter;
   setDeletePopupOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   setPopupRecord?: React.Dispatch<React.SetStateAction<any>>;
   refetch?: boolean;
@@ -41,6 +44,7 @@ export const APITable = ({
   isDrugRecord,
   patientId,
   gestationalAgeUnit,
+  referralFilter,
   setDeletePopupOpen,
   setPopupRecord,
   refetch,
@@ -77,17 +81,44 @@ export const APITable = ({
       signal: controller.signal,
     };
 
-    const params =
-      '?' +
-      new URLSearchParams({
-        limit: limit.toString(),
-        page: page.toString(),
-        search: search,
-        sortBy: sortBy,
-        sortDir: sortDir,
-      });
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      page: page.toString(),
+      search: search,
+      sortBy: sortBy,
+      sortDir: sortDir,
+    });
 
-    apiFetch(API_URL + endpoint + params, fetchOptions)
+    const referralFilterParams = referralFilter
+      ? new URLSearchParams({
+          dateRange: referralFilter.dateRange,
+          vitalSigns: referralFilter.vitalSigns
+            ? TrafficLightEnum[
+                referralFilter.vitalSigns as keyof typeof TrafficLightEnum
+              ]
+            : '',
+          isPregnant: referralFilter.isPregnant
+            ? referralFilter.isPregnant
+            : '',
+          isAssessed: referralFilter.isAssessed
+            ? referralFilter.isAssessed
+            : '',
+        })
+      : new URLSearchParams();
+
+    if (referralFilter) {
+      referralFilter.healthFacilityNames.forEach((facilityName) =>
+        referralFilterParams.append('healthFacility', facilityName)
+      );
+      referralFilter.referrers.forEach((referrer) =>
+        referralFilterParams.append('referrer', referrer)
+      );
+    }
+
+    apiFetch(
+      API_URL + endpoint + '?' + params + '&' + referralFilterParams,
+      fetchOptions
+    )
       .then(async (resp) => {
         const json = await resp.json();
         //The case for drug history records on the past records page
@@ -110,7 +141,17 @@ export const APITable = ({
 
     // if the user does something else, cancel the fetch
     return () => controller.abort();
-  }, [endpoint, limit, page, search, sortBy, sortDir, isDrugRecord, refetch]);
+  }, [
+    endpoint,
+    limit,
+    page,
+    search,
+    sortBy,
+    sortDir,
+    isDrugRecord,
+    refetch,
+    referralFilter,
+  ]);
 
   const handleSort = (col: string) => {
     if (col === sortBy) {
