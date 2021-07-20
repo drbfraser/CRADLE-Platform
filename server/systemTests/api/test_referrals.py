@@ -67,20 +67,29 @@ def test_get_referral_list(
     assert any(r["dateReferred"] == date1 for r in response.json())
     assert not any(r["dateReferred"] == date2 for r in response.json())
 
-    response = api_get(endpoint=f"/api/referrals?isAssessed=1")
+    response = api_get(endpoint="/api/referrals?isAssessed=1")
 
     assert response.status_code == 200
     assert any(r["dateReferred"] == date1 for r in response.json())
     assert not any(r["dateReferred"] == date2 for r in response.json())
 
-    response = api_get(endpoint=f"/api/referrals?isPregnant=1")
+    response = api_get(endpoint="/api/referrals?isPregnant=1")
 
     assert response.status_code == 200
     assert not any(r["dateReferred"] == date1 for r in response.json())
     assert not any(r["dateReferred"] == date2 for r in response.json())
 
     pregnancy_factory.create(**pregnancy_later)
-    response = api_get(endpoint=f"/api/referrals?isPregnant=1")
+    response = api_get(endpoint="/api/referrals?isPregnant=1")
+
+    assert response.status_code == 200
+    assert any(r["dateReferred"] == date1 for r in response.json())
+    assert any(r["dateReferred"] == date2 for r in response.json())
+    for r in response.json():
+        print(r)
+
+    pregnancy_factory.create(**pregnancy_later)
+    response = api_get(endpoint="/api/referrals?vitalSigns=GREEN")
 
     assert response.status_code == 200
     assert any(r["dateReferred"] == date1 for r in response.json())

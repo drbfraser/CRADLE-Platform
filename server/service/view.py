@@ -229,11 +229,13 @@ def referral_view(user: dict, **kwargs) -> List[Referral]:
     :return: A list of referrals
     """
     role = user["role"]
+    user_id = int(user["userId"])
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
         return crud.read_referrals(**kwargs)
-    elif role == RoleEnum.CHO.value or role == RoleEnum.VHT.value:
-        user_id = user["userId"]
-        return crud.read_referrals([user_id], **kwargs)
+    elif role == RoleEnum.CHO.value:
+        return crud.read_referrals(user_id, is_cho=True, **kwargs)
+    elif role == RoleEnum.VHT.value:
+        return crud.read_referrals(user_id, **kwargs)
     else:
         raise ValueError("User has an invalid role.")
 
