@@ -98,10 +98,10 @@ export const APITable = ({
               ]
             : '',
           isPregnant: referralFilter.isPregnant
-            ? referralFilter.isPregnant.toString()
+            ? referralFilter.isPregnant
             : '',
           isAssessed: referralFilter.isAssessed
-            ? referralFilter.isAssessed.toString()
+            ? referralFilter.isAssessed
             : '',
         })
       : new URLSearchParams();

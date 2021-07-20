@@ -211,8 +211,8 @@ export type ReferralFilter = {
   dateRange: string;
   referrers: string[];
   vitalSigns: TrafficLightEnum | undefined;
-  isAssessed: number | undefined;
-  isPregnant: number | undefined;
+  isAssessed: string | undefined;
+  isPregnant: string | undefined;
 };
 
 export type Referrer = {

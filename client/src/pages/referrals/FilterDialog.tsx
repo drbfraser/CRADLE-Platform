@@ -15,15 +15,25 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { DateRangePicker, FocusedInputShape } from 'react-dates';
 import { makeStyles } from '@material-ui/core/styles';
-import { IFacility, ReferralFilter, Referrer } from 'src/shared/types';
+import {
+  IFacility,
+  ReferralFilter,
+  Referrer,
+  IUserWithTokens,
+  OrNull,
+} from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum, TrafficLightEnum } from 'src/shared/enums';
 import { TextField } from '@material-ui/core';
 import { TrafficLight } from 'src/shared/components/trafficLight';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import DoneIcon from '@material-ui/icons/Done';
 import ScheduleIcon from '@material-ui/icons/Schedule';
+import { useSelector } from 'react-redux';
+import { ReduxState } from 'src/redux/reducers';
 
 interface IProps {
   open: boolean;
@@ -61,6 +71,10 @@ const vitalSigns: VitalSign[] = [
   },
 ];
 
+type SelectorState = {
+  user: OrNull<IUserWithTokens>;
+};
+
 export const FilterDialog = ({
   open,
   filter,
@@ -68,12 +82,17 @@ export const FilterDialog = ({
   onClose,
   setFilter,
 }: IProps) => {
+  const { user } = useSelector(
+    ({ user }: ReduxState): SelectorState => ({
+      user: user.current.data,
+    })
+  );
   const classes = useStyles();
 
   const [selectedHealthFacilities, setSelectedHealthFacilities] = useState<
-    IFacility[]
+    string[]
   >([]);
-  const [healthFacilities, setHealthFacilities] = useState<IFacility[]>([]);
+  const [healthFacilities, setHealthFacilities] = useState<string[]>([]);
 
   const [startDate, setStartDate] = useState<Moment | null>(null);
   const [endDate, setEndDate] = useState<Moment | null>(null);
@@ -87,14 +106,15 @@ export const FilterDialog = ({
   const [selectedVitalSign, setSelectedVitalSign] =
     useState<TrafficLightEnum>();
 
-  const [isPregnant, setIsPregnant] = useState<number>();
-  const [isAssessed, setIsAssessed] = useState<number>();
+  const [isPregnant, setIsPregnant] = useState<string>();
+  const [isAssessed, setIsAssessed] = useState<string>();
 
   useEffect(() => {
     apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)
       .then((resp) => resp.json())
-      .then((jsonResp) => {
-        setHealthFacilities(jsonResp);
+      .then((jsonResp: IFacility[]) => {
+        const facilities = jsonResp.map((f) => f.healthFacilityName);
+        setHealthFacilities(facilities);
       })
       .catch((error) => {
         console.error(error);
@@ -114,6 +134,16 @@ export const FilterDialog = ({
       clearFilter();
     }
   }, [filter]);
+
+  useEffect(() => {
+    if (user) {
+      setSelectedHealthFacilities([
+        ...selectedHealthFacilities,
+        user.healthFacilityName,
+      ]);
+    }
+    // eslint-disable-next-line
+  }, [user]);
 
   const clearFilter = () => {
     setSelectedHealthFacilities([]);
@@ -138,7 +168,7 @@ export const FilterDialog = ({
     setFocusedInput(arg);
   };
 
-  const onFacilitySelect = (_event: any, value: IFacility) => {
+  const onFacilitySelect = (_event: any, value: string) => {
     if (!value) {
       return;
     }
@@ -164,12 +194,38 @@ export const FilterDialog = ({
     setSelectedReferrers(newReferrers);
   };
 
+  const handleRadioButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    value: any,
+    setValue: React.Dispatch<React.SetStateAction<any>>
+  ) => {
+    const element = event.currentTarget as HTMLInputElement;
+    const eventValue = element.value;
+    if (eventValue === value) {
+      setValue(undefined);
+    } else {
+      setValue(eventValue);
+    }
+  };
+
   const onConfirm = () => {
+    //User did not change any filter
+    if (
+      selectedHealthFacilities.length < 1 &&
+      !startDate &&
+      !endDate &&
+      !presetDateRange &&
+      selectedReferrers.length < 1 &&
+      !selectedVitalSign &&
+      !isPregnant &&
+      !isAssessed
+    ) {
+      onClose();
+      return;
+    }
     setFilter({
       ...filter,
-      healthFacilityNames: selectedHealthFacilities.map(
-        (f) => f.healthFacilityName
-      ),
+      healthFacilityNames: selectedHealthFacilities,
       dateRange:
         startDate && endDate
           ? `${startDate.toDate().getTime() / 1000}:${
@@ -202,7 +258,7 @@ export const FilterDialog = ({
               id="facility-select"
               onChange={onFacilitySelect}
               options={healthFacilities}
-              getOptionLabel={(facility) => facility.healthFacilityName}
+              getOptionLabel={(facility) => facility}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -213,9 +269,9 @@ export const FilterDialog = ({
             />
             <Box m={1.5} display="flex" flexWrap="wrap">
               {selectedHealthFacilities.map((facility, index) => (
-                <Box m={0.5} key={facility.healthFacilityName}>
+                <Box m={0.5} key={index}>
                   <Chip
-                    label={facility.healthFacilityName}
+                    label={facility}
                     onDelete={() => handleDeleteFacilityChip(index)}
                     color="primary"
                   />
@@ -329,7 +385,7 @@ export const FilterDialog = ({
             </Box>
           </Grid>
           <Grid item>
-            <b>Health Status</b>
+            <b>Cradle Readings</b>
             <br />
             {vitalSigns.map((vitalSign, index) => (
               <FormControlLabel
@@ -362,66 +418,76 @@ export const FilterDialog = ({
           <Grid item md={6} sm={6}>
             <b>Pregnant</b>
             <br />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isPregnant === 1}
-                  value={1}
-                  onChange={(_, checked) =>
-                    checked ? setIsPregnant(1) : setIsPregnant(undefined)
-                  }
-                />
-              }
-              label="Yes"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isPregnant === 0}
-                  value={0}
-                  onChange={(_, checked) =>
-                    checked ? setIsPregnant(0) : setIsPregnant(undefined)
-                  }
-                />
-              }
-              label="No"
-            />
+            <RadioGroup
+              aria-label="isPregnant"
+              value={isPregnant}
+              onChange={(event, value) => setIsPregnant(value)}>
+              <FormControlLabel
+                value="1"
+                control={
+                  <Radio
+                    checked={isPregnant === `1`}
+                    onClick={(event) => {
+                      handleRadioButtonClick(event, isPregnant, setIsPregnant);
+                    }}
+                  />
+                }
+                label="Yes"
+              />
+              <FormControlLabel
+                value="0"
+                control={
+                  <Radio
+                    checked={isPregnant === `0`}
+                    onClick={(event) => {
+                      handleRadioButtonClick(event, isPregnant, setIsPregnant);
+                    }}
+                  />
+                }
+                label="No"
+              />
+            </RadioGroup>
           </Grid>
           <Grid item md={6} sm={6}>
             <b>Assessment Status</b>
             <br />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isAssessed === 1}
-                  value={1}
-                  onChange={(_, checked) =>
-                    checked ? setIsAssessed(1) : setIsAssessed(undefined)
-                  }
-                />
-              }
-              label={
-                <>
-                  <DoneIcon className={classes.green} /> Complete
-                </>
-              }
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isAssessed === 0}
-                  value={0}
-                  onChange={(_, checked) =>
-                    checked ? setIsAssessed(0) : setIsAssessed(undefined)
-                  }
-                />
-              }
-              label={
-                <>
-                  <ScheduleIcon className={classes.red} /> Pending
-                </>
-              }
-            />
+            <RadioGroup
+              aria-label="isAssessed"
+              value={isAssessed}
+              onChange={(event, value) => setIsAssessed(value)}>
+              <FormControlLabel
+                value="1"
+                control={
+                  <Radio
+                    checked={isAssessed === `1`}
+                    onClick={(event) => {
+                      handleRadioButtonClick(event, isAssessed, setIsAssessed);
+                    }}
+                  />
+                }
+                label={
+                  <>
+                    <DoneIcon className={classes.green} /> Complete
+                  </>
+                }
+              />
+              <FormControlLabel
+                value="0"
+                control={
+                  <Radio
+                    checked={isAssessed === `0`}
+                    onClick={(event) => {
+                      handleRadioButtonClick(event, isAssessed, setIsAssessed);
+                    }}
+                  />
+                }
+                label={
+                  <>
+                    <ScheduleIcon className={classes.red} /> Pending
+                  </>
+                }
+              />
+            </RadioGroup>
           </Grid>
         </Grid>
       </DialogContent>
