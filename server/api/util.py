@@ -182,7 +182,7 @@ def get_query_params(request: Request):
         "date_range": request.args.get("dateRange"),
         "is_assessed": request.args.get("isAssessed"),
         "is_pregnant": request.args.get("isPregnant"),
-        "vital_signs": request.args.get("vitalSigns"),
+        "vital_signs": list(filter(None, request.args.getlist("vitalSigns"))),
         "referrers": list(filter(None, request.args.getlist("referrer"))),
         "health_facilities": list(filter(None, request.args.getlist("healthFacility"))),
     }

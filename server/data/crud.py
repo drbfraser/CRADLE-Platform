@@ -353,7 +353,7 @@ def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
 
     vital_signs = kwargs.get("vital_signs")
     if vital_signs:
-        query = query.filter(Reading.trafficLightStatus == vital_signs)
+        query = query.filter(Reading.trafficLightStatus.in_(vital_signs))
 
     limit = kwargs.get("limit")
     if limit:
