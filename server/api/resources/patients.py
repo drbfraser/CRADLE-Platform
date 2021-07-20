@@ -55,6 +55,11 @@ class Root(Resource):
     )
     def post():
         json = request.get_json(force=True)
+
+        if "gestationalTimestamp" in json:
+            # Changing the key that comes from the android app to work with validation
+            json["pregnancyStartDate"] = json.pop("gestationalTimestamp")
+
         error_message = patients.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
