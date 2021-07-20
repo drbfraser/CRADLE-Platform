@@ -279,13 +279,12 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
 
 
-<<<<<<< HEAD
 def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Patient]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
 
-    :param user_id: ID of user to filter patients wrt patient associations; None
-    to get all patients
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
+    all patients
     :param kwargs: Query params including search_text, order_by, direction, limit, page
 
     :return: A list of patients
@@ -311,34 +310,9 @@ def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Patient]:
         .filter(rd.dateTimeTaken == None)
     )
 
-    if user_id is not None:
-        if kwargs.get("is_cho"):
-            sub = (
-                db_session.query(supervises.c.vhtId)
-                .filter(supervises.c.choId == user_id)
-                .subquery()
-            )
-            query = query.join(PatientAssociations, Patient.associations).filter(
-                PatientAssociations.userId.in_(sub)
-            )
-        else:
-            query = query.join(PatientAssociations, Patient.associations).filter(
-                PatientAssociations.userId == user_id
-            )
-
-    search_text = kwargs.get("search_text")
-    if search_text:
-        query = query.filter(
-            or_(
-                Patient.patientId.like(f"%{search_text}%"),
-                Patient.patientName.like(f"%{search_text}%"),
-            )
-        )
-
-    order_by = __get_order_by_column(kwargs.get("order_by"), [Patient, Reading])
-    if order_by:
-        direction = asc if kwargs.get("direction") == "ASC" else desc
-        query = query.order_by(direction(order_by))
+    query = __filter_by_patient_association(query, user_id, **kwargs)
+    query = __filter_by_patient_search(query, **kwargs)
+    query = __order_by_column(query, [Patient, Reading], **kwargs)
 
     limit = kwargs.get("limit")
     if limit:
@@ -348,15 +322,12 @@ def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Patient]:
         return query.all()
 
 
-def read_referrals(user_ids: Optional[List[int]] = None, **kwargs) -> List[Referral]:
-=======
 def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
->>>>>>> CRDL-304-add-backend-support-for-filtering-referrals
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
 
-    :param user_id: ID of user to filter patients wrt patient associations; None
-    to get all patients
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
+    all patients
     :param kwargs: Query params including search_text, order_by, direction, limit, page,
     health_facilities, referrers, date_range, is_assessed, is_pregnant
 
