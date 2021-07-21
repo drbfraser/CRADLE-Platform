@@ -82,7 +82,6 @@ export const handleSubmit = async (
           );
   }
 
-  //TODO: remove this when we get rid of the old information in the Patient table
   if (!submitValues.gestationalAgeUnit) {
     submitValues.gestationalAgeUnit = GestationalAgeUnitEnum.WEEKS;
   }
