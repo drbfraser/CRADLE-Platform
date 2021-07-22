@@ -113,14 +113,14 @@ def __marshal_patient(p: Patient, shallow) -> dict:
     d["base"] = d["lastEdited"]
 
     # TODO: export this functionality somewhere else
-    # This implementation is relatively inefficient and not perfect logic as it goes 
+    # This implementation is relatively inefficient and not perfect logic as it goes
     # through all associated drug and medical records and assigns the last one to the return dict
     for rc in p.records:
         if rc.isDrugRecord:
             d["drugHistory"] = rc.information
         else:
             d["medicalHistory"] = rc.information
-    
+
     for pr in p.pregnancies:
         d["gestationalTimestamp"] = pr.startDate
         d["gestationalAgeUnit"] = pr.defaultTimeUnit.value
