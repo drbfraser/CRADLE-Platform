@@ -1,6 +1,6 @@
-from typing import List, Optional, Tuple, Type, TypeVar, Any
+from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
 from collections import namedtuple
-from sqlalchemy.orm import Query, aliased
+from sqlalchemy.orm import Query, aliased, joinedload
 from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
 import operator
 
@@ -510,15 +510,19 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     return query.slice(*__get_slice_indexes(page, limit))
 
 
-def read_mobile_patients(user_ids: Optional[List[int]] = None) -> List[Any]:
+def read_patients_with_records(
+    patient_id: Optional[str] = None,
+    user_id: Optional[int] = None,
+    is_cho: bool = False,
+) -> Union(List[Any], Any):
     """
-    Queries the database for all patients associated with the user including the latest
-    pregnancy, medical and durg records for each patient.
+    Queries the database for patient(s) each with the latest pregnancy, medical and durg
+    records.
 
-    :param user_id: The user ID to filter patients wrt patient associations; None to get
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
     all patients
 
-    :return: A list of patients
+    :return: A list of patients if no patient ID is specified; a patient otherwise
     """
     # Aliased classes to be used in join clauses for geting the latest pregnancy, medical
     # and drug records.
@@ -577,14 +581,12 @@ def read_mobile_patients(user_ids: Optional[List[int]] = None) -> List[Any]:
         .filter(p2.startDate == None, m2.dateCreated == None, m4.dateCreated == None)
     )
 
-    if user_ids:
-        query = query.join(PatientAssociations, Patient.associations).filter(
-            PatientAssociations.userId.in_(user_ids)
-        )
+    query = __filter_by_patient_association(query, user_id, is_cho=is_cho)
 
-    query = query.order_by(asc(Patient.patientId))
-
-    return query.all()
+    if patient_id:
+        return query.filter(Patient.patientId == patient_id).first()
+    else:
+        return query.order_by(asc(Patient.patientId)).all()
 
 
 def read_all_patients_for_user(user: User, **kwargs) -> List[M]:
@@ -710,7 +712,7 @@ def read_all_assoc_patients_db(user_ids: str) -> List[M]:
     :return: A dictionary of Patients
     """
     # make DB call
-    patients = read_mobile_patients(user_ids)
+    patients = read_patients_with_records(user_ids)
 
     arr = []
     # make list of patients
@@ -736,7 +738,7 @@ def read_all_readings_db(is_admin: bool, user_ids: str) -> List[M]:
     # make list of readings
     for reading_row in reading_and_referral:
         creat_dict = {}
-        creat_dict = serialize.serialize_reading_sql_to_dict(creat_dict, reading_row)
+        creat_dict = serialize.serialize_readin6g_sql_to_dict(creat_dict, reading_row)
         # make list of symptoms
         if not creat_dict.get("symptoms"):
             creat_dict["symptoms"] = []

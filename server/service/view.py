@@ -17,7 +17,7 @@ The role-specific views are defined as follows:
 * VHT: can see all patients created by them
 """
 
-from typing import List
+from typing import Any, List
 
 import data.crud as crud
 import service.assoc as assoc
@@ -283,12 +283,31 @@ def mobile_patient_and_reading_view(user: dict) -> tuple:
     """
     role = user["role"]
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
-        patients = crud.read_mobile_patients()
+        patients = crud.read_patients_with_records()
         readings = crud.read_all_readings_db(True, None)
         return patients, readings
     else:
         user_id = user["userId"]
         if user_id:
-            patients = crud.read_mobile_patients([user_id])
+            patients = crud.read_patients_with_records([user_id])
             readings = crud.read_all_readings_db(False, [user_id])
             return patients, readings
+
+
+def patient_with_records_view(user: dict) -> List(Any):
+    """
+    Returns a list of patients each with the latest pregnancy, medical and durg records.
+
+    :param user: JWT identity
+    :return: A list of patients
+    """
+    role = user["role"]
+    user_id = int(user["userId"])
+    if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
+        return crud.read_patients_with_records()
+    elif role == RoleEnum.CHO.value:
+        return crud.read_patients_with_records(user_id=user_id, is_cho=True)
+    elif role == RoleEnum.VHT.value:
+        return crud.read_patients_with_records(user_id=user_id)
+    else:
+        raise ValueError("User has an invalid role.")
