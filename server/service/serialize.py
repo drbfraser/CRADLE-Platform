@@ -2,10 +2,13 @@
 The ``service.util`` contains utility functions to help simplify useful information into a dict
 instead of using marshal on the whole Object.
 """
+from typing import Any, List, Optional
+
+import data.marshal as marshal
+from models import MedicalRecord, Pregnancy, Reading
 
 
-# simplify version of the patient API
-def serialize_patient(p: any):
+def serialize_patient(p: Any) -> dict:
     return {
         "patientId": p.patientId,
         "patientName": p.patientName,
@@ -17,7 +20,7 @@ def serialize_patient(p: any):
     }
 
 
-def serialize_referral(r: any):
+def serialize_referral(r: Any) -> dict:
     return {
         "referralId": r.id,
         "patientId": r.patientId,
@@ -29,7 +32,7 @@ def serialize_referral(r: any):
     }
 
 
-def serialize_pregnancy(p: any):
+def serialize_pregnancy(p: Pregnancy) -> dict:
     return {
         "pregnancyId": p.id,
         "startDate": p.startDate,
@@ -39,7 +42,7 @@ def serialize_pregnancy(p: any):
     }
 
 
-def serialize_medical_record(r: any):
+def serialize_medical_record(r: MedicalRecord) -> dict:
     return {
         "medicalRecordId": r.id,
         "information": r.information,
@@ -48,7 +51,7 @@ def serialize_medical_record(r: any):
     }
 
 
-def serialize_patient_timeline(r: any):
+def serialize_patient_timeline(r: Any) -> dict:
     return {
         "title": r.title,
         "information": r.information,
@@ -56,28 +59,30 @@ def serialize_patient_timeline(r: any):
     }
 
 
-def serialize_mobile_patient(p: any):
+def serialize_patient_with_records(
+    patient: Any, readings: Optional[List[Reading]] = None
+) -> dict:
     return {
-        "patientId": p.patientId,
-        "patientName": p.patientName,
-        "patientSex": p.patientSex.value,
-        "isPregnant": True if p.pregnancyStartDate else False,
-        "gestationalTimestamp": p.pregnancyStartDate,
-        "gestationalAgeUnit": p.gestationalAgeUnit.value
-        if p.gestationalAgeUnit
-        else "MONTHS",
-        "medicalHistory": p.medicalHistory,
-        "drugHistory": p.drugHistory,
-        "zone": p.zone,
-        "villageNumber": p.villageNumber,
-        "dob": str(p.dob),
-        "lastEdited": p.lastEdited,
-        "pLastEdited": p.pLastEdited if p.pLastEdited else 0,
-        "mLastEdited": p.mLastEdited if p.mLastEdited else 0,
-        "dLastEdited": p.dLastEdited if p.dLastEdited else 0,
-        "base": p.lastEdited,
-        "householdNumber": p.householdNumber,
-        "isExactDob": p.isExactDob,
-        "allergy": p.allergy,
-        "readings": [],
+        "patientId": patient.patientId,
+        "patientName": patient.patientName,
+        "patientSex": patient.patientSex.value,
+        "dob": str(patient.dob),
+        "isExactDob": patient.isExactDob,
+        "zone": patient.zone,
+        "householdNumber": patient.householdNumber,
+        "villageNumber": patient.villageNumber,
+        "allergy": patient.allergy,
+        "isPregnant": True if patient.pregnancyStartDate else False,
+        "pregnancyId": patient.pregnancyId,
+        "pregnancyStartDate": patient.pregnancyStartDate,
+        "gestationalAgeUnit": patient.gestationalAgeUnit.value
+        if patient.gestationalAgeUnit
+        else None,
+        "medicalHistoryId": patient.medicalHistoryId,
+        "medicalHistory": patient.medicalHistory,
+        "drugHistoryId": patient.drugHistoryId,
+        "drugHistory": patient.drugHistory,
+        "lastEdited": patient.lastEdited,
+        "base": patient.lastEdited,
+        "readings": [marshal.marshal(r) for r in readings] if readings else [],
     }

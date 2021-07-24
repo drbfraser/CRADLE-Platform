@@ -202,7 +202,6 @@ def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Any]:
     :return: A list of patients
     """
     rd = aliased(Reading)
-
     query = (
         db_session.query(
             Patient.patientId,

@@ -34,7 +34,6 @@ def validate(request_body: dict) -> Optional[str]:
         "patientId",
         "patientName",
         "patientSex",
-        "isPregnant",
         "dob",
         "isExactDob",
     ]
