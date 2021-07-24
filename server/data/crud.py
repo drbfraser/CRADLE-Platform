@@ -191,12 +191,12 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
     return m.query.filter_by(**kwargs).all()
 
 
-def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Patient]:
+def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
 
     :param user_id: ID of user to filter patients wrt patient associations; None to get
-    all patients
+    patients associated with all users
     :param kwargs: Query params including search_text, order_by, direction, limit, page
 
     :return: A list of patients
@@ -234,12 +234,12 @@ def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Patient]:
         return query.all()
 
 
-def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
+def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Any]:
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
 
     :param user_id: ID of user to filter patients wrt patient associations; None to get
-    all patients
+    referrals associated with all users
     :param kwargs: Query params including search_text, order_by, direction, limit, page,
     health_facilities, referrers, date_range, is_assessed, is_pregnant
 
@@ -431,8 +431,9 @@ def read_patient_with_records(
     Queries the database for patient(s) each with the latest pregnancy, medical and durg
     records.
 
+    :param patient_id: ID of patient to filter readings; None to get readings of all patients
     :param user_id: ID of user to filter patients wrt patient associations; None to get
-    all patients
+    readings associated with all users
 
     :return: A list of patients if no patient ID is specified; a patient otherwise
     """
@@ -498,7 +499,7 @@ def read_patient_with_records(
     if patient_id:
         return query.filter(Patient.patientId == patient_id).first()
     else:
-        return query.order_by(asc(Patient.patientId)).all()
+        return query.all()
 
 
 def read_readings(
@@ -506,6 +507,15 @@ def read_readings(
     user_id: Optional[int] = None,
     is_cho: bool = False,
 ) -> List[Reading]:
+    """
+    Queries the database for readings either of a patient or associated with the user.
+
+    :param patient_id: ID of patient to filter readings; None to get readings of all patients
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
+    readings associated with all users
+
+    :return: A list of readings
+    """
     query = db_session.query(Reading)
 
     query = __filter_by_patient_association(query, Reading, user_id, is_cho=is_cho)
@@ -514,8 +524,6 @@ def read_readings(
         query = query.filter_by(patientId=patient_id).order_by(
             desc(Reading.dateTimeTaken)
         )
-    else:
-        query = query.order_by(asc(Reading.patientId))
 
     return query.all()
 
