@@ -1,5 +1,7 @@
 import pytest
 
+from models import SexEnum, GestationalAgeUnitEnum
+
 
 @pytest.fixture
 def patient_id():
@@ -11,7 +13,7 @@ def patient_info(patient_id):
     return {
         "patientId": patient_id,
         "patientName": "Mary Brown",
-        "patientSex": "FEMALE",
+        "patientSex": SexEnum.FEMALE.value,
         "dob": "1998-01-01",
         "isExactDob": False,
         "villageNumber": "1001",
@@ -28,13 +30,45 @@ def create_patient(database, patient_factory, patient_info):
 
 
 @pytest.fixture
-def create_referral(
-    patient_id, referral_factory, reading_factory, facility_factory, user_factory
+def reading_id():
+    return "4d74a69b-e638-47e8-b17f-644ec564b6ea"
+
+
+@pytest.fixture
+def reading(reading_id, patient_id):
+    # Invariant - trafficLightStatus: YELLOW_UP
+    return {
+        "readingId": reading_id,
+        "patientId": patient_id,
+        "bpSystolic": 142,
+        "bpDiastolic": 91,
+        "heartRateBPM": 63,
+        "symptoms": [],
+    }
+
+
+@pytest.fixture
+def create_reading_with_referral(
+    patient_id,
+    reading_id,
+    reading,
+    referral_factory,
+    reading_factory,
+    facility_factory,
+    user_factory,
 ):
-    def f(reading_id, facility_name, user_id, date_referred, is_assessed):
-        reading_factory.create(readingId=reading_id, patientId=patient_id)
+    def f(
+        reading_id=reading_id,
+        facility_name="H6000",
+        user_id=4000,
+        date_referred=1620000000,
+        is_assessed=False,
+    ):
         facility_factory.create(healthFacilityName=facility_name)
         user_factory.create(id=user_id)
+
+        reading.update({"readingId": reading_id, "userId": user_id})
+        reading_factory.create(**reading)
         referral_factory.create(
             patientId=patient_id,
             readingId=reading_id,
@@ -53,7 +87,7 @@ def pregnancy_earlier(patient_id):
         "id": 60360714,
         "patientId": patient_id,
         "startDate": 1561011126,
-        "defaultTimeUnit": "MONTHS",
+        "defaultTimeUnit": GestationalAgeUnitEnum.MONTHS.value,
         "endDate": 1584684726,
         "outcome": "Baby born at 9 months - spontaneous vaginal delivery. Baby weighed 3kg.",
     }
@@ -65,7 +99,7 @@ def pregnancy_later(patient_id):
         "id": 60360715,
         "patientId": patient_id,
         "startDate": 1600150326,
-        "defaultTimeUnit": "WEEKS",
+        "defaultTimeUnit": GestationalAgeUnitEnum.WEEKS.value,
     }
 
 

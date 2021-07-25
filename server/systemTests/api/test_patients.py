@@ -9,32 +9,8 @@ from pprint import pformat
 from utils import get_current_time
 
 
-def test_get_patient(patient_factory, api_get):
-    patient_id = "341541641613"
-    patient_factory.create(patientId=patient_id, lastEdited=5, created=1)
-
-    expected = {
-        "patientId": patient_id,
-        "patientName": "Test",
-        "patientSex": "FEMALE",
-        "isPregnant": False,
-        "zone": "37",
-        "villageNumber": "37",
-        "created": 1,
-        "lastEdited": 5,
-        "base": 5,
-        "readings": [],
-    }
-
-    response = api_get(endpoint=f"/api/patients/{patient_id}")
-
-    assert response.status_code == 200
-    assert expected == response.json()
-
-
 def test_get_patient_list(create_patient, patient_info, reading_factory, api_get):
     create_patient()
-
     patient_id = patient_info["patientId"]
 
     reading_id1 = "w3d0aklrs4wenm6hk5z1"
@@ -63,6 +39,51 @@ def test_get_patient_list(create_patient, patient_info, reading_factory, api_get
     assert patient["villageNumber"] == patient_info["villageNumber"]
     assert patient["trafficLightStatus"] == TrafficLightEnum.GREEN.value
     assert patient["dateTimeTaken"] == date2
+
+
+def test_get_patient(
+    create_patient,
+    patient_info,
+    reading_factory,
+    pregnancy_factory,
+    pregnancy_earlier,
+    pregnancy_later,
+    medical_record_factory,
+    medical_record,
+    drug_record,
+    api_get,
+):
+    create_patient()
+    patient_id = patient_info["patientId"]
+
+    pregnancy_factory.create(**pregnancy_earlier)
+    pregnancy_factory.create(**pregnancy_later)
+    medical_record_factory.create(**medical_record)
+    medical_record_factory.create(**drug_record)
+
+    reading_id1 = "w3d0aklrs4wenm6hk5z3"
+    reading_factory.create(readingId=reading_id1, patientId=patient_id)
+
+    reading_id2 = "w3d0aklrs4wenm6hk5z4"
+    reading_factory.create(readingId=reading_id2, patientId=patient_id)
+
+    response = api_get(endpoint=f"/api/patients/{patient_id}")
+
+    assert response.status_code == 200
+
+    patient = response.json()
+
+    assert patient["patientId"] == patient_id
+    assert patient["patientName"] == patient_info["patientName"]
+    assert patient["dob"] == patient_info["dob"]
+    assert patient["pregnancyStartDate"] == pregnancy_later["startDate"]
+    assert patient["medicalHistory"] == medical_record["information"]
+    assert patient["drugHistory"] == drug_record["information"]
+
+    readings = patient["readings"]
+
+    assert any(r["readingId"] == reading_id1 for r in readings)
+    assert any(r["readingId"] == reading_id2 for r in readings)
 
 
 def test_get_patient_pregnancy_summary(
@@ -150,19 +171,23 @@ def test_get_patient_timeline(
     assert timeline[3]["date"] == pregnancy_earlier["endDate"]
 
 
-def test_get_mobile_patient_list(
+def test_get_mobile_patient_and_reading_lists(
     create_patient,
+    create_reading_with_referral,
+    followup_factory,
     pregnancy_factory,
     medical_record_factory,
-    patient_id,
     patient_info,
     pregnancy_earlier,
     pregnancy_later,
     medical_record,
     drug_record,
+    reading_id,
     api_get,
 ):
     create_patient()
+    create_reading_with_referral()
+    followup_factory.create(readingId=reading_id)
     pregnancy_factory.create(**pregnancy_earlier)
     pregnancy_factory.create(**pregnancy_later)
     medical_record_factory.create(**medical_record)
@@ -172,10 +197,9 @@ def test_get_mobile_patient_list(
 
     assert response.status_code == 200
 
-    patients = response.json().get("patients")
     patient = None
-    for p in patients:
-        if p["patientId"] == patient_id:
+    for p in response.json()["patients"]:
+        if p["patientId"] == patient_info["patientId"]:
             patient = p
             break
 
@@ -187,8 +211,16 @@ def test_get_mobile_patient_list(
     assert patient["drugHistoryId"] == drug_record["id"]
     assert patient["drugHistory"] == drug_record["information"]
 
+    assert any(
+        r["patientId"] == patient_info["patientId"]
+        and r["readingId"] == reading_id
+        and r["referral"]["readingId"] == reading_id
+        and r["followup"]["readingId"] == reading_id
+        for r in response.json()["readings"]
+    )
 
-@pytest.mark.skip(reason="changes are to be made on mobile patient api")
+
+@pytest.mark.skip(reason="API deprecated")
 def test_get_mobile_patient(database, api_post, api_get):
     patient_ids = []
     reading_ids = []
@@ -362,7 +394,6 @@ def test_create_patient_with_nested_readings(database, api_post):
         crud.delete_by(Patient, patientId=patient_id)
 
 
-@pytest.mark.skip()
 def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
     patient_id = "8790160146141"
     date = get_current_time()
