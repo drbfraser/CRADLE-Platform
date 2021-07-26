@@ -191,7 +191,9 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
     return m.query.filter_by(**kwargs).all()
 
 
-def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Any]:
+def read_patient_list(
+    user_id: Optional[int] = None, is_cho: bool = False, **kwargs
+) -> List[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
 
@@ -221,7 +223,7 @@ def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Any]:
         .filter(rd.dateTimeTaken == None)
     )
 
-    query = __filter_by_patient_association(query, Patient, user_id, **kwargs)
+    query = __filter_by_patient_association(query, Patient, user_id, is_cho)
     query = __filter_by_patient_search(query, **kwargs)
     query = __order_by_column(query, [Patient, Reading], **kwargs)
 
@@ -233,7 +235,9 @@ def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Any]:
         return query.all()
 
 
-def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Any]:
+def read_referral_list(
+    user_id: Optional[int] = None, is_cho: bool = False, **kwargs
+) -> List[Any]:
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
 
@@ -258,7 +262,7 @@ def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Any]:
         .join(Reading, Referral.reading)
     )
 
-    query = __filter_by_patient_association(query, Patient, user_id, **kwargs)
+    query = __filter_by_patient_association(query, Patient, user_id, is_cho)
     query = __filter_by_patient_search(query, **kwargs)
     query = __order_by_column(query, [Referral, Patient, Reading], **kwargs)
 
@@ -425,16 +429,16 @@ def read_patient_with_records(
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
-) -> Union[List[Any], Any]:
+) -> Union[Any, List[Any]]:
     """
     Queries the database for patient(s) each with the latest pregnancy, medical and durg
     records.
 
-    :param patient_id: ID of patient to filter readings; None to get readings of all patients
+    :param patient_id: ID of patient to filter patients; None to get all patients
     :param user_id: ID of user to filter patients wrt patient associations; None to get
-    readings associated with all users
+    patients associated with all users
 
-    :return: A list of patients if no patient ID is specified; a patient otherwise
+    :return: A patient if patient ID is specified; a list of patients otherwise
     """
     # Aliased classes to be used in join clauses for geting the latest pregnancy, medical
     # and drug records.
@@ -493,7 +497,7 @@ def read_patient_with_records(
         .filter(p2.startDate == None, m2.dateCreated == None, m4.dateCreated == None)
     )
 
-    query = __filter_by_patient_association(query, Patient, user_id, is_cho=is_cho)
+    query = __filter_by_patient_association(query, Patient, user_id, is_cho)
 
     if patient_id:
         return query.filter(Patient.patientId == patient_id).first()
@@ -511,13 +515,12 @@ def read_readings(
 
     :param patient_id: ID of patient to filter readings; None to get readings of all patients
     :param user_id: ID of user to filter patients wrt patient associations; None to get
-    readings associated with all users
+    readings of patients associated with all users
 
     :return: A list of readings
     """
     query = db_session.query(Reading)
-
-    query = __filter_by_patient_association(query, Reading, user_id, is_cho=is_cho)
+    query = __filter_by_patient_association(query, Reading, user_id, is_cho)
 
     if patient_id:
         query = query.filter_by(patientId=patient_id).order_by(
@@ -822,14 +825,14 @@ def get_supervised_vhts(user_id):
 
 
 def __filter_by_patient_association(
-    query: Query, model: Any, user_id: Optional[int], **kwargs
+    query: Query, model: Any, user_id: Optional[int], is_cho
 ) -> Query:
-    join_column = model.patientId
     if user_id is not None:
+        join_column = model.patientId
         query = query.join(
             PatientAssociations, join_column == PatientAssociations.patientId
         )
-        if kwargs.get("is_cho"):
+        if is_cho:
             sub = (
                 db_session.query(supervises.c.vhtId)
                 .filter(supervises.c.choId == user_id)

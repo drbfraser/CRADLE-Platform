@@ -28,7 +28,7 @@ class Root(Resource):
     def get():
         user = get_jwt_identity()
         params = util.get_query_params(request)
-        patients = view.patient_view(user, **params)
+        patients = view.patient_list_view(user, **params)
 
         return [serialize.serialize_patient(p) for p in patients]
 

@@ -21,34 +21,35 @@ from typing import Any, List, Callable
 
 import data.crud as crud
 from models import (
-    Patient,
-    Referral,
+    Reading,
     RoleEnum,
     Pregnancy,
     MedicalRecord,
 )
 
 
-def patient_view(user: dict, **kwargs) -> List[Patient]:
+def patient_list_view(user: dict, **kwargs) -> List[Any]:
     """
     Returns a list of patients filtered by query criteria in keyword arguments.
 
     :param user: JWT identity
     :param **kwargs: Optional query criteria
-    :return: A list of patients
+    :return: A list of patients each with the fields patientId, patientName, villageNumber
+    trafficLightStatus, dateTimeTaken
     """
-    return __get_view(user, crud.read_patients, **kwargs)
+    return __get_view(user, crud.read_patient_list, **kwargs)
 
 
-def referral_view(user: dict, **kwargs) -> List[Referral]:
+def referral_list_view(user: dict, **kwargs) -> List[Any]:
     """
     Returns a list of referrals filtered by query criteria in keyword arguments.
 
     :param user: JWT identity
     :param **kwargs: Optional query criteria
-    :return: A list of referrals
+    :return: A list of referrals each with the fields id, patientId, patientName,
+    villageNumber, trafficLightStatus, dateReferred, isAssessed
     """
-    return __get_view(user, crud.read_referrals, **kwargs)
+    return __get_view(user, crud.read_referral_list, **kwargs)
 
 
 def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
@@ -95,9 +96,9 @@ def patient_with_records_view(user: dict) -> List[Any]:
     return __get_view(user, crud.read_patient_with_records)
 
 
-def reading_view(user: dict) -> List[Any]:
+def reading_view(user: dict) -> List[Reading]:
     """
-    Returns a list of readings for patients associated with user.
+    Returns a list of readings of patients associated with user.
 
     :param user: JWT identity
     :return: A list of readings
