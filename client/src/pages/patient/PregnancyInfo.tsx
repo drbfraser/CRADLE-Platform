@@ -1,4 +1,4 @@
-import { Paper, Typography, Divider, Box } from '@material-ui/core';
+import { Paper, Typography, Divider, Box, TableBody } from '@material-ui/core';
 import { Form, Select, InputOnChangeData } from 'semantic-ui-react';
 import { useHistory, Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
@@ -181,26 +181,28 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
               />
               <br />
               <Table className={classes.table}>
-                {info.pastPregnancies && info.pastPregnancies.length > 0 ? (
-                  info.pastPregnancies.map((pastPregnancy, index) => (
-                    <TableRow
-                      hover={true}
-                      key={index}
-                      onClick={() => handleClick(pastPregnancy.pregnancyId)}>
-                      {getYearToDisplay(pastPregnancy.pregnancyEndDate)} - Baby
-                      born at{' '}
-                      {gestationalAgeUnitFormatters[
-                        previousPregnancyUnit ?? GestationalAgeUnitEnum.WEEKS
-                      ](
-                        pastPregnancy.pregnancyStartDate,
-                        pastPregnancy.pregnancyEndDate
-                      )}{' '}
-                      - {pastPregnancy.pregnancyOutcome ?? 'N/A'}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>No previous pregnancy records</TableRow>
-                )}
+                <TableBody>
+                  {info.pastPregnancies && info.pastPregnancies.length > 0 ? (
+                    info.pastPregnancies.map((pastPregnancy, index) => (
+                      <TableRow
+                        hover={true}
+                        key={index}
+                        onClick={() => handleClick(pastPregnancy.pregnancyId)}>
+                        {getYearToDisplay(pastPregnancy.pregnancyEndDate)} -
+                        Baby born at{' '}
+                        {gestationalAgeUnitFormatters[
+                          previousPregnancyUnit ?? GestationalAgeUnitEnum.WEEKS
+                        ](
+                          pastPregnancy.pregnancyStartDate,
+                          pastPregnancy.pregnancyEndDate
+                        )}{' '}
+                        - {pastPregnancy.pregnancyOutcome ?? 'N/A'}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>No previous pregnancy records</TableRow>
+                  )}
+                </TableBody>
               </Table>
             </div>
           </>

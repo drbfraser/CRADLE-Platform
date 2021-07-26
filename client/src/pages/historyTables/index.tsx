@@ -266,10 +266,13 @@ export function HistoryTablesPage() {
             className: classes.tabs,
           }}
           panes={panes}
-          //Set search state value of the new active tab to empty
+          //Set search state value of the new active tab to empty to refresh the table
           onTabChange={(_, tabProps) => {
             const index = Number(tabProps.activeIndex!);
-            if (index !== 3) {
+            if (
+              (patientSex === SexEnum.FEMALE && index !== 3) ||
+              (patientSex === SexEnum.MALE && index !== 2)
+            ) {
               filteredPanes[index].debounceSetSearch!('');
             }
           }}
