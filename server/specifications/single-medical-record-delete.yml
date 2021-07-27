@@ -1,0 +1,20 @@
+Delete a medical/drug record
+---
+tags:
+  - Medical Records
+parameters:
+  - in: path
+    name: record_id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Medical record deleted

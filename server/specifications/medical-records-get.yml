@@ -1,0 +1,53 @@
+Get a patient's past medical and drug records stored in two lists 
+---
+tags:
+  - Medical Records
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/medical_records
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            medical:
+              type: array
+              items:
+                type: object
+                properties:
+                  medicalRecordId:
+                    type: integer
+                    example: 1001
+                  information:
+                    type: string
+                    example: Pregnancy induced hypertension
+                  dateCreated:
+                    type: Unix timestamp
+                    example: 1620000002
+                  lastEdited:
+                    type: Unix timestamp
+                    example: 1620000002
+            drug:
+              type: array
+              items:
+                type: object
+                properties:
+                  medicalRecordId:
+                    type: integer
+                    example: 1002
+                  information:
+                    type: string
+                    example: Aspirin 75mg
+                  dateCreated:
+                    type: Unix timestamp
+                    example: 1620000002
+                  lastEdited:
+                    type: Unix timestamp
+                    example: 1620000002
+                    

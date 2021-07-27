@@ -94,6 +94,7 @@ export const AssessmentForm = ({
                         component={TextField}
                         variant="outlined"
                         fullWidth
+                        multiline
                         name={AssessmentField.followUpInstruc}
                         label="Instructions for Follow-up"
                         required={values[AssessmentField.followUp]}

@@ -1,17 +1,10 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@material-ui/core';
-import Alert from '@material-ui/lab/Alert';
 import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { IUser } from 'src/shared/types';
+import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 
 interface IProps {
   open: boolean;
@@ -52,24 +45,14 @@ const DeleteUser = ({ open, onClose, deleteUser }: IProps) => {
         onClose={() => setSubmitSuccess(false)}
       />
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-        <DialogTitle>Delete User: {name}</DialogTitle>
-        <DialogContent>
-          <Alert severity="warning">
-            Are you sure you want to delete {name}&apos;s account? This action
-            is permanent and cannot be undone.
-          </Alert>
-          <br />
-          <DialogActions>
-            <Button type="button" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="button" onClick={handleDelete}>
-              Delete
-            </Button>
-          </DialogActions>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        title={`Delete User: ${name}`}
+        content={`Are you sure you want to delete ${name}'s account? This action
+                  is permanent and cannot be undone.`}
+        open={open}
+        onClose={onClose}
+        onConfirm={handleDelete}
+      />
     </>
   );
 };

@@ -1,0 +1,48 @@
+Get a patient's current and past pregnancy records
+---
+tags:
+  - Patients
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/pregnancy_summary
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            isPregnant:
+              type: boolean
+              example: true
+            pregnancyId:
+              type: integer | Null
+              example: 1001
+            pregnancyStartDate:
+              type: Unix timestamp | Null
+              example: 1620000002
+            gestationalAgeUnit:
+              type: string | Null
+              enum: [WEEKS, MONTHS]
+              example: WEEKS
+            pastPregnancies:
+              type: array
+              items:
+                type: object
+                properties:
+                  pregnancyId:
+                    type: integer
+                    example: 1001
+                  pregnancyStartDate:
+                    type: Unix timestamp
+                    example: 1620000002
+                  pregnancyEndDate:
+                    type: Unix timestamp
+                    example: 1620000002
+                  pregnancyOutcome:
+                    type: string | Null
+                    example: SVD

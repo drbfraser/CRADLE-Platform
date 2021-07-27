@@ -1,6 +1,6 @@
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
 
 import api.util as util
@@ -12,9 +12,10 @@ import service.invariant as invariant
 import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
-from models import Patient
-from utils import get_current_time
+from models import Patient, Pregnancy
 from validation import patients
+from utils import get_current_time
+from api.decorator import patient_association_required
 
 
 # /api/patients
@@ -25,25 +26,10 @@ class Root(Resource):
         "../../specifications/patients-get.yml", methods=["GET"], endpoint="patients"
     )
     def get():
-        user = util.current_user()
+        user = get_jwt_identity()
+        params = util.get_query_params(request)
+        patients = view.patient_view(user, **params)
 
-        # query parameters for later SQL use
-        limit = util.query_param_limit(request, name="limit")
-        page = util.query_param_page(request, name="page")
-        sort_by = util.query_param_sortBy(request, name="sortBy")
-        sort_dir = util.query_param_sortDir(request, name="sortDir")
-        search = util.query_param_search(request, name="search")
-
-        patients = view.patient_view_for_user(
-            user,
-            limit=limit,
-            page=page,
-            sortBy=sort_by,
-            sortDir=sort_dir,
-            search=search,
-        )
-
-        # create JSON format
         return [serialize.serialize_patient(p) for p in patients]
 
     @staticmethod
@@ -53,6 +39,11 @@ class Root(Resource):
     )
     def post():
         json = request.get_json(force=True)
+
+        if "gestationalTimestamp" in json:
+            # Changing the key that comes from the android app to work with validation
+            json["pregnancyStartDate"] = json.pop("gestationalTimestamp")
+
         error_message = patients.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
@@ -100,22 +91,6 @@ class SinglePatient(Resource):
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
         return marshal.marshal(patient)
-
-
-# /api/mobile/patients/
-class AndroidPatients(Resource):
-    @staticmethod
-    @jwt_required
-    @swag_from(
-        "../../specifications/android-patients-get.yml",
-        methods=["GET"],
-        endpoint="android_patient",
-    )
-    def get():
-        user = util.current_user()
-        patients = view.patient_view_for_user(user)
-
-        return patients, 200
 
 
 # /api/patients/<string:patient_id>/info
@@ -236,3 +211,47 @@ class PatientReadings(Resource):
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(r) for r in patient.readings]
+
+
+# /api/patients/<string:patient_id>/pregnancy_summary
+class PatientPregnancySummary(Resource):
+    @staticmethod
+    @patient_association_required()
+    @swag_from(
+        "../../specifications/patient-pregnancy-summary-get.yml",
+        methods=["GET"],
+        endpoint="patient_pregnancy_summary",
+    )
+    def get(patient_id: str):
+        pregnancies = crud.read_patient_records(Pregnancy, patient_id, direction="DESC")
+        return marshal.marshal_patient_pregnancy_summary(pregnancies)
+
+
+# /api/patients/<string:patient_id>/medical_history
+class PatientMedicalHistory(Resource):
+    @staticmethod
+    @patient_association_required()
+    @swag_from(
+        "../../specifications/patient-medical-history-get.yml",
+        methods=["GET"],
+        endpoint="patient_medical_history",
+    )
+    def get(patient_id: str):
+        medical = crud.read_patient_current_medical_record(patient_id, False)
+        drug = crud.read_patient_current_medical_record(patient_id, True)
+        return marshal.marshal_patient_medical_history(medical=medical, drug=drug)
+
+
+# /api/patients/<string:patient_id>/timeline
+class PatientTimeline(Resource):
+    @staticmethod
+    @patient_association_required()
+    @swag_from(
+        "../../specifications/patient-timeline-get.yml",
+        methods=["GET"],
+        endpoint="patient_timeline",
+    )
+    def get(patient_id: str):
+        params = util.get_query_params(request)
+        records = crud.read_patient_timeline(patient_id, **params)
+        return [serialize.serialize_patient_timeline(r) for r in records]

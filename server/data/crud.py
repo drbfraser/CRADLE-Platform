@@ -1,7 +1,20 @@
-from typing import List, Optional, Type, TypeVar, Any
+from typing import List, Optional, Tuple, Type, TypeVar, Any
+from collections import namedtuple
+from sqlalchemy.orm import Query, aliased
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
+import operator
 
 from data import db_session
-from models import Patient, Referral, User, PatientAssociations, Reading
+from models import (
+    Patient,
+    Referral,
+    User,
+    PatientAssociations,
+    Reading,
+    Pregnancy,
+    MedicalRecord,
+    supervises,
+)
 import service.serialize as serialize
 import service.sqlStrings as SQL
 import service.invariant as invariant
@@ -212,13 +225,18 @@ def read_all_assoc_patients(m: Type[M], user: User, is_cho: bool) -> List[M]:
     :return: A list patient_list
     """
     if m.schema() == PatientAssociations.schema():
-
-        user_ids = get_user_ids_list(user.id, is_cho)
+        if user:
+            user_ids = get_user_ids_list(user.id, is_cho)
+        else:
+            user_ids = None
 
         # get all the patients
         patient_list = read_all_assoc_patients_db(user_ids)
         # get all reading + referral + followup
-        reading_list = read_all_readings_db(False, user_ids)
+        if user:
+            reading_list = read_all_readings_db(False, user_ids)
+        else:
+            reading_list = read_all_readings_db(True, user_ids)
 
         # O(n+m) loop. *Requires* patients and readings to be sorted by patientId
         readingIdx = 0
@@ -230,7 +248,6 @@ def read_all_assoc_patients(m: Type[M], user: User, is_cho: bool) -> List[M]:
                 p["readings"].append(reading_list[readingIdx])
                 readingIdx += 1
 
-            del p["id"]
         return patient_list
 
 
@@ -243,7 +260,6 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
 
     :return: A list of models from the database
     """
-
     search_param = (
         None if kwargs.get("search", None) == "" else kwargs.get("search", None)
     )
@@ -261,6 +277,314 @@ def read_all_admin_view(m: Type[M], **kwargs) -> List[M]:
             return db_session.execute(sql_str_table + sql_str)
         else:
             return db_session.execute(sql_str_table + sql_str)
+
+
+def read_patients(user_id: Optional[int] = None, **kwargs) -> List[Patient]:
+    """
+    Queries the database for patients filtered by query criteria in keyword arguments.
+
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
+    all patients
+    :param kwargs: Query params including search_text, order_by, direction, limit, page
+
+    :return: A list of patients
+    """
+    rd = aliased(Reading)
+
+    query = (
+        db_session.query(
+            Patient.patientId,
+            Patient.patientName,
+            Patient.villageNumber,
+            Reading.trafficLightStatus,
+            Reading.dateTimeTaken,
+        )
+        .outerjoin(Reading, Patient.readings)
+        .outerjoin(
+            rd,
+            and_(
+                Patient.patientId == rd.patientId,
+                Reading.dateTimeTaken < rd.dateTimeTaken,
+            ),
+        )
+        .filter(rd.dateTimeTaken == None)
+    )
+
+    query = __filter_by_patient_association(query, user_id, **kwargs)
+    query = __filter_by_patient_search(query, **kwargs)
+    query = __order_by_column(query, [Patient, Reading], **kwargs)
+
+    limit = kwargs.get("limit")
+    if limit:
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
+    else:
+        return query.all()
+
+
+def read_referrals(user_id: Optional[int] = None, **kwargs) -> List[Referral]:
+    """
+    Queries the database for referrals filtered by query criteria in keyword arguments.
+
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
+    all patients
+    :param kwargs: Query params including search_text, order_by, direction, limit, page,
+    health_facilities, referrers, date_range, is_assessed, is_pregnant
+
+    :return: A list of referrals
+    """
+    query = (
+        db_session.query(
+            Referral.id,
+            Referral.dateReferred,
+            Referral.isAssessed,
+            Patient.patientId,
+            Patient.patientName,
+            Patient.villageNumber,
+            Reading.trafficLightStatus,
+        )
+        .join(Patient, Referral.patient)
+        .join(Reading, Referral.reading)
+    )
+
+    query = __filter_by_patient_association(query, user_id, **kwargs)
+    query = __filter_by_patient_search(query, **kwargs)
+    query = __order_by_column(query, [Referral, Patient, Reading], **kwargs)
+
+    health_facilities = kwargs.get("health_facilities")
+    if health_facilities:
+        query = query.filter(Referral.referralHealthFacilityName.in_(health_facilities))
+
+    referrers = kwargs.get("referrers")
+    if referrers:
+        query = query.filter(Referral.userId.in_(referrers))
+
+    date_range = kwargs.get("date_range")
+    if date_range:
+        start_date, end_date = date_range.split(":")
+        query = query.filter(
+            Referral.dateReferred >= start_date,
+            Referral.dateReferred <= end_date,
+        )
+
+    is_assessed = kwargs.get("is_assessed")
+    if is_assessed == "1" or is_assessed == "0":
+        is_assessed = is_assessed == "1"
+        query = query.filter(Referral.isAssessed == is_assessed)
+
+    is_pregnant = kwargs.get("is_pregnant")
+    if is_pregnant == "1" or is_pregnant == "0":
+        eq_op = operator.ne if is_pregnant == "1" else operator.eq
+        pr = aliased(Pregnancy)
+        query = (
+            query.outerjoin(
+                Pregnancy,
+                and_(
+                    Patient.patientId == Pregnancy.patientId,
+                    Pregnancy.endDate == None,
+                ),
+            )
+            .outerjoin(
+                pr,
+                and_(
+                    Patient.patientId == pr.patientId,
+                    Pregnancy.startDate < pr.startDate,
+                ),
+            )
+            .filter(eq_op(Pregnancy.startDate, None), pr.startDate == None)
+        )
+
+    vital_signs = kwargs.get("vital_signs")
+    if vital_signs:
+        query = query.filter(Reading.trafficLightStatus.in_(vital_signs))
+
+    limit = kwargs.get("limit")
+    if limit:
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
+    else:
+        return query.all()
+
+
+def read_patient_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
+    """
+    Queries the database for medical records of a patient
+
+    :param m: Type of model to query for
+    :param kwargs: Query params including search_text, direction, limit, page
+
+    :return: A list of models
+    """
+    query = db_session.query(m).filter_by(patientId=patient_id)
+
+    search_text = kwargs.get("search_text")
+    direction = asc if kwargs.get("direction") == "ASC" else desc
+
+    if m.schema() == Pregnancy.schema():
+        if search_text:
+            query = query.filter(m.outcome.like(f"%{search_text}%"))
+
+        query = query.order_by(direction(m.startDate))
+
+    if m.schema() == MedicalRecord.schema():
+        if search_text:
+            query = query.filter(m.information.like(f"%{search_text}%"))
+
+        query = query.filter_by(isDrugRecord=kwargs.get("is_drug_record")).order_by(
+            direction(m.dateCreated)
+        )
+
+    limit = kwargs.get("limit")
+    if limit:
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
+    else:
+        return query.all()
+
+
+def read_patient_current_medical_record(
+    patient_id: str, is_drug_record: bool
+) -> MedicalRecord:
+    """
+    Queries the database for a patient's current medical or drug record.
+
+    :return: A medical or drug record
+    """
+    query = (
+        db_session.query(MedicalRecord)
+        .filter_by(patientId=patient_id, isDrugRecord=is_drug_record)
+        .order_by(MedicalRecord.dateCreated.desc())
+    )
+
+    return query.first()
+
+
+def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
+    """
+    Queries the database for a patient's pregnancy, medical and drug records in reverse
+    chronological order.
+
+    :param kwargs: Query params including limit, page
+
+    :return: A list of models with the fields: title, date, information
+    """
+    Title = namedtuple(
+        "Title", "pregnancy_start pregnancy_end medical_history drug_history"
+    )
+    TITLE = Title(
+        "Started pregnancy",
+        "Ended pregnancy",
+        "Updated medical history",
+        "Updated drug history",
+    )
+
+    limit = kwargs.get("limit", 5)
+    page = kwargs.get("page", 1)
+
+    pregnancy_end = db_session.query(
+        literal(TITLE.pregnancy_end).label("title"),
+        Pregnancy.endDate.label("date"),
+        Pregnancy.outcome.label("information"),
+    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate != None)
+
+    pregnancy_start = db_session.query(
+        literal(TITLE.pregnancy_start), Pregnancy.startDate, null()
+    ).filter(Pregnancy.patientId == patient_id)
+
+    medical_history = db_session.query(
+        literal(TITLE.medical_history),
+        MedicalRecord.dateCreated,
+        MedicalRecord.information,
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == False)
+
+    drug_history = db_session.query(
+        literal(TITLE.drug_history),
+        MedicalRecord.dateCreated,
+        MedicalRecord.information,
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == True)
+
+    query = pregnancy_end.union(
+        pregnancy_start, medical_history, drug_history
+    ).order_by(text("date desc"))
+
+    return query.slice(*__get_slice_indexes(page, limit))
+
+
+def read_mobile_patients(user_ids: Optional[List[int]] = None) -> List[Any]:
+    """
+    Queries the database for all patients associated with the user including the latest
+    pregnancy, medical and durg records for each patient.
+
+    :param user_id: The user ID to filter patients wrt patient associations; None to get
+    all patients
+
+    :return: A list of patients
+    """
+    # Aliased classes to be used in join clauses for geting the latest pregnancy, medical
+    # and drug records.
+    p1 = aliased(Pregnancy)
+    p2 = aliased(Pregnancy)
+    m1 = aliased(MedicalRecord)
+    m2 = aliased(MedicalRecord)
+    m3 = aliased(MedicalRecord)
+    m4 = aliased(MedicalRecord)
+
+    query = (
+        db_session.query(
+            Patient.patientId,
+            Patient.patientName,
+            Patient.patientSex,
+            Patient.dob,
+            Patient.isExactDob,
+            Patient.zone,
+            Patient.villageNumber,
+            Patient.householdNumber,
+            Patient.allergy,
+            Patient.lastEdited,
+            p1.id.label("pregnancyId"),
+            p1.startDate.label("pregnancyStartDate"),
+            p1.defaultTimeUnit.label("gestationalAgeUnit"),
+            m1.id.label("medicalHistoryId"),
+            m1.information.label("medicalHistory"),
+            m3.id.label("drugHistoryId"),
+            m3.information.label("drugHistory"),
+            p1.lastEdited.label("pLastEdited"),
+            m1.lastEdited.label("mLastEdited"),
+            m3.lastEdited.label("dLastEdited"),
+        )
+        .outerjoin(p1, and_(Patient.patientId == p1.patientId, p1.endDate == None))
+        .outerjoin(p2, and_(p1.patientId == p2.patientId, p1.startDate < p2.startDate))
+        .outerjoin(
+            m1, and_(Patient.patientId == m1.patientId, m1.isDrugRecord == False)
+        )
+        .outerjoin(
+            m2,
+            and_(
+                m1.patientId == m2.patientId,
+                m1.dateCreated < m2.dateCreated,
+                m2.isDrugRecord == False,
+            ),
+        )
+        .outerjoin(m3, and_(Patient.patientId == m3.patientId, m3.isDrugRecord == True))
+        .outerjoin(
+            m4,
+            and_(
+                m3.patientId == m4.patientId,
+                m3.dateCreated < m4.dateCreated,
+                m4.isDrugRecord == True,
+            ),
+        )
+        .filter(p2.startDate == None, m2.dateCreated == None, m4.dateCreated == None)
+    )
+
+    if user_ids:
+        query = query.join(PatientAssociations, Patient.associations).filter(
+            PatientAssociations.userId.in_(user_ids)
+        )
+
+    query = query.order_by(asc(Patient.patientId))
+
+    return query.all()
 
 
 def read_all_patients_for_user(user: User, **kwargs) -> List[M]:
@@ -386,17 +710,12 @@ def read_all_assoc_patients_db(user_ids: str) -> List[M]:
     :return: A dictionary of Patients
     """
     # make DB call
-    patients = db_session.execute(
-        "SELECT * FROM patient p JOIN patient_associations pa "
-        "ON p.patientId = pa.patientId             "
-        " AND pa.userId IN (" + user_ids + ") ORDER BY p.patientId ASC"
-    )
+    patients = read_mobile_patients(user_ids)
 
     arr = []
     # make list of patients
     for pat_row in patients:
-        creat_dict = {}
-        creat_dict = serialize.serialize_patient_sql_to_dict(creat_dict, pat_row)
+        creat_dict = serialize.serialize_mobile_patient(pat_row)
         arr.append(creat_dict)
 
     return arr
@@ -452,6 +771,41 @@ def get_sql_vhts_for_cho_db(cho_id: str) -> List[M]:
         "user u on s.vhtId = u.id "
         "where choId = " + str(cho_id)
     )
+
+
+def has_conflicting_pregnancy_record(
+    patient_id: str,
+    start_date: int,
+    end_date: Optional[int] = None,
+    pregnancy_id: Optional[int] = None,
+) -> bool:
+    query = db_session.query(Pregnancy).filter(Pregnancy.patientId == patient_id)
+
+    if pregnancy_id:
+        query = query.filter(Pregnancy.id != pregnancy_id)
+
+    if not end_date:
+        query = query.filter(
+            or_(Pregnancy.endDate >= start_date, Pregnancy.endDate == None),
+        )
+    else:
+        query = query.filter(
+            or_(
+                and_(
+                    Pregnancy.startDate <= start_date, Pregnancy.endDate >= start_date
+                ),
+                and_(Pregnancy.startDate >= start_date, Pregnancy.endDate <= end_date),
+                and_(Pregnancy.startDate <= end_date, Pregnancy.endDate >= end_date),
+                and_(Pregnancy.startDate <= start_date, Pregnancy.endDate == None),
+                and_(
+                    Pregnancy.startDate >= start_date,
+                    Pregnancy.startDate <= end_date,
+                    Pregnancy.endDate == None,
+                ),
+            ),
+        )
+
+    return db_session.query(query.exists()).scalar()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Stats DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -684,3 +1038,61 @@ def get_supervised_vhts(user_id):
     except Exception as e:
         print(e)
         return None
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~ Helper Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+
+def __filter_by_patient_association(
+    query: Query, user_id: Optional[int], **kwargs
+) -> Query:
+    if user_id is not None:
+        if kwargs.get("is_cho"):
+            sub = (
+                db_session.query(supervises.c.vhtId)
+                .filter(supervises.c.choId == user_id)
+                .subquery()
+            )
+            query = query.join(PatientAssociations, Patient.associations).filter(
+                PatientAssociations.userId.in_(sub)
+            )
+        else:
+            query = query.join(PatientAssociations, Patient.associations).filter(
+                PatientAssociations.userId == user_id
+            )
+
+    return query
+
+
+def __filter_by_patient_search(query: Query, **kwargs) -> Query:
+    search_text = kwargs.get("search_text")
+    if search_text:
+        query = query.filter(
+            or_(
+                Patient.patientId.like(f"%{search_text}%"),
+                Patient.patientName.like(f"%{search_text}%"),
+            )
+        )
+
+    return query
+
+
+def __order_by_column(query: Query, models: list, **kwargs) -> Query:
+    def __get_column(models):
+        for model in models:
+            if hasattr(model, order_by):
+                return getattr(model, order_by)
+
+    order_by = kwargs.get("order_by")
+    if order_by:
+        direction = asc if kwargs.get("direction") == "ASC" else desc
+        column = __get_column(models)
+        query = query.order_by(direction(column))
+
+    return query
+
+
+def __get_slice_indexes(page: str, limit: str) -> Tuple[int, int]:
+    start = (int(page) - 1) * int(limit)
+    stop = start + int(limit)
+    return start, stop

@@ -98,14 +98,13 @@ button:disabled {
 
 .contant-submit {
   background-color: var(--button_color);
-  width: 20%;
   height: 37px;
   font-size: 21px;
   border-radius: 5px;
-  margin: 7%;
+  margin-top: 40px;
   border: 0;
   position: relative;
-  right: -230px;
+  right: -194px;
 }
 
 .contant-submit:hover {

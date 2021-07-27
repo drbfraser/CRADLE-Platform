@@ -127,6 +127,18 @@ def api_put(url: str, auth_header: dict) -> Callable[[str, dict], requests.Respo
 
 
 @pytest.fixture
+def api_delete(url: str, auth_header: dict) -> Callable[[str, dict], requests.Response]:
+    """
+    Provides a convenience closure which sends an HTTP DELETE request to the server at a
+    given endpoint.
+
+    :return: A closure that accepts two arguments, an endpoint and some optional json
+             to send in the request.
+    """
+    return __make_http_request_closure(url, auth_header, requests.delete)
+
+
+@pytest.fixture
 def api(url: str):
     class Api:
         @staticmethod
@@ -178,7 +190,7 @@ def api(url: str):
 
 
 @pytest.fixture
-def patient_factory(database) -> factory.ReadingFactory:
+def patient_factory(database) -> factory.PatientFactory:
     yield from __make_factory(database, factory.PatientFactory)
 
 
@@ -205,6 +217,16 @@ def user_factory(database) -> factory.UserFactory:
 @pytest.fixture
 def facility_factory(database) -> factory.HealthFacilityFactory:
     yield from __make_factory(database, factory.HealthFacilityFactory)
+
+
+@pytest.fixture
+def pregnancy_factory(database) -> factory.PregnancyFactory:
+    yield from __make_factory(database, factory.PregnancyFactory)
+
+
+@pytest.fixture
+def medical_record_factory(database) -> factory.MedicalRecordFactory:
+    yield from __make_factory(database, factory.MedicalRecordFactory)
 
 
 #

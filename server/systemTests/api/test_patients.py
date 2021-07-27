@@ -1,8 +1,12 @@
+import pytest
+import time
 from typing import List
 
 import data.crud as crud
-from models import Patient, Reading, TrafficLightEnum
+from models import MedicalRecord, Patient, Pregnancy, Reading, TrafficLightEnum
 from pprint import pformat
+
+from utils import get_current_time
 
 
 def test_get_patient(patient_factory, api_get):
@@ -28,6 +32,163 @@ def test_get_patient(patient_factory, api_get):
     assert expected == response.json()
 
 
+def test_get_patient_list(create_patient, patient_info, reading_factory, api_get):
+    create_patient()
+
+    patient_id = patient_info["patientId"]
+
+    reading_id1 = "w3d0aklrs4wenm6hk5z1"
+    date1 = 1604514300
+    reading_factory.create(
+        readingId=reading_id1, patientId=patient_id, dateTimeTaken=date1
+    )
+
+    reading_id2 = "w3d0aklrs4wenm6hk5z2"
+    date2 = date1 + 2e7
+    reading_factory.create(
+        readingId=reading_id2, patientId=patient_id, dateTimeTaken=date2
+    )
+
+    response = api_get(endpoint=f"/api/patients")
+
+    assert response.status_code == 200
+
+    patient = None
+    for p in response.json():
+        if p["patientId"] == patient_id:
+            patient = p
+            break
+
+    assert patient["patientName"] == patient_info["patientName"]
+    assert patient["villageNumber"] == patient_info["villageNumber"]
+    assert patient["trafficLightStatus"] == TrafficLightEnum.GREEN.value
+    assert patient["dateTimeTaken"] == date2
+
+
+def test_get_patient_pregnancy_summary(
+    create_patient,
+    pregnancy_factory,
+    patient_id,
+    pregnancy_earlier,
+    pregnancy_later,
+    api_get,
+):
+    create_patient()
+    response = api_get(
+        endpoint=f"/api/patients/{patient_id}/pregnancy_summary",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["isPregnant"] == False
+    assert len(response.json()["pastPregnancies"]) == 0
+
+    pregnancy_factory.create(**pregnancy_earlier)
+    pregnancy_factory.create(**pregnancy_later)
+
+    response = api_get(
+        endpoint=f"/api/patients/{patient_id}/pregnancy_summary",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["isPregnant"] == True
+    assert response.json()["pregnancyStartDate"] == pregnancy_later["startDate"]
+    assert len(response.json()["pastPregnancies"]) == 1
+
+    past_pregnancy = response.json()["pastPregnancies"][0]
+    assert past_pregnancy["pregnancyOutcome"] == pregnancy_earlier["outcome"]
+
+
+def test_get_patient_medical_history(
+    create_patient,
+    medical_record_factory,
+    patient_id,
+    medical_record,
+    drug_record,
+    api_get,
+):
+    create_patient()
+    medical_record_factory.create(**medical_record)
+    medical_record_factory.create(**drug_record)
+
+    response = api_get(
+        endpoint=f"/api/patients/{patient_id}/medical_history",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["medicalHistory"] == medical_record["information"]
+    assert response.json()["drugHistory"] == drug_record["information"]
+
+
+def test_get_patient_timeline(
+    create_patient,
+    pregnancy_factory,
+    medical_record_factory,
+    patient_id,
+    pregnancy_earlier,
+    pregnancy_later,
+    medical_record,
+    drug_record,
+    api_get,
+):
+    create_patient()
+    pregnancy_factory.create(**pregnancy_earlier)
+    pregnancy_factory.create(**pregnancy_later)
+    medical_record_factory.create(**medical_record)
+    time.sleep(1)
+    medical_record_factory.create(**drug_record)
+
+    response = api_get(
+        endpoint=f"/api/patients/{patient_id}/timeline",
+    )
+
+    assert response.status_code == 200
+
+    timeline = response.json()
+    assert len(timeline) >= 5
+    assert timeline[0]["information"] == drug_record["information"]
+    assert timeline[2]["date"] == pregnancy_later["startDate"]
+    assert timeline[3]["date"] == pregnancy_earlier["endDate"]
+
+
+def test_get_mobile_patient_list(
+    create_patient,
+    pregnancy_factory,
+    medical_record_factory,
+    patient_id,
+    patient_info,
+    pregnancy_earlier,
+    pregnancy_later,
+    medical_record,
+    drug_record,
+    api_get,
+):
+    create_patient()
+    pregnancy_factory.create(**pregnancy_earlier)
+    pregnancy_factory.create(**pregnancy_later)
+    medical_record_factory.create(**medical_record)
+    medical_record_factory.create(**drug_record)
+
+    response = api_get(endpoint="/api/mobile/patients_and_readings")
+
+    assert response.status_code == 200
+
+    patients = response.json().get("patients")
+    patient = None
+    for p in patients:
+        if p["patientId"] == patient_id:
+            patient = p
+            break
+
+    assert patient["dob"] == patient_info["dob"]
+    assert patient["pregnancyId"] == pregnancy_later["id"]
+    assert patient["pregnancyStartDate"] == pregnancy_later["startDate"]
+    assert patient["medicalHistoryId"] == medical_record["id"]
+    assert patient["medicalHistory"] == medical_record["information"]
+    assert patient["drugHistoryId"] == drug_record["id"]
+    assert patient["drugHistory"] == drug_record["information"]
+
+
+@pytest.mark.skip(reason="changes are to be made on mobile patient api")
 def test_get_mobile_patient(database, api_post, api_get):
     patient_ids = []
     reading_ids = []
@@ -199,6 +360,47 @@ def test_create_patient_with_nested_readings(database, api_post):
         for r in reading_ids:
             crud.delete_by(Reading, readingId=r)
         crud.delete_by(Patient, patientId=patient_id)
+
+
+@pytest.mark.skip()
+def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
+    patient_id = "8790160146141"
+    date = get_current_time()
+    p = __make_full_patient_no_readings(patient_id, date)
+
+    response = api_post(endpoint="/api/patients", json=p)
+    database.session.commit()
+
+    try:
+        assert response.status_code == 201
+        assert crud.read(Patient, patientId=patient_id) is not None
+        assert crud.read(Pregnancy, patientId=patient_id, startDate=date) is not None
+        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=False)
+        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=True)
+
+    finally:
+        crud.delete_by(Pregnancy, patientId=patient_id, startDate=date)
+        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=False)
+        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=True)
+        crud.delete_by(Patient, patientId=patient_id)
+
+
+def __make_full_patient_no_readings(patient_id: str, date: int) -> dict:
+    return {
+        "patientId": patient_id,
+        "patientName": "TEST_FULL",
+        "patientSex": "FEMALE",
+        "isPregnant": True,
+        "gestationalAgeUnit": "MONTHS",
+        "pregnancyStartDate": date,
+        "medicalHistory": "TEST_FULL: This is fully fleshed out medical history for testing.",
+        "drugHistory": "TEST_FULL: This is fully fleshed out drug history for testing.",
+        "zone": "9999",
+        "dob": "1995-08-23",
+        "isExactDob": True,
+        "villageNumber": "9999",
+        "householdNumber": "4544",
+    }
 
 
 def test_update_patient_name(patient_factory, api_put):

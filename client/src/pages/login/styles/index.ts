@@ -11,8 +11,7 @@ export const useStyles = makeStyles({
     display: `flex`,
     flexDirection: `row`,
     justifyContent: `center`,
-    height: `calc(86vh - 54px)`,
-    width: `100vw`,
+    height: `calc(50vh + 60px)`,
     alignItems: `center`,
     position: `relative`,
     [`& > *`]: {
@@ -25,6 +24,5 @@ export const useStyles = makeStyles({
   },
   loginFormContainer: {
     position: `relative`,
-    left: `-10%`,
   },
 });

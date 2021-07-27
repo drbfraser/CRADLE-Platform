@@ -1,0 +1,29 @@
+Get a list of a patient's pregnancy, medical and drug records in reverse chronological order.
+---
+tags:
+  - Patients
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/timeline
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                example: Updated medical history
+              information:
+                type: string
+                example: Pregnancy induced hypertension
+              date:
+                type: Unix timestamp
+                example: 1620000002

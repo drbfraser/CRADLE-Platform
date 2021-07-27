@@ -1,5 +1,4 @@
 import { AppRoute, appRoutes } from '../routes/utils';
-
 import List from '@material-ui/core/List';
 import { OrNull } from 'src/shared/types';
 import React from 'react';
@@ -32,7 +31,6 @@ export const Sidebar: React.FC<IProps> = ({
   setActiveItem,
 }) => {
   const { offsetFromTop } = useDimensionsContext();
-
   const { admin, loggedIn } = useSelector(
     ({ user }: ReduxState): SelectorState => {
       return {
@@ -56,35 +54,33 @@ export const Sidebar: React.FC<IProps> = ({
         .filter((route: AppRoute): boolean => {
           return route.inNavigation;
         })
-        .map(
-          (route: AppRoute, index: number): OrNull<JSX.Element> => {
-            if (index === logout.index) {
-              return (
-                <SidebarRoute
-                  key={makeUniqueId()}
-                  activeItem={activeItem}
-                  appendedRoute={logout.component}
-                  route={route}
-                  updateActiveItem={updateActiveItem}
-                />
-              );
-            }
-
-            // * Prevent non-admins from seeing admin sidebar option
-            if (!admin && route.to === `/admin`) {
-              return null;
-            }
-
+        .map((route: AppRoute, index: number): OrNull<JSX.Element> => {
+          if (index === logout.index) {
             return (
               <SidebarRoute
-                key={route.id}
+                key={makeUniqueId()}
                 activeItem={activeItem}
+                appendedRoute={logout.component}
                 route={route}
                 updateActiveItem={updateActiveItem}
               />
             );
           }
-        )}
+
+          // * Prevent non-admins from seeing admin sidebar option
+          if (!admin && route.to === `/admin`) {
+            return null;
+          }
+
+          return (
+            <SidebarRoute
+              key={route.id}
+              activeItem={activeItem}
+              route={route}
+              updateActiveItem={updateActiveItem}
+            />
+          );
+        })}
     </List>
   ) : null;
 };

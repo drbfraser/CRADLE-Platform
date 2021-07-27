@@ -163,6 +163,7 @@ class Patient(db.Model):
     gestationalTimestamp = db.Column(db.BigInteger)
     medicalHistory = db.Column(db.Text)
     drugHistory = db.Column(db.Text)
+    allergy = db.Column(db.Text)
     zone = db.Column(db.String(20))
     dob = db.Column(db.Date)
     isExactDob = db.Column(db.Boolean)
@@ -348,6 +349,59 @@ class PatientAssociations(db.Model):
         return PatientAssociationsSchema
 
 
+class Pregnancy(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patientId = db.Column(
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        nullable=False,
+    )
+    startDate = db.Column(db.BigInteger, nullable=False)
+    defaultTimeUnit = db.Column(db.Enum(GestationalAgeUnitEnum))
+    endDate = db.Column(db.BigInteger, nullable=True, default=None)
+    outcome = db.Column(db.Text)
+    lastEdited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+
+    # RELATIONSHIPS
+    patient = db.relationship("Patient", backref=db.backref("pregnancies", lazy=True))
+
+    @staticmethod
+    def schema():
+        return PregnancySchema
+
+
+class MedicalRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patientId = db.Column(
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        nullable=False,
+    )
+    information = db.Column(db.Text, nullable=False)
+    isDrugRecord = db.Column(db.Boolean, nullable=False)
+    dateCreated = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+    )
+    lastEdited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+
+    # RELATIONSHIPS
+    patient = db.relationship("Patient", backref=db.backref("records", lazy=True))
+
+    @staticmethod
+    def schema():
+        return MedicalRecordSchema
+
+
 #
 # SCHEMAS
 #
@@ -447,6 +501,22 @@ class VillageSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = Village
+        load_instance = True
+        include_relationships = True
+
+
+class PregnancySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = Pregnancy
+        load_instance = True
+        include_relationships = True
+
+
+class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = MedicalRecord
         load_instance = True
         include_relationships = True
 

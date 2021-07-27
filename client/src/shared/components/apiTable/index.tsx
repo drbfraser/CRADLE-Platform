@@ -3,33 +3,60 @@ import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { SortDir } from './types';
 import Pagination from './Pagination';
+import SortBy from './SortBy';
+import ScrollArrow from './ScrollArrow';
 import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
+import { useHistory } from 'react-router-dom';
+import { ReferralFilter } from 'src/shared/types';
+import { TrafficLightEnum } from 'src/shared/enums';
 
 interface IProps {
-  endpoint: EndpointEnum;
+  endpoint: string;
   search: string;
   columns: any;
+  sortableColumns: any;
   rowKey: string;
+  initialSortBy: string;
+  initialSortDir: string;
   RowComponent: ({ row }: any) => JSX.Element;
+  isTransformed: boolean;
+  isDrugRecord?: boolean | undefined;
+  patientId?: string;
+  gestationalAgeUnit?: string;
+  referralFilter?: ReferralFilter;
+  setDeletePopupOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setPopupRecord?: React.Dispatch<React.SetStateAction<any>>;
+  refetch?: boolean;
 }
 
 export const APITable = ({
   endpoint,
   search,
   columns,
+  sortableColumns,
   rowKey, // a unique value in the row, e.g. patientId for patients
+  initialSortBy,
+  initialSortDir,
   RowComponent,
+  isTransformed,
+  isDrugRecord,
+  patientId,
+  gestationalAgeUnit,
+  referralFilter,
+  setDeletePopupOpen,
+  setPopupRecord,
+  refetch,
 }: IProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [sortBy, setSortBy] = useState('patientName');
-  const [sortDir, setSortDir] = useState(SortDir.ASC);
+  const [sortBy, setSortBy] = useState(initialSortBy);
+  const [sortDir, setSortDir] = useState(initialSortDir);
+  const history = useHistory();
   const prevPage = useRef(1);
 
   const classes = useStyles();
@@ -54,20 +81,55 @@ export const APITable = ({
       signal: controller.signal,
     };
 
-    const params =
-      '?' +
-      new URLSearchParams({
-        limit: limit.toString(),
-        page: page.toString(),
-        search: search,
-        sortBy: sortBy,
-        sortDir: sortDir,
-      });
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      page: page.toString(),
+      search: search,
+      sortBy: sortBy,
+      sortDir: sortDir,
+    });
 
-    apiFetch(API_URL + endpoint + params, fetchOptions)
+    const referralFilterParams = referralFilter
+      ? new URLSearchParams({
+          dateRange: referralFilter.dateRange,
+          vitalSigns: referralFilter.vitalSigns
+            ? TrafficLightEnum[
+                referralFilter.vitalSigns as keyof typeof TrafficLightEnum
+              ]
+            : '',
+          isPregnant: referralFilter.isPregnant
+            ? referralFilter.isPregnant
+            : '',
+          isAssessed: referralFilter.isAssessed
+            ? referralFilter.isAssessed
+            : '',
+        })
+      : new URLSearchParams();
+
+    if (referralFilter) {
+      referralFilter.healthFacilityNames.forEach((facilityName) =>
+        referralFilterParams.append('healthFacility', facilityName)
+      );
+      referralFilter.referrers.forEach((referrer) =>
+        referralFilterParams.append('referrer', referrer)
+      );
+    }
+
+    apiFetch(
+      API_URL + endpoint + '?' + params + '&' + referralFilterParams,
+      fetchOptions
+    )
       .then(async (resp) => {
         const json = await resp.json();
-        setRows(json);
+        //The case for drug history records on the past records page
+        if (isDrugRecord === true) {
+          setRows(json.drug);
+          //The case for medical history records on the past records page
+        } else if (isDrugRecord === false) {
+          setRows(json.medical);
+        } else {
+          setRows(json);
+        }
         setLoading(false);
       })
       .catch((e) => {
@@ -79,7 +141,17 @@ export const APITable = ({
 
     // if the user does something else, cancel the fetch
     return () => controller.abort();
-  }, [endpoint, limit, page, search, sortBy, sortDir]);
+  }, [
+    endpoint,
+    limit,
+    page,
+    search,
+    sortBy,
+    sortDir,
+    isDrugRecord,
+    refetch,
+    referralFilter,
+  ]);
 
   const handleSort = (col: string) => {
     if (col === sortBy) {
@@ -100,20 +172,40 @@ export const APITable = ({
       <div className={classes.loadingWrapper}>
         {loading && <LinearProgress />}
       </div>
+      {!isTransformed && initialSortBy && (
+        <SortBy
+          columns={columns}
+          sortableColumns={sortableColumns}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          handleSort={handleSort}
+        />
+      )}
       {rows.length ? (
-        <div className={classes.tableWrapper}>
+        <div className={isTransformed ? classes.tableWrapper : ''}>
           <table className={classes.table}>
-            <thead>
-              <HeaderRow
-                columns={columns}
-                sortBy={sortBy}
-                sortDir={sortDir}
-                handleSort={handleSort}
-              />
-            </thead>
+            {isTransformed && (
+              <thead>
+                <HeaderRow
+                  columns={columns}
+                  sortableColumns={sortableColumns}
+                  sortBy={sortBy}
+                  sortDir={sortDir}
+                  handleSort={handleSort}
+                />
+              </thead>
+            )}
             <tbody>
               {rows.map((r: any) => (
-                <RowComponent key={r[rowKey]} row={r} />
+                <RowComponent
+                  key={r[rowKey]}
+                  row={r}
+                  patientId={patientId}
+                  unit={gestationalAgeUnit}
+                  history={history}
+                  setDeletePopupOpen={setDeletePopupOpen}
+                  setPopupRecord={setPopupRecord}
+                />
               ))}
             </tbody>
           </table>
@@ -130,6 +222,7 @@ export const APITable = ({
         setPage={setPage}
         setLimit={setLimit}
       />
+      <ScrollArrow />
     </>
   );
 };

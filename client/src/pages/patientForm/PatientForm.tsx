@@ -1,313 +1,256 @@
 import React, { useState } from 'react';
-import Paper from '@material-ui/core/Paper';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid/Grid';
-import Button from '@material-ui/core/Button/Button';
-import { makeStyles } from '@material-ui/core/styles';
-import { Formik, Form, Field } from 'formik';
-import { gestationalAgeUnitOptions, PatientField, PatientState } from './state';
-import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
-import { ToggleButtonGroup } from 'formik-material-ui-lab';
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
-import MenuItem from '@material-ui/core/MenuItem';
-import { patientValidationSchema } from './validation';
-import { useHistory } from 'react-router-dom';
-import { PatientIDExists } from './PatientIDExists';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { Button } from '@material-ui/core';
+import { PersonalInfoForm } from './personalInfo';
+import { PregnancyInfoForm } from './pregnancyInfo';
+import { MedicalInfoForm } from './medicalInfo';
+import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
+import Stepper from '@material-ui/core/Stepper/Stepper';
+import Typography from '@material-ui/core/Typography';
+import StepLabel from '@material-ui/core/StepLabel/StepLabel';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import Step from '@material-ui/core/Step/Step';
+import { PatientState } from './state';
 import {
-  handleChangeCustom,
-  handleBlurPatientId,
   handleSubmit,
+  handlePregnancyInfo,
+  handleMedicalRecordInfo,
+  handleDeleteRecord,
 } from './handlers';
-import { InputAdornment } from '@material-ui/core';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { sexOptions } from 'src/shared/constants';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { personalInfoValidationSchema } from './personalInfo/validation';
+import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
+import { useHistory } from 'react-router-dom';
+import {
+  drugHistoryValidationSchema,
+  medicalHistoryValidationSchema,
+} from './medicalInfo/validation';
+import { goBackWithFallback } from 'src/shared/utils';
+import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 
-interface IProps {
+interface PatientFormProps {
+  editId: string;
+  patientId?: string;
+  pregnancyId?: string;
+  universalRecordId?: string;
   initialState: PatientState;
   creatingNew: boolean;
+  creatingNewPregnancy: boolean;
 }
 
-export const PatientForm = ({ initialState, creatingNew }: IProps) => {
+export const PatientForm = ({
+  editId,
+  patientId,
+  pregnancyId,
+  universalRecordId,
+  initialState,
+  creatingNew,
+  creatingNewPregnancy,
+}: PatientFormProps) => {
   const classes = useStyles();
+  const theme = useTheme();
   const history = useHistory();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('sm'));
   const [submitError, setSubmitError] = useState(false);
-  // for *new* patients only, track whether the patient ID already exists
-  const [existingPatientId, setExistingPatientId] = useState<string | null>(
-    null
-  );
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const pages = [
+    {
+      editId: 'personalInfo',
+      name: 'Patient Personal Information',
+      component: PersonalInfoForm,
+      validationSchema: personalInfoValidationSchema(
+        creatingNew ? true : false
+      ),
+      title: creatingNew ? 'New Patient' : 'Edit Personal Information',
+    },
+    {
+      editId: 'pregnancyInfo',
+      name: 'Pregnancy Information',
+      component: PregnancyInfoForm,
+      validationSchema: pregnancyInfoValidationSchema,
+      title: creatingNewPregnancy
+        ? 'Add New Pregnancy'
+        : editId
+        ? 'Edit/Close Pregnancy'
+        : 'New Patient',
+    },
+    {
+      editId: editId === 'drugHistory' ? 'drugHistory' : 'medicalHistory',
+      name: 'Medical Information',
+      component: MedicalInfoForm,
+      validationSchema: editId
+        ? editId === 'drugHistory'
+          ? drugHistoryValidationSchema
+          : medicalHistoryValidationSchema
+        : undefined,
+      isDrugRecord: editId
+        ? editId === 'drugHistory'
+          ? true
+          : false
+        : undefined,
+      title: editId
+        ? editId === 'drugHistory'
+          ? 'Add/Update Drug History'
+          : 'Add/Update Medical History'
+        : 'New Patient',
+    },
+  ];
+
+  const initPageNum = editId
+    ? pages.findIndex((page) => {
+        return page.editId === editId;
+      })
+    : creatingNewPregnancy
+    ? 1
+    : 0;
+  const [pageNum, setPageNum] = useState(initPageNum);
+  const PageComponent = pages[pageNum].component;
+  const isFinalPage = pageNum === pages.length - 1;
+
+  const handleNext = async (
+    values: PatientState,
+    helpers: FormikHelpers<PatientState>
+  ) => {
+    if (editId || creatingNewPregnancy) {
+      if (pages[pageNum].editId === 'pregnancyInfo') {
+        handlePregnancyInfo(
+          patientId,
+          pregnancyId,
+          creatingNewPregnancy,
+          values,
+          history,
+          setSubmitError,
+          helpers.setSubmitting,
+          setErrorMessage
+        );
+      } else if (
+        pages[pageNum].editId === 'drugHistory' ||
+        pages[pageNum].editId === 'medicalHistory'
+      ) {
+        handleMedicalRecordInfo(
+          patientId,
+          values,
+          pages[pageNum].isDrugRecord,
+          history,
+          setSubmitError,
+          helpers.setSubmitting
+        );
+      } else {
+        handleSubmit(
+          values,
+          false,
+          history,
+          setSubmitError,
+          helpers.setSubmitting
+        );
+      }
+    } else if (isFinalPage) {
+      handleSubmit(
+        values,
+        true,
+        history,
+        setSubmitError,
+        helpers.setSubmitting
+      );
+    } else {
+      helpers.setTouched({});
+      helpers.setSubmitting(false);
+      setPageNum(pageNum + 1);
+    }
+  };
 
   return (
     <>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <APIErrorToast
+        open={submitError}
+        onClose={() => setSubmitError(false)}
+        errorMessage={errorMessage}
+      />
+      <div className={classes.title}>
+        <Tooltip title="Go back" placement="top">
+          <IconButton
+            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}>
+            <ChevronLeftIcon color="inherit" fontSize="large" />
+          </IconButton>
+        </Tooltip>
+        <Typography variant="h4">{pages[pageNum].title}</Typography>
+      </div>
+      {creatingNew && !creatingNewPregnancy && (
+        <Stepper
+          activeStep={pageNum}
+          orientation={isBigScreen ? 'horizontal' : 'vertical'}>
+          {pages.map((page, idx) => (
+            <Step key={idx}>
+              <StepLabel>{page.name}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      )}
+      <br />
       <Formik
         initialValues={initialState}
-        validationSchema={patientValidationSchema(creatingNew)}
-        onSubmit={handleSubmit(creatingNew, history, setSubmitError)}>
-        {({
-          values,
-          isSubmitting,
-          handleChange,
-          handleBlur,
-          setFieldValue,
-        }) => (
+        onSubmit={handleNext}
+        validationSchema={pages[pageNum].validationSchema}>
+        {(formikProps: FormikProps<PatientState>) => (
           <Form>
-            <Paper>
-              <Box p={2}>
-                <Grid container spacing={2}>
-                  <Grid item md={4} sm={12}>
-                    <Field
-                      component={TextField}
-                      fullWidth
-                      required
-                      inputProps={{ maxLength: 50 }}
-                      variant="outlined"
-                      label="Patient ID"
-                      name={PatientField.patientId}
-                      onBlur={handleBlurPatientId(
-                        handleBlur,
-                        setExistingPatientId
-                      )}
-                      disabled={!creatingNew}
-                    />
-                    {existingPatientId != null && (
-                      <PatientIDExists patientId={existingPatientId} />
-                    )}
-                  </Grid>
-                  <Grid item md={4} sm={12}>
-                    <Field
-                      component={TextField}
-                      fullWidth
-                      required
-                      inputProps={{ maxLength: 50 }}
-                      variant="outlined"
-                      label="Patient Name"
-                      name={PatientField.patientName}
-                    />
-                  </Grid>
-                  <Grid item md={4} sm={12}>
-                    <Field
-                      component={TextField}
-                      fullWidth
-                      inputProps={{ maxLength: 50 }}
-                      variant="outlined"
-                      label="Household Number"
-                      name={PatientField.householdNumber}
-                    />
-                  </Grid>
-                  <Grid item md={4} sm={12}>
-                    <Field
-                      component={ToggleButtonGroup}
-                      exclusive
-                      size="large"
-                      type="checkbox"
-                      value={Boolean(values.isExactDob)}
-                      name={PatientField.isExactDob}>
-                      <ToggleButton
-                        classes={{ selected: classes.toggle }}
-                        value={true}>
-                        Date of Birth
-                      </ToggleButton>
-                      <ToggleButton
-                        classes={{ selected: classes.toggle }}
-                        value={false}>
-                        Estimated Age
-                      </ToggleButton>
-                    </Field>
-                  </Grid>
-                  <Grid item md={4} sm={12}>
-                    {values.isExactDob ? (
-                      <Field
-                        component={TextField}
-                        fullWidth
-                        required
-                        variant="outlined"
-                        type="date"
-                        label="Date of Birth"
-                        name={PatientField.dob}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                      />
-                    ) : (
-                      <Field
-                        component={TextField}
-                        fullWidth
-                        required
-                        variant="outlined"
-                        type="number"
-                        label="Patient Age"
-                        name={PatientField.estimatedAge}
-                      />
-                    )}
-                  </Grid>
-                  <Grid item md={2} sm={12}>
-                    <Field
-                      component={TextField}
-                      fullWidth
-                      inputProps={{ maxLength: 20 }}
-                      variant="outlined"
-                      label="Zone"
-                      name={PatientField.zone}
-                    />
-                  </Grid>
-                  <Grid item md={2} sm={12}>
-                    <Field
-                      component={TextField}
-                      fullWidth
-                      inputProps={{ maxLength: 50 }}
-                      variant="outlined"
-                      label="Village"
-                      name={PatientField.villageNumber}
-                    />
-                  </Grid>
-                  <Grid item md={2} sm={12}>
-                    <FormControl fullWidth variant="outlined">
-                      <InputLabel>Gender</InputLabel>
-                      <Field
-                        component={Select}
-                        fullWidth
-                        label="Gender"
-                        name={PatientField.patientSex}
-                        onChange={handleChangeCustom(
-                          handleChange,
-                          setFieldValue
-                        )}>
-                        {Object.entries(sexOptions).map(([value, name]) => (
-                          <MenuItem key={value} value={value}>
-                            {name}
-                          </MenuItem>
-                        ))}
-                      </Field>
-                    </FormControl>
-                  </Grid>
-                  <Grid item md={2} sm={12}>
-                    <Field
-                      component={CheckboxWithLabel}
-                      type="checkbox"
-                      name={PatientField.isPregnant}
-                      onChange={handleChangeCustom(handleChange, setFieldValue)}
-                      Label={{ label: 'Pregnant' }}
-                      disabled={!(values.patientSex === SexEnum.FEMALE)}
-                    />
-                  </Grid>
-                  <Grid item md={4} sm={12}>
-                    <FormControl fullWidth variant="outlined">
-                      <InputLabel>Gestational Age Unit</InputLabel>
-                      <Field
-                        component={Select}
-                        fullWidth
-                        label="Gestational Age Unit"
-                        name={PatientField.gestationalAgeUnit}
-                        required={values.isPregnant}
-                        disabled={!values.isPregnant}>
-                        {gestationalAgeUnitOptions.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.name}
-                          </MenuItem>
-                        ))}
-                      </Field>
-                    </FormControl>
-                  </Grid>
-                  <Grid item md={4} sm={12}>
-                    {values.gestationalAgeUnit ===
-                    GestationalAgeUnitEnum.MONTHS ? (
-                      <Field
-                        component={TextField}
-                        fullWidth
-                        variant="outlined"
-                        type="number"
-                        name={PatientField.gestationalAgeMonths}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              months
-                            </InputAdornment>
-                          ),
-                        }}
-                        required={values.isPregnant}
-                        disabled={!values.isPregnant}
-                      />
-                    ) : (
-                      <Grid container>
-                        <Grid item md={5} sm={12}>
-                          <Field
-                            component={TextField}
-                            fullWidth
-                            variant="outlined"
-                            type="number"
-                            name={PatientField.gestationalAgeWeeks}
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  weeks
-                                </InputAdornment>
-                              ),
-                            }}
-                            required={values.isPregnant}
-                            disabled={!values.isPregnant}
-                          />
-                        </Grid>
-                        <Grid item md={2} sm={12}>
-                          <div className={classes.weeksDaysPlus}>+</div>
-                        </Grid>
-                        <Grid item md={5} sm={12}>
-                          <Field
-                            component={TextField}
-                            fullWidth
-                            variant="outlined"
-                            type="number"
-                            name={PatientField.gestationalAgeDays}
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  days
-                                </InputAdornment>
-                              ),
-                            }}
-                            required={values.isPregnant}
-                            disabled={!values.isPregnant}
-                          />
-                        </Grid>
-                      </Grid>
-                    )}
-                  </Grid>
-                  <Grid item md={6} sm={12}>
-                    <Field
-                      component={TextField}
-                      fullWidth
-                      multiline
-                      rows={4}
-                      variant="outlined"
-                      label="Drug History"
-                      name={PatientField.drugHistory}
-                    />
-                  </Grid>
-                  <Grid item md={6} sm={12}>
-                    <Field
-                      component={TextField}
-                      fullWidth
-                      multiline
-                      rows={4}
-                      variant="outlined"
-                      label="Medical History"
-                      name={PatientField.medicalHistory}
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
-            </Paper>
+            <PageComponent
+              formikProps={formikProps}
+              creatingNew={creatingNew}
+              isDrugRecord={pages[pageNum].isDrugRecord}
+              creatingNewPregnancy={creatingNewPregnancy}
+            />
             <br />
+            {creatingNew && (
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => setPageNum(pageNum - 1)}
+                disabled={pageNum === 0 || formikProps.isSubmitting}>
+                Back
+              </Button>
+            )}
+            {editId && universalRecordId && (
+              <>
+                <Button
+                  variant="contained"
+                  color="default"
+                  onClick={() => setIsDialogOpen(true)}>
+                  Delete
+                </Button>
+                <ConfirmDialog
+                  title="Delete Record?"
+                  content="Are you sure you want to delete this record?"
+                  open={isDialogOpen}
+                  onClose={() => {
+                    setIsDialogOpen(false);
+                  }}
+                  onConfirm={() =>
+                    handleDeleteRecord(
+                      editId,
+                      universalRecordId,
+                      history,
+                      setSubmitError,
+                      formikProps.setSubmitting
+                    ).then(() => setIsDialogOpen(false))
+                  }
+                />
+              </>
+            )}
             <Button
-              className={classes.right}
-              color="primary"
               variant="contained"
-              size="large"
+              color="primary"
+              className={classes.right}
               type="submit"
-              disabled={isSubmitting || existingPatientId !== null}>
-              {creatingNew ? 'Create New' : 'Save Changes'}
+              disabled={formikProps.isSubmitting}>
+              {editId || creatingNewPregnancy
+                ? 'Save'
+                : isFinalPage
+                ? 'Create'
+                : 'Next'}
             </Button>
           </Form>
         )}
@@ -317,16 +260,16 @@ export const PatientForm = ({ initialState, creatingNew }: IProps) => {
 };
 
 const useStyles = makeStyles({
-  toggle: {
-    border: '1px solid #3f51b5 !important',
-    fontWeight: 'bold',
-    color: '#3f51b5 !important',
+  container: {
+    maxWidth: 1250,
+    margin: '0 auto',
+  },
+  title: {
+    display: `flex`,
+    alignItems: `center`,
   },
   right: {
     float: 'right',
-  },
-  weeksDaysPlus: {
-    textAlign: 'center',
-    fontSize: 35,
+    margin: 5,
   },
 });

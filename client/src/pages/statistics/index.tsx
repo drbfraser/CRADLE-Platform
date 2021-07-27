@@ -74,9 +74,8 @@ export function StatisticsPage() {
     moment().startOf('day').subtract(29, 'days')
   );
   const [endDate, setEndDate] = useState<Moment | null>(moment().endOf('day'));
-  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
-    null
-  );
+  const [focusedInput, setFocusedInput] =
+    useState<FocusedInputShape | null>(null);
   const [presetDateRange, setPresetDateRange] = useState();
 
   const handleFocusChange = (arg: FocusedInputShape | null) => {
@@ -183,7 +182,14 @@ export function StatisticsPage() {
         <br />
         <br />
 
-        <Tab panes={panes} />
+        <Tab
+          menu={{
+            secondary: true,
+            pointing: true,
+            className: classes.tabStyle,
+          }}
+          panes={panes}
+        />
       </Grid>
     </div>
   );

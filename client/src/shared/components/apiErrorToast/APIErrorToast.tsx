@@ -14,27 +14,31 @@ import { Toast } from '../toast';
 interface IProps {
   open: boolean;
   onClose: () => void;
+  errorMessage?: string;
 }
 
-const APIErrorToast = ({ open, onClose }: IProps) => {
+const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
   const styles = useStyles();
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const Message = () => (
-    <>
-      Something went wrong - please try that again. Still having problems? Try
-      some{' '}
-      <Link
-        onClick={() => {
-          onClose();
-          setDialogOpen(true);
-        }}
-        className={styles.alertLink}>
-        troubleshooting steps
-      </Link>
-      .
-    </>
-  );
+  const Message = () =>
+    errorMessage ? (
+      <>{errorMessage}</>
+    ) : (
+      <>
+        Something went wrong - please try that again. Still having problems? Try
+        some{' '}
+        <Link
+          onClick={() => {
+            onClose();
+            setDialogOpen(true);
+          }}
+          className={styles.alertLink}>
+          troubleshooting steps
+        </Link>
+        .
+      </>
+    );
 
   const TroubleshootDialog = () => (
     <Dialog open={dialogOpen}>

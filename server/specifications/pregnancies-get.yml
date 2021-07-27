@@ -1,0 +1,35 @@
+Get a patient's past pregnancy records stored in a list
+---
+tags:
+  - Pregnancies
+parameters:
+  - in: path
+    name: patient_id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/pregnancies
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              pregnancyId:
+                type: integer
+                example: 1001
+              startDate:
+                type: Unix timestamp
+                example: 1620000002
+              endDate:
+                type: Unix timestamp | Null
+                example: 1620000002
+              outcome:
+                type: string | Null
+                example: Mode of delivery assisted birth
+              lastEdited:
+                type: Unix timestamp
+                example: 1620000002

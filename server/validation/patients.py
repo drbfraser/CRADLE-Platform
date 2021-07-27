@@ -19,10 +19,11 @@ def validate(request_body: dict) -> Optional[str]:
                             "isExactDob: false
                             "zone": "15",
                             "villageNumber": "50",
-                            "gestationalTimestamp": 1587068710, - required if isPregnant = True
+                            "pregnancyStartDate": 1587068710, - required if isPregnant = True
                             "gestationalAgeUnit": "WEEKS", - required isPregnant = True
                             "drugHistory": "too much tylenol",
-                            "medicalHistory": "not enough advil"
+                            "medicalHistory": "not enough advil",
+                            "allergy": "seafood",
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
     """
@@ -49,15 +50,15 @@ def validate(request_body: dict) -> Optional[str]:
     # If patient is pregnant, check  if certain pregnancy related fields are present
     if request_body.get("isPregnant") == True:
         error_message = required_keys_present(
-            request_body, ["gestationalTimestamp", "gestationalAgeUnit"]
+            request_body, ["pregnancyStartDate", "gestationalAgeUnit"]
         )
     if error_message is not None:
         return error_message
 
     # Check if gestational age is less than or equal to 43 weeks/10 months
-    if "gestationalTimestamp" in request_body:
+    if "pregnancyStartDate" in request_body:
         error_message = check_gestational_age_under_limit(
-            int(request_body.get("gestationalTimestamp"))
+            int(request_body.get("pregnancyStartDate"))
         )
     if error_message is not None:
         return error_message
@@ -107,12 +108,14 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
         "villageNumber",
         "gestationalTimestamp",
         "gestationalAgeUnit",
+        "pregnancyStartDate",
         "drugHistory",
         "medicalHistory",
         "zone",
         "lastEdited",
         "base",
         "isExactDob",
+        "allergy",
     ]
     for key in request_body:
         if key not in patient_keys:
@@ -135,6 +138,16 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
     ):
         error_message = check_gestational_age_under_limit(
             int(request_body.get("gestationalTimestamp"))
+        )
+    if error_message is not None:
+        return error_message
+
+    if (
+        "pregnancyStartDate" in request_body
+        and request_body.get("pregnancyStartDate") is not None
+    ):
+        error_message = check_gestational_age_under_limit(
+            int(request_body.get("pregnancyStartDate"))
         )
     if error_message is not None:
         return error_message

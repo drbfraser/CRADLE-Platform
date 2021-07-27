@@ -1,0 +1,55 @@
+Edit a pregnancy record
+---
+tags:
+  - Pregnancies
+parameters:
+  - in: path
+    name: pregnancy_id
+    required: true
+    schema:
+      type: integer
+requestBody:
+  required: true
+  description: PUT request body for /api/pregnancies/<string:pregnancy_id>
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          pregnancyEndDate:
+            type: Unix timestamp | Null
+            example: 1620000002
+          pregnancyOutcome:
+            type: string | Null
+            example: Mode of delivery assisted birth
+
+responses:
+  200:
+    description: PUT response body for /api/pregnancies/<string:pregnancy_id>
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1001
+            patientId:
+              type: integer
+              example: 120000
+            pregnancyStartDate:
+              type: Unix timestamp
+              example: 1620000002
+            gestationalAgeUnit:
+              type: string | Null
+              enum: [WEEKS, MONTHS]
+              example: WEEKS
+            pregnancyEndDate:
+              type: Unix timestamp | Null
+              example: 1620000002
+            pregnancyOutcome:
+              type: string | Null
+              example: Mode of delivery assisted birth
+            lastEdited:
+              type: Unix timestamp
+              example: 1620000002

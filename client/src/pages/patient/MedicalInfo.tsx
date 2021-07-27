@@ -1,110 +1,122 @@
-import React, { useState } from 'react';
-import {
-  Paper,
-  Typography,
-  Divider,
-  Box,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-} from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import { Paper, Typography, Divider, Box } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import { Patient } from 'src/shared/types';
-import { Skeleton } from '@material-ui/lab';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
-import { InputOnChangeData, Form, Select } from 'semantic-ui-react';
-import {
-  gestationalAgeUnitFormatters,
-  gestationalAgeUnitLabels,
-} from 'src/shared/constants';
+import { Alert, Skeleton } from '@material-ui/lab';
+import { Patient, PatientMedicalInfo } from 'src/shared/types';
+import { apiFetch, API_URL } from 'src/shared/api';
+import { Link } from 'react-router-dom';
+import { EndpointEnum } from 'src/shared/enums';
+import { OrNull } from 'src/shared/types';
+import { RedirectButton } from 'src/shared/components/redirectButton';
 
 interface IProps {
   patient?: Patient;
+  patientId: string;
 }
 
-export const MedicalInfo = ({ patient }: IProps) => {
-  const GestationalAge = () => {
-    const [unit, setUnit] = useState(patient!.gestationalAgeUnit);
+export const MedicalInfo = ({ patient, patientId }: IProps) => {
+  const classes = useStyles();
+  const [info, setInfo] = useState<PatientMedicalInfo>();
+  const [errorLoading, setErrorLoading] = useState(false);
 
-    const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
-      key: unit,
-      text: gestationalAgeUnitLabels[unit],
-      value: unit,
-    }));
-
-    const handleUnitChange = (
-      _: React.ChangeEvent<HTMLInputElement>,
-      { value }: InputOnChangeData
-    ) => {
-      setUnit(value as GestationalAgeUnitEnum);
-    };
-
-    return patient?.isPregnant && patient?.gestationalTimestamp ? (
-      <div>
-        <p>
-          <b>Gestational Age: </b>
-          {gestationalAgeUnitFormatters[unit](patient!.gestationalTimestamp)}
-        </p>
-        <Form.Field
-          name="gestationalUnits"
-          control={Select}
-          options={unitOptions}
-          placeholder={gestationalAgeUnitLabels[unit]}
-          onChange={handleUnitChange}
-        />
-        <br />
-      </div>
-    ) : (
-      <></>
-    );
-  };
+  useEffect(() => {
+    apiFetch(
+      API_URL +
+        EndpointEnum.PATIENTS +
+        `/${patientId}` +
+        EndpointEnum.MEDICAL_HISTORY
+    )
+      .then((resp) => resp.json())
+      .then((info) => {
+        setInfo(info);
+      })
+      .catch(() => {
+        setErrorLoading(true);
+      });
+  }, [patientId]);
 
   interface HistoryItemProps {
     title: string;
-    history: string | null;
+    historyRecord: OrNull<string> | undefined;
+    editId: string;
+    medicalRecordId: string | undefined;
+    divider?: boolean;
   }
 
-  const HistoryItem = ({ title, history }: HistoryItemProps) =>
-    history ? (
-      <Accordion>
-        <AccordionSummary expandIcon={<KeyboardArrowDownIcon />}>
-          <Typography>{title}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>{history}</Typography>
-        </AccordionDetails>
-      </Accordion>
-    ) : (
-      <></>
-    );
+  const HistoryItem = ({
+    title,
+    historyRecord,
+    editId,
+    medicalRecordId,
+  }: HistoryItemProps) => (
+    <div>
+      <div className={classes.historyItem}>
+        <b style={{ flex: 1 }}> {title} </b>
+        {medicalRecordId ? (
+          <RedirectButton
+            text="Update"
+            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
+          />
+        ) : (
+          <RedirectButton
+            text="Add"
+            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}`}
+          />
+        )}
+      </div>
+      <div className={classes.historyItem}>
+        {historyRecord ? (
+          <Typography style={{ whiteSpace: 'pre-line' }}>
+            {historyRecord}
+          </Typography>
+        ) : (
+          <>No additional {title.toLowerCase()} information.</>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <Paper>
       <Box p={3}>
         <Typography component="h3" variant="h5">
           <RecentActorsIcon fontSize="large" /> &nbsp; Medical Information
+          <Link
+            to={
+              '/history/' +
+              patientId +
+              '/' +
+              patient?.patientName +
+              '/' +
+              patient?.patientSex
+            }
+            className={classes.smallLink}>
+            View Past Records
+          </Link>
         </Typography>
         <Divider />
         <br />
-        {patient ? (
+        {errorLoading ? (
+          <Alert severity="error">
+            Something went wrong trying to load patient&rsquo;s medical
+            information. Please try refreshing.
+          </Alert>
+        ) : info ? (
           <div>
-            {patient.patientSex === SexEnum.FEMALE && (
-              <p>
-                <b>Pregnant: </b> {patient.isPregnant ? `Yes` : `No`}
-              </p>
-            )}
-            <GestationalAge />
-            <HistoryItem title="Drug history" history={patient.drugHistory} />
             <HistoryItem
-              title="Medical history"
-              history={patient.medicalHistory}
+              title="Medical History"
+              historyRecord={info?.medicalHistory}
+              editId="medicalHistory"
+              medicalRecordId={info.medicalHistoryId}
             />
-            {patient.patientSex !== SexEnum.FEMALE &&
-              !patient.drugHistory &&
-              !patient.medicalHistory && (
-                <>No additional medical information.</>
-              )}
+            <Divider className={classes.historyItem} />
+            <HistoryItem
+              title="Drug History"
+              historyRecord={info?.drugHistory}
+              editId="drugHistory"
+              medicalRecordId={info.drugHistoryId}
+            />
           </div>
         ) : (
           <Skeleton variant="rect" height={200} />
@@ -113,3 +125,13 @@ export const MedicalInfo = ({ patient }: IProps) => {
     </Paper>
   );
 };
+
+const useStyles = makeStyles({
+  smallLink: {
+    float: 'right',
+    fontSize: 14,
+  },
+  historyItem: {
+    marginBottom: '15px',
+  },
+});

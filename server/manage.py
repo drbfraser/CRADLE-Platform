@@ -51,16 +51,7 @@ def seed_minimal(email="admin123@admin.com", password="admin123"):
      - A single admin user
     """
     print("Seeding health facility...")
-    hf = {
-        "healthFacilityName": "H0000",
-        "healthFacilityPhoneNumber": "555-555-55555",
-        "facilityType": "HOSPITAL",
-        "about": "Sample health centre",
-        "location": "Sample Location",
-    }
-    hf_schema = HealthFacilitySchema()
-    db.session.add(hf_schema.load(hf))
-    db.session.commit()
+    create_health_facility("H0000")
 
     print("Creating admin user...")
     create_user(email, "Admin", password, "H0000", RoleEnum.ADMIN.value)
@@ -80,35 +71,72 @@ def seed_test_data():
     seed_minimal()
 
     # Add the rest of the users.
-    print("Creating test users...")
-    create_user("hcw@hcw.com", "Brian", "hcw123", "H0000", RoleEnum.HCW.value)
+    print("Creating test health facilities and users...")
+    create_health_facility("H1000")
+    create_health_facility("H2000")
+    create_user("brian@admin.com", "Brian", "brian123", "H0000", RoleEnum.ADMIN.value)
     create_user("vht@vht.com", "TestVHT", "vht123", "H0000", RoleEnum.VHT.value)
+    create_user("vht2@vht.com", "TestVHT2", "vht123", "H1000", RoleEnum.VHT.value)
+    create_user("hcw@hcw.com", "TestHCW", "hcw123", "H0000", RoleEnum.HCW.value)
     create_user("cho@cho.com", "TestCHO", "cho123", "H0000", RoleEnum.CHO.value)
 
-    print("Creating test patients, readings, referrals...")
-
-    create_patient_reading_referral(
+    print("Creating test patients, readings, referrals, and records...")
+    create_patient_reading_referral_pregnancy(
         "49300028161",
         "00000000-d974-4059-a0a2-4b0a9c8e3a10",
-        2,
-        "AA",
-        35,
+        4,
+        "BB",
+        "1994-01-01",
         "MALE",
         "1001",
-        False,
+        1605566021,
+        "H0000",
+        True,
     )
-    create_patient_reading_referral(
+    create_patient_reading_referral_pregnancy(
         "49300028162",
         "11111111-d974-4059-a0a2-4b0a9c8e3a10",
-        2,
-        "BB",
-        40,
+        3,
+        "AA",
+        "1992-01-01",
         "FEMALE",
         "1002",
+        1621204421,
+        "H0000",
+        False,
         True,
         "WEEKS",
-        1592339808,
+        1610925778,
     )
+    create_patient_reading_referral_pregnancy(
+        "49300028163",
+        "22222222-d974-4059-a0a2-4b0a9c8e3a10",
+        3,
+        "AB",
+        "1998-01-01",
+        "FEMALE",
+        "1002",
+        1610836421,
+        "H1000",
+        False,
+    )
+    create_pregnancy(
+        "49300028162",
+        1547341217,
+        1570928417,
+    )
+    create_medical_record(
+        "49300028162",
+        "Pregnancy induced hypertension\nStarted on Labetalol 200mg three times daily two weeks ago",
+        False,
+    )
+    create_medical_record(
+        "49300028162",
+        "Aspirin 75mg\nLabetalol 200mg three times daily",
+        True,
+    )
+    create_patient_association("49300028162", 3)
+    create_patient_association("49300028163", 4)
     print("Finished seeding minimal test data")
 
 
@@ -194,6 +222,16 @@ def seed():
         db.session.add(patient_schema.load(p1))
         db.session.commit()
 
+        if pregnant:
+            pregnancy_schema = PregnancySchema()
+            pRecord = {
+                "patientId": patientId,
+                "startDate": gestational_timestamp,
+                "defaultTimeUnit": gestational_age_unit,
+            }
+            db.session.add(pregnancy_schema.load(pRecord))
+            db.session.commit()
+
         numOfReadings = random.randint(1, 5)
         dateList = [getRandomDate() for i in range(numOfReadings)]
         dateList.sort()
@@ -250,6 +288,25 @@ def seed():
     print("The seed script took: {} seconds".format(round(end - start, 3)))
 
 
+def create_health_facility(
+    facilityName,
+    facilityType="HOSPITAL",
+    phone="555-555-55555",
+    location="Sample Location",
+    about="Sample health centre",
+):
+    facility = {
+        "healthFacilityName": facilityName,
+        "facilityType": facilityType,
+        "healthFacilityPhoneNumber": phone,
+        "location": location,
+        "about": about,
+    }
+    schema = HealthFacilitySchema()
+    db.session.add(schema.load(facility))
+    db.session.commit()
+
+
 def create_user(email, name, password, hf_name, role):
     """
     Creates a user in the database.
@@ -266,56 +323,57 @@ def create_user(email, name, password, hf_name, role):
     db.session.commit()
 
 
-def create_patient_reading_referral(
+def create_patient_reading_referral_pregnancy(
     patientId,
     readingId,
     userId,
-    name,
-    age,
+    patientName,
+    dob,
     sex,
     villageNum,
+    dateReferred,
+    healthFacility,
+    isAssessed,
     isPregnant=False,
     gestAgeUnit=None,
     gestTimestamp=None,
 ):
-    import data.crud as crud
-    import data.marshal as marshal
-    from models import Patient
-
-    patient_schema = PatientSchema()
-    reading_schema = ReadingSchema()
-    referral_schema = ReferralSchema()
-
     """
     Creates a patient in the database.
     """
     if isPregnant:
         patient = {
             "patientId": patientId,
-            "patientName": name,
+            "patientName": patientName,
             "gestationalAgeUnit": gestAgeUnit,
             "gestationalTimestamp": gestTimestamp,
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "true",
-            "dob": "2004-01-01",
+            "dob": dob,
             "isExactDob": False,
+        }
+        pregnancy = {
+            "patientId": patientId,
+            "startDate": gestTimestamp,
+            "defaultTimeUnit": gestAgeUnit,
         }
     else:
         patient = {
             "patientId": patientId,
-            "patientName": name,
+            "patientName": patientName,
             "villageNumber": villageNum,
             "patientSex": sex,
             "isPregnant": "false",
-            "dob": "2004-01-01",
+            "dob": dob,
             "isExactDob": False,
         }
+        pregnancy = None
 
     reading = {
         "userId": userId,
         "patientId": patientId,
-        "dateTimeTaken": 1551447833,
+        "dateTimeTaken": dateReferred,
         "readingId": readingId,
         "bpSystolic": 50,
         "bpDiastolic": 60,
@@ -328,19 +386,64 @@ def create_patient_reading_referral(
     referral = {
         "patientId": patientId,
         "readingId": readingId,
-        "dateReferred": reading["dateTimeTaken"]
-        + int(timedelta(days=10).total_seconds()),
-        "referralHealthFacilityName": "H0000",
-        "comment": "They need help!",
+        "userId": userId,
+        "dateReferred": dateReferred,
+        "referralHealthFacilityName": healthFacility,
+        "isAssessed": isAssessed,
     }
 
+    patient_schema = PatientSchema()
     db.session.add(patient_schema.load(patient))
     db.session.commit()
 
     readingModel = marshal.unmarshal(Reading, reading)
     crud.create(readingModel, refresh=True)
 
+    referral_schema = ReferralSchema()
     db.session.add(referral_schema.load(referral))
+    db.session.commit()
+
+    if pregnancy:
+        pregnancy_schema = PregnancySchema()
+        db.session.add(pregnancy_schema.load(pregnancy))
+        db.session.commit()
+
+
+def create_pregnancy(
+    patientId,
+    startDate,
+    endDate=None,
+    defaultTimeUnit="WEEKS",
+):
+    pregnancy = {
+        "patientId": patientId,
+        "startDate": startDate,
+        "defaultTimeUnit": defaultTimeUnit,
+        "endDate": endDate,
+    }
+    schema = PregnancySchema()
+    db.session.add(schema.load(pregnancy))
+    db.session.commit()
+
+
+def create_medical_record(patientId, info, isDrugRecord):
+    record = {
+        "patientId": patientId,
+        "information": info,
+        "isDrugRecord": isDrugRecord,
+    }
+    schema = MedicalRecordSchema()
+    db.session.add(schema.load(record))
+    db.session.commit()
+
+
+def create_patient_association(patientId, userId):
+    association = {
+        "patientId": patientId,
+        "userId": userId,
+    }
+    schema = PatientAssociationsSchema()
+    db.session.add(schema.load(association))
     db.session.commit()
 
 

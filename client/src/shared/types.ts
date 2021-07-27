@@ -54,12 +54,33 @@ export type UrineTests = {
   urineTestGlu: string;
 };
 
+export type MedicalRecord = {
+  dateCreated: number;
+  information: OrNull<string>;
+  lastEdited: number;
+  medicalRecordId: number;
+};
+
+export type Pregnancy = {
+  startDate: number;
+  endDate: OrNull<number>;
+  outcome: OrNull<string>;
+  pregnancyId: string;
+};
+
+export type TimelineRecord = {
+  title: string;
+  date: number;
+  information?: OrNull<string>;
+};
+
 export type Patient = {
+  allergy: OrNull<string>;
   dob: OrNull<string>;
   drugHistory: OrNull<string>;
   gestationalAgeUnit: GestationalAgeUnitEnum;
   gestationalAgeValue: string;
-  gestationalTimestamp: number;
+  pregnancyStartDate: number;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
   needsAssessment: boolean;
@@ -73,6 +94,28 @@ export type Patient = {
   zone: OrNull<string>;
   isExactDob: boolean;
   householdNumber: OrNull<string>;
+};
+
+export type PatientMedicalInfo = {
+  medicalHistoryId: string;
+  medicalHistory: OrNull<string>;
+  drugHistoryId: string;
+  drugHistory: OrNull<string>;
+};
+
+export type PatientPregnancyInfo = {
+  gestationalAgeUnit: GestationalAgeUnitEnum;
+  isPregnant: boolean;
+  pregnancyId: string;
+  pregnancyStartDate: number;
+  pastPregnancies: PastPregnancy[];
+};
+
+export type PastPregnancy = {
+  pregnancyId: string;
+  pregnancyEndDate: number;
+  pregnancyOutcome: OrNull<string>;
+  pregnancyStartDate: number;
 };
 
 export interface IUser {
@@ -161,6 +204,22 @@ export type Referral = {
   readingId: string;
   referralHealthFacilityName: string;
   userId: OrNull<number>;
+};
+
+export type ReferralFilter = {
+  healthFacilityNames: string[];
+  dateRange: string;
+  referrers: string[];
+  vitalSigns: TrafficLightEnum | undefined;
+  isAssessed: string | undefined;
+  isPregnant: string | undefined;
+};
+
+export type Referrer = {
+  email: string;
+  firstName: string;
+  healthFacilityName: string;
+  userId: string;
 };
 
 export type HealthFacility = string;

@@ -21,7 +21,15 @@ from typing import List
 
 import data.crud as crud
 import service.assoc as assoc
-from models import Patient, Referral, RoleEnum, User, PatientAssociations
+from models import (
+    MedicalRecord,
+    Patient,
+    Referral,
+    RoleEnum,
+    User,
+    PatientAssociations,
+    Pregnancy,
+)
 
 
 def patient_view_for_user(user: User, **kwargs) -> List[Patient]:
@@ -56,7 +64,7 @@ def admin_patient_view(**kwargs) -> List[Patient]:
     """
     if not kwargs:
         # getting all the patient + readings + followups + urine tests
-        return crud.read_all(Patient)
+        return crud.read_all_assoc_patients(PatientAssociations, None, False)
     else:
         # getting information for patient table (Admin view)
         return crud.read_all_admin_view(Patient, **kwargs)
@@ -112,7 +120,6 @@ def referral_view_for_user(user: User, **kwargs) -> List[Referral]:
     :param user: The user to get referrals for
     :return: A list of referrals
     """
-
     role = user.role
     if role == RoleEnum.ADMIN.value:
         return admin_referral_view(**kwargs)
@@ -191,3 +198,97 @@ def individual_vht_referral_view(user: User) -> List[Referral]:
     :return: A list of referrals
     """
     return user.referrals
+
+
+def patient_view(user: dict, **kwargs) -> List[Patient]:
+    """
+    Returns a list of patients filtered by query criteria in keyword arguments.
+
+    :param user: JWT identity
+    :param **kwargs: Optional query criteria
+    :return: A list of patients
+    """
+    role = user["role"]
+    user_id = int(user["userId"])
+    if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
+        return crud.read_patients(**kwargs)
+    elif role == RoleEnum.CHO.value:
+        return crud.read_patients(user_id, is_cho=True, **kwargs)
+    elif role == RoleEnum.VHT.value:
+        return crud.read_patients(user_id, **kwargs)
+    else:
+        raise ValueError("User has an invalid role.")
+
+
+def referral_view(user: dict, **kwargs) -> List[Referral]:
+    """
+    Returns a list of referrals filtered by query criteria in keyword arguments.
+
+    :param user: JWT identity
+    :param **kwargs: Optional query criteria
+    :return: A list of referrals
+    """
+    role = user["role"]
+    user_id = int(user["userId"])
+    if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
+        return crud.read_referrals(**kwargs)
+    elif role == RoleEnum.CHO.value:
+        return crud.read_referrals(user_id, is_cho=True, **kwargs)
+    elif role == RoleEnum.VHT.value:
+        return crud.read_referrals(user_id, **kwargs)
+    else:
+        raise ValueError("User has an invalid role.")
+
+
+def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
+    """
+    Returns a list of pregnancies filtered by query criteria in keyword arguments.
+
+    :param patient_id: The ID of patient to get pregnancies for
+    :param **kwargs: Optional query criteria
+    :return: A list of pregnancies
+    """
+    if not kwargs:
+        return crud.read_all(Pregnancy, patientId=patient_id)
+    else:
+        return crud.read_patient_records(Pregnancy, patient_id, **kwargs)
+
+
+def medical_record_view(
+    patient_id: str, is_drug_record: bool, **kwargs
+) -> List[MedicalRecord]:
+    """
+    Returns a list of medical records filtered by query criteria in keyword arguments.
+
+    :param patient_id: The ID of patient to get medical records for
+    :param **kwargs: Optional query criteria
+    :return: A list of medical records
+    """
+    if not kwargs:
+        return crud.read_all(
+            MedicalRecord, patientId=patient_id, isDrugRecord=is_drug_record
+        )
+    else:
+        return crud.read_patient_records(
+            MedicalRecord, patient_id, is_drug_record=is_drug_record, **kwargs
+        )
+
+
+def mobile_patient_and_reading_view(user: dict) -> tuple:
+    """
+    Returns a list of patients and a list of readings associated with the user.
+
+    :param user: JWT identity
+    :return: A tuple of two lists
+    """
+    role = user["role"]
+    if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
+        patients = crud.read_mobile_patients()
+        readings = crud.read_all_readings_db(True, None)
+        return patients, readings
+    else:
+        user_id = user["userId"]
+        if user_id:
+            patients = crud.read_mobile_patients([user_id])
+            readings = crud.read_all_readings_db(False, [user_id])
+            return patients, readings

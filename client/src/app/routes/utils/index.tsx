@@ -3,6 +3,7 @@ import { LoginPage } from 'src/pages/login';
 import { NotFoundPage } from 'src/pages/notFound';
 import { PatientPage } from 'src/pages/patient';
 import { PatientsPage } from 'src/pages/patients';
+import { PatientFormPage } from 'src/pages/patientForm';
 import React from 'react';
 import { ReferralsPage } from 'src/pages/referrals';
 import { ResourcesPage } from 'src/pages/resources';
@@ -14,10 +15,10 @@ import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
 import { AssessmentFormPage } from 'src/pages/assessmentForm';
-import { PatientFormPage } from 'src/pages/patientForm';
 import { ReadingFormPage } from 'src/pages/readingForm';
 import PollIcon from '@material-ui/icons/Poll';
 import { ReferralFormPage } from 'src/pages/referralForm';
+import { HistoryTablesPage } from 'src/pages/historyTables';
 
 export type AppRoute = {
   component:
@@ -49,7 +50,23 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/patients/edit/:patientId`,
+    to: `/patients/:patientId/edit/:editId`,
+  },
+  {
+    component: PatientFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/patients/:patientId/edit/:editId/:universalRecordId`,
+  },
+  {
+    component: PatientFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/pregnancies/new/:patientId`,
   },
   {
     component: ReadingFormPage,
@@ -145,6 +162,16 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/patients/:patientId`,
+  },
+  {
+    component: HistoryTablesPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    name: `History`,
+    title: `History`,
+    private: true,
+    to: `/history/:patientId/:patientName/:patientSex`,
   },
   {
     component: LoginPage,

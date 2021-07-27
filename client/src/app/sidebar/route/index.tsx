@@ -24,7 +24,6 @@ export const SidebarRoute: React.FC<IProps> = ({
   appendedRoute,
 }) => {
   const { drawerWidth, offsetFromTop } = useDimensionsContext();
-
   const classes = useStyles({ drawerWidth, offsetFromTop });
 
   if (!route.to) {

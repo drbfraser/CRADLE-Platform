@@ -19,6 +19,8 @@ import { vitalSignsValidationSchema } from './vitalSigns/validation';
 import { handleSubmit } from './handlers';
 import { goBackWithFallback } from 'src/shared/utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { useTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 type RouteParams = {
   patientId: string;
@@ -26,6 +28,9 @@ type RouteParams = {
 
 export const ReadingFormPage = () => {
   const classes = useStyles();
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('sm'));
+
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);
   const [pageNum, setPageNum] = useState(0);
@@ -91,7 +96,9 @@ export const ReadingFormPage = () => {
         </Typography>
       </div>
       <br />
-      <Stepper activeStep={pageNum}>
+      <Stepper
+        activeStep={pageNum}
+        orientation={isBigScreen ? 'horizontal' : 'vertical'}>
         {pages.map((page, idx) => (
           <Step key={idx}>
             <StepLabel>{page.name}</StepLabel>

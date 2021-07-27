@@ -9,14 +9,9 @@ import { APITable } from 'src/shared/components/apiTable';
 import { PatientRow } from './PatientRow';
 import { useHistory } from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
-
-const columns = {
-  patientName: 'Patient Name',
-  patientId: 'Patient ID',
-  villageNumber: 'Village',
-  trafficLightStatus: 'Vital Sign',
-  dateTimeTaken: 'Last Reading Date',
-};
+import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { SortDir } from 'src/shared/components/apiTable/types';
 
 export const PatientsPage = () => {
   const classes = useStyles();
@@ -30,19 +25,23 @@ export const PatientsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
+  const isBigScreen = useMediaQuery('(min-width:580px)');
+  const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
+
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>
         <h2 className={classes.title}>Patients</h2>
-        <div className={classes.right}>
+        <div className={isBigScreen ? classes.right : ''}>
           <TextField
+            className={isBigScreen ? '' : classes.searchThin}
             label="Search"
             placeholder="Patient ID or Name"
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
           <Button
-            className={classes.button}
+            className={isBigScreen ? classes.button : classes.buttonThin}
             color="primary"
             variant="contained"
             size="large"
@@ -55,9 +54,13 @@ export const PatientsPage = () => {
       <APITable
         endpoint={EndpointEnum.PATIENTS}
         search={search}
-        columns={columns}
+        columns={COLUMNS}
+        sortableColumns={SORTABLE_COLUMNS}
         rowKey={'patientId'}
+        initialSortBy={'patientName'}
+        initialSortDir={SortDir.ASC}
         RowComponent={PatientRow}
+        isTransformed={isTransformed}
       />
     </Paper>
   );
@@ -77,8 +80,17 @@ const useStyles = makeStyles({
     float: 'right',
     height: 56,
   },
+  searchThin: {
+    display: 'block',
+    marginLeft: 1,
+  },
   button: {
     height: '100%',
     marginLeft: 10,
+  },
+  buttonThin: {
+    display: 'block',
+    marginTop: 8,
+    marginLeft: 1,
   },
 });
