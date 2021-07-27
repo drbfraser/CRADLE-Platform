@@ -96,8 +96,8 @@ class UpdatesReadings(Resource):
     @jwt_required
     def post():
         # Get all patients for this user
-        timestamp: int = request.args.get("since", None, type=int)
-        if not timestamp:
+        last_sync: int = request.args.get("since", None, type=int)
+        if not last_sync:
             abort(400, message="'since' query parameter is required")
 
         json = request.get_json(force=True)
@@ -124,32 +124,14 @@ class UpdatesReadings(Resource):
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
 
-        #     TODO: create custom DB calls for referral and followup
         user = get_jwt_identity()
-        readings = view.reading_view(user)
-        new_readings = []
-        new_referral = []
-        new_followup = []
-        for r in readings:
-            r = serialize.serialize_reading(r)
-            if r["lastEdited"] > timestamp:
-                new_readings.append(r)
-            if (
-                r.get("referral")
-                and r["referral"]["dateReferred"] > timestamp
-                and r["lastEdited"] <= timestamp
-            ):
-                new_referral.append(r["referral"])
-            if (
-                r.get("followup")
-                and r["followup"]["dateAssessed"] > timestamp
-                and r["lastEdited"] <= timestamp
-            ):
-                new_followup.append(r["followup"])
+        new_readings = view.reading_view(user, last_sync)
+        new_referrals = view.referral_view(user, last_sync)
+        new_assessments = view.assessment_view(user, last_sync)
 
         return {
-            "total": len(new_readings) + len(new_referral) + len(new_followup),
-            "readings": new_readings,
-            "newReferralsForOldReadings": new_referral,
-            "newFollowupsForOldReadings": new_followup,
+            "total": len(new_readings) + len(new_referrals) + len(new_assessments),
+            "readings": [marshal.marshal(r) for r in new_readings],
+            "newReferralsForOldReadings": [marshal.marshal(r) for r in new_referrals],
+            "newFollowupsForOldReadings": [marshal.marshal(a) for a in new_assessments],
         }

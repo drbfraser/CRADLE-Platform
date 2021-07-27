@@ -511,6 +511,7 @@ def read_readings(
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
+    last_sync: Optional[int] = None,
 ) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
     """
     Queries the database for readings each with corresponding referral, assessment, and
@@ -519,6 +520,7 @@ def read_readings(
     :param patient_id: ID of patient to filter readings; None to get readings of all patients
     :param user_id: ID of user to filter patients wrt patient associations; None to get
     readings of patients associated with all users
+    :param last_sync: Timestamp to filter readings by last-edited time
 
     :return: A list of tuples of reading, referral, assessment, urine test
     """
@@ -531,8 +533,43 @@ def read_readings(
 
     query = __filter_by_patient_association(query, Reading, user_id, is_cho)
 
+    if last_sync:
+        query = query.filter(Reading.lastEdited > last_sync)
+
     if patient_id:
         query = query.filter(Reading.patientId == patient_id)
+
+    return query.all()
+
+
+def read_referrals_and_assessments(
+    model: Union[Referral, FollowUp],
+    last_sync: int,
+    user_id: Optional[int] = None,
+    is_cho: bool = False,
+) -> Union[List[Referral], List[FollowUp]]:
+    """
+    Queries the database for referrals or assessments of readings associated with the user.
+
+    :param model: Data model of either Referral or FollowUp to query
+    :param last_sync: Timestamp to filter referrals or assessments by last-edited time
+    :param user_id: ID of user to filter readings wrt patient associations; None to get
+    readings associated with all users
+
+    :return: A list of referrals or assessments
+    """
+    model_last_edited = (
+        model.dateReferred
+        if model.schema() == Referral.schema()
+        else model.dateAssessed
+    )
+    query = (
+        db_session.query(model)
+        .join(Reading, model.reading)
+        .filter(Reading.lastEdited <= last_sync, model_last_edited > last_sync)
+    )
+
+    query = __filter_by_patient_association(query, Reading, user_id, is_cho)
 
     return query.all()
 
