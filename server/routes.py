@@ -41,6 +41,7 @@ from api.resources.medicalRecords import (
     SingleMedicalRecord,
 )
 from api.resources.users import *
+from api.resources.upload import Root as Upload
 
 
 def init(api):
@@ -167,5 +168,7 @@ def init(api):
     api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]
 
     api.add_resource(Version, "/api/version")  # [GET]
+
+    api.add_resource(Upload, "/api/upload/relay_apk", endpoint="upload")  # [GET, POST]
 
     new_api.init_routes(api)
