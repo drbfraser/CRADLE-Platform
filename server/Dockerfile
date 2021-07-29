@@ -6,7 +6,7 @@ RUN mkdir /usr/src/server
 WORKDIR /usr/src/server
 
 # create file upload directory
-RUN mkdir /srv/www/admin
+RUN mkdir -p /srv/www/admin
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1

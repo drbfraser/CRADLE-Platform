@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { formatBytes } from 'src/shared/utils';
 import { Paper, Typography, Divider, Box, Button } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
-export const ManageFiles = () => {
+export const ManageRelayApp = () => {
+  const classes = useStyles();
   const [hasFile, setHasFile] = useState(false);
   const [fileSize, setFileSize] = useState<string>();
   const [fileLastModified, setFileLastModified] = useState<string>();
   const [selectedFile, setSelectedFile] = useState<File>();
   const [numFileUploaded, setNumFileUploaded] = useState(0);
+  const [uploadOk, setUploadOk] = useState(false);
+  const [uploadError, setUploadError] = useState(false);
+  const [errorLoading, setErrorLoading] = useState(false);
 
   const url = API_URL + EndpointEnum.UPLOAD_ADMIN;
   const filename = 'cradle_sms_relay.apk';
@@ -26,8 +33,15 @@ export const ManageFiles = () => {
         method: 'POST',
         body: data,
       })
-        .then(() => setNumFileUploaded(numFileUploaded + 1))
-        .catch(() => {});
+        .then(() => {
+          setNumFileUploaded(numFileUploaded + 1);
+          setUploadOk(true);
+          setTimeout(() => setUploadOk(false), 3000);
+        })
+        .catch(() => {
+          setUploadError(true);
+          setTimeout(() => setUploadError(false), 3000);
+        });
     }
   };
 
@@ -41,7 +55,9 @@ export const ManageFiles = () => {
         link.setAttribute('download', filename);
         link.click();
       })
-      .catch(() => {});
+      .catch(() => {
+        setErrorLoading(true);
+      });
   };
 
   useEffect(() => {
@@ -59,27 +75,31 @@ export const ManageFiles = () => {
         }
         setHasFile(true);
       })
-      .catch(() => {});
+      .catch(() => {
+        setErrorLoading(true);
+      });
   }, [numFileUploaded]);
 
   return (
     <Paper>
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
+      />
       <Box p={3}>
         <Typography component="h6" variant="h6">
-          Download Files
+          Download App
         </Typography>
         <Divider />
-        <br />
         {hasFile ? (
-          <>
+          <div className={classes.root}>
             <div>Filename: {filename}</div>
             <div>File size: {fileSize}</div>
             <div>Last modified: {fileLastModified}</div>
-          </>
+          </div>
         ) : (
-          <div>No file available.</div>
+          <div className={classes.root}>No file available.</div>
         )}
-        <br />
         {hasFile && (
           <Button
             color="primary"
@@ -92,14 +112,12 @@ export const ManageFiles = () => {
       </Box>
       <Box p={3}>
         <Typography component="h6" variant="h6">
-          Upload Files
+          Upload App
         </Typography>
         <Divider />
-        <br />
-        <div>
+        <div className={classes.root}>
           <input type="file" name="file" onChange={handleChange} />
         </div>
-        <br />
         <Button
           color="primary"
           variant="contained"
@@ -107,7 +125,19 @@ export const ManageFiles = () => {
           onClick={handleClickUpload}>
           Upload
         </Button>
+        {uploadError ? (
+          <Alert severity="error">Upload failed. Please check file type.</Alert>
+        ) : (
+          uploadOk && <Alert severity="success">Upload successful</Alert>
+        )}
       </Box>
     </Paper>
   );
 };
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+}));
