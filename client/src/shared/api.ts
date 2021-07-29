@@ -52,22 +52,36 @@ export const getApiToken = async () => {
 
 export const apiFetch = async (
   input: RequestInfo,
-  init?: RequestInit | undefined
+  init?: RequestInit | undefined,
+  isFormData?: boolean
 ): Promise<Response> => {
   const token = await getApiToken();
 
-  return fetch(input, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...init?.headers,
-    },
-  }).then((resp) => {
-    if (!resp.ok) {
-      throw resp.status;
-    }
-    return resp;
-  });
+  return isFormData
+    ? fetch(input, {
+        ...init,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...init?.headers,
+        },
+      }).then((resp) => {
+        if (!resp.ok) {
+          throw resp.status;
+        }
+        return resp;
+      })
+    : fetch(input, {
+        ...init,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+          ...init?.headers,
+        },
+      }).then((resp) => {
+        if (!resp.ok) {
+          throw resp.status;
+        }
+        return resp;
+      });
 };

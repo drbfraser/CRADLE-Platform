@@ -29,10 +29,14 @@ export const ManageRelayApp = () => {
     if (selectedFile) {
       const data = new FormData();
       data.append('file', selectedFile);
-      apiFetch(url, {
-        method: 'POST',
-        body: data,
-      })
+      apiFetch(
+        url,
+        {
+          method: 'POST',
+          body: data,
+        },
+        true
+      )
         .then(() => {
           setNumFileUploaded(numFileUploaded + 1);
           setUploadOk(true);
