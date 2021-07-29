@@ -169,6 +169,6 @@ def init(api):
 
     api.add_resource(Version, "/api/version")  # [GET]
 
-    api.add_resource(Upload, "/api/upload/relay_apk", endpoint="upload")  # [GET, POST]
+    api.add_resource(Upload, "/api/upload/admin", endpoint="upload_admin")  # [GET, POST]
 
     new_api.init_routes(api)

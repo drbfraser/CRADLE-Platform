@@ -6,7 +6,7 @@ from models import RoleEnum
 from api.decorator import roles_required
 
 
-# /api/upload/relay_apk
+# /api/upload/admin
 class Root(Resource):
     @staticmethod
     @roles_required([RoleEnum.ADMIN])
