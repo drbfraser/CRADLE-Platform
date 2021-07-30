@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 export enum FacilityField {
   about = 'about',
-  type = 'healthFacilityType',
+  type = 'facilityType',
   name = 'healthFacilityName',
   phoneNumber = 'healthFacilityPhoneNumber',
   location = 'location',
@@ -19,6 +19,7 @@ export interface IFacility {
 export const getValidationSchema = (existingNames: string[]) => {
   return Yup.object().shape({
     [FacilityField.about]: Yup.string(),
+    [FacilityField.type]: Yup.string(),
     [FacilityField.name]: Yup.string()
       .label('Facility Name')
       .max(50)
@@ -38,7 +39,10 @@ export const getValidationSchema = (existingNames: string[]) => {
 
 export const facilityTemplate = {
   [FacilityField.about]: '',
+  [FacilityField.type]: '',
   [FacilityField.name]: '',
   [FacilityField.phoneNumber]: '',
   [FacilityField.location]: '',
 };
+
+export const facilityTypes = ['HCF_2', 'HCF_3', 'HCF_4', 'HOSPITAL'];
