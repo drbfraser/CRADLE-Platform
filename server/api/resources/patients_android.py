@@ -17,6 +17,7 @@ from models import (
 from flasgger import swag_from
 import api.util as util
 import service.view as view
+import service.serialize as serialize
 
 ## Functions that are only used for these endpoints ##
 
@@ -107,10 +108,10 @@ class AndroidPatients(Resource):
         endpoint="android_patient",
     )
     def get():
-        user = util.current_user()
-        patients = view.patient_view_for_user(user)
+        user = get_jwt_identity()
+        patients = view.patient_with_records_view(user)
 
-        return patients, 200
+        return [serialize.serialize_patient_with_records(p) for p in patients]
 
 
 # /api/mobile/patients_and_readings
@@ -124,8 +125,10 @@ class AndroidPatientsAndReadings(Resource):
     )
     def get():
         user = get_jwt_identity()
-        patients, readings = view.mobile_patient_and_reading_view(user)
+        patients = view.patient_with_records_view(user)
+        readings = view.reading_view(user)
+
         return {
-            "patients": [marshal.marshal_mobile_patient(p) for p in patients],
-            "readings": readings,
+            "patients": [serialize.serialize_patient_with_records(p) for p in patients],
+            "readings": [marshal.marshal(r) for r in readings],
         }

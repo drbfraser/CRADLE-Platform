@@ -38,7 +38,10 @@ responses:
             villageNumber:
               type: string | Null
               example: 5
-            gestationalTimestamp:
+            pregnancyId:
+              type: integer
+              example: 1001
+            pregnancyStartDate:
               type: Unix timestamp | Null
               example: 1592339808
             gestationalAgeUnit:
@@ -51,9 +54,15 @@ responses:
             householdNumber:
               type: string | Null
               example: 1
+            medicalHistoryId:
+              type: integer
+              example: 1002
             medicalHistory:
               type: string | Null
               example: Sample medical history
+            drugHistoryId:
+              type: integer
+              example: 1003
             drugHistory:
               type: string | Null
               example: Sample drug history

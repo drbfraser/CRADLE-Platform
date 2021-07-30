@@ -1,10 +1,9 @@
-import data.crud as crud
-from models import Referral, HealthFacility
+from models import TrafficLightEnum
 
 
 def test_get_referral_list(
     create_patient,
-    create_referral,
+    create_reading_with_referral,
     pregnancy_factory,
     pregnancy_later,
     api_get,
@@ -21,7 +20,7 @@ def test_get_referral_list(
         "date_referred": date1,
         "is_assessed": True,
     }
-    create_referral(**referral1)
+    create_reading_with_referral(**referral1)
 
     facility2 = "H6504"
     user2 = 4707
@@ -33,7 +32,7 @@ def test_get_referral_list(
         "date_referred": date2,
         "is_assessed": False,
     }
-    create_referral(**referral2)
+    create_reading_with_referral(**referral2)
 
     response = api_get(endpoint="/api/referrals")
 
@@ -85,11 +84,11 @@ def test_get_referral_list(
     assert response.status_code == 200
     assert any(r["dateReferred"] == date1 for r in response.json())
     assert any(r["dateReferred"] == date2 for r in response.json())
-    for r in response.json():
-        print(r)
 
     pregnancy_factory.create(**pregnancy_later)
-    response = api_get(endpoint="/api/referrals?vitalSigns=GREEN")
+    response = api_get(
+        endpoint=f"/api/referrals?vitalSigns={TrafficLightEnum.YELLOW_UP.value}"
+    )
 
     assert response.status_code == 200
     assert any(r["dateReferred"] == date1 for r in response.json())

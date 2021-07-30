@@ -89,18 +89,6 @@ def marshal_patient_medical_history(
     return records
 
 
-def marshal_mobile_patient(p: Any) -> dict:
-    d = p._asdict()
-    __pre_process(d)
-
-    if d.get("dob"):
-        d["dob"] = str(d["dob"])
-
-    d["base"] = d["lastEdited"]
-
-    return d
-
-
 def __marshal_patient(p: Patient, shallow) -> dict:
     d = vars(p).copy()
     __pre_process(d)
@@ -111,25 +99,6 @@ def __marshal_patient(p: Patient, shallow) -> dict:
     # mobile for syncing. When getting a patient from an API, this value is always
     # equivalent to "lastEdited".
     d["base"] = d["lastEdited"]
-
-    # TODO: export this functionality somewhere else
-    # This implementation is relatively inefficient and not perfect logic as it goes
-    # through all associated drug and medical records and assigns the last one to the return dict
-    for rc in p.records:
-        if rc.isDrugRecord:
-            d["drugHistory"] = rc.information
-        else:
-            d["medicalHistory"] = rc.information
-
-    for pr in p.pregnancies:
-        d["gestationalTimestamp"] = pr.startDate
-        d["gestationalAgeUnit"] = pr.defaultTimeUnit.value
-
-    if "records" in d:
-        del d["records"]
-    if "pregnancies" in d:
-        del d["pregnancies"]
-
     if not shallow:
         d["readings"] = [marshal(r) for r in p.readings]
     return d
@@ -315,18 +284,15 @@ def makeMedRecFromPatient(patient: dict) -> MedicalRecord:
 
 def makePregnancyFromPatient(patient: dict) -> Pregnancy:
     pregnancyObj = {}
-    if patient["isPregnant"]:
+    if "pregnancyStartDate" in patient:
         pregnancyObj = {
             "patientId": patient["patientId"],
-            "startDate": patient["pregnancyStartDate"],
-            "defaultTimeUnit": patient["gestationalAgeUnit"],
+            "startDate": patient.pop("pregnancyStartDate"),
+            "defaultTimeUnit": patient.pop("gestationalAgeUnit"),
         }
 
-    del patient["isPregnant"]
-    if "pregnancyStartDate" in patient:
-        del patient["pregnancyStartDate"]
-    if "gestationalAgeUnit" in patient:
-        del patient["gestationalAgeUnit"]
+    if "isPregnant" in patient:
+        del patient["isPregnant"]
 
     if pregnancyObj:
         pregnancy = [unmarshal(Pregnancy, pregnancyObj)]

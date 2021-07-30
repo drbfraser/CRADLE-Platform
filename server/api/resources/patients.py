@@ -28,7 +28,7 @@ class Root(Resource):
     def get():
         user = get_jwt_identity()
         params = util.get_query_params(request)
-        patients = view.patient_view(user, **params)
+        patients = view.patient_list_view(user, **params)
 
         return [serialize.serialize_patient(p) for p in patients]
 
@@ -47,10 +47,11 @@ class Root(Resource):
         error_message = patients.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
-        patient = marshal.unmarshal(Patient, json)
 
-        if crud.read(Patient, patientId=patient.patientId):
-            abort(409, message=f"A patient already exists with id: {patient.patientId}")
+        patient = marshal.unmarshal(Patient, json)
+        patient_id = patient.patientId
+        if crud.read(Patient, patientId=patient_id):
+            abort(409, message=f"A patient already exists with id: {patient_id}")
 
         # Resolve invariants and set the creation timestamp for the patient ensuring
         # that both the created and lastEdited fields have the exact same value.
@@ -74,7 +75,11 @@ class Root(Resource):
                 # The associate function performs a database commit, since this will
                 # wipe out the patient we want to return we must refresh it.
                 data.db_session.refresh(patient)
-        return marshal.marshal(patient), 201
+
+        patient = crud.read_patient_with_records(patient_id)
+        readings = crud.read_readings(patient_id)
+
+        return serialize.serialize_patient_with_records(patient, readings), 201
 
 
 # /api/patients/<string:patient_id>
@@ -87,10 +92,13 @@ class SinglePatient(Resource):
         endpoint="single_patient",
     )
     def get(patient_id: str):
-        patient = crud.read(Patient, patientId=patient_id)
+        patient = crud.read_patient_with_records(patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
-        return marshal.marshal(patient)
+
+        readings = crud.read_readings(patient_id)
+
+        return serialize.serialize_patient_with_records(patient, readings)
 
 
 # /api/patients/<string:patient_id>/info
