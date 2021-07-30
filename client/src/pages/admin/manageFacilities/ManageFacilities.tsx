@@ -59,7 +59,7 @@ export const ManageFacilities = () => {
         await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)
       ).json();
 
-      setFacilities(resp);
+      setFacilities(resp.map((facility, index) => ({ ...facility, index })));
       setLoading(false);
     } catch (e) {
       setErrorLoading(true);
@@ -82,11 +82,11 @@ export const ManageFacilities = () => {
 
     const rows = facilities
       .filter(facilityFilter)
-      .map((f, idx) => [
+      .map((f) => [
         f.healthFacilityName,
         f.healthFacilityPhoneNumber,
         f.location,
-        idx,
+        f.index,
       ]);
     setTableData(rows);
   }, [facilities, search]);

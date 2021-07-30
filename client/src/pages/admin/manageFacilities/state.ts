@@ -14,6 +14,7 @@ export interface IFacility {
   [FacilityField.name]: string;
   [FacilityField.phoneNumber]: string;
   [FacilityField.location]: string;
+  index: number;
 }
 
 export const getValidationSchema = (existingNames: string[]) => {

@@ -10,7 +10,7 @@ import ResetPassword from './ResetPassword';
 import DeleteUser from './DeleteUser';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
-import { IUser } from 'src/shared/types';
+import { IUserWithIndex } from 'src/shared/types';
 import { useAdminStyles } from '../adminStyles';
 import AdminTable from '../AdminTable';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -25,13 +25,13 @@ export const ManageUsers = () => {
   ) as number;
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<IUserWithIndex[]>([]);
   const [search, setSearch] = useState('');
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
-  const [popupUser, setPopupUser] = useState<IUser>();
+  const [popupUser, setPopupUser] = useState<IUserWithIndex>();
   const isTransformed = useMediaQuery('(min-width:900px)');
 
   const columns = [
@@ -70,11 +70,11 @@ export const ManageUsers = () => {
 
   const getUsers = async () => {
     try {
-      const resp: IUser[] = await (
+      const resp: IUserWithIndex[] = await (
         await apiFetch(API_URL + EndpointEnum.USER_ALL)
       ).json();
 
-      setUsers(resp);
+      setUsers(resp.map((user, index) => ({ ...user, index })));
       setLoading(false);
     } catch (e) {
       setErrorLoading(true);
@@ -88,7 +88,7 @@ export const ManageUsers = () => {
   useEffect(() => {
     const searchLowerCase = search.toLowerCase().trim();
 
-    const userFilter = (user: IUser) => {
+    const userFilter = (user: IUserWithIndex) => {
       return (
         user.firstName.toLowerCase().startsWith(searchLowerCase) ||
         user.email.toLowerCase().startsWith(searchLowerCase) ||
@@ -98,12 +98,12 @@ export const ManageUsers = () => {
 
     const rows = users
       .filter(userFilter)
-      .map((u, idx) => [
+      .map((u) => [
         u.firstName,
         u.email,
         u.healthFacilityName,
         userRoleLabels[u.role],
-        idx,
+        u.index,
       ]);
 
     setTableData(rows);
