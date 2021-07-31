@@ -140,6 +140,52 @@ def seed_test_data():
     print("Finished seeding minimal test data")
 
 
+# USAGE: python manage.py seed_test_patient
+@manager.command
+def seed_test_patient():
+    create_patient_reading_referral_pregnancy(
+        "4930004967",
+        "76a84c2c-d974-4059-a0a2-4b0a9c8e3a10",
+        3,
+        "Abena Adegoke",
+        "1993-01-01",
+        "FEMALE",
+        "1002",
+        1620640628,
+        "H0000",
+        True,
+    )
+    create_medical_record(
+        "4930004967",
+        "No known drug allergies; Aspirin 75mg; Labetalol 400mg three times daily",
+        True,
+        1622023028,
+    )
+    create_medical_record(
+        "4930004967",
+        "No known drug allergies; Aspirin 75mg; Labetalol 300mg three times daily",
+        True,
+        1621936628,
+    )
+    create_medical_record(
+        "4930004967",
+        "No known drug allergies; Aspirin 75mg; Labetalol 200mg three times daily",
+        True,
+        1620640628,
+    )
+    create_medical_record(
+        "4930004967",
+        "Frequent headache; Pregnancy induced hypertension - onset 5 months",
+        False,
+        1620640628,
+    )
+    create_pregnancy(
+        "4930004967",
+        1609840628,
+    )
+    create_pregnancy("4930004967", 1549015028, 1573379828, "SVD. Baby weighed 3kg.")
+
+
 # USAGE: python manage.py seed
 @manager.command
 def seed():
@@ -413,6 +459,7 @@ def create_pregnancy(
     patientId,
     startDate,
     endDate=None,
+    outcome=None,
     defaultTimeUnit="WEEKS",
 ):
     pregnancy = {
@@ -420,17 +467,19 @@ def create_pregnancy(
         "startDate": startDate,
         "defaultTimeUnit": defaultTimeUnit,
         "endDate": endDate,
+        "outcome": outcome,
     }
     schema = PregnancySchema()
     db.session.add(schema.load(pregnancy))
     db.session.commit()
 
 
-def create_medical_record(patientId, info, isDrugRecord):
+def create_medical_record(patientId, info, isDrugRecord, dateCreated=1622541428):
     record = {
         "patientId": patientId,
         "information": info,
         "isDrugRecord": isDrugRecord,
+        "dateCreated": dateCreated,
     }
     schema = MedicalRecordSchema()
     db.session.add(schema.load(record))

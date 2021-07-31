@@ -189,7 +189,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                         key={index}
                         onClick={() => handleClick(pastPregnancy.pregnancyId)}>
                         {getYearToDisplay(pastPregnancy.pregnancyEndDate)} -
-                        Baby born at{' '}
+                        Pregnancy carried to{' '}
                         {gestationalAgeUnitFormatters[
                           previousPregnancyUnit ?? GestationalAgeUnitEnum.WEEKS
                         ](
