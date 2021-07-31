@@ -24,7 +24,7 @@ class Root(Resource):
         file = request.files["file"]
 
         if not file or not is_allowed_file(file.filename):
-            abort(400, message="File not allowed")
+            abort(422, message="File not allowed")
 
         file.save(
             os.path.join(current_app.config["UPLOAD_FOLDER"], "cradle_sms_relay.apk")

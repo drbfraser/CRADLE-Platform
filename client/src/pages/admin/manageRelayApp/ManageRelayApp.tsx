@@ -14,12 +14,18 @@ export const ManageRelayApp = () => {
   const [fileLastModified, setFileLastModified] = useState<string>();
   const [selectedFile, setSelectedFile] = useState<File>();
   const [numFileUploaded, setNumFileUploaded] = useState(0);
-  const [uploadOk, setUploadOk] = useState(false);
-  const [uploadError, setUploadError] = useState(false);
+  const [isUploadOk, setIsUploadOk] = useState(false);
+  const [uploadError, setUploadError] = useState<string>();
   const [errorLoading, setErrorLoading] = useState(false);
 
   const url = API_URL + EndpointEnum.UPLOAD_ADMIN;
   const filename = 'cradle_sms_relay.apk';
+  const errorMessages: { [name: number]: string } = {
+    400: 'Invalid file',
+    413: 'File too large',
+    422: 'Unsupported file type',
+    500: 'Internal Server Error',
+  };
 
   const handleChange = (event: React.ChangeEvent<any>) => {
     setSelectedFile(event.target.files[0]);
@@ -39,12 +45,12 @@ export const ManageRelayApp = () => {
       )
         .then(() => {
           setNumFileUploaded(numFileUploaded + 1);
-          setUploadOk(true);
-          setTimeout(() => setUploadOk(false), 3000);
+          setIsUploadOk(true);
+          setTimeout(() => setIsUploadOk(false), 3000);
         })
-        .catch(() => {
-          setUploadError(true);
-          setTimeout(() => setUploadError(false), 3000);
+        .catch((e) => {
+          setUploadError(errorMessages[e]);
+          setTimeout(() => setUploadError(''), 3000);
         });
     }
   };
@@ -65,7 +71,7 @@ export const ManageRelayApp = () => {
   };
 
   useEffect(() => {
-    apiFetch(url + '?' + Date.now(), {
+    apiFetch(API_URL + EndpointEnum.UPLOAD_ADMIN + '?' + Date.now(), {
       method: 'HEAD',
     })
       .then((resp) => {
@@ -79,8 +85,10 @@ export const ManageRelayApp = () => {
         }
         setHasFile(true);
       })
-      .catch(() => {
-        setErrorLoading(true);
+      .catch((e) => {
+        if (e !== 404) {
+          setErrorLoading(true);
+        }
       });
   }, [numFileUploaded]);
 
@@ -130,9 +138,9 @@ export const ManageRelayApp = () => {
           Upload
         </Button>
         {uploadError ? (
-          <Alert severity="error">Upload failed. Please check file type.</Alert>
+          <Alert severity="error">Upload failed - {uploadError}</Alert>
         ) : (
-          uploadOk && <Alert severity="success">Upload successful</Alert>
+          isUploadOk && <Alert severity="success">Upload successful</Alert>
         )}
       </Box>
     </Paper>
