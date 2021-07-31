@@ -24,11 +24,11 @@ const HEALTH_WORKER_POSTER = [
   },
   {
     label: 'YELLOW RESULT',
-    imgPath: 'images/education/yellowCW.png',
+    imgPath: 'images/education/yellowHCW.png',
   },
   {
     label: 'RED RESULT',
-    imgPath: 'images/education/redCW.png',
+    imgPath: 'images/education/redHCW.png',
   },
 ];
 function HealthWorkerResources(): JSX.Element {
