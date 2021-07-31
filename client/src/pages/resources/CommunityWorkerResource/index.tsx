@@ -24,11 +24,11 @@ const COMMUNITY_WORKER_POSTER = [
   },
   {
     label: 'YELLOW RESULT',
-    imgPath: 'images/education/yellowHCW.png',
+    imgPath: 'images/education/yellowCW.png',
   },
   {
     label: 'RED RESULT',
-    imgPath: 'images/education/redHCW.png',
+    imgPath: 'images/education/redCW.png',
   },
 ];
 
