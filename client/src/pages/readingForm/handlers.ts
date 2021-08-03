@@ -50,7 +50,11 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
   return submitValues;
 };
 
-export const handleSubmit = async (patientId: string, values: ReadingState) => {
+export const handleSubmit = async (
+  patientId: string,
+  values: ReadingState,
+  drugHistory: String
+) => {
   const submitValues = getSubmitObject(patientId, values);
   const url = API_URL + EndpointEnum.READINGS;
 
@@ -59,6 +63,22 @@ export const handleSubmit = async (patientId: string, values: ReadingState) => {
       method: 'POST',
       body: JSON.stringify(submitValues),
     });
+
+    const newDrugHistory = values[ReadingField.drugHistory];
+    if (drugHistory !== newDrugHistory) {
+      await apiFetch(
+        API_URL +
+          EndpointEnum.PATIENTS +
+          `/${patientId}` +
+          EndpointEnum.MEDICAL_RECORDS,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            [ReadingField.drugHistory]: newDrugHistory,
+          }),
+        }
+      );
+    }
   } catch (e) {
     console.error(e);
     return false;
