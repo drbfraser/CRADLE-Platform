@@ -1,16 +1,27 @@
 import { goBackWithFallback } from 'src/shared/utils';
-import { AssessmentState } from './state';
+import { AssessmentField, AssessmentState } from './state';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 
 export const handleSubmit = (
+  patientId: string,
   readingId: string,
   assessmentId: string | undefined,
+  drugHistory: string,
   setSubmitError: (error: boolean) => void
 ) => {
   return async (values: AssessmentState, { setSubmitting }: any) => {
-    let url = API_URL;
+    const newAssessment = {
+      [AssessmentField.investigation]: values[AssessmentField.investigation],
+      [AssessmentField.finalDiagnosis]: values[AssessmentField.finalDiagnosis],
+      [AssessmentField.treatment]: values[AssessmentField.treatment],
+      [AssessmentField.medication]: values[AssessmentField.medication],
+      [AssessmentField.followUp]: values[AssessmentField.followUp],
+      [AssessmentField.followUpInstruc]:
+        values[AssessmentField.followUpInstruc],
+    };
 
+    let url = API_URL;
     if (assessmentId !== undefined) {
       url += EndpointEnum.ASSESSMENT_UPDATE + '/' + assessmentId;
     } else {
@@ -19,7 +30,7 @@ export const handleSubmit = (
 
     const postBody = JSON.stringify({
       readingId: readingId,
-      ...values,
+      ...newAssessment,
     });
 
     try {
@@ -27,6 +38,22 @@ export const handleSubmit = (
         method: 'POST',
         body: postBody,
       });
+
+      const newDrugHistory = values[AssessmentField.drugHistory];
+      if (drugHistory !== newDrugHistory) {
+        await apiFetch(
+          API_URL +
+            EndpointEnum.PATIENTS +
+            `/${patientId}` +
+            EndpointEnum.MEDICAL_RECORDS,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              [AssessmentField.drugHistory]: newDrugHistory,
+            }),
+          }
+        );
+      }
 
       goBackWithFallback('/patients');
     } catch (e) {

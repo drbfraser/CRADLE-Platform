@@ -12,24 +12,33 @@ import { AssessmentField, AssessmentState } from './state';
 
 interface IProps {
   initialState: AssessmentState;
+  patientId: string;
   readingId: string;
   assessmentId: string | undefined;
 }
 
 export const AssessmentForm = ({
   initialState,
+  patientId,
   readingId,
   assessmentId,
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
+  const drugHistory = initialState.drugHistory;
 
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
-        onSubmit={handleSubmit(readingId, assessmentId, setSubmitError)}>
+        onSubmit={handleSubmit(
+          patientId,
+          readingId,
+          assessmentId,
+          drugHistory,
+          setSubmitError
+        )}>
         {({ values, isSubmitting }) => (
           <Form>
             <Paper>
@@ -81,15 +90,7 @@ export const AssessmentForm = ({
                         label="Medication Prescribed (include dose and frequency)"
                       />
                     </Grid>
-                    <Grid item sm={12} md={4}>
-                      <Field
-                        component={CheckboxWithLabel}
-                        type="checkbox"
-                        name={AssessmentField.followUp}
-                        Label={{ label: 'Follow-up Needed' }}
-                      />
-                    </Grid>
-                    <Grid item sm={12} md={8}>
+                    <Grid item sm={12} md={6}>
                       <Field
                         component={TextField}
                         variant="outlined"
@@ -99,6 +100,23 @@ export const AssessmentForm = ({
                         label="Instructions for Follow-up"
                         required={values[AssessmentField.followUp]}
                         disabled={!values[AssessmentField.followUp]}
+                      />
+                      <Field
+                        component={CheckboxWithLabel}
+                        type="checkbox"
+                        name={AssessmentField.followUp}
+                        Label={{ label: 'Follow-up Needed' }}
+                      />
+                    </Grid>
+                    <Grid item sm={12} md={6}>
+                      <Field
+                        component={TextField}
+                        variant="outlined"
+                        fullWidth
+                        multiline
+                        rows={2}
+                        name={AssessmentField.drugHistory}
+                        label="Patient drug history (update if new medications are prescribed)"
                       />
                     </Grid>
                   </Grid>
