@@ -53,7 +53,7 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
 export const handleSubmit = async (
   patientId: string,
   values: ReadingState,
-  drugHistory: String
+  drugHistory: string
 ) => {
   const submitValues = getSubmitObject(patientId, values);
   const url = API_URL + EndpointEnum.READINGS;
