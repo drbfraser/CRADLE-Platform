@@ -53,7 +53,7 @@ export const Assessment = ({ formikProps }: FormPageProps) => {
                 fullWidth
                 multiline
                 rows={2}
-                name={ReadingField.medication}
+                name={ReadingField.drugHistory}
                 label="Medication Prescribed (include dose and frequency)"
               />
             </Grid>
