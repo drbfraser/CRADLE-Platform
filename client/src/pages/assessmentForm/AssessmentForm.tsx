@@ -86,11 +86,19 @@ export const AssessmentForm = ({
                         fullWidth
                         multiline
                         rows={2}
-                        name={AssessmentField.medication}
+                        name={AssessmentField.drugHistory}
                         label="Medication Prescribed (include dose and frequency)"
                       />
                     </Grid>
-                    <Grid item sm={12} md={6}>
+                    <Grid item sm={12} md={4}>
+                      <Field
+                        component={CheckboxWithLabel}
+                        type="checkbox"
+                        name={AssessmentField.followUp}
+                        Label={{ label: 'Follow-up Needed' }}
+                      />
+                    </Grid>
+                    <Grid item sm={12} md={8}>
                       <Field
                         component={TextField}
                         variant="outlined"
@@ -100,23 +108,6 @@ export const AssessmentForm = ({
                         label="Instructions for Follow-up"
                         required={values[AssessmentField.followUp]}
                         disabled={!values[AssessmentField.followUp]}
-                      />
-                      <Field
-                        component={CheckboxWithLabel}
-                        type="checkbox"
-                        name={AssessmentField.followUp}
-                        Label={{ label: 'Follow-up Needed' }}
-                      />
-                    </Grid>
-                    <Grid item sm={12} md={6}>
-                      <Field
-                        component={TextField}
-                        variant="outlined"
-                        fullWidth
-                        multiline
-                        rows={2}
-                        name={AssessmentField.drugHistory}
-                        label="Patient drug history (update if new medications are prescribed)"
                       />
                     </Grid>
                   </Grid>
