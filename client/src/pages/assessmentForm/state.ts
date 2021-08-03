@@ -6,6 +6,7 @@ export enum AssessmentField {
   investigation = 'specialInvestigations',
   finalDiagnosis = 'diagnosis',
   treatment = 'treatment',
+  medication = 'medicationPrescribed',
   followUp = 'followupNeeded',
   followUpInstruc = 'followupInstructions',
   drugHistory = 'drugHistory',

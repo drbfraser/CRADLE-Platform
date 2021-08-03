@@ -15,6 +15,7 @@ export const handleSubmit = (
       [AssessmentField.investigation]: values[AssessmentField.investigation],
       [AssessmentField.finalDiagnosis]: values[AssessmentField.finalDiagnosis],
       [AssessmentField.treatment]: values[AssessmentField.treatment],
+      [AssessmentField.medication]: values[AssessmentField.drugHistory],
       [AssessmentField.followUp]: values[AssessmentField.followUp],
       [AssessmentField.followUpInstruc]:
         values[AssessmentField.followUpInstruc],

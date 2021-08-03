@@ -30,7 +30,7 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
       diagnosis: values[ReadingField.finalDiagnosis],
       followupInstructions: values[ReadingField.followUpInstruc],
       followupNeeded: values[ReadingField.followUp],
-      medicationPrescribed: values[ReadingField.medication],
+      medicationPrescribed: values[ReadingField.drugHistory],
       readingId: readingGuid,
       specialInvestigations: values[ReadingField.investigation],
       treatment: values[ReadingField.treatment],
