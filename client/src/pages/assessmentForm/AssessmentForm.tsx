@@ -12,24 +12,33 @@ import { AssessmentField, AssessmentState } from './state';
 
 interface IProps {
   initialState: AssessmentState;
+  patientId: string;
   readingId: string;
   assessmentId: string | undefined;
 }
 
 export const AssessmentForm = ({
   initialState,
+  patientId,
   readingId,
   assessmentId,
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
+  const drugHistory = initialState.drugHistory;
 
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
-        onSubmit={handleSubmit(readingId, assessmentId, setSubmitError)}>
+        onSubmit={handleSubmit(
+          patientId,
+          readingId,
+          assessmentId,
+          drugHistory,
+          setSubmitError
+        )}>
         {({ values, isSubmitting }) => (
           <Form>
             <Paper>
@@ -77,7 +86,7 @@ export const AssessmentForm = ({
                         fullWidth
                         multiline
                         rows={2}
-                        name={AssessmentField.medication}
+                        name={AssessmentField.drugHistory}
                         label="Medication Prescribed (include dose and frequency)"
                       />
                     </Grid>

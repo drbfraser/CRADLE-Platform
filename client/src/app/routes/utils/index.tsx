@@ -82,7 +82,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/assessments/new/:readingId`,
+    to: `/assessments/new/:patientId/:readingId`,
   },
   {
     component: AssessmentFormPage,
@@ -90,7 +90,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/assessments/edit/:readingId/:assessmentId`,
+    to: `/assessments/edit/:patientId/:readingId/:assessmentId`,
   },
   {
     component: ReferralFormPage,
