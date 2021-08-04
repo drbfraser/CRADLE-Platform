@@ -6,8 +6,10 @@ import operator
 
 from data import db_session
 from models import (
+    FollowUp,
     Patient,
     Referral,
+    UrineTest,
     User,
     PatientAssociations,
     Reading,
@@ -505,27 +507,32 @@ def read_patient_with_records(
         return query.all()
 
 
-def read_readings(
+def read_patient_readings(
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
-) -> List[Reading]:
+) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
     """
-    Queries the database for readings either of a patient or associated with the user.
+    Queries the database for readings each with corresponding referral, assessment, and
+    urine test.
 
     :param patient_id: ID of patient to filter readings; None to get readings of all patients
     :param user_id: ID of user to filter patients wrt patient associations; None to get
     readings of patients associated with all users
 
-    :return: A list of readings
+    :return: A list of tuples of reading, referral, assessment, urine test
     """
-    query = db_session.query(Reading)
+    query = (
+        db_session.query(Reading, Referral, FollowUp, UrineTest)
+        .outerjoin(Referral, Reading.referral)
+        .outerjoin(FollowUp, Reading.followup)
+        .outerjoin(UrineTest, Reading.urineTests)
+    )
+
     query = __filter_by_patient_association(query, Reading, user_id, is_cho)
 
     if patient_id:
-        query = query.filter_by(patientId=patient_id).order_by(
-            desc(Reading.dateTimeTaken)
-        )
+        query = query.filter(Reading.patientId == patient_id)
 
     return query.all()
 

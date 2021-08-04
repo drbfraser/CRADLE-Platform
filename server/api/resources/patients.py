@@ -77,7 +77,7 @@ class Root(Resource):
                 data.db_session.refresh(patient)
 
         patient = crud.read_patient_with_records(patient_id)
-        readings = crud.read_readings(patient_id)
+        readings = crud.read_patient_readings(patient_id)
 
         return serialize.serialize_patient_with_records(patient, readings), 201
 
@@ -96,7 +96,7 @@ class SinglePatient(Resource):
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
 
-        readings = crud.read_readings(patient_id)
+        readings = crud.read_patient_readings(patient_id)
 
         return serialize.serialize_patient_with_records(patient, readings)
 

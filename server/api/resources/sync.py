@@ -132,7 +132,7 @@ class UpdatesReadings(Resource):
         new_referral = []
         new_followup = []
         for r in readings:
-            r = marshal.marshal(r)
+            r = serialize.serialize_reading(r)
             if r["lastEdited"] > timestamp:
                 new_readings.append(r)
             if (

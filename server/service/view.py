@@ -17,14 +17,17 @@ The role-specific views are defined as follows:
 * VHT: can see all patients created by them
 """
 
-from typing import Any, List, Callable
+from typing import Any, List, Callable, Tuple
 
 import data.crud as crud
 from models import (
+    FollowUp,
     Reading,
+    Referral,
     RoleEnum,
     Pregnancy,
     MedicalRecord,
+    UrineTest,
 )
 
 
@@ -96,14 +99,14 @@ def patient_with_records_view(user: dict) -> List[Any]:
     return __get_view(user, crud.read_patient_with_records)
 
 
-def reading_view(user: dict) -> List[Reading]:
+def reading_view(user: dict) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
     """
-    Returns a list of readings of patients associated with user.
+    Returns a list of readings each with corresponding referral, assessment, and urine test.
 
     :param user: JWT identity
-    :return: A list of readings
+    :return: A list of tuples of reading, referral, assessment, urine test
     """
-    return __get_view(user, crud.read_readings)
+    return __get_view(user, crud.read_patient_readings)
 
 
 def __get_view(user: dict, func: Callable, **kwargs) -> List[Any]:

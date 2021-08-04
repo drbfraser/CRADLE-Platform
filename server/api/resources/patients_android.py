@@ -114,21 +114,17 @@ class AndroidPatients(Resource):
         return [serialize.serialize_patient_with_records(p) for p in patients]
 
 
-# /api/mobile/patients_and_readings
-class AndroidPatientsAndReadings(Resource):
+# /api/mobile/readings
+class AndroidReadings(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/android-patients-and-readings-get.yml",
+        "../../specifications/android-readings-get.yml",
         methods=["GET"],
-        endpoint="android_patients_and_readings",
+        endpoint="android_readings",
     )
     def get():
         user = get_jwt_identity()
-        patients = view.patient_with_records_view(user)
         readings = view.reading_view(user)
 
-        return {
-            "patients": [serialize.serialize_patient_with_records(p) for p in patients],
-            "readings": [marshal.marshal(r) for r in readings],
-        }
+        return [serialize.serialize_reading(r) for r in readings]
