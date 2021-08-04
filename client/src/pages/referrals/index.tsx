@@ -2,6 +2,7 @@ import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 import { debounce } from 'lodash';
 import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
@@ -19,6 +20,7 @@ export const ReferralsPage = () => {
   const [search, setSearch] = useState('');
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
   const [filter, setFilter] = useState<ReferralFilter>();
+  const [isPromptShown, setIsPromptShown] = useState<boolean>(true);
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
@@ -30,6 +32,7 @@ export const ReferralsPage = () => {
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>
         <h2 className={classes.title}>Referrals</h2>
+        {!isBigScreen && <br />}
         <FilterDialog
           onClose={() => {
             setIsFilterDialogOpen(false);
@@ -38,6 +41,7 @@ export const ReferralsPage = () => {
           filter={filter!}
           setFilter={setFilter}
           isTransformed={isTransformed}
+          setIsPromptShown={setIsPromptShown}
         />
         <ButtonGroup
           orientation="vertical"
@@ -56,19 +60,30 @@ export const ReferralsPage = () => {
             <Button
               onClick={() => {
                 setFilter(undefined);
+                setIsPromptShown(false);
               }}>
               Clear Filter
             </Button>
           )}
         </ButtonGroup>
-
-        <TextField
-          className={isBigScreen ? classes.right : classes.searchThin}
-          label="Search"
-          placeholder="Patient ID or Name"
-          variant="outlined"
-          onChange={(e) => debounceSetSearch(e.target.value)}
-        />
+        <div className={isBigScreen ? classes.right : classes.searchThin}>
+          <TextField
+            label="Search"
+            placeholder="Patient ID or Name"
+            variant="outlined"
+            onChange={(e) => debounceSetSearch(e.target.value)}
+          />
+          {isPromptShown && (
+            <>
+              <br />
+              <Typography color="textSecondary" variant="caption">
+                Currently filtered to your health facility.
+                <br />
+                Click Clear Filter to see all.
+              </Typography>
+            </>
+          )}
+        </div>
       </div>
       <div className={classes.table}>
         <APITable
@@ -103,7 +118,7 @@ const useStyles = makeStyles({
     padding: 10,
   },
   searchThin: {
-    display: 'block',
+    float: 'left',
     marginLeft: 1,
   },
   table: {
