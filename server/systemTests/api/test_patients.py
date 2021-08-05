@@ -25,7 +25,7 @@ def test_get_patient_list(create_patient, patient_info, reading_factory, api_get
         readingId=reading_id2, patientId=patient_id, dateTimeTaken=date2
     )
 
-    response = api_get(endpoint=f"/api/patients")
+    response = api_get(endpoint="/api/patients")
 
     assert response.status_code == 200
 
@@ -169,55 +169,6 @@ def test_get_patient_timeline(
     assert timeline[0]["information"] == drug_record["information"]
     assert timeline[2]["date"] == pregnancy_later["startDate"]
     assert timeline[3]["date"] == pregnancy_earlier["endDate"]
-
-
-def test_get_mobile_patient_and_reading_lists(
-    create_patient,
-    create_reading_with_referral,
-    followup_factory,
-    pregnancy_factory,
-    medical_record_factory,
-    patient_info,
-    pregnancy_earlier,
-    pregnancy_later,
-    medical_record,
-    drug_record,
-    reading_id,
-    api_get,
-):
-    create_patient()
-    create_reading_with_referral()
-    followup_factory.create(readingId=reading_id)
-    pregnancy_factory.create(**pregnancy_earlier)
-    pregnancy_factory.create(**pregnancy_later)
-    medical_record_factory.create(**medical_record)
-    medical_record_factory.create(**drug_record)
-
-    response = api_get(endpoint="/api/mobile/patients_and_readings")
-
-    assert response.status_code == 200
-
-    patient = None
-    for p in response.json()["patients"]:
-        if p["patientId"] == patient_info["patientId"]:
-            patient = p
-            break
-
-    assert patient["dob"] == patient_info["dob"]
-    assert patient["pregnancyId"] == pregnancy_later["id"]
-    assert patient["pregnancyStartDate"] == pregnancy_later["startDate"]
-    assert patient["medicalHistoryId"] == medical_record["id"]
-    assert patient["medicalHistory"] == medical_record["information"]
-    assert patient["drugHistoryId"] == drug_record["id"]
-    assert patient["drugHistory"] == drug_record["information"]
-
-    assert any(
-        r["patientId"] == patient_info["patientId"]
-        and r["readingId"] == reading_id
-        and r["referral"]["readingId"] == reading_id
-        and r["followup"]["readingId"] == reading_id
-        for r in response.json()["readings"]
-    )
 
 
 @pytest.mark.skip(reason="API deprecated")

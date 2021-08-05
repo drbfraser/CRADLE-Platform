@@ -10,6 +10,66 @@ from models import (
 )
 
 
+def test_download_patients(
+    create_patient,
+    pregnancy_factory,
+    medical_record_factory,
+    patient_info,
+    pregnancy_earlier,
+    pregnancy_later,
+    medical_record,
+    drug_record,
+    api_get,
+):
+    create_patient()
+    pregnancy_factory.create(**pregnancy_earlier)
+    pregnancy_factory.create(**pregnancy_later)
+    medical_record_factory.create(**medical_record)
+    medical_record_factory.create(**drug_record)
+
+    response = api_get(endpoint="/api/mobile/patients")
+
+    assert response.status_code == 200
+
+    patient = None
+    for p in response.json():
+        if p["patientId"] == patient_info["patientId"]:
+            patient = p
+            break
+
+    assert patient["dob"] == patient_info["dob"]
+    assert patient["pregnancyId"] == pregnancy_later["id"]
+    assert patient["pregnancyStartDate"] == pregnancy_later["startDate"]
+    assert patient["medicalHistoryId"] == medical_record["id"]
+    assert patient["medicalHistory"] == medical_record["information"]
+    assert patient["drugHistoryId"] == drug_record["id"]
+    assert patient["drugHistory"] == drug_record["information"]
+
+
+def test_download_readings(
+    create_patient,
+    create_reading_with_referral,
+    followup_factory,
+    patient_info,
+    reading_id,
+    api_get,
+):
+    create_patient()
+    create_reading_with_referral()
+    followup_factory.create(readingId=reading_id)
+
+    response = api_get(endpoint="/api/mobile/readings")
+
+    assert response.status_code == 200
+    assert any(
+        r["patientId"] == patient_info["patientId"]
+        and r["readingId"] == reading_id
+        and r["referral"]["readingId"] == reading_id
+        and r["followup"]["readingId"] == reading_id
+        for r in response.json()
+    )
+
+
 def test_sync_patients(create_patient, patient_info, database, api_post):
     create_patient()
 
