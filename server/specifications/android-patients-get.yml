@@ -1,7 +1,7 @@
-Get a list of all patients
+Get a list of all patients each with the latest pregnancy, medical and durg records
 ---
 tags:
-  - Patients
+  - Android
 responses:
   200:
     description: List of GET response bodies for /api/mobile/patients
@@ -14,91 +14,57 @@ responses:
             properties:
               patientId:
                 type: integer
-                example: 191919
-              isPregnant:
-                type: boolean
-                example: true
-              patientSex:
-                type: string
-                enum: [MALE, FEMALE, OTHER]
-                example: FEMALE
-              patientAge:
-                type: integer
-                example: 29
+                example: 49300000000
               patientName:
                 type: string
                 example: MR
+              patientSex:
+                type: string
+                enum: [MALE, FEMALE]
+                example: FEMALE
               dob:
+                type: string
+                example: "1990-01-01"
+              isExactDob:
+                type: boolean
+                example: true
+              zone:
                 type: string | Null
-                example: "1990-03-26"
+                example: 10
               villageNumber:
                 type: string | Null
-                example: 5
+                example: 10
+              householdNumber:
+                type: string | Null
+                example: 10
+              allergy:
+                type: string | Null
+                example: Penicillins
+              pregnancyId:
+                type: integer
+                example: 1001
               gestationalTimestamp:
                 type: Unix timestamp | Null
-                example: 1592339808
+                example: 1620000002
               gestationalAgeUnit:
                 type: string | Null
                 enum: [WEEKS, MONTHS]
                 example: WEEKS
-              zone:
-                type: string | Null
-                example: 1
-              householdNumber:
-                type: string | Null
-                example: 1
+              medicalHistoryId:
+                type: integer
+                example: 1001
               medicalHistory:
                 type: string | Null
-                example: Sample medical history
+                example: Pregnancy induced hypertension
+              drugHistoryId:
+                type: integer
+                example: 1002
               drugHistory:
                 type: string | Null
-                example: Sample drug history
-              allergy:
-                type: string | Null
-                example: Sample allergy
-              created:
-                type: Unix timestamp
-                example: 1592339808
+                example: Aspirin 75mg
               lastEdited:
                 type: Unix timestamp | Null
-                example: 1592339808
+                example: 1620000002
               base:
                 type: Unix timestamp | Null
-                example: 1622337702
-              isExactDob:
-                type: boolean
-                example: true
-              readings:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    userId:
-                      type: integer | Null
-                      example: 1
-                    patientId:
-                      type: integer
-                      example: 191919
-                    readingId:
-                      type: string
-                      example: e90c0529-74ad-41b4-876e-d8e5ac60e786
-                    symptoms:
-                      type: array
-                      items: string
-                      example: ["HEADACHE"]
-                    bpSystolic:
-                      type: integer
-                      example: 100
-                    trafficLightStatus:
-                      type: string
-                      enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
-                      example: GREEN
-                    bpDiastolic:
-                      type: integer
-                      example: 70
-                    dateTimeTaken:
-                      type: Unix timestamp
-                      example: 1592339808
-                    heartRateBPM:
-                      type: integer
-                      example: 60
+                example: 1620000002

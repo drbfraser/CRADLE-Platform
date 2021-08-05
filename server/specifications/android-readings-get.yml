@@ -1,0 +1,105 @@
+Get a list of all readings each with corresponding referral, assessment, and urine test
+---
+tags:
+  - Android
+responses:
+  200:
+    description: GET response body for /api/mobile/readings
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: integer | Null
+                example: 10
+              patientId:
+                type: integer
+                example: 49300000000
+              readingId:
+                type: string
+                example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+              trafficLightStatus:
+                type: string
+                enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
+                example: GREEN
+              symptoms:
+                type: array
+                items: string
+                example: ["HEADACHE"]
+              bpSystolic:
+                type: integer
+                example: 100
+              bpDiastolic:
+                type: integer
+                example: 70
+              dateTimeTaken:
+                type: Unix timestamp
+                example: 1620000000
+              heartRateBPM:
+                type: integer
+                example: 60
+              referral:
+                type: object | Null
+                properties:
+                  id:
+                    type: integer
+                    example: 1001
+                  patientId:
+                    type: integer
+                    example: 49300000000
+                  readingId:
+                    type: string
+                    example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+                  referralHealthFacilityName:
+                    type: string | Null
+                    example: Happy Creek
+                  userId:
+                    type: integer
+                    example: 10
+                  comment:
+                    type: string | Null
+                    example: Referred to Happy Creek
+                  dateReferred:
+                    type: string | Null
+                    example: 1620000000
+                  isAssessed:
+                    type: boolean | Null
+                    example: false
+              followup:
+                type: object | Null
+                properties:
+                  id:
+                    type: integer
+                    example: 1001
+                  readingId:
+                    type: string
+                    example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+                  healthcareWorkerId:
+                    type: integer
+                    example: 10
+                  dateAssessed:
+                    type: Unix timestamp
+                    example: 1620000000
+                  specialInvestigations:
+                    type: string | Null
+                    example: Hb 68
+                  diagnosis:
+                    type: string | Null
+                    example: Post-partum haemorrhage
+                  treatment:
+                    type: string | Null
+                    example: Requires blood transfusion
+                  medicationPrescribed:
+                    type: string | Null
+                    example: Labetalol 200mg three times daily
+                  followupNeeded:
+                    type: boolean
+                    example: true
+                  followupInstructions:
+                    type: string | Null
+                    example: Measure BP daily
+              urineTests:
+                type: object | Null
