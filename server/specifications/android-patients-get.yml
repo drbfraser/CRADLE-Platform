@@ -24,47 +24,47 @@ responses:
                 example: FEMALE
               dob:
                 type: string
-                example: "1990-01-01"
+                example: "1990-03-26"
               isExactDob:
                 type: boolean
                 example: true
               zone:
                 type: string | Null
-                example: 10
+                example: 5
               villageNumber:
                 type: string | Null
-                example: 10
+                example: 5
               householdNumber:
                 type: string | Null
-                example: 10
+                example: 5
               allergy:
                 type: string | Null
                 example: Penicillins
               pregnancyId:
-                type: integer
+                type: integer | Null
                 example: 1001
               gestationalTimestamp:
                 type: Unix timestamp | Null
-                example: 1620000002
+                example: 1592339808
               gestationalAgeUnit:
                 type: string | Null
                 enum: [WEEKS, MONTHS]
                 example: WEEKS
               medicalHistoryId:
-                type: integer
+                type: integer | Null
                 example: 1001
               medicalHistory:
                 type: string | Null
                 example: Pregnancy induced hypertension
               drugHistoryId:
-                type: integer
+                type: integer | Null
                 example: 1002
               drugHistory:
                 type: string | Null
                 example: Aspirin 75mg
               lastEdited:
-                type: Unix timestamp | Null
-                example: 1620000002
+                type: Unix timestamp
+                example: 1592339808
               base:
-                type: Unix timestamp | Null
-                example: 1620000002
+                type: Unix timestamp
+                example: 1592339808

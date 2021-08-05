@@ -54,7 +54,7 @@ responses:
                     type: string
                     example: e90c0529-74ad-41b4-876e-d8e5ac60e786
                   referralHealthFacilityName:
-                    type: string | Null
+                    type: string
                     example: Happy Creek
                   userId:
                     type: integer
@@ -103,3 +103,25 @@ responses:
                     example: Measure BP daily
               urineTests:
                 type: object | Null
+                properties:
+                  id:
+                    type: integer
+                    example: 1001
+                  readingId:
+                    type: string
+                    example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+                  urineTestNit:
+                    type: string | Null
+                    example: NAD
+                  urineTestPro:
+                    type: string | Null
+                    example: NAD
+                  urineTestBlood:
+                    type: string | Null
+                    example: NAD
+                  urineTestGlu:
+                    type: string | Null
+                    example: +++
+                  urineTestLeuc:
+                    type: string | Null
+                    example: ++
