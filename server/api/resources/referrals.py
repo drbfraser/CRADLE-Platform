@@ -29,7 +29,7 @@ class Root(Resource):
         if params.get("health_facilities") and "default" in params["health_facilities"]:
             params["health_facilities"].append(user["healthFacilityName"])
 
-        referrals = view.referral_view(user, **params)
+        referrals = view.referral_list_view(user, **params)
 
         return [serialize.serialize_referral(r) for r in referrals]
 

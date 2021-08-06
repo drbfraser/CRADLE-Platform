@@ -5,15 +5,19 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  MenuItem,
+  InputLabel,
 } from '@material-ui/core';
 import {
   FacilityField,
   facilityTemplate,
   getValidationSchema,
   IFacility,
+  facilityTypes,
 } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { TextField, Select } from 'formik-material-ui';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -70,6 +74,22 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                   name={FacilityField.name}
                   disabled={!creatingNew}
                 />
+                <br />
+                <br />
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel>Facility Type</InputLabel>
+                  <Field
+                    component={Select}
+                    fullWidth
+                    label="Facility Type"
+                    name={FacilityField.type}>
+                    {facilityTypes.map((facilityType) => (
+                      <MenuItem key={facilityType} value={facilityType}>
+                        {facilityType}
+                      </MenuItem>
+                    ))}
+                  </Field>
+                </FormControl>
                 <br />
                 <br />
                 <Field

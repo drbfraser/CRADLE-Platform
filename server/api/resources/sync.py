@@ -1,17 +1,20 @@
 from typing import List
 from flask import request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
 
 import api.util as util
 import service.view as view
+import service.serialize as serialize
 import data.marshal as marshal
-from validation import patients, readings
+from validation.patients import validate as validate_patient
+from validation.readings import validate as validate_reading
 from models import Patient, Reading
 from utils import get_current_time
 import service.invariant as invariant
 import service.assoc as assoc
 import data.crud as crud
+
 
 # /api/sync/patients
 class UpdatesPatients(Resource):
@@ -29,12 +32,7 @@ class UpdatesPatients(Resource):
         for p in json:
             patient_on_server = crud.read(Patient, patientId=p.get("patientId"))
             if patient_on_server is None:
-
-                if "gestationalTimestamp" in p:
-                    # Changing the key that comes from the android app to work with validation
-                    p["pregnancyStartDate"] = p.pop("gestationalTimestamp")
-
-                error_message = patients.validate(p)
+                error_message = validate_patient(p)
                 if error_message is not None:
                     abort(400, message=error_message)
 
@@ -76,14 +74,15 @@ class UpdatesPatients(Resource):
 
         # read all the patients from the DB
         #     TODO: optimize to get only patients
-        all_patients = view.patient_view_for_user(user)
+        user = get_jwt_identity()
+        all_patients = view.patient_with_records_view(user)
         all_patients_edited_or_new = [
-            p
+            serialize.serialize_patient_with_records(p)
             for p in all_patients
-            if p["lastEdited"] > timestamp
-            or p["pLastEdited"] > timestamp
-            or p["mLastEdited"] > timestamp
-            or p["dLastEdited"] > timestamp
+            if p.lastEdited > timestamp
+            or p.pLastEdited > timestamp
+            or p.mLastEdited > timestamp
+            or p.dLastEdited > timestamp
         ]
 
         return {
@@ -119,36 +118,35 @@ class UpdatesReadings(Resource):
                     readingId=r.get("readingId"),
                 )
             else:
-                error_message = readings.validate(r)
+                error_message = validate_reading(r)
                 if error_message is not None:
                     abort(400, message=error_message)
                 reading = marshal.unmarshal(Reading, r)
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
 
-        user = util.current_user()
         #     TODO: create custom DB calls for referral and followup
-
-        all_patients = view.patient_view_for_user(user)
+        user = get_jwt_identity()
+        readings = view.reading_view(user)
         new_readings = []
         new_referral = []
         new_followup = []
-        for p in all_patients:
-            for r in p["readings"]:
-                if r["lastEdited"] > timestamp:
-                    new_readings.append(r)
-                if (
-                    r["referral"]
-                    and r["referral"]["dateReferred"] > timestamp
-                    and r["lastEdited"] <= timestamp
-                ):
-                    new_referral.append(r["referral"])
-                if (
-                    r["followup"]
-                    and r["followup"]["dateAssessed"] > timestamp
-                    and r["lastEdited"] <= timestamp
-                ):
-                    new_followup.append(r["followup"])
+        for r in readings:
+            r = marshal.marshal(r)
+            if r["lastEdited"] > timestamp:
+                new_readings.append(r)
+            if (
+                r.get("referral")
+                and r["referral"]["dateReferred"] > timestamp
+                and r["lastEdited"] <= timestamp
+            ):
+                new_referral.append(r["referral"])
+            if (
+                r.get("followup")
+                and r["followup"]["dateAssessed"] > timestamp
+                and r["lastEdited"] <= timestamp
+            ):
+                new_followup.append(r["followup"])
 
         return {
             "total": len(new_readings) + len(new_referral) + len(new_followup),
