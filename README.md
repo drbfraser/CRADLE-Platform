@@ -66,3 +66,7 @@ the previously mentioned admin user is added along with a few additional users:
 | Mikhail Alexeev | malexeev@sfu.ca |
 | Syed Naufal Mahmood | syedm@sfu.ca |
 | Ting Yi | tingy@sfu.ca |
+| Andrey Pham | ndpham@sfu.ca |
+| Colin Huang | chuang7791@gmail.com |
+| Danica Walton | dglwalton@gmail.com |
+
