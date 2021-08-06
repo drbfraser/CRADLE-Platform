@@ -98,7 +98,6 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
               )}
             </span>
           </p>
-          <br />
         </div>
       );
     };
@@ -119,21 +118,32 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
           />
         )}
         <h4>Current Pregnancy</h4>
-        <Form.Field
-          name="gestationalAgeUnits"
-          control={Select}
-          options={unitOptions}
-          placeholder={gestationalAgeUnitLabels[currentPregnancyUnit]}
-          onChange={handleCurrentPregnancyUnitChange}
-          className={classes.margin}
-        />
-        <br />
         <p>
           <b>Pregnant: </b> {status}
         </p>
-        {info?.isPregnant && <GestationalAge />}
+        {info?.isPregnant && (
+          <>
+            <GestationalAge />
+            <br />
+            <div className={classes.inline}>
+              <b>Gestational Age Unit View: </b>
+              <Form.Field
+                name="gestationalAgeUnits"
+                control={Select}
+                options={unitOptions}
+                placeholder={gestationalAgeUnitLabels[currentPregnancyUnit]}
+                onChange={handleCurrentPregnancyUnitChange}
+                className={classes.marginLeft}
+              />
+            </div>
+            <br />
+          </>
+        )}
         {hasTimedOut && (
-          <Alert severity="warning">Is the patient still pregnant?</Alert>
+          <>
+            <Alert severity="warning">Is the patient still pregnant?</Alert>
+            <br />
+          </>
         )}
         {!info?.isPregnant && <br />}
       </div>
@@ -171,14 +181,6 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                 />
                 <h4> Previous Obstetric History</h4>
               </div>
-              <Form.Field
-                name="gestationalAgeUnits"
-                control={Select}
-                options={unitOptions}
-                placeholder={gestationalAgeUnitLabels[previousPregnancyUnit]}
-                onChange={handlePreviousPregnancyUnitChange}
-                className={classes.margin}
-              />
               <br />
               <Table className={classes.table}>
                 <TableBody>
@@ -204,6 +206,24 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                   )}
                 </TableBody>
               </Table>
+              {info.pastPregnancies && info.pastPregnancies.length > 0 && (
+                <div>
+                  <br />
+                  <div className={classes.inline}>
+                    <b>Gestational Age Unit View: </b>
+                    <Form.Field
+                      name="gestationalAgeUnits"
+                      control={Select}
+                      options={unitOptions}
+                      placeholder={
+                        gestationalAgeUnitLabels[previousPregnancyUnit]
+                      }
+                      onChange={handlePreviousPregnancyUnitChange}
+                      className={classes.marginLeft}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </>
         ) : (
@@ -215,8 +235,8 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
 };
 
 const useStyles = makeStyles({
-  margin: {
-    marginTop: 15,
+  marginLeft: {
+    marginLeft: 5,
   },
   wrapper: {
     backgroundColor: '#fff',
@@ -231,5 +251,9 @@ const useStyles = makeStyles({
   smallLink: {
     float: 'right',
     fontSize: 14,
+  },
+  inline: {
+    display: 'flex',
+    flexDirection: 'row',
   },
 });

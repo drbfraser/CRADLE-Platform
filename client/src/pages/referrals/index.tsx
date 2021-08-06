@@ -92,8 +92,8 @@ export const ReferralsPage = () => {
           columns={COLUMNS}
           sortableColumns={SORTABLE_COLUMNS}
           rowKey={'referralId'}
-          initialSortBy={'patientName'}
-          initialSortDir={SortDir.ASC}
+          initialSortBy={'dateReferred'}
+          initialSortDir={SortDir.DESC}
           RowComponent={ReferralRow}
           isTransformed={isTransformed}
           referralFilter={filter}
