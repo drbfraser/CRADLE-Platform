@@ -68,6 +68,8 @@ app = Flask(__name__, static_folder="../client/build")
 app.config["SWAGGER"] = {"openapi": "3.0.2"}
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["BASE_URL"] = ""
+app.config["UPLOAD_FOLDER"] = "/srv/www/admin"
+app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
 swagger = Swagger(app)
 
 CORS(app)

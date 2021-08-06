@@ -5,6 +5,9 @@ FROM python:3.9.1-buster
 RUN mkdir /usr/src/server
 WORKDIR /usr/src/server
 
+# create file upload directory
+RUN mkdir -p /srv/www/admin
+
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1

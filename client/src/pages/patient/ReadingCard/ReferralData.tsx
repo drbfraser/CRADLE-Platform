@@ -28,9 +28,13 @@ export const ReferralData = ({ reading }: IProps) => {
 
   const handleAssess = () => {
     if (followUp) {
-      history.push(`/assessments/edit/${reading.readingId}/${followUp.id}`);
+      history.push(
+        `/assessments/edit/${reading.patientId}/${reading.readingId}/${followUp.id}`
+      );
     } else {
-      history.push(`/assessments/new/${reading.readingId}`);
+      history.push(
+        `/assessments/new/${reading.patientId}/${reading.readingId}`
+      );
     }
   };
 

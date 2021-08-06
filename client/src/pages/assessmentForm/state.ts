@@ -9,22 +9,35 @@ export enum AssessmentField {
   medication = 'medicationPrescribed',
   followUp = 'followupNeeded',
   followUpInstruc = 'followupInstructions',
+  drugHistory = 'drugHistory',
 }
 
 export const initialState = {
   [AssessmentField.investigation]: '',
   [AssessmentField.finalDiagnosis]: '',
   [AssessmentField.treatment]: '',
-  [AssessmentField.medication]: '',
   [AssessmentField.followUp]: false,
   [AssessmentField.followUpInstruc]: '',
+  [AssessmentField.drugHistory]: '',
 };
 
 export type AssessmentState = typeof initialState;
 
 export const getAssessmentState = async (
+  patientId: string,
   assessmentId: string | undefined
 ): Promise<AssessmentState> => {
+  await apiFetch(
+    API_URL +
+      EndpointEnum.PATIENTS +
+      `/${patientId}` +
+      EndpointEnum.MEDICAL_HISTORY
+  )
+    .then((resp) => resp.json())
+    .then(
+      (info) => (initialState[AssessmentField.drugHistory] = info.drugHistory)
+    );
+
   if (assessmentId === undefined) {
     return { ...initialState };
   }
@@ -34,6 +47,8 @@ export const getAssessmentState = async (
   );
 
   const state = await resp.json();
+  state[AssessmentField.drugHistory] =
+    initialState[AssessmentField.drugHistory];
 
   return state;
 };

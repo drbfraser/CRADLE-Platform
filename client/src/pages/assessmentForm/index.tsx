@@ -11,20 +11,22 @@ import { AssessmentForm } from './AssessmentForm';
 import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
+  patientId: string;
   readingId: string;
   assessmentId: string | undefined;
 };
 
 export const AssessmentFormPage = () => {
   const classes = useStyles();
-  const { readingId, assessmentId } = useRouteMatch<RouteParams>().params;
+  const { patientId, readingId, assessmentId } =
+    useRouteMatch<RouteParams>().params;
   const [formInitialState, setFormInitialState] = useState<AssessmentState>();
 
   useEffect(() => {
-    getAssessmentState(assessmentId).then((state) =>
+    getAssessmentState(patientId, assessmentId).then((state) =>
       setFormInitialState(state)
     );
-  }, [assessmentId]);
+  }, [patientId, assessmentId]);
 
   return (
     <div className={classes.container}>
@@ -44,6 +46,7 @@ export const AssessmentFormPage = () => {
       ) : (
         <AssessmentForm
           initialState={formInitialState}
+          patientId={patientId}
           readingId={readingId}
           assessmentId={assessmentId}
         />
