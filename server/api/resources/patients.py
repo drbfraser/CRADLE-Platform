@@ -78,7 +78,7 @@ class Root(Resource):
         patient = crud.read_patient_with_medical_records(patient_id)
         readings = crud.read_readings(patient_id)
 
-        return serialize.serialize_patient_with_records(patient, readings), 201
+        return serialize.serialize_patient(patient, readings), 201
 
 
 # /api/patients/<string:patient_id>
@@ -97,7 +97,7 @@ class SinglePatient(Resource):
 
         readings = crud.read_readings(patient_id)
 
-        return serialize.serialize_patient_with_records(patient, readings)
+        return serialize.serialize_patient(patient, readings)
 
 
 # /api/patients/<string:patient_id>/info

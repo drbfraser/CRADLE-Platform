@@ -65,9 +65,7 @@ def serialize_patient_timeline(r: Any) -> dict:
     }
 
 
-def serialize_patient_with_records(
-    patient: Any, readings: Optional[List[Reading]] = None
-) -> dict:
+def serialize_patient(patient: Any, readings: Optional[List[Reading]] = None) -> dict:
     p = {
         "patientId": patient.patientId,
         "patientName": patient.patientName,

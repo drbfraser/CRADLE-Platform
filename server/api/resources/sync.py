@@ -23,8 +23,8 @@ class UpdatesPatients(Resource):
     def post():
         # Get all patients for this user
         user = util.current_user()
-        timestamp: int = request.args.get("since", None, type=int)
-        if not timestamp:
+        last_sync: int = request.args.get("since", None, type=int)
+        if not last_sync:
             abort(400, message="'since' query parameter is required")
 
         patients_to_be_added: List[Patient] = []
@@ -48,7 +48,7 @@ class UpdatesPatients(Resource):
                 if (
                     int(patient_on_server.lastEdited)
                     < int(p.get("lastEdited"))
-                    < timestamp
+                    < last_sync
                 ):
                     if p.get("base"):
                         if p.get("base") != p.get("lastEdited"):
@@ -72,21 +72,13 @@ class UpdatesPatients(Resource):
                 if not assoc.has_association(new_patient, user=user):
                     assoc.associate(new_patient, user.healthFacility, user)
 
-        # read all the patients from the DB
+        # Read all patients that have been created or updated since last sync
         user = get_jwt_identity()
-        all_patients = view.patient_with_records_view(user)
-        all_patients_edited_or_new = [
-            serialize.serialize_patient_with_records(p)
-            for p in all_patients
-            if p.lastEdited > timestamp
-            or p.pLastEdited > timestamp
-            or p.mLastEdited > timestamp
-            or p.dLastEdited > timestamp
-        ]
+        new_patients = view.patient_view(user, last_sync)
 
         return {
-            "total": len(all_patients_edited_or_new),
-            "patients": all_patients_edited_or_new,
+            "total": len(new_patients),
+            "patients": [serialize.serialize_patient(p) for p in new_patients],
         }
 
 
@@ -124,6 +116,7 @@ class UpdatesReadings(Resource):
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
 
+        # Read all readings, referrals and asseessments that have been created or updated since last sync
         user = get_jwt_identity()
         new_readings = view.reading_view(user, last_sync)
         new_referrals = view.referral_view(user, last_sync)
@@ -131,7 +124,7 @@ class UpdatesReadings(Resource):
 
         return {
             "total": len(new_readings) + len(new_referrals) + len(new_assessments),
-            "readings": [marshal.marshal(r) for r in new_readings],
+            "readings": [serialize.serialize_reading(r) for r in new_readings],
             "newReferralsForOldReadings": [marshal.marshal(r) for r in new_referrals],
             "newFollowupsForOldReadings": [marshal.marshal(a) for a in new_assessments],
         }

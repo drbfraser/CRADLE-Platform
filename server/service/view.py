@@ -89,17 +89,19 @@ def medical_record_view(
         )
 
 
-def patient_with_records_view(user: dict) -> List[Any]:
+def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
     """
     Returns a list of patients each with the latest pregnancy, medical and durg records.
 
     :param user: JWT identity
     :return: A list of patients
     """
-    return __get_view(user, crud.read_patient_with_medical_records)
+    return __get_view(user, crud.read_patient_with_medical_records, last_sync=last_sync)
 
 
-def reading_view(user: dict, last_sync: Optional[int] = None) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
+def reading_view(
+    user: dict, last_sync: Optional[int] = None
+) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
     """
     Returns a list of readings each with corresponding referral, assessment, and urine test.
 

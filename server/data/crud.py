@@ -431,6 +431,7 @@ def read_patient_with_medical_records(
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
+    last_sync: Optional[int] = None,
 ) -> Union[Any, List[Any]]:
     """
     Queries the database for patient(s) each with the latest pregnancy, medical and durg
@@ -444,12 +445,11 @@ def read_patient_with_medical_records(
     """
     # Aliased classes to be used in join clauses for geting the latest pregnancy, medical
     # and drug records.
-    p1 = aliased(Pregnancy)
-    p2 = aliased(Pregnancy)
-    m1 = aliased(MedicalRecord)
-    m2 = aliased(MedicalRecord)
-    m3 = aliased(MedicalRecord)
-    m4 = aliased(MedicalRecord)
+    pr = aliased(Pregnancy)
+    MedicalHistory = aliased(MedicalRecord)
+    md = aliased(MedicalRecord)
+    DrugHistory = aliased(MedicalRecord)
+    dr = aliased(MedicalRecord)
 
     query = (
         db_session.query(
@@ -463,43 +463,68 @@ def read_patient_with_medical_records(
             Patient.householdNumber,
             Patient.allergy,
             Patient.lastEdited,
-            p1.id.label("pregnancyId"),
-            p1.startDate.label("pregnancyStartDate"),
-            p1.defaultTimeUnit.label("gestationalAgeUnit"),
-            m1.id.label("medicalHistoryId"),
-            m1.information.label("medicalHistory"),
-            m3.id.label("drugHistoryId"),
-            m3.information.label("drugHistory"),
-            p1.lastEdited.label("pLastEdited"),
-            m1.lastEdited.label("mLastEdited"),
-            m3.lastEdited.label("dLastEdited"),
-        )
-        .outerjoin(p1, and_(Patient.patientId == p1.patientId, p1.endDate == None))
-        .outerjoin(p2, and_(p1.patientId == p2.patientId, p1.startDate < p2.startDate))
-        .outerjoin(
-            m1, and_(Patient.patientId == m1.patientId, m1.isDrugRecord == False)
+            Pregnancy.id.label("pregnancyId"),
+            Pregnancy.startDate.label("pregnancyStartDate"),
+            Pregnancy.defaultTimeUnit.label("gestationalAgeUnit"),
+            MedicalHistory.id.label("medicalHistoryId"),
+            MedicalHistory.information.label("medicalHistory"),
+            DrugHistory.id.label("drugHistoryId"),
+            DrugHistory.information.label("drugHistory"),
         )
         .outerjoin(
-            m2,
+            Pregnancy,
+            and_(Patient.patientId == Pregnancy.patientId, Pregnancy.endDate == None),
+        )
+        .outerjoin(
+            pr,
             and_(
-                m1.patientId == m2.patientId,
-                m1.dateCreated < m2.dateCreated,
-                m2.isDrugRecord == False,
+                Pregnancy.patientId == pr.patientId, Pregnancy.startDate < pr.startDate
             ),
         )
-        .outerjoin(m3, and_(Patient.patientId == m3.patientId, m3.isDrugRecord == True))
         .outerjoin(
-            m4,
+            MedicalHistory,
             and_(
-                m3.patientId == m4.patientId,
-                m3.dateCreated < m4.dateCreated,
-                m4.isDrugRecord == True,
+                Patient.patientId == MedicalHistory.patientId,
+                MedicalHistory.isDrugRecord == False,
             ),
         )
-        .filter(p2.startDate == None, m2.dateCreated == None, m4.dateCreated == None)
+        .outerjoin(
+            md,
+            and_(
+                MedicalHistory.patientId == md.patientId,
+                MedicalHistory.dateCreated < md.dateCreated,
+                md.isDrugRecord == False,
+            ),
+        )
+        .outerjoin(
+            DrugHistory,
+            and_(
+                Patient.patientId == DrugHistory.patientId,
+                DrugHistory.isDrugRecord == True,
+            ),
+        )
+        .outerjoin(
+            dr,
+            and_(
+                DrugHistory.patientId == dr.patientId,
+                DrugHistory.dateCreated < dr.dateCreated,
+                dr.isDrugRecord == True,
+            ),
+        )
+        .filter(pr.startDate == None, md.dateCreated == None, dr.dateCreated == None)
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
+
+    if last_sync:
+        query = query.filter(
+            or_(
+                Patient.lastEdited > last_sync,
+                Pregnancy.lastEdited > last_sync,
+                MedicalHistory.lastEdited > last_sync,
+                DrugHistory.lastEdited > last_sync,
+            )
+        )
 
     if patient_id:
         return query.filter(Patient.patientId == patient_id).first()

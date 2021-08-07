@@ -109,9 +109,9 @@ class AndroidPatients(Resource):
     )
     def get():
         user = get_jwt_identity()
-        patients = view.patient_with_records_view(user)
+        patients = view.patient_view(user)
 
-        return [serialize.serialize_patient_with_records(p) for p in patients]
+        return [serialize.serialize_patient(p) for p in patients]
 
 
 # /api/mobile/readings
