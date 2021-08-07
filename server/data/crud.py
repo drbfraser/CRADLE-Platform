@@ -323,7 +323,7 @@ def read_referral_list(
         return query.all()
 
 
-def read_patient_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
+def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
     """
     Queries the database for medical records of a patient
 
@@ -427,7 +427,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     return query.slice(*__get_slice_indexes(page, limit))
 
 
-def read_patient_with_records(
+def read_patient_with_medical_records(
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
@@ -507,7 +507,7 @@ def read_patient_with_records(
         return query.all()
 
 
-def read_patient_readings(
+def read_readings(
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
