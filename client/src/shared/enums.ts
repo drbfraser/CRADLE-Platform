@@ -56,6 +56,7 @@ export enum EndpointEnum {
   ALL_VHTS = '/user/vhts',
   AUTH = '/user/auth',
   REFRESH = '/user/auth/refresh_token',
+  UPLOAD_ADMIN = '/upload/admin',
   USER = '/user/',
   USER_ALL = '/user/all',
   USER_CURRENT = '/user/current',

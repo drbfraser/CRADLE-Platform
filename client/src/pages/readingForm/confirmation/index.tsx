@@ -175,7 +175,7 @@ export const Confirmation = ({ formikProps }: FormPageProps) => {
               rows={3}
               variant="outlined"
               label="Medication Prescribed"
-              value={formikProps.values[ReadingField.medication]}
+              value={formikProps.values[ReadingField.drugHistory]}
             />
           </Grid>
         </Grid>
