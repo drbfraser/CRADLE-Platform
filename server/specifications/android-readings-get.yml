@@ -12,15 +12,12 @@ responses:
           items:
             type: object
             properties:
-              userId:
-                type: integer | Null
-                example: 10
-              patientId:
-                type: integer
-                example: 49300000000
               readingId:
                 type: string
                 example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+              patientId:
+                type: integer
+                example: 49300000000
               trafficLightStatus:
                 type: string
                 enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
@@ -41,6 +38,9 @@ responses:
               heartRateBPM:
                 type: integer
                 example: 60
+              userId:
+                type: integer | Null
+                example: 10
               referral:
                 type: object | Null
                 properties:

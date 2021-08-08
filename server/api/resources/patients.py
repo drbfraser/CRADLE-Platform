@@ -29,8 +29,7 @@ class Root(Resource):
         user = get_jwt_identity()
         params = util.get_query_params(request)
         patients = view.patient_list_view(user, **params)
-
-        return [serialize.serialize_patient(p) for p in patients]
+        return serialize.serialize_patient_list(patients)
 
     @staticmethod
     @jwt_required
