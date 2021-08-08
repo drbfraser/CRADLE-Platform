@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
+from typing import List, NamedTuple, Optional, Tuple, Type, TypeVar, Any, Union
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
@@ -21,6 +21,11 @@ import service.invariant as invariant
 
 M = TypeVar("M")
 S = TypeVar("S")
+
+
+class ModelData(NamedTuple):
+    primary_key: Union[int, str]
+    values: dict
 
 
 def create(model: M, refresh=False):
@@ -67,7 +72,7 @@ def create_model(new_data: dict, schema: S) -> Any:
     return new_model
 
 
-def create_all_patients(model: List[Patient]):
+def create_all(models: List[Any]):
     """
     add_all list of model into the database.
 
@@ -82,7 +87,7 @@ def create_all_patients(model: List[Patient]):
                     the database; this involves an additional query so only use it if
                     necessary
     """
-    db_session.add_all(model)
+    db_session.add_all(models)
     db_session.commit()
 
 
@@ -132,6 +137,11 @@ def update(m: Type[M], changes: dict, **kwargs):
     db_session.commit()
 
 
+def update_by(model: Any, data: ModelData, c):
+    db_session.query(model).filter(c == data.primary_key).update(data.values)
+    db_session.commit()
+
+
 def delete(model: M):
     """
     Deletes a model from the database.
@@ -158,6 +168,11 @@ def delete_by(m: Type[M], **kwargs):
     model = read(m, **kwargs)
     if model:
         delete(model)
+
+
+def delete_all(model: Any, **kwargs):
+    db_session.query(model).filter_by(**kwargs).delete()
+    db_session.commit()
 
 
 def find(m: Type[M], *args) -> List[M]:

@@ -7,9 +7,11 @@ import api.util as util
 import service.view as view
 import service.serialize as serialize
 import data.marshal as marshal
+from data import db_session
+from data.crud import ModelData
 from validation.patients import validate as validate_patient
 from validation.readings import validate as validate_reading
-from models import Patient, Reading
+from models import MedicalRecord, Patient, PatientAssociations, Pregnancy, Reading
 from utils import get_current_time
 import service.invariant as invariant
 import service.assoc as assoc
@@ -21,59 +23,96 @@ class UpdatesPatients(Resource):
     @staticmethod
     @jwt_required
     def post():
-        # Get all patients for this user
-        user = util.current_user()
-        last_sync: int = request.args.get("since", None, type=int)
+        user = get_jwt_identity()
+        last_sync = request.args.get("since", None, type=int)
         if not last_sync:
             abort(400, message="'since' query parameter is required")
 
-        patients_to_be_added: List[Patient] = []
-        json = request.get_json(force=True)
-        for p in json:
-            patient_on_server = crud.read(Patient, patientId=p.get("patientId"))
-            if patient_on_server is None:
-                error_message = validate_patient(p)
-                if error_message is not None:
-                    abort(400, message=error_message)
-
-                patient = marshal.unmarshal(Patient, p)
-                # # Resolve invariants and set the creation timestamp for the patient ensuring
-                # # that both the created and lastEdited fields have the exact same value.
-                invariant.resolve_reading_invariants_mobile(patient)
-                creation_time = get_current_time()
-                patient.created = creation_time
-                patient.lastEdited = creation_time
-                patients_to_be_added.append(patient)
+        mobile_patients = request.get_json(force=True)
+        patients_to_create: List[Patient] = list()
+        pregnancies_to_create: List[Pregnancy] = list()
+        records_to_create: List[MedicalRecord] = list()
+        associations_to_create: List[PatientAssociations] = list()
+        patients_to_update: List[ModelData] = list()
+        pregnancies_to_update: List[ModelData] = list()
+        for p in mobile_patients:
+            patient_id = p["patientId"]
+            server_patient = crud.read(Patient, patientId=patient_id)
+            if not server_patient:
+                patient = serialize.deserialize_patient(p, shallow=False)
+                patients_to_create.append(patient)
             else:
-                if (
-                    int(patient_on_server.lastEdited)
-                    < int(p.get("lastEdited"))
-                    < last_sync
-                ):
-                    if p.get("base"):
-                        if p.get("base") != p.get("lastEdited"):
-                            abort(
-                                409,
-                                message="Unable to merge changes, conflict detected",
+                if p.get("base") and p["base"] == server_patient.lastEdited:
+                    values = serialize.deserialize_patient(p, partial=True)
+                    patients_to_update.append(ModelData(patient_id, values))
+
+                if p.get("medicalLastEditedDate"):
+                    model = serialize.deserialize_medical_record(p, False)
+                    records_to_create.append(model)
+
+                if p.get("drugLastEditedDate"):
+                    model = serialize.deserialize_medical_record(p, True)
+                    records_to_create.append(model)
+
+                pregnancy_id = None
+                pregnancy_end_date = None
+                if p.get("pregnancyEndDate"):
+                    pregnancy = crud.read(Pregnancy, id=p["pregnancyId"])
+                    pregnancy_id = pregnancy.id
+                    pregnancy_end_date = pregnancy.endDate
+                    if not pregnancy_end_date:
+                        pregnancy_end_date = p["pregnancyEndDate"]
+                        if crud.has_conflicting_pregnancy_record(
+                            patient_id,
+                            pregnancy.startDate,
+                            p["pregnancyEndDate"],
+                            pregnancy_id,
+                        ):
+                            abort(409, message="")
+                        else:
+                            values = serialize.deserialize_pregnancy(p, partial=True)
+                            pregnancies_to_update.append(
+                                ModelData(pregnancy_id, values)
                             )
-                        del p["base"]
 
-                    p["lastEdited"] = get_current_time()
-                    crud.update(Patient, p, patientId=p["patientId"])
-                #     TODO: revisit association logic
-                if not assoc.has_association(patient_on_server, user=user):
-                    assoc.associate(patient_on_server, user.healthFacility, user)
+                if (p.get("pregnancyStartDate") and not p.get("pregnancyId")) or (
+                    p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
+                ):
+                    if crud.has_conflicting_pregnancy_record(
+                        patient_id, p["pregnancyStartDate"], pregnancy_id=pregnancy_id
+                    ) or (
+                        pregnancy_end_date
+                        and p["pregnancyStartDate"] <= pregnancy_end_date
+                    ):
+                        abort(409, message="")
+                    else:
+                        model = serialize.deserialize_pregnancy(p)
+                        pregnancies_to_create.append(model)
 
-        # update association
-        if patients_to_be_added:
-            crud.create_all_patients(patients_to_be_added)
-            for new_patient in patients_to_be_added:
-                #     TODO: revisit association logic
-                if not assoc.has_association(new_patient, user=user):
-                    assoc.associate(new_patient, user.healthFacility, user)
+            association = {
+                "patientId": patient_id,
+                "healthFacilityName": user.get("healthFacilityName"),
+                "userId": user["userId"],
+            }
+            if not crud.read(PatientAssociations, **association):
+                model = marshal.unmarshal(PatientAssociations, association)
+                associations_to_create.append(model)
+
+        models_list = [
+            patients_to_create,
+            pregnancies_to_create,
+            records_to_create,
+            associations_to_create,
+        ]
+        for models in models_list:
+            if models:
+                crud.create_all(models)
+        for p in patients_to_update:
+            crud.update_by(Patient, p, Patient.patientId)
+        for p in pregnancies_to_update:
+            crud.update_by(Pregnancy, p, Pregnancy.id)
 
         # Read all patients that have been created or updated since last sync
-        user = get_jwt_identity()
         new_patients = view.patient_view(user, last_sync)
 
         return {
