@@ -73,7 +73,6 @@ class UpdatesPatients(Resource):
                     assoc.associate(new_patient, user.healthFacility, user)
 
         # read all the patients from the DB
-        #     TODO: optimize to get only patients
         user = get_jwt_identity()
         all_patients = view.patient_with_records_view(user)
         all_patients_edited_or_new = [
@@ -132,7 +131,7 @@ class UpdatesReadings(Resource):
         new_referral = []
         new_followup = []
         for r in readings:
-            r = marshal.marshal(r)
+            r = serialize.serialize_reading(r)
             if r["lastEdited"] > timestamp:
                 new_readings.append(r)
             if (

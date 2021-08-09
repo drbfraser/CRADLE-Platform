@@ -284,7 +284,7 @@ def makeMedRecFromPatient(patient: dict) -> MedicalRecord:
 
 def makePregnancyFromPatient(patient: dict) -> Pregnancy:
     pregnancyObj = {}
-    if "pregnancyStartDate" in patient:
+    if patient.get("pregnancyStartDate"):
         pregnancyObj = {
             "patientId": patient["patientId"],
             "startDate": patient.pop("pregnancyStartDate"),

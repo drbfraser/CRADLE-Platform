@@ -2,34 +2,40 @@
 The ``service.util`` contains utility functions to help simplify useful information into a dict
 instead of using marshal on the whole Object.
 """
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 
 import data.marshal as marshal
-from models import MedicalRecord, Pregnancy, Reading
+from models import FollowUp, MedicalRecord, Pregnancy, Reading, Referral, UrineTest
 
 
-def serialize_patient(p: Any) -> dict:
-    return {
-        "patientId": p.patientId,
-        "patientName": p.patientName,
-        "villageNumber": p.villageNumber,
-        "trafficLightStatus": p.trafficLightStatus.value
-        if p.trafficLightStatus
-        else "",
-        "dateTimeTaken": p.dateTimeTaken if p.dateTimeTaken else "",
-    }
+def serialize_patient_list(patients: List[Any]) -> dict:
+    return [
+        {
+            "patientId": p.patientId,
+            "patientName": p.patientName,
+            "villageNumber": p.villageNumber,
+            "trafficLightStatus": p.trafficLightStatus.value
+            if p.trafficLightStatus
+            else "",
+            "dateTimeTaken": p.dateTimeTaken if p.dateTimeTaken else "",
+        }
+        for p in patients
+    ]
 
 
-def serialize_referral(r: Any) -> dict:
-    return {
-        "referralId": r.id,
-        "patientId": r.patientId,
-        "patientName": r.patientName,
-        "villageNumber": r.villageNumber,
-        "trafficLightStatus": r.trafficLightStatus.value,
-        "dateReferred": r.dateReferred,
-        "isAssessed": r.isAssessed,
-    }
+def serialize_referral_list(referrals: List[Any]) -> dict:
+    return [
+        {
+            "referralId": r.id,
+            "patientId": r.patientId,
+            "patientName": r.patientName,
+            "villageNumber": r.villageNumber,
+            "trafficLightStatus": r.trafficLightStatus.value,
+            "dateReferred": r.dateReferred,
+            "isAssessed": r.isAssessed,
+        }
+        for r in referrals
+    ]
 
 
 def serialize_pregnancy(p: Pregnancy) -> dict:
@@ -62,7 +68,7 @@ def serialize_patient_timeline(r: Any) -> dict:
 def serialize_patient_with_records(
     patient: Any, readings: Optional[List[Reading]] = None
 ) -> dict:
-    return {
+    p = {
         "patientId": patient.patientId,
         "patientName": patient.patientName,
         "patientSex": patient.patientSex.value,
@@ -84,5 +90,17 @@ def serialize_patient_with_records(
         "drugHistory": patient.drugHistory,
         "lastEdited": patient.lastEdited,
         "base": patient.lastEdited,
-        "readings": [marshal.marshal(r) for r in readings] if readings else [],
+        "readings": [serialize_reading(r) for r in readings] if readings else [],
     }
+    return {k: v for k, v in p.items() if v or v == False}
+
+
+def serialize_reading(tup: Tuple[Reading, Referral, FollowUp, UrineTest]) -> dict:
+    reading = marshal.marshal(tup[0], True)
+    if tup[1]:
+        reading["referral"] = marshal.marshal(tup[1])
+    if tup[2]:
+        reading["followup"] = marshal.marshal(tup[2])
+    if tup[3]:
+        reading["urineTests"] = marshal.marshal(tup[3])
+    return reading

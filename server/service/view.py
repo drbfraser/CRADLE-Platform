@@ -17,14 +17,17 @@ The role-specific views are defined as follows:
 * VHT: can see all patients created by them
 """
 
-from typing import Any, List, Callable
+from typing import Any, List, Callable, Tuple
 
 import data.crud as crud
 from models import (
+    FollowUp,
     Reading,
+    Referral,
     RoleEnum,
     Pregnancy,
     MedicalRecord,
+    UrineTest,
 )
 
 
@@ -63,7 +66,7 @@ def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
     if not kwargs:
         return crud.read_all(Pregnancy, patientId=patient_id)
     else:
-        return crud.read_patient_records(Pregnancy, patient_id, **kwargs)
+        return crud.read_medical_records(Pregnancy, patient_id, **kwargs)
 
 
 def medical_record_view(
@@ -81,7 +84,7 @@ def medical_record_view(
             MedicalRecord, patientId=patient_id, isDrugRecord=is_drug_record
         )
     else:
-        return crud.read_patient_records(
+        return crud.read_medical_records(
             MedicalRecord, patient_id, is_drug_record=is_drug_record, **kwargs
         )
 
@@ -93,15 +96,15 @@ def patient_with_records_view(user: dict) -> List[Any]:
     :param user: JWT identity
     :return: A list of patients
     """
-    return __get_view(user, crud.read_patient_with_records)
+    return __get_view(user, crud.read_patient_with_medical_records)
 
 
-def reading_view(user: dict) -> List[Reading]:
+def reading_view(user: dict) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
     """
-    Returns a list of readings of patients associated with user.
+    Returns a list of readings each with corresponding referral, assessment, and urine test.
 
     :param user: JWT identity
-    :return: A list of readings
+    :return: A list of tuples of reading, referral, assessment, urine test
     """
     return __get_view(user, crud.read_readings)
 

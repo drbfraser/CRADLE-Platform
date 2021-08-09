@@ -29,8 +29,7 @@ class Root(Resource):
         user = get_jwt_identity()
         params = util.get_query_params(request)
         patients = view.patient_list_view(user, **params)
-
-        return [serialize.serialize_patient(p) for p in patients]
+        return serialize.serialize_patient_list(patients)
 
     @staticmethod
     @jwt_required
@@ -76,7 +75,7 @@ class Root(Resource):
                 # wipe out the patient we want to return we must refresh it.
                 data.db_session.refresh(patient)
 
-        patient = crud.read_patient_with_records(patient_id)
+        patient = crud.read_patient_with_medical_records(patient_id)
         readings = crud.read_readings(patient_id)
 
         return serialize.serialize_patient_with_records(patient, readings), 201
@@ -92,7 +91,7 @@ class SinglePatient(Resource):
         endpoint="single_patient",
     )
     def get(patient_id: str):
-        patient = crud.read_patient_with_records(patient_id)
+        patient = crud.read_patient_with_medical_records(patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
 
@@ -231,7 +230,7 @@ class PatientPregnancySummary(Resource):
         endpoint="patient_pregnancy_summary",
     )
     def get(patient_id: str):
-        pregnancies = crud.read_patient_records(Pregnancy, patient_id, direction="DESC")
+        pregnancies = crud.read_medical_records(Pregnancy, patient_id, direction="DESC")
         return marshal.marshal_patient_pregnancy_summary(pregnancies)
 
 
