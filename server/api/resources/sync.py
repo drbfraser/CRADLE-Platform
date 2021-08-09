@@ -1,25 +1,25 @@
-from typing import List
+from typing import Any, List, NamedTuple
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
 
-import api.util as util
 import service.view as view
 import service.serialize as serialize
 import data.marshal as marshal
 from data import db_session
-from data.crud import ModelData
-from validation.patients import validate as validate_patient
 from validation.readings import validate as validate_reading
 from models import MedicalRecord, Patient, PatientAssociations, Pregnancy, Reading
-from utils import get_current_time
 import service.invariant as invariant
-import service.assoc as assoc
 import data.crud as crud
 
 
+class ModelData(NamedTuple):
+    primary_key: Any
+    values: dict
+
+
 # /api/sync/patients
-class UpdatesPatients(Resource):
+class SyncPatients(Resource):
     @staticmethod
     @jwt_required
     def post():
@@ -46,11 +46,11 @@ class UpdatesPatients(Resource):
                     values = serialize.deserialize_patient(p, partial=True)
                     patients_to_update.append(ModelData(patient_id, values))
 
-                if p.get("medicalLastEditedDate"):
+                if p.get("medicalLastEdited"):
                     model = serialize.deserialize_medical_record(p, False)
                     records_to_create.append(model)
 
-                if p.get("drugLastEditedDate"):
+                if p.get("drugLastEdited"):
                     model = serialize.deserialize_medical_record(p, True)
                     records_to_create.append(model)
 
@@ -61,11 +61,11 @@ class UpdatesPatients(Resource):
                     pregnancy_id = pregnancy.id
                     pregnancy_end_date = pregnancy.endDate
                     if not pregnancy_end_date:
-                        pregnancy_end_date = p["pregnancyEndDate"]
+                        pregnancy_end_date = int(p["pregnancyEndDate"])
                         if crud.has_conflicting_pregnancy_record(
                             patient_id,
                             pregnancy.startDate,
-                            p["pregnancyEndDate"],
+                            pregnancy_end_date,
                             pregnancy_id,
                         ):
                             abort(409, message="")
@@ -78,11 +78,12 @@ class UpdatesPatients(Resource):
                 if (p.get("pregnancyStartDate") and not p.get("pregnancyId")) or (
                     p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
                 ):
+                    new_start_date = int(p["pregnancyStartDate"])
                     if crud.has_conflicting_pregnancy_record(
-                        patient_id, p["pregnancyStartDate"], pregnancy_id=pregnancy_id
+                        patient_id, new_start_date, pregnancy_id=pregnancy_id
                     ) or (
                         pregnancy_end_date
-                        and p["pregnancyStartDate"] <= pregnancy_end_date
+                        and new_start_date <= pregnancy_end_date
                     ):
                         abort(409, message="")
                     else:
@@ -98,31 +99,33 @@ class UpdatesPatients(Resource):
                 model = marshal.unmarshal(PatientAssociations, association)
                 associations_to_create.append(model)
 
-        models_list = [
-            patients_to_create,
-            pregnancies_to_create,
-            records_to_create,
-            associations_to_create,
-        ]
-        for models in models_list:
-            if models:
-                crud.create_all(models)
-        for p in patients_to_update:
-            crud.update_by(Patient, p, Patient.patientId)
-        for p in pregnancies_to_update:
-            crud.update_by(Pregnancy, p, Pregnancy.id)
+        with db_session.begin_nested():
+            models_list = [
+                patients_to_create,
+                pregnancies_to_create,
+                records_to_create,
+                associations_to_create,
+            ]
+            for models in models_list:
+                if models:
+                    crud.create_all(models, autocommit=False)
+            for p in patients_to_update:
+                crud.update(
+                    Patient, p.values, autocommit=False, patientId=p.primary_key
+                )
+            for p in pregnancies_to_update:
+                crud.update(Pregnancy, p.values, autocommit=False, id=p.primary_key)
 
-        # Read all patients that have been created or updated since last sync
-        new_patients = view.patient_view(user, last_sync)
+            # Read all patients that have been created or updated since last sync
+            new_patients = view.patient_view(user, last_sync)
+            patients_json = [serialize.serialize_patient(p) for p in new_patients]
+        db_session.commit()
 
-        return {
-            "total": len(new_patients),
-            "patients": [serialize.serialize_patient(p) for p in new_patients],
-        }
+        return {"total": len(new_patients), "patients": patients_json}
 
 
 # /api/sync/readings
-class UpdatesReadings(Resource):
+class SyncReadings(Resource):
     @staticmethod
     @jwt_required
     def post():

@@ -152,9 +152,9 @@ def test_sync_patients(
                 "pregnancyEndDate": last_sync + 1,
                 "pregnancyOutcome": "SVD - baby weighed 2.53kg",
                 "medicalHistory": "Pregnancy induced hypertension",
-                "medicalLastEditedDate": last_sync + 2,
+                "medicalLastEdited": last_sync + 2,
                 "drugHistory": "Labetalol 212mg three times daily",
-                "drugLastEditedDate": last_sync + 2,
+                "drugLastEdited": last_sync + 2,
                 "lastEdited": last_sync + 2,
             }
         )

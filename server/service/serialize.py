@@ -152,7 +152,7 @@ def deserialize_pregnancy(data: dict, partial: bool = False) -> Union[dict, Preg
     if partial:
         d = {
             "endDate": data["pregnancyEndDate"],
-            "outcome": data["pregnancyOutcome"],
+            "outcome": data.get("pregnancyOutcome"),
         }
         return {k: v for k, v in d.items() if v}
 
@@ -172,10 +172,10 @@ def deserialize_medical_record(data: dict, is_drug_record: bool) -> MedicalRecor
         else data.pop("medicalHistory"),
         "isDrugRecord": is_drug_record,
     }
-    if data.get("medicalLastEditedDate") or data.get("drugLastEditedDate"):
+    if data.get("medicalLastEdited") or data.get("drugLastEdited"):
         d["dateCreated"] = (
-            data.pop("drugLastEditedDate")
+            data.pop("drugLastEdited")
             if is_drug_record
-            else data.pop("medicalLastEditedDate")
+            else data.pop("medicalLastEdited")
         )
     return MedicalRecord.schema()().load(d)
