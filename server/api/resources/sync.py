@@ -2,6 +2,7 @@ from typing import Any, List, NamedTuple
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
+from marshmallow import ValidationError
 
 import service.view as view
 import service.serialize as serialize
@@ -28,6 +29,7 @@ class SyncPatients(Resource):
         if not last_sync:
             abort(400, message="'since' query parameter is required")
 
+        # Validate and load patients
         mobile_patients = request.get_json(force=True)
         patients_to_create: List[Patient] = list()
         pregnancies_to_create: List[Pregnancy] = list()
@@ -36,70 +38,80 @@ class SyncPatients(Resource):
         patients_to_update: List[ModelData] = list()
         pregnancies_to_update: List[ModelData] = list()
         for p in mobile_patients:
-            patient_id = p["patientId"]
-            server_patient = crud.read(Patient, patientId=patient_id)
-            if not server_patient:
-                patient = serialize.deserialize_patient(p, shallow=False)
-                patients_to_create.append(patient)
-            else:
-                if p.get("base") and p["base"] == server_patient.lastEdited:
-                    values = serialize.deserialize_patient(p, partial=True)
-                    patients_to_update.append(ModelData(patient_id, values))
+            patient_id = p.get("patientId")
+            tag = f"Patient {patient_id}: "
+            try:
+                server_patient = crud.read(Patient, patientId=patient_id)
+                if not server_patient:
+                    patient = serialize.deserialize_patient(p, shallow=False)
+                    patients_to_create.append(patient)
+                else:
+                    if p.get("base") and p["base"] == server_patient.lastEdited:
+                        values = serialize.deserialize_patient(p, partial=True)
+                        patients_to_update.append(ModelData(patient_id, values))
 
-                if p.get("medicalLastEdited"):
-                    model = serialize.deserialize_medical_record(p, False)
-                    records_to_create.append(model)
+                    if p.get("medicalLastEdited"):
+                        model = serialize.deserialize_medical_record(p, False)
+                        records_to_create.append(model)
 
-                if p.get("drugLastEdited"):
-                    model = serialize.deserialize_medical_record(p, True)
-                    records_to_create.append(model)
+                    if p.get("drugLastEdited"):
+                        model = serialize.deserialize_medical_record(p, True)
+                        records_to_create.append(model)
 
-                pregnancy_id = None
-                pregnancy_end_date = None
-                if p.get("pregnancyEndDate"):
-                    pregnancy = crud.read(Pregnancy, id=p["pregnancyId"])
-                    pregnancy_id = pregnancy.id
-                    pregnancy_end_date = pregnancy.endDate
-                    if not pregnancy_end_date:
-                        pregnancy_end_date = int(p["pregnancyEndDate"])
-                        if crud.has_conflicting_pregnancy_record(
-                            patient_id,
-                            pregnancy.startDate,
-                            pregnancy_end_date,
-                            pregnancy_id,
-                        ):
-                            abort(409, message="")
-                        else:
-                            values = serialize.deserialize_pregnancy(p, partial=True)
-                            pregnancies_to_update.append(
-                                ModelData(pregnancy_id, values)
-                            )
+                    pregnancy_id = None
+                    pregnancy_end_date = None
+                    if p.get("pregnancyEndDate"):
+                        values = serialize.deserialize_pregnancy(p, partial=True)
+                        pregnancy = crud.read(Pregnancy, id=p.get("pregnancyId"))
+                        if not pregnancy:
+                            err = _to_string("pregnancyId", "Invalid")
+                            abort(400, message=f"{tag}{err}")
+                        pregnancy_id = pregnancy.id
+                        pregnancy_end_date = pregnancy.endDate
+                        if not pregnancy_end_date:
+                            pregnancy_end_date = values["endDate"]
+                            if crud.has_conflicting_pregnancy_record(
+                                patient_id,
+                                pregnancy.startDate,
+                                pregnancy_end_date,
+                                pregnancy_id,
+                            ):
+                                err = _to_string("pregnancyStartDate", "Conflict")
+                                abort(409, message=f"{tag}{err}")
+                            else:
+                                pregnancies_to_update.append(
+                                    ModelData(pregnancy_id, values)
+                                )
 
-                if (p.get("pregnancyStartDate") and not p.get("pregnancyId")) or (
-                    p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
-                ):
-                    new_start_date = int(p["pregnancyStartDate"])
-                    if crud.has_conflicting_pregnancy_record(
-                        patient_id, new_start_date, pregnancy_id=pregnancy_id
-                    ) or (
-                        pregnancy_end_date
-                        and new_start_date <= pregnancy_end_date
+                    if (p.get("pregnancyStartDate") and not p.get("pregnancyId")) or (
+                        p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
                     ):
-                        abort(409, message="")
-                    else:
                         model = serialize.deserialize_pregnancy(p)
-                        pregnancies_to_create.append(model)
+                        if crud.has_conflicting_pregnancy_record(
+                            patient_id, model.startDate, pregnancy_id=pregnancy_id
+                        ) or (
+                            pregnancy_end_date and model.startDate <= pregnancy_end_date
+                        ):
+                            err = _to_string("pregnancyEndDate", "Conflict")
+                            abort(409, message=f"{tag}{err}")
+                        else:
+                            pregnancies_to_create.append(model)
 
-            association = {
-                "patientId": patient_id,
-                "healthFacilityName": user.get("healthFacilityName"),
-                "userId": user["userId"],
-            }
-            if not crud.read(PatientAssociations, **association):
-                model = marshal.unmarshal(PatientAssociations, association)
-                associations_to_create.append(model)
+                association = {
+                    "patientId": patient_id,
+                    "healthFacilityName": user.get("healthFacilityName"),
+                    "userId": user["userId"],
+                }
+                if not crud.read(PatientAssociations, **association):
+                    model = marshal.unmarshal(PatientAssociations, association)
+                    associations_to_create.append(model)
+            except ValidationError as err:
+                abort(400, message=f"{tag}{err}")
+            except:
+                raise
 
         with db_session.begin_nested():
+            # Create and update patients in the database
             models_list = [
                 patients_to_create,
                 pregnancies_to_create,
@@ -170,3 +182,8 @@ class SyncReadings(Resource):
             "newReferralsForOldReadings": [marshal.marshal(r) for r in new_referrals],
             "newFollowupsForOldReadings": [marshal.marshal(a) for a in new_assessments],
         }
+
+
+def _to_string(field, error):
+    # marshmallow.ValidationError error message style
+    return "{'" + field + "': ['" + error + ".']}"

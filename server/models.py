@@ -5,6 +5,7 @@ from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
+import marshmallow
 
 from config import db, ma
 from utils import get_current_time
@@ -505,7 +506,15 @@ class VillageSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
+def validate_timestamp(ts):
+    if ts > get_current_time():
+        raise marshmallow.ValidationError("Date must not be in the future.")
+
+
 class PregnancySchema(ma.SQLAlchemyAutoSchema):
+    startDate = marshmallow.fields.Integer(validate=validate_timestamp)
+    endDate = marshmallow.fields.Integer(validate=validate_timestamp)
+
     class Meta:
         include_fk = True
         model = Pregnancy
@@ -514,6 +523,8 @@ class PregnancySchema(ma.SQLAlchemyAutoSchema):
 
 
 class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
+    dateCreated = marshmallow.fields.Integer(validate=validate_timestamp)
+
     class Meta:
         include_fk = True
         model = MedicalRecord
