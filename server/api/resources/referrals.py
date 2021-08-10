@@ -31,7 +31,7 @@ class Root(Resource):
 
         referrals = view.referral_list_view(user, **params)
 
-        return [serialize.serialize_referral(r) for r in referrals]
+        return serialize.serialize_referral_list(referrals)
 
     @staticmethod
     @jwt_required

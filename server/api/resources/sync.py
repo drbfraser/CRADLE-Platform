@@ -1,4 +1,4 @@
-from typing import Any, List, NamedTuple
+from typing import List, NamedTuple, Union
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
@@ -15,7 +15,7 @@ import data.crud as crud
 
 
 class ModelData(NamedTuple):
-    primary_key: Any
+    primary_key: Union[str, int]
     values: dict
 
 
@@ -47,6 +47,8 @@ class SyncPatients(Resource):
                     patients_to_create.append(patient)
                 else:
                     if p.get("base") and p["base"] == server_patient.lastEdited:
+                        # Otherwise, patient has been edited on server; mobile patient will be
+                        # override if sync succeeds
                         values = serialize.deserialize_patient(p, partial=True)
                         patients_to_update.append(ModelData(patient_id, values))
 
@@ -58,17 +60,20 @@ class SyncPatients(Resource):
                         model = serialize.deserialize_medical_record(p, True)
                         records_to_create.append(model)
 
+                    # Variables for checking conflicts with new pregnancy in the next condition block
                     pregnancy_id = None
                     pregnancy_end_date = None
                     if p.get("pregnancyEndDate"):
                         values = serialize.deserialize_pregnancy(p, partial=True)
                         pregnancy = crud.read(Pregnancy, id=p.get("pregnancyId"))
-                        if not pregnancy:
-                            err = _to_string("pregnancyId", "Invalid")
+                        if not pregnancy or pregnancy.patientId != patient_id:
+                            err = _to_string("pregnancyId", "invalid")
                             abort(400, message=f"{tag}{err}")
                         pregnancy_id = pregnancy.id
                         pregnancy_end_date = pregnancy.endDate
                         if not pregnancy_end_date:
+                            # Otherwise, pregnancy has been edited on server; end date inputted
+                            # on Android will be discarded if sync succeeds
                             pregnancy_end_date = values["endDate"]
                             if crud.has_conflicting_pregnancy_record(
                                 patient_id,
@@ -76,7 +81,7 @@ class SyncPatients(Resource):
                                 pregnancy_end_date,
                                 pregnancy_id,
                             ):
-                                err = _to_string("pregnancyStartDate", "Conflict")
+                                err = _to_string("pregnancyEndDate", "conflict")
                                 abort(409, message=f"{tag}{err}")
                             else:
                                 pregnancies_to_update.append(
@@ -92,7 +97,7 @@ class SyncPatients(Resource):
                         ) or (
                             pregnancy_end_date and model.startDate <= pregnancy_end_date
                         ):
-                            err = _to_string("pregnancyEndDate", "Conflict")
+                            err = _to_string("pregnancyStartDate", "conflict")
                             abort(409, message=f"{tag}{err}")
                         else:
                             pregnancies_to_create.append(model)
@@ -121,12 +126,14 @@ class SyncPatients(Resource):
             for models in models_list:
                 if models:
                     crud.create_all(models, autocommit=False)
-            for p in patients_to_update:
+            for data in patients_to_update:
                 crud.update(
-                    Patient, p.values, autocommit=False, patientId=p.primary_key
+                    Patient, data.values, autocommit=False, patientId=data.primary_key
                 )
-            for p in pregnancies_to_update:
-                crud.update(Pregnancy, p.values, autocommit=False, id=p.primary_key)
+            for data in pregnancies_to_update:
+                crud.update(
+                    Pregnancy, data.values, autocommit=False, id=data.primary_key
+                )
 
             # Read all patients that have been created or updated since last sync
             new_patients = view.patient_view(user, last_sync)
@@ -184,6 +191,12 @@ class SyncReadings(Resource):
         }
 
 
+ERROR_MESSAGES = {
+    "conflict": "Pregnancy conflicts with existing records.",
+    "invalid": "Value is invalid.",
+}
+
+
 def _to_string(field, error):
     # marshmallow.ValidationError error message style
-    return "{'" + field + "': ['" + error + ".']}"
+    return "{'" + field + "': ['" + ERROR_MESSAGES[error] + "']}"

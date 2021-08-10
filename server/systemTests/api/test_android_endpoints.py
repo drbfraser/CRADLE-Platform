@@ -4,6 +4,7 @@ import data.crud as crud
 from models import (
     Patient,
     PatientAssociations,
+    PregnancySchema,
     Reading,
     Pregnancy,
     MedicalRecord,
@@ -136,26 +137,25 @@ def test_sync_patients(
         )
         assert new_mobile_patient["medicalHistory"] == mobile_patient["medicalHistory"]
         assert new_mobile_patient["drugHistory"] == mobile_patient["drugHistory"]
+        assert crud.read(PatientAssociations, patientId=mobile_patient_id) is not None
 
-        association = crud.read(PatientAssociations, patientId=mobile_patient_id)
-        assert association is not None
-
-        # Case 2: patient edited offline on Android
         mobile_patient = new_mobile_patient
         last_sync = int(time.time())
         time.sleep(1)
 
+        # Case 2: patient edited offline on Android including patient name, previous pregnancy,
+        # new pregnancy, medical history, and drug history
         mobile_patient.update(
             {
                 "patientName": "Eva Jones",
-                "pregnancyStartDate": last_sync + 2,
-                "pregnancyEndDate": last_sync + 1,
+                "pregnancyStartDate": last_sync + 1,
+                "pregnancyEndDate": last_sync,
                 "pregnancyOutcome": "SVD - baby weighed 2.53kg",
                 "medicalHistory": "Pregnancy induced hypertension",
-                "medicalLastEdited": last_sync + 2,
+                "medicalLastEdited": last_sync + 1,
                 "drugHistory": "Labetalol 212mg three times daily",
-                "drugLastEdited": last_sync + 2,
-                "lastEdited": last_sync + 2,
+                "drugLastEdited": last_sync + 1,
+                "lastEdited": last_sync + 1,
             }
         )
 
@@ -186,10 +186,10 @@ def test_sync_patients(
         assert updated_pregnancy.endDate == mobile_patient["pregnancyEndDate"]
         assert updated_pregnancy.outcome == mobile_patient["pregnancyOutcome"]
 
-        # Case 3: patient edited on server
         last_sync = int(time.time())
         time.sleep(1)
 
+        # Case 3: patient edited on server
         info = {"villageNumber": "2722"}
         crud.update(Patient, info, patientId=server_patient_id)
         pregnancy_factory.create(**pregnancy_later)
@@ -218,6 +218,143 @@ def test_sync_patients(
         crud.delete_all(MedicalRecord, patientId=mobile_patient_id)
         crud.delete_all(PatientAssociations, patientId=mobile_patient_id)
         crud.delete_by(Patient, patientId=mobile_patient_id)
+
+
+def test_sync_patients_aborted(
+    create_patient,
+    pregnancy_factory,
+    pregnancy_earlier,
+    pregnancy_later,
+    database,
+    api_post,
+):
+    # Case 1: missing required field in one patient; database not modified
+    last_sync = int(time.time()) - 1
+
+    patient1_id = "77694597005"
+    patient1 = {
+        "patientId": patient1_id,
+        "patientName": "Ava Jones",
+        "patientSex": SexEnum.FEMALE.value,
+        "dob": "2000-01-01",
+        "isExactDob": False,
+        "lastEdited": last_sync + 1,
+    }
+
+    patient2_id = "87694712386"
+    patient2 = patient1.copy()
+    patient2["patientId"] = patient2_id
+    del patient2["patientSex"]
+
+    try:
+        response = api_post(
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient1, patient2]
+        )
+        database.session.commit()
+
+        assert response.status_code == 400
+        assert crud.read(Patient, patientId=patient1_id) is None
+        assert crud.read(Patient, patientId=patient2_id) is None
+
+        # Case 2: invalid value; database not modified
+        patient2.update(
+            {
+                "patientSex": SexEnum.FEMALE.value,
+                "medicalHistory": "Pregnancy induced hypertension",
+                "medicalLastEdited": last_sync + 2e6,
+            }
+        )
+
+        response = api_post(
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient1, patient2]
+        )
+        database.session.commit()
+
+        assert response.status_code == 400
+        assert crud.read(Patient, patientId=patient1_id) is None
+        assert crud.read(Patient, patientId=patient2_id) is None
+        assert crud.read(MedicalRecord, patientId=patient2_id) is None
+
+        # Sync corrected patient2
+        patient2["medicalLastEdited"] = last_sync + 1
+
+        response = api_post(
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient2]
+        )
+        database.session.commit()
+
+        assert response.status_code == 200
+        assert response.json()["total"] == 1
+        assert crud.read(Patient, patientId=patient2_id) is not None
+        assert crud.read(MedicalRecord, patientId=patient2_id) is not None
+
+        patient2 = response.json()["patients"][0]
+        last_sync = int(time.time())
+        time.sleep(1)
+
+        # Case 3: arbitrary editing; database not modified
+        create_patient()
+        pregnancy_another_patient = pregnancy_factory.create(**pregnancy_later)
+
+        pregnancy_id = pregnancy_another_patient.id
+        end_date = last_sync + 1
+        patient2.update(
+            {
+                "pregnancyId": pregnancy_id,
+                "pregnancyEndDate": end_date,
+            }
+        )
+
+        response = api_post(
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient1, patient2]
+        )
+        database.session.commit()
+
+        assert response.status_code == 400
+        assert crud.read(Patient, patientId=patient1_id) is None
+        assert crud.read(Pregnancy, id=pregnancy_id, endDate=end_date) is None
+
+        del patient2["pregnancyId"]
+        del patient2["pregnancyEndDate"]
+
+        # Case 4: conflicting pregnancies; database not modified
+        pregnancy_earlier["patientId"] = patient2_id
+        crud.create_model(pregnancy_earlier, PregnancySchema)
+
+        start_date = patient2["pregnancyStartDate"] = pregnancy_earlier["endDate"] - 2e6
+
+        response = api_post(
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient1, patient2]
+        )
+        database.session.commit()
+
+        assert response.status_code == 409
+        assert crud.read(Patient, patientId=patient1_id) is None
+        assert crud.read(Pregnancy, patientId=patient2_id, startDate=start_date) is None
+
+        # Sync both patients with corrected pregnancy start date
+        start_date = patient2["pregnancyStartDate"] = pregnancy_earlier["endDate"] + 2e6
+
+        response = api_post(
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient1, patient2]
+        )
+        database.session.commit()
+
+        assert response.status_code == 200
+        assert response.json()["total"] >= 2
+        assert crud.read(Patient, patientId=patient1_id) is not None
+        assert (
+            crud.read(Pregnancy, patientId=patient2_id, startDate=start_date)
+            is not None
+        )
+
+    finally:
+        crud.delete_all(PatientAssociations, patientId=patient1_id)
+        crud.delete_by(Patient, patientId=patient1_id)
+        crud.delete_all(Pregnancy, patientId=patient2_id)
+        crud.delete_all(MedicalRecord, patientId=patient2_id)
+        crud.delete_all(PatientAssociations, patientId=patient2_id)
+        crud.delete_by(Patient, patientId=patient2_id)
 
 
 def test_sync_readings(

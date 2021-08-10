@@ -32,16 +32,19 @@ def serialize_patient_list(patients: List[Any]) -> dict:
     ]
 
 
-def serialize_referral(r: Any) -> dict:
-    return {
-        "referralId": r.id,
-        "patientId": r.patientId,
-        "patientName": r.patientName,
-        "villageNumber": r.villageNumber,
-        "trafficLightStatus": r.trafficLightStatus.value,
-        "dateReferred": r.dateReferred,
-        "isAssessed": r.isAssessed,
-    }
+def serialize_referral_list(referrals: List[Any]) -> dict:
+    return [
+        {
+            "referralId": r.id,
+            "patientId": r.patientId,
+            "patientName": r.patientName,
+            "villageNumber": r.villageNumber,
+            "trafficLightStatus": r.trafficLightStatus.value,
+            "dateReferred": r.dateReferred,
+            "isAssessed": r.isAssessed,
+        }
+        for r in referrals
+    ]
 
 
 def serialize_pregnancy(p: Pregnancy) -> dict:
