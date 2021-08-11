@@ -130,9 +130,8 @@ def deserialize_patient(
         "allergy": data.get("allergy"),
     }
     if partial:
-        error = schema().validate(d, partial=True)
-        if error:
-            raise ValidationError(error)
+        if err := schema().validate(d, partial=True):
+            raise ValidationError(err)
         return d
 
     patient = schema().load(d)
@@ -164,9 +163,8 @@ def deserialize_pregnancy(data: dict, partial: bool = False) -> Union[dict, Preg
             "endDate": data.get("pregnancyEndDate"),
             "outcome": data.get("pregnancyOutcome"),
         }
-        error = schema().validate(d, partial=True)
-        if error:
-            raise ValidationError(error)
+        if err := schema().validate(d, partial=True):
+            raise ValidationError(err)
         return {k: v for k, v in d.items() if v}
 
     d = {

@@ -96,7 +96,7 @@ def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
     :param user: JWT identity
     :return: A list of patients
     """
-    return __get_view(user, crud.read_patient_with_medical_records, last_sync=last_sync)
+    return __get_view(user, crud.read_patients, last_edited=last_sync)
 
 
 def reading_view(
@@ -108,7 +108,7 @@ def reading_view(
     :param user: JWT identity
     :return: A list of tuples of reading, referral, assessment, urine test
     """
-    return __get_view(user, crud.read_readings, last_sync=last_sync)
+    return __get_view(user, crud.read_readings, last_edited=last_sync)
 
 
 def referral_view(user: dict, last_sync: int) -> List[Referral]:
@@ -119,7 +119,7 @@ def referral_view(user: dict, last_sync: int) -> List[Referral]:
     :return: A list of referrals
     """
     return __get_view(
-        user, crud.read_referrals_and_assessments, model=Referral, last_sync=last_sync
+        user, crud.read_referrals_and_assessments, model=Referral, last_edited=last_sync
     )
 
 
@@ -131,7 +131,7 @@ def assessment_view(user: dict, last_sync: int) -> List[FollowUp]:
     :return: A list of assessments
     """
     return __get_view(
-        user, crud.read_referrals_and_assessments, model=FollowUp, last_sync=last_sync
+        user, crud.read_referrals_and_assessments, model=FollowUp, last_edited=last_sync
     )
 
 

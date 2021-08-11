@@ -2,6 +2,7 @@ from typing import List, NamedTuple, Union
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
+from werkzeug.exceptions import BadRequest, Conflict
 from marshmallow import ValidationError
 
 import service.view as view
@@ -15,7 +16,7 @@ import data.crud as crud
 
 
 class ModelData(NamedTuple):
-    primary_key: Union[str, int]
+    key_value: Union[str, int]
     values: dict
 
 
@@ -46,9 +47,12 @@ class SyncPatients(Resource):
                     patient = serialize.deserialize_patient(p, shallow=False)
                     patients_to_create.append(patient)
                 else:
-                    if p.get("base") and p["base"] == server_patient.lastEdited:
-                        # Otherwise, patient has been edited on server; mobile patient will be
-                        # override if sync succeeds
+                    if (p.get("lastEdited") and p["lastEdited"] > last_sync) and (
+                        p.get("base") and p["base"] == server_patient.lastEdited
+                    ):
+                        # Otherwise, patient personal info has been edited on Android or has
+                        # been edited on the server; in the latter case personal info on Android
+                        # will be overridden if sync succeeds
                         values = serialize.deserialize_patient(p, partial=True)
                         patients_to_update.append(ModelData(patient_id, values))
 
@@ -68,7 +72,7 @@ class SyncPatients(Resource):
                         pregnancy = crud.read(Pregnancy, id=p.get("pregnancyId"))
                         if not pregnancy or pregnancy.patientId != patient_id:
                             err = _to_string("pregnancyId", "invalid")
-                            abort(400, message=f"{tag}{err}")
+                            raise BadRequest(err)
                         pregnancy_id = pregnancy.id
                         pregnancy_end_date = pregnancy.endDate
                         if not pregnancy_end_date:
@@ -82,7 +86,7 @@ class SyncPatients(Resource):
                                 pregnancy_id,
                             ):
                                 err = _to_string("pregnancyEndDate", "conflict")
-                                abort(409, message=f"{tag}{err}")
+                                raise Conflict(err)
                             else:
                                 pregnancies_to_update.append(
                                     ModelData(pregnancy_id, values)
@@ -98,7 +102,7 @@ class SyncPatients(Resource):
                             pregnancy_end_date and model.startDate <= pregnancy_end_date
                         ):
                             err = _to_string("pregnancyStartDate", "conflict")
-                            abort(409, message=f"{tag}{err}")
+                            raise Conflict(err)
                         else:
                             pregnancies_to_create.append(model)
 
@@ -110,8 +114,10 @@ class SyncPatients(Resource):
                 if not crud.read(PatientAssociations, **association):
                     model = marshal.unmarshal(PatientAssociations, association)
                     associations_to_create.append(model)
-            except ValidationError as err:
-                abort(400, message=f"{tag}{err}")
+            except (BadRequest, ValidationError) as err:
+                abort(400, message=f"{tag}{str(err).removeprefix('400 Bad Request: ')}")
+            except Conflict as err:
+                abort(409, message=f"{tag}{str(err).removeprefix('409 Conflict: ')}")
             except:
                 raise
 
@@ -128,12 +134,10 @@ class SyncPatients(Resource):
                     crud.create_all(models, autocommit=False)
             for data in patients_to_update:
                 crud.update(
-                    Patient, data.values, autocommit=False, patientId=data.primary_key
+                    Patient, data.values, autocommit=False, patientId=data.key_value
                 )
             for data in pregnancies_to_update:
-                crud.update(
-                    Pregnancy, data.values, autocommit=False, id=data.primary_key
-                )
+                crud.update(Pregnancy, data.values, autocommit=False, id=data.key_value)
 
             # Read all patients that have been created or updated since last sync
             new_patients = view.patient_view(user, last_sync)
@@ -148,7 +152,6 @@ class SyncReadings(Resource):
     @staticmethod
     @jwt_required
     def post():
-        # Get all patients for this user
         last_sync: int = request.args.get("since", None, type=int)
         if not last_sync:
             abort(400, message="'since' query parameter is required")
@@ -177,17 +180,17 @@ class SyncReadings(Resource):
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
 
-        # Read all readings, referrals and asseessments that have been created or updated since last sync
+        # Read all readings, referrals and folllowups that have been created or updated since last sync
         user = get_jwt_identity()
         new_readings = view.reading_view(user, last_sync)
         new_referrals = view.referral_view(user, last_sync)
-        new_assessments = view.assessment_view(user, last_sync)
+        new_folllowups = view.assessment_view(user, last_sync)
 
         return {
-            "total": len(new_readings) + len(new_referrals) + len(new_assessments),
+            "total": len(new_readings) + len(new_referrals) + len(new_folllowups),
             "readings": [serialize.serialize_reading(r) for r in new_readings],
             "newReferralsForOldReadings": [marshal.marshal(r) for r in new_referrals],
-            "newFollowupsForOldReadings": [marshal.marshal(a) for a in new_assessments],
+            "newFollowupsForOldReadings": [marshal.marshal(a) for a in new_folllowups],
         }
 
 

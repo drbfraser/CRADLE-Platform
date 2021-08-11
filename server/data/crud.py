@@ -78,9 +78,8 @@ def create_all(models: List[Any], autocommit: bool = True):
     Any exceptions thrown by database system are propagated back through this function.
 
     :param model: The model to insert
-    :param refresh: If true, immediately refresh ``model`` populating it with data from
-                    the database; this involves an additional query so only use it if
-                    necessary
+    :param autocommit: If true, the current transaction is committed before return; the
+    default is false
     """
     db_session.add_all(models)
     if autocommit:
@@ -116,6 +115,8 @@ def update(m: Type[M], changes: dict, autocommit: bool = True, **kwargs):
 
     :param m: Type of model to update
     :param changes: A dictionary mapping columns to new values
+    :param autocommit: If true, the current transaction is committed before return; the
+    default is false
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
                    query (e.g., ``patientId="abc"``)
     :except sqlalchemy.orm.exc.MultipleResultsFound: If multiple models are found
@@ -163,6 +164,13 @@ def delete_by(m: Type[M], **kwargs):
 
 
 def delete_all(model: Any, **kwargs):
+    """
+    Deletes all models satisfying criteria specified by the keyword arguments.
+
+    :param m: Type of the models to delete
+    :param kwargs: Keyword arguments mapping column names to values to parameterize the
+                   query (e.g., ``patientId="abc"``)
+    """
     db_session.query(model).filter_by(**kwargs).delete()
     db_session.commit()
 
@@ -188,7 +196,7 @@ def find(m: Type[M], *args) -> List[M]:
 
 def read_all(m: Type[M], **kwargs) -> List[M]:
     """
-    Queries the database for all Patients and Reaedings
+    Queries the database for all models satisfying criteria specified by the keyword arguments.
 
     :param m: Type of the model to query for
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
@@ -434,19 +442,22 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     return query.slice(*__get_slice_indexes(page, limit))
 
 
-def read_patient_with_medical_records(
+def read_patients(
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
-    last_sync: Optional[int] = None,
+    last_edited: Optional[int] = None,
 ) -> Union[Any, List[Any]]:
     """
     Queries the database for patient(s) each with the latest pregnancy, medical and durg
     records.
 
-    :param patient_id: ID of patient to filter patients; None to get all patients
-    :param user_id: ID of user to filter patients wrt patient associations; None to get
-    patients associated with all users
+    :param patient_id: ID of patient to filter patients; by default this filter is not
+    applied
+    :param user_id: ID of user to filter patients wrt patient associations; by default
+    this filter is not applied
+    :param last_edited: Timestamp to filter patients by last-edited time greater than the
+    timestamp; by default this filter is not applied
 
     :return: A patient if patient ID is specified; a list of patients otherwise
     """
@@ -523,13 +534,23 @@ def read_patient_with_medical_records(
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
 
-    if last_sync:
-        query = query.filter(
+    if last_edited:
+        # Aliased class for getting patients with recently closed pregnancy
+        pr2 = aliased(Pregnancy)
+        query = query.outerjoin(
+            pr2,
+            and_(
+                Patient.patientId == pr2.patientId,
+                pr2.endDate != None,
+                pr2.lastEdited > last_edited,
+            ),
+        ).filter(
             or_(
-                Patient.lastEdited > last_sync,
-                Pregnancy.lastEdited > last_sync,
-                MedicalHistory.lastEdited > last_sync,
-                DrugHistory.lastEdited > last_sync,
+                Patient.lastEdited > last_edited,
+                Pregnancy.lastEdited > last_edited,
+                MedicalHistory.lastEdited > last_edited,
+                DrugHistory.lastEdited > last_edited,
+                pr2.id != None,
             )
         )
 
@@ -543,16 +564,18 @@ def read_readings(
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
-    last_sync: Optional[int] = None,
+    last_edited: Optional[int] = None,
 ) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
     """
     Queries the database for readings each with corresponding referral, assessment, and
     urine test.
 
-    :param patient_id: ID of patient to filter readings; None to get readings of all patients
-    :param user_id: ID of user to filter patients wrt patient associations; None to get
-    readings of patients associated with all users
-    :param last_sync: Timestamp to filter readings by last-edited time
+    :param patient_id: ID of patient to filter readings; by default this filter is not
+    applied
+    :param user_id: ID of user to filter patients wrt patient associations; by default
+    this filter is not applied
+    :param last_edited: Timestamp to filter readings by last-edited time greater than the
+    timestamp; by default this filter is not applied
 
     :return: A list of tuples of reading, referral, assessment, urine test
     """
@@ -565,8 +588,8 @@ def read_readings(
 
     query = __filter_by_patient_association(query, Reading, user_id, is_cho)
 
-    if last_sync:
-        query = query.filter(Reading.lastEdited > last_sync)
+    if last_edited:
+        query = query.filter(Reading.lastEdited > last_edited)
 
     if patient_id:
         query = query.filter(Reading.patientId == patient_id)
@@ -576,7 +599,7 @@ def read_readings(
 
 def read_referrals_and_assessments(
     model: Union[Referral, FollowUp],
-    last_sync: int,
+    last_edited: int,
     user_id: Optional[int] = None,
     is_cho: bool = False,
 ) -> Union[List[Referral], List[FollowUp]]:
@@ -584,9 +607,10 @@ def read_referrals_and_assessments(
     Queries the database for referrals or assessments of readings associated with the user.
 
     :param model: Data model of either Referral or FollowUp to query
-    :param last_sync: Timestamp to filter referrals or assessments by last-edited time
-    :param user_id: ID of user to filter readings wrt patient associations; None to get
-    readings associated with all users
+    :param last_edited: Timestamp to filter referrals or assessments by last-edited time greater
+    than the timestamp
+    :param user_id: ID of user to filter readings wrt patient associations; by default this
+    filter is not applied
 
     :return: A list of referrals or assessments
     """
@@ -598,7 +622,7 @@ def read_referrals_and_assessments(
     query = (
         db_session.query(model)
         .join(Reading, model.reading)
-        .filter(Reading.lastEdited <= last_sync, model_last_edited > last_sync)
+        .filter(Reading.lastEdited <= last_edited, model_last_edited > last_edited)
     )
 
     query = __filter_by_patient_association(query, Reading, user_id, is_cho)
