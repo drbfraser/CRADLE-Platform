@@ -125,6 +125,11 @@ export interface IUser {
   healthFacilityName: string;
   role: UserRoleEnum;
   supervises: number[];
+  index: number;
+}
+
+export interface IUserWithIndex extends IUser {
+  index: number;
 }
 
 export interface IFacility {
