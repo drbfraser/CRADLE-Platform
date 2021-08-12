@@ -41,6 +41,7 @@ interface IProps {
   isTransformed: boolean;
   onClose: () => void;
   setFilter: React.Dispatch<React.SetStateAction<ReferralFilter>>;
+  setIsPromptShown: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 type VitalSign = {
@@ -81,6 +82,7 @@ export const FilterDialog = ({
   isTransformed,
   onClose,
   setFilter,
+  setIsPromptShown,
 }: IProps) => {
   const { user } = useSelector(
     ({ user }: ReduxState): SelectorState => ({
@@ -137,8 +139,13 @@ export const FilterDialog = ({
 
   useEffect(() => {
     if (user) {
+      const currentSelectedHealthFacilities = selectedHealthFacilities;
       setSelectedHealthFacilities([
-        ...selectedHealthFacilities,
+        ...currentSelectedHealthFacilities,
+        user.healthFacilityName,
+      ]);
+      applyFilter([
+        ...currentSelectedHealthFacilities,
         user.healthFacilityName,
       ]);
     }
@@ -223,9 +230,22 @@ export const FilterDialog = ({
       onClose();
       return;
     }
+    applyFilter(selectedHealthFacilities);
+    if (
+      selectedHealthFacilities.length === 1 &&
+      selectedHealthFacilities[0] === user?.healthFacilityName
+    ) {
+      setIsPromptShown(true);
+    } else {
+      setIsPromptShown(false);
+    }
+    onClose();
+  };
+
+  const applyFilter = (currentSelectedHealthFacilities: string[]) => {
     setFilter({
       ...filter,
-      healthFacilityNames: selectedHealthFacilities,
+      healthFacilityNames: currentSelectedHealthFacilities,
       dateRange:
         startDate && endDate
           ? `${startDate.toDate().getTime() / 1000}:${
@@ -237,7 +257,6 @@ export const FilterDialog = ({
       isPregnant: isPregnant,
       isAssessed: isAssessed,
     });
-    onClose();
   };
 
   return (

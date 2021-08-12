@@ -87,7 +87,7 @@ export const AssessmentForm = ({
                         multiline
                         rows={2}
                         name={AssessmentField.drugHistory}
-                        label="Medication Prescribed (include dose and frequency)"
+                        label="Drug history (add new drugs /edit existing drugs; include dose and frequency)"
                       />
                     </Grid>
                     <Grid item sm={12} md={4}>
@@ -95,7 +95,7 @@ export const AssessmentForm = ({
                         component={CheckboxWithLabel}
                         type="checkbox"
                         name={AssessmentField.followUp}
-                        Label={{ label: 'Follow-up Needed' }}
+                        Label={{ label: 'VHT Follow-up in Discharging' }}
                       />
                     </Grid>
                     <Grid item sm={12} md={8}>
