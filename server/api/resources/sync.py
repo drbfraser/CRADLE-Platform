@@ -2,7 +2,6 @@ from typing import List, NamedTuple, Union
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
-from werkzeug.exceptions import BadRequest, Conflict
 from marshmallow import ValidationError
 
 import service.view as view
@@ -38,9 +37,10 @@ class SyncPatients(Resource):
         associations_to_create: List[PatientAssociations] = list()
         patients_to_update: List[ModelData] = list()
         pregnancies_to_update: List[ModelData] = list()
+        patients_not_synced: List[dict] = list()
+        status_code = 200
         for p in mobile_patients:
             patient_id = p.get("patientId")
-            tag = f"Patient {patient_id}: "
             try:
                 server_patient = crud.read(Patient, patientId=patient_id)
                 if not server_patient:
@@ -72,21 +72,24 @@ class SyncPatients(Resource):
                         pregnancy = crud.read(Pregnancy, id=p.get("pregnancyId"))
                         if not pregnancy or pregnancy.patientId != patient_id:
                             err = _to_string("pregnancyId", "invalid")
-                            raise BadRequest(err)
+                            raise ValidationError(err)
                         pregnancy_id = pregnancy.id
                         pregnancy_end_date = pregnancy.endDate
                         if not pregnancy_end_date:
                             # Otherwise, pregnancy has been edited on server; end date inputted
                             # on Android will be discarded if sync succeeds
                             pregnancy_end_date = values["endDate"]
-                            if crud.has_conflicting_pregnancy_record(
-                                patient_id,
-                                pregnancy.startDate,
-                                pregnancy_end_date,
-                                pregnancy_id,
+                            if (
+                                pregnancy.startDate >= pregnancy_end_date
+                                or crud.has_conflicting_pregnancy_record(
+                                    patient_id,
+                                    pregnancy.startDate,
+                                    pregnancy_end_date,
+                                    pregnancy_id,
+                                )
                             ):
                                 err = _to_string("pregnancyEndDate", "conflict")
-                                raise Conflict(err)
+                                raise ValidationError(err)
                             else:
                                 pregnancies_to_update.append(
                                     ModelData(pregnancy_id, values)
@@ -96,13 +99,13 @@ class SyncPatients(Resource):
                         p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
                     ):
                         model = serialize.deserialize_pregnancy(p)
-                        if crud.has_conflicting_pregnancy_record(
-                            patient_id, model.startDate, pregnancy_id=pregnancy_id
-                        ) or (
+                        if (
                             pregnancy_end_date and model.startDate <= pregnancy_end_date
+                        ) or crud.has_conflicting_pregnancy_record(
+                            patient_id, model.startDate, pregnancy_id=pregnancy_id
                         ):
                             err = _to_string("pregnancyStartDate", "conflict")
-                            raise Conflict(err)
+                            raise ValidationError(err)
                         else:
                             pregnancies_to_create.append(model)
 
@@ -114,10 +117,9 @@ class SyncPatients(Resource):
                 if not crud.read(PatientAssociations, **association):
                     model = marshal.unmarshal(PatientAssociations, association)
                     associations_to_create.append(model)
-            except (BadRequest, ValidationError) as err:
-                abort(400, message=f"{tag}{str(err).removeprefix('400 Bad Request: ')}")
-            except Conflict as err:
-                abort(409, message=f"{tag}{str(err).removeprefix('409 Conflict: ')}")
+            except ValidationError as err:
+                patients_not_synced.append({"patientId": patient_id, "error": str(err)})
+                status_code = 207
             except:
                 raise
 
@@ -144,7 +146,11 @@ class SyncPatients(Resource):
             patients_json = [serialize.serialize_patient(p) for p in new_patients]
         db_session.commit()
 
-        return {"total": len(new_patients), "patients": patients_json}
+        return {
+            "total": len(new_patients),
+            "patients": patients_json,
+            "patientsNotSynced": patients_not_synced,
+        }, status_code
 
 
 # /api/sync/readings
