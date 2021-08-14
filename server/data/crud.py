@@ -79,7 +79,7 @@ def create_all(models: List[Any], autocommit: bool = True):
 
     :param model: The model to insert
     :param autocommit: If true, the current transaction is committed before return; the
-    default is false
+    default is true
     """
     db_session.add_all(models)
     if autocommit:
@@ -116,7 +116,7 @@ def update(m: Type[M], changes: dict, autocommit: bool = True, **kwargs):
     :param m: Type of model to update
     :param changes: A dictionary mapping columns to new values
     :param autocommit: If true, the current transaction is committed before return; the
-    default is false
+    default is true
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
                    query (e.g., ``patientId="abc"``)
     :except sqlalchemy.orm.exc.MultipleResultsFound: If multiple models are found

@@ -31,21 +31,37 @@ class SyncPatients(Resource):
 
         # Validate and load patients
         mobile_patients = request.get_json(force=True)
+        status_code = 200
+        patients_not_synced: List[dict] = list()
         patients_to_create: List[Patient] = list()
         pregnancies_to_create: List[Pregnancy] = list()
-        records_to_create: List[MedicalRecord] = list()
+        mrecords_to_create: List[MedicalRecord] = list()
+        drecords_to_create: List[MedicalRecord] = list()
         associations_to_create: List[PatientAssociations] = list()
         patients_to_update: List[ModelData] = list()
         pregnancies_to_update: List[ModelData] = list()
-        patients_not_synced: List[dict] = list()
-        status_code = 200
+        models_list = [
+            patients_to_create,
+            pregnancies_to_create,
+            mrecords_to_create,
+            drecords_to_create,
+            associations_to_create,
+            patients_to_update,
+            pregnancies_to_update,
+        ]
         for p in mobile_patients:
             patient_id = p.get("patientId")
+            pt_crt = None
+            pr_crt = None
+            mrc_crt = None
+            drc_crt = None
+            as_crt = None
+            pt_upd = None
+            pr_upd = None
             try:
                 server_patient = crud.read(Patient, patientId=patient_id)
                 if not server_patient:
-                    patient = serialize.deserialize_patient(p, shallow=False)
-                    patients_to_create.append(patient)
+                    pt_crt = serialize.deserialize_patient(p, shallow=False)
                 else:
                     if (p.get("lastEdited") and p["lastEdited"] > last_sync) and (
                         p.get("base") and p["base"] == server_patient.lastEdited
@@ -54,15 +70,13 @@ class SyncPatients(Resource):
                         # been edited on the server; in the latter case personal info on Android
                         # will be overridden if sync succeeds
                         values = serialize.deserialize_patient(p, partial=True)
-                        patients_to_update.append(ModelData(patient_id, values))
+                        pt_upd = ModelData(patient_id, values)
 
                     if p.get("medicalLastEdited"):
-                        model = serialize.deserialize_medical_record(p, False)
-                        records_to_create.append(model)
+                        mrc_crt = serialize.deserialize_medical_record(p, False)
 
                     if p.get("drugLastEdited"):
-                        model = serialize.deserialize_medical_record(p, True)
-                        records_to_create.append(model)
+                        drc_crt = serialize.deserialize_medical_record(p, True)
 
                     # Variables for checking conflicts with new pregnancy in the next condition block
                     pregnancy_id = None
@@ -91,9 +105,7 @@ class SyncPatients(Resource):
                                 err = _to_string("pregnancyEndDate", "conflict")
                                 raise ValidationError(err)
                             else:
-                                pregnancies_to_update.append(
-                                    ModelData(pregnancy_id, values)
-                                )
+                                pr_upd = ModelData(pregnancy_id, values)
 
                     if (p.get("pregnancyStartDate") and not p.get("pregnancyId")) or (
                         p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
@@ -107,7 +119,7 @@ class SyncPatients(Resource):
                             err = _to_string("pregnancyStartDate", "conflict")
                             raise ValidationError(err)
                         else:
-                            pregnancies_to_create.append(model)
+                            pr_crt = model
 
                 association = {
                     "patientId": patient_id,
@@ -115,23 +127,24 @@ class SyncPatients(Resource):
                     "userId": user["userId"],
                 }
                 if not crud.read(PatientAssociations, **association):
-                    model = marshal.unmarshal(PatientAssociations, association)
-                    associations_to_create.append(model)
+                    as_crt = marshal.unmarshal(PatientAssociations, association)
+
+                # Queue models as validation completes without exceptions
+                models = [pt_crt, pr_crt, mrc_crt, drc_crt, as_crt, pt_upd, pr_upd]
+                for m, ms in zip(models, models_list):
+                    if m:
+                        ms.append(m)
             except ValidationError as err:
+                print(type(err), str(err))
                 patients_not_synced.append({"patientId": patient_id, "error": str(err)})
                 status_code = 207
-            except:
+            except Exception as err:
+                print(type(err), err)
                 raise
 
         with db_session.begin_nested():
             # Create and update patients in the database
-            models_list = [
-                patients_to_create,
-                pregnancies_to_create,
-                records_to_create,
-                associations_to_create,
-            ]
-            for models in models_list:
+            for models in models_list[:5]:
                 if models:
                     crud.create_all(models, autocommit=False)
             for data in patients_to_update:
@@ -207,5 +220,5 @@ ERROR_MESSAGES = {
 
 
 def _to_string(field, error):
-    # marshmallow.ValidationError error message style
+    # marshmallow.ValidationError error message format
     return "{'" + field + "': ['" + ERROR_MESSAGES[error] + "']}"

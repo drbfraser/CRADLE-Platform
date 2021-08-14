@@ -112,7 +112,7 @@ def test_sync_patients_fully_successful(
         database.session.commit()
 
         assert response.status_code == 200
-        assert response.json()["total"] >= 2
+        assert response.json()["total"] == 2
 
         new_server_patient = None
         for p in response.json()["patients"]:
@@ -362,14 +362,12 @@ def test_sync_patients_partially_successful(
 
         last_sync = int(time.time())
         time.sleep(1)
-
         del patient2["pregnancyId"]
         del patient2["pregnancyEndDate"]
 
         # Case 4: Conflicting pregnancies - Database is not modified
         pregnancy_earlier["patientId"] = patient2_id
         pregnancy_earlier = crud.create_model(pregnancy_earlier, PregnancySchema)
-
         start_date = patient2["pregnancyStartDate"] = pregnancy_earlier.endDate - 2e6
 
         response = api_post(
