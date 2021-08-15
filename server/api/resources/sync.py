@@ -32,7 +32,7 @@ class SyncPatients(Resource):
         # Validate and load patients
         mobile_patients = request.get_json(force=True)
         status_code = 200
-        patients_not_synced: List[dict] = list()
+        errors: List[dict] = list()
         patients_to_create: List[Patient] = list()
         pregnancies_to_create: List[Pregnancy] = list()
         mrecords_to_create: List[MedicalRecord] = list()
@@ -51,6 +51,7 @@ class SyncPatients(Resource):
         ]
         for p in mobile_patients:
             patient_id = p.get("patientId")
+            # Loop variables each holding a singular model corresponding to a list in models_list
             pt_crt = None
             pr_crt = None
             mrc_crt = None
@@ -135,11 +136,9 @@ class SyncPatients(Resource):
                     if m:
                         ms.append(m)
             except ValidationError as err:
-                print(type(err), str(err))
-                patients_not_synced.append({"patientId": patient_id, "error": str(err)})
+                errors.append({"patientId": patient_id, "errors": str(err)})
                 status_code = 207
-            except Exception as err:
-                print(type(err), err)
+            except:
                 raise
 
         with db_session.begin_nested():
@@ -159,11 +158,7 @@ class SyncPatients(Resource):
             patients_json = [serialize.serialize_patient(p) for p in new_patients]
         db_session.commit()
 
-        return {
-            "total": len(new_patients),
-            "patients": patients_json,
-            "patientsNotSynced": patients_not_synced,
-        }, status_code
+        return {"patients": patients_json, "errors": errors}, status_code
 
 
 # /api/sync/readings
@@ -199,17 +194,16 @@ class SyncReadings(Resource):
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
 
-        # Read all readings, referrals and folllowups that have been created or updated since last sync
+        # Read all readings, referrals and followups that have been created or updated since last sync
         user = get_jwt_identity()
         new_readings = view.reading_view(user, last_sync)
         new_referrals = view.referral_view(user, last_sync)
-        new_folllowups = view.assessment_view(user, last_sync)
+        new_followups = view.assessment_view(user, last_sync)
 
         return {
-            "total": len(new_readings) + len(new_referrals) + len(new_folllowups),
             "readings": [serialize.serialize_reading(r) for r in new_readings],
-            "newReferralsForOldReadings": [marshal.marshal(r) for r in new_referrals],
-            "newFollowupsForOldReadings": [marshal.marshal(a) for a in new_folllowups],
+            "newReferrals": [marshal.marshal(r) for r in new_referrals],
+            "newFollowups": [marshal.marshal(a) for a in new_followups],
         }
 
 
@@ -219,6 +213,7 @@ ERROR_MESSAGES = {
 }
 
 
-def _to_string(field, error):
+def _to_string(field, errors):
     # marshmallow.ValidationError error message format
-    return "{'" + field + "': ['" + ERROR_MESSAGES[error] + "']}"
+    # A JSON object with 'field' as key and an array of 'errors' as value
+    return "{'" + field + "': ['" + ERROR_MESSAGES[errors] + "']}"

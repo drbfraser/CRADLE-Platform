@@ -67,7 +67,7 @@ def create_model(new_data: dict, schema: S) -> Any:
     return new_model
 
 
-def create_all(models: List[Any], autocommit: bool = True):
+def create_all(models: List[M], autocommit: bool = True):
     """
     add_all list of model into the database.
 
@@ -77,7 +77,7 @@ def create_all(models: List[Any], autocommit: bool = True):
 
     Any exceptions thrown by database system are propagated back through this function.
 
-    :param model: The model to insert
+    :param models: The models to insert
     :param autocommit: If true, the current transaction is committed before return; the
     default is true
     """
@@ -163,7 +163,7 @@ def delete_by(m: Type[M], **kwargs):
         delete(model)
 
 
-def delete_all(model: Any, **kwargs):
+def delete_all(m: Type[M], **kwargs):
     """
     Deletes all models satisfying criteria specified by the keyword arguments.
 
@@ -171,7 +171,7 @@ def delete_all(model: Any, **kwargs):
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
                    query (e.g., ``patientId="abc"``)
     """
-    db_session.query(model).filter_by(**kwargs).delete()
+    db_session.query(m).filter_by(**kwargs).delete()
     db_session.commit()
 
 
@@ -535,7 +535,7 @@ def read_patients(
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
 
     if last_edited:
-        # Aliased class for getting patients with recently closed pregnancy
+        # Aliased class for getting patients with recently closed pregnancy and no new pregnancy
         pr2 = aliased(Pregnancy)
         query = query.outerjoin(
             pr2,
@@ -557,7 +557,7 @@ def read_patients(
     if patient_id:
         return query.filter(Patient.patientId == patient_id).first()
     else:
-        return query.all()
+        return query.distinct().all()
 
 
 def read_readings(

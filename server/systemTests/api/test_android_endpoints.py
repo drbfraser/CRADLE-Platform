@@ -112,7 +112,7 @@ def test_sync_patients_fully_successful(
         database.session.commit()
 
         assert response.status_code == 200
-        assert response.json()["total"] == 2
+        assert len(response.json()["patients"]) == 2
 
         new_server_patient = None
         for p in response.json()["patients"]:
@@ -165,7 +165,7 @@ def test_sync_patients_fully_successful(
         database.session.commit()
 
         assert response.status_code == 200
-        assert response.json()["total"] == 1
+        assert len(response.json()["patients"]) == 1
 
         new_mobile_patient = response.json()["patients"][0]
         assert new_mobile_patient["patientName"] == mobile_patient["patientName"]
@@ -197,7 +197,7 @@ def test_sync_patients_fully_successful(
         database.session.commit()
 
         assert response.status_code == 200
-        assert response.json()["total"] == 1
+        assert len(response.json()["patients"]) == 1
 
         new_server_patient = response.json()["patients"][0]
         assert new_server_patient["villageNumber"] == village_number
@@ -227,7 +227,7 @@ def test_sync_patients_fully_successful(
         database.session.commit()
 
         assert response.status_code == 200
-        assert response.json()["total"] == 1
+        assert len(response.json()["patients"]) == 1
 
         new_server_patient = response.json()["patients"][0]
         assert new_server_patient["villageNumber"] == village_number
@@ -275,9 +275,9 @@ def test_sync_patients_partially_successful(
         database.session.commit()
 
         assert response.status_code == 207
-        assert response.json()["total"] == 1
+        assert len(response.json()["patients"]) == 1
         assert response.json()["patients"][0]["patientId"] == patient1_id
-        assert response.json()["patientsNotSynced"][0]["patientId"] == patient2_id
+        assert response.json()["errors"][0]["patientId"] == patient2_id
         assert crud.read(Patient, patientId=patient1_id) is not None
         assert crud.read(Patient, patientId=patient2_id) is None
 
@@ -302,9 +302,9 @@ def test_sync_patients_partially_successful(
         database.session.commit()
 
         assert response.status_code == 207
-        assert response.json()["total"] == 1
+        assert len(response.json()["patients"]) == 1
         assert response.json()["patients"][0]["patientId"] == patient1_id
-        assert response.json()["patientsNotSynced"][0]["patientId"] == patient2_id
+        assert response.json()["errors"][0]["patientId"] == patient2_id
         assert (
             crud.read(MedicalRecord, patientId=patient1_id, information=history)
             is not None
@@ -326,7 +326,7 @@ def test_sync_patients_partially_successful(
         database.session.commit()
 
         assert response.status_code == 200
-        assert response.json()["total"] == 1
+        assert len(response.json()["patients"]) == 1
         assert response.json()["patients"][0]["patientId"] == patient2_id
         assert crud.read(Patient, patientId=patient2_id) is not None
         assert (
@@ -357,7 +357,7 @@ def test_sync_patients_partially_successful(
         database.session.commit()
 
         assert response.status_code == 207
-        assert response.json()["patientsNotSynced"][0]["patientId"] == patient2_id
+        assert response.json()["errors"][0]["patientId"] == patient2_id
         assert crud.read(Pregnancy, id=pregnancy_id, endDate=end_date) is None
 
         last_sync = int(time.time())
@@ -376,7 +376,7 @@ def test_sync_patients_partially_successful(
         database.session.commit()
 
         assert response.status_code == 207
-        assert response.json()["patientsNotSynced"][0]["patientId"] == patient2_id
+        assert response.json()["errors"][0]["patientId"] == patient2_id
         assert crud.read(Pregnancy, patientId=patient2_id, startDate=start_date) is None
 
         # Sync patient2 with corrected pregnancy start date
@@ -388,7 +388,7 @@ def test_sync_patients_partially_successful(
         database.session.commit()
 
         assert response.status_code == 200
-        assert response.json()["total"] == 1
+        assert len(response.json()["patients"]) == 1
         assert response.json()["patients"][0]["patientId"] == patient2_id
         assert (
             crud.read(Pregnancy, patientId=patient2_id, startDate=start_date)
@@ -414,11 +414,12 @@ def test_sync_readings(
     database,
     api_post,
 ):
+    last_sync = int(time.time()) - 1
+
     create_patient()
     create_reading_with_referral()
     followup_factory.create(readingId=reading_id)
 
-    since = 1624504714
     mobile_reading_id = "w2d0aklrs4wenm6hk5z1"
     mobile_reading = {
         "readingId": mobile_reading_id,
@@ -431,12 +432,12 @@ def test_sync_readings(
 
     try:
         response = api_post(
-            endpoint=f"/api/sync/readings?since={since}", json=[mobile_reading]
+            endpoint=f"/api/sync/readings?since={last_sync}", json=[mobile_reading]
         )
+        database.session.commit()
 
         assert response.status_code == 200
-        assert response.json()["total"] >= 2
-
+        assert len(response.json()["readings"]) == 2
         assert any(
             r["patientId"] == patient_id
             and r["readingId"] == reading_id
@@ -445,7 +446,6 @@ def test_sync_readings(
             and r["followup"]["readingId"] == reading_id
             for r in response.json()["readings"]
         )
-
         assert any(
             r["patientId"] == patient_id
             and r["readingId"] == mobile_reading["readingId"]
@@ -456,5 +456,4 @@ def test_sync_readings(
         )
 
     finally:
-        database.session.commit()
         crud.delete_by(Reading, readingId=mobile_reading_id)
