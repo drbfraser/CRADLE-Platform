@@ -17,7 +17,7 @@ The role-specific views are defined as follows:
 * VHT: can see all patients created by them
 """
 
-from typing import Any, List, Callable, Tuple
+from typing import Any, List, Callable, Optional, Tuple
 
 import data.crud as crud
 from models import (
@@ -89,24 +89,50 @@ def medical_record_view(
         )
 
 
-def patient_with_records_view(user: dict) -> List[Any]:
+def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
     """
     Returns a list of patients each with the latest pregnancy, medical and durg records.
 
     :param user: JWT identity
     :return: A list of patients
     """
-    return __get_view(user, crud.read_patient_with_medical_records)
+    return __get_view(user, crud.read_patients, last_edited=last_sync)
 
 
-def reading_view(user: dict) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
+def reading_view(
+    user: dict, last_sync: Optional[int] = None
+) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
     """
     Returns a list of readings each with corresponding referral, assessment, and urine test.
 
     :param user: JWT identity
     :return: A list of tuples of reading, referral, assessment, urine test
     """
-    return __get_view(user, crud.read_readings)
+    return __get_view(user, crud.read_readings, last_edited=last_sync)
+
+
+def referral_view(user: dict, last_sync: int) -> List[Referral]:
+    """
+    Returns a list of referrals of readings associated with user.
+
+    :param user: JWT identity
+    :return: A list of referrals
+    """
+    return __get_view(
+        user, crud.read_referrals_and_assessments, model=Referral, last_edited=last_sync
+    )
+
+
+def assessment_view(user: dict, last_sync: int) -> List[FollowUp]:
+    """
+    Returns a list of assessments of readings associated with user.
+
+    :param user: JWT identity
+    :return: A list of assessments
+    """
+    return __get_view(
+        user, crud.read_referrals_and_assessments, model=FollowUp, last_edited=last_sync
+    )
 
 
 def __get_view(user: dict, func: Callable, **kwargs) -> List[Any]:

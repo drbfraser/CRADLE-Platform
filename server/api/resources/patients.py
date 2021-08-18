@@ -75,10 +75,10 @@ class Root(Resource):
                 # wipe out the patient we want to return we must refresh it.
                 data.db_session.refresh(patient)
 
-        patient = crud.read_patient_with_medical_records(patient_id)
+        patient = crud.read_patients(patient_id)
         readings = crud.read_readings(patient_id)
 
-        return serialize.serialize_patient_with_records(patient, readings), 201
+        return serialize.serialize_patient(patient, readings), 201
 
 
 # /api/patients/<string:patient_id>
@@ -91,13 +91,13 @@ class SinglePatient(Resource):
         endpoint="single_patient",
     )
     def get(patient_id: str):
-        patient = crud.read_patient_with_medical_records(patient_id)
+        patient = crud.read_patients(patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
 
         readings = crud.read_readings(patient_id)
 
-        return serialize.serialize_patient_with_records(patient, readings)
+        return serialize.serialize_patient(patient, readings)
 
 
 # /api/patients/<string:patient_id>/info

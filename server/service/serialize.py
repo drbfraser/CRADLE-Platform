@@ -2,10 +2,19 @@
 The ``service.util`` contains utility functions to help simplify useful information into a dict
 instead of using marshal on the whole Object.
 """
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, Union
+from marshmallow import ValidationError
 
 import data.marshal as marshal
-from models import FollowUp, MedicalRecord, Pregnancy, Reading, Referral, UrineTest
+from models import (
+    FollowUp,
+    MedicalRecord,
+    Patient,
+    Pregnancy,
+    Reading,
+    Referral,
+    UrineTest,
+)
 
 
 def serialize_patient_list(patients: List[Any]) -> dict:
@@ -65,9 +74,7 @@ def serialize_patient_timeline(r: Any) -> dict:
     }
 
 
-def serialize_patient_with_records(
-    patient: Any, readings: Optional[List[Reading]] = None
-) -> dict:
+def serialize_patient(patient: Any, readings: Optional[List[Reading]] = None) -> dict:
     p = {
         "patientId": patient.patientId,
         "patientName": patient.patientName,
@@ -104,3 +111,83 @@ def serialize_reading(tup: Tuple[Reading, Referral, FollowUp, UrineTest]) -> dic
     if tup[3]:
         reading["urineTests"] = marshal.marshal(tup[3])
     return reading
+
+
+def deserialize_patient(
+    data: dict, shallow: bool = True, partial: bool = False
+) -> Union[dict, Patient]:
+    schema = Patient.schema()
+    d = {
+        "patientId": data.get("patientId"),
+        "patientName": data.get("patientName"),
+        "patientSex": data.get("patientSex"),
+        "patientSex": data.get("patientSex"),
+        "dob": data.get("dob"),
+        "isExactDob": data.get("isExactDob"),
+        "zone": data.get("zone"),
+        "villageNumber": data.get("villageNumber"),
+        "householdNumber": data.get("householdNumber"),
+        "allergy": data.get("allergy"),
+    }
+    if partial:
+        if err := schema().validate(d, partial=True):
+            raise ValidationError(err)
+        return d
+
+    patient = schema().load(d)
+    if shallow:
+        return patient
+
+    medical_records = list()
+    if data.get("medicalHistory"):
+        medical_records.append(deserialize_medical_record(data, False))
+    if data.get("drugHistory"):
+        medical_records.append(deserialize_medical_record(data, True))
+
+    pregnancies = list()
+    if data.get("pregnancyStartDate"):
+        pregnancies.append(deserialize_pregnancy(data))
+
+    if medical_records:
+        patient.records = medical_records
+    if pregnancies:
+        patient.pregnancies = pregnancies
+
+    return patient
+
+
+def deserialize_pregnancy(data: dict, partial: bool = False) -> Union[dict, Pregnancy]:
+    schema = Pregnancy.schema()
+    if partial:
+        d = {
+            "endDate": data.get("pregnancyEndDate"),
+            "outcome": data.get("pregnancyOutcome"),
+        }
+        if err := schema().validate(d, partial=True):
+            raise ValidationError(err)
+        return {k: v for k, v in d.items() if v}
+
+    d = {
+        "patientId": data.get("patientId"),
+        "startDate": data.get("pregnancyStartDate"),
+        "defaultTimeUnit": data.get("gestationalAgeUnit"),
+    }
+    return schema().load(d)
+
+
+def deserialize_medical_record(data: dict, is_drug_record: bool) -> MedicalRecord:
+    schema = MedicalRecord.schema()
+    d = {
+        "patientId": data.get("patientId"),
+        "information": data.get("drugHistory")
+        if is_drug_record
+        else data.get("medicalHistory"),
+        "isDrugRecord": is_drug_record,
+    }
+    if (not is_drug_record and data.get("medicalLastEdited")) or (
+        is_drug_record and data.get("drugLastEdited")
+    ):
+        d["dateCreated"] = (
+            data["drugLastEdited"] if is_drug_record else data["medicalLastEdited"]
+        )
+    return schema().load(d)
