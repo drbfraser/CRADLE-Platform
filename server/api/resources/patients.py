@@ -16,6 +16,7 @@ from models import Patient, Pregnancy
 from validation import patients
 from utils import get_current_time
 from api.decorator import patient_association_required
+from datetime import date
 
 
 # /api/patients
@@ -176,18 +177,55 @@ class PatientStats(Resource):
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
 
+        today = date.today()
+        current_year = today.year
+        current_month = today.month
+
         # getting all bpSystolic readings for each month
-        bp_systolic = statsCalculation.get_stats_data("bpSystolic", patient.readings)
+        bp_systolic = statsCalculation.get_stats_data(
+            "bpSystolic", patient.readings, current_year, current_month
+        )
 
         # getting all bpDiastolic readings for each month
-        bp_diastolic = statsCalculation.get_stats_data("bpDiastolic", patient.readings)
+        bp_diastolic = statsCalculation.get_stats_data(
+            "bpDiastolic", patient.readings, current_year, current_month
+        )
 
         # getting all heart rate readings for each month
-        heart_rate = statsCalculation.get_stats_data("heartRateBPM", patient.readings)
+        heart_rate = statsCalculation.get_stats_data(
+            "heartRateBPM", patient.readings, current_year, current_month
+        )
+
+        # getting all bpSystolic readings for each month dated from 12 months before the current month
+        bp_systolic_last_twelve_months = statsCalculation.get_stats_data(
+            "bpSystolicLastTwelveMonths",
+            patient.readings,
+            current_year,
+            current_month,
+            True,
+        )
+
+        # getting all bpDiastolic readings for each month dated from 12 months before the current month
+        bp_diastolic_last_twelve_months = statsCalculation.get_stats_data(
+            "bpDiastolicLastTwelveMonths",
+            patient.readings,
+            current_year,
+            current_month,
+            True,
+        )
+
+        # getting all heart rate readings for each month dated from 12 months before the current month
+        heart_rate_last_twelve_months = statsCalculation.get_stats_data(
+            "heartRateBPMLastTwelveMonths",
+            patient.readings,
+            current_year,
+            current_month,
+            True,
+        )
 
         # getting all traffic lights from day 1 for this patient
         traffic_light_statuses = statsCalculation.get_stats_data(
-            "trafficLightStatus", patient.readings
+            "trafficLightStatus", patient.readings, current_year, current_month
         )
 
         # putting data into one object now
@@ -195,6 +233,9 @@ class PatientStats(Resource):
             "bpSystolicReadingsMonthly": bp_systolic,
             "bpDiastolicReadingsMonthly": bp_diastolic,
             "heartRateReadingsMonthly": heart_rate,
+            "bpSystolicLastTwelveMonths": bp_systolic_last_twelve_months,
+            "bpDiastolicLastTwelveMonths": bp_diastolic_last_twelve_months,
+            "heartRateBPMLastTwelveMonths": heart_rate_last_twelve_months,
             "trafficLightCountsFromDay1": {
                 "green": traffic_light_statuses[0],  # dont
                 "yellowUp": traffic_light_statuses[1],  # hate
@@ -202,6 +243,7 @@ class PatientStats(Resource):
                 "redUp": traffic_light_statuses[3],  # magic
                 "redDown": traffic_light_statuses[4],  # numbers
             },
+            "currentMonth": current_month,
         }
         return data
 

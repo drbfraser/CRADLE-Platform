@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Paper, Typography, Divider, Box, makeStyles } from '@material-ui/core';
+import { Form, Select, InputOnChangeData } from 'semantic-ui-react';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import { Line, Bar } from 'react-chartjs-2';
 import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
 import Alert from '@material-ui/lab/Alert';
 import { Skeleton } from '@material-ui/lab';
 import { PatientStatistics } from 'src/shared/types';
-import { TrafficLightEnum } from 'src/shared/enums';
+import {
+  EndpointEnum,
+  TrafficLightEnum,
+  StatsOptionEnum,
+} from 'src/shared/enums';
+import { statsUnitLabels } from 'src/shared/constants';
 import { trafficLightColors } from 'src/shared/constants';
 import { Menu } from 'semantic-ui-react';
 
@@ -25,6 +30,14 @@ export const PatientStats = ({ patientId }: IProps) => {
   const [errorLoading, setErrorLoading] = useState(false);
   const [chartSelected, setChartSelected] = useState(ChartOption.VITALS);
   const [patientStats, setPatientStats] = useState<PatientStatistics>();
+  const [currentStatsUnit, setCurrentStatsUnit] = useState(
+    StatsOptionEnum.THIS_YEAR
+  );
+  const unitOptions = Object.values(StatsOptionEnum).map((unit) => ({
+    key: unit,
+    text: statsUnitLabels[unit],
+    value: unit,
+  }));
 
   useEffect(() => {
     apiFetch(
@@ -35,6 +48,13 @@ export const PatientStats = ({ patientId }: IProps) => {
       .then((stats) => setPatientStats(stats))
       .catch(() => setErrorLoading(true));
   }, [patientId]);
+
+  const handleCurrentStatsUnitChange = (
+    _: React.ChangeEvent<HTMLInputElement>,
+    { value }: InputOnChangeData
+  ) => {
+    setCurrentStatsUnit(value as StatsOptionEnum);
+  };
 
   return (
     <Paper>
@@ -65,9 +85,16 @@ export const PatientStats = ({ patientId }: IProps) => {
           <div className={styles.graph}>
             {chartSelected === ChartOption.VITALS && (
               <>
-                <h4 className={styles.noMargin}>Average Vitals This Year:</h4>
+                <h4 className={styles.noMargin}>Average Vitals</h4>
+                <Form.Field
+                  name="gestationalAgeUnits"
+                  control={Select}
+                  options={unitOptions}
+                  placeholder={statsUnitLabels[currentStatsUnit]}
+                  onChange={handleCurrentStatsUnitChange}
+                />
                 <Line
-                  data={getVitalsData(patientStats)}
+                  data={getVitalsData(patientStats, currentStatsUnit)}
                   options={{ maintainAspectRatio: false }}
                 />
               </>
@@ -98,12 +125,19 @@ const useStyles = makeStyles({
   },
   graph: {
     margin: 0,
-    maxHeight: 300,
+    maxHeight: 400,
   },
 });
 
-const getVitalsData = (stats: PatientStatistics) => {
+const getVitalsData = (
+  stats: PatientStatistics,
+  currentStatsUnit: StatsOptionEnum
+) => {
   const MONTHS_IN_YEAR = 12;
+  const monthLabelForLastTwelveMonths = [
+    ...monthsLabels.slice(stats.currentMonth, 12),
+    ...monthsLabels.slice(0, stats.currentMonth),
+  ];
 
   const average = (monthlyArray: number[]) => {
     if (monthlyArray.length === 0) {
@@ -120,22 +154,34 @@ const getVitalsData = (stats: PatientStatistics) => {
     {
       label: 'Systolic',
       color: '75,192,192',
-      data: stats.bpSystolicReadingsMonthly,
+      data:
+        currentStatsUnit === StatsOptionEnum.THIS_YEAR
+          ? stats.bpSystolicReadingsMonthly
+          : stats.bpSystolicLastTwelveMonths,
     },
     {
       label: 'Diastolic',
       color: '148,0,211',
-      data: stats.bpDiastolicReadingsMonthly,
+      data:
+        currentStatsUnit === StatsOptionEnum.THIS_YEAR
+          ? stats.bpDiastolicReadingsMonthly
+          : stats.bpDiastolicLastTwelveMonths,
     },
     {
       label: 'Heart Rate',
       color: '255,127,80',
-      data: stats.heartRateReadingsMonthly,
+      data:
+        currentStatsUnit === StatsOptionEnum.THIS_YEAR
+          ? stats.heartRateReadingsMonthly
+          : stats.heartRateBPMLastTwelveMonths,
     },
   ];
 
   return {
-    labels: monthsLabels,
+    labels:
+      currentStatsUnit === StatsOptionEnum.THIS_YEAR
+        ? monthsLabels
+        : monthLabelForLastTwelveMonths,
     datasets: datasets.map((d) => ({
       label: d.label,
       fill: true,

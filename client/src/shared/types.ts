@@ -177,9 +177,13 @@ export type PatientMonthlyStats = [
 
 export type PatientStatistics = {
   trafficLightCountsFromDay1: PatientTrafficLightStats;
+  currentMonth: number;
   bpSystolicReadingsMonthly?: PatientMonthlyStats;
   bpDiastolicReadingsMonthly?: PatientMonthlyStats;
   heartRateReadingsMonthly?: PatientMonthlyStats;
+  bpSystolicLastTwelveMonths?: PatientMonthlyStats;
+  bpDiastolicLastTwelveMonths?: PatientMonthlyStats;
+  heartRateBPMLastTwelveMonths?: PatientMonthlyStats;
 };
 
 export type NewAssessment = {

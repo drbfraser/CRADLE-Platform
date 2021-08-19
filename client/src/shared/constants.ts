@@ -7,6 +7,7 @@ import {
   getTimestampFromWeeksDays,
 } from 'src/shared/utils';
 import {
+  StatsOptionEnum,
   GestationalAgeUnitEnum,
   SexEnum,
   TrafficLightEnum,
@@ -16,6 +17,11 @@ import {
 export const gestationalAgeUnitLabels = {
   [GestationalAgeUnitEnum.WEEKS]: 'Weeks + Days',
   [GestationalAgeUnitEnum.MONTHS]: 'Months',
+};
+
+export const statsUnitLabels = {
+  [StatsOptionEnum.THIS_YEAR]: 'This Year',
+  [StatsOptionEnum.LAST_TWELVE_MONTHS]: 'Last 12 Months',
 };
 
 export const gestationalAgeUnitFormatters = {
