@@ -91,7 +91,7 @@ export const PatientStats = ({ patientId }: IProps) => {
               <>
                 <h4 className={styles.noMargin}>Average Vitals</h4>
                 <Form.Field
-                  name="gestationalAgeUnits"
+                  name="statsUnit"
                   control={Select}
                   options={unitOptions}
                   placeholder={statsUnitLabels[currentStatsUnit]}
