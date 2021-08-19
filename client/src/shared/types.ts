@@ -181,9 +181,9 @@ export type PatientStatistics = {
   bpSystolicReadingsMonthly?: PatientMonthlyStats;
   bpDiastolicReadingsMonthly?: PatientMonthlyStats;
   heartRateReadingsMonthly?: PatientMonthlyStats;
-  bpSystolicLastTwelveMonths?: PatientMonthlyStats;
-  bpDiastolicLastTwelveMonths?: PatientMonthlyStats;
-  heartRateBPMLastTwelveMonths?: PatientMonthlyStats;
+  bpSystolicReadingsLastTwelveMonths?: PatientMonthlyStats;
+  bpDiastolicReadingsLastTwelveMonths?: PatientMonthlyStats;
+  heartRateReadingsLastTwelveMonths?: PatientMonthlyStats;
 };
 
 export type NewAssessment = {

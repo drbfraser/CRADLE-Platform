@@ -233,9 +233,9 @@ class PatientStats(Resource):
             "bpSystolicReadingsMonthly": bp_systolic,
             "bpDiastolicReadingsMonthly": bp_diastolic,
             "heartRateReadingsMonthly": heart_rate,
-            "bpSystolicLastTwelveMonths": bp_systolic_last_twelve_months,
-            "bpDiastolicLastTwelveMonths": bp_diastolic_last_twelve_months,
-            "heartRateBPMLastTwelveMonths": heart_rate_last_twelve_months,
+            "bpSystolicReadingsLastTwelveMonths": bp_systolic_last_twelve_months,
+            "bpDiastolicReadingsLastTwelveMonths": bp_diastolic_last_twelve_months,
+            "heartRateReadingsLastTwelveMonths": heart_rate_last_twelve_months,
             "trafficLightCountsFromDay1": {
                 "green": traffic_light_statuses[0],  # dont
                 "yellowUp": traffic_light_statuses[1],  # hate

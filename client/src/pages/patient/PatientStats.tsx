@@ -161,7 +161,7 @@ const getVitalsData = (
       data:
         currentStatsUnit === StatsOptionEnum.THIS_YEAR
           ? stats.bpSystolicReadingsMonthly
-          : stats.bpSystolicLastTwelveMonths,
+          : stats.bpSystolicReadingsLastTwelveMonths,
     },
     {
       label: 'Diastolic',
@@ -169,7 +169,7 @@ const getVitalsData = (
       data:
         currentStatsUnit === StatsOptionEnum.THIS_YEAR
           ? stats.bpDiastolicReadingsMonthly
-          : stats.bpDiastolicLastTwelveMonths,
+          : stats.bpDiastolicReadingsLastTwelveMonths,
     },
     {
       label: 'Heart Rate',
@@ -177,7 +177,7 @@ const getVitalsData = (
       data:
         currentStatsUnit === StatsOptionEnum.THIS_YEAR
           ? stats.heartRateReadingsMonthly
-          : stats.heartRateBPMLastTwelveMonths,
+          : stats.heartRateReadingsLastTwelveMonths,
     },
   ];
 
