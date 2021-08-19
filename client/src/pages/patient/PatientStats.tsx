@@ -66,7 +66,11 @@ export const PatientStats = ({ patientId }: IProps) => {
         <br />
         <Menu fluid widths={2}>
           <Menu.Item
-            name="Show Vitals This Year"
+            name={
+              currentStatsUnit === StatsOptionEnum.THIS_YEAR
+                ? 'Show Vitals This Year'
+                : 'Show Vitals Last 12 Months'
+            }
             active={chartSelected === ChartOption.VITALS}
             onClick={() => setChartSelected(ChartOption.VITALS)}
           />
