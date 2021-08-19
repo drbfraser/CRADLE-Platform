@@ -16,6 +16,9 @@ responses:
         schema:
           type: object
           properties:
+            currentMonth:
+              type: integer
+              example: 12
             bpSystolicReadingsMonthly:
               type: array
               items: array
@@ -25,6 +28,18 @@ responses:
               items: array
               example: [[]]
             heartRateReadingsMonthly:
+              type: array
+              items: array
+              example: [[]]
+            bpSystolicReadingsLastTwelveMonths:
+              type: array
+              items: array
+              example: [[]]
+            bpDiastolicReadingsLastTwelveMonths:
+              type: array
+              items: array
+              example: [[]]
+            heartRateReadingsLastTwelveMonths:
               type: array
               items: array
               example: [[]]

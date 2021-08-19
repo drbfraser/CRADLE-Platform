@@ -8,6 +8,11 @@ export enum GestationalAgeUnitEnum {
   MONTHS = 'MONTHS',
 }
 
+export enum StatsOptionEnum {
+  THIS_YEAR = 'THIS_YEAR',
+  LAST_TWELVE_MONTHS = 'LAST_TWELVE_MONTHS',
+}
+
 export enum TrafficLightEnum {
   GREEN = 'GREEN',
   YELLOW_UP = 'YELLOW_UP',
