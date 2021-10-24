@@ -70,3 +70,22 @@ class Root(Resource):
             crud.read(HealthFacility, healthFacilityName=data["healthFacilityName"])
         )
         return facilityDict, 201
+
+# /api/facilities/<str:facility_name>
+class SingleFacility(Resource):
+    @staticmethod
+    # @jwt_required
+    @swag_from(
+        "../../specifications/single-facility-get.yml",
+        methods=["GET"],
+        endpoint="single_facility",
+    )
+    def get(facility_name: str):
+        referral = crud.read(HealthFacility, healthFacilityName=facility_name)
+        if util.query_param_bool(request, "newReferrals"):
+            # If responding to a "newReferrals" request, only return the number of newReferrals of that facility
+            return referral.newReferrals
+        else:
+            # Otherwise, return all information about the health facilities
+            return marshal.marshal(referral)
+        
