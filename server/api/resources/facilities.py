@@ -81,11 +81,14 @@ class SingleFacility(Resource):
         endpoint="single_facility",
     )
     def get(facility_name: str):
-        referral = crud.read(HealthFacility, healthFacilityName=facility_name)
+        facility = crud.read(HealthFacility, healthFacilityName=facility_name)
         if util.query_param_bool(request, "newReferrals"):
+            # set newReferral of requested facility to 0
+            facility.newReferrals = 0
+            crud.create(facility)
             # If responding to a "newReferrals" request, only return the number of newReferrals of that facility
-            return referral.newReferrals
+            return facility.newReferrals
         else:
             # Otherwise, return all information about the health facilities
-            return marshal.marshal(referral)
+            return marshal.marshal(facility)
         
