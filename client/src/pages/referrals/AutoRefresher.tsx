@@ -3,16 +3,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { EndpointEnum } from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
-import {
-  IUserWithTokens,
-  OrNull,
-} from 'src/shared/types';
+import { IUserWithTokens, OrNull } from 'src/shared/types';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 
 interface IProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   refreshTimer: number;
+  setIsRefreshDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 type SelectorState = {
@@ -22,6 +22,7 @@ type SelectorState = {
 export const AutoRefresher = ({
   setRefresh,
   refreshTimer,
+  setIsRefreshDialogOpen,
 }: IProps) => {
   const classes = useStyles();
 
@@ -36,7 +37,7 @@ export const AutoRefresher = ({
   );
 
   React.useEffect(() => {
-    const newReferrals : boolean = true;
+    const newReferrals = true;
     const params = new URLSearchParams({
       newReferrals: newReferrals.toString(),
     });
@@ -46,11 +47,20 @@ export const AutoRefresher = ({
     const timer = setInterval(() => {
       setProgress((prevProgress) => {
         if (prevProgress >= 100) {
-          apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES + '/' + userFacility.current + '?' + params)
+          apiFetch(
+            API_URL +
+              EndpointEnum.HEALTH_FACILITIES +
+              '/' +
+              userFacility.current +
+              '?' +
+              params
+          )
             .then((resp) => resp.json())
             .then((jsonResp: string) => {
-              if (Number(jsonResp)>0) {
-                setRefresh((prevRefresh) => {return !prevRefresh;});
+              if (Number(jsonResp) > 0) {
+                setRefresh((prevRefresh) => {
+                  return !prevRefresh;
+                });
               }
             })
             .catch((error) => {
@@ -77,32 +87,69 @@ export const AutoRefresher = ({
 
   React.useEffect(() => {
     if (user) {
-      userFacility.current = user.healthFacilityName
+      userFacility.current = user.healthFacilityName;
     }
   }, [user]);
 
   return (
     <div className={classes.autoRefreshWrapper}>
-      <p className={classes.title}>Auto-Refresh {ifAutoRefreshOn ? "enabled" : "disabled"}</p>
-      <CircularProgress className={ifAutoRefreshOn ? classes.alignCenter : classes.nondisplay} variant="determinate" value={progress} />
+      <Typography
+        className={classes.title}
+        color="textSecondary"
+        variant="overline">
+        Auto-Refresh{' '}
+      </Typography>
+      {ifAutoRefreshOn ? (
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          className={classes.enableBtn}
+          onClick={() => setIsRefreshDialogOpen(true)}>
+          Enabled
+        </Button>
+      ) : (
+        <Button
+          variant="outlined"
+          color="secondary"
+          size="small"
+          className={classes.enableBtn}
+          onClick={() => setIsRefreshDialogOpen(true)}>
+          Disabled
+        </Button>
+      )}
+      <CircularProgress
+        className={ifAutoRefreshOn ? classes.CircularProgress : classes.hidden}
+        variant="determinate"
+        value={progress}
+      />
     </div>
   );
 };
 
 export const useStyles = makeStyles((theme) => ({
-  nondisplay: {
-    display: 'none',
+  enableBtn: {
+    verticalAlign: 'middle',
+    display: 'inline-block',
+    margin: 'auto 6px auto 6px',
+  },
+  hidden: {
+    visibility: 'hidden',
+    maxWidth: '1.6em',
+    verticalAlign: 'middle',
+    margin: 'auto 10px',
   },
   title: {
     display: 'inline-block',
+    verticalAlign: 'middle',
   },
   autoRefreshWrapper: {
     display: 'inline-block',
-    margin: 'auto',
-    marginLeft: 15,
+    margin: 'auto 0',
   },
-  alignCenter: {
+  CircularProgress: {
+    maxWidth: '1.6em',
     verticalAlign: 'middle',
     margin: 'auto 10px',
-  }
+  },
 }));

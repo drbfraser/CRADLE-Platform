@@ -57,7 +57,6 @@ class Root(Resource):
         # Get key-value pairs from parser and remove pairs with a None value
         data = Root.parser.parse_args()
         data = util.filterPairsWithNone(data)
-        
 
         # Create a DB Model instance for the new facility and load into DB
         facility = marshal.unmarshal(HealthFacility, data)
@@ -70,6 +69,7 @@ class Root(Resource):
             crud.read(HealthFacility, healthFacilityName=data["healthFacilityName"])
         )
         return facilityDict, 201
+
 
 # /api/facilities/<str:facility_name>
 class SingleFacility(Resource):
@@ -92,4 +92,3 @@ class SingleFacility(Resource):
         else:
             # Otherwise, return all information about the health facilities
             return marshal.marshal(facility)
-        

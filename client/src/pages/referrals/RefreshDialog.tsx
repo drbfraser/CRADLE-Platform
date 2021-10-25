@@ -23,42 +23,60 @@ export const RefreshDialog = ({
   refreshTimer,
 }: IProps) => {
   const classes = useStyles();
-  var timer_min : number = 0;
-  var timer_sec : number  = refreshTimer;
+  let timer_min = 0;
+  let timer_sec: number = refreshTimer;
   timer_min = Math.floor(timer_sec / 60);
   timer_sec = timer_sec % 60;
 
   const onStop = () => {
-    setRefreshTimer(() => {return 0;});
+    setRefreshTimer(() => {
+      return 0;
+    });
     onClose();
-  }
+  };
 
   const onConfirm = () => {
-    const timeInSec : number = +timer_sec + timer_min * 60;
+    const timeInSec: number = +timer_sec + timer_min * 60;
     setRefreshTimer(timeInSec);
     onClose();
-  }
+  };
 
-  const handleSecChange = (e : any) => {
+  const handleSecChange = (e: any) => {
     timer_sec = e.target.value;
-  }
+  };
 
-  const handleMinChange = (e : any) => {
+  const handleMinChange = (e: any) => {
     timer_min = e.target.value;
-  }
+  };
 
   return (
-    <Dialog open={open} onClose={onClose} aria-labelledby="Auto-Refresh-setting-dialog" maxWidth={isTransformed ? 'md' : 'sm'}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      aria-labelledby="Auto-Refresh-setting-dialog"
+      maxWidth={isTransformed ? 'md' : 'sm'}>
       <DialogTitle id="form-dialog-title">Auto-Refresh Settings</DialogTitle>
       <DialogContent>
         <p className={classes.inlineBlock}>Auto refresh every </p>
-        <TextField className={classes.alignCenter} id="min-input" defaultValue={timer_min} onChange={handleMinChange} type="number"/>
+        <TextField
+          className={classes.alignCenter}
+          id="min-input"
+          defaultValue={timer_min}
+          onChange={handleMinChange}
+          type="number"
+        />
         <p className={classes.inlineBlock}>minutes and </p>
-        <TextField className={classes.alignCenter} id="sec-input" defaultValue={timer_sec} onChange={handleSecChange} type="number"/>
+        <TextField
+          className={classes.alignCenter}
+          id="sec-input"
+          defaultValue={timer_sec}
+          onChange={handleSecChange}
+          type="number"
+        />
         <p className={classes.inlineBlock}>seconds.</p>
       </DialogContent>
       <DialogActions>
-      <Button onClick={onStop} color="primary">
+        <Button onClick={onStop} color="primary">
           Stop Auto-Refresh
         </Button>
         <Button onClick={onClose} color="primary">
@@ -70,7 +88,7 @@ export const RefreshDialog = ({
       </DialogActions>
     </Dialog>
   );
-}
+};
 
 export const useStyles = makeStyles((theme) => ({
   inlineBlock: {
@@ -80,5 +98,5 @@ export const useStyles = makeStyles((theme) => ({
     maxWidth: '6em',
     verticalAlign: 'middle',
     margin: 'auto 8px',
-  }
+  },
 }));

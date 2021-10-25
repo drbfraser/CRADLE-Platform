@@ -25,7 +25,8 @@ export const ReferralsPage = () => {
   const [isPromptShown, setIsPromptShown] = useState<boolean>(true);
   const [refresh, setRefresh] = useState(false);
   const [refreshTimer, setRefreshTimer] = useState<number>(10);
-  const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState<boolean>(false);
+  const [isRefreshDialogOpen, setIsRefreshDialogOpen] =
+    useState<boolean>(false);
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
@@ -36,8 +37,17 @@ export const ReferralsPage = () => {
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>
-        <h2 className={classes.title}>Referrals</h2>
-        
+        <div className={classes.title}>
+          <h2 className={classes.title}>Referrals</h2>
+          <div>
+            <AutoRefresher
+              setRefresh={setRefresh}
+              refreshTimer={refreshTimer}
+              setIsRefreshDialogOpen={setIsRefreshDialogOpen}
+            />
+          </div>
+        </div>
+
         {!isBigScreen && <br />}
         <RefreshDialog
           onClose={() => {
@@ -64,12 +74,6 @@ export const ReferralsPage = () => {
           aria-label="vertical contained primary button group"
           variant="text"
           className={classes.right}>
-          <Button
-            onClick={() => {
-              setIsRefreshDialogOpen(true);
-            }}>
-            Auto-Refresh Settings
-          </Button>
           <Button
             onClick={() => {
               setIsFilterDialogOpen(true);
@@ -105,13 +109,6 @@ export const ReferralsPage = () => {
             </>
           )}
         </div>
-        <div className={classes.right}>
-          <AutoRefresher
-            setRefresh={setRefresh}
-            refreshTimer={refreshTimer}
-          />
-        </div>
-        
       </div>
       <div className={classes.table}>
         <APITable
