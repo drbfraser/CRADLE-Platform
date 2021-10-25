@@ -60,6 +60,8 @@ class Root(Resource):
 
         # Create a DB Model instance for the new facility and load into DB
         facility = marshal.unmarshal(HealthFacility, data)
+        facility.newReferrals = 0
+
         crud.create(facility)
 
         # Get back a dict for return
@@ -67,3 +69,26 @@ class Root(Resource):
             crud.read(HealthFacility, healthFacilityName=data["healthFacilityName"])
         )
         return facilityDict, 201
+
+
+# /api/facilities/<str:facility_name>
+class SingleFacility(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-facility-get.yml",
+        methods=["GET"],
+        endpoint="single_facility",
+    )
+    def get(facility_name: str):
+        facility = crud.read(HealthFacility, healthFacilityName=facility_name)
+        if util.query_param_bool(request, "newReferrals"):
+            # set newReferral of requested facility to 0
+            newReferrals = facility.newReferrals
+            facility.newReferrals = 0
+            crud.create(facility)
+            # If responding to a "newReferrals" request, only return the number of newReferrals of that facility
+            return newReferrals
+        else:
+            # Otherwise, return all information about the health facilities
+            return marshal.marshal(facility)

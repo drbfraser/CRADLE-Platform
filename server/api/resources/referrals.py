@@ -59,6 +59,13 @@ class Root(Resource):
 
         if not healthFacility:
             abort(400, message="Health facility does not exist")
+        else:
+            crud.update(
+                HealthFacility,
+                {"newReferrals": healthFacility.newReferrals + 1},
+                True,
+                healthFacilityName=json["referralHealthFacilityName"],
+            )
 
         json["patientId"] = reading.patientId
         json["userId"] = get_jwt_identity()["userId"]
