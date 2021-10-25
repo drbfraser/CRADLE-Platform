@@ -33,10 +33,6 @@ export const ReferralsPage = () => {
   const isBigScreen = useMediaQuery('(min-width:440px)');
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
-  // React.useEffect(() => {
-  //   console.log(refreshTimer);
-  // });
-
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>

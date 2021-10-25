@@ -84,10 +84,11 @@ class SingleFacility(Resource):
         facility = crud.read(HealthFacility, healthFacilityName=facility_name)
         if util.query_param_bool(request, "newReferrals"):
             # set newReferral of requested facility to 0
+            newReferrals = facility.newReferrals
             facility.newReferrals = 0
             crud.create(facility)
             # If responding to a "newReferrals" request, only return the number of newReferrals of that facility
-            return facility.newReferrals
+            return newReferrals
         else:
             # Otherwise, return all information about the health facilities
             return marshal.marshal(facility)
