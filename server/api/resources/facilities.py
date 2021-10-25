@@ -74,7 +74,7 @@ class Root(Resource):
 # /api/facilities/<str:facility_name>
 class SingleFacility(Resource):
     @staticmethod
-    # @jwt_required
+    @jwt_required
     @swag_from(
         "../../specifications/single-facility-get.yml",
         methods=["GET"],
