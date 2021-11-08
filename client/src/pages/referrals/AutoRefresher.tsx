@@ -62,7 +62,7 @@ export const AutoRefresher = ({
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
     const newReferrals = true;
