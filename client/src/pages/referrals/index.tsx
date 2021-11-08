@@ -24,7 +24,7 @@ export const ReferralsPage = () => {
   const [filter, setFilter] = useState<ReferralFilter>();
   const [isPromptShown, setIsPromptShown] = useState<boolean>(true);
   const [refresh, setRefresh] = useState(false);
-  const [refreshTimer, setRefreshTimer] = useState<number>(10);
+  const [refreshTimer, setRefreshTimer] = useState<number>(60);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] =
     useState<boolean>(false);
 
