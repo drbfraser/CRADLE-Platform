@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { debounce } from 'lodash';
+import { debounce, parseInt } from 'lodash';
 import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
@@ -36,6 +36,10 @@ export const ReferralsPage = () => {
 
   React.useEffect(() => {
     sessionStorage.setItem('lastRefreshTime', '0');
+    if (localStorage.getItem('refreshInterval') === null) {
+      localStorage.setItem('refreshInterval', '60');
+    }
+    setRefreshTimer(parseInt(localStorage.getItem('refreshInterval')!));
   }, []);
 
   return (
