@@ -38,14 +38,21 @@ export const RefreshDialog = ({
   const onConfirm = () => {
     const timeInSec: number = +timer_sec + timer_min * 60;
     setRefreshTimer(timeInSec);
+    localStorage.setItem('refreshInterval', String(timeInSec));
     onClose();
   };
 
   const handleSecChange = (e: any) => {
+    if (e.target.value < 0) {
+      e.target.value = 0;
+    }
     timer_sec = e.target.value;
   };
 
   const handleMinChange = (e: any) => {
+    if (e.target.value < 0) {
+      e.target.value = 0;
+    }
     timer_min = e.target.value;
   };
 

@@ -1,3 +1,4 @@
+import time
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -60,7 +61,7 @@ class Root(Resource):
 
         # Create a DB Model instance for the new facility and load into DB
         facility = marshal.unmarshal(HealthFacility, data)
-        facility.newReferrals = 0
+        facility.newReferrals = str(round(time.time() * 1000))
 
         crud.create(facility)
 
@@ -83,11 +84,8 @@ class SingleFacility(Resource):
     def get(facility_name: str):
         facility = crud.read(HealthFacility, healthFacilityName=facility_name)
         if util.query_param_bool(request, "newReferrals"):
-            # set newReferral of requested facility to 0
             newReferrals = facility.newReferrals
-            facility.newReferrals = 0
-            crud.create(facility)
-            # If responding to a "newReferrals" request, only return the number of newReferrals of that facility
+            # If responding to a "newReferrals" request, only return the timestamp of newReferrals of that facility
             return newReferrals
         else:
             # Otherwise, return all information about the health facilities

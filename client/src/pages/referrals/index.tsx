@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { debounce } from 'lodash';
+import { debounce, parseInt } from 'lodash';
 import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
@@ -24,7 +24,7 @@ export const ReferralsPage = () => {
   const [filter, setFilter] = useState<ReferralFilter>();
   const [isPromptShown, setIsPromptShown] = useState<boolean>(true);
   const [refresh, setRefresh] = useState(false);
-  const [refreshTimer, setRefreshTimer] = useState<number>(10);
+  const [refreshTimer, setRefreshTimer] = useState<number>(60);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] =
     useState<boolean>(false);
 
@@ -33,6 +33,14 @@ export const ReferralsPage = () => {
 
   const isBigScreen = useMediaQuery('(min-width:440px)');
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
+
+  React.useEffect(() => {
+    sessionStorage.setItem('lastRefreshTime', '0');
+    if (localStorage.getItem('refreshInterval') === null) {
+      localStorage.setItem('refreshInterval', '60');
+    }
+    setRefreshTimer(parseInt(localStorage.getItem('refreshInterval')!));
+  }, []);
 
   return (
     <Paper className={classes.wrapper}>
