@@ -19,7 +19,7 @@ from api.resources.stats import (
 )
 
 from api.resources.patientAssociations import Root as PatientAssociations
-from api.resources.facilities import Root as Facilities, SingleFacility
+from api.resources.facilities import Root as Facilities
 from api.resources.patients import (
     Root as Patients,
     SinglePatient,
@@ -94,11 +94,6 @@ def init(api):
     api.add_resource(
         Facilities, "/api/facilities", endpoint="facilities"
     )  # [GET, POST]
-    api.add_resource(
-        SingleFacility,
-        "/api/facilities/<string:facility_name>",
-        endpoint="single_facility",
-    )  # [GET]
 
     api.add_resource(Patients, "/api/patients", endpoint="patients")  # [GET, POST]
     api.add_resource(

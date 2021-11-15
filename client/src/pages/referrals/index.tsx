@@ -12,8 +12,6 @@ import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import { FilterDialog } from './FilterDialog';
-import { RefreshDialog } from './RefreshDialog';
-import { AutoRefresher } from './AutoRefresher';
 import { ReferralFilter } from 'src/shared/types';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 
@@ -23,10 +21,6 @@ export const ReferralsPage = () => {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
   const [filter, setFilter] = useState<ReferralFilter>();
   const [isPromptShown, setIsPromptShown] = useState<boolean>(true);
-  const [refresh, setRefresh] = useState(false);
-  const [refreshTimer, setRefreshTimer] = useState<number>(10);
-  const [isRefreshDialogOpen, setIsRefreshDialogOpen] =
-    useState<boolean>(false);
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
@@ -37,27 +31,8 @@ export const ReferralsPage = () => {
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>
-        <div className={classes.title}>
-          <h2 className={classes.title}>Referrals</h2>
-          <div>
-            <AutoRefresher
-              setRefresh={setRefresh}
-              refreshTimer={refreshTimer}
-              setIsRefreshDialogOpen={setIsRefreshDialogOpen}
-            />
-          </div>
-        </div>
-
+        <h2 className={classes.title}>Referrals</h2>
         {!isBigScreen && <br />}
-        <RefreshDialog
-          onClose={() => {
-            setIsRefreshDialogOpen(false);
-          }}
-          open={isRefreshDialogOpen}
-          isTransformed={isTransformed}
-          setRefreshTimer={setRefreshTimer}
-          refreshTimer={refreshTimer}
-        />
         <FilterDialog
           onClose={() => {
             setIsFilterDialogOpen(false);
@@ -122,7 +97,6 @@ export const ReferralsPage = () => {
           RowComponent={ReferralRow}
           isTransformed={isTransformed}
           referralFilter={filter}
-          refetch={refresh}
         />
       </div>
     </Paper>
