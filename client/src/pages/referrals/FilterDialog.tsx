@@ -105,8 +105,9 @@ export const FilterDialog = ({
   const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
   const [referrers, setReferrers] = useState<Referrer[]>([]);
 
-  const [selectedVitalSign, setSelectedVitalSign] =
-    useState<TrafficLightEnum>();
+  const [selectedVitalSign, setSelectedVitalSign] = useState<
+    TrafficLightEnum[]
+  >([]);
 
   const [isPregnant, setIsPregnant] = useState<string>();
   const [isAssessed, setIsAssessed] = useState<string>();
@@ -155,7 +156,7 @@ export const FilterDialog = ({
   const clearFilter = () => {
     setSelectedHealthFacilities([]);
     setSelectedReferrers([]);
-    setSelectedVitalSign(undefined);
+    setSelectedVitalSign([]);
     setStartDate(null);
     setEndDate(null);
     setPresetDateRange(undefined);
@@ -223,7 +224,7 @@ export const FilterDialog = ({
       !endDate &&
       !presetDateRange &&
       selectedReferrers.length < 1 &&
-      !selectedVitalSign &&
+      selectedVitalSign.length < 1 &&
       !isPregnant &&
       !isAssessed
     ) {
@@ -410,17 +411,28 @@ export const FilterDialog = ({
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={vitalSign.vitalSign === selectedVitalSign}
-                    onChange={(event, checked) =>
-                      checked
-                        ? setSelectedVitalSign(
-                            TrafficLightEnum[
-                              event.target
-                                .value as keyof typeof TrafficLightEnum
-                            ]
-                          )
-                        : setSelectedVitalSign(undefined)
-                    }
+                    checked={selectedVitalSign.includes(vitalSign.vitalSign)}
+                    onChange={(event, checked) => {
+                      if (checked) {
+                        setSelectedVitalSign([
+                          ...selectedVitalSign,
+                          TrafficLightEnum[
+                            event.target.value as keyof typeof TrafficLightEnum
+                          ],
+                        ]);
+                      } else {
+                        const newVitalSigns = [...selectedVitalSign];
+                        const i = newVitalSigns.indexOf(
+                          TrafficLightEnum[
+                            event.target.value as keyof typeof TrafficLightEnum
+                          ]
+                        );
+                        if (i > -1) {
+                          newVitalSigns.splice(i, 1);
+                        }
+                        setSelectedVitalSign(newVitalSigns);
+                      }
+                    }}
                     value={vitalSign.vitalSign}
                   />
                 }

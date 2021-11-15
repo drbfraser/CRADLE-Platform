@@ -1,3 +1,4 @@
+import time
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -60,6 +61,8 @@ class Root(Resource):
 
         # Create a DB Model instance for the new facility and load into DB
         facility = marshal.unmarshal(HealthFacility, data)
+        facility.newReferrals = str(round(time.time() * 1000))
+
         crud.create(facility)
 
         # Get back a dict for return
@@ -67,3 +70,23 @@ class Root(Resource):
             crud.read(HealthFacility, healthFacilityName=data["healthFacilityName"])
         )
         return facilityDict, 201
+
+
+# /api/facilities/<str:facility_name>
+class SingleFacility(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-facility-get.yml",
+        methods=["GET"],
+        endpoint="single_facility",
+    )
+    def get(facility_name: str):
+        facility = crud.read(HealthFacility, healthFacilityName=facility_name)
+        if util.query_param_bool(request, "newReferrals"):
+            newReferrals = facility.newReferrals
+            # If responding to a "newReferrals" request, only return the timestamp of newReferrals of that facility
+            return newReferrals
+        else:
+            # Otherwise, return all information about the health facilities
+            return marshal.marshal(facility)

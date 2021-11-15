@@ -28,3 +28,6 @@ responses:
               about:
                 type: string | Null
                 example: Sample health centre
+              newReferrals:
+                type: string | Null
+                example: 1636384214986
