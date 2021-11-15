@@ -92,6 +92,11 @@ export const APITable = ({
     const referralFilterParams = referralFilter
       ? new URLSearchParams({
           dateRange: referralFilter.dateRange,
+          vitalSigns: referralFilter.vitalSigns
+            ? TrafficLightEnum[
+                referralFilter.vitalSigns as keyof typeof TrafficLightEnum
+              ]
+            : '',
           isPregnant: referralFilter.isPregnant
             ? referralFilter.isPregnant
             : '',
@@ -107,12 +112,6 @@ export const APITable = ({
       );
       referralFilter.referrers.forEach((referrer) =>
         referralFilterParams.append('referrer', referrer)
-      );
-      referralFilter.vitalSigns.forEach((vitalSign) =>
-        referralFilterParams.append(
-          'vitalSigns',
-          TrafficLightEnum[vitalSign as keyof typeof TrafficLightEnum]
-        )
       );
     }
 
