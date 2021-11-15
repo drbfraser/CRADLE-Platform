@@ -59,14 +59,6 @@ class Root(Resource):
 
         if not healthFacility:
             abort(400, message="Health facility does not exist")
-        else:
-            UTCTime = str(round(time.time() * 1000))
-            crud.update(
-                HealthFacility,
-                {"newReferrals": UTCTime},
-                True,
-                healthFacilityName=json["referralHealthFacilityName"],
-            )
 
         json["patientId"] = reading.patientId
         json["userId"] = get_jwt_identity()["userId"]

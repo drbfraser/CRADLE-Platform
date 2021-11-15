@@ -149,7 +149,6 @@ class HealthFacility(db.Model):
     healthFacilityPhoneNumber = db.Column(db.String(50))
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
-    newReferrals = db.Column(db.String(50))
 
     @staticmethod
     def schema():

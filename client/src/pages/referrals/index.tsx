@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { debounce, parseInt } from 'lodash';
+import { debounce } from 'lodash';
 import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
@@ -12,8 +12,6 @@ import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import { FilterDialog } from './FilterDialog';
-import { RefreshDialog } from './RefreshDialog';
-import { AutoRefresher } from './AutoRefresher';
 import { ReferralFilter } from 'src/shared/types';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 
@@ -23,10 +21,6 @@ export const ReferralsPage = () => {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
   const [filter, setFilter] = useState<ReferralFilter>();
   const [isPromptShown, setIsPromptShown] = useState<boolean>(true);
-  const [refresh, setRefresh] = useState(false);
-  const [refreshTimer, setRefreshTimer] = useState<number>(60);
-  const [isRefreshDialogOpen, setIsRefreshDialogOpen] =
-    useState<boolean>(false);
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
@@ -34,38 +28,11 @@ export const ReferralsPage = () => {
   const isBigScreen = useMediaQuery('(min-width:440px)');
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
-  React.useEffect(() => {
-    sessionStorage.setItem('lastRefreshTime', '0');
-    if (localStorage.getItem('refreshInterval') === null) {
-      localStorage.setItem('refreshInterval', '60');
-    }
-    setRefreshTimer(parseInt(localStorage.getItem('refreshInterval')!));
-  }, []);
-
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>
-        <div className={classes.title}>
-          <h2 className={classes.title}>Referrals</h2>
-          <div>
-            <AutoRefresher
-              setRefresh={setRefresh}
-              refreshTimer={refreshTimer}
-              setIsRefreshDialogOpen={setIsRefreshDialogOpen}
-            />
-          </div>
-        </div>
-
+        <h2 className={classes.title}>Referrals</h2>
         {!isBigScreen && <br />}
-        <RefreshDialog
-          onClose={() => {
-            setIsRefreshDialogOpen(false);
-          }}
-          open={isRefreshDialogOpen}
-          isTransformed={isTransformed}
-          setRefreshTimer={setRefreshTimer}
-          refreshTimer={refreshTimer}
-        />
         <FilterDialog
           onClose={() => {
             setIsFilterDialogOpen(false);
@@ -130,7 +97,6 @@ export const ReferralsPage = () => {
           RowComponent={ReferralRow}
           isTransformed={isTransformed}
           referralFilter={filter}
-          refetch={refresh}
         />
       </div>
     </Paper>
