@@ -60,10 +60,9 @@ class Root(Resource):
         if not healthFacility:
             abort(400, message="Health facility does not exist")
         else:
-            UTCTime = str(round(time.time() * 1000))
             crud.update(
                 HealthFacility,
-                {"newReferrals": UTCTime},
+                {"newReferrals": healthFacility.newReferrals + 1},
                 True,
                 healthFacilityName=json["referralHealthFacilityName"],
             )

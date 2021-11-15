@@ -348,7 +348,7 @@ def create_health_facility(
         "healthFacilityPhoneNumber": phone,
         "location": location,
         "about": about,
-        "newReferrals": str(round(time.time() * 1000)),
+        "newReferrals": 0,
     }
     schema = HealthFacilitySchema()
     db.session.add(schema.load(facility))

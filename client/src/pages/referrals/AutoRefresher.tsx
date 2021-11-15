@@ -37,34 +37,6 @@ export const AutoRefresher = ({
   );
 
   React.useEffect(() => {
-    if (user) {
-      userFacility.current = user.healthFacilityName;
-    }
-    const newReferrals = true;
-    const params = new URLSearchParams({
-      newReferrals: newReferrals.toString(),
-    });
-    apiFetch(
-      API_URL +
-        EndpointEnum.HEALTH_FACILITIES +
-        '/' +
-        userFacility.current +
-        '?' +
-        params
-    )
-      .then((resp) => resp.json())
-      .then((jsonResp: string) => {
-        const lastRefreshTime = sessionStorage.getItem('lastRefreshTime');
-        if (lastRefreshTime === '0') {
-          sessionStorage.setItem('lastRefreshTime', jsonResp);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, [user]);
-
-  React.useEffect(() => {
     const newReferrals = true;
     const params = new URLSearchParams({
       newReferrals: newReferrals.toString(),
@@ -85,13 +57,10 @@ export const AutoRefresher = ({
           )
             .then((resp) => resp.json())
             .then((jsonResp: string) => {
-              const remoteTimestamp = Number(jsonResp);
-              const lastRefreshTime = sessionStorage.getItem('lastRefreshTime');
-              if (Number(lastRefreshTime) < remoteTimestamp) {
+              if (Number(jsonResp) > 0) {
                 setRefresh((prevRefresh) => {
                   return !prevRefresh;
                 });
-                sessionStorage.setItem('lastRefreshTime', jsonResp);
               }
             })
             .catch((error) => {
@@ -115,6 +84,12 @@ export const AutoRefresher = ({
       clearInterval(timer);
     };
   }, [refreshTimer, setRefresh]);
+
+  React.useEffect(() => {
+    if (user) {
+      userFacility.current = user.healthFacilityName;
+    }
+  }, [user]);
 
   return (
     <div className={classes.autoRefreshWrapper}>
