@@ -38,4 +38,8 @@ export const pregnancyInfoValidationSchema = () =>
           .max(13, 'Please enter between 0 and 13 months.')
           .required('Please enter between 0 and 13 months.'),
       }),
+    [PatientField.pregnancyEndDate]: Yup.date().max(
+      new Date(),
+      'Date must not be in the future.'
+    ),
   });
