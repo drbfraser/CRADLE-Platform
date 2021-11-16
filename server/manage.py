@@ -211,7 +211,7 @@ def seed():
             "facilityType": getFacilityType(),
             "about": getFacilityAbout(),
             "location": hf["city"],
-            "newReferrals": 0,
+            "newReferrals": str(round(time.time() * 1000)),
         }
         db.session.add(healthfacility_schema.load(hf_schema))
 
