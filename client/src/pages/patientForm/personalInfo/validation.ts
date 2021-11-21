@@ -3,7 +3,7 @@ import { getAgeBasedOnDOB } from 'src/shared/utils';
 import { PatientField } from '../state';
 
 const ageIsValid = (age: number): boolean => {
-  return age >= 15 && age <= 65;
+  return age >= 0;
 };
 
 export const personalInfoValidationSchema = (creatingNew: boolean) =>
@@ -29,15 +29,15 @@ export const personalInfoValidationSchema = (creatingNew: boolean) =>
       is: true,
       then: Yup.date().test(
         'valid-dob',
-        'Please enter a valid date of birth corresponding to an age between 15 - 65.',
+        'Please enter a valid date of birth.',
         (date) => ageIsValid(getAgeBasedOnDOB(date))
       ),
     }),
     [PatientField.estimatedAge]: Yup.number().when(PatientField.isExactDob, {
       is: false,
       then: Yup.number()
-        .integer('Please enter a valid age between 15 - 65.')
-        .test('valid-age', 'Please enter a valid age between 15 - 65.', (age) =>
+        .integer('Please enter a valid age.')
+        .test('valid-age', 'Please enter a valid age.', (age) =>
           ageIsValid(age)
         ),
     }),
