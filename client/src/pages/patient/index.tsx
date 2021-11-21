@@ -67,13 +67,15 @@ export const PatientPage = () => {
       <Divider />
       <br />
       {patient?.readings
-        .sort((r1, r2) => (r2.dateTimeTaken ?? 0) - (r1.dateTimeTaken ?? 0))
-        .map((r) => (
-          <React.Fragment key={r.readingId}>
-            <ReadingCard reading={r} />
-            <br />
-          </React.Fragment>
-        ))}
+        ? patient?.readings
+            .sort((r1, r2) => (r2.dateTimeTaken ?? 0) - (r1.dateTimeTaken ?? 0))
+            .map((r) => (
+              <React.Fragment key={r.readingId}>
+                <ReadingCard reading={r} />
+                <br />
+              </React.Fragment>
+            ))
+        : null}
     </>
   );
 };
