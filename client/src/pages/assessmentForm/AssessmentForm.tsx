@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -109,6 +109,15 @@ export const AssessmentForm = ({
                         required={values[AssessmentField.followUp]}
                         disabled={!values[AssessmentField.followUp]}
                       />
+                    </Grid>
+                    <Grid item sm={12} md={8}>
+                      <Typography variant="caption">
+                        Editing the Medication Prescribed updates the
+                        patient&apos;s Drug History. <br></br>
+                        Consider updating the patient&apos;s Medical History on
+                        the Patient Summary screen to mention any updated
+                        medical conditions.
+                      </Typography>
                     </Grid>
                   </Grid>
                 </Box>
