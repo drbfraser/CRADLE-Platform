@@ -293,6 +293,8 @@ def makePregnancyFromPatient(patient: dict) -> Pregnancy:
 
     if "isPregnant" in patient:
         del patient["isPregnant"]
+    if "pregnancyStartDate" in patient:
+        del patient["pregnancyStartDate"]
 
     if pregnancyObj:
         pregnancy = [unmarshal(Pregnancy, pregnancyObj)]

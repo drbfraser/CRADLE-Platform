@@ -22,10 +22,10 @@ export const pregnancyInfoValidationSchema = () =>
         is: (isPregnant, gestationalAgeUnit) =>
           isPregnant && gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS,
         then: Yup.number()
-          .integer('Please enter between 0 and 60 weeks.')
-          .min(0, 'Please enter between 0 and 60 weeks.')
-          .max(60, 'Please enter between 0 and 60 weeks.')
-          .required('Please enter between 0 and 60 weeks.'),
+          .integer('Please enter between 0 and 42 weeks.')
+          .min(0, 'Please enter between 0 and 42 weeks.')
+          .max(42, 'Please enter between 0 and 42 weeks.')
+          .required('Please enter between 0 and 42 weeks.'),
       }),
     [PatientField.gestationalAgeMonths]: Yup.number()
       .label('Months pregnant')
@@ -33,10 +33,10 @@ export const pregnancyInfoValidationSchema = () =>
         is: (isPregnant, gestationalAgeUnit) =>
           isPregnant && gestationalAgeUnit === GestationalAgeUnitEnum.MONTHS,
         then: Yup.number()
-          .integer('Please enter between 0 and 13 months.')
-          .min(0, 'Please enter between 0 and 13 months.')
-          .max(13, 'Please enter between 0 and 13 months.')
-          .required('Please enter between 0 and 13 months.'),
+          .integer('Please enter between 0 and 10 months.')
+          .min(0, 'Please enter between 0 and 10 months.')
+          .max(10, 'Please enter between 0 and 10 months.')
+          .required('Please enter between 0 and 10 months.'),
       }),
     [PatientField.pregnancyEndDate]: Yup.date().max(
       new Date(),
