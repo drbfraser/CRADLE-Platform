@@ -69,4 +69,5 @@ the previously mentioned admin user is added along with a few additional users:
 | Andrey Pham | ndpham@sfu.ca |
 | Colin Huang | chuang7791@gmail.com |
 | Danica Walton | dglwalton@gmail.com |
-
+| Henry Fang | fanghaof@sfu.ca |
+| Hao Wu | colewu9712@gmail.com |
