@@ -16,7 +16,7 @@ from models import RoleEnum
 # /api/facilities
 class Root(Resource):
 
-    # Ensuring that we select only these keys from the JSON payload
+    # Ensuring that we select only these keys from the JSON payload.
     parser = reqparse.RequestParser()
     parser.add_argument(
         "healthFacilityName",
