@@ -6,9 +6,7 @@ def test_create_followup_without_referral(
     database, patient_factory, reading_factory, api_post
 ):
     patient_id = "7800"
-    reading_id = "ee7c9bf2-0f53-4eaa-9bdf-47c1975f041f"
     patient_factory.create(patientId=patient_id)
-    reading_factory.create(patientId=patient_id, readingId=reading_id)
 
     followup_json = {
         "diagnosis": "D",
@@ -17,14 +15,11 @@ def test_create_followup_without_referral(
         "specialInvestigations": "S",
         "followupInstructions": "I",
         "followupNeeded": True,
-        "readingId": reading_id,
     }
     response: Response = api_post(endpoint="/api/assessments", json=followup_json)
     database.session.commit()
 
     assert response.status_code == 201
-    reading = models.Reading.query.filter_by(readingId=reading_id).first()
-    assert reading.followup is not None
 
 
 def test_create_followup_marks_referral_as_assessed(
@@ -44,7 +39,6 @@ def test_create_followup_marks_referral_as_assessed(
         "specialInvestigations": "S",
         "followupInstructions": "I",
         "followupNeeded": True,
-        "readingId": reading_id,
     }
     response: Response = api_post(endpoint="/api/assessments", json=followup_json)
     database.session.commit()
@@ -55,13 +49,10 @@ def test_create_followup_marks_referral_as_assessed(
 
 
 def test_invalid_followup_not_created(
-    database, patient_factory, reading_factory, referral_factory, api_post
+    database, patient_factory, referral_factory, api_post
 ):
     patient_id = "7800"
-    reading_id = "8311d551-03d2-44c6-857a-f1927c5177e3"
     patient_factory.create(patientId=patient_id)
-    reading_factory.create(patientId=patient_id, readingId=reading_id)
-    referral = referral_factory.create(patientId=patient_id, readingId=reading_id)
 
     # Invalid as followupInstructions is missing when followupNeeded is True
     followup_json = {
@@ -70,7 +61,6 @@ def test_invalid_followup_not_created(
         "medicationPrescribed": "M",
         "specialInvestigations": "S",
         "followupNeeded": True,
-        "readingId": reading_id,
     }
     response: Response = api_post(endpoint="/api/assessments", json=followup_json)
     database.session.commit()

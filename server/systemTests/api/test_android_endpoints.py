@@ -60,7 +60,7 @@ def test_download_readings(
 ):
     create_patient()
     create_reading_with_referral()
-    followup_factory.create(readingId=reading_id)
+    followup_factory.create()
 
     response = api_get(endpoint="/api/mobile/readings")
 
@@ -69,7 +69,6 @@ def test_download_readings(
         r["patientId"] == patient_info["patientId"]
         and r["readingId"] == reading_id
         and r["referral"]["readingId"] == reading_id
-        and r["followup"]["readingId"] == reading_id
         for r in response.json()
     )
 
@@ -418,7 +417,7 @@ def test_sync_readings(
 
     create_patient()
     create_reading_with_referral()
-    followup_factory.create(readingId=reading_id)
+    followup_factory.create()
 
     mobile_reading_id = "w2d0aklrs4wenm6hk5z1"
     mobile_reading = {
@@ -443,7 +442,6 @@ def test_sync_readings(
             and r["readingId"] == reading_id
             and r["trafficLightStatus"] == TrafficLightEnum.YELLOW_UP.value
             and r["referral"]["readingId"] == reading_id
-            and r["followup"]["readingId"] == reading_id
             for r in response.json()["readings"]
         )
         assert any(

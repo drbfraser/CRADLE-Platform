@@ -100,6 +100,5 @@ def reading_referral_followup(reading_id):
             "followupNeeded": False,
             "medicationPrescribed": "medicationPrescribed",
             "specialInvestigations": "specialInvestigations",
-            "readingId": reading_id,
         },
     }
