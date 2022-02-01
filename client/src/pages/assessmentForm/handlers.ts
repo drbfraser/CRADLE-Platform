@@ -5,7 +5,6 @@ import { EndpointEnum } from 'src/shared/enums';
 
 export const handleSubmit = (
   patientId: string,
-  readingId: string,
   assessmentId: string | undefined,
   drugHistory: string,
   setSubmitError: (error: boolean) => void
@@ -29,7 +28,6 @@ export const handleSubmit = (
     }
 
     const postBody = JSON.stringify({
-      readingId: readingId,
       ...newAssessment,
     });
 

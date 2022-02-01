@@ -565,7 +565,7 @@ def read_readings(
     user_id: Optional[int] = None,
     is_cho: bool = False,
     last_edited: Optional[int] = None,
-) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
+) -> List[Tuple[Reading, Referral, UrineTest]]:
     """
     Queries the database for readings each with corresponding referral, assessment, and
     urine test.
@@ -580,9 +580,8 @@ def read_readings(
     :return: A list of tuples of reading, referral, assessment, urine test
     """
     query = (
-        db_session.query(Reading, Referral, FollowUp, UrineTest)
+        db_session.query(Reading, Referral, UrineTest)
         .outerjoin(Referral, Reading.referral)
-        .outerjoin(FollowUp, Reading.followup)
         .outerjoin(UrineTest, Reading.urineTests)
     )
 

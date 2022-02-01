@@ -274,16 +274,9 @@ class FollowUp(db.Model):
     followupNeeded = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    readingId = db.Column(db.ForeignKey(Reading.readingId), nullable=False)
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
 
     # RELATIONSHIPS
-    reading = db.relationship(
-        Reading,
-        backref=db.backref(
-            "followup", lazy=True, uselist=False, cascade="all, delete-orphan"
-        ),
-    )
     healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
 
     @staticmethod

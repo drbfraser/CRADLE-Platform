@@ -13,14 +13,12 @@ import { AssessmentField, AssessmentState } from './state';
 interface IProps {
   initialState: AssessmentState;
   patientId: string;
-  readingId: string;
   assessmentId: string | undefined;
 }
 
 export const AssessmentForm = ({
   initialState,
   patientId,
-  readingId,
   assessmentId,
 }: IProps) => {
   const classes = useStyles();
@@ -34,7 +32,6 @@ export const AssessmentForm = ({
         initialValues={initialState}
         onSubmit={handleSubmit(
           patientId,
-          readingId,
           assessmentId,
           drugHistory,
           setSubmitError

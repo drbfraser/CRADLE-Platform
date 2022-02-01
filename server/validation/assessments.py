@@ -25,7 +25,6 @@ def validate(request_body: dict) -> Optional[str]:
 
     # Check if required keys are present
     required_keys = [
-        "readingId",
         "followupNeeded",
         "dateAssessed",
     ]
@@ -36,11 +35,6 @@ def validate(request_body: dict) -> Optional[str]:
     # If patient has followupNeeded set to True, make sure followupInstructions is filled in
     if request_body.get("followupNeeded") == True:
         error_message = required_keys_present(request_body, ["followupInstructions"])
-    if error_message is not None:
-        return error_message
-
-    # Check that certain fields are of type string
-    error_message = values_correct_type(request_body, ["readingId"], str)
     if error_message is not None:
         return error_message
 
