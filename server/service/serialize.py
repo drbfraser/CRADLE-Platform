@@ -102,12 +102,10 @@ def serialize_patient(patient: Any, readings: Optional[List[Reading]] = None) ->
     return {k: v for k, v in p.items() if v or v == False}
 
 
-def serialize_reading(tup: Tuple[Reading, Referral, UrineTest]) -> dict:
+def serialize_reading(tup: Tuple[Reading, UrineTest]) -> dict:
     reading = marshal.marshal(tup[0], True)
     if tup[1]:
-        reading["referral"] = marshal.marshal(tup[1])
-    if tup[2]:
-        reading["urineTests"] = marshal.marshal(tup[2])
+        reading["urineTests"] = marshal.marshal(tup[1])
     return reading
 
 

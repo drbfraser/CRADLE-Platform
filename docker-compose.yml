@@ -25,7 +25,7 @@ services:
             - mysql
     mysql:
         container_name: cradle_mysql
-        image: mysql:5.7
+        image: mariadb:10.7
         volumes:
             - mysql_data:/var/lib/mysql
         environment:

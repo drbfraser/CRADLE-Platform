@@ -68,7 +68,6 @@ def test_download_readings(
     assert any(
         r["patientId"] == patient_info["patientId"]
         and r["readingId"] == reading_id
-        and r["referral"]["readingId"] == reading_id
         for r in response.json()
     )
 
@@ -441,7 +440,6 @@ def test_sync_readings(
             r["patientId"] == patient_id
             and r["readingId"] == reading_id
             and r["trafficLightStatus"] == TrafficLightEnum.YELLOW_UP.value
-            and r["referral"]["readingId"] == reading_id
             for r in response.json()["readings"]
         )
         assert any(
