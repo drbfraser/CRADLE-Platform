@@ -22,11 +22,6 @@ def resolve_reading_invariants(obj: Union[Patient, Reading]):
     # Ensure that the reading's traffic light status is present and valid
     obj.trafficLightStatus = obj.get_traffic_light()
 
-    # Ensure that if a obj has both a referral and assessment, then it's referral
-    # is marked as assessed.
-    if obj.referral and obj.followup:
-        obj.referral.isAssessed = True
-
     # Commit any changes to the database
     data.db_session.commit()
 
