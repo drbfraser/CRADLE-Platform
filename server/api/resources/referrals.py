@@ -46,16 +46,9 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        reading = crud.read(Reading, readingId=json["readingId"])
         healthFacility = crud.read(
             HealthFacility, healthFacilityName=json["referralHealthFacilityName"]
         )
-
-        if crud.read(Referral, readingId=json["readingId"]):
-            abort(400, message="A referral has already been created for that reading")
-
-        if not reading:
-            abort(400, message="Reading ID refers to a non-existent reading")
 
         if not healthFacility:
             abort(400, message="Health facility does not exist")
@@ -68,14 +61,12 @@ class Root(Resource):
                 healthFacilityName=json["referralHealthFacilityName"],
             )
 
-        json["patientId"] = reading.patientId
         json["userId"] = get_jwt_identity()["userId"]
         json["dateReferred"] = floor(time.time())
         json["isAssessed"] = False
 
         referral = marshal.unmarshal(Referral, json)
         crud.create(referral, refresh=True)
-
         # Creating a referral also associates the corresponding patient to the health
         # facility they were referred to.
         patient = referral.patient

@@ -13,9 +13,9 @@ requestBody:
           comment:
             type: string | Null
             example: They need help
-          readingId:
-            type: string
-            example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+          patientId:
+            type: integer
+            example: 1234
           referralHealthFacilityName:
             type: string | Null
             example: H0000
@@ -40,9 +40,6 @@ responses:
             patientId:
               type: integer
               example: 1234
-            readingId:
-              type: string
-              example: e90c0529-74ad-41b4-876e-d8e5ac60e786
             referralHealthFacilityName:
               type: string | Null
               example: H0000

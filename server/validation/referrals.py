@@ -29,6 +29,7 @@ def validate(request_body: dict) -> Optional[str]:
 
     all_fields = [
         "comment",
+        "patientId",
         "referralHealthFacilityName",
     ]
 
