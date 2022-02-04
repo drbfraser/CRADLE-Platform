@@ -46,13 +46,6 @@ def to_global_search_patient(patient):
             reading_json["dateTimeTaken"] = reading_data["dateTimeTaken"]
             reading_json["trafficLightStatus"] = reading_data["trafficLightStatus"]
 
-            # add referral if exists in reading
-            if reading_data["referral"]:
-                top_ref = marshal.model_to_dict(
-                    crud.read(Referral, id=reading_data["referral"]), ReferralSchema
-                )
-                reading_json["dateReferred"] = top_ref["dateReferred"]
-
             # add reading dateReferred data to array
             readings_arr.append(reading_json)
 
