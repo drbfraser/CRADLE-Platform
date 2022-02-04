@@ -35,9 +35,7 @@ requestBody:
           followupInstructions:
             type: string | Null
             example: Check back with the patient once a week
-          readingId:
-            type: UUID
-            example: a1198ed9-5055-4138-bff3-69c599bf6e5b
+
 responses:
   201:
     description: |
