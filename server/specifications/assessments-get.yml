@@ -1,0 +1,41 @@
+Get a list of all referrals
+---
+tags:
+  - Assessments
+responses:
+  200:
+    description: Response from GET request for /api/assessments
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              dateAssessed:
+                type: Unix timestamp
+                example: 1593649727
+              healthcareWorkerId:
+                type: integer | Null
+                example: 1
+              specialInvestigations:
+                type: string | Null
+                example: Needs a urine test
+              treatment:
+                type: string | Null
+                example: 3 doses of antibiotics daily
+              followupNeeded:
+                type: boolean
+                example: true
+              followupInstructions:
+                type: string
+                example: Make sure they bring birth certificate
+              diagnosis:
+                type: string | Null
+                example: Strep throat
+              medicationPrescribed:
+                type: string | Null
+                example: Amoxicillin

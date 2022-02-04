@@ -41,6 +41,11 @@ class Root(Resource):
 
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/assessments-get.yml",
+        methods=["GET"],
+        endpoint="assessments",
+    )
     def get():
         follow_ups = crud.read_all(FollowUp)
         return [marshal.marshal(f) for f in follow_ups]
