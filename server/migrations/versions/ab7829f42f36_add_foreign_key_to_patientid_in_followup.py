@@ -1,8 +1,8 @@
-"""Add foreign key constraint to patientID in FollowUp
+"""Add foreign key to patientId in FollowUp
 
-Revision ID: 4cffa05c40e7
-Revises: 1029b5bb3354
-Create Date: 2022-02-06 02:22:42.343114
+Revision ID: ab7829f42f36
+Revises: 97473443e1fa
+Create Date: 2022-02-06 03:04:25.430487
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '4cffa05c40e7'
-down_revision = '1029b5bb3354'
+revision = 'ab7829f42f36'
+down_revision = '97473443e1fa'
 branch_labels = None
 depends_on = None
 
