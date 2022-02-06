@@ -68,7 +68,10 @@ export const handleSubmit = async (
 
     await apiFetch(assessment_url, {
       method: 'POST',
-      body: JSON.stringify(submitValues['assessment']),
+      body: JSON.stringify({
+        patientId: patientId,
+        ...submitValues['assessment']
+      }),
     })
 
     const newDrugHistory = values[ReadingField.drugHistory];

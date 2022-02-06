@@ -261,6 +261,7 @@ class Reading(db.Model):
 class FollowUp(db.Model):
     __tablename__ = "followup"
     id = db.Column(db.Integer, primary_key=True)
+
     followupInstructions = db.Column(db.Text)
     specialInvestigations = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
@@ -271,9 +272,13 @@ class FollowUp(db.Model):
 
     # FOREIGN KEYS
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
+    patientId = db.Column(
+        db.String(50), db.ForeignKey("patient.patientId"), nullable=False
+    )
 
     # RELATIONSHIPS
     healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
+    patient = db.relationship("Patient", backref=db.backref("followups", lazy=True))
 
     @staticmethod
     def schema():
