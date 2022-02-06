@@ -118,7 +118,6 @@ class Referral(db.Model):
     # FOREIGN KEYS
     userId = db.Column(db.Integer, db.ForeignKey("user.id"))
     patientId = db.Column(db.String(50), db.ForeignKey("patient.patientId"))
-    readingId = db.Column(db.String(50), db.ForeignKey("reading.readingId"))
     referralHealthFacilityName = db.Column(
         db.String(50), db.ForeignKey("healthfacility.healthFacilityName")
     )
@@ -126,9 +125,6 @@ class Referral(db.Model):
     # RELATIONSHIPS
     healthFacility = db.relationship(
         "HealthFacility", backref=db.backref("referrals", lazy=True)
-    )
-    reading = db.relationship(
-        "Reading", backref=db.backref("referral", lazy=True, uselist=False)
     )
     patient = db.relationship("Patient", backref=db.backref("referrals", lazy=True))
 
@@ -274,16 +270,9 @@ class FollowUp(db.Model):
     followupNeeded = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    readingId = db.Column(db.ForeignKey(Reading.readingId), nullable=False)
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
 
     # RELATIONSHIPS
-    reading = db.relationship(
-        Reading,
-        backref=db.backref(
-            "followup", lazy=True, uselist=False, cascade="all, delete-orphan"
-        ),
-    )
     healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
 
     @staticmethod
@@ -458,8 +447,6 @@ class FollowUpSchema(ma.SQLAlchemyAutoSchema):
 
 
 class ReferralSchema(ma.SQLAlchemyAutoSchema):
-    followUp = fields.Nested(FollowUpSchema)
-
     class Meta:
         include_fk = True
         model = Referral

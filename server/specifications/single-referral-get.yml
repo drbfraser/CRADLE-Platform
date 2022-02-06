@@ -31,9 +31,6 @@ responses:
             patientId:
               type: integer
               example: 48300053727
-            readingId:
-              type: string
-              example: e90c0529-74ad-41b4-876e-d8e5ac60e786
             referralHealthFacilityName:
               type: string | Null
               example: H0000

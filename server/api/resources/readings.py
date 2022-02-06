@@ -30,6 +30,7 @@ class Root(Resource):
 
         if "followup" in json:
             json["followup"]["healthcareWorkerId"] = userId
+            del json["followup"]
 
         reading = marshal.unmarshal(Reading, json)
 

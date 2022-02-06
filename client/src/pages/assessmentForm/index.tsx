@@ -12,13 +12,12 @@ import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
   patientId: string;
-  readingId: string;
   assessmentId: string | undefined;
 };
 
 export const AssessmentFormPage = () => {
   const classes = useStyles();
-  const { patientId, readingId, assessmentId } =
+  const { patientId, assessmentId } =
     useRouteMatch<RouteParams>().params;
   const [formInitialState, setFormInitialState] = useState<AssessmentState>();
 
@@ -47,7 +46,6 @@ export const AssessmentFormPage = () => {
         <AssessmentForm
           initialState={formInitialState}
           patientId={patientId}
-          readingId={readingId}
           assessmentId={assessmentId}
         />
       )}

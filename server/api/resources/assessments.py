@@ -35,18 +35,7 @@ class Root(Resource):
 
         assessment = marshal.unmarshal(FollowUp, json)
 
-        # Check that reading id which doesn’t reference an existing reading in the database
-        reading = crud.read(Reading, readingId=assessment.readingId)
-        if not reading:
-            abort(404, message=f"No reading with id {assessment.readingId}")
-
         crud.create(assessment)
-
-        # Creating an assessment also marks any referral attached to the associated
-        # reading as "assessed"
-        if assessment.reading.referral:
-            assessment.reading.referral.isAssessed = True
-            data.db_session.commit()
 
         return assessment.id, 201
 

@@ -26,10 +26,6 @@ class ReferralValidator(object):
                 self.exists(Patient, "patientId", new_ref[key])
             elif key == "referralHealthFacilityName":
                 self.exists(HealthFacility, "healthFacilityName", new_ref[key])
-            elif key == "readingId":
-                self.exists(Reading, "readingId", new_ref[key])
-            elif key == "followUpId":
-                self.exists(FollowUp, "id", new_ref[key])
             elif key in string_fields:
                 self.isString(key, new_ref)
             elif key == "id":
@@ -62,7 +58,6 @@ class ReferralValidator(object):
             # "userId",
             "patientId",
             "referralHealthFacilityName",
-            "readingId",
         }
         for key in new_ref:
             if key in required:
