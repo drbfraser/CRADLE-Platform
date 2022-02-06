@@ -261,7 +261,7 @@ class PatientReadings(Resource):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(r) for r in patient.readings]
 
-# /api/patients/<string:patient_id>/mostRecentReading
+# /api/patients/<string:patient_id>/most_recent_reading
 class PatientMostRecentReading(Resource):
     @staticmethod
     @jwt_required
