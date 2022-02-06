@@ -4,13 +4,13 @@ import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 
 export const handleSubmit = (
-  readingId: string,
+  patientId: string,
   setSubmitError: (error: boolean) => void
 ) => {
   return async (values: ReferralState, { setSubmitting }: any) => {
     const url = API_URL + EndpointEnum.REFERRALS;
     const postBody = JSON.stringify({
-      readingId: readingId,
+      patientId: patientId,
       ...values,
     });
 
