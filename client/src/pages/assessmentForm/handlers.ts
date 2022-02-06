@@ -28,6 +28,7 @@ export const handleSubmit = (
     }
 
     const postBody = JSON.stringify({
+      patientId: patientId,
       ...newAssessment,
     });
 
