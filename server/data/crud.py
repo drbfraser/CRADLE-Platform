@@ -273,7 +273,6 @@ def read_referral_list(
             Patient.patientId,
             Patient.patientName,
             Patient.villageNumber,
-            Reading.trafficLightStatus,
         )
         .join(Patient, Referral.patient)
     )
