@@ -19,6 +19,9 @@ responses:
             id:
               type: integer
               example: 1
+            patientId:
+               type: integer - required
+               example: 123456
             dateAssessed:
               type: Unix timestamp
               example: 1593649727
