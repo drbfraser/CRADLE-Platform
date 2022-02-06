@@ -31,9 +31,6 @@ responses:
             treatment:
               type: string | Null
               example: 3 doses of antibiotics daily
-            readingId:
-              type: string - required
-              example: asda-sd8231-42782-26313
             followupNeeded:
               type: boolean
               example: true
