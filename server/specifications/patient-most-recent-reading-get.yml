@@ -1,0 +1,73 @@
+Get the most recent reading associated with a single patient
+---
+tags:
+  - Patients
+parameters:
+- in: path
+  name: patient_id
+  required: true
+  schema:
+    type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/most_recent_reading
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: integer | Null
+                example: 1
+              patientId:
+                type: integer
+                example: 191919
+              readingId:
+                type: string
+                example: e90c0529-74ad-41b4-876e-d8e5ac60e786
+              symptoms:
+                type: array
+                items: string
+                example: ["HEADACHE"]
+              bpSystolic: 
+                type: integer
+                example: 100
+              trafficLightStatus:
+                type: string
+                enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
+                example: GREEN
+              bpDiastolic:
+                type: integer
+                example: 70
+              dateTimeTaken:
+                type: Unix timestamp
+                example: 1592339808
+              heartRateBPM:
+                type: integer
+                example: 60
+              referral:
+                type: object
+                properties:
+                  dateReferred:
+                    type: Unix timestamp
+                    example: 1592339808
+                  isAssessed:
+                    type: boolean
+                    example: false
+                  patientId:
+                    type: integer
+                    example: 191919
+                  referralHealthFacilityName:
+                    type: string | Null
+                    example: H0000
+                  id: 
+                    type: string
+                    example: 1
+                  comment:
+                    type: string | Null
+                    example: They need help
+                  readingId:
+                    type: string
+                    example: e90c0529-74ad-41b4-876e-d8e5ac60e786
