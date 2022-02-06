@@ -10,7 +10,7 @@ import { apiFetch, API_URL } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { useHistory } from 'react-router-dom';
 import { ReferralFilter } from 'src/shared/types';
-import { TrafficLightEnum } from 'src/shared/enums';
+import { TrafficLightEnum,EndpointEnum } from 'src/shared/enums';
 
 interface IProps {
   endpoint: string;
@@ -23,6 +23,7 @@ interface IProps {
   RowComponent: ({ row }: any) => JSX.Element;
   isTransformed: boolean;
   isDrugRecord?: boolean | undefined;
+  isReferralListPage?: boolean | undefined;//added for referral list page(2022 spring, v1.0 Feb 06)
   patientId?: string;
   gestationalAgeUnit?: string;
   referralFilter?: ReferralFilter;
@@ -42,6 +43,7 @@ export const APITable = ({
   RowComponent,
   isTransformed,
   isDrugRecord,
+  isReferralListPage,
   patientId,
   gestationalAgeUnit,
   referralFilter,
@@ -60,6 +62,7 @@ export const APITable = ({
   const prevPage = useRef(1);
 
   const classes = useStyles();
+  let tempRows=[];
 
   // when something changes, load new data
   useEffect(() => {
@@ -122,13 +125,51 @@ export const APITable = ({
     )
       .then(async (resp) => {
         const json = await resp.json();
+         
         //The case for drug history records on the past records page
         if (isDrugRecord === true) {
           setRows(json.drug);
           //The case for medical history records on the past records page
         } else if (isDrugRecord === false) {
           setRows(json.medical);
-        } else {
+        } else if(isReferralListPage == true) {
+          tempRows = json.map((r: any)=>( 
+             apiFetch(
+              API_URL + EndpointEnum.PATIENTS + '/' + r.patientId + '/most_recent_reading',
+              fetchOptions
+            ).then(result => result.json()).then((resp) => {
+              var first = (resp&&resp[0])?resp[0].trafficLightStatus:"UNAVAILABLE";
+ 
+              return {
+                referralId: r.referralId,
+                patientId: r.patientId,
+                patientName: r.patientName,
+                villageNumber: r.villageNumber,
+                trafficLightStatus: first,  
+                dateReferred: r.dateReferred,
+                isAssessed: r.isAssessed,
+              } ;
+            }).catch((e) => {
+              return {
+                referralId: r.referralId,
+                patientId: r.patientId,
+                patientName: r.patientName,
+                villageNumber: r.villageNumber,
+                trafficLightStatus: "UNAVAILABLE", 
+                dateReferred: r.dateReferred,
+                isAssessed: r.isAssessed,
+              } ;
+            })
+          ))
+          // console.log("22222222222");
+          // console.log(tempRows);
+          // console.log("666666666666");
+          const Data = await Promise.all([...tempRows]);
+          // console.log(Data);
+          // console.log("88888888888");
+          setRows(Data);
+        }
+        else{
           setRows(json);
         }
         setLoading(false);

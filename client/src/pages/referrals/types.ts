@@ -5,7 +5,7 @@ export interface IReferral {
   patientId: string;
   patientName: string;
   villageNumber: string;
-  trafficLightStatus: TrafficLightEnum;
+  trafficLightStatus: TrafficLightEnum; //this field is got by appending an extra data
   dateReferred: number;
   isAssessed: boolean;
 }

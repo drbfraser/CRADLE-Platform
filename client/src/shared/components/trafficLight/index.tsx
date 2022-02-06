@@ -62,6 +62,17 @@ export const TrafficLight: React.FC<IProps> = ({ className, status }) => {
             </>
           );
         }
+        case TrafficLightEnum.UNAVAILABLE: {
+          return (
+            <>
+              <GreenTraffic className={classes.trafficLight} />
+              <ArrowDownwardIcon
+                className={classes.trafficLightArrow}
+                style={{ visibility: 'hidden' }}
+              />
+            </>
+          );
+        }
         default: {
           return (
             <Typography
