@@ -324,6 +324,11 @@ def read_referral_list(
             .filter(eq_op(Pregnancy.startDate, None), pr.startDate == None)
         )
 
+    vital_signs = kwargs.get("vital_signs")
+    if vital_signs:
+        # TODO: implement vital_signs filter logic
+        pass
+
     limit = kwargs.get("limit")
     if limit:
         page = kwargs.get("page", 1)
