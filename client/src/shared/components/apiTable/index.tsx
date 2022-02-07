@@ -132,7 +132,7 @@ export const APITable = ({
           //The case for medical history records on the past records page
         } else if (isDrugRecord === false) {
           setRows(json.medical);
-        } else if(isReferralListPage == true) {
+        } else if(isReferralListPage === true) {
           tempRows = json.map((r: any)=>( 
              apiFetch(
               API_URL + EndpointEnum.PATIENTS + '/' + r.patientId + '/most_recent_reading',
