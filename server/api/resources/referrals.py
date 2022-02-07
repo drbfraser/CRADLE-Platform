@@ -30,7 +30,6 @@ class Root(Resource):
             params["health_facilities"].append(user["healthFacilityName"])
 
         referrals = view.referral_list_view(user, **params)
-
         return serialize.serialize_referral_list(referrals)
 
     @staticmethod
@@ -92,3 +91,17 @@ class SingleReferral(Resource):
             abort(404, message=f"No referral with id {id}")
 
         return marshal.marshal(referral)
+
+# /api/referralAssess/<int:referral_id>
+class AssessReferral(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/referrals-update-post.yml",
+        methods=["POST"],
+        endpoint="referralAssess",
+    )
+    def post(referral_id: int):
+        referral = crud.read(Referral, id=referral_id)
+        if not referral:
+            abort(404, message=f'No referral with id {id}')
