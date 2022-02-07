@@ -279,6 +279,18 @@ class PatientMostRecentReading(Resource):
         sorted_readings = sorted(readings, key=lambda r: r["dateTimeTaken"], reverse=True)
         return [sorted_readings[0]]
 
+# /api/patients/<string:patient_id>/referrals
+class PatientReferrals(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/patient-referrals-get.yml",
+        methods=["GET"],
+        endpoint="patient_referrals",
+    )
+    def get(patient_id: str):
+        patient = crud.read(Patient, patientId=patient_id)
+        return [marshal.marshal(ref) for ref in patient.referrals]
 
 # /api/patients/<string:patient_id>/pregnancy_summary
 class PatientPregnancySummary(Resource):
