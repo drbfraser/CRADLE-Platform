@@ -324,10 +324,6 @@ def read_referral_list(
             .filter(eq_op(Pregnancy.startDate, None), pr.startDate == None)
         )
 
-    vital_signs = kwargs.get("vital_signs")
-    if vital_signs:
-        query = query.filter(Reading.trafficLightStatus.in_(vital_signs))
-
     limit = kwargs.get("limit")
     if limit:
         page = kwargs.get("page", 1)
