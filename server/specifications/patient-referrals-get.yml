@@ -1,0 +1,43 @@
+Get a list of referrals associated with a single patient
+---
+tags:
+  - Patients
+parameters:
+- in: path
+  name: patient_id
+  required: true
+  schema:
+    type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/referrals
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: integer | Null
+                example: 1
+              dateReferred:
+                type: Unix timestamp
+                example: 1592339808
+              isAssessed:
+                type: boolean
+                example: false
+              patientId:
+                type: integer
+                example: 191919
+              referralHealthFacilityName:
+                type: string | Null
+                example: H0000
+              id: 
+                type: string
+                example: 1
+              comment:
+                type: string | Null
+                example: They need help
+
+          

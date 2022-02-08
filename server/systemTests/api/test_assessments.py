@@ -9,6 +9,7 @@ def test_create_followup_without_referral(
     patient_factory.create(patientId=patient_id)
 
     followup_json = {
+        "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
         "medicationPrescribed": "M",
@@ -33,6 +34,7 @@ def test_create_followup_marks_referral_as_assessed(
     assert not referral.isAssessed
 
     followup_json = {
+        "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
         "medicationPrescribed": "M",
@@ -56,6 +58,7 @@ def test_invalid_followup_not_created(
 
     # Invalid as followupInstructions is missing when followupNeeded is True
     followup_json = {
+        "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
         "medicationPrescribed": "M",

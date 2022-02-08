@@ -326,7 +326,8 @@ def read_referral_list(
 
     vital_signs = kwargs.get("vital_signs")
     if vital_signs:
-        query = query.filter(Reading.trafficLightStatus.in_(vital_signs))
+        # TODO: implement vital_signs filter logic
+        pass
 
     limit = kwargs.get("limit")
     if limit:
