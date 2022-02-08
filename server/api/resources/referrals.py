@@ -30,7 +30,6 @@ class Root(Resource):
             params["health_facilities"].append(user["healthFacilityName"])
 
         referrals = view.referral_list_view(user, **params)
-
         return serialize.serialize_referral_list(referrals)
 
     @staticmethod
@@ -46,16 +45,9 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        reading = crud.read(Reading, readingId=json["readingId"])
         healthFacility = crud.read(
             HealthFacility, healthFacilityName=json["referralHealthFacilityName"]
         )
-
-        if crud.read(Referral, readingId=json["readingId"]):
-            abort(400, message="A referral has already been created for that reading")
-
-        if not reading:
-            abort(400, message="Reading ID refers to a non-existent reading")
 
         if not healthFacility:
             abort(400, message="Health facility does not exist")
@@ -68,14 +60,12 @@ class Root(Resource):
                 healthFacilityName=json["referralHealthFacilityName"],
             )
 
-        json["patientId"] = reading.patientId
         json["userId"] = get_jwt_identity()["userId"]
         json["dateReferred"] = floor(time.time())
         json["isAssessed"] = False
 
         referral = marshal.unmarshal(Referral, json)
         crud.create(referral, refresh=True)
-
         # Creating a referral also associates the corresponding patient to the health
         # facility they were referred to.
         patient = referral.patient
@@ -101,3 +91,17 @@ class SingleReferral(Resource):
             abort(404, message=f"No referral with id {id}")
 
         return marshal.marshal(referral)
+
+# /api/referralAssess/<int:referral_id>
+class AssessReferral(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/referrals-update-post.yml",
+        methods=["POST"],
+        endpoint="referralAssess",
+    )
+    def post(referral_id: int):
+        referral = crud.read(Referral, id=referral_id)
+        if not referral:
+            abort(404, message=f'No referral with id {id}')

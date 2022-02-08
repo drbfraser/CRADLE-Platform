@@ -15,7 +15,6 @@ def test_validate_passes():
             "userId": "1",
             "patientId": "49300028162",
             "referralHealthFacilityName": "H0000",
-            "readingId": "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         }
         validator.validate(sample_referral)
     except Exception as e:
@@ -34,7 +33,6 @@ def test_validate_fails():
             "userId": "1",
             "patientId": "49300028162",
             "referralHealthFacilityName": "H0000",
-            "readingId": "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         }
         validator.validate(sample_referral)
 
@@ -49,7 +47,6 @@ def test_is_string_passes():
             "userId": "1",
             "patientId": "49300028162",
             "referralHealthFacilityName": "H0000",
-            "readingId": "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         }
         validator.isString("comment", sample_referral)
     except Exception as e:
@@ -66,7 +63,6 @@ def test_is_string_fails():
             "userId": "1",
             "patientId": "49300028162",
             "referralHealthFacilityName": "H0000",
-            "readingId": "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         }
         validator.isString("dateReferred", sample_referral)
 
@@ -81,7 +77,6 @@ def test_is_int_passes():
             "userId": "1",
             "patientId": "49300028162",
             "referralHealthFacilityName": "H0000",
-            "readingId": "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         }
         validator.isInt("dateReferred", sample_referral)
     except Exception as e:
@@ -98,7 +93,6 @@ def test_is_int_fails():
             "userId": "1",
             "patientId": "49300028162",
             "referralHealthFacilityName": "H0000",
-            "readingId": "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         }
         validator.isInt("comment", sample_referral)
 
@@ -125,7 +119,6 @@ def test_is_enforce_required_passes():
             "userId": "1",
             "patientId": "49300028162",
             "referralHealthFacilityName": "H0000",
-            "readingId": "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         }
         validator.enforce_required(sample_referral)
     except Exception as e:
@@ -142,6 +135,5 @@ def test_is_enforce_required_fails():
             "actionTaken": "Sent to hospital",
             "userId": "1",
             "referralHealthFacilityName": "H0000",
-            "readingId": "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         }
-        validator.isInt(sample_referral)
+        validator.enforce_required(sample_referral)

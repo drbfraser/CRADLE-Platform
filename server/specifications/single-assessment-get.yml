@@ -19,6 +19,9 @@ responses:
             id:
               type: integer
               example: 1
+            patientId:
+               type: integer - required
+               example: 123456
             dateAssessed:
               type: Unix timestamp
               example: 1593649727
@@ -31,9 +34,6 @@ responses:
             treatment:
               type: string | Null
               example: 3 doses of antibiotics daily
-            readingId:
-              type: string - required
-              example: asda-sd8231-42782-26313
             followupNeeded:
               type: boolean
               example: true

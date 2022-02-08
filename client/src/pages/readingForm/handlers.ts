@@ -18,27 +18,28 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
 
   // user ID and healthcare worker ID should be moved to the backend
   const submitValues = {
-    patientId: patientId,
-    readingId: readingGuid,
-    dateTimeTaken: currentTimestamp,
-    bpDiastolic: values[ReadingField.bpDiastolic],
-    bpSystolic: values[ReadingField.bpSystolic],
-    heartRateBPM: values[ReadingField.heartRateBPM],
-    symptoms: getSymptomsFromFormState(values, true),
-    followup: {
+    reading: {
+      patientId: patientId,
+      readingId: readingGuid,
+      dateTimeTaken: currentTimestamp,
+      bpDiastolic: values[ReadingField.bpDiastolic],
+      bpSystolic: values[ReadingField.bpSystolic],
+      heartRateBPM: values[ReadingField.heartRateBPM],
+      symptoms: getSymptomsFromFormState(values, true),
+    },
+    assessment: {
       dateAssessed: currentTimestamp,
       diagnosis: values[ReadingField.finalDiagnosis],
       followupInstructions: values[ReadingField.followUpInstruc],
       followupNeeded: values[ReadingField.followUp],
       medicationPrescribed: values[ReadingField.drugHistory],
-      readingId: readingGuid,
       specialInvestigations: values[ReadingField.investigation],
       treatment: values[ReadingField.treatment],
     },
   } as any;
 
   if (values[ReadingField.urineTest]) {
-    submitValues['urineTests'] = {
+    submitValues['reading']['urineTests'] = {
       urineTestBlood: values[ReadingField.blood],
       urineTestGlu: values[ReadingField.glucose],
       urineTestLeuc: values[ReadingField.leukocytes],
@@ -56,13 +57,22 @@ export const handleSubmit = async (
   drugHistory: string
 ) => {
   const submitValues = getSubmitObject(patientId, values);
-  const url = API_URL + EndpointEnum.READINGS;
+  const reading_url = API_URL + EndpointEnum.READINGS;
+  const assessment_url = API_URL + EndpointEnum.ASSESSMENTS;
 
   try {
-    await apiFetch(url, {
+    await apiFetch(reading_url, {
       method: 'POST',
-      body: JSON.stringify(submitValues),
+      body: JSON.stringify(submitValues['reading']),
     });
+
+    await apiFetch(assessment_url, {
+      method: 'POST',
+      body: JSON.stringify({
+        patientId: patientId,
+        ...submitValues['assessment']
+      }),
+    })
 
     const newDrugHistory = values[ReadingField.drugHistory];
     if (drugHistory !== newDrugHistory) {

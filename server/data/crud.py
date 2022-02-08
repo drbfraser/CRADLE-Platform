@@ -273,10 +273,8 @@ def read_referral_list(
             Patient.patientId,
             Patient.patientName,
             Patient.villageNumber,
-            Reading.trafficLightStatus,
         )
         .join(Patient, Referral.patient)
-        .join(Reading, Referral.reading)
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
@@ -328,7 +326,8 @@ def read_referral_list(
 
     vital_signs = kwargs.get("vital_signs")
     if vital_signs:
-        query = query.filter(Reading.trafficLightStatus.in_(vital_signs))
+        # TODO: implement vital_signs filter logic
+        pass
 
     limit = kwargs.get("limit")
     if limit:
@@ -565,7 +564,7 @@ def read_readings(
     user_id: Optional[int] = None,
     is_cho: bool = False,
     last_edited: Optional[int] = None,
-) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
+) -> List[Tuple[Reading, UrineTest]]:
     """
     Queries the database for readings each with corresponding referral, assessment, and
     urine test.
@@ -580,9 +579,7 @@ def read_readings(
     :return: A list of tuples of reading, referral, assessment, urine test
     """
     query = (
-        db_session.query(Reading, Referral, FollowUp, UrineTest)
-        .outerjoin(Referral, Reading.referral)
-        .outerjoin(FollowUp, Reading.followup)
+        db_session.query(Reading, UrineTest)
         .outerjoin(UrineTest, Reading.urineTests)
     )
 
@@ -596,7 +593,7 @@ def read_readings(
 
     return query.all()
 
-
+# ! this method needs fix
 def read_referrals_and_assessments(
     model: Union[Referral, FollowUp],
     last_edited: int,

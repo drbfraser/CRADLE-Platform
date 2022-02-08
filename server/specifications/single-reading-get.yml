@@ -48,36 +48,3 @@ responses:
               type: string
               enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
               example: GREEN
-            followup:
-              type: object
-              properties:
-                dateAssessed: 
-                  type: Unix timestamp | Null
-                  example: 1551447833
-                healthcareWorkerId:
-                  type: integer | Null
-                  example: 1
-                diagnosis:
-                  type: string | Null
-                  example: Sample diagnosis
-                medicationPrescribed:
-                  type: string | Null
-                  example: Tylenol
-                specialInvestigations:
-                  type: string | Null
-                  example: Sample special investigation
-                treatment:
-                  type: string | Null
-                  example: Sample treatment
-                readingId:
-                  type: string
-                  example: adas-d82314-27822-63138
-                followupNeeded:
-                  type: boolean | Null
-                  example: true
-                followupInstructions:
-                  type: string | Null
-                  example: Sample followup instructions
-                id:
-                  type: integer
-                  example: 1

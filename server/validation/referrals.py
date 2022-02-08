@@ -20,7 +20,6 @@ def validate(request_body: dict) -> Optional[str]:
     error_message = required_keys_present(
         request_body,
         [
-            "readingId",
             "referralHealthFacilityName",
         ],
     )
@@ -28,13 +27,9 @@ def validate(request_body: dict) -> Optional[str]:
     if error_message is not None:
         return error_message
 
-    error_message = values_correct_type(request_body, ["readingId"], str)
-    if error_message is not None:
-        return error_message
-
     all_fields = [
         "comment",
-        "readingId",
+        "patientId",
         "referralHealthFacilityName",
     ]
 

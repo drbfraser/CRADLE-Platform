@@ -111,10 +111,6 @@ def __marshal_reading(r: Reading, shallow) -> dict:
         d["symptoms"] = []
     if d.get("symptoms"):
         d["symptoms"] = d["symptoms"].split(",")
-    if not shallow and r.referral is not None:
-        d["referral"] = marshal(r.referral)
-    if not shallow and r.followup is not None:
-        d["followup"] = marshal(r.followup)
     if not shallow and r.urineTests is not None:
         d["urineTests"] = marshal(r.urineTests)
     return d
@@ -126,8 +122,6 @@ def __marshal_referral(r: Referral) -> dict:
     # Remove relationship object
     if d.get("healthFacility"):
         del d["healthFacility"]
-    if d.get("reading"):
-        del d["reading"]
     if d.get("patient"):
         del d["patient"]
     return d
@@ -139,8 +133,6 @@ def __marshal_followup(f: FollowUp) -> dict:
     # Remove relationship objects
     if d.get("healthFacility"):
         del d["healthFacility"]
-    if d.get("reading"):
-        del d["reading"]
     return d
 
 

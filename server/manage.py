@@ -317,7 +317,6 @@ def seed():
                 referral1 = {
                     "userId": getRandomUser(),
                     "patientId": patientId,
-                    "readingId": readingId,
                     "dateReferred": refer_date,
                     "referralHealthFacilityName": healthFacilityName,
                     "comment": name + random.choice(referral_comments),
@@ -433,7 +432,6 @@ def create_patient_reading_referral_pregnancy(
     # health facility name based on one defined in seed_minimal()
     referral = {
         "patientId": patientId,
-        "readingId": readingId,
         "userId": userId,
         "dateReferred": dateReferred,
         "referralHealthFacilityName": healthFacility,
