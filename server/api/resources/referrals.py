@@ -6,8 +6,10 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
 
 import api.util as util
+import data
 import data.crud as crud
 import data.marshal as marshal
+from utils import get_current_time
 import service.assoc as assoc
 import service.view as view
 from models import HealthFacility, Reading, Referral
@@ -63,6 +65,9 @@ class Root(Resource):
         json["userId"] = get_jwt_identity()["userId"]
         json["dateReferred"] = floor(time.time())
         json["isAssessed"] = False
+        json["dateAssessed"] = None
+        json["isCancelled"] = False
+        json["dateCancelled"] = None
 
         referral = marshal.unmarshal(Referral, json)
         crud.create(referral, refresh=True)
@@ -104,4 +109,12 @@ class AssessReferral(Resource):
     def post(referral_id: int):
         referral = crud.read(Referral, id=referral_id)
         if not referral:
-            abort(404, message=f'No referral with id {id}')
+            abort(404, message=f'No referral with id {referral_id}')
+        
+        if not referral.isAssessed:
+            referral.isAssessed = True
+            referral.dateAssessed = get_current_time()
+            data.db_session.commit()
+        
+        new_referral = crud.read(Referral, id=referral_id)
+        return marshal.marshal(new_referral), 201
