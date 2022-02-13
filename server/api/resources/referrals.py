@@ -104,7 +104,7 @@ class AssessReferral(Resource):
     @swag_from(
         "../../specifications/referrals-assess-update-post.yml",
         methods=["POST"],
-        endpoint="referralAssess",
+        endpoint="referral_assess",
     )
     def post(referral_id: int):
         referral = crud.read(Referral, id=referral_id)
@@ -126,7 +126,7 @@ class ReferralCancelStatus(Resource):
     @swag_from(
         "../../specifications/referrals-cancel-update-put.yml",
         methods=["PUT"],
-        endpoint="referralCancelStatus",
+        endpoint="referral_cancel_status",
     )
     def put(referral_id: int):
         request_body = request.get_json(force=True)

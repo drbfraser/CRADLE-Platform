@@ -1,28 +1,32 @@
-Create a new referral
+Change the cancel status of a single referral
 ---
 tags:
   - Referrals
+parameters:
+- in: path
+  name: referral_id
+  required: true
+  schema:
+    type: integer
 requestBody:
   required: true
-  description: POST request body for /api/referrals
+  description: POST request body for /api/referralCancelStatus
   content:
     application/json:
       schema:
         type: object
         properties:
-          comment:
-            type: string | Null
-            example: They need help
-          patientId:
-            type: integer
-            example: 1234
-          referralHealthFacilityName:
-            type: string | Null
-            example: H0000
+          isCancelled:
+            type: boolean
+            example: true
+          cancelReason:
+            type: string
+            example: The patient is healthy now
+          
           
 responses:
   201:
-    description: Response from POST request for /api/referrals
+    description: Response from POST request for /api/referralCancelStatus
     content:
       application/json:
         schema:
@@ -36,10 +40,16 @@ responses:
               example: 1592339808
             isAssessed:
               type: boolean
-              example: false
+              example: true
+            dateAssessed:
+              type: Unix timestamp
+              example: 1592439808
             isCancelled:
               type: boolean
-              example: false
+              example: true
+            cancelReason:
+              type: string | Null
+              example: patient is healthy now
             patientId:
               type: integer
               example: 1234
