@@ -38,3 +38,35 @@ def validate(request_body: dict) -> Optional[str]:
             return "The key '" + key + "' is not a valid field or is set server-side"
 
     return error_message
+
+def validate_put_request(request_body: dict) -> Optional[str]:
+    """
+    Returns an error message if the /api/referralCancelStatus/<int:referral_id> PUT
+    request is not valid. Else, returns None.
+
+    :param request_body: The request body as a dict object
+
+    :return: An error message if request body is invalid in some way. None otherwise.
+    """
+    record_keys = [
+        "isCancelled",
+        "cancelReason",
+    ]
+
+    for key in request_body:
+        if key not in record_keys:
+            return f"{key} is not a valid key in referral record."
+        else:
+            record_keys.remove(key)
+    
+    if len(record_keys) > 0:
+        return f"There are missing fields for the request body."
+    
+    error = values_correct_type(request_body, ["isCancelled"], bool)
+    if error:
+        return error
+    
+    error = values_correct_type(request_body, ["cancelReason"], str)
+    if error:
+        return error
+    

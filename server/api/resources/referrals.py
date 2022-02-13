@@ -102,7 +102,7 @@ class AssessReferral(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/referrals-update-post.yml",
+        "../../specifications/referrals-assess-update-post.yml",
         methods=["POST"],
         endpoint="referralAssess",
     )
@@ -118,3 +118,33 @@ class AssessReferral(Resource):
         
         new_referral = crud.read(Referral, id=referral_id)
         return marshal.marshal(new_referral), 201
+
+# /api/referralCancelStatus/<int:referral_id>
+class ReferralCancelStatus(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/referrals-cancel-update-put.yml",
+        methods=["PUT"],
+        endpoint="referralCancelStatus",
+    )
+    def put(referral_id: int):
+        request_body = request.get_json(force=True)
+
+        error = referrals.validate_put_request(request_body)
+        if error:
+            abort(400, message=error)
+        
+        request_body["dateCancelled"] = get_current_time()
+
+        if not request_body["isCancelled"]:
+            request_body["cancelReason"] = None
+            request_body["dateCancelled"] = None
+        
+        crud.update(Referral, request_body, id=referral_id)
+
+        new_record = crud.read(Referral, id=referral_id)
+
+        return marshal.marshal(new_record)
+
+        

@@ -39,7 +39,7 @@ def validate_put_request(request_body: dict, record_id: str) -> Optional[str]:
     :param request_body: The request body as a dict object
     :param record_id: The medical record ID the PUT request is being made for
 
-    :return: An error message if request body in invalid in some way. None otherwise.
+    :return: An error message if request body is invalid in some way. None otherwise.
     """
     error = __validate(request_body)
     if error:
