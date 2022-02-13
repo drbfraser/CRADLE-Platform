@@ -265,17 +265,14 @@ def read_referral_list(
 
     :return: A list of referrals
     """
-    query = (
-        db_session.query(
-            Referral.id,
-            Referral.dateReferred,
-            Referral.isAssessed,
-            Patient.patientId,
-            Patient.patientName,
-            Patient.villageNumber,
-        )
-        .join(Patient, Referral.patient)
-    )
+    query = db_session.query(
+        Referral.id,
+        Referral.dateReferred,
+        Referral.isAssessed,
+        Patient.patientId,
+        Patient.patientName,
+        Patient.villageNumber,
+    ).join(Patient, Referral.patient)
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
     query = __filter_by_patient_search(query, **kwargs)
@@ -578,9 +575,8 @@ def read_readings(
 
     :return: A list of tuples of reading, referral, assessment, urine test
     """
-    query = (
-        db_session.query(Reading, UrineTest)
-        .outerjoin(UrineTest, Reading.urineTests)
+    query = db_session.query(Reading, UrineTest).outerjoin(
+        UrineTest, Reading.urineTests
     )
 
     query = __filter_by_patient_association(query, Reading, user_id, is_cho)
@@ -592,6 +588,7 @@ def read_readings(
         query = query.filter(Reading.patientId == patient_id)
 
     return query.all()
+
 
 # ! this method needs fix
 def read_referrals_and_assessments(

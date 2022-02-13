@@ -39,6 +39,7 @@ def validate(request_body: dict) -> Optional[str]:
 
     return error_message
 
+
 def validate_put_request(request_body: dict) -> Optional[str]:
     """
     Returns an error message if the /api/referralCancelStatus/<int:referral_id> PUT
@@ -58,15 +59,14 @@ def validate_put_request(request_body: dict) -> Optional[str]:
             return f"{key} is not a valid key in referral record."
         else:
             record_keys.remove(key)
-    
+
     if len(record_keys) > 0:
         return f"There are missing fields for the request body."
-    
+
     error = values_correct_type(request_body, ["isCancelled"], bool)
     if error:
         return error
-    
+
     error = values_correct_type(request_body, ["cancelReason"], str)
     if error:
         return error
-    

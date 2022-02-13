@@ -261,6 +261,7 @@ class PatientReadings(Resource):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(r) for r in patient.readings]
 
+
 # /api/patients/<string:patient_id>/most_recent_reading
 class PatientMostRecentReading(Resource):
     @staticmethod
@@ -275,9 +276,12 @@ class PatientMostRecentReading(Resource):
         readings = [marshal.marshal(r) for r in patient.readings]
         if not len(readings):
             return []
-        
-        sorted_readings = sorted(readings, key=lambda r: r["dateTimeTaken"], reverse=True)
+
+        sorted_readings = sorted(
+            readings, key=lambda r: r["dateTimeTaken"], reverse=True
+        )
         return [sorted_readings[0]]
+
 
 # /api/patients/<string:patient_id>/referrals
 class PatientReferrals(Resource):
@@ -291,6 +295,7 @@ class PatientReferrals(Resource):
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(ref) for ref in patient.referrals]
+
 
 # /api/patients/<string:patient_id>/pregnancy_summary
 class PatientPregnancySummary(Resource):

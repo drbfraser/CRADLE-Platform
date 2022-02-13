@@ -97,6 +97,7 @@ class SingleReferral(Resource):
 
         return marshal.marshal(referral)
 
+
 # /api/referralAssess/<int:referral_id>
 class AssessReferral(Resource):
     @staticmethod
@@ -109,15 +110,16 @@ class AssessReferral(Resource):
     def post(referral_id: int):
         referral = crud.read(Referral, id=referral_id)
         if not referral:
-            abort(404, message=f'No referral with id {referral_id}')
-        
+            abort(404, message=f"No referral with id {referral_id}")
+
         if not referral.isAssessed:
             referral.isAssessed = True
             referral.dateAssessed = get_current_time()
             data.db_session.commit()
-        
+
         new_referral = crud.read(Referral, id=referral_id)
         return marshal.marshal(new_referral), 201
+
 
 # /api/referralCancelStatus/<int:referral_id>
 class ReferralCancelStatus(Resource):
@@ -134,17 +136,15 @@ class ReferralCancelStatus(Resource):
         error = referrals.validate_put_request(request_body)
         if error:
             abort(400, message=error)
-        
+
         request_body["dateCancelled"] = get_current_time()
 
         if not request_body["isCancelled"]:
             request_body["cancelReason"] = None
             request_body["dateCancelled"] = None
-        
+
         crud.update(Referral, request_body, id=referral_id)
 
         new_record = crud.read(Referral, id=referral_id)
 
         return marshal.marshal(new_record)
-
-        
