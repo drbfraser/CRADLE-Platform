@@ -12,7 +12,7 @@ import service.invariant as invariant
 import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
-from models import Patient, Pregnancy
+from models import Patient, Pregnancy, Reading, FollowUp
 from validation import patients, readings, assessments
 from utils import get_current_time
 from api.decorator import patient_association_required

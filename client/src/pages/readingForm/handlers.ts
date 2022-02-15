@@ -35,6 +35,7 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
       medicationPrescribed: values[ReadingField.drugHistory],
       specialInvestigations: values[ReadingField.investigation],
       treatment: values[ReadingField.treatment],
+      patientId: patientId,
     },
   } as any;
 
@@ -57,22 +58,13 @@ export const handleSubmit = async (
   drugHistory: string
 ) => {
   const submitValues = getSubmitObject(patientId, values);
-  const reading_url = API_URL + EndpointEnum.READINGS;
-  const assessment_url = API_URL + EndpointEnum.ASSESSMENTS;
+  const url = API_URL + EndpointEnum.READING_ASSESSMENT;
 
   try {
-    await apiFetch(reading_url, {
+    await apiFetch(url, {
       method: 'POST',
-      body: JSON.stringify(submitValues['reading']),
+      body: JSON.stringify(submitValues),
     });
-
-    await apiFetch(assessment_url, {
-      method: 'POST',
-      body: JSON.stringify({
-        patientId: patientId,
-        ...submitValues['assessment']
-      }),
-    })
 
     const newDrugHistory = values[ReadingField.drugHistory];
     if (drugHistory !== newDrugHistory) {
