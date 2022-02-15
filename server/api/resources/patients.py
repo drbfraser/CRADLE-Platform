@@ -13,7 +13,7 @@ import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
 from models import Patient, Pregnancy
-from validation import patients
+from validation import patients, readings, assessments
 from utils import get_current_time
 from api.decorator import patient_association_required
 from datetime import date
@@ -334,3 +334,56 @@ class PatientTimeline(Resource):
         params = util.get_query_params(request)
         records = crud.read_patient_timeline(patient_id, **params)
         return [serialize.serialize_patient_timeline(r) for r in records]
+
+
+# /api/patients/reading-assessment
+class ReadingReferral(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/reading-assessment-post.yml",
+        methods=["POST"],
+        endpoint="reading-assessment",
+    )
+
+    def post():
+        json = request.get_json(force=True)
+        reading_json = json["reading"]
+        assessment_json = json["assessment"]
+
+        error_message = readings.validate(reading_json)
+        if error_message is not None:
+            abort(400, message=error_message)
+        error_message = assessments.validate(assessment_json)
+        if error_message is not None:
+            abort(400, message=error_message)
+
+
+        userId = get_jwt_identity()["userId"]
+
+        json["userId"] = userId
+
+        reading = marshal.unmarshal(Reading, reading_json)
+
+        if crud.read(Reading, readingId=reading.readingId):
+            abort(409, message=f"A reading already exists with id: {reading.readingId}")
+
+        invariant.resolve_reading_invariants(reading)
+        crud.create(reading, refresh=True)
+
+        # Populate the dateAssessed and healthCareWorkerId fields of the followup
+        assessment_json["dateAssessed"] = get_current_time()
+        assessment_json["healthcareWorkerId"] = userId
+
+        assessment = marshal.unmarshal(FollowUp, assessment_json)
+
+        crud.create(assessment)
+
+        reading_json = marshal.marshal(reading)
+        assessment_json = marshal.marshal(assessment)
+        response_json = {
+            "reading": reading_json,
+            "assessment": assessment_json
+        }
+
+        return response_json, 201
