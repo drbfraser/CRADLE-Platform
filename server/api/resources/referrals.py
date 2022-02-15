@@ -98,16 +98,16 @@ class SingleReferral(Resource):
         return marshal.marshal(referral)
 
 
-# /api/referralAssess/<int:referral_id>
+# /api/referrals/assess/<int:referral_id>
 class AssessReferral(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/referrals-assess-update-post.yml",
-        methods=["POST"],
+        "../../specifications/referrals-assess-update-put.yml",
+        methods=["PUT"],
         endpoint="referral_assess",
     )
-    def post(referral_id: int):
+    def put(referral_id: int):
         referral = crud.read(Referral, id=referral_id)
         if not referral:
             abort(404, message=f"No referral with id {referral_id}")

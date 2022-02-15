@@ -158,17 +158,17 @@ def init(api):
     api.add_resource(Referrals, "/api/referrals", endpoint="referrals")  # [GET, POST]
     api.add_resource(
         SingleReferral,
-        "/api/referrals/<string:referral_id>",
+        "/api/referrals/<int:referral_id>",
         endpoint="single_referral",
     )  # [GET]
     api.add_resource(
         AssessReferral,
-        "/api/referralAssess",
+        "/api/referrals/assess/<int:referral_id>",
         endpoint="referral_assess",
-    )  # [POST]
+    )  # [PUT]
     api.add_resource(
         ReferralCancelStatus,
-        "/api/referralCancelStatus/<int:referral_id>",
+        "/api/referrals/cancel_status_switch/<int:referral_id>",
         endpoint="referral_cancel_status",
     )  # [PUT]
 

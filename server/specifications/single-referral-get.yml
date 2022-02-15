@@ -41,7 +41,7 @@ responses:
               type: Unix timestamp | Null
               example: 1644656212
             id: 
-              type: string
+              type: integer
               example: 1
             patientId:
               type: integer

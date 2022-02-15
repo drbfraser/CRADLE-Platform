@@ -52,9 +52,9 @@ def __init_referral_resources(api: Api):
 
     api.add_resource(r.Root, "/api/referrals", endpoint="referral_root")
     api.add_resource(r.SingleReferral, "/api/referrals/<int:referral_id>")
-    api.add_resource(r.AssessReferral, "/api/referralAssess/<int:referral_id>")
+    api.add_resource(r.AssessReferral, "/api/referrals/assess/<int:referral_id>")
     api.add_resource(
-        r.ReferralCancelStatus, "/api/referralCancelStatus/<int:referral_id>"
+        r.ReferralCancelStatus, "/api/referrals/cancel_status_switch/<int:referral_id>"
     )
 
 
