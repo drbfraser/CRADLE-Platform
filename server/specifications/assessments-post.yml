@@ -54,4 +54,4 @@ responses:
           properties:
             message:
               type: string
-              example: The request body key {readingId} is required.
+              example: The request body key {patientId} is required.
