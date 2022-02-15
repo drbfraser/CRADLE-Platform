@@ -369,7 +369,6 @@ class ReadingAssessment(Resource):
             abort(409, message=f"A reading already exists with id: {reading.readingId}")
 
         invariant.resolve_reading_invariants(reading)
-        crud.create(reading, refresh=True)
 
         # Populate the dateAssessed and healthCareWorkerId fields of the followup
         assessment_json["dateAssessed"] = get_current_time()
@@ -377,6 +376,7 @@ class ReadingAssessment(Resource):
 
         assessment = marshal.unmarshal(FollowUp, assessment_json)
 
+        crud.create(reading, refresh=True)
         crud.create(assessment)
 
         reading_json = marshal.marshal(reading)
