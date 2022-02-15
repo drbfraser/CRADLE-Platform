@@ -62,7 +62,6 @@ responses:
               example: The request body key {readingId} is required.
   404:
     description: |
-      Not found: `readingId` doesn't reference a reading in the database.
       Not found: `id` doesn't reference an assessment in the database.
     content:
       application/json:

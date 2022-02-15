@@ -337,13 +337,13 @@ class PatientTimeline(Resource):
 
 
 # /api/patients/reading-assessment
-class ReadingReferral(Resource):
+class ReadingAssessment(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
         "../../specifications/reading-assessment-post.yml",
         methods=["POST"],
-        endpoint="reading-assessment",
+        endpoint="reading_assessment",
     )
 
     def post():
