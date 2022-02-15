@@ -66,8 +66,7 @@ def test_download_readings(
 
     assert response.status_code == 200
     assert any(
-        r["patientId"] == patient_info["patientId"]
-        and r["readingId"] == reading_id
+        r["patientId"] == patient_info["patientId"] and r["readingId"] == reading_id
         for r in response.json()
     )
 

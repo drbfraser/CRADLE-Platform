@@ -33,7 +33,12 @@ from api.resources.patients import (
     PatientTimeline,
 )
 from api.resources.readings import Root as Readings, SingleReading
-from api.resources.referrals import Root as Referrals, SingleReferral
+from api.resources.referrals import (
+    Root as Referrals,
+    SingleReferral,
+    AssessReferral,
+    ReferralCancelStatus,
+)
 from api.resources.pregnancies import (
     Root as Pregnancies,
     SinglePregnancy,
@@ -153,9 +158,19 @@ def init(api):
     api.add_resource(Referrals, "/api/referrals", endpoint="referrals")  # [GET, POST]
     api.add_resource(
         SingleReferral,
-        "/api/referrals/<string:referral_id>",
+        "/api/referrals/<int:referral_id>",
         endpoint="single_referral",
     )  # [GET]
+    api.add_resource(
+        AssessReferral,
+        "/api/referrals/assess/<int:referral_id>",
+        endpoint="referral_assess",
+    )  # [PUT]
+    api.add_resource(
+        ReferralCancelStatus,
+        "/api/referrals/cancel_status_switch/<int:referral_id>",
+        endpoint="referral_cancel_status",
+    )  # [PUT]
 
     api.add_resource(
         Pregnancies,
