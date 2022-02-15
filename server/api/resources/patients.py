@@ -339,3 +339,18 @@ class PatientTimeline(Resource):
         params = util.get_query_params(request)
         records = crud.read_patient_timeline(patient_id, **params)
         return [serialize.serialize_patient_timeline(r) for r in records]
+
+# /api/patients/<string:patient_id>/get_all_records
+class PatientAllRecords(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/patient-all-records-get.yml",
+        methods=["GET"],
+        endpoint="patient_get_all_records",
+    )
+    def get(patient_id: str):
+        params = util.get_query_params(request)
+        records = crud.read_patient_readings_referrals_assessments(patient_id, **params)
+        return [marshal.marshal(r) for r in records]
+
