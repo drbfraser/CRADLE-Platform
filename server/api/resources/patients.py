@@ -360,8 +360,7 @@ class ReadingAssessment(Resource):
 
 
         userId = get_jwt_identity()["userId"]
-
-        json["userId"] = userId
+        reading_json["userId"] = userId
 
         reading = marshal.unmarshal(Reading, reading_json)
 
