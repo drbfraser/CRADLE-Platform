@@ -352,5 +352,5 @@ class PatientAllRecords(Resource):
     def get(patient_id: str):
         params = util.get_query_params(request)
         records = crud.read_patient_readings_referrals_assessments(patient_id, **params)
-        return [marshal.marshal(r) for r in records]
+        return [marshal.marshal_with_type(r) for r in records]
 

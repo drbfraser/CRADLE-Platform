@@ -34,6 +34,44 @@ def marshal(obj: Any, shallow=False) -> dict:
         __pre_process(d)
         return d
 
+def marshal_with_type(obj: Any, shallow=False) -> dict:
+    """
+    Recursively marshals an object to a dictionary which has an additional
+    field that indicates the object type
+
+    :param obj: The object to marshal
+    :param shallow: If true, only the top level fields will be marshalled
+    :return: A dictionary mapping fields to values
+    """
+    if isinstance(obj, Patient):
+        patient_dict = __marshal_patient(obj, shallow)
+        patient_dict["type"] = "patient"
+        return patient_dict
+    elif isinstance(obj, Reading):
+        reading_dict = __marshal_reading(obj, shallow)
+        reading_dict["type"] = "reading"
+        return reading_dict
+    elif isinstance(obj, Referral):
+        referral_dict = __marshal_referral(obj)
+        referral_dict["type"] = "referral"
+        return referral_dict
+    elif isinstance(obj, FollowUp):
+        assessment_dict = __marshal_followup(obj)
+        assessment_dict["type"] = "assessment"
+        return assessment_dict
+    elif isinstance(obj, Pregnancy):
+        pregnancy_dict = __marshal_pregnancy(obj)
+        pregnancy_dict["type"] = "pregnancy"
+        return pregnancy_dict
+    elif isinstance(obj, MedicalRecord):
+        medical_record_dict = __marshal_medical_record(obj)
+        medical_record_dict["type"] = "medical_record"
+        return medical_record_dict
+    else:
+        d = vars(obj).copy()
+        __pre_process(d)
+        d["type"] = "other"
+        return d
 
 def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
     summary = {
