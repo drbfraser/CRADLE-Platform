@@ -340,6 +340,7 @@ class PatientTimeline(Resource):
         records = crud.read_patient_timeline(patient_id, **params)
         return [serialize.serialize_patient_timeline(r) for r in records]
 
+
 # /api/patients/<string:patient_id>/get_all_records
 class PatientAllRecords(Resource):
     @staticmethod
@@ -353,4 +354,3 @@ class PatientAllRecords(Resource):
         params = util.get_query_params(request)
         records = crud.read_patient_readings_referrals_assessments(patient_id, **params)
         return [marshal.marshal_with_type(r) for r in records]
-
