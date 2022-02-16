@@ -53,6 +53,7 @@ export enum EndpointEnum {
   PREGNANCY_SUMMARY = '/pregnancy_summary',
   REFERRALS = '/referrals',
   READINGS = '/readings',
+  READING_ASSESSMENT = '/patients/reading-assessment',
   STATISTICS = '/stats',
   STATS_ALL = '/stats/all',
   STATS_FACILITY = '/stats/facility',

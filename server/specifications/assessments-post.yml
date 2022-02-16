@@ -54,15 +54,4 @@ responses:
           properties:
             message:
               type: string
-              example: The request body key {readingId} is required.
-  404:
-    description: |
-      Not found: `readingId` doesn't reference a reading in the database.
-    content:
-      application/json:
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Unable to find reading with id 18755470-312d-4cce-b9f4-be1c29ae1caf
+              example: The request body key {patientId} is required.
