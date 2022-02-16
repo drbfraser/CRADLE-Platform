@@ -31,7 +31,7 @@ from api.resources.patients import (
     PatientPregnancySummary,
     PatientMedicalHistory,
     PatientTimeline,
-    PatientAllRecords
+    ReadingAssessment,
 )
 from api.resources.readings import Root as Readings, SingleReading
 from api.resources.referrals import (
@@ -151,10 +151,17 @@ def init(api):
         endpoint="patient_timeline",
     )  # [GET]
     api.add_resource(
+<<<<<<< HEAD
         PatientAllRecords,
         "/api/patients/<string:patient_id>/get_all_records",
         endpoint="patient_get_all_records",
     )  # [GET]
+=======
+        ReadingAssessment,
+        "/api/patients/reading-assessment",
+        endpoint="reading_assessment",
+    )  # [POST]
+>>>>>>> 27133dc52db5d1f8fa0a57be1e99719171f091a1
 
     api.add_resource(Readings, "/api/readings", endpoint="readings")  # [POST]
     api.add_resource(
