@@ -28,10 +28,6 @@ class Root(Resource):
 
         json["userId"] = userId
 
-        if "followup" in json:
-            json["followup"]["healthcareWorkerId"] = userId
-            del json["followup"]
-
         reading = marshal.unmarshal(Reading, json)
 
         if crud.read(Reading, readingId=reading.readingId):

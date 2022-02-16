@@ -27,12 +27,19 @@ from api.resources.patients import (
     PatientStats,
     PatientReadings,
     PatientMostRecentReading,
+    PatientReferrals,
     PatientPregnancySummary,
     PatientMedicalHistory,
     PatientTimeline,
+    PatientAllRecords
 )
 from api.resources.readings import Root as Readings, SingleReading
-from api.resources.referrals import Root as Referrals, SingleReferral
+from api.resources.referrals import (
+    Root as Referrals,
+    SingleReferral,
+    AssessReferral,
+    ReferralCancelStatus,
+)
 from api.resources.pregnancies import (
     Root as Pregnancies,
     SinglePregnancy,
@@ -122,7 +129,12 @@ def init(api):
         PatientMostRecentReading,
         "/api/patients/<string:patient_id>/most_recent_reading",
         endpoint="patient_most_recent_reading",
-    )
+    )  # [GET]
+    api.add_resource(
+        PatientReferrals,
+        "/api/patients/<string:patient_id>/referrals",
+        endpoint="patient_referrals",
+    )  # [GET]
     api.add_resource(
         PatientPregnancySummary,
         "/api/patients/<string:patient_id>/pregnancy_summary",
@@ -138,6 +150,11 @@ def init(api):
         "/api/patients/<string:patient_id>/timeline",
         endpoint="patient_timeline",
     )  # [GET]
+    api.add_resource(
+        PatientAllRecords,
+        "/api/patients/<string:patient_id>/get_all_records",
+        endpoint="patient_get_all_records",
+    )  # [GET]
 
     api.add_resource(Readings, "/api/readings", endpoint="readings")  # [POST]
     api.add_resource(
@@ -147,9 +164,19 @@ def init(api):
     api.add_resource(Referrals, "/api/referrals", endpoint="referrals")  # [GET, POST]
     api.add_resource(
         SingleReferral,
-        "/api/referrals/<string:referral_id>",
+        "/api/referrals/<int:referral_id>",
         endpoint="single_referral",
     )  # [GET]
+    api.add_resource(
+        AssessReferral,
+        "/api/referrals/assess/<int:referral_id>",
+        endpoint="referral_assess",
+    )  # [PUT]
+    api.add_resource(
+        ReferralCancelStatus,
+        "/api/referrals/cancel_status_switch/<int:referral_id>",
+        endpoint="referral_cancel_status",
+    )  # [PUT]
 
     api.add_resource(
         Pregnancies,

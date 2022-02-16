@@ -26,7 +26,11 @@ def __init_patients_resources(api: Api):
     api.add_resource(r.PatientInfo, "/api/patients/<string:patient_id>/info")
     api.add_resource(r.PatientStats, "/api/patients/<string:patient_id>/stats")
     api.add_resource(r.PatientReadings, "/api/patients/<string:patient_id>/readings")
-    api.add_resource(r.PatientMostRecentReading, "/api/patients/<string:patient_id>/most_recent_reading")
+    api.add_resource(
+        r.PatientMostRecentReading,
+        "/api/patients/<string:patient_id>/most_recent_reading",
+    )
+    api.add_resource(r.PatientReferrals, "/api/patients/<string:patient_id>/referrals")
     api.add_resource(
         r.PatientPregnancySummary, "/api/patients/<string:patient_id>/pregnancy_summary"
     )
@@ -48,6 +52,10 @@ def __init_referral_resources(api: Api):
 
     api.add_resource(r.Root, "/api/referrals", endpoint="referral_root")
     api.add_resource(r.SingleReferral, "/api/referrals/<int:referral_id>")
+    api.add_resource(r.AssessReferral, "/api/referrals/assess/<int:referral_id>")
+    api.add_resource(
+        r.ReferralCancelStatus, "/api/referrals/cancel_status_switch/<int:referral_id>"
+    )
 
 
 def __init_assessment_resources(api: Api):

@@ -4,9 +4,7 @@ import data.crud as crud
 from models import Reading, Referral, FollowUp
 
 
-def test_invalid_reading_not_created(
-    reading_id, reading, patient_factory, api_post
-):
+def test_invalid_reading_not_created(reading_id, reading, patient_factory, api_post):
     patient_factory.create(patientId="123")
     # Removed bpSystolic to make the eading invalid
     del reading_referral_followup["bpSystolic"]

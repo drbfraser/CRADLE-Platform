@@ -261,6 +261,7 @@ class PatientReadings(Resource):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(r) for r in patient.readings]
 
+
 # /api/patients/<string:patient_id>/most_recent_reading
 class PatientMostRecentReading(Resource):
     @staticmethod
@@ -275,9 +276,25 @@ class PatientMostRecentReading(Resource):
         readings = [marshal.marshal(r) for r in patient.readings]
         if not len(readings):
             return []
-        
-        sorted_readings = sorted(readings, key=lambda r: r["dateTimeTaken"], reverse=True)
+
+        sorted_readings = sorted(
+            readings, key=lambda r: r["dateTimeTaken"], reverse=True
+        )
         return [sorted_readings[0]]
+
+
+# /api/patients/<string:patient_id>/referrals
+class PatientReferrals(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/patient-referrals-get.yml",
+        methods=["GET"],
+        endpoint="patient_referrals",
+    )
+    def get(patient_id: str):
+        patient = crud.read(Patient, patientId=patient_id)
+        return [marshal.marshal(ref) for ref in patient.referrals]
 
 
 # /api/patients/<string:patient_id>/pregnancy_summary
@@ -322,3 +339,18 @@ class PatientTimeline(Resource):
         params = util.get_query_params(request)
         records = crud.read_patient_timeline(patient_id, **params)
         return [serialize.serialize_patient_timeline(r) for r in records]
+
+# /api/patients/<string:patient_id>/get_all_records
+class PatientAllRecords(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/patient-all-records-get.yml",
+        methods=["GET"],
+        endpoint="patient_get_all_records",
+    )
+    def get(patient_id: str):
+        params = util.get_query_params(request)
+        records = crud.read_patient_readings_referrals_assessments(patient_id, **params)
+        return [marshal.marshal_with_type(r) for r in records]
+

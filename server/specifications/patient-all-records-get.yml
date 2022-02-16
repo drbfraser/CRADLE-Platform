@@ -1,0 +1,58 @@
+Get all readings, referrals, assessments of a single patient according to the filter
+---
+tags:
+  - Patients
+parameters:
+- in: path
+  name: patient_id
+  required: true
+  schema:
+    type: integer
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/get_all_records?readings=1&referrals=0&assessments=0
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              readingId:
+                type: string
+                example: adas-d82314-27822-63138
+              patientId:
+                type: integer
+                example: 123456
+              bpSystolic:
+                type: integer
+                example: 70
+              bpDiastolic:
+                type: integer
+                example: 60
+              heartRateBPM:
+                type: integer
+                example: 80
+              isFlaggedForFollowup:
+                type: boolean | Null
+                example: true
+              symptoms:
+                type: array - required
+                items: string
+                example: [BLEEDING, HEADACHE]
+              dateTimeTaken:
+                type: Unix timestamp | Null
+                example: 1551447833
+              userId:
+                type: integer | Null
+                example: 1
+              trafficLightStatus:
+                type: string
+                enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
+                example: GREEN
+              lastEdited:
+                type: Unix timestamp | Null
+                example: 1551447833
+              type:
+                type: string
+                example: reading
