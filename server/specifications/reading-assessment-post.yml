@@ -1,0 +1,154 @@
+Create a new reading and assessment
+---
+tags:
+  - Patients
+requestBody:
+  required: true
+  description: POST request body for /api/patients/reading-assessments
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          reading:
+            type: object
+            properties:
+              readingId:
+                type: string - required
+                example: adas-d82314-27822-63138
+              patientId:
+                type: integer - required
+                example: 123456
+              bpSystolic:
+                type: integer - required
+                example: 70
+              bpDiastolic:
+                type: integer - required
+                example: 60
+              heartRateBPM:
+                type: integer - required
+                example: 80
+              isFlaggedForFollowup:
+                type: boolean | Null
+                example: true
+              symptoms:
+                type: array - required
+                items: string
+                example: [BLEEDING, HEADACHE]
+              dateTimeTaken:
+                type: Unix timestamp | Null
+                example: 1551447833
+            assessment:
+              type: object
+              properties:
+                patientId:
+                  type: integer - required
+                  example: 123456
+                specialInvestigations:
+                  type: string | Null
+                  example: Investigated this an that
+                diagnosis:
+                  type: string | Null
+                  example: I diagnose you with dead
+                treatment:
+                  type: string | Null
+                  example: Take this pill twice daily
+                medicationPrescribed:
+                  type: string | Null
+                  example: Advil
+                followupNeeded:
+                  type: bool
+                  example: true
+                followupInstructions:
+                  type: string | Null
+                  example: Check back with the patient once a week
+
+
+responses:
+  201:
+    description: Response from POST request for /api/readings
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            reading:
+              type: object
+              properties:
+                readingId:
+                  type: string
+                  example: adas-d82314-27822-63138
+                patientId:
+                  type: integer
+                  example: 123456
+                bpSystolic:
+                  type: integer
+                  example: 70
+                bpDiastolic:
+                  type: integer
+                  example: 60
+                heartRateBPM:
+                  type: integer
+                  example: 80
+                isFlaggedForFollowup:
+                  type: boolean | Null
+                  example: true
+                symptoms:
+                  type: array - required
+                  items: string
+                  example: [BLEEDING, HEADACHE]
+                dateTimeTaken:
+                  type: Unix timestamp | Null
+                  example: 1551447833
+                userId:
+                  type: integer | Null
+                  example: 1
+                trafficLightStatus:
+                  type: string
+                  enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
+                  example: GREEN
+              assessment:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  patientId:
+                    type: integer - required
+                    example: 123456
+                  dateAssessed:
+                    type: Unix timestamp
+                    example: 1593649727
+                  healthcareWorkerId:
+                    type: integer | Null
+                    example: 1
+                  specialInvestigations:
+                    type: string | Null
+                    example: Needs a urine test
+                  treatment:
+                    type: string | Null
+                    example: 3 doses of antibiotics daily
+                  followupNeeded:
+                    type: boolean
+                    example: true
+                  followupInstructions:
+                    type: string
+                    example: Make sure they bring birth certificate
+                  diagnosis:
+                    type: string | Null
+                    example: Strep throat
+                  medicationPrescribed:
+                    type: string | Null
+                    example: Amoxicillin
+  400:
+    description: |
+      Bad request: required fields are missing or  invalid.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: The request body key {readingId} is required.
+                  

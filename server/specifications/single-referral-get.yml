@@ -16,24 +16,36 @@ responses:
         schema:
           type: object
           properties:
+            isCancelled:
+              type: boolean
+              example: true
+            isAssessed:
+              type: boolean
+              example: false
             comment:
               type: string | Null
               example: They need help
             dateReferred:
-              type: string | Null
-              example: 1552311833
-            id:
-              type: integer
-              example: 1
-            isAssessed:
-              type: boolean | Null
-              example: false
-            patientId:
-              type: integer
-              example: 48300053727
+              type: Unix timestamp
+              example: 1592339808
             referralHealthFacilityName:
               type: string | Null
               example: H0000
             userId:
+              type: integer | Null
+              example: 1
+            dateCancelled:
+              type: Unix timestamp | Null
+              example: 1644666212
+            dateAssessed:
+              type: Unix timestamp | Null
+              example: 1644656212
+            id: 
               type: integer
-              example: 2
+              example: 1
+            patientId:
+              type: integer
+              example: 191919
+            cancelReason:
+              type: string | Null
+              example: patient is healthy now
