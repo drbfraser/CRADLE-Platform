@@ -23,9 +23,24 @@ export const PatientPage = () => {
 
   useEffect(() => {
     apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
+    // apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`+`/get_all_records?readings=1&referrals=1&assessments=1`)
       .then((resp) => resp.json())
       .then((patient) => {
+        // console.log(patient);
         setPatient(patient);
+      })
+      .catch(() => {
+        setErrorLoading(true);
+      });
+  }, [patientId]);
+
+  useEffect(() => {
+    // apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
+    apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`+`/get_all_records?readings=1&referrals=1&assessments=1`)
+      .then((resp) => resp.json())
+      .then((patient) => {
+        console.log(patient);
+        // setPatient(patient);
       })
       .catch(() => {
         setErrorLoading(true);

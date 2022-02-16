@@ -34,6 +34,7 @@ def marshal(obj: Any, shallow=False) -> dict:
         __pre_process(d)
         return d
 
+
 def marshal_with_type(obj: Any, shallow=False) -> dict:
     """
     Recursively marshals an object to a dictionary which has an additional
@@ -72,6 +73,7 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
         __pre_process(d)
         d["type"] = "other"
         return d
+
 
 def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
     summary = {
