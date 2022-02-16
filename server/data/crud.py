@@ -437,6 +437,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
 
     return query.slice(*__get_slice_indexes(page, limit))
 
+
 def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> List[Any]:
     """
     Queries the database for all readings, referrals, assessments associated to a patient
@@ -456,7 +457,7 @@ def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> Li
             .order_by(Reading.dateTimeTaken.desc())
         )
         reading_list += query.all()
-    
+
     referral_required = kwargs.get("referrals")
     if referral_required == "1":
         query = (
@@ -465,7 +466,7 @@ def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> Li
             .order_by(Referral.dateReferred.desc())
         )
         referral_list += query.all()
-    
+
     assessment_required = kwargs.get("assessments")
     if assessment_required == "1":
         query = (
@@ -474,7 +475,7 @@ def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> Li
             .order_by(FollowUp.dateAssessed.desc())
         )
         assessment_list += query.all()
-    
+
     # three-way merge to get the final list
     reading_pos, referral_pos, assessment_pos = 0, 0, 0
     final_list = []
@@ -485,8 +486,12 @@ def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> Li
         if not (reading_cond or referral_cond or assessment_cond):
             break
         cur_reading_t = reading_list[reading_pos].dateTimeTaken if reading_cond else -1
-        cur_referral_t = referral_list[referral_pos].dateReferred if referral_cond else -1
-        cur_assessment_t = assessment_list[assessment_pos].dateAssessed if assessment_cond else -1
+        cur_referral_t = (
+            referral_list[referral_pos].dateReferred if referral_cond else -1
+        )
+        cur_assessment_t = (
+            assessment_list[assessment_pos].dateAssessed if assessment_cond else -1
+        )
         max_t = max(cur_reading_t, cur_referral_t, cur_assessment_t)
         if cur_reading_t == max_t:
             final_list.append(reading_list[reading_pos])
@@ -497,10 +502,9 @@ def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> Li
         elif cur_assessment_t == max_t:
             final_list.append(assessment_list[assessment_pos])
             assessment_pos += 1
-    
+
     return final_list
-    
-    
+
 
 def read_patients(
     patient_id: Optional[str] = None,
