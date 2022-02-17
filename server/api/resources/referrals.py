@@ -12,7 +12,7 @@ import data.marshal as marshal
 from utils import get_current_time
 import service.assoc as assoc
 import service.view as view
-from models import HealthFacility, Reading, Referral
+from models import HealthFacility, Reading, Referral, Patient
 from validation import referrals
 import service.serialize as serialize
 
@@ -63,13 +63,28 @@ class Root(Resource):
             )
 
         json["userId"] = get_jwt_identity()["userId"]
-        json["dateReferred"] = floor(time.time())
+        json["dateReferred"] = get_current_time()
         json["isAssessed"] = False
         json["dateAssessed"] = None
         json["isCancelled"] = False
         json["dateCancelled"] = None
 
+        patient = crud.read(
+            Patient, patientId=json["patientId"]
+        )
+        if not patient:
+            abort(400, message="Patient does not exist")
+
         referral = marshal.unmarshal(Referral, json)
+
+        # fetch vital-sign from the reading right before dateReferred within 4 hours
+        availableTimeInterval = 3600 * 4
+        readings = patient.readings
+        if len(readings):
+            most_recent_reading = max(readings, key=lambda r:r.dateTimeTaken)
+            if most_recent_reading.dateTimeTaken + availableTimeInterval >= json["dateReferred"]:
+                referral.vitalSign = most_recent_reading.trafficLightStatus
+
         crud.create(referral, refresh=True)
         # Creating a referral also associates the corresponding patient to the health
         # facility they were referred to.
