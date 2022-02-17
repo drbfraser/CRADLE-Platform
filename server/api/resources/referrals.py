@@ -12,7 +12,7 @@ import data.marshal as marshal
 from utils import get_current_time
 import service.assoc as assoc
 import service.view as view
-from models import HealthFacility, Reading, Referral, Patient
+from models import HealthFacility, Referral, Patient
 from validation import referrals
 import service.serialize as serialize
 

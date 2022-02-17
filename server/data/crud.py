@@ -269,6 +269,7 @@ def read_referral_list(
         Referral.id,
         Referral.dateReferred,
         Referral.isAssessed,
+        Referral.vitalSign,
         Patient.patientId,
         Patient.patientName,
         Patient.villageNumber,
@@ -323,8 +324,8 @@ def read_referral_list(
 
     vital_signs = kwargs.get("vital_signs")
     if vital_signs:
-        # TODO: implement vital_signs filter logic
-        pass
+        query = query.filter(Referral.vitalSign.in_(vital_signs))
+
 
     limit = kwargs.get("limit")
     if limit:
