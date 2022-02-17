@@ -66,16 +66,6 @@ class Root(Resource):
         user = util.current_user()
         assoc.associate_by_user_role(patient, user)
 
-        # If the patient has any readings, and those readings have referrals, we
-        # associate the patient with the facilities they were referred to
-        for reading in patient.readings:
-            referral = reading.referral
-            if referral and not assoc.has_association(patient, referral.healthFacility):
-                assoc.associate(patient, facility=referral.healthFacility)
-                # The associate function performs a database commit, since this will
-                # wipe out the patient we want to return we must refresh it.
-                data.db_session.refresh(patient)
-
         patient = crud.read_patients(patient_id)
         readings = crud.read_readings(patient_id)
 

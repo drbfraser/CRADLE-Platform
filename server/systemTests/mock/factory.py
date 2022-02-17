@@ -142,7 +142,7 @@ class ReferralFactory(ModelFactory):
 class FollowUpFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super(FollowUpFactory, self).__init__(
-            db, dateAssessed=1594514397, healthcareWorkerId=1
+            db, dateAssessed=1594514397, healthcareWorkerId=1, 
         )
 
     def create(self, **kwargs):
@@ -150,7 +150,7 @@ class FollowUpFactory(ModelFactory):
         Creates a new followup.
 
         :param kwargs: Keyword arguments
-        :key readingId: Id of the reading to associate this followup with
+        :key patientId: Id of the patient to associate this followup with
         :return:
         """
         return super().create(**kwargs)
