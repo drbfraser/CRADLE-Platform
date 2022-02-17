@@ -8,7 +8,7 @@ Follow this guide to install Docker: https://docs.docker.com/get-docker/
   - If on Windows 10 Home, you'll need to first [enable WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
   - If you're on Windows / macOS, follow Docker Desktop's "Getting Started" guide. It'll introduce you to the basics of Docker and give you an easy way to verify it's correctly installed.
 
-Install NodeJS 14 LTS from here: https://nodejs.org/en/
+Install NodeJS 16 LTS from here: https://nodejs.org/en/
 
 ## 2. Cloning the Repo
 
