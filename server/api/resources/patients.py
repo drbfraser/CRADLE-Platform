@@ -350,7 +350,6 @@ class ReadingAssessment(Resource):
         methods=["POST"],
         endpoint="reading_assessment",
     )
-
     def post():
         json = request.get_json(force=True)
         reading_json = json["reading"]
@@ -362,7 +361,6 @@ class ReadingAssessment(Resource):
         error_message = assessments.validate(assessment_json)
         if error_message is not None:
             abort(400, message=error_message)
-
 
         userId = get_jwt_identity()["userId"]
         reading_json["userId"] = userId
@@ -385,14 +383,11 @@ class ReadingAssessment(Resource):
 
         reading_json = marshal.marshal(reading)
         assessment_json = marshal.marshal(assessment)
-        response_json = {
-            "reading": reading_json,
-            "assessment": assessment_json
-        }
+        response_json = {"reading": reading_json, "assessment": assessment_json}
 
         return response_json, 201
 
-        
+
 # /api/patients/<string:patient_id>/get_all_records
 class PatientAllRecords(Resource):
     @staticmethod

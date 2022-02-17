@@ -32,7 +32,7 @@ from api.resources.patients import (
     PatientMedicalHistory,
     PatientTimeline,
     ReadingAssessment,
-    PatientAllRecords
+    PatientAllRecords,
 )
 from api.resources.readings import Root as Readings, SingleReading
 from api.resources.referrals import (
