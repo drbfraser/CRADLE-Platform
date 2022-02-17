@@ -33,7 +33,8 @@ export const ReferralData = ({ reading }: IProps) => {
       );
     } else {
       history.push(
-        `/assessments/new/${reading.patientId}/${reading.readingId}`
+        // `/assessments/new/${reading.patientId}/${reading.readingId}`
+        `/assessments/new/${reading.patientId}`
       );
     }
   };

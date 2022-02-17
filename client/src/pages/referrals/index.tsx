@@ -131,6 +131,7 @@ export const ReferralsPage = () => {
           isTransformed={isTransformed}
           referralFilter={filter}
           refetch={refresh}
+          isReferralListPage={true}
         />
       </div>
     </Paper>

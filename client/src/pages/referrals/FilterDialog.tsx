@@ -70,6 +70,10 @@ const vitalSigns: VitalSign[] = [
     name: 'Red Down',
     vitalSign: TrafficLightEnum.RED_DOWN,
   },
+  {
+    name: 'Unavailable',
+    vitalSign: TrafficLightEnum.UNAVAILABLE,
+  },
 ];
 
 type SelectorState = {

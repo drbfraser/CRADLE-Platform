@@ -6,6 +6,8 @@ import { ReactComponent as RedTraffic } from './icons/red.svg';
 import { TrafficLightEnum } from 'src/shared/enums';
 import Typography from '@material-ui/core/Typography';
 import { ReactComponent as YellowTraffic } from './icons/yellow.svg';
+import { ReactComponent as UnavailableIcon } from './icons/unavailable.svg';
+
 import { useStyles } from './styles';
 
 interface IProps {
@@ -55,6 +57,17 @@ export const TrafficLight: React.FC<IProps> = ({ className, status }) => {
           return (
             <>
               <GreenTraffic className={classes.trafficLight} />
+              <ArrowDownwardIcon
+                className={classes.trafficLightArrow}
+                style={{ visibility: 'hidden' }}
+              />
+            </>
+          );
+        }
+        case TrafficLightEnum.UNAVAILABLE: {
+          return (
+            <>
+              <UnavailableIcon className={classes.trafficLight} />
               <ArrowDownwardIcon
                 className={classes.trafficLightArrow}
                 style={{ visibility: 'hidden' }}
