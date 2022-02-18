@@ -119,7 +119,9 @@ class Referral(db.Model):
     dateCancelled = db.Column(db.BigInteger, nullable=True)
     cancelReason = db.Column(db.Text)
     vitalSign = db.Column(
-        db.Enum(TrafficLightEnum, nullable=False), default=TrafficLightEnum.NONE.value
+        db.Enum(TrafficLightEnum, nullable=False),
+        nullable=False,
+        default=TrafficLightEnum.NONE.value,
     )
 
     # FOREIGN KEYS
