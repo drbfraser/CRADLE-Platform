@@ -18,7 +18,6 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
 
   // user ID and healthcare worker ID should be moved to the backend
   const submitValues = {
-    reading: {
       patientId: patientId,
       readingId: readingGuid,
       dateTimeTaken: currentTimestamp,
@@ -26,7 +25,6 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
       bpSystolic: values[ReadingField.bpSystolic],
       heartRateBPM: values[ReadingField.heartRateBPM],
       symptoms: getSymptomsFromFormState(values, true),
-    }
   } as any;
 
   if (values[ReadingField.urineTest]) {
