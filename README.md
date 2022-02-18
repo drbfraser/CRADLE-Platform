@@ -11,9 +11,8 @@ reduce preventable maternal deaths in Ugandan villages.
 ## Sites and Servers
 
 * Issue tracking is managed via JIRA at: https://icradle.atlassian.net
-* `master` is continuously deployed on: https://staging.cradleplatform.com (SFU server)
-* `prod` is deployed on: https://cradleplatform.com (Vultr server)
-   * Note that the deployment job must be manually run from the CI/CD Jobs list
+* `master` is continuously deployed to: https://cradle-dev.cmpt.sfu.ca
+* `staging` is continuously deployed to: https://cradle-stg.cmpt.sfu.ca
 
 ## Development Setup & Information
 

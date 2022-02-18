@@ -130,7 +130,10 @@ class Referral(db.Model):
     healthFacility = db.relationship(
         "HealthFacility", backref=db.backref("referrals", lazy=True)
     )
-    patient = db.relationship("Patient", backref=db.backref("referrals", lazy=True))
+    patient = db.relationship(
+        "Patient",
+        backref=db.backref("referrals", cascade="all, delete-orphan", lazy=True),
+    )
 
     @staticmethod
     def schema():
@@ -216,7 +219,10 @@ class Reading(db.Model):
     )
 
     # RELATIONSHIPS
-    patient = db.relationship("Patient", backref=db.backref("readings", lazy=True))
+    patient = db.relationship(
+        "Patient",
+        backref=db.backref("readings", cascade="all, delete-orphan", lazy=True),
+    )
 
     def get_traffic_light(self):
         red_systolic = 160
@@ -282,7 +288,10 @@ class FollowUp(db.Model):
 
     # RELATIONSHIPS
     healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
-    patient = db.relationship("Patient", backref=db.backref("followups", lazy=True))
+    patient = db.relationship(
+        "Patient",
+        backref=db.backref("followups", cascade="all, delete-orphan", lazy=True),
+    )
 
     @staticmethod
     def schema():
@@ -367,7 +376,10 @@ class Pregnancy(db.Model):
     )
 
     # RELATIONSHIPS
-    patient = db.relationship("Patient", backref=db.backref("pregnancies", lazy=True))
+    patient = db.relationship(
+        "Patient",
+        backref=db.backref("pregnancies", cascade="all, delete-orphan", lazy=True),
+    )
 
     @staticmethod
     def schema():
@@ -395,7 +407,10 @@ class MedicalRecord(db.Model):
     )
 
     # RELATIONSHIPS
-    patient = db.relationship("Patient", backref=db.backref("records", lazy=True))
+    patient = db.relationship(
+        "Patient",
+        backref=db.backref("records", cascade="all, delete-orphan", lazy=True),
+    )
 
     @staticmethod
     def schema():

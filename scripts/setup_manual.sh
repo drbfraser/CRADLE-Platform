@@ -59,7 +59,7 @@ if [ ! -f .env ]; then
     RAND_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
     RAND_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
     read;
-    echo -e "CADDY_DOMAIN=${REPLY:-:80}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\nJWT_SECRET_KEY=${RAND_SECRET}\n" > .env
+    echo -e "DOMAIN=${REPLY:-:80}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\nJWT_SECRET_KEY=${RAND_SECRET}\n" > .env
 
     # this is necessary because the MySQL password has now been changed
     echo -e "\n${BLUE}Removing previous Docker containers and volumes...${COLOR_OFF}\n"
