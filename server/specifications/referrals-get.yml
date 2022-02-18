@@ -30,3 +30,7 @@ responses:
               villageNumber:
                 type: string
                 example: 1093
+              vitalSign:
+                type: string
+                enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
+                example: GREEN
