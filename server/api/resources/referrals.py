@@ -69,20 +69,19 @@ class Root(Resource):
         json["isCancelled"] = False
         json["dateCancelled"] = None
 
-        patient = crud.read(
-            Patient, patientId=json["patientId"]
-        )
+        patient = crud.read(Patient, patientId=json["patientId"])
         if not patient:
             abort(400, message="Patient does not exist")
 
         referral = marshal.unmarshal(Referral, json)
 
         # fetch vital-sign from the reading right before dateReferred within 4 hours
-        availableTimeInterval = 3600 * 4
+        four_hours_in_seconds = 14400
         readings = patient.readings
         if len(readings):
-            most_recent_reading = max(readings, key=lambda r:r.dateTimeTaken)
-            if most_recent_reading.dateTimeTaken + availableTimeInterval >= json["dateReferred"]:
+            most_recent_reading = max(readings, key=lambda r: r.dateTimeTaken)
+            diff_referral_recent_reading_seconds = referral.dateReferred - most_recent_reading.dateTimeTaken
+            if diff_referral_recent_reading_seconds <= four_hours_in_seconds:
                 referral.vitalSign = most_recent_reading.trafficLightStatus
 
         crud.create(referral, refresh=True)

@@ -326,7 +326,6 @@ def read_referral_list(
     if vital_signs:
         query = query.filter(Referral.vitalSign.in_(vital_signs))
 
-
     limit = kwargs.get("limit")
     if limit:
         page = kwargs.get("page", 1)
