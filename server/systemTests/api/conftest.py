@@ -71,7 +71,6 @@ def create_reading_with_referral(
         reading_factory.create(**reading)
         referral_factory.create(
             patientId=patient_id,
-            readingId=reading_id,
             userId=user_id,
             dateReferred=date_referred,
             referralHealthFacilityName=facility_name,
