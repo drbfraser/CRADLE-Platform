@@ -80,7 +80,9 @@ class Root(Resource):
         readings = patient.readings
         if len(readings):
             most_recent_reading = max(readings, key=lambda r: r.dateTimeTaken)
-            diff_referral_recent_reading_seconds = referral.dateReferred - most_recent_reading.dateTimeTaken
+            diff_referral_recent_reading_seconds = (
+                referral.dateReferred - most_recent_reading.dateTimeTaken
+            )
             if diff_referral_recent_reading_seconds <= four_hours_in_seconds:
                 referral.vitalSign = most_recent_reading.trafficLightStatus
 
