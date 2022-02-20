@@ -277,7 +277,7 @@ def read_referral_list(
                 Reading.patientId.label("patientId"),
             ]
         )
-        .group_by(Reading.patientId)
+        .group_by("patientId")
         .alias("reading_group_by_patients")
     )
     vital_sign_field = funcgen.coalesce(
