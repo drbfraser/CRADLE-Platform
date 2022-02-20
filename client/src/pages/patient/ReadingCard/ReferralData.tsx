@@ -5,13 +5,16 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Grid,
 } from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
 import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { Reading } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
+
 
 interface IProps {
   reading: Reading;
@@ -133,9 +136,36 @@ export const ReferralData = ({ reading }: IProps) => {
                     <b>{info.label}:</b> {info.value}
                   </p>
                 ))}
-              <Button color="primary" variant="outlined" onClick={handleAssess}>
+              {/* <Button color="primary" variant="outlined" onClick={handleAssess}>
                 Update Assessment
-              </Button>
+              </Button> */}
+
+              <Grid item>
+                <Grid container alignItems="center" style={{ gap: 5 }}>
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    onClick={handleAssess}>
+                    <AddIcon />
+                    Assess Referral
+                  </Button>
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    onClick={handleAssess}>
+                    <AddIcon />
+                    Did Not Attend
+                  </Button>
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    onClick={handleAssess}>
+                    <AddIcon />
+                    Cancel
+                  </Button>
+                </Grid>
+              </Grid>
+              
             </div>
           </AccordionDetails>
         </Accordion>

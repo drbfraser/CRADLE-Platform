@@ -4,7 +4,13 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Button,
+  Grid,
 } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/styles';
+import { createTheme } from "@material-ui/core/styles";
+// import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
+import red from '@material-ui/core/colors/red';
 import { Reading } from 'src/shared/types';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { getPrettyDateTime } from 'src/shared/utils';
@@ -20,6 +26,12 @@ export const ReadingData = ({ reading }: IProps) => {
     str = str.trim();
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
+// ////////////////////////////
+  const handleAssess = () => {
+    console.log("hello");
+  };
+  const redTheme = createTheme({ palette: { primary: red } })
+// ////////////////////////////
 
   return (
     <>
@@ -44,6 +56,48 @@ export const ReadingData = ({ reading }: IProps) => {
       <p>
         <b>Heart Rate:</b> {reading.heartRateBPM} bpm
       </p>
+
+
+
+
+
+      
+      {/* // //////////////////////////// */}
+     <Grid item>
+        <Grid container alignItems="flex-start" style={{ gap: 7 }}>
+          <Button
+            color="primary"
+            variant="outlined"
+            onClick={handleAssess}>
+            
+            Assess Referral
+          </Button>
+          <Button
+            color="primary"
+            variant="outlined"
+            onClick={handleAssess}>
+            
+            Did Not Attend
+          </Button>
+
+          <ThemeProvider theme={redTheme}>
+            <Button color="primary" variant="outlined">
+              Cancel
+            </Button>
+          </ThemeProvider> 
+        </Grid>
+        </Grid>
+        {/* // //////////////////////////// */}
+
+
+
+
+
+
+
+
+
+
       {Boolean(reading.symptoms?.length) && (
         <p>
           <b>Symptoms: </b>
@@ -83,12 +137,14 @@ export const ReadingData = ({ reading }: IProps) => {
               ].map((info) => (
                 <p key={info.label}>
                   <b>{info.label}:</b> {info.value}
-                </p>
-              ))}
+                </p> 
+              ))} 
             </div>
           </AccordionDetails>
         </Accordion>
       )}
     </>
+
+    
   );
 };
