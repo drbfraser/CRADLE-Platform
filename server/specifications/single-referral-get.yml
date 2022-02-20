@@ -49,7 +49,3 @@ responses:
             cancelReason:
               type: string | Null
               example: patient is healthy now
-            vitalSign:
-              type: string
-              enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
-              example: GREEN
