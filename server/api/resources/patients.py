@@ -66,11 +66,9 @@ class Root(Resource):
         user = util.current_user()
         assoc.associate_by_user_role(patient, user)
 
-        # If the patient has any readings, and those readings have referrals, we
-        # associate the patient with the facilities they were referred to
-        for reading in patient.readings:
-            referral = reading.referral
-            if referral and not assoc.has_association(patient, referral.healthFacility):
+        # If the patient has any referrals, associate the patient with the facilities they were referred to
+        for referral in patient.referrals:
+            if not assoc.has_association(patient, referral.healthFacility):
                 assoc.associate(patient, facility=referral.healthFacility)
                 # The associate function performs a database commit, since this will
                 # wipe out the patient we want to return we must refresh it.
@@ -349,6 +347,53 @@ class PatientAllRecords(Resource):
         "../../specifications/reading-assessment-post.yml",
         methods=["POST"],
         endpoint="reading_assessment",
+    )
+    def post():
+        json = request.get_json(force=True)
+        reading_json = json["reading"]
+        assessment_json = json["assessment"]
+
+        error_message = readings.validate(reading_json)
+        if error_message is not None:
+            abort(400, message=error_message)
+        error_message = assessments.validate(assessment_json)
+        if error_message is not None:
+            abort(400, message=error_message)
+
+        userId = get_jwt_identity()["userId"]
+        reading_json["userId"] = userId
+
+        reading = marshal.unmarshal(Reading, reading_json)
+
+        if crud.read(Reading, readingId=reading.readingId):
+            abort(409, message=f"A reading already exists with id: {reading.readingId}")
+
+        invariant.resolve_reading_invariants(reading)
+
+        # Populate the dateAssessed and healthCareWorkerId fields of the followup
+        assessment_json["dateAssessed"] = get_current_time()
+        assessment_json["healthcareWorkerId"] = userId
+
+        assessment = marshal.unmarshal(FollowUp, assessment_json)
+
+        crud.create(reading, refresh=True)
+        crud.create(assessment)
+
+        reading_json = marshal.marshal(reading)
+        assessment_json = marshal.marshal(assessment)
+        response_json = {"reading": reading_json, "assessment": assessment_json}
+
+        return response_json, 201
+
+
+# /api/patients/<string:patient_id>/get_all_records
+class PatientAllRecords(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/patient-all-records-get.yml",
+        methods=["GET"],
+        endpoint="patient_get_all_records",
     )
     def get(patient_id: str):
         params = util.get_query_params(request)

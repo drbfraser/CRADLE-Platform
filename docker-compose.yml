@@ -12,7 +12,7 @@ services:
         build:
             context: ./server
         volumes:
-            - ./server:/usr/src/server
+            - flask_uploads:/uploads
         environment:
             PORT: 5000
             DB_HOSTNAME: cradle_mysql
@@ -35,4 +35,5 @@ services:
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
 
 volumes:
+    flask_uploads:
     mysql_data:
