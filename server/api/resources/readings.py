@@ -7,7 +7,7 @@ from flask_restful import Resource, abort
 import data.crud as crud
 import data.marshal as marshal
 import service.invariant as invariant
-from models import Reading
+from models import Reading, Patient
 from validation import readings
 
 
@@ -23,6 +23,9 @@ class Root(Resource):
         error_message = readings.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
+
+        if not crud.read(Patient, patientId=json["patientId"]):
+            abort(400, message="Patient does not exist")
 
         userId = get_jwt_identity()["userId"]
 

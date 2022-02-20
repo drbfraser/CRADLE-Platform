@@ -62,7 +62,4 @@ responses:
             userId:
               type: integer
               example: 2
-            vitalSign:
-              type: string
-              enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
-              example: GREEN
+

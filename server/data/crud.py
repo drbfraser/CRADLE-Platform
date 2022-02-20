@@ -1,11 +1,14 @@
 from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
+from sqlalchemy import func as funcgen
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
-from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
+from sqlalchemy.sql import alias, select
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_, func
 import operator
 
 from data import db_session
 from models import (
+    TrafficLightEnum,
     FollowUp,
     Patient,
     Referral,
@@ -261,19 +264,51 @@ def read_referral_list(
     :param user_id: ID of user to filter patients wrt patient associations; None to get
     referrals associated with all users
     :param kwargs: Query params including search_text, order_by, direction, limit, page,
-    health_facilities, referrers, date_range, is_assessed, is_pregnant
+    health_facilities, referrers, date_range, is_assessed, is_pregnant, vital_signs
 
     :return: A list of referrals
     """
-    query = db_session.query(
-        Referral.id,
-        Referral.dateReferred,
-        Referral.isAssessed,
-        Referral.vitalSign,
-        Patient.patientId,
-        Patient.patientName,
-        Patient.villageNumber,
-    ).join(Patient, Referral.patient)
+    # a subquery table of reading table grouping by the patient id
+    reading_group_by_patients = (
+        select(
+            [
+                func.max(Reading.dateTimeTaken).label("maxDateTimeTaken"),
+                Reading.trafficLightStatus.label("trafficLightStatus"),
+                Reading.patientId.label("patientId"),
+            ]
+        )
+        .group_by(Reading.patientId)
+        .alias("reading_group_by_patients")
+    )
+    vital_sign_field = funcgen.coalesce(
+        reading_group_by_patients.c.trafficLightStatus,
+        TrafficLightEnum.NONE.value,
+    ).label("vitalSign")
+
+    # Join referrals, patients, and subtable of readings
+    # Fetch vital sign from reading right before dateReferred within 4 hours
+    four_hours_in_seconds = 14400
+    query = (
+        db_session.query(
+            Referral.id,
+            Referral.dateReferred,
+            Referral.isAssessed,
+            Patient.patientId,
+            Patient.patientName,
+            Patient.villageNumber,
+            vital_sign_field,
+        )
+        .join(Patient, Referral.patient)
+        .outerjoin(
+            reading_group_by_patients,
+            and_(
+                Referral.patientId == reading_group_by_patients.c.patientId,
+                Referral.dateReferred >= reading_group_by_patients.c.maxDateTimeTaken,
+                Referral.dateReferred
+                <= reading_group_by_patients.c.maxDateTimeTaken + four_hours_in_seconds,
+            ),
+        )
+    )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
     query = __filter_by_patient_search(query, **kwargs)
@@ -324,7 +359,7 @@ def read_referral_list(
 
     vital_signs = kwargs.get("vital_signs")
     if vital_signs:
-        query = query.filter(Referral.vitalSign.in_(vital_signs))
+        query = query.filter(vital_sign_field.in_(vital_signs))
 
     limit = kwargs.get("limit")
     if limit:

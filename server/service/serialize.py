@@ -39,9 +39,9 @@ def serialize_referral_list(referrals: List[Any]) -> dict:
             "patientId": r.patientId,
             "patientName": r.patientName,
             "villageNumber": r.villageNumber,
-            "vitalSign": r.vitalSign.value,
             "dateReferred": r.dateReferred,
             "isAssessed": r.isAssessed,
+            "vitalSign": r.vitalSign.value,
         }
         for r in referrals
     ]
