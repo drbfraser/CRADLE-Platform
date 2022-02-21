@@ -5,5 +5,6 @@ export interface IPatient {
   patientName: string;
   villageNumber: string;
   trafficLightStatus: TrafficLightEnum;
-  dateTimeTaken: number;
+  // dateTimeTaken: number;
+  dateTimeTaken: number | null;
 }

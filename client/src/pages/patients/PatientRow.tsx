@@ -8,12 +8,14 @@ import { IPatient } from './types';
 import { COLUMNS, BREAKPOINT } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import {TrafficLightEnum } from 'src/shared/enums';
+// import { isNull } from 'lodash';
 
 interface IProps {
   row: IPatient;
 }
 
 export const PatientRow = ({ row }: IProps) => {
+  // console.log(row.dateTimeTaken === undefined || row.dateTimeTaken === null || !row.dateTimeTaken);
   const classes = useRowStyles();
   const history = useHistory();
 
@@ -40,7 +42,7 @@ export const PatientRow = ({ row }: IProps) => {
         <TrafficLight status={row.trafficLightStatus?row.trafficLightStatus:TrafficLightEnum.NONE} />
       </TableCell>
       <TableCell label={COLUMNS.dateTimeTaken} isTransformed={isTransformed}>
-        {row.dateTimeTaken === null
+        {(!row.dateTimeTaken)
           ? 'No reading'
           : moment(row.dateTimeTaken * 1000).format('YYYY-MM-DD')}
       </TableCell>
