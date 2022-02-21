@@ -42,7 +42,7 @@ def validate(request_body: dict) -> Optional[str]:
 
 def validate_cancel_put_request(request_body: dict) -> Optional[str]:
     """
-    Returns an error message if the /api/referrals/cancel_status_switch/<int:referral_id> PUT
+    Returns an error message if the /api/referrals/cancel-status-switch/<int:referral_id> PUT
     request is not valid. Else, returns None.
 
     :param request_body: The request body as a dict object
@@ -74,7 +74,7 @@ def validate_cancel_put_request(request_body: dict) -> Optional[str]:
 
 def validate_not_attend_put_request(request_body: dict) -> Optional[str]:
     """
-    Returns an error message if the /api/referrals/not_attend/<int:referral_id> PUT
+    Returns an error message if the /api/referrals/not-attend/<int:referral_id> PUT
     request is not valid. Else, returns None.
 
     :param request_body: The request body as a dict object

@@ -121,7 +121,7 @@ class AssessReferral(Resource):
         return marshal.marshal(new_referral), 201
 
 
-# /api/cancel_status_switch/<int:referral_id>
+# /api/referrals/cancel-status-switch/<int:referral_id>
 class ReferralCancelStatus(Resource):
     @staticmethod
     @jwt_required
