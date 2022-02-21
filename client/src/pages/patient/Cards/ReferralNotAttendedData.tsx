@@ -59,6 +59,9 @@ export const ReferralNotAttendedData = ({ referral }: IProps) => {
           </>
         </Typography>
         <Typography variant="subtitle1">
+          Referred on {getPrettyDateTime(referral.dateReferred)}
+        </Typography>
+        <Typography variant="subtitle1">
           Marked Not Attended on {getPrettyDateTime(referral.dateNotAttended)}
         </Typography>
         <Typography variant="subtitle1">
@@ -67,9 +70,9 @@ export const ReferralNotAttendedData = ({ referral }: IProps) => {
         {Boolean(referral.comment) && (
           <div>
             <Typography>
-              <b>Referral Comment:</b>
+              <b>Not Attend Comment:</b>
             </Typography>
-            <Typography variant="subtitle1">{referral.comment}</Typography>
+            <Typography variant="subtitle1">{referral.notAttendReason}</Typography>
           </div>
         )}
  

@@ -19,6 +19,7 @@ import { ReadingFormPage } from 'src/pages/readingForm';
 import PollIcon from '@material-ui/icons/Poll';
 import { ReferralFormPage } from 'src/pages/referralForm';
 import { HistoryTablesPage } from 'src/pages/historyTables';
+import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 
 export type AppRoute = {
   component:
@@ -122,6 +123,22 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     title: `Referrals`,
     to: `/referrals`,
+  },
+  {
+    component: SingleReasonFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true, 
+    to: `/referrals/cancel-status-switch/:referralId/:type`,
+  },
+  {
+    component: SingleReasonFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true, 
+    to: `/referrals/not-attend/:referralId/:type`,
   },
   {
     component: PatientsPage,

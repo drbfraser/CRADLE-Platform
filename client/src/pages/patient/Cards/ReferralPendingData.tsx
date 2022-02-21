@@ -49,13 +49,17 @@ export const ReferralPendingData = ({ referral }: IProps) => {
     }
   };
 
+  //goto SingleReasonForm
   const handleReferralNotAttend = () => {
     //需后端写一个endpoint，请求结束之后，需要转到referral not attend card
     console.log("handleReferralNotAttend");
+    history.push(`/referrals/not-attend/${referral.id}/not_attend_referral`);
   };
 
+  //goto SingleReasonForm
   const handleReferralCancel = () => {
     console.log("handleReferralCancel");
+    history.push(`/referrals/cancel-status-switch/${referral.id}/cancel_referral`);
   };
 
 

@@ -16,7 +16,7 @@ import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 // import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
-// import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 
 interface IProps {
@@ -24,16 +24,15 @@ interface IProps {
 }
 
 export const ReferralCancelledData = ({ referral }: IProps) => {
-  // const history = useHistory();
+  const history = useHistory();
   // const referral = reading.referral!;
   // const followUp = reading.followup;
-
  
-  
+
   const handleUndoCancellation = () => {
     console.log("handleUndoCancellation");
     if (referral) {
-      //history.push(`/assessments/new/${referral.patientId}`);
+      history.push(`/referrals/cancel-status-switch/${referral.id}/undo_cancel_referral`);
     }
   };
 
@@ -47,7 +46,10 @@ export const ReferralCancelledData = ({ referral }: IProps) => {
           </>
         </Typography>
         <Typography variant="subtitle1">
-          Marked Not Attended on {getPrettyDateTime(referral.dateCancelled)}
+          Referred on {getPrettyDateTime(referral.dateReferred)}
+        </Typography>
+        <Typography variant="subtitle1">
+          Cancelled on {getPrettyDateTime(referral.dateCancelled)}
         </Typography>
         <Typography variant="subtitle1">
           Referred to {referral.referralHealthFacilityName}
