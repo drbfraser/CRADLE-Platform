@@ -6,9 +6,13 @@ import { EndpointEnum } from 'src/shared/enums';
 export const handleSubmit = (
   patientId: string,
   assessmentId: string | undefined,
+  referralId: string | undefined,
   drugHistory: string,
   setSubmitError: (error: boolean) => void
 ) => {
+  // console.log(referralId);
+  // console.log(assessmentId);
+  // console.log("*****************");
   return async (values: AssessmentState, { setSubmitting }: any) => {
     const newAssessment = {
       [AssessmentField.investigation]: values[AssessmentField.investigation],
@@ -50,6 +54,26 @@ export const handleSubmit = (
             body: JSON.stringify({
               [AssessmentField.drugHistory]: newDrugHistory,
             }),
+          }
+        );
+      }
+
+      //this case only happens when users click the 'assess referral' button on the 
+      //referral pending button! this clicking will trigger two request: 1. create a new assessment
+      //2.after successfully creating a new assessment, we will send a request to mark the 
+      //original referral record to be 'assessed'
+      if(referralId !== undefined){
+        console.log(referralId);
+        console.log("*****************");
+        await apiFetch(
+          API_URL +
+            EndpointEnum.REFERRALS +
+            `/assess` + '/' + referralId,
+          {
+            method: 'PUT',
+            // body: JSON.stringify({
+            //   ['referral_id']: referralId,
+            // }),
           }
         );
       }

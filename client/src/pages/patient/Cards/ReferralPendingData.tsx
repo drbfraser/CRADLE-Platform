@@ -44,7 +44,8 @@ export const ReferralPendingData = ({ referral }: IProps) => {
   const handlePerformAssessmentClick = () => {
     console.log("handlePerformAssessmentClick");
     if (referral) {
-      history.push(`/assessments/new/${referral.patientId}`);
+      //to: `/assessments/new/:patientId/:referralId`,
+      history.push(`/assessments/new/${referral.patientId}/${referral.id}`);
     }
   };
 

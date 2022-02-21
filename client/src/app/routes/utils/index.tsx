@@ -76,6 +76,7 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     to: `/readings/new/:patientId`,
   },
+  // the following 3 AssessmentFormPage is for 3 different cases
   {
     component: AssessmentFormPage,
     exactPath: true,
@@ -93,6 +94,14 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     // to: `/assessments/edit/:patientId/:readingId/:assessmentId`,
     to: `/assessments/edit/:patientId/:assessmentId`,
+  },
+  {
+    component: AssessmentFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/assessments/new/:patientId/:referralId`,
   },
   {
     component: ReferralFormPage,
