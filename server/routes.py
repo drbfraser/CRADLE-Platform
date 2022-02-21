@@ -40,6 +40,7 @@ from api.resources.referrals import (
     SingleReferral,
     AssessReferral,
     ReferralCancelStatus,
+    ReferralNotAttend,
 )
 from api.resources.pregnancies import (
     Root as Pregnancies,
@@ -182,6 +183,11 @@ def init(api):
         ReferralCancelStatus,
         "/api/referrals/cancel_status_switch/<int:referral_id>",
         endpoint="referral_cancel_status",
+    )  # [PUT]
+    api.add_resource(
+        ReferralNotAttend,
+        "/api/referrals/not_attend/<int:referral_id>",
+        endpoint="referral_not_attend",
     )  # [PUT]
 
     api.add_resource(

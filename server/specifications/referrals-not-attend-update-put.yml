@@ -1,4 +1,4 @@
-Change the cancel status of a single referral
+Mark a single referral as notAttended
 ---
 tags:
   - Referrals
@@ -10,23 +10,20 @@ parameters:
     type: integer
 requestBody:
   required: true
-  description: POST request body for /api/referrals/cancel_status_switch
+  description: POST request body for /api/referrals/not_attend
   content:
     application/json:
       schema:
         type: object
         properties:
-          isCancelled:
-            type: boolean
-            example: true
-          cancelReason:
+          notAttendReason:
             type: string
             example: The patient is healthy now
           
           
 responses:
   201:
-    description: Response from POST request for /api/referrals/cancel_status_switch
+    description: Response from POST request for /api/referrals/not_attend
     content:
       application/json:
         schema:
