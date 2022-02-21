@@ -339,8 +339,8 @@ class PatientTimeline(Resource):
         return [serialize.serialize_patient_timeline(r) for r in records]
 
 
-# /api/patients/<string:patient_id>/get_all_records
-class PatientAllRecords(Resource):
+# /api/patients/reading-assessment
+class ReadingAssessment(Resource):
     @staticmethod
     @jwt_required
     @swag_from(

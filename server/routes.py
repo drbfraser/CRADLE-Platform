@@ -31,7 +31,7 @@ from api.resources.patients import (
     PatientPregnancySummary,
     PatientMedicalHistory,
     PatientTimeline,
-    # ReadingAssessment,
+    ReadingAssessment,
     PatientAllRecords,
 )
 from api.resources.readings import Root as Readings, SingleReading

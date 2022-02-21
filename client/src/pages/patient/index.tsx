@@ -3,7 +3,7 @@ import { Grid, Divider } from '@material-ui/core';
 import { Header } from './Header';
 import { MedicalInfo } from './MedicalInfo';
 import { PersonalInfo } from './PersonalInfo';
-import { ReadingCard } from './ReadingCard/ReadingCard';
+import { AssessmentCard, ReadingCard, ReferralAssessedCard, ReferralCancellationCard, ReferralNotAttendedCard, ReferralPendingCard } from './Cards/Cards';
 import { PatientStats } from './PatientStats';
 import { PregnancyInfo } from './PregnancyInfo';
 import { Patient } from 'src/shared/types';
@@ -11,15 +11,23 @@ import { useRouteMatch } from 'react-router-dom';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum, SexEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+// import { Card } from 'src/shared/types';
 
 type RouteParams = {
   patientId: string;
 };
 
+// interface IProps {
+//   card:Card;
+// };
+
 export const PatientPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [patient, setPatient] = useState<Patient>();
+  //这个patient2是暂时的，等后端把patient.detail的内容添加上之后，就可以和上边的那个patient整合了。
+  const [cards, setCards] = useState([]);
   const [errorLoading, setErrorLoading] = useState(false);
+  
 
   useEffect(() => {
     apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
@@ -38,14 +46,84 @@ export const PatientPage = () => {
     // apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
     apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`+`/get_all_records?readings=1&referrals=1&assessments=1`)
       .then((resp) => resp.json())
-      .then((patient) => {
-        console.log(patient);
-        // setPatient(patient);
+      .then((cards_data) => {
+        console.log(cards_data);
+        
+/////////////////////////////
+handleAssess(cards_data);
+    
+
+////////////////////
+
       })
       .catch(() => {
         setErrorLoading(true);
       });
   }, [patientId]);
+
+  const handleAssess = (cards_data:any) => {
+    const cards_elements = [] as any;
+    var index;
+    for(index=0; index<cards_data.length;index++){
+      var card_item = cards_data[index];
+      console.log(card_item);
+      
+       if(card_item.type === "reading"){
+            cards_elements.push(
+            <React.Fragment key={index}>
+              <ReadingCard reading={card_item}/>
+              <br />
+            </React.Fragment>
+            )
+          }else if(card_item.type === 'assessment'){
+            cards_elements.push(
+              <React.Fragment key={index}>
+                <AssessmentCard followUp={card_item}/>
+                <br />
+              </React.Fragment>
+              ) 
+          }else if(card_item.type === 'referral'){
+            if(card_item.isAssessed){
+              cards_elements.push(
+                <React.Fragment key={index}>
+                  <ReferralAssessedCard referral={card_item}/>
+                  <br />
+                </React.Fragment>
+                ) 
+
+            }else if(card_item.isCancelled){
+              cards_elements.push(
+                <React.Fragment key={index}>
+                  <ReferralCancellationCard referral={card_item}/>
+                  <br />
+                </React.Fragment>
+                ) 
+
+            }else if(card_item.notAttended){
+              cards_elements.push(
+                <React.Fragment key={index}>
+                  <ReferralNotAttendedCard referral={card_item}/>
+                  <br />
+                </React.Fragment>
+                ) 
+
+            }else{
+              //pending
+              cards_elements.push(
+                <React.Fragment key={index}>
+                  <ReferralPendingCard referral={card_item}/>
+                  <br />
+                </React.Fragment>
+                ) 
+
+            }
+            
+          }else{
+            console.log("error!");
+          }
+    }
+    setCards(cards_elements);
+  }
 
   return (
     <>
@@ -81,7 +159,8 @@ export const PatientPage = () => {
       <br />
       <Divider />
       <br />
-      {patient?.readings
+
+      {/* {patient?.readings
         ? patient?.readings
             .sort((r1, r2) => (r2.dateTimeTaken ?? 0) - (r1.dateTimeTaken ?? 0))
             .map((r) => (
@@ -90,7 +169,17 @@ export const PatientPage = () => {
                 <br />
               </React.Fragment>
             ))
-        : null}
+        : null} */}
+      {console.log(cards)}
+
+      {cards? cards.map((card) => (
+              <>
+              {card}
+              </>
+            ))
+            :null }
+
+      
     </>
   );
 };

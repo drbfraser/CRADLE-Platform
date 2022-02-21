@@ -91,7 +91,8 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/assessments/edit/:patientId/:readingId/:assessmentId`,
+    // to: `/assessments/edit/:patientId/:readingId/:assessmentId`,
+    to: `/assessments/edit/:patientId/:assessmentId`,
   },
   {
     component: ReferralFormPage,

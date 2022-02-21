@@ -10,6 +10,7 @@ import { apiFetch, API_URL } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { useHistory } from 'react-router-dom';
 import { ReferralFilter } from 'src/shared/types';
+// import { TrafficLightEnum } from 'src/shared/enums';
 import { TrafficLightEnum,EndpointEnum } from 'src/shared/enums';
 
 interface IProps {
@@ -132,7 +133,8 @@ export const APITable = ({
           //The case for medical history records on the past records page
         } else if (isDrugRecord === false) {
           setRows(json.medical);
-        } else if(isReferralListPage === true) {
+        } 
+        else if(isReferralListPage === true) {
           tempRows = json.map((r: any)=>( 
              apiFetch(
               API_URL + EndpointEnum.PATIENTS + '/' + r.patientId + '/most_recent_reading',

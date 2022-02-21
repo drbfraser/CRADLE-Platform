@@ -194,13 +194,18 @@ export type NewAssessment = {
   followupNeeded: boolean;
   followupInstructions: OrNull<string>;
 };
-
+//FollowUp == Assessment
 export type FollowUp = NewAssessment & {
   id: number;
   dateAssessed: number;
   healthcareWorkerId: string;
   readingId: string;
+  //add Spring 2022
+  patientId: string;
 };
+
+//2022 Spring add
+export type Card = Reading & FollowUp & Referral;
 
 export type Referral = {
   id: string;
@@ -213,6 +218,15 @@ export type Referral = {
   readingId: string;
   referralHealthFacilityName: string;
   userId: OrNull<number>;
+  // add(Spring 2022)
+  dateAssessed: number;
+  isCancelled: boolean;
+  dateCancelled: number;
+  cancelReason: string;
+  vitalSign: TrafficLightEnum;
+  notAttended:boolean;
+  dateNotAttended: number;
+  notAttendReason: string;
 };
 
 export type ReferralFilter = {
