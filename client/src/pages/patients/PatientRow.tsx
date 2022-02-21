@@ -7,15 +7,13 @@ import { TrafficLight } from 'src/shared/components/trafficLight';
 import { IPatient } from './types';
 import { COLUMNS, BREAKPOINT } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import {TrafficLightEnum } from 'src/shared/enums';
-// import { isNull } from 'lodash';
+import {TrafficLightEnum } from 'src/shared/enums'; 
 
 interface IProps {
   row: IPatient;
 }
 
-export const PatientRow = ({ row }: IProps) => {
-  // console.log(row.dateTimeTaken === undefined || row.dateTimeTaken === null || !row.dateTimeTaken);
+export const PatientRow = ({ row }: IProps) => { 
   const classes = useRowStyles();
   const history = useHistory();
 
