@@ -10,7 +10,7 @@ parameters:
     type: integer
 requestBody:
   required: true
-  description: POST request body for /api/referrals/not_attend
+  description: POST request body for /api/referrals/not-attend
   content:
     application/json:
       schema:
@@ -23,7 +23,7 @@ requestBody:
           
 responses:
   201:
-    description: Response from POST request for /api/referrals/not_attend
+    description: Response from POST request for /api/referrals/not-attend
     content:
       application/json:
         schema:

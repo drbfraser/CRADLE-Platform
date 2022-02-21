@@ -181,12 +181,12 @@ def init(api):
     )  # [PUT]
     api.add_resource(
         ReferralCancelStatus,
-        "/api/referrals/cancel_status_switch/<int:referral_id>",
+        "/api/referrals/cancel-status-switch/<int:referral_id>",
         endpoint="referral_cancel_status",
     )  # [PUT]
     api.add_resource(
         ReferralNotAttend,
-        "/api/referrals/not_attend/<int:referral_id>",
+        "/api/referrals/not-attend/<int:referral_id>",
         endpoint="referral_not_attend",
     )  # [PUT]
 

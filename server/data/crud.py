@@ -1,9 +1,8 @@
 from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
-from sqlalchemy import func as funcgen
+from sqlalchemy import func
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
-from sqlalchemy.sql import alias, select
-from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_, func
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
 import operator
 
 from data import db_session
@@ -268,26 +267,23 @@ def read_referral_list(
 
     :return: A list of referrals
     """
-    # a subquery table of reading table grouping by the patient id
-    reading_group_by_patients = (
-        select(
-            [
-                func.max(Reading.dateTimeTaken).label("maxDateTimeTaken"),
-                Reading.trafficLightStatus.label("trafficLightStatus"),
-                Reading.patientId.label("patientId"),
-            ]
+    # Fetch vital sign from reading prior to the referral within 4 hours
+    four_hours_in_sec = 14400
+    reading_subquery = (
+        db_session.query(Reading.readingId)
+        .filter(
+            Referral.patientId == Reading.patientId,
+            Referral.dateReferred >= Reading.dateTimeTaken,
+            Referral.dateReferred <= Reading.dateTimeTaken + four_hours_in_sec,
         )
-        .group_by("patientId")
-        .alias("reading_group_by_patients")
+        .order_by(Reading.dateTimeTaken.desc())
+        .limit(1)
+        .correlate(Referral)
     )
-    vital_sign_field = funcgen.coalesce(
-        reading_group_by_patients.c.trafficLightStatus,
+    vital_sign_field = func.coalesce(
+        Reading.trafficLightStatus,
         TrafficLightEnum.NONE.value,
     ).label("vitalSign")
-
-    # Join referrals, patients, and subtable of readings
-    # Fetch vital sign from reading right before dateReferred within 4 hours
-    four_hours_in_seconds = 14400
     query = (
         db_session.query(
             Referral.id,
@@ -298,16 +294,8 @@ def read_referral_list(
             Patient.villageNumber,
             vital_sign_field,
         )
-        .join(Patient, Referral.patient)
-        .outerjoin(
-            reading_group_by_patients,
-            and_(
-                Referral.patientId == reading_group_by_patients.c.patientId,
-                Referral.dateReferred >= reading_group_by_patients.c.maxDateTimeTaken,
-                Referral.dateReferred
-                <= reading_group_by_patients.c.maxDateTimeTaken + four_hours_in_seconds,
-            ),
-        )
+        .outerjoin(Referral, and_(Referral.patientId == Patient.patientId))
+        .outerjoin(Reading, and_(Reading.readingId == reading_subquery))
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
