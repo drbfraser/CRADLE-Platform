@@ -1,9 +1,8 @@
 from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
-from sqlalchemy import func as funcgen
+from sqlalchemy import func
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
-from sqlalchemy.sql import alias, select
-from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_, func
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
 import operator
 
 from data import db_session
@@ -281,7 +280,7 @@ def read_referral_list(
         .limit(1)
         .correlate(Referral)
     )
-    vital_sign_field = funcgen.coalesce(
+    vital_sign_field = func.coalesce(
         Reading.trafficLightStatus,
         TrafficLightEnum.NONE.value,
     ).label("vitalSign")
