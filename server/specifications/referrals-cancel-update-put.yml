@@ -62,3 +62,4 @@ responses:
             userId:
               type: integer
               example: 2
+

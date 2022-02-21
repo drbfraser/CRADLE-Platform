@@ -87,7 +87,7 @@ def test_get_referral_list(
 
     pregnancy_factory.create(**pregnancy_later)
     response = api_get(
-        endpoint=f"/api/referrals?vitalSigns={TrafficLightEnum.YELLOW_UP.value}"
+        endpoint=f"/api/referrals?vitalSigns={TrafficLightEnum.NONE.value}"
     )
 
     assert response.status_code == 200
