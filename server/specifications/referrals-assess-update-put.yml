@@ -11,7 +11,7 @@ parameters:
           
 responses:
   201:
-    description: Response from POST request for /api/referralAssess
+    description: Response from POST request for /api/referrals/assess
     content:
       application/json:
         schema:
@@ -44,3 +44,12 @@ responses:
             userId:
               type: integer
               example: 2
+            notAttended:
+              type: boolean
+              example: true
+            dateNotAttended:
+              type: Unix timestamp | Null
+              example: 1644656212
+            notAttendReason:
+              type: string | Null
+              example: patient is healthy now
