@@ -19,7 +19,7 @@ export enum TrafficLightEnum {
   YELLOW_DOWN = 'YELLOW_DOWN',
   RED_UP = 'RED_UP',
   RED_DOWN = 'RED_DOWN',
-  UNAVAILABLE = 'UNAVAILABLE',
+  //original 'UNAVAILABLE' now changed to 'NONE',
   NONE = 'NONE',
 }
 

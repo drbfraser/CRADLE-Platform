@@ -37,7 +37,7 @@ export const PatientRow = ({ row }: IProps) => {
       <TableCell
         label={COLUMNS.trafficLightStatus}
         isTransformed={isTransformed}>
-        <TrafficLight status={row.trafficLightStatus?row.trafficLightStatus:TrafficLightEnum.UNAVAILABLE} />
+        <TrafficLight status={row.trafficLightStatus?row.trafficLightStatus:TrafficLightEnum.NONE} />
       </TableCell>
       <TableCell label={COLUMNS.dateTimeTaken} isTransformed={isTransformed}>
         {row.dateTimeTaken === null

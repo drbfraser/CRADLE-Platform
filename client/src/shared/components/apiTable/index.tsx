@@ -10,8 +10,7 @@ import { apiFetch, API_URL } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { useHistory } from 'react-router-dom';
 import { ReferralFilter } from 'src/shared/types';
-// import { TrafficLightEnum } from 'src/shared/enums';
-import { TrafficLightEnum,EndpointEnum } from 'src/shared/enums';
+import { TrafficLightEnum } from 'src/shared/enums';
 
 interface IProps {
   endpoint: string;
@@ -63,7 +62,7 @@ export const APITable = ({
   const prevPage = useRef(1);
 
   const classes = useStyles();
-  let tempRows=[];
+  // let tempRows=[];
 
   // when something changes, load new data
   useEffect(() => {
@@ -135,41 +134,37 @@ export const APITable = ({
           setRows(json.medical);
         } 
         else if(isReferralListPage === true) {
-          tempRows = json.map((r: any)=>( 
-             apiFetch(
-              API_URL + EndpointEnum.PATIENTS + '/' + r.patientId + '/most_recent_reading',
-              fetchOptions
-            ).then(result => result.json()).then((resp) => {
-              var first = (resp&&resp[0])?resp[0].trafficLightStatus:"UNAVAILABLE";
+          // tempRows = json.map((r: any)=>( 
+          //    apiFetch(
+          //     API_URL + EndpointEnum.PATIENTS + '/' + r.patientId + '/most_recent_reading',
+          //     fetchOptions
+          //   ).then(result => result.json()).then((resp) => {
+          //     var first = (resp&&resp[0])?resp[0].trafficLightStatus:"NONE";
  
-              return {
-                referralId: r.referralId,
-                patientId: r.patientId,
-                patientName: r.patientName,
-                villageNumber: r.villageNumber,
-                trafficLightStatus: first,  
-                dateReferred: r.dateReferred,
-                isAssessed: r.isAssessed,
-              } ;
-            }).catch((e) => {
-              return {
-                referralId: r.referralId,
-                patientId: r.patientId,
-                patientName: r.patientName,
-                villageNumber: r.villageNumber,
-                trafficLightStatus: "UNAVAILABLE", 
-                dateReferred: r.dateReferred,
-                isAssessed: r.isAssessed,
-              } ;
-            })
-          ))
-          // console.log("22222222222");
-          // console.log(tempRows);
-          // console.log("666666666666");
-          const Data = await Promise.all([...tempRows]);
-          // console.log(Data);
-          // console.log("88888888888");
-          setRows(Data);
+          //     return {
+          //       referralId: r.referralId,
+          //       patientId: r.patientId,
+          //       patientName: r.patientName,
+          //       villageNumber: r.villageNumber,
+          //       trafficLightStatus: first,  
+          //       dateReferred: r.dateReferred,
+          //       isAssessed: r.isAssessed,
+          //     } ;
+          //   }).catch((e) => {
+          //     return {
+          //       referralId: r.referralId,
+          //       patientId: r.patientId,
+          //       patientName: r.patientName,
+          //       villageNumber: r.villageNumber,
+          //       trafficLightStatus: "NONE", 
+          //       dateReferred: r.dateReferred,
+          //       isAssessed: r.isAssessed,
+          //     } ;
+          //   })
+          // )) 
+          // const Data = await Promise.all([...tempRows]);
+          // console.log(Data); 
+          setRows(json);
         }
         else{
           setRows(json);
