@@ -84,7 +84,6 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    // to: `/assessments/new/:patientId/:readingId`,
     to: `/assessments/new/:patientId`,
   },
   {
@@ -93,7 +92,6 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    // to: `/assessments/edit/:patientId/:readingId/:assessmentId`,
     to: `/assessments/edit/:patientId/:assessmentId`,
   },
   {
@@ -110,7 +108,6 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    // to: `/referrals/new/:readingId`,
     to: `/referrals/new/:patientId`,
   },
   {
