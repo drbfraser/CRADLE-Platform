@@ -9,40 +9,42 @@ export const handleSubmit = (
   type: string,
   setSubmitError: (error: boolean) => void
 ) => {
-
-
-
   return async (values: SingleReason, { setSubmitting }: any) => {
     // const url = API_URL + EndpointEnum.REFERRALS;
     // const postBody = JSON.stringify({
-    //   referralId: referralId, 
+    //   referralId: referralId,
     //   ...values,
     // });
     // console.log("****************");
     // console.log(values);
     var url = '';
     var postBody = '';
-    if(type==='cancel_referral'){
-      url = API_URL + EndpointEnum.REFERRALS + `/cancel-status-switch/`+ referralId;
+    if (type === 'cancel_referral') {
+      url =
+        API_URL +
+        EndpointEnum.REFERRALS +
+        `/cancel-status-switch/` +
+        referralId;
       postBody = JSON.stringify({
         cancelReason: values.comment,
         isCancelled: true,
       });
-  
-    }else if(type === 'undo_cancel_referral'){
-      url = API_URL + EndpointEnum.REFERRALS + `/cancel-status-switch/`+ referralId;
+    } else if (type === 'undo_cancel_referral') {
+      url =
+        API_URL +
+        EndpointEnum.REFERRALS +
+        `/cancel-status-switch/` +
+        referralId;
       postBody = JSON.stringify({
         cancelReason: values.comment,
         isCancelled: false,
       });
-  
-    }else if(type === 'not_attend_referral'){
-      url = API_URL + EndpointEnum.REFERRALS + `/not-attend/`+ referralId;
+    } else if (type === 'not_attend_referral') {
+      url = API_URL + EndpointEnum.REFERRALS + `/not-attend/` + referralId;
       postBody = JSON.stringify({
         notAttendReason: values.comment,
       });
-  
-    }else{
+    } else {
       //illegal card. no handling
     }
     try {

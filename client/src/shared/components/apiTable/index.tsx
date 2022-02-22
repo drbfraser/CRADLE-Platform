@@ -23,7 +23,7 @@ interface IProps {
   RowComponent: ({ row }: any) => JSX.Element;
   isTransformed: boolean;
   isDrugRecord?: boolean | undefined;
-  isReferralListPage?: boolean | undefined;//added for referral list page(2022 spring, v1.0 Feb 06)
+  isReferralListPage?: boolean | undefined; //added for referral list page(2022 spring, v1.0 Feb 06)
   patientId?: string;
   gestationalAgeUnit?: string;
   referralFilter?: ReferralFilter;
@@ -125,28 +125,27 @@ export const APITable = ({
     )
       .then(async (resp) => {
         const json = await resp.json();
-         
+
         //The case for drug history records on the past records page
         if (isDrugRecord === true) {
           setRows(json.drug);
           //The case for medical history records on the past records page
         } else if (isDrugRecord === false) {
           setRows(json.medical);
-        } 
-        else if(isReferralListPage === true) {
-          // tempRows = json.map((r: any)=>( 
+        } else if (isReferralListPage === true) {
+          // tempRows = json.map((r: any)=>(
           //    apiFetch(
           //     API_URL + EndpointEnum.PATIENTS + '/' + r.patientId + '/most_recent_reading',
           //     fetchOptions
           //   ).then(result => result.json()).then((resp) => {
           //     var first = (resp&&resp[0])?resp[0].trafficLightStatus:"NONE";
- 
+
           //     return {
           //       referralId: r.referralId,
           //       patientId: r.patientId,
           //       patientName: r.patientName,
           //       villageNumber: r.villageNumber,
-          //       trafficLightStatus: first,  
+          //       trafficLightStatus: first,
           //       dateReferred: r.dateReferred,
           //       isAssessed: r.isAssessed,
           //     } ;
@@ -156,17 +155,16 @@ export const APITable = ({
           //       patientId: r.patientId,
           //       patientName: r.patientName,
           //       villageNumber: r.villageNumber,
-          //       trafficLightStatus: "NONE", 
+          //       trafficLightStatus: "NONE",
           //       dateReferred: r.dateReferred,
           //       isAssessed: r.isAssessed,
           //     } ;
           //   })
-          // )) 
+          // ))
           // const Data = await Promise.all([...tempRows]);
-          // console.log(Data); 
+          // console.log(Data);
           setRows(json);
-        }
-        else{
+        } else {
           setRows(json);
         }
         setLoading(false);

@@ -47,7 +47,7 @@ export const ReferralRow = ({ row }: IProps) => {
         {moment(row.dateReferred * 1000).format('YYYY-MM-DD')}
       </TableCell>
       <TableCell label={COLUMNS.isAssessed} isTransformed={isTransformed}>
-        {(row.isAssessed||row.notAttended||row.isCancelled) ? (
+        {row.isAssessed || row.notAttended || row.isCancelled ? (
           <>
             <DoneIcon className={classesIcon.green} /> Complete
           </>

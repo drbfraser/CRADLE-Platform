@@ -48,7 +48,7 @@ export const AssessmentFormPage = () => {
           initialState={formInitialState}
           patientId={patientId}
           assessmentId={assessmentId}
-          referralId = {referralId}
+          referralId={referralId}
         />
       )}
     </div>

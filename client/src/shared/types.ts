@@ -224,7 +224,7 @@ export type Referral = {
   dateCancelled: number;
   cancelReason: string;
   vitalSign: TrafficLightEnum;
-  notAttended:boolean;
+  notAttended: boolean;
   dateNotAttended: number;
   notAttendReason: string;
 };

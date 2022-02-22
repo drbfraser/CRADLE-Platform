@@ -3,7 +3,14 @@ import { Grid, Divider } from '@material-ui/core';
 import { Header } from './Header';
 import { MedicalInfo } from './MedicalInfo';
 import { PersonalInfo } from './PersonalInfo';
-import { AssessmentCard, ReadingCard, ReferralAssessedCard, ReferralCancellationCard, ReferralNotAttendedCard, ReferralPendingCard } from './Cards/Cards';
+import {
+  AssessmentCard,
+  ReadingCard,
+  ReferralAssessedCard,
+  ReferralCancellationCard,
+  ReferralNotAttendedCard,
+  ReferralPendingCard,
+} from './Cards/Cards';
 import { PatientStats } from './PatientStats';
 import { PregnancyInfo } from './PregnancyInfo';
 import { Patient } from 'src/shared/types';
@@ -27,7 +34,6 @@ export const PatientPage = () => {
   //we will need to send 2 request, the second is specifically for the cards data array
   const [cards, setCards] = useState([]);
   const [errorLoading, setErrorLoading] = useState(false);
-  
 
   useEffect(() => {
     /*eslint no-useless-concat: "error"*/
@@ -44,86 +50,83 @@ export const PatientPage = () => {
 
   useEffect(() => {
     // apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
-    apiFetch(API_URL + EndpointEnum.PATIENTS +`/${patientId}/get_all_records?readings=1&referrals=1&assessments=1`)
+    apiFetch(
+      API_URL +
+        EndpointEnum.PATIENTS +
+        `/${patientId}/get_all_records?readings=1&referrals=1&assessments=1`
+    )
       .then((resp) => resp.json())
       .then((cards_data) => {
         console.log(cards_data);
-        
-/////////////////////////////
-handleAssess(cards_data);
-    
 
-////////////////////
+        /////////////////////////////
+        handleAssess(cards_data);
 
+        ////////////////////
       })
       .catch(() => {
         setErrorLoading(true);
       });
   }, [patientId]);
 
-  const handleAssess = (cards_data:any) => {
+  const handleAssess = (cards_data: any) => {
     const cards_elements = [] as any;
     var index;
-    for(index=0; index<cards_data.length;index++){
+    for (index = 0; index < cards_data.length; index++) {
       var card_item = cards_data[index];
       console.log(card_item);
-      
-       if(card_item.type === "reading"){
-            cards_elements.push(
+
+      if (card_item.type === 'reading') {
+        cards_elements.push(
+          <React.Fragment key={index}>
+            <ReadingCard reading={card_item} />
+            <br />
+          </React.Fragment>
+        );
+      } else if (card_item.type === 'assessment') {
+        cards_elements.push(
+          <React.Fragment key={index}>
+            <AssessmentCard followUp={card_item} />
+            <br />
+          </React.Fragment>
+        );
+      } else if (card_item.type === 'referral') {
+        if (card_item.isAssessed) {
+          cards_elements.push(
             <React.Fragment key={index}>
-              <ReadingCard reading={card_item}/>
+              <ReferralAssessedCard referral={card_item} />
               <br />
             </React.Fragment>
-            )
-          }else if(card_item.type === 'assessment'){
-            cards_elements.push(
-              <React.Fragment key={index}>
-                <AssessmentCard followUp={card_item}/>
-                <br />
-              </React.Fragment>
-              ) 
-          }else if(card_item.type === 'referral'){
-            if(card_item.isAssessed){
-              cards_elements.push(
-                <React.Fragment key={index}>
-                  <ReferralAssessedCard referral={card_item}/>
-                  <br />
-                </React.Fragment>
-                ) 
-
-            }else if(card_item.isCancelled){
-              cards_elements.push(
-                <React.Fragment key={index}>
-                  <ReferralCancellationCard referral={card_item}/>
-                  <br />
-                </React.Fragment>
-                ) 
-
-            }else if(card_item.notAttended){
-              cards_elements.push(
-                <React.Fragment key={index}>
-                  <ReferralNotAttendedCard referral={card_item}/>
-                  <br />
-                </React.Fragment>
-                ) 
-
-            }else{
-              //pending
-              cards_elements.push(
-                <React.Fragment key={index}>
-                  <ReferralPendingCard referral={card_item}/>
-                  <br />
-                </React.Fragment>
-                ) 
-
-            }
-            
-          }else{
-            console.log("error!");
-          }
+          );
+        } else if (card_item.isCancelled) {
+          cards_elements.push(
+            <React.Fragment key={index}>
+              <ReferralCancellationCard referral={card_item} />
+              <br />
+            </React.Fragment>
+          );
+        } else if (card_item.notAttended) {
+          cards_elements.push(
+            <React.Fragment key={index}>
+              <ReferralNotAttendedCard referral={card_item} />
+              <br />
+            </React.Fragment>
+          );
+        } else {
+          //pending
+          cards_elements.push(
+            <React.Fragment key={index}>
+              <ReferralPendingCard referral={card_item} />
+              <br />
+            </React.Fragment>
+          );
+        }
+      } else {
+        console.log('error!');
+      }
     }
     setCards(cards_elements);
-  }
+  };
 
   return (
     <>
@@ -172,14 +175,7 @@ handleAssess(cards_data);
         : null} */}
       {console.log(cards)}
 
-      {cards? cards.map((card) => (
-              <>
-              {card}
-              </>
-            ))
-            :null }
-
-      
+      {cards ? cards.map((card) => <>{card}</>) : null}
     </>
   );
 };

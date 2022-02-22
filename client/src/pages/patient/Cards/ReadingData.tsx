@@ -26,12 +26,12 @@ export const ReadingData = ({ reading }: IProps) => {
     str = str.trim();
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
-// ////////////////////////////
+  // ////////////////////////////
   // const handleAssess = () => {
   //   console.log("hello");
   // };
   // const redTheme = createTheme({ palette: { primary: red } })
-// ////////////////////////////
+  // ////////////////////////////
 
   return (
     <>
@@ -55,7 +55,7 @@ export const ReadingData = ({ reading }: IProps) => {
       </p>
       <p>
         <b>Heart Rate:</b> {reading.heartRateBPM} bpm
-      </p> 
+      </p>
       {Boolean(reading.symptoms?.length) && (
         <p>
           <b>Symptoms: </b>
@@ -95,14 +95,12 @@ export const ReadingData = ({ reading }: IProps) => {
               ].map((info) => (
                 <p key={info.label}>
                   <b>{info.label}:</b> {info.value}
-                </p> 
-              ))} 
+                </p>
+              ))}
             </div>
           </AccordionDetails>
         </Accordion>
       )}
     </>
-
-    
   );
 };

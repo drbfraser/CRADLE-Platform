@@ -10,7 +10,7 @@ export const handleSubmit = (
   return async (values: ReferralState, { setSubmitting }: any) => {
     const url = API_URL + EndpointEnum.REFERRALS;
     const postBody = JSON.stringify({
-      patientId: patientId, 
+      patientId: patientId,
       ...values,
     });
 

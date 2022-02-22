@@ -1,4 +1,4 @@
-import React , { useState } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import { SingleReasonForm } from './SingleReasonForm';
 import { goBackWithFallback } from 'src/shared/utils';
 
-type RouteParams = { 
+type RouteParams = {
   referralId: string;
   type: string;
 };
@@ -18,25 +18,19 @@ export const SingleReasonFormPage = () => {
   // const { readingId } = useRouteMatch<RouteParams>().params;
   const { referralId } = useRouteMatch<RouteParams>().params;
   const { type } = useRouteMatch<RouteParams>().params;
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState('');
 
-  
   React.useEffect(() => {
-    if(type==='cancel_referral'){
-      setTitle("Reason for Cancelling");
-  
-    }else if(type === 'undo_cancel_referral'){
-      setTitle("Reason for Undo Cancelling");
-  
-    }else if(type === 'not_attend_referral'){
-      setTitle("Reason for Not Attend");
-  
-    }else{
+    if (type === 'cancel_referral') {
+      setTitle('Reason for Cancelling');
+    } else if (type === 'undo_cancel_referral') {
+      setTitle('Reason for Undo Cancelling');
+    } else if (type === 'not_attend_referral') {
+      setTitle('Reason for Not Attend');
+    } else {
       //illegal card. no handling
     }
   }, [type]);
-
- 
 
   return (
     <div className={classes.container}>
@@ -48,8 +42,8 @@ export const SingleReasonFormPage = () => {
         </Tooltip>
         <Typography variant="h4">{title}</Typography>
       </div>
-      <br /> 
-      <SingleReasonForm referralId={referralId} type={type}/>
+      <br />
+      <SingleReasonForm referralId={referralId} type={type} />
     </div>
   );
 };

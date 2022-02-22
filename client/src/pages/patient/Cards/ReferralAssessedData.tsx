@@ -18,7 +18,6 @@ import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 // import { useHistory } from 'react-router-dom';
 
-
 interface IProps {
   referral: Referral;
 }
@@ -28,9 +27,7 @@ export const ReferralAssessedData = ({ referral }: IProps) => {
   // const referral = reading.referral!;
   // const followUp = reading.followup;
 
-
   // const redTheme = createTheme({ palette: { primary: red } })
-
 
   // const handleReferralAssess = () => {
   //   console.log("handleReferralAssess");
@@ -38,7 +35,7 @@ export const ReferralAssessedData = ({ referral }: IProps) => {
   //     history.push(
   //       `/assessments/edit/${reading.patientId}/${reading.readingId}/${followUp.id}`
   //     );
-  //   } 
+  //   }
   // };
 
   // const handleReferralNotAttend = () => {
@@ -48,7 +45,6 @@ export const ReferralAssessedData = ({ referral }: IProps) => {
   // const handleReferralCancel = () => {
   //   console.log("handleReferralCancel");
   // };
-
 
   return (
     <>
@@ -75,7 +71,6 @@ export const ReferralAssessedData = ({ referral }: IProps) => {
             <Typography variant="subtitle1">{referral.comment}</Typography>
           </div>
         )}
- 
       </>
     </>
   );

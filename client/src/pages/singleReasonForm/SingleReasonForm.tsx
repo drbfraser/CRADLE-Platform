@@ -19,11 +19,11 @@ import { initialState, SingleReasonField } from './state';
 
 interface IProps {
   referralId: string;
-  type:string;
+  type: string;
 }
 
 //currently, this form only supports three types of form
-//1.from referral-did-not-attend-card 
+//1.from referral-did-not-attend-card
 //2.from referral-cancel-card
 //3.from referral-undo-cancel-card
 export const SingleReasonForm = ({ referralId, type }: IProps) => {

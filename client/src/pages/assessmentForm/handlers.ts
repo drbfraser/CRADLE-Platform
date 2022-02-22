@@ -58,16 +58,14 @@ export const handleSubmit = (
         );
       }
 
-      //this case only happens when users click the 'assess referral' button on the 
+      //this case only happens when users click the 'assess referral' button on the
       //referral pending button! this clicking will trigger two request: 1. create a new assessment
-      //2.after successfully creating a new assessment, we will send a request to mark the 
+      //2.after successfully creating a new assessment, we will send a request to mark the
       //original referral record to be 'assessed'
-      if(referralId !== undefined){
-        // console.log(referralId); 
+      if (referralId !== undefined) {
+        // console.log(referralId);
         await apiFetch(
-          API_URL +
-            EndpointEnum.REFERRALS +
-            `/assess/${referralId}`,
+          API_URL + EndpointEnum.REFERRALS + `/assess/${referralId}`,
           {
             method: 'PUT',
             // body: JSON.stringify({

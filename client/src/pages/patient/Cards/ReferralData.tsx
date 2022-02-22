@@ -15,7 +15,6 @@ import { Reading } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 
-
 interface IProps {
   reading: Reading;
 }
@@ -165,7 +164,6 @@ export const ReferralData = ({ reading }: IProps) => {
                   </Button>
                 </Grid>
               </Grid>
-              
             </div>
           </AccordionDetails>
         </Accordion>

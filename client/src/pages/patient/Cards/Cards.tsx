@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, Paper, Box } from '@material-ui/core';
 // import { makeStyles } from '@material-ui/core';
-import { Reading,Referral,FollowUp } from 'src/shared/types';
+import { Reading, Referral, FollowUp } from 'src/shared/types';
 import { ReadingData } from './ReadingData';
 import { AssessmentData } from './AssessmentData';
 import { ReferralAssessedData } from './ReferralAssessedData';
@@ -10,7 +10,6 @@ import { ReferralNotAttendedData } from './ReferralNotAttendedData';
 import { ReferralPendingData } from './ReferralPendingData';
 // import { useTheme } from '@material-ui/core/styles';
 // import useMediaQuery from '@material-ui/core/useMediaQuery';
-
 
 // const useStyles = makeStyles({
 //   borderLeft: {
@@ -21,18 +20,16 @@ import { ReferralPendingData } from './ReferralPendingData';
 //   },
 // });
 
-
-
 interface IProps_Reading {
-  reading: Reading; 
+  reading: Reading;
 }
 
 interface IProps_Referral {
-  referral:Referral;
-} 
+  referral: Referral;
+}
 
 interface IProps_Assessment {
-  followUp:FollowUp;
+  followUp: FollowUp;
 }
 
 export const ReadingCard = ({ reading }: IProps_Reading) => {
@@ -60,29 +57,23 @@ export const ReadingCard = ({ reading }: IProps_Reading) => {
   );
 };
 
-
-
-
 export const AssessmentCard = ({ followUp }: IProps_Assessment) => {
-
   return (
     <Paper>
       <Box p={3}>
         <Grid container spacing={4}>
           <Grid item xs={12} sm={6}>
             <AssessmentData followUp={followUp} />
-          </Grid> 
+          </Grid>
         </Grid>
       </Box>
     </Paper>
   );
 };
 
-
 ////////////////
 
 export const ReferralPendingCard = ({ referral }: IProps_Referral) => {
-
   return (
     <Paper>
       <Box p={3}>
@@ -96,11 +87,9 @@ export const ReferralPendingCard = ({ referral }: IProps_Referral) => {
   );
 };
 
-
 ////////////////
 
 export const ReferralCancellationCard = ({ referral }: IProps_Referral) => {
-
   return (
     <Paper>
       <Box p={3}>
@@ -114,12 +103,9 @@ export const ReferralCancellationCard = ({ referral }: IProps_Referral) => {
   );
 };
 
-
-
 ////////////////
 
 export const ReferralNotAttendedCard = ({ referral }: IProps_Referral) => {
-
   return (
     <Paper>
       <Box p={3}>
@@ -133,12 +119,9 @@ export const ReferralNotAttendedCard = ({ referral }: IProps_Referral) => {
   );
 };
 
-
-
 ////////////////
 
 export const ReferralAssessedCard = ({ referral }: IProps_Referral) => {
-
   return (
     <Paper>
       <Box p={3}>

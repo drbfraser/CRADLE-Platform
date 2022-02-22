@@ -129,7 +129,7 @@ export const appRoutes: Array<AppRoute> = [
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
-    private: true, 
+    private: true,
     to: `/referrals/cancel-status-switch/:referralId/:type`,
   },
   {
@@ -137,7 +137,7 @@ export const appRoutes: Array<AppRoute> = [
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
-    private: true, 
+    private: true,
     to: `/referrals/not-attend/:referralId/:type`,
   },
   {

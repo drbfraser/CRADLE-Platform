@@ -18,7 +18,6 @@ import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 
-
 interface IProps {
   referral: Referral;
 }
@@ -27,15 +26,15 @@ export const ReferralCancelledData = ({ referral }: IProps) => {
   const history = useHistory();
   // const referral = reading.referral!;
   // const followUp = reading.followup;
- 
 
   const handleUndoCancellation = () => {
-    console.log("handleUndoCancellation");
+    console.log('handleUndoCancellation');
     if (referral) {
-      history.push(`/referrals/cancel-status-switch/${referral.id}/undo_cancel_referral`);
+      history.push(
+        `/referrals/cancel-status-switch/${referral.id}/undo_cancel_referral`
+      );
     }
   };
-
 
   return (
     <>
@@ -71,17 +70,18 @@ export const ReferralCancelledData = ({ referral }: IProps) => {
           </div>
         )}
 
-         {/* // //////////////////////////// */}
-         <Grid item>
+        {/* // //////////////////////////// */}
+        <Grid item>
           <Grid container alignItems="flex-start" style={{ gap: 7 }}>
-            <Button color="primary" variant="outlined" onClick={handleUndoCancellation}>
+            <Button
+              color="primary"
+              variant="outlined"
+              onClick={handleUndoCancellation}>
               Undo Cancellation
-            </Button> 
+            </Button>
           </Grid>
         </Grid>
         {/* // //////////////////////////// */}
-
- 
       </>
     </>
   );

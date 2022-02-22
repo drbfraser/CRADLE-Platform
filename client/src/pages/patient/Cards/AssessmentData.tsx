@@ -19,7 +19,6 @@ interface IProps {
 }
 
 export const AssessmentData = ({ followUp }: IProps) => {
-
   const history = useHistory();
   // const followUp = reading.followup;
   // const firstLetterUppercase = (str: string) => {
@@ -35,7 +34,7 @@ export const AssessmentData = ({ followUp }: IProps) => {
         `/assessments/edit/${followUp.patientId}/${followUp.id}`
       );
     }
-    
+
     // else {
     //   history.push(
     //     // `/assessments/new/${reading.patientId}/${reading.readingId}`
