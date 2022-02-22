@@ -28,7 +28,7 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
   } as any;
 
   if (values[ReadingField.urineTest]) {
-    submitValues['reading']['urineTests'] = {
+    submitValues['urineTests'] = {
       urineTestBlood: values[ReadingField.blood],
       urineTestGlu: values[ReadingField.glucose],
       urineTestLeuc: values[ReadingField.leukocytes],
