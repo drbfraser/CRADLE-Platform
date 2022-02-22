@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  Typography,
-  Button,
-} from '@material-ui/core';
+import { Typography, Button } from '@material-ui/core';
 import { FollowUp } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import DiagnosisIcon from '@material-ui/icons/LocalHospital';

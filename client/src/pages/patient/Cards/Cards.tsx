@@ -21,7 +21,6 @@ interface IProps_Assessment {
 }
 
 export const ReadingCard = ({ reading }: IProps_Reading) => {
-
   return (
     <Paper>
       <Box p={3}>

@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  Typography,
-} from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';

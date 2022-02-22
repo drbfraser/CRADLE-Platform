@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  Typography,
-  Button,
-  Grid,
-} from '@material-ui/core';
+import { Typography, Button, Grid } from '@material-ui/core';
 import red from '@material-ui/core/colors/red';
 import { ThemeProvider } from '@material-ui/styles';
 import { createTheme } from '@material-ui/core/styles';
