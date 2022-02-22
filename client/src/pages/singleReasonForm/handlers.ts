@@ -9,8 +9,8 @@ export const handleSubmit = (
   setSubmitError: (error: boolean) => void
 ) => {
   return async (values: SingleReason, { setSubmitting }: any) => {
-    var url = '';
-    var postBody = '';
+    let url = '';
+    let postBody = '';
     if (type === 'cancel_referral') {
       url =
         API_URL +

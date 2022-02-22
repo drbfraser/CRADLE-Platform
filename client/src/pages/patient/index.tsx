@@ -60,7 +60,7 @@ export const PatientPage = () => {
   const [patient, setPatient] = useState<Patient>();
   //we will need to send 2 request, the second is specifically for the cards data array
   const [cards, setCards] = useState([]);
-  let original_cards_ref = useRef<boolean>(false);
+  const original_cards_ref = useRef<boolean>(false);
   const [errorLoading, setErrorLoading] = useState(false);
   const classes = useStyles();
   const [selectedParameter, setSelectedParameter] = useState<string[]>([
@@ -108,9 +108,9 @@ export const PatientPage = () => {
 
   const collectCardsWithData = (cards_data: any) => {
     const cards_elements = [] as any;
-    var index;
+    let index;
     for (index = 0; index < cards_data.length; index++) {
-      var card_item = cards_data[index];
+      let card_item = cards_data[index];
 
       if (card_item.type === 'reading') {
         cards_elements.push(
@@ -168,7 +168,7 @@ export const PatientPage = () => {
     filterRequestBody!.referrals = 0;
     filterRequestBody!.readings = 0;
     filterRequestBody!.assessments = 0;
-    var i;
+    let i;
     for (i = 0; i < newFilters.length; i++) {
       if (newFilters[i] === 'referrals') {
         filterRequestBody!.referrals = 1;
