@@ -110,7 +110,7 @@ export const PatientPage = () => {
     const cards_elements = [] as any;
     let index;
     for (index = 0; index < cards_data.length; index++) {
-      let card_item = cards_data[index];
+      const card_item = cards_data[index];
 
       if (card_item.type === 'reading') {
         cards_elements.push(

@@ -37,7 +37,7 @@ export const AssessmentData = ({ followUp }: IProps) => {
       {Boolean(followUp && followUp.dateAssessed) && (
         <p>
           <b>Date Last Assessed:</b>
-          {getPrettyDateTime(followUp?.dateAssessed!)}
+          {getPrettyDateTime(followUp?.dateAssessed)}
         </p>
       )}
 
