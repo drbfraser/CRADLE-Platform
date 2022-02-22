@@ -63,12 +63,11 @@ export const handleSubmit = (
       //2.after successfully creating a new assessment, we will send a request to mark the 
       //original referral record to be 'assessed'
       if(referralId !== undefined){
-        console.log(referralId);
-        console.log("*****************");
+        // console.log(referralId); 
         await apiFetch(
           API_URL +
             EndpointEnum.REFERRALS +
-            `/assess` + '/' + referralId,
+            `/assess/${referralId}`,
           {
             method: 'PUT',
             // body: JSON.stringify({

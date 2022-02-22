@@ -190,6 +190,7 @@ export const APITable = ({
     isDrugRecord,
     refetch,
     referralFilter,
+    isReferralListPage,
   ]);
 
   const handleSort = (col: string) => {

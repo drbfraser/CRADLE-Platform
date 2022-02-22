@@ -28,7 +28,7 @@ export const SingleReasonFormPage = () => {
     }else if(type === 'undo_cancel_referral'){
       setTitle("Reason for Undo Cancelling");
   
-    }else if(type == 'not_attend_referral'){
+    }else if(type === 'not_attend_referral'){
       setTitle("Reason for Not Attend");
   
     }else{

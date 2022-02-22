@@ -44,7 +44,7 @@ export const PatientPage = () => {
 
   useEffect(() => {
     // apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
-    apiFetch(API_URL + EndpointEnum.PATIENTS +`/${patientId}`+'/get_all_records?readings=1&referrals=1&assessments=1') //eslint no-useless-concat: "error"
+    apiFetch(API_URL + EndpointEnum.PATIENTS +`/${patientId}/get_all_records?readings=1&referrals=1&assessments=1`)
       .then((resp) => resp.json())
       .then((cards_data) => {
         console.log(cards_data);
