@@ -1,4 +1,4 @@
-Assess a single referral
+Mark a single referral as notAttended
 ---
 tags:
   - Referrals
@@ -8,10 +8,22 @@ parameters:
   required: true
   schema:
     type: integer
+requestBody:
+  required: true
+  description: POST request body for /api/referrals/not-attend
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          notAttendReason:
+            type: string
+            example: The patient is healthy now
+          
           
 responses:
   201:
-    description: Response from POST request for /api/referrals/assess
+    description: Response from POST request for /api/referrals/not-attend
     content:
       application/json:
         schema:
@@ -31,7 +43,10 @@ responses:
               example: 1592439808
             isCancelled:
               type: boolean
-              example: false
+              example: true
+            cancelReason:
+              type: string | Null
+              example: patient is healthy now
             patientId:
               type: integer
               example: 1234

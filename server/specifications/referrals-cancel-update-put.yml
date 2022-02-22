@@ -10,7 +10,7 @@ parameters:
     type: integer
 requestBody:
   required: true
-  description: POST request body for /api/referralCancelStatus
+  description: POST request body for /api/referrals/cancel-status-switch
   content:
     application/json:
       schema:
@@ -26,7 +26,7 @@ requestBody:
           
 responses:
   201:
-    description: Response from POST request for /api/referralCancelStatus
+    description: Response from POST request for /api/referrals/cancel-status-switch
     content:
       application/json:
         schema:
@@ -62,7 +62,12 @@ responses:
             userId:
               type: integer
               example: 2
-            vitalSign:
-              type: string
-              enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']
-              example: GREEN
+            notAttended:
+              type: boolean
+              example: true
+            dateNotAttended:
+              type: Unix timestamp | Null
+              example: 1644656212
+            notAttendReason:
+              type: string | Null
+              example: patient is healthy now
