@@ -121,8 +121,8 @@ export const PatientPage = () => {
           original_cards_ref.current = true;
 
         }
-        console.log(original_cards_ref);
-        console.log(original_cards_ref.current);
+        console.log(original_cards_ref);//object--property:current
+        console.log(original_cards_ref.current);//boolean 值
         /////////////////////////////
         handleAssess(cards_data);
 
@@ -198,6 +198,8 @@ export const PatientPage = () => {
   // };
 
   const handleChangeFilters = (newFilters:any) => {
+    console.log(original_cards_ref);
+    console.log(original_cards_ref.current);
     //setSelectedParameter(['referrals','readings','assessments']);
     filterRequestBody!.referrals = 0;
     filterRequestBody!.readings = 0;
@@ -274,8 +276,8 @@ export const PatientPage = () => {
         </Grid>
       </Grid>
 
-          
-      {Boolean(original_cards_ref) && (
+      {/* 这边看一下要不要用current属性！！！ */}
+      {Boolean(original_cards_ref.current) && (
         <>
         {/* <br />
         <Divider />
