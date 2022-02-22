@@ -25,6 +25,17 @@ export const Header = ({ patient }: IProps) => {
     }
   };
 
+  const handleCreateReferralClick = () => {
+    if (patient) {
+      history.push(`/referrals/new/${patient.patientId}`);
+    }
+  };
+  const handlePerformAssessmentClick = () => {
+    if (patient) {
+      history.push(`/assessments/new/${patient.patientId}`);
+    }
+  };
+
   return (
     <Grid container justify="space-between">
       <Grid item>
@@ -43,13 +54,32 @@ export const Header = ({ patient }: IProps) => {
           </Typography>
         </Grid>
       </Grid>
-      <Button
-        color="primary"
-        variant="contained"
-        onClick={handleAddReadingClick}>
-        <AddIcon />
-        Add New Reading
-      </Button>
+
+      <Grid item>
+        <Grid container alignItems="center" style={{ gap: 5 }}>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={handleAddReadingClick}>
+            <AddIcon />
+            Add New Reading
+          </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={handleCreateReferralClick}>
+            <AddIcon />
+            Create Referral
+          </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={handlePerformAssessmentClick}>
+            <AddIcon />
+            Perform Assessment
+          </Button>
+        </Grid>
+      </Grid>
     </Grid>
   );
 };

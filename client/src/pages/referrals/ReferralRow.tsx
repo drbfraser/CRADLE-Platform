@@ -40,13 +40,13 @@ export const ReferralRow = ({ row }: IProps) => {
       <TableCell
         label={COLUMNS.trafficLightStatus}
         isTransformed={isTransformed}>
-        <TrafficLight status={row.trafficLightStatus} />
+        <TrafficLight status={row.vitalSign} />
       </TableCell>
       <TableCell label={COLUMNS.dateReferred} isTransformed={isTransformed}>
         {moment(row.dateReferred * 1000).format('YYYY-MM-DD')}
       </TableCell>
       <TableCell label={COLUMNS.isAssessed} isTransformed={isTransformed}>
-        {row.isAssessed ? (
+        {row.isAssessed || row.notAttended || row.isCancelled ? (
           <>
             <DoneIcon className={classesIcon.green} /> Complete
           </>
