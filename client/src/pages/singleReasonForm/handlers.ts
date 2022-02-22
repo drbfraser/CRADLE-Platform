@@ -18,8 +18,8 @@ export const handleSubmit = (
     //   referralId: referralId, 
     //   ...values,
     // });
-    console.log("****************");
-    console.log(values);
+    // console.log("****************");
+    // console.log(values);
     var url = '';
     var postBody = '';
     if(type==='cancel_referral'){
@@ -36,7 +36,7 @@ export const handleSubmit = (
         isCancelled: false,
       });
   
-    }else if(type == 'not_attend_referral'){
+    }else if(type === 'not_attend_referral'){
       url = API_URL + EndpointEnum.REFERRALS + `/not-attend/`+ referralId;
       postBody = JSON.stringify({
         notAttendReason: values.comment,

@@ -24,14 +24,14 @@ type RouteParams = {
 export const PatientPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [patient, setPatient] = useState<Patient>();
-  //这个patient2是暂时的，等后端把patient.detail的内容添加上之后，就可以和上边的那个patient整合了。
+  //we will need to send 2 request, the second is specifically for the cards data array
   const [cards, setCards] = useState([]);
   const [errorLoading, setErrorLoading] = useState(false);
   
 
   useEffect(() => {
+    /*eslint no-useless-concat: "error"*/
     apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
-    // apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`+`/get_all_records?readings=1&referrals=1&assessments=1`)
       .then((resp) => resp.json())
       .then((patient) => {
         // console.log(patient);
@@ -44,7 +44,7 @@ export const PatientPage = () => {
 
   useEffect(() => {
     // apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
-    apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`+`/get_all_records?readings=1&referrals=1&assessments=1`)
+    apiFetch(API_URL + EndpointEnum.PATIENTS +`/${patientId}`+'/get_all_records?readings=1&referrals=1&assessments=1') //eslint no-useless-concat: "error"
       .then((resp) => resp.json())
       .then((cards_data) => {
         console.log(cards_data);
