@@ -6,7 +6,6 @@ export interface IReferral {
   patientName: string;
   villageNumber: string;
   //trafficLightStatus changed to 'vitalSign' in 2022 Spring
-  // trafficLightStatus: TrafficLightEnum;
   vitalSign: TrafficLightEnum;
   dateReferred: number;
   isAssessed: boolean;

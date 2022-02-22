@@ -16,7 +16,6 @@ interface IProps {
 }
 
 export const ReferralRow = ({ row }: IProps) => {
-  console.log(row);
   const classes = useRowStyles();
   const classesIcon = useStyles();
   const history = useHistory();

@@ -30,15 +30,11 @@ export const Header = ({ patient }: IProps) => {
       history.push(`/referrals/new/${patient.patientId}`);
     }
   };
-  // /referrals/new/${reading.readingId}
-
   const handlePerformAssessmentClick = () => {
     if (patient) {
       history.push(`/assessments/new/${patient.patientId}`);
     }
   };
-
-  // `/assessments/new/${reading.patientId}/${reading.readingId}`
 
   return (
     <Grid container justify="space-between">

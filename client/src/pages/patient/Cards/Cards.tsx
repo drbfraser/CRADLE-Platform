@@ -1,6 +1,5 @@
 import React from 'react';
 import { Grid, Paper, Box } from '@material-ui/core';
-// import { makeStyles } from '@material-ui/core';
 import { Reading, Referral, FollowUp } from 'src/shared/types';
 import { ReadingData } from './ReadingData';
 import { AssessmentData } from './AssessmentData';
@@ -8,17 +7,6 @@ import { ReferralAssessedData } from './ReferralAssessedData';
 import { ReferralCancelledData } from './ReferralCancelledData';
 import { ReferralNotAttendedData } from './ReferralNotAttendedData';
 import { ReferralPendingData } from './ReferralPendingData';
-// import { useTheme } from '@material-ui/core/styles';
-// import useMediaQuery from '@material-ui/core/useMediaQuery';
-
-// const useStyles = makeStyles({
-//   borderLeft: {
-//     borderLeft: '2px solid #84ced4',
-//   },
-//   borderTop: {
-//     borderTop: '2px solid #84ced4',
-//   },
-// });
 
 interface IProps_Reading {
   reading: Reading;
@@ -33,9 +21,6 @@ interface IProps_Assessment {
 }
 
 export const ReadingCard = ({ reading }: IProps_Reading) => {
-  //const styles = useStyles();
-  //const theme = useTheme();
-  //const isBigScreen = useMediaQuery(theme.breakpoints.up('sm'));
 
   return (
     <Paper>
@@ -44,13 +29,6 @@ export const ReadingCard = ({ reading }: IProps_Reading) => {
           <Grid item xs={12} sm={6}>
             <ReadingData reading={reading} />
           </Grid>
-          {/* <Grid
-            item
-            xs={12}
-            sm={6}
-            className={isBigScreen ? styles.borderLeft : styles.borderTop}>
-            <ReferralData reading={reading} />
-          </Grid> */}
         </Grid>
       </Box>
     </Paper>

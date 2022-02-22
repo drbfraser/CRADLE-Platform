@@ -15,7 +15,6 @@ type RouteParams = {
 
 export const ReferralFormPage = () => {
   const classes = useStyles();
-  // const { readingId } = useRouteMatch<RouteParams>().params;
   const { patientId } = useRouteMatch<RouteParams>().params;
 
   return (
@@ -29,7 +28,6 @@ export const ReferralFormPage = () => {
         <Typography variant="h4">New Referral</Typography>
       </div>
       <br />
-      {/* <ReferralForm readingId={readingId} /> */}
       <ReferralForm patientId={patientId} />
     </div>
   );

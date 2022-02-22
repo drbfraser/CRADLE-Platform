@@ -2,7 +2,6 @@ import { goBackWithFallback } from 'src/shared/utils';
 import { SingleReason } from './state';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
-// import { SingleReasonForm } from './SingleReasonForm';
 
 export const handleSubmit = (
   referralId: string,
@@ -10,13 +9,6 @@ export const handleSubmit = (
   setSubmitError: (error: boolean) => void
 ) => {
   return async (values: SingleReason, { setSubmitting }: any) => {
-    // const url = API_URL + EndpointEnum.REFERRALS;
-    // const postBody = JSON.stringify({
-    //   referralId: referralId,
-    //   ...values,
-    // });
-    // console.log("****************");
-    // console.log(values);
     var url = '';
     var postBody = '';
     if (type === 'cancel_referral') {

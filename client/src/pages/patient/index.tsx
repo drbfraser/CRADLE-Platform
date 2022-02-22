@@ -19,19 +19,10 @@ import { useRouteMatch } from 'react-router-dom';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum, SexEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-// import { Card } from 'src/shared/types';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
-// import { Icon } from '@material-ui/core';
 import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
-// import LineStyleIcon from '@material-ui/icons/LineStyle';
-// import { NotRequiredNullableArraySchema } from 'yup';
-// import FormControl from '@material-ui/core/FormControl';
-// import InputLabel from '@material-ui/core/InputLabel';
-// import Grid from '@material-ui/core/Grid';
-// import Select from '@material-ui/core/Select';
-// import MenuItem from '@material-ui/core/MenuItem';
 
 
 type RouteParams = {
@@ -45,8 +36,7 @@ type FilterRequestBody = {
 };
 
 type Filter = {
-  //parameter is for net request
-  //display_title is for UI display
+  //parameter is for net request;display_title is for UI display
   parameter: string;
   display_title: string;
 };
@@ -66,40 +56,23 @@ const Filters: Filter[] = [
 },
 ];
 
-// const FilterCheckBoxTitles: string[] = [
-//  'Referral', 'Reading', 'Assessment',
-// ];
-
-
-// interface IProps {
-//   card:Card;
-// };
-
 export const PatientPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [patient, setPatient] = useState<Patient>();
   //we will need to send 2 request, the second is specifically for the cards data array
   const [cards, setCards] = useState([]);
-  // var has_more_than_one_cards_originally = false;
-  // const [has_more_than_one_cards_originally] = useState(0);
   let original_cards_ref = useRef<boolean>(false);
-  // let has_more_than_one_cards_originally = 0;
   const [errorLoading, setErrorLoading] = useState(false);
   const classes = useStyles();
-  // const selectedFilters = useState<Filters>();
   const [selectedParameter, setSelectedParameter] =useState<string[]> (['referrals','readings','assessments']);
   const [filterRequestBody] = useState<FilterRequestBody>({referrals:1, readings:1,assessments:1});
-
-  // const [startDate, setStartDate] = useState<Moment | null>(null);
-
 
 
   useEffect(() => {
     /*eslint no-useless-concat: "error"*/
     apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
       .then((resp) => resp.json())
-      .then((patient) => {
-        // console.log(patient);
+      .then((patient) => { 
         setPatient(patient);
       })
       .catch(() => {
@@ -108,37 +81,30 @@ export const PatientPage = () => {
   }, [patientId]);
 
   useEffect(() => {
-    // apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
     apiFetch(
       API_URL +
         EndpointEnum.PATIENTS +
         `/${patientId}/get_all_records?readings=${filterRequestBody.readings}&referrals=${filterRequestBody.referrals}&assessments=${filterRequestBody.assessments}`
     )
       .then((resp) => resp.json())
-      .then((cards_data) => {
-        // console.log(cards_data);
+      .then((cards_data) => { 
         if(cards_data.length>0){
-          original_cards_ref.current = true;
-
-        }
-        console.log(original_cards_ref);//object--property:current
-        console.log(original_cards_ref.current);//boolean 值
+          original_cards_ref.current = true; 
+        } 
         /////////////////////////////
-        handleAssess(cards_data);
-
+        collectCardsWithData(cards_data); 
         ////////////////////
       })
       .catch(() => {
         setErrorLoading(true);
       });
-  }, [patientId,original_cards_ref]);
+  }, [patientId,original_cards_ref,filterRequestBody]);
 
-  const handleAssess = (cards_data: any) => {
+  const collectCardsWithData = (cards_data: any) => {
     const cards_elements = [] as any;
     var index;
     for (index = 0; index < cards_data.length; index++) {
       var card_item = cards_data[index];
-      console.log(card_item);
 
       if (card_item.type === 'reading') {
         cards_elements.push(
@@ -186,21 +152,13 @@ export const PatientPage = () => {
           );
         }
       } else {
-        console.log('error!');
+        //illegal case, no handling
       }
     }
     setCards(cards_elements);
   };
-
-
-  // const clearFilter = () => {
-  //   setSelectedParameter(['referrals','readings','assessments']);
-  // };
-
+ 
   const handleChangeFilters = (newFilters:any) => {
-    console.log(original_cards_ref);
-    console.log(original_cards_ref.current);
-    //setSelectedParameter(['referrals','readings','assessments']);
     filterRequestBody!.referrals = 0;
     filterRequestBody!.readings = 0;
     filterRequestBody!.assessments = 0;
@@ -214,10 +172,8 @@ export const PatientPage = () => {
         filterRequestBody!.assessments = 1;
       }else {
         //illegal type, not handling
-      }
-
+      } 
     }
-
     //request parameters have been ready, now sent request and get new data
     apiFetch(
       API_URL +
@@ -225,12 +181,9 @@ export const PatientPage = () => {
         `/${patientId}/get_all_records?readings=${filterRequestBody.readings}&referrals=${filterRequestBody.referrals}&assessments=${filterRequestBody.assessments}`
     )
       .then((resp) => resp.json())
-      .then((cards_data) => {
-        //console.log(cards_data);
-
+      .then((cards_data) => {  
         /////////////////////////////
-        handleAssess(cards_data);
-
+        collectCardsWithData(cards_data); 
         ////////////////////
 
         //after getting the data, render the view
@@ -238,9 +191,7 @@ export const PatientPage = () => {
       })
       .catch(() => {
         setErrorLoading(true);
-      });
-
-
+      }); 
   };
  
 
@@ -276,50 +227,31 @@ export const PatientPage = () => {
         </Grid>
       </Grid>
 
-      {/* 这边看一下要不要用current属性！！！ */}
+      {/* Should consider to user 'current' property */}
       {Boolean(original_cards_ref.current) && (
-        <>
-        {/* <br />
-        <Divider />
-        <br /> */}
+        <> 
         <br />
         <br />
         <Grid container direction="row" justifyContent="flex-end" alignItems="center">
-        <Grid item container justifyContent="flex-end" spacing={2}>
-        {/* <Grid item md={12} sm={12} xs={12}> */}
+        <Grid item container justifyContent="flex-end" spacing={2}> 
         <Grid item alignItems="center">
           <>
           <HourglassEmptyIcon className={classes.filterIcon}/>
-          </>
-        
-        </Grid>
-
-        <Grid item>
-        {/* <Grid item md={6} sm={6} xs={6}> */}
+          </> 
+        </Grid> 
+        <Grid item> 
         {Filters.map((filter_checkbox, index) => (<FormControlLabel
                 control={
                   <Checkbox
-                    checked={selectedParameter.includes(filter_checkbox.parameter)}
-                    
-                    onChange={(event, checked) => { 
-                      // console.log(checked);
-                      // console.log(selectedParameter);
-                      // console.log(selectedParameter.includes(filter_checkbox.parameter));
-                      // console.log(filter_checkbox.parameter);
-                      
+                    checked={selectedParameter.includes(filter_checkbox.parameter)} 
+                    onChange={(event, checked) => {  
                       //if the original state is 'selected', now the 'check operation' is to remove this item from the selected array
-                      if (checked) {
-                        // console.log(event.target.value);
+                      if (checked) { 
                         const newFilters = [
                           ...selectedParameter,
                           event.target.value, 
-                        ];
-                        // const arr = [...selectedParameter,
-                        //   event.target.value];
-                        
-                        handleChangeFilters(newFilters);
-                        // console.log(selectedParameter);
-                        // console.log(arr);
+                        ]; 
+                        handleChangeFilters(newFilters); 
                       } 
                       //if the original state is 'not selected', now the 'check operation' is to add this item to the selected array
                       else {
@@ -329,12 +261,8 @@ export const PatientPage = () => {
                           //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/splice
                           newParameters.splice(i, 1);
                         }
-                        handleChangeFilters(newParameters);
-                        //selectedParameter = newParameters;
-                        // console.log(selectedParameter);
-                        // console.log(i);
-                      }
-                      // console.log(selectedParameter);
+                        handleChangeFilters(newParameters); 
+                      } 
                     }}
                     value={filter_checkbox.parameter}
                   />
@@ -350,46 +278,12 @@ export const PatientPage = () => {
 </Grid>
         </Grid>
         </Grid>
-        
-        
-
-
-
-
-
-
-
-
-
-
         </>
-
-
-
-
-
-
       )}
-      
-
-
-
-
-      {/* {patient?.readings
-        ? patient?.readings
-            .sort((r1, r2) => (r2.dateTimeTaken ?? 0) - (r1.dateTimeTaken ?? 0))
-            .map((r) => (
-              <React.Fragment key={r.readingId}>
-                <ReadingCard reading={r} />
-                <br />
-              </React.Fragment>
-            ))
-        : null} */}
 
       <br />
       <Divider />
       <br />
-      {/* {console.log(cards)} */}
 
       {cards ? cards.map((card) => <>{card}</>) : null}
     </>

@@ -62,7 +62,6 @@ export const APITable = ({
   const prevPage = useRef(1);
 
   const classes = useStyles();
-  // let tempRows=[];
 
   // when something changes, load new data
   useEffect(() => {
@@ -133,36 +132,6 @@ export const APITable = ({
         } else if (isDrugRecord === false) {
           setRows(json.medical);
         } else if (isReferralListPage === true) {
-          // tempRows = json.map((r: any)=>(
-          //    apiFetch(
-          //     API_URL + EndpointEnum.PATIENTS + '/' + r.patientId + '/most_recent_reading',
-          //     fetchOptions
-          //   ).then(result => result.json()).then((resp) => {
-          //     var first = (resp&&resp[0])?resp[0].trafficLightStatus:"NONE";
-
-          //     return {
-          //       referralId: r.referralId,
-          //       patientId: r.patientId,
-          //       patientName: r.patientName,
-          //       villageNumber: r.villageNumber,
-          //       trafficLightStatus: first,
-          //       dateReferred: r.dateReferred,
-          //       isAssessed: r.isAssessed,
-          //     } ;
-          //   }).catch((e) => {
-          //     return {
-          //       referralId: r.referralId,
-          //       patientId: r.patientId,
-          //       patientName: r.patientName,
-          //       villageNumber: r.villageNumber,
-          //       trafficLightStatus: "NONE",
-          //       dateReferred: r.dateReferred,
-          //       isAssessed: r.isAssessed,
-          //     } ;
-          //   })
-          // ))
-          // const Data = await Promise.all([...tempRows]);
-          // console.log(Data);
           setRows(json);
         } else {
           setRows(json);

@@ -15,7 +15,6 @@ type RouteParams = {
 
 export const SingleReasonFormPage = () => {
   const classes = useStyles();
-  // const { readingId } = useRouteMatch<RouteParams>().params;
   const { referralId } = useRouteMatch<RouteParams>().params;
   const { type } = useRouteMatch<RouteParams>().params;
   const [title, setTitle] = useState('');

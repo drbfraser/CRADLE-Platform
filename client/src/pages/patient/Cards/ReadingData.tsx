@@ -4,13 +4,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  // Button,
-  // Grid,
 } from '@material-ui/core';
-// import { ThemeProvider } from '@material-ui/styles';
-// import { createTheme } from "@material-ui/core/styles";
-// import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
-// import red from '@material-ui/core/colors/red';
 import { Reading } from 'src/shared/types';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { getPrettyDateTime } from 'src/shared/utils';
@@ -26,12 +20,6 @@ export const ReadingData = ({ reading }: IProps) => {
     str = str.trim();
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
-  // ////////////////////////////
-  // const handleAssess = () => {
-  //   console.log("hello");
-  // };
-  // const redTheme = createTheme({ palette: { primary: red } })
-  // ////////////////////////////
 
   return (
     <>

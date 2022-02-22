@@ -10,9 +10,6 @@ export const handleSubmit = (
   drugHistory: string,
   setSubmitError: (error: boolean) => void
 ) => {
-  // console.log(referralId);
-  // console.log(assessmentId);
-  // console.log("*****************");
   return async (values: AssessmentState, { setSubmitting }: any) => {
     const newAssessment = {
       [AssessmentField.investigation]: values[AssessmentField.investigation],
@@ -63,14 +60,10 @@ export const handleSubmit = (
       //2.after successfully creating a new assessment, we will send a request to mark the
       //original referral record to be 'assessed'
       if (referralId !== undefined) {
-        // console.log(referralId);
         await apiFetch(
           API_URL + EndpointEnum.REFERRALS + `/assess/${referralId}`,
           {
             method: 'PUT',
-            // body: JSON.stringify({
-            //   ['referral_id']: referralId,
-            // }),
           }
         );
       }
