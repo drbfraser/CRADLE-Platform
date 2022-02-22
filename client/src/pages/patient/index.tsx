@@ -188,9 +188,8 @@ export const PatientPage = () => {
     )
       .then((resp) => resp.json())
       .then((cards_data) => {
-        /////////////////////////////
+        //**collect cards into UI components, the output is cards(html) rather than data
         collectCardsWithData(cards_data);
-        ////////////////////
 
         //after getting the data, render the view
         setSelectedParameter(newFilters);

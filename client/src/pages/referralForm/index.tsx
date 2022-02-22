@@ -9,7 +9,6 @@ import { ReferralForm } from './ReferralForm';
 import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
-  // readingId: string;
   patientId: string;
 };
 
