@@ -18,13 +18,13 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
 
   // user ID and healthcare worker ID should be moved to the backend
   const submitValues = {
-      patientId: patientId,
-      readingId: readingGuid,
-      dateTimeTaken: currentTimestamp,
-      bpDiastolic: values[ReadingField.bpDiastolic],
-      bpSystolic: values[ReadingField.bpSystolic],
-      heartRateBPM: values[ReadingField.heartRateBPM],
-      symptoms: getSymptomsFromFormState(values, true),
+    patientId: patientId,
+    readingId: readingGuid,
+    dateTimeTaken: currentTimestamp,
+    bpDiastolic: values[ReadingField.bpDiastolic],
+    bpSystolic: values[ReadingField.bpSystolic],
+    heartRateBPM: values[ReadingField.heartRateBPM],
+    symptoms: getSymptomsFromFormState(values, true),
   } as any;
 
   if (values[ReadingField.urineTest]) {
@@ -46,7 +46,7 @@ export const handleSubmit = async (
   drugHistory: string
 ) => {
   const submitValues = getSubmitObject(patientId, values);
-  console.log("TESTING: submitValues: " + JSON.stringify(submitValues))
+  console.log('TESTING: submitValues: ' + JSON.stringify(submitValues));
   const url = API_URL + EndpointEnum.READINGS;
 
   try {
