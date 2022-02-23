@@ -5,7 +5,11 @@ export interface IReferral {
   patientId: string;
   patientName: string;
   villageNumber: string;
-  trafficLightStatus: TrafficLightEnum; //this field is got by appending an extra data
+  //trafficLightStatus changed to 'vitalSign' in 2022 Spring
+  vitalSign: TrafficLightEnum;
   dateReferred: number;
   isAssessed: boolean;
+  //added 2022 Spring
+  notAttended: boolean;
+  isCancelled: boolean;
 }

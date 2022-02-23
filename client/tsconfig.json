@@ -2,10 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "lib": ["es2018", "dom"],
     "allowJs": true,
     "checkJs": false,
     "jsx": "react",
@@ -20,15 +17,8 @@
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "moduleResolution": "node",
-    "types": [
-      "node",
-      "react",
-      "react-dom"
-    ],
-    "typeRoots": [
-      "./src/modules",
-      "./node_modules/@types"
-    ],
+    "types": ["node", "react", "react-dom"],
+    "typeRoots": ["./src/modules", "./node_modules/@types"],
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "skipLibCheck": true,
@@ -39,9 +29,7 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "."
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "exclude": [
     "node_modules",
     "build",

@@ -14,12 +14,15 @@ interface IProps {
   initialState: AssessmentState;
   patientId: string;
   assessmentId: string | undefined;
+  referralId: string | undefined;
 }
 
 export const AssessmentForm = ({
   initialState,
   patientId,
   assessmentId,
+  //add 2022 Spring(referralId may be null)
+  referralId,
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
@@ -33,6 +36,7 @@ export const AssessmentForm = ({
         onSubmit={handleSubmit(
           patientId,
           assessmentId,
+          referralId,
           drugHistory,
           setSubmitError
         )}>

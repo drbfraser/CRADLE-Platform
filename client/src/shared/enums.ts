@@ -19,7 +19,7 @@ export enum TrafficLightEnum {
   YELLOW_DOWN = 'YELLOW_DOWN',
   RED_UP = 'RED_UP',
   RED_DOWN = 'RED_DOWN',
-  UNAVAILABLE = 'UNAVAILABLE',
+  //original 'UNAVAILABLE' now changed to 'NONE',
   NONE = 'NONE',
 }
 
@@ -54,7 +54,7 @@ export enum EndpointEnum {
   PREGNANCY_SUMMARY = '/pregnancy_summary',
   REFERRALS = '/referrals',
   READINGS = '/readings',
-  READING_ASSESSMENT = '/patients/reading-assessment',
+  READING_ASSESSMENT = '/patients/reading-assessment', //Create a new reading and assessment
   STATISTICS = '/stats',
   STATS_ALL = '/stats/all',
   STATS_FACILITY = '/stats/facility',

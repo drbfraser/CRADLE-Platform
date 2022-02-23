@@ -71,8 +71,8 @@ const vitalSigns: VitalSign[] = [
     vitalSign: TrafficLightEnum.RED_DOWN,
   },
   {
-    name: 'Unavailable',
-    vitalSign: TrafficLightEnum.UNAVAILABLE,
+    name: 'None',
+    vitalSign: TrafficLightEnum.NONE,
   },
 ];
 
