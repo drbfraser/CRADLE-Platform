@@ -9,7 +9,6 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import { Button } from '@material-ui/core';
 import { Symptoms } from './symptoms';
 import { VitalSigns } from './vitalSigns';
-// import { Assessment } from './assessment';
 import { Confirmation } from './confirmation';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import Stepper from '@material-ui/core/Stepper/Stepper';
@@ -49,11 +48,6 @@ export const ReadingFormPage = () => {
       component: VitalSigns,
       validationSchema: vitalSignsValidationSchema,
     },
-    // {
-    //   name: 'Assessment',
-    //   component: Assessment,
-    //   validationSchema: undefined,
-    // },
     {
       name: 'Confirmation',
       component: Confirmation,
