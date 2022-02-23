@@ -121,64 +121,6 @@ export const Confirmation = ({ formikProps }: FormPageProps) => {
             <br />
           </Grid>
         </Grid>
-        <h3>Assessment</h3>
-        <Grid container spacing={2}>
-          <Grid item xs sm={6}>
-            <TextField
-              disabled
-              fullWidth
-              multiline
-              rows={3}
-              variant="outlined"
-              label="Investigation Results (if available)"
-              value={formikProps.values[ReadingField.investigation]}
-            />
-            <br />
-            <br />
-            <TextField
-              disabled
-              fullWidth
-              multiline
-              rows={3}
-              variant="outlined"
-              label="Treatment / Operation"
-              value={formikProps.values[ReadingField.treatment]}
-            />
-            <br />
-            <br />
-            <TextField
-              disabled
-              fullWidth
-              multiline
-              rows={3}
-              variant="outlined"
-              label="Instructions for Follow-Up"
-              value={formikProps.values[ReadingField.followUpInstruc]}
-            />
-          </Grid>
-          <Grid item xs sm={6}>
-            <TextField
-              disabled
-              fullWidth
-              multiline
-              rows={3}
-              variant="outlined"
-              label="Final Diagnosis"
-              value={formikProps.values[ReadingField.finalDiagnosis]}
-            />
-            <br />
-            <br />
-            <TextField
-              disabled
-              fullWidth
-              multiline
-              rows={3}
-              variant="outlined"
-              label="Medication Prescribed"
-              value={formikProps.values[ReadingField.drugHistory]}
-            />
-          </Grid>
-        </Grid>
       </Box>
     </Paper>
   );
