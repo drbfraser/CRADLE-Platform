@@ -22,7 +22,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
-import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
+import Typography from "@material-ui/core/Typography";
 
 type RouteParams = {
   patientId: string;
@@ -62,7 +62,6 @@ export const PatientPage = () => {
   const [cards, setCards] = useState([]);
   const original_cards_ref = useRef<boolean>(false);
   const [errorLoading, setErrorLoading] = useState(false);
-  const classes = useStyles();
   const [selectedParameter, setSelectedParameter] = useState<string[]>([
     'referrals',
     'readings',
@@ -242,12 +241,8 @@ export const PatientPage = () => {
             justifyContent="flex-end"
             alignItems="center">
             <Grid item container justifyContent="flex-end" spacing={2}>
-              <Grid item alignItems="center">
-                <>
-                  <HourglassEmptyIcon className={classes.filterIcon} />
-                </>
-              </Grid>
               <Grid item>
+                <Typography>Show only: </Typography>
                 {Filters.map((filter_checkbox, index) => (
                   <FormControlLabel
                     control={
