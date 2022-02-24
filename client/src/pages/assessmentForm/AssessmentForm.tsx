@@ -10,6 +10,8 @@ import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
+import { API_URL, apiFetch } from "../../shared/api";
+import { EndpointEnum } from "../../shared/enums";
 
 interface IProps {
   initialState: AssessmentState;
@@ -18,7 +20,15 @@ interface IProps {
   referralId: string | undefined;
 }
 
-function isTherePendingReferral() {
+function isTherePendingReferral(patientId: string) {
+  // Check if there is a pending referral for this patient by querying backend
+  apiFetch(API_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.REFERRALS)
+    .then((resp) => resp.json())
+    .then(data => {
+      for (let i = 0; i < data.length; i++) {
+        console.log(data[i]);
+      }
+    })
   return true;
 }
 
@@ -36,7 +46,7 @@ export const AssessmentForm = ({
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      {referralId === undefined && isTherePendingReferral() && (
+      {referralId === undefined && isTherePendingReferral(patientId) && (
         <Grid item xs={12} md={12}>
           <Paper>
             <Box pl={2} pt={2}>
