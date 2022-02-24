@@ -36,12 +36,15 @@ export const AssessmentForm = ({
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      {isTherePendingReferral() && (
+      {referralId === undefined && isTherePendingReferral() && (
         <Grid item xs={12} md={12}>
           <Paper>
+            <Box pl={2} pt={2}>
+              <h2> <WarningIcon /> Warning</h2>
+            </Box>
             <Box p={2}>
               <Typography>
-                <WarningIcon /><b>This patient has at least one pending referral.</b> Creating this assessment will not
+                <b>This patient has at least one pending referral.</b> Creating this assessment will not
                 mark any pending referrals as assessed. If you would like to mark a referral as assessed,
                 return to the previous page and then select Assess Referral on the pending referral card. If the patient
                 did not attend any pending referral(s), please select Did Not Attend on the pending referral card(s).
