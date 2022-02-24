@@ -6,7 +6,7 @@ import WarningIcon from '@material-ui/icons/Warning';
 import Paper from '@material-ui/core/Paper';
 import { Field, Form, Formik } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
@@ -20,33 +20,37 @@ interface IProps {
   referralId: string | undefined;
 }
 
-function isTherePendingReferral(patientId: string) {
-  // Check if there is a pending referral for this patient by querying backend
-  apiFetch(API_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.REFERRALS)
-    .then((resp) => resp.json())
-    .then(data => {
-      for (let i = 0; i < data.length; i++) {
-        console.log(data[i]);
-      }
-    })
-  return true;
-}
-
 export const AssessmentForm = ({
   initialState,
   patientId,
   assessmentId,
-  //add 2022 Spring(referralId may be null)
   referralId
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
+  const [displayWarning, setDisplayWarning] = useState(false);
   const drugHistory = initialState.drugHistory;
+
+  useEffect(() => {
+    // Check if the patient has a pending referral already, warn the user if so
+    apiFetch(API_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.REFERRALS)
+      .then((resp) => resp.json())
+      .then(data => {
+        for (let i = 0; i < data.length; i++) {
+          if (!data[i].isAssessed && !data[i].isCancelled && !data[i].notAttended) {
+            setDisplayWarning(true)
+          }
+        }
+      })
+      .catch(() => {
+        console.error('Error receiving referrals')
+      })
+  });
 
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      {referralId === undefined && isTherePendingReferral(patientId) && (
+      {referralId === undefined && displayWarning && (
         <Grid item xs={12} md={12}>
           <Paper>
             <Box pl={2} pt={2}>
@@ -56,8 +60,8 @@ export const AssessmentForm = ({
               <Typography>
                 <b>This patient has at least one pending referral.</b> Creating this assessment will not
                 mark any pending referrals as assessed. If you would like to mark a referral as assessed,
-                return to the previous page and then select Assess Referral on the pending referral card. If the patient
-                did not attend any pending referral(s), please select Did Not Attend on the pending referral card(s).
+                return to the previous page and then select <b>Assess Referral</b> on the pending referral card. If the patient
+                did not attend any pending referral(s), please select <b>Did Not Attend</b> on the pending referral card(s).
               </Typography>
             </Box>
           </Paper>
