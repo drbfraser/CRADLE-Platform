@@ -2,6 +2,7 @@ import { makeStyles, Typography } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import WarningIcon from '@material-ui/icons/Warning';
 import Paper from '@material-ui/core/Paper';
 import { Field, Form, Formik } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
@@ -17,12 +18,16 @@ interface IProps {
   referralId: string | undefined;
 }
 
+function isTherePendingReferral() {
+  return true;
+}
+
 export const AssessmentForm = ({
   initialState,
   patientId,
   assessmentId,
   //add 2022 Spring(referralId may be null)
-  referralId,
+  referralId
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
@@ -31,6 +36,21 @@ export const AssessmentForm = ({
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      {isTherePendingReferral() && (
+        <Grid item xs={12} md={12}>
+          <Paper>
+            <Box p={2}>
+              <Typography>
+                <WarningIcon /><b>This patient has at least one pending referral.</b> Creating this assessment will not
+                mark any pending referrals as assessed. If you would like to mark a referral as assessed,
+                return to the previous page and then select Assess Referral on the pending referral card. If the patient
+                did not attend any pending referral(s), please select Did Not Attend on the pending referral card(s).
+              </Typography>
+            </Box>
+          </Paper>
+          <br />
+        </Grid>
+      )}
       <Formik
         initialValues={initialState}
         onSubmit={handleSubmit(
@@ -114,7 +134,7 @@ export const AssessmentForm = ({
                     <Grid item sm={12} md={8}>
                       <Typography variant="caption">
                         Editing the Medication Prescribed updates the
-                        patient&apos;s Drug History. <br></br>
+                        patient&apos;s Drug History. <br />
                         Consider updating the patient&apos;s Medical History on
                         the Patient Summary screen to mention any updated
                         medical conditions.
