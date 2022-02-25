@@ -32,7 +32,7 @@ export const assessmentFormValidationSchema = Yup.object()
             AssessmentField.treatment ||
             AssessmentField.drugHistory,
           message:
-            'At least one of Investigation Results, Final Diagnosis, Treatment/Operation, and Drug History must be entered',
+            'At least one of Investigation Results, Final Diagnosis, Treatment / Operation, and Drug History must be entered',
         });
       }
     }
