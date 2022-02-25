@@ -14,10 +14,12 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import { useHistory } from 'react-router-dom';
 
 interface IProps {
-  patient?: Patient;
+  patient?: Patient,
+  isThereAPendingReferral: boolean,
+  setConfirmDialogPerformAssessmentOpen: any
 }
 
-export const Header = ({ patient }: IProps) => {
+export const Header = ({ patient, isThereAPendingReferral, setConfirmDialogPerformAssessmentOpen }: IProps) => {
   const history = useHistory();
   const handleAddReadingClick = () => {
     if (patient) {
@@ -30,8 +32,11 @@ export const Header = ({ patient }: IProps) => {
       history.push(`/referrals/new/${patient.patientId}`);
     }
   };
+
   const handlePerformAssessmentClick = () => {
-    if (patient) {
+    if (isThereAPendingReferral) {
+      setConfirmDialogPerformAssessmentOpen(true)
+    } else if (patient) {
       history.push(`/assessments/new/${patient.patientId}`);
     }
   };
@@ -54,7 +59,6 @@ export const Header = ({ patient }: IProps) => {
           </Typography>
         </Grid>
       </Grid>
-
       <Grid item>
         <Grid container alignItems="center" style={{ gap: 5 }}>
           <Button
