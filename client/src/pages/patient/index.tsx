@@ -22,7 +22,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
-import Typography from "@material-ui/core/Typography";
+import Typography from '@material-ui/core/Typography';
 
 type RouteParams = {
   patientId: string;

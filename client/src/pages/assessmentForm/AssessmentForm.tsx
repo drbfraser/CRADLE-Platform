@@ -6,13 +6,13 @@ import WarningIcon from '@material-ui/icons/Warning';
 import Paper from '@material-ui/core/Paper';
 import { Field, Form, Formik } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
-import { API_URL, apiFetch } from "../../shared/api";
-import { EndpointEnum } from "../../shared/enums";
-import { assessmentFormValidationSchema } from "./validation";
+import { API_URL, apiFetch } from '../../shared/api';
+import { EndpointEnum } from '../../shared/enums';
+import { assessmentFormValidationSchema } from './validation';
 
 interface IProps {
   initialState: AssessmentState;
@@ -25,7 +25,7 @@ export const AssessmentForm = ({
   initialState,
   patientId,
   assessmentId,
-  referralId
+  referralId,
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
@@ -34,18 +34,24 @@ export const AssessmentForm = ({
 
   useEffect(() => {
     // Check if the patient has a pending referral already, warn the user if so
-    apiFetch(API_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.REFERRALS)
+    apiFetch(
+      API_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.REFERRALS
+    )
       .then((resp) => resp.json())
-      .then(data => {
+      .then((data) => {
         for (let i = 0; i < data.length; i++) {
-          if (!data[i].isAssessed && !data[i].isCancelled && !data[i].notAttended) {
-            setDisplayWarning(true)
+          if (
+            !data[i].isAssessed &&
+            !data[i].isCancelled &&
+            !data[i].notAttended
+          ) {
+            setDisplayWarning(true);
           }
         }
       })
       .catch(() => {
-        console.error('Error receiving referrals')
-      })
+        console.error('Error receiving referrals');
+      });
   });
 
   return (
@@ -55,14 +61,20 @@ export const AssessmentForm = ({
         <Grid item xs={12} md={12}>
           <Paper>
             <Box pl={2} pt={2}>
-              <h2> <WarningIcon /> Warning</h2>
+              <h2>
+                {' '}
+                <WarningIcon /> Warning
+              </h2>
             </Box>
             <Box p={2}>
               <Typography>
-                <b>This patient has at least one pending referral.</b> Creating this assessment will not
-                mark any pending referrals as assessed. If you would like to mark a referral as assessed,
-                return to the previous page and then select <b>Assess Referral</b> on the pending referral card. If the patient
-                did not attend any pending referral(s), please select <b>Did Not Attend</b> on the pending referral card(s).
+                <b>This patient has at least one pending referral.</b> Creating
+                this assessment will not mark any pending referrals as assessed.
+                If you would like to mark a referral as assessed, return to the
+                previous page and then select <b>Assess Referral</b> on the
+                pending referral card. If the patient did not attend any pending
+                referral(s), please select <b>Did Not Attend</b> on the pending
+                referral card(s).
               </Typography>
             </Box>
           </Paper>
