@@ -12,6 +12,7 @@ import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
 import { API_URL, apiFetch } from "../../shared/api";
 import { EndpointEnum } from "../../shared/enums";
+import { assessmentFormValidationSchema } from "./validation";
 
 interface IProps {
   initialState: AssessmentState;
@@ -76,7 +77,8 @@ export const AssessmentForm = ({
           referralId,
           drugHistory,
           setSubmitError
-        )}>
+        )}
+        validationSchema={assessmentFormValidationSchema}>
         {({ values, isSubmitting }) => (
           <Form>
             <Paper>
