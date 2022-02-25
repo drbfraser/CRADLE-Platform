@@ -62,6 +62,7 @@ export const PatientPage = () => {
   const [cards, setCards] = useState([]);
   const original_cards_ref = useRef<boolean>(false);
   const [errorLoading, setErrorLoading] = useState(false);
+  const [, setIsThereAPendingReferral] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState<string[]>([
     'referrals',
     'readings',
@@ -104,6 +105,27 @@ export const PatientPage = () => {
         setErrorLoading(true);
       });
   }, [patientId, original_cards_ref, filterRequestBody]);
+
+  useEffect(() => {
+    apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS)
+      .then((resp) => resp.json())
+      .then((referralsData) => {
+        for (let i = 0; i < referralsData.length; i++) {
+          if (
+            !referralsData[i].isAssessed &&
+            !referralsData[i].isCancelled &&
+            !referralsData[i].notAttended
+          ) {
+            setIsThereAPendingReferral(true);
+            console.log("Setting isThereAPendingReferral to true");
+            break;
+          }
+        }
+      })
+      .catch(() => {
+        console.error('Error receiving referrals');
+      });
+  }, [])
 
   const collectCardsWithData = (cards_data: any) => {
     const cards_elements = [] as any;
