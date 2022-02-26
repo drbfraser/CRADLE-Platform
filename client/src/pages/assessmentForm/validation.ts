@@ -20,7 +20,7 @@ export const assessmentFormValidationSchema = Yup.object()
         AssessmentField.treatment,
         AssessmentField.drugHistory,
       ].some((field) => {
-        return !!values[field];
+        return !!(values[field]?.trim());
       });
       if (isValid) {
         return true;
