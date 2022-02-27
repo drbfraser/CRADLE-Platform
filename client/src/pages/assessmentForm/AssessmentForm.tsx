@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
-import { assessmentFormValidationSchema } from "./validation";
+import { assessmentFormValidationSchema } from './validation';
 
 interface IProps {
   initialState: AssessmentState;
@@ -31,10 +31,16 @@ export const AssessmentForm = ({
   const drugHistory = initialState.drugHistory;
 
   const validate = (values: any) => {
-    let errors: Partial<AssessmentState> = {};
-    let valid = !!(values[AssessmentField.investigation]?.trim() || values[AssessmentField.finalDiagnosis]?.trim() || values[AssessmentField.treatment]?.trim() || values[AssessmentField.drugHistory]?.trim());
-    setValidationError(!valid)
-    return errors}
+    const errors: Partial<AssessmentState> = {};
+    const valid = !!(
+      values[AssessmentField.investigation]?.trim() ||
+      values[AssessmentField.finalDiagnosis]?.trim() ||
+      values[AssessmentField.treatment]?.trim() ||
+      values[AssessmentField.drugHistory]?.trim()
+    );
+    setValidationError(!valid);
+    return errors;
+  };
 
   return (
     <>
@@ -50,7 +56,9 @@ export const AssessmentForm = ({
             </Box>
             <Box p={2}>
               <Typography>
-                At least one of <b>Investigation Results</b>, <b>Final Diagnosis</b>, <b>Treatment / Operation</b>, and <b>Drug History</b> must be entered
+                At least one of <b>Investigation Results</b>,{' '}
+                <b>Final Diagnosis</b>, <b>Treatment / Operation</b>, and{' '}
+                <b>Drug History</b> must be entered
               </Typography>
             </Box>
           </Paper>
@@ -59,6 +67,7 @@ export const AssessmentForm = ({
       )}
       <Formik
         initialValues={initialState}
+        name={"assessmentForm"}
         onSubmit={handleSubmit(
           patientId,
           assessmentId,
@@ -68,7 +77,7 @@ export const AssessmentForm = ({
         )}
         validate={validate}
         validationSchema={assessmentFormValidationSchema}>
-        {({ values, isSubmitting}) => (
+        {({ values, isSubmitting }) => (
           <Form>
             <Paper>
               <Box p={2}>

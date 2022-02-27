@@ -20,14 +20,13 @@ export const assessmentFormValidationSchema = Yup.object()
         AssessmentField.treatment,
         AssessmentField.drugHistory,
       ].some((field) => {
-        return !!(values[field]?.trim());
+        return !!values[field]?.trim();
       });
       if (isValid) {
         return true;
       } else {
         return this.createError({
-          path:
-            "assessmentForm",
+          path: "assessmentForm",
           message:
             'At least one of Investigation Results, Final Diagnosis, Treatment / Operation, and Drug History must be entered',
         });

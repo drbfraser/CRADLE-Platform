@@ -14,12 +14,16 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import { useHistory } from 'react-router-dom';
 
 interface IProps {
-  patient?: Patient,
-  isThereAPendingReferral: boolean,
-  setConfirmDialogPerformAssessmentOpen: any
+  patient?: Patient;
+  isThereAPendingReferral: boolean;
+  setConfirmDialogPerformAssessmentOpen: any;
 }
 
-export const Header = ({ patient, isThereAPendingReferral, setConfirmDialogPerformAssessmentOpen }: IProps) => {
+export const Header = ({
+  patient,
+  isThereAPendingReferral,
+  setConfirmDialogPerformAssessmentOpen,
+}: IProps) => {
   const history = useHistory();
   const handleAddReadingClick = () => {
     if (patient) {
@@ -35,7 +39,7 @@ export const Header = ({ patient, isThereAPendingReferral, setConfirmDialogPerfo
 
   const handlePerformAssessmentClick = () => {
     if (isThereAPendingReferral) {
-      setConfirmDialogPerformAssessmentOpen(true)
+      setConfirmDialogPerformAssessmentOpen(true);
     } else if (patient) {
       history.push(`/assessments/new/${patient.patientId}`);
     }

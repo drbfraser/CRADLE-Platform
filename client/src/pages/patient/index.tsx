@@ -15,7 +15,7 @@ import {
 import { PatientStats } from './PatientStats';
 import { PregnancyInfo } from './PregnancyInfo';
 import { Patient } from 'src/shared/types';
-import { useHistory, useRouteMatch } from "react-router-dom";
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum, SexEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -23,7 +23,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
-import { ConfirmDialog } from "../../shared/components/confirmDialog";
+import { ConfirmDialog } from '../../shared/components/confirmDialog';
 
 type RouteParams = {
   patientId: string;
@@ -65,7 +65,10 @@ export const PatientPage = () => {
   const original_cards_ref = useRef<boolean>(false);
   const [errorLoading, setErrorLoading] = useState(false);
   const [isThereAPendingReferral, setIsThereAPendingReferral] = useState(false);
-  const [confirmDialogPerformAssessmentOpen, setConfirmDialogPerformAssessmentOpen] = useState(false);
+  const [
+    confirmDialogPerformAssessmentOpen,
+    setConfirmDialogPerformAssessmentOpen,
+  ] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState<string[]>([
     'referrals',
     'readings',
@@ -110,7 +113,9 @@ export const PatientPage = () => {
   }, [patientId, original_cards_ref, filterRequestBody]);
 
   useEffect(() => {
-    apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS)
+    apiFetch(
+      API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
+    )
       .then((resp) => resp.json())
       .then((referralsData) => {
         // TODO: encapsulate checking for pending into its own function
@@ -128,7 +133,7 @@ export const PatientPage = () => {
       .catch(() => {
         console.error('Error receiving referrals');
       });
-  }, [])
+  }, []);
 
   const collectCardsWithData = (cards_data: any) => {
     const cards_elements = [] as any;
@@ -229,10 +234,18 @@ export const PatientPage = () => {
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      <Header patient={patient} isThereAPendingReferral={isThereAPendingReferral} setConfirmDialogPerformAssessmentOpen={setConfirmDialogPerformAssessmentOpen}/>
+      <Header
+        patient={patient}
+        isThereAPendingReferral={isThereAPendingReferral}
+        setConfirmDialogPerformAssessmentOpen={
+          setConfirmDialogPerformAssessmentOpen
+        }
+      />
       <ConfirmDialog
-        title={"Warning"}
-        content={"You have at least one pending referral. Do you still want to create an assessment without a referral?"}
+        title={'Warning'}
+        content={
+          'You have at least one pending referral. Do you still want to create an assessment without a referral?'
+        }
         open={confirmDialogPerformAssessmentOpen}
         onClose={() => {
           setConfirmDialogPerformAssessmentOpen(false);
