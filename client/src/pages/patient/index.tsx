@@ -133,6 +133,7 @@ export const PatientPage = () => {
       .catch(() => {
         console.error('Error receiving referrals');
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const collectCardsWithData = (cards_data: any) => {
