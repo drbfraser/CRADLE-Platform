@@ -145,37 +145,14 @@ class ReferralCancelStatus(Resource):
         if error:
             abort(400, message=error)
         
-        # If the inbound JSON contains a `base` field then we need to check if it is the
-        # same as the `lastEdited` field of the existing referral. If it is then that
-        # means that the referral has not been edited on the server since this inbound
-        # referral was last synced and we can apply the changes. If they are not equal,
-        # then that means the referral has been edited on the server after it was last
-        # synced with the client. In these cases, we reject the changes for the client.
-        #
-        # You can think of this like aborting a git merge due to conflicts.
-        base = request_body.get("base")
-        if base:
-            last_edited = crud.read(Referral, id=referral_id).lastEdited
-            if base != last_edited:
-                abort(409, message="unable to merge changes, conflict detected")
-            
-            # Delete the `base` field once we are done with it as to not confuse the
-            # ORM as there is no "base" column in the database for referrals.
-            del request_body["base"]
-
         if not request_body["isCancelled"]:
             request_body["cancelReason"] = None
         crud.update(Referral, request_body, id=referral_id)
-        referral = crud.read(Referral, id=referral_id)
 
-        # Update the referral's lastEdited timestamp only if there was no `base` field
-        # in the request JSON. If there was then that means that this edit happened some
-        # time in the past and is just being synced. In this case we want to keep the
-        # `lastEdited` value which is present in the request.
-        if not base:
-            referral.lastEdited = get_current_time()
-            data.db_session.commit()
-            data.db_session.refresh(referral)  # Need to refresh the referral after commit
+        referral = crud.read(Referral, id=referral_id)
+        referral.lastEdited = get_current_time()
+        data.db_session.commit()
+        data.db_session.refresh(referral) 
 
         return marshal.marshal(referral)
 
@@ -199,11 +176,11 @@ class ReferralNotAttend(Resource):
         if error:
             abort(400, message=error)
 
-        request_body["notAttended"] = True
-        request_body["dateNotAttended"] = get_current_time()
+        referral = crud.read(Referral, id=referral_id)
+        referral.notAttended = True
+        referral.notAttendReason = request_body["notAttendReason"]
+        referral.lastEdited = get_current_time()
+        data.db_session.commit()
+        data.db_session.refresh(referral)
 
-        crud.update(Referral, request_body, id=referral_id)
-
-        new_record = crud.read(Referral, id=referral_id)
-
-        return marshal.marshal(new_record)
+        return marshal.marshal(referral)

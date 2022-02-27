@@ -51,8 +51,7 @@ def validate_cancel_put_request(request_body: dict) -> Optional[str]:
     """
     record_keys = [
         "isCancelled",
-        "cancelReason",
-        "base"
+        "cancelReason"
     ]
 
     for key in request_body:
@@ -61,7 +60,7 @@ def validate_cancel_put_request(request_body: dict) -> Optional[str]:
         else:
             record_keys.remove(key)
 
-    if len(record_keys) and record_keys != ["base"]:
+    if len(record_keys) > 0:
         return f"There are missing fields for the request body."
 
     error = values_correct_type(request_body, ["isCancelled"], bool)
@@ -71,12 +70,6 @@ def validate_cancel_put_request(request_body: dict) -> Optional[str]:
     error = values_correct_type(request_body, ["cancelReason"], str)
     if error:
         return error
-    
-    # check base field if this field is contained
-    if not len(record_keys):
-        error = values_correct_type(request_body, ["base"], int)
-        if error:
-            return error
 
 
 
