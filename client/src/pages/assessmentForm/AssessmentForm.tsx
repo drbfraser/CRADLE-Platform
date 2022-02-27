@@ -2,7 +2,7 @@ import { makeStyles, Typography } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import WarningIcon from '@material-ui/icons/Warning';
+// import WarningIcon from '@material-ui/icons/Warning';
 import Paper from '@material-ui/core/Paper';
 import { Field, Form, Formik } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
@@ -11,6 +11,8 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
 import { assessmentFormValidationSchema } from './validation';
+import Alert from '@material-ui/lab/Alert';
+
 
 interface IProps {
   initialState: AssessmentState;
@@ -46,6 +48,15 @@ export const AssessmentForm = ({
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       {validationError && (
+            <>
+              <Alert severity="error" onClose={() => setValidationError(false)}>
+                Unable to submit an empty assessment form
+              </Alert>
+              <br />
+              <br />
+            </>
+      )}
+      {/* {validationError && (
         <Grid item xs={12} md={12}>
           <Paper>
             <Box pl={2} pt={2}>
@@ -64,7 +75,7 @@ export const AssessmentForm = ({
           </Paper>
           <br />
         </Grid>
-      )}
+      )} */}
       <Formik
         initialValues={initialState}
         name={'assessmentForm'}
