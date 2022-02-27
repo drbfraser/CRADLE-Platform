@@ -13,7 +13,6 @@ import { AssessmentField, AssessmentState } from './state';
 import { assessmentFormValidationSchema } from './validation';
 import Alert from '@material-ui/lab/Alert';
 
-
 interface IProps {
   initialState: AssessmentState;
   patientId: string;
@@ -29,7 +28,7 @@ export const AssessmentForm = ({
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
-  const [validationError, setValidationError] = useState(false);
+  const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
   const drugHistory = initialState.drugHistory;
 
   const validate = (values: any) => {
@@ -40,42 +39,24 @@ export const AssessmentForm = ({
       values[AssessmentField.treatment]?.trim() ||
       values[AssessmentField.drugHistory]?.trim()
     );
-    setValidationError(!valid);
+    setDisplayEmptyFormError(!valid);
     return errors;
   };
 
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      {validationError && (
-            <>
-              <Alert severity="error" onClose={() => setValidationError(false)}>
-                Unable to submit an empty assessment form
-              </Alert>
-              <br />
-              <br />
-            </>
-      )}
-      {/* {validationError && (
-        <Grid item xs={12} md={12}>
-          <Paper>
-            <Box pl={2} pt={2}>
-              <h2>
-                {' '}
-                <WarningIcon /> There is an error in your submission.
-              </h2>
-            </Box>
-            <Box p={2}>
-              <Typography>
-                At least one of <b>Investigation Results</b>,{' '}
-                <b>Final Diagnosis</b>, <b>Treatment / Operation</b>, and{' '}
-                <b>Drug History</b> must be entered
-              </Typography>
-            </Box>
-          </Paper>
+      {displayEmptyFormError && (
+        <>
+          <Alert
+            severity="error"
+            onClose={() => setDisplayEmptyFormError(false)}>
+            Unable to submit an empty assessment form
+          </Alert>
           <br />
-        </Grid>
-      )} */}
+          <br />
+        </>
+      )}
       <Formik
         initialValues={initialState}
         name={'assessmentForm'}
