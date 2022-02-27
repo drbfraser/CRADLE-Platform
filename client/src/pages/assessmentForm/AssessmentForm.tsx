@@ -6,12 +6,12 @@ import WarningIcon from '@material-ui/icons/Warning';
 import Paper from '@material-ui/core/Paper';
 import { Field, Form, Formik } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
-import { API_URL, apiFetch } from '../../shared/api';
-import { EndpointEnum } from '../../shared/enums';
+// import { API_URL, apiFetch } from '../../shared/api';
+// import { EndpointEnum } from '../../shared/enums';
 import { assessmentFormValidationSchema } from './validation';
 
 interface IProps {
@@ -29,35 +29,36 @@ export const AssessmentForm = ({
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
-  const [displayWarning, setDisplayWarning] = useState(false);
+  // const [displayWarning, setDisplayWarning] = useState(false);
+  const [validationError, setValidationError] = useState(false);
   const drugHistory = initialState.drugHistory;
 
-  useEffect(() => {
-    // Check if the patient has a pending referral already, warn the user if so
-    apiFetch(
-      API_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.REFERRALS
-    )
-      .then((resp) => resp.json())
-      .then((data) => {
-        for (let i = 0; i < data.length; i++) {
-          if (
-            !data[i].isAssessed &&
-            !data[i].isCancelled &&
-            !data[i].notAttended
-          ) {
-            setDisplayWarning(true);
-          }
-        }
-      })
-      .catch(() => {
-        console.error('Error receiving referrals');
-      });
-  });
+  // useEffect(() => {
+  //   // Check if the patient has a pending referral already, warn the user if so
+  //   apiFetch(
+  //     API_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.REFERRALS
+  //   )
+  //     .then((resp) => resp.json())
+  //     .then((data) => {
+  //       for (let i = 0; i < data.length; i++) {
+  //         if (
+  //           !data[i].isAssessed &&
+  //           !data[i].isCancelled &&
+  //           !data[i].notAttended
+  //         ) {
+  //           setDisplayWarning(true);
+  //         }
+  //       }
+  //     })
+  //     .catch(() => {
+  //       console.error('Error receiving referrals');
+  //     });
+  // });
 
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      {referralId === undefined && displayWarning && (
+      {validationError && (
         <Grid item xs={12} md={12}>
           <Paper>
             <Box pl={2} pt={2}>
@@ -91,7 +92,7 @@ export const AssessmentForm = ({
           setSubmitError
         )}
         validationSchema={assessmentFormValidationSchema}>
-        {({ values, isSubmitting }) => (
+        {({ values, isSubmitting, errors, touched }) => (
           <Form>
             <Paper>
               <Box p={2}>
