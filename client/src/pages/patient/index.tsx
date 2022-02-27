@@ -15,14 +15,15 @@ import {
 import { PatientStats } from './PatientStats';
 import { PregnancyInfo } from './PregnancyInfo';
 import { Patient } from 'src/shared/types';
-import { useRouteMatch } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum, SexEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
-import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
+import Typography from '@material-ui/core/Typography';
+import { ConfirmDialog } from '../../shared/components/confirmDialog';
 
 type RouteParams = {
   patientId: string;
@@ -59,10 +60,15 @@ export const PatientPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [patient, setPatient] = useState<Patient>();
   //we will need to send 2 request, the second is specifically for the cards data array
+  const history = useHistory();
   const [cards, setCards] = useState([]);
   const original_cards_ref = useRef<boolean>(false);
   const [errorLoading, setErrorLoading] = useState(false);
-  const classes = useStyles();
+  const [isThereAPendingReferral, setIsThereAPendingReferral] = useState(false);
+  const [
+    confirmDialogPerformAssessmentOpen,
+    setConfirmDialogPerformAssessmentOpen,
+  ] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState<string[]>([
     'referrals',
     'readings',
@@ -105,6 +111,30 @@ export const PatientPage = () => {
         setErrorLoading(true);
       });
   }, [patientId, original_cards_ref, filterRequestBody]);
+
+  useEffect(() => {
+    apiFetch(
+      API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
+    )
+      .then((resp) => resp.json())
+      .then((referralsData) => {
+        // TODO: encapsulate checking for pending into its own function
+        for (let i = 0; i < referralsData.length; i++) {
+          if (
+            !referralsData[i].isAssessed &&
+            !referralsData[i].isCancelled &&
+            !referralsData[i].notAttended
+          ) {
+            setIsThereAPendingReferral(true);
+            break;
+          }
+        }
+      })
+      .catch(() => {
+        console.error('Error receiving referrals');
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const collectCardsWithData = (cards_data: any) => {
     const cards_elements = [] as any;
@@ -205,7 +235,26 @@ export const PatientPage = () => {
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      <Header patient={patient} />
+      <Header
+        patient={patient}
+        isThereAPendingReferral={isThereAPendingReferral}
+        setConfirmDialogPerformAssessmentOpen={
+          setConfirmDialogPerformAssessmentOpen
+        }
+      />
+      <ConfirmDialog
+        title={'Warning'}
+        content={
+          'You have at least one pending referral. Do you still want to perform an assessment without assessing a referral?'
+        }
+        open={confirmDialogPerformAssessmentOpen}
+        onClose={() => {
+          setConfirmDialogPerformAssessmentOpen(false);
+        }}
+        onConfirm={() => {
+          history.push(`/assessments/new/${patientId}`);
+        }}
+      />
       <br />
       <Divider />
       <br />
@@ -242,12 +291,8 @@ export const PatientPage = () => {
             justifyContent="flex-end"
             alignItems="center">
             <Grid item container justifyContent="flex-end" spacing={2}>
-              <Grid item alignItems="center">
-                <>
-                  <HourglassEmptyIcon className={classes.filterIcon} />
-                </>
-              </Grid>
               <Grid item>
+                <Typography>Show only: </Typography>
                 {Filters.map((filter_checkbox, index) => (
                   <FormControlLabel
                     control={
