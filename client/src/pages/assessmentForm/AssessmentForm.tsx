@@ -2,7 +2,6 @@ import { makeStyles, Typography } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-// import WarningIcon from '@material-ui/icons/Warning';
 import Paper from '@material-ui/core/Paper';
 import { Field, Form, Formik } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';

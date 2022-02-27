@@ -245,7 +245,7 @@ export const PatientPage = () => {
       <ConfirmDialog
         title={'Warning'}
         content={
-          'You have at least one pending referral. Do you still want to create an assessment without a referral?'
+          'You have at least one pending referral. Do you still want to perform an assessment without assessing a referral?'
         }
         open={confirmDialogPerformAssessmentOpen}
         onClose={() => {
