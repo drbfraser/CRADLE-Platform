@@ -76,6 +76,8 @@ export const AssessmentForm = ({
           setSubmitError
         )}
         validate={validate}
+        validateOnChange={false}
+        validateOnBlur={false}
         validationSchema={assessmentFormValidationSchema}>
         {({ values, isSubmitting }) => (
           <Form>
