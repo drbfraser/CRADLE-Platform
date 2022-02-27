@@ -83,6 +83,12 @@ def init(api):
     api.add_resource(
         AndroidReadings, "/api/mobile/readings", endpoint="android_readings"
     )  # [GET]
+    api.add_resource(
+        AndroidReferrals, "/api/mobile/referrals", endpoint="android_referrals"
+    )  # [GET]
+    api.add_resource(
+        AndroidAssessments, "/api/mobile/assessments", endpoint="android_assessments"
+    )  # [GET]
 
     #### New Endpoints ####
     api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST]

@@ -121,3 +121,33 @@ class AndroidReadings(Resource):
         readings = view.reading_view(user)
 
         return [serialize.serialize_reading(r) for r in readings]
+
+
+# /api/mobile/referrals
+class AndroidReferrals(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/android-referrals-get.yml",
+        methods=["GET"],
+        endpoint="android_referrals",
+    )
+    def get():
+        user = get_jwt_identity()
+        referrals = view.referral_view(user)
+        return [serialize.serialize_referral_or_assessment(r) for r in referrals]
+
+
+# /api/mobile/assessments
+class AndroidAssessments(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/android-assessments-get.yml",
+        methods=["GET"],
+        endpoint="android_assessments",
+    )
+    def get():
+        user = get_jwt_identity()
+        assessments = view.assessment_view(user)
+        return [serialize.serialize_referral_or_assessment(r) for r in assessments]

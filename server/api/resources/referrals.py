@@ -177,10 +177,11 @@ class ReferralNotAttend(Resource):
             abort(400, message=error)
 
         referral = crud.read(Referral, id=referral_id)
-        referral.notAttended = True
-        referral.notAttendReason = request_body["notAttendReason"]
-        referral.lastEdited = get_current_time()
-        data.db_session.commit()
-        data.db_session.refresh(referral)
+        if not referral.notAttended:
+            referral.notAttended = True
+            referral.notAttendReason = request_body["notAttendReason"]
+            referral.lastEdited = get_current_time()
+            data.db_session.commit()
+            data.db_session.refresh(referral)
 
         return marshal.marshal(referral)

@@ -23,12 +23,12 @@ responses:
             dateReferred:
               type: Unix timestamp
               example: 1592339808
+            lastEdited:
+              type: Unix timestamp
+              example: 1592339808
             isAssessed:
               type: boolean
               example: true
-            dateAssessed:
-              type: Unix timestamp
-              example: 1592439808
             isCancelled:
               type: boolean
               example: false
@@ -47,9 +47,6 @@ responses:
             notAttended:
               type: boolean
               example: true
-            dateNotAttended:
-              type: Unix timestamp | Null
-              example: 1644656212
             notAttendReason:
               type: string | Null
               example: patient is healthy now

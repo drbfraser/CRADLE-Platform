@@ -108,6 +108,8 @@ def serialize_reading(tup: Tuple[Reading, UrineTest]) -> dict:
         reading["urineTests"] = marshal.marshal(tup[1])
     return reading
 
+def serialize_referral_or_assessment(model: Union[Referral, FollowUp]) -> dict:
+    return marshal.marshal(model)
 
 def deserialize_patient(
     data: dict, shallow: bool = True, partial: bool = False

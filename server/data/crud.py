@@ -680,38 +680,40 @@ def read_readings(
 
     return query.all()
 
-
-# ! this method needs fix
 def read_referrals_and_assessments(
     model: Union[Referral, FollowUp],
-    last_edited: int,
+    patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
+    last_edited: Optional[int] = None,
 ) -> Union[List[Referral], List[FollowUp]]:
     """
-    Queries the database for referrals or assessments of readings associated with the user.
+    Queries the database for referrals or assessments
 
-    :param model: Data model of either Referral or FollowUp to query
-    :param last_edited: Timestamp to filter referrals or assessments by last-edited time greater
-    than the timestamp
-    :param user_id: ID of user to filter readings wrt patient associations; by default this
+    :param patient_id: ID of patient to filter referrals or assessments; by default this 
     filter is not applied
+    :param user_id: ID of user to filter patients wrt patient associations; by default
+    this filter is not applied
+    :param last_edited: Timestamp to filter referrals or assessments by last-edited time
+    greater than the timestamp; by default this filter is not applied
 
     :return: A list of referrals or assessments
     """
     model_last_edited = (
-        model.dateReferred
+        model.lastEdited
         if model.schema() == Referral.schema()
         else model.dateAssessed
     )
-    query = (
-        db_session.query(model)
-        .join(Reading, model.reading)
-        .filter(Reading.lastEdited <= last_edited, model_last_edited > last_edited)
-    )
+    query = db_session.query(model)
 
-    query = __filter_by_patient_association(query, Reading, user_id, is_cho)
+    query = __filter_by_patient_association(query, model, user_id, is_cho)
 
+    if last_edited:
+        query = query.filter(model_last_edited > last_edited)
+
+    if patient_id:
+        query = query.filter(model.patientId == patient_id)
+    
     return query.all()
 
 
