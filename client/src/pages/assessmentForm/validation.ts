@@ -26,7 +26,7 @@ export const assessmentFormValidationSchema = Yup.object()
         return true;
       } else {
         return this.createError({
-          path: "assessmentForm",
+          path: 'assessmentForm',
           message:
             'At least one of Investigation Results, Final Diagnosis, Treatment / Operation, and Drug History must be entered',
         });

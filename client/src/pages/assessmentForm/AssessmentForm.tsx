@@ -67,7 +67,7 @@ export const AssessmentForm = ({
       )}
       <Formik
         initialValues={initialState}
-        name={"assessmentForm"}
+        name={'assessmentForm'}
         onSubmit={handleSubmit(
           patientId,
           assessmentId,
