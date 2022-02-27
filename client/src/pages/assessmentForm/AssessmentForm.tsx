@@ -10,9 +10,7 @@ import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
-// import { API_URL, apiFetch } from '../../shared/api';
-// import { EndpointEnum } from '../../shared/enums';
-import { assessmentFormValidationSchema } from './validation';
+import { assessmentFormValidationSchema } from "./validation";
 
 interface IProps {
   initialState: AssessmentState;
@@ -29,31 +27,14 @@ export const AssessmentForm = ({
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
-  // const [displayWarning, setDisplayWarning] = useState(false);
   const [validationError, setValidationError] = useState(false);
   const drugHistory = initialState.drugHistory;
 
-  // useEffect(() => {
-  //   // Check if the patient has a pending referral already, warn the user if so
-  //   apiFetch(
-  //     API_URL + EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.REFERRALS
-  //   )
-  //     .then((resp) => resp.json())
-  //     .then((data) => {
-  //       for (let i = 0; i < data.length; i++) {
-  //         if (
-  //           !data[i].isAssessed &&
-  //           !data[i].isCancelled &&
-  //           !data[i].notAttended
-  //         ) {
-  //           setDisplayWarning(true);
-  //         }
-  //       }
-  //     })
-  //     .catch(() => {
-  //       console.error('Error receiving referrals');
-  //     });
-  // });
+  const validate = (values: any) => {
+    let errors: Partial<AssessmentState> = {};
+    let valid = !!(values[AssessmentField.investigation]?.trim() || values[AssessmentField.finalDiagnosis]?.trim() || values[AssessmentField.treatment]?.trim() || values[AssessmentField.drugHistory]?.trim());
+    setValidationError(!valid)
+    return errors}
 
   return (
     <>
@@ -64,18 +45,12 @@ export const AssessmentForm = ({
             <Box pl={2} pt={2}>
               <h2>
                 {' '}
-                <WarningIcon /> Warning
+                <WarningIcon /> There is an error in your submission.
               </h2>
             </Box>
             <Box p={2}>
               <Typography>
-                <b>This patient has at least one pending referral.</b> Creating
-                this assessment will not mark any pending referrals as assessed.
-                If you would like to mark a referral as assessed, return to the
-                previous page and then select <b>Assess Referral</b> on the
-                pending referral card. If the patient did not attend any pending
-                referral(s), please select <b>Did Not Attend</b> on the pending
-                referral card(s).
+                At least one of <b>Investigation Results</b>, <b>Final Diagnosis</b>, <b>Treatment / Operation</b>, and <b>Drug History</b> must be entered
               </Typography>
             </Box>
           </Paper>
@@ -91,8 +66,9 @@ export const AssessmentForm = ({
           drugHistory,
           setSubmitError
         )}
+        validate={validate}
         validationSchema={assessmentFormValidationSchema}>
-        {({ values, isSubmitting, errors, touched }) => (
+        {({ values, isSubmitting}) => (
           <Form>
             <Paper>
               <Box p={2}>
