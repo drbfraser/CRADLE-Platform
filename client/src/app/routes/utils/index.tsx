@@ -19,6 +19,7 @@ import { ReadingFormPage } from 'src/pages/readingForm';
 import PollIcon from '@material-ui/icons/Poll';
 import { ReferralFormPage } from 'src/pages/referralForm';
 import { HistoryTablesPage } from 'src/pages/historyTables';
+import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 
 export type AppRoute = {
   component:
@@ -76,13 +77,14 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     to: `/readings/new/:patientId`,
   },
+  // the following 3 AssessmentFormPage is for 3 different cases
   {
     component: AssessmentFormPage,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/assessments/new/:patientId/:readingId`,
+    to: `/assessments/new/:patientId`,
   },
   {
     component: AssessmentFormPage,
@@ -90,7 +92,15 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/assessments/edit/:patientId/:readingId/:assessmentId`,
+    to: `/assessments/edit/:patientId/:assessmentId`,
+  },
+  {
+    component: AssessmentFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/assessments/new/:patientId/:referralId`,
   },
   {
     component: ReferralFormPage,
@@ -98,7 +108,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/referrals/new/:readingId`,
+    to: `/referrals/new/:patientId`,
   },
   {
     component: ReferralsPage,
@@ -110,6 +120,22 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     title: `Referrals`,
     to: `/referrals`,
+  },
+  {
+    component: SingleReasonFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/referrals/cancel-status-switch/:referralId/:type`,
+  },
+  {
+    component: SingleReasonFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/referrals/not-attend/:referralId/:type`,
   },
   {
     component: PatientsPage,

@@ -1,20 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
-import { ReferralForm } from './ReferralForm';
+import { SingleReasonForm } from './SingleReasonForm';
 import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
-  patientId: string;
+  referralId: string;
+  type: string;
 };
 
-export const ReferralFormPage = () => {
+export const SingleReasonFormPage = () => {
   const classes = useStyles();
-  const { patientId } = useRouteMatch<RouteParams>().params;
+  const { referralId } = useRouteMatch<RouteParams>().params;
+  const { type } = useRouteMatch<RouteParams>().params;
+  const [title, setTitle] = useState('');
+
+  React.useEffect(() => {
+    if (type === 'cancel_referral') {
+      setTitle('Reason for Cancelling');
+    } else if (type === 'undo_cancel_referral') {
+      setTitle('Reason for Undo Cancelling');
+    } else if (type === 'not_attend_referral') {
+      setTitle('Reason for Not Attend');
+    } else {
+      //illegal card. no handling
+    }
+  }, [type]);
 
   return (
     <div className={classes.container}>
@@ -24,10 +39,10 @@ export const ReferralFormPage = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">New Referral</Typography>
+        <Typography variant="h4">{title}</Typography>
       </div>
       <br />
-      <ReferralForm patientId={patientId} />
+      <SingleReasonForm referralId={referralId} type={type} />
     </div>
   );
 };

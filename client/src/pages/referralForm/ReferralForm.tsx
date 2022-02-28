@@ -17,10 +17,10 @@ import { handleSubmit } from './handlers';
 import { initialState, ReferralField, validationSchema } from './state';
 
 interface IProps {
-  readingId: string;
+  patientId: string;
 }
 
-export const ReferralForm = ({ readingId }: IProps) => {
+export const ReferralForm = ({ patientId }: IProps) => {
   const classes = useStyles();
   const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
@@ -31,7 +31,7 @@ export const ReferralForm = ({ readingId }: IProps) => {
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(readingId, setSubmitError)}>
+        onSubmit={handleSubmit(patientId, setSubmitError)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>

@@ -9,33 +9,67 @@ import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { AssessmentField, AssessmentState } from './state';
+import { assessmentFormValidationSchema } from './validation';
+import Alert from '@material-ui/lab/Alert';
 
 interface IProps {
   initialState: AssessmentState;
   patientId: string;
   assessmentId: string | undefined;
+  referralId: string | undefined;
 }
 
 export const AssessmentForm = ({
   initialState,
   patientId,
   assessmentId,
+  referralId,
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
+  const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
   const drugHistory = initialState.drugHistory;
+
+  const validate = (values: any) => {
+    const errors: Partial<AssessmentState> = {};
+    const valid = !!(
+      values[AssessmentField.investigation]?.trim() ||
+      values[AssessmentField.finalDiagnosis]?.trim() ||
+      values[AssessmentField.treatment]?.trim() ||
+      values[AssessmentField.drugHistory]?.trim()
+    );
+    setDisplayEmptyFormError(!valid);
+    return errors;
+  };
 
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      {displayEmptyFormError && (
+        <>
+          <Alert
+            severity="error"
+            onClose={() => setDisplayEmptyFormError(false)}>
+            Unable to submit an empty assessment form
+          </Alert>
+          <br />
+          <br />
+        </>
+      )}
       <Formik
         initialValues={initialState}
+        name={'assessmentForm'}
         onSubmit={handleSubmit(
           patientId,
           assessmentId,
+          referralId,
           drugHistory,
           setSubmitError
-        )}>
+        )}
+        validate={validate}
+        validateOnChange={false}
+        validateOnBlur={false}
+        validationSchema={assessmentFormValidationSchema}>
         {({ values, isSubmitting }) => (
           <Form>
             <Paper>
@@ -110,7 +144,7 @@ export const AssessmentForm = ({
                     <Grid item sm={12} md={8}>
                       <Typography variant="caption">
                         Editing the Medication Prescribed updates the
-                        patient&apos;s Drug History. <br></br>
+                        patient&apos;s Drug History. <br />
                         Consider updating the patient&apos;s Medical History on
                         the Patient Summary screen to mention any updated
                         medical conditions.
