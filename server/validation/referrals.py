@@ -49,10 +49,7 @@ def validate_cancel_put_request(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    record_keys = [
-        "isCancelled",
-        "cancelReason"
-    ]
+    record_keys = ["isCancelled", "cancelReason"]
 
     for key in request_body:
         if key not in record_keys:
@@ -70,7 +67,6 @@ def validate_cancel_put_request(request_body: dict) -> Optional[str]:
     error = values_correct_type(request_body, ["cancelReason"], str)
     if error:
         return error
-
 
 
 def validate_not_attend_put_request(request_body: dict) -> Optional[str]:

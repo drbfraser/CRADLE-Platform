@@ -680,6 +680,7 @@ def read_readings(
 
     return query.all()
 
+
 def read_referrals_and_assessments(
     model: Union[Referral, FollowUp],
     patient_id: Optional[str] = None,
@@ -690,7 +691,7 @@ def read_referrals_and_assessments(
     """
     Queries the database for referrals or assessments
 
-    :param patient_id: ID of patient to filter referrals or assessments; by default this 
+    :param patient_id: ID of patient to filter referrals or assessments; by default this
     filter is not applied
     :param user_id: ID of user to filter patients wrt patient associations; by default
     this filter is not applied
@@ -700,9 +701,7 @@ def read_referrals_and_assessments(
     :return: A list of referrals or assessments
     """
     model_last_edited = (
-        model.lastEdited
-        if model.schema() == Referral.schema()
-        else model.dateAssessed
+        model.lastEdited if model.schema() == Referral.schema() else model.dateAssessed
     )
     query = db_session.query(model)
 
@@ -713,7 +712,7 @@ def read_referrals_and_assessments(
 
     if patient_id:
         query = query.filter(model.patientId == patient_id)
-    
+
     return query.all()
 
 

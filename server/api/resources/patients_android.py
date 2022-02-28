@@ -150,4 +150,4 @@ class AndroidAssessments(Resource):
     def get():
         user = get_jwt_identity()
         assessments = view.assessment_view(user)
-        return [serialize.serialize_referral_or_assessment(r) for r in assessments]
+        return [serialize.serialize_referral_or_assessment(a) for a in assessments]
