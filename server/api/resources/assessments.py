@@ -67,17 +67,14 @@ class SingleAssessment(Resource):
 
         return marshal.marshal(follow_up)
 
-
-# /api/assessmentUpdate/<int:assessment_id>
-class UpdateAssessment(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/assessments-update-post.yml",
-        methods=["POST"],
-        endpoint="assessmentUpdate",
+        "../../specifications/single-assessment-put.yml",
+        methods=["PUT"],
+        endpoint="single_assessment",
     )
-    def post(assessment_id: int):
+    def put(assessment_id: int):
         if not assessment_id:
             abort(404, message=f"Assessment id is required")
         json = request.get_json(force=True)
@@ -92,16 +89,10 @@ class UpdateAssessment(Resource):
         if not assessment:
             abort(404, message=f"No assessment with id {assessment_id}")
 
-        json["readingId"] = assessment.readingId
-
         error_message = assessments.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
 
         crud.update(FollowUp, json, id=assessment.id)
 
-        if assessment.reading.referral:
-            assessment.reading.referral.isAssessed = True
-            data.db_session.commit()
-
-        return assessment.id, 201
+        return assessment.id, 200

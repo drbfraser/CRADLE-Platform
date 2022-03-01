@@ -22,8 +22,10 @@ export const handleSubmit = (
     };
 
     let url = API_URL;
+    let method = 'POST';
     if (assessmentId !== undefined) {
-      url += EndpointEnum.ASSESSMENT_UPDATE + '/' + assessmentId;
+      url += EndpointEnum.ASSESSMENTS + '/' + assessmentId;
+      method = 'PUT';
     } else {
       url += EndpointEnum.ASSESSMENTS;
     }
@@ -35,7 +37,7 @@ export const handleSubmit = (
 
     try {
       await apiFetch(url, {
-        method: 'POST',
+        method: method,
         body: postBody,
       });
 

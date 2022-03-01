@@ -11,7 +11,7 @@ parameters:
     example: 1
 requestBody:
   required: true
-  description: POST request body for /api/assessmentUpdate/<int:assessment_id>
+  description: POST request body for /api/assessment/<int:assessment_id>
   content:
     application/json:
       schema:
@@ -40,7 +40,7 @@ requestBody:
             example: Check back with the patient once a week
 
 responses:
-  201:
+  200:
     description: |
       The id of the updated assessment is returned in the response body.
     content:
@@ -59,7 +59,7 @@ responses:
           properties:
             message:
               type: string
-              example: The request body key {readingId} is required.
+              example: The request body key {patientId} is required.
   404:
     description: |
       Not found: `id` doesn't reference an assessment in the database.

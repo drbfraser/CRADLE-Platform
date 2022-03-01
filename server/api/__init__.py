@@ -59,9 +59,6 @@ def __init_assessment_resources(api: Api):
     import api.resources.assessments as r
 
     api.add_resource(r.Root, "/api/assessments", endpoint="assessment_root")
-    api.add_resource(
-        r.UpdateAssessment, "/api/assessmentUpdate", endpoint="update_assessment"
-    )
     api.add_resource(r.SingleAssessment, "/api/assessments/<int:assessment_id>")
 
 
