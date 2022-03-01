@@ -23,6 +23,7 @@ interface IProps {
   RowComponent: ({ row }: any) => JSX.Element;
   isTransformed: boolean;
   isDrugRecord?: boolean | undefined;
+  isReferralListPage?: boolean | undefined; //added for referral list page(2022 spring, v1.0 Feb 06)
   patientId?: string;
   gestationalAgeUnit?: string;
   referralFilter?: ReferralFilter;
@@ -42,6 +43,7 @@ export const APITable = ({
   RowComponent,
   isTransformed,
   isDrugRecord,
+  isReferralListPage,
   patientId,
   gestationalAgeUnit,
   referralFilter,
@@ -122,12 +124,15 @@ export const APITable = ({
     )
       .then(async (resp) => {
         const json = await resp.json();
+
         //The case for drug history records on the past records page
         if (isDrugRecord === true) {
           setRows(json.drug);
           //The case for medical history records on the past records page
         } else if (isDrugRecord === false) {
           setRows(json.medical);
+        } else if (isReferralListPage === true) {
+          setRows(json);
         } else {
           setRows(json);
         }
@@ -152,6 +157,7 @@ export const APITable = ({
     isDrugRecord,
     refetch,
     referralFilter,
+    isReferralListPage,
   ]);
 
   const handleSort = (col: string) => {

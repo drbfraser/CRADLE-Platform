@@ -9,12 +9,12 @@ import { ReferralForm } from './ReferralForm';
 import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
-  readingId: string;
+  patientId: string;
 };
 
 export const ReferralFormPage = () => {
   const classes = useStyles();
-  const { readingId } = useRouteMatch<RouteParams>().params;
+  const { patientId } = useRouteMatch<RouteParams>().params;
 
   return (
     <div className={classes.container}>
@@ -27,7 +27,7 @@ export const ReferralFormPage = () => {
         <Typography variant="h4">New Referral</Typography>
       </div>
       <br />
-      <ReferralForm readingId={readingId} />
+      <ReferralForm patientId={patientId} />
     </div>
   );
 };

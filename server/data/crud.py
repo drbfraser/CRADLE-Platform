@@ -1,4 +1,5 @@
 from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
+from sqlalchemy import func
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
@@ -6,6 +7,7 @@ import operator
 
 from data import db_session
 from models import (
+    TrafficLightEnum,
     FollowUp,
     Patient,
     Referral,
@@ -261,18 +263,40 @@ def read_referral_list(
     :param user_id: ID of user to filter patients wrt patient associations; None to get
     referrals associated with all users
     :param kwargs: Query params including search_text, order_by, direction, limit, page,
-    health_facilities, referrers, date_range, is_assessed, is_pregnant
+    health_facilities, referrers, date_range, is_assessed, is_pregnant, vital_signs
 
     :return: A list of referrals
     """
-    query = db_session.query(
-        Referral.id,
-        Referral.dateReferred,
-        Referral.isAssessed,
-        Patient.patientId,
-        Patient.patientName,
-        Patient.villageNumber,
-    ).join(Patient, Referral.patient)
+    # Fetch vital sign from reading prior to the referral within 4 hours
+    four_hours_in_sec = 14400
+    reading_subquery = (
+        db_session.query(Reading.readingId)
+        .filter(
+            Referral.patientId == Reading.patientId,
+            Referral.dateReferred >= Reading.dateTimeTaken,
+            Referral.dateReferred <= Reading.dateTimeTaken + four_hours_in_sec,
+        )
+        .order_by(Reading.dateTimeTaken.desc())
+        .limit(1)
+        .correlate(Referral)
+    )
+    vital_sign_field = func.coalesce(
+        Reading.trafficLightStatus,
+        TrafficLightEnum.NONE.value,
+    ).label("vitalSign")
+    query = (
+        db_session.query(
+            Referral.id,
+            Referral.dateReferred,
+            Referral.isAssessed,
+            Patient.patientId,
+            Patient.patientName,
+            Patient.villageNumber,
+            vital_sign_field,
+        )
+        .outerjoin(Referral, and_(Referral.patientId == Patient.patientId))
+        .outerjoin(Reading, and_(Reading.readingId == reading_subquery))
+    )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
     query = __filter_by_patient_search(query, **kwargs)
@@ -323,8 +347,7 @@ def read_referral_list(
 
     vital_signs = kwargs.get("vital_signs")
     if vital_signs:
-        # TODO: implement vital_signs filter logic
-        pass
+        query = query.filter(vital_sign_field.in_(vital_signs))
 
     limit = kwargs.get("limit")
     if limit:
@@ -658,36 +681,37 @@ def read_readings(
     return query.all()
 
 
-# ! this method needs fix
 def read_referrals_and_assessments(
     model: Union[Referral, FollowUp],
-    last_edited: int,
+    patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
+    last_edited: Optional[int] = None,
 ) -> Union[List[Referral], List[FollowUp]]:
     """
-    Queries the database for referrals or assessments of readings associated with the user.
+    Queries the database for referrals or assessments
 
-    :param model: Data model of either Referral or FollowUp to query
-    :param last_edited: Timestamp to filter referrals or assessments by last-edited time greater
-    than the timestamp
-    :param user_id: ID of user to filter readings wrt patient associations; by default this
+    :param patient_id: ID of patient to filter referrals or assessments; by default this
     filter is not applied
+    :param user_id: ID of user to filter patients wrt patient associations; by default
+    this filter is not applied
+    :param last_edited: Timestamp to filter referrals or assessments by last-edited time
+    greater than the timestamp; by default this filter is not applied
 
     :return: A list of referrals or assessments
     """
     model_last_edited = (
-        model.dateReferred
-        if model.schema() == Referral.schema()
-        else model.dateAssessed
+        model.lastEdited if model.schema() == Referral.schema() else model.dateAssessed
     )
-    query = (
-        db_session.query(model)
-        .join(Reading, model.reading)
-        .filter(Reading.lastEdited <= last_edited, model_last_edited > last_edited)
-    )
+    query = db_session.query(model)
 
-    query = __filter_by_patient_association(query, Reading, user_id, is_cho)
+    query = __filter_by_patient_association(query, model, user_id, is_cho)
+
+    if last_edited:
+        query = query.filter(model_last_edited > last_edited)
+
+    if patient_id:
+        query = query.filter(model.patientId == patient_id)
 
     return query.all()
 

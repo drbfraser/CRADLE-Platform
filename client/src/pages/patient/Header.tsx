@@ -15,13 +15,33 @@ import { useHistory } from 'react-router-dom';
 
 interface IProps {
   patient?: Patient;
+  isThereAPendingReferral: boolean;
+  setConfirmDialogPerformAssessmentOpen: any;
 }
 
-export const Header = ({ patient }: IProps) => {
+export const Header = ({
+  patient,
+  isThereAPendingReferral,
+  setConfirmDialogPerformAssessmentOpen,
+}: IProps) => {
   const history = useHistory();
   const handleAddReadingClick = () => {
     if (patient) {
       history.push(`/readings/new/${patient.patientId}`);
+    }
+  };
+
+  const handleCreateReferralClick = () => {
+    if (patient) {
+      history.push(`/referrals/new/${patient.patientId}`);
+    }
+  };
+
+  const handlePerformAssessmentClick = () => {
+    if (isThereAPendingReferral) {
+      setConfirmDialogPerformAssessmentOpen(true);
+    } else if (patient) {
+      history.push(`/assessments/new/${patient.patientId}`);
     }
   };
 
@@ -43,13 +63,31 @@ export const Header = ({ patient }: IProps) => {
           </Typography>
         </Grid>
       </Grid>
-      <Button
-        color="primary"
-        variant="contained"
-        onClick={handleAddReadingClick}>
-        <AddIcon />
-        Add New Reading
-      </Button>
+      <Grid item>
+        <Grid container alignItems="center" style={{ gap: 5 }}>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={handleAddReadingClick}>
+            <AddIcon />
+            Add New Reading
+          </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={handleCreateReferralClick}>
+            <AddIcon />
+            Create Referral
+          </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={handlePerformAssessmentClick}>
+            <AddIcon />
+            Perform Assessment
+          </Button>
+        </Grid>
+      </Grid>
     </Grid>
   );
 };

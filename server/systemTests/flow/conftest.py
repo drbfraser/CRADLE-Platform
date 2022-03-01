@@ -61,21 +61,19 @@ def make_patient(make_assessment):
             ]
 
         if refer_to:
-            if not reading_id:
-                raise ValueError("cannot create patient with referral and no reading")
-
-            patient["readings"][0]["referral"] = {
-                "dateReferred": referral_timestamp
-                if referral_timestamp
-                else 1595118445,
-                "comment": "A comment",
-                "actionTaken": "An action",
-                "userId": created_by if created_by else 1,
-                "patientId": patient_id,
-                "referralHealthFacilityName": refer_to,
-                "readingId": reading_id,
-                "isAssessed": is_assessed,
-            }
+            patient["referrals"] = [
+                {
+                    "dateReferred": referral_timestamp
+                    if referral_timestamp
+                    else 1595118445,
+                    "comment": "A comment",
+                    "actionTaken": "An action",
+                    "userId": created_by if created_by else 1,
+                    "patientId": patient_id,
+                    "referralHealthFacilityName": refer_to,
+                    "isAssessed": is_assessed,
+                }
+            ]
 
         if is_assessed:
             if not reading_id:

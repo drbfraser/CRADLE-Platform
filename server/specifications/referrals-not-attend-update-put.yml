@@ -1,0 +1,67 @@
+Mark a single referral as notAttended
+---
+tags:
+  - Referrals
+parameters:
+- in: path
+  name: referral_id
+  required: true
+  schema:
+    type: integer
+requestBody:
+  required: true
+  description: POST request body for /api/referrals/not-attend
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          notAttendReason:
+            type: string
+            example: The patient is healthy now
+          
+          
+responses:
+  201:
+    description: Response from POST request for /api/referrals/not-attend
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            comment:
+              type: string | Null
+              example: They need help
+            dateReferred:
+              type: Unix timestamp
+              example: 1592339808
+            lastEdited:
+              type: Unix timestamp
+              example: 1592339808
+            isAssessed:
+              type: boolean
+              example: true
+            isCancelled:
+              type: boolean
+              example: true
+            cancelReason:
+              type: string | Null
+              example: patient is healthy now
+            patientId:
+              type: integer
+              example: 1234
+            referralHealthFacilityName:
+              type: string | Null
+              example: H0000
+            id:
+              type: integer
+              example: 23
+            userId:
+              type: integer
+              example: 2
+            notAttended:
+              type: boolean
+              example: true
+            notAttendReason:
+              type: string | Null
+              example: patient is healthy now

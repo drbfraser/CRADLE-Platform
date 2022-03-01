@@ -11,7 +11,7 @@ echo -e "${BLUE}"
 echo -e "Cradle Continuous Deployment Setup"
 echo -e "This script must be run as root or with sudo. It is only supported on Ubuntu Server 20.04."
 echo -e "${COLOR_OFF}${RED}"
-echo -e "NOTE: This script only supports having 1 Gitlab runner for staging deployment and 1 Gitlab runner for production deployment."
+echo -e "NOTE: This script only supports having 1 Gitlab runner for the development deployment and 1 Gitlab runner for the staging deployment."
 read -p "Continue (y/n)? " CONT
 echo -e "${COLOR_OFF}"
 
@@ -40,7 +40,7 @@ usermod -aG docker gitlab-runner
 echo -e "${BLUE}"
 echo -e "Registering Gitlab Runner"
 echo -e "The URL and token can be found in Settings -> CI/CD -> Runners"
-echo -e "The tags must be 'deploy,shell' for staging and 'deploy,shell-prod' for production."
+echo -e "The tag must be 'deploy-development' for development and 'deploy-staging' for staging."
 echo -e "The executor must be 'shell'"
 echo -e "${COLOR_OFF}"
 
@@ -52,6 +52,6 @@ echo -e "\n${BLUE}Please enter the domain for this Cradle installation (blank to
 RAND_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 RAND_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 read;
-echo -e "CADDY_DOMAIN=${REPLY:-:80}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\nJWT_SECRET_KEY=${RAND_SECRET}\n" > /var/cradle/.env
+echo -e "DOMAIN=${REPLY:-:80}\nDB_USERNAME=user\nDB_PASSWORD=${RAND_PASSWORD}\nJWT_SECRET_KEY=${RAND_SECRET}\n" > /var/cradle/.env
 
 echo -e "\n${BLUE}Finished! Run the Gitlab deploy pipeline to deploy CRADLE.${COLOR_OFF}\n"

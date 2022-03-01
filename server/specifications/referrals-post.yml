@@ -34,6 +34,9 @@ responses:
             dateReferred:
               type: Unix timestamp
               example: 1592339808
+            lastEdited:
+              type: Unix timestamp
+              example: 1592339808
             isAssessed:
               type: boolean
               example: false
@@ -52,3 +55,9 @@ responses:
             userId:
               type: integer
               example: 2
+            notAttended:
+              type: boolean
+              example: true
+            notAttendReason:
+              type: string | Null
+              example: patient is healthy now

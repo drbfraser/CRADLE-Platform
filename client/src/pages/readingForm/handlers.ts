@@ -3,7 +3,7 @@ import { EndpointEnum } from 'src/shared/enums';
 import { ReadingField, ReadingState } from './state';
 import { getSymptomsFromFormState } from './symptoms/symptoms';
 
-// not sure why the GUID is being generated client side... this should be moved server side
+// TODO: not sure why the GUID is being generated client side... this should be moved server side
 const guid = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
@@ -18,29 +18,17 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
 
   // user ID and healthcare worker ID should be moved to the backend
   const submitValues = {
-    reading: {
-      patientId: patientId,
-      readingId: readingGuid,
-      dateTimeTaken: currentTimestamp,
-      bpDiastolic: values[ReadingField.bpDiastolic],
-      bpSystolic: values[ReadingField.bpSystolic],
-      heartRateBPM: values[ReadingField.heartRateBPM],
-      symptoms: getSymptomsFromFormState(values, true),
-    },
-    assessment: {
-      dateAssessed: currentTimestamp,
-      diagnosis: values[ReadingField.finalDiagnosis],
-      followupInstructions: values[ReadingField.followUpInstruc],
-      followupNeeded: values[ReadingField.followUp],
-      medicationPrescribed: values[ReadingField.drugHistory],
-      specialInvestigations: values[ReadingField.investigation],
-      treatment: values[ReadingField.treatment],
-      patientId: patientId,
-    },
+    patientId: patientId,
+    readingId: readingGuid,
+    dateTimeTaken: currentTimestamp,
+    bpDiastolic: values[ReadingField.bpDiastolic],
+    bpSystolic: values[ReadingField.bpSystolic],
+    heartRateBPM: values[ReadingField.heartRateBPM],
+    symptoms: getSymptomsFromFormState(values, true),
   } as any;
 
   if (values[ReadingField.urineTest]) {
-    submitValues['reading']['urineTests'] = {
+    submitValues['urineTests'] = {
       urineTestBlood: values[ReadingField.blood],
       urineTestGlu: values[ReadingField.glucose],
       urineTestLeuc: values[ReadingField.leukocytes],
@@ -58,7 +46,8 @@ export const handleSubmit = async (
   drugHistory: string
 ) => {
   const submitValues = getSubmitObject(patientId, values);
-  const url = API_URL + EndpointEnum.READING_ASSESSMENT;
+  console.log('TESTING: submitValues: ' + JSON.stringify(submitValues));
+  const url = API_URL + EndpointEnum.READINGS;
 
   try {
     await apiFetch(url, {

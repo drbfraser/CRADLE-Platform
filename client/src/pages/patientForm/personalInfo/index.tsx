@@ -136,10 +136,11 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
           </Grid>
           <Grid item md={4} sm={12} xs={12}>
             <FormControl fullWidth variant="outlined">
-              <InputLabel>Gender</InputLabel>
+              <InputLabel>Gender *</InputLabel>
               <Field
                 component={Select}
                 fullWidth
+                required
                 label="Gender"
                 name={PatientField.patientSex}
                 onChange={handleChangeCustom(

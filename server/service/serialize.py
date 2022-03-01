@@ -41,6 +41,7 @@ def serialize_referral_list(referrals: List[Any]) -> dict:
             "villageNumber": r.villageNumber,
             "dateReferred": r.dateReferred,
             "isAssessed": r.isAssessed,
+            "vitalSign": r.vitalSign.value,
         }
         for r in referrals
     ]
@@ -106,6 +107,10 @@ def serialize_reading(tup: Tuple[Reading, UrineTest]) -> dict:
     if tup[1]:
         reading["urineTests"] = marshal.marshal(tup[1])
     return reading
+
+
+def serialize_referral_or_assessment(model: Union[Referral, FollowUp]) -> dict:
+    return marshal.marshal(model)
 
 
 def deserialize_patient(

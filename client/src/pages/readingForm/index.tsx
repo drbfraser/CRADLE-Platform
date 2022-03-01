@@ -9,7 +9,6 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import { Button } from '@material-ui/core';
 import { Symptoms } from './symptoms';
 import { VitalSigns } from './vitalSigns';
-import { Assessment } from './assessment';
 import { Confirmation } from './confirmation';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import Stepper from '@material-ui/core/Stepper/Stepper';
@@ -35,7 +34,7 @@ export const ReadingFormPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);
   const [pageNum, setPageNum] = useState(0);
-  const [formInitialState, setFormInitialState] = useState<ReadingState>();
+  const [formInitialState, setFormInitialState] = useState<ReadingState>(); // change needed in the ReadingState?
   const [drugHistory, setDrugHistory] = useState('');
 
   const pages = [
@@ -48,11 +47,6 @@ export const ReadingFormPage = () => {
       name: 'Vital Signs',
       component: VitalSigns,
       validationSchema: vitalSignsValidationSchema,
-    },
-    {
-      name: 'Assessment',
-      component: Assessment,
-      validationSchema: undefined,
     },
     {
       name: 'Confirmation',

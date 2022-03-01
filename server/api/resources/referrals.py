@@ -12,7 +12,7 @@ import data.marshal as marshal
 from utils import get_current_time
 import service.assoc as assoc
 import service.view as view
-from models import HealthFacility, Reading, Referral
+from models import HealthFacility, Referral, Patient
 from validation import referrals
 import service.serialize as serialize
 
@@ -63,13 +63,18 @@ class Root(Resource):
             )
 
         json["userId"] = get_jwt_identity()["userId"]
-        json["dateReferred"] = floor(time.time())
+        create_time = get_current_time()
+        json["dateReferred"] = create_time
+        json["lastEdited"] = create_time
         json["isAssessed"] = False
-        json["dateAssessed"] = None
         json["isCancelled"] = False
-        json["dateCancelled"] = None
+
+        patient = crud.read(Patient, patientId=json["patientId"])
+        if not patient:
+            abort(400, message="Patient does not exist")
 
         referral = marshal.unmarshal(Referral, json)
+
         crud.create(referral, refresh=True)
         # Creating a referral also associates the corresponding patient to the health
         # facility they were referred to.
@@ -114,14 +119,14 @@ class AssessReferral(Resource):
 
         if not referral.isAssessed:
             referral.isAssessed = True
-            referral.dateAssessed = get_current_time()
+            referral.lastEdited = get_current_time()
             data.db_session.commit()
+            data.db_session.refresh(referral)
 
-        new_referral = crud.read(Referral, id=referral_id)
-        return marshal.marshal(new_referral), 201
+        return marshal.marshal(referral), 201
 
 
-# /api/referralCancelStatus/<int:referral_id>
+# /api/referrals/cancel-status-switch/<int:referral_id>
 class ReferralCancelStatus(Resource):
     @staticmethod
     @jwt_required
@@ -131,20 +136,52 @@ class ReferralCancelStatus(Resource):
         endpoint="referral_cancel_status",
     )
     def put(referral_id: int):
+        if not crud.read(Referral, id=referral_id):
+            abort(404, message=f"No referral with id {referral_id}")
+
         request_body = request.get_json(force=True)
 
-        error = referrals.validate_put_request(request_body)
+        error = referrals.validate_cancel_put_request(request_body)
         if error:
             abort(400, message=error)
 
-        request_body["dateCancelled"] = get_current_time()
-
         if not request_body["isCancelled"]:
             request_body["cancelReason"] = None
-            request_body["dateCancelled"] = None
-
         crud.update(Referral, request_body, id=referral_id)
 
-        new_record = crud.read(Referral, id=referral_id)
+        referral = crud.read(Referral, id=referral_id)
+        referral.lastEdited = get_current_time()
+        data.db_session.commit()
+        data.db_session.refresh(referral)
 
-        return marshal.marshal(new_record)
+        return marshal.marshal(referral)
+
+
+# /api/referrals/not_attend/<int:referral_id>
+class ReferralNotAttend(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/referrals-not-attend-update-put.yml",
+        methods=["PUT"],
+        endpoint="referral_not_attend",
+    )
+    def put(referral_id: int):
+        if not crud.read(Referral, id=referral_id):
+            abort(404, message=f"No referral with id {referral_id}")
+
+        request_body = request.get_json(force=True)
+
+        error = referrals.validate_not_attend_put_request(request_body)
+        if error:
+            abort(400, message=error)
+
+        referral = crud.read(Referral, id=referral_id)
+        if not referral.notAttended:
+            referral.notAttended = True
+            referral.notAttendReason = request_body["notAttendReason"]
+            referral.lastEdited = get_current_time()
+            data.db_session.commit()
+            data.db_session.refresh(referral)
+
+        return marshal.marshal(referral)

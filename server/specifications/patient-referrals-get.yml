@@ -36,12 +36,9 @@ responses:
               userId:
                 type: integer | Null
                 example: 1
-              dateCancelled:
+              lastEdited:
                 type: Unix timestamp | Null
                 example: 1644666212
-              dateAssessed:
-                type: Unix timestamp | Null
-                example: 1644656212
               id: 
                 type: integer
                 example: 1
@@ -49,6 +46,12 @@ responses:
                 type: integer
                 example: 191919
               cancelReason:
+                type: string | Null
+                example: patient is healthy now
+              notAttended:
+                type: boolean
+                example: true
+              notAttendReason:
                 type: string | Null
                 example: patient is healthy now
 

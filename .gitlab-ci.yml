@@ -5,9 +5,9 @@ stages:
   - deploy
 
 variables:
-  STAGING_BRANCH: "master"
-  PROD_BRANCH: "prod"
-  NODE_IMAGE: "node:14"
+  DEV_BRANCH: "master"
+  STG_BRANCH: "staging"
+  NODE_IMAGE: "node:16"
   PYTHON_IMAGE: "python:3.9.1-buster"
 
 frontend build:
@@ -22,16 +22,16 @@ frontend build:
       changes:
         - client/**/*
       when: always
-    # always run if deploying to staging or prod
-    - if: '$CI_COMMIT_BRANCH == $STAGING_BRANCH || $CI_COMMIT_BRANCH == $PROD_BRANCH'
+    # always run if deploying
+    - if: '$CI_COMMIT_BRANCH == $DEV_BRANCH || $CI_COMMIT_BRANCH == $STG_BRANCH'
       when: always
   before_script:
     - cd client
-    - npm install
+    - npm ci
   script:
-    - CI=false npm run build
+    - GENERATE_SOURCEMAP=false npm run build
   after_script:
-    - tar -czvf frontend.tar.gz client/build
+    - cd client/build && tar -czvf ../../frontend.tar.gz .
   artifacts:
     expire_in: 1 week
     paths:
@@ -44,7 +44,7 @@ backend unit tests:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
       changes:
         - server/**/*
       when: always
@@ -67,7 +67,7 @@ backend system tests:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
       changes:
         - server/**/*
       when: always
@@ -107,13 +107,13 @@ frontend lint:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
       changes:
         - client/**/*
       when: always
   before_script:
     - cd client
-    - npm install
+    - npm ci
   script:
     - ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
 
@@ -124,7 +124,7 @@ frontend format:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
       changes:
         - client/**/*
       when: always
@@ -141,7 +141,7 @@ backend format:
   tags:
     - docker
   rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $STAGING_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
       changes:
         - server/**/*
       when: always
@@ -151,37 +151,38 @@ backend format:
   script:
     - black --check --exclude 'server/migrations/.*' server
 
-deploy staging:
+.deploy-script: &deploy-script
+  - cp /var/cradle/.env ./.env
+  - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml build
+  - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d
+  - docker image prune -f # remove unused images since we just built new ones
+  - bash -c 'sleep 15' # wait for MySQL to restart
+  - docker exec cradle_flask flask db upgrade
+
+deploy development:
   stage: deploy
+  environment:
+    name: development
+    url: https://cradle-dev.cmpt.sfu.ca
   tags:
-    - shell
+    - deploy-development
   rules:
-    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $STAGING_BRANCH'
+    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $DEV_BRANCH'
       when: on_success
     - when: never
   script:
-    - cp /var/cradle/.env ./.env
-    - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml build
-    - tar -xvf frontend.tar.gz
-    - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d
-    # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
-    - docker exec cradle_flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/cradle_mysql/3306'; do sleep 1; done;" &>-
-    - docker exec cradle_flask flask db upgrade
+    - *deploy-script
 
-deploy prod:
+deploy staging:
   stage: deploy
+  environment:
+    name: staging
+    url: https://cradle-stg.cmpt.sfu.ca
   tags:
-    - shell-prod
+    - deploy-staging
   rules:
-    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $PROD_BRANCH'
-      # only manually deploy to production for greater control
-      when: manual
+    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $STG_BRANCH'
+      when: on_success
     - when: never
   script:
-    - cp /var/cradle/.env ./.env
-    - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml build
-    - tar -xvf frontend.tar.gz
-    - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d
-    # wait for MySQL to start (up to 60 seconds) and then upgrade the database schema
-    - docker exec cradle_flask timeout 60 bash -c "while ! bash -c 'echo > /dev/tcp/cradle_mysql/3306'; do sleep 1; done;" &>-
-    - docker exec cradle_flask flask db upgrade
+    - *deploy-script

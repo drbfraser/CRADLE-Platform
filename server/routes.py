@@ -40,6 +40,7 @@ from api.resources.referrals import (
     SingleReferral,
     AssessReferral,
     ReferralCancelStatus,
+    ReferralNotAttend,
 )
 from api.resources.pregnancies import (
     Root as Pregnancies,
@@ -81,6 +82,12 @@ def init(api):
     )  # [GET]
     api.add_resource(
         AndroidReadings, "/api/mobile/readings", endpoint="android_readings"
+    )  # [GET]
+    api.add_resource(
+        AndroidReferrals, "/api/mobile/referrals", endpoint="android_referrals"
+    )  # [GET]
+    api.add_resource(
+        AndroidAssessments, "/api/mobile/assessments", endpoint="android_assessments"
     )  # [GET]
 
     #### New Endpoints ####
@@ -180,8 +187,13 @@ def init(api):
     )  # [PUT]
     api.add_resource(
         ReferralCancelStatus,
-        "/api/referrals/cancel_status_switch/<int:referral_id>",
+        "/api/referrals/cancel-status-switch/<int:referral_id>",
         endpoint="referral_cancel_status",
+    )  # [PUT]
+    api.add_resource(
+        ReferralNotAttend,
+        "/api/referrals/not-attend/<int:referral_id>",
+        endpoint="referral_not_attend",
     )  # [PUT]
 
     api.add_resource(

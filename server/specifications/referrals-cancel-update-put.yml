@@ -10,7 +10,7 @@ parameters:
     type: integer
 requestBody:
   required: true
-  description: POST request body for /api/referralCancelStatus
+  description: POST request body for /api/referrals/cancel-status-switch
   content:
     application/json:
       schema:
@@ -26,7 +26,7 @@ requestBody:
           
 responses:
   201:
-    description: Response from POST request for /api/referralCancelStatus
+    description: Response from POST request for /api/referrals/cancel-status-switch
     content:
       application/json:
         schema:
@@ -38,12 +38,12 @@ responses:
             dateReferred:
               type: Unix timestamp
               example: 1592339808
+            lastEdited:
+              type: Unix timestamp
+              example: 1592339808
             isAssessed:
               type: boolean
               example: true
-            dateAssessed:
-              type: Unix timestamp
-              example: 1592439808
             isCancelled:
               type: boolean
               example: true
@@ -62,3 +62,9 @@ responses:
             userId:
               type: integer
               example: 2
+            notAttended:
+              type: boolean
+              example: true
+            notAttendReason:
+              type: string | Null
+              example: patient is healthy now
