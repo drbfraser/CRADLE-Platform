@@ -75,7 +75,7 @@ def test_pass_search_full_initials():
 
 
 def test_no_id_matches():
-    full_patient_id = "9872"
+    full_patient_id = "483000275561"
     url = BASE_URL + "/api/patient/global/" + full_patient_id
     response = requests.get(url, headers=auth_header_hcw)
     response_body = response.json()
