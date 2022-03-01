@@ -28,18 +28,15 @@ responses:
             dateReferred:
               type: Unix timestamp
               example: 1592339808
+            lastEdited:
+              type: Unix timestamp
+              example: 1592339808
             referralHealthFacilityName:
               type: string | Null
               example: H0000
             userId:
               type: integer | Null
               example: 1
-            dateCancelled:
-              type: Unix timestamp | Null
-              example: 1644666212
-            dateAssessed:
-              type: Unix timestamp | Null
-              example: 1644656212
             id: 
               type: integer
               example: 1
@@ -52,9 +49,6 @@ responses:
             notAttended:
               type: boolean
               example: true
-            dateNotAttended:
-              type: Unix timestamp | Null
-              example: 1644656212
             notAttendReason:
               type: string | Null
               example: patient is healthy now

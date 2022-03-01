@@ -101,17 +101,17 @@ def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
 
 def reading_view(
     user: dict, last_sync: Optional[int] = None
-) -> List[Tuple[Reading, Referral, FollowUp, UrineTest]]:
+) -> List[Tuple[Reading, UrineTest]]:
     """
-    Returns a list of readings each with corresponding referral, assessment, and urine test.
+    Returns a list of readings each with corresponding urine test.
 
     :param user: JWT identity
-    :return: A list of tuples of reading, referral, assessment, urine test
+    :return: A list of tuples of reading, urine test
     """
     return __get_view(user, crud.read_readings, last_edited=last_sync)
 
 
-def referral_view(user: dict, last_sync: int) -> List[Referral]:
+def referral_view(user: dict, last_sync: Optional[int] = None) -> List[Referral]:
     """
     Returns a list of referrals of readings associated with user.
 
@@ -123,7 +123,7 @@ def referral_view(user: dict, last_sync: int) -> List[Referral]:
     )
 
 
-def assessment_view(user: dict, last_sync: int) -> List[FollowUp]:
+def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowUp]:
     """
     Returns a list of assessments of readings associated with user.
 

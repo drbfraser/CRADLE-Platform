@@ -1,16 +1,10 @@
-Get a list of referrals associated with a single patient
+Get a list of all referrals
 ---
 tags:
-  - Patients
-parameters:
-- in: path
-  name: patient_id
-  required: true
-  schema:
-    type: integer
+  - Android
 responses:
   200:
-    description: GET response body for /api/patients/<string:patient_id>/referrals
+    description: GET response body for /api/mobile/referrals
     content:
       application/json:
         schema:
@@ -54,5 +48,3 @@ responses:
               notAttendReason:
                 type: string | Null
                 example: patient is healthy now
-
-          

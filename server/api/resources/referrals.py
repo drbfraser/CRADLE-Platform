@@ -63,11 +63,11 @@ class Root(Resource):
             )
 
         json["userId"] = get_jwt_identity()["userId"]
-        json["dateReferred"] = get_current_time()
+        create_time = get_current_time()
+        json["dateReferred"] = create_time
+        json["lastEdited"] = create_time
         json["isAssessed"] = False
-        json["dateAssessed"] = None
         json["isCancelled"] = False
-        json["dateCancelled"] = None
 
         patient = crud.read(Patient, patientId=json["patientId"])
         if not patient:
@@ -119,11 +119,11 @@ class AssessReferral(Resource):
 
         if not referral.isAssessed:
             referral.isAssessed = True
-            referral.dateAssessed = get_current_time()
+            referral.lastEdited = get_current_time()
             data.db_session.commit()
+            data.db_session.refresh(referral)
 
-        new_referral = crud.read(Referral, id=referral_id)
-        return marshal.marshal(new_referral), 201
+        return marshal.marshal(referral), 201
 
 
 # /api/referrals/cancel-status-switch/<int:referral_id>
@@ -145,17 +145,16 @@ class ReferralCancelStatus(Resource):
         if error:
             abort(400, message=error)
 
-        request_body["dateCancelled"] = get_current_time()
-
         if not request_body["isCancelled"]:
             request_body["cancelReason"] = None
-            request_body["dateCancelled"] = None
-
         crud.update(Referral, request_body, id=referral_id)
 
-        new_record = crud.read(Referral, id=referral_id)
+        referral = crud.read(Referral, id=referral_id)
+        referral.lastEdited = get_current_time()
+        data.db_session.commit()
+        data.db_session.refresh(referral)
 
-        return marshal.marshal(new_record)
+        return marshal.marshal(referral)
 
 
 # /api/referrals/not_attend/<int:referral_id>
@@ -177,11 +176,12 @@ class ReferralNotAttend(Resource):
         if error:
             abort(400, message=error)
 
-        request_body["notAttended"] = True
-        request_body["dateNotAttended"] = get_current_time()
+        referral = crud.read(Referral, id=referral_id)
+        if not referral.notAttended:
+            referral.notAttended = True
+            referral.notAttendReason = request_body["notAttendReason"]
+            referral.lastEdited = get_current_time()
+            data.db_session.commit()
+            data.db_session.refresh(referral)
 
-        crud.update(Referral, request_body, id=referral_id)
-
-        new_record = crud.read(Referral, id=referral_id)
-
-        return marshal.marshal(new_record)
+        return marshal.marshal(referral)
