@@ -9,7 +9,6 @@ from api.resources.version import *
 from api.resources.assessments import (
     Root as Assessments,
     SingleAssessment,
-    UpdateAssessment,
 )
 from api.resources.stats import (
     AllStats,
@@ -85,12 +84,8 @@ def init(api):
     )  # [GET]
 
     #### New Endpoints ####
-    api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST]
-    api.add_resource(
-        UpdateAssessment,
-        "/api/assessmentUpdate/<int:assessment_id>",
-        endpoint="assessmentUpdate",
-    )  # [POST]
+    api.add_resource(Assessments, "/api/assessments", endpoint="assessments")  # [POST, GET]
+
     api.add_resource(
         SingleAssessment,
         "/api/assessments/<int:assessment_id>",

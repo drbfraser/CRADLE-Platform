@@ -39,7 +39,6 @@ export enum MethodEnum {
 
 export enum EndpointEnum {
   ASSESSMENTS = '/assessments',
-  ASSESSMENT_UPDATE = '/assessmentUpdate',
   HEALTH_FACILITY_LIST = '/facilities?simplified=true',
   HEALTH_FACILITIES = '/facilities',
   MEDICAL_HISTORY = '/medical_history' /* /patients/{PATIENT_ID}/medicalHistory */,
