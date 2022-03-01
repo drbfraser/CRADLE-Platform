@@ -39,9 +39,6 @@ class Root(Resource):
 
         return assessment.id, 201
 
-    
-
-
     @staticmethod
     @jwt_required
     @swag_from(
