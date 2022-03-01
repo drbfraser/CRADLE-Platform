@@ -96,4 +96,3 @@ class SingleAssessment(Resource):
         crud.update(FollowUp, json, id=assessment.id)
 
         return assessment.id, 200
-    
