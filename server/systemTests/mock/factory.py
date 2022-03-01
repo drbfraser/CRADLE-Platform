@@ -142,7 +142,9 @@ class ReferralFactory(ModelFactory):
 class FollowUpFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super(FollowUpFactory, self).__init__(
-            db, dateAssessed=1594514397, healthcareWorkerId=1, 
+            db,
+            dateAssessed=1594514397,
+            healthcareWorkerId=1,
         )
 
     def create(self, **kwargs):
