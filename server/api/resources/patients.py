@@ -12,7 +12,7 @@ import service.invariant as invariant
 import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
-from models import Patient, Pregnancy, Reading, FollowUp
+from models import Patient, Pregnancy, Reading, FollowUp, Referral
 from validation import patients, readings, assessments
 from utils import get_current_time
 from api.decorator import patient_association_required
@@ -76,8 +76,13 @@ class Root(Resource):
 
         patient = crud.read_patients(patient_id)
         readings = crud.read_readings(patient_id)
+        referrals = crud.read_referrals_or_assessments(Referral, patient_id)
+        assessments = crud.read_referrals_or_assessments(FollowUp, patient_id)
 
-        return serialize.serialize_patient(patient, readings), 201
+        return (
+            serialize.serialize_patient(patient, readings, referrals, assessments),
+            201,
+        )
 
 
 # /api/patients/<string:patient_id>
@@ -95,8 +100,10 @@ class SinglePatient(Resource):
             abort(404, message=f"No patient with id {patient_id}")
 
         readings = crud.read_readings(patient_id)
+        referrals = crud.read_referrals_or_assessments(Referral, patient_id)
+        assessments = crud.read_referrals_or_assessments(FollowUp, patient_id)
 
-        return serialize.serialize_patient(patient, readings)
+        return serialize.serialize_patient(patient, readings, referrals, assessments)
 
 
 # /api/patients/<string:patient_id>/info

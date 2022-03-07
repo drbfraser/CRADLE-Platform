@@ -681,7 +681,7 @@ def read_readings(
     return query.all()
 
 
-def read_referrals_and_assessments(
+def read_referrals_or_assessments(
     model: Union[Referral, FollowUp],
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
