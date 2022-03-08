@@ -453,19 +453,40 @@ class FormTemplate(db.Model):
 
 class Form(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    form = db.Column(
-        db.Text,
-        nullable=False,
-        default="{}"
-    )
     patientId = db.Column(
         db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
         nullable=False,
+    )
+    formTemplateId = db.Column(
+        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
+        nullable=False,
+    )
+    dateCreated = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+    )
+    createdBy = db.Column(db.Integer, nullable=True)
+    lastEdited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+    lastEditedBy = db.Column(db.Integer, nullable=True)
+    questions = db.Column(
+        db.Text,
+        nullable=False,
+        default="{}"
     )
 
     # RELATIONSHIPS
     patient = db.relationship(
         "Patient",
+        backref=db.backref("forms", cascade="all, delete-orphan", lazy=True),
+    )
+    formTemplate = db.relationship(
+        "FormTemplate",
         backref=db.backref("forms", cascade="all, delete-orphan", lazy=True),
     )
 
