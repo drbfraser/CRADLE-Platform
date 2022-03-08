@@ -422,6 +422,35 @@ class MedicalRecord(db.Model):
     def schema():
         return MedicalRecordSchema
 
+class FormTemplate(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=True)
+    category = db.Column(db.Text, nullable=True)
+    version = db.Column(db.Text, nullable=True)
+    dateCreated = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+    )
+    createdBy = db.Column(db.Integer, nullable=True)
+    lastEdited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+    lastEditedBy = db.Column(db.Integer, nullable=True)
+    questions = db.Column(
+        db.Text,
+        nullable=False,
+        default="{}"
+    )
+
+    @staticmethod
+    def schema():
+        return FormTemplateschema
+
+
 class Form(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     form = db.Column(
@@ -567,6 +596,13 @@ class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = MedicalRecord
+        load_instance = True
+        include_relationships = True
+
+class FormTemplateschema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = FormTemplate
         load_instance = True
         include_relationships = True
 
