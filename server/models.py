@@ -422,6 +422,7 @@ class MedicalRecord(db.Model):
     def schema():
         return MedicalRecordSchema
 
+
 class FormTemplate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=True)
@@ -440,11 +441,7 @@ class FormTemplate(db.Model):
         onupdate=get_current_time,
     )
     lastEditedBy = db.Column(db.Integer, nullable=True)
-    questions = db.Column(
-        db.Text,
-        nullable=False,
-        default="{}"
-    )
+    questions = db.Column(db.Text, nullable=False, default="{}")
 
     @staticmethod
     def schema():
@@ -474,25 +471,22 @@ class Form(db.Model):
         onupdate=get_current_time,
     )
     lastEditedBy = db.Column(db.Integer, nullable=True)
-    questions = db.Column(
-        db.Text,
-        nullable=False,
-        default="{}"
-    )
+    questions = db.Column(db.Text, nullable=False, default="{}")
 
     # RELATIONSHIPS
     patient = db.relationship(
         "Patient",
-        backref=db.backref("forms", cascade="all, delete-orphan", lazy=True),
+        backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
     formTemplate = db.relationship(
         "FormTemplate",
-        backref=db.backref("forms", cascade="all, delete-orphan", lazy=True),
+        backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
 
     @staticmethod
     def schema():
         return FormSchema
+
 
 #
 # SCHEMAS
@@ -620,6 +614,7 @@ class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+
 class FormTemplateschema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
@@ -627,13 +622,15 @@ class FormTemplateschema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+
 class FormSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = Form
         load_instance = True
         include_relationships = True
-        
+
+
 def validate_user(data):
     try:
         validate(data, user_schema)

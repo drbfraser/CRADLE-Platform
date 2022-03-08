@@ -30,8 +30,6 @@ def marshal(obj: Any, shallow=False) -> dict:
         return __marshal_pregnancy(obj)
     elif isinstance(obj, MedicalRecord):
         return __marshal_medical_record(obj)
-    elif isinstance(obj, Form):
-        return __marshal_form(obj)
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -71,10 +69,6 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
         medical_record_dict = __marshal_medical_record(obj)
         medical_record_dict["type"] = "medical_record"
         return medical_record_dict
-    elif isinstance(obj, Form):
-        form_dict = __marshal_form(obj)
-        form_dict["type"] = "form"
-        return form_dict
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -210,18 +204,9 @@ def __marshal_medical_record(r: MedicalRecord) -> dict:
 
     return d
 
+
 def __marshal_form(f: Form) -> dict:
-    d = vars(f).copy()
-    __pre_process(d)
-    if d.get("patient"):
-        del d["patient"]
-    form_data = d["form"]
-    d["form"] = json.loads(form_data)
-
-    return d
-
-
-
+    pass
 
 
 def __pre_process(d: Dict[str, Any]):
