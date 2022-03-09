@@ -74,7 +74,12 @@ def serialize_patient_timeline(r: Any) -> dict:
     }
 
 
-def serialize_patient(patient: Any, readings: Optional[List[Reading]] = None) -> dict:
+def serialize_patient(
+    patient: Any,
+    readings: Optional[List[Reading]] = None,
+    referrals: Optional[List[Referral]] = None,
+    assessments: Optional[List[FollowUp]] = None,
+) -> dict:
     p = {
         "patientId": patient.patientId,
         "patientName": patient.patientName,
@@ -98,6 +103,12 @@ def serialize_patient(patient: Any, readings: Optional[List[Reading]] = None) ->
         "lastEdited": patient.lastEdited,
         "base": patient.lastEdited,
         "readings": [serialize_reading(r) for r in readings] if readings else [],
+        "referrals": [serialize_referral_or_assessment(r) for r in referrals]
+        if referrals
+        else [],
+        "assessments": [serialize_referral_or_assessment(a) for a in assessments]
+        if assessments
+        else [],
     }
     return {k: v for k, v in p.items() if v or v == False}
 

@@ -1,3 +1,4 @@
+from distutils.log import error
 from typing import List, NamedTuple, Union
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -9,7 +10,16 @@ import service.serialize as serialize
 import data.marshal as marshal
 from data import db_session
 from validation.readings import validate as validate_reading
-from models import MedicalRecord, Patient, PatientAssociations, Pregnancy, Reading
+from validation.referrals import validate as validate_referral
+from models import (
+    MedicalRecord,
+    Patient,
+    PatientAssociations,
+    Pregnancy,
+    Reading,
+    Referral,
+    FollowUp,
+)
 import service.invariant as invariant
 import data.crud as crud
 
@@ -194,16 +204,73 @@ class SyncReadings(Resource):
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
 
-        # Read all readings, referrals and followups that have been created or updated since last sync
+        # Read all readings that have been created or updated since last sync
         user = get_jwt_identity()
         new_readings = view.reading_view(user, last_sync)
-        new_referrals = view.referral_view(user, last_sync)
-        new_followups = view.assessment_view(user, last_sync)
 
         return {
             "readings": [serialize.serialize_reading(r) for r in new_readings],
-            "newReferrals": [marshal.marshal(r) for r in new_referrals],
-            "newFollowups": [marshal.marshal(a) for a in new_followups],
+        }
+
+
+# /api/sync/referrals
+class SyncReferrals(Resource):
+    @staticmethod
+    @jwt_required
+    def post():
+        last_sync: int = request.args.get("since", None, type=int)
+        if not last_sync:
+            abort(400, message="'since' query parameter is required")
+
+        json = request.get_json(force=True)
+        patients_on_server_cache = set()
+        for r in json:
+            if r.get("patientId") not in patients_on_server_cache:
+                patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
+                if patient_on_server is None:
+                    continue
+                else:
+                    patients_on_server_cache.add(patient_on_server.patientId)
+
+            if crud.read(Referral, id=r.get("id")):
+                # currently, for referrals that exist in server already we will
+                # skip them
+                continue
+            else:
+                error_message = validate_referral(r)
+                if error_message is not None:
+                    abort(400, mesage=error_message)
+                referral = marshal.unmarshal(Referral, r)
+                crud.create(referral, refresh=True)
+
+        # Read all referrals that have been created or updated since last sync
+        user = get_jwt_identity()
+        new_referrals = view.referral_view(user, last_sync)
+
+        return {
+            "referrals": [
+                serialize.serialize_referral_or_assessment(r) for r in new_referrals
+            ],
+        }
+
+
+# /api/sync/assessments
+class SyncAssessments(Resource):
+    @staticmethod
+    @jwt_required
+    def post():
+        last_sync: int = request.args.get("since", None, type=int)
+        if not last_sync:
+            abort(400, message="'since' query parameter is required")
+
+        # Read all assessments that have been updated since last sync
+        user = get_jwt_identity()
+        new_assessments = view.assessment_view(user, last_sync)
+
+        return {
+            "assessments": [
+                serialize.serialize_referral_or_assessment(a) for a in new_assessments
+            ],
         }
 
 

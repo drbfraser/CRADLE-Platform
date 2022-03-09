@@ -142,6 +142,8 @@ def __marshal_patient(p: Patient, shallow) -> dict:
     d["base"] = d["lastEdited"]
     if not shallow:
         d["readings"] = [marshal(r) for r in p.readings]
+        d["referrals"] = [marshal(r) for r in p.referrals]
+        d["assessments"] = [marshal(a) for a in p.followups]
     return d
 
 
@@ -269,6 +271,24 @@ def __unmarshal_patient(d: dict) -> Patient:
     else:
         readings = []
 
+    # Unmarshal any referrals found within the patient
+    if d.get("referrals") is not None:
+        referrals = [unmarshal(Referral, r) for r in d["referrals"]]
+        # Delete the entry so that we don't try to unmarshal them again by loading from
+        # the patient schema.
+        del d["referrals"]
+    else:
+        referrals = []
+
+    # Unmarshal any assessments found within the patient
+    if d.get("assessments") is not None:
+        assessments = [unmarshal(FollowUp, a) for a in d["assessments"]]
+        # Delete the entry so that we don't try to unmarshal them again by loading from
+        # the patient schema.
+        del d["assessments"]
+    else:
+        assessments = []
+
     medRecords = makeMedRecFromPatient(d)
     pregnancy = makePregnancyFromPatient(d)
 
@@ -281,6 +301,10 @@ def __unmarshal_patient(d: dict) -> Patient:
     patient = __load(Patient, d)
     if readings:
         patient.readings = readings
+    if referrals:
+        patient.referrals = referrals
+    if assessments:
+        patient.followups = assessments
     if medRecords:
         patient.records = medRecords
     if pregnancy:

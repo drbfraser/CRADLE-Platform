@@ -119,7 +119,7 @@ def referral_view(user: dict, last_sync: Optional[int] = None) -> List[Referral]
     :return: A list of referrals
     """
     return __get_view(
-        user, crud.read_referrals_and_assessments, model=Referral, last_edited=last_sync
+        user, crud.read_referrals_or_assessments, model=Referral, last_edited=last_sync
     )
 
 
@@ -131,7 +131,7 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowU
     :return: A list of assessments
     """
     return __get_view(
-        user, crud.read_referrals_and_assessments, model=FollowUp, last_edited=last_sync
+        user, crud.read_referrals_or_assessments, model=FollowUp, last_edited=last_sync
     )
 
 
