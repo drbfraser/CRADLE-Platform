@@ -5,6 +5,8 @@ import json
 from enum import Enum
 from typing import Any, Dict, Type, List, Optional
 
+from numpy import isin
+
 from data.crud import M
 from models import Patient, Reading, Referral, FollowUp, Pregnancy, MedicalRecord, Form
 import service.invariant as invariant
@@ -268,6 +270,8 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_patient(d)
     elif m is Reading:
         return __unmarshal_reading(d)
+    elif m is Form:
+        return __unmarshal_form(d)
     else:
         return __load(m, d)
 
@@ -394,6 +398,16 @@ def __unmarshal_reading(d: dict) -> Reading:
 
     return reading
 
+def __unmarshal_form(d: dict) -> Form:
+    # Convert "question" from json dict to string
+    questions = d.get("questions")
+    if questions is not None:
+        if isinstance(questions, list):
+            d["questions"] = json.dumps(questions)
+    
+    form = __load(Form, d)
+
+    return form
 
 ## Functions taken from the original Database.py ##
 ## To-Do: Integrate them properly with the current marshal functions, it looks like there may be some overlap

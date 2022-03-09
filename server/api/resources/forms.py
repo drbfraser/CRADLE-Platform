@@ -29,15 +29,8 @@ class Root(Resource):
         if not patient:
             abort(400, message="Patient does not exist")
         
-        form_template = crud.read(FormTemplate, id=req["formTemplateId"])
-        if not form_template:
-            abort(400, message="Form template does not exist")
-        
         questions = req["questions"]
-        
         # TODO: validate a question part
-
-        req["questions"] = json.dumps(questions)
 
         form = marshal.unmarshal(Form, req)
 
@@ -51,8 +44,12 @@ class SingleForm(Resource):
     @staticmethod
     @jwt_required
     def get(form_id: int):
-        # TODO: get a single referral form
-        pass
+        form = crud.read(Form, id=form_id)
+        if not form:
+            abort(404, message=f"No form with id {form_id}")
+        
+        return marshal.marshal(form)
+        
 
     @staticmethod
     @jwt_required

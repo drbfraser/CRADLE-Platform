@@ -454,10 +454,6 @@ class Form(db.Model):
         db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
         nullable=False,
     )
-    formTemplateId = db.Column(
-        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
-        nullable=False,
-    )
     dateCreated = db.Column(
         db.BigInteger,
         nullable=False,
@@ -476,10 +472,6 @@ class Form(db.Model):
     # RELATIONSHIPS
     patient = db.relationship(
         "Patient",
-        backref=db.backref("forms", cascade="all, delete", lazy=True),
-    )
-    formTemplate = db.relationship(
-        "FormTemplate",
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
 
