@@ -73,6 +73,8 @@ def __init_sync_resources(api: Api):
 
     api.add_resource(r.SyncPatients, "/api/sync/patients")
     api.add_resource(r.SyncReadings, "/api/sync/readings")
+    api.add_resource(r.SyncReferrals, "/api/sync/referrals")
+    api.add_resource(r.SyncAssessments, "/api/sync/assessments")
 
 
 def __init_patient_associations_resources(api: Api):
