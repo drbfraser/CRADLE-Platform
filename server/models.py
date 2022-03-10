@@ -433,14 +433,12 @@ class FormTemplate(db.Model):
         nullable=False,
         default=get_current_time,
     )
-    createdBy = db.Column(db.Integer, nullable=True)
     lastEdited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
         onupdate=get_current_time,
     )
-    lastEditedBy = db.Column(db.Integer, nullable=True)
     questions = db.Column(db.Text, nullable=False, default="{}")
 
     @staticmethod
@@ -454,19 +452,22 @@ class Form(db.Model):
         db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
         nullable=False,
     )
+    formTemplateId = db.Column(
+        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
+        nullable=False,
+    )
     dateCreated = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
     )
-    createdBy = db.Column(db.Integer, nullable=True)
     lastEdited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
         onupdate=get_current_time,
     )
-    lastEditedBy = db.Column(db.Integer, nullable=True)
+    lastEditedBy = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
     questions = db.Column(db.Text, nullable=False, default="{}")
 
     # RELATIONSHIPS
@@ -474,7 +475,15 @@ class Form(db.Model):
         "Patient",
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
-
+    formTemplate = db.relationship(
+        "FormTemplate",
+        backref=db.backref("forms", cascade="all, delete", lazy=True),
+    )
+    user = db.relationship(
+        "User",
+        backref=db.backref("forms", cascade="all, delete", lazy=True),
+    )
+    
     @staticmethod
     def schema():
         return FormSchema

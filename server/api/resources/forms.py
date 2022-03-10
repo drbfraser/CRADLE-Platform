@@ -55,8 +55,29 @@ class SingleForm(Resource):
     @jwt_required
     def put(form_id: int):
         # TODO: edit a single referral form
-        pass
+        form = crud.read(Form, id=form_id)
+        if not form:
+            abort(404, message=f"No form with id {form_id}")
+        
+        req = request.get_json(force=True)
 
+        # validate req
+
+        answers_upload = req["questions"]
+        questions = json.loads(form.questions)
+        question_ids = [q["question_id"] for q in questions]
+        questions_dict = dict(zip(question_ids, questions))
+        for r in answers_upload:
+            if r["question_id"] in question_ids:
+                questions_dict[r["question_id"]]["answer_value"] = r["answer_value"]
+        new_questions = list(questions_dict.values())
+        req["questions"] = json.dumps(new_questions)
+
+        crud.update(Form, req, id=form_id)
+        data.db_session.commit()
+        data.db_session.refresh(form)
+
+        return marshal.marshal(form)
 
 
 

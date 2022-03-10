@@ -222,6 +222,8 @@ def __marshal_form(f: Form) -> dict:
         del d["patient"]
     if d.get("formTemplate"):
         del d["formTemplate"]
+    if d.get("user"):
+        del d["user"]
     # marshal the question text to json dict
     questions = d["questions"]
     d["questions"] = json.loads(questions)
