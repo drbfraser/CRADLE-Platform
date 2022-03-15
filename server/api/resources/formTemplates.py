@@ -76,3 +76,15 @@ class SingleFormTemplate(Resource):
         return marshal.marshal(form_template)
 
 
+# /api/forms/templates/blank/<int:form_template_id>
+class BlankFormTemplate(Resource):
+    @staticmethod
+    @jwt_required
+    def get(form_template_id: int):
+        form_template = crud.read(FormTemplate, id=form_template_id)
+        if not form_template:
+            abort(404, message=f"No form with id {form_template_id}")
+        
+        return marshal.marshal(form_template)
+
+
