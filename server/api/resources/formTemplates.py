@@ -33,4 +33,10 @@ class Root(Resource):
 
         return marshal.marshal(formTemplate), 201
 
+    @staticmethod
+    @jwt_required
+    def get():
+        form_templates = crud.read_all(FormTemplate)
+        return [marshal.marshal(f) for f in form_templates]
+
 
