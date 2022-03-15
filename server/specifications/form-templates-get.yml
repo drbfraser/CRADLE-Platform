@@ -1,0 +1,66 @@
+Get a form template
+---
+tags:
+  - Form Templates
+responses:
+  200:
+    description: Response from GET request for /api/forms/templates
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              form_name:
+                type: string
+                example: "NEMS Ambulance Request - 2022"
+              form_category:
+                type: string
+                example: "NEMS Ambulance Request"
+              form_version:
+                  type: string
+                  example: "V1"
+              questions:
+                type: object
+                properties:
+                  question_id:
+                    type: integer
+                    example: 1
+                  question_text:
+                    type: string
+                    example: "How the patient's condition?"
+                  type:
+                    type: enum
+                    enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME', 'SECTION_HEADER']
+                    example: MULTIPLE_CHOICE
+                  required:
+                    type: boolean
+                    example: true
+                  units:
+                    type: string | null
+                    example: null
+                  visible_if:
+                    type: boolean
+                    example: true
+                  min:
+                    type: integer | null
+                    example: null
+                  max:
+                    type: integer | null
+                    example: null
+                  max_length:
+                    type: integer | null
+                    example: null
+                  options:
+                    type: array | null
+                    example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
+                  answer_value:
+                    type: integer | null
+                    example: null
+                  answer_text:
+                    type: string | null
+                    example: null
+                  answer_mcindex:
+                    type: integer | null
+                    example: null
