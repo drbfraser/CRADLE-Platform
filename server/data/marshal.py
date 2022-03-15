@@ -8,7 +8,17 @@ from typing import Any, Dict, Type, List, Optional
 from numpy import isin
 
 from data.crud import M
-from models import Patient, Reading, Referral, FollowUp, Pregnancy, MedicalRecord, Form
+from models import (
+    Patient, 
+    Reading, 
+    Referral, 
+    FollowUp, 
+    Pregnancy, 
+    MedicalRecord,
+    FormTemplate, 
+    Form, 
+    Question
+)
 import service.invariant as invariant
 
 
@@ -32,8 +42,12 @@ def marshal(obj: Any, shallow=False) -> dict:
         return __marshal_pregnancy(obj)
     elif isinstance(obj, MedicalRecord):
         return __marshal_medical_record(obj)
+    elif isinstance(obj, FormTemplate):
+        return __marshal_form_template(obj)
     elif isinstance(obj, Form):
         return __marshal_form(obj)
+    elif isinstance(obj, Question):
+        return __marshal_question(obj)
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -73,10 +87,18 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
         medical_record_dict = __marshal_medical_record(obj)
         medical_record_dict["type"] = "medical_record"
         return medical_record_dict
+    elif isinstance(obj, FormTemplate):
+        form_template_dict = __marshal_form_template(obj)
+        form_template_dict["type"] = "form_template"
+        return form_template_dict
     elif isinstance(obj, Form):
         form_dict = __marshal_form(obj)
         form_dict["type"] = "form"
         return form_dict
+    elif isinstance(obj, Question):
+        question_dict = __marshal_question(obj)
+        question_dict["type"] = "question"
+        return question_dict
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -214,6 +236,11 @@ def __marshal_medical_record(r: MedicalRecord) -> dict:
 
     return d
 
+def __marshal_form_template(f: FormTemplate) -> dict:
+    d = vars(f).copy()
+    __pre_process(d)
+    
+    return d
 
 def __marshal_form(f: Form) -> dict:
     d = vars(f).copy()
@@ -224,12 +251,28 @@ def __marshal_form(f: Form) -> dict:
         del d["formTemplate"]
     if d.get("user"):
         del d["user"]
-    # marshal the question text to json dict
-    questions = d["questions"]
-    d["questions"] = json.loads(questions)
 
     return d
 
+def __marshal_question(q: Question) -> dict:
+    d = vars(q).copy()
+    __pre_process(d)
+
+     # Remove relationship object
+    if d.get("form"):
+        del d["form"]
+    if d.get("formTemplate"):
+        del d["formTemplate"]
+
+    # marshal visibleConditions, mcOptions, answers to json dict
+    visible_condition = d["visibleCondition"]
+    d["visibleCondition"] = json.loads(visible_condition)
+    mc_options = d["mcOptions"]
+    d["mcOptions"] = json.loads(mc_options)
+    answers = d["answers"]
+    d["answers"] = json.loads(answers)
+
+    return d
 
 def __pre_process(d: Dict[str, Any]):
     __strip_protected_attributes(d)
@@ -272,8 +315,12 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_patient(d)
     elif m is Reading:
         return __unmarshal_reading(d)
+    elif m is FormTemplate:
+        return __unmarshal_form_template(d)
     elif m is Form:
         return __unmarshal_form(d)
+    elif m is Question:
+        return __marshal_question(d)
     else:
         return __load(m, d)
 
@@ -310,6 +357,15 @@ def __unmarshal_patient(d: dict) -> Patient:
         del d["assessments"]
     else:
         assessments = []
+    
+    # Unmarshal any forms found within the patient
+    if d.get("forms") is not None:
+        forms = [unmarshal(Form, f) for f in d["forms"]]
+        # Delete the entry so that we don't try to unmarshal them again by loading from
+        # the patient schema.
+        del d["forms"]
+    else:
+        forms = []
 
     medRecords = makeMedRecFromPatient(d)
     pregnancy = makePregnancyFromPatient(d)
@@ -331,6 +387,8 @@ def __unmarshal_patient(d: dict) -> Patient:
         patient.records = medRecords
     if pregnancy:
         patient.pregnancies = pregnancy
+    if forms:
+        patient.forms = forms
 
     return patient
 
@@ -400,16 +458,58 @@ def __unmarshal_reading(d: dict) -> Reading:
 
     return reading
 
+def __unmarshal_form_template(d: dict) -> Form:
+    # Unmarshal any questions found within the form template
+    if d.get("questions") is not None:
+        questions = [__unmarshal_question(q) for q in d["questions"]]
+        # Delete the entry so that we don't try to unmarshal them again by loading from
+        # the form template schema.
+        del d["questions"]
+    else:
+        questions = []
+    
+    form_template = __load(FormTemplate, d)
+
+    if questions:
+        form_template.questions = questions
+
+    return form_template
+
 def __unmarshal_form(d: dict) -> Form:
-    # Convert "question" from json dict to string
-    questions = d.get("questions")
-    if questions is not None:
-        if isinstance(questions, list):
-            d["questions"] = json.dumps(questions)
+    # Unmarshal any questions found within the form
+    if d.get("questions") is not None:
+        questions = [__unmarshal_question(q) for q in d["questions"]]
+        # Delete the entry so that we don't try to unmarshal them again by loading from
+        # the form schema.
+        del d["questions"]
+    else:
+        questions = []
     
     form = __load(Form, d)
 
+    if questions:
+        form.questions = questions
+
     return form
+
+def __unmarshal_question(d: dict) -> Question:
+    # Convert "visibleCondition" from json dict to string
+    visible_condition = d.get("visibleCondition")
+    if visible_condition is not None:
+        d["visibleCondition"] = json.dumps(visible_condition)
+    # Convert "mcOptions" from json dict to string
+    mc_options = d.get("mcOptions")
+    if mc_options is not None:
+        if isinstance(mc_options, list):
+            d["mcOptions"] = json.dumps(mc_options)
+    # Convert "answers" from json dict to string
+    answers = d.get("answers")
+    if answers is not None:
+        d["answers"] = json.dumps(answers)
+    
+    question = __load(Question, d)
+
+    return question
 
 ## Functions taken from the original Database.py ##
 ## To-Do: Integrate them properly with the current marshal functions, it looks like there may be some overlap
