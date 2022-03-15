@@ -12,9 +12,6 @@ requestBody:
         properties:
           type: object
           properties:
-            id:
-              type: integer
-              example: 5
             name:
               type: string
               example: "NEMS Ambulance Request - 2022"

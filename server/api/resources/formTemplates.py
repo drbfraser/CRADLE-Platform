@@ -12,8 +12,9 @@ import data.crud as crud
 import data.marshal as marshal
 from utils import get_current_time
 import service.assoc as assoc
+import service.serialize as serialize
 import service.view as view
-from models import Patient, Form, FormTemplate
+from models import Patient, Form, FormTemplate, Question
 import service.serialize as serialize
 
 
@@ -49,7 +50,9 @@ class SingleFormTemplate(Resource):
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
         
-        return marshal.marshal(form_template)
+        questions = crud.read_questions(Question, form_template.id)
+        
+        return serialize.serialize_form_template(form_template, questions)
         
 
     @staticmethod

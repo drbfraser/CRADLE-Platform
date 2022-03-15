@@ -18,6 +18,7 @@ from models import (
     Pregnancy,
     MedicalRecord,
     supervises,
+    Question
 )
 import service.invariant as invariant
 
@@ -712,6 +713,25 @@ def read_referrals_or_assessments(
 
     if patient_id:
         query = query.filter(model.patientId == patient_id)
+
+    return query.all()
+
+
+def read_questions(
+    model: Question,
+    form_template_id: Optional[int] = None
+) -> List[Question]:
+    """
+    Queries the database for questions
+
+    :param form_template_id: ID of form templates; by default this filter is not applied
+
+    :return: A list of questions
+    """
+    query = db_session.query(model)
+
+    if form_template_id:
+        query = query.filter(model.formTemplateId == form_template_id)
 
     return query.all()
 

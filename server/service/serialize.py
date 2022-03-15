@@ -14,6 +14,7 @@ from models import (
     Reading,
     Referral,
     UrineTest,
+    Question
 )
 
 
@@ -122,6 +123,11 @@ def serialize_reading(tup: Tuple[Reading, UrineTest]) -> dict:
 
 def serialize_referral_or_assessment(model: Union[Referral, FollowUp]) -> dict:
     return marshal.marshal(model)
+
+def serialize_form_template(form_template: Any, questions: Optional[List[Question]] = None) -> dict:
+    form_template = marshal.marshal(form_template)
+    form_template["questions"] = [marshal.marshal(question) for question in questions]
+    return form_template
 
 
 def deserialize_patient(
