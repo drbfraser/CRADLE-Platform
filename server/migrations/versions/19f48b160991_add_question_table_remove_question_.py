@@ -27,7 +27,7 @@ def upgrade():
     sa.Column('questionType', sa.Text(), nullable=False),
     sa.Column('category', sa.Text(), nullable=False),
     sa.Column('required', sa.Boolean(), nullable=False),
-    sa.Column('units', sa.Text(), nullable=False),
+    sa.Column('units', sa.Text(), nullable=True),
     sa.Column('visibleCondition', sa.Text(), nullable=False),
     sa.Column('mcOptions', sa.Text(), nullable=False),
     sa.Column('numMin', sa.Integer(), nullable=True),
