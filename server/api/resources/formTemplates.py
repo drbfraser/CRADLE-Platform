@@ -65,12 +65,14 @@ class SingleFormTemplate(Resource):
         req = request.get_json(force=True)
 
         # validate req
+        formTemplate = marshal.unmarshal(FormTemplate, req)
 
-        questions = json.loads(form_template.questions)
-        question_ids = [q["question_id"] for q in questions]
-        questions_dict = dict(zip(question_ids, questions))
-        new_questions = list(questions_dict.values())
-        req["questions"] = json.dumps(new_questions)
+        # create new questions if id not in database
+        questions = crud.read_questions(Question, form_template.id)
+        ids = [question.id for question in questions]
+        for question in formTemplate.questions:
+            if (question.id not in ids):
+                crud.create(question)
 
         crud.update(FormTemplate, req, id=form_template_id)
         data.db_session.commit()

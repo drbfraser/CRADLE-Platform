@@ -121,9 +121,6 @@ responses:
             questions:
               type: object
               properties:
-                id:
-                  type: integer
-                  example: 1
                 questionId:
                   type: integer
                   example: 1

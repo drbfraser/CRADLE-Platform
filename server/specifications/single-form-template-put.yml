@@ -23,7 +23,7 @@ requestBody:
               type: object
               properties:
                 id:
-                  type: integer
+                  type: integer | null
                   example: 1
                 questionId:
                   type: integer
