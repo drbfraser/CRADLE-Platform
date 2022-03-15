@@ -6,6 +6,7 @@ from jsonschema.exceptions import ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
 import marshmallow
+import json
 
 from config import db, ma
 from utils import get_current_time

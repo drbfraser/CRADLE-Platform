@@ -13,7 +13,7 @@ import data.marshal as marshal
 from utils import get_current_time
 import service.assoc as assoc
 import service.view as view
-from models import Patient, Form, FormTemplate
+from models import Patient, Form, FormTemplate, User
 import service.serialize as serialize
 
 
@@ -25,15 +25,23 @@ class Root(Resource):
         # TODO: post a new referral form
         req = request.get_json(force=True)
 
+        # TODO: validate req
+
         patient = crud.read(Patient, patientId=req["patientId"])
         if not patient:
             abort(400, message="Patient does not exist")
         
-        questions = req["questions"]
-        # TODO: validate a question part
+        form_template = crud.read(FormTemplate, id=req["formTemplateId"])
+        if not form_template:
+            abort(400, message="Form template does not exist")
 
+        user = crud.read(User, id=req["lastEditedBy"])
+        if not user:
+            abort(400, message="User does not exist")
+            
         form = marshal.unmarshal(Form, req)
-
+        # first time when the form is created lastEdited is same to dateCreated
+        form.lastEdited = form.dateCreated
         crud.create(form, refresh=True)
 
         return marshal.marshal(form), 201
