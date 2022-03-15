@@ -439,7 +439,6 @@ class FormTemplate(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
-    questions = db.Column(db.Text, nullable=False, default="{}")
 
     @staticmethod
     def schema():
@@ -468,7 +467,6 @@ class Form(db.Model):
         onupdate=get_current_time,
     )
     lastEditedBy = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
-    questions = db.Column(db.Text, nullable=False, default="{}")
 
     # RELATIONSHIPS
     patient = db.relationship(
@@ -488,7 +486,46 @@ class Form(db.Model):
     def schema():
         return FormSchema
 
+class Question(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    isBlank = db.Column(db.Boolean, nullable=False, default=0)
+    questionIndex = db.Column(db.Integer, nullable=False)
+    questionId = db.Column(db.Text, nullable=False)
+    questionText = db.Column(db.Text, nullable=False)
+    questionType = db.Column(db.Text, nullable=False)
+    category = db.Column(db.Text, nullable=False, default="")
+    required = db.Column(db.Boolean, nullable=False, default=0)
+    units = db.Column(db.Text, nullable=False)
+    visibleCondition = db.Column(db.Text, nullable=False, default="{}")
+    mcOptions = db.Column(db.Text, nullable=False, default="[]")
+    numMin = db.Column(db.Integer, nullable=True)
+    numMax = db.Column(db.Integer, nullable=True)
+    stringMaxLength = db.Column(db.Integer, nullable=True)
+    answers = db.Column(db.Text, nullable=False, default="{}")
 
+    # FORENIGN KEYS
+    formId = db.Column(
+        db.ForeignKey(Form.id, ondelete="CASCADE"),
+        nullable=True,
+    )
+    formTemplateId = db.Column(
+        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
+        nullable=True,
+    )
+
+    # RELATIONSHIPS
+    form = db.relationship(
+        "Form",
+        backref=db.backref("questions", cascade="all, delete", lazy=True),
+    )
+    formTemplate = db.relationship(
+        "FormTemplate",
+        backref=db.backref("questions", cascade="all, delete", lazy=True),
+    )
+
+    @staticmethod
+    def schema():
+        return QuestionSchema
 #
 # SCHEMAS
 #
@@ -631,6 +668,12 @@ class FormSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+class QuestionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = Question
+        load_instance = True
+        include_relationships = True
 
 def validate_user(data):
     try:
