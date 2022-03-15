@@ -15,12 +15,12 @@ responses:
               id:
                 type: integer
                 example: 5
-              form_name:
+              name:
                 type: string
                 example: "NEMS Ambulance Request - 2022"
-              form_category:
+              category:
                 type: string
                 example: "NEMS Ambulance Request"
-              form_version:
+              version:
                   type: string
                   example: "V1"

@@ -52,6 +52,7 @@ from api.resources.medicalRecords import (
 from api.resources.formTemplates import (
     Root as FormTemplate,
     SingleFormTemplate,
+    BlankFormTemplate,
 )
 from api.resources.forms import (
     Root as Forms,
