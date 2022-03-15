@@ -45,7 +45,7 @@ def marshal(obj: Any, shallow=False) -> dict:
     elif isinstance(obj, FormTemplate):
         return __marshal_form_template(obj)
     elif isinstance(obj, Form):
-        return __marshal_form(obj)
+        return __marshal_form(obj, shallow)
     elif isinstance(obj, Question):
         return __marshal_question(obj)
     else:
@@ -242,7 +242,7 @@ def __marshal_form_template(f: FormTemplate) -> dict:
     
     return d
 
-def __marshal_form(f: Form) -> dict:
+def __marshal_form(f: Form, shallow) -> dict:
     d = vars(f).copy()
     __pre_process(d)
     if d.get("patient"):
@@ -251,6 +251,9 @@ def __marshal_form(f: Form) -> dict:
         del d["formTemplate"]
     if d.get("user"):
         del d["user"]
+
+    if not shallow:
+        d["questions"] = [marshal(q) for q in f.questions]
 
     return d
 

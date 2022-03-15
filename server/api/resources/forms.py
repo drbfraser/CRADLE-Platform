@@ -38,13 +38,13 @@ class Root(Resource):
         user = crud.read(User, id=req["lastEditedBy"])
         if not user:
             abort(400, message="User does not exist")
-            
+
         form = marshal.unmarshal(Form, req)
         # first time when the form is created lastEdited is same to dateCreated
         form.lastEdited = form.dateCreated
         crud.create(form, refresh=True)
 
-        return marshal.marshal(form), 201
+        return marshal.marshal(form, True), 201
 
 
 # /api/forms/responses/<int:form_id>
@@ -56,7 +56,7 @@ class SingleForm(Resource):
         if not form:
             abort(404, message=f"No form with id {form_id}")
         
-        return marshal.marshal(form)
+        return marshal.marshal(form, False)
         
 
     @staticmethod
