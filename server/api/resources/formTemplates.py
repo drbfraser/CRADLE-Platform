@@ -40,3 +40,39 @@ class Root(Resource):
         return [marshal.marshal(f) for f in form_templates]
 
 
+# /api/forms/templates/<int:form_template_id>
+class SingleFormTemplate(Resource):
+    @staticmethod
+    @jwt_required
+    def get(form_template_id: int):
+        form_template = crud.read(FormTemplate, id=form_template_id)
+        if not form_template:
+            abort(404, message=f"No form with id {form_template_id}")
+        
+        return marshal.marshal(form_template)
+        
+
+    @staticmethod
+    @jwt_required
+    def put(form_template_id: int):
+        form_template = crud.read(FormTemplate, id=form_template_id)
+        if not form_template:
+            abort(404, message=f"No form template with id {form_template_id}")
+        
+        req = request.get_json(force=True)
+
+        # validate req
+
+        questions = json.loads(form_template.questions)
+        question_ids = [q["question_id"] for q in questions]
+        questions_dict = dict(zip(question_ids, questions))
+        new_questions = list(questions_dict.values())
+        req["questions"] = json.dumps(new_questions)
+
+        crud.update(FormTemplate, req, id=form_template_id)
+        data.db_session.commit()
+        data.db_session.refresh(form_template)
+
+        return marshal.marshal(form_template)
+
+
