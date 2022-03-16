@@ -474,18 +474,19 @@ class Form(db.Model):
         "Patient",
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
-    
+
     @staticmethod
     def schema():
         return FormSchema
 
+
 class Question(db.Model):
-    '''
+    """
     Question: a child model related to a form template or a form
 
     isBlank: true means the question is related to form template, vice versa
     questionIndex: a custom-defined question number index e.g. 1,2,3...
-    visibleCondition: any json format string indicating a visible condition, 
+    visibleCondition: any json format string indicating a visible condition,
     the content logic should be handled in frontend
     e.g.
     {
@@ -509,7 +510,8 @@ class Question(db.Model):
         "MC": opt1,
         "Comment": "example comment"
     }
-    '''
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
@@ -518,7 +520,7 @@ class Question(db.Model):
     questionType = db.Column(db.Text, nullable=False)
     category = db.Column(db.Text, nullable=False, default="")
     required = db.Column(db.Boolean, nullable=False, default=0)
-    units = db.Column(db.Text, nullable= True)
+    units = db.Column(db.Text, nullable=True)
     visibleCondition = db.Column(db.Text, nullable=False, default="{}")
     mcOptions = db.Column(db.Text, nullable=False, default="[]")
     numMin = db.Column(db.Integer, nullable=True)
@@ -549,6 +551,8 @@ class Question(db.Model):
     @staticmethod
     def schema():
         return QuestionSchema
+
+
 #
 # SCHEMAS
 #
@@ -691,12 +695,14 @@ class FormSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+
 class QuestionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = Question
         load_instance = True
         include_relationships = True
+
 
 def validate_user(data):
     try:

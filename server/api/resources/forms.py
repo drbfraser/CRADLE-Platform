@@ -11,10 +11,8 @@ import data
 import data.crud as crud
 import data.marshal as marshal
 from utils import get_current_time
-import service.assoc as assoc
-import service.view as view
+from validation import forms
 from models import Patient, Form, FormTemplate, User
-import service.serialize as serialize
 
 
 # /api/forms/responses
@@ -22,15 +20,16 @@ class Root(Resource):
     @staticmethod
     @jwt_required
     def post():
-        # TODO: post a new referral form
         req = request.get_json(force=True)
 
-        # TODO: validate req
+        error_message = forms.validate_post_request(req)
+        if error_message is not None:
+            abort(400, message=error_message)
 
         patient = crud.read(Patient, patientId=req["patientId"])
         if not patient:
             abort(400, message="Patient does not exist")
-        
+
         form_template = crud.read(FormTemplate, id=req["formTemplateId"])
         if not form_template:
             abort(400, message="Form template does not exist")
@@ -55,46 +54,48 @@ class SingleForm(Resource):
         form = crud.read(Form, id=form_id)
         if not form:
             abort(404, message=f"No form with id {form_id}")
-        
+
         return marshal.marshal(form, False)
-        
 
     @staticmethod
     @jwt_required
     def put(form_id: int):
-        # TODO: edit a single referral form
         form = crud.read(Form, id=form_id)
         if not form:
             abort(404, message=f"No form with id {form_id}")
-        
+
         req = request.get_json(force=True)
 
-        # validate req
+        error_message = forms.validate_put_request(req)
+        if error_message is not None:
+            abort(400, message=error_message)
 
         questions_upload = req["questions"]
         questions = form.questions
         if len(questions_upload) != len(questions):
-            abort(404, message=f"Length of questions in request and in server are not equal")
-        
+            abort(
+                404,
+                message=f"Length of questions in request and in server are not equal",
+            )
+
         question_ids = [q.id for q in questions]
         questions_dict = dict(zip(question_ids, questions))
         for q in questions_upload:
             qid = q["id"]
             if qid not in question_ids:
-                abort(404, message=f"request question id={qid} does not exist in server")
+                abort(
+                    404, message=f"request question id={qid} does not exist in server"
+                )
             qans = json.dumps(q["answers"])
             if qans != questions_dict[qid].answers:
                 questions_dict[qid].answers = qans
-        
+
         user = get_jwt_identity()
         user_id = int(user["userId"])
         form.lastEditedBy = user_id
         form.lastEdited = get_current_time()
-        
+
         data.db_session.commit()
         data.db_session.refresh(form)
-        
+
         return marshal.marshal(form, False)
-
-
-

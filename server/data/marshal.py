@@ -9,15 +9,15 @@ from numpy import isin
 
 from data.crud import M
 from models import (
-    Patient, 
-    Reading, 
-    Referral, 
-    FollowUp, 
-    Pregnancy, 
+    Patient,
+    Reading,
+    Referral,
+    FollowUp,
+    Pregnancy,
     MedicalRecord,
-    FormTemplate, 
-    Form, 
-    Question
+    FormTemplate,
+    Form,
+    Question,
 )
 import service.invariant as invariant
 
@@ -236,11 +236,13 @@ def __marshal_medical_record(r: MedicalRecord) -> dict:
 
     return d
 
+
 def __marshal_form_template(f: FormTemplate) -> dict:
     d = vars(f).copy()
     __pre_process(d)
-    
+
     return d
+
 
 def __marshal_form(f: Form, shallow) -> dict:
     d = vars(f).copy()
@@ -253,6 +255,7 @@ def __marshal_form(f: Form, shallow) -> dict:
         d["questions"] = [marshal(q) for q in f.questions]
 
     return d
+
 
 def __marshal_question(q: Question) -> dict:
     d = vars(q).copy()
@@ -273,6 +276,7 @@ def __marshal_question(q: Question) -> dict:
     d["answers"] = json.loads(answers)
 
     return d
+
 
 def __pre_process(d: Dict[str, Any]):
     __strip_protected_attributes(d)
@@ -357,7 +361,7 @@ def __unmarshal_patient(d: dict) -> Patient:
         del d["assessments"]
     else:
         assessments = []
-    
+
     # Unmarshal any forms found within the patient
     if d.get("forms") is not None:
         forms = [unmarshal(Form, f) for f in d["forms"]]
@@ -458,6 +462,7 @@ def __unmarshal_reading(d: dict) -> Reading:
 
     return reading
 
+
 def __unmarshal_form_template(d: dict) -> Form:
     # Unmarshal any questions found within the form template
     if d.get("questions") is not None:
@@ -467,13 +472,14 @@ def __unmarshal_form_template(d: dict) -> Form:
         del d["questions"]
     else:
         questions = []
-    
+
     form_template = __load(FormTemplate, d)
 
     if questions:
         form_template.questions = questions
 
     return form_template
+
 
 def __unmarshal_form(d: dict) -> Form:
     # Unmarshal any questions found within the form
@@ -484,13 +490,14 @@ def __unmarshal_form(d: dict) -> Form:
         del d["questions"]
     else:
         questions = []
-    
+
     form = __load(Form, d)
 
     if questions:
         form.questions = questions
 
     return form
+
 
 def __unmarshal_question(d: dict) -> Question:
     # Convert "visibleCondition" from json dict to string
@@ -506,10 +513,11 @@ def __unmarshal_question(d: dict) -> Question:
     answers = d.get("answers")
     if answers is not None:
         d["answers"] = json.dumps(answers)
-    
+
     question = __load(Question, d)
 
     return question
+
 
 ## Functions taken from the original Database.py ##
 ## To-Do: Integrate them properly with the current marshal functions, it looks like there may be some overlap
