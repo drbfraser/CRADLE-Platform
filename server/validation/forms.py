@@ -1,6 +1,6 @@
 from typing import Optional
 from validation.validate import required_keys_present, values_correct_type
-from validation.questions import validate_question_post
+from validation.questions import validate_question_post, validate_question_put
 
 
 def validate_post_request(request_body: dict) -> Optional[str]:
@@ -49,12 +49,8 @@ def validate_post_request(request_body: dict) -> Optional[str]:
     for q in request_body["questions"]:
         error = validate_question_post(q)
         if error:
-            return (
-                "question with index="
-                + str(q["questionIndex"])
-                + " has error: "
-                + error
-            )
+            return "question error: " + error
+        
 
 
 def validate_put_request(request_body: dict) -> Optional[str]:
@@ -73,3 +69,9 @@ def validate_put_request(request_body: dict) -> Optional[str]:
     error_message = required_keys_present(request_body, required_fields)
     if error_message is not None:
         return error_message
+    
+    # validate question put content
+    for q in request_body["questions"]:
+        error = validate_question_put(q)
+        if error:
+            return "question error: " + error
