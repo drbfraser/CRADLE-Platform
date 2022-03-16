@@ -71,21 +71,30 @@ class SingleForm(Resource):
 
         # validate req
 
-        answers_upload = req["questions"]
-        questions = json.loads(form.questions)
-        question_ids = [q["question_id"] for q in questions]
+        questions_upload = req["questions"]
+        questions = form.questions
+        if len(questions_upload) != len(questions):
+            abort(404, message=f"Length of questions in request and in server are not equal")
+        
+        question_ids = [q.id for q in questions]
         questions_dict = dict(zip(question_ids, questions))
-        for r in answers_upload:
-            if r["question_id"] in question_ids:
-                questions_dict[r["question_id"]]["answer_value"] = r["answer_value"]
-        new_questions = list(questions_dict.values())
-        req["questions"] = json.dumps(new_questions)
-
-        crud.update(Form, req, id=form_id)
+        for q in questions_upload:
+            qid = q["id"]
+            if qid not in question_ids:
+                abort(404, message=f"request question id={qid} does not exist in server")
+            qans = json.dumps(q["answers"])
+            if qans != questions_dict[qid].answers:
+                questions_dict[qid].answers = qans
+        
+        user = get_jwt_identity()
+        user_id = int(user["userId"])
+        form.lastEditedBy = user_id
+        form.lastEdited = get_current_time()
+        
         data.db_session.commit()
         data.db_session.refresh(form)
-
-        return marshal.marshal(form)
+        
+        return marshal.marshal(form, False)
 
 
 

@@ -488,6 +488,36 @@ class Form(db.Model):
         return FormSchema
 
 class Question(db.Model):
+    '''
+    Question: a child model related to a form template or a form
+
+    isBlank: true means the question is related to form template, vice versa
+    questionIndex: a custom-defined question number index e.g. 1,2,3...
+    visibleCondition: any json format string indicating a visible condition, 
+    the content logic should be handled in frontend
+    e.g.
+    {
+        "children": [
+            {
+            "id": "1",
+            }
+        ]
+    }
+
+    mcOptions: a json format list string indicating a list of multiple choices
+    (maximum 5 options)
+    e.g.
+    [opt1, opt2, opt3, opt4, opt5]
+
+    answers: a json format string indicating the answers filled by user
+    e.g.
+    {
+        "Value": 123,
+        "Text": "111",
+        "MC": opt1,
+        "Comment": "example comment"
+    }
+    '''
     id = db.Column(db.Integer, primary_key=True)
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
