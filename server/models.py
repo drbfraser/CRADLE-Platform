@@ -453,8 +453,8 @@ class Form(db.Model):
         nullable=False,
     )
     formTemplateId = db.Column(
-        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
-        nullable=False,
+        db.ForeignKey(FormTemplate.id, ondelete="SET NULL"),
+        nullable=True,
     )
     dateCreated = db.Column(
         db.BigInteger,
@@ -467,19 +467,11 @@ class Form(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
-    lastEditedBy = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
+    lastEditedBy = db.Column(db.ForeignKey(User.id, ondelete="SET NULL"), nullable=True)
 
     # RELATIONSHIPS
     patient = db.relationship(
         "Patient",
-        backref=db.backref("forms", cascade="all, delete", lazy=True),
-    )
-    formTemplate = db.relationship(
-        "FormTemplate",
-        backref=db.backref("forms", cascade="all, delete", lazy=True),
-    )
-    user = db.relationship(
-        "User",
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
     

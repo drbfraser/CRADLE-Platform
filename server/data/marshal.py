@@ -245,12 +245,9 @@ def __marshal_form_template(f: FormTemplate) -> dict:
 def __marshal_form(f: Form, shallow) -> dict:
     d = vars(f).copy()
     __pre_process(d)
+    # Remove relationship object
     if d.get("patient"):
         del d["patient"]
-    if d.get("formTemplate"):
-        del d["formTemplate"]
-    if d.get("user"):
-        del d["user"]
 
     if not shallow:
         d["questions"] = [marshal(q) for q in f.questions]
@@ -261,7 +258,7 @@ def __marshal_question(q: Question) -> dict:
     d = vars(q).copy()
     __pre_process(d)
 
-     # Remove relationship object
+    # Remove relationship object
     if d.get("form"):
         del d["form"]
     if d.get("formTemplate"):
