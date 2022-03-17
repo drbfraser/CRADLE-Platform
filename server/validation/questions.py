@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, Type
+from data.crud import M
+from models import Form, FormTemplate
 from validation.validate import required_keys_present, values_correct_type
-import json
 
 
 def validate_answer(ans: dict) -> Optional[str]:
@@ -22,11 +23,27 @@ def validate_answer(ans: dict) -> Optional[str]:
     if error:
         return error
 
-
-def validate_question_post(q: dict) -> Optional[str]:
+def validate_reference(q: dict, model: Type[M]) -> Optional[str]:
     """
-    Returns an error message if the question dict is not valid when making form post
-    request. Else, returns None.
+    Returns an error message id the question has a correct referrence. Else, returns None.
+    """
+    if "isBlank" in q and q["isBlank"]:
+        if model is Form:
+            return "Form questions shouldn't be blank"
+        # the form template question shouldn't provide a form id
+        if "formId" in q and q["formId"] is not None:
+            return "Form template questions shouldn't have a form reference"
+    else:
+        if model is FormTemplate:
+            return "Form template questions should be blank"
+        # the form question shouldn't provide a form template id
+        if "formTemplateId" in q and q["formTemplateId"] is not None:
+            return "Form questions shouldn't have a form template reference"
+
+def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
+    """
+    Returns an error message if the question dict is not valid when making form or 
+    template post request. Else, returns None.
 
     :param q: question as a dict object
 
@@ -50,6 +67,8 @@ def validate_question_post(q: dict) -> Optional[str]:
         "numMin",
         "numMax",
         "stringMaxLength",
+        "formId",
+        "formTemplateId"
     ] + required_fields
 
     error_message = None
@@ -67,7 +86,7 @@ def validate_question_post(q: dict) -> Optional[str]:
         return error
 
     error = values_correct_type(
-        q, ["questionIndex", "numMin", "numMax", "stringMaxLength"], int
+        q, ["questionIndex", "numMin", "numMax", "stringMaxLength", "formId", "formTemplateId"], int
     )
     if error:
         return error
@@ -101,7 +120,11 @@ def validate_question_post(q: dict) -> Optional[str]:
     error = validate_answer(q["answers"])
     if error:
         return error
-
+    
+    # validate reference
+    error = validate_reference(q, model)
+    if error:
+        return error
 
 def validate_question_put(q: dict) -> Optional[str]:
     """

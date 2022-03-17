@@ -27,7 +27,7 @@ class Root(Resource):
     def post():
         req = request.get_json(force=True)
 
-        error_message = forms.validate_post_request(req)
+        error_message = forms.validate_post_request(req, Form)
         if error_message is not None:
             abort(400, message=error_message)
 
