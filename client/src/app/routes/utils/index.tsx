@@ -20,6 +20,7 @@ import PollIcon from '@material-ui/icons/Poll';
 import { ReferralFormPage } from 'src/pages/referralForm';
 import { HistoryTablesPage } from 'src/pages/historyTables';
 import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
+import { CustomizedFormPage } from 'src/pages/customizedForm';
 
 export type AppRoute = {
   component:
@@ -68,6 +69,14 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/pregnancies/new/:patientId`,
+  },
+  {
+    component: CustomizedFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/forms/new/:patientId`,
   },
   {
     component: ReadingFormPage,

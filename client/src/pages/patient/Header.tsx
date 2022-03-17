@@ -25,6 +25,12 @@ export const Header = ({
   setConfirmDialogPerformAssessmentOpen,
 }: IProps) => {
   const history = useHistory();
+  const handleAddSubmitNewFormClick = () => {
+    if (patient) {
+      history.push(`/forms/new/${patient.patientId}`);
+    }
+  };
+
   const handleAddReadingClick = () => {
     if (patient) {
       history.push(`/readings/new/${patient.patientId}`);
@@ -65,6 +71,13 @@ export const Header = ({
       </Grid>
       <Grid item>
         <Grid container alignItems="center" style={{ gap: 5 }}>
+        <Button
+            color="primary"
+            variant="contained"
+            onClick={handleAddSubmitNewFormClick}>
+            <AddIcon />
+            Submit New Form
+          </Button>
           <Button
             color="primary"
             variant="contained"

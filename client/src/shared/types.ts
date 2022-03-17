@@ -246,3 +246,9 @@ export type Referrer = {
 };
 
 export type HealthFacility = string;
+
+///////////////////////////////////////////
+export type customizedForm = {
+  name:string;
+  type:string;
+};
