@@ -7,7 +7,7 @@ export enum ReferralField {
 }
 
 export const initialState = {
-  [ReferralField.lang]: '',
+  [ReferralField.lang]: null as string | null,
   [ReferralField.form]: null as string | null,
 };
 

@@ -10,7 +10,11 @@ export const handleSubmit = (
   return async (values: ReferralState, { setSubmitting }: any) => {
 
 
-    
+    console.log(values);
+  // {
+  //     "Language": "Krio",
+  //     "Form": "National Referral Form"
+  // }
     setSubmitting(false);
   //   const url = API_URL + EndpointEnum.REFERRALS;
   //   const postBody = JSON.stringify({
