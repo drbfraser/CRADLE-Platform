@@ -17,8 +17,8 @@ responses:
           type: object
           properties:
             id:
-              type: integer
-              example: 5
+              type: string
+              example: "1c987c44-7ef4-4b4f-9870-22ce6aee5ab6"
             patientId:
               type: string
               example: "123"
