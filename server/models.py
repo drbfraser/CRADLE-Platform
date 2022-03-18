@@ -538,7 +538,7 @@ class Question(db.Model):
     category = db.Column(db.Text, nullable=False, default="")
     required = db.Column(db.Boolean, nullable=False, default=0)
     units = db.Column(db.Text, nullable=True)
-    visibleCondition = db.Column(db.Text, nullable=False, default="{}")
+    visibleCondition = db.Column(db.Text, nullable=False, default="[]")
     mcOptions = db.Column(db.Text, nullable=False, default="[]")
     numMin = db.Column(db.Integer, nullable=True)
     numMax = db.Column(db.Integer, nullable=True)
