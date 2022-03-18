@@ -2,11 +2,17 @@
 import { ReferralState } from './state';
 // import { apiFetch, API_URL } from 'src/shared/api';
 // import { EndpointEnum } from 'src/shared/enums';
+import questions from "./form.json";
+import {Question} from 'src/shared/types';
 
 export const handleSubmit = (
   patientId: string,
-  setSubmitError: (error: boolean) => void
+  setSubmitError: (error: boolean) => void,
+  setQuestions:(questions:Question[]) => void,
 ) => {
+
+
+  // const qs  = questions;
   return async (values: ReferralState, { setSubmitting }: any) => {
 
 
@@ -15,7 +21,8 @@ export const handleSubmit = (
   //     "Language": "Krio",
   //     "Form": "National Referral Form"
   // }
-    setSubmitting(false);
+    setSubmitError(false);
+    setQuestions(questions);
   //   const url = API_URL + EndpointEnum.REFERRALS;
   //   const postBody = JSON.stringify({
   //     patientId: patientId,

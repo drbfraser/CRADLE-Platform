@@ -1,0 +1,131 @@
+[{
+        "id": 1,
+        "questionIndex": 1,
+        "category": "common_category",
+        "isBlank": true,
+        "questionText": "Do you like playing pingpong",
+        "questionType": "MC",
+        "required": true,
+        "units": "",
+        "visibleCondition": [],
+        "mcOptions": [{
+                "id": 1,
+                "qtext": "very much"
+            },
+            {
+                "id": 2,
+                "qtext": "a little"
+            },
+            {
+                "id": 3,
+                "qtext": "no idea"
+            },
+            {
+                "id": 4,
+                "qtext": "just so so"
+            }
+        ],
+        "numMin": null,
+        "numMax": null,
+        "stringMaxLength": null,
+        "answers": {
+            "value": null,
+            "text": "",
+            "mc": [
+                4
+            ],
+            "comment": ""
+        }
+    },
+    {
+        "id": 2,
+        "questionIndex": 2,
+        "category": "common_category",
+        "isBlank": true,
+        "questionText": "How long did you playing pingpong last week?",
+        "questionType": "Integer",
+        "required": false,
+        "units": "hours",
+        "visibleCondition": [{
+            "qid": 1,
+            "relation": "EQUAL_TO",
+            "answer": {
+                "value": null,
+                "text": "",
+                "mc": [
+                    1
+                ],
+                "comment": ""
+            }
+        }],
+        "mcOptions": [],
+        "numMin": 0,
+        "numMax": 100,
+        "stringMaxLength": null,
+        "answers": {
+            "value": 25,
+            "text": "",
+            "mc": [],
+            "comment": ""
+        }
+    },
+    {
+        "id": 3,
+        "questionIndex": 3,
+        "category": "common_category",
+        "isBlank": true,
+        "questionText": "Did you attend a pingpong club?",
+        "questionType": "MC",
+        "required": true,
+        "units": "",
+        "visibleCondition": [],
+        "mcOptions": [{
+                "id": 1,
+                "qtext": "true"
+            },
+            {
+                "id": 2,
+                "qtext": "false"
+            }
+        ],
+        "numMin": null,
+        "numMax": null,
+        "stringMaxLength": null,
+        "answers": {
+            "value": null,
+            "text": "",
+            "mc": [1],
+            "comment": ""
+        }
+    },
+    {
+        "id": 4,
+        "questionIndex": 4,
+        "category": "common_category",
+        "isBlank": true,
+        "questionText": "what is the name of the pingpong club?",
+        "questionType": "TEXT",
+        "required": false,
+        "units": "",
+        "visibleCondition": [{
+            "qid": 2,
+            "relation": "LARGER_THAN",
+            "answer": {
+                "value": 6,
+                "text": "",
+                "mc": [],
+                "comment": ""
+            }
+        }],
+        "mcOptions": [],
+        "numMin": null,
+        "numMax": null,
+        "stringMaxLength": 100,
+        "answers": {
+            "value": null,
+            "text": "PINGPONG CLUB",
+            "mc": [],
+            "comment": ""
+        }
+    }
+]

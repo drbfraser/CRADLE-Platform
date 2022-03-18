@@ -3,7 +3,9 @@ import {
   SexEnum,
   TrafficLightEnum,
   UserRoleEnum,
+  QRelationEnum,
 } from 'src/shared/enums';
+// import { number, string } from 'yup';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -252,3 +254,54 @@ export type customizedForm = {
   name:string;
   type:string;
 };
+//可能question的选项本身还需要细化一下。
+ 
+export type QOptions = {
+  id:number;
+  qtext:string;
+}
+export type QCondition = {
+  qid:number;
+  relation:string;//！！最好后边改成 QRelationEnum;
+  answer:Answer;
+}
+export type Answer = {
+  value:OrNull<number> | undefined;
+  text:OrNull<string> | undefined;
+  mc: OrNull<number[]> | undefined;
+  comment: OrNull<string> | undefined;
+} 
+export type Question = {  
+  id:number;
+  isBlank:boolean;  
+  questionIndex:number;   
+  questionText:string;  
+  questionType:string;  
+  category:string; 
+  required:boolean; 
+  
+  mcOptions?: OrNull<QOptions[]> | undefined; 
+  numMin? : OrNull<number> | undefined; 
+  numMax? : OrNull<number> | undefined; 
+  stringMaxLength? : OrNull<number> | undefined;  
+  units?:OrNull<string> | undefined; 
+  answers? : OrNull<Answer> | undefined;  
+  visibleCondition?: OrNull<QCondition[]>| undefined; 
+  //下边这个字段可能要删除
+  // sectionHeader:string|undefined;
+  // formId
+  // formTemplateId 
+}; 
+
+
+export type Form = {  
+  id:number;  
+  patientId:string;  
+  formTemplateId:number;
+  dateCreated:number; 
+  lastEdited:number;   
+  lastEditedBy:number; 
+}; 
+
+
+ 

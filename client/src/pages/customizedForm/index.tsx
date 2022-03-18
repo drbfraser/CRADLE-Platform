@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 // import { CustomizedForm } from './CustomizedForm';
 import { goBackWithFallback } from 'src/shared/utils';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
+import {Question} from 'src/shared/types'
 
 type RouteParams = {
   patientId: string;
@@ -16,6 +17,7 @@ type RouteParams = {
 export const CustomizedFormPage = () => {
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
+  const [questions, setQuestions] = useState<Question[]>(); 
 
 
   return (
@@ -30,7 +32,8 @@ export const CustomizedFormPage = () => {
       </div>
 
       <br />
-      <SelectHeaderForm patientId={patientId} />
+      <SelectHeaderForm patientId={patientId} setQuestions = {setQuestions} />
+      {console.log(questions)}
 
       {/* <br />
       <CustomizedForm patientId={patientId} /> */}

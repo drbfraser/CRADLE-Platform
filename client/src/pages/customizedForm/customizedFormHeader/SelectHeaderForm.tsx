@@ -18,9 +18,11 @@ import { initialState, ReferralField, validationSchema } from './state';
 import availableForms from "./Forms.json";
 import availableLangs from "./Lang.json";
 
+import {Question} from 'src/shared/types'
 
 interface IProps {
   patientId: string;
+  setQuestions:(questions:Question[]) => void;
 }
 
 export type customizedForm = {
@@ -30,7 +32,7 @@ export type customizedForm = {
 
 
 
-export const SelectHeaderForm = ({ patientId }: IProps) => {
+export const SelectHeaderForm = ({ patientId, setQuestions }: IProps) => {
   const classes = useStyles();
   // const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
@@ -52,7 +54,7 @@ export const SelectHeaderForm = ({ patientId }: IProps) => {
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, setSubmitError)}>
+        onSubmit={handleSubmit(patientId, setSubmitError, setQuestions,)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>
