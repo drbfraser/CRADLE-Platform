@@ -22,5 +22,11 @@ responses:
                 type: string
                 example: "NEMS Ambulance Request"
               version:
-                  type: string
-                  example: "V1"
+                type: string
+                example: "V1"
+              dateCreated:
+                type: Unix timestamp | Null
+                example: 1551447833
+              lastEdited:
+                type: Unix timestamp | Null
+                example: 1551447833

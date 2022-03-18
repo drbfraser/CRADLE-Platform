@@ -89,6 +89,10 @@ class BlankFormTemplate(Resource):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
+
+        del form_template["dateCreated"]
+        del form_template["lastEdited"]
+        del form_template["version"]    
         
         questions = crud.read_questions(Question, form_template.id)
         
