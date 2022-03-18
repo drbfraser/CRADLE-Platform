@@ -15,16 +15,19 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { handleSubmit } from './handlers';
 import { initialState, ReferralField, validationSchema } from './state';
+import {Question} from 'src/shared/types'
 
 interface IProps {
   patientId: string;
+  questions: Question[];
 }
 
-export const CustomizedForm = ({ patientId }: IProps) => {
+export const CustomizedForm = ({ patientId,questions }: IProps) => {
   const classes = useStyles();
   const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
   // const [questions, setQuestions] = useState();
+  console.log(questions);
   
 
   return (

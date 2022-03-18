@@ -3,7 +3,7 @@ import {
   SexEnum,
   TrafficLightEnum,
   UserRoleEnum,
-  QRelationEnum,
+  // QRelationEnum,
 } from 'src/shared/enums';
 // import { number, string } from 'yup';
 
@@ -257,11 +257,11 @@ export type customizedForm = {
 //可能question的选项本身还需要细化一下。
  
 export type QOptions = {
-  id:number;
+  idx:number;
   qtext:string;
 }
 export type QCondition = {
-  qid:number;
+  qidx:number;
   relation:string;//！！最好后边改成 QRelationEnum;
   answer:Answer;
 }
