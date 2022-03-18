@@ -90,6 +90,8 @@ class BlankFormTemplate(Resource):
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
         
-        return marshal.marshal(form_template)
+        questions = crud.read_questions(Question, form_template.id)
+        
+        return serialize.serialize_form_template(form_template, questions)
 
 

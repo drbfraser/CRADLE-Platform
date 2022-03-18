@@ -224,6 +224,7 @@ def init(api):
         endpoint="single_medical_record",
     )  # [GET, PUT, DELETE]
 
+    api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]
     api.add_resource(
         FormTemplate,
         "/api/forms/templates",

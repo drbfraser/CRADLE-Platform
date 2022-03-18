@@ -6,6 +6,7 @@ from jsonschema.exceptions import ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
 import marshmallow
+import json
 
 from config import db, ma
 from utils import get_current_time
@@ -452,8 +453,8 @@ class Form(db.Model):
         nullable=False,
     )
     formTemplateId = db.Column(
-        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
-        nullable=False,
+        db.ForeignKey(FormTemplate.id, ondelete="SET NULL"),
+        nullable=True,
     )
     dateCreated = db.Column(
         db.BigInteger,
@@ -466,27 +467,51 @@ class Form(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
-    lastEditedBy = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
+    lastEditedBy = db.Column(db.ForeignKey(User.id, ondelete="SET NULL"), nullable=True)
 
     # RELATIONSHIPS
     patient = db.relationship(
         "Patient",
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
-    formTemplate = db.relationship(
-        "FormTemplate",
-        backref=db.backref("forms", cascade="all, delete", lazy=True),
-    )
-    user = db.relationship(
-        "User",
-        backref=db.backref("forms", cascade="all, delete", lazy=True),
-    )
-    
+
     @staticmethod
     def schema():
         return FormSchema
 
+
 class Question(db.Model):
+    """
+    Question: a child model related to a form template or a form
+
+    isBlank: true means the question is related to form template, vice versa
+    questionIndex: a custom-defined question number index e.g. 1,2,3...
+    visibleCondition: any json format string indicating a visible condition,
+    the content logic should be handled in frontend
+    e.g.
+    {
+        "children": [
+            {
+            "id": "1",
+            }
+        ]
+    }
+
+    mcOptions: a json format list string indicating a list of multiple choices
+    (maximum 5 options)
+    e.g.
+    [opt1, opt2, opt3, opt4, opt5]
+
+    answers: a json format string indicating the answers filled by user
+    e.g.
+    {
+        "Value": 123,
+        "Text": "111",
+        "MC": opt1,
+        "Comment": "example comment"
+    }
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
@@ -495,7 +520,7 @@ class Question(db.Model):
     questionType = db.Column(db.Text, nullable=False)
     category = db.Column(db.Text, nullable=False, default="")
     required = db.Column(db.Boolean, nullable=False, default=0)
-    units = db.Column(db.Text, nullable=False)
+    units = db.Column(db.Text, nullable=True)
     visibleCondition = db.Column(db.Text, nullable=False, default="{}")
     mcOptions = db.Column(db.Text, nullable=False, default="[]")
     numMin = db.Column(db.Integer, nullable=True)
@@ -526,6 +551,8 @@ class Question(db.Model):
     @staticmethod
     def schema():
         return QuestionSchema
+
+
 #
 # SCHEMAS
 #
@@ -668,12 +695,14 @@ class FormSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+
 class QuestionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = Question
         load_instance = True
         include_relationships = True
+
 
 def validate_user(data):
     try:

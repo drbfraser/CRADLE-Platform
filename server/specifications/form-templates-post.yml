@@ -24,12 +24,9 @@ requestBody:
             questions:
               type: object
               properties:
-                id:
-                  type: integer
-                  example: 1
                 questionId:
-                  type: integer
-                  example: 1
+                  type: string
+                  example: "referred-by-name"
                 isBlank:
                   type: boolean
                   example: true
@@ -121,9 +118,12 @@ responses:
             questions:
               type: object
               properties:
-                questionId:
+                id:
                   type: integer
                   example: 1
+                questionId:
+                  type: string
+                  example: "referred-by-name"
                 isBlank:
                   type: boolean
                   example: true
