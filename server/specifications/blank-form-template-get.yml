@@ -55,50 +55,43 @@ responses:
                   example: null
                 visibleCondition:
                     type: array
-                    properties:
-                      qid:
-                        type: integer
-                        example: null
-                      relation:
-                        type: enum
-                        enum: ['LARGER_THAN', 'SMALLER_THAN', 'EQUAL_TO', 'CONTAINS']
-                        example: 'EQUAL_TO'
-                      answer:
-                        type: object
-                        properties:
-                          value:
-                            type: integer | null
-                            example: null
-                          text:
-                            type: text | null
-                            example: null
-                          mc:
-                            type: integer | null
-                            example: 1
-                  numMin:
-                    type: integer | null
-                    example: null
-                  numMax:
-                    type: integer | null
-                    example: null
-                  stringMaxLength:
-                    type: integer | null
-                    example: null
-                  mcOptions:
-                    type: array | null
-                    example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
-                  answers:
-                    type: object
-                    properties:
-                      value:
-                        type: integer | null
-                        example: null
-                      text: 
-                        type: string | null
-                        example: null
-                      mc:
-                        type: string | null
-                        example: "Decent"
-                      comments:
-                        type: string | null
-                        example: "Was not an emergency"
+                    items: object
+                    example: [{
+                      "qid": 1,
+                      "relation": "EQUAL_TO",
+                      "answer": {
+                          "value": null,
+                          "text": "",
+                          "mc": [
+                              1
+                          ],
+                          "comment": ""
+                      }
+                    }]
+                numMin:
+                  type: integer | null
+                  example: null
+                numMax:
+                  type: integer | null
+                  example: null
+                stringMaxLength:
+                  type: integer | null
+                  example: null
+                mcOptions:
+                  type: array | null
+                  example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
+                answers:
+                  type: object
+                  properties:
+                    value:
+                      type: integer | null
+                      example: null
+                    text: 
+                      type: string | null
+                      example: null
+                    mc:
+                      type: string | null
+                      example: "Decent"
+                    comments:
+                      type: string | null
+                      example: "Was not an emergency"
