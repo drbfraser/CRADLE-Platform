@@ -5,6 +5,7 @@ from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
 import json
+import uuid
 
 import api.util as util
 import data
@@ -40,7 +41,8 @@ class Root(Resource):
         user = crud.read(User, id=req["lastEditedBy"])
         if not user:
             abort(400, message="User does not exist")
-
+        
+        req['id'] = str(uuid.uuid4())
         form = marshal.unmarshal(Form, req)
         # first time when the form is created lastEdited is same to dateCreated
         form.lastEdited = form.dateCreated
