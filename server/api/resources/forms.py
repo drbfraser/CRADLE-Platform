@@ -20,9 +20,7 @@ class Root(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/forms-post.yml",
-        methods=["POST"],
-        endpoint="forms"
+        "../../specifications/forms-post.yml", methods=["POST"], endpoint="forms"
     )
     def post():
         req = request.get_json(force=True)
@@ -58,7 +56,7 @@ class SingleForm(Resource):
     @swag_from(
         "../../specifications/single-form-get.yml",
         methods=["GET"],
-        endpoint="single_form"
+        endpoint="single_form",
     )
     def get(form_id: int):
         form = crud.read(Form, id=form_id)
@@ -72,7 +70,7 @@ class SingleForm(Resource):
     @swag_from(
         "../../specifications/single-form-put.yml",
         methods=["PUT"],
-        endpoint="single_form"
+        endpoint="single_form",
     )
     def put(form_id: int):
         form = crud.read(Form, id=form_id)

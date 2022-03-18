@@ -51,7 +51,6 @@ def validate_post_request(request_body: dict, model: Type[M]) -> Optional[str]:
         error = validate_question_post(q, model)
         if error:
             return "question error: " + error
-        
 
 
 def validate_put_request(request_body: dict) -> Optional[str]:
@@ -70,7 +69,7 @@ def validate_put_request(request_body: dict) -> Optional[str]:
     error_message = required_keys_present(request_body, required_fields)
     if error_message is not None:
         return error_message
-    
+
     # validate question put content
     for q in request_body["questions"]:
         error = validate_question_put(q)

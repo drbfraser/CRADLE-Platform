@@ -29,7 +29,7 @@ class Root(Resource):
     )
     def post():
         req = request.get_json(force=True)
-        
+
         questions = req["questions"]
         # TODO: validate a question part
 
@@ -64,11 +64,11 @@ class SingleFormTemplate(Resource):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
-        
+
         questions = crud.read_questions(Question, form_template.id)
-        
+
         return serialize.serialize_form_template(form_template, questions)
-        
+
     @staticmethod
     @jwt_required
     @swag_from(
@@ -80,7 +80,7 @@ class SingleFormTemplate(Resource):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form template with id {form_template_id}")
-        
+
         req = request.get_json(force=True)
 
         # validate req
@@ -90,7 +90,7 @@ class SingleFormTemplate(Resource):
         questions = crud.read_questions(Question, form_template.id)
         ids = [question.id for question in questions]
         for question in formTemplate.questions:
-            if (question.id not in ids):
+            if question.id not in ids:
                 crud.create(question)
 
         crud.update(FormTemplate, req, id=form_template_id)
@@ -113,14 +113,12 @@ class BlankFormTemplate(Resource):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
-        
+
         questions = crud.read_questions(Question, form_template.id)
-        
+
         form_template = serialize.serialize_form_template(form_template, questions)
         del form_template["dateCreated"]
         del form_template["lastEdited"]
-        del form_template["version"]    
+        del form_template["version"]
 
         return form_template
-
-

@@ -23,6 +23,7 @@ def validate_answer(ans: dict) -> Optional[str]:
     if error:
         return error
 
+
 def validate_reference(q: dict, model: Type[M]) -> Optional[str]:
     """
     Returns an error message id the question has a correct referrence. Else, returns None.
@@ -40,9 +41,10 @@ def validate_reference(q: dict, model: Type[M]) -> Optional[str]:
         if "formTemplateId" in q and q["formTemplateId"] is not None:
             return "Form questions shouldn't have a form template reference"
 
+
 def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     """
-    Returns an error message if the question dict is not valid when making form or 
+    Returns an error message if the question dict is not valid when making form or
     template post request. Else, returns None.
 
     :param q: question as a dict object
@@ -68,7 +70,7 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
         "numMax",
         "stringMaxLength",
         "formId",
-        "formTemplateId"
+        "formTemplateId",
     ] + required_fields
 
     error_message = None
@@ -86,7 +88,16 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
         return error
 
     error = values_correct_type(
-        q, ["questionIndex", "numMin", "numMax", "stringMaxLength", "formId", "formTemplateId"], int
+        q,
+        [
+            "questionIndex",
+            "numMin",
+            "numMax",
+            "stringMaxLength",
+            "formId",
+            "formTemplateId",
+        ],
+        int,
     )
     if error:
         return error
@@ -120,11 +131,12 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     error = validate_answer(q["answers"])
     if error:
         return error
-    
+
     # validate reference
     error = validate_reference(q, model)
     if error:
         return error
+
 
 def validate_question_put(q: dict) -> Optional[str]:
     """

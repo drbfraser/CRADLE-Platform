@@ -225,31 +225,23 @@ def init(api):
     )  # [GET, PUT, DELETE]
 
     api.add_resource(
-        FormTemplate,
-        "/api/forms/templates",
-        endpoint="form_templates"
-    ) # [GET, POST]
+        FormTemplate, "/api/forms/templates", endpoint="form_templates"
+    )  # [GET, POST]
     api.add_resource(
         SingleFormTemplate,
         "/api/forms/templates/<int:form_template_id>",
-        endpoint="single_form_template"
-    ) # [GET, PUT]
+        endpoint="single_form_template",
+    )  # [GET, PUT]
     api.add_resource(
         BlankFormTemplate,
         "/api/forms/templates/blank/<int:form_template_id>",
-        endpoint="blank_form_template"
-    ) # [GET]
+        endpoint="blank_form_template",
+    )  # [GET]
 
+    api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]
     api.add_resource(
-        Forms,
-        "/api/forms/responses",
-        endpoint="forms"
-    ) # [POST]
-    api.add_resource(
-        SingleForm,
-        "/api/forms/responses/<int:form_id>",
-        endpoint="single_form"
-    ) # [GET, PUT]
+        SingleForm, "/api/forms/responses/<int:form_id>", endpoint="single_form"
+    )  # [GET, PUT]
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
     api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]

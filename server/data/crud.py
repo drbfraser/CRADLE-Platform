@@ -18,7 +18,7 @@ from models import (
     Pregnancy,
     MedicalRecord,
     supervises,
-    Question
+    Question,
 )
 import service.invariant as invariant
 
@@ -718,8 +718,7 @@ def read_referrals_or_assessments(
 
 
 def read_questions(
-    model: Question,
-    form_template_id: Optional[int] = None
+    model: Question, form_template_id: Optional[int] = None
 ) -> List[Question]:
     """
     Queries the database for questions
