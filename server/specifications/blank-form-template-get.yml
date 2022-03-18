@@ -48,7 +48,7 @@ responses:
                   example: "How the patient's condition?"
                 questionType:
                   type: enum
-                  enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME', 'SECTION_HEADER']
+                  enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
                   example: MULTIPLE_CHOICE
                 required:
                   type: boolean
