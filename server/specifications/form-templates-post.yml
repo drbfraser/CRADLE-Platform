@@ -199,7 +199,7 @@ responses:
                     mc:
                       type: string | null
                       example: "Decent"
-                    comments:
+                    comment:
                       type: string | null
                       example: "Was not an emergency"
   400:
