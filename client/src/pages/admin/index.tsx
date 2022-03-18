@@ -13,6 +13,10 @@ const pages = [
     name: 'Health Care Facilities',
     Component: ManageFacilities,
   },
+  // {
+  //   name: 'Forms',
+  //   Component: ManageForms,
+  // },
   {
     name: 'Relay App',
     Component: ManageRelayApp,
