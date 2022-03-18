@@ -22,6 +22,11 @@ import service.serialize as serialize
 class Root(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/form-templates-post.yml",
+        methods=["POST"],
+        endpoint="form_templates",
+    )
     def post():
         req = request.get_json(force=True)
         
@@ -36,6 +41,11 @@ class Root(Resource):
 
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/form-templates-get.yml",
+        methods=["GET"],
+        endpoint="form_templates",
+    )
     def get():
         form_templates = crud.read_all(FormTemplate)
         return [marshal.marshal(f) for f in form_templates]
@@ -45,6 +55,11 @@ class Root(Resource):
 class SingleFormTemplate(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/single-form-template-get.yml",
+        methods=["GET"],
+        endpoint="single_form_template",
+    )
     def get(form_template_id: int):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
@@ -54,9 +69,13 @@ class SingleFormTemplate(Resource):
         
         return serialize.serialize_form_template(form_template, questions)
         
-
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/single-form-template-put.yml",
+        methods=["PUT"],
+        endpoint="single_form_template",
+    )
     def put(form_template_id: int):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
@@ -85,6 +104,11 @@ class SingleFormTemplate(Resource):
 class BlankFormTemplate(Resource):
     @staticmethod
     @jwt_required
+    @swag_from(
+        "../../specifications/blank-form-template-get.yml",
+        methods=["GET"],
+        endpoint="blank_form_template",
+    )
     def get(form_template_id: int):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
