@@ -22,9 +22,6 @@ responses:
             questions:
               type: object
               properties:
-                id:
-                  type: integer
-                  example: 1
                 questionId:
                   type: string
                   example: "referred-by-name"
@@ -57,41 +54,51 @@ responses:
                   type: string | null
                   example: null
                 visibleCondition:
-                  type: object | null
-                  properties:
-                    children:
-                      type: array
-                      properties:
-                        ID:
-                          type: string
-                          example: null
-                        VALUE:
-                          type: string | null
-                          example: null
-                numMin:
-                  type: integer | null
-                  example: null
-                numMax:
-                  type: integer | null
-                  example: null
-                stringMaxLength:
-                  type: integer | null
-                  example: null
-                mcOptions:
-                  type: array | null
-                  example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
-                answers:
-                  type: object
-                  properties:
-                    Value:
-                      type: integer | null
-                      example: null
-                    Text: 
-                      type: string | null
-                      example: null
-                    MC:
-                      type: string | null
-                      example: "Decent"
-                    Comments:
-                      type: string | null
-                      example: "Was not an emergency"
+                    type: array
+                    properties:
+                      qid:
+                        type: integer
+                        example: null
+                      relation:
+                        type: enum
+                        enum: ['LARGER_THAN', 'SMALLER_THAN', 'EQUAL_TO', 'CONTAINS']
+                        example: 'EQUAL_TO'
+                      answer:
+                        type: object
+                        properties:
+                          value:
+                            type: integer | null
+                            example: null
+                          text:
+                            type: text | null
+                            example: null
+                          mc:
+                            type: integer | null
+                            example: 1
+                  numMin:
+                    type: integer | null
+                    example: null
+                  numMax:
+                    type: integer | null
+                    example: null
+                  stringMaxLength:
+                    type: integer | null
+                    example: null
+                  mcOptions:
+                    type: array | null
+                    example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
+                  answers:
+                    type: object
+                    properties:
+                      value:
+                        type: integer | null
+                        example: null
+                      text: 
+                        type: string | null
+                        example: null
+                      mc:
+                        type: string | null
+                        example: "Decent"
+                      comments:
+                        type: string | null
+                        example: "Was not an emergency"

@@ -21,16 +21,16 @@ requestBody:
                 answers:
                   type: object
                   properties:
-                    Value:
+                    value:
                       type: integer | null
                       example: null
-                    Text: 
+                    text: 
                       type: string | null
                       example: null
-                    MC:
+                    mc:
                       type: string | null
                       example: "Decent"
-                    Comments:
+                    comments:
                       type: string | null
                       example: "Was not an emergency"
 
@@ -62,57 +62,64 @@ responses:
               type: integer | null
               example: 2
             questions:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  questionId:
-                    type: integer
-                    example: 1
-                  isBlank:
-                    type: boolean
-                    example: true
-                  formTemplateId:
-                    type: integer | null
-                    example: 5
-                  formId:
-                    type: integer | null
-                    example: null
-                  category:
-                    type: string | null
-                    example: "Referred By"
-                  questionIndex:
-                    type: integer
-                    example: 1
-                  questionText:
-                    type: string
-                    example: "How the patient's condition?"
-                  questionType:
-                    type: string
-                    example: "integer"
-                  required:
-                    type: boolean
-                    example: true
-                  units:
-                    type: string | null
-                    example: null
-                  visibleCondition:
-                    type: object
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                questionId:
+                  type: string
+                  example: "referred-by-name"
+                isBlank:
+                  type: boolean
+                  example: true
+                formTemplateId:
+                  type: integer | null
+                  example: 5
+                formId:
+                  type: integer | null
+                  example: null
+                category:
+                  type: string | null
+                  example: "Referred By"
+                questionIndex:
+                  type: integer
+                  example: 1
+                questionText:
+                  type: string
+                  example: "How the patient's condition?"
+                questionType:
+                  type: enum
+                  enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
+                  example: MULTIPLE_CHOICE
+                required:
+                  type: boolean
+                  example: true
+                units:
+                  type: string | null
+                  example: null
+                visibleCondition:
+                    type: array
                     properties:
-                      children:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            ID:
-                              type: string
-                              example: "1"
-                            VALUE:
-                              type: string
-                              example: "2"
+                      qid:
+                        type: integer
+                        example: null
+                      relation:
+                        type: enum
+                        enum: ['LARGER_THAN', 'SMALLER_THAN', 'EQUAL_TO', 'CONTAINS']
+                        example: 'EQUAL_TO'
+                      answer:
+                        type: object
+                        properties:
+                          value:
+                            type: integer | null
+                            example: null
+                          text:
+                            type: text | null
+                            example: null
+                          mc:
+                            type: integer | null
+                            example: 1
                   numMin:
                     type: integer | null
                     example: null
@@ -128,15 +135,15 @@ responses:
                   answers:
                     type: object
                     properties:
-                      Value:
+                      value:
                         type: integer | null
                         example: null
-                      Text: 
+                      text: 
                         type: string | null
                         example: null
-                      MC:
+                      mc:
                         type: string | null
                         example: "Decent"
-                      Comments:
+                      comments:
                         type: string | null
                         example: "Was not an emergency"
