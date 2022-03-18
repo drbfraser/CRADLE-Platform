@@ -55,6 +55,23 @@ class FacilityTypeEnum(enum.Enum):
     HOSPITAL = "HOSPITAL"
 
 
+class QuestionTypeEnum(enum.Enum):
+    INTEGER = 'INTEGER'
+    DECIMAL = 'DECIMAL'
+    STRING = 'STRING'
+    MULTIPLE_CHOICE = 'MULTIPLE_CHOICE'
+    MULTIPLE_SELECT = 'MULTIPLE_SELECT'
+    DATE = 'DATE'
+    TIME = 'TIME'
+    DATETIME = 'DATETIME'
+
+
+class QRelationalEnum(enum.Enum):
+    LARGER_THAN = 'LARGER_THAN'
+    SMALLER_THAN = 'SMALLER_THAN'
+    EQUAL_TO = 'EQUAL_TO'
+    CONTAINS = 'CONTAINS'
+
 #
 # HELPER CLASSES
 #
@@ -517,7 +534,7 @@ class Question(db.Model):
     questionIndex = db.Column(db.Integer, nullable=False)
     questionId = db.Column(db.Text, nullable=False)
     questionText = db.Column(db.Text, nullable=False)
-    questionType = db.Column(db.Text, nullable=False)
+    questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
     category = db.Column(db.Text, nullable=False, default="")
     required = db.Column(db.Boolean, nullable=False, default=0)
     units = db.Column(db.Text, nullable=True)
