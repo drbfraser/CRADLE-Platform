@@ -26,9 +26,9 @@ def validate_post_request(request_body: dict, model: Type[M]) -> Optional[str]:
     if error_message is not None:
         return error_message
 
-    # for key in request_body:
-    #     if key not in all_fields:
-    #         return "The key '" + key + "' is not a valid field or is set server-side"
+    for key in request_body:
+        if key not in all_fields:
+            return "The key '" + key + "' is not a valid field or is set server-side"
 
     error = values_correct_type(request_body, ["patientId"], str)
     if error:
