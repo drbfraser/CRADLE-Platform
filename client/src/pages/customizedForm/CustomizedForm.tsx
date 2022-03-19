@@ -26,7 +26,6 @@ import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 // import Checkbox from '@material-ui/core/Checkbox';
 import {QAnswer} from 'src/shared/types';
-// import { NotVoid } from 'lodash';
 // import xtype from 'xtypejs'
 // import { ViewArray } from '@material-ui/icons';
 
@@ -49,7 +48,7 @@ export const CustomizedForm = ({ patientId,questions }: IProps) => {
   // const [val, _setVal] = useState<any>();
   //https://gustavostraube.wordpress.com/2019/05/29/custom-setters-with-react-usestate-hook/ 
   //自定义setter
-  const setAnswers = (answers:QAnswer[]) => {
+  const setAnswers = (answers:any) => {
     // Some side-effect here ... 
     _setAnswers(answers);
     // ... or there
@@ -64,14 +63,15 @@ export const CustomizedForm = ({ patientId,questions }: IProps) => {
 //引用字段是空的，这个useEffect只会走一次
 useEffect(() => {
   initializeAnswers();
-  //console.log(answers);
   console.log('NOTE: xxxxxx');
 }, );
 
 function initializeAnswers(){
   let i;
   for(i=0; i<questions.length;i++){
+    //初始化只会调用一次，此时应该questions的hidden都设置为false（一开始是一个空白表格)
     const question = questions[i];
+    questions[i].shouldHidden = false;
       let ans :QAnswer = {qidx:question.questionIndex, key:null, value:undefined}; 
       if(question.questionType === 'MC' || question.questionType === 'ME'){
         ans.key = 'mc';
@@ -90,12 +90,7 @@ function initializeAnswers(){
 function updateAnswersByValue(index:number, newValue:any){
   var ans = answers; 
   ans[index].value = newValue;
-  console.log(ans);
-  console.log(index);
-  console.log(newValue);
-  console.log(ans[0]!.value);
   setAnswers(ans);
-  
 };
 
 
@@ -106,24 +101,25 @@ function updateAnswersByValue(index:number, newValue:any){
   // const [questions, setQuestions] = useState();
   console.log(questions);
 
-  const handleRadioButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>, 
-    // event: React.ChangeEvent<HTMLInputElement>,
-    index:number,
-    //original_val:any
-    // setValue: React.Dispatch<React.SetStateAction<any>>
-  ) => {
-    const element = event.target as HTMLInputElement; 
-    const eventValue = element.value;  
-    console.log(eventValue);  
+  // const handleRadioButtonClick = (
+  //   // event: React.MouseEvent<HTMLButtonElement, MouseEvent>, 
+  //   event: React.ChangeEvent<HTMLInputElement>,
+  //   index:number,
+  //   original_val:any
+  //   // setValue: React.Dispatch<React.SetStateAction<any>>
+  // ) => {
+  //   // const element = event.currentTarget as HTMLInputElement;
+  //   // const element = event.target as HTMLInputElement;
+  //   // const eventValue = element.value; 
+  //   const eventValue = event.target.value;   
 
-    if (eventValue === answers[index].value) {
-      updateAnswersByValue(index, undefined);
-    } else {
-      updateAnswersByValue(index,eventValue);
-    }
-    // updateAnswersByValue(index,eventValue);
-  };
+  //   if (eventValue === original_val) {
+  //     // updateAnswersByValue(index,undefined);
+  //   } else {
+  //     // updateAnswersByValue(index,eventValue);
+  //   }
+  //   updateAnswersByValue(index,eventValue);
+  // };
 
   
 
@@ -150,29 +146,25 @@ function updateAnswersByValue(index:number, newValue:any){
                     <br />  
                     <RadioGroup 
                       value={answers[0]!.value} 
-                      defaultValue={undefined}   
+                      
                       onChange={function(event,value){ 
-                        //updateAnswersByValue(0,value);
+                        updateAnswersByValue(0,value);
 
                       }}>
                       <FormControlLabel
-                        key={0}
+                        //key={0}
                         value={questions[0].mcOptions![0]}
                         control={
-                          <Radio 
-                          checked={Boolean('vary much' === answers[0]!.value)} 
-                          onClick={(event)=>{handleRadioButtonClick(event,0)}}
+                          <Radio color="primary" required={true}
                           />
                         }
-                        label={questions[0].mcOptions![0]}  
+                        label={questions[0].mcOptions![0]}
                       />
                       <FormControlLabel
-                        key={1}
+                        //key={1}
                         value={questions[0].mcOptions![1]}
                         control={
-                          <Radio 
-                          checked={Boolean('a little' === answers[0]!.value)}
-                          onClick={(event)=>{handleRadioButtonClick(event,0)}}
+                          <Radio  color="primary" required={true}
                           />
                         }
                         label={questions[0].mcOptions![1]}
