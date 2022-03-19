@@ -506,29 +506,35 @@ class Question(db.Model):
     visibleCondition: any json format string indicating a visible condition,
     the content logic should be handled in frontend
     e.g.
-    {
-        "children": [
-            {
-            "id": "1",
-            }
-        ]
-    }
+    [{
+        "qid": 1,
+        "relation": "EQUAL_TO",
+        "answer": {
+            "value": 1
+        }
+    }]
 
     mcOptions: a json format list string indicating a list of multiple choices
     (maximum 5 options)
     e.g.
-    [opt1, opt2, opt3, opt4, opt5]
+    [
+        {
+            "mcid": 1,
+            "oqt": "very much"
+        },
+        ... (maximum 5 answers)
+    ]
 
     answers: a json format string indicating the answers filled by user
     e.g.
     {
-        "Value": 123,
-        "Text": "111",
-        "MC": opt1,
-        "Comment": "example comment"
+        "value": 123,
+        "text": "111",
+        "mc": [1],
+        "comment": "example comment"
     }
     """
-
+    # need to convert id to string type, validation part has check string type logic
     id = db.Column(db.Integer, primary_key=True)
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
