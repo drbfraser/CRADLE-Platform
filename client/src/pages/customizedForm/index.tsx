@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+// import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -7,8 +8,11 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
 import { CustomizedForm } from './CustomizedForm';
 import { goBackWithFallback } from 'src/shared/utils';
-import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
+// import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import {Question} from 'src/shared/types'
+
+
+import qs from "./customizedFormHeader/form.json";
 
 type RouteParams = {
   patientId: string;
@@ -17,9 +21,11 @@ type RouteParams = {
 export const CustomizedFormPage = () => {
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
-  const [questions, setQuestions] = useState<Question[]>(); 
+  const questions :Question[] = qs; 
+  //setQuestions(qs);
+  // questions = qs;
 
-
+ 
   return (
     <div className={classes.container}>
       <div className={classes.title}>
@@ -32,10 +38,10 @@ export const CustomizedFormPage = () => {
       </div>
 
       <br />
-      <SelectHeaderForm patientId={patientId} setQuestions = {setQuestions} />
-      {/* {console.log(questions)} */}
+      {/* <SelectHeaderForm patientId={patientId} setQuestions = {setQuestions} /> */}
+      {console.log(questions)}
 
-      {questions && questions!.length > 0 && (<><br /><CustomizedForm patientId={patientId} questions={questions}/></>)}
+      {questions!.length > 0 && (<><br /><CustomizedForm patientId={patientId} questions={questions}/></>)}
     </div>
   );
 };

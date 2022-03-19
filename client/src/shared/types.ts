@@ -256,20 +256,29 @@ export type customizedForm = {
 };
 //可能question的选项本身还需要细化一下。
  
-export type QOptions = {
-  idx:number;
-  qtext:string;
-}
+// export type QOptions = string;
+
 export type QCondition = {
   qidx:number;
   relation:string;//！！最好后边改成 QRelationEnum;
   answer:Answer;
 }
+// export type QAnswer = {
+//   qidx:number;
+//   answer:Answer;
+// }
+
+export type QAnswer = {
+  qidx:number | null;
+  key:string | null;//value,text,mc,comment
+  value:any;//string|undefined;
+}
+
 export type Answer = {
-  value:OrNull<number> | undefined;
-  text:OrNull<string> | undefined;
-  mc: OrNull<number[]> | undefined;
-  comment: OrNull<string> | undefined;
+  value:OrNull<number> ;//| undefined; 
+  text:OrNull<string> ;//| undefined; 
+  mc: OrNull<string|undefined>[]//| undefined; 
+  comment: OrNull<string> ;//| undefined; 
 } 
 export type Question = {  
   id:number;
@@ -280,13 +289,13 @@ export type Question = {
   category:string; 
   required:boolean; 
   
-  mcOptions?: OrNull<QOptions[]> | undefined; 
-  numMin? : OrNull<number> | undefined; 
-  numMax? : OrNull<number> | undefined; 
-  stringMaxLength? : OrNull<number> | undefined;  
-  units?:OrNull<string> | undefined; 
-  answers? : OrNull<Answer> | undefined;  
-  visibleCondition?: OrNull<QCondition[]>| undefined; 
+  mcOptions?: OrNull<string>[]//|undefined; 
+  numMin? : OrNull<number> //| undefined; 
+  numMax? : OrNull<number> //| undefined; 
+  stringMaxLength? : OrNull<number> //| undefined;  
+  units?:OrNull<string> //| undefined; 
+  answers? : OrNull<Answer> //| undefined;  
+  visibleCondition?: QCondition[]|undefined; 
   //下边这个字段可能要删除
   // sectionHeader:string|undefined;
   // formId
