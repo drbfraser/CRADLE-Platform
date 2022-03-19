@@ -3,16 +3,16 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-// import TextField from '@material-ui/core/TextField';
+import TextField from '@material-ui/core/TextField';
 // import { TextField as FormikTextField } from 'formik-material-ui';
-// import { Field, Form, Formik } from 'formik';
-import { Form, Formik } from 'formik';
+import { Field, Form, Formik } from 'formik';
+// import { Form, Formik } from 'formik';
 import FormLabel from '@material-ui/core/FormLabel'
 // import {
 //   Autocomplete,
 //   AutocompleteRenderInputParams,
 // } from 'formik-material-ui-lab';
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect,useRef } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 // import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { handleSubmit } from './handlers';
@@ -20,13 +20,15 @@ import { handleSubmit } from './handlers';
 import { initialState, validationSchema } from './state';
 
 import {Question} from 'src/shared/types'
+import {getTimestampFromStringDate} from 'src/shared/utils'
 
 // import RadioGroup from '@material-ui/core/RadioGroup';
 // import Radio from '@material-ui/core/Radio';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+// import FormControlLabel from '@material-ui/core/FormControlLabel';
 // import Checkbox from '@material-ui/core/Checkbox';
 import {QAnswer} from 'src/shared/types';
-import Checkbox from '@material-ui/core/Checkbox';
+// import { boolean } from 'yup';
+// import Checkbox from '@material-ui/core/Checkbox';
 
 
 interface IProps {
@@ -59,9 +61,10 @@ export const CustomizedForm = ({ patientId,questions }: IProps) => {
 
 };
   
-
+const initialDone = useRef<boolean>(false);
 //引用字段是空的，这个useEffect只会走一次
 useEffect(() => {
+  if(initialDone.current == false){
   let i;
   let anss: QAnswer[] = [];
   for(i=0; i<questions.length;i++){
@@ -77,20 +80,26 @@ useEffect(() => {
         }
       }else if(question.questionType === 'NUM' || question.questionType === 'DATE'){
         ans.key = 'value';
+        if(question.questionText==='DATE'){
+          // const [startDate, setStartDate] = useState<Moment | null>(null);
+          // ans.value = useState<Moment | null>(null)
+        }
       }else if(question.questionType === 'TEXT'){
         ans.key = 'text';
       }else{
         console.log('NOTE: INVALID QUESTION TYPE!!')
       }
       anss[i] = ans;
-      answers[i] = ans;
   }
            
   console.log(answers);
   //没有下边这行，是不会有选项显示的！！
   setAnswers(anss);
   console.log('NOTE: xxxxxx');
-},[] );
+}else{
+  initialDone.current = true;
+}
+},[initialDone]);
  
 
   
@@ -143,39 +152,34 @@ function updateAnswersByValue(index:number, newValue:any){
                   <Grid container spacing={3}>
 
                   {/* ////////////////////////////////////////////////////////////////////////////////////   */}
-                  {Boolean(answers[1]) &&Boolean(answers[1].value)  &&  (<Grid item> 
-                      <FormLabel>{questions[1].questionText}</FormLabel>
-                      <br />
-                       {questions[1].mcOptions!.map((option, index) => (
-                        <FormControlLabel
-                          control={
-                            <Checkbox    
-                              value={option}
-                              //checked={answers[1].value?.includes(option)}
-                              // checked={true}
-                              onChange={(event, checked) => {
-                                if (checked) {
-                                  //添加元素
-                                  var new_val = [...answers[1].value, event.target.value];
-                                  updateAnswersByValue(1,new_val); 
-                                } else {
-                                  //移除元素
-                                  var original_val = [...answers[1].value];
-                                  const i = original_val.indexOf(event.target.value); 
-                                  if(i>-1){
-                                    original_val.splice(i, 1);
-                                  }
-                                  updateAnswersByValue(1,original_val);
-                              }
-                              }}
-                            /> 
-                          }
-                          label={ option }
-                          key={index}
-                        />
-                      ))}
-                    </Grid>
-                  )}
+                  <Grid item md={4} sm={12}>
+            {Boolean(answers[5])  && (
+              <>
+              <FormLabel>{questions[5].questionText}</FormLabel>
+              <br />
+              <br />
+              <Field
+                component={TextField}
+                fullWidth
+                required
+                variant="outlined"
+                type="date"
+                label="Date"
+                // name={PatientField.dob}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onChange={(event:any)=>{
+                  //console.log(event.target.value);
+                  const timestamp = getTimestampFromStringDate(event.target.value);
+                  updateAnswersByValue(5,timestamp);
+                }
+
+                }
+              />
+              </>
+            )}
+            </Grid>
 
 
                   {/* ////////////////////////////////////////////////////////////////////////////////////   */}
