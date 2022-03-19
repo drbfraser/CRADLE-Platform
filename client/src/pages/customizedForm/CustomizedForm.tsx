@@ -21,13 +21,13 @@ import { initialState, validationSchema } from './state';
 
 import {Question} from 'src/shared/types'
 
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
+// import RadioGroup from '@material-ui/core/RadioGroup';
+// import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 // import Checkbox from '@material-ui/core/Checkbox';
 import {QAnswer} from 'src/shared/types';
-// import xtype from 'xtypejs'
-// import { ViewArray } from '@material-ui/icons';
+import Checkbox from '@material-ui/core/Checkbox';
+
 
 interface IProps {
   patientId: string;
@@ -62,12 +62,8 @@ export const CustomizedForm = ({ patientId,questions }: IProps) => {
 
 //引用字段是空的，这个useEffect只会走一次
 useEffect(() => {
-  initializeAnswers();
-  console.log('NOTE: xxxxxx');
-}, );
-
-function initializeAnswers(){
   let i;
+  let anss: QAnswer[] = [];
   for(i=0; i<questions.length;i++){
     //初始化只会调用一次，此时应该questions的hidden都设置为false（一开始是一个空白表格)
     const question = questions[i];
@@ -75,6 +71,10 @@ function initializeAnswers(){
       let ans :QAnswer = {qidx:question.questionIndex, key:null, value:undefined}; 
       if(question.questionType === 'MC' || question.questionType === 'ME'){
         ans.key = 'mc';
+        if(question.questionType==='ME'){
+          //undefined的数组在access的时候会抛出错误
+          ans.value=[];
+        }
       }else if(question.questionType === 'NUM' || question.questionType === 'DATE'){
         ans.key = 'value';
       }else if(question.questionType === 'TEXT'){
@@ -82,24 +82,26 @@ function initializeAnswers(){
       }else{
         console.log('NOTE: INVALID QUESTION TYPE!!')
       }
+      anss[i] = ans;
       answers[i] = ans;
   }
-};
+           
+  console.log(answers);
+  //没有下边这行，是不会有选项显示的！！
+  setAnswers(anss);
+  console.log('NOTE: xxxxxx');
+},[] );
+ 
 
   
 function updateAnswersByValue(index:number, newValue:any){
   var ans = answers; 
   ans[index].value = newValue;
   setAnswers(ans);
-};
-
-
-
-
-  // const [answer0, setAnswer0] = useState();
-
-  // const [questions, setQuestions] = useState();
-  console.log(questions);
+  console.log(ans);
+}; 
+  // console.log(answers[1]);
+  // console.log(questions[1]);
 
   // const handleRadioButtonClick = (
   //   // event: React.MouseEvent<HTMLButtonElement, MouseEvent>, 
@@ -139,38 +141,44 @@ function updateAnswersByValue(index:number, newValue:any){
                 <h2>Referral</h2>
                 <Box pt={1} pl={3} pr={3}>
                   <Grid container spacing={3}>
-                  <Grid item md={6} sm={6}>
 
-                    {/* <b>Do you like playing pingpong?</b> */}
-                    <FormLabel>Do you like playing pingpong?</FormLabel>
-                    <br />  
-                    <RadioGroup 
-                      value={answers[0]!.value} 
-                      
-                      onChange={function(event,value){ 
-                        updateAnswersByValue(0,value);
+                  {/* ////////////////////////////////////////////////////////////////////////////////////   */}
+                  {Boolean(answers[1]) &&Boolean(answers[1].value)  &&  (<Grid item> 
+                      <FormLabel>{questions[1].questionText}</FormLabel>
+                      <br />
+                       {questions[1].mcOptions!.map((option, index) => (
+                        <FormControlLabel
+                          control={
+                            <Checkbox    
+                              value={option}
+                              //checked={answers[1].value?.includes(option)}
+                              // checked={true}
+                              onChange={(event, checked) => {
+                                if (checked) {
+                                  //添加元素
+                                  var new_val = [...answers[1].value, event.target.value];
+                                  updateAnswersByValue(1,new_val); 
+                                } else {
+                                  //移除元素
+                                  var original_val = [...answers[1].value];
+                                  const i = original_val.indexOf(event.target.value); 
+                                  if(i>-1){
+                                    original_val.splice(i, 1);
+                                  }
+                                  updateAnswersByValue(1,original_val);
+                              }
+                              }}
+                            /> 
+                          }
+                          label={ option }
+                          key={index}
+                        />
+                      ))}
+                    </Grid>
+                  )}
 
-                      }}>
-                      <FormControlLabel
-                        //key={0}
-                        value={questions[0].mcOptions![0]}
-                        control={
-                          <Radio color="primary" required={true}
-                          />
-                        }
-                        label={questions[0].mcOptions![0]}
-                      />
-                      <FormControlLabel
-                        //key={1}
-                        value={questions[0].mcOptions![1]}
-                        control={
-                          <Radio  color="primary" required={true}
-                          />
-                        }
-                        label={questions[0].mcOptions![1]}
-                      />
-                    </RadioGroup>
-                  </Grid>
+
+                  {/* ////////////////////////////////////////////////////////////////////////////////////   */}
 
                   </Grid>
                 </Box>
@@ -190,6 +198,7 @@ function updateAnswersByValue(index:number, newValue:any){
         )}
       </Formik>
     </>
+    
   );
 };
 
