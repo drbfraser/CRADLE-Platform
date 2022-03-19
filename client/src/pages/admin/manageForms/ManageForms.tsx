@@ -1,4 +1,13 @@
-/* eslint-disable prettier/prettier */
+import React from "react";
+import { useAdminStyles } from "../adminStyles";
+
+
 export const ManageForms = () => {
-  return false;
+  const styles = useAdminStyles();
+
+  return (
+    <div className={styles.tableContainer}>
+
+    </div>
+    )
 };
