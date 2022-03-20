@@ -8,7 +8,7 @@ def test_form_template_created(database, form_template, api_post):
     response: Response = api_post(endpoint="/api/forms/templates", json=form_template)
     database.session.commit()
 
-    assert response.status_code == 400
+    assert response.status_code == 201
 
 
 @pytest.fixture
