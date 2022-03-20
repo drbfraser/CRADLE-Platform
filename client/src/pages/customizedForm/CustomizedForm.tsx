@@ -189,19 +189,29 @@ function updateAnswersByValue(index:number, newValue:any){
               <br />
                       <Field
                         component={TextField}
-                        variant="outlined"
+                        variant="outlined" 
+                        // https://stackoverflow.com/questions/54761664/how-to-inputref-works-in-material-ui-core-3-9-2
+                        // inputRef={(ref:any) => { console.log(ref?.value);answers[4].value = ref?.value;}}
                         fullWidth
                         multiline
                         //rows={2}
                         inputProps={{ maxLength: questions[4].stringMaxLength!>0?questions[4].stringMaxLength:Number.MAX_SAFE_INTEGER }}
                         // name={AssessmentField.drugHistory}
                         label={questions[4].stringMaxLength!>0? `Max Length ${questions[4].stringMaxLength}`:''}
+                        onChange={(event:any)=>{
+                          // console.log(event.target.value);
+                          // console.log(answers[4].value);
+                          // const timestamp = getTimestampFromStringDate(event.target.value);
+                          updateAnswersByValue(4,event.target.value);
+                        }}
                       />   
                        </>
-            )}    
+                      )}    
                     </Grid>
 
+                  {/* ////////////////////////////////////////////////////////////////////////////////////   */}
 
+ 
                   {/* ////////////////////////////////////////////////////////////////////////////////////   */}
 
                   </Grid>
