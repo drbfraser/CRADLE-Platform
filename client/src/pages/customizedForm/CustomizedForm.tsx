@@ -29,6 +29,7 @@ import {getTimestampFromStringDate} from 'src/shared/utils'
 import {QAnswer} from 'src/shared/types';
 // import { boolean } from 'yup';
 // import Checkbox from '@material-ui/core/Checkbox';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 
 interface IProps {
@@ -210,8 +211,36 @@ function updateAnswersByValue(index:number, newValue:any){
                     </Grid>
 
                   {/* ////////////////////////////////////////////////////////////////////////////////////   */}
+                  <Grid item sm={12} md={12}>
+                  {Boolean(answers[2])  && (
+              <>
+               <FormLabel>{questions[2].questionText}</FormLabel>
+              <br />
+              <br />
+                <Field
+                component={TextField}
+                variant="outlined"
+                type="number"
+                fullWidth
+                required
+                // label={'Diastolic'}
+                // name={ReadingField.bpDiastolic}
+                InputProps={{
+                  endAdornment: Boolean(questions[2].units) && Boolean(questions[2].units!.trim().length>0) &&(
+                    <InputAdornment position="end">{questions[2].units}</InputAdornment>
+                  ),   
+                }}  
+                
+                onChange={(event:any)=>{
+                  // console.log(event.target.value); 
+                  updateAnswersByValue(2,event.target.value);
+                }}
 
- 
+              />
+               </>
+                      )}    
+                    </Grid>
+
                   {/* ////////////////////////////////////////////////////////////////////////////////////   */}
 
                   </Grid>
