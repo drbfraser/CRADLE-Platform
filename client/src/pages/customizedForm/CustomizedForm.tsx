@@ -87,6 +87,234 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
     setAnswers(ans);
     console.log(ans);
   }; 
+
+
+
+  function generate_html_for_one_question(question:Question, answer:QAnswer){
+    const type = question.questionType;
+
+    //////////////////////////////////////1.单选//////////////////////////////////////////////
+    if (type === 'MC'){
+      if(answer){
+        return( 
+          <>
+            <Grid item md={12} sm={12}> 
+             <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
+              <br />
+              <RadioGroup
+                value={answer.value}
+                onChange={function (event, value) {
+                  updateAnswersByValue(0, value);
+                }}>
+                <FormControlLabel
+                  //key={0}
+                  value={question.mcOptions![0]}
+                  control={
+                    <Radio color="primary" required={true}
+                    />
+                  }
+                  label={question.mcOptions![0]}
+                />
+                <FormControlLabel
+                  //key={1}
+                  value={question.mcOptions![1]}
+                  control={
+                    <Radio color="primary" required={true}
+                    />
+                  }
+                  label={question.mcOptions![1]}
+                />
+              </RadioGroup>
+            </Grid>
+            </>
+          ) 
+      }else{
+        return(
+          <>
+          </>
+        )
+      }
+      
+    }
+    //////////////////////////////////////2.多选//////////////////////////////////////////////
+    else if (type === 'ME'){
+      if(answer){
+        return(
+          <>
+            <Grid item md={12} sm={12}>
+            <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
+              <br />
+              {question.mcOptions!.map((option, index) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      value={option}
+                      //checked={answers[1].value?.includes(option)}
+                      // checked={true}
+                      onChange={(event, checked) => {
+                        if (checked) {
+                          //添加元素
+                          var new_val = [...answer.value, event.target.value];
+                          updateAnswersByValue(1, new_val);
+                        } else {
+                          //移除元素
+                          var original_val = [...answer.value];
+                          const i = original_val.indexOf(event.target.value);
+                          if (i > -1) {
+                            original_val.splice(i, 1);
+                          }
+                          updateAnswersByValue(1, original_val);
+                        }
+                      }}
+                    />
+                  }
+                  label={option}
+                  key={index}
+                />
+              ))}
+            </Grid>
+          </>
+        )
+      }else{
+        return(
+          <>
+          </>
+        )
+      }
+    }
+    //////////////////////////////////////3.数字输入//////////////////////////////////////////////
+    else if (type === 'NUM'){
+      if(answer){
+        return(
+          <>
+            <Grid item md={12} sm={12}>
+            <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
+              <br />
+              {question.mcOptions!.map((option, index) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      value={option}
+                      //checked={answers[1].value?.includes(option)}
+                      // checked={true}
+                      onChange={(event, checked) => {
+                        if (checked) {
+                          //添加元素
+                          var new_val = [...answer.value, event.target.value];
+                          updateAnswersByValue(1, new_val);
+                        } else {
+                          //移除元素
+                          var original_val = [...answer.value];
+                          const i = original_val.indexOf(event.target.value);
+                          if (i > -1) {
+                            original_val.splice(i, 1);
+                          }
+                          updateAnswersByValue(1, original_val);
+                        }
+                      }}
+                    />
+                  }
+                  label={option}
+                  key={index}
+                />
+              ))}
+            </Grid>
+          </>
+        )
+      }else{
+        return(
+          <>
+          </>
+        )
+      } 
+    }
+    //////////////////////////////////////4.文字输入//////////////////////////////////////////////
+    else if (type === 'TEXT'){
+      if(answer){
+        return(
+          <>
+          <Grid item sm={12} md={12}>
+          <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
+            <br />
+            <br />
+            <Field
+              component={TextField}
+              variant="outlined"
+              fullWidth
+              multiline
+              inputProps={{ maxLength: question.stringMaxLength! > 0 ? question.stringMaxLength : Number.MAX_SAFE_INTEGER }}
+              // name={AssessmentField.drugHistory}
+              //label={question.stringMaxLength!>0? `Max Length ${question.stringMaxLength}`:''}
+              onChange={(event: any) => {
+                updateAnswersByValue(4, event.target.value);
+              }}
+            />
+            </Grid>
+          </> 
+        )
+
+      }else{
+        return(
+          <>
+          </>
+        )
+      }  
+    }
+    //////////////////////////////////////5.日期输入//////////////////////////////////////////////
+    else if (type === 'DATE'){
+      if(answer){
+        return(
+          <>
+            <Grid item md={12} sm={12}> 
+              <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
+              <br />
+              <br />
+              <Field
+                component={TextField}
+                fullWidth
+                required
+                variant="outlined"
+                type="date"
+                label="Date"
+                // name={PatientField.dob}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onChange={(event: any) => {
+                  //console.log(event.target.value);
+                  const timestamp = getTimestampFromStringDate(event.target.value);
+                  updateAnswersByValue(5, timestamp);
+                }
+  
+                }
+              />
+            </Grid>
+          </>
+        ) 
+      }else{
+        return(
+          <>
+          </>
+        )
+      }  
+    }
+    //////////////////////////////////////!不合法//////////////////////////////////////////////
+    else{
+      console.log("INVALID QUESTION TYPE!!");
+    }
+    // setCards(cards_elements);
+  };
+
+  function generate_html_of_all_questions(){
+    let i;
+    let html_arr = [];
+    for(i = 0; i<questions.length; i++){
+      let question = questions[i];
+      let answer = answers[i];
+      html_arr.push(generate_html_for_one_question(question, answer));
+    }
+    return html_arr;
+  }
   
 
   return (
@@ -103,160 +331,8 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
                 <h2>Referral</h2>
                 <Box pt={1} pl={3} pr={3}>
                   <Grid container spacing={3}>
-                    {/* //////////////////////////////////////1.单选//////////////////////////////////////////////   */}
-                    {Boolean(answers[0]) && (
-                      <>
-                      <Grid item md={12} sm={12}> 
-                        <FormLabel>Do you like playing pingpong?</FormLabel>
-                        <br />
-                        <RadioGroup
-                          value={answers[0]!.value}
-                          onChange={function (event, value) {
-                            updateAnswersByValue(0, value);
-                          }}>
-                          <FormControlLabel
-                            //key={0}
-                            value={questions[0].mcOptions![0]}
-                            control={
-                              <Radio color="primary" required={true}
-                              />
-                            }
-                            label={questions[0].mcOptions![0]}
-                          />
-                          <FormControlLabel
-                            //key={1}
-                            value={questions[0].mcOptions![1]}
-                            control={
-                              <Radio color="primary" required={true}
-                              />
-                            }
-                            label={questions[0].mcOptions![1]}
-                          />
-                        </RadioGroup>
-                      </Grid>
-                      </>
-                    )}
-
-                    {/* //////////////////////////////////////2.多选//////////////////////////////////////////////   */}
-                    {/* && Boolean(answers[1].value)  */}
-                    {Boolean(answers[1]) && (
-                      <>
-                        <Grid item md={12} sm={12}>
-                          <FormLabel>{questions[1].questionText}</FormLabel>
-                          <br />
-                          {questions[1].mcOptions!.map((option, index) => (
-                            <FormControlLabel
-                              control={
-                                <Checkbox
-                                  value={option}
-                                  //checked={answers[1].value?.includes(option)}
-                                  // checked={true}
-                                  onChange={(event, checked) => {
-                                    if (checked) {
-                                      //添加元素
-                                      var new_val = [...answers[1].value, event.target.value];
-                                      updateAnswersByValue(1, new_val);
-                                    } else {
-                                      //移除元素
-                                      var original_val = [...answers[1].value];
-                                      const i = original_val.indexOf(event.target.value);
-                                      if (i > -1) {
-                                        original_val.splice(i, 1);
-                                      }
-                                      updateAnswersByValue(1, original_val);
-                                    }
-                                  }}
-                                />
-                              }
-                              label={option}
-                              key={index}
-                            />
-                          ))}
-                        </Grid>
-                      </>
-                    )}
-
-                    {/* //////////////////////////////////////3.数字输入//////////////////////////////////////////////   */}
-                      {Boolean(answers[2]) && (
-                        <>
-                         <Grid item sm={12} md={12}> 
-                          <FormLabel>{questions[2].questionText}</FormLabel>
-                          <br />
-                          <br />
-                          <Field
-                            component={TextField}
-                            variant="outlined"
-                            type="number"
-                            fullWidth
-                            required
-                            // label={'Diastolic'}
-                            // name={ReadingField.bpDiastolic}
-                            InputProps={{
-                              endAdornment: Boolean(questions[2].units) && Boolean(questions[2].units!.trim().length > 0) && (
-                                <InputAdornment position="end">{questions[2].units}</InputAdornment>
-                              ),
-                            }}
-                            onChange={(event: any) => {
-                              // console.log(event.target.value); 
-                              updateAnswersByValue(2, event.target.value);
-                            }} 
-                          />
-                          </Grid>
-                        </>
-                      )} 
-
-                    {/* //////////////////////////////////////4.文字输入//////////////////////////////////////////////   */}
-                      {Boolean(answers[4]) && (
-                        <>
-                        <Grid item sm={12} md={12}>
-                          <FormLabel>{questions[4].questionText}</FormLabel>
-                          <br />
-                          <br />
-                          <Field
-                            component={TextField}
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            inputProps={{ maxLength: questions[4].stringMaxLength! > 0 ? questions[4].stringMaxLength : Number.MAX_SAFE_INTEGER }}
-                            // name={AssessmentField.drugHistory}
-                            //label={questions[4].stringMaxLength!>0? `Max Length ${questions[4].stringMaxLength}`:''}
-                            onChange={(event: any) => {
-                              updateAnswersByValue(4, event.target.value);
-                            }}
-                          />
-                          </Grid>
-                        </> 
-                      )} 
-
-                    {/* //////////////////////////////////////5.日期输入//////////////////////////////////////////////   */}
-                      {Boolean(answers[5]) && (
-                        <>
-                          <Grid item md={12} sm={12}> 
-                            <FormLabel>{questions[5].questionText}</FormLabel>
-                            <br />
-                            <br />
-                            <Field
-                              component={TextField}
-                              fullWidth
-                              required
-                              variant="outlined"
-                              type="date"
-                              label="Date"
-                              // name={PatientField.dob}
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                              onChange={(event: any) => {
-                                //console.log(event.target.value);
-                                const timestamp = getTimestampFromStringDate(event.target.value);
-                                updateAnswersByValue(5, timestamp);
-                              }
-
-                              }
-                            />
-                          </Grid>
-                        </>
-                      )}
+                    {/* /////////////////////////////////////////////////////////////////////////////////////   */}
+                    {generate_html_of_all_questions()}
                     {/* ////////////////////////////////////////////////////////////////////////////////////   */}
 
                   </Grid>
