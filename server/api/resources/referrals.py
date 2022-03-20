@@ -119,7 +119,6 @@ class AssessReferral(Resource):
 
         if not referral.isAssessed:
             referral.isAssessed = True
-            referral.lastEdited = get_current_time()
             data.db_session.commit()
             data.db_session.refresh(referral)
 
@@ -150,14 +149,13 @@ class ReferralCancelStatus(Resource):
         crud.update(Referral, request_body, id=referral_id)
 
         referral = crud.read(Referral, id=referral_id)
-        referral.lastEdited = get_current_time()
         data.db_session.commit()
         data.db_session.refresh(referral)
 
         return marshal.marshal(referral)
 
 
-# /api/referrals/not_attend/<int:referral_id>
+# /api/referrals/not-attend/<int:referral_id>
 class ReferralNotAttend(Resource):
     @staticmethod
     @jwt_required
@@ -180,7 +178,6 @@ class ReferralNotAttend(Resource):
         if not referral.notAttended:
             referral.notAttended = True
             referral.notAttendReason = request_body["notAttendReason"]
-            referral.lastEdited = get_current_time()
             data.db_session.commit()
             data.db_session.refresh(referral)
 

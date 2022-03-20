@@ -103,7 +103,6 @@ class SingleForm(Resource):
         user = get_jwt_identity()
         user_id = int(user["userId"])
         form.lastEditedBy = user_id
-        form.lastEdited = get_current_time()
 
         data.db_session.commit()
         data.db_session.refresh(form)
