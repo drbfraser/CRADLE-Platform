@@ -73,6 +73,18 @@ export const getTimestampFromStringDate = (
   var localDate = testDateUtc.local();
   return localDate.toDate().getTime();//millis 
 };
+
+//output string date format MUST be:'YYYY-MM-DD'(from millis timestamp)
+export const getStringDateFromTimestamp = (
+  timestamp: number 
+): string => {
+  if(timestamp && timestamp>0){
+    return moment(timestamp * 1000).format('YYYY-MM-DD'); 
+  }else{
+    return '';
+  }
+  
+};
  
 
 export const getNumOfWeeksDaysNumeric = (

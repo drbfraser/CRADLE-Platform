@@ -25,9 +25,16 @@ export const Header = ({
   setConfirmDialogPerformAssessmentOpen,
 }: IProps) => {
   const history = useHistory();
-  const handleAddSubmitNewFormClick = () => {
+  const handleSubmitNewFormClick = () => {
     if (patient) {
       history.push(`/forms/new/${patient.patientId}`);
+    }
+  }; 
+
+  //MUST DELETE(TEMP ENTRY)
+  const handleEditNewFormClick = () => {
+    if (patient) {
+      history.push(`/forms/edit/${patient.patientId}`);
     }
   };
 
@@ -74,10 +81,19 @@ export const Header = ({
         <Button
             color="primary"
             variant="contained"
-            onClick={handleAddSubmitNewFormClick}>
+            onClick={handleSubmitNewFormClick}>
             <AddIcon />
             Submit New Form
           </Button>
+          {/* temp entry, MUST DELETE!   */}
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={handleEditNewFormClick}>
+            <AddIcon />
+            Edit New Form
+          </Button>
+
           <Button
             color="primary"
             variant="contained"

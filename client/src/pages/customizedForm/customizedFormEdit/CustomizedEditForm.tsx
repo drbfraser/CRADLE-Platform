@@ -11,7 +11,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit,handleSubmit2 } from './handlers'; 
 import { initialState, validationSchema } from './state'; 
 import { Question } from 'src/shared/types'
-import { getTimestampFromStringDate } from 'src/shared/utils' 
+import { getTimestampFromStringDate,getStringDateFromTimestamp } from 'src/shared/utils' 
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -26,7 +26,7 @@ interface IProps {
   questions: Question[];
 } 
 
-export const CustomizedForm = ({ patientId, questions }: IProps) => {
+export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
   const classes = useStyles(); 
   const [submitError, setSubmitError] = useState(false); 
   const [answers, _setAnswers] = useState<(QAnswer)[]>([{ qidx: null, key: null, value: null }]); 
@@ -55,15 +55,18 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
         let ans: QAnswer = { qidx: question.questionIndex, key: null, value: null };
         if (question.questionType === 'MC' || question.questionType === 'ME') {
           ans.key = 'mc';
+          ans.value = (question.answers?.mc)??[];
           if (question.questionType === 'ME') {
             //undefined的数组在access的时候会抛出错误
-            ans.value = [];
+            //ans.value = [];
           }
         } else if (question.questionType === 'NUM' || question.questionType === 'DATE') {
           ans.key = 'value';
+          ans.value = (question.answers?.value)??null;
           if (question.questionText === 'DATE') { 
           }
         } else if (question.questionType === 'TEXT') {
+          ans.value = (question.answers?.text)??null;
           ans.key = 'text';
         } else {
           console.log('NOTE: INVALID QUESTION TYPE!!')
@@ -104,18 +107,25 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
             <Grid item md={12} sm={12}> 
              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
               <br />
-              <RadioGroup
-                value={answer.value}
+              <RadioGroup       
+                value={answer.value?answer.value[0]:''}
+                defaultValue={answer.value?answer.value[0]:''}
                 onChange={function (event, value) {
-                  updateAnswersByValue(qid, value);
+                  let arr = [];
+                  if(value){
+                    arr.push(value);
+                  }
+                  updateAnswersByValue(qid, arr);
                 }}> 
               
           {question.mcOptions!.map((option, index) => (
             <FormControlLabel
                   //key={0}
                   value={option}
+                  // defaultChecked={answer.value?.indexOf(option)>-1}
+                  
                   control={
-                    <Radio color="primary" required={required}
+                    <Radio color="primary" required={required}  
                     />
                   }
                   label={option} 
@@ -144,11 +154,13 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
               {question.mcOptions!.map((option, index) => (
                 <>
                 <FormControlLabel
+                  
                   control={
                     
                     <Checkbox 
                       // required={required}
                       value={option}
+                      defaultChecked={answer.value?.indexOf(option)>-1}
                       //checked={answers[1].value?.includes(option)}
                       // checked={true}
                       onChange={(event, checked) => {
@@ -195,6 +207,7 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
             <br />
             <Field
               component={TextField}
+              defaultValue={answer.value??''}
               variant="outlined"
               type="number"
               fullWidth
@@ -232,6 +245,7 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
             <br />
             <Field 
               component={TextField}
+              defaultValue={answer.value??''}
               required={required}
               variant="outlined"
               fullWidth
@@ -265,6 +279,7 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
               <br />
               <Field
                 component={TextField}
+                defaultValue={Boolean(answer.value)?getStringDateFromTimestamp(answer.value):null}
                 fullWidth
                 required={required}
                 variant="outlined"
@@ -348,7 +363,7 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
               onClick={e=>{handleSubmit2(e,patientId, answers)}}
               disabled={isSubmitting}>
               
-              Submit Form
+              Update Form
             </Button>
           </Form>
         )}
