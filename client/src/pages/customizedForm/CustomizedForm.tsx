@@ -104,7 +104,7 @@ useEffect(() => {
 
   
 function updateAnswersByValue(index:number, newValue:any){
-  var ans = answers; 
+  var ans = [...answers]; 
   ans[index].value = newValue;
   setAnswers(ans);
   console.log(ans);
