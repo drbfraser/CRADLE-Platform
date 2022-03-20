@@ -64,7 +64,7 @@ export const CustomizedForm = ({ patientId,questions }: IProps) => {
 const initialDone = useRef<boolean>(false);
 //引用字段是空的，这个useEffect只会走一次
 useEffect(() => {
-  if(initialDone.current == false){
+  if(initialDone.current === false){
   let i;
   let anss: QAnswer[] = [];
   for(i=0; i<questions.length;i++){
@@ -152,7 +152,7 @@ function updateAnswersByValue(index:number, newValue:any){
                   <Grid container spacing={3}>
 
                   {/* ////////////////////////////////////////////////////////////////////////////////////   */}
-                  <Grid item md={4} sm={12}>
+                  <Grid item md={12} sm={12}>
             {Boolean(answers[5])  && (
               <>
               <FormLabel>{questions[5].questionText}</FormLabel>
@@ -167,7 +167,7 @@ function updateAnswersByValue(index:number, newValue:any){
                 label="Date"
                 // name={PatientField.dob}
                 InputLabelProps={{
-                  shrink: true,
+                  shrink: true, 
                 }}
                 onChange={(event:any)=>{
                   //console.log(event.target.value);
@@ -180,6 +180,26 @@ function updateAnswersByValue(index:number, newValue:any){
               </>
             )}
             </Grid>
+
+            <Grid item sm={12} md={12}>
+            {Boolean(answers[4])  && (
+              <>
+               <FormLabel>{questions[4].questionText}</FormLabel>
+              <br />
+              <br />
+                      <Field
+                        component={TextField}
+                        variant="outlined"
+                        fullWidth
+                        multiline
+                        //rows={2}
+                        inputProps={{ maxLength: questions[4].stringMaxLength!>0?questions[4].stringMaxLength:Number.MAX_SAFE_INTEGER }}
+                        // name={AssessmentField.drugHistory}
+                        label={questions[4].stringMaxLength!>0? `Max Length ${questions[4].stringMaxLength}`:''}
+                      />   
+                       </>
+            )}    
+                    </Grid>
 
 
                   {/* ////////////////////////////////////////////////////////////////////////////////////   */}
