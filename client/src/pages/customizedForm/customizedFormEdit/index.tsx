@@ -32,7 +32,7 @@ export const CustomizedEditFormPage = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">New Form for {patientId}</Typography>
+        <Typography variant="h4">Eidt Form for {patientId}</Typography>
       </div>
 
       <br />

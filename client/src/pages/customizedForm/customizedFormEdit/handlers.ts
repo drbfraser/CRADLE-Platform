@@ -14,12 +14,12 @@ export const handleSubmit2 = (
 ) => { 
   // const alert = useAlert();  
   let i,j,qidx,value;
-  let content = `Request Model To be Submitted: \n`;
+  let content = `===== Request MODEL To be Submitted ===== \n`;
   for(i=0; i<answers.length; i++){
     qidx = answers[i].qidx;
     value = answers[i].value;
     content += `qidx: ${qidx}; values: ` ;
-    if(answers[i].key === 'MC' || answers[i].key === 'Me'){
+    if(answers[i].key === 'MC' || answers[i].key === 'ME'){
       for(j=0; j<value?.length; j++){
       content += `${j}: ${value[j]}   `;
       }

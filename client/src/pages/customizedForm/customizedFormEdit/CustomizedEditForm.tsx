@@ -18,8 +18,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { QAnswer } from 'src/shared/types';
 // import { boolean } from 'yup';
-import InputAdornment from '@material-ui/core/InputAdornment';
-// import { values } from 'lodash';
+import InputAdornment from '@material-ui/core/InputAdornment'; 
 
 interface IProps {
   patientId: string;

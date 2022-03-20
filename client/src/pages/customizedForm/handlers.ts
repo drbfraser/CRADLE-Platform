@@ -13,21 +13,23 @@ export const handleSubmit2 = (
   answers:QAnswer[],     
 ) => { 
   // const alert = useAlert();  
-  let i,j,qidx,value;
-  let content = `Request Model To be Submitted: \n`;
+  let i,qidx,value;      
+  let content = `===== Request MODEL To be Submitted ===== \n`;
   for(i=0; i<answers.length; i++){
     qidx = answers[i].qidx;
     value = answers[i].value;
     content += `qidx: ${qidx}; values: ` ;
-    if(answers[i].key === 'MC' || answers[i].key === 'Me'){
-      for(j=0; j<value?.length; j++){
-      content += `${j}: ${value[j]}   `;
-      }
-    }else{
-      content += `${value}   `;
-    }
+    content += `${value}  \n `;
+    // if(answers[i].key === 'mc' && answers[i].value?.length){
+    //   for(j=0; j<value?.length; j++){
+    //   content += `${j}: ${value[j]} `;
+    //   content += `\u00A0\u00A0`;
+    //   }
+    // }else{
+    //   content += `${value}   `;
+    // }
     
-    content += `\n`; 
+    // content += `\n`; 
   }
 
   alert(content);
