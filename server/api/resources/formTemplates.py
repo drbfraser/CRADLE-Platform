@@ -93,6 +93,11 @@ class SingleFormTemplate(Resource):
             if question.id not in ids:
                 crud.create(question)
 
+        new_ids = [question.id for question in formTemplate.questions]
+        for question in questions:
+            if question.id not in new_ids:
+                crud.delete(question)
+
         crud.update(FormTemplate, req, id=form_template_id)
         data.db_session.commit()
         data.db_session.refresh(form_template)
