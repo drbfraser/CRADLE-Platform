@@ -76,7 +76,6 @@ def validate_answer(q: dict) -> Optional[str]:
 
     ans = q[target]
     all_fields = {"value", "text", "mc", "comment"}
-
     for key in ans:
         if key not in all_fields:
             return "The key '" + key + "' is not a valid field or is set server-side"

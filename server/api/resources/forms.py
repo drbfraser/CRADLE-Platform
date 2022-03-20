@@ -1,13 +1,9 @@
-import time
-from math import floor
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
 import json
-import uuid
 
-import api.util as util
 import data
 import data.crud as crud
 import data.marshal as marshal
@@ -42,7 +38,6 @@ class Root(Resource):
         if not user:
             abort(400, message="User does not exist")
 
-        req["id"] = str(uuid.uuid4())
         form = marshal.unmarshal(Form, req)
         # first time when the form is created lastEdited is same to dateCreated
         form.lastEdited = form.dateCreated

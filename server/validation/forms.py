@@ -13,7 +13,7 @@ def validate_post_request(request_body: dict, model: Type[M]) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = ["patientId", "dateCreated", "lastEditedBy", "questions"]
+    required_fields = ["id", "patientId", "dateCreated", "lastEditedBy", "questions"]
 
     all_fields = [
         "formTemplateId",
@@ -30,13 +30,13 @@ def validate_post_request(request_body: dict, model: Type[M]) -> Optional[str]:
         if key not in all_fields:
             return "The key '" + key + "' is not a valid field or is set server-side"
 
-    error = values_correct_type(request_body, ["patientId"], str)
+    error = values_correct_type(request_body, ["id", "patientId", "formTemplateId"], str)
     if error:
         return error
 
     error = values_correct_type(
         request_body,
-        ["formTemplateId", "dateCreated", "lastEdited", "lastEditedBy"],
+        ["dateCreated", "lastEdited", "lastEditedBy"],
         int,
     )
     if error:
@@ -61,6 +61,18 @@ def validate_put_request(request_body: dict) -> Optional[str]:
     :param request_body: The request body as a dict object
 
     :return: An error message if request body is invalid in some way. None otherwise.
+
+    example valid case:
+    {
+        "questions": [
+            {
+                "id":"asdsd-1123123",
+                "answers": {
+                    "value": 4
+                }
+            }
+        ]
+    }
     """
     required_fields = ["questions"]
 
