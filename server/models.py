@@ -56,21 +56,22 @@ class FacilityTypeEnum(enum.Enum):
 
 
 class QuestionTypeEnum(enum.Enum):
-    INTEGER = 'INTEGER'
-    DECIMAL = 'DECIMAL'
-    STRING = 'STRING'
-    MULTIPLE_CHOICE = 'MULTIPLE_CHOICE'
-    MULTIPLE_SELECT = 'MULTIPLE_SELECT'
-    DATE = 'DATE'
-    TIME = 'TIME'
-    DATETIME = 'DATETIME'
+    INTEGER = "INTEGER"
+    DECIMAL = "DECIMAL"
+    STRING = "STRING"
+    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"
+    MULTIPLE_SELECT = "MULTIPLE_SELECT"
+    DATE = "DATE"
+    TIME = "TIME"
+    DATETIME = "DATETIME"
 
 
 class QRelationalEnum(enum.Enum):
-    LARGER_THAN = 'LARGER_THAN'
-    SMALLER_THAN = 'SMALLER_THAN'
-    EQUAL_TO = 'EQUAL_TO'
-    CONTAINS = 'CONTAINS'
+    LARGER_THAN = "LARGER_THAN"
+    SMALLER_THAN = "SMALLER_THAN"
+    EQUAL_TO = "EQUAL_TO"
+    CONTAINS = "CONTAINS"
+
 
 #
 # HELPER CLASSES
@@ -442,6 +443,7 @@ class MedicalRecord(db.Model):
 
 
 class FormTemplate(db.Model):
+    # need fix id type, validate will assume it to be string type
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=True)
     category = db.Column(db.Text, nullable=True)
@@ -534,6 +536,7 @@ class Question(db.Model):
         "comment": "example comment"
     }
     """
+
     # need to convert id to string type, validation part has check string type logic
     id = db.Column(db.Integer, primary_key=True)
     isBlank = db.Column(db.Boolean, nullable=False, default=0)

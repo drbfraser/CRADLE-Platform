@@ -2,26 +2,36 @@ from typing import Optional, Type
 
 from numpy import record
 from data.crud import M
-from models import Form, FormTemplate
+from models import Form, FormTemplate, QRelationalEnum, QuestionTypeEnum
 from validation.validate import required_keys_present, values_correct_type
 
-def validate_mc_options(ans: dict) -> Optional[str]:
+
+def validate_mc_options(q: dict) -> Optional[str]:
     """
-    Returns an error if the mcOption dict is invalid (Empty is valid).
+    Returns an error if the mcOptions is invalid (Empty is valid).
     Else, returns None.
 
+    :param q: the parent dict for mcOptions
+
     valid example:
-    {
-        [
+    [
+        {
             "mcid": 1,
             "opt": "a little"
-        ]... (maximum 5)
-    }
+        }... (maximum 5)
+    ]
     """
-    if "mcOptions" in ans and ans["mcOptions"] is not None:
-        if len(ans["mcOptions"]) > 5:
+    target = "mcOptions"
+
+    error = values_correct_type(q, [target], list)
+    if error:
+        return error
+
+    if target in q and q.get(target) is not None:
+        mcopts = q[target]
+        if len(mcopts) > 5:
             return "Number of multiple choices provided exceed maximum 5"
-        for opt in ans["mcOptions"]:
+        for opt in mcopts:
             record_keys = ["mcid", "opt"]
             for k in opt:
                 if k not in record_keys:
@@ -31,15 +41,18 @@ def validate_mc_options(ans: dict) -> Optional[str]:
 
                 if len(record_keys) > 0:
                     return f"There are missing fields for the mc_option cell."
-            
+
             error = values_correct_type(opt, ["mcid"], int)
             if error:
                 return error
 
-def validate_answer(ans: dict) -> Optional[str]:
+
+def validate_answer(q: dict) -> Optional[str]:
     """
-    Returns an error if the answer dict is invalid (Empty is valid).
+    Returns an error if the answer is invalid (Empty is valid).
     Else, returns None.
+
+    :param q: the parent dict for answers
 
     valid example (all fields, in real case only present part of it):
     {
@@ -51,6 +64,17 @@ def validate_answer(ans: dict) -> Optional[str]:
         "comment": "other opt"
     }
     """
+    target = "answers"
+
+    error = values_correct_type(q, [target], dict)
+    if error:
+        return error
+
+    if (not target in q) or q.get(target) is None:
+        # empty answers is valid case
+        return None
+
+    ans = q[target]
     all_fields = {"value", "text", "mc", "comment"}
 
     for key in ans:
@@ -68,23 +92,39 @@ def validate_answer(ans: dict) -> Optional[str]:
     error = values_correct_type(ans, ["text", "comment"], str)
     if error:
         return error
-    
-def validate_visible_condition(ans: dict) -> Optional[str]: 
+
+
+def validate_visible_condition(q: dict) -> Optional[str]:
     """
-    Returns an error if the visible condition dict is invalid 
+    Returns an error if the visible condition is invalid
     (Empty is valid). Else, returns None.
 
+    :param q: the parent dict for visible condition
+
     valid example:
-    {
-        "qid": "asdsd-123214214",
-        "relation": "EQUAL_TO",
-        "answers": {
-            "value": 5
-        }
-    }
+    [
+        {
+            "qid": "asdsd-123214214",
+            "relation": "EQUAL_TO",
+            "answers": {
+                "value": 5
+            }
+        },...
+    ]
     """
+    target = "visibleCondition"
+
+    error = values_correct_type(q, [target], list)
+    if error:
+        return error
+
+    if (not target in q) or q.get(target) is None:
+        # empty visible condition is valid case
+        return None
+
+    vc = q[target]
     record_keys = ["qid", "relation", "answers"]
-    for k in ans:
+    for k in vc:
         if k not in record_keys:
             return f"{k} is not a valid key in visible condition dict."
         else:
@@ -92,16 +132,20 @@ def validate_visible_condition(ans: dict) -> Optional[str]:
 
         if len(record_keys) > 0:
             return f"There are missing fields for the visible condition dict."
-    
-    error = values_correct_type(ans, ["qid"], str)
+
+    error = values_correct_type(vc, ["qid"], str)
     if error:
         return error
-    
-    # check relation type
-    
-    error = validate_answer(ans["answers"])
+
+    error = values_correct_type(vc, ["relation"], QRelationalEnum)
     if error:
         return error
+
+    # validate answer part in visible condition
+    error = validate_answer(vc)
+    if error:
+        return error
+
 
 def validate_reference(q: dict, model: Type[M]) -> Optional[str]:
     """
@@ -131,6 +175,7 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     :return: An error message if request body in invalid in some way. None otherwise.
     """
     required_fields = [
+        "id",
         "questionIndex",
         "questionId",
         "questionText",
@@ -173,8 +218,6 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
             "numMin",
             "numMax",
             "stringMaxLength",
-            "formId",
-            "formTemplateId",
         ],
         int,
     )
@@ -184,32 +227,35 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     error = values_correct_type(
         q,
         [
+            "id",
             "questionId",
             "questionText",
-            "questionType",
             "category",
             "units",
+            "formId",
+            "formTemplateId",
         ],
         str,
     )
     if error:
         return error
 
-    error = values_correct_type(q, ["visibleCondition", "answers"], dict)
+    error = values_correct_type(q, ["questionType"], QuestionTypeEnum)
     if error:
         return error
 
-    error = values_correct_type(q, ["mcOptions"], list)
+    # validate visibleCondition
+    error = validate_visible_condition(q)
     if error:
         return error
 
     # validate mcOptions
-    error = validate_mc_options(q["mcOptions"])
+    error = validate_mc_options(q)
     if error:
         return error
 
     # validate answer
-    error = validate_answer(q["answers"])
+    error = validate_answer(q)
     if error:
         return error
 
@@ -236,11 +282,7 @@ def validate_question_put(q: dict) -> Optional[str]:
     if error_message is not None:
         return error_message
 
-    error = values_correct_type(q, ["id"], int)
-    if error:
-        return error
-
-    error = values_correct_type(q, ["answers"], dict)
+    error = values_correct_type(q, ["id"], str)
     if error:
         return error
 

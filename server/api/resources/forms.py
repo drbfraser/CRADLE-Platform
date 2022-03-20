@@ -41,8 +41,8 @@ class Root(Resource):
         user = crud.read(User, id=req["lastEditedBy"])
         if not user:
             abort(400, message="User does not exist")
-        
-        req['id'] = str(uuid.uuid4())
+
+        req["id"] = str(uuid.uuid4())
         form = marshal.unmarshal(Form, req)
         # first time when the form is created lastEdited is same to dateCreated
         form.lastEdited = form.dateCreated

@@ -1,4 +1,5 @@
 from typing import Any, List, Optional
+import enum
 
 
 def required_keys_present(
@@ -21,7 +22,7 @@ def required_keys_present(
 
 
 def values_correct_type(
-    request_body: dict, key_names: List[str], type
+    request_body: dict, key_names: List[str], _type
 ) -> Optional[str]:
     """
     Returns an error message if the values of some keys are not
@@ -34,11 +35,15 @@ def values_correct_type(
     """
     for key in key_names:
         if key in request_body and request_body.get(key) is not None:
-            if type == int:
+            if _type == int:
                 if not is_int(request_body.get(key)):
                     return "The value for key {" + key + "} is not the correct type."
+            if type(_type) == enum.EnumMeta:
+                # for enum type, it checks whether the value is one of enum value
+                if not request_body.get(key) in _type._value2member_map_:
+                    return "The value for key {" + key + "} is not the correct type."
             else:
-                if not isinstance((request_body.get(key)), type):
+                if not isinstance((request_body.get(key)), _type):
                     return "The value for key {" + key + "} is not the correct type."
     return None
 
