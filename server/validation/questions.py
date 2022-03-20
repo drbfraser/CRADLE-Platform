@@ -122,28 +122,29 @@ def validate_visible_condition(q: dict) -> Optional[str]:
         return None
 
     vc = q[target]
-    record_keys = ["qid", "relation", "answers"]
-    for k in vc:
-        if k not in record_keys:
-            return f"{k} is not a valid key in visible condition dict."
-        else:
-            record_keys.remove(k)
+    for cond in vc:
+        record_keys = ["qid", "relation", "answers"]
+        for k in cond:
+            if k not in record_keys:
+                return f"{k} is not a valid key in visible condition dict."
+            else:
+                record_keys.remove(k)
 
         if len(record_keys) > 0:
             return f"There are missing fields for the visible condition dict."
 
-    error = values_correct_type(vc, ["qid"], str)
-    if error:
-        return error
+        error = values_correct_type(cond, ["qid"], str)
+        if error:
+            return error
 
-    error = values_correct_type(vc, ["relation"], QRelationalEnum)
-    if error:
-        return error
+        error = values_correct_type(cond, ["relation"], QRelationalEnum)
+        if error:
+            return error
 
-    # validate answer part in visible condition
-    error = validate_answer(vc)
-    if error:
-        return error
+        # validate answer part in visible condition
+        error = validate_answer(cond)
+        if error:
+            return error
 
 
 def validate_reference(q: dict, model: Type[M]) -> Optional[str]:
