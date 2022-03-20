@@ -1,6 +1,5 @@
 from typing import Optional, Type
 
-from numpy import record
 from data.crud import M
 from models import Form, FormTemplate, QRelationalEnum, QuestionTypeEnum
 from validation.validate import required_keys_present, values_correct_type

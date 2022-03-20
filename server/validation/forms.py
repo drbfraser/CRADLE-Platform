@@ -1,10 +1,11 @@
-from typing import Optional, Type
-from data.crud import M
+from typing import Optional
+
+from models import Form
 from validation.validate import required_keys_present, values_correct_type
 from validation.questions import validate_question_post, validate_question_put
 
 
-def validate_post_request(request_body: dict, model: Type[M]) -> Optional[str]:
+def validate_post_request(request_body: dict) -> Optional[str]:
     """
     Returns an error message if the /api/forms/responses POST request is not valid.
     Else, returns None.
@@ -48,7 +49,7 @@ def validate_post_request(request_body: dict, model: Type[M]) -> Optional[str]:
 
     # validate questions content
     for q in request_body["questions"]:
-        error = validate_question_post(q, model)
+        error = validate_question_post(q, Form)
         if error:
             return "question error: " + error
 
