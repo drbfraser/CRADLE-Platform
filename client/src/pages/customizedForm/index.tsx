@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 // import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
@@ -8,7 +8,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
 import { CustomizedForm } from './CustomizedForm';
 import { goBackWithFallback } from 'src/shared/utils';
-// import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
+import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import {Question} from 'src/shared/types'
 
 
@@ -21,7 +21,8 @@ type RouteParams = {
 export const CustomizedFormPage = () => {
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
-  const questions :Question[] = qs; 
+  const [questions, setQuestions]= useState<Question[]>([]);
+  // const questions :Question[] = qs; 
   //setQuestions(qs);
   // questions = qs;
 
@@ -38,10 +39,10 @@ export const CustomizedFormPage = () => {
       </div>
 
       <br />
-      {/* <SelectHeaderForm patientId={patientId} setQuestions = {setQuestions} /> */}
-      {console.log(questions)}
+      <SelectHeaderForm patientId={patientId} setQuestions = {setQuestions} />
+      {console.log(qs)}
 
-      {questions!.length > 0 && (<><br /><CustomizedForm patientId={patientId} questions={questions}/></>)}
+      {questions!.length > 0 && (<><br /><br /><br /><br /><br /><CustomizedForm patientId={patientId} questions={questions}/></>)}
     </div>
   );
 };

@@ -21,8 +21,9 @@ export const handleSubmit = (
   //     "Language": "Krio",
   //     "Form": "National Referral Form"
   // }
-    setSubmitError(false);
-    setQuestions(questions);
+
+    await setQuestions(questions); 
+   
   //   const url = API_URL + EndpointEnum.REFERRALS;
   //   const postBody = JSON.stringify({
   //     patientId: patientId,

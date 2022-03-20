@@ -19,6 +19,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { QAnswer } from 'src/shared/types';
 // import { boolean } from 'yup';
 import InputAdornment from '@material-ui/core/InputAdornment';
+// import { values } from 'lodash';
 
 interface IProps {
   patientId: string;
@@ -35,7 +36,7 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
     // Some side-effect here ... 
     _setAnswers(answers);
     // ... or there
-    console.log("尽量在这里更新questions中的每个question model的hidden字段");
+    // console.log("尽量在这里更新questions中的每个question model的hidden字段");
     //接下来在这里你可以写一下你的questions的每个question的hidden值的判断。注意：
     //hidden字段服务器端不会有，是你自己在本地搞出来的。根据那个condition来判断。
     //update(questions)    
@@ -80,7 +81,6 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
   }, [initialDone]);
 
 
-
   function updateAnswersByValue(index: number, newValue: any) {
     var ans = [...answers];
     ans[index].value = newValue;
@@ -92,6 +92,8 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
 
   function generate_html_for_one_question(question:Question, answer:QAnswer){
     const type = question.questionType;
+    const qid = question.questionIndex;
+    const required = question.required;
 
     //////////////////////////////////////1.单选//////////////////////////////////////////////
     if (type === 'MC'){
@@ -99,31 +101,25 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
         return( 
           <>
             <Grid item md={12} sm={12}> 
-             <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
+             <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
               <br />
               <RadioGroup
                 value={answer.value}
                 onChange={function (event, value) {
-                  updateAnswersByValue(0, value);
-                }}>
-                <FormControlLabel
+                  updateAnswersByValue(qid, value);
+                }}> 
+              
+          {question.mcOptions!.map((option, index) => (
+            <FormControlLabel
                   //key={0}
-                  value={question.mcOptions![0]}
+                  value={option}
                   control={
-                    <Radio color="primary" required={true}
+                    <Radio color="primary" required={required}
                     />
                   }
-                  label={question.mcOptions![0]}
-                />
-                <FormControlLabel
-                  //key={1}
-                  value={question.mcOptions![1]}
-                  control={
-                    <Radio color="primary" required={true}
-                    />
-                  }
-                  label={question.mcOptions![1]}
-                />
+                  label={option} 
+                />))
+          } 
               </RadioGroup>
             </Grid>
             </>
@@ -142,12 +138,15 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
         return(
           <>
             <Grid item md={12} sm={12}>
-            <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
+            <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
               <br />
               {question.mcOptions!.map((option, index) => (
+                <>
                 <FormControlLabel
                   control={
-                    <Checkbox
+                    
+                    <Checkbox 
+                      required={required}
                       value={option}
                       //checked={answers[1].value?.includes(option)}
                       // checked={true}
@@ -155,7 +154,7 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
                         if (checked) {
                           //添加元素
                           var new_val = [...answer.value, event.target.value];
-                          updateAnswersByValue(1, new_val);
+                          updateAnswersByValue(qid, new_val);
                         } else {
                           //移除元素
                           var original_val = [...answer.value];
@@ -163,14 +162,16 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
                           if (i > -1) {
                             original_val.splice(i, 1);
                           }
-                          updateAnswersByValue(1, original_val);
+                          updateAnswersByValue(qid, original_val);
                         }
                       }}
-                    />
+                    /> 
                   }
-                  label={option}
+                  label={option}  
                   key={index}
-                />
+                /> 
+                <br/>
+                </>
               ))}
             </Grid>
           </>
@@ -185,39 +186,30 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
     //////////////////////////////////////3.数字输入//////////////////////////////////////////////
     else if (type === 'NUM'){
       if(answer){
-        return(
+        return(   
           <>
-            <Grid item md={12} sm={12}>
-            <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
-              <br />
-              {question.mcOptions!.map((option, index) => (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      value={option}
-                      //checked={answers[1].value?.includes(option)}
-                      // checked={true}
-                      onChange={(event, checked) => {
-                        if (checked) {
-                          //添加元素
-                          var new_val = [...answer.value, event.target.value];
-                          updateAnswersByValue(1, new_val);
-                        } else {
-                          //移除元素
-                          var original_val = [...answer.value];
-                          const i = original_val.indexOf(event.target.value);
-                          if (i > -1) {
-                            original_val.splice(i, 1);
-                          }
-                          updateAnswersByValue(1, original_val);
-                        }
-                      }}
-                    />
-                  }
-                  label={option}
-                  key={index}
-                />
-              ))}
+           <Grid item sm={12} md={12}> 
+           <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
+            <br />
+            <br />
+            <Field
+              component={TextField}
+              variant="outlined"
+              type="number"
+              fullWidth
+              required={required}
+              // label={'Diastolic'}
+              // name={ReadingField.bpDiastolic}
+              InputProps={{
+                endAdornment: Boolean(question.units) && Boolean(question.units!.trim().length > 0) && (
+                  <InputAdornment position="end">{question.units}</InputAdornment>
+                ),
+              }}
+              onChange={(event: any) => {
+                // console.log(event.target.value); 
+                updateAnswersByValue(qid, event.target.value);
+              }} 
+            />
             </Grid>
           </>
         )
@@ -234,11 +226,12 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
         return(
           <>
           <Grid item sm={12} md={12}>
-          <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
+          <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
             <br />
             <br />
-            <Field
+            <Field 
               component={TextField}
+              required={required}
               variant="outlined"
               fullWidth
               multiline
@@ -246,7 +239,7 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
               // name={AssessmentField.drugHistory}
               //label={question.stringMaxLength!>0? `Max Length ${question.stringMaxLength}`:''}
               onChange={(event: any) => {
-                updateAnswersByValue(4, event.target.value);
+                updateAnswersByValue(qid, event.target.value);
               }}
             />
             </Grid>
@@ -266,13 +259,13 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
         return(
           <>
             <Grid item md={12} sm={12}> 
-              <FormLabel>{`${question.questionIndex}. ${question.questionText}`}</FormLabel>
+            <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
               <br />
               <br />
               <Field
                 component={TextField}
                 fullWidth
-                required
+                required={required}
                 variant="outlined"
                 type="date"
                 label="Date"
@@ -283,7 +276,7 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
                 onChange={(event: any) => {
                   //console.log(event.target.value);
                   const timestamp = getTimestampFromStringDate(event.target.value);
-                  updateAnswersByValue(5, timestamp);
+                  updateAnswersByValue(qid, timestamp);
                 }
   
                 }
@@ -301,6 +294,10 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
     //////////////////////////////////////!不合法//////////////////////////////////////////////
     else{
       console.log("INVALID QUESTION TYPE!!");
+      return(
+        <>
+        </>
+      )
     }
     // setCards(cards_elements);
   };
@@ -322,13 +319,14 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
+        // initialValues={''}
         validationSchema={validationSchema} 
-        onSubmit={handleSubmit(patientId, setSubmitError)}>
+        onSubmit={handleSubmit(patientId, answers, setSubmitError)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>
               <Box p={2}>
-                <h2>Referral</h2>
+                <h2>Questionnaire</h2>
                 <Box pt={1} pl={3} pr={3}>
                   <Grid container spacing={3}>
                     {/* /////////////////////////////////////////////////////////////////////////////////////   */}
@@ -347,7 +345,7 @@ export const CustomizedForm = ({ patientId, questions }: IProps) => {
               size="large"
               type="submit"
               disabled={isSubmitting}>
-              Submit Referral
+              Submit Form
             </Button>
           </Form>
         )}

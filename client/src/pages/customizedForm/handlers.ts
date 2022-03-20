@@ -1,30 +1,47 @@
-import { goBackWithFallback } from 'src/shared/utils';
+// import { goBackWithFallback } from 'src/shared/utils';
+import { QAnswer } from 'src/shared/types';
 import { ReferralState } from './state';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+// import { apiFetch, API_URL } from 'src/shared/api';
+// import { EndpointEnum } from 'src/shared/enums';
 
 export const handleSubmit = (
+  // e:React.MouseEvent<HTMLButtonElement, MouseEvent>,
   patientId: string,
-  setSubmitError: (error: boolean) => void
+  answers:QAnswer[],       
+  setSubmitError: (error: boolean) => void 
+  
+
 ) => {
-  return async (values: ReferralState, { setSubmitting }: any) => {
-    const url = API_URL + EndpointEnum.REFERRALS;
-    const postBody = JSON.stringify({
-      patientId: patientId,
-      ...values,
-    });
+  console.log("values");
+  // console.log(values);
 
-    try {
-      await apiFetch(url, {
-        method: 'POST',
-        body: postBody,
-      });
+  // console.log(e);
+  // return async (values: ReferralState, { setSubmitting }: any) => {
+    return  (values: ReferralState, { setSubmitting }: any) => {
+    console.log("values");
+    console.log(values); 
+    setSubmitting(false);  
 
-      goBackWithFallback('/patients');
-    } catch (e) {
-      console.error(e);
-      setSubmitError(true);
-      setSubmitting(false);
-    }
+
+
+    
+    // const url = API_URL + EndpointEnum.REFERRALS;
+    // const postBody = JSON.stringify({
+    //   patientId: patientId,
+    //   ...values,
+    // });
+ 
+    // try {
+    //   await apiFetch(url, {
+    //     method: 'POST',
+    //     body: postBody,
+    //   });
+
+    //   goBackWithFallback('/patients');
+    // } catch (e) {
+    //   console.error(e);
+    //   setSubmitError(true);
+    //   setSubmitting(false);
+    // }
   };
 };
