@@ -2,6 +2,12 @@ Get a form template
 ---
 tags:
   - Form Templates
+parameters:
+- in: path
+  name: form_template_id
+  required: true
+  schema:
+    type: integer
 responses:
   200:
     description: Response from GET request for /api/forms/templates/<id>
