@@ -31,7 +31,9 @@ def validate_post_request(request_body: dict) -> Optional[str]:
         if key not in all_fields:
             return "The key '" + key + "' is not a valid field or is set server-side"
 
-    error = values_correct_type(request_body, ["id", "patientId", "formTemplateId"], str)
+    error = values_correct_type(
+        request_body, ["id", "patientId", "formTemplateId"], str
+    )
     if error:
         return error
 
