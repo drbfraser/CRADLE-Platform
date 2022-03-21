@@ -304,7 +304,7 @@ export type Question = {
 }; 
 
 
-export type Form = {  
+export type CustomizedForm = {  
   id:number;  
   patientId:string;  
   formTemplateId:number;
@@ -312,6 +312,7 @@ export type Form = {
   lastEdited:number;   
   lastEditedBy:number; 
   category:string;
+  name:string;
 }; 
 
 

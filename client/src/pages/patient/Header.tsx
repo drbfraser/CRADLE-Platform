@@ -29,14 +29,7 @@ export const Header = ({
     if (patient) {
       history.push(`/forms/new/${patient.patientId}`);
     }
-  }; 
-
-  //MUST DELETE(TEMP ENTRY)
-  const handleEditNewFormClick = () => {
-    if (patient) {
-      history.push(`/forms/edit/${patient.patientId}`);
-    }
-  };
+  };  
 
   const handleAddReadingClick = () => {
     if (patient) {
@@ -85,15 +78,6 @@ export const Header = ({
             <AddIcon />
             Submit New Form
           </Button>
-          {/* temp entry, MUST DELETE!   */}
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={handleEditNewFormClick}>
-            <AddIcon />
-            Edit New Form
-          </Button>
-
           <Button
             color="primary"
             variant="contained"

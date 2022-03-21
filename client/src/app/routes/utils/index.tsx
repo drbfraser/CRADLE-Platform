@@ -86,7 +86,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/forms/edit/:patientId`,
+    to: `/forms/edit/:patientId/:formId`,
   },
   {
     component: ReadingFormPage,
