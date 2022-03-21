@@ -11,7 +11,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit,handleSubmit2 } from './handlers'; 
 import { initialState, validationSchema } from './state'; 
 import { Question } from 'src/shared/types'
-import { getTimestampFromStringDate,getStringDateFromTimestamp } from 'src/shared/utils' 
+import { getTimestampFromStringDate,getPrettyDateTime } from 'src/shared/utils' 
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -278,7 +278,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
               <br />
               <Field
                 component={TextField}
-                defaultValue={Boolean(answer.value)?getStringDateFromTimestamp(answer.value):null}
+                defaultValue={Boolean(answer.value)?getPrettyDateTime(answer.value):null}
                 fullWidth
                 required={required}
                 variant="outlined"
