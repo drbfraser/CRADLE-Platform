@@ -13,8 +13,8 @@ responses:
             type: object
             properties:
               id:
-                type: integer
-                example: 5
+                type: string - required
+                example: "adas-d82314-27822-63150"
               name:
                 type: string | null
                 example: "NEMS Ambulance Request - 2022"

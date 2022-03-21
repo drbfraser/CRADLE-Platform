@@ -7,7 +7,6 @@ import json
 import data
 import data.crud as crud
 import data.marshal as marshal
-from utils import get_current_time
 from validation import forms
 from models import Patient, Form, FormTemplate, User
 

@@ -10,157 +10,59 @@ requestBody:
       schema:
         type: object
         properties:
+          id:
+            type: string - required
+            example: "adas-d82314-27822-63150"
           name:
-            type: string | null
+            type: string | null - optional
             example: "NEMS Ambulance Request - 2022"
           category:
-            type: string | null
+            type: string | null - optional
             example: "NEMS Ambulance Request"
           version:
-            type: string | null
+            type: string | null - optional
             example: "V1"
           questions:
-            type: object
-            properties:
-              questionId:
-                type: string
-                example: "referred-by-name"
-              isBlank:
-                type: boolean
-                example: true
-              formTemplateId:
-                type: integer | null
-                example: 5
-              formId:
-                type: integer | null
-                example: null
-              category:
-                type: string | null
-                example: "Referred By"
-              questionIndex:
-                type: integer
-                example: 1
-              questionText:
-                type: string
-                example: "How the patient's condition?"
-              questionType:
-                type: enum
-                enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
-                example: MULTIPLE_CHOICE
-              required:
-                type: boolean
-                example: true
-              units:
-                type: string | null
-                example: null
-              visibleCondition:
-                type: array
-                items: object
-                example: [{
-                  "qid": 1,
-                  "relation": "EQUAL_TO",
-                  "answer": {
-                      "value": null,
-                      "text": "",
-                      "mc": [
-                          1
-                      ],
-                      "comment": ""
-                  }
-                }]
-              numMin:
-                type: integer | null
-                example: null
-              numMax:
-                type: integer | null
-                example: null
-              stringMaxLength:
-                type: integer | null
-                example: null
-              mcOptions:
-                type: array | null
-                example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
-              answers:
-                type: object
-                properties:
-                  value:
-                    type: integer | null
-                    example: null
-                  text: 
-                    type: string | null
-                    example: null
-                  mc:
-                    type: string | null
-                    example: "Decent"
-                  comment:
-                    type: string | null
-                    example: "Was not an emergency"
-
-responses:
-  201:
-    description: Response from PUT request for /api/forms/templates
-    content:
-      application/json:
-        schema:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 5
-            name:
-              type: string
-              example: "NEMS Ambulance Request - 2022"
-            category:
-              type: string
-              example: "NEMS Ambulance Request"
-            version:
-              type: string
-              example: "V1"
-            dateCreated:
-              type: Unix timestamp | Null
-              example: 1551447833
-            lastEdited:
-              type: Unix timestamp | Null
-              example: 1551447833
-            questions:
+            type: array
+            items:
               type: object
               properties:
                 id:
-                  type: integer
-                  example: 1
+                  type: string - required
+                  example: "adas-d82314-27822-63154"
                 questionId:
-                  type: string
+                  type: string - required
                   example: "referred-by-name"
                 isBlank:
-                  type: boolean
+                  type: boolean - required
                   example: true
                 formTemplateId:
-                  type: integer | null
-                  example: 5
+                  type: string | null - required
+                  example: "adas-d82314-27822-63150"
                 formId:
-                  type: integer | null
+                  type: string | null - optional
                   example: null
                 category:
-                  type: string | null
+                  type: string - optional - default ""
                   example: "Referred By"
                 questionIndex:
-                  type: integer
+                  type: integer - required
                   example: 1
                 questionText:
-                  type: string
+                  type: string - required
                   example: "How the patient's condition?"
                 questionType:
-                  type: enum
+                  type: enum - required
                   enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
                   example: MULTIPLE_CHOICE
                 required:
-                  type: boolean
+                  type: boolean - optional - default false
                   example: true
                 units:
-                  type: string | null
+                  type: string | null -optional
                   example: null
                 visibleCondition:
-                  type: array
+                  type: array - optional - default []
                   items: object
                   example: [{
                     "qid": 1,
@@ -175,35 +77,120 @@ responses:
                     }
                   }]
                 numMin:
-                  type: integer | null
+                  type: integer | null - optional
                   example: null
                 numMax:
-                  type: integer | null
+                  type: integer | null - optional
                   example: null
                 stringMaxLength:
-                  type: integer | null
+                  type: integer | null - optional
                   example: null
                 mcOptions:
-                  type: array | null
+                  type: array | null - optional
                   example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
                 answers:
                   type: object
-                  properties:
-                    value:
-                      type: integer | null
-                      example: null
-                    text: 
-                      type: string | null
-                      example: null
-                    mc:
-                      type: string | null
-                      example: "Decent"
-                    comments:
-                      type: string | null
-                      example: "Was not an emergency"
+                  example: {}
+
+responses:
+  201:
+    description: Response from PUT request for /api/forms/templates
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "adas-d82314-27822-63150"
+            name:
+              type: string | null
+              example: "NEMS Ambulance Request - 2022"
+            category:
+              type: string | null
+              example: "NEMS Ambulance Request"
+            version:
+              type: string | null
+              example: "V1"
+            dateCreated:
+              type: Unix timestamp | Null
+              example: 1551447833
+            lastEdited:
+              type: Unix timestamp | Null
+              example: 1551447833
+            questions:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "adas-d82314-27822-63154"
+                  questionId:
+                    type: string
+                    example: "referred-by-name"
+                  isBlank:
+                    type: boolean
+                    example: true
+                  formTemplateId:
+                    type: string | null
+                    example: "adas-d82314-27822-63150"
+                  formId:
+                    type: string | null
+                    example: null
+                  category:
+                    type: string | null
+                    example: "Referred By"
+                  questionIndex:
+                    type: integer
+                    example: 1
+                  questionText:
+                    type: string
+                    example: "How the patient's condition?"
+                  questionType:
+                    type: enum
+                    enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
+                    example: MULTIPLE_CHOICE
+                  required:
+                    type: boolean
+                    example: true
+                  units:
+                    type: string | null
+                    example: null
+                  visibleCondition:
+                    visibleCondition:
+                    type: array
+                    items: object
+                    example: [{
+                      "qid": 1,
+                      "relation": "EQUAL_TO",
+                      "answer": {
+                          "value": null,
+                          "text": "",
+                          "mc": [
+                              1
+                          ],
+                          "comment": ""
+                      }
+                    }]
+                  numMin:
+                    type: integer | null
+                    example: null
+                  numMax:
+                    type: integer | null
+                    example: null
+                  stringMaxLength:
+                    type: integer | null
+                    example: null
+                  mcOptions:
+                    type: array | null
+                    example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
+                  answers:
+                    type: object
+                    example: {}
   400:
     description: |
-      Bad request: required fields are missing or  invalid.
+      Bad request: required fields are missing or invalid.
     content:
       application/json:
         schema:
