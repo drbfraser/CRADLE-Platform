@@ -17,7 +17,7 @@ requestBody:
             type: string - required
             example: "123"
           formTemplateId:
-            type: string | null
+            type: string | null - optional
             example: adas-d82314-27822-63139
           dateCreated:
             type: Unix timestamp - required
