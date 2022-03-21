@@ -49,6 +49,15 @@ from api.resources.medicalRecords import (
     Root as MedicalRecords,
     SingleMedicalRecord,
 )
+from api.resources.formTemplates import (
+    Root as FormTemplate,
+    SingleFormTemplate,
+    BlankFormTemplate,
+)
+from api.resources.forms import (
+    Root as Forms,
+    SingleForm,
+)
 from api.resources.users import *
 from api.resources.upload import Root as Upload
 
@@ -214,6 +223,25 @@ def init(api):
         "/api/medical_records/<string:record_id>",
         endpoint="single_medical_record",
     )  # [GET, PUT, DELETE]
+
+    api.add_resource(
+        FormTemplate, "/api/forms/templates", endpoint="form_templates"
+    )  # [GET, POST]
+    api.add_resource(
+        SingleFormTemplate,
+        "/api/forms/templates/<int:form_template_id>",
+        endpoint="single_form_template",
+    )  # [GET, PUT]
+    api.add_resource(
+        BlankFormTemplate,
+        "/api/forms/templates/blank/<int:form_template_id>",
+        endpoint="blank_form_template",
+    )  # [GET]
+
+    api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]
+    api.add_resource(
+        SingleForm, "/api/forms/responses/<int:form_id>", endpoint="single_form"
+    )  # [GET, PUT]
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
     api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]

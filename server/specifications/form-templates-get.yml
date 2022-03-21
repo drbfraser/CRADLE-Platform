@@ -1,0 +1,32 @@
+Get list of forms available
+---
+tags:
+  - Form Templates
+responses:
+  200:
+    description: Response from GET request for /api/forms/templates
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 5
+              name:
+                type: string | null
+                example: "NEMS Ambulance Request - 2022"
+              category:
+                type: string | null
+                example: "NEMS Ambulance Request"
+              version:
+                type: string | null
+                example: "V1"
+              dateCreated:
+                type: Unix timestamp | Null
+                example: 1551447833
+              lastEdited:
+                type: Unix timestamp | Null
+                example: 1551447833
