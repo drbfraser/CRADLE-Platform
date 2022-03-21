@@ -10,7 +10,7 @@ import { CustomizedEditForm } from './CustomizedEditForm';
 import { goBackWithFallback } from 'src/shared/utils';
 // import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import {Question} from 'src/shared/types'
-import qs from "../customizedFormHeader/form.json";
+import qs from "../customizedFormHeader/form_edit.json";
 
 type RouteParams = {
   patientId: string;

@@ -39,6 +39,8 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
     //接下来在这里你可以写一下你的questions的每个question的hidden值的判断。注意：
     //hidden字段服务器端不会有，是你自己在本地搞出来的。根据那个condition来判断。
     //update(questions)    
+    updateQuestionsConditionHidden(questions, answers);
+    // updateQuestionsConditionHidden();
   };
 
   const initialDone = useRef<boolean>(false);
@@ -49,8 +51,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
       let anss: QAnswer[] = [];
       for (i = 0; i < questions.length; i++) {
         //初始化只会调用一次，此时应该questions的hidden都设置为false（一开始是一个空白表格)
-        const question = questions[i];
-        questions[i].shouldHidden = false;
+        const question = questions[i]; 
         let ans: QAnswer = { qidx: question.questionIndex, key: null, value: null };
         if (question.questionType === 'MC' || question.questionType === 'ME') {
           ans.key = 'mc';
@@ -74,6 +75,12 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
       }
 
       console.log(answers);
+      
+      //condition update must be 'after' the initilization of the 'answers'
+      updateQuestionsConditionHidden(questions, anss);
+      // updateQuestionsConditionHidden();
+
+
       //没有下边这行，是不会有选项显示的！！
       setAnswers(anss);
       console.log('NOTE: xxxxxx');
@@ -81,7 +88,89 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
       initialDone.current = true;
     }
   }, [initialDone]);
+   
 
+
+
+  function updateQuestionsConditionHidden(questions: Question[], answers: QAnswer[]) {
+  // function updateQuestionsConditionHidden() {
+    let i;
+    for (i = 0; i < questions.length; i++) {
+      //初始化只会调用一次，此时应该questions的hidden都设置为false（一开始是一个空白表格)
+      const question = questions[i]; 
+      //condition update must be 'after' the initilization of the 'answers'
+      question.shouldHidden = false;
+      //更新dependencies
+      //question.dependencies = [];
+      if(question.visibleCondition?.length){
+        question.shouldHidden = true;
+        let j;
+        for(j = 0; j < question.visibleCondition.length; j++){
+            const condition = question.visibleCondition[j]; 
+            const parentQidx = condition.qidx;
+            const parentAnswer = answers[parentQidx];
+            if(parentAnswer.value!==undefined && parentAnswer.value!==null){
+              if(questions[parentQidx].questionType === 'ME'||questions[parentQidx].questionType === 'MC'){
+                if(parentAnswer.value?.length>0  && condition.answer.mc?.length>0 && parentAnswer.value?.length === condition.answer.mc?.length){
+                  //only this type will have an array value in its 'Answer'
+                  //to see if those two array contains the same items
+                  let all_equal = true;
+                  condition.answer.mc.forEach((item,index)=>{
+                    //those two array are not equal
+                    if(parentAnswer.value.indexOf(item) < 0){
+                      all_equal = false;
+                    }
+                  });   
+                  if(all_equal){ 
+                    //******IMPORTANT
+                    question.shouldHidden = false;
+                    continue;
+                  }
+                  else{ 
+                    question.shouldHidden =true;
+                    break; //stop loop
+                  }
+                }
+                
+                else{
+                  question.shouldHidden =true;
+                  break; //stop loop
+                }
+              }   
+              else{
+                if(questions[parentQidx].questionType === 'TEXT' && parentAnswer.value == condition.answer.text){
+                  question.shouldHidden = false;
+                }
+                else if((questions[parentQidx].questionType === 'NUM' || questions[parentQidx].questionType === 'DATE') && Number(parentAnswer.value) === Number(condition.answer.value)){
+                  
+                  console.log(parentAnswer.value);
+                  console.log(condition.answer.value);
+                  question.shouldHidden = false;
+                }
+                else{
+                  
+              console.log(questions[parentQidx].questionType);
+              console.log(parentAnswer.value == condition.answer.value);
+
+              console.log(parentAnswer.value);
+              console.log(condition.answer.value);
+                  question.shouldHidden =true;
+                  break; //stop loop
+                }
+              }    
+            }
+          
+          };
+            
+        // };
+
+        //after decide the 'shouldHidden' field, we need to remove the answer from those hidden question, when it appears again, the field should be 'blank'
+        // if(question.shouldHidden === true){
+        //   question.questionType === 'ME'? answers[question.questionIndex].value = []: answers[question.questionIndex].value = null;
+        // } 
+      } 
+    }
+  }; 
 
 
   function updateAnswersByValue(index: number, newValue: any) {
@@ -100,7 +189,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
 
     //////////////////////////////////////1.单选//////////////////////////////////////////////
     if (type === 'MC'){
-      if(answer){
+      if(question.shouldHidden === false && answer){
         return( 
           <>
             <Grid item md={12} sm={12}> 
@@ -144,7 +233,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
     }
     //////////////////////////////////////2.多选(提交时判断required)//////////////////////////////////////////////
     else if (type === 'ME'){
-      if(answer){
+      if(question.shouldHidden === false && answer){
         return(
           <>
             <Grid item md={12} sm={12}>
@@ -197,7 +286,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
     }
     //////////////////////////////////////3.数字输入//////////////////////////////////////////////
     else if (type === 'NUM'){
-      if(answer){
+      if(question.shouldHidden === false && answer){
         return(   
           <>
            <Grid item sm={12} md={12}> 
@@ -235,7 +324,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
     }
     //////////////////////////////////////4.文字输入//////////////////////////////////////////////
     else if (type === 'TEXT'){
-      if(answer){
+      if(question.shouldHidden === false && answer){
         return(
           <>
           <Grid item sm={12} md={12}>
@@ -269,7 +358,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
     }
     //////////////////////////////////////5.日期输入//////////////////////////////////////////////
     else if (type === 'DATE'){
-      if(answer){
+      if(question.shouldHidden === false && answer){
         return(
           <>
             <Grid item md={12} sm={12}> 
@@ -305,7 +394,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
           </>
         )
       }  
-    }
+    }   
     //////////////////////////////////////!不合法//////////////////////////////////////////////
     else{
       console.log("INVALID QUESTION TYPE!!");

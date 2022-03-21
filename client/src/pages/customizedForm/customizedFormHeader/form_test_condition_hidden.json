@@ -17,7 +17,9 @@
     "answers": {
         "value": null,
         "text": "",
-        "mc": [],
+        "mc": [
+            "just so so"
+        ],
         "comment": ""
     }
 }, {
@@ -39,7 +41,9 @@
     "answers": {
         "value": null,
         "text": "",
-        "mc": [],
+        "mc": [
+            "I don't know"
+        ],
         "comment": ""
     }
 }, {
@@ -58,7 +62,7 @@
             "value": null,
             "text": "",
             "mc": [
-                "very much"
+                "just so so"
             ],
             "comment": ""
         }
@@ -70,7 +74,7 @@
     "numMax": 100,
     "stringMaxLength": null,
     "answers": {
-        "value": null,
+        "value": 25,
         "text": "",
         "mc": [
 
@@ -96,7 +100,7 @@
     "answers": {
         "value": null,
         "text": "",
-        "mc": [],
+        "mc": ["true"],
         "comment": ""
     }
 }, {
@@ -117,6 +121,16 @@
             "mc": ["true"],
             "comment": ""
         }
+    }, {
+        "qidx": 2,
+        "relation": "EQUAL_TO",
+        "answer": {
+            "value": 25,
+            "text": "",
+            "mc": [],
+            "comment": ""
+        }
+
     }],
     "mcOptions": [
 
@@ -126,7 +140,7 @@
     "stringMaxLength": 100,
     "answers": {
         "value": null,
-        "text": "",
+        "text": "PINGPONG CLUB",
         "mc": [
 
         ],
@@ -142,17 +156,41 @@
     "required": false,
     "units": "",
     "visibleCondition": [{
-        "qidx": 3,
-        "relation": "EQUAL_TO",
-        "answer": {
-            "value": null,
-            "text": "",
-            "mc": [
-                "true"
-            ],
-            "comment": ""
+            "qidx": 1,
+            "relation": "EQUAL_TO",
+            "answer": {
+                "value": null,
+                "text": "",
+                "mc": [
+                    "I don't know",
+                    "Keeping fit"
+                ],
+                "comment": ""
+            }
+        },
+        {
+            "qidx": 0,
+            "relation": "EQUAL_TO",
+            "answer": {
+                "value": null,
+                "text": "",
+                "mc": [
+                    "just so so"
+                ],
+                "comment": ""
+            }
+        },
+        {
+            "qidx": 4,
+            "relation": "EQUAL_TO",
+            "answer": {
+                "value": null,
+                "text": "ABC",
+                "mc": [],
+                "comment": ""
+            }
         }
-    }],
+    ],
     "mcOptions": [
 
     ],
@@ -160,9 +198,11 @@
     "numMax": null,
     "stringMaxLength": 100,
     "answers": {
-        "value": null,
+        "value": 1647577870,
         "text": "",
-        "mc": [],
+        "mc": [
+
+        ],
         "comment": ""
     }
 

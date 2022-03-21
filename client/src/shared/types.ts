@@ -297,6 +297,7 @@ export type Question = {
   answers? : OrNull<Answer> //| undefined;  
   visibleCondition?: QCondition[]|undefined; 
   shouldHidden?: OrNull<Boolean>|undefined; //这个是我本地自己新建的。服务器不会有这个数值
+  dependencies?:OrNull<[]>|undefined; //这个是我本地自己新建的。服务器不会有这个数值[里边存放的是question index数组]
   //下边这个字段可能要删除
   // sectionHeader:string|undefined;
   // formId

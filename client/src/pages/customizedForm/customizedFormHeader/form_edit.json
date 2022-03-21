@@ -17,7 +17,9 @@
     "answers": {
         "value": null,
         "text": "",
-        "mc": [],
+        "mc": [
+            "just so so"
+        ],
         "comment": ""
     }
 }, {
@@ -39,7 +41,9 @@
     "answers": {
         "value": null,
         "text": "",
-        "mc": [],
+        "mc": [
+            "I don't know"
+        ],
         "comment": ""
     }
 }, {
@@ -70,7 +74,7 @@
     "numMax": 100,
     "stringMaxLength": null,
     "answers": {
-        "value": null,
+        "value": 25,
         "text": "",
         "mc": [
 
@@ -96,7 +100,7 @@
     "answers": {
         "value": null,
         "text": "",
-        "mc": [],
+        "mc": ["true"],
         "comment": ""
     }
 }, {
@@ -126,7 +130,7 @@
     "stringMaxLength": 100,
     "answers": {
         "value": null,
-        "text": "",
+        "text": "PINGPONG CLUB",
         "mc": [
 
         ],
@@ -160,9 +164,11 @@
     "numMax": null,
     "stringMaxLength": 100,
     "answers": {
-        "value": null,
+        "value": 1647577870,
         "text": "",
-        "mc": [],
+        "mc": [
+
+        ],
         "comment": ""
     }
 
