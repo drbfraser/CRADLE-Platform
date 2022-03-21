@@ -4,9 +4,10 @@ from models import FormTemplate
 from validation.validate import required_keys_present, values_correct_type
 from validation.questions import validate_question_post
 
+
 def validate(request_body: dict, id_required: bool) -> Optional[str]:
     """
-    Returns an error message if the /api/forms/templates POST or PUT request is not 
+    Returns an error message if the /api/forms/templates POST or PUT request is not
     valid. Else, returns None.
 
     :param request_body: The request body as a dict object
@@ -18,7 +19,7 @@ def validate(request_body: dict, id_required: bool) -> Optional[str]:
         required_fields = ["id", "questions"]
     else:
         required_fields = ["questions"]
-    
+
     all_fields = [
         "name",
         "category",
@@ -34,12 +35,13 @@ def validate(request_body: dict, id_required: bool) -> Optional[str]:
     for key in request_body:
         if key not in all_fields:
             return "The key '" + key + "' is not a valid field or is set server-side"
-    
-    
-    error = values_correct_type(request_body, ["id", "name", "category", "version"], str)
+
+    error = values_correct_type(
+        request_body, ["id", "name", "category", "version"], str
+    )
     if error:
         return error
-    
+
     error = values_correct_type(request_body, ["questions"], list)
     if error:
         return error

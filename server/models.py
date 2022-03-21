@@ -9,10 +9,7 @@ import marshmallow
 import json
 
 from config import db, ma
-from utils import (
-    get_current_time,
-    get_uuid
-)
+from utils import get_current_time, get_uuid
 
 
 # To add a table to db, make a new class
