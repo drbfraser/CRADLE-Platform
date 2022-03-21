@@ -298,7 +298,7 @@ class Reading(db.Model):
 
 class FollowUp(db.Model):
     __tablename__ = "followup"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
     followupInstructions = db.Column(db.Text)
     specialInvestigations = db.Column(db.Text)
