@@ -31,10 +31,10 @@ export const CustomizedFormData = ({ form }: IProps) => {
           </>
         </Typography>
         <Typography variant="subtitle1">
-          Referred on {`Last Edit : ${getPrettyDateTime(form.lastEdited)}`}
+          {`Last Edit : ${getPrettyDateTime(form.lastEdited * 0.001)}`}
         </Typography>
         <Typography variant="subtitle1">
-        {`Form Category : ${form.category}`}
+        {`Category : ${form.category}`}
         </Typography>
         {/* {Boolean(referral.comment) && (
           <div>
