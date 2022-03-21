@@ -1,5 +1,6 @@
 import json
 import time
+import uuid
 
 
 def pprint(to_print):
@@ -9,3 +10,7 @@ def pprint(to_print):
 # returns formatted current time in utc timezone
 def get_current_time():
     return int(time.time())
+
+
+def get_uuid():
+    return str(uuid.uuid4())
