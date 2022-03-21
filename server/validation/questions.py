@@ -156,7 +156,7 @@ def validate_reference(q: dict, model: Type[M]) -> Optional[str]:
         # the form template question shouldn't provide a form id
         if "formId" in q and q["formId"] is not None:
             return "Form template questions shouldn't have a form reference"
-        # the form template question should provide a form template id    
+        # the form template question should provide a form template id
         if (not "formTemplateId" in q) and q.get("formTemplateId") is None:
             return "Form template questions should have a template reference"
     else:

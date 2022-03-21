@@ -10,7 +10,7 @@ def validate(request_body: dict) -> Optional[str]:
     :param request_body: The request body as a dict object
                         {
                             "comment": "here is a comment",
-                            "readingId": "e90c0529-74ad-41b4-876e-d8e5ac60e786",
+                            "patientId": "123",
                             "referralHealthFacilityName": "H0000",
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
@@ -20,6 +20,7 @@ def validate(request_body: dict) -> Optional[str]:
     error_message = required_keys_present(
         request_body,
         [
+            "patientId",
             "referralHealthFacilityName",
         ],
     )

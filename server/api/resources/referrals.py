@@ -66,8 +66,6 @@ class Root(Resource):
         create_time = get_current_time()
         json["dateReferred"] = create_time
         json["lastEdited"] = create_time
-        json["isAssessed"] = False
-        json["isCancelled"] = False
 
         patient = crud.read(Patient, patientId=json["patientId"])
         if not patient:
