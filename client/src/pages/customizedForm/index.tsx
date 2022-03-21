@@ -6,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
-import { CustomizedForm } from './CustomizedForm';
+import { CustomizedEditForm } from './customizedEditForm/CustomizedEditForm';
 import { goBackWithFallback } from 'src/shared/utils';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import {Question} from 'src/shared/types'
@@ -40,9 +40,9 @@ export const CustomizedFormPage = () => {
 
       <br />
       <SelectHeaderForm patientId={patientId} setQuestions = {setQuestions} />
-      {console.log(qs)}
+      {/* {console.log(qs)} */}
 
-      {questions!.length > 0 && (<><br /><br /><br /><br /><br /><CustomizedForm patientId={patientId} questions={questions}/></>)}
+      {questions!.length > 0 && (<><br /><br /><br /><br /><br /><CustomizedEditForm patientId={patientId} questions={questions}/></>)}
     </div>
   );
 };

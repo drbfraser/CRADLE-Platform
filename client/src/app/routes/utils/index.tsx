@@ -21,7 +21,7 @@ import { ReferralFormPage } from 'src/pages/referralForm';
 import { HistoryTablesPage } from 'src/pages/historyTables';
 import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 import { CustomizedFormPage } from 'src/pages/customizedForm';
-import { CustomizedEditFormPage } from 'src/pages/customizedForm/customizedFormEdit';
+import { CustomizedEditFormPage } from 'src/pages/customizedForm/customizedEditForm';
 
 
 export type AppRoute = {
