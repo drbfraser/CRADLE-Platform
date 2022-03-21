@@ -11,6 +11,7 @@ import {
   ReferralCancellationCard,
   ReferralNotAttendedCard,
   ReferralPendingCard,
+  // CustomizedFormCard,
 } from './Cards/Cards';
 import { PatientStats } from './PatientStats';
 import { PregnancyInfo } from './PregnancyInfo';
@@ -24,6 +25,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
 import { ConfirmDialog } from '../../shared/components/confirmDialog';
+import formData from 'src/pages/customizedForm/form_card.json';
+ 
 
 type RouteParams = {
   patientId: string;
@@ -57,6 +60,7 @@ const Filters: Filter[] = [
 ];
 
 export const PatientPage = () => {
+  console.log(formData);
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [patient, setPatient] = useState<Patient>();
   //we will need to send 2 request, the second is specifically for the cards data array

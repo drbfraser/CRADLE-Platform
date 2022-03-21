@@ -311,6 +311,7 @@ export type Form = {
   dateCreated:number; 
   lastEdited:number;   
   lastEditedBy:number; 
+  category:string;
 }; 
 
 
