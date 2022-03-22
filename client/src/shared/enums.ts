@@ -76,5 +76,5 @@ export enum QRelationEnum {
   LARGER_THAN = 'LARGER_THAN',
   SMALLER_THAN = 'SMALLER_THAN',
   EQUAL_TO = 'EQUAL_TO',
-  CONTAINS = 'CONTAINS', 
+  CONTAINS = 'CONTAINS',
 }

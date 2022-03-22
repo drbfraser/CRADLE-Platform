@@ -251,70 +251,66 @@ export type HealthFacility = string;
 
 ///////////////////////////////////////////
 export type customizedForm = {
-  name:string;
-  type:string;
+  name: string;
+  type: string;
 };
 //可能question的选项本身还需要细化一下。
- 
+
 // export type QOptions = string;
 
 export type QCondition = {
-  qidx:number;
-  relation:string;//！！最好后边改成 QRelationEnum;
-  answer:Answer;
-}
+  qidx: number;
+  relation: string; //！！最好后边改成 QRelationEnum;
+  answer: Answer;
+};
 // export type QAnswer = {
 //   qidx:number;
 //   answer:Answer;
 // }
 
 export type QAnswer = {
-  qidx:number | null;
-  key:string | null;//value,text,mc,comment
-  value:any;//string|undefined;
-}
+  qidx: number | null;
+  key: string | null; //value,text,mc,comment
+  value: any; //string|undefined;
+};
 
 export type Answer = {
-  value:OrNull<number> ;//| undefined; 
-  text:OrNull<string> ;//| undefined; 
-  mc: OrNull<string|undefined>[]//| undefined; 
-  comment: OrNull<string> ;//| undefined; 
-} 
-export type Question = {  
-  id:number;
-  isBlank:boolean;  
-  questionIndex:number;   
-  questionText:string;  
-  questionType:string;  
-  category:string; 
-  required:boolean; 
-  
-  mcOptions?: OrNull<string>[]//|undefined; 
-  numMin? : OrNull<number> //| undefined; 
-  numMax? : OrNull<number> //| undefined; 
-  stringMaxLength? : OrNull<number> //| undefined;  
-  units?:OrNull<string> //| undefined; 
-  answers? : OrNull<Answer> //| undefined;  
-  visibleCondition?: QCondition[]|undefined; 
-  shouldHidden?: OrNull<Boolean>|undefined; //这个是我本地自己新建的。服务器不会有这个数值
-  dependencies?:OrNull<[]>|undefined; //这个是我本地自己新建的。服务器不会有这个数值[里边存放的是question index数组]
+  value: OrNull<number>; //| undefined;
+  text: OrNull<string>; //| undefined;
+  mc: OrNull<string | undefined>[]; //| undefined;
+  comment: OrNull<string>; //| undefined;
+};
+export type Question = {
+  id: number;
+  isBlank: boolean;
+  questionIndex: number;
+  questionText: string;
+  questionType: string;
+  category: string;
+  required: boolean;
+
+  mcOptions?: OrNull<string>[]; //|undefined;
+  numMin?: OrNull<number>; //| undefined;
+  numMax?: OrNull<number>; //| undefined;
+  stringMaxLength?: OrNull<number>; //| undefined;
+  units?: OrNull<string>; //| undefined;
+  answers?: OrNull<Answer>; //| undefined;
+  visibleCondition?: QCondition[] | undefined;
+  shouldHidden?: OrNull<Boolean> | undefined; //这个是我本地自己新建的。服务器不会有这个数值
+  dependencies?: OrNull<[]> | undefined; //这个是我本地自己新建的。服务器不会有这个数值[里边存放的是question index数组]
   //下边这个字段可能要删除
   // sectionHeader:string|undefined;
   // formId
-  // formTemplateId 
-}; 
+  // formTemplateId
+};
 
-
-export type CustomizedForm = {  
-  id:number;  
-  patientId:string;  
-  formTemplateId:number;
-  dateCreated:number; 
-  lastEdited:number;   
-  lastEditedBy:number; 
-  category:string;
-  name:string;
-}; 
-
-
- 
+export type CustomizedForm = {
+  id: number;
+  patientId: string;
+  formTemplateId: number;
+  dateCreated: number;
+  lastEdited: number;
+  lastEditedBy: number;
+  category: string;
+  name: string;
+};

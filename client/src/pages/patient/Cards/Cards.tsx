@@ -117,7 +117,6 @@ export const ReferralAssessedCard = ({ referral }: IProps_Referral) => {
   );
 };
 
-
 export const CustomizedFormCard = ({ form }: IProps_CustomizedForm) => {
   return (
     <Paper>

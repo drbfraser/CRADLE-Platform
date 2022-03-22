@@ -26,7 +26,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
 import { ConfirmDialog } from '../../shared/components/confirmDialog';
 import formData from 'src/pages/customizedForm/form_card.json';
- 
 
 type RouteParams = {
   patientId: string;

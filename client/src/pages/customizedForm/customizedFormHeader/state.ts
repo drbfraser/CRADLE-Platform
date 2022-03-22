@@ -1,4 +1,4 @@
-import * as Yup from 'yup'; 
+import * as Yup from 'yup';
 // field names here match POST /api/referrals
 export enum ReferralField {
   form = 'Form',
@@ -13,8 +13,5 @@ export const initialState = {
 export type ReferralState = typeof initialState;
 
 export const validationSchema = Yup.object().shape({
-  [ReferralField.form]: Yup.string()
-    .label('Form')
-    .required()
-    .nullable(),
+  [ReferralField.form]: Yup.string().label('Form').required().nullable(),
 });

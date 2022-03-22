@@ -23,7 +23,6 @@ import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 import { CustomizedFormPage } from 'src/pages/customizedForm';
 import { CustomizedEditFormPage } from 'src/pages/customizedForm/customizedEditForm';
 
-
 export type AppRoute = {
   component:
     | React.ComponentType<RouteComponentProps<any>>

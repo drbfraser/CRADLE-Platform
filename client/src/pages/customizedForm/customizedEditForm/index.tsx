@@ -8,8 +8,8 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
 import { CustomizedEditForm } from './CustomizedEditForm';
 import { goBackWithFallback } from 'src/shared/utils';
-import {Question} from 'src/shared/types'
-import qs from "../customizedFormHeader/form_edit.json";
+import { Question } from 'src/shared/types';
+import qs from '../customizedFormHeader/form_edit.json';
 
 type RouteParams = {
   patientId: string;
@@ -19,7 +19,7 @@ type RouteParams = {
 export const CustomizedEditFormPage = () => {
   const classes = useStyles();
   const { patientId, formId } = useRouteMatch<RouteParams>().params;
-  const questions :Question[] = qs; 
+  const questions: Question[] = qs;
   console.log(formId);
 
   return (
@@ -35,7 +35,16 @@ export const CustomizedEditFormPage = () => {
 
       <br />
 
-      {questions!.length > 0 && (<><br /><CustomizedEditForm patientId={patientId} questions={questions} isEditForm={true}/></>)}
+      {questions!.length > 0 && (
+        <>
+          <br />
+          <CustomizedEditForm
+            patientId={patientId}
+            questions={questions}
+            isEditForm={true}
+          />
+        </>
+      )}
     </div>
   );
 };

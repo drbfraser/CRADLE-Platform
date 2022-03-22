@@ -29,7 +29,7 @@ export const Header = ({
     if (patient) {
       history.push(`/forms/new/${patient.patientId}`);
     }
-  };  
+  };
 
   const handleAddReadingClick = () => {
     if (patient) {
@@ -71,7 +71,7 @@ export const Header = ({
       </Grid>
       <Grid item>
         <Grid container alignItems="center" style={{ gap: 5 }}>
-        <Button
+          <Button
             color="primary"
             variant="contained"
             onClick={handleSubmitNewFormClick}>

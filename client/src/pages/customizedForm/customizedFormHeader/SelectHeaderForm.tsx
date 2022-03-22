@@ -3,41 +3,39 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField'; 
+import TextField from '@material-ui/core/TextField';
 import { Field, Form, Formik } from 'formik';
 import {
   Autocomplete,
   AutocompleteRenderInputParams,
 } from 'formik-material-ui-lab';
 import React, { useState } from 'react';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast'; 
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { initialState, ReferralField, validationSchema } from './state';
-import availableForms from "./Forms.json";
-import availableLangs from "./Lang.json";
+import availableForms from './Forms.json';
+import availableLangs from './Lang.json';
 
-import {Question} from 'src/shared/types'
+import { Question } from 'src/shared/types';
 
 interface IProps {
   patientId: string;
-  setQuestions:(questions:Question[]) => void;
+  setQuestions: (questions: Question[]) => void;
 }
 
 export type customizedForm = {
-  name:string;
-  type:string;
+  name: string;
+  type: string;
 };
 
-
-
 export const SelectHeaderForm = ({ patientId, setQuestions }: IProps) => {
-  const classes = useStyles(); 
+  const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
- 
-  const all_forms:string[] = availableForms.map(function(item){
+
+  const all_forms: string[] = availableForms.map(function (item) {
     return item.name;
   });
-  const all_langs:string[] = availableLangs;  
+  const all_langs: string[] = availableLangs;
 
   return (
     <>
@@ -45,7 +43,7 @@ export const SelectHeaderForm = ({ patientId, setQuestions }: IProps) => {
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, setSubmitError, setQuestions,)}>
+        onSubmit={handleSubmit(patientId, setSubmitError, setQuestions)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>

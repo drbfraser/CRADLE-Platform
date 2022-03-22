@@ -1,4 +1,5 @@
-[{
+[
+  {
     "id": 0,
     "questionIndex": 0,
     "category": "common_category",
@@ -7,20 +8,19 @@
     "questionType": "MC",
     "required": true,
     "units": "",
-    "visibleCondition": [
-
-    ],
+    "visibleCondition": [],
     "mcOptions": ["very much", "a little", "no idea", "just so so"],
     "numMin": null,
     "numMax": null,
     "stringMaxLength": null,
     "answers": {
-        "value": null,
-        "text": "",
-        "mc": [],
-        "comment": ""
+      "value": null,
+      "text": "",
+      "mc": [],
+      "comment": ""
     }
-}, {
+  },
+  {
     "id": 1,
     "questionIndex": 1,
     "category": "common_category",
@@ -29,20 +29,24 @@
     "questionType": "ME",
     "required": true,
     "units": "",
-    "visibleCondition": [
-
+    "visibleCondition": [],
+    "mcOptions": [
+      "Because it is interesting",
+      "Making friends",
+      "Keeping fit",
+      "I don't know"
     ],
-    "mcOptions": ["Because it is interesting", "Making friends", "Keeping fit", "I don't know"],
     "numMin": null,
     "numMax": null,
     "stringMaxLength": null,
     "answers": {
-        "value": null,
-        "text": "",
-        "mc": [],
-        "comment": ""
+      "value": null,
+      "text": "",
+      "mc": [],
+      "comment": ""
     }
-}, {
+  },
+  {
     "id": 2,
     "questionIndex": 2,
     "category": "common_category",
@@ -51,33 +55,30 @@
     "questionType": "NUM",
     "required": false,
     "units": "hours",
-    "visibleCondition": [{
+    "visibleCondition": [
+      {
         "qidx": 0,
         "relation": "EQUAL_TO",
         "answer": {
-            "value": null,
-            "text": "",
-            "mc": [
-                "very much"
-            ],
-            "comment": ""
+          "value": null,
+          "text": "",
+          "mc": ["very much"],
+          "comment": ""
         }
-    }],
-    "mcOptions": [
-
+      }
     ],
+    "mcOptions": [],
     "numMin": 0,
     "numMax": 100,
     "stringMaxLength": null,
     "answers": {
-        "value": null,
-        "text": "",
-        "mc": [
-
-        ],
-        "comment": ""
+      "value": null,
+      "text": "",
+      "mc": [],
+      "comment": ""
     }
-}, {
+  },
+  {
     "id": 3,
     "questionIndex": 3,
     "category": "common_category",
@@ -86,20 +87,19 @@
     "questionType": "MC",
     "required": true,
     "units": "",
-    "visibleCondition": [
-
-    ],
+    "visibleCondition": [],
     "mcOptions": ["true", "false"],
     "numMin": null,
     "numMax": null,
     "stringMaxLength": null,
     "answers": {
-        "value": null,
-        "text": "",
-        "mc": [],
-        "comment": ""
+      "value": null,
+      "text": "",
+      "mc": [],
+      "comment": ""
     }
-}, {
+  },
+  {
     "id": 4,
     "questionIndex": 4,
     "category": "common_category",
@@ -108,31 +108,30 @@
     "questionType": "TEXT",
     "required": false,
     "units": "",
-    "visibleCondition": [{
+    "visibleCondition": [
+      {
         "qidx": 3,
         "relation": "EQUAL_TO",
         "answer": {
-            "value": null,
-            "text": "",
-            "mc": ["true"],
-            "comment": ""
+          "value": null,
+          "text": "",
+          "mc": ["true"],
+          "comment": ""
         }
-    }],
-    "mcOptions": [
-
+      }
     ],
+    "mcOptions": [],
     "numMin": null,
     "numMax": null,
     "stringMaxLength": 100,
     "answers": {
-        "value": null,
-        "text": "",
-        "mc": [
-
-        ],
-        "comment": ""
+      "value": null,
+      "text": "",
+      "mc": [],
+      "comment": ""
     }
-}, {
+  },
+  {
     "id": 5,
     "questionIndex": 5,
     "category": "common_category",
@@ -141,29 +140,27 @@
     "questionType": "DATE",
     "required": false,
     "units": "",
-    "visibleCondition": [{
+    "visibleCondition": [
+      {
         "qidx": 3,
         "relation": "EQUAL_TO",
         "answer": {
-            "value": null,
-            "text": "",
-            "mc": [
-                "true"
-            ],
-            "comment": ""
+          "value": null,
+          "text": "",
+          "mc": ["true"],
+          "comment": ""
         }
-    }],
-    "mcOptions": [
-
+      }
     ],
+    "mcOptions": [],
     "numMin": null,
     "numMax": null,
     "stringMaxLength": 100,
     "answers": {
-        "value": null,
-        "text": "",
-        "mc": [],
-        "comment": ""
+      "value": null,
+      "text": "",
+      "mc": [],
+      "comment": ""
     }
-
-}]
+  }
+]
