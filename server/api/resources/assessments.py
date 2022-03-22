@@ -51,7 +51,7 @@ class Root(Resource):
         return [marshal.marshal(f) for f in follow_ups]
 
 
-# /api/assessments/<int:assessment_id>
+# /api/assessments/<string:assessment_id>
 class SingleAssessment(Resource):
     @staticmethod
     @jwt_required
@@ -60,7 +60,7 @@ class SingleAssessment(Resource):
         methods=["GET"],
         endpoint="single_assessment",
     )
-    def get(assessment_id: int):
+    def get(assessment_id: str):
         follow_up = crud.read(FollowUp, id=assessment_id)
         if not follow_up:
             abort(404, message=f"No assessment with id {id}")
@@ -74,7 +74,7 @@ class SingleAssessment(Resource):
         methods=["PUT"],
         endpoint="single_assessment",
     )
-    def put(assessment_id: int):
+    def put(assessment_id: str):
         if not assessment_id:
             abort(404, message=f"Assessment id is required")
         json = request.get_json(force=True)

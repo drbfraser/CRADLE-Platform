@@ -101,7 +101,7 @@ class SingleReferral(Resource):
         return marshal.marshal(referral)
 
 
-# /api/referrals/assess/<int:referral_id>
+# /api/referrals/assess/<string:referral_id>
 class AssessReferral(Resource):
     @staticmethod
     @jwt_required
@@ -110,7 +110,7 @@ class AssessReferral(Resource):
         methods=["PUT"],
         endpoint="referral_assess",
     )
-    def put(referral_id: int):
+    def put(referral_id: str):
         referral = crud.read(Referral, id=referral_id)
         if not referral:
             abort(404, message=f"No referral with id {referral_id}")
@@ -123,7 +123,7 @@ class AssessReferral(Resource):
         return marshal.marshal(referral), 201
 
 
-# /api/referrals/cancel-status-switch/<int:referral_id>
+# /api/referrals/cancel-status-switch/<string:referral_id>
 class ReferralCancelStatus(Resource):
     @staticmethod
     @jwt_required
@@ -132,7 +132,7 @@ class ReferralCancelStatus(Resource):
         methods=["PUT"],
         endpoint="referral_cancel_status",
     )
-    def put(referral_id: int):
+    def put(referral_id: str):
         if not crud.read(Referral, id=referral_id):
             abort(404, message=f"No referral with id {referral_id}")
 
@@ -153,7 +153,7 @@ class ReferralCancelStatus(Resource):
         return marshal.marshal(referral)
 
 
-# /api/referrals/not-attend/<int:referral_id>
+# /api/referrals/not-attend/<string:referral_id>
 class ReferralNotAttend(Resource):
     @staticmethod
     @jwt_required
@@ -162,7 +162,7 @@ class ReferralNotAttend(Resource):
         methods=["PUT"],
         endpoint="referral_not_attend",
     )
-    def put(referral_id: int):
+    def put(referral_id: str):
         if not crud.read(Referral, id=referral_id):
             abort(404, message=f"No referral with id {referral_id}")
 

@@ -7,7 +7,7 @@ parameters:
     name: patient_id
     required: true
     schema:
-      type: integer
+      type: string
 requestBody:
   required: true
   description: POST request body for /api/patients/<string:patient_id>/pregnancies
@@ -42,8 +42,8 @@ responses:
               type: integer
               example: 1001
             patientId:
-              type: integer
-              example: 120000
+              type: string
+              example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
             pregnancyStartDate:
               type: Unix timestamp
               example: 1620000002

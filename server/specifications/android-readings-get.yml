@@ -16,8 +16,8 @@ responses:
                 type: string
                 example: e90c0529-74ad-41b4-876e-d8e5ac60e786
               patientId:
-                type: integer
-                example: 49300000000
+                type: string
+                example: "49300000000"
               trafficLightStatus:
                 type: string
                 enum: ['NONE', 'GREEN', 'YELLOW_UP', 'YELLOW_DOWN', 'RED_UP', 'RED_DOWN']

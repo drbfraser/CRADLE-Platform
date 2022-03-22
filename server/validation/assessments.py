@@ -14,7 +14,6 @@ def validate(request_body: dict) -> Optional[str]:
                             "medicationPrescribed": "tylenol",
                             "specialInvestigations": "bcccccccccddeeeff",
                             "treatment": "b",
-                            "readingId": "asdasd82314278226313803", - required
                             "followupNeeded": True, - required
                             "followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = True
                         }

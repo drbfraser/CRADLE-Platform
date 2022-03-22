@@ -100,12 +100,12 @@ def init(api):
 
     #### New Endpoints ####
     api.add_resource(
-        Assessments, "/api/assessments", endpoint="assessments"
+        Assessments, "/api/assessments", endpoint="assessment"
     )  # [POST, GET]
 
     api.add_resource(
         SingleAssessment,
-        "/api/assessments/<int:assessment_id>",
+        "/api/assessments/<string:assessment_id>",
         endpoint="single_assessment",
     )  # [GET]
 
@@ -188,17 +188,17 @@ def init(api):
     )  # [GET]
     api.add_resource(
         AssessReferral,
-        "/api/referrals/assess/<int:referral_id>",
+        "/api/referrals/assess/<string:referral_id>",
         endpoint="referral_assess",
     )  # [PUT]
     api.add_resource(
         ReferralCancelStatus,
-        "/api/referrals/cancel-status-switch/<int:referral_id>",
+        "/api/referrals/cancel-status-switch/<string:referral_id>",
         endpoint="referral_cancel_status",
     )  # [PUT]
     api.add_resource(
         ReferralNotAttend,
-        "/api/referrals/not-attend/<int:referral_id>",
+        "/api/referrals/not-attend/<string:referral_id>",
         endpoint="referral_not_attend",
     )  # [PUT]
 

@@ -7,7 +7,7 @@ parameters:
     name: patient_id
     required: true
     schema:
-      type: integer
+      type: string
 requestBody:
   required: true
   description: POST request body for /api/patients/<string:patient_id>/medical_records

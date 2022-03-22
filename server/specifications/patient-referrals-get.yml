@@ -7,7 +7,7 @@ parameters:
   name: patient_id
   required: true
   schema:
-    type: integer
+    type: string
 responses:
   200:
     description: GET response body for /api/patients/<string:patient_id>/referrals
@@ -40,8 +40,8 @@ responses:
                 type: Unix timestamp | Null
                 example: 1644666212
               id: 
-                type: integer
-                example: 1
+                type: string
+                example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
               patientId:
                 type: integer
                 example: 191919

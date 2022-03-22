@@ -7,7 +7,7 @@ parameters:
   name: referral_id
   required: true
   schema:
-    type: integer
+    type: string
           
 responses:
   201:
@@ -39,8 +39,8 @@ responses:
               type: string | Null
               example: H0000
             id:
-              type: integer
-              example: 23
+              type: string
+              example: "0ee509a7-b1aa-4830-9629-3cf7240a2e5b"
             userId:
               type: integer
               example: 2

@@ -20,8 +20,8 @@ responses:
               type: string
               example: adas-d82314-27822-63138
             patientId:
-              type: integer
-              example: 123456
+              type: string
+              example: "123456"
             bpSystolic:
               type: integer
               example: 70

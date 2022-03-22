@@ -20,8 +20,8 @@ responses:
               type: integer
               example: 1001
             patientId:
-              type: integer
-              example: 120000
+              type: string
+              example: "123"
             pregnancyStartDate:
               type: Unix timestamp
               example: 1620000002

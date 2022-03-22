@@ -7,7 +7,7 @@ parameters:
   name: referral_id
   required: true
   schema:
-    type: integer
+    type: string
 requestBody:
   required: true
   description: POST request body for /api/referrals/cancel-status-switch
@@ -57,8 +57,8 @@ responses:
               type: string | Null
               example: H0000
             id:
-              type: integer
-              example: 23
+              type: string
+              example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
             userId:
               type: integer
               example: 2
