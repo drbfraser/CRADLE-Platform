@@ -62,6 +62,13 @@ export const getTimestampFromMonthsWithEndDate = (
   return timestampSecs;
 };
 
+//Original string date format MUST be:'YYYY-MM-DD'
+export const getTimestampFromStringDate = (strDate: string): number => {
+  const testDateUtc = moment.utc(strDate);
+  const localDate = testDateUtc.local();
+  return localDate.toDate().getTime() * 0.001;
+};
+
 export const getNumOfWeeksDaysNumeric = (
   startTime: number,
   endTime: OrNull<number>

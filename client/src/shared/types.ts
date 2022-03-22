@@ -3,7 +3,9 @@ import {
   SexEnum,
   TrafficLightEnum,
   UserRoleEnum,
+  // QRelationEnum,
 } from 'src/shared/enums';
+// import { number, string } from 'yup';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -255,3 +257,58 @@ export type Referrer = {
 };
 
 export type HealthFacility = string;
+
+///////////////////////////////////////////
+export type customizedForm = {
+  name: string;
+  type: string;
+};
+
+export type QCondition = {
+  qidx: number;
+  relation: string; //better to update to QRelationEnum;
+  answer: Answer;
+};
+
+export type QAnswer = {
+  qidx: number | null;
+  key: string | null; //value,text,mc,comment
+  value: any;
+};
+
+export type Answer = {
+  value: OrNull<number>;
+  text: OrNull<string>;
+  mc: OrNull<string | undefined>[];
+  comment: OrNull<string>;
+};
+export type Question = {
+  id: number;
+  isBlank: boolean;
+  questionIndex: number;
+  questionText: string;
+  questionType: string;
+  category: string;
+  required: boolean;
+
+  mcOptions?: OrNull<string>[];
+  numMin?: OrNull<number>;
+  numMax?: OrNull<number>;
+  stringMaxLength?: OrNull<number>;
+  units?: OrNull<string>;
+  answers?: OrNull<Answer>;
+  visibleCondition?: QCondition[] | undefined;
+  shouldHidden?: OrNull<boolean> | undefined;
+  dependencies?: OrNull<[]> | undefined;
+};
+
+export type CustomizedForm = {
+  id: number;
+  patientId: string;
+  formTemplateId: number;
+  dateCreated: number;
+  lastEdited: number;
+  lastEditedBy: number;
+  category: string;
+  name: string;
+};
