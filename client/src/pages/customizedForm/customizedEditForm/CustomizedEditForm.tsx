@@ -25,7 +25,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 interface IProps {
   patientId: string;
   questions: Question[];
-  isEditForm: Boolean;
+  isEditForm: boolean;
 }
 
 export const CustomizedEditForm = ({
@@ -48,10 +48,10 @@ export const CustomizedEditForm = ({
   useEffect(() => {
     if (initialDone.current === false) {
       let i;
-      let anss: QAnswer[] = [];
+      const anss: QAnswer[] = [];
       for (i = 0; i < questions.length; i++) {
         const question = questions[i];
-        let ans: QAnswer = {
+        const ans: QAnswer = {
           qidx: question.questionIndex,
           key: null,
           value: null,
@@ -59,16 +59,12 @@ export const CustomizedEditForm = ({
         if (question.questionType === 'MC' || question.questionType === 'ME') {
           ans.key = 'mc';
           ans.value = question.answers?.mc ?? [];
-          if (question.questionType === 'ME') {
-          }
         } else if (
           question.questionType === 'NUM' ||
           question.questionType === 'DATE'
         ) {
           ans.key = 'value';
           ans.value = question.answers?.value ?? null;
-          if (question.questionText === 'DATE') {
-          }
         } else if (question.questionType === 'TEXT') {
           ans.value = question.answers?.text ?? null;
           ans.key = 'text';
@@ -169,7 +165,7 @@ export const CustomizedEditForm = ({
   }
 
   function updateAnswersByValue(index: number, newValue: any) {
-    var ans = [...answers];
+    let ans = [...answers];
     ans[index].value = newValue;
     setAnswers(ans);
     console.log(ans);
@@ -190,7 +186,7 @@ export const CustomizedEditForm = ({
                 value={answer.value ? answer.value[0] : ''}
                 defaultValue={answer.value ? answer.value[0] : ''}
                 onChange={function (event, value) {
-                  let arr = [];
+                  const arr = [];
                   if (value) {
                     arr.push(value);
                   }
@@ -198,6 +194,7 @@ export const CustomizedEditForm = ({
                 }}>
                 {question.mcOptions!.map((option, index) => (
                   <FormControlLabel
+                    key={index}
                     value={option}
                     control={<Radio color="primary" required={required} />}
                     label={option}
@@ -226,10 +223,10 @@ export const CustomizedEditForm = ({
                         defaultChecked={answer.value?.indexOf(option) > -1}
                         onChange={(event, checked) => {
                           if (checked) {
-                            var new_val = [...answer.value, event.target.value];
+                            let new_val = [...answer.value, event.target.value];
                             updateAnswersByValue(qid, new_val);
                           } else {
-                            var original_val = [...answer.value];
+                            let original_val = [...answer.value];
                             const i = original_val.indexOf(event.target.value);
                             if (i > -1) {
                               original_val.splice(i, 1);
@@ -326,7 +323,7 @@ export const CustomizedEditForm = ({
               <Field
                 component={TextField}
                 defaultValue={
-                  Boolean(answer.value) ? getPrettyDateTime(answer.value) : null
+                  answer.value ? getPrettyDateTime(answer.value) : null
                 }
                 fullWidth
                 required={required}
@@ -359,10 +356,10 @@ export const CustomizedEditForm = ({
 
   function generate_html_of_all_questions() {
     let i;
-    let html_arr = [];
+    const html_arr = [];
     for (i = 0; i < questions.length; i++) {
-      let question = questions[i];
-      let answer = answers[i];
+      const question = questions[i];
+      const answer = answers[i];
       html_arr.push(generate_html_for_one_question(question, answer));
     }
     return html_arr;
