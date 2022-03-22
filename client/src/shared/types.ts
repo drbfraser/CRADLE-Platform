@@ -132,6 +132,15 @@ export interface IUserWithIndex extends IUser {
   index: number;
 }
 
+export interface IForm {
+  formTemplateId: number;
+  name: string;
+  category: string;
+  version: string;
+  dateCreated: string;
+  lastEdited: string;
+}
+
 export interface IFacility {
   about: string;
   facilityType: string;

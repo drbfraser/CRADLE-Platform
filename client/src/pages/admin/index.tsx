@@ -2,6 +2,7 @@ import React from 'react';
 import { Tab } from 'semantic-ui-react';
 import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManageFacilities } from './manageFacilities/ManageFacilities';
+import { ManageForms } from './manageForms/ManageForms';
 import { ManageRelayApp } from './manageRelayApp/ManageRelayApp';
 
 const pages = [
@@ -12,6 +13,10 @@ const pages = [
   {
     name: 'Health Care Facilities',
     Component: ManageFacilities,
+  },
+  {
+    name: 'Forms',
+    Component: ManageForms,
   },
   {
     name: 'Relay App',
