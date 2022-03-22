@@ -223,7 +223,10 @@ export const CustomizedEditForm = ({
                         defaultChecked={answer.value?.indexOf(option) > -1}
                         onChange={(event, checked) => {
                           if (checked) {
-                            const new_val = [...answer.value, event.target.value];
+                            const new_val = [
+                              ...answer.value,
+                              event.target.value,
+                            ];
                             updateAnswersByValue(qid, new_val);
                           } else {
                             const original_val = [...answer.value];
