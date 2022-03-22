@@ -10,9 +10,6 @@ requestBody:
       schema:
         type: object
         properties:
-          id:
-            type: string -required
-            example: "adas-d82314-27822-63150"
           name:
             type: string | null - optional
             example: "NEMS Ambulance Request - 2022"

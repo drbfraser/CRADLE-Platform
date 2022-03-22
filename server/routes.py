@@ -240,7 +240,7 @@ def init(api):
 
     api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]
     api.add_resource(
-        SingleForm, "/api/forms/responses/<int:form_id>", endpoint="single_form"
+        SingleForm, "/api/forms/responses/<string:form_id>", endpoint="single_form"
     )  # [GET, PUT]
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]

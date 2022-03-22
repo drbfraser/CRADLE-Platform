@@ -508,7 +508,7 @@ class Question(db.Model):
     the content logic should be handled in frontend
     e.g.
     [{
-        "qid": 1,
+        "qid": "asdsd-123",
         "relation": "EQUAL_TO",
         "answer": {
             "value": 1

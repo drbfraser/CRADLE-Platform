@@ -1,21 +1,15 @@
-import time
-from math import floor
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-import json
 
-import api.util as util
 import data
 import data.crud as crud
 import data.marshal as marshal
-from utils import get_current_time
-import service.assoc as assoc
 import service.serialize as serialize
-import service.view as view
-from models import Patient, Form, FormTemplate, Question
+from models import FormTemplate, Question
 import service.serialize as serialize
+from validation import formTemplates 
 
 
 # /api/forms/templates
@@ -30,8 +24,13 @@ class Root(Resource):
     def post():
         req = request.get_json(force=True)
 
-        questions = req["questions"]
-        # TODO: validate a question part
+        error_message = formTemplates.validate(req)
+        if error_message:
+            abort(404, message=error_message)
+        
+        form_template_id = req["id"]
+        if crud.read(FormTemplate, id=form_template_id):
+            abort(409, message=f"A form template already exists with id: {form_template_id}")
 
         formTemplate = marshal.unmarshal(FormTemplate, req)
 
@@ -60,14 +59,12 @@ class SingleFormTemplate(Resource):
         methods=["GET"],
         endpoint="single_form_template",
     )
-    def get(form_template_id: int):
+    def get(form_template_id: str):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
 
-        questions = crud.read_questions(Question, form_template.id)
-
-        return serialize.serialize_form_template(form_template, questions)
+        return marshal.marshal(form_template, False)
 
     @staticmethod
     @jwt_required
@@ -76,27 +73,31 @@ class SingleFormTemplate(Resource):
         methods=["PUT"],
         endpoint="single_form_template",
     )
-    def put(form_template_id: int):
+    def put(form_template_id: str):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form template with id {form_template_id}")
 
         req = request.get_json(force=True)
 
-        # validate req
-        formTemplate = marshal.unmarshal(FormTemplate, req)
+        error_message = formTemplates.validate(req)
+        if error_message:
+            abort(404, message=error_message)
+
+        old_qids = [question.id for question in form_template.questions]
+        form_template = marshal.unmarshal(FormTemplate, req)
+        new_questions = form_template.questions
 
         # create new questions if id not in database
-        questions = crud.read_questions(Question, form_template.id)
-        ids = [question.id for question in questions]
-        for question in formTemplate.questions:
-            if question.id not in ids:
-                crud.create(question)
+        for new_question in new_questions:
+            if new_question.id not in old_qids:
+                crud.create(new_question)
 
-        new_ids = [question.id for question in formTemplate.questions]
-        for question in questions:
-            if question.id not in new_ids:
-                crud.delete(question)
+        # delete old questions if id not in new question ids
+        new_qids = [question.id for question in new_questions]
+        for old_qid in old_qids:
+            if old_qid not in new_qids:
+                crud.delete_by(Question, id=old_qid)
 
         crud.update(FormTemplate, req, id=form_template_id)
         data.db_session.commit()
@@ -105,7 +106,7 @@ class SingleFormTemplate(Resource):
         return marshal.marshal(form_template)
 
 
-# /api/forms/templates/blank/<int:form_template_id>
+# /api/forms/templates/blank/<string:form_template_id>
 class BlankFormTemplate(Resource):
     @staticmethod
     @jwt_required
@@ -114,16 +115,11 @@ class BlankFormTemplate(Resource):
         methods=["GET"],
         endpoint="blank_form_template",
     )
-    def get(form_template_id: int):
+    def get(form_template_id: str):
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
 
-        questions = crud.read_questions(Question, form_template.id)
-
-        form_template = serialize.serialize_form_template(form_template, questions)
-        del form_template["dateCreated"]
-        del form_template["lastEdited"]
-        del form_template["version"]
+        form_template = serialize.serialize_blank_form_template(form_template)
 
         return form_template

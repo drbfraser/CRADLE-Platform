@@ -44,8 +44,7 @@ class Root(Resource):
 
         return marshal.marshal(form, True), 201
 
-
-# /api/forms/responses/<int:form_id>
+# /api/forms/responses/<string:form_id>
 class SingleForm(Resource):
     @staticmethod
     @jwt_required
@@ -54,7 +53,7 @@ class SingleForm(Resource):
         methods=["GET"],
         endpoint="single_form",
     )
-    def get(form_id: int):
+    def get(form_id: str):
         form = crud.read(Form, id=form_id)
         if not form:
             abort(404, message=f"No form with id {form_id}")
@@ -68,7 +67,7 @@ class SingleForm(Resource):
         methods=["PUT"],
         endpoint="single_form",
     )
-    def put(form_id: int):
+    def put(form_id: str):
         form = crud.read(Form, id=form_id)
         if not form:
             abort(404, message=f"No form with id {form_id}")

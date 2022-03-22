@@ -182,13 +182,13 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     required_fields = [
         "id",
         "questionIndex",
-        "questionId",
         "questionText",
         "questionType",
         "answers",
     ]
 
     all_fields = [
+        "questionId",
         "isBlank",
         "category",
         "required",

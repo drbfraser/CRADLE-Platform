@@ -5,7 +5,7 @@ from validation.validate import required_keys_present, values_correct_type
 from validation.questions import validate_question_post
 
 
-def validate(request_body: dict, id_required: bool) -> Optional[str]:
+def validate(request_body: dict) -> Optional[str]:
     """
     Returns an error message if the /api/forms/templates POST or PUT request is not
     valid. Else, returns None.
@@ -14,13 +14,10 @@ def validate(request_body: dict, id_required: bool) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields: list = None
-    if id_required:
-        required_fields = ["id", "questions"]
-    else:
-        required_fields = ["questions"]
+    required_fields = ["questions"]
 
     all_fields = [
+        "id",
         "name",
         "category",
         "version",

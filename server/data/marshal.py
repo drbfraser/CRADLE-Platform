@@ -43,7 +43,7 @@ def marshal(obj: Any, shallow=False) -> dict:
     elif isinstance(obj, MedicalRecord):
         return __marshal_medical_record(obj)
     elif isinstance(obj, FormTemplate):
-        return __marshal_form_template(obj)
+        return __marshal_form_template(obj, shallow)
     elif isinstance(obj, Form):
         return __marshal_form(obj, shallow)
     elif isinstance(obj, Question):
@@ -237,9 +237,12 @@ def __marshal_medical_record(r: MedicalRecord) -> dict:
     return d
 
 
-def __marshal_form_template(f: FormTemplate) -> dict:
+def __marshal_form_template(f: FormTemplate, shallow) -> dict:
     d = vars(f).copy()
     __pre_process(d)
+
+    if not shallow:
+        d["questions"] = [marshal(q) for q in f.questions]
 
     return d
 
