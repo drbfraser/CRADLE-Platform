@@ -79,6 +79,7 @@ export const CustomizedEditForm = ({
 
     setAnswers(anss);
     console.log('NOTE: xxxxxx');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function updateQuestionsConditionHidden(
