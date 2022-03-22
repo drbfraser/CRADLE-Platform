@@ -14,15 +14,17 @@ import qs from "../customizedFormHeader/form_edit.json";
 
 type RouteParams = {
   patientId: string;
+  formId: string;
 };
 
 export const CustomizedEditFormPage = () => {
   const classes = useStyles();
-  const { patientId } = useRouteMatch<RouteParams>().params;
+  const { patientId, formId } = useRouteMatch<RouteParams>().params;
   // const [questions, setQuestions]= useState<Question[]>(qs);
   const questions :Question[] = qs; 
   //setQuestions(qs);
   // questions = qs;
+  console.log(formId);
 
   return (
     <div className={classes.container}>
@@ -39,7 +41,7 @@ export const CustomizedEditFormPage = () => {
       {/* <SelectHeaderForm patientId={patientId} setQuestions = {setQuestions} />
       {console.log(qs)} */}
 
-      {questions!.length > 0 && (<><br /><CustomizedEditForm patientId={patientId} questions={questions}/></>)}
+      {questions!.length > 0 && (<><br /><CustomizedEditForm patientId={patientId} questions={questions} isEditForm={true}/></>)}
     </div>
   );
 };

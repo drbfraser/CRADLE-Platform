@@ -10,9 +10,7 @@ import { CustomizedEditForm } from './customizedEditForm/CustomizedEditForm';
 import { goBackWithFallback } from 'src/shared/utils';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import {Question} from 'src/shared/types'
-
-
-import qs from "./customizedFormHeader/form.json";
+// import qs from "./customizedFormHeader/form.json";
 
 type RouteParams = {
   patientId: string;
@@ -42,7 +40,7 @@ export const CustomizedFormPage = () => {
       <SelectHeaderForm patientId={patientId} setQuestions = {setQuestions} />
       {/* {console.log(qs)} */}
 
-      {questions!.length > 0 && (<><br /><br /><br /><br /><br /><CustomizedEditForm patientId={patientId} questions={questions}/></>)}
+      {questions!.length > 0 && (<><br /><br /><br /><br /><br /><CustomizedEditForm patientId={patientId} questions={questions} isEditForm={false}/></>)}
     </div>
   );
 };

@@ -23,12 +23,14 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 interface IProps {
   patientId: string;
   questions: Question[];
+  isEditForm:Boolean;
 } 
 
-export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
+export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps) => {
   const classes = useStyles(); 
   const [submitError, setSubmitError] = useState(false); 
   const [answers, _setAnswers] = useState<(QAnswer)[]>([{ qidx: null, key: null, value: null }]); 
+  const formTitle = isEditForm? "Update Form": "Submit Form";
   //https://gustavostraube.wordpress.com/2019/05/29/custom-setters-with-react-usestate-hook/ 
   //自定义setter
   const setAnswers = (answers: any) => {
@@ -137,7 +139,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
                   break; //stop loop
                 }
               }   
-              else{
+              else{    
                 if(questions[parentQidx].questionType === 'TEXT' && parentAnswer.value == condition.answer.text){
                   question.shouldHidden = false;
                 }
@@ -450,8 +452,7 @@ export const CustomizedEditForm = ({ patientId, questions }: IProps) => {
               type="submit"
               onClick={e=>{handleSubmit2(e,patientId, answers)}}
               disabled={isSubmitting}>
-              
-              Update Form
+              {formTitle}
             </Button>
           </Form>
         )}
