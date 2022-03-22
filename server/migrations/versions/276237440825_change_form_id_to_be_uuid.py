@@ -5,7 +5,6 @@ Revises: 92e818bd7db3
 Create Date: 2022-03-18 07:08:05.807052
 
 """
-import uuid
 
 from alembic import op
 import sqlalchemy as sa

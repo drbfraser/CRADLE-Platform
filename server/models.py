@@ -443,8 +443,7 @@ class MedicalRecord(db.Model):
 
 
 class FormTemplate(db.Model):
-    # need fix id type, validate will assume it to be string type
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.Text, nullable=True)
     category = db.Column(db.Text, nullable=True)
     version = db.Column(db.Text, nullable=True)
@@ -537,11 +536,10 @@ class Question(db.Model):
     }
     """
 
-    # need to convert id to string type, validation part has check string type logic
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True)
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
-    questionId = db.Column(db.Text, nullable=False)
+    questionId = db.Column(db.Text, nullable=True)
     questionText = db.Column(db.Text, nullable=False)
     questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
     category = db.Column(db.Text, nullable=False, default="")
