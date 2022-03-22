@@ -9,7 +9,7 @@ import marshmallow
 import json
 
 from config import db, ma
-from utils import get_current_time
+from utils import get_current_time, get_uuid
 
 
 # To add a table to db, make a new class
@@ -128,7 +128,7 @@ class User(db.Model):
 
 
 class Referral(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     dateReferred = db.Column(db.BigInteger, nullable=False)
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
@@ -295,7 +295,7 @@ class Reading(db.Model):
 
 class FollowUp(db.Model):
     __tablename__ = "followup"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
     followupInstructions = db.Column(db.Text)
     specialInvestigations = db.Column(db.Text)
