@@ -6,7 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import { Field, Form, Formik } from 'formik';
 import FormLabel from '@material-ui/core/FormLabel';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit, handleSubmit2 } from './handlers';
 import { initialState, validationSchema } from './state';
@@ -44,47 +44,42 @@ export const CustomizedEditForm = ({
     updateQuestionsConditionHidden(questions, answers);
   };
 
-  const initialDone = useRef<boolean>(false);
   useEffect(() => {
-    if (initialDone.current === false) {
-      let i;
-      const anss: QAnswer[] = [];
-      for (i = 0; i < questions.length; i++) {
-        const question = questions[i];
-        const ans: QAnswer = {
-          qidx: question.questionIndex,
-          key: null,
-          value: null,
-        };
-        if (question.questionType === 'MC' || question.questionType === 'ME') {
-          ans.key = 'mc';
-          ans.value = question.answers?.mc ?? [];
-        } else if (
-          question.questionType === 'NUM' ||
-          question.questionType === 'DATE'
-        ) {
-          ans.key = 'value';
-          ans.value = question.answers?.value ?? null;
-        } else if (question.questionType === 'TEXT') {
-          ans.value = question.answers?.text ?? null;
-          ans.key = 'text';
-        } else {
-          console.log('NOTE: INVALID QUESTION TYPE!!');
-        }
-        anss[i] = ans;
+    let i;
+    const anss: QAnswer[] = [];
+    for (i = 0; i < questions.length; i++) {
+      const question = questions[i];
+      const ans: QAnswer = {
+        qidx: question.questionIndex,
+        key: null,
+        value: null,
+      };
+      if (question.questionType === 'MC' || question.questionType === 'ME') {
+        ans.key = 'mc';
+        ans.value = question.answers?.mc ?? [];
+      } else if (
+        question.questionType === 'NUM' ||
+        question.questionType === 'DATE'
+      ) {
+        ans.key = 'value';
+        ans.value = question.answers?.value ?? null;
+      } else if (question.questionType === 'TEXT') {
+        ans.value = question.answers?.text ?? null;
+        ans.key = 'text';
+      } else {
+        console.log('NOTE: INVALID QUESTION TYPE!!');
       }
-
-      console.log(answers);
-
-      //condition update must be 'after' the initilization of the 'answers'
-      updateQuestionsConditionHidden(questions, anss);
-
-      setAnswers(anss);
-      console.log('NOTE: xxxxxx');
-    } else {
-      initialDone.current = true;
+      anss[i] = ans;
     }
-  }, [initialDone]);
+
+    console.log(answers);
+
+    //condition update must be 'after' the initilization of the 'answers'
+    updateQuestionsConditionHidden(questions, anss);
+
+    setAnswers(anss);
+    console.log('NOTE: xxxxxx');
+  }, []);
 
   function updateQuestionsConditionHidden(
     questions: Question[],
@@ -136,7 +131,8 @@ export const CustomizedEditForm = ({
             } else {
               if (
                 questions[parentQidx].questionType === 'TEXT' &&
-                parentAnswer.value == condition.answer.text
+                //!!NOTE: THIS MAY HAVE BUGS!![USE == OR === ???]
+                parentAnswer.value === condition.answer.text
               ) {
                 question.shouldHidden = false;
               } else if (
@@ -148,11 +144,6 @@ export const CustomizedEditForm = ({
                 console.log(condition.answer.value);
                 question.shouldHidden = false;
               } else {
-                console.log(questions[parentQidx].questionType);
-                console.log(parentAnswer.value == condition.answer.value);
-
-                console.log(parentAnswer.value);
-                console.log(condition.answer.value);
                 question.shouldHidden = true;
                 break;
               }
