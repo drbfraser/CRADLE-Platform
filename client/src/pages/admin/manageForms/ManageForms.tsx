@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useAdminStyles } from "../adminStyles";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
-import { IForm } from "../../../shared/types";
-import CreateIcon from "@material-ui/icons/Create";
-import DeleteForever from "@material-ui/icons/DeleteForever";
-import { TableCell } from "../../../shared/components/apiTable/TableCell";
-import { IconButton, Tooltip } from "@material-ui/core";
-import AdminTable from "../AdminTable";
-
+import React, { useEffect, useState } from 'react';
+import { useAdminStyles } from '../adminStyles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { IForm } from '../../../shared/types';
+import CreateIcon from '@material-ui/icons/Create';
+import DeleteForever from '@material-ui/icons/DeleteForever';
+import { TableCell } from '../../../shared/components/apiTable/TableCell';
+import { IconButton, Tooltip } from '@material-ui/core';
+import AdminTable from '../AdminTable';
 
 export const ManageForms = () => {
   const styles = useAdminStyles();
   const [loading] = useState(true);
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState('');
   const [forms, setForms] = useState<IForm[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const isTransformed = useMediaQuery('(min-width:900px)');
@@ -52,35 +51,33 @@ export const ManageForms = () => {
 
   const getForms = async () => {
     // FAKE DATA FOR NOW
-    let fakeForm:IForm = {
+    const fakeForm: IForm = {
       formTemplateId: 10,
-      name: "A form",
-      category: "A category",
-      version: "A version",
-      dateCreated: "Some kind of date",
-      lastEdited: "Last edited"
-    }
-    let respForms:IForm[] = [fakeForm]
-    setForms(respForms)
-  }
+      name: 'A form',
+      category: 'A category',
+      version: 'A version',
+      dateCreated: 'Some kind of date',
+      lastEdited: 'Last edited',
+    };
+    const respForms: IForm[] = [fakeForm];
+    setForms(respForms);
+  };
 
   useEffect(() => {
     getForms();
   }, []);
 
   useEffect(() => {
-
-    const rows = forms
-      .map((form) => [
-        form.name,
-        form.category,
-        form.version,
-        form.dateCreated,
-        form.lastEdited
-      ]);
+    const rows = forms.map((form) => [
+      form.name,
+      form.category,
+      form.version,
+      form.dateCreated,
+      form.lastEdited,
+    ]);
 
     setTableData(rows);
-  }, [forms])
+  }, [forms]);
 
   const rowActions = [
     {
@@ -89,11 +86,11 @@ export const ManageForms = () => {
     },
     {
       tooltip: 'Delete Form',
-      Icon: DeleteForever
+      Icon: DeleteForever,
     },
   ];
 
-  const Row = ({ row }: {row: (string)[]}) => {
+  const Row = ({ row }: { row: string[] }) => {
     const cells = row;
 
     return (
@@ -129,8 +126,8 @@ export const ManageForms = () => {
           ))}
         </TableCell>
       </tr>
-    )
-  }
+    );
+  };
 
   return (
     <div className={styles.tableContainer}>
@@ -141,10 +138,11 @@ export const ManageForms = () => {
         data={tableData}
         loading={loading}
         isTransformed={isTransformed}
-        newBtnLabel={"New Form"}
-        newBtnOnClick={() => console.log("New Form clicked")}
+        newBtnLabel={'New Form'}
+        newBtnOnClick={() => console.log('New Form clicked')}
         search={search}
-        setSearch={setSearch}/>
+        setSearch={setSearch}
+      />
     </div>
-    )
+  );
 };
