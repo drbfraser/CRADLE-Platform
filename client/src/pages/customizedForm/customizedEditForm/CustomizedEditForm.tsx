@@ -16,8 +16,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { QAnswer } from 'src/shared/types';
-// import { boolean } from 'yup';
+import { QAnswer } from 'src/shared/types'; 
 import InputAdornment from '@material-ui/core/InputAdornment'; 
 
 interface IProps {
@@ -30,37 +29,24 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
   const classes = useStyles(); 
   const [submitError, setSubmitError] = useState(false); 
   const [answers, _setAnswers] = useState<(QAnswer)[]>([{ qidx: null, key: null, value: null }]); 
-  const formTitle = isEditForm? "Update Form": "Submit Form";
-  //https://gustavostraube.wordpress.com/2019/05/29/custom-setters-with-react-usestate-hook/ 
-  //自定义setter
-  const setAnswers = (answers: any) => {
-    // Some side-effect here ... 
-    _setAnswers(answers);
-    // ... or there
-    // console.log("尽量在这里更新questions中的每个question model的hidden字段");
-    //接下来在这里你可以写一下你的questions的每个question的hidden值的判断。注意：
-    //hidden字段服务器端不会有，是你自己在本地搞出来的。根据那个condition来判断。
-    //update(questions)    
-    updateQuestionsConditionHidden(questions, answers);
-    // updateQuestionsConditionHidden();
+  const formTitle = isEditForm? "Update Form": "Submit Form"; 
+  const setAnswers = (answers: any) => { 
+    _setAnswers(answers);  
+    updateQuestionsConditionHidden(questions, answers); 
   };
 
-  const initialDone = useRef<boolean>(false);
-  //引用字段是空的，这个useEffect只会走一次【错误】
+  const initialDone = useRef<boolean>(false); 
   useEffect(() => {
     if (initialDone.current === false) {
       let i;
       let anss: QAnswer[] = [];
-      for (i = 0; i < questions.length; i++) {
-        //初始化只会调用一次，此时应该questions的hidden都设置为false（一开始是一个空白表格)
+      for (i = 0; i < questions.length; i++) { 
         const question = questions[i]; 
         let ans: QAnswer = { qidx: question.questionIndex, key: null, value: null };
         if (question.questionType === 'MC' || question.questionType === 'ME') {
           ans.key = 'mc';
           ans.value = (question.answers?.mc)??[];
-          if (question.questionType === 'ME') {
-            //undefined的数组在access的时候会抛出错误
-            //ans.value = [];
+          if (question.questionType === 'ME') { 
           }
         } else if (question.questionType === 'NUM' || question.questionType === 'DATE') {
           ans.key = 'value';
@@ -79,11 +65,9 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
       console.log(answers);
       
       //condition update must be 'after' the initilization of the 'answers'
-      updateQuestionsConditionHidden(questions, anss);
-      // updateQuestionsConditionHidden();
+      updateQuestionsConditionHidden(questions, anss); 
 
-
-      //没有下边这行，是不会有选项显示的！！
+ 
       setAnswers(anss);
       console.log('NOTE: xxxxxx');
     } else {
@@ -94,16 +78,12 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
 
 
 
-  function updateQuestionsConditionHidden(questions: Question[], answers: QAnswer[]) {
-  // function updateQuestionsConditionHidden() {
+  function updateQuestionsConditionHidden(questions: Question[], answers: QAnswer[]) { 
     let i;
-    for (i = 0; i < questions.length; i++) {
-      //初始化只会调用一次，此时应该questions的hidden都设置为false（一开始是一个空白表格)
-      const question = questions[i]; 
-      //condition update must be 'after' the initilization of the 'answers'
-      question.shouldHidden = false;
-      //更新dependencies
-      //question.dependencies = [];
+    for (i = 0; i < questions.length; i++) { 
+      const question = questions[i];  
+      question.shouldHidden = false; 
+
       if(question.visibleCondition?.length){
         question.shouldHidden = true;
         let j;
@@ -130,13 +110,13 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
                   }
                   else{ 
                     question.shouldHidden =true;
-                    break; //stop loop
+                    break;  
                   }
                 }
                 
                 else{
                   question.shouldHidden =true;
-                  break; //stop loop
+                  break;  
                 }
               }   
               else{    
@@ -157,19 +137,13 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
               console.log(parentAnswer.value);
               console.log(condition.answer.value);
                   question.shouldHidden =true;
-                  break; //stop loop
+                  break;  
                 }
               }    
             }
           
-          };
-            
-        // };
-
+          }; 
         //after decide the 'shouldHidden' field, we need to remove the answer from those hidden question, when it appears again, the field should be 'blank'
-        // if(question.shouldHidden === true){
-        //   question.questionType === 'ME'? answers[question.questionIndex].value = []: answers[question.questionIndex].value = null;
-        // } 
       } 
     }
   }; 
@@ -187,9 +161,7 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
   function generate_html_for_one_question(question:Question, answer:QAnswer){
     const type = question.questionType;
     const qid = question.questionIndex;
-    const required = question.required;
-
-    //////////////////////////////////////1.单选//////////////////////////////////////////////
+    const required = question.required; 
     if (type === 'MC'){
       if(question.shouldHidden === false && answer){
         return( 
@@ -209,11 +181,8 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
                 }}> 
               
           {question.mcOptions!.map((option, index) => (
-            <FormControlLabel
-                  //key={0}
-                  value={option}
-                  // defaultChecked={answer.value?.indexOf(option)>-1}
-                  
+            <FormControlLabel 
+                  value={option}  
                   control={
                     <Radio color="primary" required={required}  
                     />
@@ -233,7 +202,6 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
       }
       
     }
-    //////////////////////////////////////2.多选(提交时判断required)//////////////////////////////////////////////
     else if (type === 'ME'){
       if(question.shouldHidden === false && answer){
         return(
@@ -243,23 +211,16 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
               <br />
               {question.mcOptions!.map((option, index) => (
                 <>
-                <FormControlLabel
-                  
-                  control={
-                    
-                    <Checkbox 
-                      // required={required}
+                <FormControlLabel 
+                  control={ 
+                    <Checkbox  
                       value={option}
-                      defaultChecked={answer.value?.indexOf(option)>-1}
-                      //checked={answers[1].value?.includes(option)}
-                      // checked={true}
+                      defaultChecked={answer.value?.indexOf(option)>-1} 
                       onChange={(event, checked) => {
-                        if (checked) {
-                          //添加元素
+                        if (checked) { 
                           var new_val = [...answer.value, event.target.value];
                           updateAnswersByValue(qid, new_val);
-                        } else {
-                          //移除元素
+                        } else { 
                           var original_val = [...answer.value];
                           const i = original_val.indexOf(event.target.value);
                           if (i > -1) {
@@ -286,7 +247,6 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
         )
       }
     }
-    //////////////////////////////////////3.数字输入//////////////////////////////////////////////
     else if (type === 'NUM'){
       if(question.shouldHidden === false && answer){
         return(   
@@ -302,15 +262,12 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
               type="number"
               fullWidth
               required={required}
-              // label={'Diastolic'}
-              // name={ReadingField.bpDiastolic}
               InputProps={{
                 endAdornment: Boolean(question.units) && Boolean(question.units!.trim().length > 0) && (
                   <InputAdornment position="end">{question.units}</InputAdornment>
                 ),
               }}
               onChange={(event: any) => {
-                // console.log(event.target.value); 
                 updateAnswersByValue(qid, event.target.value);
               }} 
             />
@@ -324,7 +281,6 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
         )
       } 
     }
-    //////////////////////////////////////4.文字输入//////////////////////////////////////////////
     else if (type === 'TEXT'){
       if(question.shouldHidden === false && answer){
         return(
@@ -341,8 +297,6 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
               fullWidth
               multiline
               inputProps={{ maxLength: question.stringMaxLength! > 0 ? question.stringMaxLength : Number.MAX_SAFE_INTEGER }}
-              // name={AssessmentField.drugHistory}
-              //label={question.stringMaxLength!>0? `Max Length ${question.stringMaxLength}`:''}
               onChange={(event: any) => {
                 updateAnswersByValue(qid, event.target.value);
               }}
@@ -358,7 +312,6 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
         )
       }  
     }
-    //////////////////////////////////////5.日期输入//////////////////////////////////////////////
     else if (type === 'DATE'){
       if(question.shouldHidden === false && answer){
         return(
@@ -397,7 +350,6 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
         )
       }  
     }   
-    //////////////////////////////////////!不合法//////////////////////////////////////////////
     else{
       console.log("INVALID QUESTION TYPE!!");
       return(
@@ -405,7 +357,6 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
         </>
       )
     }
-    // setCards(cards_elements);
   };
 
   function generate_html_of_all_questions(){
@@ -425,7 +376,6 @@ export const CustomizedEditForm = ({ patientId, questions, isEditForm }: IProps)
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
-        // initialValues={''}
         validationSchema={validationSchema} 
         onSubmit={handleSubmit(patientId, answers, setSubmitError)}>
         {({ touched, errors, isSubmitting }) => (

@@ -3,16 +3,14 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-// import { TextField as FormikTextField } from 'formik-material-ui';
+import TextField from '@material-ui/core/TextField'; 
 import { Field, Form, Formik } from 'formik';
 import {
   Autocomplete,
   AutocompleteRenderInputParams,
 } from 'formik-material-ui-lab';
 import React, { useState } from 'react';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-// import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast'; 
 import { handleSubmit } from './handlers';
 import { initialState, ReferralField, validationSchema } from './state';
 import availableForms from "./Forms.json";
@@ -33,20 +31,13 @@ export type customizedForm = {
 
 
 export const SelectHeaderForm = ({ patientId, setQuestions }: IProps) => {
-  const classes = useStyles();
-  // const healthFacilities = useHealthFacilities();
+  const classes = useStyles(); 
   const [submitError, setSubmitError] = useState(false);
-
-  // const all_forms:customizedForm[] = availableForms;
+ 
   const all_forms:string[] = availableForms.map(function(item){
     return item.name;
   });
-  const all_langs:string[] = availableLangs;
-  // console.log(forms[0].name);
-  // console.log(langs[0]);
-
-
-
+  const all_langs:string[] = availableLangs;  
 
   return (
     <>
