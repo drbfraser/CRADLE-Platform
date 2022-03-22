@@ -165,7 +165,7 @@ export const CustomizedEditForm = ({
   }
 
   function updateAnswersByValue(index: number, newValue: any) {
-    let ans = [...answers];
+    const ans = [...answers];
     ans[index].value = newValue;
     setAnswers(ans);
     console.log(ans);
@@ -223,10 +223,10 @@ export const CustomizedEditForm = ({
                         defaultChecked={answer.value?.indexOf(option) > -1}
                         onChange={(event, checked) => {
                           if (checked) {
-                            let new_val = [...answer.value, event.target.value];
+                            const new_val = [...answer.value, event.target.value];
                             updateAnswersByValue(qid, new_val);
                           } else {
-                            let original_val = [...answer.value];
+                            const original_val = [...answer.value];
                             const i = original_val.indexOf(event.target.value);
                             if (i > -1) {
                               original_val.splice(i, 1);
