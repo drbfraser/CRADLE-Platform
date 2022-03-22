@@ -1,0 +1,208 @@
+Update a form template
+---
+tags:
+  - Form Templates
+requestBody:
+  required: true
+  description: PUT request body for /api/forms/templates/<int:form_template_id>
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          name:
+            type: string | null
+            example: "NEMS Ambulance Request - 2022"
+          category:
+            type: string | null
+            example: "NEMS Ambulance Request"
+          version:
+            type: string | null
+            example: "V1"
+          questions:
+            type: object
+            properties:
+              questionId:
+                type: string
+                example: "referred-by-name"
+              isBlank:
+                type: boolean
+                example: true
+              formTemplateId:
+                type: integer | null
+                example: 5
+              formId:
+                type: integer | null
+                example: null
+              category:
+                type: string | null
+                example: "Referred By"
+              questionIndex:
+                type: integer
+                example: 1
+              questionText:
+                type: string
+                example: "How the patient's condition?"
+              questionType:
+                type: enum
+                enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME', 'SECTION_HEADER']
+                example: MULTIPLE_CHOICE
+              required:
+                type: boolean
+                example: true
+              units:
+                type: string | null
+                example: null
+              visibleCondition:
+                type: object | null
+                properties:
+                  children:
+                    type: array
+                    properties:
+                      ID:
+                        type: string
+                        example: null
+                      VALUE:
+                        type: string | null
+                        example: null
+              numMin:
+                type: integer | null
+                example: null
+              numMax:
+                type: integer | null
+                example: null
+              stringMaxLength:
+                type: integer | null
+                example: null
+              mcOptions:
+                type: array | null
+                example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
+              answers:
+                type: object
+                properties:
+                  Value:
+                    type: integer | null
+                    example: null
+                  Text: 
+                    type: string | null
+                    example: null
+                  MC:
+                    type: string | null
+                    example: "Decent"
+                  Comments:
+                    type: string | null
+                    example: "Was not an emergency"
+
+responses:
+  201:
+    description: Response from PUT request for /api/forms/templates
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 5
+            name:
+              type: string
+              example: "NEMS Ambulance Request - 2022"
+            category:
+              type: string
+              example: "NEMS Ambulance Request"
+            version:
+              type: string
+              example: "V1"
+            dateCreated:
+              type: Unix timestamp | Null
+              example: 1551447833
+            lastEdited:
+              type: Unix timestamp | Null
+              example: 1551447833
+            questions:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                questionId:
+                  type: string
+                  example: "referred-by-name"
+                isBlank:
+                  type: boolean
+                  example: true
+                formTemplateId:
+                  type: integer | null
+                  example: 5
+                formId:
+                  type: integer | null
+                  example: null
+                category:
+                  type: string | null
+                  example: "Referred By"
+                questionIndex:
+                  type: integer
+                  example: 1
+                questionText:
+                  type: string
+                  example: "How the patient's condition?"
+                questionType:
+                  type: enum
+                  enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME', 'SECTION_HEADER']
+                  example: MULTIPLE_CHOICE
+                required:
+                  type: boolean
+                  example: true
+                units:
+                  type: string | null
+                  example: null
+                visibleCondition:
+                  type: object | null
+                  properties:
+                    children:
+                      type: array
+                      properties:
+                        ID:
+                          type: string
+                          example: null
+                        VALUE:
+                          type: string | null
+                          example: null
+                numMin:
+                  type: integer | null
+                  example: null
+                numMax:
+                  type: integer | null
+                  example: null
+                stringMaxLength:
+                  type: integer | null
+                  example: null
+                mcOptions:
+                  type: array | null
+                  example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
+                answers:
+                  type: object
+                  properties:
+                    Value:
+                      type: integer | null
+                      example: null
+                    Text: 
+                      type: string | null
+                      example: null
+                    MC:
+                      type: string | null
+                      example: "Decent"
+                    Comments:
+                      type: string | null
+                      example: "Was not an emergency"
+  400:
+    description: |
+      Bad request: required fields are missing or  invalid.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: The request body key {form_name} is required.
