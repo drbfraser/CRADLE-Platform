@@ -87,20 +87,16 @@ class SingleFormTemplate(Resource):
         if error_message:
             abort(404, message=error_message)
 
+        # remove all old related questions
         old_qids = [question.id for question in form_template.questions]
+        for old_qid in old_qids:
+            crud.delete_by(Question, id=old_qid)
+        
+         # create new questions
         form_template = marshal.unmarshal(FormTemplate, req)
         new_questions = form_template.questions
-
-        # create new questions if id not in database
         for new_question in new_questions:
-            if new_question.id not in old_qids:
-                crud.create(new_question)
-
-        # delete old questions if id not in new question ids
-        new_qids = [question.id for question in new_questions]
-        for old_qid in old_qids:
-            if old_qid not in new_qids:
-                crud.delete_by(Question, id=old_qid)
+            crud.create(new_question)
 
         crud.update(FormTemplate, req, id=form_template_id)
         data.db_session.commit()
