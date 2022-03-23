@@ -14,7 +14,15 @@ def validate_post_request(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = ["id", "patientId", "dateCreated", "lastEditedBy", "questions"]
+    required_fields = [
+        "id",
+        "patientId",
+        "dateCreated",
+        "lastEditedBy",
+        "name",
+        "category",
+        "questions",
+    ]
 
     all_fields = [
         "formTemplateId",
@@ -32,7 +40,7 @@ def validate_post_request(request_body: dict) -> Optional[str]:
             return "The key '" + key + "' is not a valid field or is set server-side"
 
     error = values_correct_type(
-        request_body, ["id", "patientId", "formTemplateId"], str
+        request_body, ["id", "patientId", "formTemplateId", "name", "category"], str
     )
     if error:
         return error

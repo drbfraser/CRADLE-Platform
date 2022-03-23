@@ -9,7 +9,7 @@ import data.marshal as marshal
 import service.serialize as serialize
 from models import FormTemplate, Question
 import service.serialize as serialize
-from validation import formTemplates 
+from validation import formTemplates
 
 
 # /api/forms/templates
@@ -27,10 +27,13 @@ class Root(Resource):
         error_message = formTemplates.validate(req)
         if error_message:
             abort(404, message=error_message)
-        
+
         form_template_id = req["id"]
         if crud.read(FormTemplate, id=form_template_id):
-            abort(409, message=f"A form template already exists with id: {form_template_id}")
+            abort(
+                409,
+                message=f"A form template already exists with id: {form_template_id}",
+            )
 
         formTemplate = marshal.unmarshal(FormTemplate, req)
 

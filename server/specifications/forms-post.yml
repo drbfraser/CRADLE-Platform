@@ -18,7 +18,13 @@ requestBody:
             example: "123"
           formTemplateId:
             type: string | null - optional
-            example: adas-d82314-27822-63139
+            example: "adas-d82314-27822-63139"
+          name:
+            type: string - required
+            example: "referral_form"
+          category:
+            type: string - required
+            example: "example"
           dateCreated:
             type: Unix timestamp - required
             example: 1592339808

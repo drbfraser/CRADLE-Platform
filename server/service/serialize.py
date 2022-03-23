@@ -13,7 +13,7 @@ from models import (
     Pregnancy,
     Reading,
     Referral,
-    UrineTest
+    UrineTest,
 )
 from models import FormTemplate
 
@@ -125,9 +125,7 @@ def serialize_referral_or_assessment(model: Union[Referral, FollowUp]) -> dict:
     return marshal.marshal(model)
 
 
-def serialize_blank_form_template(
-    form_template: FormTemplate
-) -> dict:
+def serialize_blank_form_template(form_template: FormTemplate) -> dict:
     form_template = marshal.marshal(form_template, False)
     del form_template["dateCreated"]
     del form_template["lastEdited"]

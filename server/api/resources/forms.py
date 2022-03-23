@@ -44,6 +44,7 @@ class Root(Resource):
 
         return marshal.marshal(form, True), 201
 
+
 # /api/forms/responses/<string:form_id>
 class SingleForm(Resource):
     @staticmethod

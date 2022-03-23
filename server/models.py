@@ -466,6 +466,8 @@ class FormTemplate(db.Model):
 
 class Form(db.Model):
     id = db.Column(db.String(50), primary_key=True)
+    name = db.Column(db.Text, nullable=False, default="")
+    category = db.Column(db.Text, nullable=False, default="")
     patientId = db.Column(
         db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
         nullable=False,

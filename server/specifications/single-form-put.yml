@@ -52,6 +52,12 @@ responses:
             formTemplateId:
               type: string | null
               example: "adas-d82314-27822-63139"
+            name:
+              type: string
+              example: "referral_form"
+            category:
+              type: string
+              example: "example"
             dateCreated:
               type: Unix timestamp
               example: 1592339808
