@@ -29,6 +29,16 @@ def validate(request_body: dict) -> Optional[str]:
         return error_message
 
     all_fields = [
+        "id",
+        "dateReferred",
+        "actionTaken",
+        "isAssessed",
+        "isCancelled",
+        "cancelReason",
+        "notAttended",
+        "notAttendReason",
+        "lastEdited",
+        "userId",
         "comment",
         "patientId",
         "referralHealthFacilityName",

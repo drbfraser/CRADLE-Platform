@@ -62,10 +62,13 @@ class Root(Resource):
                 healthFacilityName=json["referralHealthFacilityName"],
             )
 
-        json["userId"] = get_jwt_identity()["userId"]
+        if not "userId" in json:
+            json["userId"] = get_jwt_identity()["userId"]
         create_time = get_current_time()
-        json["dateReferred"] = create_time
-        json["lastEdited"] = create_time
+        if not "dateReferred" in json:
+            json["dateReferred"] = create_time
+        if not "lastEdited" in json:
+            json["lastEdited"] = create_time
 
         patient = crud.read(Patient, patientId=json["patientId"])
         if not patient:
