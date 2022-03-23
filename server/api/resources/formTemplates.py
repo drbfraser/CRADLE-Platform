@@ -91,8 +91,8 @@ class SingleFormTemplate(Resource):
         old_qids = [question.id for question in form_template.questions]
         for old_qid in old_qids:
             crud.delete_by(Question, id=old_qid)
-        
-         # create new questions
+
+        # create new questions
         form_template = marshal.unmarshal(FormTemplate, req)
         new_questions = form_template.questions
         for new_question in new_questions:

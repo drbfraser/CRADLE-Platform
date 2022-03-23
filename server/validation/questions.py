@@ -27,7 +27,6 @@ def validate_mc_options(q: dict) -> Optional[str]:
         # avoid case "mcOptions": null
         return f"Can not provide key={target} with null value"
 
-
     error = values_correct_type(q, [target], list)
     if error:
         return error
@@ -78,9 +77,10 @@ def validate_answers(q: dict) -> Optional[str]:
     error = values_correct_type(ans, ["textArray"], list)
     if error:
         return error
-    for opt in ans["textArray"]:
-        if not isinstance(opt, str):
-            return "answers - textArray option is not string type"
+    if "textArray" in ans and ans.get("textArray") is not None:
+        for opt in ans["textArray"]:
+            if not isinstance(opt, str):
+                return "answers - textArray option is not string type"
 
     error = values_correct_type(ans, ["text", "comment"], str)
     if error:

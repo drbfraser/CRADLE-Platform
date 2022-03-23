@@ -18,24 +18,26 @@ def test_form_template_created(database, form_template, api_post):
 @pytest.fixture
 def form_template():
     return {
-        "id": 1,
+        "id": "ft1",
         "name": "NEMS Ambulance Request",
         "category": "Hopsital Report",
         "version": "V1",
         "questions": [
             {
-                "id": 2,
+                "id": "ft_q1",
                 "questionId": "referred-by-name",
                 "isBlank": True,
-                "formTemplateId": 5,
+                "formTemplateId": "ft1",
                 "category": "Referred By",
                 "questionIndex": 1,
                 "questionText": "How the patient's condition?",
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
-                "visibleCondition": {"children": []},
+                "visibleCondition": [
+                    {"qid": "ft_q2", "relation": "EQUAL_TO", "answers": {"number": 4}}
+                ],
                 "mcOptions": ["Decent", "Poor", "Bad", "Severe", "Critical"],
-                "answers": {"MC": "Decent"},
+                "answers": {},
             }
         ],
     }
