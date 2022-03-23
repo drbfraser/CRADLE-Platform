@@ -521,19 +521,17 @@ class Question(db.Model):
     (maximum 5 options)
     e.g.
     [
-        {
-            "mcid": 1,
-            "oqt": "very much"
-        },
+        "opt1",
+        "opt2",
         ... (maximum 5 answers)
     ]
 
     answers: a json format string indicating the answers filled by user
     e.g.
     {
-        "value": 123,
+        "number": 123,
         "text": "111",
-        "mc": [1],
+        "textArray": ["opt1", "opt2"],
         "comment": "example comment"
     }
     """

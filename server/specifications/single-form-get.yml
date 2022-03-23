@@ -86,10 +86,10 @@ responses:
                       "qid": 1,
                       "relation": "EQUAL_TO",
                       "answer": {
-                          "value": null,
+                          "number": null,
                           "text": "",
-                          "mc": [
-                              1
+                          "textArray": [
+                              "opt"
                           ],
                           "comment": ""
                       }
@@ -109,15 +109,15 @@ responses:
                   answers:
                     type: object
                     properties:
-                      value:
+                      number:
                         type: integer | null
                         example: null
                       text: 
                         type: string | null
                         example: null
-                      mc:
-                        type: string | null
-                        example: "Decent"
+                      textArray:
+                        type: array | null
+                        example: ["Decent"]
                       comment:
                         type: string | null
                         example: "Was not an emergency"

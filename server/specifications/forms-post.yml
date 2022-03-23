@@ -80,10 +80,10 @@ requestBody:
                     "qid": 1,
                     "relation": "EQUAL_TO",
                     "answer": {
-                        "value": null,
+                        "number": null,
                         "text": "",
-                        "mc": [
-                            1
+                        "textArray": [
+                            "opt1"
                         ],
                         "comment": ""
                     }
@@ -103,15 +103,15 @@ requestBody:
                 answers:
                   type: object
                   properties:
-                    value:
+                    number:
                       type: integer | null - optional
                       example: null
                     text: 
                       type: string | null - optional
                       example: null
-                    mc:
-                      type: string | null - optional
-                      example: "Decent"
+                    textArray:
+                      type: array | null - optional
+                      example: ["Decent"]
                     comment:
                       type: string | null - optional
                       example: "Was not an emergency"
@@ -189,10 +189,10 @@ responses:
                       "qid": 1,
                       "relation": "EQUAL_TO",
                       "answer": {
-                          "value": null,
+                          "number": null,
                           "text": "",
-                          "mc": [
-                              1
+                          "textArray": [
+                              "opt"
                           ],
                           "comment": ""
                       }
@@ -212,15 +212,15 @@ responses:
                   answers:
                     type: object
                     properties:
-                      value:
-                        type: integer | null
+                      number:
+                        type: integer | null - optional
                         example: null
                       text: 
-                        type: string | null
+                        type: string | null - optional
                         example: null
-                      mc:
-                        type: string | null
-                        example: "Decent"
+                      textArray:
+                        type: array | null - optional
+                        example: ["Decent"]
                       comment:
-                        type: string | null
+                        type: string | null - optional
                         example: "Was not an emergency"

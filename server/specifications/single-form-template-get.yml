@@ -74,17 +74,16 @@ responses:
                     type: string | null
                     example: null
                   visibleCondition:
-                    visibleCondition:
                     type: array
                     items: object
                     example: [{
                       "qid": 1,
                       "relation": "EQUAL_TO",
                       "answer": {
-                          "value": null,
+                          "number": null,
                           "text": "",
-                          "mc": [
-                              1
+                          "textArray": [
+                              "opt"
                           ],
                           "comment": ""
                       }

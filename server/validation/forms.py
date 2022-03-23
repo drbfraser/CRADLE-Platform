@@ -79,7 +79,7 @@ def validate_put_request(request_body: dict) -> Optional[str]:
             {
                 "id":"asdsd-1123123",
                 "answers": {
-                    "value": 4
+                    "number": 4
                 }
             }
         ]

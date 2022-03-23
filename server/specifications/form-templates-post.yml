@@ -65,10 +65,10 @@ requestBody:
                     "qid": 1,
                     "relation": "EQUAL_TO",
                     "answer": {
-                        "value": null,
+                        "number": null,
                         "text": "",
-                        "mc": [
-                            1
+                        "textArray": [
+                            "opt"
                         ],
                         "comment": ""
                     }
