@@ -100,6 +100,9 @@ responses:
                     type: enum
                     enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
                     example: MULTIPLE_CHOICE
+                  hasCommentAttached:
+                    type: boolean - optional -default false
+                    example: false
                   required:
                     type: boolean
                     example: true

@@ -48,7 +48,7 @@ def validate_answers(q: dict) -> Optional[str]:
 
     valid example (all fields, in real case only present part of it):
     {
-        "number": 5,
+        "number": 5/5.0,
         "text": "a",
         "textArray":["opt1","opt2"],
         "comment": "other opt"
@@ -73,6 +73,10 @@ def validate_answers(q: dict) -> Optional[str]:
     error = values_correct_type(ans, ["number"], int)
     if error:
         return error
+
+    if "number" in ans and ans.get("number") is not None:
+        if not isinstance(ans["number"], int) and not isinstance(ans["number"], float):
+            return "Answers - number type must be int/float"
 
     error = values_correct_type(ans, ["textArray"], list)
     if error:
@@ -186,6 +190,7 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
         "questionId",
         "isBlank",
         "category",
+        "hasCommentAttached",
         "required",
         "units",
         "visibleCondition",
@@ -207,7 +212,7 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
         if key not in all_fields:
             return "The key '" + key + "' is not a valid field or is set server-side"
 
-    error = values_correct_type(q, ["isBlank", "required"], bool)
+    error = values_correct_type(q, ["isBlank", "hasCommentAttached", "required"], bool)
     if error:
         return error
 

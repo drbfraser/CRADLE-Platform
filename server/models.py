@@ -542,6 +542,7 @@ class Question(db.Model):
     questionId = db.Column(db.Text, nullable=True)
     questionText = db.Column(db.Text, nullable=False)
     questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
+    hasCommentAttached = db.Column(db.Boolean, nullable=False, default=0)
     category = db.Column(db.Text, nullable=False, default="")
     required = db.Column(db.Boolean, nullable=False, default=0)
     units = db.Column(db.Text, nullable=True)
