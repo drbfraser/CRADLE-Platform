@@ -29,13 +29,15 @@ class Root(Resource):
         if not patient:
             abort(400, message="Patient does not exist")
 
-        form_template = crud.read(FormTemplate, id=req["formTemplateId"])
-        if not form_template:
-            abort(400, message="Form template does not exist")
+        if "formTemplateId" in req and req.get("formTemplateId") is not None:
+            form_template = crud.read(FormTemplate, id=req["formTemplateId"])
+            if not form_template:
+                abort(400, message="Form template does not exist")
 
-        user = crud.read(User, id=req["lastEditedBy"])
-        if not user:
-            abort(400, message="User does not exist")
+        if "lastEditedBy" in req and req.get("lastEditedBy") is not None:
+            user = crud.read(User, id=req["lastEditedBy"])
+            if not user:
+                abort(400, message="User does not exist")
 
         form = marshal.unmarshal(Form, req)
         # first time when the form is created lastEdited is same to dateCreated
