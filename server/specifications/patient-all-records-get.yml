@@ -10,7 +10,7 @@ parameters:
     type: string
 responses:
   200:
-    description: GET response body for /api/patients/<string:patient_id>/get_all_records?readings=1&referrals=0&assessments=0
+    description: GET response body for /api/patients/<string:patient_id>/get_all_records?readings=1&referrals=0&assessments=0&forms=0
     content:
       application/json:
         schema:

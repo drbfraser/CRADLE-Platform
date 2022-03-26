@@ -88,11 +88,11 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
         medical_record_dict["type"] = "medical_record"
         return medical_record_dict
     elif isinstance(obj, FormTemplate):
-        form_template_dict = __marshal_form_template(obj)
+        form_template_dict = __marshal_form_template(obj, True)
         form_template_dict["type"] = "form_template"
         return form_template_dict
     elif isinstance(obj, Form):
-        form_dict = __marshal_form(obj)
+        form_dict = __marshal_form(obj, True)
         form_dict["type"] = "form"
         return form_dict
     elif isinstance(obj, Question):

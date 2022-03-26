@@ -19,6 +19,7 @@ from models import (
     MedicalRecord,
     supervises,
     Question,
+    Form,
 )
 import service.invariant as invariant
 
@@ -462,16 +463,16 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     return query.slice(*__get_slice_indexes(page, limit))
 
 
-def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> List[Any]:
+def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     """
-    Queries the database for all readings, referrals, assessments associated to a patient
+    Queries the database for all readings, referrals, assessments, forms associated to a patient
     satisfying criteria specified by the keyword arguments.
 
     :param kwargs: Query params including readings, referrals, assessments
     :return: A list of models (Union[readings, referrals, assessments]) from the database
              in the descending create time order
     """
-    reading_list, referral_list, assessment_list = [], [], []
+    reading_list, referral_list, assessment_list, form_list = [], [], [], []
 
     reading_required = kwargs.get("readings")
     if reading_required == "1":
@@ -500,14 +501,24 @@ def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> Li
         )
         assessment_list += query.all()
 
-    # three-way merge to get the final list
-    reading_pos, referral_pos, assessment_pos = 0, 0, 0
+    form_required = kwargs.get("forms")
+    if form_required == "1":
+        query = (
+            db_session.query(Form)
+            .filter_by(patientId=patient_id)
+            .order_by(Form.dateCreated.desc())
+        )
+        form_list += query.all()
+
+    # four-way merge to get the final list
+    reading_pos, referral_pos, assessment_pos, form_pos = 0, 0, 0, 0
     final_list = []
     while 1:
         reading_cond = reading_pos < len(reading_list)
         referral_cond = referral_pos < len(referral_list)
         assessment_cond = assessment_pos < len(assessment_list)
-        if not (reading_cond or referral_cond or assessment_cond):
+        form_cond = form_pos < len(form_list)
+        if not (reading_cond or referral_cond or assessment_cond or form_cond):
             break
         cur_reading_t = reading_list[reading_pos].dateTimeTaken if reading_cond else -1
         cur_referral_t = (
@@ -516,7 +527,10 @@ def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> Li
         cur_assessment_t = (
             assessment_list[assessment_pos].dateAssessed if assessment_cond else -1
         )
-        max_t = max(cur_reading_t, cur_referral_t, cur_assessment_t)
+        cur_form_t = (
+            form_list[form_pos].dateCreated if form_cond else -1
+        )
+        max_t = max(cur_reading_t, cur_referral_t, cur_assessment_t, cur_form_t)
         if cur_reading_t == max_t:
             final_list.append(reading_list[reading_pos])
             reading_pos += 1
@@ -526,6 +540,9 @@ def read_patient_readings_referrals_assessments(patient_id: str, **kwargs) -> Li
         elif cur_assessment_t == max_t:
             final_list.append(assessment_list[assessment_pos])
             assessment_pos += 1
+        elif cur_form_t == max_t:
+            final_list.append(form_list[form_pos])
+            form_pos += 1
 
     return final_list
 

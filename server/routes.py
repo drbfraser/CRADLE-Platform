@@ -27,6 +27,7 @@ from api.resources.patients import (
     PatientReadings,
     PatientMostRecentReading,
     PatientReferrals,
+    PatientForms,
     PatientPregnancySummary,
     PatientMedicalHistory,
     PatientTimeline,
@@ -149,6 +150,11 @@ def init(api):
         "/api/patients/<string:patient_id>/referrals",
         endpoint="patient_referrals",
     )  # [GET]
+    api.add_resource(
+        PatientForms,
+        "/api/patients/<string:patient_id>/forms",
+        endpoint="patient_forms",
+    ) # [GET]
     api.add_resource(
         PatientPregnancySummary,
         "/api/patients/<string:patient_id>/pregnancy_summary",

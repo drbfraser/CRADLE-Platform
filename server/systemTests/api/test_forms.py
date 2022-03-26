@@ -25,7 +25,6 @@ def form(patient_id, vht_user_id):
         "id": "form_12345",
         "name": "NEMS Ambulance Request - Mike",
         "dateCreated": 1592339808,
-        # "lastEdited": 1592339808,
         "lastEditedBy": vht_user_id,
         "category": "Referred",
         "patientId": patient_id,

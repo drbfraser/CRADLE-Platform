@@ -1,0 +1,44 @@
+Get a list of forms associated with a single patient
+---
+tags:
+  - Patients
+parameters:
+- in: path
+  name: patient_id
+  required: true
+  schema:
+    type: string
+responses:
+  200:
+    description: GET response body for /api/patients/<string:patient_id>/forms
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: "adas-d82314-27822-63138"
+              patientId:
+                type: string
+                example: "123"
+              formTemplateId:
+                type: string | null
+                example: "adas-d82314-27822-63139"
+              name:
+                type: string
+                example: "referral_form"
+              category:
+                type: string
+                example: "example"
+              dateCreated:
+                type: Unix timestamp
+                example: 1592339808
+              lastEdited:
+                type: Unix timestamp
+                example: 1592339808
+              lastEditedBy:
+                type: integer | null
+                example: 2            
