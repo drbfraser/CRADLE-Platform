@@ -31,7 +31,7 @@ class Root(Resource):
                 409,
                 message=f"A form already exists with id: {form_id}",
             )
-        
+
         patient = crud.read(Patient, patientId=req["patientId"])
         if not patient:
             abort(400, message="Patient does not exist")

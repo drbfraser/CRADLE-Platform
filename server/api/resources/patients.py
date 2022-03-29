@@ -301,6 +301,7 @@ class PatientReferrals(Resource):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(ref) for ref in patient.referrals]
 
+
 # /api/patients/<string:patient_id>/forms
 class PatientForms(Resource):
     @staticmethod
@@ -313,6 +314,7 @@ class PatientForms(Resource):
     def get(patient_id: str):
         patient = crud.read(Patient, patientId=patient_id)
         return [marshal.marshal(form, True) for form in patient.forms]
+
 
 # /api/patients/<string:patient_id>/pregnancy_summary
 class PatientPregnancySummary(Resource):

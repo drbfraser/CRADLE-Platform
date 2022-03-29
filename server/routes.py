@@ -154,7 +154,7 @@ def init(api):
         PatientForms,
         "/api/patients/<string:patient_id>/forms",
         endpoint="patient_forms",
-    ) # [GET]
+    )  # [GET]
     api.add_resource(
         PatientPregnancySummary,
         "/api/patients/<string:patient_id>/pregnancy_summary",

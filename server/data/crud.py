@@ -527,9 +527,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
         cur_assessment_t = (
             assessment_list[assessment_pos].dateAssessed if assessment_cond else -1
         )
-        cur_form_t = (
-            form_list[form_pos].dateCreated if form_cond else -1
-        )
+        cur_form_t = form_list[form_pos].dateCreated if form_cond else -1
         max_t = max(cur_reading_t, cur_referral_t, cur_assessment_t, cur_form_t)
         if cur_reading_t == max_t:
             final_list.append(reading_list[reading_pos])
