@@ -33,9 +33,6 @@ requestBody:
                 isBlank:
                   type: boolean - required
                   example: true
-                formTemplateId:
-                  type: string | null - required
-                  example: "adas-d82314-27822-63150"
                 formId:
                   type: string | null - optional
                   example: null

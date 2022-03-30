@@ -27,7 +27,6 @@ def form_template():
                 "id": "ft_q1",
                 "questionId": "referred-by-name",
                 "isBlank": True,
-                "formTemplateId": "ft1",
                 "category": "Referred By",
                 "questionIndex": 1,
                 "questionText": "How the patient's condition?",
