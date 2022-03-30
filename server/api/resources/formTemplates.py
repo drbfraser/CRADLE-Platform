@@ -28,13 +28,6 @@ class Root(Resource):
         if error_message:
             abort(404, message=error_message)
 
-        form_template_id = req["id"]
-        if crud.read(FormTemplate, id=form_template_id):
-            abort(
-                409,
-                message=f"A form template already exists with id: {form_template_id}",
-            )
-
         formTemplate = marshal.unmarshal(FormTemplate, req)
 
         crud.create(formTemplate, refresh=True)

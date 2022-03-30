@@ -18,7 +18,6 @@ def test_form_template_created(database, form_template, api_post):
 @pytest.fixture
 def form_template():
     return {
-        "id": "ft1",
         "name": "NEMS Ambulance Request",
         "category": "Hopsital Report",
         "version": "V1",

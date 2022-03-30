@@ -129,7 +129,11 @@ class User(db.Model):
 
 class Referral(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    dateReferred = db.Column(db.BigInteger, nullable=False)
+    dateReferred = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+    )
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
     isAssessed = db.Column(db.Boolean, nullable=False, default=0)
