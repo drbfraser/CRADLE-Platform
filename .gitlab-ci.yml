@@ -146,8 +146,10 @@ backend format:
         - server/**/*
       when: always
   before_script:
+    - cd server
     - pip install --upgrade pip
-    - pip install black==20.8b1
+    # Ensure we get the same version of Black used by the project
+    - pip install -r requirements.txt
   script:
     - black --check --exclude 'server/migrations/.*' server
 

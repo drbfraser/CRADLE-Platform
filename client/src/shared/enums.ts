@@ -71,3 +71,10 @@ export enum EndpointEnum {
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
 }
+
+export enum QRelationEnum {
+  LARGER_THAN = 'LARGER_THAN',
+  SMALLER_THAN = 'SMALLER_THAN',
+  EQUAL_TO = 'EQUAL_TO',
+  CONTAINS = 'CONTAINS',
+}
