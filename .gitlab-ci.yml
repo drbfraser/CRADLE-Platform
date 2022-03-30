@@ -151,7 +151,7 @@ backend format:
     # Ensure we get the same version of Black used by the project
     - pip install -r requirements.txt
   script:
-    - black --check --exclude 'server/migrations/.*' server
+    - black --check --exclude 'server/migrations/.*' .
 
 .deploy-script: &deploy-script
   - cp /var/cradle/.env ./.env
