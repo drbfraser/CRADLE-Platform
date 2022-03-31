@@ -235,12 +235,12 @@ def init(api):
     )  # [GET, POST]
     api.add_resource(
         SingleFormTemplate,
-        "/api/forms/templates/<int:form_template_id>",
+        "/api/forms/templates/<string:form_template_id>",
         endpoint="single_form_template",
     )  # [GET, PUT]
     api.add_resource(
         BlankFormTemplate,
-        "/api/forms/templates/blank/<int:form_template_id>",
+        "/api/forms/templates/blank/<string:form_template_id>",
         endpoint="blank_form_template",
     )  # [GET]
 

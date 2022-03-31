@@ -521,6 +521,15 @@ def __unmarshal_question(d: dict) -> Question:
 
     return question
 
+def unmarshal_question_list(d: dict) -> List[Question]:
+    # Unmarshal any questions found within the dict, return a list of questions if found
+    if d.get("questions") is not None:
+        questions = [__unmarshal_question(q) for q in d["questions"]]
+        del d["questions"]
+    else:
+        questions = []
+    
+    return questions
 
 ## Functions taken from the original Database.py ##
 ## To-Do: Integrate them properly with the current marshal functions, it looks like there may be some overlap

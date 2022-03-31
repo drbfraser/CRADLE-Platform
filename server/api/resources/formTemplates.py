@@ -10,6 +10,7 @@ import service.serialize as serialize
 from models import FormTemplate, Question
 import service.serialize as serialize
 from validation import formTemplates
+from utils import get_current_time
 
 
 # /api/forms/templates
@@ -46,7 +47,7 @@ class Root(Resource):
         return [marshal.marshal(f) for f in form_templates]
 
 
-# /api/forms/templates/<int:form_template_id>
+# /api/forms/templates/<string:form_template_id>
 class SingleFormTemplate(Resource):
     @staticmethod
     @jwt_required
@@ -84,13 +85,17 @@ class SingleFormTemplate(Resource):
         old_qids = [question.id for question in form_template.questions]
         for old_qid in old_qids:
             crud.delete_by(Question, id=old_qid)
-
+        data.db_session.commit()
+        
         # create new questions
-        form_template = marshal.unmarshal(FormTemplate, req)
-        new_questions = form_template.questions
+        new_questions = marshal.unmarshal_question_list(req)
         for new_question in new_questions:
+            new_question.formTemplateId = form_template_id
             crud.create(new_question)
 
+        # manually update lastEdited field as question updates will not
+        # trigger auto-update for template
+        req["lastEdited"] = get_current_time()
         crud.update(FormTemplate, req, id=form_template_id)
         data.db_session.commit()
         data.db_session.refresh(form_template)
