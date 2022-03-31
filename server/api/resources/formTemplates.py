@@ -7,16 +7,17 @@ import data
 import data.crud as crud
 import data.marshal as marshal
 import service.serialize as serialize
-from models import FormTemplate, Question
+from models import FormTemplate, Question, RoleEnum
 import service.serialize as serialize
 from validation import formTemplates
 from utils import get_current_time
+from api.decorator import roles_required
 
 
 # /api/forms/templates
 class Root(Resource):
     @staticmethod
-    @jwt_required
+    @roles_required([RoleEnum.ADMIN])
     @swag_from(
         "../../specifications/form-templates-post.yml",
         methods=["POST"],
@@ -64,7 +65,7 @@ class SingleFormTemplate(Resource):
         return marshal.marshal(form_template, False)
 
     @staticmethod
-    @jwt_required
+    @roles_required([RoleEnum.ADMIN])
     @swag_from(
         "../../specifications/single-form-template-put.yml",
         methods=["PUT"],
@@ -86,7 +87,7 @@ class SingleFormTemplate(Resource):
         for old_qid in old_qids:
             crud.delete_by(Question, id=old_qid)
         data.db_session.commit()
-        
+
         # create new questions
         new_questions = marshal.unmarshal_question_list(req)
         for new_question in new_questions:
