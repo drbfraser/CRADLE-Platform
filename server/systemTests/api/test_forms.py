@@ -4,7 +4,6 @@ import data.crud as crud
 from models import Form
 
 
-# @pytest.mark.skip(reason="Form creat test is not done now")
 def test_form_created(database, form, create_patient, api_post):
     create_patient()
 

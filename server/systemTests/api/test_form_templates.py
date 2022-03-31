@@ -1,3 +1,4 @@
+from unicodedata import category
 import pytest
 
 import data.crud as crud
@@ -7,19 +8,19 @@ from models import FormTemplate
 def test_form_template_created(database, form_template, api_post):
     response = api_post(endpoint="/api/forms/templates", json=form_template)
     database.session.commit()
-
     try:
         assert response.status_code == 201
-
     finally:
-        crud.delete_by(FormTemplate, id=form_template["id"])
+        crud.delete_by(
+            FormTemplate, name=form_template["name"], category=form_template["category"]
+        )
 
 
 @pytest.fixture
 def form_template():
     return {
-        "name": "NEMS Ambulance Request",
-        "category": "Hopsital Report",
+        "name": "NEMS Ambulance Request - sys test",
+        "category": "Hopsital Report - sys test",
         "version": "V1",
         "questions": [
             {
