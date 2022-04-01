@@ -469,7 +469,7 @@ class FormTemplate(db.Model):
 
 
 class Form(db.Model):
-    id = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.Text, nullable=False, default="")
     category = db.Column(db.Text, nullable=False, default="")
     patientId = db.Column(
@@ -540,7 +540,7 @@ class Question(db.Model):
     }
     """
 
-    id = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
     questionId = db.Column(db.Text, nullable=True)

@@ -15,7 +15,6 @@ def validate_post_request(request_body: dict) -> Optional[str]:
     :return: An error message if request body is invalid in some way. None otherwise.
     """
     required_fields = [
-        "id",
         "patientId",
         "dateCreated",
         "lastEditedBy",

@@ -25,13 +25,6 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        form_id = req["id"]
-        if crud.read(Form, id=form_id):
-            abort(
-                409,
-                message=f"A form already exists with id: {form_id}",
-            )
-
         patient = crud.read(Patient, patientId=req["patientId"])
         if not patient:
             abort(400, message="Patient does not exist")
