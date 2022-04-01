@@ -287,6 +287,6 @@ def validate_question_put(q: dict) -> Optional[str]:
     if error:
         return error
 
-    error = validate_answers(["answers"])
+    error = validate_answers(q)
     if error:
         return error
