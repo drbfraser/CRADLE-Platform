@@ -176,6 +176,7 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     :return: An error message if request body in invalid in some way. None otherwise.
     """
     required_fields = [
+        "id",
         "questionIndex",
         "questionText",
         "questionType",
@@ -183,7 +184,6 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     ]
 
     all_fields = [
-        "id",
         "questionId",
         "isBlank",
         "category",
