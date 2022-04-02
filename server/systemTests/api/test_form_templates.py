@@ -14,9 +14,7 @@ def test_form_template_created(database, form_template, api_post):
         resp_json = response.json()
         form_template_id = resp_json["id"]
     finally:
-        crud.delete_by(
-            FormTemplate, id=form_template_id
-        )
+        crud.delete_by(FormTemplate, id=form_template_id)
 
 
 @pytest.fixture
