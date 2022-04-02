@@ -24,6 +24,7 @@ def validate_post_request(request_body: dict) -> Optional[str]:
     ]
 
     all_fields = [
+        "id",
         "formTemplateId",
         "lastEdited",
     ] + required_fields
