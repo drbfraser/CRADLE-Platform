@@ -8,11 +8,14 @@ from models import FormTemplate
 def test_form_template_created(database, form_template, api_post):
     response = api_post(endpoint="/api/forms/templates", json=form_template)
     database.session.commit()
+    form_template_id = None
     try:
         assert response.status_code == 201
+        resp_json = response.json()
+        form_template_id = resp_json["id"]
     finally:
         crud.delete_by(
-            FormTemplate, name=form_template["name"], category=form_template["category"]
+            FormTemplate, id=form_template_id
         )
 
 

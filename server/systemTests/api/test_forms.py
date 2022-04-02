@@ -9,20 +9,20 @@ def test_form_created(database, form, create_patient, api_post):
 
     response = api_post(endpoint="/api/forms/responses", json=form)
     database.session.commit()
-
+    form_id = None
     try:
         assert response.status_code == 201
         resp_json = response.json()
+        form_id = resp_json["id"]
         assert resp_json["dateCreated"] == resp_json["lastEdited"]
     finally:
-        crud.delete_by(Form, id=form["id"])
+        crud.delete_by(Form, id=form_id)
 
 
 @pytest.fixture
 def form(patient_id, vht_user_id):
     return {
-        "id": "form_12345",
-        "name": "NEMS Ambulance Request - Mike",
+        "name": "NEMS Ambulance Request - sys test",
         "dateCreated": 1592339808,
         "lastEditedBy": vht_user_id,
         "category": "Referred",
