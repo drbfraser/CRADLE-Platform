@@ -4,6 +4,12 @@ from models import SexEnum, GestationalAgeUnitEnum
 
 
 @pytest.fixture
+def vht_user_id():
+    # id of "TestVHT" (require seed_test_data)
+    return 3
+
+
+@pytest.fixture
 def patient_id():
     return "87356709248"
 

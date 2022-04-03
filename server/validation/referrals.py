@@ -10,7 +10,7 @@ def validate(request_body: dict) -> Optional[str]:
     :param request_body: The request body as a dict object
                         {
                             "comment": "here is a comment",
-                            "readingId": "e90c0529-74ad-41b4-876e-d8e5ac60e786",
+                            "patientId": "123",
                             "referralHealthFacilityName": "H0000",
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
@@ -20,6 +20,7 @@ def validate(request_body: dict) -> Optional[str]:
     error_message = required_keys_present(
         request_body,
         [
+            "patientId",
             "referralHealthFacilityName",
         ],
     )
@@ -28,6 +29,16 @@ def validate(request_body: dict) -> Optional[str]:
         return error_message
 
     all_fields = [
+        "id",
+        "dateReferred",
+        "actionTaken",
+        "isAssessed",
+        "isCancelled",
+        "cancelReason",
+        "notAttended",
+        "notAttendReason",
+        "lastEdited",
+        "userId",
         "comment",
         "patientId",
         "referralHealthFacilityName",
@@ -42,7 +53,7 @@ def validate(request_body: dict) -> Optional[str]:
 
 def validate_cancel_put_request(request_body: dict) -> Optional[str]:
     """
-    Returns an error message if the /api/referrals/cancel-status-switch/<int:referral_id> PUT
+    Returns an error message if the /api/referrals/cancel-status-switch/<string:referral_id> PUT
     request is not valid. Else, returns None.
 
     :param request_body: The request body as a dict object
@@ -71,7 +82,7 @@ def validate_cancel_put_request(request_body: dict) -> Optional[str]:
 
 def validate_not_attend_put_request(request_body: dict) -> Optional[str]:
     """
-    Returns an error message if the /api/referrals/not-attend/<int:referral_id> PUT
+    Returns an error message if the /api/referrals/not-attend/<string:referral_id> PUT
     request is not valid. Else, returns None.
 
     :param request_body: The request body as a dict object

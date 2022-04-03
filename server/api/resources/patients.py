@@ -302,6 +302,20 @@ class PatientReferrals(Resource):
         return [marshal.marshal(ref) for ref in patient.referrals]
 
 
+# /api/patients/<string:patient_id>/forms
+class PatientForms(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/patient-forms-get.yml",
+        methods=["GET"],
+        endpoint="patient_forms",
+    )
+    def get(patient_id: str):
+        patient = crud.read(Patient, patientId=patient_id)
+        return [marshal.marshal(form, True) for form in patient.forms]
+
+
 # /api/patients/<string:patient_id>/pregnancy_summary
 class PatientPregnancySummary(Resource):
     @staticmethod
@@ -404,5 +418,5 @@ class PatientAllRecords(Resource):
     )
     def get(patient_id: str):
         params = util.get_query_params(request)
-        records = crud.read_patient_readings_referrals_assessments(patient_id, **params)
+        records = crud.read_patient_all_records(patient_id, **params)
         return [marshal.marshal_with_type(r) for r in records]

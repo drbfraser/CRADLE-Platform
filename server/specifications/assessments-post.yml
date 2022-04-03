@@ -11,8 +11,8 @@ requestBody:
         type: object
         properties:
           patientId:
-            type: integer - required
-            example: 123456
+            type: string - required
+            example: "123456"
           specialInvestigations:
             type: string | Null
             example: Investigated this an that

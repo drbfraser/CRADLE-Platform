@@ -7,7 +7,7 @@ parameters:
   name: referral_id
   required: true
   schema:
-    type: integer
+    type: string
 responses:
   200:
     description: Response from GET request for /api/referrals/<int:id>
@@ -38,8 +38,8 @@ responses:
               type: integer | Null
               example: 1
             id: 
-              type: integer
-              example: 1
+              type: string
+              example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
             patientId:
               type: integer
               example: 191919

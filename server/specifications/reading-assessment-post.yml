@@ -17,8 +17,8 @@ requestBody:
                 type: string - required
                 example: adas-d82314-27822-63138
               patientId:
-                type: integer - required
-                example: 123456
+                type: string - required
+                example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
               bpSystolic:
                 type: integer - required
                 example: 70
@@ -42,8 +42,8 @@ requestBody:
               type: object
               properties:
                 patientId:
-                  type: integer - required
-                  example: 123456
+                  type: string - required
+                  example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
                 specialInvestigations:
                   type: string | Null
                   example: Investigated this an that
@@ -79,8 +79,8 @@ responses:
                   type: string
                   example: adas-d82314-27822-63138
                 patientId:
-                  type: integer
-                  example: 123456
+                  type: string
+                  example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
                 bpSystolic:
                   type: integer
                   example: 70
@@ -111,11 +111,11 @@ responses:
                 type: object
                 properties:
                   id:
-                    type: integer
-                    example: 1
+                    type: string
+                    example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
                   patientId:
-                    type: integer - required
-                    example: 123456
+                    type: string - required
+                    example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
                   dateAssessed:
                     type: Unix timestamp
                     example: 1593649727

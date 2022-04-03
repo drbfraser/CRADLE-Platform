@@ -27,6 +27,7 @@ from api.resources.patients import (
     PatientReadings,
     PatientMostRecentReading,
     PatientReferrals,
+    PatientForms,
     PatientPregnancySummary,
     PatientMedicalHistory,
     PatientTimeline,
@@ -100,12 +101,12 @@ def init(api):
 
     #### New Endpoints ####
     api.add_resource(
-        Assessments, "/api/assessments", endpoint="assessments"
+        Assessments, "/api/assessments", endpoint="assessment"
     )  # [POST, GET]
 
     api.add_resource(
         SingleAssessment,
-        "/api/assessments/<int:assessment_id>",
+        "/api/assessments/<string:assessment_id>",
         endpoint="single_assessment",
     )  # [GET]
 
@@ -150,6 +151,11 @@ def init(api):
         endpoint="patient_referrals",
     )  # [GET]
     api.add_resource(
+        PatientForms,
+        "/api/patients/<string:patient_id>/forms",
+        endpoint="patient_forms",
+    )  # [GET]
+    api.add_resource(
         PatientPregnancySummary,
         "/api/patients/<string:patient_id>/pregnancy_summary",
         endpoint="patient_pregnancy_summary",
@@ -188,17 +194,17 @@ def init(api):
     )  # [GET]
     api.add_resource(
         AssessReferral,
-        "/api/referrals/assess/<int:referral_id>",
+        "/api/referrals/assess/<string:referral_id>",
         endpoint="referral_assess",
     )  # [PUT]
     api.add_resource(
         ReferralCancelStatus,
-        "/api/referrals/cancel-status-switch/<int:referral_id>",
+        "/api/referrals/cancel-status-switch/<string:referral_id>",
         endpoint="referral_cancel_status",
     )  # [PUT]
     api.add_resource(
         ReferralNotAttend,
-        "/api/referrals/not-attend/<int:referral_id>",
+        "/api/referrals/not-attend/<string:referral_id>",
         endpoint="referral_not_attend",
     )  # [PUT]
 
@@ -229,18 +235,18 @@ def init(api):
     )  # [GET, POST]
     api.add_resource(
         SingleFormTemplate,
-        "/api/forms/templates/<int:form_template_id>",
+        "/api/forms/templates/<string:form_template_id>",
         endpoint="single_form_template",
     )  # [GET, PUT]
     api.add_resource(
         BlankFormTemplate,
-        "/api/forms/templates/blank/<int:form_template_id>",
+        "/api/forms/templates/blank/<string:form_template_id>",
         endpoint="blank_form_template",
     )  # [GET]
 
     api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]
     api.add_resource(
-        SingleForm, "/api/forms/responses/<int:form_id>", endpoint="single_form"
+        SingleForm, "/api/forms/responses/<string:form_id>", endpoint="single_form"
     )  # [GET, PUT]
 
     api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]

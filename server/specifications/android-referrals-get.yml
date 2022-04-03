@@ -37,8 +37,8 @@ responses:
                 type: integer
                 example: 1
               patientId:
-                type: integer
-                example: 191919
+                type: string
+                example: "191919"
               cancelReason:
                 type: string | Null
                 example: patient is healthy now

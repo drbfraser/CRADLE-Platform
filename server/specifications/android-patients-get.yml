@@ -13,8 +13,8 @@ responses:
             type: object
             properties:
               patientId:
-                type: integer
-                example: 49300000000
+                type: string
+                example: "49300000000"
               patientName:
                 type: string
                 example: MR

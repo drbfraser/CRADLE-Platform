@@ -9,7 +9,7 @@ import marshmallow
 import json
 
 from config import db, ma
-from utils import get_current_time
+from utils import get_current_time, get_uuid
 
 
 # To add a table to db, make a new class
@@ -53,6 +53,24 @@ class FacilityTypeEnum(enum.Enum):
     HCF_3 = "HCF_3"
     HCF_4 = "HCF_4"
     HOSPITAL = "HOSPITAL"
+
+
+class QuestionTypeEnum(enum.Enum):
+    INTEGER = "INTEGER"
+    DECIMAL = "DECIMAL"
+    STRING = "STRING"
+    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"
+    MULTIPLE_SELECT = "MULTIPLE_SELECT"
+    DATE = "DATE"
+    TIME = "TIME"
+    DATETIME = "DATETIME"
+
+
+class QRelationalEnum(enum.Enum):
+    LARGER_THAN = "LARGER_THAN"
+    SMALLER_THAN = "SMALLER_THAN"
+    EQUAL_TO = "EQUAL_TO"
+    CONTAINS = "CONTAINS"
 
 
 #
@@ -110,8 +128,12 @@ class User(db.Model):
 
 
 class Referral(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    dateReferred = db.Column(db.BigInteger, nullable=False)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    dateReferred = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+    )
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
     isAssessed = db.Column(db.Boolean, nullable=False, default=0)
@@ -277,7 +299,7 @@ class Reading(db.Model):
 
 class FollowUp(db.Model):
     __tablename__ = "followup"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
     followupInstructions = db.Column(db.Text)
     specialInvestigations = db.Column(db.Text)
@@ -425,7 +447,7 @@ class MedicalRecord(db.Model):
 
 
 class FormTemplate(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.Text, nullable=True)
     category = db.Column(db.Text, nullable=True)
     version = db.Column(db.Text, nullable=True)
@@ -447,7 +469,9 @@ class FormTemplate(db.Model):
 
 
 class Form(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    name = db.Column(db.Text, nullable=False, default="")
+    category = db.Column(db.Text, nullable=False, default="")
     patientId = db.Column(
         db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
         nullable=False,
@@ -489,39 +513,44 @@ class Question(db.Model):
     visibleCondition: any json format string indicating a visible condition,
     the content logic should be handled in frontend
     e.g.
-    {
-        "children": [
-            {
-            "id": "1",
-            }
-        ]
-    }
+    [{
+        "qid": "asdsd-123",
+        "relation": "EQUAL_TO",
+        "answer": {
+            "value": 1
+        }
+    }]
 
     mcOptions: a json format list string indicating a list of multiple choices
     (maximum 5 options)
     e.g.
-    [opt1, opt2, opt3, opt4, opt5]
+    [
+        "opt1",
+        "opt2",
+        ... (maximum 5 answers)
+    ]
 
     answers: a json format string indicating the answers filled by user
     e.g.
     {
-        "Value": 123,
-        "Text": "111",
-        "MC": opt1,
-        "Comment": "example comment"
+        "number": 123,
+        "text": "111",
+        "textArray": ["opt1", "opt2"],
+        "comment": "example comment"
     }
     """
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
-    questionId = db.Column(db.Text, nullable=False)
+    questionId = db.Column(db.Text, nullable=True)
     questionText = db.Column(db.Text, nullable=False)
-    questionType = db.Column(db.Text, nullable=False)
+    questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
+    hasCommentAttached = db.Column(db.Boolean, nullable=False, default=0)
     category = db.Column(db.Text, nullable=False, default="")
     required = db.Column(db.Boolean, nullable=False, default=0)
     units = db.Column(db.Text, nullable=True)
-    visibleCondition = db.Column(db.Text, nullable=False, default="{}")
+    visibleCondition = db.Column(db.Text, nullable=False, default="[]")
     mcOptions = db.Column(db.Text, nullable=False, default="[]")
     numMin = db.Column(db.Integer, nullable=True)
     numMax = db.Column(db.Integer, nullable=True)

@@ -7,7 +7,7 @@ parameters:
     name: patient_id
     required: true
     schema:
-      type: integer
+      type: string
 responses:
   200:
     description: GET response body for /api/patients/<string:patient_id>/timeline

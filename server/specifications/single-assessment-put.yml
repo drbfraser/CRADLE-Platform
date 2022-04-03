@@ -7,19 +7,19 @@ parameters:
     name: id
     required: true
     schema:
-      type: integer
-    example: 1
+      type: string
+    example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
 requestBody:
   required: true
-  description: POST request body for /api/assessment/<int:assessment_id>
+  description: POST request body for /api/assessment/<string:assessment_id>
   content:
     application/json:
       schema:
         type: object
         properties:
           patientId:
-            type: integer - required
-            example: 123456
+            type: string - required
+            example: "123456"
           specialInvestigations:
             type: string | Null
             example: Investigated this an that
@@ -46,8 +46,8 @@ responses:
     content:
       application/json:
         schema:
-          type: integer
-          example: 3
+          type: string
+          example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
           description: Id of the newly created assessment
   400:
     description: |

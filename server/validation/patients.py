@@ -68,7 +68,7 @@ def validate(request_body: dict) -> Optional[str]:
         return error_message
 
     # Check that certain fields are of type int
-    error_message = values_correct_type(request_body, ["patientId"], int)
+    error_message = values_correct_type(request_body, ["patientId"], str)
     if error_message is not None:
         return error_message
 

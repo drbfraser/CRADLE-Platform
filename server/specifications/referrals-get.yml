@@ -25,8 +25,8 @@ responses:
                 type: string
                 example: MR
               referralId:
-                type: integer
-                example: 1
+                type: string
+                example: "5529adaf-016f-4c03-8cb0-42728138f3b5"
               villageNumber:
                 type: string
                 example: 1093

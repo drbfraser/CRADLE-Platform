@@ -17,19 +17,25 @@ responses:
           type: object
           properties:
             id:
-              type: integer
-              example: 5
+              type: string
+              example: "adas-d82314-27822-63138"
             patientId:
               type: string
               example: "123"
             formTemplateId:
-              type: integer | null
-              example: 1
+              type: string | null
+              example: "adas-d82314-27822-63139"
+            name:
+              type: string
+              example: "referral_form"
+            category:
+              type: string
+              example: "example"
             dateCreated:
               type: Unix timestamp
               example: 1592339808
             lastEdited:
-              type: Unix timestamp | null
+              type: Unix timestamp
               example: 1592339808
             lastEditedBy:
               type: integer | null
@@ -40,22 +46,22 @@ responses:
                 type: object
                 properties:
                   id:
-                    type: integer
-                    example: 1
+                    type: string
+                    example: "adas-d82314-27822-63150"
                   questionId:
-                    type: integer
-                    example: 1
+                    type: string
+                    example: "referred-by-name"
                   isBlank:
                     type: boolean
-                    example: true
+                    example: false
                   formTemplateId:
-                    type: integer | null
-                    example: 5
-                  formId:
-                    type: integer | null
-                    example: null
-                  category:
                     type: string | null
+                    example: null
+                  formId:
+                    type: string | null
+                    example: "adas-d82314-27822-63139"
+                  category:
+                    type: string
                     example: "Referred By"
                   questionIndex:
                     type: integer
@@ -64,8 +70,12 @@ responses:
                     type: string
                     example: "How the patient's condition?"
                   questionType:
-                    type: string
-                    example: "integer"
+                    type: enum
+                    enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
+                    example: MULTIPLE_CHOICE
+                  hasCommentAttached:
+                    type: boolean - optional -default false
+                    example: false
                   required:
                     type: boolean
                     example: true
@@ -73,19 +83,20 @@ responses:
                     type: string | null
                     example: null
                   visibleCondition:
-                    type: object
-                    properties:
-                      children:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            ID:
-                              type: string
-                              example: "1"
-                            VALUE:
-                              type: string
-                              example: "2"
+                    type: array
+                    items: object
+                    example: [{
+                      "qid": 1,
+                      "relation": "EQUAL_TO",
+                      "answer": {
+                          "number": null,
+                          "text": "",
+                          "textArray": [
+                              "opt"
+                          ],
+                          "comment": ""
+                      }
+                    }]
                   numMin:
                     type: integer | null
                     example: null
@@ -101,15 +112,15 @@ responses:
                   answers:
                     type: object
                     properties:
-                      Value:
+                      number:
                         type: integer | null
                         example: null
-                      Text: 
+                      text: 
                         type: string | null
                         example: null
-                      MC:
-                        type: string | null
-                        example: "Decent"
-                      Comments:
+                      textArray:
+                        type: array | null
+                        example: ["Decent"]
+                      comment:
                         type: string | null
                         example: "Was not an emergency"

@@ -14,8 +14,8 @@ from models import (
     Reading,
     Referral,
     UrineTest,
-    Question,
 )
+from models import FormTemplate
 
 
 def serialize_patient_list(patients: List[Any]) -> dict:
@@ -125,11 +125,12 @@ def serialize_referral_or_assessment(model: Union[Referral, FollowUp]) -> dict:
     return marshal.marshal(model)
 
 
-def serialize_form_template(
-    form_template: Any, questions: Optional[List[Question]] = None
-) -> dict:
-    form_template = marshal.marshal(form_template)
-    form_template["questions"] = [marshal.marshal(question) for question in questions]
+def serialize_blank_form_template(form_template: FormTemplate) -> dict:
+    form_template = marshal.marshal(form_template, False)
+    del form_template["dateCreated"]
+    del form_template["lastEdited"]
+    del form_template["version"]
+
     return form_template
 
 

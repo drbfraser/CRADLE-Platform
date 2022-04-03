@@ -2,6 +2,12 @@ Get a form template
 ---
 tags:
   - Form Templates
+parameters:
+- in: path
+  name: form_template_id
+  required: true
+  schema:
+    type: integer
 responses:
   200:
     description: Response from GET request for /api/forms/templates/<id>
@@ -11,8 +17,8 @@ responses:
           type: object
           properties:
             id:
-              type: integer
-              example: 5
+              type: string
+              example: "adas-d82314-27822-63150"
             name:
               type: string | null
               example: "NEMS Ambulance Request - 2022"
@@ -20,78 +26,74 @@ responses:
               type: string | null
               example: "NEMS Ambulance Request"
             questions:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-                questionId:
-                  type: string
-                  example: "referred-by-name"
-                isBlank:
-                  type: boolean
-                  example: true
-                formTemplateId:
-                  type: integer | null
-                  example: 5
-                formId:
-                  type: integer | null
-                  example: null
-                category:
-                  type: string | null
-                  example: "Referred By"
-                questionIndex:
-                  type: integer
-                  example: 1
-                questionText:
-                  type: string
-                  example: "How the patient's condition?"
-                questionType:
-                  type: enum
-                  enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
-                  example: MULTIPLE_CHOICE
-                required:
-                  type: boolean
-                  example: true
-                units:
-                  type: string | null
-                  example: null
-                visibleCondition:
-                  type: object | null
-                  properties:
-                    children:
-                      type: array
-                      properties:
-                        ID:
-                          type: string
-                          example: null
-                        VALUE:
-                          type: string | null
-                          example: null
-                numMin:
-                  type: integer | null
-                  example: null
-                numMax:
-                  type: integer | null
-                  example: null
-                stringMaxLength:
-                  type: integer | null
-                  example: null
-                mcOptions:
-                  type: array | null
-                  example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
-                answers:
-                  type: object
-                  properties:
-                    Value:
-                      type: integer | null
-                      example: null
-                    Text: 
-                      type: string | null
-                      example: null
-                    MC:
-                      type: string | null
-                      example: "Decent"
-                    Comments:
-                      type: string | null
-                      example: "Was not an emergency"
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "adas-d82314-27822-63154"
+                  questionId:
+                    type: string
+                    example: "referred-by-name"
+                  isBlank:
+                    type: boolean
+                    example: true
+                  formTemplateId:
+                    type: string | null
+                    example: "adas-d82314-27822-63150"
+                  formId:
+                    type: string | null
+                    example: null
+                  category:
+                    type: string | null
+                    example: "Referred By"
+                  questionIndex:
+                    type: integer
+                    example: 1
+                  questionText:
+                    type: string
+                    example: "How the patient's condition?"
+                  questionType:
+                    type: enum
+                    enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
+                    example: MULTIPLE_CHOICE
+                  hasCommentAttached:
+                    type: boolean - optional -default false
+                    example: false
+                  required:
+                    type: boolean
+                    example: true
+                  units:
+                    type: string | null
+                    example: null
+                  visibleCondition:
+                    type: array
+                    items: object
+                    example: [{
+                      "qid": 1,
+                      "relation": "EQUAL_TO",
+                      "answer": {
+                          "number": null,
+                          "text": "",
+                          "textArray": [
+                              "opt"
+                          ],
+                          "comment": ""
+                      }
+                    }]
+                  numMin:
+                    type: integer | null
+                    example: null
+                  numMax:
+                    type: integer | null
+                    example: null
+                  stringMaxLength:
+                    type: integer | null
+                    example: null
+                  mcOptions:
+                    type: array | null
+                    example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
+                  answers:
+                    type: object
+                    example: {}
