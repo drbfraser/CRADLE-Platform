@@ -560,7 +560,7 @@ class Question(db.Model):
 
     # FORENIGN KEYS
     categoryId = db.Column(
-        db.ForeignKey("question.id", ondelete="SET NULL"), 
+        db.ForeignKey("question.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
@@ -576,7 +576,7 @@ class Question(db.Model):
     # RELATIONSHIPS
     categoryQuestion = db.relationship(
         "Question",
-        backref=db.backref("questions", remote_side="Question.id", lazy=True)
+        backref=db.backref("questions", remote_side="Question.id", lazy=True),
     )
     form = db.relationship(
         "Form",
@@ -591,39 +591,17 @@ class Question(db.Model):
     def schema():
         return QuestionSchema
 
-class TemplateLangVersion(db.Model):
-    """
-    This model is used to efficiently fetch the current available
-    language versions of a single form template.
-    """
-    id = db.Column(db.Integer, primary_key=True)
-    lang = db.Column(db.Text, nullable=False)
-
-    # FORENIGN KEYS
-    formTemplateId = db.Column(
-        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
-        nullable=False,
-    )
-
-    # RELATIONSHIPS
-    formTemplate = db.relationship(
-        "FormTemplate",
-        backref=db.backref("lang_versions", cascade="all, delete", lazy=True),
-    )
-
-    @staticmethod
-    def schema():
-        return TemplateLangVersionSchema
 
 class QuestionLangVersion(db.Model):
     """
     This model is used to store different language versions of a single question.
     """
+
     id = db.Column(db.Integer, primary_key=True)
     lang = db.Column(db.Text, nullable=False)
     questionText = db.Column(db.Text, nullable=False)
     mcOptions = db.Column(db.Text, nullable=False, default="[]")
-    
+
     # FORENIGN KEYS
     qid = db.Column(
         db.ForeignKey(Question.id, ondelete="CASCADE"),
@@ -639,7 +617,6 @@ class QuestionLangVersion(db.Model):
     @staticmethod
     def schema():
         return QuestionLangVersionSchema
-
 
 
 #
@@ -792,12 +769,6 @@ class QuestionSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
-class TemplateLangVersionSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        include_fk = True
-        model = TemplateLangVersion
-        load_instance = True
-        include_relationships = True
 
 class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -805,6 +776,7 @@ class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
         model = QuestionLangVersion
         load_instance = True
         include_relationships = True
+
 
 def validate_user(data):
     try:
