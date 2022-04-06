@@ -64,6 +64,7 @@ class QuestionTypeEnum(enum.Enum):
     DATE = "DATE"
     TIME = "TIME"
     DATETIME = "DATETIME"
+    CATEGORY = "CATEGORY"
 
 
 class QRelationalEnum(enum.Enum):
@@ -470,6 +471,7 @@ class FormTemplate(db.Model):
 
 class Form(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    lang = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False, default="")
     category = db.Column(db.Text, nullable=False, default="")
     patientId = db.Column(
@@ -544,20 +546,24 @@ class Question(db.Model):
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
     questionId = db.Column(db.Text, nullable=True)
-    questionText = db.Column(db.Text, nullable=False)
+    questionText = db.Column(db.Text, nullable=False, default="")
     questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
     hasCommentAttached = db.Column(db.Boolean, nullable=False, default=0)
-    category = db.Column(db.Text, nullable=False, default="")
     required = db.Column(db.Boolean, nullable=False, default=0)
     units = db.Column(db.Text, nullable=True)
     visibleCondition = db.Column(db.Text, nullable=False, default="[]")
     mcOptions = db.Column(db.Text, nullable=False, default="[]")
-    numMin = db.Column(db.Integer, nullable=True)
-    numMax = db.Column(db.Integer, nullable=True)
+    numMin = db.Column(db.Float, nullable=True)
+    numMax = db.Column(db.Float, nullable=True)
     stringMaxLength = db.Column(db.Integer, nullable=True)
     answers = db.Column(db.Text, nullable=False, default="{}")
 
     # FORENIGN KEYS
+    categoryId = db.Column(
+        db.ForeignKey("question.id", ondelete="SET NULL"), 
+        nullable=True,
+        index=True,
+    )
     formId = db.Column(
         db.ForeignKey(Form.id, ondelete="CASCADE"),
         nullable=True,
@@ -568,6 +574,10 @@ class Question(db.Model):
     )
 
     # RELATIONSHIPS
+    categoryQuestion = db.relationship(
+        "Question",
+        backref=db.backref("questions", remote_side="Question.id", lazy=True)
+    )
     form = db.relationship(
         "Form",
         backref=db.backref("questions", cascade="all, delete", lazy=True),
@@ -580,6 +590,56 @@ class Question(db.Model):
     @staticmethod
     def schema():
         return QuestionSchema
+
+class TemplateLangVersion(db.Model):
+    """
+    This model is used to efficiently fetch the current available
+    language versions of a single form template.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    lang = db.Column(db.Text, nullable=False)
+
+    # FORENIGN KEYS
+    formTemplateId = db.Column(
+        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    # RELATIONSHIPS
+    formTemplate = db.relationship(
+        "FormTemplate",
+        backref=db.backref("lang_versions", cascade="all, delete", lazy=True),
+    )
+
+    @staticmethod
+    def schema():
+        return TemplateLangVersionSchema
+
+class QuestionLangVersion(db.Model):
+    """
+    This model is used to store different language versions of a single question.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    lang = db.Column(db.Text, nullable=False)
+    questionText = db.Column(db.Text, nullable=False)
+    mcOptions = db.Column(db.Text, nullable=False, default="[]")
+    
+    # FORENIGN KEYS
+    qid = db.Column(
+        db.ForeignKey(Question.id, ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    # RELATIONSHIPS
+    question = db.relationship(
+        "Question",
+        backref=db.backref("lang_versions", cascade="all, delete", lazy=True),
+    )
+
+    @staticmethod
+    def schema():
+        return QuestionLangVersionSchema
+
 
 
 #
@@ -732,6 +792,19 @@ class QuestionSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+class TemplateLangVersionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = TemplateLangVersion
+        load_instance = True
+        include_relationships = True
+
+class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = QuestionLangVersion
+        load_instance = True
+        include_relationships = True
 
 def validate_user(data):
     try:
