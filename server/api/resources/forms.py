@@ -2,13 +2,13 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, abort
-import json
 
 import data
 import data.crud as crud
 import data.marshal as marshal
 from validation import forms
 from models import Patient, Form, FormTemplate, User
+import utils
 
 
 # /api/forms/responses
@@ -97,7 +97,7 @@ class SingleForm(Resource):
                 abort(
                     404, message=f"request question id={qid} does not exist in server"
                 )
-            qans = json.dumps(q["answers"])
+            qans = utils.dumps(q["answers"])
             if qans != questions_dict[qid].answers:
                 questions_dict[qid].answers = qans
 

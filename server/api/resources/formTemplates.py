@@ -30,7 +30,7 @@ class Root(Resource):
         error_message = formTemplates.validate_template(req)
         if error_message:
             abort(404, message=error_message)
-        
+
         questions = split_form_template(req)
         error_message = formTemplates.validate_questions(questions)
         if error_message:
@@ -42,19 +42,23 @@ class Root(Resource):
 
         for q in questions:
             q["formTemplateId"] = formTemplate.id
-        
+
         questions = questionTree.bfs_order(questions)
         if isinstance(questions, str):
             error_message = questions
+            # revert created form template
+            crud.delete(formTemplate)
             # error occurs when producing bfs order
             abort(404, message=error_message)
-        
+
         # create questions
         questions = marshal.unmarshal_question_list(questions)
         for question in questions:
             crud.create(question)
 
-        return marshal.marshal(formTemplate), 201
+        data.db_session.refresh(formTemplate)
+
+        return marshal.marshal(formTemplate, shallow=True), 201
 
     @staticmethod
     @jwt_required
@@ -82,7 +86,7 @@ class SingleFormTemplate(Resource):
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
 
-        return marshal.marshal(form_template, False)
+        return marshal.marshal(form_template, shallow=False, if_include_versions=True)
 
     @staticmethod
     @roles_required([RoleEnum.ADMIN])
@@ -143,7 +147,7 @@ class BlankFormTemplate(Resource):
         return form_template
 
 
-#------Helper Function------------------------------#
+# ------Helper Function------------------------------#
 def split_form_template(req: dict) -> dict:
     # split out the question part of template
     questions = req["questions"]

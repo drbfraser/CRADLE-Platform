@@ -64,15 +64,15 @@ def validate_questions(request_body: list) -> Optional[str]:
         if error:
             return error
         if i == 0:
-            lang_version_list = [v.get("lang") for v in q.get("QuestionLangVersions")]
+            lang_version_list = [v.get("lang") for v in q.get("questionLangVersions")]
             lang_version_list.sort()
         else:
-            tmp_lang_version_list = [v.get("lang") for v in q.get("QuestionLangVersions")]
+            tmp_lang_version_list = [
+                v.get("lang") for v in q.get("questionLangVersions")
+            ]
             tmp_lang_version_list.sort()
             # validate lang versions consistency
             if tmp_lang_version_list != lang_version_list:
                 return "lang versions provided between questions are not consistent"
-    
-    return None
-    
 
+    return None

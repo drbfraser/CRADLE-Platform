@@ -15,8 +15,6 @@ def check_target_not_null(target, q: dict) -> Optional[str]:
     Returns an error if the target key has value null.
     Else, returns None.
     """
-    if not target in q:
-        return None
     if target in q and q.get(target) is None:
         return f"Can not provide key={target} with null value"
     return None
@@ -39,6 +37,9 @@ def validate_mc_options(q: dict) -> Optional[str]:
     ]
     """
     target = "mcOptions"
+
+    if not target in q:
+        return None
 
     error = check_target_not_null(target, q)
     if error:
@@ -76,6 +77,9 @@ def validate_answers(q: dict) -> Optional[str]:
     """
     target = "answers"
 
+    if not target in q:
+        return None
+
     error = check_target_not_null(target, q)
     if error:
         return error
@@ -86,7 +90,7 @@ def validate_answers(q: dict) -> Optional[str]:
 
     ans = q[target]
     all_fields = {"number", "text", "mcidArray", "comment"}
-    error = check_invalid_keys_present(q, all_fields)
+    error = check_invalid_keys_present(ans, all_fields)
     if error:
         return error
 
@@ -128,6 +132,9 @@ def validate_visible_condition(q: dict) -> Optional[str]:
     """
     target = "visibleCondition"
 
+    if not target in q:
+        return None
+
     error = check_target_not_null(target, q)
     if error:
         return error
@@ -156,7 +163,7 @@ def validate_visible_condition(q: dict) -> Optional[str]:
             return error
 
 
-def validate_lang_versions(q: dict) -> Optional[str]:
+def validate_lang_versions(q: dict, qid: str) -> Optional[str]:
     """
     Returns an error if the lang versions is invalid.
     Else, returns None.
@@ -168,9 +175,9 @@ def validate_lang_versions(q: dict) -> Optional[str]:
         {
            "lang": "English",
            "questionText": "How the patient's condition?",
-	       "mcOptions": [
+               "mcOptions": [
                {
-                   "mcid":0, 
+                   "mcid":0,
                    "opt": "Decent"
                 }
             ],
@@ -179,6 +186,9 @@ def validate_lang_versions(q: dict) -> Optional[str]:
     ]
     """
     target = "questionLangVersions"
+
+    if not target in q:
+        return None
 
     error = check_target_not_null(target, q)
     if error:
@@ -208,6 +218,9 @@ def validate_lang_versions(q: dict) -> Optional[str]:
         if error:
             return error
 
+        # assign foreign key qid
+        version["qid"] = qid
+
 
 def validate_template_question_post(q: dict) -> Optional[str]:
     """
@@ -231,7 +244,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     ]
 
     for key in non_required_fields:
-        if q.get(key) or q.get(key) == None:
+        if key in q:
             del q[key]
 
     # pre-process the template question dict
@@ -245,6 +258,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     ]
 
     all_fields = [
+        "isBlank",
         "questionId",
         "required",
         "units",
@@ -253,6 +267,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         "numMax",
         "stringMaxLength",
         "categoryId",
+        "questionLangVersions",
     ] + required_fields
 
     error_message = None
@@ -304,6 +319,11 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     if error:
         return error
 
+    # validate lang versions
+    error = validate_lang_versions(q, q["id"])
+    if error:
+        return error
+
 
 def validate_question_put(q: dict) -> Optional[str]:
     """
@@ -329,6 +349,7 @@ def validate_question_put(q: dict) -> Optional[str]:
     error = validate_answers(q)
     if error:
         return error
+
 
 def validate_question_post(q: dict) -> Optional[str]:
     pass

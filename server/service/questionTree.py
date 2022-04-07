@@ -1,8 +1,10 @@
 from typing import NamedTuple, Union
 
+
 class Node(NamedTuple):
     question: dict
     children: list
+
 
 def bfs_order(question_list: list) -> Union[list, str]:
     """
@@ -36,7 +38,7 @@ def bfs_order(question_list: list) -> Union[list, str]:
 
     for question in question_list:
         question_tree_map[question.get("id")] = Node(question, [])
-    
+
     for qid in question_tree_map:
         if qid == "head":
             continue
@@ -44,16 +46,16 @@ def bfs_order(question_list: list) -> Union[list, str]:
         cid = None
         if "categoryId" in node.question and node.question.get("categoryId") != None:
             cid = node.question.get("categoryId")
-        
+
         if cid == None:
             # node is at the top-level
             question_tree_map["head"].append(node)
         else:
             if cid in question_tree_map:
-                question_tree_map["cid"].children.append(node)
+                question_tree_map[cid].children.append(node)
             else:
                 return "question(id=" + qid + ") points to a nonexistent category id"
-    
+
     # run bfs to get the output list
     fifo_queue = question_tree_map["head"]
     output_question_list = []
@@ -62,16 +64,13 @@ def bfs_order(question_list: list) -> Union[list, str]:
         output_question_list.append(cur.question)
         for child in cur.children:
             fifo_queue.append(child)
-    
+
     # check circular dependency
-    # if there are circular dependency occurs, the circle must be a 
-    # isolated one from the head node which would never be visited, 
-    # as each node only has one pointer so only need to check the 
+    # if there are circular dependency occurs, the circle must be a
+    # isolated one from the head node which would never be visited,
+    # as each node only has one pointer so only need to check the
     # length of output_list
     if len(output_question_list) != len(question_list):
         return "there are circular dependencies in the question list"
-    
+
     return output_question_list
-
-
-

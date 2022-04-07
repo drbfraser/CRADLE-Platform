@@ -14,3 +14,8 @@ def get_current_time():
 
 def get_uuid():
     return str(uuid.uuid4())
+
+
+def dumps(obj):
+    # compatible with different languages
+    return json.dumps(obj, ensure_ascii=False)
