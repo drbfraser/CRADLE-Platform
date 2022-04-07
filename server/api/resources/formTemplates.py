@@ -26,9 +26,11 @@ class Root(Resource):
     def post():
         req = request.get_json(force=True)
 
-        error_message = formTemplates.validate(req)
+        error_message = formTemplates.validate_template(req)
         if error_message:
             abort(404, message=error_message)
+        
+        questions = split_form_template(req)
 
         formTemplate = marshal.unmarshal(FormTemplate, req)
 
@@ -121,3 +123,11 @@ class BlankFormTemplate(Resource):
         form_template = serialize.serialize_blank_form_template(form_template)
 
         return form_template
+
+
+#------Helper Function------------------------------#
+def split_form_template(req: dict) -> dict:
+    # split out the question part of template
+    questions = req["questions"]
+    del req["questions"]
+    return questions
