@@ -325,3 +325,6 @@ def validate_question_put(q: dict) -> Optional[str]:
     error = validate_answers(q)
     if error:
         return error
+
+def validate_question_post(q: dict) -> Optional[str]:
+    pass
