@@ -19,6 +19,7 @@ from models import (
     Form,
     Question,
 )
+from models import QuestionLangVersion
 import service.invariant as invariant
 
 
@@ -322,12 +323,12 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_patient(d)
     elif m is Reading:
         return __unmarshal_reading(d)
-    elif m is FormTemplate:
-        return __unmarshal_form_template(d)
     elif m is Form:
         return __unmarshal_form(d)
     elif m is Question:
-        return __marshal_question(d)
+        return __unmarshal_question(d)
+    elif m is QuestionLangVersion:
+        return __unmarshal_lang_version(d)
     else:
         return __load(m, d)
 
@@ -465,25 +466,6 @@ def __unmarshal_reading(d: dict) -> Reading:
 
     return reading
 
-
-def __unmarshal_form_template(d: dict) -> Form:
-    # Unmarshal any questions found within the form template
-    if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the form template schema.
-        del d["questions"]
-    else:
-        questions = []
-
-    form_template = __load(FormTemplate, d)
-
-    if questions:
-        form_template.questions = questions
-
-    return form_template
-
-
 def __unmarshal_form(d: dict) -> Form:
     # Unmarshal any questions found within the form
     if d.get("questions") is not None:
@@ -501,6 +483,16 @@ def __unmarshal_form(d: dict) -> Form:
 
     return form
 
+def __unmarshal_lang_version(d: dict) -> QuestionLangVersion:
+    # Convert "mcOptions" from json dict to string
+    mc_options = d.get("mcOptions")
+    if mc_options is not None:
+        if isinstance(mc_options, list):
+            d["mcOptions"] = json.dumps(mc_options)
+    
+    lang_version = __load(QuestionLangVersion, d)
+
+    return lang_version
 
 def __unmarshal_question(d: dict) -> Question:
     # Convert "visibleCondition" from json dict to string
@@ -516,20 +508,26 @@ def __unmarshal_question(d: dict) -> Question:
     answers = d.get("answers")
     if answers is not None:
         d["answers"] = json.dumps(answers)
+    # Unmarshal any lang versions found within the question
+    if d.get("questionLangVersions") is not None:
+        lang_versions = [unmarshal(QuestionLangVersion, v) for v in d["questionLangVersions"]]
+        # Delete the entry so that we don't try to unmarshal them again by loading from
+        # the question schema.
+        del d["questionLangVersions"]
+    else:
+        lang_versions = []
 
     question = __load(Question, d)
+
+    if lang_versions:
+        question.lang_versions = lang_versions
 
     return question
 
 
-def unmarshal_question_list(d: dict) -> List[Question]:
-    # Unmarshal any questions found within the dict, return a list of questions if found
-    if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
-        del d["questions"]
-    else:
-        questions = []
-
+def unmarshal_question_list(d: list) -> List[Question]:
+    # Unmarshal any questions found within the list, return a list of questions
+    questions = [__unmarshal_question(q) for q in d]
     return questions
 
 

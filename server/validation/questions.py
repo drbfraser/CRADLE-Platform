@@ -166,15 +166,19 @@ def validate_lang_versions(q: dict) -> Optional[str]:
     valid example:
     [
         {
-            "qid": "asdsd-123214214",
-            "relation": "EQUAL_TO",
-            "answers": {
-                "number": 5
-            }
-        },...
+           "lang": "English",
+           "questionText": "How the patient's condition?",
+	       "mcOptions": [
+               {
+                   "mcid":0, 
+                   "opt": "Decent"
+                }
+            ],
+         },
+
     ]
     """
-    target = "QuestionLangVersions"
+    target = "questionLangVersions"
 
     error = check_target_not_null(target, q)
     if error:

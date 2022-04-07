@@ -9,6 +9,7 @@ import data.marshal as marshal
 import service.serialize as serialize
 from models import FormTemplate, Question, RoleEnum
 import service.serialize as serialize
+from service import questionTree
 from validation import formTemplates
 from utils import get_current_time
 from api.decorator import roles_required
@@ -31,10 +32,27 @@ class Root(Resource):
             abort(404, message=error_message)
         
         questions = split_form_template(req)
+        error_message = formTemplates.validate_questions(questions)
+        if error_message:
+            abort(404, message=error_message)
 
         formTemplate = marshal.unmarshal(FormTemplate, req)
 
         crud.create(formTemplate, refresh=True)
+
+        for q in questions:
+            q["formTemplateId"] = formTemplate.id
+        
+        questions = questionTree.bfs_order(questions)
+        if isinstance(questions, str):
+            error_message = questions
+            # error occurs when producing bfs order
+            abort(404, message=error_message)
+        
+        # create questions
+        questions = marshal.unmarshal_question_list(questions)
+        for question in questions:
+            crud.create(question)
 
         return marshal.marshal(formTemplate), 201
 

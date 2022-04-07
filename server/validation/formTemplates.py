@@ -51,16 +51,28 @@ def validate_template(request_body: dict) -> Optional[str]:
 def validate_questions(request_body: list) -> Optional[str]:
     """
     Returns an error message if the questions part in /api/forms/templates POST or PUT
-    request is not valid. Else, returns None.
+    request is not valid (json format and lang versions consistency). Else, returns None.
 
     :param request_body: The request body as a dict object
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
+    lang_version_list = None
     # validate each question
-    for q in request_body:
+    for i, q in enumerate(request_body):
         error = validate_template_question_post(q)
         if error:
             return error
+        if i == 0:
+            lang_version_list = [v.get("lang") for v in q.get("QuestionLangVersions")]
+            lang_version_list.sort()
+        else:
+            tmp_lang_version_list = [v.get("lang") for v in q.get("QuestionLangVersions")]
+            tmp_lang_version_list.sort()
+            # validate lang versions consistency
+            if tmp_lang_version_list != lang_version_list:
+                return "lang versions provided between questions are not consistent"
+    
+    return None
     
 
