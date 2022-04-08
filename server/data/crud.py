@@ -20,6 +20,7 @@ from models import (
     supervises,
     Question,
     Form,
+    FormTemplate,
 )
 import service.invariant as invariant
 
@@ -748,6 +749,18 @@ def read_questions(
         query = query.filter(model.formTemplateId == form_template_id)
 
     return query.all()
+
+
+def read_form_template_versions(model: FormTemplate) -> List[str]:
+    """
+    Quries the template for current lang versions
+
+    :param model: formTemplate model (here we assume the template is valid)
+
+    :return: A list of lang version texts
+    """
+    lang_versions = model.questions[0].lang_versions
+    return [v.lang for v in lang_versions]
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #

@@ -184,6 +184,7 @@ def get_query_params(request: Request):
         "referrals": request.args.get("referrals"),
         "assessments": request.args.get("assessments"),
         "forms": request.args.get("forms"),
+        "lang": request.args.get("lang"),
         "is_assessed": request.args.get("isAssessed"),
         "is_pregnant": request.args.get("isPregnant"),
         "vital_signs": list(filter(None, request.args.getlist("vitalSigns"))),

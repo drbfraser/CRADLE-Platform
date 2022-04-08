@@ -6,6 +6,7 @@ from flask_restful import Resource, abort
 import data
 import data.crud as crud
 import data.marshal as marshal
+import api.util as util
 import service.serialize as serialize
 from models import FormTemplate, Question, RoleEnum
 import service.serialize as serialize
@@ -71,6 +72,24 @@ class Root(Resource):
         form_templates = crud.read_all(FormTemplate)
         return [marshal.marshal(f, shallow=True) for f in form_templates]
 
+# /api/forms/templates/<string:form_template_id>/versions
+class SingleTemplateVersion(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-form-template-version-get.yml",
+        methods=["GET"],
+        endpoint="single_form_template_version",
+    )
+    def get(form_template_id: str):
+        form_template = crud.read(FormTemplate, id=form_template_id)
+        if not form_template:
+            abort(404, message=f"No form with id {form_template_id}")
+
+        lang_list = crud.read_form_template_versions(form_template)
+
+        return {"lang_versions": lang_list}
+
 
 # /api/forms/templates/<string:form_template_id>
 class SingleFormTemplate(Resource):
@@ -82,6 +101,7 @@ class SingleFormTemplate(Resource):
         endpoint="single_form_template",
     )
     def get(form_template_id: str):
+        params = util.get_query_params(request)
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
