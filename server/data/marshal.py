@@ -244,6 +244,19 @@ def __marshal_form_template(
 
     return d
 
+def marshal_template_to_single_version(
+    f: FormTemplate, version: str
+) -> dict:
+    d = vars(f).copy()
+    __pre_process(d)
+
+    d["lang"] = version
+    d["questions"] = [
+        marshal_question_to_single_version(q, version) for q in f.questions
+    ]
+
+    return d
+
 
 def __marshal_form(f: Form, shallow) -> dict:
     d = vars(f).copy()
@@ -283,6 +296,15 @@ def __marshal_question(q: Question, if_include_versions: bool) -> dict:
 
     return d
 
+def marshal_question_to_single_version(q: Question, version: str) -> dict:
+    d = __marshal_question(q, False)
+    version_info = [marshal(v) for v in q.lang_versions if v.lang == version][0]
+
+    d["questionText"] = version_info["questionText"]
+    if "mcOptions" in version_info:
+        d["mcOptions"] = version_info["mcOptions"]
+    
+    return d
 
 def __marshal_lang_version(v: QuestionLangVersion) -> dict:
     d = vars(v).copy()
