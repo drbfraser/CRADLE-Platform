@@ -4,7 +4,9 @@ import data.crud as crud
 from models import Form
 
 
-def test_form_created_and_update(database, form, form_put, create_patient, api_post, api_put):
+def test_form_created_and_update(
+    database, form, form_put, create_patient, api_post, api_put
+):
     create_patient()
 
     response = api_post(endpoint="/api/forms/responses", json=form)
@@ -13,10 +15,11 @@ def test_form_created_and_update(database, form, form_put, create_patient, api_p
     assert response.status_code == 201
     assert resp_json["dateCreated"] == resp_json["lastEdited"]
 
-    form_id="f1"
+    form_id = "f1"
     response = api_put(endpoint=f"/api/forms/responses/{form_id}", json=form_put)
     database.session.commit()
     assert response.status_code == 201
+
 
 @pytest.fixture
 def form(patient_id):
@@ -62,6 +65,7 @@ def form(patient_id):
         ],
     }
 
+
 @pytest.fixture
 def form_put():
     return {
@@ -70,7 +74,7 @@ def form_put():
                 "id": "f_q1",
                 "answers": {
                     "mcidArray": [1],
-                }
+                },
             },
         ]
     }

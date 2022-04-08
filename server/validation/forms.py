@@ -1,15 +1,21 @@
 from typing import Optional
 
 from models import Form
-from validation.validate import required_keys_present, values_correct_type, check_invalid_keys_present, force_consistent_keys
+from validation.validate import (
+    required_keys_present,
+    values_correct_type,
+    check_invalid_keys_present,
+    force_consistent_keys,
+)
 from validation.questions import validate_form_question_post, validate_form_question_put
+
 
 def validate_form(request_body: dict) -> Optional[str]:
     """
-    Returns an error message if the form part in /api/forms/responses POST request is 
+    Returns an error message if the form part in /api/forms/responses POST request is
     not valid. Else, returns None.
 
-    :param request_body: The request body as a dict object 
+    :param request_body: The request body as a dict object
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
@@ -26,10 +32,10 @@ def validate_form(request_body: dict) -> Optional[str]:
         "formTemplateId",
         "dateCreated",
         "lastEdited",
-        "lastEditedBy"
+        "lastEditedBy",
     ] + required_fields
 
-    error_message = None 
+    error_message = None
 
     error_message = required_keys_present(request_body, required_fields)
     if error_message is not None:
@@ -38,22 +44,25 @@ def validate_form(request_body: dict) -> Optional[str]:
     error_message = check_invalid_keys_present(request_body, all_fields)
     if error_message is not None:
         return error_message
-    
+
     error = values_correct_type(
-        request_body, ["id", "lang", "name", "category", "patientId", "formTemplateId"], str
+        request_body,
+        ["id", "lang", "name", "category", "patientId", "formTemplateId"],
+        str,
     )
     if error:
         return error
-    
+
     error = values_correct_type(
         request_body, ["dateCreated", "lastEdited", "lastEditedBy"], int
     )
     if error:
         return error
-    
+
     error = values_correct_type(request_body, ["questions"], list)
     if error:
         return error
+
 
 def validate_questions(request_body: list) -> Optional[str]:
     """
@@ -69,6 +78,7 @@ def validate_questions(request_body: list) -> Optional[str]:
         error = validate_form_question_post(q)
         if error:
             return error
+
 
 def validate_put_request(request_body: dict) -> Optional[str]:
     """

@@ -35,7 +35,7 @@ class Root(Resource):
             form_template = crud.read(FormTemplate, id=req["formTemplateId"])
             if not form_template:
                 abort(400, message="Form template does not exist")
-    
+
         if req.get("lastEditedBy") is not None:
             user = crud.read(User, id=req["lastEditedBy"])
             if not user:
@@ -44,12 +44,12 @@ class Root(Resource):
             user = get_jwt_identity()
             user_id = int(user["userId"])
             req["lastEditedBy"] = user_id
-        
+
         questions = split_question(req)
         error_message = forms.validate_questions(questions)
         if error_message:
             abort(404, message=error_message)
-        
+
         question_ids = [question["id"] for question in questions]
         if crud.check_any_question_exist(question_ids):
             return f"There are questions already existed in database"
@@ -60,7 +60,7 @@ class Root(Resource):
 
         for q in questions:
             q["formId"] = form.id
-        
+
         questions = questionTree.bfs_order(questions)
         if isinstance(questions, str):
             error_message = questions

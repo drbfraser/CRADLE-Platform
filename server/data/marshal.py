@@ -506,6 +506,7 @@ def __unmarshal_reading(d: dict) -> Reading:
 
     return reading
 
+
 def __unmarshal_lang_version(d: dict) -> QuestionLangVersion:
     # Convert "mcOptions" from json dict to string
     mc_options = d.get("mcOptions")

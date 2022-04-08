@@ -333,6 +333,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     if error:
         return error
 
+
 def validate_form_question_post(q: dict) -> Optional[str]:
     """
     Returns an error message if the question dict is not valid (after pre-process) when
@@ -353,7 +354,7 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     for key in non_required_fields:
         if key in q:
             del q[key]
-    
+
     # pre-process the form question dict
     q["isBlank"] = False
 
@@ -389,11 +390,11 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     error_message = check_invalid_keys_present(q, all_fields)
     if error_message is not None:
         return error_message
-    
+
     error = values_correct_type(q, ["required", "hasCommentAttached"], bool)
     if error:
         return error
-    
+
     error = values_correct_type(
         q,
         [
@@ -404,7 +405,7 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     )
     if error:
         return error
-    
+
     error = values_correct_type(
         q,
         [
@@ -415,7 +416,7 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     )
     if error:
         return error
-    
+
     error = values_correct_type(
         q,
         [
@@ -436,16 +437,17 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     error = validate_visible_condition(q)
     if error:
         return error
-    
+
     # validate mcOptions
     error = validate_mc_options(q)
     if error:
         return error
-    
+
     # validate answers
     error = validate_answers(q)
     if error:
         return error
+
 
 def validate_form_question_put(q: dict) -> Optional[str]:
     """
