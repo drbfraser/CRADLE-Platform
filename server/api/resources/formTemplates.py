@@ -69,7 +69,7 @@ class Root(Resource):
     )
     def get():
         form_templates = crud.read_all(FormTemplate)
-        return [marshal.marshal(f) for f in form_templates]
+        return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
 # /api/forms/templates/<string:form_template_id>

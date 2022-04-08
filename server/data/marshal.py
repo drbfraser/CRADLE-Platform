@@ -29,6 +29,7 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
 
     :param obj: The object to marshal
     :param shallow: If true, only the top level fields will be marshalled
+    :param if_include_versions: If true, lang versions will be attached to questions
     :return: A dictionary mapping fields to values
     """
     if isinstance(obj, Patient):
@@ -58,7 +59,7 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
 def marshal_with_type(obj: Any, shallow=False) -> dict:
     """
     Recursively marshals an object to a dictionary which has an additional
-    field that indicates the object type
+    field that indicates the object type, used for summary page cards
 
     :param obj: The object to marshal
     :param shallow: If true, only the top level fields will be marshalled
