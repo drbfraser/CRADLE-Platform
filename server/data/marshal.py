@@ -244,9 +244,8 @@ def __marshal_form_template(
 
     return d
 
-def marshal_template_to_single_version(
-    f: FormTemplate, version: str
-) -> dict:
+
+def marshal_template_to_single_version(f: FormTemplate, version: str) -> dict:
     d = vars(f).copy()
     __pre_process(d)
 
@@ -296,6 +295,7 @@ def __marshal_question(q: Question, if_include_versions: bool) -> dict:
 
     return d
 
+
 def marshal_question_to_single_version(q: Question, version: str) -> dict:
     d = __marshal_question(q, False)
     version_info = [marshal(v) for v in q.lang_versions if v.lang == version][0]
@@ -303,8 +303,9 @@ def marshal_question_to_single_version(q: Question, version: str) -> dict:
     d["questionText"] = version_info["questionText"]
     if "mcOptions" in version_info:
         d["mcOptions"] = version_info["mcOptions"]
-    
+
     return d
+
 
 def __marshal_lang_version(v: QuestionLangVersion) -> dict:
     d = vars(v).copy()
@@ -553,15 +554,14 @@ def __unmarshal_question(d: dict) -> Question:
     if answers is not None:
         d["answers"] = utils.dumps(answers)
     # Unmarshal any lang versions found within the question
+    lang_versions = []
     if d.get("questionLangVersions") is not None:
-        lang_versions = [
-            unmarshal(QuestionLangVersion, v) for v in d["questionLangVersions"]
-        ]
+        for v in d["questionLangVersions"]:
+            v["qid"] = d["id"]
+            lang_versions.append(unmarshal(QuestionLangVersion, v))
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the question schema.
         del d["questionLangVersions"]
-    else:
-        lang_versions = []
 
     question = __load(Question, d)
 

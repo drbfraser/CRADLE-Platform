@@ -1,7 +1,7 @@
-from typing import Optional, Type
+from typing import Optional
 
-from data.crud import M
-from models import Form, FormTemplate, QRelationalEnum, QuestionTypeEnum
+import data.crud as crud
+from models import Question, QRelationalEnum, QuestionTypeEnum
 from validation.validate import (
     check_invalid_keys_present,
     required_keys_present,
@@ -229,7 +229,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
 
     :param q: question as a dict object
 
-    :return: An error message if request body in invalid in some way. None otherwise.
+    :return: An error message if request body is invalid in some way. None otherwise.
     """
     # for template questions, below fields are redundant fields so we remove them in
     # case they are provided by frontend, to skip validation to them

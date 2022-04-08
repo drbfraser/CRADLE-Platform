@@ -466,7 +466,7 @@ class FormTemplate(db.Model):
 
     @staticmethod
     def schema():
-        return FormTemplateschema
+        return FormTemplateSchema
 
 
 class Form(db.Model):
@@ -746,7 +746,7 @@ class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-class FormTemplateschema(ma.SQLAlchemyAutoSchema):
+class FormTemplateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = FormTemplate

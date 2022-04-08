@@ -235,7 +235,7 @@ def init(api):
         FormTemplate, "/api/forms/templates", endpoint="form_templates"
     )  # [GET, POST]
     api.add_resource(
-        SingleTemplateVersion, 
+        SingleTemplateVersion,
         "/api/forms/templates/<string:form_template_id>/versions",
         endpoint="single_form_template_version",
     )

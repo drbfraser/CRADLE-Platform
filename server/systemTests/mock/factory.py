@@ -129,7 +129,6 @@ class ReferralFactory(ModelFactory):
 
         :param kwargs: Keyword arguments
         :key patientId: Id of the patient to associate this referral with
-        :key readingId: Id of the reading to associate this referral with
         :return:
         """
         return super().create(**kwargs)
@@ -246,3 +245,20 @@ class MedicalRecordFactory(ModelFactory):
 
     def _do_create(self, **kwargs) -> Any:
         return crud.create_model(dict(**kwargs), models.MedicalRecordSchema)
+
+
+class FormTemplateFactory(ModelFactory):
+    def __init__(self, db: SQLAlchemy):
+        super().__init__(db)
+
+    def create(self, **kwargs) -> Any:
+        """
+        Creates a new form template.
+
+        :param kwargs: Keyword arguments
+        :return: A ``FormTemplate`` model
+        """
+        return super().create(**kwargs)
+
+    def _do_create(self, **kwargs) -> Any:
+        return crud.create_model(dict(**kwargs), models.FormTemplateSchema)
