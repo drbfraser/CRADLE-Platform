@@ -32,7 +32,7 @@ class Root(Resource):
         if error_message:
             abort(404, message=error_message)
 
-        questions = split_form_template(req)
+        questions = split_question(req)
         error_message = formTemplates.validate_questions(questions)
         if error_message:
             abort(404, message=error_message)
@@ -146,7 +146,7 @@ class SingleFormTemplate(Resource):
         if error_message:
             abort(404, message=error_message)
 
-        questions = split_form_template(req)
+        questions = split_question(req)
         error_message = formTemplates.validate_questions(questions)
         if error_message:
             abort(404, message=error_message)
@@ -198,7 +198,7 @@ class BlankFormTemplate(Resource):
 
 
 # ------Helper Function------------------------------#
-def split_form_template(req: dict) -> dict:
+def split_question(req: dict) -> dict:
     # split out the question part of template
     questions = req["questions"]
     del req["questions"]

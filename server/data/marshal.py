@@ -365,8 +365,6 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_patient(d)
     elif m is Reading:
         return __unmarshal_reading(d)
-    elif m is Form:
-        return __unmarshal_form(d)
     elif m is Question:
         return __unmarshal_question(d)
     elif m is QuestionLangVersion:
@@ -507,25 +505,6 @@ def __unmarshal_reading(d: dict) -> Reading:
     invariant.resolve_reading_invariants(reading)
 
     return reading
-
-
-def __unmarshal_form(d: dict) -> Form:
-    # Unmarshal any questions found within the form
-    if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the form schema.
-        del d["questions"]
-    else:
-        questions = []
-
-    form = __load(Form, d)
-
-    if questions:
-        form.questions = questions
-
-    return form
-
 
 def __unmarshal_lang_version(d: dict) -> QuestionLangVersion:
     # Convert "mcOptions" from json dict to string

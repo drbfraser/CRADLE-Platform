@@ -1,7 +1,7 @@
 from typing import Optional
 
 import data.crud as crud
-from models import Question, QRelationalEnum, QuestionTypeEnum
+from models import QRelationalEnum, QuestionTypeEnum
 from validation.validate import (
     check_invalid_keys_present,
     required_keys_present,
@@ -288,11 +288,20 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         q,
         [
             "questionIndex",
-            "numMin",
-            "numMax",
             "stringMaxLength",
         ],
         int,
+    )
+    if error:
+        return error
+
+    error = values_correct_type(
+        q,
+        [
+            "numMin",
+            "numMax",
+        ],
+        float,
     )
     if error:
         return error
@@ -324,8 +333,121 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     if error:
         return error
 
+def validate_form_question_post(q: dict) -> Optional[str]:
+    """
+    Returns an error message if the question dict is not valid (after pre-process) when
+    making form post request. Else, returns None.
 
-def validate_question_put(q: dict) -> Optional[str]:
+    :param q: question as a dict object
+
+    :return: An error message if request body is invalid in some way. None otherwise.
+    """
+    # for form questions, below fields are redundant fields so we remove them in
+    # case they are provided by frontend, to skip validation to them
+    non_required_fields = [
+        "isBlank",
+        "formId",
+        "formTemplateId",
+    ]
+
+    for key in non_required_fields:
+        if key in q:
+            del q[key]
+    
+    # pre-process the form question dict
+    q["isBlank"] = False
+
+    # validate fields
+    required_fields = [
+        "id",
+        "questionIndex",
+        "questionText",
+        "questionType",
+    ]
+
+    all_fields = [
+        "isBlank",
+        "questionId",
+        "hasCommentAttached",
+        "required",
+        "units",
+        "visibleCondition",
+        "mcOptions",
+        "numMin",
+        "numMax",
+        "stringMaxLength",
+        "categoryId",
+        "answers",
+    ] + required_fields
+
+    error_message = None
+
+    error_message = required_keys_present(q, required_fields)
+    if error_message is not None:
+        return error_message
+
+    error_message = check_invalid_keys_present(q, all_fields)
+    if error_message is not None:
+        return error_message
+    
+    error = values_correct_type(q, ["required", "hasCommentAttached"], bool)
+    if error:
+        return error
+    
+    error = values_correct_type(
+        q,
+        [
+            "questionIndex",
+            "stringMaxLength",
+        ],
+        int,
+    )
+    if error:
+        return error
+    
+    error = values_correct_type(
+        q,
+        [
+            "numMin",
+            "numMax",
+        ],
+        float,
+    )
+    if error:
+        return error
+    
+    error = values_correct_type(
+        q,
+        [
+            "id",
+            "questionId",
+            "questionText",
+            "categoryId",
+            "units",
+        ],
+        str,
+    )
+
+    error = values_correct_type(q, ["questionType"], QuestionTypeEnum)
+    if error:
+        return error
+
+    # validate visibleCondition
+    error = validate_visible_condition(q)
+    if error:
+        return error
+    
+    # validate mcOptions
+    error = validate_mc_options(q)
+    if error:
+        return error
+    
+    # validate answers
+    error = validate_answers(q)
+    if error:
+        return error
+
+def validate_form_question_put(q: dict) -> Optional[str]:
     """
     Returns an error message if the question dict is not valid when making form put
     request. Else, returns None.
@@ -334,11 +456,11 @@ def validate_question_put(q: dict) -> Optional[str]:
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    required_fields = ["id", "answers"]
+    force_fields = ["id", "answers"]
 
     error_message = None
 
-    error_message = required_keys_present(q, required_fields)
+    error_message = force_consistent_keys(q, force_fields)
     if error_message is not None:
         return error_message
 
@@ -349,7 +471,3 @@ def validate_question_put(q: dict) -> Optional[str]:
     error = validate_answers(q)
     if error:
         return error
-
-
-def validate_question_post(q: dict) -> Optional[str]:
-    pass
