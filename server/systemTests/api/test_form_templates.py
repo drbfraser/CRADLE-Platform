@@ -8,6 +8,7 @@ def test_form_template_created(database, form_template, api_post):
     response = api_post(endpoint="/api/forms/templates", json=form_template)
     database.session.commit()
     try:
+        print(response.json())
         assert response.status_code == 201
     finally:
         crud.delete_by(FormTemplate, id="ft1")
@@ -32,6 +33,7 @@ def test_form_template_update(
             json=update_info_in_question,
         )
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
 
         response = api_put(
