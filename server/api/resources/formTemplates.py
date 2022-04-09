@@ -188,13 +188,33 @@ class BlankFormTemplate(Resource):
         endpoint="blank_form_template",
     )
     def get(form_template_id: str):
+        params = util.get_query_params(request)
         form_template = crud.read(FormTemplate, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
 
-        form_template = serialize.serialize_blank_form_template(form_template)
+        version = params.get("lang")
+        if version == None:
+            # admin user get template of full verions
+            blank_template = marshal.marshal(
+                form_template, shallow=False, if_include_versions=True
+            )
+            blank_template = serialize.serialize_blank_form_template(blank_template)
+            return blank_template
 
-        return form_template
+        available_versions = crud.read_form_template_versions(
+            form_template, refresh=True
+        )
+        if not version in available_versions:
+            abort(
+                404,
+                message=f"Template(id={form_template_id}) doesn't have language version = {version}",
+            )
+
+        blank_template = marshal.marshal_template_to_single_version(form_template, version)
+        blank_template = serialize.serialize_blank_form_template(blank_template)
+
+        return blank_template
 
 
 # ------Helper Function------------------------------#

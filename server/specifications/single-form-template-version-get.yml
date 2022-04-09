@@ -1,0 +1,21 @@
+Get all the language versions of a form template
+---
+tags:
+  - Form Templates
+parameters:
+  - in: path
+    name: form_template_id
+    required: true
+    schema:
+      type: string
+responses:
+  200:
+    description: Response from GET request for /api/forms/templates/<string:form_template_id>/versions
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            lang_versions:
+              type: array
+              example: ['English', 'Chinese']

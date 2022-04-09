@@ -7,10 +7,10 @@ parameters:
   name: form_template_id
   required: true
   schema:
-    type: integer
+    type: string
 responses:
   200:
-    description: Response from GET request for /api/forms/templates/<id>
+    description: Response from GET request for /api/forms/templates/<string:form_template_id>?lang=chinese; if not provide lang parameter, get a full version of template
     content:
       application/json:
         schema:
@@ -29,11 +29,14 @@ responses:
               type: string | null
               example: "V1"
             dateCreated:
-              type: Unix timestamp | Null
+              type: Unix timestamp
               example: 1551447833
             lastEdited:
-              type: Unix timestamp | Null
+              type: Unix timestamp
               example: 1551447833
+            lang:
+              type: string (not provided in full version)
+              example: "chinese"
             questions:
               type: array
               items:
@@ -49,13 +52,10 @@ responses:
                     type: boolean
                     example: true
                   formTemplateId:
-                    type: string | null
+                    type: string
                     example: "adas-d82314-27822-63150"
-                  formId:
-                    type: string | null
-                    example: null
                   category:
-                    type: string | null
+                    type: string
                     example: "Referred By"
                   questionIndex:
                     type: integer
@@ -68,14 +68,14 @@ responses:
                     enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
                     example: MULTIPLE_CHOICE
                   hasCommentAttached:
-                    type: boolean - optional -default false
+                    type: boolean
                     example: false
                   required:
                     type: boolean
                     example: true
                   units:
-                    type: string | null
-                    example: null
+                    type: string
+                    example: "kg"
                   visibleCondition:
                     type: array
                     items: object
@@ -83,26 +83,28 @@ responses:
                       "qid": 1,
                       "relation": "EQUAL_TO",
                       "answer": {
-                          "number": null,
-                          "text": "",
-                          "textArray": [
-                              "opt"
-                          ],
-                          "comment": ""
+                        "mcidArray": [
+                            0
+                        ]
                       }
                     }]
                   numMin:
-                    type: integer | null
-                    example: null
+                    type: float
+                    example: 1.0
                   numMax:
-                    type: integer | null
-                    example: null
+                    type: float
+                    example: 5.0
                   stringMaxLength:
-                    type: integer | null
-                    example: null
+                    type: integer
+                    example: 255
                   mcOptions:
-                    type: array | null
-                    example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
+                    type: array
+                    example: [
+                      {
+                        "mcid": 0,
+                        "opt": "Decent"
+                      }
+                    ]
                   answers:
                     type: object
                     example: {}
