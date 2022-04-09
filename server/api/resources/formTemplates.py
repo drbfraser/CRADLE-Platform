@@ -211,7 +211,9 @@ class BlankFormTemplate(Resource):
                 message=f"Template(id={form_template_id}) doesn't have language version = {version}",
             )
 
-        blank_template = marshal.marshal_template_to_single_version(form_template, version)
+        blank_template = marshal.marshal_template_to_single_version(
+            form_template, version
+        )
         blank_template = serialize.serialize_blank_form_template(blank_template)
 
         return blank_template
