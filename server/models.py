@@ -546,13 +546,17 @@ class Question(db.Model):
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
     questionId = db.Column(db.Text, nullable=True)
-    questionText = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False, default="")
+    questionText = db.Column(
+        db.Text(collation="utf8mb4_general_ci"), nullable=False, default=""
+    )
     questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
     hasCommentAttached = db.Column(db.Boolean, nullable=False, default=0)
     required = db.Column(db.Boolean, nullable=False, default=0)
     units = db.Column(db.Text, nullable=True)
     visibleCondition = db.Column(db.Text, nullable=False, default="[]")
-    mcOptions = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False, default="[]")
+    mcOptions = db.Column(
+        db.Text(collation="utf8mb4_general_ci"), nullable=False, default="[]"
+    )
     numMin = db.Column(db.Float, nullable=True)
     numMax = db.Column(db.Float, nullable=True)
     stringMaxLength = db.Column(db.Integer, nullable=True)
@@ -600,7 +604,9 @@ class QuestionLangVersion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     lang = db.Column(db.Text, nullable=False)
     questionText = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False)
-    mcOptions = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False, default="[]")
+    mcOptions = db.Column(
+        db.Text(collation="utf8mb4_general_ci"), nullable=False, default="[]"
+    )
 
     # FORENIGN KEYS
     qid = db.Column(
