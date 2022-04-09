@@ -42,7 +42,7 @@ class Config(object):
             "******************************************************************************************"
         )
 
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}?charset=utf8mb4"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
 
     print("SQLALCHEMY_DATABASE_URI: " + SQLALCHEMY_DATABASE_URI)
 
