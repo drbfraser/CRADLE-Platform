@@ -512,7 +512,7 @@ def __unmarshal_lang_version(d: dict) -> QuestionLangVersion:
     mc_options = d.get("mcOptions")
     if mc_options is not None:
         if isinstance(mc_options, list):
-            d["mcOptions"] = utils.dumps(mc_options)
+            d["mcOptions"] = json.dumps(mc_options)
 
     lang_version = __load(QuestionLangVersion, d)
 
@@ -523,16 +523,16 @@ def __unmarshal_question(d: dict) -> Question:
     # Convert "visibleCondition" from json dict to string
     visible_condition = d.get("visibleCondition")
     if visible_condition is not None:
-        d["visibleCondition"] = utils.dumps(visible_condition)
+        d["visibleCondition"] = json.dumps(visible_condition)
     # Convert "mcOptions" from json dict to string
     mc_options = d.get("mcOptions")
     if mc_options is not None:
         if isinstance(mc_options, list):
-            d["mcOptions"] = utils.dumps(mc_options)
+            d["mcOptions"] = json.dumps(mc_options)
     # Convert "answers" from json dict to string
     answers = d.get("answers")
     if answers is not None:
-        d["answers"] = utils.dumps(answers)
+        d["answers"] = json.dumps(answers)
     # Unmarshal any lang versions found within the question
     lang_versions = []
     if d.get("questionLangVersions") is not None:
