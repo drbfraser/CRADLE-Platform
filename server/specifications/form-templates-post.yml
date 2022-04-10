@@ -50,11 +50,11 @@ requestBody:
                   type: array - optional - default []
                   items: object
                   example: [{
-                    "qid": 1,
+                    "qid": "asdsd-1232132",
                     "relation": "EQUAL_TO",
                     "answer": {
                         "mcidArray": [
-                            "opt"
+                            0
                         ]
                     }
                   }]
@@ -112,10 +112,10 @@ responses:
               type: string | null
               example: "V1"
             dateCreated:
-              type: Unix timestamp | Null
+              type: Unix timestamp
               example: 1551447833
             lastEdited:
-              type: Unix timestamp | Null
+              type: Unix timestamp
               example: 1551447833
   400:
     description: |

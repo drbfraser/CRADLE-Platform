@@ -10,7 +10,7 @@ parameters:
     type: string
 responses:
   200:
-    description: Response from GET request for /api/forms/templates/blank/<string:form_template_id>?lang=chinese; if not provide lang parameter, get a full version of template
+    description: Response from GET request for /api/forms/templates/blank/<string:form_template_id>?lang=english; if not provide lang parameter, get a full version of template
     content:
       application/json:
         schema:
@@ -37,7 +37,7 @@ responses:
                     type: string
                     example: "adas-d82314-27822-63154"
                   questionId:
-                    type: string
+                    type: string | null
                     example: "referred-by-name"
                   isBlank:
                     type: boolean
@@ -45,14 +45,14 @@ responses:
                   formTemplateId:
                     type: string
                     example: "adas-d82314-27822-63150"
-                  category:
-                    type: string
-                    example: "Referred By"
+                  categoryId:
+                    type: string | null
+                    example: "asdsd-12321"
                   questionIndex:
                     type: integer
                     example: 1
                   questionText:
-                    type: string
+                    type: string | null
                     example: "How the patient's condition?"
                   questionType:
                     type: enum
@@ -65,13 +65,13 @@ responses:
                     type: boolean
                     example: true
                   units:
-                    type: string
+                    type: string | null
                     example: "kg"
                   visibleCondition:
                     type: array
                     items: object
                     example: [{
-                      "qid": 1,
+                      "qid": "asdsd-123123",
                       "relation": "EQUAL_TO",
                       "answer": {
                         "mcidArray": [
@@ -80,13 +80,13 @@ responses:
                       }
                     }]
                   numMin:
-                    type: float
+                    type: float | null
                     example: 1.0
                   numMax:
-                    type: float
+                    type: float | null
                     example: 5.0
                   stringMaxLength:
-                    type: integer
+                    type: integer | null
                     example: 255
                   mcOptions:
                     type: array

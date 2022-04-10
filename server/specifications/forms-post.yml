@@ -74,7 +74,7 @@ requestBody:
                   type: array - optional - default []
                   items: object
                   example: [{
-                    "qid": 1,
+                    "qid": "asdssd-123312",
                     "relation": "EQUAL_TO",
                     "answer": {
                       "mcidArray": [
@@ -106,17 +106,17 @@ requestBody:
                   type: object
                   properties:
                     number:
-                      type: integer/float - optional
-                      example: 1
+                      type: integer/float | null - optional
+                      example: null
                     text: 
-                      type: string - optional
-                      example: ""
+                      type: string | null - optional
+                      example: "today"
                     mcidArray:
-                      type: array - optional
-                      example: []
+                      type: array | null - optional
+                      example: [0]
                     comment:
-                      type: string - optional
-                      example: "Was not an emergency"
+                      type: string | null - optional
+                      example: null
 
 
 responses:
@@ -131,8 +131,14 @@ responses:
               type: string
               example: "adas-d82314-27822-63138"
             lang:
-              type: string - required
+              type: string
               example: english
+            name:
+              type: string
+              example: "referral_form"
+            category:
+              type: string
+              example: "example"
             patientId:
               type: string
               example: "123"

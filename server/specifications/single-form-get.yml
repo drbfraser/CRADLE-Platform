@@ -20,7 +20,7 @@ responses:
               type: string
               example: "adas-d82314-27822-63138"
             lang:
-              type: string - required
+              type: string
               example: english
             patientId:
               type: string
@@ -86,7 +86,7 @@ responses:
                     type: array
                     items: object
                     example: [{
-                      "qid": 1,
+                      "qid": "asdsd-123123",
                       "relation": "EQUAL_TO",
                       "answer": {
                           "mcidArray": [

@@ -47,7 +47,7 @@ responses:
               type: string
               example: "1c987c44-7ef4-4b4f-9870-22ce6aee5ab6"
             lang:
-              type: string - required
+              type: string
               example: english
             patientId:
               type: string
@@ -70,89 +70,3 @@ responses:
             lastEditedBy:
               type: integer | null
               example: 2
-            questions:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    example: "adas-d82314-27822-63150"
-                  questionId:
-                    type: string
-                    example: "referred-by-name"
-                  isBlank:
-                    type: boolean
-                    example: false
-                  formTemplateId:
-                    type: string | null
-                    example: null
-                  formId:
-                    type: string | null
-                    example: "adas-d82314-27822-63139"
-                  categoryId:
-                    type: string
-                    example: "asdee-12321"
-                  questionIndex:
-                    type: integer
-                    example: 1
-                  questionText:
-                    type: string
-                    example: "How the patient's condition?"
-                  questionType:
-                    type: enum
-                    enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
-                    example: MULTIPLE_CHOICE
-                  hasCommentAttached:
-                    type: boolean - optional -default false
-                    example: false
-                  required:
-                    type: boolean
-                    example: true
-                  units:
-                    type: string | null
-                    example: null
-                  visibleCondition:
-                    type: array
-                    items: object
-                    example: [{
-                      "qid": 1,
-                      "relation": "EQUAL_TO",
-                      "answer": {
-                          "mcidArray": [
-                              0
-                          ]
-                      }
-                    }]
-                  numMin:
-                    type: float
-                    example: 1.0
-                  numMax:
-                    type: float
-                    example: 5.0
-                  stringMaxLength:
-                    type: integer
-                    example: 255
-                  mcOptions:
-                    type: array
-                    example: [
-                      {
-                        "mcid": 0,
-                        "opt": "Decent"
-                      }
-                    ]
-                  answers:
-                    type: object
-                    properties:
-                      number:
-                        type: integer/float | null - optional
-                        example: null
-                      text: 
-                        type: string | null - optional
-                        example: null
-                      mcidArray:
-                        type: array | null - optional
-                        example: [0]
-                      comment:
-                        type: string | null - optional
-                        example: "Was not an emergency"
