@@ -8,7 +8,10 @@ import data
 import data.crud as crud
 import data.marshal as marshal
 from validation import forms
+from service import questionTree
+from api.resources.formTemplates import split_question
 from models import Patient, Form, FormTemplate, User
+import utils
 
 
 # /api/forms/responses
@@ -21,7 +24,7 @@ class Root(Resource):
     def post():
         req = request.get_json(force=True)
 
-        error_message = forms.validate_post_request(req)
+        error_message = forms.validate_form(req)
         if error_message is not None:
             abort(400, message=error_message)
 
@@ -29,22 +32,51 @@ class Root(Resource):
         if not patient:
             abort(400, message="Patient does not exist")
 
-        if "formTemplateId" in req and req.get("formTemplateId") is not None:
+        if req.get("formTemplateId") is not None:
             form_template = crud.read(FormTemplate, id=req["formTemplateId"])
             if not form_template:
                 abort(400, message="Form template does not exist")
 
-        if "lastEditedBy" in req and req.get("lastEditedBy") is not None:
+        if req.get("lastEditedBy") is not None:
             user = crud.read(User, id=req["lastEditedBy"])
             if not user:
                 abort(400, message="User does not exist")
+        else:
+            user = get_jwt_identity()
+            user_id = int(user["userId"])
+            req["lastEditedBy"] = user_id
+
+        questions = split_question(req)
+        error_message = forms.validate_questions(questions)
+        if error_message:
+            abort(404, message=error_message)
+
+        question_ids = [question["id"] for question in questions]
+        if crud.check_any_question_exist(question_ids):
+            return f"There are questions already existed in database"
 
         form = marshal.unmarshal(Form, req)
-        # first time when the form is created lastEdited is same to dateCreated
-        form.lastEdited = form.dateCreated
+
         crud.create(form, refresh=True)
 
-        return marshal.marshal(form, True), 201
+        for q in questions:
+            q["formId"] = form.id
+
+        questions = questionTree.bfs_order(questions)
+        if isinstance(questions, str):
+            error_message = questions
+            # revert created form template
+            crud.delete(form)
+            # error occurs when producing bfs order
+            abort(404, message=error_message)
+
+        # create questions
+        questions = marshal.unmarshal_question_list(questions)
+        crud.create_all(questions, autocommit=True)
+
+        data.db_session.refresh(form)
+
+        return marshal.marshal(form, shallow=True), 201
 
 
 # /api/forms/responses/<string:form_id>
@@ -83,12 +115,6 @@ class SingleForm(Resource):
 
         questions_upload = req["questions"]
         questions = form.questions
-        if len(questions_upload) != len(questions):
-            abort(
-                404,
-                message=f"Length of questions in request and in server are not equal",
-            )
-
         question_ids = [q.id for q in questions]
         questions_dict = dict(zip(question_ids, questions))
         for q in questions_upload:
@@ -108,4 +134,4 @@ class SingleForm(Resource):
         data.db_session.commit()
         data.db_session.refresh(form)
 
-        return marshal.marshal(form, False)
+        return marshal.marshal(form, True), 201

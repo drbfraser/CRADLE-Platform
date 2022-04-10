@@ -1,4 +1,3 @@
-import datetime
 import collections
 import json
 
@@ -18,16 +17,19 @@ from models import (
     FormTemplate,
     Form,
     Question,
+    QuestionLangVersion,
 )
 import service.invariant as invariant
+import utils
 
 
-def marshal(obj: Any, shallow=False) -> dict:
+def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
     """
     Recursively marshals an object to a dictionary.
 
     :param obj: The object to marshal
     :param shallow: If true, only the top level fields will be marshalled
+    :param if_include_versions: If true, lang versions will be attached to questions
     :return: A dictionary mapping fields to values
     """
     if isinstance(obj, Patient):
@@ -43,11 +45,11 @@ def marshal(obj: Any, shallow=False) -> dict:
     elif isinstance(obj, MedicalRecord):
         return __marshal_medical_record(obj)
     elif isinstance(obj, FormTemplate):
-        return __marshal_form_template(obj, shallow)
+        return __marshal_form_template(obj, shallow, if_include_versions)
     elif isinstance(obj, Form):
         return __marshal_form(obj, shallow)
-    elif isinstance(obj, Question):
-        return __marshal_question(obj)
+    elif isinstance(obj, QuestionLangVersion):
+        return __marshal_lang_version(obj)
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -57,7 +59,7 @@ def marshal(obj: Any, shallow=False) -> dict:
 def marshal_with_type(obj: Any, shallow=False) -> dict:
     """
     Recursively marshals an object to a dictionary which has an additional
-    field that indicates the object type
+    field that indicates the object type, used for summary page cards
 
     :param obj: The object to marshal
     :param shallow: If true, only the top level fields will be marshalled
@@ -87,18 +89,10 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
         medical_record_dict = __marshal_medical_record(obj)
         medical_record_dict["type"] = "medical_record"
         return medical_record_dict
-    elif isinstance(obj, FormTemplate):
-        form_template_dict = __marshal_form_template(obj, True)
-        form_template_dict["type"] = "form_template"
-        return form_template_dict
     elif isinstance(obj, Form):
         form_dict = __marshal_form(obj, True)
         form_dict["type"] = "form"
         return form_dict
-    elif isinstance(obj, Question):
-        question_dict = __marshal_question(obj)
-        question_dict["type"] = "question"
-        return question_dict
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -237,12 +231,28 @@ def __marshal_medical_record(r: MedicalRecord) -> dict:
     return d
 
 
-def __marshal_form_template(f: FormTemplate, shallow) -> dict:
+def __marshal_form_template(
+    f: FormTemplate, shallow: bool = False, if_include_versions: bool = False
+) -> dict:
     d = vars(f).copy()
     __pre_process(d)
 
     if not shallow:
-        d["questions"] = [marshal(q) for q in f.questions]
+        d["questions"] = [
+            __marshal_question(q, if_include_versions) for q in f.questions
+        ]
+
+    return d
+
+
+def marshal_template_to_single_version(f: FormTemplate, version: str) -> dict:
+    d = vars(f).copy()
+    __pre_process(d)
+
+    d["lang"] = version
+    d["questions"] = [
+        marshal_question_to_single_version(q, version) for q in f.questions
+    ]
 
     return d
 
@@ -260,7 +270,7 @@ def __marshal_form(f: Form, shallow) -> dict:
     return d
 
 
-def __marshal_question(q: Question) -> dict:
+def __marshal_question(q: Question, if_include_versions: bool) -> dict:
     d = vars(q).copy()
     __pre_process(d)
 
@@ -269,6 +279,8 @@ def __marshal_question(q: Question) -> dict:
         del d["form"]
     if d.get("formTemplate"):
         del d["formTemplate"]
+    if d.get("categoryQuestion"):
+        del d["categoryQuestion"]
 
     # marshal visibleConditions, mcOptions, answers to json dict
     visible_condition = d["visibleCondition"]
@@ -277,6 +289,37 @@ def __marshal_question(q: Question) -> dict:
     d["mcOptions"] = json.loads(mc_options)
     answers = d["answers"]
     d["answers"] = json.loads(answers)
+
+    if if_include_versions:
+        d["questionLangVersions"] = [marshal(v) for v in q.lang_versions]
+
+    return d
+
+
+def marshal_question_to_single_version(q: Question, version: str) -> dict:
+    d = __marshal_question(q, False)
+    version_info = [marshal(v) for v in q.lang_versions if v.lang == version][0]
+
+    d["questionText"] = version_info["questionText"]
+    if "mcOptions" in version_info:
+        d["mcOptions"] = version_info["mcOptions"]
+
+    return d
+
+
+def __marshal_lang_version(v: QuestionLangVersion) -> dict:
+    d = vars(v).copy()
+    __pre_process(d)
+
+    # Remove relationship object
+    if d.get("question"):
+        del d["question"]
+    # Remove mcOptions if default empty list
+    if d.get("mcOptions") == "[]":
+        del d["mcOptions"]
+    else:
+        # marshal mcOptions to json dict
+        d["mcOptions"] = json.loads(d["mcOptions"])
 
     return d
 
@@ -322,12 +365,10 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_patient(d)
     elif m is Reading:
         return __unmarshal_reading(d)
-    elif m is FormTemplate:
-        return __unmarshal_form_template(d)
-    elif m is Form:
-        return __unmarshal_form(d)
     elif m is Question:
-        return __marshal_question(d)
+        return __unmarshal_question(d)
+    elif m is QuestionLangVersion:
+        return __unmarshal_lang_version(d)
     else:
         return __load(m, d)
 
@@ -466,40 +507,16 @@ def __unmarshal_reading(d: dict) -> Reading:
     return reading
 
 
-def __unmarshal_form_template(d: dict) -> Form:
-    # Unmarshal any questions found within the form template
-    if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the form template schema.
-        del d["questions"]
-    else:
-        questions = []
+def __unmarshal_lang_version(d: dict) -> QuestionLangVersion:
+    # Convert "mcOptions" from json dict to string
+    mc_options = d.get("mcOptions")
+    if mc_options is not None:
+        if isinstance(mc_options, list):
+            d["mcOptions"] = json.dumps(mc_options)
 
-    form_template = __load(FormTemplate, d)
+    lang_version = __load(QuestionLangVersion, d)
 
-    if questions:
-        form_template.questions = questions
-
-    return form_template
-
-
-def __unmarshal_form(d: dict) -> Form:
-    # Unmarshal any questions found within the form
-    if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the form schema.
-        del d["questions"]
-    else:
-        questions = []
-
-    form = __load(Form, d)
-
-    if questions:
-        form.questions = questions
-
-    return form
+    return lang_version
 
 
 def __unmarshal_question(d: dict) -> Question:
@@ -516,20 +533,27 @@ def __unmarshal_question(d: dict) -> Question:
     answers = d.get("answers")
     if answers is not None:
         d["answers"] = json.dumps(answers)
+    # Unmarshal any lang versions found within the question
+    lang_versions = []
+    if d.get("questionLangVersions") is not None:
+        for v in d["questionLangVersions"]:
+            v["qid"] = d["id"]
+            lang_versions.append(unmarshal(QuestionLangVersion, v))
+        # Delete the entry so that we don't try to unmarshal them again by loading from
+        # the question schema.
+        del d["questionLangVersions"]
 
     question = __load(Question, d)
+
+    if lang_versions:
+        question.lang_versions = lang_versions
 
     return question
 
 
-def unmarshal_question_list(d: dict) -> List[Question]:
-    # Unmarshal any questions found within the dict, return a list of questions if found
-    if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
-        del d["questions"]
-    else:
-        questions = []
-
+def unmarshal_question_list(d: list) -> List[Question]:
+    # Unmarshal any questions found within the list, return a list of questions
+    questions = [__unmarshal_question(q) for q in d]
     return questions
 
 

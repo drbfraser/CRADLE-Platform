@@ -14,3 +14,10 @@ def get_current_time():
 
 def get_uuid():
     return str(uuid.uuid4())
+
+
+# use this to replace json.dumps if you want the different
+# language words in json string still to be visible rather
+# than unicode format
+def dumps(obj):
+    return json.dumps(obj, ensure_ascii=False)

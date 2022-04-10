@@ -1,4 +1,4 @@
-Get a form template
+Get a blank form template
 ---
 tags:
   - Form Templates
@@ -7,10 +7,10 @@ parameters:
   name: form_template_id
   required: true
   schema:
-    type: integer
+    type: string
 responses:
   200:
-    description: Response from GET request for /api/forms/templates/<id>
+    description: Response from GET request for /api/forms/templates/blank/<string:form_template_id>?lang=english; if not provide lang parameter, get a full version of template
     content:
       application/json:
         schema:
@@ -25,6 +25,9 @@ responses:
             category:
               type: string | null
               example: "NEMS Ambulance Request"
+            lang:
+              type: string (not provided in full version)
+              example: "chinese"
             questions:
               type: array
               items:
@@ -34,66 +37,65 @@ responses:
                     type: string
                     example: "adas-d82314-27822-63154"
                   questionId:
-                    type: string
+                    type: string | null
                     example: "referred-by-name"
                   isBlank:
                     type: boolean
                     example: true
                   formTemplateId:
-                    type: string | null
+                    type: string
                     example: "adas-d82314-27822-63150"
-                  formId:
+                  categoryId:
                     type: string | null
-                    example: null
-                  category:
-                    type: string | null
-                    example: "Referred By"
+                    example: "asdsd-12321"
                   questionIndex:
                     type: integer
                     example: 1
                   questionText:
-                    type: string
+                    type: string | null
                     example: "How the patient's condition?"
                   questionType:
                     type: enum
                     enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
                     example: MULTIPLE_CHOICE
                   hasCommentAttached:
-                    type: boolean - optional -default false
+                    type: boolean
                     example: false
                   required:
                     type: boolean
                     example: true
                   units:
                     type: string | null
-                    example: null
+                    example: "kg"
                   visibleCondition:
                     type: array
                     items: object
                     example: [{
-                      "qid": 1,
+                      "qid": "asdsd-123123",
                       "relation": "EQUAL_TO",
                       "answer": {
-                          "number": null,
-                          "text": "",
-                          "textArray": [
-                              "opt"
-                          ],
-                          "comment": ""
+                        "mcidArray": [
+                            0
+                        ]
                       }
                     }]
                   numMin:
-                    type: integer | null
-                    example: null
+                    type: float | null
+                    example: 1.0
                   numMax:
-                    type: integer | null
-                    example: null
+                    type: float | null
+                    example: 5.0
                   stringMaxLength:
                     type: integer | null
-                    example: null
+                    example: 255
                   mcOptions:
-                    type: array | null
-                    example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
+                    type: array
+                    example: [
+                      {
+                        "mcid": 0,
+                        "opt": "Decent"
+                      }
+                    ]
                   answers:
                     type: object
                     example: {}

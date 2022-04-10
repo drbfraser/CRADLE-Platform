@@ -20,6 +20,7 @@ from models import (
     supervises,
     Question,
     Form,
+    FormTemplate,
 )
 import service.invariant as invariant
 
@@ -748,6 +749,34 @@ def read_questions(
         query = query.filter(model.formTemplateId == form_template_id)
 
     return query.all()
+
+
+def read_form_template_versions(model: FormTemplate, refresh=False) -> List[str]:
+    """
+    Quries the template for current lang versions
+
+    :param model: formTemplate model (here we assume the template is valid)
+    :param refresh: refresh the model in case it is invalid for later use
+
+    :return: A list of lang version texts
+    """
+    lang_versions = model.questions[0].lang_versions
+    if refresh:
+        db_session.refresh(model)
+    return [v.lang for v in lang_versions]
+
+
+def check_any_question_exist(question_ids: List[str]) -> bool:
+    """
+    Takes in a list of question ids and checks if any question in the list exist
+    in the database
+
+    :param question_ids: a list of question ids waiting for check
+
+    :return: True if any question in the list exists in the database
+    """
+    query = db_session.query(Question.id.in_(question_ids))
+    return len(query.all()) > 0
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #

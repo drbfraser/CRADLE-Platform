@@ -22,14 +22,14 @@ requestBody:
                   type: object
                   properties:
                     number:
-                      type: integer | null - optional
+                      type: integer/float | null - optional
                       example: null
                     text: 
                       type: string | null - optional
                       example: null
-                    textArray:
+                    mcidArray:
                       type: array | null - optional
-                      example: ["Decent"]
+                      example: [0]
                     comment:
                       type: string | null - optional
                       example: "Was not an emergency"
@@ -46,6 +46,9 @@ responses:
             id:
               type: string
               example: "1c987c44-7ef4-4b4f-9870-22ce6aee5ab6"
+            lang:
+              type: string
+              example: english
             patientId:
               type: string
               example: "123"
@@ -63,91 +66,7 @@ responses:
               example: 1592339808
             lastEdited:
               type: Unix timestamp
-              example: 1592339808
+              example: 1592439808
             lastEditedBy:
               type: integer | null
               example: 2
-            questions:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    example: "adas-d82314-27822-63150"
-                  questionId:
-                    type: string
-                    example: "referred-by-name"
-                  isBlank:
-                    type: boolean
-                    example: false
-                  formTemplateId:
-                    type: string | null
-                    example: null
-                  formId:
-                    type: string | null
-                    example: "adas-d82314-27822-63139"
-                  category:
-                    type: string
-                    example: "Referred By"
-                  questionIndex:
-                    type: integer
-                    example: 1
-                  questionText:
-                    type: string
-                    example: "How the patient's condition?"
-                  questionType:
-                    type: enum
-                    enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
-                    example: MULTIPLE_CHOICE
-                  hasCommentAttached:
-                    type: boolean - optional -default false
-                    example: false
-                  required:
-                    type: boolean
-                    example: true
-                  units:
-                    type: string | null
-                    example: null
-                  visibleCondition:
-                    type: array
-                    items: object
-                    example: [{
-                      "qid": 1,
-                      "relation": "EQUAL_TO",
-                      "answer": {
-                          "number": null,
-                          "text": "",
-                          "textArray": [
-                              "opt"
-                          ],
-                          "comment": ""
-                      }
-                    }]
-                  numMin:
-                    type: integer | null
-                    example: null
-                  numMax:
-                    type: integer | null
-                    example: null
-                  stringMaxLength:
-                    type: integer | null
-                    example: null
-                  mcOptions:
-                    type: array | null
-                    example: ['Decent', 'Poor', 'Bad', 'Severe', 'Critical']
-                  answers:
-                    type: object
-                    properties:
-                      number:
-                        type: integer | null - optional
-                        example: null
-                      text: 
-                        type: string | null - optional
-                        example: null
-                      textArray:
-                        type: array | null - optional
-                        example: ["Decent"]
-                      comment:
-                        type: string | null - optional
-                        example: "Was not an emergency"

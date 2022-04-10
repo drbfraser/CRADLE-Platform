@@ -4,45 +4,77 @@ import data.crud as crud
 from models import Form
 
 
-def test_form_created(database, form, create_patient, api_post):
+def test_form_created_and_update(
+    database, form, form_put, create_patient, api_post, api_put
+):
     create_patient()
 
     response = api_post(endpoint="/api/forms/responses", json=form)
     database.session.commit()
-    form_id = None
-    try:
-        assert response.status_code == 201
-        resp_json = response.json()
-        form_id = resp_json["id"]
-        assert resp_json["dateCreated"] == resp_json["lastEdited"]
-    finally:
-        crud.delete_by(Form, id=form_id)
+    resp_json = response.json()
+    assert response.status_code == 201
+    assert resp_json["dateCreated"] == resp_json["lastEdited"]
+
+    form_id = "f1"
+    response = api_put(endpoint=f"/api/forms/responses/{form_id}", json=form_put)
+    database.session.commit()
+    assert response.status_code == 201
 
 
 @pytest.fixture
-def form(patient_id, vht_user_id):
+def form(patient_id):
     return {
+        "id": "f1",
+        "lang": "english",
         "name": "NEMS Ambulance Request - sys test",
-        "dateCreated": 1592339808,
-        "lastEditedBy": vht_user_id,
         "category": "Referred",
         "patientId": patient_id,
         "questions": [
             {
-                "id": "ft_q1",
+                "id": "f_q1",
                 "questionId": "referred-by-name",
-                "isBlank": False,
-                "formId": "form_12345",
-                "category": "Referred By",
+                "categoryId": "f_q2",
                 "questionIndex": 1,
                 "questionText": "How the patient's condition?",
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qid": "ft_q2", "relation": "EQUAL_TO", "answers": {"number": 4}}
+                    {"qid": "f_q2", "relation": "EQUAL_TO", "answers": {"number": 4.0}}
                 ],
-                "mcOptions": ["Decent", "Poor", "Bad", "Severe", "Critical"],
-                "answers": {"text": "Poor"},
-            }
+                "mcOptions": [
+                    {
+                        "mcid": 0,
+                        "opt": "Decent",
+                    },
+                    {
+                        "mcid": 1,
+                        "opt": "French",
+                    },
+                ],
+                "answers": {"mcidArray": [0]},
+            },
+            {
+                "id": "f_q2",
+                "questionId": None,
+                "categoryId": None,
+                "questionIndex": 0,
+                "questionText": "Info",
+                "questionType": "CATEGORY",
+                "required": True,
+            },
         ],
+    }
+
+
+@pytest.fixture
+def form_put():
+    return {
+        "questions": [
+            {
+                "id": "f_q1",
+                "answers": {
+                    "mcidArray": [1],
+                },
+            },
+        ]
     }

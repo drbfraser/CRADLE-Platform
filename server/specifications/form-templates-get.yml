@@ -13,7 +13,7 @@ responses:
             type: object
             properties:
               id:
-                type: string - required
+                type: string
                 example: "adas-d82314-27822-63150"
               name:
                 type: string | null

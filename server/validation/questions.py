@@ -1,8 +1,23 @@
-from typing import Optional, Type
+from typing import Optional
 
-from data.crud import M
-from models import Form, FormTemplate, QRelationalEnum, QuestionTypeEnum
-from validation.validate import required_keys_present, values_correct_type
+import data.crud as crud
+from models import QRelationalEnum, QuestionTypeEnum
+from validation.validate import (
+    check_invalid_keys_present,
+    required_keys_present,
+    force_consistent_keys,
+    values_correct_type,
+)
+
+
+def check_target_not_null(target, q: dict) -> Optional[str]:
+    """
+    Returns an error if the target key has value null.
+    Else, returns None.
+    """
+    if target in q and q.get(target) is None:
+        return f"Can not provide key={target} with null value"
+    return None
 
 
 def validate_mc_options(q: dict) -> Optional[str]:
@@ -14,8 +29,10 @@ def validate_mc_options(q: dict) -> Optional[str]:
 
     valid example:
     [
-        "opt1",
-        "opt2",
+        {
+            "mcid": 0,
+            "opt": "abcd"
+        },
         ... (maximum 5 answers)
     ]
     """
@@ -23,9 +40,10 @@ def validate_mc_options(q: dict) -> Optional[str]:
 
     if not target in q:
         return None
-    if target in q and q.get(target) is None:
-        # avoid case "mcOptions": null
-        return f"Can not provide key={target} with null value"
+
+    error = check_target_not_null(target, q)
+    if error:
+        return error
 
     error = values_correct_type(q, [target], list)
     if error:
@@ -34,9 +52,12 @@ def validate_mc_options(q: dict) -> Optional[str]:
     mcopts = q[target]
     if len(mcopts) > 5:
         return "Number of multiple choices provided exceed maximum 5"
+
+    force_fields = ["mcid", "opt"]
     for opt in mcopts:
-        if not isinstance(opt, str):
-            return "multiple choice type is not string type"
+        error_message = force_consistent_keys(opt, force_fields)
+        if error_message:
+            return error_message
 
 
 def validate_answers(q: dict) -> Optional[str]:
@@ -46,45 +67,45 @@ def validate_answers(q: dict) -> Optional[str]:
 
     :param q: the parent dict for answers
 
-    valid example (all fields, in real case only present part of it):
+    valid example (all fields, in real case only present one part of it):
     {
         "number": 5/5.0,
         "text": "a",
-        "textArray":["opt1","opt2"],
+        "mcidArray":[0,1],
         "comment": "other opt"
     }
     """
     target = "answers"
 
-    if q.get(target) is None:
-        # avoid case "answers": null
-        return f"Can not provide key={target} with null value"
+    if not target in q:
+        return None
+
+    error = check_target_not_null(target, q)
+    if error:
+        return error
 
     error = values_correct_type(q, [target], dict)
     if error:
         return error
 
     ans = q[target]
-    all_fields = {"number", "text", "textArray", "comment"}
-    for key in ans:
-        if key not in all_fields:
-            return "The key '" + key + "' is not a valid field or is set server-side"
-
-    error = values_correct_type(ans, ["number"], int)
+    all_fields = {"number", "text", "mcidArray", "comment"}
+    error = check_invalid_keys_present(ans, all_fields)
     if error:
         return error
 
     if "number" in ans and ans.get("number") is not None:
         if not isinstance(ans["number"], int) and not isinstance(ans["number"], float):
-            return "Answers - number type must be int/float"
+            return "Answers - number type must be int or float"
 
-    error = values_correct_type(ans, ["textArray"], list)
+    # check mcidArray
+    error = values_correct_type(ans, ["mcidArray"], list)
     if error:
         return error
-    if "textArray" in ans and ans.get("textArray") is not None:
-        for opt in ans["textArray"]:
-            if not isinstance(opt, str):
-                return "answers - textArray option is not string type"
+    if "mcidArray" in ans and ans.get("mcidArray") is not None:
+        for opt in ans["mcidArray"]:
+            if not isinstance(opt, int):
+                return "answers - textArray option is not integer type"
 
     error = values_correct_type(ans, ["text", "comment"], str)
     if error:
@@ -94,7 +115,7 @@ def validate_answers(q: dict) -> Optional[str]:
 def validate_visible_condition(q: dict) -> Optional[str]:
     """
     Returns an error if the visible condition is invalid
-    (Empty is valid). Else, returns None.
+    . Else, returns None.
 
     :param q: the parent dict for visible condition
 
@@ -111,25 +132,23 @@ def validate_visible_condition(q: dict) -> Optional[str]:
     """
     target = "visibleCondition"
 
+    if not target in q:
+        return None
+
+    error = check_target_not_null(target, q)
+    if error:
+        return error
+
     error = values_correct_type(q, [target], list)
     if error:
         return error
 
-    if (not target in q) or q.get(target) is None:
-        # empty visible condition is valid case
-        return None
-
     vc = q[target]
+    force_keys = ["qid", "relation", "answers"]
     for cond in vc:
-        record_keys = ["qid", "relation", "answers"]
-        for k in cond:
-            if k not in record_keys:
-                return f"{k} is not a valid key in visible condition dict."
-            else:
-                record_keys.remove(k)
-
-        if len(record_keys) > 0:
-            return f"There are missing fields for the visible condition dict."
+        error = force_consistent_keys(cond, force_keys)
+        if error:
+            return error
 
         error = values_correct_type(cond, ["qid"], str)
         if error:
@@ -139,64 +158,116 @@ def validate_visible_condition(q: dict) -> Optional[str]:
         if error:
             return error
 
-        # validate answer part in visible condition
         error = validate_answers(cond)
         if error:
             return error
 
 
-def validate_reference(q: dict, model: Type[M]) -> Optional[str]:
+def validate_lang_versions(q: dict, qid: str) -> Optional[str]:
     """
-    Returns an error message id the question has a correct referrence. Else, returns None.
+    Returns an error if the lang versions is invalid.
+    Else, returns None.
+
+    :param q: the parent dict for visible condition
+
+    valid example:
+    [
+        {
+           "lang": "English",
+           "questionText": "How the patient's condition?",
+               "mcOptions": [
+               {
+                   "mcid":0,
+                   "opt": "Decent"
+                }
+            ],
+         },
+
+    ]
     """
-    if "isBlank" in q and q["isBlank"]:
-        if model is Form:
-            return "Form questions shouldn't be blank"
-        # the form template question shouldn't provide a form id
-        if "formId" in q and q["formId"] is not None:
-            return "Form template questions shouldn't have a form reference"
-    else:
-        if model is FormTemplate:
-            return "Form template questions should be blank"
-        # the form question shouldn't provide a form template id
-        if "formTemplateId" in q and q["formTemplateId"] is not None:
-            return "Form questions shouldn't have a form template reference"
-        # the form question should provide a form id
-        if (not "formId" in q) and q.get("formId") is None:
-            return "Form questions should have a form reference"
+    target = "questionLangVersions"
+
+    if not target in q:
+        return None
+
+    error = check_target_not_null(target, q)
+    if error:
+        return error
+
+    error = values_correct_type(q, [target], list)
+    if error:
+        return error
+
+    lang_versions = q[target]
+    required_keys = ["lang", "questionText"]
+    all_keys = required_keys + ["mcOptions"]
+    for version in lang_versions:
+        error = required_keys_present(version, required_keys)
+        if error:
+            return error
+
+        error = check_invalid_keys_present(version, all_keys)
+        if error:
+            return error
+
+        error = values_correct_type(version, ["lang", "questionText"], str)
+        if error:
+            return error
+
+        error = validate_mc_options(version)
+        if error:
+            return error
+
+        # assign foreign key qid
+        version["qid"] = qid
 
 
-def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
+def validate_template_question_post(q: dict) -> Optional[str]:
     """
-    Returns an error message if the question dict is not valid when making form or
-    template post request. Else, returns None.
+    Returns an error message if the question dict is not valid (after pre-process) when
+    making template post request. Else, returns None.
 
     :param q: question as a dict object
 
-    :return: An error message if request body in invalid in some way. None otherwise.
+    :return: An error message if request body is invalid in some way. None otherwise.
     """
+    # for template questions, below fields are redundant fields so we remove them in
+    # case they are provided by frontend, to skip validation to them
+    non_required_fields = [
+        "isBlank",
+        "questionText",
+        "hasCommentAttached",
+        "mcOptions",
+        "answers",
+        "formId",
+        "formTemplateId",
+    ]
+
+    for key in non_required_fields:
+        if key in q:
+            del q[key]
+
+    # pre-process the template question dict
+    q["isBlank"] = True
+
+    # validate fields
     required_fields = [
         "id",
         "questionIndex",
-        "questionText",
         "questionType",
-        "answers",
     ]
 
     all_fields = [
-        "questionId",
         "isBlank",
-        "category",
-        "hasCommentAttached",
+        "questionId",
         "required",
         "units",
         "visibleCondition",
-        "mcOptions",
         "numMin",
         "numMax",
         "stringMaxLength",
-        "formId",
-        "formTemplateId",
+        "categoryId",
+        "questionLangVersions",
     ] + required_fields
 
     error_message = None
@@ -205,11 +276,11 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     if error_message is not None:
         return error_message
 
-    for key in q:
-        if key not in all_fields:
-            return "The key '" + key + "' is not a valid field or is set server-side"
+    error_message = check_invalid_keys_present(q, all_fields)
+    if error_message is not None:
+        return error_message
 
-    error = values_correct_type(q, ["isBlank", "hasCommentAttached", "required"], bool)
+    error = values_correct_type(q, ["required"], bool)
     if error:
         return error
 
@@ -217,8 +288,6 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
         q,
         [
             "questionIndex",
-            "numMin",
-            "numMax",
             "stringMaxLength",
         ],
         int,
@@ -229,13 +298,21 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     error = values_correct_type(
         q,
         [
+            "numMin",
+            "numMax",
+        ],
+        float,
+    )
+    if error:
+        return error
+
+    error = values_correct_type(
+        q,
+        [
             "id",
             "questionId",
-            "questionText",
-            "category",
+            "categoryId",
             "units",
-            "formId",
-            "formTemplateId",
         ],
         str,
     )
@@ -251,23 +328,128 @@ def validate_question_post(q: dict, model: Type[M]) -> Optional[str]:
     if error:
         return error
 
+    # validate lang versions
+    error = validate_lang_versions(q, q["id"])
+    if error:
+        return error
+
+
+def validate_form_question_post(q: dict) -> Optional[str]:
+    """
+    Returns an error message if the question dict is not valid (after pre-process) when
+    making form post request. Else, returns None.
+
+    :param q: question as a dict object
+
+    :return: An error message if request body is invalid in some way. None otherwise.
+    """
+    # for form questions, below fields are redundant fields so we remove them in
+    # case they are provided by frontend, to skip validation to them
+    non_required_fields = [
+        "isBlank",
+        "formId",
+        "formTemplateId",
+    ]
+
+    for key in non_required_fields:
+        if key in q:
+            del q[key]
+
+    # pre-process the form question dict
+    q["isBlank"] = False
+
+    # validate fields
+    required_fields = [
+        "id",
+        "questionIndex",
+        "questionText",
+        "questionType",
+    ]
+
+    all_fields = [
+        "isBlank",
+        "questionId",
+        "hasCommentAttached",
+        "required",
+        "units",
+        "visibleCondition",
+        "mcOptions",
+        "numMin",
+        "numMax",
+        "stringMaxLength",
+        "categoryId",
+        "answers",
+    ] + required_fields
+
+    error_message = None
+
+    error_message = required_keys_present(q, required_fields)
+    if error_message is not None:
+        return error_message
+
+    error_message = check_invalid_keys_present(q, all_fields)
+    if error_message is not None:
+        return error_message
+
+    error = values_correct_type(q, ["required", "hasCommentAttached"], bool)
+    if error:
+        return error
+
+    error = values_correct_type(
+        q,
+        [
+            "questionIndex",
+            "stringMaxLength",
+        ],
+        int,
+    )
+    if error:
+        return error
+
+    error = values_correct_type(
+        q,
+        [
+            "numMin",
+            "numMax",
+        ],
+        float,
+    )
+    if error:
+        return error
+
+    error = values_correct_type(
+        q,
+        [
+            "id",
+            "questionId",
+            "questionText",
+            "categoryId",
+            "units",
+        ],
+        str,
+    )
+
+    error = values_correct_type(q, ["questionType"], QuestionTypeEnum)
+    if error:
+        return error
+
+    # validate visibleCondition
+    error = validate_visible_condition(q)
+    if error:
+        return error
+
     # validate mcOptions
     error = validate_mc_options(q)
     if error:
         return error
 
-    # validate answer
+    # validate answers
     error = validate_answers(q)
     if error:
         return error
 
-    # validate reference
-    error = validate_reference(q, model)
-    if error:
-        return error
 
-
-def validate_question_put(q: dict) -> Optional[str]:
+def validate_form_question_put(q: dict) -> Optional[str]:
     """
     Returns an error message if the question dict is not valid when making form put
     request. Else, returns None.
@@ -276,11 +458,11 @@ def validate_question_put(q: dict) -> Optional[str]:
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    required_fields = ["id", "answers"]
+    force_fields = ["id", "answers"]
 
     error_message = None
 
-    error_message = required_keys_present(q, required_fields)
+    error_message = force_consistent_keys(q, force_fields)
     if error_message is not None:
         return error_message
 

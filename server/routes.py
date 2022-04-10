@@ -54,6 +54,7 @@ from api.resources.formTemplates import (
     Root as FormTemplate,
     SingleFormTemplate,
     BlankFormTemplate,
+    SingleTemplateVersion,
 )
 from api.resources.forms import (
     Root as Forms,
@@ -233,6 +234,11 @@ def init(api):
     api.add_resource(
         FormTemplate, "/api/forms/templates", endpoint="form_templates"
     )  # [GET, POST]
+    api.add_resource(
+        SingleTemplateVersion,
+        "/api/forms/templates/<string:form_template_id>/versions",
+        endpoint="single_form_template_version",
+    )
     api.add_resource(
         SingleFormTemplate,
         "/api/forms/templates/<string:form_template_id>",

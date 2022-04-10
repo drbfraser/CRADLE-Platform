@@ -64,6 +64,7 @@ class QuestionTypeEnum(enum.Enum):
     DATE = "DATE"
     TIME = "TIME"
     DATETIME = "DATETIME"
+    CATEGORY = "CATEGORY"
 
 
 class QRelationalEnum(enum.Enum):
@@ -465,11 +466,12 @@ class FormTemplate(db.Model):
 
     @staticmethod
     def schema():
-        return FormTemplateschema
+        return FormTemplateSchema
 
 
 class Form(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    lang = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False, default="")
     category = db.Column(db.Text, nullable=False, default="")
     patientId = db.Column(
@@ -544,20 +546,28 @@ class Question(db.Model):
     isBlank = db.Column(db.Boolean, nullable=False, default=0)
     questionIndex = db.Column(db.Integer, nullable=False)
     questionId = db.Column(db.Text, nullable=True)
-    questionText = db.Column(db.Text, nullable=False)
+    questionText = db.Column(
+        db.Text(collation="utf8mb4_general_ci"), nullable=False, default=""
+    )
     questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
     hasCommentAttached = db.Column(db.Boolean, nullable=False, default=0)
-    category = db.Column(db.Text, nullable=False, default="")
     required = db.Column(db.Boolean, nullable=False, default=0)
     units = db.Column(db.Text, nullable=True)
     visibleCondition = db.Column(db.Text, nullable=False, default="[]")
-    mcOptions = db.Column(db.Text, nullable=False, default="[]")
-    numMin = db.Column(db.Integer, nullable=True)
-    numMax = db.Column(db.Integer, nullable=True)
+    mcOptions = db.Column(
+        db.Text(collation="utf8mb4_general_ci"), nullable=False, default="[]"
+    )
+    numMin = db.Column(db.Float, nullable=True)
+    numMax = db.Column(db.Float, nullable=True)
     stringMaxLength = db.Column(db.Integer, nullable=True)
     answers = db.Column(db.Text, nullable=False, default="{}")
 
     # FORENIGN KEYS
+    categoryId = db.Column(
+        db.ForeignKey("question.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     formId = db.Column(
         db.ForeignKey(Form.id, ondelete="CASCADE"),
         nullable=True,
@@ -568,6 +578,10 @@ class Question(db.Model):
     )
 
     # RELATIONSHIPS
+    categoryQuestion = db.relationship(
+        "Question",
+        backref=db.backref("questions", remote_side="Question.id", lazy=True),
+    )
     form = db.relationship(
         "Form",
         backref=db.backref("questions", cascade="all, delete", lazy=True),
@@ -580,6 +594,35 @@ class Question(db.Model):
     @staticmethod
     def schema():
         return QuestionSchema
+
+
+class QuestionLangVersion(db.Model):
+    """
+    This model is used to store different language versions of a single question.
+    """
+
+    id = db.Column(db.Integer, primary_key=True)
+    lang = db.Column(db.Text, nullable=False)
+    questionText = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False)
+    mcOptions = db.Column(
+        db.Text(collation="utf8mb4_general_ci"), nullable=False, default="[]"
+    )
+
+    # FORENIGN KEYS
+    qid = db.Column(
+        db.ForeignKey(Question.id, ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    # RELATIONSHIPS
+    question = db.relationship(
+        "Question",
+        backref=db.backref("lang_versions", cascade="all, delete", lazy=True),
+    )
+
+    @staticmethod
+    def schema():
+        return QuestionLangVersionSchema
 
 
 #
@@ -709,7 +752,7 @@ class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-class FormTemplateschema(ma.SQLAlchemyAutoSchema):
+class FormTemplateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = FormTemplate
@@ -729,6 +772,14 @@ class QuestionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = Question
+        load_instance = True
+        include_relationships = True
+
+
+class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = QuestionLangVersion
         load_instance = True
         include_relationships = True
 

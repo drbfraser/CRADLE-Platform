@@ -125,8 +125,7 @@ def serialize_referral_or_assessment(model: Union[Referral, FollowUp]) -> dict:
     return marshal.marshal(model)
 
 
-def serialize_blank_form_template(form_template: FormTemplate) -> dict:
-    form_template = marshal.marshal(form_template, False)
+def serialize_blank_form_template(form_template: dict) -> dict:
     del form_template["dateCreated"]
     del form_template["lastEdited"]
     del form_template["version"]
