@@ -213,7 +213,6 @@ export const CustomizedEditForm = ({
                     key={index}
                     value={option}
                     // control={<Radio color="primary"  />}
-                    
                     control={<Radio color="primary" required={required} />}
                     label={option}
                   />
@@ -292,7 +291,10 @@ export const CustomizedEditForm = ({
                         {question.units}
                       </InputAdornment>
                     ),
-                }}
+                 inputProps: {min: (question.numMin||question.numMin===0)?question.numMin:Number.MIN_SAFE_INTEGER, 
+                  max: (question.numMax||question.numMax===0)?question.numMax:Number.MAX_SAFE_INTEGER },
+                }
+              }
                 onChange={(event: any) => {
                   updateAnswersByValue(qid, event.target.value);
                 }}
