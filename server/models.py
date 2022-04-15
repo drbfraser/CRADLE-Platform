@@ -516,10 +516,10 @@ class Question(db.Model):
     the content logic should be handled in frontend
     e.g.
     [{
-        "qid": "asdsd-123",
+        "qidx": 1,
         "relation": "EQUAL_TO",
         "answer": {
-            "value": 1
+            "number": 1
         }
     }]
 
@@ -527,18 +527,20 @@ class Question(db.Model):
     (maximum 5 options)
     e.g.
     [
-        "opt1",
-        "opt2",
+        {
+            "mcid": 0,
+            "opt": "abcd"
+        },
         ... (maximum 5 answers)
     ]
 
     answers: a json format string indicating the answers filled by user
     e.g.
     {
-        "number": 123,
-        "text": "111",
-        "textArray": ["opt1", "opt2"],
-        "comment": "example comment"
+        "number": 5/5.0,
+        "text": "a",
+        "mcidArray":[0,1],
+        "comment": "other opt"
     }
     """
 

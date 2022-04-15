@@ -81,7 +81,7 @@ def form_template():
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qid": "ft_q2", "relation": "EQUAL_TO", "answers": {"number": 4}}
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
                 ],
                 "questionLangVersions": [
                     {
@@ -137,7 +137,7 @@ def form_template_2():
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qid": "ft_q4", "relation": "EQUAL_TO", "answers": {"number": 4}}
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
                 ],
                 "questionLangVersions": [
                     {
@@ -192,7 +192,7 @@ def update_info_in_question():
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qid": "ft_q2", "relation": "EQUAL_TO", "answers": {"number": 4}}
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
                 ],
                 "questionLangVersions": [
                     {
