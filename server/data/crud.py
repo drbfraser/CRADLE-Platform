@@ -775,7 +775,7 @@ def check_any_question_exist(question_ids: List[str]) -> bool:
 
     :return: True if any question in the list exists in the database
     """
-    query = db_session.query(Question.id.in_(question_ids))
+    query = db_session.query(Question).filter(Question.id.in_(question_ids))
     return len(query.all()) > 0
 
 

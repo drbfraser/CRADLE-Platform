@@ -4,11 +4,27 @@ import data.crud as crud
 from models import FormTemplate
 
 
-def test_form_template_created(database, form_template, api_post):
-    response = api_post(endpoint="/api/forms/templates", json=form_template)
-    database.session.commit()
+def test_form_template_created(database, form_template, form_template_2, api_post):
     try:
+        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        database.session.commit()
         assert response.status_code == 201
+        response = api_post(endpoint="/api/forms/templates", json=form_template_2)
+        database.session.commit()
+        assert response.status_code == 201
+    finally:
+        crud.delete_by(FormTemplate, id="ft1")
+        crud.delete_by(FormTemplate, id="ft2")
+
+
+def test_form_template_exists(database, form_template, api_post):
+    try:
+        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        database.session.commit()
+        assert response.status_code == 201
+        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        database.session.commit()
+        assert response.status_code == 404
     finally:
         crud.delete_by(FormTemplate, id="ft1")
 
@@ -85,6 +101,62 @@ def form_template():
             },
             {
                 "id": "ft_q2",
+                "questionId": "section header",
+                "categoryId": None,
+                "questionIndex": 0,
+                "questionType": "CATEGORY",
+                "required": True,
+                "questionLangVersions": [
+                    {
+                        "lang": "english",
+                        "questionText": "information",
+                    },
+                    {
+                        "lang": "chinese",
+                        "questionText": "信息",
+                    },
+                ],
+            },
+        ],
+    }
+
+
+@pytest.fixture
+def form_template_2():
+    return {
+        "id": "ft2",
+        "name": "NEMS Ambulance Request - sys test",
+        "category": "Hopsital Report - sys test",
+        "version": "V1",
+        "questions": [
+            {
+                "id": "ft_q3",
+                "questionId": "referred-by-name",
+                "categoryId": "ft_q4",
+                "questionIndex": 1,
+                "questionType": "MULTIPLE_CHOICE",
+                "required": True,
+                "visibleCondition": [
+                    {"qid": "ft_q4", "relation": "EQUAL_TO", "answers": {"number": 4}}
+                ],
+                "questionLangVersions": [
+                    {
+                        "lang": "english",
+                        "questionText": "what's your sex?",
+                        "mcOptions": [
+                            {"mcid": 0, "opt": "male"},
+                            {"mcid": 1, "opt": "female"},
+                        ],
+                    },
+                    {
+                        "lang": "chinese",
+                        "questionText": "你的性别？",
+                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
+                    },
+                ],
+            },
+            {
+                "id": "ft_q4",
                 "questionId": "section header",
                 "categoryId": None,
                 "questionIndex": 0,
