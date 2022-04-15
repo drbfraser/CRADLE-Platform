@@ -34,14 +34,18 @@ interface IProps {
 
 export const SelectHeaderForm = ({ patientId, setQuestions,formSchemas }: IProps) => {
   const classes = useStyles();
-  const [errorLoading, setErrorLoading] = useState(false);
+  // const [setErrorLoading] = useState(false);
   const [submitError, setSubmitError] = useState(false);
-  let availableLangs:string[] = [];
+  const [availableLangs, setAvailableLangs] = useState<string[]>([]);
+  // let availableLangs:string[] = [];
   
 
   const all_forms: string[] = formSchemas.map(function (item) {
     return item.id;//id is a string here
   });
+
+  console.log(all_forms);
+  console.log(formSchemas);
 
   // useEffect(() => {
    
@@ -59,10 +63,12 @@ export const SelectHeaderForm = ({ patientId, setQuestions,formSchemas }: IProps
     apiFetch(API_URL + EndpointEnum.FORM_TEMPLATE + `${form_template_id}`)
     .then((resp) => resp.json())
     .then((lang_model) => {
-      availableLangs = lang_model.lang_versions;
+      setAvailableLangs(lang_model.lang_versions);
+      console.log(lang_model);
     })
     .catch(() => {
-      setErrorLoading(true);
+      // setErrorLoading(true);
+      console.log("Error Loading !!!!!!")
     });
   }
  
@@ -86,7 +92,7 @@ export const SelectHeaderForm = ({ patientId, setQuestions,formSchemas }: IProps
                       <Field
                         component={Autocomplete}
                         fullWidth
-                        name={CustomizedFormField.form_tid}
+                        name={CustomizedFormField.form_template_id}
                         options={all_forms}
                         disableClearable={true}
                         renderInput={(
@@ -94,15 +100,15 @@ export const SelectHeaderForm = ({ patientId, setQuestions,formSchemas }: IProps
                         ) => (
                           <TextField
                             {...params}
-                            name={CustomizedFormField.form_tid}
+                            name={CustomizedFormField.form_template_id}
                             onChange={handleSelectForm}
                             error={
-                              touched[CustomizedFormField.form_tid] &&
-                              !!errors[CustomizedFormField.form_tid]
+                              touched[CustomizedFormField.form_template_id] &&
+                              !!errors[CustomizedFormField.form_template_id]
                             }
                             helperText={
-                              touched[CustomizedFormField.form_tid]
-                                ? errors[CustomizedFormField.form_tid]
+                              touched[CustomizedFormField.form_template_id]
+                                ? errors[CustomizedFormField.form_template_id]
                                 : ''
                             }
                             label="Form"

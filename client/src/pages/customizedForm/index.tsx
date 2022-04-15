@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect } from 'react'; //useRef
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -21,8 +21,12 @@ export const CustomizedFormPage = () => {
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [errorLoading, setErrorLoading] = useState(false);
-  let formSchemas: FormSchema[] = [];
+
+  const [formSchemas, setFormSchemas] = useState<FormSchema[]>([]);
+  // const [errorLoading, setErrorLoading] = useState(false);
+  // let formSchemas = useRef<FormSchema[]>([]);
+
+  // let formSchemas: FormSchema[] = [];
    
 
   useEffect(() => {
@@ -30,12 +34,16 @@ export const CustomizedFormPage = () => {
     apiFetch(API_URL + EndpointEnum.FORM_TEMPLATE)
       .then((resp) => resp.json())
       .then((form_schemas) => {
-        formSchemas = form_schemas;
+        setFormSchemas(form_schemas);
+        // console.log(formSchemas);
       })
       .catch(() => {
-        setErrorLoading(true);
+        // setErrorLoading(true);
+        console.log("Error Loading !!!!!!");
       });
-  }, [formSchemas]);
+  },[]);
+
+  console.log(formSchemas);
 
   return (
     <div className={classes.container}>
@@ -66,7 +74,9 @@ export const CustomizedFormPage = () => {
         </>
       )}
     </div>
+    
   );
+  
 };
 
 const useStyles = makeStyles({
