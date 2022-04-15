@@ -78,3 +78,12 @@ export enum QRelationEnum {
   EQUAL_TO = 'EQUAL_TO',
   CONTAINS = 'CONTAINS',
 }
+
+
+export enum QuestionTypeEnum {
+  INTEGER = 'INTEGER',
+  STRING = 'STRING',
+  MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
+  MULTIPLE_SELECT = 'MULTIPLE_SELECT',
+  DATE = 'DATE',
+}

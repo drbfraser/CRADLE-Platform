@@ -1,159 +1,162 @@
-[{
-        "id": 0,
-        "questionIndex": 0,
-        "category": "common_category",
-        "isBlank": true,
-        "questionText": "Do you like playing pingpong",
-        "questionType": "MC",
-        "required": true,
-        "units": "",
-        "visibleCondition": [],
-        "mcOptions": ["very much", "a little", "no idea", "just so so"],
-        "numMin": null,
-        "numMax": null,
-        "stringMaxLength": null,
-        "answers": {
-            "value": null,
-            "text": "",
-            "mc": [],
-            "comment": ""
+{
+    "dateCreated": 1650040916,
+    "category": "NEMS Ambulance Request",
+    "id": "asdsd-sdsw1231",
+    "lastEdited": 1650040916,
+    "version": "V1",
+    "name": "NEMS Ambulance Request - 2022",
+    "lang": "english",
+    "questions": [{
+            "isBlank": true,
+            "formTemplateId": "asdsd-sdsw1231",
+            "mcOptions": [{
+                    "mcid": 0,
+                    "opt": "very much"
+                },
+                {
+                    "mcid": 1,
+                    "opt": "a little"
+                },
+                {
+                    "mcid": 2,
+                    "opt": "no idea"
+                },
+                {
+                    "mcid": 3,
+                    "opt": "just so so"
+                }
+            ],
+            "questionIndex": 0,
+            "questionId": "referred-by-name0",
+            "questionText": "Do you like playing pingpong",
+            "questionType": "MULTIPLE_CHOICE",
+            "answers": {},
+            "hasCommentAttached": false,
+            "required": true,
+            "id": "0",
+            "visibleCondition": []
+        },
+        {
+            "isBlank": true,
+            "formTemplateId": "asdsd-sdsw1231",
+            "mcOptions": [{
+                    "mcid": 0,
+                    "opt": "Because it is interesting"
+                },
+                {
+                    "mcid": 1,
+                    "opt": "Making friends"
+                },
+                {
+                    "mcid": 2,
+                    "opt": "Keeping fit"
+                },
+                {
+                    "mcid": 3,
+                    "opt": "I don't know"
+                }
+            ],
+            "questionIndex": 1,
+            "questionId": "referred-by-name1",
+            "questionText": "Why do you like playing pingpong",
+            "questionType": "MULTIPLE_SELECT",
+            "answers": {},
+            "hasCommentAttached": false,
+            "required": true,
+            "id": "1",
+            "visibleCondition": []
+        },
+        {
+            "isBlank": true,
+            "formTemplateId": "asdsd-sdsw1231",
+            "mcOptions": [],
+            "questionIndex": 2,
+            "numMin": 0,
+            "questionId": "referred-by-name2",
+            "numMax": 100,
+            "questionText": "How long did you playing pingpong last week?",
+            "questionType": "INTEGER",
+            "answers": {},
+            "hasCommentAttached": false,
+            "required": true,
+            "id": "2",
+            "units": "hours",
+            "visibleCondition": [{
+                "answers": {
+                    "mcidArray": [
+                        0
+                    ]
+                },
+                "qidx": 0,
+                "relation": "EQUAL_TO"
+            }]
+        },
+        {
+            "isBlank": true,
+            "formTemplateId": "asdsd-sdsw1231",
+            "mcOptions": [{
+                    "mcid": 0,
+                    "opt": "true"
+                },
+                {
+                    "mcid": 1,
+                    "opt": "false"
+                }
+            ],
+            "questionIndex": 3,
+            "questionId": "referred-by-name3",
+            "questionText": "Did you attend a pingpong club?",
+            "questionType": "MULTIPLE_CHOICE",
+            "answers": {},
+            "hasCommentAttached": false,
+            "required": true,
+            "id": "3",
+            "visibleCondition": []
+        },
+        {
+            "isBlank": true,
+            "formTemplateId": "asdsd-sdsw1231",
+            "mcOptions": [],
+            "questionIndex": 4,
+            "questionId": "referred-by-name4",
+            "questionText": "What is the name of the pingpong club?",
+            "stringMaxLength": 200,
+            "questionType": "STRING",
+            "answers": {},
+            "hasCommentAttached": false,
+            "required": true,
+            "id": "4",
+            "visibleCondition": [{
+                "answers": {
+                    "mcidArray": [
+                        0
+                    ]
+                },
+                "qidx": 3,
+                "relation": "EQUAL_TO"
+            }]
+        },
+        {
+            "isBlank": true,
+            "formTemplateId": "asdsd-sdsw1231",
+            "mcOptions": [],
+            "questionIndex": 5,
+            "questionId": "referred-by-name5",
+            "questionText": "When did you start to join the above pingpong club?",
+            "questionType": "DATE",
+            "answers": {},
+            "hasCommentAttached": false,
+            "required": true,
+            "id": "5",
+            "visibleCondition": [{
+                "answers": {
+                    "mcidArray": [
+                        0
+                    ]
+                },
+                "qidx": 3,
+                "relation": "EQUAL_TO"
+            }]
         }
-    },
-    {
-        "id": 1,
-        "questionIndex": 1,
-        "category": "common_category",
-        "isBlank": true,
-        "questionText": "Why do you like playing pingpong",
-        "questionType": "ME",
-        "required": true,
-        "units": "",
-        "visibleCondition": [],
-        "mcOptions": [
-            "Because it is interesting",
-            "Making friends",
-            "Keeping fit",
-            "I don't know"
-        ],
-        "numMin": null,
-        "numMax": null,
-        "stringMaxLength": null,
-        "answers": {
-            "value": null,
-            "text": "",
-            "mc": ["I don't know"],
-            "comment": ""
-        }
-    },
-    {
-        "id": 2,
-        "questionIndex": 2,
-        "category": "common_category",
-        "isBlank": true,
-        "questionText": "How long did you playing pingpong last week?",
-        "questionType": "NUM",
-        "required": true,
-        "units": "hours",
-        "visibleCondition": [{
-            "qidx": 0,
-            "relation": "EQUAL_TO",
-            "answer": {
-                "value": null,
-                "text": "",
-                "mc": ["very much"],
-                "comment": ""
-            }
-        }],
-        "mcOptions": [],
-        "numMin": 0,
-        "numMax": 100,
-        "stringMaxLength": null,
-        "answers": {
-            "value": 25,
-            "text": "",
-            "mc": [],
-            "comment": ""
-        }
-    },
-    {
-        "id": 3,
-        "questionIndex": 3,
-        "category": "common_category",
-        "isBlank": true,
-        "questionText": "Did you attend a pingpong club?",
-        "questionType": "MC",
-        "required": true,
-        "units": "",
-        "visibleCondition": [],
-        "mcOptions": ["true", "false"],
-        "numMin": null,
-        "numMax": null,
-        "stringMaxLength": null,
-        "answers": {
-            "value": null,
-            "text": "",
-            "mc": ["true"],
-            "comment": ""
-        }
-    },
-    {
-        "id": 4,
-        "questionIndex": 4,
-        "category": "common_category",
-        "isBlank": true,
-        "questionText": "what is the name of the pingpong club?",
-        "questionType": "TEXT",
-        "required": true,
-        "units": "",
-        "visibleCondition": [{
-            "qidx": 3,
-            "relation": "EQUAL_TO",
-            "answer": {
-                "value": null,
-                "text": "",
-                "mc": ["true"],
-                "comment": ""
-            }
-        }],
-        "mcOptions": [],
-        "numMin": null,
-        "numMax": null,
-        "stringMaxLength": 100,
-        "answers": {
-            "value": null,
-            "text": "PINGPONG CLUB",
-            "mc": [],
-            "comment": ""
-        }
-    },
-    {
-        "id": 5,
-        "questionIndex": 5,
-        "category": "common_category",
-        "isBlank": true,
-        "questionText": "When did you start to join the above pingpong club?",
-        "questionType": "DATE",
-        "required": true,
-        "units": "",
-        "visibleCondition": [{
-            "qidx": 3,
-            "relation": "EQUAL_TO",
-            "answer": {
-                "value": null,
-                "text": "",
-                "mc": ["true"],
-                "comment": ""
-            }
-        }],
-        "mcOptions": [],
-        "numMin": null,
-        "numMax": null,
-        "stringMaxLength": 100,
-        "answers": {
-            "value": 1647577870,
-            "text": "",
-            "mc": [],
-            "comment": ""
-        }
-    }
-]
+    ]
+}
