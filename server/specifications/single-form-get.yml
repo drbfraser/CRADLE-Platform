@@ -86,7 +86,7 @@ responses:
                     type: array
                     items: object
                     example: [{
-                      "qid": "asdsd-123123",
+                      "qidx": 0,
                       "relation": "EQUAL_TO",
                       "answers": {
                           "mcidArray": [

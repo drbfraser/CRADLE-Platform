@@ -39,7 +39,7 @@ def form(patient_id):
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qid": "f_q2", "relation": "EQUAL_TO", "answers": {"number": 4.0}}
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4.0}}
                 ],
                 "mcOptions": [
                     {

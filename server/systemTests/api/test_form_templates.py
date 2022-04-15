@@ -8,6 +8,7 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
     try:
         response = api_post(endpoint="/api/forms/templates", json=form_template)
         database.session.commit()
+        print("resp:", response.json())
         assert response.status_code == 201
         response = api_post(endpoint="/api/forms/templates", json=form_template_2)
         database.session.commit()
@@ -81,7 +82,7 @@ def form_template():
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qid": "ft_q2", "relation": "EQUAL_TO", "answers": {"number": 4}}
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
                 ],
                 "questionLangVersions": [
                     {
@@ -137,7 +138,7 @@ def form_template_2():
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qid": "ft_q4", "relation": "EQUAL_TO", "answers": {"number": 4}}
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
                 ],
                 "questionLangVersions": [
                     {
@@ -192,7 +193,7 @@ def update_info_in_question():
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qid": "ft_q2", "relation": "EQUAL_TO", "answers": {"number": 4}}
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
                 ],
                 "questionLangVersions": [
                     {
