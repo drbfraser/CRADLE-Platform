@@ -293,7 +293,15 @@ export interface FormTemplate {
   questions: TQuestion[];
   version:   string;
 }
-
+//http://localhost:5000/api/forms/templates  (get a list of forms)
+export interface FormSchema {
+  dateCreated: number;
+  category:    string;
+  id:          string;
+  lastEdited:  number;
+  version:     string;
+  name:        string;
+}
 export interface Form {
   dateCreated: number;
   category:    string;

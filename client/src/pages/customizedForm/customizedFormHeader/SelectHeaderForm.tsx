@@ -16,11 +16,12 @@ import { initialState, ReferralField, validationSchema } from './state';
 import availableForms from './Forms.json';
 import availableLangs from './Lang.json';
 
-import { Question } from 'src/shared/types';
+import { Question,FormSchema } from 'src/shared/types';
 
 interface IProps {
   patientId: string;
   setQuestions: (questions: Question[]) => void;
+  formSchemas:FormSchema[];
 }
 
 export type customizedForm = {

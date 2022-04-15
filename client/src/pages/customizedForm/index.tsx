@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -8,7 +8,10 @@ import Typography from '@material-ui/core/Typography';
 import { CustomizedEditForm } from './customizedEditForm/CustomizedEditForm';
 import { goBackWithFallback } from 'src/shared/utils';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
-import { Question } from 'src/shared/types';
+import { Question,FormSchema } from 'src/shared/types';
+import { EndpointEnum } from 'src/shared/enums';
+
+import { apiFetch, API_URL } from 'src/shared/api';
 
 type RouteParams = {
   patientId: string;
@@ -18,6 +21,21 @@ export const CustomizedFormPage = () => {
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [errorLoading, setErrorLoading] = useState(false);
+  let formSchemas: FormSchema[] = [];
+   
+
+  useEffect(() => {
+    /*eslint no-useless-concat: "error"*/
+    apiFetch(API_URL + EndpointEnum.FORM_TEMPLATE)
+      .then((resp) => resp.json())
+      .then((form_schemas) => {
+        formSchemas = form_schemas;
+      })
+      .catch(() => {
+        setErrorLoading(true);
+      });
+  }, [formSchemas]);
 
   return (
     <div className={classes.container}>
@@ -31,7 +49,7 @@ export const CustomizedFormPage = () => {
       </div>
 
       <br />
-      <SelectHeaderForm patientId={patientId} setQuestions={setQuestions} />
+      <SelectHeaderForm patientId={patientId} setQuestions={setQuestions} formSchemas={formSchemas}/>
 
       {questions!.length > 0 && (
         <>
