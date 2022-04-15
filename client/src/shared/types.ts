@@ -3,7 +3,7 @@ import {
   SexEnum,
   TrafficLightEnum,
   UserRoleEnum,
-  QuestionTypeEnum,
+  // QuestionTypeEnum,
   // QRelationEnum,
 } from 'src/shared/enums';
 // import { number, string } from 'yup';
@@ -272,18 +272,7 @@ export type customizedForm = {
 //   answer: Answer;
 // };
 
-export interface QCondition {
-  qidx: number;
-  relation: string; //* better to update to QRelationEnum [EQUAL_TO];
-  answers: Answer;//*
-};
 
-
-export type QAnswer = {
-  qidx: number | null;
-  key: QuestionTypeEnum | null; //value,text,mc,me,comment
-  value: any;
-};
 
 
   // mc: OrNull<string | undefined>[];//修改了名字
@@ -317,11 +306,25 @@ export interface Form {
 }
 
 
+export type QAnswer = {
+  qidx: number | null;
+  qtype: string | null; 
+  anstype: string | null;//value,text,mc,me,comment
+  val: any;
+};
+export interface QCondition {
+  qidx: number;
+  relation: string; //* better to update to QRelationEnum [EQUAL_TO];
+  answers: Answer;//*
+};
 export type Answer = {
   number?: number | undefined;
   text?: string | undefined;
   mcidArray?: number[] | undefined;
   comment?: string | undefined;
+
+  //自用
+  mcValArray?: number[] | undefined;
 };
 // Question is used in Form
 export interface Question {
@@ -371,7 +374,7 @@ export interface TQuestion {
   isBlank: boolean;
   questionIndex: number;//*
   // questionText: string;
-  questionType: QuestionTypeEnum;//*
+  questionType: string;//*
   // category: string;
   required: boolean;//*
 

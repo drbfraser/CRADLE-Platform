@@ -10,9 +10,9 @@ export const handleSubmit2 = (
   let content = `===== Request MODEL To be Submitted ===== \n`;
   for (i = 0; i < answers.length; i++) {
     qidx = answers[i].qidx;
-    value = answers[i].value;
+    value = answers[i].val;
     content += `qidx: ${qidx}; values: `;
-    if (answers[i].key === 'MC' || answers[i].key === 'ME') {
+    if (answers[i].qtype === 'MULTIPLE_CHOICE' || answers[i].qtype === 'MULTIPLE_SELECT') {
       for (j = 0; j < value?.length; j++) {
         content += `${j}: ${value[j]}   `;
       }
@@ -35,11 +35,11 @@ export const handleSubmit = (
 ) => {
   return (values: ReferralState, { setSubmitting }: any) => {
     // alert('request model to be submitted:');
-    // alert(answers);
+    alert(answers);
     setIsSubmitButtonClick(true);
     setAnswers(answers);
     setSubmitting(false);
     
-     
+                                 
   };
 };

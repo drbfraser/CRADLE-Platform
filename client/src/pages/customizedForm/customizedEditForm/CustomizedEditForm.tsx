@@ -22,6 +22,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { QAnswer } from 'src/shared/types';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from "@material-ui/core/Typography";
+import {QuestionTypeEnum,AnswerTypeEnum} from 'src/shared/enums';
 
 interface IProps {
   patientId: string;
@@ -39,7 +40,7 @@ export const CustomizedEditForm = ({
   // const [isSubmitting, setIsSubmitting] = useState(false);
   let isSubmitButtonClick = false;
   const [answers, _setAnswers] = useState<QAnswer[]>([
-    { qidx: null, key: null, value: null },
+    { qidx: null, qtype: null, anstype:null, val: null },
   ]);
   const formTitle = isEditForm ? 'Update Form' : 'Submit Form';
   const setAnswers = (answers: any) => {
@@ -50,6 +51,19 @@ export const CustomizedEditForm = ({
   const setIsSubmitButtonClick = (submitButtonClick: boolean) => {
     isSubmitButtonClick = submitButtonClick;
   };
+  function getValuesFromIDs(question: Question, mcidArray:number[] | undefined){
+    if(!mcidArray){
+      return [];
+    }
+    let res = []
+    let i = 0;
+    let mcOptions = question.mcOptions ?? [];
+    for(i=0; i < mcidArray.length; i++){
+      //看看要不要用[...mcOptions[i]]
+      res.push(mcOptions[i]);
+    }
+    return res;
+  }
 
   useEffect(() => {
     let i;
@@ -58,26 +72,42 @@ export const CustomizedEditForm = ({
       const question = questions[i];
       const ans: QAnswer = {
         qidx: question.questionIndex,
-        key: null,
-        value: null,
+        qtype: null,
+        anstype:null,
+        val: null,
       };
-      if (question.questionType === 'MC' || question.questionType === 'ME') {
-        ans.key = 'mc';
-        ans.value = question.answers?.mc ?? [];
-      } else if (
-        question.questionType === 'NUM' ||
-        question.questionType === 'DATE'
-      ) {
-        ans.key = 'value';
-        ans.value = question.answers?.value ?? null;
-      } else if (question.questionType === 'TEXT') {
-        ans.value = question.answers?.text ?? null;
-        ans.key = 'text';
-      } else {
-        console.log('NOTE: INVALID QUESTION TYPE!!');
-      }
-      anss[i] = ans;
+
+      
+    if (question.questionType === QuestionTypeEnum.MULTIPLE_CHOICE) {
+      ans.qtype = QuestionTypeEnum.MULTIPLE_CHOICE;
+      ans.anstype = AnswerTypeEnum.MCID_ARRAY;
+      ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
+    }else if (question.questionType === QuestionTypeEnum.MULTIPLE_SELECT) {
+      ans.qtype = QuestionTypeEnum.MULTIPLE_SELECT;
+      ans.anstype = AnswerTypeEnum.MCID_ARRAY;
+      ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
+    } else if (
+      question.questionType === QuestionTypeEnum.INTEGER 
+    ) {
+      ans.qtype = QuestionTypeEnum.INTEGER;
+      //THE FOLLOWING TWO FIELDS ARE RELATED
+      ans.anstype = AnswerTypeEnum.NUM;
+      ans.val = question.answers?.number ?? null;
+    } else if (
+      question.questionType === QuestionTypeEnum.DATE 
+    ) {
+      ans.qtype = QuestionTypeEnum.DATE;
+      ans.anstype = AnswerTypeEnum.NUM;
+      ans.val = question.answers?.number ?? null;
+    } else if (question.questionType === QuestionTypeEnum.STRING) {
+      ans.qtype = QuestionTypeEnum.STRING;
+      ans.anstype = AnswerTypeEnum.TEXT;
+      ans.val = question.answers?.text ?? null; 
+    } else {
+      console.log('NOTE: INVALID QUESTION TYPE!!');
     }
+    anss[i] = ans;
+  }
 
     console.log(answers);
 
@@ -88,6 +118,8 @@ export const CustomizedEditForm = ({
     console.log('NOTE: xxxxxx');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+ 
 
   function updateQuestionsConditionHidden(
     questions: Question[],
@@ -104,23 +136,26 @@ export const CustomizedEditForm = ({
         for (j = 0; j < question.visibleCondition.length; j++) {
           const condition = question.visibleCondition[j];
           const parentQidx = condition.qidx;
+          const parentQOptions = questions[parentQidx].mcOptions??[];
           const parentAnswer = answers[parentQidx];
-          if (parentAnswer.value !== undefined && parentAnswer.value !== null) {
+          if (parentAnswer.val !== undefined && parentAnswer.val !== null) {
             if (
-              questions[parentQidx].questionType === 'ME' ||
-              questions[parentQidx].questionType === 'MC'
+              questions[parentQidx].questionType === QuestionTypeEnum.MULTIPLE_CHOICE ||
+              questions[parentQidx].questionType === QuestionTypeEnum.MULTIPLE_SELECT
             ) {
               if (
-                parentAnswer.value?.length > 0 &&
-                condition.answer.mc?.length > 0 &&
-                parentAnswer.value?.length === condition.answer.mc?.length
+                parentAnswer.val?.length > 0 &&
+                condition.answers.mcidArray!.length > 0 &&
+                parentAnswer.val?.length === condition.answers.mcidArray?.length
               ) {
                 //only this type will have an array value in its 'Answer'
                 //to see if those two array contains the same items
                 let all_equal = true;
-                condition.answer.mc.forEach((item, index) => {
+                condition.answers.mcidArray!.forEach((item, index) => {
+                  //******!!MCID has to be the index of that option!!!!!!!!!******
+                  const condition_expected_ans = parentQOptions[item];
                   //those two array are not equal
-                  if (parentAnswer.value.indexOf(item) < 0) {
+                  if (parentAnswer.val.indexOf(condition_expected_ans) < 0) {
                     all_equal = false;
                   }
                 });
@@ -138,18 +173,18 @@ export const CustomizedEditForm = ({
               }
             } else {
               if (
-                questions[parentQidx].questionType === 'TEXT' &&
+                questions[parentQidx].questionType === QuestionTypeEnum.STRING &&
                 //!!NOTE: THIS MAY HAVE BUGS!![USE == OR === ???]
-                parentAnswer.value === condition.answer.text
+                parentAnswer.val === condition.answers.text
               ) {
                 question.shouldHidden = false;
               } else if (
-                (questions[parentQidx].questionType === 'NUM' ||
-                  questions[parentQidx].questionType === 'DATE') &&
-                Number(parentAnswer.value) === Number(condition.answer.value)
+                (questions[parentQidx].questionType === QuestionTypeEnum.INTEGER ||
+                  questions[parentQidx].questionType === QuestionTypeEnum.DATE) &&
+                Number(parentAnswer.val) === Number(condition.answers.number)
               ) {
-                console.log(parentAnswer.value);
-                console.log(condition.answer.value);
+                console.log(parentAnswer.val);
+                console.log(condition.answers.number);
                 question.shouldHidden = false;
               } else {
                 question.shouldHidden = true;
@@ -165,18 +200,18 @@ export const CustomizedEditForm = ({
 
   function updateAnswersByValue(index: number, newValue: any) {
     const ans = [...answers];
-    ans[index].value = newValue;
+    ans[index].val = newValue;
     setAnswers(ans);
     console.log(ans);
   }
 
   //currently, only ME(checkboxes need manually add validation, others' validations are handled automatically by formik)
   function generate_validation_line(question: Question, answer: QAnswer, type:any, required:boolean){
-    if(!(isSubmitButtonClick && required && answer.value)){
+    if(!(isSubmitButtonClick && required && answer.val)){
       return null;
     }
-   if (type === 'ME') { 
-      if(!answer.value!.length){
+   if (type === QuestionTypeEnum.MULTIPLE_SELECT) { 
+      if(!answer.val!.length){
         return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Must Select At Least One Option !)</Typography></>)}
         else{
           return null;
@@ -191,7 +226,7 @@ export const CustomizedEditForm = ({
     const type = question.questionType;
     const qid = question.questionIndex;
     const required = question.required;
-    if (type === 'MC') {
+    if (type === QuestionTypeEnum.MULTIPLE_CHOICE) {
       if (question.shouldHidden === false && answer) {
         return (
           <>
@@ -199,8 +234,8 @@ export const CustomizedEditForm = ({
               <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel> 
               <br />
               <RadioGroup
-                value={answer.value ? answer.value[0] : ''}
-                defaultValue={answer.value ? answer.value[0] : ''}
+                value={answer.val ? answer.val[0] : ''}
+                defaultValue={answer.val ? answer.val[0] : ''}
                 onChange={function (event, value) {
                   const arr = [];
                   if (value) {
@@ -224,7 +259,7 @@ export const CustomizedEditForm = ({
       } else {
         return <></>;
       }
-    } else if (type === 'ME') {
+    } else if (type === QuestionTypeEnum.MULTIPLE_SELECT) {
       if (question.shouldHidden === false && answer) {
         return (
           <>
@@ -238,16 +273,16 @@ export const CustomizedEditForm = ({
                     control={
                       <Checkbox
                         value={option}
-                        defaultChecked={answer.value?.indexOf(option) > -1}
+                        defaultChecked={answer.val?.indexOf(option) > -1}
                         onChange={(event, checked) => {
                           if (checked) {
                             const new_val = [
-                              ...answer.value,
+                              ...answer.val,
                               event.target.value,
                             ];
                             updateAnswersByValue(qid, new_val);
                           } else {
-                            const original_val = [...answer.value];
+                            const original_val = [...answer.val];
                             const i = original_val.indexOf(event.target.value);
                             if (i > -1) {
                               original_val.splice(i, 1);
@@ -269,7 +304,7 @@ export const CustomizedEditForm = ({
       } else {
         return <></>;
       }
-    } else if (type === 'NUM') {
+    } else if (type === QuestionTypeEnum.INTEGER) {
       if (question.shouldHidden === false && answer) {
         return (
           <>
@@ -279,7 +314,7 @@ export const CustomizedEditForm = ({
               <br />
               <Field
                 component={TextField}
-                defaultValue={answer.value ?? ''}
+                defaultValue={answer.val ?? ''}
                 variant="outlined"
                 type="number"
                 fullWidth
@@ -305,7 +340,7 @@ export const CustomizedEditForm = ({
       } else {
         return <></>;
       }
-    } else if (type === 'TEXT') {
+    } else if (type === QuestionTypeEnum.STRING) {
       if (question.shouldHidden === false && answer) {
         return (
           <>
@@ -315,7 +350,7 @@ export const CustomizedEditForm = ({
               <br />
               <Field
                 component={TextField}
-                defaultValue={answer.value ?? ''}
+                defaultValue={answer.val ?? ''}
                 required={required}
                 variant="outlined"
                 fullWidth
@@ -336,7 +371,7 @@ export const CustomizedEditForm = ({
       } else {
         return <></>;
       }
-    } else if (type === 'DATE') {
+    } else if (type === QuestionTypeEnum.DATE) {
       if (question.shouldHidden === false && answer) {
         return (
           <>
@@ -347,7 +382,7 @@ export const CustomizedEditForm = ({
               <Field
                 component={TextField}
                 defaultValue={
-                  answer.value ? getPrettyDateTime(answer.value) : null
+                  answer.val ? getPrettyDateTime(answer.val) : null
                 }
                 fullWidth
                 required={required}

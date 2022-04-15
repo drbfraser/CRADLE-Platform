@@ -87,3 +87,11 @@ export enum QuestionTypeEnum {
   MULTIPLE_SELECT = 'MULTIPLE_SELECT',
   DATE = 'DATE',
 }
+
+export enum AnswerTypeEnum {
+  NUM = 'number',
+  TEXT = 'text',
+  MCID_ARRAY = 'mcidArray',
+  COMMENT = 'comment', 
+}
+ 
