@@ -122,7 +122,7 @@ def validate_visible_condition(q: dict) -> Optional[str]:
     valid example:
     [
         {
-            "qid": "asdsd-123214214",
+            "qidx": 1,
             "relation": "EQUAL_TO",
             "answers": {
                 "number": 5
@@ -144,13 +144,13 @@ def validate_visible_condition(q: dict) -> Optional[str]:
         return error
 
     vc = q[target]
-    force_keys = ["qid", "relation", "answers"]
+    force_keys = ["qidx", "relation", "answers"]
     for cond in vc:
         error = force_consistent_keys(cond, force_keys)
         if error:
             return error
 
-        error = values_correct_type(cond, ["qid"], str)
+        error = values_correct_type(cond, ["qidx"], int)
         if error:
             return error
 

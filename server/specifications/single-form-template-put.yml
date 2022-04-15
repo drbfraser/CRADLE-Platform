@@ -53,7 +53,7 @@ requestBody:
                   type: array - optional - default []
                   items: object
                   example: [{
-                    "qid": "asdsd-1234123",
+                    "qidx": 0,
                     "relation": "EQUAL_TO",
                     "answers": {
                         "mcidArray": [

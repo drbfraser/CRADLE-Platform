@@ -74,14 +74,11 @@ requestBody:
                   type: array - optional - default []
                   items: object
                   example: [{
-                    "qid": "asdssd-123312",
+                    "qidx": 0,
                     "relation": "EQUAL_TO",
                     "answers": {
                       "mcidArray": [
-                        {
-                          "mcid": 0,
-                          "opt": "Decent"
-                        }
+                        0
                       ]
                     }
                   }]
