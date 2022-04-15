@@ -29,10 +29,17 @@ export const handleSubmit2 = (
 export const handleSubmit = (
   patientId: string,
   answers: QAnswer[],
-  setSubmitError: (error: boolean) => void
+  setSubmitError: (error: boolean) => void,
+  setIsSubmitButtonClick: (submitButtonClick: boolean) => void,
+  setAnswers:(answers: any)=> void
 ) => {
   return (values: ReferralState, { setSubmitting }: any) => {
-    alert('request model to be submitted:');
-    alert(answers);
+    // alert('request model to be submitted:');
+    // alert(answers);
+    setIsSubmitButtonClick(true);
+    setAnswers(answers);
+    setSubmitting(false);
+    
+     
   };
 };

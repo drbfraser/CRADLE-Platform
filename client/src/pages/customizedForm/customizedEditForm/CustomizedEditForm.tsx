@@ -8,7 +8,7 @@ import { Field, Form, Formik } from 'formik';
 import FormLabel from '@material-ui/core/FormLabel';
 import React, { useState, useEffect } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { handleSubmit, handleSubmit2 } from './handlers';
+import { handleSubmit } from './handlers';
 import { initialState, validationSchema } from './state';
 import { Question } from 'src/shared/types';
 import {
@@ -21,6 +21,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { QAnswer } from 'src/shared/types';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Typography from "@material-ui/core/Typography";
 
 interface IProps {
   patientId: string;
@@ -35,6 +36,8 @@ export const CustomizedEditForm = ({
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
+  let isSubmitButtonClick = false;
   const [answers, _setAnswers] = useState<QAnswer[]>([
     { qidx: null, key: null, value: null },
   ]);
@@ -42,6 +45,10 @@ export const CustomizedEditForm = ({
   const setAnswers = (answers: any) => {
     _setAnswers(answers);
     updateQuestionsConditionHidden(questions, answers);
+  };
+
+  const setIsSubmitButtonClick = (submitButtonClick: boolean) => {
+    isSubmitButtonClick = submitButtonClick;
   };
 
   useEffect(() => {
@@ -163,6 +170,23 @@ export const CustomizedEditForm = ({
     console.log(ans);
   }
 
+  //currently, only ME(checkboxes need manually add validation, others' validations are handled automatically by formik)
+  function generate_validation_line(question: Question, answer: QAnswer, type:any, required:boolean){
+    if(!(isSubmitButtonClick && required && answer.value)){
+      return null;
+    }
+   if (type === 'ME') { 
+      if(!answer.value!.length){
+        return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Must Select At Least One Option !)</Typography></>)}
+        else{
+          return null;
+        }
+    }else{
+      console.log('INVALID QUESTION TYPE!!');
+      return null;
+    }
+  }
+
   function generate_html_for_one_question(question: Question, answer: QAnswer) {
     const type = question.questionType;
     const qid = question.questionIndex;
@@ -172,7 +196,7 @@ export const CustomizedEditForm = ({
         return (
           <>
             <Grid item md={12} sm={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
+              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel> 
               <br />
               <RadioGroup
                 value={answer.value ? answer.value[0] : ''}
@@ -188,6 +212,8 @@ export const CustomizedEditForm = ({
                   <FormControlLabel
                     key={index}
                     value={option}
+                    // control={<Radio color="primary"  />}
+                    
                     control={<Radio color="primary" required={required} />}
                     label={option}
                   />
@@ -205,6 +231,7 @@ export const CustomizedEditForm = ({
           <>
             <Grid item md={12} sm={12}>
               <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
+              {generate_validation_line(question, answer, type, required)}
               <br />
               {question.mcOptions!.map((option, index) => (
                 <>
@@ -366,7 +393,7 @@ export const CustomizedEditForm = ({
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, answers, setSubmitError)}>
+        onSubmit={handleSubmit(patientId, answers, setSubmitError,setIsSubmitButtonClick,setAnswers)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>
@@ -388,15 +415,13 @@ export const CustomizedEditForm = ({
               variant="contained"
               size="large"
               type="submit"
-              onClick={(e) => {
-                handleSubmit2(e, patientId, answers);
-              }}
               disabled={isSubmitting}>
               {formTitle}
             </Button>
           </Form>
         )}
       </Formik>
+      {setIsSubmitButtonClick(false)}
     </>
   );
 };
@@ -406,3 +431,47 @@ const useStyles = makeStyles({
     float: 'right',
   },
 });
+
+
+// //backup
+// function generate_validation_line(question: Question, answer: QAnswer, type:any, required:boolean){
+//   if(!(isSubmitButtonClick && required && answer.value)){
+//     return null;
+//   }
+
+//   if (type === 'MC'){
+//     if(!answer.value![0]){
+//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Must Select One Option !)</Typography></>)}
+//       else{
+//         return null;
+//       }
+//   }else if (type === 'ME') { 
+//     if(!answer.value!.length){
+//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Must Select At Least One Option !)</Typography></>)}
+//       else{
+//         return null;
+//       }
+//   }else if (type === 'NUM') {
+//     console.log(answer);
+//     if(!answer.value){
+//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Fill In A Value !)</Typography></>)}
+//       else{
+//         return null;
+//       }
+//   }else if (type === 'TEXT') {
+//     if(!answer.value || !answer.value.length){
+//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Fill In Content !)</Typography></>)}
+//       else{
+//         return null;
+//       }
+//   }else if (type === 'DATE') {
+//     if(!answer.value){
+//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Select A Date !)</Typography></>)}
+//       else{
+//         return null;
+//       }
+//   }else{
+//     console.log('INVALID QUESTION TYPE!!');
+//     return null;
+//   }
+// }
