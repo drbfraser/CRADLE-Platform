@@ -1,4 +1,4 @@
-import { ReferralState } from './state';
+import { CustomizedFormState } from './state';
 import questions from './form.json';
 import { Question } from 'src/shared/types';
 
@@ -7,7 +7,7 @@ export const handleSubmit = (
   setSubmitError: (error: boolean) => void,
   setQuestions: (questions: Question[]) => void
 ) => {
-  return async (values: ReferralState, { setSubmitting }: any) => {
+  return async (values: CustomizedFormState, { setSubmitting }: any) => {
     await setQuestions(questions);
   };
 };

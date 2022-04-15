@@ -1,17 +1,18 @@
 import * as Yup from 'yup';
 // field names here match POST /api/referrals
-export enum ReferralField {
-  form = 'Form',
-  lang = 'Language',
+export enum CustomizedFormField {
+  form_tid = 'form_template_id',
+  lang = 'lang',
 }
 
 export const initialState = {
-  [ReferralField.lang]: null as string | null,
-  [ReferralField.form]: null as string | null,
+  [CustomizedFormField.form_tid]: null as string | null,
+  [CustomizedFormField.lang]: null as string | null,
 };
 
-export type ReferralState = typeof initialState;
+export type CustomizedFormState = typeof initialState;
 
 export const validationSchema = Yup.object().shape({
-  [ReferralField.form]: Yup.string().label('Form').required().nullable(),
+  [CustomizedFormField.form_tid]: Yup.string().label('Form').required().nullable(),
+  [CustomizedFormField.lang]: Yup.string().label('Language').required().nullable()
 });

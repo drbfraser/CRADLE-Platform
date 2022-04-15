@@ -12,11 +12,14 @@ import {
 import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
-import { initialState, ReferralField, validationSchema } from './state';
-import availableForms from './Forms.json';
-import availableLangs from './Lang.json';
-
+import { initialState, CustomizedFormField, validationSchema } from './state';
+// import availableForms from './Forms.json';
+// import availableLangs from './Lang.json';
 import { Question,FormSchema } from 'src/shared/types';
+
+// import {useEffect } from 'react';
+import { EndpointEnum } from 'src/shared/enums';
+import { apiFetch, API_URL } from 'src/shared/api';
 
 interface IProps {
   patientId: string;
@@ -24,19 +27,46 @@ interface IProps {
   formSchemas:FormSchema[];
 }
 
-export type customizedForm = {
-  name: string;
-  type: string;
-};
+// export type customizedForm = {
+//   name: string;
+//   type: string;
+// };
 
-export const SelectHeaderForm = ({ patientId, setQuestions }: IProps) => {
+export const SelectHeaderForm = ({ patientId, setQuestions,formSchemas }: IProps) => {
   const classes = useStyles();
+  const [errorLoading, setErrorLoading] = useState(false);
   const [submitError, setSubmitError] = useState(false);
+  let availableLangs:string[] = [];
+  
 
-  const all_forms: string[] = availableForms.map(function (item) {
-    return item.name;
+  const all_forms: string[] = formSchemas.map(function (item) {
+    return item.id;//id is a string here
   });
-  const all_langs: string[] = availableLangs;
+
+  // useEffect(() => {
+   
+  //   /*eslint no-useless-concat: "error"*/
+  //   // fetchAllLangVersions(selectedFormID);
+  // }, [formSchemas]);
+
+
+  function handleSelectForm(e:any) {
+     let selectedFormID = e.target.value;
+     fetchAllLangVersions(selectedFormID);
+  } 
+
+  function fetchAllLangVersions(form_template_id:string){
+    apiFetch(API_URL + EndpointEnum.FORM_TEMPLATE + `${form_template_id}`)
+    .then((resp) => resp.json())
+    .then((lang_model) => {
+      availableLangs = lang_model.lang_versions;
+    })
+    .catch(() => {
+      setErrorLoading(true);
+    });
+  }
+ 
+
 
   return (
     <>
@@ -56,7 +86,7 @@ export const SelectHeaderForm = ({ patientId, setQuestions }: IProps) => {
                       <Field
                         component={Autocomplete}
                         fullWidth
-                        name={ReferralField.form}
+                        name={CustomizedFormField.form_tid}
                         options={all_forms}
                         disableClearable={true}
                         renderInput={(
@@ -64,14 +94,15 @@ export const SelectHeaderForm = ({ patientId, setQuestions }: IProps) => {
                         ) => (
                           <TextField
                             {...params}
-                            name={ReferralField.form}
+                            name={CustomizedFormField.form_tid}
+                            onChange={handleSelectForm}
                             error={
-                              touched[ReferralField.form] &&
-                              !!errors[ReferralField.form]
+                              touched[CustomizedFormField.form_tid] &&
+                              !!errors[CustomizedFormField.form_tid]
                             }
                             helperText={
-                              touched[ReferralField.form]
-                                ? errors[ReferralField.form]
+                              touched[CustomizedFormField.form_tid]
+                                ? errors[CustomizedFormField.form_tid]
                                 : ''
                             }
                             label="Form"
@@ -85,22 +116,22 @@ export const SelectHeaderForm = ({ patientId, setQuestions }: IProps) => {
                       <Field
                         component={Autocomplete}
                         fullWidth
-                        name={ReferralField.lang}
-                        options={all_langs}
+                        name={CustomizedFormField.lang}
+                        options={availableLangs}
                         disableClearable={true}
                         renderInput={(
                           params: AutocompleteRenderInputParams
                         ) => (
                           <TextField
                             {...params}
-                            name={ReferralField.lang}
+                            name={CustomizedFormField.lang}
                             error={
-                              touched[ReferralField.lang] &&
-                              !!errors[ReferralField.lang]
+                              touched[CustomizedFormField.lang] &&
+                              !!errors[CustomizedFormField.lang]
                             }
                             helperText={
-                              touched[ReferralField.lang]
-                                ? errors[ReferralField.lang]
+                              touched[CustomizedFormField.lang]
+                                ? errors[CustomizedFormField.lang]
                                 : ''
                             }
                             label="Language"
