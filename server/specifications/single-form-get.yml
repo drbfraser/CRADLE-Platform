@@ -88,7 +88,7 @@ responses:
                     example: [{
                       "qid": "asdsd-123123",
                       "relation": "EQUAL_TO",
-                      "answer": {
+                      "answers": {
                           "mcidArray": [
                               0
                           ]

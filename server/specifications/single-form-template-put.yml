@@ -55,7 +55,7 @@ requestBody:
                   example: [{
                     "qid": "asdsd-1234123",
                     "relation": "EQUAL_TO",
-                    "answer": {
+                    "answers": {
                         "mcidArray": [
                             0
                         ]

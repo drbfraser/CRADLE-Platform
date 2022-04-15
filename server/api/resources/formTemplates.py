@@ -39,7 +39,7 @@ class Root(Resource):
 
         question_ids = [question["id"] for question in questions]
         if crud.check_any_question_exist(question_ids):
-            return f"There are questions already existed in database"
+            abort(404, message=f"There are questions already existed in database")
 
         formTemplate = marshal.unmarshal(FormTemplate, req)
 

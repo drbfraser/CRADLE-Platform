@@ -76,7 +76,7 @@ requestBody:
                   example: [{
                     "qid": "asdssd-123312",
                     "relation": "EQUAL_TO",
-                    "answer": {
+                    "answers": {
                       "mcidArray": [
                         {
                           "mcid": 0,
