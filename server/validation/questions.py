@@ -175,13 +175,13 @@ def validate_lang_versions(q: dict, qid: str) -> Optional[str]:
         {
            "lang": "English",
            "questionText": "How the patient's condition?",
-               "mcOptions": [
-               {
-                   "mcid":0,
-                   "opt": "Decent"
+            "mcOptions": [
+                {
+                    "mcid":0,
+                    "opt": "Decent"
                 }
             ],
-         },
+        },
 
     ]
     """
