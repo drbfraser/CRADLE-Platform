@@ -54,13 +54,24 @@ export const SelectHeaderForm = ({ patientId, setQuestions,formSchemas }: IProps
   // }, [formSchemas]);
 
 
-  function handleSelectForm(e:any) {
-     let selectedFormID = e.target.value;
-     fetchAllLangVersions(selectedFormID);
-  } 
+  // function handleSelectForm(e:any) {
+  //    let selectedFormID = e.target.value;
+  //    fetchAllLangVersions(selectedFormID);
+  // } 
+
+  const handleSelectForm = (event:any, values:any) => {
+    // console.log(values);
+    // console.log(event);
+    // console.log(event.target);
+    // console.log(event.target.value);
+    console.log(values);
+    const selectedFormID = values;
+    // const selectedFormID = event.target.value;
+    fetchAllLangVersions(selectedFormID);
+  };
 
   function fetchAllLangVersions(form_template_id:string){
-    apiFetch(API_URL + EndpointEnum.FORM_TEMPLATE + `${form_template_id}`)
+    apiFetch(API_URL + EndpointEnum.FORM_TEMPLATE + '/'+ form_template_id + '/versions')
     .then((resp) => resp.json())
     .then((lang_model) => {
       setAvailableLangs(lang_model.lang_versions);
@@ -94,14 +105,16 @@ export const SelectHeaderForm = ({ patientId, setQuestions,formSchemas }: IProps
                         fullWidth
                         name={CustomizedFormField.form_template_id}
                         options={all_forms}
-                        disableClearable={true}
+                        disableClearable={true} 
+                        onInputChange={handleSelectForm}                 
                         renderInput={(
                           params: AutocompleteRenderInputParams
                         ) => (
                           <TextField
                             {...params}
+                            
                             name={CustomizedFormField.form_template_id}
-                            onChange={handleSelectForm}
+                            
                             error={
                               touched[CustomizedFormField.form_template_id] &&
                               !!errors[CustomizedFormField.form_template_id]
