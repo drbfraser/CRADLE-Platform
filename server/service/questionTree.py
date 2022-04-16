@@ -1,76 +1,80 @@
-from typing import NamedTuple, Union
+from typing import NamedTuple, Optional
 
 
 class Node(NamedTuple):
-    question: dict
-    children: list
+    is_category: bool
+    qindex: int
+    cindex: Optional[int]
 
 
-def bfs_order(question_list: list) -> Union[list, str]:
+def is_dfs_order(question_list: list[dict]) -> Optional[str]:
     """
-    return a list of questions with reasonable insert order. If error
-    occurs in the process, return the error message.
-
-    ----------------------------------------------------------------
-    Currently, each question has a self-reference field categoryId
-    that points to the category question. For a template post, if
-    we insert all questions attached to the template regardless of
-    the insertion order, the insertion process might fail due to 
-    the foreign key constraint.
-
-    To solve this problem, here we construct a question inmemory 
-    tree. The linkage of tree nodes indicates the dependency between
-    questions. The example below shows q1 is the category of q2 and 
-    q4, so q1 should be inserted before q2 and q4.
-    e.g.   
-              head
-              / \
-             q1 q3 
-             / \
-            q2 q4  
+    return None if questions in the question list are in the reasonable
+    question tree dfs order. Else, return error.
+    -------------------------------------------------------------------
+    Currently, each question has a category index field that points to 
+    another question. If this field is None, it means this question is a
+    root normal question or a root category (depending on the questionType
+    ), else it means this question is a normal question with category or
+    a sub-category.
     
-    After the tree is constructed, we'd use BFS to output a list of
-    questions with reasonable insert order. This logic could be used
-    in the future when sub-category (or sub-sub-category...) involves.
+    For example, below is an example form template (C is category, Q is normal
+    question):
+
+    ├── C1
+    |   ├── C3
+    |   |   ├── Q3
+    |   |   └── Q4
+    |   └── Q2
+    ├── C2
+    |   ├── Q5
+    |   └── Q6
+    └── Q1
+
+    The corresponding question tree is:
+
+             root
+            /  \  \
+           C1  C2 Q1
+          / \  / \
+         C3 Q2 Q5 Q6
+        / \
+       Q3 Q4 
+
+    Then the question order should be in the strict dfs order:
+    [C1,C3,Q3,Q4,Q2,C2,Q5,Q6,Q1]
     """
-    # head is the dummy node
-    question_tree_map = {"head": []}
-
-    for question in question_list:
-        question_tree_map[question.get("id")] = Node(question, [])
-
-    for qid in question_tree_map:
-        if qid == "head":
-            continue
-        node: Node = question_tree_map[qid]
-        cid = None
-        if "categoryId" in node.question and node.question.get("categoryId") != None:
-            cid = node.question.get("categoryId")
-
-        if cid == None:
-            # node is at the top-level
-            question_tree_map["head"].append(node)
-        else:
-            if cid in question_tree_map:
-                question_tree_map[cid].children.append(node)
+    node_list = [
+        Node(q["questionType"] == "CATEGORY", q["questionIndex"], q["categoryIndex"])
+        for q in question_list
+    ]
+    category_index_set = set()
+    tree_stack = ["root"]
+    for node in node_list:
+        top_node = tree_stack[-1]
+        if top_node == "root":
+            if node.cindex:
+                return f"root question {node.qindex} should have categoryIndex = null"
             else:
-                return "question(id=" + qid + ") points to a nonexistent category id"
+                if node.is_category:
+                    # push category node into stack
+                    category_index_set.add(node.qindex)
+                    tree_stack.append(node)
+        else:
+            top_node: Node = top_node
+            if not node.cindex:
+                tree_stack = ["root"]
+            else:
+                if top_node.qindex != node.cindex:
+                    if not node.cindex in category_index_set:
+                        # detect node with invalid category index ahead
+                        return f"internal question {node.qindex}'s category index doesn't point to an available question"
+                    while len(tree_stack) > 1 and tree_stack[-1].qindex != node.cindex:
+                        # pop category nodes until cur node's cindex equal to top node's qid
+                        tree_stack.pop()
+            if node.is_category:
+                # push category node into stack
+                category_index_set.add(node.qindex)
+                tree_stack.append(node)
 
-    # run bfs to get the output list
-    fifo_queue = question_tree_map["head"]
-    output_question_list = []
-    while len(fifo_queue):
-        cur: Node = fifo_queue.pop(0)
-        output_question_list.append(cur.question)
-        for child in cur.children:
-            fifo_queue.append(child)
-
-    # check circular dependency
-    # if there are circular dependency occurs, the circle must be a
-    # isolated one from the head node which would never be visited,
-    # as each node only has one pointer so only need to check the
-    # length of output_list
-    if len(output_question_list) != len(question_list):
-        return "there are circular dependencies in the question list"
-
-    return output_question_list
+    return None

@@ -27,9 +27,6 @@ requestBody:
             items:
               type: object
               properties:
-                id:
-                  type: string - required
-                  example: "adas-d82314-27822-63154"
                 questionIndex:
                   type: integer - required
                   example: 1
@@ -67,9 +64,9 @@ requestBody:
                 stringMaxLength:
                   type: integer | null - optional
                   example: null
-                categoryId:
-                  type: string | null - optional
-                  example: null
+                categoryIndex:
+                  type: integer | null - optional
+                  example: 0
                 questionLangVersions:
                   type: array
                   items:

@@ -1,3 +1,4 @@
+from distutils.log import error
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -32,35 +33,11 @@ class Root(Resource):
         if error_message:
             abort(404, message=error_message)
 
-        questions = split_question(req)
-        error_message = formTemplates.validate_questions(questions)
-        if error_message:
-            abort(404, message=error_message)
-
-        question_ids = [question["id"] for question in questions]
-        if crud.check_any_question_exist(question_ids):
-            abort(404, message=f"There are questions already existed in database")
+        util.assign_form_or_template_ids(FormTemplate, req)
 
         formTemplate = marshal.unmarshal(FormTemplate, req)
 
         crud.create(formTemplate, refresh=True)
-
-        for q in questions:
-            q["formTemplateId"] = formTemplate.id
-
-        questions = questionTree.bfs_order(questions)
-        if isinstance(questions, str):
-            error_message = questions
-            # revert created form template
-            crud.delete(formTemplate)
-            # error occurs when producing bfs order
-            abort(404, message=error_message)
-
-        # create questions
-        questions = marshal.unmarshal_question_list(questions)
-        crud.create_all(questions, autocommit=True)
-
-        data.db_session.refresh(formTemplate)
 
         return marshal.marshal(formTemplate, shallow=True), 201
 
@@ -142,30 +119,21 @@ class SingleFormTemplate(Resource):
 
         req = request.get_json(force=True)
 
+        req["id"] = form_template_id
+
         error_message = formTemplates.validate_template(req)
         if error_message:
             abort(404, message=error_message)
 
-        questions = split_question(req)
-        error_message = formTemplates.validate_questions(questions)
-        if error_message:
-            abort(404, message=error_message)
-
-        for q in questions:
-            q["formTemplateId"] = form_template_id
-
-        questions = questionTree.bfs_order(questions)
-        if isinstance(questions, str):
-            # error occurs when producing bfs order
-            error_message = questions
-            abort(404, message=error_message)
+        util.assign_form_or_template_ids(FormTemplate, req)
 
         # remove all old related questions
         crud.delete_all(Question, formTemplateId=form_template_id)
         data.db_session.commit()
 
         # create new questions
-        questions = marshal.unmarshal_question_list(questions)
+        questions = marshal.unmarshal_question_list(req["questions"])
+        del req["questions"]
         crud.create_all(questions, autocommit=False)
 
         # manually update lastEdited field as question updates will not
@@ -217,11 +185,3 @@ class BlankFormTemplate(Resource):
         blank_template = serialize.serialize_blank_form_template(blank_template)
 
         return blank_template
-
-
-# ------Helper Function------------------------------#
-def split_question(req: dict) -> dict:
-    # split out the question part of template
-    questions = req["questions"]
-    del req["questions"]
-    return questions

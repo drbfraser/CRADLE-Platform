@@ -63,6 +63,10 @@ def validate_form(request_body: dict) -> Optional[str]:
     if error:
         return error
 
+    error = validate_questions(request_body["questions"])
+    if error:
+        return error
+
 
 def validate_questions(request_body: list) -> Optional[str]:
     """

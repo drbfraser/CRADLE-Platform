@@ -563,13 +563,9 @@ class Question(db.Model):
     numMax = db.Column(db.Float, nullable=True)
     stringMaxLength = db.Column(db.Integer, nullable=True)
     answers = db.Column(db.Text, nullable=False, default="{}")
+    categoryIndex = db.Column(db.Integer, nullable=True)
 
     # FORENIGN KEYS
-    categoryId = db.Column(
-        db.ForeignKey("question.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-    )
     formId = db.Column(
         db.ForeignKey(Form.id, ondelete="CASCADE"),
         nullable=True,
@@ -580,10 +576,6 @@ class Question(db.Model):
     )
 
     # RELATIONSHIPS
-    categoryQuestion = db.relationship(
-        "Question",
-        backref=db.backref("questions", remote_side="Question.id", lazy=True),
-    )
     form = db.relationship(
         "Form",
         backref=db.backref("questions", cascade="all, delete", lazy=True),

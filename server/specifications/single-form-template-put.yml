@@ -70,8 +70,8 @@ requestBody:
                 stringMaxLength:
                   type: integer | null - optional
                   example: null
-                categoryId:
-                  type: string | null - optional
+                categoryIndex:
+                  type: integer | null - optional
                   example: null
                 questionLangVersions:
                   type: array
@@ -115,10 +115,10 @@ responses:
               type: string | null
               example: "V1"
             dateCreated:
-              type: Unix timestamp | Null
+              type: Unix timestamp
               example: 1551447833
             lastEdited:
-              type: Unix timestamp | Null
+              type: Unix timestamp
               example: 1551600000
   400:
     description: |
