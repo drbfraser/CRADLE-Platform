@@ -154,7 +154,9 @@ export const CustomizedEditForm = ({
                 let all_equal = true;
                 condition.answers.mcidArray!.forEach((item, index) => {
                   //******!!MCID has to be the index of that option!!!!!!!!!******
-                  const condition_expected_ans = parentQOptions[item];
+                  const condition_expected_ans = parentQOptions[item].opt;
+                  // console.log(parentAnswer.val);
+                  // console.log(condition_expected_ans);
                   //those two array are not equal
                   if (parentAnswer.val.indexOf(condition_expected_ans) < 0) {
                     all_equal = false;

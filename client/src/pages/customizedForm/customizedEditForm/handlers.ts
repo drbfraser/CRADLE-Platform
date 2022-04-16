@@ -35,7 +35,8 @@ export const handleSubmit = (
 ) => {
   return (values: ReferralState, { setSubmitting }: any) => {
     // alert('request model to be submitted:');
-    alert(answers);
+    // alert(answers);
+    console.log(answers);
     setIsSubmitButtonClick(true);
     setAnswers(answers);
     setSubmitting(false);
