@@ -69,7 +69,11 @@ export const TransferQAnswerToAPIStandard = (qans: QAnswer[],  questions: Questi
   for (i = 0; i < qanswers.length; i++) {
     let q_answer = qanswers[i];
     q_idx = q_answer.qidx;//
-    if (q_answer.qtype === 'mc' || q_answer.qtype === 'me') {
+    //We do NOT collect answers to those 'hidden' questions!!!!!!!!!!
+    if(questions[q_idx].questionType == 'CATEGORY' || questions[q_idx].shouldHidden === true){
+      anss.push({'qidx': q_idx,  answer:{'mcidArray': [], 'text':undefined, 'number':undefined}});
+    }
+    else if (q_answer.qtype === 'MULTIPLE_CHOICE' || q_answer.qtype === 'MULTIPLE_SELECT') {
         let mcid_arr:any = []; 
         q_answer.val!.forEach((item:any) => {//val是选项的字符串数组
           let q_opts = questions[q_idx].mcOptions?.map(option=>option.opt);
@@ -81,7 +85,7 @@ export const TransferQAnswerToAPIStandard = (qans: QAnswer[],  questions: Questi
     }
     else if (q_answer.qtype === 'STRING'){
       anss.push({'qidx': q_idx,  answer:{'text': q_answer.val}});
-    }else if (q_answer.qtype === 'INTEGER'){
+    }else if (q_answer.qtype === 'INTEGER' || q_answer.qtype === 'DATE'){
       anss.push({'qidx': q_idx,  answer:{'number': q_answer.val}});
     }else{
       console.log("invalid type !");
