@@ -29,10 +29,10 @@ responses:
               type: string | null
               example: "adas-d82314-27822-63139"
             name:
-              type: string
+              type: string | null
               example: "referral_form"
             category:
-              type: string
+              type: string | null
               example: "example"
             dateCreated:
               type: Unix timestamp
@@ -52,7 +52,7 @@ responses:
                     type: string
                     example: "adas-d82314-27822-63150"
                   questionId:
-                    type: string
+                    type: string | null
                     example: "referred-by-name"
                   isBlank:
                     type: boolean
@@ -60,9 +60,9 @@ responses:
                   formId:
                     type: string
                     example: "adas-d82314-27822-63139"
-                  categoryId:
-                    type: string
-                    example: "asdsds-12313"
+                  categoryIndex:
+                    type: integer | null
+                    example: 0
                   questionIndex:
                     type: integer
                     example: 1
@@ -74,14 +74,14 @@ responses:
                     enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
                     example: MULTIPLE_CHOICE
                   hasCommentAttached:
-                    type: boolean - optional -default false
+                    type: boolean
                     example: false
                   required:
                     type: boolean
                     example: true
                   units:
                     type: string | null
-                    example: null
+                    example: "kg"
                   visibleCondition:
                     type: array
                     items: object
@@ -95,13 +95,13 @@ responses:
                       }
                     }]
                   numMin:
-                    type: float
+                    type: float | null
                     example: 1.0
                   numMax:
-                    type: float
+                    type: float | null
                     example: 5.0
                   stringMaxLength:
-                    type: integer
+                    type: integer | null
                     example: 255
                   mcOptions:
                     type: array
@@ -115,14 +115,14 @@ responses:
                     type: object
                     properties:
                       number:
-                        type: integer/float | null - optional
+                        type: integer/float | null
                         example: null
                       text: 
-                        type: string | null - optional
+                        type: string | null
                         example: null
                       mcidArray:
-                        type: array | null - optional
+                        type: array | null
                         example: [0]
                       comment:
-                        type: string | null - optional
+                        type: string | null
                         example: "Was not an emergency"

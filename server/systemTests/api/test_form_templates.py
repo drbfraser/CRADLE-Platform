@@ -17,18 +17,6 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
         crud.delete_by(FormTemplate, id="ft2")
 
 
-def test_form_template_exists(database, form_template, api_post):
-    try:
-        response = api_post(endpoint="/api/forms/templates", json=form_template)
-        database.session.commit()
-        assert response.status_code == 201
-        response = api_post(endpoint="/api/forms/templates", json=form_template)
-        database.session.commit()
-        assert response.status_code == 404
-    finally:
-        crud.delete_by(FormTemplate, id="ft1")
-
-
 def test_form_template_update(
     database,
     form_template,
@@ -74,9 +62,25 @@ def form_template():
         "version": "V1",
         "questions": [
             {
-                "id": "ft_q1",
+                "questionId": "section header",
+                "categoryIndex": None,
+                "questionIndex": 0,
+                "questionType": "CATEGORY",
+                "required": True,
+                "questionLangVersions": [
+                    {
+                        "lang": "english",
+                        "questionText": "information",
+                    },
+                    {
+                        "lang": "chinese",
+                        "questionText": "信息",
+                    },
+                ],
+            },
+            {
                 "questionId": "referred-by-name",
-                "categoryId": "ft_q2",
+                "categoryIndex": 0,
                 "questionIndex": 1,
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
@@ -96,24 +100,6 @@ def form_template():
                         "lang": "chinese",
                         "questionText": "你的性别？",
                         "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
-                    },
-                ],
-            },
-            {
-                "id": "ft_q2",
-                "questionId": "section header",
-                "categoryId": None,
-                "questionIndex": 0,
-                "questionType": "CATEGORY",
-                "required": True,
-                "questionLangVersions": [
-                    {
-                        "lang": "english",
-                        "questionText": "information",
-                    },
-                    {
-                        "lang": "chinese",
-                        "questionText": "信息",
                     },
                 ],
             },
@@ -125,20 +111,17 @@ def form_template():
 def form_template_2():
     return {
         "id": "ft2",
-        "name": "NEMS Ambulance Request - sys test",
-        "category": "Hopsital Report - sys test",
-        "version": "V1",
+        "name": "NEMS Ambulance Request - sys test2",
+        "category": "Hopsital Report - sys test2",
+        "version": "V2",
         "questions": [
             {
-                "id": "ft_q3",
                 "questionId": "referred-by-name",
-                "categoryId": "ft_q4",
-                "questionIndex": 1,
+                "categoryIndex": None,
+                "questionIndex": 0,
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
-                "visibleCondition": [
-                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
-                ],
+                "visibleCondition": [],
                 "questionLangVersions": [
                     {
                         "lang": "english",
@@ -156,10 +139,9 @@ def form_template_2():
                 ],
             },
             {
-                "id": "ft_q4",
                 "questionId": "section header",
-                "categoryId": None,
-                "questionIndex": 0,
+                "categoryIndex": None,
+                "questionIndex": 1,
                 "questionType": "CATEGORY",
                 "required": True,
                 "questionLangVersions": [
@@ -170,6 +152,29 @@ def form_template_2():
                     {
                         "lang": "chinese",
                         "questionText": "信息",
+                    },
+                ],
+            },
+            {
+                "questionId": "referred-by-name",
+                "categoryIndex": 1,
+                "questionIndex": 2,
+                "questionType": "MULTIPLE_CHOICE",
+                "required": True,
+                "visibleCondition": [],
+                "questionLangVersions": [
+                    {
+                        "lang": "english",
+                        "questionText": "what's your sex?",
+                        "mcOptions": [
+                            {"mcid": 0, "opt": "male"},
+                            {"mcid": 1, "opt": "female"},
+                        ],
+                    },
+                    {
+                        "lang": "chinese",
+                        "questionText": "你的性别？",
+                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
                     },
                 ],
             },
@@ -182,18 +187,15 @@ def update_info_in_question():
     return {
         "name": "NEMS Ambulance Request - sys test",
         "category": "Hopsital Report - sys test",
-        "version": "V1",
+        "version": "V1.2",
         "questions": [
             {
-                "id": "ft_q1",
                 "questionId": "referred-by-name",
-                "categoryId": "ft_q2",
-                "questionIndex": 1,
+                "categoryIndex": None,
+                "questionIndex": 0,
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
-                "visibleCondition": [
-                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
-                ],
+                "visibleCondition": [],
                 "questionLangVersions": [
                     {
                         "lang": "english",
@@ -213,24 +215,6 @@ def update_info_in_question():
                     },
                 ],
             },
-            {
-                "id": "ft_q2",
-                "questionId": "section header",
-                "categoryId": None,
-                "questionIndex": 0,
-                "questionType": "CATEGORY",
-                "required": True,
-                "questionLangVersions": [
-                    {
-                        "lang": "english",
-                        "questionText": "information",
-                    },
-                    {
-                        "lang": "chinese",
-                        "questionText": "信息",
-                    },
-                ],
-            },
         ],
     }
 
@@ -243,9 +227,8 @@ def remove_question():
         "version": "V1",
         "questions": [
             {
-                "id": "ft_q2",
                 "questionId": "section header",
-                "categoryId": None,
+                "categoryIndex": None,
                 "questionIndex": 0,
                 "questionType": "CATEGORY",
                 "required": True,
@@ -272,9 +255,8 @@ def add_question():
         "version": "V1",
         "questions": [
             {
-                "id": "ft_q2",
                 "questionId": "section header",
-                "categoryId": None,
+                "categoryIndex": None,
                 "questionIndex": 0,
                 "questionType": "CATEGORY",
                 "required": True,
@@ -290,29 +272,50 @@ def add_question():
                 ],
             },
             {
-                "id": "ft_q3",
                 "questionId": "referred-by-name",
-                "categoryId": "ft_q2",
+                "categoryIndex": 0,
                 "questionIndex": 1,
+                "questionType": "MULTIPLE_CHOICE",
+                "required": True,
+                "visibleCondition": [
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
+                ],
+                "questionLangVersions": [
+                    {
+                        "lang": "english",
+                        "questionText": "what's your sex?",
+                        "mcOptions": [
+                            {"mcid": 0, "opt": "male"},
+                            {"mcid": 1, "opt": "female"},
+                        ],
+                    },
+                    {
+                        "lang": "chinese",
+                        "questionText": "你的性别？",
+                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
+                    },
+                ],
+            },
+            {
+                "questionId": "referred-by-name",
+                "categoryIndex": None,
+                "questionIndex": 2,
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [],
                 "questionLangVersions": [
                     {
                         "lang": "english",
-                        "questionText": "what's your nation?",
+                        "questionText": "what's your sex?",
                         "mcOptions": [
-                            {"mcid": 0, "opt": "French"},
-                            {"mcid": 1, "opt": "china"},
+                            {"mcid": 0, "opt": "male"},
+                            {"mcid": 1, "opt": "female"},
                         ],
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "你的国籍？",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "法国"},
-                            {"mcid": 1, "opt": "中国"},
-                        ],
+                        "questionText": "你的性别？",
+                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
                     },
                 ],
             },

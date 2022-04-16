@@ -163,7 +163,7 @@ def validate_visible_condition(q: dict) -> Optional[str]:
             return error
 
 
-def validate_lang_versions(q: dict, qid: str) -> Optional[str]:
+def validate_lang_versions(q: dict) -> Optional[str]:
     """
     Returns an error if the lang versions is invalid.
     Else, returns None.
@@ -175,13 +175,13 @@ def validate_lang_versions(q: dict, qid: str) -> Optional[str]:
         {
            "lang": "English",
            "questionText": "How the patient's condition?",
-               "mcOptions": [
-               {
-                   "mcid":0,
-                   "opt": "Decent"
+            "mcOptions": [
+                {
+                    "mcid":0,
+                    "opt": "Decent"
                 }
             ],
-         },
+        },
 
     ]
     """
@@ -218,8 +218,8 @@ def validate_lang_versions(q: dict, qid: str) -> Optional[str]:
         if error:
             return error
 
-        # assign foreign key qid
-        version["qid"] = qid
+        # # assign foreign key qid
+        # version["qid"] = qid
 
 
 def validate_template_question_post(q: dict) -> Optional[str]:
@@ -234,6 +234,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     # for template questions, below fields are redundant fields so we remove them in
     # case they are provided by frontend, to skip validation to them
     non_required_fields = [
+        "id",
         "isBlank",
         "questionText",
         "hasCommentAttached",
@@ -252,9 +253,9 @@ def validate_template_question_post(q: dict) -> Optional[str]:
 
     # validate fields
     required_fields = [
-        "id",
         "questionIndex",
         "questionType",
+        "questionLangVersions",
     ]
 
     all_fields = [
@@ -266,8 +267,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         "numMin",
         "numMax",
         "stringMaxLength",
-        "categoryId",
-        "questionLangVersions",
+        "categoryIndex",
     ] + required_fields
 
     error_message = None
@@ -289,11 +289,15 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         [
             "questionIndex",
             "stringMaxLength",
+            "categoryIndex",
         ],
         int,
     )
     if error:
         return error
+
+    if q["questionIndex"] < 0:
+        return "question should have non-negative index"
 
     error = values_correct_type(
         q,
@@ -311,7 +315,6 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         [
             "id",
             "questionId",
-            "categoryId",
             "units",
         ],
         str,
@@ -329,7 +332,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         return error
 
     # validate lang versions
-    error = validate_lang_versions(q, q["id"])
+    error = validate_lang_versions(q)
     if error:
         return error
 
@@ -360,13 +363,13 @@ def validate_form_question_post(q: dict) -> Optional[str]:
 
     # validate fields
     required_fields = [
-        "id",
         "questionIndex",
         "questionText",
         "questionType",
     ]
 
     all_fields = [
+        "id",
         "isBlank",
         "questionId",
         "hasCommentAttached",
@@ -377,7 +380,7 @@ def validate_form_question_post(q: dict) -> Optional[str]:
         "numMin",
         "numMax",
         "stringMaxLength",
-        "categoryId",
+        "categoryIndex",
         "answers",
     ] + required_fields
 
@@ -400,6 +403,7 @@ def validate_form_question_post(q: dict) -> Optional[str]:
         [
             "questionIndex",
             "stringMaxLength",
+            "categoryIndex",
         ],
         int,
     )
@@ -423,7 +427,6 @@ def validate_form_question_post(q: dict) -> Optional[str]:
             "id",
             "questionId",
             "questionText",
-            "categoryId",
             "units",
         ],
         str,

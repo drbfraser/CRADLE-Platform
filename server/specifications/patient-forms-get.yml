@@ -28,10 +28,10 @@ responses:
                 type: string | null
                 example: "adas-d82314-27822-63139"
               name:
-                type: string
+                type: string | null
                 example: "referral_form"
               category:
-                type: string
+                type: string | null
                 example: "example"
               dateCreated:
                 type: Unix timestamp
@@ -41,4 +41,7 @@ responses:
                 example: 1592339808
               lastEditedBy:
                 type: integer | null
-                example: 2            
+                example: 2
+              lang:
+                type: string
+                example: english            

@@ -42,9 +42,6 @@ requestBody:
             items:
               type: object
               properties:
-                id:
-                  type: string - required
-                  example: adas-d82314-27822-63150
                 questionIndex:
                   type: integer - required
                   example: 1
@@ -58,9 +55,9 @@ requestBody:
                 questionId:
                   type: string - optional
                   example: "referred-by-name"
-                categoryId:
-                  type: string | null - optional
-                  example: "acdsds-12321"
+                categoryIndex:
+                  type: integer | null - optional
+                  example: 0
                 hasCommentAttached:
                   type: boolean - optional -default false
                   example: false
@@ -131,10 +128,10 @@ responses:
               type: string
               example: english
             name:
-              type: string
+              type: string | null
               example: "referral_form"
             category:
-              type: string
+              type: string | null
               example: "example"
             patientId:
               type: string

@@ -4,8 +4,6 @@ import json
 from enum import Enum
 from typing import Any, Dict, Type, List, Optional
 
-from numpy import isin
-
 from data.crud import M
 from models import (
     Patient,
@@ -20,7 +18,6 @@ from models import (
     QuestionLangVersion,
 )
 import service.invariant as invariant
-import utils
 
 
 def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
@@ -241,6 +238,8 @@ def __marshal_form_template(
         d["questions"] = [
             __marshal_question(q, if_include_versions) for q in f.questions
         ]
+        # sort question list based on question index in ascending order
+        d["questions"].sort(key=lambda q: q["questionIndex"])
 
     return d
 
@@ -254,6 +253,10 @@ def marshal_template_to_single_version(f: FormTemplate, version: str) -> dict:
         marshal_question_to_single_version(q, version) for q in f.questions
     ]
 
+    # sort question list based on question index in ascending order
+    if d["questions"]:
+        d["questions"].sort(key=lambda q: q["questionIndex"])
+
     return d
 
 
@@ -266,6 +269,8 @@ def __marshal_form(f: Form, shallow) -> dict:
 
     if not shallow:
         d["questions"] = [marshal(q) for q in f.questions]
+        # sort question list based on question index in ascending order
+        d["questions"].sort(key=lambda q: q["questionIndex"])
 
     return d
 
@@ -365,6 +370,10 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_patient(d)
     elif m is Reading:
         return __unmarshal_reading(d)
+    elif m is Form:
+        return __unmarshal_form(d)
+    elif m is FormTemplate:
+        return __unmarshal_form_template(d)
     elif m is Question:
         return __unmarshal_question(d)
     elif m is QuestionLangVersion:
@@ -493,6 +502,32 @@ def makePregnancyFromPatient(patient: dict) -> Pregnancy:
     return pregnancy
 
 
+def __unmarshal_form(d: dict) -> Form:
+    questions = []
+    if d.get("questions") is not None:
+        questions = [__unmarshal_question(q) for q in d["questions"]]
+
+    form = __load(Form, d)
+
+    if questions:
+        form.questions = questions
+
+    return form
+
+
+def __unmarshal_form_template(d: dict) -> FormTemplate:
+    questions = []
+    if d.get("questions") is not None:
+        questions = [__unmarshal_question(q) for q in d["questions"]]
+
+    form_template = __load(FormTemplate, d)
+
+    if questions:
+        form_template.questions = questions
+
+    return form_template
+
+
 def __unmarshal_reading(d: dict) -> Reading:
     # Convert "symptoms" from array to string, if plural number of symptoms
     symptomsGiven = d.get("symptoms")
@@ -536,9 +571,9 @@ def __unmarshal_question(d: dict) -> Question:
     # Unmarshal any lang versions found within the question
     lang_versions = []
     if d.get("questionLangVersions") is not None:
-        for v in d["questionLangVersions"]:
-            v["qid"] = d["id"]
-            lang_versions.append(unmarshal(QuestionLangVersion, v))
+        lang_versions = [
+            unmarshal(QuestionLangVersion, v) for v in d["questionLangVersions"]
+        ]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the question schema.
         del d["questionLangVersions"]
