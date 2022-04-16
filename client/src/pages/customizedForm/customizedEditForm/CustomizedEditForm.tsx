@@ -19,7 +19,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { QAnswer } from 'src/shared/types';
+import { QAnswer, McOption } from 'src/shared/types';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from "@material-ui/core/Typography";
 import {QuestionTypeEnum,AnswerTypeEnum} from 'src/shared/enums';
@@ -35,7 +35,7 @@ export const CustomizedEditForm = ({
   questions,
   isEditForm,
 }: IProps) => {
-  // console.log(questions);
+  console.log(questions);
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   // const [isSubmitting, setIsSubmitting] = useState(false);
@@ -118,7 +118,7 @@ export const CustomizedEditForm = ({
     setAnswers(anss);
     console.log('NOTE: xxxxxx');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [questions]);
 
  
 
@@ -244,13 +244,13 @@ export const CustomizedEditForm = ({
                   }
                   updateAnswersByValue(qid, arr);
                 }}>
-                {question.mcOptions!.map((option, index) => (
+                {question.mcOptions!.map((McOption:McOption, index) => (
                   <FormControlLabel
                     key={index}
-                    value={option}
+                    value={McOption.opt}
                     // control={<Radio color="primary"  />}
                     control={<Radio color="primary" required={required} />}
-                    label={option}
+                    label={McOption.opt}
                   />
                 ))}
               </RadioGroup>
@@ -268,13 +268,13 @@ export const CustomizedEditForm = ({
               <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
               {generate_validation_line(question, answer, type, required)}
               <br />
-              {question.mcOptions!.map((option, index) => (
+              {question.mcOptions!.map((McOption:McOption, index) => (
                 <>
                   <FormControlLabel
                     control={
                       <Checkbox
-                        value={option}
-                        defaultChecked={answer.val?.indexOf(option) > -1}
+                        value={McOption.opt}
+                        defaultChecked={answer.val?.indexOf(McOption.opt) > -1}
                         onChange={(event, checked) => {
                           if (checked) {
                             const new_val = [
@@ -293,7 +293,7 @@ export const CustomizedEditForm = ({
                         }}
                       />
                     }
-                    label={option}
+                    label={McOption.opt}
                     key={index}
                   />
                   <br />
