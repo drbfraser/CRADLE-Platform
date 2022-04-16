@@ -35,6 +35,7 @@ export const CustomizedEditForm = ({
   questions,
   isEditForm,
 }: IProps) => {
+  // console.log(questions);
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   // const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,7 +78,7 @@ export const CustomizedEditForm = ({
         val: null,
       };
 
-      
+
     if (question.questionType === QuestionTypeEnum.MULTIPLE_CHOICE) {
       ans.qtype = QuestionTypeEnum.MULTIPLE_CHOICE;
       ans.anstype = AnswerTypeEnum.MCID_ARRAY;

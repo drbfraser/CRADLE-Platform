@@ -12,11 +12,15 @@ export const handleSubmit = (
   setQuestions: (questions: Question[]) => void
 ) => {
   return async (values: CustomizedFormState, { setSubmitting }: any) => {
-    let url = API_URL + EndpointEnum.FORM_TEMPLATE + `${values.form_template_id}/versions`;
+    // console.log(values);
+    const url = API_URL + EndpointEnum.FORM_TEMPLATE + '/'+`${values.form_template_id}?lang=${values.lang}`;
+   
     try {
       await apiFetch(url)
       .then((resp) => resp.json())
       .then((form:Form) => {
+        console.log(form);
+        console.log(form.questions);
         setQuestions(form.questions);
       })
     }

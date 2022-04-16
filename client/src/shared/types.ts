@@ -405,10 +405,9 @@ export interface TQuestion {
   // dependencies?: OrNull<[]> | undefined;
 };
 
-
 export interface QuestionLangVersion {
   lang:         string;
-  mcOptions:    McOption[];
+  mcOptions?:    OrNull<McOption[]> | undefined;
   questionText: string;
 }
 
