@@ -5,10 +5,12 @@ from requests.
 
 import flask_jwt_extended as jwt
 from flask import Request
+from typing import Any
 
 import data.crud as crud
 import data.marshal as marshal
-from models import User
+from models import User, Form, FormTemplate
+import utils
 
 
 def query_param_bool(request: Request, name: str) -> bool:
@@ -163,6 +165,33 @@ def doesUserExist(id: int) -> bool:
         return False
     else:
         return True
+
+
+def assign_form_or_template_ids(model: Any, req: dict) -> None:
+    """
+    Assign form id if not provided.
+    Assign question id and formId or formTemplateId.
+    Assign lang version qid.
+    Therefore, we can create the form or template one time.
+    """
+    # assign form id if not provided.
+    if req.get("id") == None:
+        req["id"] = utils.get_uuid()
+
+    id = req["id"]
+
+    # assign question id and formId or formTemplateId.
+    # assign lang version qid.
+    for question in req.get("questions"):
+        if question.get("id") is None:
+            question["id"] = utils.get_uuid()
+        if isinstance(model, Form):
+            question["formId"] = id
+        elif isinstance(model, FormTemplate):
+            question["formTemplateId"] = id
+        if question.get("questionLangVersions") is not None:
+            for version in question.get("questionLangVersions"):
+                version["qid"] = question["id"]
 
 
 def get_query_params(request: Request):

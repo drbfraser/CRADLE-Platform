@@ -1,8 +1,5 @@
 import pytest
 
-import data.crud as crud
-from models import Form
-
 
 def test_form_created_and_update(
     database, form, form_put, create_patient, api_post, api_put
@@ -11,9 +8,7 @@ def test_form_created_and_update(
 
     response = api_post(endpoint="/api/forms/responses", json=form)
     database.session.commit()
-    resp_json = response.json()
     assert response.status_code == 201
-    assert resp_json["dateCreated"] == resp_json["lastEdited"]
 
     form_id = "f1"
     response = api_put(endpoint=f"/api/forms/responses/{form_id}", json=form_put)
@@ -33,8 +28,8 @@ def form(patient_id):
             {
                 "id": "f_q1",
                 "questionId": "referred-by-name",
-                "categoryId": "f_q2",
-                "questionIndex": 1,
+                "categoryIndex": None,
+                "questionIndex": 0,
                 "questionText": "How the patient's condition?",
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
@@ -54,10 +49,9 @@ def form(patient_id):
                 "answers": {"mcidArray": [0]},
             },
             {
-                "id": "f_q2",
                 "questionId": None,
-                "categoryId": None,
-                "questionIndex": 0,
+                "categoryIndex": None,
+                "questionIndex": 1,
                 "questionText": "Info",
                 "questionType": "CATEGORY",
                 "required": True,
