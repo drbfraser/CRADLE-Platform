@@ -41,7 +41,7 @@ export const CustomizedEditForm = ({
   // const [isSubmitting, setIsSubmitting] = useState(false);
   let isSubmitButtonClick = false;
   const [answers, _setAnswers] = useState<QAnswer[]>([
-    { qidx: null, qtype: null, anstype:null, val: null },
+    { qidx: -1, qtype: null, anstype:null, val: null },
   ]);
   const formTitle = isEditForm ? 'Update Form' : 'Submit Form';
   const setAnswers = (answers: any) => {
@@ -433,7 +433,7 @@ export const CustomizedEditForm = ({
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, answers, setSubmitError,setIsSubmitButtonClick,setAnswers)}>
+        onSubmit={handleSubmit(patientId, answers,questions, setSubmitError,setIsSubmitButtonClick,setAnswers)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>

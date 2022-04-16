@@ -315,10 +315,11 @@ export interface Form {
 
 
 export type QAnswer = {
-  qidx: number | null;
+  qidx: number ;
   qtype: string | null; 
   anstype: string | null;//value,text,mc,me,comment
   val: any;
+
 };
 export interface QCondition {
   qidx: number;
@@ -328,12 +329,18 @@ export interface QCondition {
 export type Answer = {
   number?: number | undefined;
   text?: string | undefined;
-  mcidArray?: number[] | undefined;
+  mcidArray?: number[] | undefined;   
   comment?: string | undefined;
 
   //自用
-  mcValArray?: number[] | undefined;
+  // mcValArray?: number[] | undefined;
 };
+
+
+
+
+
+
 // Question is used in Form
 export interface Question {
   ///////////// recently added 04.14
