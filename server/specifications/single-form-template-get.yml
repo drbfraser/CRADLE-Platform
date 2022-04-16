@@ -54,9 +54,9 @@ responses:
                   formTemplateId:
                     type: string
                     example: "adas-d82314-27822-63150"
-                  categoryId:
-                    type: string | null
-                    example: "asdsd-12321"
+                  categoryIndex:
+                    type: integer | null
+                    example: 0
                   questionIndex:
                     type: integer
                     example: 1
