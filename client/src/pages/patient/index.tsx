@@ -25,7 +25,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
 import { ConfirmDialog } from '../../shared/components/confirmDialog';
-import formData from 'src/pages/customizedForm/form_card.json';
+// import formData from 'src/pages/customizedForm/form_card.json';
 
 type RouteParams = {
   patientId: string;
@@ -35,6 +35,7 @@ type FilterRequestBody = {
   referrals: number;
   readings: number;
   assessments: number;
+  forms: number;
 };
 
 type Filter = {
@@ -56,6 +57,10 @@ const Filters: Filter[] = [
     parameter: 'assessments',
     display_title: 'Assessment',
   },
+  {
+    parameter: 'forms',
+    display_title: 'Form',
+  },
 ];
 
 export const PatientPage = () => {
@@ -76,11 +81,13 @@ export const PatientPage = () => {
     'referrals',
     'readings',
     'assessments',
+    'forms',
   ]);
   const [filterRequestBody] = useState<FilterRequestBody>({
     referrals: 1,
     readings: 1,
     assessments: 1,
+    forms:1,
   });
 
   useEffect(() => {
@@ -99,7 +106,7 @@ export const PatientPage = () => {
     apiFetch(
       API_URL +
         EndpointEnum.PATIENTS +
-        `/${patientId}/get_all_records?readings=${filterRequestBody.readings}&referrals=${filterRequestBody.referrals}&assessments=${filterRequestBody.assessments}`
+        `/${patientId}/get_all_records?readings=${filterRequestBody.readings}&referrals=${filterRequestBody.referrals}&assessments=${filterRequestBody.assessments}&forms=${filterRequestBody.forms}`
     )
       .then((resp) => resp.json())
       .then((cards_data) => {
@@ -159,6 +166,13 @@ export const PatientPage = () => {
             <br />
           </React.Fragment>
         );
+      } else if (card_item.type === 'form') {
+        cards_elements.push( 
+          <React.Fragment key={index}>
+            <CustomizedFormCard form={card_item} />
+            <br />
+          </React.Fragment> 
+        );
       } else if (card_item.type === 'referral') {
         if (card_item.isAssessed) {
           cards_elements.push(
@@ -201,6 +215,7 @@ export const PatientPage = () => {
     filterRequestBody!.referrals = 0;
     filterRequestBody!.readings = 0;
     filterRequestBody!.assessments = 0;
+    filterRequestBody!.forms = 0;
     let i;
     for (i = 0; i < newFilters.length; i++) {
       if (newFilters[i] === 'referrals') {
@@ -209,6 +224,8 @@ export const PatientPage = () => {
         filterRequestBody!.readings = 1;
       } else if (newFilters[i] === 'assessments') {
         filterRequestBody!.assessments = 1;
+      } else if (newFilters[i] === 'forms') {
+        filterRequestBody!.forms = 1;
       } else {
         //illegal type, not handling
       }
@@ -217,7 +234,7 @@ export const PatientPage = () => {
     apiFetch(
       API_URL +
         EndpointEnum.PATIENTS +
-        `/${patientId}/get_all_records?readings=${filterRequestBody.readings}&referrals=${filterRequestBody.referrals}&assessments=${filterRequestBody.assessments}`
+        `/${patientId}/get_all_records?readings=${filterRequestBody.readings}&referrals=${filterRequestBody.referrals}&assessments=${filterRequestBody.assessments}&forms=${filterRequestBody.forms}`
     )
       .then((resp) => resp.json())
       .then((cards_data) => {
@@ -310,6 +327,7 @@ export const PatientPage = () => {
                               ...selectedParameter,
                               event.target.value,
                             ];
+                            // console.log(newFilters);             
                             handleChangeFilters(newFilters);
                           }
                           //if the original state is 'not selected', now the 'check operation' is to add this item to the selected array
@@ -320,6 +338,7 @@ export const PatientPage = () => {
                               //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/splice
                               newParameters.splice(i, 1);
                             }
+                            // console.log(newParameters);                 
                             handleChangeFilters(newParameters);
                           }
                         }}
@@ -340,11 +359,11 @@ export const PatientPage = () => {
       <Divider />
 
       {/* temp fixed test card, MUST DELETE LATER */}
-      <br />
+      {/* <br />
       <React.Fragment key={formData.id}>
         <CustomizedFormCard form={formData} />
         <br />
-      </React.Fragment>
+      </React.Fragment> */}
       {/* temp fixed test card, MUST DELETE LATER */}
       <br />
       {cards ? cards.map((card) => <>{card}</>) : null}
