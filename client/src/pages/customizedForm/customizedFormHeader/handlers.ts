@@ -18,9 +18,11 @@ export const handleSubmit = (
     try {
       await apiFetch(url)
       .then((resp) => resp.json())
-      .then((form:CForm) => {
-        console.log(form);
-        setForm(form);
+      .then((fm:CForm) => {
+        console.log(fm);
+        console.log('values==============');
+        // const fm = Object.assign(form);
+        setForm(fm);
       })
     }
     catch(e){

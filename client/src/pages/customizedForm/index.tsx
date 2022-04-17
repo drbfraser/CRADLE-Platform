@@ -34,7 +34,7 @@ export const CustomizedFormPage = () => {
   // const [questions, setQuestions] = useState<Question[]>([]);
 
   const [formSchemas,setFormSchemas] = useState<FormSchema[]>([]);
-
+                                         
   // let formSchemas:FormSchema[];
   // const [errorLoading, setErrorLoading] = useState(false);
   // let formSchemas = useRef<FormSchema[]>([]);
@@ -43,6 +43,8 @@ export const CustomizedFormPage = () => {
   // let questions:Question[];
   const setForm = (form: CForm) => {
     _setForm(form);
+    console.log('---------***-------------');
+    // setFormSchemas(formSchemas);
     // questions = form.questions;
   };
 
@@ -84,7 +86,8 @@ export const CustomizedFormPage = () => {
 
       <br />
       <SelectHeaderForm patientId={patientId} setForm={setForm} formSchemas={formSchemas}/>
-
+      {console.log('+++++++++++++++++++++++')}
+      {console.log(form?.questions)}
       {form && form.questions && form!.questions!.length > 0 && (
         <>
           <br />
@@ -94,7 +97,7 @@ export const CustomizedFormPage = () => {
           <br />
           <CustomizedForm
             patientId={patientId}
-            form={form!}
+            fm={form}
             isEditForm={false}
           />
         </>

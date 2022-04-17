@@ -45,6 +45,8 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
         return __marshal_form_template(obj, shallow, if_include_versions)
     elif isinstance(obj, Form):
         return __marshal_form(obj, shallow)
+    elif isinstance(obj, Question):
+        return __marshal_question(obj, if_include_versions)
     elif isinstance(obj, QuestionLangVersion):
         return __marshal_lang_version(obj)
     else:

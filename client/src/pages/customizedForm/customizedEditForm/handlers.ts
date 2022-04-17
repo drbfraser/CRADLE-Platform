@@ -43,8 +43,8 @@ export type post_body = {
 };
 
 export type API_Answer_For_Edit = {
-  questionId: string;
-  answer: Answer;
+  id: string;
+  answers: Answer;
 };
 // const [answers, _setAnswers] = useState<QAnswer[]>([
 //   { qidx: null, qtype: null, anstype:null, val: null },
@@ -154,7 +154,7 @@ export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, 
     let post_body_edit:API_Answer_For_Edit[] = [];
     api_anss.forEach((ans_with_qidx:API_Answer) => {
       let qid = questions[ans_with_qidx.qidx].id;
-      let api_ans_for_edit: API_Answer_For_Edit = {questionId:qid, answer:ans_with_qidx.answer} 
+      let api_ans_for_edit: API_Answer_For_Edit = {id:qid, answers:ans_with_qidx.answer} 
       post_body_edit.push(api_ans_for_edit);
     }
 
@@ -201,6 +201,8 @@ export const handleSubmit = (
 
 
     if(!passValidation(questions, answers)){
+      console.log('21321321');
+      console.log(answers);
       setMultiSelectValidationFailed(true);
       return;
     }else{
@@ -236,12 +238,12 @@ export const handleSubmit = (
     } 
     //仅修改表格
     else{
-      url = API_URL + EndpointEnum.FORM +  `${form.id}`; 
+      url = API_URL + EndpointEnum.FORM +  `/${form.id}`; 
       request_type = 'PUT';
       try {
         await apiFetch(url,{
           method: request_type,
-          body: JSON.stringify(postBody.edit),
+          body: JSON.stringify({questions: postBody.edit}),
         })
         goBackWithFallback('/patients');
       }

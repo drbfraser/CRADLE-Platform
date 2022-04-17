@@ -23,21 +23,27 @@ import { QAnswer, McOption ,CForm} from 'src/shared/types';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from "@material-ui/core/Typography";
 import {QuestionTypeEnum,AnswerTypeEnum} from 'src/shared/enums';
-// import { Divider} from '@material-ui/core';
-// import RecentActorsIcon from '@material-ui/icons/RecentActors';
+import Divider from '@material-ui/core/Divider';
+import RecentActorsIcon from '@material-ui/icons/RecentActors';
+// import { useStateWithCallbackLazy } from 'use-state-with-callback';
 interface IProps {
   patientId: string;
-  form: CForm;
+  fm: CForm;
   isEditForm: boolean;
 }
 
 export const CustomizedForm = ({
-  patientId,
-  form,
+  patientId,             
+  fm,
   isEditForm,
 }: IProps) => {
-  console.log(form.questions);
-  const questions = form.questions;
+  // console.log(fm.questions);
+  
+  // const [questions] = useState<Question[]>(fm.questions);  
+ 
+  let questions = fm.questions;
+  // setQuestions(fm.questions);
+  // const questions = form.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   // const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,23 +52,41 @@ export const CustomizedForm = ({
   let [multiSelectValidationFailed] = useState(false);
 
   // let multiSelectValidationFailed = false;
-  const [answers, _setAnswers] = useState<QAnswer[]>([
-    { qidx: -1, qtype: null, anstype:null, val: null },
-  ]);
+  // const [answers, _setAnswers] = useState<QAnswer[]>([
+  //   { qidx: -1, qtype: null, anstype:null, val: null },
+  // ]);
+  // const [answers, setAnswers] = useState<QAnswer[]>([]);
+  const [answers, setAnswers] = useState <QAnswer[]>([]);
   const formTitle = isEditForm ? 'Update Form' : 'Submit Form';
-  const setAnswers = (answers: any) => {
-    _setAnswers(answers);
-     if(answers){
-       updateQuestionsConditionHidden(questions, answers);
-     }
-      
-     
+  // const setAnswers = (ans: any) => {
+  //   _setAnswers(ans);
+  //   updateQuestionsConditionHidden(questions, ans);
+  //   console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+  //   console.log(ans);
+  //   console.log(answers);
 
-  };
+  // };
 
+//   setAnswers(answers, () => {
+    
+//     // console.log(answers);
+//  });
+
+// useEffect(() => {
+//   // console.log('klkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
+//   // console.log(answers);
+//   if(answers.length>0){updateQuestionsConditionHidden(questions, answers);}
+//     console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+//     console.log(answers);
+// }, [answers]);
+
+ 
+
+ console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq');
+ console.log(answers);
   const setMultiSelectValidationFailed = (ValidationFailed: boolean) => {
     multiSelectValidationFailed = ValidationFailed;
-    if(answers){setAnswers(answers);}
+    if(answers.length>0){setAnswers(answers);}
   };            
 
   function getValuesFromIDs(question: Question, mcidArray:number[] | undefined){
@@ -74,12 +98,13 @@ export const CustomizedForm = ({
     let mcOptions = question.mcOptions ?? [];
     for(i=0; i < mcidArray.length; i++){
       //看看要不要用[...mcOptions[i]]
-      res.push(mcOptions[i]);
+      res.push(mcOptions[i].opt);
     }
     return res;
   }
-
+                 
   useEffect(() => {
+    //setQuestions(fm.questions);
     let i;
     const anss: QAnswer[] = [];
     for (i = 0; i < questions.length; i++) {
@@ -94,21 +119,35 @@ export const CustomizedForm = ({
     if (question.questionType === QuestionTypeEnum.MULTIPLE_CHOICE) {
       ans.qtype = QuestionTypeEnum.MULTIPLE_CHOICE;
       ans.anstype = AnswerTypeEnum.MCID_ARRAY;
-      ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
+      if(question.answers?.mcidArray && question.answers?.mcidArray.length>0){
+        const ids = question.answers?.mcidArray.map((idx, opt) => {
+           return idx;
+        });
+        ans.val = getValuesFromIDs(question, ids);
+      }else{
+        ans.val = [];
+      }
+      
     }else if (question.questionType === QuestionTypeEnum.MULTIPLE_SELECT) {
       ans.qtype = QuestionTypeEnum.MULTIPLE_SELECT;
       ans.anstype = AnswerTypeEnum.MCID_ARRAY;
-      ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
-    } else if (
-      question.questionType === QuestionTypeEnum.INTEGER 
-    ) {
+      // ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
+      if(question.answers?.mcidArray && question.answers?.mcidArray.length>0){
+        const ids = question.answers?.mcidArray.map((idx, opt) => {
+           return idx;
+        });
+        ans.val = getValuesFromIDs(question, ids);
+      }else{
+        ans.val = [];
+      }
+
+
+    } else if ( question.questionType === QuestionTypeEnum.INTEGER ) {
       ans.qtype = QuestionTypeEnum.INTEGER;
       //THE FOLLOWING TWO FIELDS ARE RELATED
       ans.anstype = AnswerTypeEnum.NUM;
       ans.val = question.answers?.number ?? null;
-    } else if (
-      question.questionType === QuestionTypeEnum.DATE 
-    ) {
+    } else if ( question.questionType === QuestionTypeEnum.DATE  ) {
       ans.qtype = QuestionTypeEnum.DATE;
       ans.anstype = AnswerTypeEnum.NUM;
       ans.val = question.answers?.number ?? null;
@@ -120,26 +159,26 @@ export const CustomizedForm = ({
       ans.qtype = QuestionTypeEnum.CATEGORY;
       ans.anstype = AnswerTypeEnum.CATEGORY;
       ans.val = null; 
-    }
-    else {
+    }else {
+      console.log(question.questionType);
       console.log('NOTE: INVALID QUESTION TYPE!!');
     }
     anss[i] = ans;
   }
 
-    console.log(answers);
+    // console.log(answers);
 
     //condition update must be 'after' the initilization of the 'answers'
    
-      // updateQuestionsConditionHidden(questions, anss);
-      setAnswers(anss);
+    updateQuestionsConditionHidden(questions, anss);
+    setAnswers(anss);
      
-
-    console.log('NOTE: xxxxxx');
+    console.log(answers);
+    console.log('NOTE: xxxxxx=========================');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [questions]);
 
- 
+                
 
   function updateQuestionsConditionHidden(
     questions: Question[],
@@ -152,14 +191,15 @@ export const CustomizedForm = ({
       const question = questions[i];
       question.shouldHidden = false;       
                   
-      if (question.visibleCondition.length>0 && (question.visibleCondition instanceof Array)) {
+      if (question.visibleCondition?.length>0) {
         question.shouldHidden = true;
         let j;
-        for (j = 0; j < question.visibleCondition.length; j++) {
+        for (j = 0; j < question.visibleCondition?.length; j++) {
           const condition = question.visibleCondition[j];
           const parentQidx = condition.qidx;
           
           const parentAnswer = answers[parentQidx];
+          const parentQOptions = questions[parentQidx].mcOptions??[];
           console.log(answers);
           console.log(question);
           console.log(parentQidx);
@@ -176,7 +216,7 @@ export const CustomizedForm = ({
                 condition.answers.mcidArray!.length > 0 &&
                 parentAnswer.val?.length === condition.answers.mcidArray?.length
               ) {
-                let parentQOptions = questions[parentQidx].mcOptions;
+                
                 //only this type will have an array value in its 'Answer'
                 //to see if those two array contains the same items
                 let all_equal = true;
@@ -237,6 +277,7 @@ export const CustomizedForm = ({
   function updateAnswersByValue(index: number, newValue: any) {
     const ans = [...answers];
     ans[index].val = newValue;
+    updateQuestionsConditionHidden(questions, ans);
     setAnswers(ans);
     console.log(ans);
   }
@@ -263,27 +304,32 @@ export const CustomizedForm = ({
   }
 
   function generate_html_for_one_question(question: Question, answer: QAnswer) {
+    console.log('00000000000000000000000000000000000000000000');
+    console.log(answer);
     const type = question.questionType;
     const qid = question.questionIndex;
     const required = question.required;
     if (type === QuestionTypeEnum.CATEGORY) {
       return (<>
-      {/* <Typography component="h3" variant="h5">
+      <Typography component="h3" variant="h5">
           <RecentActorsIcon fontSize="large" /> &nbsp; {question.questionText}
         </Typography>
         <Divider />
-        <br /> */}
+        <br />
       </>)
     }               
     else if (type === QuestionTypeEnum.MULTIPLE_CHOICE) {
       if (question.shouldHidden === false && answer) {
+        // console.log('111111111111111111111111111111111111111111');
+        // console.log(answer.val);
+        // console.log('111111111111111111111111111111111111111111');
         return (
           <>
             <Grid item md={12} sm={12}>
               <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel> 
               <br />
               <RadioGroup
-                value={answer.val ? answer.val[0] : ''}
+                value={answer.val ? answer.val[0]: ''}
                 defaultValue={answer.val ? answer.val[0] : ''}
                 onChange={function (event, value) {
                   const arr = [];
@@ -293,7 +339,7 @@ export const CustomizedForm = ({
                   updateAnswersByValue(qid, arr);
                 }}>
                 {console.log(question)}
-                {(question && question.mcOptions && question.mcOptions instanceof Array)? question.mcOptions.map((McOption, index) => (
+                {question.mcOptions.map((McOption, index) => (
                   <FormControlLabel
                     key={index}
                     value={McOption.opt}
@@ -301,7 +347,7 @@ export const CustomizedForm = ({
                     control={<Radio color="primary" required={required} />}
                     label={McOption.opt}
                   />
-                )):null}
+                ))}
               </RadioGroup>
             </Grid>
           </>
@@ -383,7 +429,7 @@ export const CustomizedForm = ({
                 }
               }
                 onChange={(event: any) => {
-                  updateAnswersByValue(qid, event.target.value);
+                  updateAnswersByValue(qid, Number(event.target.value));
                 }}
               />
             </Grid>
@@ -414,6 +460,7 @@ export const CustomizedForm = ({
                       : Number.MAX_SAFE_INTEGER,
                 }}
                 onChange={(event: any) => {
+                  //it is originally a string type!! need transfer
                   updateAnswersByValue(qid, event.target.value);
                 }}
               />
@@ -465,12 +512,14 @@ export const CustomizedForm = ({
     }
   }
 
-  function generate_html_of_all_questions() {
+  function generate_html_of_all_questions(qs: Question[], ans: QAnswer[]) {
     let i;
     const html_arr = [];
-    for (i = 0; i < questions.length; i++) {
-      const question = questions[i];
-      const answer = answers[i];
+    // console.log('klkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
+    // console.log(ans);
+    for (i = 0; i < qs.length; i++) {
+      const question = qs[i];
+      const answer = ans[i];
       html_arr.push(generate_html_for_one_question(question, answer));
     }
     return html_arr;
@@ -478,11 +527,12 @@ export const CustomizedForm = ({
 
   return (
     <>
+    {console.log('9999999999999999')}
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, answers, setSubmitError,setMultiSelectValidationFailed,setAnswers,isEditForm,form)}>
+        onSubmit={handleSubmit(patientId, answers, setSubmitError,setMultiSelectValidationFailed,setAnswers,isEditForm,fm)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>
@@ -491,7 +541,7 @@ export const CustomizedForm = ({
                 <Box pt={1} pl={3} pr={3}>
                   <Grid container spacing={3}>
                     {/* /////////////////////////////////////////////////////////////////////////////////////   */}
-                    {generate_html_of_all_questions()}
+                    {generate_html_of_all_questions(questions, answers)}
                     {/* ////////////////////////////////////////////////////////////////////////////////////   */}
                   </Grid>
                 </Box>
