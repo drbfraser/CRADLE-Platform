@@ -66,7 +66,7 @@ export const CustomizedEditFormPage = () => {
           <br />
           <CustomizedForm
             patientId={patientId} 
-            form = {form}
+            fm = {form}
             isEditForm={true}
           />
         </>

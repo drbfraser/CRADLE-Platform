@@ -86,7 +86,8 @@ export const CustomizedFormPage = () => {
 
       <br />
       <SelectHeaderForm patientId={patientId} setForm={setForm} formSchemas={formSchemas}/>
-      
+      {console.log('+++++++++++++++++++++++')}
+      {console.log(form?.questions)}
       {form && form.questions && form!.questions!.length > 0 && (
         <>
           <br />
@@ -96,7 +97,7 @@ export const CustomizedFormPage = () => {
           <br />
           <CustomizedForm
             patientId={patientId}
-            form={form}
+            fm={form}
             isEditForm={false}
           />
         </>

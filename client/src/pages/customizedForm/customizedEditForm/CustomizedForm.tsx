@@ -26,17 +26,19 @@ import {QuestionTypeEnum,AnswerTypeEnum} from 'src/shared/enums';
 
 interface IProps {
   patientId: string;
-  form: CForm;
+  fm: CForm;
   isEditForm: boolean;
 }
 
 export const CustomizedForm = ({
-  patientId,
-  form,
+  patientId,             
+  fm,
   isEditForm,
 }: IProps) => {
-  console.log(form.questions);
-  const questions = form.questions;
+  console.log(fm.questions);
+  const [questions] = useState<Question[]>(fm.questions);  
+  // setQuestions(fm.questions);
+  // const questions = form.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   // const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,7 +54,7 @@ export const CustomizedForm = ({
   const setAnswers = (answers: any) => {
     _setAnswers(answers);
      
-       updateQuestionsConditionHidden(questions, answers);
+    updateQuestionsConditionHidden(questions, answers);
       
      
 
@@ -76,8 +78,9 @@ export const CustomizedForm = ({
     }
     return res;
   }
-
+                 
   useEffect(() => {
+    //setQuestions(fm.questions);
     let i;
     const anss: QAnswer[] = [];
     for (i = 0; i < questions.length; i++) {
@@ -115,20 +118,21 @@ export const CustomizedForm = ({
       ans.anstype = AnswerTypeEnum.TEXT;
       ans.val = question.answers?.text ?? null; 
     } else {
+      console.log(question.questionType);
       console.log('NOTE: INVALID QUESTION TYPE!!');
     }
     anss[i] = ans;
   }
 
-    console.log(answers);
+    // console.log(answers);
 
     //condition update must be 'after' the initilization of the 'answers'
    
       updateQuestionsConditionHidden(questions, anss);
       setAnswers(anss);
      
-
-    console.log('NOTE: xxxxxx');
+      console.log(answers);
+    console.log('NOTE: xxxxxx=========================');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -145,20 +149,21 @@ export const CustomizedForm = ({
       const question = questions[i];
       question.shouldHidden = false;       
                   
-      if (question.visibleCondition.length>0) {
+      if (question.visibleCondition?.length>0) {
         question.shouldHidden = true;
         let j;
-        for (j = 0; j < question.visibleCondition.length; j++) {
+        for (j = 0; j < question.visibleCondition?.length; j++) {
           const condition = question.visibleCondition[j];
           const parentQidx = condition.qidx;
           
           const parentAnswer = answers[parentQidx];
+          const parentQOptions = questions[parentQidx].mcOptions??[];
           console.log(answers);
           console.log(question);
           console.log(parentQidx);
           console.log(parentAnswer);
-          // if (parentAnswer.val !== undefined && parentAnswer.val !== null) {
-            if (parentAnswer.val) {
+          if (parentAnswer.val !== undefined && parentAnswer.val !== null) {
+            // if (parentAnswer.val) {
             
             if (
               questions[parentQidx].questionType === QuestionTypeEnum.MULTIPLE_CHOICE ||
@@ -169,7 +174,7 @@ export const CustomizedForm = ({
                 condition.answers.mcidArray!.length > 0 &&
                 parentAnswer.val?.length === condition.answers.mcidArray?.length
               ) {
-                let parentQOptions = questions[parentQidx].mcOptions;
+                
                 //only this type will have an array value in its 'Answer'
                 //to see if those two array contains the same items
                 let all_equal = true;
@@ -272,7 +277,7 @@ export const CustomizedForm = ({
                   updateAnswersByValue(qid, arr);
                 }}>
                 {console.log(question)}
-                {(question && question.mcOptions)? question.mcOptions.map((McOption, index) => (
+                {question.mcOptions.map((McOption, index) => (
                   <FormControlLabel
                     key={index}
                     value={McOption.opt}
@@ -280,7 +285,7 @@ export const CustomizedForm = ({
                     control={<Radio color="primary" required={required} />}
                     label={McOption.opt}
                   />
-                )):null}
+                ))}
               </RadioGroup>
             </Grid>
           </>
@@ -457,11 +462,12 @@ export const CustomizedForm = ({
 
   return (
     <>
+    {console.log('9999999999999999')}
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, answers, setSubmitError,setMultiSelectValidationFailed,setAnswers,isEditForm,form)}>
+        onSubmit={handleSubmit(patientId, answers, setSubmitError,setMultiSelectValidationFailed,setAnswers,isEditForm,fm)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>
