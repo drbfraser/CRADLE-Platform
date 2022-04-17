@@ -5,9 +5,10 @@ from requests.
 
 import flask_jwt_extended as jwt
 from flask import Request
-from typing import Any
+from typing import Type
 
 import data.crud as crud
+from data.crud import M
 import data.marshal as marshal
 from models import User, Form, FormTemplate
 import utils
@@ -167,7 +168,7 @@ def doesUserExist(id: int) -> bool:
         return True
 
 
-def assign_form_or_template_ids(model: Any, req: dict) -> None:
+def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     """
     Assign form id if not provided.
     Assign question id and formId or formTemplateId.
@@ -185,9 +186,9 @@ def assign_form_or_template_ids(model: Any, req: dict) -> None:
     for question in req.get("questions"):
         if question.get("id") is None:
             question["id"] = utils.get_uuid()
-        if isinstance(model, Form):
+        if model is Form:
             question["formId"] = id
-        elif isinstance(model, FormTemplate):
+        elif model is FormTemplate:
             question["formTemplateId"] = id
         if question.get("questionLangVersions") is not None:
             for version in question.get("questionLangVersions"):
