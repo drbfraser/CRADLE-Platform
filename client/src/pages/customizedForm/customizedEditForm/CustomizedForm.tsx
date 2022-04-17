@@ -30,7 +30,7 @@ interface IProps {
   isEditForm: boolean;
 }
 
-export const CustomizedEditForm = ({
+export const CustomizedForm = ({
   patientId,
   form,
   isEditForm,
@@ -40,19 +40,30 @@ export const CustomizedEditForm = ({
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   // const [isSubmitting, setIsSubmitting] = useState(false);
-  let isSubmitButtonClick = false;
+  // let isSubmitButtonClick = false;
+  // setMultiSelectValidationFailed
+  let [multiSelectValidationFailed] = useState(false);
+
+  // let multiSelectValidationFailed = false;
   const [answers, _setAnswers] = useState<QAnswer[]>([
     { qidx: -1, qtype: null, anstype:null, val: null },
   ]);
   const formTitle = isEditForm ? 'Update Form' : 'Submit Form';
   const setAnswers = (answers: any) => {
     _setAnswers(answers);
-    updateQuestionsConditionHidden(questions, answers);
+     if(answers){
+       updateQuestionsConditionHidden(questions, answers);
+     }
+      
+     
+
   };
 
-  const setIsSubmitButtonClick = (submitButtonClick: boolean) => {
-    isSubmitButtonClick = submitButtonClick;
-  };
+  const setMultiSelectValidationFailed = (ValidationFailed: boolean) => {
+    multiSelectValidationFailed = ValidationFailed;
+    if(answers){setAnswers(answers);}
+  };            
+
   function getValuesFromIDs(question: Question, mcidArray:number[] | undefined){
     if(!mcidArray){
       return [];
@@ -78,7 +89,6 @@ export const CustomizedEditForm = ({
         anstype:null,
         val: null,
       };
-
 
     if (question.questionType === QuestionTypeEnum.MULTIPLE_CHOICE) {
       ans.qtype = QuestionTypeEnum.MULTIPLE_CHOICE;
@@ -114,12 +124,14 @@ export const CustomizedEditForm = ({
     console.log(answers);
 
     //condition update must be 'after' the initilization of the 'answers'
-    updateQuestionsConditionHidden(questions, anss);
+   
+      // updateQuestionsConditionHidden(questions, anss);
+      setAnswers(anss);
+     
 
-    setAnswers(anss);
     console.log('NOTE: xxxxxx');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions]);
+  }, []);
 
  
 
@@ -127,20 +139,28 @@ export const CustomizedEditForm = ({
     questions: Question[],
     answers: QAnswer[]
   ) {
+
+    // if(!answers || !questions){return}
     let i;
     for (i = 0; i < questions.length; i++) {
       const question = questions[i];
-      question.shouldHidden = false;
-
-      if (question.visibleCondition?.length) {
+      question.shouldHidden = false;       
+                  
+      if (question.visibleCondition.length>0 && (question.visibleCondition instanceof Array)) {
         question.shouldHidden = true;
         let j;
         for (j = 0; j < question.visibleCondition.length; j++) {
           const condition = question.visibleCondition[j];
           const parentQidx = condition.qidx;
-          const parentQOptions = questions[parentQidx].mcOptions??[];
+          
           const parentAnswer = answers[parentQidx];
-          if (parentAnswer.val !== undefined && parentAnswer.val !== null) {
+          console.log(answers);
+          console.log(question);
+          console.log(parentQidx);
+          console.log(parentAnswer);
+          // if (parentAnswer.val !== undefined && parentAnswer.val !== null) {
+            if (parentAnswer.val) {
+            
             if (
               questions[parentQidx].questionType === QuestionTypeEnum.MULTIPLE_CHOICE ||
               questions[parentQidx].questionType === QuestionTypeEnum.MULTIPLE_SELECT
@@ -150,6 +170,7 @@ export const CustomizedEditForm = ({
                 condition.answers.mcidArray!.length > 0 &&
                 parentAnswer.val?.length === condition.answers.mcidArray?.length
               ) {
+                let parentQOptions = questions[parentQidx].mcOptions;
                 //only this type will have an array value in its 'Answer'
                 //to see if those two array contains the same items
                 let all_equal = true;
@@ -211,10 +232,14 @@ export const CustomizedEditForm = ({
 
   //currently, only ME(checkboxes need manually add validation, others' validations are handled automatically by formik)
   function generate_validation_line(question: Question, answer: QAnswer, type:any, required:boolean){
-    if(!(isSubmitButtonClick && required && answer.val)){
+    // if(!(multiSelectValidationFailed && required && answer.val && !questions[answer.qidx].shouldHidden)){
+    //   return null;
+    // }
+    if(!multiSelectValidationFailed){
       return null;
     }
-   if (type === QuestionTypeEnum.MULTIPLE_SELECT) { 
+
+   if (type === QuestionTypeEnum.MULTIPLE_SELECT && !question.shouldHidden) { 
       if(!answer.val!.length){
         return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Must Select At Least One Option !)</Typography></>)}
         else{
@@ -247,7 +272,8 @@ export const CustomizedEditForm = ({
                   }
                   updateAnswersByValue(qid, arr);
                 }}>
-                {question.mcOptions!.map((McOption:McOption, index) => (
+                {console.log(question)}
+                {(question && question.mcOptions && question.mcOptions instanceof Array)? question.mcOptions.map((McOption, index) => (
                   <FormControlLabel
                     key={index}
                     value={McOption.opt}
@@ -255,7 +281,7 @@ export const CustomizedEditForm = ({
                     control={<Radio color="primary" required={required} />}
                     label={McOption.opt}
                   />
-                ))}
+                )):null}
               </RadioGroup>
             </Grid>
           </>
@@ -330,7 +356,9 @@ export const CustomizedEditForm = ({
                         {question.units}
                       </InputAdornment>
                     ),
-                 inputProps: {min: (question.numMin||question.numMin===0)?question.numMin:Number.MIN_SAFE_INTEGER, 
+                 inputProps: {
+                   step: 0.01,
+                   min: (question.numMin||question.numMin===0)?question.numMin:Number.MIN_SAFE_INTEGER, 
                   max: (question.numMax||question.numMax===0)?question.numMax:Number.MAX_SAFE_INTEGER },
                 }
               }
@@ -341,7 +369,7 @@ export const CustomizedEditForm = ({
             </Grid>
           </>
         );
-      } else {
+      } else {                
         return <></>;
       }
     } else if (type === QuestionTypeEnum.STRING) {
@@ -434,7 +462,7 @@ export const CustomizedEditForm = ({
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, answers, setSubmitError,setIsSubmitButtonClick,setAnswers,isEditForm,form)}>
+        onSubmit={handleSubmit(patientId, answers, setSubmitError,setMultiSelectValidationFailed,setAnswers,isEditForm,form)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>
@@ -462,7 +490,7 @@ export const CustomizedEditForm = ({
           </Form>
         )}
       </Formik>
-      {setIsSubmitButtonClick(false)}
+      {multiSelectValidationFailed=false}
     </>
   );
 };

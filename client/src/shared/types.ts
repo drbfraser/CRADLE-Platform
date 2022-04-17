@@ -307,10 +307,14 @@ export interface CForm {
   category:    string;
   id:          string;
   lastEdited:  number;
-  version:     string;
+  version:     string|undefined; //when doing form creating,from client-end, this 'version' field needs to be omitted
   name:        string;
   lang:        string;
   questions:   Question[];
+
+  
+  ///////////////////////////
+  patientId: string|undefined; //this is only used in client when we need to do the 'form creating' net post
 }
 
 
@@ -342,7 +346,7 @@ export type Answer = {
 
 
 // Question is used in Form
-export interface Question {
+export type Question = {
   ///////////// recently added 04.14
   // categoryId: OrNull<string> | undefined;//*
   // questionId: string | undefined;//*
@@ -357,18 +361,18 @@ export interface Question {
   required: boolean;//*
 
   // mcOptions?: OrNull<string>[];
-  numMin?: OrNull<number>;//*
-  numMax?: OrNull<number>;//*
+  numMin: OrNull<number>;//*
+  numMax: OrNull<number>;//*
   stringMaxLength?: OrNull<number>;//*
   units?: OrNull<string>;//*
 
   answers: Answer | undefined;
-  visibleCondition?: OrNull<QCondition[]> | undefined;//*
+  visibleCondition: QCondition[];//*
 
 
   /////////// only in form
   formTemplateId: string;
-  mcOptions?: McOption[]; //only used in form
+  mcOptions: McOption[]; //only used in form
   hasCommentAttached: boolean;
   ////////////
   shouldHidden?: OrNull<boolean> | undefined;
@@ -418,7 +422,7 @@ export interface QuestionLangVersion {
   questionText: string;
 }
 
-export interface McOption {
+export type McOption ={
   mcid: number;
   opt:  string;
 }

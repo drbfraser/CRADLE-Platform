@@ -5,14 +5,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
-import { CustomizedEditForm } from './customizedEditForm/CustomizedEditForm';
+import { CustomizedForm } from './customizedEditForm/CustomizedForm';
 import { goBackWithFallback } from 'src/shared/utils';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import {FormSchema,CForm } from 'src/shared/types';
 // import { useHistory } from 'react-router-dom';
-
 import { EndpointEnum } from 'src/shared/enums';
-
 import { apiFetch, API_URL } from 'src/shared/api';
 
 type RouteParams = {
@@ -94,7 +92,7 @@ export const CustomizedFormPage = () => {
           <br />
           <br />
           <br />
-          <CustomizedEditForm
+          <CustomizedForm
             patientId={patientId}
             form={form!}
             isEditForm={false}
