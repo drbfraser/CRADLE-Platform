@@ -1,4 +1,3 @@
-from distutils.log import error
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -11,11 +10,10 @@ import api.util as util
 import service.serialize as serialize
 from models import FormTemplate, Question, RoleEnum
 import service.serialize as serialize
-from service import questionTree
 from validation import formTemplates
 from utils import get_current_time
 from api.decorator import roles_required
-
+import json
 
 # /api/forms/templates
 class Root(Resource):
@@ -27,8 +25,20 @@ class Root(Resource):
         endpoint="form_templates",
     )
     def post():
-        req = request.get_json(force=True)
+        req = None
 
+        # provide file upload method from web
+        if "file" in request.files:
+            file = request.files["file"]
+            file_str = str(file.read(), encoding='utf-8')
+            req = json.loads(file_str)
+        else:
+            req = request.get_json(force=True)
+
+        if req.get("id") is not None:
+            if crud.read(FormTemplate, id=req["id"]):
+                abort(404, message="Form template already exist")
+        
         error_message = formTemplates.validate_template(req)
         if error_message:
             abort(404, message=error_message)

@@ -8,7 +8,6 @@ import data
 import data.crud as crud
 import data.marshal as marshal
 from validation import forms
-from service import questionTree
 from models import Patient, Form, FormTemplate, User
 import api.util as util
 
@@ -22,6 +21,10 @@ class Root(Resource):
     )
     def post():
         req = request.get_json(force=True)
+
+        if req.get("id") is not None:
+            if crud.read(Form, id=req["id"]):
+                return "Form already exist"
 
         error_message = forms.validate_form(req)
         if error_message is not None:

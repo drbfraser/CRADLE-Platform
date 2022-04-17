@@ -1,24 +1,30 @@
 import React, { useEffect, useState } from 'react';
+import { apiFetch, API_URL } from 'src/shared/api';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { IForm } from '../../../shared/types';
-import CreateIcon from '@material-ui/icons/Create';
-import DeleteForever from '@material-ui/icons/DeleteForever';
+//import CreateIcon from '@material-ui/icons/Create';
+//import DeleteForever from '@material-ui/icons/DeleteForever';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
-import { IconButton, Tooltip } from '@material-ui/core';
+//import { IconButton, Tooltip } from '@material-ui/core';
 import AdminTable from '../AdminTable';
+import { IFormTemplate } from './state';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { EndpointEnum } from 'src/shared/enums';
+import CreateTemplate from './createTemplate';
 
-export const ManageForms = () => {
+export const ManageFormTemplates = () => {
   const styles = useAdminStyles();
-  const [loading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [errorLoading, setErrorLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const [forms, setForms] = useState<IForm[]>([]);
+  const [formTemplates, setFormTemplates] = useState<IFormTemplate[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
+  const [createPopupOpen, setCreatePopupOpen] = useState(false);
   const isTransformed = useMediaQuery('(min-width:900px)');
 
   const columns = [
     {
-      name: 'Form Name',
+      name: 'Form Template Name',
       options: {
         display: isTransformed ? true : false,
       },
@@ -41,61 +47,66 @@ export const ManageForms = () => {
         display: isTransformed ? true : false,
       },
     },
-    {
-      name: 'Last Edited',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
   ];
 
-  const getForms = async () => {
-    // FAKE DATA FOR NOW
-    const fakeForm: IForm = {
-      formTemplateId: 10,
-      name: 'A form',
-      category: 'A category',
-      version: 'A version',
-      dateCreated: 'Some kind of date',
-      lastEdited: 'Last edited',
-    };
-    const respForms: IForm[] = [fakeForm];
-    setForms(respForms);
+  const getFormTemplates = async () => {
+    try {
+      const resp: IFormTemplate[] = await (
+        await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES)
+      ).json();
+
+      setFormTemplates(resp.map((form_template, index) => ({...form_template, index})));
+      setLoading(false);
+    } catch (e) {
+      setErrorLoading(true);
+    }
   };
 
   useEffect(() => {
-    getForms();
+    getFormTemplates();
   }, []);
 
   useEffect(() => {
-    const rows = forms.map((form) => [
-      form.name,
-      form.category,
-      form.version,
-      form.dateCreated,
-      form.lastEdited,
-    ]);
+    const searchLowerCase = search.toLowerCase().trim();
 
+    const formTemplateFilter = (form_template: IFormTemplate) => {
+      return (
+        form_template.name.toLowerCase().startsWith(searchLowerCase) ||
+        form_template.category.toLowerCase().startsWith(searchLowerCase) ||
+        form_template.version.toLowerCase().startsWith(searchLowerCase)
+      );
+    };
+
+    const rows = formTemplates
+      .filter(formTemplateFilter)
+      .map((form_template) => [
+        form_template.name,
+        form_template.category,
+        form_template.version,
+        form_template.dateCreated,
+        form_template.lastEdited,
+      ]);
     setTableData(rows);
-  }, [forms]);
+  }, [formTemplates, search]);
 
-  const rowActions = [
-    {
-      tooltip: 'Edit Form',
-      Icon: CreateIcon,
-    },
-    {
-      tooltip: 'Delete Form',
-      Icon: DeleteForever,
-    },
-  ];
+  // const rowActions = [
+  //   {
+  //     tooltip: 'Edit Form',
+  //     Icon: CreateIcon,
+  //   },
+  //   {
+  //     tooltip: 'Delete Form',
+  //     Icon: DeleteForever,
+  //   },
+  // ];
 
-  const Row = ({ row }: { row: string[] }) => {
-    const cells = row;
+  const Row = ({ row }: { row: (string | number)[] }) => {
+    const cells = row.slice(0);
+    //const formTemplate = formTemplates[row.slice(-1)[0] as number];
 
     return (
       <tr className={styles.row}>
-        <TableCell label="Form Name" isTransformed={isTransformed}>
+        <TableCell label="Form Template Name" isTransformed={isTransformed}>
           {cells[0]}
         </TableCell>
         <TableCell label="Category" isTransformed={isTransformed}>
@@ -107,10 +118,10 @@ export const ManageForms = () => {
         <TableCell label="Date Created" isTransformed={isTransformed}>
           {cells[3]}
         </TableCell>
-        <TableCell label="Last Edited" isTransformed={isTransformed}>
+        {/* <TableCell label="Last Edited" isTransformed={isTransformed}>
           {cells[4]}
-        </TableCell>
-        <TableCell label="Take Action" isTransformed={isTransformed}>
+        </TableCell> */}
+        {/* <TableCell label="Take Action" isTransformed={isTransformed}>
           {rowActions.map((action) => (
             <Tooltip
               key={action.tooltip}
@@ -124,24 +135,37 @@ export const ManageForms = () => {
               </IconButton>
             </Tooltip>
           ))}
-        </TableCell>
+        </TableCell> */}
       </tr>
     );
   };
 
   return (
     <div className={styles.tableContainer}>
+      <APIErrorToast
+        open={errorLoading}
+        onClose={() => setErrorLoading(false)}
+      />
+      <CreateTemplate
+        open={createPopupOpen}
+        onClose={() => {
+          setCreatePopupOpen(false);
+          getFormTemplates();
+        }}
+      />
       <AdminTable
-        title="Forms"
+        title="Form Templates"
         columns={columns}
         Row={Row}
         data={tableData}
         loading={loading}
         isTransformed={isTransformed}
-        newBtnLabel={'New Form'}
-        newBtnOnClick={() => console.log('New Form clicked')}
+        newBtnLabel={'New Form Template'}
+        newBtnOnClick={() => {
+          setCreatePopupOpen(true);
+        }}
         search={search}
-        setSearch={setSearch}
+        setSearch={setSearch} 
       />
     </div>
   );
