@@ -115,6 +115,7 @@ class AssessReferral(Resource):
 
         if not referral.isAssessed:
             referral.isAssessed = True
+            referral.dateAssessed = get_current_time()
             data.db_session.commit()
             data.db_session.refresh(referral)
 
@@ -142,6 +143,10 @@ class ReferralCancelStatus(Resource):
 
         if not request_body["isCancelled"]:
             request_body["cancelReason"] = None
+            request_body["dateCancelled"] = None
+        else:
+            request_body["dateCancelled"] = get_current_time()
+
         crud.update(Referral, request_body, id=referral_id)
 
         referral = crud.read(Referral, id=referral_id)
@@ -174,6 +179,7 @@ class ReferralNotAttend(Resource):
         if not referral.notAttended:
             referral.notAttended = True
             referral.notAttendReason = request_body["notAttendReason"]
+            referral.dateNotAttended = get_current_time()
             data.db_session.commit()
             data.db_session.refresh(referral)
 
