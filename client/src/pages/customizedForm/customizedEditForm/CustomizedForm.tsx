@@ -51,9 +51,8 @@ export const CustomizedForm = ({
   const formTitle = isEditForm ? 'Update Form' : 'Submit Form';
   const setAnswers = (answers: any) => {
     _setAnswers(answers);
-     if(answers){
+     
        updateQuestionsConditionHidden(questions, answers);
-     }
       
      
 
@@ -125,7 +124,7 @@ export const CustomizedForm = ({
 
     //condition update must be 'after' the initilization of the 'answers'
    
-      // updateQuestionsConditionHidden(questions, anss);
+      updateQuestionsConditionHidden(questions, anss);
       setAnswers(anss);
      
 
@@ -146,7 +145,7 @@ export const CustomizedForm = ({
       const question = questions[i];
       question.shouldHidden = false;       
                   
-      if (question.visibleCondition.length>0 && (question.visibleCondition instanceof Array)) {
+      if (question.visibleCondition.length>0) {
         question.shouldHidden = true;
         let j;
         for (j = 0; j < question.visibleCondition.length; j++) {
@@ -273,7 +272,7 @@ export const CustomizedForm = ({
                   updateAnswersByValue(qid, arr);
                 }}>
                 {console.log(question)}
-                {(question && question.mcOptions && question.mcOptions instanceof Array)? question.mcOptions.map((McOption, index) => (
+                {(question && question.mcOptions)? question.mcOptions.map((McOption, index) => (
                   <FormControlLabel
                     key={index}
                     value={McOption.opt}

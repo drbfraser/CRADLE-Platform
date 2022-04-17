@@ -201,6 +201,8 @@ export const handleSubmit = (
 
 
     if(!passValidation(questions, answers)){
+      console.log('21321321');
+      console.log(answers);
       setMultiSelectValidationFailed(true);
       return;
     }else{
