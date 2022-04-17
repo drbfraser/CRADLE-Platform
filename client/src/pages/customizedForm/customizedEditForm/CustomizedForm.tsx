@@ -37,8 +37,9 @@ export const CustomizedForm = ({
 }: IProps) => {
   // console.log(fm.questions);
   
-  const [questions] = useState<Question[]>(fm.questions);  
+  // const [questions] = useState<Question[]>(fm.questions);  
  
+  let questions = fm.questions;
   // setQuestions(fm.questions);
   // const questions = form.questions;
   const classes = useStyles();
@@ -77,6 +78,7 @@ export const CustomizedForm = ({
 //     console.log(answers);
 // }, [answers]);
 
+ 
 
  console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq');
  console.log(answers);
@@ -162,15 +164,15 @@ export const CustomizedForm = ({
 
     //condition update must be 'after' the initilization of the 'answers'
    
-      updateQuestionsConditionHidden(questions, anss);
-      setAnswers(anss);
+    updateQuestionsConditionHidden(questions, anss);
+    setAnswers(anss);
      
     console.log(answers);
     console.log('NOTE: xxxxxx=========================');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [questions]);
 
- 
+                
 
   function updateQuestionsConditionHidden(
     questions: Question[],
