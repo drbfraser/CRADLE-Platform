@@ -305,9 +305,19 @@ export const CustomizedForm = ({
         // console.log('111111111111111111111111111111111111111111');
         return (
           <>
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
             <Grid item md={12} sm={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel> 
-              <br />
+              <FormLabel> 
+              <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+                </FormLabel> 
+               
               <RadioGroup
                 value={answer.val ? answer.val[0]: ''}
                 defaultValue={answer.val ? answer.val[0] : ''}
@@ -339,10 +349,20 @@ export const CustomizedForm = ({
       if (question.shouldHidden === false && answer) {
         return (
           <>
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
             <Grid item md={12} sm={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
+              <FormLabel>
+                <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+              </FormLabel>
               {generate_validation_line(question, answer, type, required)}
-              <br />
+               
               {question.mcOptions!.map((McOption:McOption, index) => (
                 <>
                   <FormControlLabel
@@ -384,10 +404,19 @@ export const CustomizedForm = ({
       if (question.shouldHidden === false && answer) {
         return (
           <>
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
             <Grid item sm={12} md={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
-              <br />
-              <br />
+              <FormLabel>
+              <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+              </FormLabel> 
+               
               <Field
                 component={TextField}
                 defaultValue={answer.val ?? ''}
@@ -423,10 +452,19 @@ export const CustomizedForm = ({
       if (question.shouldHidden === false && answer) {
         return (
           <>
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
             <Grid item sm={12} md={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
-              <br />
-              <br />
+              <FormLabel>
+              <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+              </FormLabel>
+               
               <Field
                 component={TextField}
                 defaultValue={answer.val ?? ''}
@@ -454,10 +492,19 @@ export const CustomizedForm = ({
       if (question.shouldHidden === false && answer) {
         return (
           <>
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
             <Grid item md={12} sm={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
-              <br />
-              <br />
+              <FormLabel>
+              <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+              </FormLabel>
+                
               <Field
                 component={TextField}
                 defaultValue={
@@ -517,7 +564,7 @@ export const CustomizedForm = ({
           <Form>
             <Paper>
               <Box p={2}>
-                <h2>Questionnaire</h2>
+                {/* <h2>Questionnaire</h2> */}
                 <Box pt={1} pl={3} pr={3}>
                   <Grid container spacing={3}>
                     {/* /////////////////////////////////////////////////////////////////////////////////////   */}
