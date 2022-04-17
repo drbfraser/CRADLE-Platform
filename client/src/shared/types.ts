@@ -302,7 +302,7 @@ export interface FormSchema {
   version:     string;
   name:        string;
 }
-export interface Form {
+export interface CForm {
   dateCreated: number;
   category:    string;
   id:          string;

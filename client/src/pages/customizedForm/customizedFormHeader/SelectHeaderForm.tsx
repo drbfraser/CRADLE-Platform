@@ -15,7 +15,7 @@ import { handleSubmit } from './handlers';
 import { initialState, CustomizedFormField, validationSchema } from './state';
 // import availableForms from './Forms.json';
 // import availableLangs from './Lang.json';
-import { Question,FormSchema } from 'src/shared/types';
+import { CForm,FormSchema } from 'src/shared/types';
 
 // import {useEffect } from 'react';
 import { EndpointEnum } from 'src/shared/enums';
@@ -23,7 +23,7 @@ import { apiFetch, API_URL } from 'src/shared/api';
 
 interface IProps {
   patientId: string;
-  setQuestions: (questions: Question[]) => void;
+  setForm: (form: CForm) => void
   formSchemas:FormSchema[];
 }
 
@@ -32,7 +32,7 @@ interface IProps {
 //   type: string;
 // };
 
-export const SelectHeaderForm = ({ patientId, setQuestions,formSchemas }: IProps) => {
+export const SelectHeaderForm = ({ patientId, setForm,formSchemas }: IProps) => {
   const classes = useStyles();
   // const [setErrorLoading] = useState(false);
   const [submitError, setSubmitError] = useState(false);
@@ -91,7 +91,7 @@ export const SelectHeaderForm = ({ patientId, setQuestions,formSchemas }: IProps
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, setSubmitError, setQuestions)}>
+        onSubmit={handleSubmit(patientId, setSubmitError, setForm)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>

@@ -1,4 +1,4 @@
-import { QAnswer,Answer,Question } from 'src/shared/types';
+import { QAnswer,Answer,Question,CForm } from 'src/shared/types';
 // import { ReferralState } from './state';
 // import { EndpointEnum } from 'src/shared/enums';
 // import { apiFetch, API_URL } from 'src/shared/api';
@@ -97,20 +97,37 @@ export const TransferQAnswerToAPIStandard = (qans: QAnswer[],  questions: Questi
 export const handleSubmit = (
   patientId: string,
   answers: QAnswer[],
-  questions: Question[],
+  // questions: Question[],
   setSubmitError: (error: boolean) => void,
   setIsSubmitButtonClick: (submitButtonClick: boolean) => void,
   setAnswers:(answers: any)=> void,
+  isEditForm:boolean,
+  form:CForm,
   
 ) => {
   return async (values: [], { setSubmitting }: any) => {
     // alert('request model to be submitted:');
     // alert(answers);
+    let questions = form.questions;
     let anss = TransferQAnswerToAPIStandard(answers, questions);
     console.log(answers);
     console.log(anss);
     
-    // const url = API_URL + EndpointEnum.FORM + '/'+`${values.form_template_id}?lang=${values.lang}`;
+    // const url = API_URL + EndpointEnum.FORM + '/'+`${values.form_template_id}?lang=${values.lang}`; 
+    // let url = '';
+    // let postBody = '';
+    // if (type === 'cancel_referral') {
+    //   url =
+    //     API_URL +
+    //     EndpointEnum.REFERRALS +
+    //     `/cancel-status-switch/` +
+    //     referralId;
+    //   postBody = JSON.stringify({
+    //     cancelReason: values.comment,
+    //     isCancelled: true,
+    //   });
+    // } 
+
 
 
 
@@ -123,7 +140,39 @@ export const handleSubmit = (
   };
 };
 
+// export const handleSubmit = (
+//   referralId: string,
+//   type: string,
+//   setSubmitError: (error: boolean) => void
+// ) => {
+//   return async (values: SingleReason, { setSubmitting }: any) => {
+//     let url = '';
+//     let postBody = '';
+//     if (type === 'cancel_referral') {
+//       url =
+//         API_URL +
+//         EndpointEnum.REFERRALS +
+//         `/cancel-status-switch/` +
+//         referralId;
+//       postBody = JSON.stringify({
+//         cancelReason: values.comment,
+//         isCancelled: true,
+//       });
+//     } 
+//     try {
+//       await apiFetch(url, {
+//         method: 'PUT',
+//         body: postBody,
+//       });
 
+//       goBackWithFallback('/patients');
+//     } catch (e) {
+//       console.error(e);
+//       setSubmitError(true);
+//       setSubmitting(false);
+//     }
+//   };
+// };
 
 // export const handleSubmit1111 = (
 //   patientId: string,

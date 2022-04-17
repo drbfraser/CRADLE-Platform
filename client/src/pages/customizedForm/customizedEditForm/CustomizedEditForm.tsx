@@ -19,23 +19,24 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { QAnswer, McOption } from 'src/shared/types';
+import { QAnswer, McOption ,CForm} from 'src/shared/types';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from "@material-ui/core/Typography";
 import {QuestionTypeEnum,AnswerTypeEnum} from 'src/shared/enums';
 
 interface IProps {
   patientId: string;
-  questions: Question[];
+  form: CForm;
   isEditForm: boolean;
 }
 
 export const CustomizedEditForm = ({
   patientId,
-  questions,
+  form,
   isEditForm,
 }: IProps) => {
-  console.log(questions);
+  console.log(form.questions);
+  const questions = form.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   // const [isSubmitting, setIsSubmitting] = useState(false);
@@ -433,7 +434,7 @@ export const CustomizedEditForm = ({
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, answers,questions, setSubmitError,setIsSubmitButtonClick,setAnswers)}>
+        onSubmit={handleSubmit(patientId, answers, setSubmitError,setIsSubmitButtonClick,setAnswers,isEditForm,form)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>

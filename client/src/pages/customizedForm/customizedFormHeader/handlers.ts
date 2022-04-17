@@ -1,6 +1,6 @@
 import { CustomizedFormState } from './state';
 // import questions from './form.json';
-import { Question,Form } from 'src/shared/types';
+import { CForm } from 'src/shared/types';
 
 import { EndpointEnum } from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
@@ -9,7 +9,7 @@ import { apiFetch, API_URL } from 'src/shared/api';
 export const handleSubmit = (
   patientId: string,
   setSubmitError: (error: boolean) => void,
-  setQuestions: (questions: Question[]) => void
+  setForm: (form: CForm) => void
 ) => {
   return async (values: CustomizedFormState, { setSubmitting }: any) => {
     // console.log(values);
@@ -18,10 +18,9 @@ export const handleSubmit = (
     try {
       await apiFetch(url)
       .then((resp) => resp.json())
-      .then((form:Form) => {
+      .then((form:CForm) => {
         console.log(form);
-        console.log(form.questions);
-        setQuestions(form.questions);
+        setForm(form);
       })
     }
     catch(e){
