@@ -218,9 +218,6 @@ def validate_lang_versions(q: dict) -> Optional[str]:
         if error:
             return error
 
-        # # assign foreign key qid
-        # version["qid"] = qid
-
 
 def validate_template_question_post(q: dict) -> Optional[str]:
     """
@@ -299,16 +296,13 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     if q["questionIndex"] < 0:
         return "question should have non-negative index"
 
-    error = values_correct_type(
-        q,
-        [
-            "numMin",
-            "numMax",
-        ],
-        float,
-    )
-    if error:
-        return error
+    if "numMin" in q and q.get("numMin") is not None:
+        if not isinstance(q["numMin"], int) and not isinstance(q["numMin"], float):
+            return "numMin type must be int or float"
+
+    if "numMax" in q and q.get("numMax") is not None:
+        if not isinstance(q["numMax"], int) and not isinstance(q["numMax"], float):
+            return "numMax type must be int or float"
 
     error = values_correct_type(
         q,
@@ -410,16 +404,13 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     if error:
         return error
 
-    error = values_correct_type(
-        q,
-        [
-            "numMin",
-            "numMax",
-        ],
-        float,
-    )
-    if error:
-        return error
+    if "numMin" in q and q.get("numMin") is not None:
+        if not isinstance(q["numMin"], int) and not isinstance(q["numMin"], float):
+            return "numMin type must be int or float"
+
+    if "numMax" in q and q.get("numMax") is not None:
+        if not isinstance(q["numMax"], int) and not isinstance(q["numMax"], float):
+            return "numMax type must be int or float"
 
     error = values_correct_type(
         q,
