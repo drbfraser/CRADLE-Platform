@@ -23,7 +23,8 @@ import { QAnswer, McOption ,CForm} from 'src/shared/types';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from "@material-ui/core/Typography";
 import {QuestionTypeEnum,AnswerTypeEnum} from 'src/shared/enums';
-
+// import { Divider} from '@material-ui/core';
+// import RecentActorsIcon from '@material-ui/icons/RecentActors';
 interface IProps {
   patientId: string;
   form: CForm;
@@ -115,7 +116,12 @@ export const CustomizedForm = ({
       ans.qtype = QuestionTypeEnum.STRING;
       ans.anstype = AnswerTypeEnum.TEXT;
       ans.val = question.answers?.text ?? null; 
-    } else {
+    }  else if (question.questionType === QuestionTypeEnum.CATEGORY) {
+      ans.qtype = QuestionTypeEnum.CATEGORY;
+      ans.anstype = AnswerTypeEnum.CATEGORY;
+      ans.val = null; 
+    }
+    else {
       console.log('NOTE: INVALID QUESTION TYPE!!');
     }
     anss[i] = ans;
@@ -220,6 +226,11 @@ export const CustomizedForm = ({
         }
         //after decide the 'shouldHidden' field, we need to remove the answer from those hidden question, when it appears again, the field should be 'blank'
       }
+
+      if(question.questionType === QuestionTypeEnum.CATEGORY){
+        question.shouldHidden = false;
+      }
+
     }
   }
 
@@ -255,7 +266,16 @@ export const CustomizedForm = ({
     const type = question.questionType;
     const qid = question.questionIndex;
     const required = question.required;
-    if (type === QuestionTypeEnum.MULTIPLE_CHOICE) {
+    if (type === QuestionTypeEnum.CATEGORY) {
+      return (<>
+      {/* <Typography component="h3" variant="h5">
+          <RecentActorsIcon fontSize="large" /> &nbsp; {question.questionText}
+        </Typography>
+        <Divider />
+        <br /> */}
+      </>)
+    }               
+    else if (type === QuestionTypeEnum.MULTIPLE_CHOICE) {
       if (question.shouldHidden === false && answer) {
         return (
           <>

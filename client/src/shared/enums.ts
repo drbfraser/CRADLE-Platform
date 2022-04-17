@@ -89,6 +89,7 @@ export enum QuestionTypeEnum {
   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
   MULTIPLE_SELECT = 'MULTIPLE_SELECT',
   DATE = 'DATE',
+  CATEGORY = 'CATEGORY',
 }
 
 export enum AnswerTypeEnum {
@@ -96,5 +97,6 @@ export enum AnswerTypeEnum {
   TEXT = 'text',
   MCID_ARRAY = 'mcidArray',
   COMMENT = 'comment', 
+  CATEGORY = '',
 }
  
