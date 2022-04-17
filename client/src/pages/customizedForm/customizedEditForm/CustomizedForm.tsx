@@ -24,8 +24,10 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from "@material-ui/core/Typography";
 import {QuestionTypeEnum,AnswerTypeEnum} from 'src/shared/enums';
 import Divider from '@material-ui/core/Divider';
-import RecentActorsIcon from '@material-ui/icons/RecentActors';
-// import { useStateWithCallbackLazy } from 'use-state-with-callback';
+// import RecentActorsIcon from '@material-ui/icons/RecentActors';
+import PollOutlinedIcon from '@material-ui/icons/PollOutlined';
+// import Chip from '@material-ui/core/Chip';
+// import { useStateWithCallbackLazy } from material-ui/icons/PollOutlined'use-state-with-callback';
 interface IProps {
   patientId: string;
   fm: CForm;
@@ -289,7 +291,7 @@ export const CustomizedForm = ({
     // }
     if(!multiSelectValidationFailed){
       return null;
-    }
+    }                
 
    if (type === QuestionTypeEnum.MULTIPLE_SELECT && !question.shouldHidden) { 
       if(!answer.val!.length){
@@ -311,10 +313,14 @@ export const CustomizedForm = ({
     const required = question.required;
     if (type === QuestionTypeEnum.CATEGORY) {
       return (<>
+       <Divider />
       <Typography component="h3" variant="h5">
-          <RecentActorsIcon fontSize="large" /> &nbsp; {question.questionText}
+          <PollOutlinedIcon fontSize="large" /> &nbsp; {question.questionText}
         </Typography>
-        <Divider />
+        {/* <Divider variant="middle" /> */}
+        <Divider style={{width:'100%'}} />
+        {/* <Chip label={question.questionText} /> */}
+        {/* </Divider> */}
         <br />
       </>)
     }               
@@ -326,8 +332,13 @@ export const CustomizedForm = ({
         return (
           <>
             <Grid item md={12} sm={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel> 
-              <br />
+              <FormLabel> 
+              <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+                </FormLabel> 
+               
               <RadioGroup
                 value={answer.val ? answer.val[0]: ''}
                 defaultValue={answer.val ? answer.val[0] : ''}
@@ -360,9 +371,14 @@ export const CustomizedForm = ({
         return (
           <>
             <Grid item md={12} sm={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
+              <FormLabel>
+                <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+              </FormLabel>
               {generate_validation_line(question, answer, type, required)}
-              <br />
+               
               {question.mcOptions!.map((McOption:McOption, index) => (
                 <>
                   <FormControlLabel
@@ -405,9 +421,13 @@ export const CustomizedForm = ({
         return (
           <>
             <Grid item sm={12} md={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
-              <br />
-              <br />
+              <FormLabel>
+              <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+              </FormLabel> 
+               
               <Field
                 component={TextField}
                 defaultValue={answer.val ?? ''}
@@ -430,6 +450,7 @@ export const CustomizedForm = ({
               }
                 onChange={(event: any) => {
                   updateAnswersByValue(qid, Number(event.target.value));
+                  
                 }}
               />
             </Grid>
@@ -443,9 +464,13 @@ export const CustomizedForm = ({
         return (
           <>
             <Grid item sm={12} md={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
-              <br />
-              <br />
+              <FormLabel>
+              <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+              </FormLabel>
+               
               <Field
                 component={TextField}
                 defaultValue={answer.val ?? ''}
@@ -475,9 +500,13 @@ export const CustomizedForm = ({
         return (
           <>
             <Grid item md={12} sm={12}>
-              <FormLabel>{`${qid + 1}. ${question.questionText}`}</FormLabel>
-              <br />
-              <br />
+              <FormLabel>
+              <Typography variant="h6">
+                <span>&#9679;&nbsp;</span>
+                 {`${question.questionText}`}
+                </Typography>
+              </FormLabel>
+                
               <Field
                 component={TextField}
                 defaultValue={
@@ -537,7 +566,7 @@ export const CustomizedForm = ({
           <Form>
             <Paper>
               <Box p={2}>
-                <h2>Questionnaire</h2>
+                {/* <h2>Questionnaire</h2> */}
                 <Box pt={1} pl={3} pr={3}>
                   <Grid container spacing={3}>
                     {/* /////////////////////////////////////////////////////////////////////////////////////   */}
