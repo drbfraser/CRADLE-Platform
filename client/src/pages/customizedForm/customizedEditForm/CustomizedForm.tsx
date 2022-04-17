@@ -409,7 +409,8 @@ export const CustomizedForm = ({
                 }
               }
                 onChange={(event: any) => {
-                  updateAnswersByValue(qid, event.target.value);
+                  updateAnswersByValue(qid, Number(event.target.value));
+                  
                 }}
               />
             </Grid>

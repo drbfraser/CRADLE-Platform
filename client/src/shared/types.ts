@@ -305,7 +305,7 @@ export interface FormSchema {
 export interface CForm {
   dateCreated: number;
   category:    string;
-  id:          string;
+  id:          string|undefined; //when doing form creating,from ;
   lastEdited:  number;
   version:     string|undefined; //when doing form creating,from client-end, this 'version' field needs to be omitted
   name:        string;

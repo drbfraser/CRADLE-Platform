@@ -103,6 +103,7 @@ export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, 
     console.log(new_form);
     //remove any field not needed in the post request
     new_form.version = undefined;
+    new_form.id = undefined;
     new_form.patientId = patientId;
 
     let qs = Object.assign(form.questions);
@@ -119,7 +120,7 @@ export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, 
           qs[ans_with_qidx.qidx].isBlank = true;
         }
       }
-
+                          
       //change to numMax and numMin to float type
       if(qs[ans_with_qidx.qidx].questionType === "INTEGER"){
         if(!(qs[ans_with_qidx.qidx].numMin==null || qs[ans_with_qidx.qidx].numMin==undefined)){
@@ -136,6 +137,8 @@ export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, 
 
       qs[ans_with_qidx.qidx].shouldHidden = undefined;
       qs[ans_with_qidx.qidx].id = undefined;
+      //form的qs类型是TQuestion类型，但是这里用Question type似乎裁剪不成功
+      qs[ans_with_qidx.qidx].questionId = undefined;
 
 
     });
