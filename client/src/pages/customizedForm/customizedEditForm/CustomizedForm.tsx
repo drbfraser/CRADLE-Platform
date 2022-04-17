@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { initialState, validationSchema } from './state';
-import { Question } from 'src/shared/types';
+import { Question} from 'src/shared/types';
 import {
   getTimestampFromStringDate,
   getPrettyDateTime,
@@ -97,10 +97,20 @@ export const CustomizedForm = ({
     }
     let res = []
     let i = 0;
+    //0.get this question options [mcOptions array]
     let mcOptions = question.mcOptions ?? [];
     for(i=0; i < mcidArray.length; i++){
       //看看要不要用[...mcOptions[i]]
-      res.push(mcOptions[i].opt);
+      // res.push(mcOptions[i].opt);
+      //1.get the index of the item in the mcOption array
+      const opt_index = mcidArray[i];
+      //2.get the mcOption
+      const opt_obj = mcOptions[opt_index];
+      //3.get the value(string) of the option
+      const content = opt_obj.opt;
+      //4.push into res
+      res.push(content);
+
     }
     return res;
   }
@@ -122,10 +132,11 @@ export const CustomizedForm = ({
       ans.qtype = QuestionTypeEnum.MULTIPLE_CHOICE;
       ans.anstype = AnswerTypeEnum.MCID_ARRAY;
       if(question.answers?.mcidArray && question.answers?.mcidArray.length>0){
-        const ids = question.answers?.mcidArray.map((idx, opt) => {
-           return idx;
-        });
-        ans.val = getValuesFromIDs(question, ids);
+        // const ids = question.answers?.mcidArray.map((obj,idx) => {
+        //    return obj.idx;
+        // });
+        ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
+       
       }else{
         ans.val = [];
       }
@@ -135,10 +146,12 @@ export const CustomizedForm = ({
       ans.anstype = AnswerTypeEnum.MCID_ARRAY;
       // ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
       if(question.answers?.mcidArray && question.answers?.mcidArray.length>0){
-        const ids = question.answers?.mcidArray.map((idx, opt) => {
-           return idx;
-        });
-        ans.val = getValuesFromIDs(question, ids);
+        ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
+
+      //   const ids = question.answers?.mcidArray.map((optionObj:McOption, index:Number) => {
+      //     return optionObj.idx;
+      //  });
+      //   ans.val = getValuesFromIDs(question, ids);
       }else{
         ans.val = [];
       }
@@ -336,6 +349,7 @@ export const CustomizedForm = ({
               <Typography variant="h6">
                 <span>&#9679;&nbsp;</span>
                  {`${question.questionText}`}
+                 {required?' *':''}
                 </Typography>
                 </FormLabel> 
                
@@ -370,14 +384,17 @@ export const CustomizedForm = ({
       if (question.shouldHidden === false && answer) {
         return (
           <>
-            <Grid item md={12} sm={12}>
+            <Grid item md={12} sm={12}>                  
               <FormLabel>
                 <Typography variant="h6">
                 <span>&#9679;&nbsp;</span>
                  {`${question.questionText}`}
+                 {required?' *':''}
+                 {generate_validation_line(question, answer, type, required)}
                 </Typography>
+                
               </FormLabel>
-              {generate_validation_line(question, answer, type, required)}
+                                  
                
               {question.mcOptions!.map((McOption:McOption, index) => (
                 <>
@@ -425,6 +442,7 @@ export const CustomizedForm = ({
               <Typography variant="h6">
                 <span>&#9679;&nbsp;</span>
                  {`${question.questionText}`}
+                 {required?' *':''}
                 </Typography>
               </FormLabel> 
                
@@ -468,6 +486,7 @@ export const CustomizedForm = ({
               <Typography variant="h6">
                 <span>&#9679;&nbsp;</span>
                  {`${question.questionText}`}
+                 {required?' *':''}
                 </Typography>
               </FormLabel>
                
@@ -504,6 +523,7 @@ export const CustomizedForm = ({
               <Typography variant="h6">
                 <span>&#9679;&nbsp;</span>
                  {`${question.questionText}`}
+                 {required?' *':''}
                 </Typography>
               </FormLabel>
                 
