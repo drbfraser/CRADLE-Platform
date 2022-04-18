@@ -34,15 +34,19 @@ export const SelectHeaderForm = ({
   const [availableLangs, setAvailableLangs] = useState<string[]>([]);
 
   const all_forms: string[] = formSchemas.map(function (item) {
-    return item.id; //id is a string here
+    return item.name; //id is a string here
   });
 
+  let form_name_id_map= new Map<string, string>();
+  formSchemas.map(item => form_name_id_map.set(item.name, item.id)
+  );
+
   const handleSelectForm = (event: any, values: any) => {
-    const selectedFormID = values;
-    fetchAllLangVersions(selectedFormID);
+    const selectedFormName= values;
+    fetchAllLangVersions(form_name_id_map.get(selectedFormName));
   };
 
-  function fetchAllLangVersions(form_template_id: string) {
+  function fetchAllLangVersions(form_template_id: string | undefined) {
     apiFetch(
       API_URL +
         EndpointEnum.FORM_TEMPLATE +
@@ -78,7 +82,7 @@ export const SelectHeaderForm = ({
                       <Field
                         component={Autocomplete}
                         fullWidth
-                        name={CustomizedFormField.form_template_id}
+                        name={CustomizedFormField.name}
                         options={all_forms}
                         disableClearable={true}
                         onInputChange={handleSelectForm}
@@ -87,14 +91,14 @@ export const SelectHeaderForm = ({
                         ) => (
                           <TextField
                             {...params}
-                            name={CustomizedFormField.form_template_id}
+                            name={CustomizedFormField.name}
                             error={
-                              touched[CustomizedFormField.form_template_id] &&
-                              !!errors[CustomizedFormField.form_template_id]
+                              touched[CustomizedFormField.name] &&
+                              !!errors[CustomizedFormField.name]
                             }
                             helperText={
-                              touched[CustomizedFormField.form_template_id]
-                                ? errors[CustomizedFormField.form_template_id]
+                              touched[CustomizedFormField.name]
+                                ? errors[CustomizedFormField.name]
                                 : ''
                             }
                             label="Form"

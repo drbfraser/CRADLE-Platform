@@ -20,8 +20,8 @@ export const CustomizedFormPage = () => {
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [form, _setForm] = useState<CForm>();
-
   const [formSchemas, setFormSchemas] = useState<FormSchema[]>([]);
+
   const setForm = (form: CForm) => {
     _setForm(form);
   };
