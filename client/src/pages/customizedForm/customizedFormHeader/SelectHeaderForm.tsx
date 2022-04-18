@@ -37,12 +37,11 @@ export const SelectHeaderForm = ({
     return item.name; //id is a string here
   });
 
-  let form_name_id_map= new Map<string, string>();
-  formSchemas.map(item => form_name_id_map.set(item.name, item.id)
-  );
+  const form_name_id_map = new Map<string, string>();
+  formSchemas.map((item) => form_name_id_map.set(item.name, item.id));
 
   const handleSelectForm = (event: any, values: any) => {
-    const selectedFormName= values;
+    const selectedFormName = values;
     fetchAllLangVersions(form_name_id_map.get(selectedFormName));
   };
 
@@ -70,7 +69,12 @@ export const SelectHeaderForm = ({
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, formSchemas, setSubmitError, setForm)}>
+        onSubmit={handleSubmit(
+          patientId,
+          formSchemas,
+          setSubmitError,
+          setForm
+        )}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>

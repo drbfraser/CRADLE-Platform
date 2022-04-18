@@ -17,8 +17,5 @@ export const validationSchema = Yup.object().shape({
     .label('Language')
     .required()
     .nullable(),
-  [CustomizedFormField.name]: Yup.string()
-  .label('Name')
-  .required()
-  .nullable(),
+  [CustomizedFormField.name]: Yup.string().label('Name').required().nullable(),
 });

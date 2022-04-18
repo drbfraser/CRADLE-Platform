@@ -52,7 +52,9 @@ export const ManageFormTemplates = () => {
         await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES)
       ).json();
 
-      setFormTemplates(resp.map((form_template, index) => ({...form_template, index})));
+      setFormTemplates(
+        resp.map((form_template, index) => ({ ...form_template, index }))
+      );
       setLoading(false);
     } catch (e) {
       setErrorLoading(true);
@@ -132,7 +134,7 @@ export const ManageFormTemplates = () => {
           setCreatePopupOpen(true);
         }}
         search={search}
-        setSearch={setSearch} 
+        setSearch={setSearch}
       />
     </div>
   );

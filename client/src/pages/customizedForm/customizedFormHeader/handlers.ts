@@ -11,9 +11,10 @@ export const handleSubmit = (
   setForm: (form: CForm) => void
 ) => {
   return async (values: CustomizedFormState, { setSubmitting }: any) => {
-    let form_name_id_map= new Map<string, string>();
-    formSchemas.map(item => form_name_id_map.set(item.name, item.id));
-    const form_template_id = (values.name != null) ? form_name_id_map.get(values.name) : '';
+    const form_name_id_map = new Map<string, string>();
+    formSchemas.map((item) => form_name_id_map.set(item.name, item.id));
+    const form_template_id =
+      values.name != null ? form_name_id_map.get(values.name) : '';
     const url =
       API_URL +
       EndpointEnum.FORM_TEMPLATE +

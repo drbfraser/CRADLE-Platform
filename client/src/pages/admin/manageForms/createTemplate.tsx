@@ -20,12 +20,12 @@ interface IProps {
   onClose: () => void;
 }
 
-const CreateTemplate = ({open, onClose}: IProps) => {
-const classes = useStyles();
+const CreateTemplate = ({ open, onClose }: IProps) => {
+  const classes = useStyles();
   const [selectedFile, setSelectedFile] = useState<File>();
   const [isUploadOk, setIsUploadOk] = useState(false);
   const [uploadError, setUploadError] = useState<string>();
-  
+
   const url = API_URL + EndpointEnum.FORM_TEMPLATES;
   const errorMessages: { [name: number]: string } = {
     404: 'Invalid file content',
@@ -63,61 +63,60 @@ const classes = useStyles();
 
   return (
     <>
-      <APIErrorToast open={uploadError !== undefined} onClose={() => setUploadError(undefined)} />
+      <APIErrorToast
+        open={uploadError !== undefined}
+        onClose={() => setUploadError(undefined)}
+      />
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>Create Form Template</DialogTitle>
         <DialogContent>
-            <Box p={3}>
-                <Typography component="h6" variant="h6">
-                Upload Template File (.json)
-                </Typography>
-                <Divider />
-                <div className={classes.root}>
-                    <input type="file" name="file" onChange={handleChange} />
-                </div>
-                <div className={classes.root}>
-                    <SampleTemplateToast/>
-                </div>
-                <DialogActions>
-                    <Button
-                    color="primary"
-                    variant="contained"
-                    component="span"
-                    onClick={handleClickUpload}>
-                    Upload
-                    </Button>
-                    <Button
-                    color="primary"
-                    variant="contained"
-                    component="span"
-                    onClick={
-                        () =>{
-                            setSelectedFile(undefined);
-                            onClose();
-                        }
-                    }
-                    >
-                    Cancel
-                    </Button>
-                </DialogActions>
-                {uploadError ? (
-                <Alert severity="error">Upload failed - {uploadError}</Alert>
-                ) : (
-                isUploadOk && <Alert severity="success">Upload successful</Alert>
-                )}
-            </Box>
+          <Box p={3}>
+            <Typography component="h6" variant="h6">
+              Upload Template File (.json)
+            </Typography>
+            <Divider />
+            <div className={classes.root}>
+              <input type="file" name="file" onChange={handleChange} />
+            </div>
+            <div className={classes.root}>
+              <SampleTemplateToast />
+            </div>
+            <DialogActions>
+              <Button
+                color="primary"
+                variant="contained"
+                component="span"
+                onClick={handleClickUpload}>
+                Upload
+              </Button>
+              <Button
+                color="primary"
+                variant="contained"
+                component="span"
+                onClick={() => {
+                  setSelectedFile(undefined);
+                  onClose();
+                }}>
+                Cancel
+              </Button>
+            </DialogActions>
+            {uploadError ? (
+              <Alert severity="error">Upload failed - {uploadError}</Alert>
+            ) : (
+              isUploadOk && <Alert severity="success">Upload successful</Alert>
+            )}
+          </Box>
         </DialogContent>
       </Dialog>
     </>
-  )
-
+  );
 };
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-      marginTop: theme.spacing(2),
-      marginBottom: theme.spacing(2),
-    },
+  root: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 export default CreateTemplate;
