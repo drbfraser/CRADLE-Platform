@@ -33,7 +33,7 @@ interface IProps {
 }
 
 export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
-  let questions = fm.questions;
+  const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   let [multiSelectValidationFailed] = useState(false);
@@ -55,10 +55,10 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
     if (!mcidArray) {
       return [];
     }
-    let res = [];
+    const res = [];
     let i = 0;
     //0.get this question options [mcOptions array]
-    let mcOptions = question.mcOptions ?? [];
+    const mcOptions = question.mcOptions ?? [];
     for (i = 0; i < mcidArray.length; i++) {
       //1.get the index of the item in the mcOption array
       const opt_index = mcidArray[i];

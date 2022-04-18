@@ -26,10 +26,10 @@ export const TransferQAnswerToAPIStandard = (
     return [];
   }
   const qanswers = [...qans];
-  let anss: API_Answer[] = [];
+  const anss: API_Answer[] = [];
   let i; //answer -> Answer type
   for (i = 0; i < qanswers.length; i++) {
-    let q_answer = qanswers[i];
+    const q_answer = qanswers[i];
     const q_idx: number = q_answer.qidx;
     //We do NOT collect answers to those 'hidden' questions!!!!!!!!!!
     if (
@@ -44,13 +44,13 @@ export const TransferQAnswerToAPIStandard = (
       q_answer.qtype === 'MULTIPLE_CHOICE' ||
       q_answer.qtype === 'MULTIPLE_SELECT'
     ) {
-      let mcid_arr: any = [];
+      const mcid_arr: any = [];
       q_answer.val!.forEach((item: any) => {
         //val IS THE 'CONTENT'(STRING) OF THE OPTION!
 
-        let q_opts = questions[q_idx].mcOptions?.map((option) => option.opt);
+        const q_opts = questions[q_idx].mcOptions?.map((option) => option.opt);
         //!!!!!!!![IMPORTANT!!] WE USE INDEX TO FETCH m_option_id!!!!!!
-        let q_opts_id: number = q_opts!.indexOf(item);
+        const q_opts_id: number = q_opts!.indexOf(item);
         mcid_arr.push(q_opts_id);
       });
       anss.push({ qidx: q_idx, answer: { mcidArray: [...mcid_arr!] } });
@@ -71,12 +71,12 @@ export const TransferQAnswerToPostBody = (
   patientId: string,
   isEditForm: boolean
 ) => {
-  let postBody: post_body = { creat: undefined, edit: undefined };
+  const postBody: post_body = { creat: undefined, edit: undefined };
 
   if (isEditForm === false) {
     //create(/fill in) a new form
     //deep copy
-    let new_form: CForm = Object.assign(form);
+    const new_form: CForm = Object.assign(form);
     console.log(form);
     console.log(new_form);
     //remove any field not needed in the post request
@@ -84,7 +84,7 @@ export const TransferQAnswerToPostBody = (
     new_form.id = undefined;
     new_form.patientId = patientId;
 
-    let qs = Object.assign(form.questions);
+    const qs = Object.assign(form.questions);
     api_anss.forEach((ans_with_qidx: API_Answer) => {
       qs[ans_with_qidx.qidx].answers = ans_with_qidx.answer;
 
@@ -143,10 +143,10 @@ export const TransferQAnswerToPostBody = (
   } else {
     //edit a form content
     const questions: Question[] = form.questions;
-    let post_body_edit: API_Answer_For_Edit[] = [];
+    const post_body_edit: API_Answer_For_Edit[] = [];
     api_anss.forEach((ans_with_qidx: API_Answer) => {
-      let qid = questions[ans_with_qidx.qidx].id;
-      let api_ans_for_edit: API_Answer_For_Edit = {
+      const qid = questions[ans_with_qidx.qidx].id;
+      const api_ans_for_edit: API_Answer_For_Edit = {
         id: qid,
         answers: ans_with_qidx.answer,
       };
@@ -161,7 +161,7 @@ export const passValidation = (questions: Question[], answers: QAnswer[]) => {
   //check multi-selection while when clicking the submit button
   let i;
   for (i = 0; i < answers.length; i++) {
-    let ans = answers[i];
+    const ans = answers[i];
     if (ans.qtype === 'MULTIPLE_SELECT') {
       const qidx = ans.qidx;
       const required = questions[qidx].required;
@@ -187,7 +187,7 @@ export const handleSubmit = (
   form: CForm
 ) => {
   return async (values: [], { setSubmitting }: any) => {
-    let questions = form.questions;
+    const questions = form.questions;
     if (!passValidation(questions, answers)) {
       setMultiSelectValidationFailed(true);
       return;
