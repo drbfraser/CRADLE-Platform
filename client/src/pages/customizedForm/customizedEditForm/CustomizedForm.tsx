@@ -19,15 +19,13 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { QAnswer, McOption ,CForm} from 'src/shared/types';
+import { QAnswer, CForm} from 'src/shared/types';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from "@material-ui/core/Typography";
 import {QuestionTypeEnum,AnswerTypeEnum} from 'src/shared/enums';
 import Divider from '@material-ui/core/Divider';
-// import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import PollOutlinedIcon from '@material-ui/icons/PollOutlined';
-// import Chip from '@material-ui/core/Chip';
-// import { useStateWithCallbackLazy } from material-ui/icons/PollOutlined'use-state-with-callback';
+
 interface IProps {
   patientId: string;
   fm: CForm;
@@ -304,7 +302,7 @@ export const CustomizedForm = ({
                  {generate_validation_line(question, answer, type, required)}
                 </Typography>
               </FormLabel>
-              {question.mcOptions!.map((McOption:McOption, index) => (
+              {question.mcOptions!.map((McOption, index) => (
                 <>
                   <FormControlLabel
                     control={

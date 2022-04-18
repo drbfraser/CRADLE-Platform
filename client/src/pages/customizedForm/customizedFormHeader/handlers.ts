@@ -11,7 +11,7 @@ export const handleSubmit = (
   setForm: (form: CForm) => void
 ) => {
   return async (values: CustomizedFormState, { setSubmitting }: any) => {
-    const url = API_URL + EndpointEnum.FORM_TEMPLATE + '/'+`${values.form_template_id}?lang=${values.lang}`;
+    const url = API_URL + EndpointEnum.FORM_TEMPLATE + `/${values.form_template_id}?lang=${values.lang}`;
    
     try {
       await apiFetch(url)

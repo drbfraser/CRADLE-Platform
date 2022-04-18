@@ -27,9 +27,6 @@ export const CustomizedFormPage = () => {
     _setForm(form);
   };
 
-
-   
- 
   useEffect(() => {
     /*eslint no-useless-concat: "error"*/
     apiFetch(API_URL + EndpointEnum.FORM_TEMPLATE)

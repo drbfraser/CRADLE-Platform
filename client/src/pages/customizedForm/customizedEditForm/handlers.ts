@@ -3,31 +3,7 @@ import { EndpointEnum } from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { goBackWithFallback } from 'src/shared/utils';
 
-export const handleSubmit2 = (
-  e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  patientId: string,
-  answers: QAnswer[],
- 
-) => {
-  let i, j, qidx, value;
-  let content = `===== Request MODEL To be Submitted ===== \n`;
-  for (i = 0; i < answers.length; i++) {
-    qidx = answers[i].qidx;
-    value = answers[i].val;
-    content += `qidx: ${qidx}; values: `;
-    if (answers[i].qtype === 'MULTIPLE_CHOICE' || answers[i].qtype === 'MULTIPLE_SELECT') {
-      for (j = 0; j < value?.length; j++) {
-        content += `${j}: ${value[j]}   `;
-      }
-    } else {
-      content += `${value}   `;
-    }
-    content += `\n`;
-  }
-  alert(content);
-};
 
- 
 
 export type API_Answer = {
   qidx: number;
@@ -50,17 +26,18 @@ export const TransferQAnswerToAPIStandard = (qans: QAnswer[],  questions: Questi
   }
   const qanswers = [...qans];
   let anss:API_Answer[] = [];
-  let i,  q_idx:number; //answer -> Answer type
+  let i; //answer -> Answer type
   for (i = 0; i < qanswers.length; i++) {
     let q_answer = qanswers[i];
-    q_idx = q_answer.qidx;
+    const q_idx:number = q_answer.qidx;         
     //We do NOT collect answers to those 'hidden' questions!!!!!!!!!!
-    if(questions[q_idx].questionType == 'CATEGORY' || questions[q_idx].shouldHidden === true){
+    if(questions[q_idx].questionType === 'CATEGORY' || questions[q_idx].shouldHidden === true){
       anss.push({'qidx': q_idx,  answer:{'mcidArray': [], 'text':undefined, 'number':undefined}});
     }
     else if (q_answer.qtype === 'MULTIPLE_CHOICE' || q_answer.qtype === 'MULTIPLE_SELECT') {
         let mcid_arr:any = []; 
         q_answer.val!.forEach((item:any) => {//val IS THE 'CONTENT'(STRING) OF THE OPTION!
+           
           let q_opts = questions[q_idx].mcOptions?.map(option=>option.opt);
           //!!!!!!!![IMPORTANT!!] WE USE INDEX TO FETCH m_option_id!!!!!!
           let q_opts_id:number = q_opts!.indexOf(item);
@@ -100,10 +77,10 @@ export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, 
       qs[ans_with_qidx.qidx].answers = ans_with_qidx.answer;
 
       //isBlank
-      if((qs[ans_with_qidx.qidx].questionType === "MULTIPLE_CHOICE" || (qs[ans_with_qidx.qidx].questionType === "MULTIPLE_SELECT") && ans_with_qidx.answer.mcidArray!.length>0)){
+      if(((qs[ans_with_qidx.qidx].questionType === "MULTIPLE_CHOICE" || (qs[ans_with_qidx.qidx].questionType === "MULTIPLE_SELECT")) && ans_with_qidx.answer.mcidArray!.length>0)){
         qs[ans_with_qidx.qidx].isBlank = false;
       }else{
-        if(ans_with_qidx.answer!=null && ans_with_qidx.answer != undefined){
+        if(ans_with_qidx.answer!==null && ans_with_qidx.answer !== undefined){
           qs[ans_with_qidx.qidx].isBlank = false;
         }else{
           qs[ans_with_qidx.qidx].isBlank = true;
@@ -112,11 +89,11 @@ export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, 
                           
       //change to numMax and numMin to float type
       if(qs[ans_with_qidx.qidx].questionType === "INTEGER"){
-        if(!(qs[ans_with_qidx.qidx].numMin==null || qs[ans_with_qidx.qidx].numMin==undefined)){
+        if(!(qs[ans_with_qidx.qidx].numMin===null || qs[ans_with_qidx.qidx].numMin===undefined)){
           qs[ans_with_qidx.qidx].numMin = Number(parseFloat(qs[ans_with_qidx.qidx].numMin).toFixed(2));
         }
 
-        if(!(qs[ans_with_qidx.qidx].numMax==null || qs[ans_with_qidx.qidx].numMax==undefined)){
+        if(!(qs[ans_with_qidx.qidx].numMax===null || qs[ans_with_qidx.qidx].numMax===undefined)){
           qs[ans_with_qidx.qidx].numMax = Number(parseFloat(qs[ans_with_qidx.qidx].numMax).toFixed(2));
         }
       }

@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
-import { CustomizedForm as CustomizedForm } from './CustomizedForm';
+import { CustomizedForm } from './CustomizedForm';
 import { goBackWithFallback } from 'src/shared/utils';
 import { CForm} from 'src/shared/types';
 import { EndpointEnum } from 'src/shared/enums';
@@ -26,7 +26,7 @@ export const CustomizedEditFormPage = () => {
 
 
   useEffect(() => {
-    const url = API_URL + EndpointEnum.FORM + '/'+`${formId}`;
+    const url = API_URL + EndpointEnum.FORM + `/${formId}`;
     try {
       apiFetch(url)
       .then((resp) => resp.json())
@@ -39,7 +39,7 @@ export const CustomizedEditFormPage = () => {
     catch(e){
         console.error(e);
       }
-    }, []);
+    }, [formId]);
   
 
   return (
