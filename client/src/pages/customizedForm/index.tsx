@@ -9,7 +9,6 @@ import { CustomizedForm } from './customizedEditForm/CustomizedForm';
 import { goBackWithFallback } from 'src/shared/utils';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import {FormSchema,CForm } from 'src/shared/types';
-// import { useHistory } from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
 
@@ -17,35 +16,15 @@ type RouteParams = {
   patientId: string;
 };
 
-// interface LocationState {
-//   pathname:string;
-//   search:string;
-// }           
-
 
 export const CustomizedFormPage = () => {
-  // const location = useLocation();
-  // const {search} = useLocation<LocationState>();
-  // console.log(search);
-  // console.log(useLocation<LocationState>());
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [form, _setForm] = useState<CForm>();      
-  // const [questions, setQuestions] = useState<Question[]>([]);
 
   const [formSchemas,setFormSchemas] = useState<FormSchema[]>([]);
-                                         
-  // let formSchemas:FormSchema[];
-  // const [errorLoading, setErrorLoading] = useState(false);
-  // let formSchemas = useRef<FormSchema[]>([]);
-
-  // let formSchemas: FormSchema[] = [];
-  // let questions:Question[];
   const setForm = (form: CForm) => {
     _setForm(form);
-    console.log('---------***-------------');
-    // setFormSchemas(formSchemas);
-    // questions = form.questions;
   };
 
 
@@ -57,23 +36,14 @@ export const CustomizedFormPage = () => {
       .then((resp) => resp.json())
       .then((form_schemas) => {
         setFormSchemas(form_schemas);
-        // console.log(formSchemas);
       })
       .catch(() => {
-        // setErrorLoading(true);
         console.log("Error Loading !!!!!!");
       });
-    // if(formSchemas){
-    //   setFormSchemas([]);
-    // }
     
   },[]);
 
-  console.log(formSchemas);
-
   return (
-    
-     
       <div className={classes.container}>
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
@@ -86,8 +56,6 @@ export const CustomizedFormPage = () => {
 
       <br />
       <SelectHeaderForm patientId={patientId} setForm={setForm} formSchemas={formSchemas}/>
-      {console.log('+++++++++++++++++++++++')}
-      {console.log(form?.questions)}
       {form && form.questions && form!.questions!.length > 0 && (
         <>
           <br />

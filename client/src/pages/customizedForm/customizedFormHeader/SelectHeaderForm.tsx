@@ -13,11 +13,8 @@ import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { initialState, CustomizedFormField, validationSchema } from './state';
-// import availableForms from './Forms.json';
-// import availableLangs from './Lang.json';
 import { CForm,FormSchema } from 'src/shared/types';
 
-// import {useEffect } from 'react';
 import { EndpointEnum } from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
 
@@ -27,46 +24,19 @@ interface IProps {
   formSchemas:FormSchema[];
 }
 
-// export type customizedForm = {
-//   name: string;
-//   type: string;
-// };
 
 export const SelectHeaderForm = ({ patientId, setForm,formSchemas }: IProps) => {
   const classes = useStyles();
-  // const [setErrorLoading] = useState(false);
   const [submitError, setSubmitError] = useState(false);
   const [availableLangs, setAvailableLangs] = useState<string[]>([]);
-  // let availableLangs:string[] = [];
   
 
   const all_forms: string[] = formSchemas.map(function (item) {
     return item.id;//id is a string here
   });
 
-  console.log(all_forms);
-  console.log(formSchemas);
-
-  // useEffect(() => {
-   
-  //   /*eslint no-useless-concat: "error"*/
-  //   // fetchAllLangVersions(selectedFormID);
-  // }, [formSchemas]);
-
-
-  // function handleSelectForm(e:any) {
-  //    let selectedFormID = e.target.value;
-  //    fetchAllLangVersions(selectedFormID);
-  // } 
-
   const handleSelectForm = (event:any, values:any) => {
-    // console.log(values);
-    // console.log(event);
-    // console.log(event.target);
-    // console.log(event.target.value);
-    console.log(values);
     const selectedFormID = values;
-    // const selectedFormID = event.target.value;
     fetchAllLangVersions(selectedFormID);
   };
 
@@ -78,7 +48,6 @@ export const SelectHeaderForm = ({ patientId, setForm,formSchemas }: IProps) => 
       console.log(lang_model);
     })
     .catch(() => {
-      // setErrorLoading(true);
       console.log("Error Loading !!!!!!")
     });
   }

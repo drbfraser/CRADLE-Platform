@@ -39,53 +39,15 @@ export const CustomizedForm = ({
   fm,
   isEditForm,
 }: IProps) => {
-  // console.log(fm.questions);
-  
-  // const [questions] = useState<Question[]>(fm.questions);  
  
   let questions = fm.questions;
-  // setQuestions(fm.questions);
-  // const questions = form.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
-  // const [isSubmitting, setIsSubmitting] = useState(false);
-  // let isSubmitButtonClick = false;
-  // setMultiSelectValidationFailed
   let [multiSelectValidationFailed] = useState(false);
 
-  // let multiSelectValidationFailed = false;
-  // const [answers, _setAnswers] = useState<QAnswer[]>([
-  //   { qidx: -1, qtype: null, anstype:null, val: null },
-  // ]);
-  // const [answers, setAnswers] = useState<QAnswer[]>([]);
   const [answers, setAnswers] = useState <QAnswer[]>([]);
   const formTitle = isEditForm ? 'Update Form' : 'Submit Form';
-  // const setAnswers = (ans: any) => {
-  //   _setAnswers(ans);
-  //   updateQuestionsConditionHidden(questions, ans);
-  //   console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-  //   console.log(ans);
-  //   console.log(answers);
-
-  // };
-
-//   setAnswers(answers, () => {
-    
-//     // console.log(answers);
-//  });
-
-// useEffect(() => {
-//   // console.log('klkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
-//   // console.log(answers);
-//   if(answers.length>0){updateQuestionsConditionHidden(questions, answers);}
-//     console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-//     console.log(answers);
-// }, [answers]);
-
  
-
- console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq');
- console.log(answers);
   const setMultiSelectValidationFailed = (ValidationFailed: boolean) => {
     multiSelectValidationFailed = ValidationFailed;
     if(answers.length>0){setAnswers(answers);}
@@ -100,23 +62,19 @@ export const CustomizedForm = ({
     //0.get this question options [mcOptions array]
     let mcOptions = question.mcOptions ?? [];
     for(i=0; i < mcidArray.length; i++){
-      //看看要不要用[...mcOptions[i]]
-      // res.push(mcOptions[i].opt);
       //1.get the index of the item in the mcOption array
       const opt_index = mcidArray[i];
       //2.get the mcOption
       const opt_obj = mcOptions[opt_index];
       //3.get the value(string) of the option
       const content = opt_obj.opt;
-      //4.push into res
+      //4.push into res | see if needs [...mcOptions[i]]
       res.push(content);
-
     }
     return res;
   }
                  
   useEffect(() => {
-    //setQuestions(fm.questions);
     let i;
     const anss: QAnswer[] = [];
     for (i = 0; i < questions.length; i++) {
@@ -132,31 +90,18 @@ export const CustomizedForm = ({
       ans.qtype = QuestionTypeEnum.MULTIPLE_CHOICE;
       ans.anstype = AnswerTypeEnum.MCID_ARRAY;
       if(question.answers?.mcidArray && question.answers?.mcidArray.length>0){
-        // const ids = question.answers?.mcidArray.map((obj,idx) => {
-        //    return obj.idx;
-        // });
         ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
-       
       }else{
         ans.val = [];
       }
-      
     }else if (question.questionType === QuestionTypeEnum.MULTIPLE_SELECT) {
       ans.qtype = QuestionTypeEnum.MULTIPLE_SELECT;
       ans.anstype = AnswerTypeEnum.MCID_ARRAY;
-      // ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
       if(question.answers?.mcidArray && question.answers?.mcidArray.length>0){
         ans.val = getValuesFromIDs(question, question.answers?.mcidArray);
-
-      //   const ids = question.answers?.mcidArray.map((optionObj:McOption, index:Number) => {
-      //     return optionObj.idx;
-      //  });
-      //   ans.val = getValuesFromIDs(question, ids);
       }else{
         ans.val = [];
       }
-
-
     } else if ( question.questionType === QuestionTypeEnum.INTEGER ) {
       ans.qtype = QuestionTypeEnum.INTEGER;
       //THE FOLLOWING TWO FIELDS ARE RELATED
@@ -180,16 +125,9 @@ export const CustomizedForm = ({
     }
     anss[i] = ans;
   }
-
-    // console.log(answers);
-
     //condition update must be 'after' the initilization of the 'answers'
-   
     updateQuestionsConditionHidden(questions, anss);
     setAnswers(anss);
-     
-    console.log(answers);
-    console.log('NOTE: xxxxxx=========================');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions]);
 
@@ -199,13 +137,10 @@ export const CustomizedForm = ({
     questions: Question[],
     answers: QAnswer[]
   ) {
-
-    // if(!answers || !questions){return}
     let i;
     for (i = 0; i < questions.length; i++) {
       const question = questions[i];
       question.shouldHidden = false;       
-                  
       if (question.visibleCondition?.length>0) {
         question.shouldHidden = true;
         let j;
@@ -215,13 +150,7 @@ export const CustomizedForm = ({
           
           const parentAnswer = answers[parentQidx];
           const parentQOptions = questions[parentQidx].mcOptions??[];
-          console.log(answers);
-          console.log(question);
-          console.log(parentQidx);
-          console.log(parentAnswer);
-          // if (parentAnswer.val !== undefined && parentAnswer.val !== null) {
             if (parentAnswer.val) {
-            
             if (
               questions[parentQidx].questionType === QuestionTypeEnum.MULTIPLE_CHOICE ||
               questions[parentQidx].questionType === QuestionTypeEnum.MULTIPLE_SELECT
@@ -231,15 +160,12 @@ export const CustomizedForm = ({
                 condition.answers.mcidArray!.length > 0 &&
                 parentAnswer.val?.length === condition.answers.mcidArray?.length
               ) {
-                
                 //only this type will have an array value in its 'Answer'
                 //to see if those two array contains the same items
                 let all_equal = true;
                 condition.answers.mcidArray!.forEach((item, index) => {
                   //******!!MCID has to be the index of that option!!!!!!!!!******
                   const condition_expected_ans = parentQOptions[item].opt;
-                  // console.log(parentAnswer.val);
-                  // console.log(condition_expected_ans);
                   //those two array are not equal
                   if (parentAnswer.val.indexOf(condition_expected_ans) < 0) {
                     all_equal = false;
@@ -279,13 +205,11 @@ export const CustomizedForm = ({
             }
           }
         }
-        //after decide the 'shouldHidden' field, we need to remove the answer from those hidden question, when it appears again, the field should be 'blank'
+        //after decide the 'shouldHidden' field, we need to remove the answer from those hidden question, when it appears again, the field should be 'blank'[NO, WE KEEP THE PREVIOUS ANSWERS NOW]
       }
-
       if(question.questionType === QuestionTypeEnum.CATEGORY){
         question.shouldHidden = false;
       }
-
     }
   }
 
@@ -299,13 +223,9 @@ export const CustomizedForm = ({
 
   //currently, only ME(checkboxes need manually add validation, others' validations are handled automatically by formik)
   function generate_validation_line(question: Question, answer: QAnswer, type:any, required:boolean){
-    // if(!(multiSelectValidationFailed && required && answer.val && !questions[answer.qidx].shouldHidden)){
-    //   return null;
-    // }
     if(!multiSelectValidationFailed){
       return null;
     }                
-
    if (type === QuestionTypeEnum.MULTIPLE_SELECT && !question.shouldHidden) { 
       if(!answer.val!.length){
         return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Must Select At Least One Option !)</Typography></>)}
@@ -319,8 +239,6 @@ export const CustomizedForm = ({
   }
 
   function generate_html_for_one_question(question: Question, answer: QAnswer) {
-    console.log('00000000000000000000000000000000000000000000');
-    console.log(answer);
     const type = question.questionType;
     const qid = question.questionIndex;
     const required = question.required;
@@ -330,18 +248,12 @@ export const CustomizedForm = ({
       <Typography component="h3" variant="h5">
           <PollOutlinedIcon fontSize="large" /> &nbsp; {question.questionText}
         </Typography>
-        {/* <Divider variant="middle" /> */}
         <Divider style={{width:'100%'}} />
-        {/* <Chip label={question.questionText} /> */}
-        {/* </Divider> */}
         <br />
       </>)
     }               
     else if (type === QuestionTypeEnum.MULTIPLE_CHOICE) {
       if (question.shouldHidden === false && answer) {
-        // console.log('111111111111111111111111111111111111111111');
-        // console.log(answer.val);
-        // console.log('111111111111111111111111111111111111111111');
         return (
           <>
             <Grid item md={12} sm={12}>
@@ -368,7 +280,6 @@ export const CustomizedForm = ({
                   <FormControlLabel
                     key={index}
                     value={McOption.opt}
-                    // control={<Radio color="primary"  />}
                     control={<Radio color="primary" required={required} />}
                     label={McOption.opt}
                   />
@@ -392,10 +303,7 @@ export const CustomizedForm = ({
                  {required?' *':''}
                  {generate_validation_line(question, answer, type, required)}
                 </Typography>
-                
               </FormLabel>
-                                  
-               
               {question.mcOptions!.map((McOption:McOption, index) => (
                 <>
                   <FormControlLabel
@@ -537,12 +445,10 @@ export const CustomizedForm = ({
                 variant="outlined"
                 type="date"
                 label="Date"
-                // name={PatientField.dob}
                 InputLabelProps={{
                   shrink: true,
                 }}
                 onChange={(event: any) => {
-                  //console.log(event.target.value);
                   const timestamp = getTimestampFromStringDate(
                     event.target.value
                   );
@@ -564,8 +470,6 @@ export const CustomizedForm = ({
   function generate_html_of_all_questions(qs: Question[], ans: QAnswer[]) {
     let i;
     const html_arr = [];
-    // console.log('klkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
-    // console.log(ans);
     for (i = 0; i < qs.length; i++) {
       const question = qs[i];
       const answer = ans[i];
@@ -586,7 +490,6 @@ export const CustomizedForm = ({
           <Form>
             <Paper>
               <Box p={2}>
-                {/* <h2>Questionnaire</h2> */}
                 <Box pt={1} pl={3} pr={3}>
                   <Grid container spacing={3}>
                     {/* /////////////////////////////////////////////////////////////////////////////////////   */}
@@ -620,46 +523,3 @@ const useStyles = makeStyles({
   },
 });
 
-
-// //backup
-// function generate_validation_line(question: Question, answer: QAnswer, type:any, required:boolean){
-//   if(!(isSubmitButtonClick && required && answer.value)){
-//     return null;
-//   }
-
-//   if (type === 'MC'){
-//     if(!answer.value![0]){
-//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Must Select One Option !)</Typography></>)}
-//       else{
-//         return null;
-//       }
-//   }else if (type === 'ME') { 
-//     if(!answer.value!.length){
-//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Must Select At Least One Option !)</Typography></>)}
-//       else{
-//         return null;
-//       }
-//   }else if (type === 'NUM') {
-//     console.log(answer);
-//     if(!answer.value){
-//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Fill In A Value !)</Typography></>)}
-//       else{
-//         return null;
-//       }
-//   }else if (type === 'TEXT') {
-//     if(!answer.value || !answer.value.length){
-//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Fill In Content !)</Typography></>)}
-//       else{
-//         return null;
-//       }
-//   }else if (type === 'DATE') {
-//     if(!answer.value){
-//       return(<><Typography variant="overline" style={{color:"#FF0000", fontWeight: 600}}> (Select A Date !)</Typography></>)}
-//       else{
-//         return null;
-//       }
-//   }else{
-//     console.log('INVALID QUESTION TYPE!!');
-//     return null;
-//   }
-// }

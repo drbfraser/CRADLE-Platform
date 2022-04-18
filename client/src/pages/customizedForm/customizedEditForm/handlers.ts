@@ -1,5 +1,4 @@
 import { QAnswer,Answer,Question,CForm } from 'src/shared/types';
-// import { ReferralState } from './state';
 import { EndpointEnum } from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { goBackWithFallback } from 'src/shared/utils';
@@ -23,10 +22,8 @@ export const handleSubmit2 = (
     } else {
       content += `${value}   `;
     }
-
     content += `\n`;
   }
-
   alert(content);
 };
 
@@ -46,30 +43,26 @@ export type API_Answer_For_Edit = {
   id: string;
   answers: Answer;
 };
-// const [answers, _setAnswers] = useState<QAnswer[]>([
-//   { qidx: null, qtype: null, anstype:null, val: null },
-// ]);
+
 export const TransferQAnswerToAPIStandard = (qans: QAnswer[],  questions: Question[]) => {
-  
   if(!(qans && qans.length>0)){
     return [];
   }
-
   const qanswers = [...qans];
   let anss:API_Answer[] = [];
   let i,  q_idx:number; //answer -> Answer type
   for (i = 0; i < qanswers.length; i++) {
     let q_answer = qanswers[i];
-    q_idx = q_answer.qidx;//
+    q_idx = q_answer.qidx;
     //We do NOT collect answers to those 'hidden' questions!!!!!!!!!!
     if(questions[q_idx].questionType == 'CATEGORY' || questions[q_idx].shouldHidden === true){
       anss.push({'qidx': q_idx,  answer:{'mcidArray': [], 'text':undefined, 'number':undefined}});
     }
     else if (q_answer.qtype === 'MULTIPLE_CHOICE' || q_answer.qtype === 'MULTIPLE_SELECT') {
         let mcid_arr:any = []; 
-        q_answer.val!.forEach((item:any) => {//val是选项的字符串数组
+        q_answer.val!.forEach((item:any) => {//val IS THE 'CONTENT'(STRING) OF THE OPTION!
           let q_opts = questions[q_idx].mcOptions?.map(option=>option.opt);
-          //!!!!!!!!!!!!!!!!!!!!!!!!!!! 这个地方是用index直接取 m_option_id，要注意一下!!!!!!
+          //!!!!!!!![IMPORTANT!!] WE USE INDEX TO FETCH m_option_id!!!!!!
           let q_opts_id:number = q_opts!.indexOf(item);
           mcid_arr.push(q_opts_id) 
         });
@@ -90,10 +83,6 @@ export const TransferQAnswerToAPIStandard = (qans: QAnswer[],  questions: Questi
 
 export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, patientId: string, isEditForm:boolean) => {
   let postBody:post_body = {creat:undefined, edit:undefined};
-  // if(!(api_anss && api_anss.length>0)){
-  //   return null;
-  // }
-
   
   if(isEditForm === false){
     //create(/fill in) a new form 
@@ -130,17 +119,12 @@ export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, 
         if(!(qs[ans_with_qidx.qidx].numMax==null || qs[ans_with_qidx.qidx].numMax==undefined)){
           qs[ans_with_qidx.qidx].numMax = Number(parseFloat(qs[ans_with_qidx.qidx].numMax).toFixed(2));
         }
-
-        console.log(qs[ans_with_qidx.qidx].numMin);
-        console.log(qs[ans_with_qidx.qidx].numMax);
       }
 
       qs[ans_with_qidx.qidx].shouldHidden = undefined;
       qs[ans_with_qidx.qidx].id = undefined;
-      //form的qs类型是TQuestion类型，但是这里用Question type似乎裁剪不成功
+      //form's questions should be TQuestion type, but we use Question type to match it(when doing APIFetch). need to notice the possbile tailling bugs
       qs[ans_with_qidx.qidx].questionId = undefined;
-
-
     });
 
 
@@ -152,7 +136,6 @@ export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, 
   }
   else{
     //edit a form content
-      // for form content edit api
     const questions:Question[] = form.questions;
     let post_body_edit:API_Answer_For_Edit[] = [];
     api_anss.forEach((ans_with_qidx:API_Answer) => {
@@ -160,7 +143,6 @@ export const TransferQAnswerToPostBody = (api_anss: API_Answer[],  form: CForm, 
       let api_ans_for_edit: API_Answer_For_Edit = {id:qid, answers:ans_with_qidx.answer} 
       post_body_edit.push(api_ans_for_edit);
     }
-
     );
     postBody.edit = post_body_edit;
     return postBody;
@@ -198,34 +180,20 @@ export const handleSubmit = (
   
 ) => {
   return async (values: [], { setSubmitting }: any) => {
-    // alert('request model to be submitted:');
-    // alert(answers);
     let questions = form.questions;
-
-
     if(!passValidation(questions, answers)){
-      console.log('21321321');
-      console.log(answers);
       setMultiSelectValidationFailed(true);
       return;
     }else{
-
-  
-
     const anss:API_Answer[] = TransferQAnswerToAPIStandard(answers, questions);
-    console.log(answers);
-    console.log(anss);
     const postBody:post_body = TransferQAnswerToPostBody(anss,form, patientId,isEditForm);
     let url = '';
     let request_type = '';
-    console.log(postBody.creat);
 
-    //第一次填写表格
+    //Create Form(first time fill in the content into the form)
     if (isEditForm === false) {
       url = API_URL + EndpointEnum.FORM;
       request_type = 'POST';
-      
-
       try {
         await apiFetch(url,{
           method: request_type,
@@ -239,7 +207,7 @@ export const handleSubmit = (
           setSubmitting(false);
         }
     } 
-    //仅修改表格
+    //Edit Form
     else{
       url = API_URL + EndpointEnum.FORM +  `/${form.id}`; 
       request_type = 'PUT';
@@ -262,63 +230,3 @@ export const handleSubmit = (
 }
 
 };
-
-// export const handleSubmit = (
-//   referralId: string,
-//   type: string,
-//   setSubmitError: (error: boolean) => void
-// ) => {
-//   return async (values: SingleReason, { setSubmitting }: any) => {
-//     let url = '';
-//     let postBody = '';
-//     if (type === 'cancel_referral') {
-//       url =
-//         API_URL +
-//         EndpointEnum.REFERRALS +
-//         `/cancel-status-switch/` +
-//         referralId;
-//       postBody = JSON.stringify({
-//         cancelReason: values.comment,
-//         isCancelled: true,
-//       });
-//     } 
-//     try {
-//       await apiFetch(url, {
-//         method: 'PUT',
-//         body: postBody,
-//       });
-
-//       goBackWithFallback('/patients');
-//     } catch (e) {
-//       console.error(e);
-//       setSubmitError(true);
-//       setSubmitting(false);
-//     }
-//   };
-// };
-
-// export const handleSubmit1111 = (
-//   patientId: string,
-//   setSubmitError: (error: boolean) => void,
-//   setQuestions: (questions: Question[]) => void
-// ) => {
-//   return async (values: CustomizedFormState, { setSubmitting }: any) => {
-//     // console.log(values);
-//     const url = API_URL + EndpointEnum.FORM_TEMPLATE + '/'+`${values.form_template_id}?lang=${values.lang}`;
-   
-//     try {
-//       await apiFetch(url)
-//       .then((resp) => resp.json())
-//       .then((form:Form) => {
-//         console.log(form);
-//         console.log(form.questions);
-//         setQuestions(form.questions);
-//       })
-//     }
-//     catch(e){
-//         console.error(e);
-//         setSubmitError(true);
-//         setSubmitting(false);
-//       }
-//     }     
-// };

@@ -1,5 +1,4 @@
 import React, {useEffect,useState} from 'react';
-// import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -9,7 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import { CustomizedForm as CustomizedForm } from './CustomizedForm';
 import { goBackWithFallback } from 'src/shared/utils';
 import { CForm} from 'src/shared/types';
-// import form from '../customizedFormHeader/form_edit.json';
 import { EndpointEnum } from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
 
@@ -24,11 +22,7 @@ type RouteParams = {
 export const CustomizedEditFormPage = () => {
   const classes = useStyles();
   const { patientId, formId } = useRouteMatch<RouteParams>().params;
-  // console.log(form);
-  // const fm: CForm = form;
   const [form, setForm] = useState<CForm>();  
-  // const questions: Question[] = form.questions;
-  // console.log(formId);
 
 
   useEffect(() => {

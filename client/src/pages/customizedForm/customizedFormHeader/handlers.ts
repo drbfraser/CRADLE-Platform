@@ -1,5 +1,4 @@
 import { CustomizedFormState } from './state';
-// import questions from './form.json';
 import { CForm } from 'src/shared/types';
 
 import { EndpointEnum } from 'src/shared/enums';
@@ -12,16 +11,12 @@ export const handleSubmit = (
   setForm: (form: CForm) => void
 ) => {
   return async (values: CustomizedFormState, { setSubmitting }: any) => {
-    // console.log(values);
     const url = API_URL + EndpointEnum.FORM_TEMPLATE + '/'+`${values.form_template_id}?lang=${values.lang}`;
    
     try {
       await apiFetch(url)
       .then((resp) => resp.json())
       .then((fm:CForm) => {
-        console.log(fm);
-        console.log('values==============');
-        // const fm = Object.assign(form);
         setForm(fm);
       })
     }

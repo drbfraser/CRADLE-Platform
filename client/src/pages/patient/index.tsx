@@ -25,7 +25,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
 import { ConfirmDialog } from '../../shared/components/confirmDialog';
-// import formData from 'src/pages/customizedForm/form_card.json';
 
 type RouteParams = {
   patientId: string;
@@ -358,13 +357,6 @@ export const PatientPage = () => {
       <br />
       <Divider />
 
-      {/* temp fixed test card, MUST DELETE LATER */}
-      {/* <br />
-      <React.Fragment key={formData.id}>
-        <CustomizedFormCard form={formData} />
-        <br />
-      </React.Fragment> */}
-      {/* temp fixed test card, MUST DELETE LATER */}
       <br />
       {cards ? cards.map((card) => <>{card}</>) : null}
     </>
