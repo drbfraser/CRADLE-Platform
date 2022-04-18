@@ -13,46 +13,52 @@ import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { initialState, CustomizedFormField, validationSchema } from './state';
-import { CForm,FormSchema } from 'src/shared/types';
+import { CForm, FormSchema } from 'src/shared/types';
 
 import { EndpointEnum } from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
 
 interface IProps {
   patientId: string;
-  setForm: (form: CForm) => void
-  formSchemas:FormSchema[];
+  setForm: (form: CForm) => void;
+  formSchemas: FormSchema[];
 }
 
-
-export const SelectHeaderForm = ({ patientId, setForm,formSchemas }: IProps) => {
+export const SelectHeaderForm = ({
+  patientId,
+  setForm,
+  formSchemas,
+}: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   const [availableLangs, setAvailableLangs] = useState<string[]>([]);
-  
 
   const all_forms: string[] = formSchemas.map(function (item) {
-    return item.id;//id is a string here
+    return item.id; //id is a string here
   });
 
-  const handleSelectForm = (event:any, values:any) => {
+  const handleSelectForm = (event: any, values: any) => {
     const selectedFormID = values;
     fetchAllLangVersions(selectedFormID);
   };
 
-  function fetchAllLangVersions(form_template_id:string){
-    apiFetch(API_URL + EndpointEnum.FORM_TEMPLATE + '/'+ form_template_id + '/versions')
-    .then((resp) => resp.json())
-    .then((lang_model) => {
-      setAvailableLangs(lang_model.lang_versions);
-      console.log(lang_model);
-    })
-    .catch(() => {
-      console.log("Error Loading !!!!!!")
-    });
+  function fetchAllLangVersions(form_template_id: string) {
+    apiFetch(
+      API_URL +
+        EndpointEnum.FORM_TEMPLATE +
+        '/' +
+        form_template_id +
+        '/versions'
+    )
+      .then((resp) => resp.json())
+      .then((lang_model) => {
+        setAvailableLangs(lang_model.lang_versions);
+        console.log(lang_model);
+      })
+      .catch(() => {
+        console.log('Error Loading !!!!!!');
+      });
   }
- 
-
 
   return (
     <>
@@ -74,16 +80,14 @@ export const SelectHeaderForm = ({ patientId, setForm,formSchemas }: IProps) => 
                         fullWidth
                         name={CustomizedFormField.form_template_id}
                         options={all_forms}
-                        disableClearable={true} 
-                        onInputChange={handleSelectForm}                 
+                        disableClearable={true}
+                        onInputChange={handleSelectForm}
                         renderInput={(
                           params: AutocompleteRenderInputParams
                         ) => (
                           <TextField
                             {...params}
-                            
                             name={CustomizedFormField.form_template_id}
-                            
                             error={
                               touched[CustomizedFormField.form_template_id] &&
                               !!errors[CustomizedFormField.form_template_id]

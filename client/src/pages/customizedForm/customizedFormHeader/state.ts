@@ -13,6 +13,12 @@ export const initialState = {
 export type CustomizedFormState = typeof initialState;
 
 export const validationSchema = Yup.object().shape({
-  [CustomizedFormField.form_template_id]: Yup.string().label('Form').required().nullable(),
-  [CustomizedFormField.lang]: Yup.string().label('Language').required().nullable()
+  [CustomizedFormField.form_template_id]: Yup.string()
+    .label('Form')
+    .required()
+    .nullable(),
+  [CustomizedFormField.lang]: Yup.string()
+    .label('Language')
+    .required()
+    .nullable(),
 });

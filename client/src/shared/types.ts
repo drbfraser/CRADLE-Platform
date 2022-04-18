@@ -272,10 +272,7 @@ export type customizedForm = {
 //   answer: Answer;
 // };
 
-
-
-
-  // mc: OrNull<string | undefined>[];//修改了名字
+// mc: OrNull<string | undefined>[];//修改了名字
 // export type Answer = {
 //   number: OrNull<number> | undefined;
 //   text: OrNull<string> | undefined;
@@ -283,67 +280,56 @@ export type customizedForm = {
 //   comment: OrNull<string> | undefined;
 // };
 
-
-
-
 export interface FormTemplate {
-  category:  string;
-  id:        string;
-  name:      string;
+  category: string;
+  id: string;
+  name: string;
   questions: TQuestion[];
-  version:   string;
+  version: string;
 }
 //http://localhost:5000/api/forms/templates  (get a list of forms)
 export interface FormSchema {
   dateCreated: number;
-  category:    string;
-  id:          string;
-  lastEdited:  number;
-  version:     string;
-  name:        string;
+  category: string;
+  id: string;
+  lastEdited: number;
+  version: string;
+  name: string;
 }
 export interface CForm {
   dateCreated: number;
-  category:    string;
-  id:          string|undefined; //when doing form creating,from ;
-  lastEdited:  number;
-  version:     string|undefined; //when doing form creating,from client-end, this 'version' field needs to be omitted
-  name:        string;
-  lang:        string;
-  questions:   Question[];
+  category: string;
+  id: string | undefined; //when doing form creating,from ;
+  lastEdited: number;
+  version: string | undefined; //when doing form creating,from client-end, this 'version' field needs to be omitted
+  name: string;
+  lang: string;
+  questions: Question[];
 
-  
   ///////////////////////////
-  patientId: string|undefined; //this is only used in client when we need to do the 'form creating' net post
+  patientId: string | undefined; //this is only used in client when we need to do the 'form creating' net post
 }
 
-
 export type QAnswer = {
-  qidx: number ;
-  qtype: string | null; 
-  anstype: string | null;//value,text,mc,me,comment
+  qidx: number;
+  qtype: string | null;
+  anstype: string | null; //value,text,mc,me,comment
   val: any;
-
 };
 export interface QCondition {
   qidx: number;
   relation: string; //* better to update to QRelationEnum [EQUAL_TO];
-  answers: Answer;//*
-};
+  answers: Answer; //*
+}
 export type Answer = {
   number?: number | undefined;
   text?: string | undefined;
-  mcidArray?: number[] | undefined;   
+  mcidArray?: number[] | undefined;
   comment?: string | undefined;
 
   //自用
   // mcValArray?: number[] | undefined;
 };
-
-
-
-
-
 
 // Question is used in Form
 export type Question = {
@@ -352,23 +338,22 @@ export type Question = {
   // questionId: string | undefined;//*
   // questionLangVersions: OrNull<QuestionLangVersion[]> | undefined;//*
   /////////////
-  id: string;//*
+  id: string; //*
   isBlank: boolean;
-  questionIndex: number;//*
+  questionIndex: number; //*
   questionText: string;
-  questionType: string;//*
+  questionType: string; //*
   // category: string;
-  required: boolean;//*
+  required: boolean; //*
 
   // mcOptions?: OrNull<string>[];
-  numMin: OrNull<number>;//*
-  numMax: OrNull<number>;//*
-  stringMaxLength?: OrNull<number>;//*
-  units?: OrNull<string>;//*
+  numMin: OrNull<number>; //*
+  numMax: OrNull<number>; //*
+  stringMaxLength?: OrNull<number>; //*
+  units?: OrNull<string>; //*
 
   answers: Answer | undefined;
-  visibleCondition: QCondition[];//*
-
+  visibleCondition: QCondition[]; //*
 
   /////////// only in form
   formTemplateId: string;
@@ -379,32 +364,31 @@ export type Question = {
   dependencies?: OrNull<[]> | undefined;
 };
 
-
-//TQuestion will be only used in template 
+//TQuestion will be only used in template
 // with * options will be used in creating template
 export interface TQuestion {
   ///////////// recently added 04.14
-  categoryId: OrNull<number> | undefined;//*
-  questionId: string | undefined;//*
-  questionLangVersions: OrNull<QuestionLangVersion[]> | undefined;//*
+  categoryId: OrNull<number> | undefined; //*
+  questionId: string | undefined; //*
+  questionLangVersions: OrNull<QuestionLangVersion[]> | undefined; //*
 
   /////////////
-  id: string;//*
+  id: string; //*
   isBlank: boolean;
-  questionIndex: number;//*
+  questionIndex: number; //*
   // questionText: string;
-  questionType: string;//*
+  questionType: string; //*
   // category: string;
-  required: boolean;//*
+  required: boolean; //*
 
   // mcOptions?: OrNull<string>[];
-  numMin?: OrNull<number>;//*
-  numMax?: OrNull<number>;//*
-  stringMaxLength?: OrNull<number>;//*
-  units?: OrNull<string>;//*
+  numMin?: OrNull<number>; //*
+  numMax?: OrNull<number>; //*
+  stringMaxLength?: OrNull<number>; //*
+  units?: OrNull<string>; //*
 
   // answers?: OrNull<Answer> | undefined;
-  visibleCondition?: QCondition[] | undefined;//*
+  visibleCondition?: QCondition[] | undefined; //*
 
   /////////// only in form
   // formTemplateId: string;
@@ -414,18 +398,18 @@ export interface TQuestion {
 
   // shouldHidden?: OrNull<boolean> | undefined;
   // dependencies?: OrNull<[]> | undefined;
-};
+}
 
 export interface QuestionLangVersion {
-  lang:         string;
-  mcOptions?:    OrNull<McOption[]> | undefined;
+  lang: string;
+  mcOptions?: OrNull<McOption[]> | undefined;
   questionText: string;
 }
 
-export type McOption ={
+export type McOption = {
   mcid: number;
-  opt:  string;
-}
+  opt: string;
+};
 
 export type CustomizedForm = {
   id: number;
@@ -437,8 +421,6 @@ export type CustomizedForm = {
   category: string;
   name: string;
 };
-
-
 
 // export enum QuestionTypeEnum{
 //   INTEGER = 'INTEGER',

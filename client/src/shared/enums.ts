@@ -74,14 +74,12 @@ export enum EndpointEnum {
   FORM = '/forms/responses',
 }
 
-
 export enum QRelationEnum {
   LARGER_THAN = 'LARGER_THAN',
   SMALLER_THAN = 'SMALLER_THAN',
   EQUAL_TO = 'EQUAL_TO',
   CONTAINS = 'CONTAINS',
 }
-
 
 export enum QuestionTypeEnum {
   INTEGER = 'INTEGER',
@@ -96,7 +94,6 @@ export enum AnswerTypeEnum {
   NUM = 'number',
   TEXT = 'text',
   MCID_ARRAY = 'mcidArray',
-  COMMENT = 'comment', 
+  COMMENT = 'comment',
   CATEGORY = '',
 }
- 

@@ -14,7 +14,7 @@ export const CustomizedFormData = ({ form }: IProps) => {
 
   const handleEditFormClick = () => {
     if (form) {
-      history.push( `/forms/edit/${form.patientId}/${form.id}`);
+      history.push(`/forms/edit/${form.patientId}/${form.id}`);
     }
   };
 

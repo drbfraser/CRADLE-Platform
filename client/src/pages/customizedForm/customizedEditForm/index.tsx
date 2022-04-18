@@ -1,4 +1,4 @@
-import React, {useEffect,useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -7,7 +7,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
 import { CustomizedForm } from './CustomizedForm';
 import { goBackWithFallback } from 'src/shared/utils';
-import { CForm} from 'src/shared/types';
+import { CForm } from 'src/shared/types';
 import { EndpointEnum } from 'src/shared/enums';
 import { apiFetch, API_URL } from 'src/shared/api';
 
@@ -16,31 +16,25 @@ type RouteParams = {
   formId: string;
 };
 
-
- 
-
 export const CustomizedEditFormPage = () => {
   const classes = useStyles();
   const { patientId, formId } = useRouteMatch<RouteParams>().params;
-  const [form, setForm] = useState<CForm>();  
-
+  const [form, setForm] = useState<CForm>();
 
   useEffect(() => {
     const url = API_URL + EndpointEnum.FORM + `/${formId}`;
     try {
       apiFetch(url)
-      .then((resp) => resp.json())
-      .then((fm:CForm) => {
-        console.log(fm);
-        console.log(fm.questions);
-        setForm(fm);
-      })
+        .then((resp) => resp.json())
+        .then((fm: CForm) => {
+          console.log(fm);
+          console.log(fm.questions);
+          setForm(fm);
+        });
+    } catch (e) {
+      console.error(e);
     }
-    catch(e){
-        console.error(e);
-      }
-    }, [formId]);
-  
+  }, [formId]);
 
   return (
     <div className={classes.container}>
@@ -58,11 +52,7 @@ export const CustomizedEditFormPage = () => {
       {form && form.questions && form!.questions!.length > 0 && (
         <>
           <br />
-          <CustomizedForm
-            patientId={patientId} 
-            fm = {form}
-            isEditForm={true}
-          />
+          <CustomizedForm patientId={patientId} fm={form} isEditForm={true} />
         </>
       )}
     </div>

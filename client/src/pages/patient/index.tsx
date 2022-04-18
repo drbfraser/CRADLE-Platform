@@ -86,7 +86,7 @@ export const PatientPage = () => {
     referrals: 1,
     readings: 1,
     assessments: 1,
-    forms:1,
+    forms: 1,
   });
 
   useEffect(() => {
@@ -166,11 +166,11 @@ export const PatientPage = () => {
           </React.Fragment>
         );
       } else if (card_item.type === 'form') {
-        cards_elements.push( 
+        cards_elements.push(
           <React.Fragment key={index}>
             <CustomizedFormCard form={card_item} />
             <br />
-          </React.Fragment> 
+          </React.Fragment>
         );
       } else if (card_item.type === 'referral') {
         if (card_item.isAssessed) {
@@ -326,7 +326,7 @@ export const PatientPage = () => {
                               ...selectedParameter,
                               event.target.value,
                             ];
-                            // console.log(newFilters);             
+                            // console.log(newFilters);
                             handleChangeFilters(newFilters);
                           }
                           //if the original state is 'not selected', now the 'check operation' is to add this item to the selected array
@@ -337,7 +337,7 @@ export const PatientPage = () => {
                               //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/splice
                               newParameters.splice(i, 1);
                             }
-                            // console.log(newParameters);                 
+                            // console.log(newParameters);
                             handleChangeFilters(newParameters);
                           }
                         }}
