@@ -70,7 +70,7 @@ export const SelectHeaderForm = ({
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, setSubmitError, setForm)}>
+        onSubmit={handleSubmit(patientId, formSchemas, setSubmitError, setForm)}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>

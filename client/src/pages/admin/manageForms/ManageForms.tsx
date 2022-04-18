@@ -2,10 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-//import CreateIcon from '@material-ui/icons/Create';
-//import DeleteForever from '@material-ui/icons/DeleteForever';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
-//import { IconButton, Tooltip } from '@material-ui/core';
 import AdminTable from '../AdminTable';
 import { IFormTemplate } from './state';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -89,20 +86,8 @@ export const ManageFormTemplates = () => {
     setTableData(rows);
   }, [formTemplates, search]);
 
-  // const rowActions = [
-  //   {
-  //     tooltip: 'Edit Form',
-  //     Icon: CreateIcon,
-  //   },
-  //   {
-  //     tooltip: 'Delete Form',
-  //     Icon: DeleteForever,
-  //   },
-  // ];
-
   const Row = ({ row }: { row: (string | number)[] }) => {
     const cells = row.slice(0);
-    //const formTemplate = formTemplates[row.slice(-1)[0] as number];
 
     return (
       <tr className={styles.row}>
@@ -118,24 +103,6 @@ export const ManageFormTemplates = () => {
         <TableCell label="Date Created" isTransformed={isTransformed}>
           {cells[3]}
         </TableCell>
-        {/* <TableCell label="Last Edited" isTransformed={isTransformed}>
-          {cells[4]}
-        </TableCell> */}
-        {/* <TableCell label="Take Action" isTransformed={isTransformed}>
-          {rowActions.map((action) => (
-            <Tooltip
-              key={action.tooltip}
-              placement="top"
-              title={action.tooltip}>
-              <IconButton
-                onClick={() => {
-                  console.log(action);
-                }}>
-                <action.Icon />
-              </IconButton>
-            </Tooltip>
-          ))}
-        </TableCell> */}
       </tr>
     );
   };

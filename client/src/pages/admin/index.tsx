@@ -15,7 +15,7 @@ const pages = [
     Component: ManageFacilities,
   },
   {
-    name: 'Forms',
+    name: 'Form Templates',
     Component: ManageFormTemplates,
   },
   {

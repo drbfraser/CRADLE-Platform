@@ -11,7 +11,7 @@ import service.serialize as serialize
 from models import FormTemplate, Question, RoleEnum
 import service.serialize as serialize
 from validation import formTemplates
-from utils import get_current_time
+from utils import get_current_time, is_json
 from api.decorator import roles_required
 import json
 
@@ -31,7 +31,10 @@ class Root(Resource):
         if "file" in request.files:
             file = request.files["file"]
             file_str = str(file.read(), encoding='utf-8')
-            req = json.loads(file_str)
+            if is_json(file_str):
+                req = json.loads(file_str)
+            else:
+                abort(404, message="File content is not valid json-format")
         else:
             req = request.get_json(force=True)
 
@@ -42,6 +45,9 @@ class Root(Resource):
         error_message = formTemplates.validate_template(req)
         if error_message:
             abort(404, message=error_message)
+        
+        if crud.read(FormTemplate, name=req["name"]):
+            abort(404, message="Form template with same name already exist")
 
         util.assign_form_or_template_ids(FormTemplate, req)
 

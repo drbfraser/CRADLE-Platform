@@ -14,7 +14,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { apiFetch, API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-
+import SampleTemplateToast from './SampleTemplateToast';
 interface IProps {
   open: boolean;
   onClose: () => void;
@@ -22,11 +22,7 @@ interface IProps {
 
 const CreateTemplate = ({open, onClose}: IProps) => {
 const classes = useStyles();
-//   const [hasFile, setHasFile] = useState(false);
-//   const [fileSize, setFileSize] = useState<string>();
-//   const [fileLastModified, setFileLastModified] = useState<string>();
   const [selectedFile, setSelectedFile] = useState<File>();
-  //const [numFileUploaded, setNumFileUploaded] = useState(0);
   const [isUploadOk, setIsUploadOk] = useState(false);
   const [uploadError, setUploadError] = useState<string>();
   
@@ -55,7 +51,6 @@ const classes = useStyles();
         true
       )
         .then(() => {
-          //setNumFileUploaded(numFileUploaded + 1);
           setIsUploadOk(true);
           setTimeout(() => setIsUploadOk(false), 3000);
         })
@@ -74,11 +69,14 @@ const classes = useStyles();
         <DialogContent>
             <Box p={3}>
                 <Typography component="h6" variant="h6">
-                Upload App
+                Upload Template File (.json)
                 </Typography>
                 <Divider />
                 <div className={classes.root}>
                     <input type="file" name="file" onChange={handleChange} />
+                </div>
+                <div className={classes.root}>
+                    <SampleTemplateToast/>
                 </div>
                 <DialogActions>
                     <Button
