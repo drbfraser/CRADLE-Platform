@@ -1,9 +1,9 @@
 import React from 'react';
 import { Typography, Button } from '@material-ui/core';
-import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import { CustomizedForm } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 
 interface IProps {
   form: CustomizedForm;
@@ -23,7 +23,7 @@ export const CustomizedFormData = ({ form }: IProps) => {
       <>
         <Typography variant="h5">
           <>
-            <AssignmentLateIcon fontSize="large" /> {form.name}
+            <AssignmentIcon fontSize="large" /> {form.name}
           </>
         </Typography>
         <Typography variant="subtitle1">
