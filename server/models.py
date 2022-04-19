@@ -452,7 +452,7 @@ class MedicalRecord(db.Model):
 
 class FormTemplate(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    name = db.Column(db.Text, unique=True, index=True, nullable=False)
+    name = db.Column(db.String(200), unique=True, index=True, nullable=False)
     category = db.Column(db.Text, nullable=True)
     version = db.Column(db.Text, nullable=True)
     dateCreated = db.Column(
