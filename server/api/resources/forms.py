@@ -52,7 +52,7 @@ class Root(Resource):
         util.assign_form_or_template_ids(Form, req)
 
         form = marshal.unmarshal(Form, req)
-        
+
         form.dateCreated = get_current_time()
         form.lastEdited = form.dateCreated
 

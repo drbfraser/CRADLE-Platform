@@ -17,7 +17,7 @@ def get_uuid():
 
 
 # use this to replace json.dumps if you want the different
-# language words in json string still to be visible in 
+# language words in json string still to be visible in
 # database rather than unicode format
 def dumps(obj):
     return json.dumps(obj, ensure_ascii=False)
@@ -25,9 +25,8 @@ def dumps(obj):
 
 # check if the text is json format
 def is_json(t):
-  try:
-    json.loads(t)
-  except ValueError as e:
-    return False
-  return True
-
+    try:
+        json.loads(t)
+    except ValueError as e:
+        return False
+    return True

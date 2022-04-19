@@ -30,7 +30,7 @@ class Root(Resource):
         # provide file upload method from web
         if "file" in request.files:
             file = request.files["file"]
-            file_str = str(file.read(), encoding='utf-8')
+            file_str = str(file.read(), encoding="utf-8")
             if is_json(file_str):
                 req = json.loads(file_str)
             else:
@@ -41,11 +41,11 @@ class Root(Resource):
         if req.get("id") is not None:
             if crud.read(FormTemplate, id=req["id"]):
                 abort(404, message="Form template already exist")
-        
+
         error_message = formTemplates.validate_template(req)
         if error_message:
             abort(404, message=error_message)
-        
+
         if crud.read(FormTemplate, name=req["name"]):
             abort(404, message="Form template with same name already exist")
 
