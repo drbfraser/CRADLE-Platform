@@ -355,7 +355,7 @@ def read_referral_list(
     limit = kwargs.get("limit")
     if limit:
         page = kwargs.get("page", 1)
-        return query.slice(*__get_slice_indexes(page, limit))
+        return query.slice(*__get_slice_indexes(page, limit)).all()
     else:
         return query.all()
 
