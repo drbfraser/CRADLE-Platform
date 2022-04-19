@@ -138,10 +138,13 @@ class Referral(db.Model):
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
     isAssessed = db.Column(db.Boolean, nullable=False, default=0)
+    dateAssessed = db.Column(db.BigInteger, nullable=True)
     isCancelled = db.Column(db.Boolean, nullable=False, default=0)
     cancelReason = db.Column(db.Text)
+    dateCancelled = db.Column(db.BigInteger, nullable=True)
     notAttended = db.Column(db.Boolean, nullable=False, default=0)
     notAttendReason = db.Column(db.Text)
+    dateNotAttended = db.Column(db.BigInteger, nullable=True)
     lastEdited = db.Column(
         db.BigInteger,
         nullable=False,

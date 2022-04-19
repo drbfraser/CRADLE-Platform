@@ -1,15 +1,15 @@
-import React from 'react';
-// import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
-import { CustomizedEditForm } from './CustomizedEditForm';
+import { CustomizedForm } from './CustomizedForm';
 import { goBackWithFallback } from 'src/shared/utils';
-import { Question } from 'src/shared/types';
-import qs from '../customizedFormHeader/form_edit.json';
+import { CForm } from 'src/shared/types';
+import { EndpointEnum } from 'src/shared/enums';
+import { apiFetch, API_URL } from 'src/shared/api';
 
 type RouteParams = {
   patientId: string;
@@ -19,8 +19,22 @@ type RouteParams = {
 export const CustomizedEditFormPage = () => {
   const classes = useStyles();
   const { patientId, formId } = useRouteMatch<RouteParams>().params;
-  const questions: Question[] = qs;
-  console.log(formId);
+  const [form, setForm] = useState<CForm>();
+
+  useEffect(() => {
+    const url = API_URL + EndpointEnum.FORM + `/${formId}`;
+    try {
+      apiFetch(url)
+        .then((resp) => resp.json())
+        .then((fm: CForm) => {
+          console.log(fm);
+          console.log(fm.questions);
+          setForm(fm);
+        });
+    } catch (e) {
+      console.error(e);
+    }
+  }, [formId]);
 
   return (
     <div className={classes.container}>
@@ -35,14 +49,10 @@ export const CustomizedEditFormPage = () => {
 
       <br />
 
-      {questions!.length > 0 && (
+      {form && form.questions && form!.questions!.length > 0 && (
         <>
           <br />
-          <CustomizedEditForm
-            patientId={patientId}
-            questions={questions}
-            isEditForm={true}
-          />
+          <CustomizedForm patientId={patientId} fm={form} isEditForm={true} />
         </>
       )}
     </div>

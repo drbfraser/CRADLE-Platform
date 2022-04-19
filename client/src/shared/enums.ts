@@ -70,6 +70,8 @@ export enum EndpointEnum {
   USER_VHTS = '/user/vhts',
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
+  FORM_TEMPLATE = '/forms/templates',
+  FORM = '/forms/responses',
 }
 
 export enum QRelationEnum {
@@ -77,4 +79,21 @@ export enum QRelationEnum {
   SMALLER_THAN = 'SMALLER_THAN',
   EQUAL_TO = 'EQUAL_TO',
   CONTAINS = 'CONTAINS',
+}
+
+export enum QuestionTypeEnum {
+  INTEGER = 'INTEGER',
+  STRING = 'STRING',
+  MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
+  MULTIPLE_SELECT = 'MULTIPLE_SELECT',
+  DATE = 'DATE',
+  CATEGORY = 'CATEGORY',
+}
+
+export enum AnswerTypeEnum {
+  NUM = 'number',
+  TEXT = 'text',
+  MCID_ARRAY = 'mcidArray',
+  COMMENT = 'comment',
+  CATEGORY = '',
 }

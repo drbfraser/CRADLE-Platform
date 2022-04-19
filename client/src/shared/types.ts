@@ -3,6 +3,7 @@ import {
   SexEnum,
   TrafficLightEnum,
   UserRoleEnum,
+  // QuestionTypeEnum,
   // QRelationEnum,
 } from 'src/shared/enums';
 // import { number, string } from 'yup';
@@ -264,42 +265,150 @@ export type customizedForm = {
   type: string;
 };
 
-export type QCondition = {
-  qidx: number;
-  relation: string; //better to update to QRelationEnum;
-  answer: Answer;
-};
+//updated
+// export type QCondition = {
+//   qidx: number;
+//   relation: string; //better to update to QRelationEnum;
+//   answer: Answer;
+// };
+
+// mc: OrNull<string | undefined>[];//修改了名字
+// export type Answer = {
+//   number: OrNull<number> | undefined;
+//   text: OrNull<string> | undefined;
+//   mcidArray: OrNull<number[]> | undefined;
+//   comment: OrNull<string> | undefined;
+// };
+
+export interface FormTemplate {
+  category: string;
+  id: string;
+  name: string;
+  questions: TQuestion[];
+  version: string;
+}
+//http://localhost:5000/api/forms/templates  (get a list of forms)
+export interface FormSchema {
+  dateCreated: number;
+  category: string;
+  id: string;
+  lastEdited: number;
+  version: string;
+  name: string;
+}
+export interface CForm {
+  dateCreated: number;
+  category: string;
+  id: string | undefined; //when doing form creating,from ;
+  lastEdited: number;
+  version: string | undefined; //when doing form creating,from client-end, this 'version' field needs to be omitted
+  name: string;
+  lang: string;
+  questions: Question[];
+
+  ///////////////////////////
+  patientId: string | undefined; //this is only used in client when we need to do the 'form creating' net post
+}
 
 export type QAnswer = {
-  qidx: number | null;
-  key: string | null; //value,text,mc,comment
-  value: any;
+  qidx: number;
+  qtype: string | null;
+  anstype: string | null; //value,text,mc,me,comment
+  val: any;
 };
-
+export interface QCondition {
+  qidx: number;
+  relation: string; //* better to update to QRelationEnum [EQUAL_TO];
+  answers: Answer; //*
+}
 export type Answer = {
-  value: OrNull<number>;
-  text: OrNull<string>;
-  mc: OrNull<string | undefined>[];
-  comment: OrNull<string>;
-};
-export type Question = {
-  id: number;
-  isBlank: boolean;
-  questionIndex: number;
-  questionText: string;
-  questionType: string;
-  category: string;
-  required: boolean;
+  number?: number | undefined;
+  text?: string | undefined;
+  mcidArray?: number[] | undefined;
+  comment?: string | undefined;
 
-  mcOptions?: OrNull<string>[];
-  numMin?: OrNull<number>;
-  numMax?: OrNull<number>;
-  stringMaxLength?: OrNull<number>;
-  units?: OrNull<string>;
-  answers?: OrNull<Answer>;
-  visibleCondition?: QCondition[] | undefined;
+  //自用
+  // mcValArray?: number[] | undefined;
+};
+
+// Question is used in Form
+export type Question = {
+  ///////////// recently added 04.14
+  // categoryId: OrNull<string> | undefined;//*
+  // questionId: string | undefined;//*
+  // questionLangVersions: OrNull<QuestionLangVersion[]> | undefined;//*
+  /////////////
+  id: string; //*
+  isBlank: boolean;
+  questionIndex: number; //*
+  questionText: string;
+  questionType: string; //*
+  // category: string;
+  required: boolean; //*
+
+  // mcOptions?: OrNull<string>[];
+  numMin: OrNull<number>; //*
+  numMax: OrNull<number>; //*
+  stringMaxLength?: OrNull<number>; //*
+  units?: OrNull<string>; //*
+
+  answers: Answer | undefined;
+  visibleCondition: QCondition[]; //*
+
+  /////////// only in form
+  formTemplateId: string;
+  mcOptions: McOption[]; //only used in form
+  hasCommentAttached: boolean;
+  ////////////
   shouldHidden?: OrNull<boolean> | undefined;
   dependencies?: OrNull<[]> | undefined;
+};
+
+//TQuestion will be only used in template
+// with * options will be used in creating template
+export interface TQuestion {
+  ///////////// recently added 04.14
+  categoryId: OrNull<number> | undefined; //*
+  questionId: string | undefined; //*
+  questionLangVersions: OrNull<QuestionLangVersion[]> | undefined; //*
+
+  /////////////
+  id: string; //*
+  isBlank: boolean;
+  questionIndex: number; //*
+  // questionText: string;
+  questionType: string; //*
+  // category: string;
+  required: boolean; //*
+
+  // mcOptions?: OrNull<string>[];
+  numMin?: OrNull<number>; //*
+  numMax?: OrNull<number>; //*
+  stringMaxLength?: OrNull<number>; //*
+  units?: OrNull<string>; //*
+
+  // answers?: OrNull<Answer> | undefined;
+  visibleCondition?: QCondition[] | undefined; //*
+
+  /////////// only in form
+  // formTemplateId: string;
+  // mcOptions?: OrNull<McOption> | undefined; //only used in form
+  // hasCommentAttached: boolean;
+  ////////////
+
+  // shouldHidden?: OrNull<boolean> | undefined;
+  // dependencies?: OrNull<[]> | undefined;
+}
+
+export interface QuestionLangVersion {
+  lang: string;
+  mcOptions?: OrNull<McOption[]> | undefined;
+  questionText: string;
+}
+
+export type McOption = {
+  mcid: number;
+  opt: string;
 };
 
 export type CustomizedForm = {
@@ -312,3 +421,15 @@ export type CustomizedForm = {
   category: string;
   name: string;
 };
+
+// export enum QuestionTypeEnum{
+//   INTEGER = 'INTEGER',
+//   // DECIMAL = "DECIMAL",
+//   STRING = 'STRING',
+//   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
+//   MULTIPLE_SELECT = 'MULTIPLE_SELECT',
+//   DATE = 'DATE',
+//   // TIME = "TIME",
+//   // DATETIME = "DATETIME",
+//   // CATEGORY = "CATEGORY",
+// }
