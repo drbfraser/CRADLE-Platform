@@ -502,7 +502,6 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
 
   return (
     <>
-      {console.log('9999999999999999')}
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}

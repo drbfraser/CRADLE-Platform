@@ -7,8 +7,8 @@ import json
 import data
 import data.crud as crud
 import data.marshal as marshal
+from utils import get_current_time
 from validation import forms
-from service import questionTree
 from models import Patient, Form, FormTemplate, User
 import api.util as util
 
@@ -22,6 +22,10 @@ class Root(Resource):
     )
     def post():
         req = request.get_json(force=True)
+
+        if req.get("id") is not None:
+            if crud.read(Form, id=req["id"]):
+                return "Form already exist"
 
         error_message = forms.validate_form(req)
         if error_message is not None:
@@ -48,6 +52,9 @@ class Root(Resource):
         util.assign_form_or_template_ids(Form, req)
 
         form = marshal.unmarshal(Form, req)
+
+        form.dateCreated = get_current_time()
+        form.lastEdited = form.dateCreated
 
         crud.create(form, refresh=True)
 
@@ -105,6 +112,7 @@ class SingleForm(Resource):
         user = get_jwt_identity()
         user_id = int(user["userId"])
         form.lastEditedBy = user_id
+        form.lastEdited = get_current_time()
 
         data.db_session.commit()
         data.db_session.refresh(form)

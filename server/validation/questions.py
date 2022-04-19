@@ -343,6 +343,7 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     # for form questions, below fields are redundant fields so we remove them in
     # case they are provided by frontend, to skip validation to them
     non_required_fields = [
+        "id",
         "isBlank",
         "formId",
         "formTemplateId",
@@ -363,7 +364,6 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     ]
 
     all_fields = [
-        "id",
         "isBlank",
         "questionId",
         "hasCommentAttached",

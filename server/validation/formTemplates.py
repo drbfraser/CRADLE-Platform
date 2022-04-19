@@ -18,11 +18,10 @@ def validate_template(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = ["questions"]
+    required_fields = ["name", "questions"]
 
     all_fields = [
         "id",
-        "name",
         "category",
         "version",
     ] + required_fields

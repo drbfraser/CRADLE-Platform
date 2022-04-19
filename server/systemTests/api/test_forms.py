@@ -1,9 +1,10 @@
 import pytest
 
+import data.crud as crud
+from models import Question
 
-def test_form_created_and_update(
-    database, form, form_put, create_patient, api_post, api_put
-):
+
+def test_form_created(database, form, create_patient, api_post, api_put):
     create_patient()
 
     response = api_post(endpoint="/api/forms/responses", json=form)
@@ -11,7 +12,13 @@ def test_form_created_and_update(
     assert response.status_code == 201
 
     form_id = "f1"
-    response = api_put(endpoint=f"/api/forms/responses/{form_id}", json=form_put)
+    question = crud.read(
+        Question, formId=form_id, questionText="How the patient's condition?"
+    )
+    assert question != None
+    response = api_put(
+        endpoint=f"/api/forms/responses/{form_id}", json=form_put(question.id)
+    )
     database.session.commit()
     assert response.status_code == 201
 
@@ -26,7 +33,6 @@ def form(patient_id):
         "patientId": patient_id,
         "questions": [
             {
-                "id": "f_q1",
                 "questionId": "referred-by-name",
                 "categoryIndex": None,
                 "questionIndex": 0,
@@ -60,12 +66,11 @@ def form(patient_id):
     }
 
 
-@pytest.fixture
-def form_put():
+def form_put(qid):
     return {
         "questions": [
             {
-                "id": "f_q1",
+                "id": qid,
                 "answers": {
                     "mcidArray": [1],
                 },
