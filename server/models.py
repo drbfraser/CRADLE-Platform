@@ -521,7 +521,7 @@ class Question(db.Model):
     [{
         "qidx": 1,
         "relation": "EQUAL_TO",
-        "answer": {
+        "answers": {
             "number": 1
         }
     }]
