@@ -53,7 +53,8 @@ export const getApiToken = async () => {
 export const apiFetch = async (
   input: RequestInfo,
   init?: RequestInit | undefined,
-  isFormData?: boolean
+  isFormData?: boolean,
+  needErrorInfo?: boolean
 ): Promise<Response> => {
   const token = await getApiToken();
 
@@ -73,7 +74,7 @@ export const apiFetch = async (
     },
   }).then((resp) => {
     if (!resp.ok) {
-      throw resp.status;
+      throw needErrorInfo ? resp : resp.status;
     }
     return resp;
   });
