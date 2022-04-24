@@ -28,7 +28,6 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
 
   const url = API_URL + EndpointEnum.FORM_TEMPLATES;
   const errorMessages: { [name: number]: string } = {
-    404: 'Invalid file content',
     413: 'File too large',
     422: 'Unsupported file type',
     500: 'Internal Server Error',
@@ -48,6 +47,7 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
           method: 'POST',
           body: data,
         },
+        true,
         true
       )
         .then(() => {
@@ -55,8 +55,17 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
           setTimeout(() => setIsUploadOk(false), 3000);
         })
         .catch((e) => {
-          setUploadError(errorMessages[e]);
-          setTimeout(() => setUploadError(''), 3000);
+          const status = e.status;
+          const error_info: Promise<any> = e.json();
+          if (status !== 404) {
+            setUploadError(errorMessages[status]);
+            setTimeout(() => setUploadError(''), 3000);
+          } else {
+            error_info.then((err) => {
+              setUploadError(err.message);
+              setTimeout(() => setUploadError(''), 3000);
+            });
+          }
         });
     }
   };
