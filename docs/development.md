@@ -47,6 +47,7 @@ docker-compose up
 ```
 
 All the Docker images will build and then the Docker containers will start. You may add the `-d` option to run the Docker containers in the background, although that makes it more difficult to see log messages from Flask and MySQL.
+(If the Docker can not run properly, try close the mysql tasks in the task manager and run it again)
 
 Now it's time to run the database migrations. Once the containers have fully started, run the following command in a new terminal window.
 
