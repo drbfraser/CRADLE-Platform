@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+
 import { AssessmentField } from './state';
 
 // Source: https://github.com/jquense/yup/issues/124 // At least one field non-empty
@@ -22,14 +23,15 @@ export const assessmentFormValidationSchema = Yup.object()
       ].some((field) => {
         return !!values[field]?.trim();
       });
-      if (isValid) {
-        return true;
-      } else {
+
+      if (!isValid) {
         return this.createError({
           path: 'assessmentForm',
           message:
             'At least one of Investigation Results, Final Diagnosis, Treatment / Operation, and Drug History must be entered',
         });
       }
+
+      return true;
     }
   );
