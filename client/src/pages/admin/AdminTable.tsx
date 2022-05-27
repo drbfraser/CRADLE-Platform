@@ -25,7 +25,6 @@ interface IProps {
   isTransformed: boolean;
 }
 
-
 const AdminTable = (props: IProps) => {
   const styles = useAdminStyles();
   const isBigScreen = useMediaQuery('(min-width:500px)');
