@@ -1,13 +1,14 @@
-import React from 'react';
-import { Button } from '@material-ui/core';
-import { TextField } from '@material-ui/core';
-import Skeleton from '@material-ui/lab/Skeleton';
-import AddIcon from '@material-ui/icons/Add';
 import MUIDataTable, {
   MUIDataTableColumnDef,
   MUIDataTableProps,
 } from 'mui-datatables';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import { ThemeProvider, createTheme } from '@material-ui/core/styles';
+
+import AddIcon from '@material-ui/icons/Add';
+import { Button } from '@material-ui/core';
+import React from 'react';
+import Skeleton from '@material-ui/lab/Skeleton';
+import { TextField } from '@material-ui/core';
 import { useAdminStyles } from './adminStyles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
@@ -24,11 +25,12 @@ interface IProps {
   isTransformed: boolean;
 }
 
+
 const AdminTable = (props: IProps) => {
   const styles = useAdminStyles();
   const isBigScreen = useMediaQuery('(min-width:500px)');
 
-  const theme = (createMuiTheme as any)({
+  const theme = (createTheme as any)({
     overrides: {
       MUIDataTable: {
         responsiveScroll: {
@@ -62,7 +64,7 @@ const AdminTable = (props: IProps) => {
   );
 
   return (
-    <MuiThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
       <MUIDataTable
         title={props.title}
         columns={props.columns}
@@ -91,7 +93,7 @@ const AdminTable = (props: IProps) => {
           },
         }}
       />
-    </MuiThemeProvider>
+    </ThemeProvider>
   );
 };
 
