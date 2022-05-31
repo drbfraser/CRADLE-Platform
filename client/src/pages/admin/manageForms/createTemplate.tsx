@@ -1,13 +1,21 @@
 import { API_URL, apiFetch } from 'src/shared/api';
-import { DropzoneDialogBase, FileObject } from 'material-ui-dropzone';
-import React, { useState } from 'react';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  makeStyles,
+} from '@material-ui/core';
+import { DropzoneAreaBase, FileObject } from 'material-ui-dropzone';
+import React, { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { EndpointEnum } from 'src/shared/enums';
 import { OrNull } from 'src/shared/types';
+import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
 import { isString } from 'lodash';
-import { makeStyles } from '@material-ui/core';
 
 interface IProps {
   open: boolean;
@@ -67,6 +75,15 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
     }
   };
 
+  useEffect(() => {
+    if (open) {
+      return;
+    }
+
+    setShowSuccess(false);
+    setFileObject(null);
+  }, [open]);
+
   return (
     <>
       <Toast
@@ -80,56 +97,74 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
         onClose={() => setShowError(false)}
         errorMessage={uploadError}
       />
-      <DropzoneDialogBase
-        dialogTitle="Create Form Template"
-        acceptedFiles={['application/json', 'plain/text']}
-        fileObjects={fileObject ? [fileObject] : []}
-        cancelButtonText={'Cancel'}
-        submitButtonText={'Upload'}
-        open={open}
-        onAdd={(newFileObjs) => {
-          setFileObject(newFileObjs.pop() ?? null);
-        }}
-        onClose={() => {
-          setFileObject(null);
-          onClose();
-        }}
-        onDelete={() => {
-          setFileObject(null);
-        }}
-        onSave={() => {
-          console.log('onSave', fileObject);
-          fileObject && handleClickUpload(fileObject);
-        }}
-        onAlert={(message, varient) => {
-          switch (varient) {
-            case 'info':
-              setUploadSuccess(message);
-              setShowSuccess(true);
-              break;
-            case 'error':
-              setUploadError(message);
-              setShowError(true);
-              break;
-          }
-        }}
-        showPreviews={true}
-        showFileNamesInPreview={true}
-        useChipsForPreview
-        previewGridProps={{ container: { spacing: 1, direction: 'row' } }}
-        showAlerts={false}
-        inputProps={{
-          multiple: false,
-        }}
-        dropzoneClass={classes.root}
-      />
+
+      <Dialog open={open} maxWidth="sm" fullWidth>
+        <DialogTitle>Create Form Template</DialogTitle>
+        <DialogContent>
+          <div className={classes.root}>
+            <DropzoneAreaBase
+              acceptedFiles={['application/json', 'plain/text']}
+              fileObjects={fileObject ? [fileObject] : []}
+              onAdd={(newFileObjs: FileObject[]) =>
+                setFileObject(newFileObjs.pop() ?? null)
+              }
+              onDelete={() => setFileObject(null)}
+              onDropRejected={() => setFileObject(null)}
+              onAlert={(message: string, varient: string) => {
+                switch (varient) {
+                  case 'info':
+                    setUploadSuccess(message);
+                    setShowSuccess(true);
+                    break;
+                  case 'error':
+                    setUploadError(message);
+                    setShowError(true);
+                    break;
+                }
+              }}
+              showPreviews={true}
+              showFileNamesInPreview={true}
+              showPreviewsInDropzone={false}
+              useChipsForPreview
+              previewGridProps={{
+                container: { spacing: 1, direction: 'row' },
+              }}
+              showAlerts={false}
+              inputProps={{
+                multiple: false,
+              }}
+              dropzoneClass={classes.dropzone}
+            />
+          </div>
+          <div className={classes.root}>
+            <SampleTemplateLink />
+          </div>
+          <DialogActions>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button
+              disabled={!fileObject}
+              color="primary"
+              onClick={() => fileObject && handleClickUpload(fileObject)}>
+              Upload
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  dropzone: {
+    border: '1px dashed #ccc',
+    borderRadius: 4,
+    cursor: 'pointer',
     padding: theme.spacing(2),
+    textAlign: 'center',
   },
 }));
 
