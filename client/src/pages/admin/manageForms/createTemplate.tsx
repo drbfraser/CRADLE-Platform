@@ -76,12 +76,7 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
   };
 
   useEffect(() => {
-    if (open) {
-      return;
-    }
-
-    setShowSuccess(false);
-    setFileObject(null);
+    !open && setFileObject(null);
   }, [open]);
 
   return (
