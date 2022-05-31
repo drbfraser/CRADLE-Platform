@@ -1,13 +1,15 @@
+import { API_URL, apiFetch } from 'src/shared/api';
 import React, { useEffect, useState } from 'react';
-import { apiFetch, API_URL } from 'src/shared/api';
+
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import AdminTable from '../AdminTable';
+import CreateTemplate from './createTemplate';
+import { EndpointEnum } from 'src/shared/enums';
+import { IFormTemplate } from './state';
+import { TableCell } from '../../../shared/components/apiTable/TableCell';
+import { getPrettyDateTime } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { TableCell } from '../../../shared/components/apiTable/TableCell';
-import AdminTable from '../AdminTable';
-import { IFormTemplate } from './state';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { EndpointEnum } from 'src/shared/enums';
-import CreateTemplate from './createTemplate';
 
 export const ManageFormTemplates = () => {
   const styles = useAdminStyles();
@@ -82,8 +84,8 @@ export const ManageFormTemplates = () => {
         form_template.name,
         form_template.category,
         form_template.version,
-        form_template.dateCreated,
-        form_template.lastEdited,
+        getPrettyDateTime(form_template.dateCreated),
+        getPrettyDateTime(form_template.lastEdited),
       ]);
     setTableData(rows);
   }, [formTemplates, search]);
