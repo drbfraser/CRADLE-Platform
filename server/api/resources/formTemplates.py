@@ -46,8 +46,9 @@ class Root(Resource):
         if error_message:
             abort(404, message=error_message)
 
-        if crud.read(FormTemplate, name=req["name"]):
-            abort(404, message="Form template with same name already exist")
+        existing = crud.read(FormTemplate, name=req["name"])
+        if existing != None:
+            crud.delete(existing)
 
         util.assign_form_or_template_ids(FormTemplate, req)
 
