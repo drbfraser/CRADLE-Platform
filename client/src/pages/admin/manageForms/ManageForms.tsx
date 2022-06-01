@@ -1,13 +1,18 @@
+import { API_URL, apiFetch } from 'src/shared/api';
+import { IconButton, Tooltip } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { apiFetch, API_URL } from 'src/shared/api';
+
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import AdminTable from '../AdminTable';
+import CreateTemplate from './createTemplate';
+import DeleteForever from '@material-ui/icons/DeleteForever';
+import DeleteTemplateDialog from './DeleteTemplateDialog';
+import { EndpointEnum } from 'src/shared/enums';
+// import { FormTemplate } from 'src/shared/types';
+import { IFormTemplate } from './state';
+import { TableCell } from '../../../shared/components/apiTable/TableCell';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { TableCell } from '../../../shared/components/apiTable/TableCell';
-import AdminTable from '../AdminTable';
-import { IFormTemplate } from './state';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { EndpointEnum } from 'src/shared/enums';
-import CreateTemplate from './createTemplate';
 
 export const ManageFormTemplates = () => {
   const styles = useAdminStyles();
@@ -17,6 +22,8 @@ export const ManageFormTemplates = () => {
   const [formTemplates, setFormTemplates] = useState<IFormTemplate[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [createPopupOpen, setCreatePopupOpen] = useState(false);
+  const [deletePopupOpen, setDeletePopupOpen] = useState(false);
+  const [popupForm, setPopupForm] = useState<IFormTemplate>();
   const isTransformed = useMediaQuery('(min-width:900px)');
 
   const columns = [
@@ -43,6 +50,27 @@ export const ManageFormTemplates = () => {
       options: {
         display: isTransformed ? true : false,
       },
+    },
+    {
+      name: 'Last Modified',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Actions',
+      options: {
+        display: isTransformed ? true : false,
+        sort: false,
+      },
+    },
+  ];
+
+  const rowActions = [
+    {
+      tooltip: 'Delete Form Template',
+      setOpen: setDeletePopupOpen,
+      Icon: DeleteForever,
     },
   ];
 
@@ -78,13 +106,15 @@ export const ManageFormTemplates = () => {
 
     const rows = formTemplates
       .filter(formTemplateFilter)
-      .map((form_template) => [
-        form_template.name,
-        form_template.category,
-        form_template.version,
-        form_template.dateCreated,
-        form_template.lastEdited,
+      .map((ft) => [
+        ft.name,
+        ft.category,
+        ft.version,
+        ft.dateCreated,
+        ft.lastEdited,
+        ft.id,
       ]);
+
     setTableData(rows);
   }, [formTemplates, search]);
 
@@ -105,6 +135,26 @@ export const ManageFormTemplates = () => {
         <TableCell label="Date Created" isTransformed={isTransformed}>
           {cells[3]}
         </TableCell>
+        <TableCell label="Date Created" isTransformed={isTransformed}>
+          {cells[4]}
+        </TableCell>
+        <TableCell label="Actions" isTransformed={isTransformed}>
+          {rowActions.map((action) => (
+            <Tooltip
+              key={action.tooltip}
+              placement="top"
+              title={action.tooltip}>
+              <IconButton
+                onClick={() => {
+                  const form = formTemplates.find((ft) => ft.id === cells[5]);
+                  setPopupForm(form);
+                  action.setOpen(true);
+                }}>
+                <action.Icon />
+              </IconButton>
+            </Tooltip>
+          ))}
+        </TableCell>
       </tr>
     );
   };
@@ -121,6 +171,14 @@ export const ManageFormTemplates = () => {
           setCreatePopupOpen(false);
           getFormTemplates();
         }}
+      />
+      <DeleteTemplateDialog
+        open={deletePopupOpen}
+        onClose={() => {
+          setDeletePopupOpen(false);
+          getFormTemplates();
+        }}
+        deleteForm={popupForm}
       />
       <AdminTable
         title="Form Templates"
