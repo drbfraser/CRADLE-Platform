@@ -25,12 +25,11 @@ export const Toast: React.FC<IProps> = ({
   return (
     <Snackbar
       autoHideDuration={autoHideDuration}
-      key={message}
       open={open}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       transitionDuration={transitionDuration}
       className={classes.root}
-      draggable={true}>
+      onClose={onClose}>
       <Alert severity={severity} variant="filled" onClose={onClose}>
         {message}
       </Alert>
