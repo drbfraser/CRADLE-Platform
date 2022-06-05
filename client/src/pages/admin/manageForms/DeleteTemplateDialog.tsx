@@ -48,7 +48,7 @@ const DeleteTemplateDialog = ({ open, onClose, deleteForm }: IProps) => {
     <>
       <Toast
         severity="success"
-        message="User successfully deleted!"
+        message="Form Template deleted!"
         open={submitSuccess}
         onClose={() => setSubmitSuccess(false)}
       />
