@@ -1,22 +1,22 @@
-import { makeStyles } from '@material-ui/core';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import { Field, Form, Formik } from 'formik';
+import { API_URL, apiFetch } from 'src/shared/api';
 import {
   Autocomplete,
   AutocompleteRenderInputParams,
 } from 'formik-material-ui-lab';
-import React, { useState } from 'react';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { handleSubmit } from './handlers';
-import { initialState, CustomizedFormField, validationSchema } from './state';
 import { CForm, FormSchema } from 'src/shared/types';
+import { CustomizedFormField, initialState, validationSchema } from './state';
+import { Field, Form, Formik } from 'formik';
+import React, { useState } from 'react';
 
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import { EndpointEnum } from 'src/shared/enums';
-import { apiFetch, API_URL } from 'src/shared/api';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import { handleSubmit } from './handlers';
+import { makeStyles } from '@material-ui/core';
 
 interface IProps {
   patientId: string;
@@ -145,7 +145,6 @@ export const SelectHeaderForm = ({
                 </Box>
               </Box>
             </Paper>
-            <br />
             <Button
               className={classes.right}
               color="primary"
@@ -164,6 +163,9 @@ export const SelectHeaderForm = ({
 
 const useStyles = makeStyles({
   right: {
-    float: 'right',
+    display: 'flex',
+    marginRight: '0px',
+    marginLeft: 'auto',
+    margin: '10px',
   },
 });
