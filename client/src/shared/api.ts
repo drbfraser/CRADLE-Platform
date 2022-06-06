@@ -5,7 +5,7 @@ import { MethodEnum, EndpointEnum } from './enums';
 
 export const API_URL =
   process.env.NODE_ENV === `development`
-    ? `http://${window.location.hostname}:5000/api`
+    ? `http://${window.location.hostname}:15000/api`
     : '/api';
 
 export const getApiToken = async () => {

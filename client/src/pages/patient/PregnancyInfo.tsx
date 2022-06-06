@@ -141,7 +141,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
         )}
         {hasTimedOut && (
           <>
-            <Alert severity="warning">Is the patient still pregnant?</Alert>
+            <Alert severity="warning">Long term pregnancy of the patient detected</Alert>
             <br />
           </>
         )}
