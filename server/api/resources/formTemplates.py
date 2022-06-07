@@ -46,9 +46,8 @@ class Root(Resource):
         if error_message:
             abort(404, message=error_message)
 
-        existing = crud.read(FormTemplate, name=req["name"])
-        if existing != None:
-            crud.delete(existing)
+        if crud.read(FormTemplate, name=req["name"], version=req["version"]):
+            abort(404, message="Form template with the same name and version already exists - change the name or version to upload")
 
         util.assign_form_or_template_ids(FormTemplate, req)
 
