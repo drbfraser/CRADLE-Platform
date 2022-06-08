@@ -120,7 +120,7 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               fullWidth
               inputProps={{ maxLength: 20 }}
               variant="outlined"
-              label="Zone"
+              label="Zone ID"                    //supu changed here
               name={PatientField.zone}
             />
           </Grid>
@@ -130,7 +130,7 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               fullWidth
               inputProps={{ maxLength: 50 }}
               variant="outlined"
-              label="Village"
+              label="Village Number"             //supu changed here
               name={PatientField.villageNumber}
             />
           </Grid>
