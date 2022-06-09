@@ -1,21 +1,22 @@
-import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import { debounce, parseInt } from 'lodash';
+import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
 import React, { useState } from 'react';
+import { debounce, parseInt } from 'lodash';
+
 import { APITable } from 'src/shared/components/apiTable';
-import { EndpointEnum } from 'src/shared/enums';
-import { ReferralRow } from './ReferralRow';
-import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { SortDir } from 'src/shared/components/apiTable/types';
-import { FilterDialog } from './FilterDialog';
-import { RefreshDialog } from './RefreshDialog';
 import { AutoRefresher } from './AutoRefresher';
-import { ReferralFilter } from 'src/shared/types';
+import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import { EndpointEnum } from 'src/shared/enums';
+import { FilterDialog } from './FilterDialog';
+import Paper from '@material-ui/core/Paper';
+import { ReferralFilter } from 'src/shared/types';
+import { ReferralRow } from './ReferralRow';
+import { RefreshDialog } from './RefreshDialog';
+import { SortDir } from 'src/shared/components/apiTable/types';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -102,7 +103,7 @@ export const ReferralsPage = () => {
         <div className={isBigScreen ? classes.right : classes.searchThin}>
           <TextField
             label="Search"
-            placeholder="Patient ID or Name"
+            placeholder="Patient ID, Name or Village"
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
@@ -155,6 +156,7 @@ const useStyles = makeStyles({
   searchThin: {
     float: 'left',
     marginLeft: 1,
+    width: '500px',
   },
   table: {
     clear: 'right',

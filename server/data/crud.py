@@ -1088,6 +1088,7 @@ def __filter_by_patient_search(query: Query, **kwargs) -> Query:
             or_(
                 Patient.patientId.like(f"%{search_text}%"),
                 Patient.patientName.like(f"%{search_text}%"),
+                Patient.villageNumber.like(f"%{search_text}%"),
             )
         )
 

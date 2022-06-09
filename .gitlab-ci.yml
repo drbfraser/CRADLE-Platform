@@ -27,7 +27,7 @@ frontend build:
       when: always
   before_script:
     - cd client
-    - npm ci
+    - npm install
   script:
     - GENERATE_SOURCEMAP=false npm run build
   after_script:
@@ -113,7 +113,7 @@ frontend lint:
       when: always
   before_script:
     - cd client
-    - npm ci
+    - npm install
   script:
     - ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
 
