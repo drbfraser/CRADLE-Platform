@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   Button,
   Dialog,
@@ -7,9 +6,10 @@ import {
   DialogTitle,
   Divider,
   Link,
-  makeStyles,
   Typography,
+  makeStyles,
 } from '@material-ui/core';
+import React, { useState } from 'react';
 
 const SampleTemplateLink = () => {
   const styles = useStyles();
@@ -21,7 +21,7 @@ const SampleTemplateLink = () => {
         setDialogOpen(true);
       }}
       className={styles.noteLink}>
-      sample template json
+      Sample Template
     </Link>
   );
 

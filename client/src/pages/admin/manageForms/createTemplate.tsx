@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
+import { API_URL, apiFetch } from 'src/shared/api';
 import {
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
-  Box,
-  Typography,
-  Divider,
-  DialogActions,
+  makeStyles,
 } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import { makeStyles } from '@material-ui/core/styles';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import { DropzoneAreaBase, FileObject } from 'material-ui-dropzone';
+import React, { useEffect, useState } from 'react';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import SampleTemplateToast from './SampleTemplateToast';
+import { EndpointEnum } from 'src/shared/enums';
+import { OrNull } from 'src/shared/types';
+import SampleTemplateLink from './SampleTemplateLink';
+import { Toast } from 'src/shared/components/toast';
+import { isString } from 'lodash';
+
 interface IProps {
   open: boolean;
   onClose: () => void;
@@ -22,9 +24,13 @@ interface IProps {
 
 const CreateTemplate = ({ open, onClose }: IProps) => {
   const classes = useStyles();
-  const [selectedFile, setSelectedFile] = useState<File>();
-  const [isUploadOk, setIsUploadOk] = useState(false);
-  const [uploadError, setUploadError] = useState<string>();
+  const [fileObject, setFileObject] = useState<OrNull<FileObject>>(null);
+
+  const [uploadError, setUploadError] = useState<string>('');
+  const [showError, setShowError] = useState<boolean>(false);
+
+  const [uploadSuccess, setUploadSuccess] = useState<string>('');
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
   const url = API_URL + EndpointEnum.FORM_TEMPLATES;
   const errorMessages: { [name: number]: string } = {
@@ -33,88 +39,110 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
     500: 'Internal Server Error',
   };
 
-  const handleChange = (event: React.ChangeEvent<any>) => {
-    setSelectedFile(event.target.files[0]);
-  };
-
-  const handleClickUpload = () => {
-    if (selectedFile) {
+  const handleClickUpload = async (fileObj: FileObject) => {
+    if (fileObj) {
       const data = new FormData();
-      data.append('file', selectedFile);
-      apiFetch(
-        url,
-        {
-          method: 'POST',
-          body: data,
-        },
-        true,
-        true
-      )
-        .then(() => {
-          setIsUploadOk(true);
-          setTimeout(() => setIsUploadOk(false), 3000);
-        })
-        .catch((e) => {
-          const status = e.status;
-          const error_info: Promise<any> = e.json();
-          if (status !== 404) {
-            setUploadError(errorMessages[status]);
-            setTimeout(() => setUploadError(''), 3000);
-          } else {
-            error_info.then((err) => {
-              setUploadError(err.message);
-              setTimeout(() => setUploadError(''), 3000);
-            });
-          }
-        });
+      console.log(fileObj.file);
+      data.append('file', fileObj.file);
+      try {
+        await apiFetch(
+          url,
+          {
+            method: 'POST',
+            body: data,
+          },
+          true,
+          true
+        );
+
+        setUploadSuccess(`${fileObj.file.name} uploaded successfully`);
+        setShowSuccess(true);
+
+        onClose();
+      } catch (e) {
+        let message = '';
+
+        if (e.status && errorMessages[e.status]) {
+          message = errorMessages[e.status];
+        } else if (!isString(e)) {
+          const err = await e.json();
+          message = err.message;
+        }
+
+        setUploadError(message);
+        setShowError(true);
+      }
     }
   };
 
+  useEffect(() => {
+    !open && setFileObject(null);
+  }, [open]);
+
   return (
     <>
-      <APIErrorToast
-        open={uploadError !== undefined}
-        onClose={() => setUploadError(undefined)}
+      <Toast
+        severity="success"
+        message={uploadSuccess}
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
       />
+      <APIErrorToast
+        open={showError}
+        onClose={() => setShowError(false)}
+        errorMessage={uploadError}
+      />
+
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>Create Form Template</DialogTitle>
         <DialogContent>
-          <Box p={3}>
-            <Typography component="h6" variant="h6">
-              Upload Template File (.json)
-            </Typography>
-            <Divider />
-            <div className={classes.root}>
-              <input type="file" name="file" onChange={handleChange} />
-            </div>
-            <div className={classes.root}>
-              <SampleTemplateToast />
-            </div>
-            <DialogActions>
-              <Button
-                color="primary"
-                variant="contained"
-                component="span"
-                onClick={handleClickUpload}>
-                Upload
-              </Button>
-              <Button
-                color="primary"
-                variant="contained"
-                component="span"
-                onClick={() => {
-                  setSelectedFile(undefined);
-                  onClose();
-                }}>
-                Cancel
-              </Button>
-            </DialogActions>
-            {uploadError ? (
-              <Alert severity="error">Upload failed - {uploadError}</Alert>
-            ) : (
-              isUploadOk && <Alert severity="success">Upload successful</Alert>
-            )}
-          </Box>
+          <div className={classes.root}>
+            <DropzoneAreaBase
+              acceptedFiles={['application/json', 'plain/text']}
+              fileObjects={fileObject ? [fileObject] : []}
+              onAdd={(newFileObjs: FileObject[]) =>
+                setFileObject(newFileObjs.pop() ?? null)
+              }
+              onDelete={() => setFileObject(null)}
+              onDropRejected={() => setFileObject(null)}
+              onAlert={(message: string, varient: string) => {
+                switch (varient) {
+                  case 'info':
+                    setUploadSuccess(message);
+                    setShowSuccess(true);
+                    break;
+                  case 'error':
+                    setUploadError(message);
+                    setShowError(true);
+                    break;
+                }
+              }}
+              showPreviews={true}
+              showFileNamesInPreview={true}
+              showPreviewsInDropzone={false}
+              useChipsForPreview
+              previewGridProps={{
+                container: { spacing: 1, direction: 'row' },
+              }}
+              showAlerts={false}
+              inputProps={{
+                multiple: false,
+              }}
+              dropzoneClass={classes.dropzone}
+            />
+          </div>
+          <div className={classes.root}>
+            <SampleTemplateLink />
+          </div>
+          <DialogActions>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button
+              disabled={!fileObject}
+              color="primary"
+              onClick={() => fileObject && handleClickUpload(fileObject)}>
+              Upload
+            </Button>
+          </DialogActions>
         </DialogContent>
       </Dialog>
     </>
@@ -125,6 +153,13 @@ const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+  dropzone: {
+    border: '1px dashed #ccc',
+    borderRadius: 4,
+    cursor: 'pointer',
+    padding: theme.spacing(2),
+    textAlign: 'center',
   },
 }));
 
