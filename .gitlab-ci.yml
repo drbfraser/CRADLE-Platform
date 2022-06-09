@@ -113,7 +113,7 @@ frontend lint:
       when: always
   before_script:
     - cd client
-    - npm ci
+    - npm install
   script:
     - ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
 
