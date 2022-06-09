@@ -27,7 +27,7 @@ frontend build:
       when: always
   before_script:
     - cd client
-    - npm ci
+    - npm install
   script:
     - GENERATE_SOURCEMAP=false npm run build
   after_script:
