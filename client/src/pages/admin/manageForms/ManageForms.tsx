@@ -8,10 +8,11 @@ import CreateTemplate from './createTemplate';
 import DeleteForever from '@material-ui/icons/DeleteForever';
 import DeleteTemplateDialog from './DeleteTemplateDialog';
 import { EndpointEnum } from 'src/shared/enums';
-// import { FormTemplate } from 'src/shared/types';
 import { IFormTemplate } from './state';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
+import { getPrettyDateTime } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
+// import { FormTemplate } from 'src/shared/types';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ManageFormTemplates = () => {
@@ -106,13 +107,12 @@ export const ManageFormTemplates = () => {
 
     const rows = formTemplates
       .filter(formTemplateFilter)
-      .map((ft) => [
-        ft.name,
-        ft.category,
-        ft.version,
-        ft.dateCreated,
-        ft.lastEdited,
-        ft.id,
+      .map((form_template) => [
+        form_template.name,
+        form_template.category,
+        form_template.version,
+        getPrettyDateTime(form_template.dateCreated),
+        getPrettyDateTime(form_template.lastEdited),
       ]);
 
     setTableData(rows);

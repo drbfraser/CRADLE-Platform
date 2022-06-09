@@ -58,6 +58,7 @@
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.20",
     "material-table": "^1.69.2",
+    "material-ui-dropzone": "^3.5.0",
     "moment": "^2.29.1",
     "mui-datatables": "3.0.1",
     "react": "^16.14.0",
