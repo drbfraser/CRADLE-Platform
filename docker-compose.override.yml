@@ -14,7 +14,7 @@ services:
         volumes:
             - ./server:/usr/src/server
         ports:
-            - 15000:5000
+            - 5000:5000
     # NOTE: npm has performance issues inside Docker
     #       therefore, best to run outside Docker (for now)
     # frontend:
@@ -41,6 +41,5 @@ services:
     #         PMA_USER: ${DB_USERNAME}
     #         PMA_PASSWORD: ${DB_PASSWORD}
     mysql:
-        image: mariadb
         ports:
             - 3306:3306
