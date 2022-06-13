@@ -1,9 +1,10 @@
-import React from 'react';
-import { Tab } from 'semantic-ui-react';
-import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManageFacilities } from './manageFacilities/ManageFacilities';
 import { ManageFormTemplates } from './manageForms/ManageForms';
 import { ManageRelayApp } from './manageRelayApp/ManageRelayApp';
+import { ManageUsers } from './manageUsers/ManageUsers';
+import React from 'react';
+import { Tab } from 'semantic-ui-react';
+import { theme } from 'src/context/materialUI/theme';
 
 const pages = [
   {
@@ -27,7 +28,7 @@ const pages = [
 const panes = pages.map((p) => ({
   menuItem: p.name,
   render: () => (
-    <Tab.Pane style={{ padding: 0 }}>
+    <Tab.Pane style={{ padding: theme.spacing(2) }}>
       <p.Component />
     </Tab.Pane>
   ),
