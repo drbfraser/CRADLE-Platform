@@ -10,5 +10,4 @@ export const medicalHistoryValidationSchema = () =>
   Yup.object().shape({
     [PatientField.medicalHistory]: Yup.string()
       .label('Medical history')
-      .required(),
   });
