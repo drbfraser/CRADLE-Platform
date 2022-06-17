@@ -17,25 +17,31 @@ import { Toast } from 'src/shared/components/toast';
 interface IProps {
   open: boolean;
   onClose: () => void;
-  deleteForm?: IFormTemplate;
+  form?: IFormTemplate;
 }
 
-const DeleteTemplateDialog = ({ open, onClose, deleteForm }: IProps) => {
+const ArchiveTemplateDialog = ({ open, onClose, form }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = React.useState(false);
   const [submitSuccess, setSubmitSuccess] = React.useState(false);
 
-  const handleDelete = async () => {
-    if (!deleteForm?.id) {
+  const archiveForm = async () => {
+    if (!form?.id) {
       return;
     }
 
     try {
-      const url =
-        API_URL + EndpointEnum.FORM_TEMPLATES + '/' + String(deleteForm.id);
-      await apiFetch(url, {
-        method: 'DELETE',
-      });
+      form.archived = true;
+      const url = API_URL + EndpointEnum.FORM_TEMPLATES + '/' + String(form.id);
+      await apiFetch(
+        url,
+        {
+          method: 'PUT',
+          body: JSON.stringify(form),
+        },
+        true
+      );
+
       setSubmitSuccess(true);
       onClose();
     } catch (e) {
@@ -48,26 +54,26 @@ const DeleteTemplateDialog = ({ open, onClose, deleteForm }: IProps) => {
     <>
       <Toast
         severity="success"
-        message="Form Template deleted!"
+        message="Form Template Archived!"
         open={submitSuccess}
         onClose={() => setSubmitSuccess(false)}
       />
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Delete Form Template</DialogTitle>
+        <DialogTitle>Archive Form Template</DialogTitle>
         <DialogContent>
-          <p>Are you sure you want to delete this form template?</p>
+          <p>Are you sure you want to archive this form template?</p>
         </DialogContent>
         <DialogActions className={classes.actions}>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleDelete}>Delete</Button>
+          <Button onClick={archiveForm}>Archive</Button>
         </DialogActions>
       </Dialog>
     </>
   );
 };
 
-export default DeleteTemplateDialog;
+export default ArchiveTemplateDialog;
 
 const useStyles = makeStyles((theme) => ({
   actions: {

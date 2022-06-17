@@ -1,12 +1,12 @@
 import { API_URL, apiFetch } from 'src/shared/api';
-import { IconButton, Tooltip } from '@material-ui/core';
+import { IconButton, TableRow, Tooltip } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
-import CreateTemplate from './createTemplate';
+import ArchiveTemplateDialog from './ArchiveTemplateDialog';
+import CreateTemplate from './CreateTemplate';
 import DeleteForever from '@material-ui/icons/DeleteForever';
-import DeleteTemplateDialog from './DeleteTemplateDialog';
 import { EndpointEnum } from 'src/shared/enums';
 import { IFormTemplate } from './state';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
@@ -23,7 +23,7 @@ export const ManageFormTemplates = () => {
   const [formTemplates, setFormTemplates] = useState<IFormTemplate[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [createPopupOpen, setCreatePopupOpen] = useState(false);
-  const [deletePopupOpen, setDeletePopupOpen] = useState(false);
+  const [archievePopupOpen, setArchievePopupOpen] = useState(false);
   const [popupForm, setPopupForm] = useState<IFormTemplate>();
   const isTransformed = useMediaQuery('(min-width:900px)');
 
@@ -69,16 +69,19 @@ export const ManageFormTemplates = () => {
 
   const rowActions = [
     {
-      tooltip: 'Delete Form Template',
-      setOpen: setDeletePopupOpen,
+      tooltip: 'Archive Form Template',
+      setOpen: setArchievePopupOpen,
       Icon: DeleteForever,
+      isVisible: (form: IFormTemplate) => {
+        return form.archived === false;
+      },
     },
   ];
 
   const getFormTemplates = async () => {
     try {
       const resp: IFormTemplate[] = await (
-        await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES)
+        await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES+'?archived='+0)
       ).json();
 
       setFormTemplates(
@@ -107,55 +110,60 @@ export const ManageFormTemplates = () => {
 
     const rows = formTemplates
       .filter(formTemplateFilter)
-      .map((form_template) => [
-        form_template.name,
-        form_template.category,
-        form_template.version,
-        getPrettyDateTime(form_template.dateCreated),
-        getPrettyDateTime(form_template.lastEdited),
-      ]);
+      .map((form_template) => [form_template.id]);
 
     setTableData(rows);
   }, [formTemplates, search]);
 
   const Row = ({ row }: { row: (string | number)[] }) => {
-    const cells = row.slice(0);
+    const formTemplate = formTemplates.find((form) => form.id === row[0]);
 
-    return (
-      <tr className={styles.row}>
+    return formTemplate ? (
+      <TableRow
+        className={styles.row}
+        style={{
+          backgroundColor: formTemplate.archived ? 'rgb(251 193 193)' : '#fff',
+        }}>
         <TableCell label="Form Template Name" isTransformed={isTransformed}>
-          {cells[0]}
+          {formTemplate.name}{formTemplate.archived ? ' - (Archived)' : ''}
         </TableCell>
         <TableCell label="Category" isTransformed={isTransformed}>
-          {cells[1]}
+          {formTemplate.category}
         </TableCell>
         <TableCell label="Version" isTransformed={isTransformed}>
-          {cells[2]}
+          {formTemplate.version}
         </TableCell>
         <TableCell label="Date Created" isTransformed={isTransformed}>
-          {cells[3]}
+          {getPrettyDateTime(formTemplate.dateCreated)}
         </TableCell>
         <TableCell label="Date Created" isTransformed={isTransformed}>
-          {cells[4]}
+          {getPrettyDateTime(formTemplate.lastEdited)}
         </TableCell>
         <TableCell label="Actions" isTransformed={isTransformed}>
-          {rowActions.map((action) => (
-            <Tooltip
-              key={action.tooltip}
-              placement="top"
-              title={action.tooltip}>
-              <IconButton
-                onClick={() => {
-                  const form = formTemplates.find((ft) => ft.id === cells[5]);
-                  setPopupForm(form);
-                  action.setOpen(true);
-                }}>
-                <action.Icon />
-              </IconButton>
-            </Tooltip>
-          ))}
+          {rowActions.map((action) =>
+            action.isVisible(formTemplate) ? (
+              <Tooltip
+                key={action.tooltip}
+                placement="top"
+                title={action.tooltip}>
+                <IconButton
+                  onClick={() => {
+                    setPopupForm(formTemplate);
+                    action.setOpen(true);
+                  }}>
+                  <action.Icon />
+                </IconButton>
+              </Tooltip>
+            ) : null
+          )}
         </TableCell>
-      </tr>
+      </TableRow>
+    ) : (
+      <TableRow>
+        <TableCell label="" isTransformed={false}>
+          Invalid Form
+        </TableCell>
+      </TableRow>
     );
   };
 
@@ -172,13 +180,13 @@ export const ManageFormTemplates = () => {
           getFormTemplates();
         }}
       />
-      <DeleteTemplateDialog
-        open={deletePopupOpen}
+      <ArchiveTemplateDialog
+        open={archievePopupOpen}
         onClose={() => {
-          setDeletePopupOpen(false);
+          setArchievePopupOpen(false);
           getFormTemplates();
         }}
-        deleteForm={popupForm}
+        form={popupForm}
       />
       <AdminTable
         title="Form Templates"

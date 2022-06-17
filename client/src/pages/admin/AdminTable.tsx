@@ -1,16 +1,14 @@
+import { Button, TextField } from '@material-ui/core';
 import MUIDataTable, {
   MUIDataTableColumnDef,
-  MUIDataTableProps,
+  MUIDataTableProps
 } from 'mui-datatables';
 import { ThemeProvider, createTheme } from '@material-ui/core/styles';
 
 import AddIcon from '@material-ui/icons/Add';
-import { Button } from '@material-ui/core';
 import React from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { TextField } from '@material-ui/core';
 import { useAdminStyles } from './adminStyles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface IProps {
   title: string;
@@ -19,7 +17,7 @@ interface IProps {
   search: string;
   setSearch: (search: string) => void;
   columns: MUIDataTableColumnDef[];
-  Row: ({ row }: { row: any[] }) => JSX.Element;
+  Row: ({ row }: { row: any }) => JSX.Element;
   data: MUIDataTableProps['data'];
   loading: boolean;
   isTransformed: boolean;
@@ -27,7 +25,6 @@ interface IProps {
 
 const AdminTable = (props: IProps) => {
   const styles = useAdminStyles();
-  const isBigScreen = useMediaQuery('(min-width:500px)');
 
   const theme = (createTheme as any)({
     overrides: {
@@ -53,8 +50,6 @@ const AdminTable = (props: IProps) => {
         className={styles.button}
         color="primary"
         variant="contained"
-        size="large"
-        style={{ marginTop: isBigScreen ? 0 : 10 }}
         onClick={props.newBtnOnClick}>
         <AddIcon />
         {props.newBtnLabel}

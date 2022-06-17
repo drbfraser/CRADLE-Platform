@@ -75,11 +75,11 @@ class Root(Resource):
 
         filters: dict = {}
 
-        if params.get('include_archived') is None or (params.get('include_archived') == 0):
-            filters['archived'] = 0
-        
+        if params.get("include_archived") is None or params.get("include_archived") == 0:
+            filters["archived"] = 0
+
         form_templates = crud.read_all(FormTemplate, **filters)
-        
+
         return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
@@ -143,15 +143,21 @@ class SingleFormTemplate(Resource):
         endpoint="single_form_template",
     )
     def put(form_template_id: str):
+
         form_template = crud.read(FormTemplate, id=form_template_id)
+
         if not form_template:
             abort(404, message=f"No form template with id {form_template_id}")
 
-        req = request.get_json(force=True)
+        req = request.get_json()
+        if req.get('archived') is not None:
+            form_template.archived = req.get('archived')
 
-        crud.update(FormTemplate, req, True, id=form_template_id)
+        form_template_marshalled = marshal.marshal(form_template, True)
 
-        return marshal.marshal(form_template, shallow=True), 201
+        crud.update(FormTemplate, form_template_marshalled, True, id=form_template_id)
+
+        return form_template_marshalled, 201
 
 
 # /api/forms/templates/blank/<string:form_template_id>

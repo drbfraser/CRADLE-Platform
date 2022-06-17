@@ -260,6 +260,7 @@ export interface FormTemplate {
   name: string;
   questions: TQuestion[];
   version: string;
+  archived: boolean;
 }
 
 export interface FormSchema {
