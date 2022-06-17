@@ -1,8 +1,8 @@
-"""empty message
+"""Added archived flag for Form Template
 
-Revision ID: c2068f6f21d0
-Revises: 2c7e8d1996af
-Create Date: 2022-06-07 05:34:22.857646
+Revision ID: 725404868513
+Revises: 5bd241bc95c4
+Create Date: 2022-06-17 08:56:14.911152
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c2068f6f21d0'
-down_revision = '2c7e8d1996af'
+revision = '725404868513'
+down_revision = '5bd241bc95c4'
 branch_labels = None
 depends_on = None
 
