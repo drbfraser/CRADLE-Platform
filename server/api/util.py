@@ -176,7 +176,7 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     Therefore, we can create the form or template one time.
     """
     # assign form id if not provided.
-    if req.get("id") == None:
+    if req.get("id") is None:
         req["id"] = utils.get_uuid()
 
     id = req["id"]
@@ -185,10 +185,12 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     # assign lang version qid.
     for question in req.get("questions"):
         question["id"] = utils.get_uuid()
+
         if model is Form:
             question["formId"] = id
         elif model is FormTemplate:
             question["formTemplateId"] = id
+        
         if question.get("questionLangVersions") is not None:
             for version in question.get("questionLangVersions"):
                 version["qid"] = question["id"]
@@ -216,6 +218,7 @@ def get_query_params(request: Request):
         "lang": request.args.get("lang"),
         "is_assessed": request.args.get("isAssessed"),
         "is_pregnant": request.args.get("isPregnant"),
+        "include_archived": request.args.get("includeArchived"),
         "vital_signs": list(filter(None, request.args.getlist("vitalSigns"))),
         "referrers": list(filter(None, request.args.getlist("referrer"))),
         "health_facilities": list(filter(None, request.args.getlist("healthFacility"))),

@@ -1,3 +1,5 @@
+from pprint import pp
+from telnetlib import theNULL
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -11,7 +13,7 @@ import service.serialize as serialize
 from models import FormTemplate, Question, RoleEnum
 import service.serialize as serialize
 from validation import formTemplates
-from utils import get_current_time, is_json
+from utils import get_current_time, is_json, pprint
 from api.decorator import roles_required
 import json
 
@@ -68,7 +70,16 @@ class Root(Resource):
         endpoint="form_templates",
     )
     def get():
-        form_templates = crud.read_all(FormTemplate)
+
+        params = util.get_query_params(request)
+
+        filters: dict = {}
+
+        if params.get('include_archived') is None or (params.get('include_archived') == 0):
+            filters['archived'] = 0
+        
+        form_templates = crud.read_all(FormTemplate, **filters)
+        
         return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
@@ -125,7 +136,7 @@ class SingleFormTemplate(Resource):
         return marshal.marshal_template_to_single_version(form_template, version)
 
     @staticmethod
-    @roles_required([RoleEnum.ADMIN])
+    @jwt_required
     @swag_from(
         "../../specifications/single-form-template-put.yml",
         methods=["PUT"],
@@ -138,29 +149,7 @@ class SingleFormTemplate(Resource):
 
         req = request.get_json(force=True)
 
-        req["id"] = form_template_id
-
-        error_message = formTemplates.validate_template(req)
-        if error_message:
-            abort(404, message=error_message)
-
-        util.assign_form_or_template_ids(FormTemplate, req)
-
-        # remove all old related questions
-        crud.delete_all(Question, formTemplateId=form_template_id)
-        data.db_session.commit()
-
-        # create new questions
-        questions = marshal.unmarshal_question_list(req["questions"])
-        del req["questions"]
-        crud.create_all(questions, autocommit=False)
-
-        # manually update lastEdited field as question updates will not
-        # trigger auto-update for template
-        req["lastEdited"] = get_current_time()
-        crud.update(FormTemplate, req, id=form_template_id)
-        data.db_session.commit()
-        data.db_session.refresh(form_template)
+        crud.update(FormTemplate, req, True, id=form_template_id)
 
         return marshal.marshal(form_template, shallow=True), 201
 
