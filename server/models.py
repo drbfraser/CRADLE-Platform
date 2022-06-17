@@ -467,6 +467,7 @@ class FormTemplate(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
+
     @staticmethod
     def schema():
         return FormTemplateSchema
