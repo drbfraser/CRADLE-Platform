@@ -1,7 +1,7 @@
 import { Button, TextField } from '@material-ui/core';
 import MUIDataTable, {
   MUIDataTableColumnDef,
-  MUIDataTableProps
+  MUIDataTableProps,
 } from 'mui-datatables';
 import { ThemeProvider, createTheme } from '@material-ui/core/styles';
 

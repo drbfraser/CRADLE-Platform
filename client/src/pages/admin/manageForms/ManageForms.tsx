@@ -81,7 +81,7 @@ export const ManageFormTemplates = () => {
   const getFormTemplates = async () => {
     try {
       const resp: IFormTemplate[] = await (
-        await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES+'?archived='+0)
+        await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES)
       ).json();
 
       setFormTemplates(
@@ -125,7 +125,8 @@ export const ManageFormTemplates = () => {
           backgroundColor: formTemplate.archived ? 'rgb(251 193 193)' : '#fff',
         }}>
         <TableCell label="Form Template Name" isTransformed={isTransformed}>
-          {formTemplate.name}{formTemplate.archived ? ' - (Archived)' : ''}
+          {formTemplate.name}
+          {formTemplate.archived ? ' - (Archived)' : ''}
         </TableCell>
         <TableCell label="Category" isTransformed={isTransformed}>
           {formTemplate.category}
