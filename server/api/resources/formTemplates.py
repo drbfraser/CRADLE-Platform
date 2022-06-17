@@ -1,3 +1,5 @@
+from fileinput import filename
+from pprint import pp
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -11,7 +13,7 @@ import service.serialize as serialize
 from models import FormTemplate, Question, RoleEnum
 import service.serialize as serialize
 from validation import formTemplates
-from utils import get_current_time, is_json
+from utils import get_current_time
 from api.decorator import roles_required
 import json
 
@@ -30,10 +32,11 @@ class Root(Resource):
         # provide file upload method from web
         if "file" in request.files:
             file = request.files["file"]
+            pp(file)
             file_str = str(file.read(), encoding="utf-8")
-            if is_json(file_str):
+            try:
                 req = json.loads(file_str)
-            else:
+            except json.JSONDecodeError:
                 abort(404, message="File content is not valid json-format")
         else:
             req = request.get_json(force=True)

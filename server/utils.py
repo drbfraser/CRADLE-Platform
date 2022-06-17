@@ -21,12 +21,3 @@ def get_uuid():
 # database rather than unicode format
 def dumps(obj):
     return json.dumps(obj, ensure_ascii=False)
-
-
-# check if the text is json format
-def is_json(t):
-    try:
-        json.loads(t)
-    except ValueError as e:
-        return False
-    return True
