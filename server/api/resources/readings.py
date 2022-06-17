@@ -1,3 +1,4 @@
+import time
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -6,8 +7,9 @@ from flask_restful import Resource, abort
 
 import data.crud as crud
 import data.marshal as marshal
+import service.assoc as assoc
 import service.invariant as invariant
-from models import Reading, Patient
+from models import HealthFacility, Referral, Reading, Patient
 from validation import readings
 
 
@@ -30,6 +32,32 @@ class Root(Resource):
         userId = get_jwt_identity()["userId"]
 
         json["userId"] = userId
+
+        if "referral" in json:
+            healthFacility = crud.read(
+                HealthFacility, healthFacilityName=json["referral"]["referralHealthFacilityName"]
+            )
+
+            if not healthFacility:
+                abort(400, message="Health facility does not exist")
+            else:
+                UTCTime = str(round(time.time() * 1000))
+                crud.update(
+                    HealthFacility,
+                    {"newReferrals": UTCTime},
+                    True,
+                    healthFacilityName=json["referral"]["referralHealthFacilityName"],
+                )
+
+
+            referral = marshal.unmarshal(Referral, json["referral"])
+            crud.create(referral, refresh=True)
+            
+            patient = referral.patient
+            facility = referral.healthFacility
+            if not assoc.has_association(patient, facility):
+                assoc.associate(patient, facility=facility)
+            del json["referral"]
 
         reading = marshal.unmarshal(Reading, json)
 
