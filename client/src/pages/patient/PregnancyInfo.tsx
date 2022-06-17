@@ -1,5 +1,5 @@
 import { Paper, Typography, Divider, Box, TableBody } from '@material-ui/core';
-import { Form, Select, InputOnChangeData } from 'semantic-ui-react';
+import { Form, Select, InputOnChangeData} from 'semantic-ui-react';
 import { useHistory, Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { Alert, Skeleton } from '@material-ui/lab';
@@ -116,6 +116,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             text="Add"
             redirectUrl={`/pregnancies/new/${patientId}`}
           />
+          
         )}
         <h4>Current Pregnancy</h4>
         <p>

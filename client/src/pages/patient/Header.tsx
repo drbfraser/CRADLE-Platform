@@ -74,6 +74,7 @@ export const Header = ({
           <Button
             color="primary"
             variant="contained"
+            size="large"
             onClick={handleSubmitNewFormClick}>
             <AddIcon />
             Submit New Form
@@ -81,6 +82,7 @@ export const Header = ({
           <Button
             color="primary"
             variant="contained"
+            size="large"
             onClick={handleAddReadingClick}>
             <AddIcon />
             Add New Reading
@@ -88,6 +90,7 @@ export const Header = ({
           <Button
             color="primary"
             variant="contained"
+            size="large"
             onClick={handleCreateReferralClick}>
             <AddIcon />
             Create Referral
@@ -95,6 +98,7 @@ export const Header = ({
           <Button
             color="primary"
             variant="contained"
+            size="large"
             onClick={handlePerformAssessmentClick}>
             <AddIcon />
             Perform Assessment

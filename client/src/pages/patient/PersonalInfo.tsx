@@ -52,7 +52,8 @@ export const PersonalInfo = ({ patient }: IProps) => {
             </p>
             <Button
               color="primary"
-              variant="outlined"
+              variant="contained"
+              size="large"
               onClick={handleEditClick}>
               Edit Patient
             </Button>

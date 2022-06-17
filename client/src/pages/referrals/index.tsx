@@ -84,6 +84,9 @@ export const ReferralsPage = () => {
           variant="text"
           className={classes.right}>
           <Button
+            color="primary"
+            variant="contained"
+            size="large"
             onClick={() => {
               setIsFilterDialogOpen(true);
             }}>
@@ -92,6 +95,9 @@ export const ReferralsPage = () => {
 
           {filter && (
             <Button
+            color="primary"
+            variant="contained"
+            size="large"
               onClick={() => {
                 setFilter(undefined);
                 setIsPromptShown(false);

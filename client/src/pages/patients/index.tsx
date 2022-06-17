@@ -34,14 +34,14 @@ export const PatientsPage = () => {
         <h2 className={classes.title}>Patients</h2>
         <div className={isBigScreen ? classes.right : ''}>
           <TextField
-            className={isBigScreen ? '' : classes.searchThin}
+            //className={isBigScreen ? '' : classes.searchThin}
             label="Search"
             placeholder="Patient ID or Name"
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
           <Button
-            className={isBigScreen ? classes.button : classes.buttonThin}
+            //className={isBigScreen ? classes.button : classes.buttonThin}
             color="primary"
             variant="contained"
             size="large"
