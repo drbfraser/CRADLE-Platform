@@ -6,6 +6,8 @@ export const pregnancyInfoValidationSchema = () =>
   Yup.object().shape({
     [PatientField.isPregnant]: Yup.boolean(),
     [PatientField.gestationalAgeDays]: Yup.number()
+      .min(0, 'Please enter a number between 0 and 6')
+      .max(6, 'Please enter a number between 0 and 6')
       .label('Days pregnant')
       .when([PatientField.isPregnant, PatientField.gestationalAgeUnit], {
         is: (isPregnant, gestationalAgeUnit) =>
@@ -17,6 +19,7 @@ export const pregnancyInfoValidationSchema = () =>
           .required('Please enter between 0 and 6 days.'),
       }),
     [PatientField.gestationalAgeWeeks]: Yup.number()
+      .min(0, 'Please enter a positive number')
       .label('Weeks pregnant')
       .when([PatientField.isPregnant, PatientField.gestationalAgeUnit], {
         is: (isPregnant, gestationalAgeUnit) =>
@@ -28,6 +31,7 @@ export const pregnancyInfoValidationSchema = () =>
           .required('Please enter between 0 and 42 weeks.'),
       }),
     [PatientField.gestationalAgeMonths]: Yup.number()
+      .min(0, 'Please enter a positive number')
       .label('Months pregnant')
       .when([PatientField.isPregnant, PatientField.gestationalAgeUnit], {
         is: (isPregnant, gestationalAgeUnit) =>
