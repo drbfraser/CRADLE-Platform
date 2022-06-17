@@ -75,7 +75,10 @@ class Root(Resource):
 
         filters: dict = {}
 
-        if params.get("include_archived") is None or params.get("include_archived") == 0:
+        if (
+            params.get("include_archived") is None
+            or params.get("include_archived") == 0
+        ):
             filters["archived"] = 0
 
         form_templates = crud.read_all(FormTemplate, **filters)
@@ -150,8 +153,8 @@ class SingleFormTemplate(Resource):
             abort(404, message=f"No form template with id {form_template_id}")
 
         req = request.get_json()
-        if req.get('archived') is not None:
-            form_template.archived = req.get('archived')
+        if req.get("archived") is not None:
+            form_template.archived = req.get("archived")
 
         form_template_marshalled = marshal.marshal(form_template, True)
 

@@ -190,7 +190,7 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
             question["formId"] = id
         elif model is FormTemplate:
             question["formTemplateId"] = id
-        
+
         if question.get("questionLangVersions") is not None:
             for version in question.get("questionLangVersions"):
                 version["qid"] = question["id"]
