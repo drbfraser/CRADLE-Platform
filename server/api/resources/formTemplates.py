@@ -1,21 +1,20 @@
-from fileinput import filename
-from pprint import pp
+import json
+
+import api.util as util
+import data
+import data.crud as crud
+import data.marshal as marshal
+import service.serialize as serialize
+from api.decorator import roles_required
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-
-import data
-import data.crud as crud
-import data.marshal as marshal
-import api.util as util
-import service.serialize as serialize
-from models import FormTemplate, Question, RoleEnum
-import service.serialize as serialize
-from validation import formTemplates
+from models import ContentTypeEnum, FormTemplate, Question, RoleEnum
 from utils import get_current_time
-from api.decorator import roles_required
-import json
+from validation import formTemplates
+from werkzeug.datastructures import FileStorage
+
 
 # /api/forms/templates
 class Root(Resource):
@@ -27,19 +26,30 @@ class Root(Resource):
         endpoint="form_templates",
     )
     def post():
-        req = None
+        req = {}
 
         # provide file upload method from web
         if "file" in request.files:
-            file = request.files["file"]
-            pp(file)
-            file_str = str(file.read(), encoding="utf-8")
-            try:
-                req = json.loads(file_str)
-            except json.JSONDecodeError:
-                abort(404, message="File content is not valid json-format")
+            file: FileStorage = request.files["file"]
+
+            if file.content_type not in ContentTypeEnum.listValues():
+                abort(400, message="File Type not supported")
+
+            file_str = str(file.read(), "utf-8")
+            if file.content_type == ContentTypeEnum.JSON.value:
+                try:
+                    req = json.loads(file_str)
+                except json.JSONDecodeError:
+                    abort(404, message="File content is not valid json-format")
+
+            elif file.content_type == ContentTypeEnum.CSV.value:
+                req = util.getFormTemplateDictFromCSV(file_str)
+                
         else:
             req = request.get_json(force=True)
+
+        if len(req) == 0:
+            abort(400, message="Request body is empty")
 
         if req.get("id") is not None:
             if crud.read(FormTemplate, id=req["id"]):

@@ -1,12 +1,11 @@
-import enum
-
+from ensurepip import version
+from enum import Enum
 from jsonschema import validate
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
 import marshmallow
-import json
 
 from config import db, ma
 from utils import get_current_time, get_uuid
@@ -20,26 +19,36 @@ from utils import get_current_time, get_uuid
 # ENUMS CLASSES
 #
 
+class EnumWithList(Enum):
 
-class RoleEnum(enum.Enum):
+    @classmethod
+    def listNames(cls):
+        return [e.name for e in cls]
+
+
+    @classmethod
+    def listValues(cls):
+        return [e.value for e in cls]
+
+class RoleEnum(Enum):
     VHT = "VHT"
     HCW = "HCW"
     ADMIN = "ADMIN"
     CHO = "CHO"
 
 
-class SexEnum(enum.Enum):
+class SexEnum(Enum):
     MALE = "MALE"
     FEMALE = "FEMALE"
     OTHER = "OTHER"
 
 
-class GestationalAgeUnitEnum(enum.Enum):
+class GestationalAgeUnitEnum(Enum):
     MONTHS = "MONTHS"
     WEEKS = "WEEKS"
 
 
-class TrafficLightEnum(enum.Enum):
+class TrafficLightEnum(Enum):
     NONE = "NONE"
     GREEN = "GREEN"
     YELLOW_UP = "YELLOW_UP"
@@ -48,14 +57,14 @@ class TrafficLightEnum(enum.Enum):
     RED_DOWN = "RED_DOWN"
 
 
-class FacilityTypeEnum(enum.Enum):
+class FacilityTypeEnum(Enum):
     HCF_2 = "HCF_2"
     HCF_3 = "HCF_3"
     HCF_4 = "HCF_4"
     HOSPITAL = "HOSPITAL"
 
 
-class QuestionTypeEnum(enum.Enum):
+class QuestionTypeEnum(EnumWithList):
     INTEGER = "INTEGER"
     DECIMAL = "DECIMAL"
     STRING = "STRING"
@@ -67,12 +76,15 @@ class QuestionTypeEnum(enum.Enum):
     CATEGORY = "CATEGORY"
 
 
-class QRelationalEnum(enum.Enum):
+class QRelationalEnum(Enum):
     LARGER_THAN = "LARGER_THAN"
     SMALLER_THAN = "SMALLER_THAN"
     EQUAL_TO = "EQUAL_TO"
     CONTAINS = "CONTAINS"
 
+class ContentTypeEnum(EnumWithList):
+    JSON = "application/json"
+    CSV = "text/csv"
 
 #
 # HELPER CLASSES

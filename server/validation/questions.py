@@ -50,9 +50,7 @@ def validate_mc_options(q: dict) -> Optional[str]:
         return error
 
     mcopts = q[target]
-    if len(mcopts) > 5:
-        return "Number of multiple choices provided exceed maximum 5"
-
+    
     force_fields = ["mcid", "opt"]
     for opt in mcopts:
         error_message = force_consistent_keys(opt, force_fields)

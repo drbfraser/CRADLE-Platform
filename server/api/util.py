@@ -3,14 +3,37 @@ The ``api.util`` module contains utility functions to help extract useful inform
 from requests.
 """
 
+import csv
+from functools import reduce
+from pprint import pprint
 import flask_jwt_extended as jwt
 from flask import Request
-from typing import Type
+from typing import Callable, Iterable, Type
+
+from flask_restful import abort
+from api.constants import (
+    FORM_TEMPLATE_LANGUAGES_COL,
+    FORM_TEMPLATE_LANGUAGES_ROW,
+    FORM_TEMPLATE_NAME_COL,
+    FORM_TEMPLATE_NAME_ROW,
+    FORM_TEMPLATE_QUESTION_ID_COL,
+    FORM_TEMPLATE_QUESTION_LINE_COUNT_COL,
+    FORM_TEMPLATE_QUESTION_MAX_VALUE_COL,
+    FORM_TEMPLATE_QUESTION_MIN_VALUE_COL,
+    FORM_TEMPLATE_QUESTION_OPTIONS_COL,
+    FORM_TEMPLATE_QUESTION_REQUIRED_COL,
+    FORM_TEMPLATE_QUESTION_TEXT_COL,
+    FORM_TEMPLATE_QUESTION_TYPE_COL,
+    FORM_TEMPLATE_QUESTION_UNITS_COL,
+    FORM_TEMPLATE_ROW_LENGTH,
+    FORM_TEMPLATE_VERSION_COL,
+    FORM_TEMPLATE_VERSION_ROW,
+)
 
 import data.crud as crud
 from data.crud import M
 import data.marshal as marshal
-from models import User, Form, FormTemplate
+from models import QuestionTypeEnum, User, Form, FormTemplate
 import utils
 
 
@@ -222,3 +245,126 @@ def get_query_params(request: Request):
     }
 
     return {k: v for k, v in params.items() if v}
+
+
+def getFormTemplateDictFromCSV(csvData: str):
+
+    result: dict = dict()
+
+    csv_reader = csv.reader(csvData.splitlines())
+    rows = []
+
+    isRowEmpty: Callable[[Iterable], bool] = lambda row: reduce(
+        (lambda isEmpty, val: isEmpty and val == ""), row, True
+    )
+
+    isQuestionRequired: Callable[[str], bool] = (
+        lambda required: len(required) > 0 and required.upper()[0] == "Y"
+    )
+
+    toNumberOrNone: Callable[[str], int | float | None] = (
+        lambda strVal: None
+        if strVal == ""
+        else float(strVal)
+        if "." in strVal
+        else int(strVal)
+    )
+
+    toMcOptionsOrNone: Callable[[str], list[dict[str, int | str]]] = lambda strVal: [
+        {"mcid": index, "opt": opt}
+        for index, opt in enumerate(strVal.split(","))
+        if len(opt.strip()) > 0
+    ]
+
+    getQuestionLanguageVersionFromRow: Callable[[Iterable], dict] = lambda row: {
+        "questionText": row[FORM_TEMPLATE_QUESTION_TEXT_COL],
+        "mcOptions": toMcOptionsOrNone(row[FORM_TEMPLATE_QUESTION_OPTIONS_COL]),
+        "lang": row[FORM_TEMPLATE_LANGUAGES_COL],
+    }
+
+    for row in csv_reader:
+        if len(row) != FORM_TEMPLATE_ROW_LENGTH:
+            abort(
+                400,
+                message="All Rows must have "
+                + str(FORM_TEMPLATE_ROW_LENGTH)
+                + " columns",
+            )
+        rows.append(row)
+
+    languages = rows[FORM_TEMPLATE_LANGUAGES_ROW][FORM_TEMPLATE_LANGUAGES_COL].split(
+        ","
+    )
+
+    result["name"] = rows[FORM_TEMPLATE_NAME_ROW][FORM_TEMPLATE_NAME_COL]
+    result["version"] = rows[FORM_TEMPLATE_VERSION_ROW][FORM_TEMPLATE_VERSION_COL]
+    result["questions"] = []
+
+    category = None
+    questionRows = rows[4:]
+    questionIndex = 0
+    for row in questionRows:
+
+        if isRowEmpty(row):
+            category = None
+            continue
+
+        type = str(row[FORM_TEMPLATE_QUESTION_TYPE_COL]).upper()
+
+        if type not in QuestionTypeEnum.listNames():
+            abort(400, message="Invalid Question Type Encountered")
+
+        if type == "CATEGORY":
+            category = row[FORM_TEMPLATE_QUESTION_TEXT_COL]
+            continue
+
+        else:
+            question = {
+                "questionId": row[FORM_TEMPLATE_QUESTION_ID_COL],
+                "questionIndex": questionIndex,
+                "questionType": QuestionTypeEnum[type].value,
+                "questionLangVersions": [],
+                "required": isQuestionRequired(
+                    row[FORM_TEMPLATE_QUESTION_REQUIRED_COL]
+                ),
+                "numMax": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MAX_VALUE_COL]),
+                "numMin": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MIN_VALUE_COL]),
+                "stringMaxLength": toNumberOrNone(
+                    row[FORM_TEMPLATE_QUESTION_LINE_COUNT_COL]
+                ),
+                "units": row[FORM_TEMPLATE_QUESTION_UNITS_COL],
+                "visibleCondition": [],
+                "categoryIndex": None,
+            }
+
+            questionLangVersion = getQuestionLanguageVersionFromRow(row)
+
+            questionLangVersions = dict(
+                [(questionLangVersion["lang"], questionLangVersion)]
+            )
+
+            for _ in range(len(languages) - 1):
+
+                row = next(questionRows)
+
+                if (
+                    isRowEmpty(row)
+                    and len(questionLangVersions) != languages
+                    and questionLangVersions[questionLangVersion["lang"]] is not None
+                ):
+                    abort(
+                        400,
+                        message="All Questions must be provided in all the languages supported by the form",
+                    )
+
+                questionLangVersions[
+                    questionLangVersion["lang"]
+                ] = getQuestionLanguageVersionFromRow(row)
+
+            question["questionLangVersions"] = list(questionLangVersions.values())
+
+            result["questions"].append(question)
+            questionIndex += 1
+
+    pprint(result)
+    return result
