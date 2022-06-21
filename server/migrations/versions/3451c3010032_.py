@@ -1,4 +1,4 @@
-"""empty message
+"""redesign FormTemplate and create FormClassification
 
 Revision ID: 3451c3010032
 Revises: 5bd241bc95c4
@@ -32,14 +32,14 @@ def upgrade():
     )
     op.add_column(
         "form_template",
-        sa.Column("FormClassificationId", sa.String(length=50), nullable=True),
+        sa.Column("formClassificationId", sa.String(length=50), nullable=True),
     )
     op.drop_index("ix_form_template_name", table_name="form_template")
     op.create_foreign_key(
         None,
         "form_template",
         "form_classification",
-        ["FormClassificationId"],
+        ["formClassificationId"],
         ["id"],
         ondelete="SET NULL",
     )
@@ -66,7 +66,7 @@ def downgrade():
     op.add_column("form_template", sa.Column("category", mysql.TEXT(), nullable=True))
     op.drop_constraint(None, "form_template", type_="foreignkey")
     op.create_index("ix_form_template_name", "form_template", ["name"], unique=False)
-    op.drop_column("form_template", "FormClassificationId")
+    op.drop_column("form_template", "formClassificationId")
     op.drop_index(op.f("ix_form_classification_name"), table_name="form_classification")
     op.drop_table("form_classification")
     # ### end Alembic commands ###
