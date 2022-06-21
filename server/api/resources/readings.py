@@ -35,7 +35,8 @@ class Root(Resource):
 
         if "referral" in json:
             healthFacility = crud.read(
-                HealthFacility, healthFacilityName=json["referral"]["referralHealthFacilityName"]
+                HealthFacility,
+                healthFacilityName=json["referral"]["referralHealthFacilityName"],
             )
 
             if not healthFacility:
@@ -49,10 +50,9 @@ class Root(Resource):
                     healthFacilityName=json["referral"]["referralHealthFacilityName"],
                 )
 
-
             referral = marshal.unmarshal(Referral, json["referral"])
             crud.create(referral, refresh=True)
-            
+
             patient = referral.patient
             facility = referral.healthFacility
             if not assoc.has_association(patient, facility):
