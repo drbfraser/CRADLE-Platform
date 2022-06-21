@@ -467,7 +467,7 @@ class FormTemplate(db.Model):
         nullable=False,
         default=get_current_time,
     )
-    FormClassificationId = db.Column(
+    formClassificationId = db.Column(
         db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
         nullable=True,
     )

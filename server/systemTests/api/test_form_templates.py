@@ -57,8 +57,6 @@ def test_form_template_update(
 def form_template():
     return {
         "id": "ft1",
-        "name": "NEMS Ambulance Request - sys test",
-        "category": "Hopsital Report - sys test",
         "version": "V1",
         "questions": [
             {
@@ -111,8 +109,6 @@ def form_template():
 def form_template_2():
     return {
         "id": "ft2",
-        "name": "NEMS Ambulance Request - sys test2",
-        "category": "Hopsital Report - sys test2",
         "version": "V2",
         "questions": [
             {
@@ -185,9 +181,7 @@ def form_template_2():
 @pytest.fixture
 def update_info_in_question():
     return {
-        "name": "NEMS Ambulance Request - sys test",
-        "category": "Hopsital Report - sys test",
-        "version": "V1.2",
+        "version": "V1.1",
         "questions": [
             {
                 "questionId": "referred-by-name",
@@ -222,9 +216,7 @@ def update_info_in_question():
 @pytest.fixture
 def remove_question():
     return {
-        "name": "NEMS Ambulance Request - sys test",
-        "category": "Hopsital Report - sys test",
-        "version": "V1",
+        "version": "V1.2",
         "questions": [
             {
                 "questionId": "section header",
@@ -250,9 +242,7 @@ def remove_question():
 @pytest.fixture
 def add_question():
     return {
-        "name": "NEMS Ambulance Request - sys test",
-        "category": "Hopsital Report - sys test",
-        "version": "V1",
+        "version": "V1.3",
         "questions": [
             {
                 "questionId": "section header",

@@ -46,10 +46,10 @@ class Root(Resource):
         if error_message:
             abort(404, message=error_message)
 
-        if crud.read(FormTemplate, name=req["name"], version=req["version"]):
+        if crud.read(FormTemplate, version=req["version"]):
             abort(
                 404,
-                message="Form template with the same name and version already exists - change the name or version to upload",
+                message="Form template with the same version already exists - change the version to upload",
             )
 
         util.assign_form_or_template_ids(FormTemplate, req)
@@ -154,11 +154,6 @@ class SingleFormTemplate(Resource):
         questions = marshal.unmarshal_question_list(req["questions"])
         del req["questions"]
         crud.create_all(questions, autocommit=False)
-
-        # manually update lastEdited field as question updates will not
-        # trigger auto-update for template
-        req["lastEdited"] = get_current_time()
-        crud.update(FormTemplate, req, id=form_template_id)
         data.db_session.commit()
         data.db_session.refresh(form_template)
 
