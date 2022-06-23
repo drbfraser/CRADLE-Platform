@@ -1,7 +1,8 @@
-import { goBackWithFallback } from 'src/shared/utils';
+import { API_URL, apiFetch } from 'src/shared/api';
 import { AssessmentField, AssessmentState } from './state';
-import { apiFetch, API_URL } from 'src/shared/api';
+
 import { EndpointEnum } from 'src/shared/enums';
+import { goBackWithFallback } from 'src/shared/utils';
 
 export const handleSubmit = (
   patientId: string,
