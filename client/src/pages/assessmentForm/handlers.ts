@@ -7,7 +7,7 @@ export const handleSubmit = (
   patientId: string,
   assessmentId: string | undefined,
   referralId: string | undefined,
-  drugHistory: string,
+  drugHistory: string | undefined,
   setSubmitError: (error: boolean) => void
 ) => {
   return async (values: AssessmentState, { setSubmitting }: any) => {
@@ -42,7 +42,22 @@ export const handleSubmit = (
       });
 
       const newDrugHistory = values[AssessmentField.drugHistory];
-      if (drugHistory !== newDrugHistory) {
+      if(newDrugHistory === "")
+      {
+         await apiFetch(
+          API_URL +
+            EndpointEnum.PATIENTS +
+            `/${patientId}` +
+            EndpointEnum.MEDICAL_RECORDS,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+             [AssessmentField.drugHistory]: " ",
+            }),
+          }
+        );
+      }
+      else if (drugHistory !== newDrugHistory) {
         await apiFetch(
           API_URL +
             EndpointEnum.PATIENTS +
@@ -51,7 +66,7 @@ export const handleSubmit = (
           {
             method: 'POST',
             body: JSON.stringify({
-              [AssessmentField.drugHistory]: newDrugHistory,
+             [AssessmentField.drugHistory]: newDrugHistory,
             }),
           }
         );
