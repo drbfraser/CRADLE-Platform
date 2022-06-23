@@ -78,8 +78,8 @@ export const AssessmentData = ({ followUp }: IProps) => {
 
       <Button 
       color="primary"
-      variant="contained"
-      size="large" 
+      variant="outlined"
+      size="large"
       onClick={handleAssess}>
         Update Assessment
       </Button>

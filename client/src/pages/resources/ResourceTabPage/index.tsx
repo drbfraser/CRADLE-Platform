@@ -86,7 +86,9 @@ function ResourceTabPage(props: IProps): JSX.Element {
             className={classes.root}
             nextButton={
               <Button
-                size="small"
+              color="primary"
+              variant="contained"
+              size="large"
                 onClick={handleNext}
                 disabled={activeStep === maxSteps - 1}>
                 Next

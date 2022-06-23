@@ -62,15 +62,15 @@ export const ReferralPendingData = ({ referral }: IProps) => {
           <Grid container alignItems="flex-start" style={{ gap: 7 }}>
             <Button
               color="primary"
-              variant="contained"
+              variant="outlined"
               size="large"
               onClick={handlePerformAssessmentClick}>
               Assess Referral
             </Button>
             <Button
-              color="primary"
-              variant="contained"
-              size="large"
+             color="primary"
+             variant="outlined"
+             size="large"
               onClick={handleReferralNotAttend}>
               Did Not Attend
             </Button>
