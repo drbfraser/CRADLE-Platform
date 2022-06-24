@@ -471,6 +471,7 @@ class FormTemplate(db.Model):
         db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
         nullable=True,
     )
+    archived = db.Column(db.Boolean, nullable=False, default=False)
 
     @staticmethod
     def schema():

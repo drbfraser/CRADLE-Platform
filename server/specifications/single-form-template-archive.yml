@@ -1,0 +1,35 @@
+Archive a form template
+---
+tags:
+  - Form Templates
+parameters:
+  - in: path
+    name: form_template_id
+    required: true
+    schema:
+      type: string
+requestBody:
+  required: false                
+
+responses:
+  201:
+    description: Response from Delete request for /api/forms/templates/<string:form_template_id>
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Form template deleted.
+  400:
+    description: |
+      Bad request: Template could not be archived
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Template has associated submissions

@@ -46,6 +46,7 @@ def upgrade():
     op.drop_column("form_template", "category")
     op.drop_column("form_template", "lastEdited")
     op.drop_column("form_template", "name")
+    op.add_column('form_template', sa.Column('archived', sa.Boolean(), nullable=False))
     # ### end Alembic commands ###
 
 
@@ -69,4 +70,5 @@ def downgrade():
     op.drop_column("form_template", "formClassificationId")
     op.drop_index(op.f("ix_form_classification_name"), table_name="form_classification")
     op.drop_table("form_classification")
+    op.drop_column('form_template', 'archived')
     # ### end Alembic commands ###

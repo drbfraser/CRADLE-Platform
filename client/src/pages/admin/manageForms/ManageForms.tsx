@@ -1,14 +1,18 @@
 import { API_URL, apiFetch } from 'src/shared/api';
+import { IconButton, TableRow, Tooltip } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
-import CreateTemplate from './createTemplate';
+import ArchiveTemplateDialog from './ArchiveTemplateDialog';
+import CreateTemplate from './CreateTemplate';
+import DeleteForever from '@material-ui/icons/DeleteForever';
 import { EndpointEnum } from 'src/shared/enums';
 import { IFormTemplate } from './state';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
+// import { FormTemplate } from 'src/shared/types';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ManageFormTemplates = () => {
@@ -19,6 +23,8 @@ export const ManageFormTemplates = () => {
   const [formTemplates, setFormTemplates] = useState<IFormTemplate[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [createPopupOpen, setCreatePopupOpen] = useState(false);
+  const [archievePopupOpen, setArchievePopupOpen] = useState(false);
+  const [popupForm, setPopupForm] = useState<IFormTemplate>();
   const isTransformed = useMediaQuery('(min-width:900px)');
 
   const columns = [
@@ -44,6 +50,30 @@ export const ManageFormTemplates = () => {
       name: 'Date Created',
       options: {
         display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Last Modified',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
+      name: 'Actions',
+      options: {
+        display: isTransformed ? true : false,
+        sort: false,
+      },
+    },
+  ];
+
+  const rowActions = [
+    {
+      tooltip: 'Archive Form Template',
+      setOpen: setArchievePopupOpen,
+      Icon: DeleteForever,
+      isVisible: (form: IFormTemplate) => {
+        return form.archived === false;
       },
     },
   ];
@@ -80,34 +110,61 @@ export const ManageFormTemplates = () => {
 
     const rows = formTemplates
       .filter(formTemplateFilter)
-      .map((form_template) => [
-        form_template.name,
-        form_template.category,
-        form_template.version,
-        getPrettyDateTime(form_template.dateCreated),
-        getPrettyDateTime(form_template.lastEdited),
-      ]);
+      .map((form_template) => [form_template.id]);
+
     setTableData(rows);
   }, [formTemplates, search]);
 
   const Row = ({ row }: { row: (string | number)[] }) => {
-    const cells = row.slice(0);
+    const formTemplate = formTemplates.find((form) => form.id === row[0]);
 
-    return (
-      <tr className={styles.row}>
+    return formTemplate ? (
+      <TableRow
+        className={styles.row}
+        style={{
+          backgroundColor: formTemplate.archived ? 'rgb(251 193 193)' : '#fff',
+        }}>
         <TableCell label="Form Template Name" isTransformed={isTransformed}>
-          {cells[0]}
+          {formTemplate.name}
+          {formTemplate.archived ? ' - (Archived)' : ''}
         </TableCell>
         <TableCell label="Category" isTransformed={isTransformed}>
-          {cells[1]}
+          {formTemplate.category}
         </TableCell>
         <TableCell label="Version" isTransformed={isTransformed}>
-          {cells[2]}
+          {formTemplate.version}
         </TableCell>
         <TableCell label="Date Created" isTransformed={isTransformed}>
-          {cells[3]}
+          {getPrettyDateTime(formTemplate.dateCreated)}
         </TableCell>
-      </tr>
+        <TableCell label="Date Created" isTransformed={isTransformed}>
+          {getPrettyDateTime(formTemplate.lastEdited)}
+        </TableCell>
+        <TableCell label="Actions" isTransformed={isTransformed}>
+          {rowActions.map((action) =>
+            action.isVisible(formTemplate) ? (
+              <Tooltip
+                key={action.tooltip}
+                placement="top"
+                title={action.tooltip}>
+                <IconButton
+                  onClick={() => {
+                    setPopupForm(formTemplate);
+                    action.setOpen(true);
+                  }}>
+                  <action.Icon />
+                </IconButton>
+              </Tooltip>
+            ) : null
+          )}
+        </TableCell>
+      </TableRow>
+    ) : (
+      <TableRow>
+        <TableCell label="" isTransformed={false}>
+          Invalid Form
+        </TableCell>
+      </TableRow>
     );
   };
 
@@ -123,6 +180,14 @@ export const ManageFormTemplates = () => {
           setCreatePopupOpen(false);
           getFormTemplates();
         }}
+      />
+      <ArchiveTemplateDialog
+        open={archievePopupOpen}
+        onClose={() => {
+          setArchievePopupOpen(false);
+          getFormTemplates();
+        }}
+        form={popupForm}
       />
       <AdminTable
         title="Form Templates"
