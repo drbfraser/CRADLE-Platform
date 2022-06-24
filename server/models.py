@@ -450,23 +450,28 @@ class MedicalRecord(db.Model):
         return MedicalRecordSchema
 
 
-class FormTemplate(db.Model):
+class FormClassification(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
-    category = db.Column(db.Text, nullable=True)
+
+    @staticmethod
+    def schema():
+        return FormClassificationSchema
+
+
+class FormTemplate(db.Model):
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     version = db.Column(db.Text, nullable=True)
     dateCreated = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
     )
-    archived = db.Column(db.Boolean, nullable=False, default=False)
-    lastEdited = db.Column(
-        db.BigInteger,
-        nullable=False,
-        default=get_current_time,
-        onupdate=get_current_time,
+    formClassificationId = db.Column(
+        db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
+        nullable=True,
     )
+    archived = db.Column(db.Boolean, nullable=False, default=False)
 
     @staticmethod
     def schema():
@@ -746,6 +751,14 @@ class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = MedicalRecord
+        load_instance = True
+        include_relationships = True
+
+
+class FormClassificationSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = FormClassification
         load_instance = True
         include_relationships = True
 
