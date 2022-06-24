@@ -1,25 +1,27 @@
-import { Paper, Typography, Divider, Box, TableBody } from '@material-ui/core';
-import { Form, Select, InputOnChangeData} from 'semantic-ui-react';
-import { useHistory, Link } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
+import { API_URL, apiFetch } from 'src/shared/api';
 import { Alert, Skeleton } from '@material-ui/lab';
-import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
-import React, { useState, useEffect } from 'react';
+import { Box, Divider, Paper, TableBody, Typography } from '@material-ui/core';
 import {
   EndpointEnum,
   GestationalAgeUnitEnum,
   SexEnum,
 } from 'src/shared/enums';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { PatientPregnancyInfo } from 'src/shared/types';
-import { RedirectButton } from 'src/shared/components/redirectButton';
-import TableRow from '@material-ui/core/TableRow';
-import Table from '@material-ui/core/Table';
+import { Form, InputOnChangeData, Select, TableCell } from 'semantic-ui-react';
+import { Link, useHistory } from 'react-router-dom';
+import { PastPregnancy, PatientPregnancyInfo } from 'src/shared/types';
+import React, { useEffect, useState } from 'react';
 import {
-  gestationalAgeUnitLabels,
   gestationalAgeUnitFormatters,
+  gestationalAgeUnitLabels,
 } from 'src/shared/constants';
 import { getNumOfWeeksNumeric, getYearToDisplay } from 'src/shared/utils';
+
+import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
+import { RedirectButton } from 'src/shared/components/redirectButton';
+import Table from '@material-ui/core/Table';
+import TableRow from '@material-ui/core/TableRow';
+import { makeStyles } from '@material-ui/core/styles';
+
 interface IProps {
   patientId: string;
   patientName: string;
@@ -39,19 +41,12 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   const [errorLoading, setErrorLoading] = useState(false);
 
   useEffect(() => {
-    apiFetch(
-      API_URL +
-        EndpointEnum.PATIENTS +
-        `/${patientId}` +
-        EndpointEnum.PREGNANCY_SUMMARY
-    )
+    const url = `${API_URL}${EndpointEnum.PATIENTS}/${patientId}${EndpointEnum.PREGNANCY_SUMMARY}`;
+
+    apiFetch(url)
       .then((resp) => resp.json())
-      .then((info) => {
-        setInfo(info);
-      })
-      .catch(() => {
-        setErrorLoading(true);
-      });
+      .then((info) => setInfo(info))
+      .catch(() => setErrorLoading(true));
   }, [patientId]);
 
   const handleClick = (pregnancyId: string) => {
@@ -81,17 +76,16 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   const CurrentPregnancyStatus = () => {
     const status = info!.isPregnant ? 'Yes' : 'No';
 
-    let hasTimedOut = false;
-    if (info!.isPregnant) {
-      hasTimedOut = getNumOfWeeksNumeric(info!.pregnancyStartDate) > 40;
-    }
+    const isOverdue = info!.isPregnant
+      ? getNumOfWeeksNumeric(info!.pregnancyStartDate) > 40
+      : false;
 
     const GestationalAge = () => {
       return (
         <div>
           <p>
             <b>Gestational Age: </b>
-            <span style={hasTimedOut ? { color: 'red' } : {}}>
+            <span style={isOverdue ? { color: 'red' } : {}}>
               {gestationalAgeUnitFormatters[currentPregnancyUnit](
                 info!.pregnancyStartDate,
                 null
@@ -140,9 +134,11 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             <br />
           </>
         )}
-        {hasTimedOut && (
+        {isOverdue && (
           <>
-            <Alert severity="warning">Is the patient still pregnant?</Alert>
+            <Alert severity="warning">
+              Long term pregnancy of the patient detected
+            </Alert>
             <br />
           </>
         )}
@@ -186,22 +182,29 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
               <Table className={classes.table}>
                 <TableBody>
                   {info.pastPregnancies && info.pastPregnancies.length > 0 ? (
-                    info.pastPregnancies.map((pastPregnancy, index) => (
-                      <TableRow
-                        hover={true}
-                        key={index}
-                        onClick={() => handleClick(pastPregnancy.pregnancyId)}>
-                        {getYearToDisplay(pastPregnancy.pregnancyEndDate)} -
-                        Pregnancy carried to{' '}
-                        {gestationalAgeUnitFormatters[
-                          previousPregnancyUnit ?? GestationalAgeUnitEnum.WEEKS
-                        ](
-                          pastPregnancy.pregnancyStartDate,
-                          pastPregnancy.pregnancyEndDate
-                        )}{' '}
-                        - {pastPregnancy.pregnancyOutcome ?? 'N/A'}
-                      </TableRow>
-                    ))
+                    info.pastPregnancies.map(
+                      (pastPregnancy: PastPregnancy, index) => (
+                        <TableRow
+                          hover={true}
+                          key={pastPregnancy.pregnancyId}
+                          onClick={() =>
+                            handleClick(pastPregnancy.pregnancyId)
+                          }>
+                          <TableCell>
+                            {getYearToDisplay(pastPregnancy.pregnancyEndDate)} -
+                            Pregnancy carried to
+                            {gestationalAgeUnitFormatters[
+                              previousPregnancyUnit ??
+                                GestationalAgeUnitEnum.WEEKS
+                            ](
+                              pastPregnancy.pregnancyStartDate,
+                              pastPregnancy.pregnancyEndDate
+                            )}{' '}
+                            - {pastPregnancy.pregnancyOutcome ?? 'N/A'}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )
                   ) : (
                     <TableRow>No previous pregnancy records</TableRow>
                   )}

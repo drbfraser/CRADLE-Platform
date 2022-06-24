@@ -1,16 +1,17 @@
-import React from 'react';
 import {
   Button,
+  Grid,
   IconButton,
   Tooltip,
   Typography,
-  Grid,
 } from '@material-ui/core';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+
 import AddIcon from '@material-ui/icons/Add';
-import { goBackWithFallback } from 'src/shared/utils';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Patient } from 'src/shared/types';
+import React from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
+import { goBackWithFallback } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 
 interface IProps {
@@ -52,7 +53,7 @@ export const Header = ({
   };
 
   return (
-    <Grid container justify="space-between">
+    <Grid container justifyContent="space-between">
       <Grid item>
         <Grid container alignItems="center">
           <Tooltip title="Go back" placement="top">

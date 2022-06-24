@@ -460,6 +460,7 @@ class FormTemplate(db.Model):
         nullable=False,
         default=get_current_time,
     )
+    archived = db.Column(db.Boolean, nullable=False, default=False)
     lastEdited = db.Column(
         db.BigInteger,
         nullable=False,
