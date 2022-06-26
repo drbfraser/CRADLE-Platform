@@ -1,4 +1,6 @@
+from email import message
 import json
+from pprint import pp
 
 import api.util as util
 import data
@@ -11,7 +13,7 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 from models import ContentTypeEnum, FormTemplate, Question, RoleEnum
-from utils import get_current_time
+from utils import get_current_time, pprint
 from validation import formTemplates
 from werkzeug.datastructures import FileStorage
 
@@ -40,11 +42,18 @@ class Root(Resource):
                 try:
                     req = json.loads(file_str)
                 except json.JSONDecodeError:
-                    abort(404, message="File content is not valid json-format")
+                    abort(400, message="File content is not valid json-format")
 
             elif file.content_type == ContentTypeEnum.CSV.value:
-                req = util.getFormTemplateDictFromCSV(file_str)
-                
+                try:
+                    req = util.getFormTemplateDictFromCSV(file_str)
+                except RuntimeError as err:
+                    abort(400, message=err.args[0])
+                except TypeError as err:
+                    pprint(err)
+                    abort(400, message=err.args[0])
+                except:
+                    abort(400, message="Something went wrong while parsing the CSV file.")
         else:
             req = request.get_json(force=True)
 
