@@ -3,8 +3,6 @@ import {
   SexEnum,
   TrafficLightEnum,
   UserRoleEnum,
-  // QuestionTypeEnum,
-  // QRelationEnum,
 } from 'src/shared/enums';
 // import { number, string } from 'yup';
 
@@ -316,6 +314,7 @@ export type QAnswer = {
   anstype: string | null; //value,text,mc,me,comment
   val: any;
 };
+
 export interface QCondition {
   qidx: number;
   relation: string; //* better to update to QRelationEnum [EQUAL_TO];

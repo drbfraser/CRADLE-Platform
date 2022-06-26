@@ -5,23 +5,28 @@ import { ManageUsers } from './manageUsers/ManageUsers';
 import React from 'react';
 import { Tab } from 'semantic-ui-react';
 import { theme } from 'src/context/materialUI/theme';
+import { useHistory } from 'react-router-dom';
 
 const pages = [
   {
     name: 'Users',
     Component: ManageUsers,
+    route: '/admin/users',
   },
   {
     name: 'Health Care Facilities',
     Component: ManageFacilities,
+    route: '/admin/facilities',
   },
   {
     name: 'Form Templates',
     Component: ManageFormTemplates,
+    route: '/admin/form-templates',
   },
   {
     name: 'Relay App',
     Component: ManageRelayApp,
+    route: '/admin/app',
   },
 ];
 
@@ -34,13 +39,32 @@ const panes = pages.map((p) => ({
   ),
 }));
 
-export const AdminPage = () => (
-  <Tab
-    menu={{
-      secondary: true,
-      pointing: true,
-      className: { display: `fluid`, flexDirection: `row`, flexWrap: `wrap` },
-    }}
-    panes={panes}
-  />
-);
+export const AdminPage = () => {
+  const history = useHistory();
+
+  const activePageIndex = pages.findIndex(
+    (page) => page.route === window.location.pathname
+  );
+  const activeIndex = activePageIndex === -1 ? 0 : activePageIndex;
+
+  return (
+    <Tab
+      menu={{
+        secondary: true,
+        pointing: true,
+        className: { display: `fluid`, flexDirection: `row`, flexWrap: `wrap` },
+      }}
+      onTabChange={(e, data) => {
+        if (data && data.panes && data.activeIndex !== undefined) {
+          const index: number =
+            typeof data.activeIndex === 'string'
+              ? parseInt(data.activeIndex)
+              : data.activeIndex;
+          history.push(`${pages[index].route}`);
+        }
+      }}
+      activeIndex={activeIndex}
+      panes={panes}
+    />
+  );
+};
