@@ -51,46 +51,46 @@ def validate_template(request_body: dict) -> Optional[str]:
         return error
 
 
-def validate_questions(request_body: list) -> Optional[str]:
+def validate_questions(questions: list) -> Optional[str]:
     """
     Returns an error message if the questions part in /api/forms/templates POST or PUT
     request is not valid (json format, lang versions consistency, qindex constraint).
     Else, returns None.
 
-    :param request_body: The request body as a dict object
+    :param questions: The request body as a dict object
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
     lang_version_list, qindex = None, None
-    for i, q in enumerate(request_body):
+    for index, question in enumerate(questions):
         # # validate each question
-        error = validate_template_question_post(q)
+        error = validate_template_question_post(question)
         if error:
             return error
         # validate:
         # lang versions consistency: all questions should have same kinds of versions
         # qindex constraint: question index in ascending order
-        if i == 0:
-            lang_version_list = [v.get("lang") for v in q.get("questionLangVersions")]
+        if index == 0:
+            lang_version_list = [v.get("lang") for v in question.get("questionLangVersions")]
             lang_version_list.sort()
 
-            qindex = q.get("questionIndex")
+            qindex = question.get("questionIndex")
         else:
             tmp_lang_version_list = [
-                v.get("lang") for v in q.get("questionLangVersions")
+                v.get("lang") for v in question.get("questionLangVersions")
             ]
             tmp_lang_version_list.sort()
             if tmp_lang_version_list != lang_version_list:
                 return "lang versions provided between questions are not consistent"
 
-            cur_qindex = q.get("questionIndex")
+            cur_qindex = question.get("questionIndex")
             if qindex < cur_qindex:
                 qindex = cur_qindex
             else:
                 return "questions should be in index-ascending order"
 
     # validate question qindex tree dfs order
-    error = questionTree.is_dfs_order(request_body)
+    error = questionTree.is_dfs_order(questions)
     if error:
         return error
     return None
