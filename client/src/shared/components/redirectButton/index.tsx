@@ -1,12 +1,12 @@
 import React from 'react';
 import { Button } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
-interface RedirectButtonProps {
+interface SecondaryRedirectButtonProps {
   redirectUrl: string;
   text: string;
 }
 
-export const RedirectButton = ({ redirectUrl, text }: RedirectButtonProps) => {
+export const SecondaryRedirectButton = ({ redirectUrl, text }: SecondaryRedirectButtonProps) => {
   const history = useHistory();
   return (
     <Button

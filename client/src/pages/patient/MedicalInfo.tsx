@@ -5,11 +5,10 @@ import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import { Alert, Skeleton } from '@material-ui/lab';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
-import { Link } from 'react-router-dom';
+import { Link} from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
 import { OrNull } from 'src/shared/types';
-import { RedirectButton } from 'src/shared/components/redirectButton';
-import { SecondaryButton } from '../../shared/components/secondaryButton/index';
+import { SecondaryRedirectButton } from 'src/shared/components/redirectButton';
 
 
 interface IProps {
@@ -17,10 +16,17 @@ interface IProps {
   patientId: string;
 }
 
+
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const classes = useStyles();
   const [info, setInfo] = useState<PatientMedicalInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
+
+/*
+  const history = useHistory()
+  const handleUpdateClick = (editId: string,medicalRecordId: string) =>
+  history.push(`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`)
+  */
 
   useEffect(() => {
     apiFetch(
@@ -45,7 +51,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     medicalRecordId: string | undefined;
     divider?: boolean;
   }
-
+  
   const HistoryItem = ({
     title,
     historyRecord,
@@ -57,13 +63,12 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         <b style={{ flex: 1 }}> {title} </b>
         {medicalRecordId ? (
 
-          <SecondaryButton
-          text="Update"
-          task={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
-          position = "right"
+          <SecondaryRedirectButton
+            text="Update"
+            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
           />
         ) : (
-          <RedirectButton
+          <SecondaryRedirectButton
             text="Add"
             redirectUrl={`/patients/${patient?.patientId}/edit/${editId}`}
           />

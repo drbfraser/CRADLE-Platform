@@ -1,5 +1,6 @@
 import { API_URL, apiFetch } from 'src/shared/api';
 import { SecondaryButton } from 'src/shared/components/secondaryButton';
+
 import { Alert, Skeleton } from '@material-ui/lab';
 import { Box, Divider, Paper, TableBody, Typography } from '@material-ui/core';
 import {
@@ -18,7 +19,7 @@ import {
 import { getNumOfWeeksNumeric, getYearToDisplay } from 'src/shared/utils';
 
 import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
-import { RedirectButton } from 'src/shared/components/redirectButton';
+import { SecondaryRedirectButton } from 'src/shared/components/redirectButton';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import { makeStyles } from '@material-ui/core/styles';
@@ -114,7 +115,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
           task={handleEditCloseClick}
           />
         ) : (
-          <RedirectButton
+          <SecondaryRedirectButton
             text="Add"
             redirectUrl={`/pregnancies/new/${patientId}`}
           />

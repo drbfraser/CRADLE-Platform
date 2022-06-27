@@ -6,6 +6,7 @@ import DiagnosisIcon from '@material-ui/icons/LocalHospital';
 import { useHistory } from 'react-router-dom';
 import { SecondaryButton } from '../../../shared/components/secondaryButton/index';
 
+
 interface IProps {
   followUp: FollowUp;
 }
