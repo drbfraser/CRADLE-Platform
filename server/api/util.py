@@ -342,6 +342,17 @@ def getFormTemplateDictFromCSV(csvData: str):
         "lang": row[FORM_TEMPLATE_LANGUAGES_COL].strip(),
     }
 
+    def findCategoryIndex(
+        categoryList: list[dict[str, any]], categoryText: str
+    ) -> int | None:
+
+        for category in categoryList:
+            for languageVersion in category["questionLangVersions"]:
+                if languageVersion["questionText"] == categoryText:
+                    return category["questionIndex"]
+
+        return None
+
     for row in csv_reader:
         if len(row) != FORM_TEMPLATE_ROW_LENGTH:
             raise RuntimeError(
@@ -364,6 +375,8 @@ def getFormTemplateDictFromCSV(csvData: str):
     result["questions"] = []
 
     categoryIndex = None
+    categoryList: list[dict[str, any]] = []
+
     questionRows = iter(rows[4:])
     questionIndex = 0
 
@@ -414,6 +427,16 @@ def getFormTemplateDictFromCSV(csvData: str):
 
         questionLangVersion = getQuestionLanguageVersionFromRow(row)
 
+        if type == "CATEGORY":
+            existingCategoryIndex = findCategoryIndex(
+                categoryList=categoryList,
+                categoryText=questionLangVersion["questionText"],
+            )
+
+            if existingCategoryIndex is not None:
+                categoryIndex = existingCategoryIndex
+                continue
+
         questionLangVersions = dict(
             [(questionLangVersion["lang"], questionLangVersion)]
         )
@@ -449,6 +472,7 @@ def getFormTemplateDictFromCSV(csvData: str):
         question["questionLangVersions"] = list(questionLangVersions.values())
 
         if type == "CATEGORY":
+            categoryList.append(question)
             categoryIndex = questionIndex
 
         result["questions"].append(question)
