@@ -1,12 +1,12 @@
 import { API_URL, apiFetch } from 'src/shared/api';
-import { CForm, FormSchema } from 'src/shared/types';
+import { CForm, FormTemplate } from 'src/shared/types';
 
 import { CustomizedFormState } from './state';
 import { EndpointEnum } from 'src/shared/enums';
 
 export const handleSubmit = (
   patientId: string,
-  formSchemas: FormSchema[],
+  formSchemas: FormTemplate[],
   setSubmitError: (error: boolean) => void,
   setForm: (form: CForm) => void
 ) => {

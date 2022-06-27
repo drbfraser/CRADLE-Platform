@@ -3,7 +3,7 @@ import {
   Autocomplete,
   AutocompleteRenderInputParams,
 } from 'formik-material-ui-lab';
-import { CForm, FormSchema } from 'src/shared/types';
+import { CForm, FormTemplate } from 'src/shared/types';
 import { CustomizedFormField, initialState, validationSchema } from './state';
 import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
@@ -21,7 +21,7 @@ import { makeStyles } from '@material-ui/core';
 interface IProps {
   patientId: string;
   setForm: (form: CForm) => void;
-  formSchemas: FormSchema[];
+  formSchemas: FormTemplate[];
 }
 
 export const SelectHeaderForm = ({

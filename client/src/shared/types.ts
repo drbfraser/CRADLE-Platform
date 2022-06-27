@@ -261,18 +261,14 @@ export interface IFormClassification {
 
 export interface FormTemplate {
   classification: IFormClassification;
-  id: string;
-  questions: TQuestion[];
-  version: string;
-  archived: boolean;
-}
-
-export interface FormSchema {
-  classification: IFormClassification;
   dateCreated: number;
   category: string;
   id: string;
   version: string;
+}
+
+export interface FormTemplateWithQuestions extends FormTemplate {
+  questions: TQuestion[];
 }
 
 export interface CForm {
