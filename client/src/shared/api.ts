@@ -58,16 +58,12 @@ export const apiFetch = async (
   needErrorInfo?: boolean
 ): Promise<Response> => {
   const token = await getApiToken();
-  const contentType: {
-    Accept: string;
-    'Content-Type'?: string;
-  } = {
-    Accept: 'application/json',
-  };
-
-  if (isFormData) {
-    contentType['Content-Type'] = 'application/json';
-  }
+  const contentType = isFormData
+    ? undefined
+    : {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      };
 
   return fetch(input, {
     ...init,
