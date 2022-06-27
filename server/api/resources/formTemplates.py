@@ -12,8 +12,9 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-from models import ContentTypeEnum, FormTemplate, Question, RoleEnum
+from models import ContentTypeEnum, FormClassification, FormTemplate, Question, RoleEnum
 from utils import get_current_time, pprint
+import utils
 from validation import formTemplates
 from werkzeug.datastructures import FileStorage
 
@@ -53,7 +54,9 @@ class Root(Resource):
                     pprint(err)
                     abort(400, message=err.args[0])
                 except:
-                    abort(400, message="Something went wrong while parsing the CSV file.")
+                    abort(
+                        400, message="Something went wrong while parsing the CSV file."
+                    )
         else:
             req = request.get_json(force=True)
 
@@ -68,11 +71,22 @@ class Root(Resource):
         if error_message:
             abort(404, message=error_message)
 
-        if crud.read(FormTemplate, version=req["version"]):
-            abort(
-                404,
-                message="Form template with the same version already exists - change the version to upload",
-            )
+        classification = crud.read(
+            FormClassification, name=req["classification"].get("name")
+        )
+
+        if classification is not None:
+            req["classification"]["id"] = classification.id
+
+            if crud.read(
+                FormTemplate,
+                formClassificationId=classification.id,
+                version=req["version"],
+            ):
+                abort(
+                    404,
+                    message="Form template with the same version already exists - change the version to upload",
+                )
 
         util.assign_form_or_template_ids(FormTemplate, req)
 

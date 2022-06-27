@@ -1,19 +1,25 @@
-export enum FormTemplateField {
+export enum FormClassification {
+  id = 'id',
   name = 'name',
-  category = 'category',
+}
+
+export interface IFormClassification {
+  [FormClassification.id]: string;
+  [FormClassification.name]: string;
+}
+
+export enum FormTemplateField {
+  classification = 'classification',
   version = 'version',
   dateCreated = 'dateCreated',
-  lastEdited = 'lastEdited',
   id = 'id',
   archived = 'archived',
 }
 
 export interface IFormTemplate {
-  [FormTemplateField.name]: string;
-  [FormTemplateField.category]: string;
+  [FormTemplateField.classification]: IFormClassification;
   [FormTemplateField.version]: string;
   [FormTemplateField.dateCreated]: number;
-  [FormTemplateField.lastEdited]: number;
   [FormTemplateField.id]: string;
   [FormTemplateField.archived]: boolean;
 }

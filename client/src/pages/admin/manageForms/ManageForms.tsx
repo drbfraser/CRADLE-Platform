@@ -29,13 +29,7 @@ export const ManageFormTemplates = () => {
 
   const columns = [
     {
-      name: 'Form Template Name',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Category',
+      name: 'Form Classification',
       options: {
         display: isTransformed ? true : false,
       },
@@ -48,12 +42,6 @@ export const ManageFormTemplates = () => {
     },
     {
       name: 'Date Created',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Last Modified',
       options: {
         display: isTransformed ? true : false,
       },
@@ -102,8 +90,9 @@ export const ManageFormTemplates = () => {
 
     const formTemplateFilter = (form_template: IFormTemplate) => {
       return (
-        form_template.name.toLowerCase().startsWith(searchLowerCase) ||
-        form_template.category.toLowerCase().startsWith(searchLowerCase) ||
+        form_template.classification.name
+          .toLowerCase()
+          .startsWith(searchLowerCase) ||
         form_template.version.toLowerCase().startsWith(searchLowerCase)
       );
     };
@@ -125,20 +114,14 @@ export const ManageFormTemplates = () => {
           backgroundColor: formTemplate.archived ? 'rgb(251 193 193)' : '#fff',
         }}>
         <TableCell label="Form Template Name" isTransformed={isTransformed}>
-          {formTemplate.name}
+          {formTemplate.classification.name}
           {formTemplate.archived ? ' - (Archived)' : ''}
-        </TableCell>
-        <TableCell label="Category" isTransformed={isTransformed}>
-          {formTemplate.category}
         </TableCell>
         <TableCell label="Version" isTransformed={isTransformed}>
           {formTemplate.version}
         </TableCell>
         <TableCell label="Date Created" isTransformed={isTransformed}>
           {getPrettyDateTime(formTemplate.dateCreated)}
-        </TableCell>
-        <TableCell label="Date Created" isTransformed={isTransformed}>
-          {getPrettyDateTime(formTemplate.lastEdited)}
         </TableCell>
         <TableCell label="Actions" isTransformed={isTransformed}>
           {rowActions.map((action) =>

@@ -485,6 +485,10 @@ class FormTemplate(db.Model):
     )
     archived = db.Column(db.Boolean, nullable=False, default=False)
 
+    classification = db.relationship(
+        "FormClassification",
+        backref=db.backref("templates", cascade="all, delete", lazy=True),
+    )
     @staticmethod
     def schema():
         return FormTemplateSchema

@@ -18,9 +18,9 @@ def validate_template(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = ["version", "questions"]
+    required_fields = ["classification", "version", "questions"]
 
-    all_fields = ["id", "formClassificationId"] + required_fields
+    all_fields = ["id"] + required_fields
 
     error_message = None
 
@@ -37,6 +37,10 @@ def validate_template(request_body: dict) -> Optional[str]:
         return error
 
     error = values_correct_type(request_body, ["questions"], list)
+    if error:
+        return error
+
+    error = values_correct_type(request_body, ["classification"], dict)
     if error:
         return error
 
@@ -65,7 +69,9 @@ def validate_questions(questions: list) -> Optional[str]:
         # lang versions consistency: all questions should have same kinds of versions
         # qindex constraint: question index in ascending order
         if index == 0:
-            lang_version_list = [v.get("lang") for v in question.get("questionLangVersions")]
+            lang_version_list = [
+                v.get("lang") for v in question.get("questionLangVersions")
+            ]
             lang_version_list.sort()
 
             qindex = question.get("questionIndex")

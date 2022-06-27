@@ -200,6 +200,12 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     Assign lang version qid.
     Therefore, we can create the form or template one time.
     """
+    if (
+        req.get("classification") is not None
+        and req.get("classification").get("id") is None
+    ):
+        req["classification"]["id"] = utils.get_uuid()
+
     # assign form id if not provided.
     if req.get("id") is None:
         req["id"] = utils.get_uuid()
@@ -373,7 +379,9 @@ def getFormTemplateDictFromCSV(csvData: str):
         ].split(",")
     ]
 
-    result["name"] = rows[FORM_TEMPLATE_NAME_ROW][FORM_TEMPLATE_NAME_COL]
+    result["classification"] = {
+        "name": rows[FORM_TEMPLATE_NAME_ROW][FORM_TEMPLATE_NAME_COL]
+    }
     result["version"] = rows[FORM_TEMPLATE_VERSION_ROW][FORM_TEMPLATE_VERSION_COL]
     result["questions"] = []
 

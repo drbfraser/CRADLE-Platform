@@ -4,8 +4,11 @@ import json
 from enum import Enum
 from typing import Any, Dict, Type, List, Optional
 
+from sqlalchemy import false
+
 from data.crud import M
 from models import (
+    FormClassification,
     Patient,
     Reading,
     Referral,
@@ -236,6 +239,8 @@ def __marshal_form_template(
     d = vars(f).copy()
     __pre_process(d)
 
+    d["classification"] = __marshal_form_classification(f.classification)
+
     if not shallow:
         d["questions"] = [
             __marshal_question(q, if_include_versions) for q in f.questions
@@ -328,6 +333,21 @@ def __marshal_lang_version(v: QuestionLangVersion) -> dict:
         # marshal mcOptions to json dict
         d["mcOptions"] = json.loads(d["mcOptions"])
 
+    return d
+
+
+def __marshal_form_classification(
+    fc: FormClassification, if_include_templates: bool = False
+) -> dict:
+    d = vars(fc).copy()
+    __pre_process(d)
+
+    if d.get("templates") is not None:
+        del d["templates"]
+
+    if if_include_templates:
+        d["templates"] = [__marshal_form_template(t) for t in fc.templates]
+        
     return d
 
 
@@ -591,6 +611,8 @@ def __unmarshal_question(d: dict) -> Question:
 def unmarshal_question_list(d: list) -> List[Question]:
     # Unmarshal any questions found within the list, return a list of questions
     return [__unmarshal_question(q) for q in d]
+
+
 ## Functions taken from the original Database.py ##
 ## To-Do: Integrate them properly with the current marshal functions, it looks like there may be some overlap
 
