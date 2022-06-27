@@ -189,12 +189,10 @@ class SingleFormTemplate(Resource):
         req = request.get_json()
         if req.get("archived") is not None:
             form_template.archived = req.get("archived")
+            data.db_session.commit()
+            data.db_session.refresh(form_template)
 
-        form_template_marshalled = marshal.marshal(form_template, True)
-
-        crud.update(FormTemplate, form_template_marshalled, True, id=form_template_id)
-
-        return form_template_marshalled, 201
+        return marshal.marshal(form_template, True), 201
 
 
 # /api/forms/templates/blank/<string:form_template_id>
