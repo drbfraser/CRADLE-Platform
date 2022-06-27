@@ -1,7 +1,8 @@
+import { EndpointEnum, MethodEnum } from './enums';
+
 import jwt_decode from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { reduxStore } from 'src/redux/store';
-import { MethodEnum, EndpointEnum } from './enums';
 
 export const API_URL =
   process.env.NODE_ENV === `development`
@@ -57,10 +58,16 @@ export const apiFetch = async (
   needErrorInfo?: boolean
 ): Promise<Response> => {
   const token = await getApiToken();
-  const contentType = {
-    'Content-Type': 'application/json',
+  const contentType: {
+    Accept: string;
+    'Content-Type'?: string;
+  } = {
     Accept: 'application/json',
   };
+
+  if (isFormData) {
+    contentType['Content-Type'] = 'application/json';
+  }
 
   return fetch(input, {
     ...init,
