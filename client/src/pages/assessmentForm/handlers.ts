@@ -42,40 +42,12 @@ export const handleSubmit = (
         body: postBody,
       });
 
-      const newDrugHistory = values[AssessmentField.drugHistory] 
-      
-      newDrugHistory === '' ? ' ' : newDrugHistory
-
-      await apiFetch(
-        API_URL +
-          EndpointEnum.PATIENTS +
-          `/${patientId}` +
-          EndpointEnum.MEDICAL_RECORDS,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-           [AssessmentField.drugHistory]: newDrugHistory,
-          }),
-        }
-      );
-      
-      /*
-      if(newDrugHistory === "")
+      let newDrugHistory = " "
+      if(values[AssessmentField.drugHistory]!=='')
       {
-         await apiFetch(
-          API_URL +
-            EndpointEnum.PATIENTS +
-            `/${patientId}` +
-            EndpointEnum.MEDICAL_RECORDS,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-             [AssessmentField.drugHistory]: " ",
-            }),
-          }
-        );
+          newDrugHistory = values[AssessmentField.drugHistory]
       }
-      else if (drugHistory !== newDrugHistory) {
+      if (drugHistory !== newDrugHistory) {
         await apiFetch(
           API_URL +
             EndpointEnum.PATIENTS +
@@ -84,13 +56,12 @@ export const handleSubmit = (
           {
             method: 'POST',
             body: JSON.stringify({
-             [AssessmentField.drugHistory]: newDrugHistory,
+              [AssessmentField.drugHistory]: newDrugHistory,
             }),
           }
         );
       }
-      
-*/
+
       //this case only happens when users click the 'assess referral' button on the
       //referral pending button! this clicking will trigger two request: 1. create a new assessment
       //2.after successfully creating a new assessment, we will send a request to mark the
