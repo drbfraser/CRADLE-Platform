@@ -7,7 +7,7 @@ import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
-import { SecondaryButton } from 'src/shared/components/secondaryButton';
+import { SecondaryButton } from 'src/shared/components/SecondaryButton';
 import { CancelButton } from 'src/shared/components/cancelButton';
 
 interface IProps {

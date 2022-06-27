@@ -7,7 +7,7 @@ import { Skeleton } from '@material-ui/lab';
 
 import { useHistory } from 'react-router-dom';
 //import { PrimaryButton } from 'src/shared/components/primaryButton';
-import { SecondaryButton } from '../../shared/components/secondaryButton/index';
+import { SecondaryButton } from '../../shared/components/SecondaryButton/index';
 
 interface IProps {
   patient?: Patient;
