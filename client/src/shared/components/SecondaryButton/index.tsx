@@ -1,16 +1,15 @@
 import React from 'react';
 import { Button } from '@material-ui/core';
-import { useHistory } from 'react-router-dom';
+
 
 interface SecondaryButtonProps {
 
     text: string;
-    somethingToDo: string;
+    task: string|any;
     position: string
 }
 
-export const SecondaryButton = ({text,somethingToDo,position}: SecondaryButtonProps) => {
-    const history = useHistory();
+export const SecondaryButton = ({text,task: somethingToDo,position}: SecondaryButtonProps) => {
    if(position === "no right")
    {
     return (
@@ -18,7 +17,7 @@ export const SecondaryButton = ({text,somethingToDo,position}: SecondaryButtonPr
         color="primary"
         variant="outlined"
         size = "large"
-        onClick = {() => history.push(somethingToDo)}>
+        onClick = {somethingToDo}>
         {text}
       </Button>
     );
@@ -30,7 +29,7 @@ else{
       variant="outlined"
       size = "large"
       style={{ float: 'right' }}
-      onClick = {() => history.push(somethingToDo)}>
+      onClick = {somethingToDo}>
       {text}
     </Button>
   );

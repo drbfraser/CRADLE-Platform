@@ -1,16 +1,14 @@
 import React from 'react';
 import { Button } from '@material-ui/core';
-//import { useHistory } from 'react-router-dom';
 
 interface CancelButtonProps {
 
     text: string;
-    somethingToDo: string| any;
+    task: string|any;
     position: string
 }
 
-export const CancelButton = ({text,somethingToDo,position}: CancelButtonProps) => {
-   //const history = useHistory();
+export const CancelButton = ({text,task: somethingToDo,position}: CancelButtonProps) => {
    if(position === "no right")
    {
     return (

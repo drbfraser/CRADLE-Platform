@@ -3,7 +3,7 @@ import { Typography} from '@material-ui/core';
 import { FollowUp } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import DiagnosisIcon from '@material-ui/icons/LocalHospital';
-//import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { SecondaryButton } from '../../../shared/components/secondaryButton/index';
 
 interface IProps {
@@ -11,17 +11,16 @@ interface IProps {
 }
 
 export const AssessmentData = ({ followUp }: IProps) => {
-  //const history = useHistory();
+  const history = useHistory();
 
-  /*
-  const handleAssess = () => {
+  const handleAssessmentClick = () => {
     if (followUp) {
       history.push(
         `/assessments/edit/${followUp.patientId}/${followUp.id}`
       );
     }
   };
-  */
+  
 
   return (
     <>
@@ -80,7 +79,7 @@ export const AssessmentData = ({ followUp }: IProps) => {
       <SecondaryButton
           text='Update Assessment'
           position="no right"
-          somethingToDo={`/assessments/edit/${followUp.patientId}/${followUp.id}`}
+          task={handleAssessmentClick}
       />
     </>
   );

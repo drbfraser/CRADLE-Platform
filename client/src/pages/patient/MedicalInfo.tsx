@@ -9,7 +9,8 @@ import { Link } from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
 import { OrNull } from 'src/shared/types';
 import { RedirectButton } from 'src/shared/components/redirectButton';
-import { SecondaryButton } from 'src/shared/components/secondaryButton';
+import { SecondaryButton } from '../../shared/components/secondaryButton/index';
+
 
 interface IProps {
   patient?: Patient;
@@ -58,7 +59,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
 
           <SecondaryButton
           text="Update"
-          somethingToDo={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
+          task={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
           position = "right"
           />
         ) : (

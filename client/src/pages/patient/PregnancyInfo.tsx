@@ -37,6 +37,14 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   const [previousPregnancyUnit, setPreviousPregnancyUnit] = useState(
     GestationalAgeUnitEnum.MONTHS
   );
+  
+  const handleEditCloseClick = () =>
+  history.push(`/patients/${patientId}/edit/pregnancyInfo/${
+    info!.pregnancyId
+  }`);
+
+  const handleAddClick = () =>
+  history.push(`/pregnancies/new/${patientId}`);
 
   const [info, setInfo] = useState<PatientPregnancyInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
@@ -101,11 +109,9 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
       <div>
         {info!.isPregnant ? (
           <SecondaryButton
-          text = "Edit/Close"
+          text = "Edit / Close"
           position="right"
-          somethingToDo={`/patients/${patientId}/edit/pregnancyInfo/${
-            info!.pregnancyId
-          }`}
+          task={handleEditCloseClick}
           />
         ) : (
           <RedirectButton
@@ -177,7 +183,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
               <SecondaryButton
               text = "Add"
               position = "right"
-              somethingToDo={`/pregnancies/new/${patientId}`}
+              task={handleAddClick}
               />
                 <h4> Previous Obstetric History</h4>
               </div>

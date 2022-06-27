@@ -1,16 +1,15 @@
 import React from 'react';
 import { Button } from '@material-ui/core';
-//import { useHistory } from 'react-router-dom';
+
 
 interface PrimaryButtonProps {
 
     text: string;
-    somethingToDo: string| any;
+    task: string|any;
     position: string
 }
 
-export const PrimaryButton = ({text,somethingToDo,position}: PrimaryButtonProps) => {
-   //const history = useHistory();
+export const PrimaryButton = ({text,task: somethingToDo,position}: PrimaryButtonProps) => {
    if(position === "no right")
    {
     return (

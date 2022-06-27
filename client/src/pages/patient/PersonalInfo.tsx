@@ -4,20 +4,20 @@ import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import { Patient } from 'src/shared/types';
 import { getAgeToDisplay } from 'src/shared/utils';
 import { Skeleton } from '@material-ui/lab';
-import { SecondaryButton } from 'src/shared/components/secondaryButton';
-//import { useHistory } from 'react-router-dom';
+
+import { useHistory } from 'react-router-dom';
 //import { PrimaryButton } from 'src/shared/components/primaryButton';
+import { SecondaryButton } from '../../shared/components/secondaryButton/index';
 
 interface IProps {
   patient?: Patient;
 }
 
 export const PersonalInfo = ({ patient }: IProps) => {
-  //const history = useHistory();
-  /*
+  const history = useHistory();
   const handleEditClick = () =>
-    history.push(`/patients/${patient?.patientId}/edit/personalInfo`);
-*/
+  history.push(`/patients/${patient?.patientId}/edit/personalInfo`);
+
   return (
 
     <Paper>
@@ -56,7 +56,7 @@ export const PersonalInfo = ({ patient }: IProps) => {
             </p>
             <SecondaryButton
               text= "Edit Patient"
-              somethingToDo={`/patients/${patient?.patientId}/edit/personalInfo`}
+              task={handleEditClick}
               position = "no right"
             />
 

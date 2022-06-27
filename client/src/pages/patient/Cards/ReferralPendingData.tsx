@@ -7,7 +7,7 @@ import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
-import { SecondaryButton } from '../../../shared/components/secondaryButton/index';
+import { SecondaryButton } from 'src/shared/components/secondaryButton';
 import { CancelButton } from 'src/shared/components/cancelButton';
 
 interface IProps {
@@ -18,19 +18,17 @@ export const ReferralPendingData = ({ referral }: IProps) => {
   const history = useHistory();
   const redTheme = createTheme({ palette: { primary: red } });
 
-  /*
   const handlePerformAssessmentClick = () => {
     if (referral) {
       history.push(`/assessments/new/${referral.patientId}/${referral.id}`);
     }
   };
-*/
+
   //goto SingleReasonForm
-  /*
   const handleReferralNotAttend = () => {
     history.push(`/referrals/not-attend/${referral.id}/not_attend_referral`);
   };
-*/
+
   //goto SingleReasonForm
   const handleReferralCancel = () => {
     history.push(
@@ -67,17 +65,17 @@ export const ReferralPendingData = ({ referral }: IProps) => {
           <SecondaryButton
           text='Assess Referral'
           position="no right"
-          somethingToDo={`/assessments/new/${referral.patientId}/${referral.id}`}
+          task={handlePerformAssessmentClick}
           />
           <SecondaryButton
           text='Did Not Attend'
           position="no right"
-          somethingToDo={`/referrals/not-attend/${referral.id}/not_attend_referral`}
+          task={handleReferralNotAttend}
           />
             <ThemeProvider theme={redTheme}>
               <CancelButton
                 text= "Cancel"
-                somethingToDo={handleReferralCancel}
+                task={handleReferralCancel}
                 position = "no right"
               />
             </ThemeProvider>

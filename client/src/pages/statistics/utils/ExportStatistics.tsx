@@ -34,7 +34,7 @@ export const ExportStatistics = ({ url }: IProps) => {
       <PrimaryButton
         text="Export Referrals"
         position="right"
-        somethingToDo={handleClickOpen}
+        task={handleClickOpen}
       />
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Export Referral Data</DialogTitle>
