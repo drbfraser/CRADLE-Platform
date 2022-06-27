@@ -1,25 +1,27 @@
 import React from 'react';
-import { Typography, Button } from '@material-ui/core';
+import { Typography} from '@material-ui/core';
 import { FollowUp } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import DiagnosisIcon from '@material-ui/icons/LocalHospital';
-import { useHistory } from 'react-router-dom';
+//import { useHistory } from 'react-router-dom';
+import { SecondaryButton } from '../../../shared/components/SecondaryButton/index';
 
 interface IProps {
   followUp: FollowUp;
 }
 
 export const AssessmentData = ({ followUp }: IProps) => {
-  const history = useHistory();
+  //const history = useHistory();
 
+  /*
   const handleAssess = () => {
     if (followUp) {
       history.push(
-        /* ************ */
         `/assessments/edit/${followUp.patientId}/${followUp.id}`
       );
     }
   };
+  */
 
   return (
     <>
@@ -75,14 +77,11 @@ export const AssessmentData = ({ followUp }: IProps) => {
           {followUp?.followupInstructions}
         </p>
       )}
-
-      <Button 
-      color="primary"
-      variant="outlined"
-      size="large"
-      onClick={handleAssess}>
-        Update Assessment
-      </Button>
+      <SecondaryButton
+          text='Update Assessment'
+          position="no right"
+          somethingToDo={`/assessments/edit/${followUp.patientId}/${followUp.id}`}
+      />
     </>
   );
 };

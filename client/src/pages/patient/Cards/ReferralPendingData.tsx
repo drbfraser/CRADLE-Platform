@@ -7,7 +7,7 @@ import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
-
+import { SecondaryButton } from '../../../shared/components/SecondaryButton/index';
 interface IProps {
   referral: Referral;
 }
@@ -16,17 +16,19 @@ export const ReferralPendingData = ({ referral }: IProps) => {
   const history = useHistory();
   const redTheme = createTheme({ palette: { primary: red } });
 
+  /*
   const handlePerformAssessmentClick = () => {
     if (referral) {
       history.push(`/assessments/new/${referral.patientId}/${referral.id}`);
     }
   };
-
+*/
   //goto SingleReasonForm
+  /*
   const handleReferralNotAttend = () => {
     history.push(`/referrals/not-attend/${referral.id}/not_attend_referral`);
   };
-
+*/
   //goto SingleReasonForm
   const handleReferralCancel = () => {
     history.push(
@@ -60,21 +62,16 @@ export const ReferralPendingData = ({ referral }: IProps) => {
         {/* // //////////////////////////// */}
         <Grid item>
           <Grid container alignItems="flex-start" style={{ gap: 7 }}>
-            <Button
-              color="primary"
-              variant="outlined"
-              size="large"
-              onClick={handlePerformAssessmentClick}>
-              Assess Referral
-            </Button>
-            <Button
-             color="primary"
-             variant="outlined"
-             size="large"
-              onClick={handleReferralNotAttend}>
-              Did Not Attend
-            </Button>
-
+          <SecondaryButton
+          text='Assess Referral'
+          position="no right"
+          somethingToDo={`/assessments/new/${referral.patientId}/${referral.id}`}
+          />
+          <SecondaryButton
+          text='Did Not Attend'
+          position="no right"
+          somethingToDo={`/referrals/not-attend/${referral.id}/not_attend_referral`}
+          />
             <ThemeProvider theme={redTheme}>
               <Button
                 color="primary"

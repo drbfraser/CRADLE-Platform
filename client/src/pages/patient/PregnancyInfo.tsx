@@ -1,4 +1,5 @@
 import { API_URL, apiFetch } from 'src/shared/api';
+import { SecondaryButton } from 'src/shared/components/SecondaryButton';
 import { Alert, Skeleton } from '@material-ui/lab';
 import { Box, Divider, Paper, TableBody, Typography } from '@material-ui/core';
 import {
@@ -99,11 +100,12 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
     return (
       <div>
         {info!.isPregnant ? (
-          <RedirectButton
-            text="Edit/Close"
-            redirectUrl={`/patients/${patientId}/edit/pregnancyInfo/${
-              info!.pregnancyId
-            }`}
+          <SecondaryButton
+          text = "Edit/Close"
+          position="right"
+          somethingToDo={`/patients/${patientId}/edit/pregnancyInfo/${
+            info!.pregnancyId
+          }`}
           />
         ) : (
           <RedirectButton
@@ -172,10 +174,11 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             <Divider />
             <div>
               <div>
-                <RedirectButton
-                  text="Add"
-                  redirectUrl={`/pregnancies/new/${patientId}`}
-                />
+              <SecondaryButton
+              text = "Add"
+              position = "right"
+              somethingToDo={`/pregnancies/new/${patientId}`}
+              />
                 <h4> Previous Obstetric History</h4>
               </div>
               <br />

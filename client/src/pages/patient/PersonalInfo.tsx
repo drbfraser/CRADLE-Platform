@@ -1,21 +1,24 @@
 import React from 'react';
-import { Paper, Typography, Divider, Button, Box } from '@material-ui/core';
+import { Paper, Typography, Divider, Box } from '@material-ui/core';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import { Patient } from 'src/shared/types';
 import { getAgeToDisplay } from 'src/shared/utils';
 import { Skeleton } from '@material-ui/lab';
-import { useHistory } from 'react-router-dom';
+//import { useHistory } from 'react-router-dom';
+//import { PrimaryButton } from 'src/shared/components/primaryButton';
 
 interface IProps {
   patient?: Patient;
 }
 
 export const PersonalInfo = ({ patient }: IProps) => {
-  const history = useHistory();
+  //const history = useHistory();
+  /*
   const handleEditClick = () =>
     history.push(`/patients/${patient?.patientId}/edit/personalInfo`);
-
+*/
   return (
+
     <Paper>
       <Box p={3}>
         <Typography component="h3" variant="h5">
@@ -50,13 +53,7 @@ export const PersonalInfo = ({ patient }: IProps) => {
               <b>Allergies: </b>
               {patient.allergy ? patient.allergy : `N/A`}
             </p>
-            <Button
-              color="primary"
-              variant="outlined"
-              size="large"
-              onClick={handleEditClick}>
-              Edit Patient
-            </Button>
+            
           </div>
         ) : (
           <Skeleton variant="rect" height={200} />

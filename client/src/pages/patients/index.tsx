@@ -1,5 +1,6 @@
-import Button from '@material-ui/core/Button';
-import AddIcon from '@material-ui/icons/Add';
+import { SecondaryButton } from 'src/shared/components/SecondaryButton';
+//import Button from '@material-ui/core/Button';
+//import AddIcon from '@material-ui/icons/Add';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -7,7 +8,7 @@ import { debounce } from 'lodash';
 import React, { useState } from 'react';
 import { APITable } from 'src/shared/components/apiTable';
 import { PatientRow } from './PatientRow';
-import { useHistory } from 'react-router-dom';
+//import { useHistory } from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
 import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
@@ -16,12 +17,13 @@ import { SortDir } from 'src/shared/components/apiTable/types';
 export const PatientsPage = () => {
   const classes = useStyles();
   const [search, setSearch] = useState('');
-  const history = useHistory();
+  //const history = useHistory();
 
+  /*
   const handleNewPatientClick = () => {
     history.push('/patients/new');
   };
-
+*/
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
@@ -40,15 +42,12 @@ export const PatientsPage = () => {
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
-          <Button
-            className={isBigScreen ? classes.button : classes.buttonThin}
-            color="primary"
-            variant="contained"
-            size="large"
-            onClick={handleNewPatientClick}>
-            <AddIcon />
-            New Patient
-          </Button>
+          <SecondaryButton
+              text = "New Patient"
+              position = "no right"
+              somethingToDo={'/patients/new'}
+              
+          />
         </div>
       </div>
       <APITable
