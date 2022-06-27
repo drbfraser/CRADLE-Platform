@@ -34,11 +34,13 @@ export const SelectHeaderForm = ({
   const [availableLangs, setAvailableLangs] = useState<string[]>([]);
 
   const all_forms: string[] = formSchemas.map(function (item) {
-    return item.name; //id is a string here
+    return item.classification.name; //id is a string here
   });
 
   const form_name_id_map = new Map<string, string>();
-  formSchemas.map((item) => form_name_id_map.set(item.name, item.id));
+  formSchemas.map((item) =>
+    form_name_id_map.set(item.classification.name, item.id)
+  );
 
   const handleSelectForm = (event: any, values: any) => {
     const selectedFormName = values;

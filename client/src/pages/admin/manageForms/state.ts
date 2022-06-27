@@ -1,12 +1,4 @@
-export enum FormClassification {
-  id = 'id',
-  name = 'name',
-}
-
-export interface IFormClassification {
-  [FormClassification.id]: string;
-  [FormClassification.name]: string;
-}
+import { IFormClassification } from 'src/shared/types';
 
 export enum FormTemplateField {
   classification = 'classification',
