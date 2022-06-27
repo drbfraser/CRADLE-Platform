@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react'; //useRef
+import { API_URL, apiFetch } from 'src/shared/api';
+import { CForm, FormSchema } from 'src/shared/types';
+import React, { useEffect, useState } from 'react'; //useRef
+
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import { CustomizedForm } from './customizedEditForm/CustomizedForm';
+import { EndpointEnum } from 'src/shared/enums';
+import IconButton from '@material-ui/core/IconButton';
+import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+import { goBackWithFallback } from 'src/shared/utils';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import Typography from '@material-ui/core/Typography';
-import { CustomizedForm } from './customizedEditForm/CustomizedForm';
-import { goBackWithFallback } from 'src/shared/utils';
-import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
-import { FormSchema, CForm } from 'src/shared/types';
-import { EndpointEnum } from 'src/shared/enums';
-import { apiFetch, API_URL } from 'src/shared/api';
 
 type RouteParams = {
   patientId: string;
@@ -56,14 +57,7 @@ export const CustomizedFormPage = () => {
         formSchemas={formSchemas}
       />
       {form && form.questions && form!.questions!.length > 0 && (
-        <>
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <CustomizedForm patientId={patientId} fm={form} isEditForm={false} />
-        </>
+        <CustomizedForm patientId={patientId} fm={form} isEditForm={false} />
       )}
     </div>
   );

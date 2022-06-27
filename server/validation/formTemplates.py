@@ -18,13 +18,9 @@ def validate_template(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = ["name", "questions"]
+    required_fields = ["version", "questions"]
 
-    all_fields = [
-        "id",
-        "category",
-        "version",
-    ] + required_fields
+    all_fields = ["id", "formClassificationId"] + required_fields
 
     error_message = None
 
@@ -36,9 +32,7 @@ def validate_template(request_body: dict) -> Optional[str]:
     if error_message is not None:
         return error_message
 
-    error = values_correct_type(
-        request_body, ["id", "name", "category", "version"], str
-    )
+    error = values_correct_type(request_body, ["id", "version"], str)
     if error:
         return error
 

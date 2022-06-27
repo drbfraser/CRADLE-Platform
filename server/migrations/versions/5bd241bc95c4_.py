@@ -1,4 +1,4 @@
-"""empty message
+"""remove unique tag from FormTemplate name
 
 Revision ID: 5bd241bc95c4
 Revises: 2c7e8d1996af
