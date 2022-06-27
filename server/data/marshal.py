@@ -507,7 +507,7 @@ def makePregnancyFromPatient(patient: dict) -> Pregnancy:
 def __unmarshal_form(d: dict) -> Form:
     questions = []
     if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
+        questions = unmarshal_question_list(d["questions"])
 
     form = __load(Form, d)
 
@@ -520,7 +520,7 @@ def __unmarshal_form(d: dict) -> Form:
 def __unmarshal_form_template(d: dict) -> FormTemplate:
     questions = []
     if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
+        questions = unmarshal_question_list(d["questions"])
 
     form_template = __load(FormTemplate, d)
 
@@ -590,10 +590,7 @@ def __unmarshal_question(d: dict) -> Question:
 
 def unmarshal_question_list(d: list) -> List[Question]:
     # Unmarshal any questions found within the list, return a list of questions
-    questions = [__unmarshal_question(q) for q in d]
-    return questions
-
-
+    return [__unmarshal_question(q) for q in d]
 ## Functions taken from the original Database.py ##
 ## To-Do: Integrate them properly with the current marshal functions, it looks like there may be some overlap
 
