@@ -18,11 +18,7 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
 
 
 def test_form_template_archival(
-    database,
-    update_info_in_question,
-    api_put,
-    api_post,
-    form_template
+    database, update_info_in_question, api_put, api_post, form_template
 ):
     try:
         response = api_post(endpoint="/api/forms/templates", json=form_template)
