@@ -1,5 +1,5 @@
 import { API_URL, apiFetch } from 'src/shared/api';
-import { SecondaryButton } from 'src/shared/components/SecondaryButton';
+import { SecondaryButton } from 'src/shared/components/secondaryButton';
 import { Alert, Skeleton } from '@material-ui/lab';
 import { Box, Divider, Paper, TableBody, Typography } from '@material-ui/core';
 import {

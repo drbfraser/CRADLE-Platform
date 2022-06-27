@@ -10,6 +10,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { SexEnum } from 'src/shared/enums';
+import { PrimaryButton } from 'src/shared/components/primaryButton';
 
 
 
@@ -30,14 +31,11 @@ export const ExportStatistics = ({ url }: IProps) => {
 
   return (
     <div>
-      <Button
-        color="primary"
-        variant="contained"
-        size="large"
-        onClick={handleClickOpen}>
-        Export Referrals
-      </Button>
-
+      <PrimaryButton
+        text="Export Referrals"
+        position="right"
+        somethingToDo={handleClickOpen}
+      />
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Export Referral Data</DialogTitle>
         <DialogContent>

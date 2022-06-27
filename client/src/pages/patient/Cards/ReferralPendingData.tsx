@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Button, Grid } from '@material-ui/core';
+import { Typography, Grid } from '@material-ui/core';
 import red from '@material-ui/core/colors/red';
 import { ThemeProvider } from '@material-ui/styles';
 import { createTheme } from '@material-ui/core/styles';
@@ -7,7 +7,9 @@ import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
-import { SecondaryButton } from '../../../shared/components/SecondaryButton/index';
+import { SecondaryButton } from '../../../shared/components/secondaryButton/index';
+import { CancelButton } from 'src/shared/components/cancelButton';
+
 interface IProps {
   referral: Referral;
 }
@@ -73,13 +75,11 @@ export const ReferralPendingData = ({ referral }: IProps) => {
           somethingToDo={`/referrals/not-attend/${referral.id}/not_attend_referral`}
           />
             <ThemeProvider theme={redTheme}>
-              <Button
-                color="primary"
-                variant="contained"
-                size="large"
-                onClick={handleReferralCancel}>
-                Cancel
-              </Button>
+              <CancelButton
+                text= "Cancel"
+                somethingToDo={handleReferralCancel}
+                position = "no right"
+              />
             </ThemeProvider>
           </Grid>
         </Grid>

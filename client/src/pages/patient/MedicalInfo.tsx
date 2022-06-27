@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
 import { OrNull } from 'src/shared/types';
 import { RedirectButton } from 'src/shared/components/redirectButton';
+import { SecondaryButton } from 'src/shared/components/secondaryButton';
 
 interface IProps {
   patient?: Patient;
@@ -54,9 +55,11 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       <div className={classes.historyItem}>
         <b style={{ flex: 1 }}> {title} </b>
         {medicalRecordId ? (
-          <RedirectButton
-            text="Update"
-            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
+
+          <SecondaryButton
+          text="Update"
+          somethingToDo={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
+          position = "right"
           />
         ) : (
           <RedirectButton

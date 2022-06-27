@@ -1,18 +1,19 @@
 import {
-  Button,
+  //Button,
   Grid,
   IconButton,
   Tooltip,
   Typography,
 } from '@material-ui/core';
 
-import AddIcon from '@material-ui/icons/Add';
+//import AddIcon from '@material-ui/icons/Add';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Patient } from 'src/shared/types';
 import React from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { goBackWithFallback } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
+import { PrimaryButton } from '../../shared/components/primaryButton/index';
 
 interface IProps {
   patient?: Patient;
@@ -61,7 +62,7 @@ export const Header = ({
               <ChevronLeftIcon color="inherit" fontSize="large" />
             </IconButton>
           </Tooltip>
-          <Typography variant="h4">
+          <Typography variant="h3">
             {patient ? (
               `Patient Summary for ${patient.patientName}`
             ) : (
@@ -72,38 +73,26 @@ export const Header = ({
       </Grid>
       <Grid item>
         <Grid container alignItems="center" style={{ gap: 5 }}>
-          <Button
-            color="primary"
-            variant="contained"
-            size="large"
-            onClick={handleSubmitNewFormClick}>
-            <AddIcon />
-            Submit New Form
-          </Button>
-          <Button
-            color="primary"
-            variant="contained"
-            size="large"
-            onClick={handleAddReadingClick}>
-            <AddIcon />
-            Add New Reading
-          </Button>
-          <Button
-            color="primary"
-            variant="contained"
-            size="large"
-            onClick={handleCreateReferralClick}>
-            <AddIcon />
-            Create Referral
-          </Button>
-          <Button
-            color="primary"
-            variant="contained"
-            size="large"
-            onClick={handlePerformAssessmentClick}>
-            <AddIcon />
-            Perform Assessment
-          </Button>
+          <PrimaryButton
+          text = "+ Submit New Form"
+          somethingToDo = {handleSubmitNewFormClick}
+          position = "no right"
+          />
+          <PrimaryButton
+          text = "+ Add New Reading"
+          somethingToDo = {handleAddReadingClick}
+          position = "no right"
+          />
+         <PrimaryButton
+          text = "+ Create Referral"
+          somethingToDo = {handleCreateReferralClick}
+          position = "no right"
+          />
+          <PrimaryButton
+          text = "+ Perform Assessment"
+          somethingToDo = {handlePerformAssessmentClick}
+          position = "no right"
+          />
         </Grid>
       </Grid>
     </Grid>

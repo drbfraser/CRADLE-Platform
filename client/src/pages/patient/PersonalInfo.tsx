@@ -4,6 +4,7 @@ import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import { Patient } from 'src/shared/types';
 import { getAgeToDisplay } from 'src/shared/utils';
 import { Skeleton } from '@material-ui/lab';
+import { SecondaryButton } from 'src/shared/components/secondaryButton';
 //import { useHistory } from 'react-router-dom';
 //import { PrimaryButton } from 'src/shared/components/primaryButton';
 
@@ -53,6 +54,12 @@ export const PersonalInfo = ({ patient }: IProps) => {
               <b>Allergies: </b>
               {patient.allergy ? patient.allergy : `N/A`}
             </p>
+            <SecondaryButton
+              text= "Edit Patient"
+              somethingToDo={`/patients/${patient?.patientId}/edit/personalInfo`}
+              position = "no right"
+            />
+
             
           </div>
         ) : (
