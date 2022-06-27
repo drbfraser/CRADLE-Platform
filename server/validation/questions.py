@@ -50,7 +50,7 @@ def validate_mc_options(q: dict) -> Optional[str]:
         return error
 
     mcopts = q[target]
-    
+
     force_fields = ["mcid", "opt"]
     for opt in mcopts:
         error_message = force_consistent_keys(opt, force_fields)

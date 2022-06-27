@@ -19,16 +19,16 @@ from utils import get_current_time, get_uuid
 # ENUMS CLASSES
 #
 
-class EnumWithList(Enum):
 
+class EnumWithList(Enum):
     @classmethod
     def listNames(cls):
         return [e.name for e in cls]
 
-
     @classmethod
     def listValues(cls):
         return [e.value for e in cls]
+
 
 class RoleEnum(Enum):
     VHT = "VHT"
@@ -82,9 +82,11 @@ class QRelationalEnum(Enum):
     EQUAL_TO = "EQUAL_TO"
     CONTAINS = "CONTAINS"
 
+
 class ContentTypeEnum(EnumWithList):
     JSON = "application/json"
     CSV = "text/csv"
+
 
 #
 # HELPER CLASSES
@@ -489,6 +491,7 @@ class FormTemplate(db.Model):
         "FormClassification",
         backref=db.backref("templates", cascade="all, delete", lazy=True),
     )
+
     @staticmethod
     def schema():
         return FormTemplateSchema

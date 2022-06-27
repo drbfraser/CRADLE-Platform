@@ -347,7 +347,7 @@ def __marshal_form_classification(
 
     if if_include_templates:
         d["templates"] = [__marshal_form_template(t) for t in fc.templates]
-        
+
     return d
 
 
