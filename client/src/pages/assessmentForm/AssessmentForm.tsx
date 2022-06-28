@@ -75,9 +75,9 @@ export const AssessmentForm = ({
             <Paper>
               <Box p={2}>
                 <h2>Assessment</h2>
-                <Typography color = "primary" variant="subtitle1">
-                At least one of Investigation Results, Final Diagnosis, Treatment / Operation, 
-                and Drug History must be entered
+                <Typography color="primary" variant="subtitle1">
+                  At least one of Investigation Results, Final Diagnosis,
+                  Treatment / Operation, and Drug History must be entered
                 </Typography>
                 <Box pt={1} pl={3} pr={3}>
                   <Grid container spacing={3}>
