@@ -1,5 +1,5 @@
 import { API_URL, apiFetch } from 'src/shared/api';
-import { CForm, FormSchema } from 'src/shared/types';
+import { CForm, FormTemplate } from 'src/shared/types';
 import React, { useEffect, useState } from 'react'; //useRef
 
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -21,7 +21,7 @@ export const CustomizedFormPage = () => {
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [form, _setForm] = useState<CForm>();
-  const [formSchemas, setFormSchemas] = useState<FormSchema[]>([]);
+  const [formSchemas, setFormSchemas] = useState<FormTemplate[]>([]);
 
   const setForm = (form: CForm) => {
     _setForm(form);

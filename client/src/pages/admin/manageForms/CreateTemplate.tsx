@@ -42,7 +42,6 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
   const handleClickUpload = async (fileObj: FileObject) => {
     if (fileObj) {
       const data = new FormData();
-      console.log(fileObj.file);
       data.append('file', fileObj.file);
       try {
         await apiFetch(
@@ -98,7 +97,7 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
         <DialogContent>
           <div className={classes.root}>
             <DropzoneAreaBase
-              acceptedFiles={['application/json', 'plain/text']}
+              acceptedFiles={['application/json', 'text/csv']}
               fileObjects={fileObject ? [fileObject] : []}
               onAdd={(newFileObjs: FileObject[]) =>
                 setFileObject(newFileObjs.pop() ?? null)
