@@ -1,27 +1,27 @@
 import { AdminPage } from 'src/pages/admin';
+import { AssessmentFormPage } from 'src/pages/assessmentForm';
+import { CustomizedEditFormPage } from 'src/pages/customizedForm/customizedEditForm';
+import { CustomizedFormPage } from 'src/pages/customizedForm';
+import { HistoryTablesPage } from 'src/pages/historyTables';
 import { LoginPage } from 'src/pages/login';
 import { NotFoundPage } from 'src/pages/notFound';
+import { PatientFormPage } from 'src/pages/patientForm';
 import { PatientPage } from 'src/pages/patient';
 import { PatientsPage } from 'src/pages/patients';
-import { PatientFormPage } from 'src/pages/patientForm';
+import PollIcon from '@material-ui/icons/Poll';
 import React from 'react';
+import { ReadingFormPage } from 'src/pages/readingForm';
+import { ReferralFormPage } from 'src/pages/referralForm';
 import { ReferralsPage } from 'src/pages/referrals';
 import { ResourcesPage } from 'src/pages/resources';
 import { RouteComponentProps } from 'react-router-dom';
 import SchoolIcon from '@material-ui/icons/School';
 import SendIcon from '@material-ui/icons/Send';
 import SettingsIcon from '@material-ui/icons/Settings';
+import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
-import { AssessmentFormPage } from 'src/pages/assessmentForm';
-import { ReadingFormPage } from 'src/pages/readingForm';
-import PollIcon from '@material-ui/icons/Poll';
-import { ReferralFormPage } from 'src/pages/referralForm';
-import { HistoryTablesPage } from 'src/pages/historyTables';
-import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
-import { CustomizedFormPage } from 'src/pages/customizedForm';
-import { CustomizedEditFormPage } from 'src/pages/customizedForm/customizedEditForm';
 
 export type AppRoute = {
   component:
@@ -190,7 +190,7 @@ export const appRoutes: Array<AppRoute> = [
   },
   {
     component: AdminPage,
-    exactPath: true,
+    exactPath: false,
     id: makeUniqueId(),
     icon: <SettingsIcon fontSize="large" />,
     inNavigation: true,

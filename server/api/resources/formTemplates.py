@@ -1,21 +1,23 @@
+from email import message
+import json
 from pprint import pp
-from telnetlib import theNULL
+
+import api.util as util
+import data
+import data.crud as crud
+import data.marshal as marshal
+import service.serialize as serialize
+from api.decorator import roles_required
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-
-import data
-import data.crud as crud
-import data.marshal as marshal
-import api.util as util
-import service.serialize as serialize
-from models import FormTemplate, Question, RoleEnum
-import service.serialize as serialize
+from models import ContentTypeEnum, FormClassification, FormTemplate, Question, RoleEnum
+from utils import get_current_time, pprint
+import utils
 from validation import formTemplates
-from utils import get_current_time, is_json, pprint
-from api.decorator import roles_required
-import json
+from werkzeug.datastructures import FileStorage
+
 
 # /api/forms/templates
 class Root(Resource):
@@ -27,18 +29,39 @@ class Root(Resource):
         endpoint="form_templates",
     )
     def post():
-        req = None
+        req = {}
 
         # provide file upload method from web
         if "file" in request.files:
-            file = request.files["file"]
-            file_str = str(file.read(), encoding="utf-8")
-            if is_json(file_str):
-                req = json.loads(file_str)
-            else:
-                abort(404, message="File content is not valid json-format")
+            file: FileStorage = request.files["file"]
+
+            if file.content_type not in ContentTypeEnum.listValues():
+                abort(400, message="File Type not supported")
+
+            file_str = str(file.read(), "utf-8")
+            if file.content_type == ContentTypeEnum.JSON.value:
+                try:
+                    req = json.loads(file_str)
+                except json.JSONDecodeError:
+                    abort(400, message="File content is not valid json-format")
+
+            elif file.content_type == ContentTypeEnum.CSV.value:
+                try:
+                    req = util.getFormTemplateDictFromCSV(file_str)
+                except RuntimeError as err:
+                    abort(400, message=err.args[0])
+                except TypeError as err:
+                    pprint(err)
+                    abort(400, message=err.args[0])
+                except:
+                    abort(
+                        400, message="Something went wrong while parsing the CSV file."
+                    )
         else:
             req = request.get_json(force=True)
+
+        if len(req) == 0:
+            abort(400, message="Request body is empty")
 
         if req.get("id") is not None:
             if crud.read(FormTemplate, id=req["id"]):
@@ -48,11 +71,22 @@ class Root(Resource):
         if error_message:
             abort(404, message=error_message)
 
-        if crud.read(FormTemplate, version=req["version"]):
-            abort(
-                404,
-                message="Form template with the same version already exists - change the version to upload",
-            )
+        classification = crud.read(
+            FormClassification, name=req["classification"].get("name")
+        )
+
+        if classification is not None:
+            req["classification"]["id"] = classification.id
+
+            if crud.read(
+                FormTemplate,
+                formClassificationId=classification.id,
+                version=req["version"],
+            ):
+                abort(
+                    404,
+                    message="Form template with the same version already exists - change the version to upload",
+                )
 
         util.assign_form_or_template_ids(FormTemplate, req)
 
@@ -155,12 +189,10 @@ class SingleFormTemplate(Resource):
         req = request.get_json()
         if req.get("archived") is not None:
             form_template.archived = req.get("archived")
+            data.db_session.commit()
+            data.db_session.refresh(form_template)
 
-        form_template_marshalled = marshal.marshal(form_template, True)
-
-        crud.update(FormTemplate, form_template_marshalled, True, id=form_template_id)
-
-        return form_template_marshalled, 201
+        return marshal.marshal(form_template, True), 201
 
 
 # /api/forms/templates/blank/<string:form_template_id>
