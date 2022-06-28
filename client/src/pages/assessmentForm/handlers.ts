@@ -42,10 +42,9 @@ export const handleSubmit = (
         body: postBody,
       });
 
-      let newDrugHistory = " "
-      if(values[AssessmentField.drugHistory]!=='')
-      {
-          newDrugHistory = values[AssessmentField.drugHistory]
+      let newDrugHistory = ' ';
+      if (values[AssessmentField.drugHistory] !== '') {
+        newDrugHistory = values[AssessmentField.drugHistory];
       }
       if (drugHistory !== newDrugHistory) {
         await apiFetch(
