@@ -254,22 +254,21 @@ export type Referrer = {
 
 export type HealthFacility = string;
 
-export interface FormTemplate {
-  category: string;
+export interface IFormClassification {
   id: string;
   name: string;
-  questions: TQuestion[];
-  version: string;
-  archived: boolean;
 }
 
-export interface FormSchema {
+export interface FormTemplate {
+  classification: IFormClassification;
   dateCreated: number;
   category: string;
   id: string;
-  lastEdited: number;
   version: string;
-  name: string;
+}
+
+export interface FormTemplateWithQuestions extends FormTemplate {
+  questions: TQuestion[];
 }
 
 export interface CForm {

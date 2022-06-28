@@ -39,7 +39,7 @@ const ArchiveTemplateDialog = ({ open, onClose, form }: IProps) => {
           method: 'PUT',
           body: JSON.stringify(form),
         },
-        true
+        false
       );
 
       setSubmitSuccess(true);

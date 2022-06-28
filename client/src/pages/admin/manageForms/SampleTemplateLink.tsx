@@ -26,8 +26,9 @@ const SampleTemplateLink = () => {
   );
 
   const template_json = {
-    category: 'NEMS Ambulance Request',
-    name: 'Ping Pong Survey - 2022',
+    classification: {
+      name: 'Ping Pong Survey - 2022',
+    },
     questions: [
       {
         categoryIndex: null,

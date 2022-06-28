@@ -4,8 +4,11 @@ import json
 from enum import Enum
 from typing import Any, Dict, Type, List, Optional
 
+from sqlalchemy import false
+
 from data.crud import M
 from models import (
+    FormClassification,
     Patient,
     Reading,
     Referral,
@@ -236,6 +239,8 @@ def __marshal_form_template(
     d = vars(f).copy()
     __pre_process(d)
 
+    d["classification"] = __marshal_form_classification(f.classification)
+
     if not shallow:
         d["questions"] = [
             __marshal_question(q, if_include_versions) for q in f.questions
@@ -327,6 +332,21 @@ def __marshal_lang_version(v: QuestionLangVersion) -> dict:
     else:
         # marshal mcOptions to json dict
         d["mcOptions"] = json.loads(d["mcOptions"])
+
+    return d
+
+
+def __marshal_form_classification(
+    fc: FormClassification, if_include_templates: bool = False
+) -> dict:
+    d = vars(fc).copy()
+    __pre_process(d)
+
+    if d.get("templates") is not None:
+        del d["templates"]
+
+    if if_include_templates:
+        d["templates"] = [__marshal_form_template(t) for t in fc.templates]
 
     return d
 
@@ -507,7 +527,7 @@ def makePregnancyFromPatient(patient: dict) -> Pregnancy:
 def __unmarshal_form(d: dict) -> Form:
     questions = []
     if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
+        questions = unmarshal_question_list(d["questions"])
 
     form = __load(Form, d)
 
@@ -520,7 +540,7 @@ def __unmarshal_form(d: dict) -> Form:
 def __unmarshal_form_template(d: dict) -> FormTemplate:
     questions = []
     if d.get("questions") is not None:
-        questions = [__unmarshal_question(q) for q in d["questions"]]
+        questions = unmarshal_question_list(d["questions"])
 
     form_template = __load(FormTemplate, d)
 
@@ -590,8 +610,7 @@ def __unmarshal_question(d: dict) -> Question:
 
 def unmarshal_question_list(d: list) -> List[Question]:
     # Unmarshal any questions found within the list, return a list of questions
-    questions = [__unmarshal_question(q) for q in d]
-    return questions
+    return [__unmarshal_question(q) for q in d]
 
 
 ## Functions taken from the original Database.py ##
