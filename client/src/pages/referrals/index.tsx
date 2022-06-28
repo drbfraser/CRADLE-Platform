@@ -18,7 +18,6 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
-
 export const ReferralsPage = () => {
   const classes = useStyles();
   const [search, setSearch] = useState('');
@@ -84,7 +83,6 @@ export const ReferralsPage = () => {
           aria-label="vertical contained primary button group"
           variant="text"
           className={classes.right}>
-          
           <Button
             color="primary"
             variant="contained"
@@ -97,9 +95,9 @@ export const ReferralsPage = () => {
 
           {filter && (
             <Button
-            color="primary"
-            variant="contained"
-            size="large"
+              color="primary"
+              variant="contained"
+              size="large"
               onClick={() => {
                 setFilter(undefined);
                 setIsPromptShown(false);

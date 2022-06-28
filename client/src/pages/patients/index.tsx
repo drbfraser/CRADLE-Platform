@@ -20,7 +20,6 @@ export const PatientsPage = () => {
   const [search, setSearch] = useState('');
   const history = useHistory();
 
-  
   const handleNewPatientClick = () => {
     history.push('/patients/new');
   };
@@ -37,17 +36,16 @@ export const PatientsPage = () => {
         <h2 className={classes.title}>Patients</h2>
         <div className={isBigScreen ? classes.right : ''}>
           <TextField
-            size ="small"
+            size="small"
             label="Search"
             placeholder="PatientID or Name"
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
           <PrimaryButton
-              text = "New Patient"
-              position = "no right"
-              task={handleNewPatientClick}
-              
+            text="New Patient"
+            position="no right"
+            task={handleNewPatientClick}
           />
         </div>
       </div>

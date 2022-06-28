@@ -74,24 +74,24 @@ export const Header = ({
       <Grid item>
         <Grid container alignItems="center" style={{ gap: 5 }}>
           <PrimaryButton
-          text = "+ Submit New Form"
-          task = {handleSubmitNewFormClick}
-          position = "no right"
+            text="+ Submit New Form"
+            task={handleSubmitNewFormClick}
+            position="no right"
           />
           <PrimaryButton
-          text = "+ Add New Reading"
-          task = {handleAddReadingClick}
-          position = "no right"
-          />
-         <PrimaryButton
-          text = "+ Create Referral"
-          task = {handleCreateReferralClick}
-          position = "no right"
+            text="+ Add New Reading"
+            task={handleAddReadingClick}
+            position="no right"
           />
           <PrimaryButton
-          text = "+ Perform Assessment"
-          task = {handlePerformAssessmentClick}
-          position = "no right"
+            text="+ Create Referral"
+            task={handleCreateReferralClick}
+            position="no right"
+          />
+          <PrimaryButton
+            text="+ Perform Assessment"
+            task={handlePerformAssessmentClick}
+            position="no right"
           />
         </Grid>
       </Grid>

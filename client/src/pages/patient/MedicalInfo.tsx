@@ -5,24 +5,22 @@ import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import { Alert, Skeleton } from '@material-ui/lab';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
 import { apiFetch, API_URL } from 'src/shared/api';
-import { Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
 import { OrNull } from 'src/shared/types';
 import { SecondaryRedirectButton } from 'src/shared/components/redirectButton';
-
 
 interface IProps {
   patient?: Patient;
   patientId: string;
 }
 
-
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const classes = useStyles();
   const [info, setInfo] = useState<PatientMedicalInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
 
-/*
+  /*
   const history = useHistory()
   const handleUpdateClick = (editId: string,medicalRecordId: string) =>
   history.push(`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`)
@@ -51,7 +49,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     medicalRecordId: string | undefined;
     divider?: boolean;
   }
-  
+
   const HistoryItem = ({
     title,
     historyRecord,
@@ -62,7 +60,6 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       <div className={classes.historyItem}>
         <b style={{ flex: 1 }}> {title} </b>
         {medicalRecordId ? (
-
           <SecondaryRedirectButton
             text="Update"
             redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}

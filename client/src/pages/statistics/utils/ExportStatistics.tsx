@@ -12,8 +12,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { SexEnum } from 'src/shared/enums';
 import { PrimaryButton } from 'src/shared/components/primaryButton';
 
-
-
 interface IProps {
   url: string;
 }

@@ -6,7 +6,10 @@ interface SecondaryRedirectButtonProps {
   text: string;
 }
 
-export const SecondaryRedirectButton = ({ redirectUrl, text }: SecondaryRedirectButtonProps) => {
+export const SecondaryRedirectButton = ({
+  redirectUrl,
+  text,
+}: SecondaryRedirectButtonProps) => {
   const history = useHistory();
   return (
     <Button

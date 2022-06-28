@@ -16,10 +16,9 @@ interface IProps {
 export const PersonalInfo = ({ patient }: IProps) => {
   const history = useHistory();
   const handleEditClick = () =>
-  history.push(`/patients/${patient?.patientId}/edit/personalInfo`);
+    history.push(`/patients/${patient?.patientId}/edit/personalInfo`);
 
   return (
-
     <Paper>
       <Box p={3}>
         <Typography component="h3" variant="h5">
@@ -55,12 +54,10 @@ export const PersonalInfo = ({ patient }: IProps) => {
               {patient.allergy ? patient.allergy : `N/A`}
             </p>
             <SecondaryButton
-              text= "Edit Patient"
+              text="Edit Patient"
               task={handleEditClick}
-              position = "no right"
+              position="no right"
             />
-
-            
           </div>
         ) : (
           <Skeleton variant="rect" height={200} />
