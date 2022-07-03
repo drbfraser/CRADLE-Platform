@@ -4,7 +4,7 @@ import { Field, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import {
   getPrettyDateTime,
-  getTimestampFromStringDate
+  getTimestampFromStringDate,
 } from 'src/shared/utils';
 import { initialState, validationSchema } from './state';
 
