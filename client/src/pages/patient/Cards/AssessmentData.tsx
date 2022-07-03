@@ -75,7 +75,6 @@ export const AssessmentData = ({ followUp }: IProps) => {
       )}
       <SecondaryButton
         text="Update Assessment"
-        position="no right"
         task={handleAssessmentClick}
       />
     </>

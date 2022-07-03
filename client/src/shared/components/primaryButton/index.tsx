@@ -4,7 +4,8 @@ import { Button } from '@material-ui/core';
 interface PrimaryButtonProps {
   text: string;
   task: string | any;
-  position: string;
+  position ? : string;
+  
 }
 
 export const PrimaryButton = ({
@@ -12,12 +13,13 @@ export const PrimaryButton = ({
   task: somethingToDo,
   position,
 }: PrimaryButtonProps) => {
-  if (position === 'no right') {
+  if (position === 'right') {
     return (
       <Button
         color="primary"
         variant="contained"
         size="large"
+        style={{ float: 'right' }}
         onClick={somethingToDo}>
         {text}
       </Button>
@@ -28,7 +30,6 @@ export const PrimaryButton = ({
         color="primary"
         variant="contained"
         size="large"
-        style={{ float: 'right' }}
         onClick={somethingToDo}>
         {text}
       </Button>

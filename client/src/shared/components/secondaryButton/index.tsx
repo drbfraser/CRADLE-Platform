@@ -1,10 +1,9 @@
 import React from 'react';
 import { Button } from '@material-ui/core';
-
 interface SecondaryButtonProps {
   text: string;
   task: string | any;
-  position: string;
+  position ? : string;
 }
 
 export const SecondaryButton = ({
@@ -12,12 +11,13 @@ export const SecondaryButton = ({
   task: somethingToDo,
   position,
 }: SecondaryButtonProps) => {
-  if (position === 'no right') {
+  if (position === 'right') {
     return (
       <Button
         color="primary"
         variant="outlined"
         size="large"
+        style={{ float: 'right' }}
         onClick={somethingToDo}>
         {text}
       </Button>
@@ -28,7 +28,6 @@ export const SecondaryButton = ({
         color="primary"
         variant="outlined"
         size="large"
-        style={{ float: 'right' }}
         onClick={somethingToDo}>
         {text}
       </Button>

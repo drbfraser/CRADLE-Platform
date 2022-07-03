@@ -1,12 +1,10 @@
 import {
-  //Button,
   Grid,
   IconButton,
   Tooltip,
   Typography,
 } from '@material-ui/core';
 
-//import AddIcon from '@material-ui/icons/Add';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Patient } from 'src/shared/types';
 import React from 'react';
@@ -76,22 +74,18 @@ export const Header = ({
           <PrimaryButton
             text="+ Submit New Form"
             task={handleSubmitNewFormClick}
-            position="no right"
           />
           <PrimaryButton
             text="+ Add New Reading"
             task={handleAddReadingClick}
-            position="no right"
           />
           <PrimaryButton
             text="+ Create Referral"
             task={handleCreateReferralClick}
-            position="no right"
           />
           <PrimaryButton
             text="+ Perform Assessment"
             task={handlePerformAssessmentClick}
-            position="no right"
           />
         </Grid>
       </Grid>

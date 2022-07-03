@@ -42,7 +42,6 @@ export const PatientsPage = () => {
           />
           <PrimaryButton
             text="New Patient"
-            position="no right"
             task={handleNewPatientClick}
           />
         </div>

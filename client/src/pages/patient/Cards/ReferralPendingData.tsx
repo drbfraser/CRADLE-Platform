@@ -64,19 +64,16 @@ export const ReferralPendingData = ({ referral }: IProps) => {
           <Grid container alignItems="flex-start" style={{ gap: 7 }}>
             <SecondaryButton
               text="Assess Referral"
-              position="no right"
               task={handlePerformAssessmentClick}
             />
             <SecondaryButton
               text="Did Not Attend"
-              position="no right"
               task={handleReferralNotAttend}
             />
             <ThemeProvider theme={redTheme}>
               <CancelButton
                 text="Cancel"
                 task={handleReferralCancel}
-                position="no right"
               />
             </ThemeProvider>
           </Grid>

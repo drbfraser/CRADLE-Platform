@@ -4,7 +4,7 @@ import { Button } from '@material-ui/core';
 interface CancelButtonProps {
   text: string;
   task: string | any;
-  position: string;
+  position ? : string;
 }
 
 export const CancelButton = ({
@@ -12,12 +12,13 @@ export const CancelButton = ({
   task: somethingToDo,
   position,
 }: CancelButtonProps) => {
-  if (position === 'no right') {
+  if (position === 'right') {
     return (
       <Button
         color="primary"
         variant="text"
         size="large"
+        style={{ float: 'right' }}
         onClick={somethingToDo}>
         {text}
       </Button>
@@ -28,7 +29,6 @@ export const CancelButton = ({
         color="primary"
         variant="text"
         size="large"
-        style={{ float: 'right' }}
         onClick={somethingToDo}>
         {text}
       </Button>
