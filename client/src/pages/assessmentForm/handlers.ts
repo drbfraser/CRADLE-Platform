@@ -8,7 +8,7 @@ export const handleSubmit = (
   patientId: string,
   assessmentId: string | undefined,
   referralId: string | undefined,
-  drugHistory: string,
+  drugHistory: string | undefined,
   setSubmitError: (error: boolean) => void
 ) => {
   return async (values: AssessmentState, { setSubmitting }: any) => {
@@ -42,7 +42,10 @@ export const handleSubmit = (
         body: postBody,
       });
 
-      const newDrugHistory = values[AssessmentField.drugHistory];
+      let newDrugHistory = ' ';
+      if (values[AssessmentField.drugHistory] !== '') {
+        newDrugHistory = values[AssessmentField.drugHistory];
+      }
       if (drugHistory !== newDrugHistory) {
         await apiFetch(
           API_URL +

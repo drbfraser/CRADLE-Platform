@@ -3,12 +3,10 @@ import { PatientField } from '../state';
 
 export const drugHistoryValidationSchema = () =>
   Yup.object().shape({
-    [PatientField.drugHistory]: Yup.string().label('Drug history').required(),
+    [PatientField.drugHistory]: Yup.string().label('Drug history'),
   });
 
 export const medicalHistoryValidationSchema = () =>
   Yup.object().shape({
-    [PatientField.medicalHistory]: Yup.string()
-      .label('Medical history')
-      .required(),
+    [PatientField.medicalHistory]: Yup.string().label('Medical history'),
   });
