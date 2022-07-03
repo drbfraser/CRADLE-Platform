@@ -1,7 +1,9 @@
-import React from 'react';
-import { Typography, Button, Grid } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
+
 import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
+import React from 'react';
 import { Referral } from 'src/shared/types';
+import { SecondaryButton } from 'src/shared/components/Button';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 
@@ -54,18 +56,13 @@ export const ReferralCancelledData = ({ referral }: IProps) => {
           </div>
         )}
 
-        {/* // //////////////////////////// */}
         <Grid item>
           <Grid container alignItems="flex-start" style={{ gap: 7 }}>
-            <Button
-              color="primary"
-              variant="outlined"
-              onClick={handleUndoCancellation}>
+            <SecondaryButton onClick={handleUndoCancellation}>
               Undo Cancellation
-            </Button>
+            </SecondaryButton>
           </Grid>
         </Grid>
-        {/* // //////////////////////////// */}
       </>
     </>
   );
