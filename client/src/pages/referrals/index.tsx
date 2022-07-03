@@ -4,8 +4,6 @@ import { debounce, parseInt } from 'lodash';
 
 import { APITable } from 'src/shared/components/apiTable';
 import { AutoRefresher } from './AutoRefresher';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
 import { EndpointEnum } from 'src/shared/enums';
 import { FilterDialog } from './FilterDialog';
 import Paper from '@material-ui/core/Paper';
@@ -17,6 +15,8 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { PrimaryButton } from 'src/shared/components/primaryButton';
+import { SecondaryButton } from 'src/shared/components/SecondaryButton';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -77,35 +77,21 @@ export const ReferralsPage = () => {
           isTransformed={isTransformed}
           setIsPromptShown={setIsPromptShown}
         />
-        <ButtonGroup
-          orientation="vertical"
-          color="primary"
-          aria-label="vertical contained primary button group"
-          variant="text"
-          className={classes.right}>
-          <Button
-            color="primary"
-            variant="contained"
-            size="large"
-            onClick={() => {
-              setIsFilterDialogOpen(true);
-            }}>
-            Advanced Search
-          </Button>
-
-          {filter && (
-            <Button
-              color="primary"
-              variant="contained"
-              size="large"
-              onClick={() => {
-                setFilter(undefined);
-                setIsPromptShown(false);
-              }}>
-              Clear Filter
-            </Button>
-          )}
-        </ButtonGroup>
+        <PrimaryButton
+          text="Filter Search"
+          task={() => {
+            setIsFilterDialogOpen(true)}}
+          position = "right"
+        />
+        <SecondaryButton
+          text="Clear Filter"
+          task={() => {
+            setFilter(undefined);
+            setIsPromptShown(false);
+          }}
+          position = "right"
+        />
+        
         <div className={isBigScreen ? classes.right : classes.searchThin}>
           <TextField
             label="Search"
