@@ -18,7 +18,7 @@ import {
 import { getNumOfWeeksNumeric, getYearToDisplay } from 'src/shared/utils';
 
 import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
-import { SecondaryRedirectButton } from 'src/shared/components/redirectButton';
+import { RedirectButton } from 'src/shared/components/redirectButton';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import { makeStyles } from '@material-ui/core/styles';
@@ -113,7 +113,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             task={handleEditCloseClick}
           />
         ) : (
-          <SecondaryRedirectButton
+          <RedirectButton
             text="Add"
             redirectUrl={`/pregnancies/new/${patientId}`}
           />

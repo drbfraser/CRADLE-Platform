@@ -8,7 +8,7 @@ import { apiFetch, API_URL } from 'src/shared/api';
 import { Link } from 'react-router-dom';
 import { EndpointEnum } from 'src/shared/enums';
 import { OrNull } from 'src/shared/types';
-import { SecondaryRedirectButton } from 'src/shared/components/redirectButton';
+import { RedirectButton } from 'src/shared/components/redirectButton';
 
 interface IProps {
   patient?: Patient;
@@ -19,12 +19,6 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const classes = useStyles();
   const [info, setInfo] = useState<PatientMedicalInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
-
-  /*
-  const history = useHistory()
-  const handleUpdateClick = (editId: string,medicalRecordId: string) =>
-  history.push(`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`)
-  */
 
   useEffect(() => {
     apiFetch(
@@ -60,12 +54,12 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       <div className={classes.historyItem}>
         <b style={{ flex: 1 }}> {title} </b>
         {medicalRecordId ? (
-          <SecondaryRedirectButton
+          <RedirectButton
             text="Update"
             redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
           />
         ) : (
-          <SecondaryRedirectButton
+          <RedirectButton
             text="Add"
             redirectUrl={`/patients/${patient?.patientId}/edit/${editId}`}
           />
