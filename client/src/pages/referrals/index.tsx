@@ -13,7 +13,11 @@ import { RefreshDialog } from './RefreshDialog';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import { createTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import {
+  createTheme,
+  makeStyles,
+  ThemeProvider,
+} from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { PrimaryButton } from 'src/shared/components/primaryButton';
 import { CancelButton } from 'src/shared/components/cancelButton';
@@ -78,22 +82,23 @@ export const ReferralsPage = () => {
           setIsPromptShown={setIsPromptShown}
         />
         <ThemeProvider theme={redTheme}>
-        <CancelButton
-          text="Clear Filter"
-          task={() => {
-            setFilter(undefined);
-            setIsPromptShown(false);
-          }}
-          position = "right"
-        />
+          <CancelButton
+            text="Clear Filter"
+            task={() => {
+              setFilter(undefined);
+              setIsPromptShown(false);
+            }}
+            position="right"
+          />
         </ThemeProvider>
         <PrimaryButton
           text="Filter Search"
           task={() => {
-            setIsFilterDialogOpen(true)}}
-          position = "right"
+            setIsFilterDialogOpen(true);
+          }}
+          position="right"
         />
-        
+
         <div className={isBigScreen ? classes.right : classes.searchThin}>
           <TextField
             label="Search"

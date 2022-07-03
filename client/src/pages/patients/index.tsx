@@ -1,4 +1,3 @@
-
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -40,10 +39,7 @@ export const PatientsPage = () => {
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
-          <PrimaryButton
-            text="New Patient"
-            task={handleNewPatientClick}
-          />
+          <PrimaryButton text="New Patient" task={handleNewPatientClick} />
         </div>
       </div>
       <APITable

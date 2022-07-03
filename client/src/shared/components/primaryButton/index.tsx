@@ -4,8 +4,7 @@ import { Button } from '@material-ui/core';
 interface PrimaryButtonProps {
   text: string;
   task: string | any;
-  position ? : string;
-  
+  position?: string;
 }
 
 export const PrimaryButton = ({

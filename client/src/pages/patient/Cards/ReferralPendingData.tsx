@@ -71,10 +71,7 @@ export const ReferralPendingData = ({ referral }: IProps) => {
               task={handleReferralNotAttend}
             />
             <ThemeProvider theme={redTheme}>
-              <CancelButton
-                text="Cancel"
-                task={handleReferralCancel}
-              />
+              <CancelButton text="Cancel" task={handleReferralCancel} />
             </ThemeProvider>
           </Grid>
         </Grid>

@@ -85,18 +85,8 @@ function ResourceTabPage(props: IProps): JSX.Element {
             position="static"
             activeStep={activeStep}
             className={classes.root}
-            nextButton={
-              <PrimaryButton
-              text='Next'
-              task={handleNext}
-              />
-            }
-            backButton={
-              <SecondaryButton
-              text='Back'
-              task={handleBack}
-              />
-            }
+            nextButton={<PrimaryButton text="Next" task={handleNext} />}
+            backButton={<SecondaryButton text="Back" task={handleBack} />}
           />
           {/* <img alt="education" className="education-img" src={props.posterImgSrc} /> */}
           <p>

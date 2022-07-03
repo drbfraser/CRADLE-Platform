@@ -1,9 +1,4 @@
-import {
-  Grid,
-  IconButton,
-  Tooltip,
-  Typography,
-} from '@material-ui/core';
+import { Grid, IconButton, Tooltip, Typography } from '@material-ui/core';
 
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Patient } from 'src/shared/types';

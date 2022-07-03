@@ -52,10 +52,7 @@ export const PersonalInfo = ({ patient }: IProps) => {
               <b>Allergies: </b>
               {patient.allergy ? patient.allergy : `N/A`}
             </p>
-            <SecondaryButton
-              text="Edit Patient"
-              task={handleEditClick}
-            />
+            <SecondaryButton text="Edit Patient" task={handleEditClick} />
           </div>
         ) : (
           <Skeleton variant="rect" height={200} />

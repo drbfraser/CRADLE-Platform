@@ -3,7 +3,7 @@ import { Button } from '@material-ui/core';
 interface SecondaryButtonProps {
   text: string;
   task: string | any;
-  position ? : string;
+  position?: string;
 }
 
 export const SecondaryButton = ({
