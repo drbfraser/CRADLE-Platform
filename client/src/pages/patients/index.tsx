@@ -1,16 +1,17 @@
+import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
+import React, { useState } from 'react';
+
+import { APITable } from 'src/shared/components/apiTable';
+import { EndpointEnum } from 'src/shared/enums';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
+import { PatientRow } from './PatientRow';
+import { PrimaryButton } from 'src/shared/components/Button';
+import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@material-ui/core/TextField';
 import { debounce } from 'lodash';
-import React, { useState } from 'react';
-import { APITable } from 'src/shared/components/apiTable';
-import { PatientRow } from './PatientRow';
+import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
-import { EndpointEnum } from 'src/shared/enums';
-import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { SortDir } from 'src/shared/components/apiTable/types';
-import { PrimaryButton } from 'src/shared/components/primaryButton';
 
 export const PatientsPage = () => {
   const classes = useStyles();
@@ -39,7 +40,9 @@ export const PatientsPage = () => {
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
-          <PrimaryButton text="New Patient" task={handleNewPatientClick} />
+          <PrimaryButton onClick={handleNewPatientClick}>
+            New Patient
+          </PrimaryButton>
         </div>
       </div>
       <APITable

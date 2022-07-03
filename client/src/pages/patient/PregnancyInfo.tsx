@@ -1,5 +1,4 @@
 import { API_URL, apiFetch } from 'src/shared/api';
-import { SecondaryButton } from 'src/shared/components/SecondaryButton';
 import { Alert, Skeleton } from '@material-ui/lab';
 import { Box, Divider, Paper, TableBody, Typography } from '@material-ui/core';
 import {
@@ -11,6 +10,7 @@ import { Form, InputOnChangeData, Select, TableCell } from 'semantic-ui-react';
 import { Link, useHistory } from 'react-router-dom';
 import { PastPregnancy, PatientPregnancyInfo } from 'src/shared/types';
 import React, { useEffect, useState } from 'react';
+import { RedirectButton, SecondaryButton } from 'src/shared/components/Button';
 import {
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
@@ -18,7 +18,6 @@ import {
 import { getNumOfWeeksNumeric, getYearToDisplay } from 'src/shared/utils';
 
 import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
-import { RedirectButton } from 'src/shared/components/redirectButton';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import { makeStyles } from '@material-ui/core/styles';
@@ -108,15 +107,16 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
       <div>
         {info!.isPregnant ? (
           <SecondaryButton
-            text="Edit / Close"
-            position="right"
-            task={handleEditCloseClick}
-          />
+            onClick={handleEditCloseClick}
+            className={classes.rightButton}>
+            Edit / Close
+          </SecondaryButton>
         ) : (
           <RedirectButton
-            text="Add"
-            redirectUrl={`/pregnancies/new/${patientId}`}
-          />
+            url={`/pregnancies/new/${patientId}`}
+            className={classes.rightButton}>
+            Add
+          </RedirectButton>
         )}
         <h4>Current Pregnancy</h4>
         <p>
@@ -179,10 +179,10 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             <div>
               <div>
                 <SecondaryButton
-                  text="Add"
-                  position="right"
-                  task={handleAddClick}
-                />
+                  onClick={handleAddClick}
+                  style={{ float: 'right' }}>
+                  Add
+                </SecondaryButton>
                 <h4> Previous Obstetric History</h4>
               </div>
               <br />
@@ -266,5 +266,8 @@ const useStyles = makeStyles({
   inline: {
     display: 'flex',
     flexDirection: 'row',
+  },
+  rightButton: {
+    float: 'right',
   },
 });

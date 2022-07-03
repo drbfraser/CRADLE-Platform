@@ -1,4 +1,5 @@
 import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import React, { useState } from 'react';
 import { debounce, parseInt } from 'lodash';
 
@@ -13,15 +14,9 @@ import { RefreshDialog } from './RefreshDialog';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import {
-  createTheme,
-  makeStyles,
-  ThemeProvider,
-} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { PrimaryButton } from 'src/shared/components/primaryButton';
-import { CancelButton } from 'src/shared/components/cancelButton';
-import red from '@material-ui/core/colors/red';
+
 export const ReferralsPage = () => {
   const classes = useStyles();
   const [search, setSearch] = useState('');
@@ -35,7 +30,6 @@ export const ReferralsPage = () => {
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
-  const redTheme = createTheme({ palette: { primary: red } });
   const isBigScreen = useMediaQuery('(min-width:440px)');
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
@@ -81,43 +75,40 @@ export const ReferralsPage = () => {
           isTransformed={isTransformed}
           setIsPromptShown={setIsPromptShown}
         />
-        <ThemeProvider theme={redTheme}>
+        <div className={isBigScreen ? classes.search : classes.searchThin}>
+          <div>
+            <TextField
+              label="Search"
+              placeholder="Patient ID, Name or Village"
+              variant="outlined"
+              onChange={(e) => debounceSetSearch(e.target.value)}
+            />
+            {isPromptShown && (
+              <div>
+                <Typography color="textSecondary" variant="caption">
+                  Currently filtered to your health facility.
+                  <br />
+                  Click Clear Filter to see all.
+                </Typography>
+              </div>
+            )}
+          </div>
+
+          <PrimaryButton onClick={() => setIsFilterDialogOpen(true)}>
+            Filter Search
+          </PrimaryButton>
+
           <CancelButton
-            text="Clear Filter"
-            task={() => {
+            onClick={() => {
               setFilter(undefined);
               setIsPromptShown(false);
             }}
-            position="right"
-          />
-        </ThemeProvider>
-        <PrimaryButton
-          text="Filter Search"
-          task={() => {
-            setIsFilterDialogOpen(true);
-          }}
-          position="right"
-        />
-
-        <div className={isBigScreen ? classes.right : classes.searchThin}>
-          <TextField
-            label="Search"
-            placeholder="Patient ID, Name or Village"
-            variant="outlined"
-            onChange={(e) => debounceSetSearch(e.target.value)}
-          />
-          {isPromptShown && (
-            <>
-              <br />
-              <Typography color="textSecondary" variant="caption">
-                Currently filtered to your health facility.
-                <br />
-                Click Clear Filter to see all.
-              </Typography>
-            </>
-          )}
+            className="mx-auto">
+            Clear Filter
+          </CancelButton>
         </div>
       </div>
+
       <div className={classes.table}>
         <APITable
           endpoint={EndpointEnum.REFERRALS}
@@ -148,14 +139,16 @@ const useStyles = makeStyles({
   title: {
     display: 'inline-block',
   },
-  right: {
+  search: {
     float: 'right',
-    padding: 10,
+    display: 'flex',
+    alignItems: 'self-start',
+    columnGap: '10px',
   },
   searchThin: {
-    float: 'left',
-    marginLeft: 1,
-    width: '500px',
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '10px',
   },
   table: {
     clear: 'right',

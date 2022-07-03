@@ -1,5 +1,6 @@
 import '../index.css';
 
+import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 
 import MobileStepper from '@material-ui/core/MobileStepper';
@@ -8,8 +9,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { PrimaryButton } from 'src/shared/components/primaryButton';
-import { SecondaryButton } from 'src/shared/components/SecondaryButton';
 
 interface IProps {
   posterImgSrc: any[];
@@ -85,8 +84,12 @@ function ResourceTabPage(props: IProps): JSX.Element {
             position="static"
             activeStep={activeStep}
             className={classes.root}
-            nextButton={<PrimaryButton text="Next" task={handleNext} />}
-            backButton={<SecondaryButton text="Back" task={handleBack} />}
+            nextButton={
+              <PrimaryButton onClick={handleNext}>Next</PrimaryButton>
+            }
+            backButton={
+              <SecondaryButton onClick={handleBack}>Back</SecondaryButton>
+            }
           />
           {/* <img alt="education" className="education-img" src={props.posterImgSrc} /> */}
           <p>

@@ -1,12 +1,12 @@
-import React from 'react';
-import { Paper, Typography, Divider, Box } from '@material-ui/core';
-import RecentActorsIcon from '@material-ui/icons/RecentActors';
-import { Patient } from 'src/shared/types';
-import { getAgeToDisplay } from 'src/shared/utils';
-import { Skeleton } from '@material-ui/lab';
+import { Box, Divider, Paper, Typography } from '@material-ui/core';
 
+import { Patient } from 'src/shared/types';
+import React from 'react';
+import RecentActorsIcon from '@material-ui/icons/RecentActors';
+import { SecondaryButton } from 'src/shared/components/Button';
+import { Skeleton } from '@material-ui/lab';
+import { getAgeToDisplay } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
-import { SecondaryButton } from '../../shared/components/SecondaryButton/index';
 
 interface IProps {
   patient?: Patient;
@@ -52,7 +52,9 @@ export const PersonalInfo = ({ patient }: IProps) => {
               <b>Allergies: </b>
               {patient.allergy ? patient.allergy : `N/A`}
             </p>
-            <SecondaryButton text="Edit Patient" task={handleEditClick} />
+            <SecondaryButton onClick={handleEditClick}>
+              Edit Patient
+            </SecondaryButton>
           </div>
         ) : (
           <Skeleton variant="rect" height={200} />

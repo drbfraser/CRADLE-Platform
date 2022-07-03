@@ -1,10 +1,10 @@
-import React from 'react';
-import { Typography } from '@material-ui/core';
-import { FollowUp } from 'src/shared/types';
-import { getPrettyDateTime } from 'src/shared/utils';
 import DiagnosisIcon from '@material-ui/icons/LocalHospital';
+import { FollowUp } from 'src/shared/types';
+import React from 'react';
+import { SecondaryButton } from 'src/shared/components/Button';
+import { Typography } from '@material-ui/core';
+import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
-import { SecondaryButton } from '../../../shared/components/SecondaryButton/index';
 
 interface IProps {
   followUp: FollowUp;
@@ -73,7 +73,9 @@ export const AssessmentData = ({ followUp }: IProps) => {
           {followUp?.followupInstructions}
         </p>
       )}
-      <SecondaryButton text="Update Assessment" task={handleAssessmentClick} />
+      <SecondaryButton onClick={handleAssessmentClick}>
+        Update Assessment
+      </SecondaryButton>
     </>
   );
 };

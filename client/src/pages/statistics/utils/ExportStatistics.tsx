@@ -1,16 +1,17 @@
-import { CSVLink } from 'react-csv';
-import React, { useState, useEffect } from 'react';
-import { apiFetch } from 'src/shared/api';
+import React, { useEffect, useState } from 'react';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { IExportStatRow } from './index';
 import Button from '@material-ui/core/Button';
+import { CSVLink } from 'react-csv';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { IExportStatRow } from './index';
+import { PrimaryButton } from 'src/shared/components/Button';
 import { SexEnum } from 'src/shared/enums';
-import { PrimaryButton } from 'src/shared/components/primaryButton';
+import { apiFetch } from 'src/shared/api';
 
 interface IProps {
   url: string;
@@ -29,11 +30,9 @@ export const ExportStatistics = ({ url }: IProps) => {
 
   return (
     <div>
-      <PrimaryButton
-        text="Export Referrals"
-        position="right"
-        task={handleClickOpen}
-      />
+      <PrimaryButton style={{ float: 'right' }} onClick={handleClickOpen}>
+        Export Referrals
+      </PrimaryButton>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Export Referral Data</DialogTitle>
         <DialogContent>

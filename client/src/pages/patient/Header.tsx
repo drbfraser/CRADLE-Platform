@@ -1,12 +1,13 @@
 import { Grid, IconButton, Tooltip, Typography } from '@material-ui/core';
 
+import { Add } from '@material-ui/icons';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Patient } from 'src/shared/types';
+import { PrimaryButton } from 'src/shared/components/Button';
 import React from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { goBackWithFallback } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
-import { PrimaryButton } from '../../shared/components/primaryButton/index';
 
 interface IProps {
   patient?: Patient;
@@ -66,22 +67,18 @@ export const Header = ({
       </Grid>
       <Grid item>
         <Grid container alignItems="center" style={{ gap: 5 }}>
-          <PrimaryButton
-            text="+ Submit New Form"
-            task={handleSubmitNewFormClick}
-          />
-          <PrimaryButton
-            text="+ Add New Reading"
-            task={handleAddReadingClick}
-          />
-          <PrimaryButton
-            text="+ Create Referral"
-            task={handleCreateReferralClick}
-          />
-          <PrimaryButton
-            text="+ Perform Assessment"
-            task={handlePerformAssessmentClick}
-          />
+          <PrimaryButton onClick={handleSubmitNewFormClick}>
+            <Add /> Submit New Form
+          </PrimaryButton>
+          <PrimaryButton onClick={handleAddReadingClick}>
+            <Add /> Add New Reading
+          </PrimaryButton>
+          <PrimaryButton onClick={handleCreateReferralClick}>
+            <Add /> Create Referral
+          </PrimaryButton>
+          <PrimaryButton onClick={handlePerformAssessmentClick}>
+            <Add /> Perform Assessment
+          </PrimaryButton>
         </Grid>
       </Grid>
     </Grid>
