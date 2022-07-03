@@ -13,11 +13,11 @@ import { RefreshDialog } from './RefreshDialog';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import { createTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { PrimaryButton } from 'src/shared/components/primaryButton';
-import { SecondaryButton } from 'src/shared/components/SecondaryButton';
-
+import { CancelButton } from 'src/shared/components/cancelButton';
+import red from '@material-ui/core/colors/red';
 export const ReferralsPage = () => {
   const classes = useStyles();
   const [search, setSearch] = useState('');
@@ -31,7 +31,7 @@ export const ReferralsPage = () => {
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
-
+  const redTheme = createTheme({ palette: { primary: red } });
   const isBigScreen = useMediaQuery('(min-width:440px)');
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
@@ -77,18 +77,20 @@ export const ReferralsPage = () => {
           isTransformed={isTransformed}
           setIsPromptShown={setIsPromptShown}
         />
-        <PrimaryButton
-          text="Filter Search"
-          task={() => {
-            setIsFilterDialogOpen(true)}}
-          position = "right"
-        />
-        <SecondaryButton
+        <ThemeProvider theme={redTheme}>
+        <CancelButton
           text="Clear Filter"
           task={() => {
             setFilter(undefined);
             setIsPromptShown(false);
           }}
+          position = "right"
+        />
+        </ThemeProvider>
+        <PrimaryButton
+          text="Filter Search"
+          task={() => {
+            setIsFilterDialogOpen(true)}}
           position = "right"
         />
         

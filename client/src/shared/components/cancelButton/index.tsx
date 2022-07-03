@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '@material-ui/core';
-
+import { Button} from '@material-ui/core';
 interface CancelButtonProps {
   text: string;
   task: string | any;
@@ -15,7 +14,7 @@ export const CancelButton = ({
   if (position === 'right') {
     return (
       <Button
-        color="primary"
+        color = "primary"
         variant="text"
         size="large"
         style={{ float: 'right' }}
