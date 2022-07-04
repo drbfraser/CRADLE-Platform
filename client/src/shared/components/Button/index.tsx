@@ -1,6 +1,6 @@
 import {
   Button,
-  ButtonBaseProps,
+  ButtonProps,
   ThemeProvider,
   createTheme,
 } from '@material-ui/core';
@@ -9,83 +9,35 @@ import React from 'react';
 import { red } from '@material-ui/core/colors';
 import { useHistory } from 'react-router-dom';
 
-interface ButtonProps extends ButtonBaseProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  style?: React.CSSProperties;
-}
-
-interface RedirectButtonProps extends ButtonBaseProps {
+interface RedirectButtonProps extends ButtonProps {
   url: string;
-  children: React.ReactNode;
-  style?: React.CSSProperties;
 }
 
 const redTheme = createTheme({ palette: { primary: red } });
 
-export const CancelButton = ({
-  children,
-  onClick,
-  style,
-  ...otherProps
-}: ButtonProps) => (
+export const CancelButton = (otherProps: ButtonProps) => (
   <ThemeProvider theme={redTheme}>
-    <Button
-      {...otherProps}
-      color="primary"
-      variant="text"
-      size="large"
-      onClick={onClick}>
-      {children}
-    </Button>
+    <Button size="large" {...otherProps} color="primary" variant="text" />
   </ThemeProvider>
 );
 
-export const PrimaryButton = ({
-  children,
-  onClick,
-  style,
-  ...otherProps
-}: ButtonProps) => (
-  <Button
-    {...otherProps}
-    color="primary"
-    variant="contained"
-    size="large"
-    onClick={onClick}>
-    {children}
-  </Button>
+export const PrimaryButton = (props: ButtonProps) => (
+  <Button size="large" {...props} color="primary" variant="contained" />
 );
 
-export const SecondaryButton = ({
-  children,
-  onClick,
-  style,
-  ...otherProps
-}: ButtonProps) => (
-  <Button
-    {...otherProps}
-    color="primary"
-    variant="outlined"
-    size="large"
-    onClick={onClick}>
-    {children}
-  </Button>
+export const SecondaryButton = (props: ButtonProps) => (
+  <Button size="large" {...props} color="primary" variant="outlined" />
 );
 
-export const RedirectButton = ({
-  url,
-  children,
-  ...otherProps
-}: RedirectButtonProps) => {
+export const RedirectButton = ({ url, ...props }: RedirectButtonProps) => {
   const history = useHistory();
   return (
     <Button
-      {...otherProps}
+      size="large"
+      {...props}
       color="primary"
       variant="outlined"
-      onClick={() => history.push(url)}>
-      {children}
-    </Button>
+      onClick={() => history.push(url)}
+    />
   );
 };
