@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { useRouteMatch } from 'react-router-dom';
 import { AssessmentState, getAssessmentState } from './state';
+import React, { useEffect, useState } from 'react';
+
+import { AssessmentForm } from './AssessmentForm';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Typography from '@material-ui/core/Typography';
-import { AssessmentForm } from './AssessmentForm';
 import { goBackWithFallback } from 'src/shared/utils';
+import { makeStyles } from '@material-ui/core/styles';
+import { useRouteMatch } from 'react-router-dom';
 
 type RouteParams = {
   patientId: string;
@@ -23,9 +24,7 @@ export const AssessmentFormPage = () => {
   const [formInitialState, setFormInitialState] = useState<AssessmentState>();
 
   useEffect(() => {
-    getAssessmentState(patientId, assessmentId).then((state) =>
-      setFormInitialState(state)
-    );
+    getAssessmentState(patientId, assessmentId).then(setFormInitialState);
   }, [patientId, assessmentId]);
 
   return (
