@@ -1,7 +1,7 @@
-import { QAnswer, Answer, Question, CForm } from 'src/shared/types';
-import { EndpointEnum } from 'src/shared/enums';
-import { apiFetch, API_URL } from 'src/shared/api';
+import { Answer, CForm, QAnswer, Question } from 'src/shared/types';
+
 import { goBackWithFallback } from 'src/shared/utils';
+import { saveFormResponseAsync } from 'src/shared/api';
 
 export type API_Answer = {
   qidx: number;
@@ -182,7 +182,6 @@ export const handleSubmit = (
   setMultiSelectValidationFailed: (
     multiSelectValidationFailed: boolean
   ) => void,
-  setAnswers: (answers: any) => void,
   isEditForm: boolean,
   form: CForm
 ) => {
@@ -202,40 +201,15 @@ export const handleSubmit = (
         patientId,
         isEditForm
       );
-      let url = '';
-      let request_type = '';
 
       //Create Form(first time fill in the content into the form)
-      if (isEditForm === false) {
-        url = API_URL + EndpointEnum.FORM;
-        request_type = 'POST';
-        try {
-          await apiFetch(url, {
-            method: request_type,
-            body: JSON.stringify(postBody.creat),
-          });
-          goBackWithFallback('/patients');
-        } catch (e) {
-          console.error(e);
-          setSubmitError(true);
-          setSubmitting(false);
-        }
-      }
-      //Edit Form
-      else {
-        url = API_URL + EndpointEnum.FORM + `/${form.id}`;
-        request_type = 'PUT';
-        try {
-          await apiFetch(url, {
-            method: request_type,
-            body: JSON.stringify({ questions: postBody.edit }),
-          });
-          goBackWithFallback('/patients');
-        } catch (e) {
-          console.error(e);
-          setSubmitError(true);
-          setSubmitting(false);
-        }
+      try {
+        await saveFormResponseAsync(postBody, form ? form.id : undefined);
+        goBackWithFallback('/patients');
+      } catch (e) {
+        console.error(e);
+        setSubmitError(true);
+        setSubmitting(false);
       }
     }
   };

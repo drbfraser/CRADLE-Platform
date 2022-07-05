@@ -10,6 +10,7 @@ import { PasswordField } from 'src/app/topBar/changePassword/state';
 import { UserField } from 'src/pages/admin/manageUsers/state';
 import jwt_decode from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
+import { post_body } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
 
 export const API_URL =
@@ -270,3 +271,19 @@ export const saveReferralAssessmentAsync = async (referralId: string) =>
   apiFetch(API_URL + EndpointEnum.REFERRALS_ASSESS + `/${referralId}`, {
     method: 'PUT',
   });
+
+export const saveFormResponseAsync = async (
+  postBody: post_body,
+  formId?: string
+) => {
+  const url = API_URL + EndpointEnum.FORM + (formId ? formId : '');
+
+  const init = {
+    method: formId ? 'PUT' : 'POST',
+    body: JSON.stringify(
+      formId ? postBody.creat : { questions: postBody.edit }
+    ),
+  };
+
+  return apiFetch(url, init);
+};

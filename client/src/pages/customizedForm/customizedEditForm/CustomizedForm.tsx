@@ -1,30 +1,31 @@
-import { makeStyles } from '@material-ui/core';
+import { AnswerTypeEnum, QuestionTypeEnum } from 'src/shared/enums';
+import { CForm, QAnswer } from 'src/shared/types';
+import { Field, Form, Formik } from 'formik';
+import React, { useEffect, useState } from 'react';
+import {
+  getPrettyDateTime,
+  getTimestampFromStringDate,
+} from 'src/shared/utils';
+import { initialState, validationSchema } from './state';
+
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import { Field, Form, Formik } from 'formik';
-import FormLabel from '@material-ui/core/FormLabel';
-import React, { useState, useEffect } from 'react';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { handleSubmit } from './handlers';
-import { initialState, validationSchema } from './state';
-import { Question } from 'src/shared/types';
-import {
-  getTimestampFromStringDate,
-  getPrettyDateTime,
-} from 'src/shared/utils';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { QAnswer, CForm } from 'src/shared/types';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Typography from '@material-ui/core/Typography';
-import { QuestionTypeEnum, AnswerTypeEnum } from 'src/shared/enums';
 import Divider from '@material-ui/core/Divider';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormLabel from '@material-ui/core/FormLabel';
+import Grid from '@material-ui/core/Grid';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Paper from '@material-ui/core/Paper';
 import PollOutlinedIcon from '@material-ui/icons/PollOutlined';
+import { Question } from 'src/shared/types';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import { handleSubmit } from './handlers';
+import { makeStyles } from '@material-ui/core';
 
 interface IProps {
   patientId: string;
@@ -511,7 +512,6 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
           answers,
           setSubmitError,
           setMultiSelectValidationFailed,
-          setAnswers,
           isEditForm,
           fm
         )}>
