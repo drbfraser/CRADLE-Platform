@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
 import { IconButton, Tooltip } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
+
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import AdminTable from '../AdminTable';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteForever from '@material-ui/icons/DeleteForever';
-import VpnKeyIcon from '@material-ui/icons/VpnKey';
-import EditUser from './EditUser';
-import ResetPassword from './ResetPassword';
 import DeleteUser from './DeleteUser';
-import { useSelector } from 'react-redux';
-import { ReduxState } from 'src/redux/reducers';
+import EditUser from './EditUser';
 import { IUserWithIndex } from 'src/shared/types';
-import { useAdminStyles } from '../adminStyles';
-import AdminTable from '../AdminTable';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { userRoleLabels } from 'src/shared/constants';
+import { ReduxState } from 'src/redux/reducers';
+import ResetPassword from './ResetPassword';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
+import { getUsersAsync } from 'src/shared/api';
+import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useSelector } from 'react-redux';
+import { userRoleLabels } from 'src/shared/constants';
 
 export const ManageUsers = () => {
   const styles = useAdminStyles();
@@ -70,9 +70,7 @@ export const ManageUsers = () => {
 
   const getUsers = async () => {
     try {
-      const resp: IUserWithIndex[] = await (
-        await apiFetch(API_URL + EndpointEnum.USER_ALL)
-      ).json();
+      const resp: IUserWithIndex[] = await getUsersAsync();
 
       setUsers(resp.map((user, index) => ({ ...user, index })));
       setLoading(false);
@@ -196,7 +194,7 @@ export const ManageUsers = () => {
           setDeletePopupOpen(false);
           getUsers();
         }}
-        deleteUser={popupUser}
+        user={popupUser}
       />
       <AdminTable
         title="Users"

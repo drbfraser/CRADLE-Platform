@@ -52,6 +52,7 @@ export enum EndpointEnum {
   PREGNANCY_STATUS = '/pregnancies/status',
   PREGNANCY_SUMMARY = '/pregnancy_summary',
   REFERRALS = '/referrals',
+  REFERRALS_ASSESS = '/referrals/assess',
   FORM_TEMPLATES = '/forms/templates',
   READINGS = '/readings',
   READING_ASSESSMENT = '/patients/reading-assessment', //Create a new reading and assessment

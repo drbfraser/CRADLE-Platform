@@ -1,10 +1,10 @@
-import React from 'react';
+import Alert from '@material-ui/lab/Alert';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
-import Alert from '@material-ui/lab/Alert';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import React from 'react';
 
 interface IProps {
   title: string;
@@ -31,7 +31,7 @@ export const ConfirmDialog = ({
         <Button variant="contained" onClick={onClose} color="primary">
           No
         </Button>
-        <Button variant="contained" onClick={onConfirm} color="default">
+        <Button variant="contained" onClick={onConfirm} color="default" >
           Yes
         </Button>
       </DialogActions>

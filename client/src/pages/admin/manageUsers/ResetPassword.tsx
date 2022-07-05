@@ -5,20 +5,20 @@ import {
   DialogContent,
   DialogTitle,
 } from '@material-ui/core';
-import { Formik, Form, Field } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { Toast } from 'src/shared/components/toast';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
-import { IUser } from 'src/shared/types';
 import {
+  UserField,
   fieldLabels,
   passwordValidationSchema,
   resetPasswordTemplate,
-  UserField,
 } from './state';
+
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { IUser } from 'src/shared/types';
+import { TextField } from 'formik-material-ui';
+import { Toast } from 'src/shared/components/toast';
+import { resetUserPasswordAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
@@ -35,21 +35,8 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
       return;
     }
 
-    const init = {
-      method: 'POST',
-      body: JSON.stringify({
-        [UserField.password]: values[UserField.password],
-      }),
-    };
-
     try {
-      const url =
-        API_URL +
-        EndpointEnum.USER +
-        String(resetUser.userId) +
-        EndpointEnum.RESET_PASS;
-
-      await apiFetch(url, init);
+      await resetUserPasswordAsync(resetUser, values[UserField.password]);
 
       setSubmitError(false);
       setSubmitSuccess(true);

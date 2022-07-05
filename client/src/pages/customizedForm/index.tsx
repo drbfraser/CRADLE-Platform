@@ -1,14 +1,13 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { CForm, FormTemplate } from 'src/shared/types';
 import React, { useEffect, useState } from 'react'; //useRef
 
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { CustomizedForm } from './customizedEditForm/CustomizedForm';
-import { EndpointEnum } from 'src/shared/enums';
 import IconButton from '@material-ui/core/IconButton';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+import { getFormTemplatesAsync } from 'src/shared/api';
 import { goBackWithFallback } from 'src/shared/utils';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
@@ -21,22 +20,21 @@ export const CustomizedFormPage = () => {
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [form, _setForm] = useState<CForm>();
-  const [formSchemas, setFormSchemas] = useState<FormTemplate[]>([]);
+  const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
 
   const setForm = (form: CForm) => {
     _setForm(form);
   };
 
+  const updateFormTemplates = async () =>
+    setFormTemplates(await getFormTemplatesAsync());
+
   useEffect(() => {
-    /*eslint no-useless-concat: "error"*/
-    apiFetch(API_URL + EndpointEnum.FORM_TEMPLATE)
-      .then((resp) => resp.json())
-      .then((form_schemas) => {
-        setFormSchemas(form_schemas);
-      })
-      .catch(() => {
-        console.log('Error Loading !!!!!!');
-      });
+    try {
+      updateFormTemplates();
+    } catch (e) {
+      console.log(e);
+    }
   }, []);
 
   return (
@@ -54,7 +52,7 @@ export const CustomizedFormPage = () => {
       <SelectHeaderForm
         patientId={patientId}
         setForm={setForm}
-        formSchemas={formSchemas}
+        formSchemas={formTemplates}
       />
       {form && form.questions && form!.questions!.length > 0 && (
         <CustomizedForm patientId={patientId} fm={form} isEditForm={false} />

@@ -1,7 +1,10 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { AssessmentField, AssessmentState } from './state';
+import {
+  saveAssessmentAsync,
+  saveDrugHistoryAsync,
+  saveReferralAssessmentAsync,
+} from 'src/shared/api';
 
-import { EndpointEnum } from 'src/shared/enums';
 import { goBackWithFallback } from 'src/shared/utils';
 
 export const handleSubmit = (
@@ -22,58 +25,22 @@ export const handleSubmit = (
         values[AssessmentField.followUpInstruc],
     };
 
-    let url = API_URL;
-    let method = 'POST';
-    if (assessmentId !== undefined) {
-      url += EndpointEnum.ASSESSMENTS + '/' + assessmentId;
-      method = 'PUT';
-    } else {
-      url += EndpointEnum.ASSESSMENTS;
-    }
-
-    const postBody = JSON.stringify({
-      patientId: patientId,
-      ...newAssessment,
-    });
-
     try {
-      await apiFetch(url, {
-        method: method,
-        body: postBody,
-      });
+      await saveAssessmentAsync(newAssessment, assessmentId, patientId);
 
       const newDrugHistory = values[AssessmentField.drugHistory];
-      if (drugHistory !== newDrugHistory) {
-        await apiFetch(
-          API_URL +
-            EndpointEnum.PATIENTS +
-            `/${patientId}` +
-            EndpointEnum.MEDICAL_RECORDS,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              [AssessmentField.drugHistory]: newDrugHistory,
-            }),
-          }
-        );
-      }
+
+      drugHistory !== newDrugHistory &&
+        (await saveDrugHistoryAsync(newDrugHistory, patientId));
 
       //this case only happens when users click the 'assess referral' button on the
       //referral pending button! this clicking will trigger two request: 1. create a new assessment
       //2.after successfully creating a new assessment, we will send a request to mark the
       //original referral record to be 'assessed'
-      if (referralId !== undefined) {
-        await apiFetch(
-          API_URL + EndpointEnum.REFERRALS + `/assess/${referralId}`,
-          {
-            method: 'PUT',
-          }
-        );
-      }
+      referralId !== undefined && (await saveReferralAssessmentAsync(referralId));
 
       goBackWithFallback('/patients');
     } catch (e) {
-      console.error(e);
       setSubmitError(true);
       setSubmitting(false);
     }

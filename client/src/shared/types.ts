@@ -265,6 +265,7 @@ export interface FormTemplate {
   category: string;
   id: string;
   version: string;
+  archived: boolean;
 }
 
 export interface FormTemplateWithQuestions extends FormTemplate {

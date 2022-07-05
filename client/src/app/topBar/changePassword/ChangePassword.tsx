@@ -5,19 +5,19 @@ import {
   DialogContent,
   DialogTitle,
 } from '@material-ui/core';
-import Alert from '@material-ui/lab/Alert';
-import { Formik, Form, Field } from 'formik';
-import { TextField } from 'formik-material-ui';
-import React, { useState } from 'react';
-import { Toast } from 'src/shared/components/toast';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import { Field, Form, Formik } from 'formik';
 import {
-  initialValues,
   IPasswordForm,
   PasswordField,
+  initialValues,
   validationSchema,
 } from './state';
+import React, { useState } from 'react';
+
+import Alert from '@material-ui/lab/Alert';
+import { TextField } from 'formik-material-ui';
+import { Toast } from 'src/shared/components/toast';
+import { changePasswordAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
@@ -29,16 +29,11 @@ const ChangePassword = ({ open, onClose }: IProps) => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const handleSubmit = async (values: IPasswordForm) => {
-    const init = {
-      method: 'POST',
-      body: JSON.stringify({
-        [PasswordField.currentPass]: values[PasswordField.currentPass],
-        [PasswordField.newPass]: values[PasswordField.newPass],
-      }),
-    };
-
     try {
-      await apiFetch(API_URL + EndpointEnum.CHANGE_PASS, init);
+      await changePasswordAsync(
+        values[PasswordField.currentPass],
+        values[PasswordField.newPass]
+      );
 
       setSubmitError(false);
       setSubmitSuccess(true);

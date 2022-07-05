@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import * as api from 'src/shared/api';
+
 import { IconButton, Tooltip } from '@material-ui/core';
-import CreateIcon from '@material-ui/icons/Create';
-import { IFacility } from './state';
-import EditFacility from './EditFacility';
-import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
-import { useDispatch } from 'react-redux';
-import { useAdminStyles } from '../adminStyles';
-import { TableCell } from 'src/shared/components/apiTable/TableCell';
-import AdminTable from '../AdminTable';
+import React, { useEffect, useState } from 'react';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import AdminTable from '../AdminTable';
+import CreateIcon from '@material-ui/icons/Create';
+import EditFacility from './EditFacility';
+import { IFacility } from './state';
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
+import { useAdminStyles } from '../adminStyles';
+import { useDispatch } from 'react-redux';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ManageFacilities = () => {
@@ -55,9 +56,7 @@ export const ManageFacilities = () => {
 
   const getFacilities = async () => {
     try {
-      const resp: IFacility[] = await (
-        await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)
-      ).json();
+      const resp: IFacility[] = await api.getFacilitiesAsync();
 
       setFacilities(resp.map((facility, index) => ({ ...facility, index })));
       setLoading(false);

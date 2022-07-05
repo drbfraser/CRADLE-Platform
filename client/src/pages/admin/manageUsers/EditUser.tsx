@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import {
+  Autocomplete,
+  AutocompleteRenderInputParams,
+} from 'formik-material-ui-lab';
 import {
   Button,
   Checkbox,
@@ -9,24 +12,21 @@ import {
   MenuItem,
   TextField,
 } from '@material-ui/core';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
+import React, { useState } from 'react';
 import {
   UserField,
+  fieldLabels,
   newEditValidationSchema,
   newUserTemplate,
-  fieldLabels,
 } from './state';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
+
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { TextField as FormikTextField } from 'formik-material-ui';
-import {
-  Autocomplete,
-  AutocompleteRenderInputParams,
-} from 'formik-material-ui-lab';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
-import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { IUser } from 'src/shared/types';
 import { UserRoleEnum } from 'src/shared/enums';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { saveUserAsync } from 'src/shared/api';
+import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { userRoleLabels } from 'src/shared/constants';
 
 interface IProps {
@@ -45,25 +45,11 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
     .map((u) => u.email);
 
   const handleSubmit = async (
-    values: IUser,
+    user: IUser,
     { setSubmitting }: FormikHelpers<IUser>
   ) => {
     try {
-      const url =
-        API_URL +
-        (editUser
-          ? EndpointEnum.USER + String(editUser.userId)
-          : EndpointEnum.USER_REGISTER);
-
-      const init = {
-        method: creatingNew ? 'POST' : 'PUT',
-        body: JSON.stringify({
-          ...values,
-          supervises: values.role === UserRoleEnum.CHO ? values.supervises : [],
-        }),
-      };
-
-      await apiFetch(url, init);
+      await saveUserAsync(user, editUser?.userId);
 
       onClose();
     } catch (e) {

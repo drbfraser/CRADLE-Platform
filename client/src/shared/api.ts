@@ -1,5 +1,13 @@
-import { EndpointEnum, MethodEnum } from './enums';
+import {
+  AssessmentField,
+  AssessmentState,
+} from 'src/pages/assessmentForm/state';
+import { EndpointEnum, MethodEnum, UserRoleEnum } from './enums';
+import { FormTemplate, IUser, IUserWithIndex, NewAssessment } from './types';
 
+import { IFacility } from 'src/pages/admin/manageFacilities/state';
+import { PasswordField } from 'src/app/topBar/changePassword/state';
+import { UserField } from 'src/pages/admin/manageUsers/state';
 import jwt_decode from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { reduxStore } from 'src/redux/store';
@@ -79,3 +87,186 @@ export const apiFetch = async (
     return resp;
   });
 };
+
+export const changePasswordAsync = async (
+  currentPass: string,
+  newPass: string
+) => {
+  const init = {
+    method: 'POST',
+    body: JSON.stringify({
+      [PasswordField.currentPass]: currentPass,
+      [PasswordField.newPass]: newPass,
+    }),
+  };
+
+  return apiFetch(API_URL + EndpointEnum.CHANGE_PASS, init);
+};
+
+export const createHealthFacilityAsync = async (facility: IFacility) =>
+  apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES, {
+    method: 'POST',
+    body: JSON.stringify(facility),
+  });
+
+export const getFacilitiesAsync = async (): Promise<IFacility[]> =>
+  (await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)).json();
+
+export const archiveFormTemplateAsync = async (template: FormTemplate) =>
+  apiFetch(
+    API_URL + EndpointEnum.FORM_TEMPLATES + '/' + template.id,
+    {
+      method: 'PUT',
+      body: JSON.stringify(template),
+    },
+    false
+  );
+
+export const createFormTemplateWithFileAsync = async (file: File) => {
+  const data: FormData = new FormData();
+  data.append('file', file);
+
+  return apiFetch(
+    API_URL + EndpointEnum.FORM_TEMPLATES,
+    {
+      method: 'POST',
+      body: data,
+    },
+    true,
+    true
+  );
+};
+
+export const getFormTemplatesAsync = async (): Promise<FormTemplate[]> =>
+  (await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES)).json();
+
+export const uploadAppFileAsync = async (file: File) => {
+  const data = new FormData();
+  data.append('file', file);
+  return apiFetch(
+    API_URL + EndpointEnum.UPLOAD_ADMIN,
+    {
+      method: 'POST',
+      body: data,
+    },
+    true
+  );
+};
+
+export const getAppFileAsync = async (): Promise<Blob> =>
+  (
+    await apiFetch(API_URL + EndpointEnum.UPLOAD_ADMIN + '?' + Date.now())
+  ).blob();
+
+export const getAppFileHeadAsync = async () =>
+  apiFetch(API_URL + EndpointEnum.UPLOAD_ADMIN + '?' + Date.now(), {
+    method: 'HEAD',
+  });
+
+export const deleteUserAsync = async (user: IUser) =>
+  apiFetch(API_URL + EndpointEnum.USER + String(user.userId), {
+    method: 'DELETE',
+  });
+
+export const saveUserAsync = async (
+  user: IUser,
+  userId: number | undefined
+) => {
+  const url =
+    API_URL +
+    (userId ? EndpointEnum.USER + userId : EndpointEnum.USER_REGISTER);
+
+  const init = {
+    method: userId ? 'PUT' : 'POST',
+    body: JSON.stringify({
+      ...user,
+      supervises: user.role === UserRoleEnum.CHO ? user.supervises : [],
+    }),
+  };
+
+  return apiFetch(url, init);
+};
+
+export const getUsersAsync = async (): Promise<IUserWithIndex[]> =>
+  (await apiFetch(API_URL + EndpointEnum.USER_ALL)).json();
+
+export const resetUserPasswordAsync = async (user: IUser, password: string) => {
+  const url =
+    API_URL + EndpointEnum.USER + String(user.userId) + EndpointEnum.RESET_PASS;
+
+  const init = {
+    method: 'POST',
+    body: JSON.stringify({
+      [UserField.password]: password,
+    }),
+  };
+
+  return apiFetch(url, init);
+};
+
+export const saveAssessmentAsync = async (
+  assessment: NewAssessment,
+  assessmentId: string | undefined,
+  patientId: string
+) => {
+  let url = API_URL + EndpointEnum.ASSESSMENTS;
+  let method = 'POST';
+
+  if (assessmentId === undefined) {
+    url += `/${assessmentId}`;
+    method = 'PUT';
+  }
+
+  return apiFetch(url, {
+    method,
+    body: JSON.stringify({
+      patientId,
+      ...assessment,
+    }),
+  });
+};
+
+export const getAssessmentAsync = async (
+  assessmentId: string
+): Promise<AssessmentState> => {
+  const resp = await apiFetch(
+    API_URL + EndpointEnum.ASSESSMENTS + '/' + assessmentId
+  );
+
+  return resp.json();
+};
+
+export const saveDrugHistoryAsync = async (
+  drugHistory: string,
+  patientId: string
+) =>
+  apiFetch(
+    API_URL +
+      EndpointEnum.PATIENTS +
+      `/${patientId}` +
+      EndpointEnum.MEDICAL_RECORDS,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        [AssessmentField.drugHistory]: drugHistory,
+      }),
+    }
+  );
+
+export const getDrugHistoryAsync = async (patientId: string) => {
+  const response = await apiFetch(
+    API_URL +
+      EndpointEnum.PATIENTS +
+      `/${patientId}` +
+      EndpointEnum.MEDICAL_HISTORY
+  );
+
+  const assessment = await response.json();
+
+  return assessment.drugHistory;
+};
+
+export const saveReferralAssessmentAsync = async (referralId: string) =>
+  apiFetch(API_URL + EndpointEnum.REFERRALS_ASSESS + `/${referralId}`, {
+    method: 'PUT',
+  });
