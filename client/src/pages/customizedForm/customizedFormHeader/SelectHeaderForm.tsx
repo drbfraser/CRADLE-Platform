@@ -1,69 +1,63 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import {
   Autocomplete,
   AutocompleteRenderInputParams,
 } from 'formik-material-ui-lab';
 import { CForm, FormTemplate } from 'src/shared/types';
-import { CustomizedFormField, initialState, validationSchema } from './state';
+import {
+  CustomizedFormField,
+  CustomizedFormState,
+  initialState,
+  validationSchema,
+} from './state';
 import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-import { EndpointEnum } from 'src/shared/enums';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+import { getFormTemplateLangsAsync } from 'src/shared/api';
 import { handleSubmit } from './handlers';
 import { makeStyles } from '@material-ui/core';
 
 interface IProps {
-  patientId: string;
   setForm: (form: CForm) => void;
-  formSchemas: FormTemplate[];
+  templates: FormTemplate[];
 }
 
 export const SelectHeaderForm = ({
-  patientId,
   setForm,
-  formSchemas,
+  templates: formTemplates,
 }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
-  const [availableLangs, setAvailableLangs] = useState<string[]>([]);
+  const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
 
-  const all_forms: string[] = formSchemas.map(function (item) {
+  const all_forms: string[] = formTemplates.map(function (item) {
     return item.classification.name; //id is a string here
   });
 
   const form_name_id_map = new Map<string, string>();
-  formSchemas.map((item) =>
+  formTemplates.map((item) =>
     form_name_id_map.set(item.classification.name, item.id)
   );
 
-  const handleSelectForm = (event: any, values: any) => {
-    const selectedFormName = values;
-    fetchAllLangVersions(form_name_id_map.get(selectedFormName));
+  const fetchAllLangVersions = async (form_template_id: string) => {
+    try {
+      const formTemplate = await getFormTemplateLangsAsync(form_template_id);
+
+      setAvailableLanguages(formTemplate.lang_versions);
+    } catch (e) {
+      console.log('Error Loading !!!!!!');
+    }
   };
 
-  function fetchAllLangVersions(form_template_id: string | undefined) {
-    apiFetch(
-      API_URL +
-        EndpointEnum.FORM_TEMPLATE +
-        '/' +
-        form_template_id +
-        '/versions'
-    )
-      .then((resp) => resp.json())
-      .then((lang_model) => {
-        setAvailableLangs(lang_model.lang_versions);
-        console.log(lang_model);
-      })
-      .catch(() => {
-        console.log('Error Loading !!!!!!');
-      });
-  }
+  const handleSelectForm = (event: any, selectedFormName: any) => {
+    const formTemplateId = form_name_id_map.get(selectedFormName);
+    formTemplateId && fetchAllLangVersions(formTemplateId);
+  };
 
   return (
     <>
@@ -71,12 +65,18 @@ export const SelectHeaderForm = ({
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(
-          patientId,
-          formSchemas,
-          setSubmitError,
-          setForm
-        )}>
+        onSubmit={(
+          customizedFormState: CustomizedFormState,
+          { setSubmitting }: any
+        ) =>
+          handleSubmit(
+            formTemplates,
+            setSubmitError,
+            setForm,
+            customizedFormState,
+            setSubmitting
+          )
+        }>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>
@@ -119,7 +119,7 @@ export const SelectHeaderForm = ({
                         component={Autocomplete}
                         fullWidth
                         name={CustomizedFormField.lang}
-                        options={availableLangs}
+                        options={availableLanguages}
                         disableClearable={true}
                         renderInput={(
                           params: AutocompleteRenderInputParams

@@ -2,8 +2,14 @@ import {
   AssessmentField,
   AssessmentState,
 } from 'src/pages/assessmentForm/state';
+import {
+  CForm,
+  FormTemplate,
+  IUser,
+  IUserWithIndex,
+  NewAssessment,
+} from './types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from './enums';
-import { FormTemplate, IUser, IUserWithIndex, NewAssessment } from './types';
 
 import { IFacility } from 'src/pages/admin/manageFacilities/state';
 import { PasswordField } from 'src/app/topBar/changePassword/state';
@@ -141,6 +147,23 @@ export const createFormTemplateWithFileAsync = async (file: File) => {
 export const getFormTemplatesAsync = async (): Promise<FormTemplate[]> =>
   (await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES)).json();
 
+export const getFormTemplateLangAsync = async (
+  formTemplateId: string,
+  lang: string
+) =>
+  (
+    await apiFetch(
+      API_URL + EndpointEnum.FORM_TEMPLATE + `/${formTemplateId}?lang=${lang}`
+    )
+  ).json();
+
+export const getFormTemplateLangsAsync = async (formTemplateId: string) =>
+  (
+    await apiFetch(
+      API_URL + EndpointEnum.FORM_TEMPLATE + `/${formTemplateId}/versions`
+    )
+  ).json();
+
 export const uploadAppFileAsync = async (file: File) => {
   const data = new FormData();
   data.append('file', file);
@@ -213,7 +236,7 @@ export const saveAssessmentAsync = async (
   let url = API_URL + EndpointEnum.ASSESSMENTS;
   let method = 'POST';
 
-  if (assessmentId === undefined) {
+  if (assessmentId !== undefined) {
     url += `/${assessmentId}`;
     method = 'PUT';
   }
@@ -281,9 +304,37 @@ export const saveFormResponseAsync = async (
   const init = {
     method: formId ? 'PUT' : 'POST',
     body: JSON.stringify(
-      formId ? postBody.creat : { questions: postBody.edit }
+      formId ? { questions: postBody.edit } : postBody.creat
     ),
   };
 
-  return apiFetch(url, init);
+  debugger;
+  return apiFetch(url, init, false);
+};
+
+export const getFormResponseAsync = async (formId: string): Promise<CForm> => {
+  const response = await apiFetch(API_URL + EndpointEnum.FORM + `/${formId}`);
+
+  return response.json();
+};
+
+export const getPatientTimelineAsync = async (
+  patientId: string,
+  page = 1
+): Promise<[]> => {
+  const params = new URLSearchParams({
+    limit: '20',
+    page: page.toString(),
+  });
+
+  return (
+    await apiFetch(
+      API_URL +
+        EndpointEnum.PATIENTS +
+        `/${patientId}` +
+        EndpointEnum.PATIENT_TIMELINE +
+        '?' +
+        params
+    )
+  ).json();
 };

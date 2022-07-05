@@ -1,36 +1,34 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { CForm, FormTemplate } from 'src/shared/types';
 
 import { CustomizedFormState } from './state';
-import { EndpointEnum } from 'src/shared/enums';
+import { getFormTemplateLangAsync } from 'src/shared/api';
 
-export const handleSubmit = (
-  patientId: string,
-  formSchemas: FormTemplate[],
+export const handleSubmit = async (
+  formTemplates: FormTemplate[],
   setSubmitError: (error: boolean) => void,
-  setForm: (form: CForm) => void
+  setForm: (form: CForm) => void,
+  customizedFormState: CustomizedFormState,
+  setSubmitting: (submitting: boolean) => void
 ) => {
-  return async (values: CustomizedFormState, { setSubmitting }: any) => {
-    const form_name_id_map = new Map<string, string>();
-    formSchemas.map((item) =>
-      form_name_id_map.set(item.classification.name, item.id)
+  const formNameIdMap = new Map<string, string>(
+    formTemplates.map((item) => [item.classification.name, item.id])
+  );
+
+  const formTemplateId: string =
+    customizedFormState.name !== null
+      ? formNameIdMap.get(customizedFormState.name) ?? ''
+      : '';
+
+  try {
+    setForm(
+      await getFormTemplateLangAsync(
+        formTemplateId,
+        customizedFormState.lang ?? ''
+      )
     );
-    const form_template_id =
-      values.name != null ? form_name_id_map.get(values.name) : '';
-    const url =
-      API_URL +
-      EndpointEnum.FORM_TEMPLATE +
-      `/${form_template_id}?lang=${values.lang}`;
-    try {
-      await apiFetch(url)
-        .then((resp) => resp.json())
-        .then((fm: CForm) => {
-          setForm(fm);
-        });
-    } catch (e) {
-      console.error(e);
-      setSubmitError(true);
-      setSubmitting(false);
-    }
-  };
+  } catch (e) {
+    console.error(e);
+    setSubmitError(true);
+    setSubmitting(false);
+  }
 };

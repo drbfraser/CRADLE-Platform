@@ -1,4 +1,4 @@
-import { Async, getAssessmentAsync } from 'src/shared/api';
+import { getAssessmentAsync, getDrugHistoryAsync } from 'src/shared/api';
 
 // field names here match /api/assessments
 export enum AssessmentField {
@@ -26,7 +26,9 @@ export const getAssessmentState = async (
   patientId: string,
   assessmentId: string | undefined
 ): Promise<AssessmentState> => {
-  initialState[AssessmentField.drugHistory] = await Async(patientId);
+  initialState[AssessmentField.drugHistory] = await getDrugHistoryAsync(
+    patientId
+  );
 
   if (assessmentId === undefined) {
     return { ...initialState };

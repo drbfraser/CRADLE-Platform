@@ -166,7 +166,7 @@ export const ManageFormTemplates = () => {
           setArchievePopupOpen(false);
           getFormTemplates();
         }}
-        formTemplate={popupForm}
+        template={popupForm}
       />
       <AdminTable
         title="Form Templates"

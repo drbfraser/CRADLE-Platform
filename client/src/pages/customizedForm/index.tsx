@@ -49,11 +49,7 @@ export const CustomizedFormPage = () => {
       </div>
 
       <br />
-      <SelectHeaderForm
-        patientId={patientId}
-        setForm={setForm}
-        formSchemas={formTemplates}
-      />
+      <SelectHeaderForm setForm={setForm} templates={formTemplates} />
       {form && form.questions && form!.questions!.length > 0 && (
         <CustomizedForm patientId={patientId} fm={form} isEditForm={false} />
       )}
