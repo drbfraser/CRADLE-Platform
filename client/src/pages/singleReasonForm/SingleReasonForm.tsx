@@ -1,6 +1,5 @@
 import { makeStyles } from '@material-ui/core';
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { TextField as FormikTextField } from 'formik-material-ui';
@@ -9,6 +8,7 @@ import React, { useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { handleSubmit } from './handlers';
 import { initialState, SingleReasonField } from './state';
+import { PrimaryButton } from 'src/shared/components/Button';
 
 interface IProps {
   referralId: string;
@@ -51,15 +51,12 @@ export const SingleReasonForm = ({ referralId, type }: IProps) => {
               </Box>
             </Paper>
             <br />
-            <Button
+            <PrimaryButton
               className={classes.right}
-              color="primary"
-              variant="contained"
-              size="large"
               type="submit"
               disabled={isSubmitting}>
               Submit
-            </Button>
+            </PrimaryButton>
           </Form>
         )}
       </Formik>

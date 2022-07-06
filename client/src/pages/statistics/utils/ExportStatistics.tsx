@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Button from '@material-ui/core/Button';
 import { CSVLink } from 'react-csv';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -9,7 +8,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { IExportStatRow } from './index';
-import { PrimaryButton } from 'src/shared/components/Button';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { SexEnum } from 'src/shared/enums';
 import { apiFetch } from 'src/shared/api';
 
@@ -42,9 +41,9 @@ export const ExportStatistics = ({ url }: IProps) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary" autoFocus>
+          <CancelButton onClick={handleClose} autoFocus>
             Close
-          </Button>
+          </CancelButton>
         </DialogActions>
       </Dialog>
     </div>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
 import Chip from '@material-ui/core/Chip';
 import Dialog from '@material-ui/core/Dialog';
@@ -34,6 +33,7 @@ import DoneIcon from '@material-ui/icons/Done';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
+import { CancelButton, SecondaryButton } from '../../shared/components/Button/index';
 
 interface IProps {
   open: boolean;
@@ -366,7 +366,7 @@ export const FilterDialog = ({
                 </MenuItem>
               </Select>
             </FormControl>
-            <Button
+            <SecondaryButton
               variant="contained"
               onClick={() => {
                 setStartDate(null);
@@ -375,7 +375,7 @@ export const FilterDialog = ({
               }}
               color="default">
               Clear
-            </Button>
+            </SecondaryButton>
           </Grid>
           <Grid item md={12} sm={12} xs={12}>
             <b>Referrer</b>
@@ -527,15 +527,15 @@ export const FilterDialog = ({
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" onClick={onClose} color="default">
+        <CancelButton variant="contained" onClick={onClose} color="default">
           Cancel
-        </Button>
-        <Button variant="contained" onClick={clearFilter} color="default">
+        </CancelButton>
+        <SecondaryButton variant="contained" onClick={clearFilter} color="default">
           Clear All
-        </Button>
-        <Button variant="contained" onClick={onConfirm} color="primary">
+        </SecondaryButton>
+        <SecondaryButton variant="contained" onClick={onConfirm} color="primary">
           Apply Filter
-        </Button>
+        </SecondaryButton>
       </DialogActions>
     </Dialog>
   );

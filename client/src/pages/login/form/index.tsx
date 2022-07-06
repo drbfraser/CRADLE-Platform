@@ -13,6 +13,7 @@ import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
 import classes from './styles.module.css';
 import { useFormik } from 'formik';
+import { PrimaryButton } from 'src/shared/components/Button';
 
 export const LoginForm: React.FC = () => {
   const errorMessage = useSelector(
@@ -68,9 +69,9 @@ export const LoginForm: React.FC = () => {
           <div className={classes.formError}>{formik.errors.password}</div>
         ) : null}
         <br />
-        <button className="contant-submit white" type="submit">
+        <PrimaryButton className="contant-submit white" type="submit">
           Login
-        </button>
+        </PrimaryButton>
       </form>
     </>
   );

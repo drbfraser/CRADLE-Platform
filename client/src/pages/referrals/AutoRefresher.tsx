@@ -6,8 +6,8 @@ import { apiFetch, API_URL } from 'src/shared/api';
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
-import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import { PrimaryButton } from 'src/shared/components/Button';
 
 interface IProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
@@ -125,23 +125,17 @@ export const AutoRefresher = ({
         Auto-Refresh{' '}
       </Typography>
       {ifAutoRefreshOn ? (
-        <Button
-          variant="outlined"
-          color="primary"
-          size="small"
+        <PrimaryButton
           className={classes.enableBtn}
           onClick={() => setIsRefreshDialogOpen(true)}>
           Enabled
-        </Button>
+        </PrimaryButton>
       ) : (
-        <Button
-          variant="outlined"
-          color="secondary"
-          size="small"
+        <PrimaryButton
           className={classes.enableBtn}
           onClick={() => setIsRefreshDialogOpen(true)}>
           Disabled
-        </Button>
+        </PrimaryButton>
       )}
       <CircularProgress
         className={ifAutoRefreshOn ? classes.CircularProgress : classes.hidden}
