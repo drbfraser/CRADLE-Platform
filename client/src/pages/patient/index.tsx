@@ -1,4 +1,3 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import {
   AssessmentCard,
   CustomizedFormCard,
@@ -9,8 +8,13 @@ import {
   ReferralPendingCard,
 } from './Cards/Cards';
 import { Divider, Grid, Paper } from '@material-ui/core';
-import { EndpointEnum, SexEnum } from 'src/shared/enums';
+import { Filter, FilterRequestBody, Patient, Referral } from 'src/shared/types';
 import React, { useEffect, useState } from 'react';
+import {
+  getPatientAsync,
+  getPatientRecordsAsync,
+  getPatientReferralsAsync,
+} from 'src/shared/api';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -19,30 +23,15 @@ import { ConfirmDialog } from '../../shared/components/confirmDialog';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Header } from './Header';
 import { MedicalInfo } from './MedicalInfo';
-import { Patient } from 'src/shared/types';
 import { PatientStats } from './PatientStats';
 import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
+import { SexEnum } from 'src/shared/enums';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
 type RouteParams = {
   patientId: string;
-};
-
-type FilterRequestBody = {
-  referrals: boolean;
-  readings: boolean;
-  assessments: boolean;
-  forms: boolean;
-};
-
-type FilterRequestKey = keyof FilterRequestBody;
-
-type Filter = {
-  //parameter is for net request;display_title is for UI display
-  parameter: FilterRequestKey;
-  display_title: string;
 };
 
 const filters: Filter[] = [
@@ -65,16 +54,16 @@ const filters: Filter[] = [
 ];
 
 export const PatientPage = () => {
-  const { patientId } = useRouteMatch<RouteParams>().params;
-  const [patient, setPatient] = useState<Patient>();
   const history = useHistory();
+
+  const { patientId } = useRouteMatch<RouteParams>().params;
+
+  const [patient, setPatient] = useState<Patient>();
   const [cards, setCards] = useState<JSX.Element[]>([]);
+
   const [errorLoading, setErrorLoading] = useState(false);
-  const [isThereAPendingReferral, setIsThereAPendingReferral] = useState(false);
-  const [
-    confirmDialogPerformAssessmentOpen,
-    setConfirmDialogPerformAssessmentOpen,
-  ] = useState(false);
+  const [hasPendingReferral, setHasPendingReferral] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const [filterRequestBody, setFilterRequestBody] = useState<FilterRequestBody>(
     {
@@ -88,79 +77,83 @@ export const PatientPage = () => {
   const classes = useStyles();
 
   useEffect(() => {
-    /*eslint no-useless-concat: "error"*/
-    apiFetch(API_URL + EndpointEnum.PATIENTS + `/${patientId}`)
-      .then((resp) => resp.json())
-      .then(setPatient)
-      .catch(() => setErrorLoading(true));
-  }, [patientId]);
-
-  useEffect(() => {
-    const mapCardToJSX = (card: any) => {
-      switch (card.type) {
-        case 'assessment':
-          return <AssessmentCard followUp={card} />;
-        case 'form':
-          return <CustomizedFormCard form={card} />;
-        case 'reading':
-          return <ReadingCard reading={card} />;
-        case 'referral':
-          if (card.isAssessed) {
-            return <ReferralAssessedCard referral={card} />;
-          } else if (card.isCancelled) {
-            return <ReferralCancellationCard referral={card} />;
-          } else if (card.notAttended) {
-            return <ReferralNotAttendedCard referral={card} />;
-          } else {
-            return <ReferralPendingCard referral={card} />;
-          }
-        default:
-          return <div>Error</div>;
+    const loadPatient = async () => {
+      try {
+        const patient: Patient = await getPatientAsync(patientId);
+        setPatient(patient);
+      } catch (e) {
+        setErrorLoading(true);
       }
     };
 
-    const UpdateCardsJsx = (cards: any[]) => {
-      const cardsJsx = cards.map((card) => (
-        <React.Fragment key={card.id ?? card.readingId}>
-          {mapCardToJSX(card)}
-        </React.Fragment>
-      ));
-      setCards(cardsJsx);
+    const loadPatientRefferals = async () => {
+      try {
+        const referrals: Referral[] = await getPatientReferralsAsync(patientId);
+
+        const hasPendingReferral = referrals.some(
+          (referral) =>
+            !referral.isAssessed &&
+            !referral.isCancelled &&
+            !referral.notAttended
+        );
+
+        setHasPendingReferral(hasPendingReferral);
+      } catch (e) {
+        console.error('Error receiving referrals');
+      }
     };
 
-    apiFetch(
-      `${API_URL}${
-        EndpointEnum.PATIENTS
-      }/${patientId}/get_all_records?readings=${
-        filterRequestBody.readings ? 1 : 0
-      }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${
-        filterRequestBody.assessments ? 1 : 0
-      }&forms=${filterRequestBody.forms ? 1 : 0}`
-    )
-      .then((resp) => resp.json())
-      .then((resp) => UpdateCardsJsx(resp))
-      .catch(() => setErrorLoading(true));
-  }, [filterRequestBody, patientId]);
+    loadPatient();
+    loadPatientRefferals();
+  }, [patientId]);
 
   useEffect(() => {
-    apiFetch(
-      API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
-    )
-      .then((resp) => resp.json())
-      .then((referralsData) => {
-        for (let i = 0; i < referralsData.length; i++) {
-          if (
-            !referralsData[i].isAssessed &&
-            !referralsData[i].isCancelled &&
-            !referralsData[i].notAttended
-          ) {
-            setIsThereAPendingReferral(true);
-            break;
-          }
+    const loadRecords = async () => {
+      const mapCardToJSX = (card: any) => {
+        switch (card.type) {
+          case 'assessment':
+            return <AssessmentCard followUp={card} />;
+          case 'form':
+            return <CustomizedFormCard form={card} />;
+          case 'reading':
+            return <ReadingCard reading={card} />;
+          case 'referral':
+            if (card.isAssessed) {
+              return <ReferralAssessedCard referral={card} />;
+            } else if (card.isCancelled) {
+              return <ReferralCancellationCard referral={card} />;
+            } else if (card.notAttended) {
+              return <ReferralNotAttendedCard referral={card} />;
+            } else {
+              return <ReferralPendingCard referral={card} />;
+            }
+          default:
+            return <div>Error</div>;
         }
-      })
-      .catch(() => console.error('Error receiving referrals'));
-  }, [patientId]);
+      };
+
+      const UpdateCardsJsx = (cards: any[]) => {
+        const cardsJsx = cards.map((card) => (
+          <React.Fragment key={card.id ?? card.readingId}>
+            {mapCardToJSX(card)}
+          </React.Fragment>
+        ));
+        setCards(cardsJsx);
+      };
+
+      try {
+        const records = await getPatientRecordsAsync(
+          patientId,
+          filterRequestBody
+        );
+        UpdateCardsJsx(records);
+      } catch (e) {
+        setErrorLoading(true);
+      }
+    };
+
+    loadRecords();
+  }, [filterRequestBody, patientId]);
 
   return (
     <>
@@ -173,9 +166,9 @@ export const PatientPage = () => {
         content={
           'You have at least one pending referral. Do you still want to perform an assessment without assessing a referral?'
         }
-        open={confirmDialogPerformAssessmentOpen}
+        open={confirmDialogOpen}
         onClose={() => {
-          setConfirmDialogPerformAssessmentOpen(false);
+          setConfirmDialogOpen(false);
         }}
         onConfirm={() => {
           history.push(`/assessments/new/${patientId}`);
@@ -183,10 +176,8 @@ export const PatientPage = () => {
       />
       <Header
         patient={patient}
-        isThereAPendingReferral={isThereAPendingReferral}
-        setConfirmDialogPerformAssessmentOpen={
-          setConfirmDialogPerformAssessmentOpen
-        }
+        isThereAPendingReferral={hasPendingReferral}
+        setConfirmDialogPerformAssessmentOpen={setConfirmDialogOpen}
       />
       <Grid container spacing={2} className={classes.root}>
         <Grid item xs={12} md={6}>

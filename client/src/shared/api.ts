@@ -4,10 +4,13 @@ import {
 } from 'src/pages/assessmentForm/state';
 import {
   CForm,
+  FilterRequestBody,
   FormTemplate,
   IUser,
   IUserWithIndex,
+  MedicalRecord,
   NewAssessment,
+  Pregnancy,
 } from './types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from './enums';
 
@@ -353,3 +356,33 @@ export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
       method: 'DELETE',
     }
   );
+
+export const getPatientAsync = async (patientId: string) => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.PATIENTS + `/${patientId}`
+  );
+
+  return response.json();
+};
+
+export const getPatientRecordsAsync = async (
+  patientId: string,
+  filterRequestBody: FilterRequestBody
+) => {
+  const response = await apiFetch(
+    `${API_URL}${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${
+      filterRequestBody.readings ? 1 : 0
+    }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${
+      filterRequestBody.assessments ? 1 : 0
+    }&forms=${filterRequestBody.forms ? 1 : 0}`
+  );
+  return response.json();
+};
+
+export const getPatientReferralsAsync = async (patientId: string) => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
+  );
+
+  return response.json();
+};
