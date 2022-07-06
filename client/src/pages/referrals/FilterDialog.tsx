@@ -33,7 +33,10 @@ import DoneIcon from '@material-ui/icons/Done';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
-import { CancelButton, SecondaryButton } from '../../shared/components/Button/index';
+import {
+  CancelButton,
+  SecondaryButton,
+} from '../../shared/components/Button/index';
 
 interface IProps {
   open: boolean;
@@ -530,10 +533,16 @@ export const FilterDialog = ({
         <CancelButton variant="contained" onClick={onClose} color="default">
           Cancel
         </CancelButton>
-        <SecondaryButton variant="contained" onClick={clearFilter} color="default">
+        <SecondaryButton
+          variant="contained"
+          onClick={clearFilter}
+          color="default">
           Clear All
         </SecondaryButton>
-        <SecondaryButton variant="contained" onClick={onConfirm} color="primary">
+        <SecondaryButton
+          variant="contained"
+          onClick={onConfirm}
+          color="primary">
           Apply Filter
         </SecondaryButton>
       </DialogActions>

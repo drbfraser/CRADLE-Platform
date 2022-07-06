@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography} from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { CustomizedForm } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
@@ -33,9 +33,8 @@ export const CustomizedFormData = ({ form }: IProps) => {
         <Typography variant="subtitle1">
           {`Category : ${form.category}`}
         </Typography>
-        
-        <PrimaryButton
-          onClick={handleEditFormClick}>
+
+        <PrimaryButton onClick={handleEditFormClick}>
           View & Edit Form
         </PrimaryButton>
       </>
