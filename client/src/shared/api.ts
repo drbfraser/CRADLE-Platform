@@ -338,3 +338,18 @@ export const getPatientTimelineAsync = async (
     )
   ).json();
 };
+
+export const deletePregnancyAsync = async (pregnancy: Pregnancy) =>
+  apiFetch(API_URL + EndpointEnum.PREGNANCIES + `/${pregnancy.pregnancyId}`, {
+    method: 'DELETE',
+  });
+
+export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
+  apiFetch(
+    API_URL +
+      EndpointEnum.MEDICAL_RECORDS +
+      `/${medicalRecord.medicalRecordId}`,
+    {
+      method: 'DELETE',
+    }
+  );
