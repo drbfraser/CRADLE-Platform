@@ -85,10 +85,16 @@ function ResourceTabPage(props: IProps): JSX.Element {
             activeStep={activeStep}
             className={classes.root}
             nextButton={
-              <PrimaryButton disabled ={activeStep === maxSteps - 1} onClick={handleNext}>Next</PrimaryButton>
+              <PrimaryButton
+                disabled={activeStep === maxSteps - 1}
+                onClick={handleNext}>
+                Next
+              </PrimaryButton>
             }
             backButton={
-              <SecondaryButton disabled = {activeStep === 0} onClick={handleBack}>Back</SecondaryButton>
+              <SecondaryButton disabled={activeStep === 0} onClick={handleBack}>
+                Back
+              </SecondaryButton>
             }
           />
           {/* <img alt="education" className="education-img" src={props.posterImgSrc} /> */}
