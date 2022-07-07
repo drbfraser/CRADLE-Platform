@@ -10,7 +10,6 @@ import { Form, InputOnChangeData, Select, TableCell } from 'semantic-ui-react';
 import { Link, useHistory } from 'react-router-dom';
 import { PastPregnancy, PatientPregnancyInfo } from 'src/shared/types';
 import React, { useEffect, useState } from 'react';
-import { RedirectButton, SecondaryButton } from 'src/shared/components/Button';
 import {
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
@@ -18,6 +17,7 @@ import {
 import { getNumOfWeeksNumeric, getYearToDisplay } from 'src/shared/utils';
 
 import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
+import { RedirectButton } from 'src/shared/components/Button';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import { makeStyles } from '@material-ui/core/styles';
@@ -36,13 +36,6 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   const [previousPregnancyUnit, setPreviousPregnancyUnit] = useState(
     GestationalAgeUnitEnum.MONTHS
   );
-
-  const handleEditCloseClick = () =>
-    history.push(
-      `/patients/${patientId}/edit/pregnancyInfo/${info!.pregnancyId}`
-    );
-
-  const handleAddClick = () => history.push(`/pregnancies/new/${patientId}`);
 
   const [info, setInfo] = useState<PatientPregnancyInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
@@ -106,11 +99,13 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
     return (
       <div>
         {info!.isPregnant ? (
-          <SecondaryButton
-            onClick={handleEditCloseClick}
+          <RedirectButton
+            url={`/patients/${patientId}/edit/pregnancyInfo/${
+              info!.pregnancyId
+            }`}
             className={classes.rightButton}>
             Edit / Close
-          </SecondaryButton>
+          </RedirectButton>
         ) : (
           <RedirectButton
             url={`/pregnancies/new/${patientId}`}
@@ -178,11 +173,11 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             <Divider />
             <div>
               <div>
-                <SecondaryButton
-                  onClick={handleAddClick}
+                <RedirectButton
+                  url={`/pregnancies/new/${patientId}`}
                   style={{ float: 'right' }}>
                   Add
-                </SecondaryButton>
+                </RedirectButton>
                 <h4> Previous Obstetric History</h4>
               </div>
               <br />

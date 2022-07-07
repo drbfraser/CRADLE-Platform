@@ -31,13 +31,5 @@ export const SecondaryButton = (props: ButtonProps) => (
 
 export const RedirectButton = ({ url, ...props }: RedirectButtonProps) => {
   const history = useHistory();
-  return (
-    <Button
-      size="large"
-      {...props}
-      color="primary"
-      variant="outlined"
-      onClick={() => history.push(url)}
-    />
-  );
+  return <SecondaryButton {...props} onClick={() => history.push(url)} />;
 };
