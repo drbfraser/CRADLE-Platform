@@ -8,18 +8,21 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 
 import { OrNull } from 'src/shared/types';
+import { PrimaryButton } from 'src/shared/components/Button';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
-import classes from './styles.module.css';
+import { makeStyles } from '@material-ui/core';
 import { useFormik } from 'formik';
-import { PrimaryButton } from 'src/shared/components/Button';
 
 export const LoginForm: React.FC = () => {
   const errorMessage = useSelector(
     ({ user }: ReduxState): OrNull<string> => user.current.message
   );
+
   const dispatch = useDispatch();
+  const classes = useStyles();
+
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -47,7 +50,7 @@ export const LoginForm: React.FC = () => {
         onClose={clearError}
         transitionDuration={0}
       />
-      <form onSubmit={formik.handleSubmit}>
+      <form className={classes.form} onSubmit={formik.handleSubmit}>
         <h1 className={classes.login}>Log In</h1>
         <h2>Email</h2>
         <input
@@ -68,11 +71,41 @@ export const LoginForm: React.FC = () => {
         {formik.touched.password && formik.errors.password ? (
           <div className={classes.formError}>{formik.errors.password}</div>
         ) : null}
-        <br />
-        <PrimaryButton className="contant-submit white" type="submit">
+        <PrimaryButton type="submit" className={classes.right}>
           Login
         </PrimaryButton>
       </form>
     </>
   );
 };
+
+const useStyles = makeStyles({
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '5px',
+    width: '260px',
+  },
+  right: {
+    marginLeft: 'auto',
+    marginRight: 0,
+    display: 'flex',
+    justifyContent: 'flex-end',
+    fontWeight: 'bold',
+  },
+  login: {
+    fontSize: '50px',
+  },
+  inputStyle: {
+    width: '100%',
+    height: '40px',
+    borderRadius: '5px',
+    padding: '10px',
+    borderBottom: 'solid 1px #000',
+  },
+  formError: {
+    fontSize: '12px',
+    color: '#e53e3e',
+    marginTop: '0.25rem',
+  },
+});
