@@ -1,42 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import { API_URL, apiFetch } from 'src/shared/api';
+import {
+  CancelButton,
+  PrimaryButton,
+  SecondaryButton,
+} from '../../shared/components/Button/index';
+import { DateRangePicker, FocusedInputShape } from 'react-dates';
+import { EndpointEnum, TrafficLightEnum } from 'src/shared/enums';
+import {
+  IFacility,
+  IUserWithTokens,
+  OrNull,
+  ReferralFilter,
+  Referrer,
+} from 'src/shared/types';
+import React, { useEffect, useState } from 'react';
+import moment, { Moment } from 'moment';
+
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Box from '@material-ui/core/Box';
+import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import moment, { Moment } from 'moment';
-import Grid from '@material-ui/core/Grid';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+import DoneIcon from '@material-ui/icons/Done';
 import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Grid from '@material-ui/core/Grid';
 import InputLabel from '@material-ui/core/InputLabel';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { DateRangePicker, FocusedInputShape } from 'react-dates';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  IFacility,
-  ReferralFilter,
-  Referrer,
-  IUserWithTokens,
-  OrNull,
-} from 'src/shared/types';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum, TrafficLightEnum } from 'src/shared/enums';
+import MenuItem from '@material-ui/core/MenuItem';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import { ReduxState } from 'src/redux/reducers';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import Select from '@material-ui/core/Select';
 import { TextField } from '@material-ui/core';
 import { TrafficLight } from 'src/shared/components/trafficLight';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import DoneIcon from '@material-ui/icons/Done';
-import ScheduleIcon from '@material-ui/icons/Schedule';
+import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
-import { ReduxState } from 'src/redux/reducers';
-import {
-  CancelButton,
-  SecondaryButton,
-} from '../../shared/components/Button/index';
 
 interface IProps {
   open: boolean;
@@ -278,9 +280,7 @@ export const FilterDialog = ({
       <DialogContent className={classes.content}>
         <Grid container spacing={3}>
           <Grid item md={12} sm={12} xs={12}>
-            <b>Health Facility</b>
-            <br />
-            <br />
+            <h4>Health Facility</h4>
             <Autocomplete
               id="facility-select"
               onChange={onFacilitySelect}
@@ -308,9 +308,7 @@ export const FilterDialog = ({
           </Grid>
 
           <Grid item md={12} sm={12} xs={12}>
-            <b>Date Range</b>
-            <br />
-            <br />
+            <h4>Date Range</h4>
             <DateRangePicker
               regular={true}
               startDate={startDate}
@@ -370,20 +368,16 @@ export const FilterDialog = ({
               </Select>
             </FormControl>
             <SecondaryButton
-              variant="contained"
               onClick={() => {
                 setStartDate(null);
                 setEndDate(null);
                 setPresetDateRange(undefined);
-              }}
-              color="default">
+              }}>
               Clear
             </SecondaryButton>
           </Grid>
           <Grid item md={12} sm={12} xs={12}>
-            <b>Referrer</b>
-            <br />
-            <br />
+            <h4>Referrer</h4>
             <Autocomplete
               id="referrer-select"
               onChange={onReferrerSelect}
@@ -412,8 +406,7 @@ export const FilterDialog = ({
             </Box>
           </Grid>
           <Grid item>
-            <b>Cradle Readings</b>
-            <br />
+            <h4>Cradle Readings</h4>
             {vitalSigns.map((vitalSign, index) => (
               <FormControlLabel
                 control={
@@ -454,12 +447,11 @@ export const FilterDialog = ({
             ))}
           </Grid>
           <Grid item md={6} sm={6}>
-            <b>Pregnant</b>
-            <br />
+            <h4>Pregnant</h4>
             <RadioGroup
               aria-label="isPregnant"
               value={isPregnant}
-              onChange={(event, value) => setIsPregnant(value)}>
+              onChange={(_, value) => setIsPregnant(value)}>
               <FormControlLabel
                 value="1"
                 control={
@@ -487,12 +479,11 @@ export const FilterDialog = ({
             </RadioGroup>
           </Grid>
           <Grid item md={6} sm={6}>
-            <b>Assessment Status</b>
-            <br />
+            <h4>Assessment Status</h4>
             <RadioGroup
               aria-label="isAssessed"
               value={isAssessed}
-              onChange={(event, value) => setIsAssessed(value)}>
+              onChange={(_, value) => setIsAssessed(value)}>
               <FormControlLabel
                 value="1"
                 control={
@@ -530,27 +521,15 @@ export const FilterDialog = ({
         </Grid>
       </DialogContent>
       <DialogActions>
-        <CancelButton variant="contained" onClick={onClose} color="default">
-          Cancel
-        </CancelButton>
-        <SecondaryButton
-          variant="contained"
-          onClick={clearFilter}
-          color="default">
-          Clear All
-        </SecondaryButton>
-        <SecondaryButton
-          variant="contained"
-          onClick={onConfirm}
-          color="primary">
-          Apply Filter
-        </SecondaryButton>
+        <CancelButton onClick={onClose}>Cancel</CancelButton>
+        <SecondaryButton onClick={clearFilter}>Clear All</SecondaryButton>
+        <PrimaryButton onClick={onConfirm}>Apply Filter</PrimaryButton>
       </DialogActions>
     </Dialog>
   );
 };
 
-export const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((_) => ({
   root: {
     width: '100%',
     margin: 0,
