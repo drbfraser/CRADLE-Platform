@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Divider, Box } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import { Alert, Skeleton } from '@material-ui/lab';
+import { Box, Divider, Paper, Typography } from '@material-ui/core';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
-import { apiFetch, API_URL } from 'src/shared/api';
+import React, { useEffect, useState } from 'react';
+
 import { Link } from 'react-router-dom';
-import { EndpointEnum } from 'src/shared/enums';
 import { OrNull } from 'src/shared/types';
+import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import { RedirectButton } from 'src/shared/components/redirectButton';
+import { getPatientMedicalHistoryAsync } from 'src/shared/api';
+import { makeStyles } from '@material-ui/core/styles';
 
 interface IProps {
   patient?: Patient;
@@ -21,19 +21,15 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const [errorLoading, setErrorLoading] = useState(false);
 
   useEffect(() => {
-    apiFetch(
-      API_URL +
-        EndpointEnum.PATIENTS +
-        `/${patientId}` +
-        EndpointEnum.MEDICAL_HISTORY
-    )
-      .then((resp) => resp.json())
-      .then((info) => {
-        setInfo(info);
-      })
-      .catch(() => {
+    const loadMedicalHistory = async () => {
+      try {
+        setInfo(await getPatientMedicalHistoryAsync(patientId));
+      } catch (e) {
         setErrorLoading(true);
-      });
+      }
+    };
+
+    loadMedicalHistory();
   }, [patientId]);
 
   interface HistoryItemProps {

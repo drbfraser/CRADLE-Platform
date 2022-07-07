@@ -10,6 +10,9 @@ import {
   IUserWithIndex,
   MedicalRecord,
   NewAssessment,
+  PatientMedicalInfo,
+  PatientPregnancyInfo,
+  PatientStatistics,
   Pregnancy,
 } from './types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from './enums';
@@ -357,6 +360,19 @@ export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
     }
   );
 
+export const getPatientMedicalHistoryAsync = async (
+  patientId: string
+): Promise<PatientMedicalInfo> => {
+  const response = await apiFetch(
+    API_URL +
+      EndpointEnum.PATIENTS +
+      `/${patientId}` +
+      EndpointEnum.MEDICAL_HISTORY
+  );
+
+  return response.json();
+};
+
 export const getPatientAsync = async (patientId: string) => {
   const response = await apiFetch(
     API_URL + EndpointEnum.PATIENTS + `/${patientId}`
@@ -382,6 +398,29 @@ export const getPatientRecordsAsync = async (
 export const getPatientReferralsAsync = async (patientId: string) => {
   const response = await apiFetch(
     API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
+  );
+
+  return response.json();
+};
+
+export const getPatientStatisticsAsync = async (
+  patientId: string
+): Promise<PatientStatistics> => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.STATISTICS
+  );
+
+  return response.json();
+};
+
+export const getPatientPregnancySummaryAsync = async (
+  patientId: string
+): Promise<PatientPregnancyInfo> => {
+  const response = await apiFetch(
+    API_URL +
+      EndpointEnum.PATIENTS +
+      `/${patientId}` +
+      EndpointEnum.PREGNANCY_SUMMARY
   );
 
   return response.json();
