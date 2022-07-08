@@ -314,7 +314,6 @@ export const saveFormResponseAsync = async (
     ),
   };
 
-  debugger;
   return apiFetch(url, init, false);
 };
 
@@ -345,6 +344,14 @@ export const getPatientTimelineAsync = async (
   ).json();
 };
 
+export const getPregnancyAsync = async (pregnancyId: string) => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.PREGNANCIES + `/${pregnancyId}`
+  );
+
+  return response.json();
+};
+
 export const deletePregnancyAsync = async (pregnancy: Pregnancy) =>
   apiFetch(API_URL + EndpointEnum.PREGNANCIES + `/${pregnancy.pregnancyId}`, {
     method: 'DELETE',
@@ -359,6 +366,9 @@ export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
       method: 'DELETE',
     }
   );
+
+export const getMedicalRecordAsync = async (medicalRecordId: string) =>
+  apiFetch(API_URL + EndpointEnum.MEDICAL_RECORDS + `/${medicalRecordId}`);
 
 export const getPatientMedicalHistoryAsync = async (
   patientId: string
@@ -421,6 +431,20 @@ export const getPatientPregnancySummaryAsync = async (
       EndpointEnum.PATIENTS +
       `/${patientId}` +
       EndpointEnum.PREGNANCY_SUMMARY
+  );
+
+  return response.json();
+};
+
+export const getPatientPregnancyInfoAsync = async (
+  patientId: string
+): Promise<PatientPregnancyInfo> => {
+  const response = await apiFetch(
+    API_URL +
+      EndpointEnum.PATIENTS +
+      '/' +
+      patientId +
+      EndpointEnum.PATIENT_INFO
   );
 
   return response.json();

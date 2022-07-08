@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
-import Paper from '@material-ui/core/Paper';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid/Grid';
-import { makeStyles } from '@material-ui/core/styles';
 import { Field, FormikProps } from 'formik';
 import { PatientField, PatientState } from '../state';
+import React, { useState } from 'react';
 import { Select, TextField } from 'formik-material-ui';
-import { ToggleButtonGroup } from 'formik-material-ui-lab';
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import InputLabel from '@material-ui/core/InputLabel';
+
+import Box from '@material-ui/core/Box';
 import FormControl from '@material-ui/core/FormControl';
+import Grid from '@material-ui/core/Grid/Grid';
+import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
 import { PatientIDExists } from './PatientIDExists';
-import { handleBlurPatientId } from './handlers';
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import { ToggleButtonGroup } from 'formik-material-ui-lab';
+import { getPatientPregnancyInfoAsync } from 'src/shared/api';
 import { handleChangeCustom } from '../handlers';
+import { makeStyles } from '@material-ui/core/styles';
 import { sexOptions } from 'src/shared/constants';
 
 interface IProps {
@@ -26,6 +27,21 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
   // for *new* patients only, track whether the patient ID already exists
   const [existingPatientId, setExistingPatientId] =
     useState<string | null>(null);
+
+  const handlePatientIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    formikProps.handleBlur(e);
+
+    try {
+      const patientId = e.target.value;
+      setExistingPatientId(patientId);
+      if (patientId) {
+        await getPatientPregnancyInfoAsync(patientId);
+      }
+    } catch (e) {
+      setExistingPatientId(null);
+    }
+  };
+
   return (
     <Paper>
       <Box p={2}>
@@ -39,13 +55,10 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               variant="outlined"
               label="Patient ID"
               name={PatientField.patientId}
-              onBlur={handleBlurPatientId(
-                formikProps.handleBlur,
-                setExistingPatientId
-              )}
+              onBlur={handlePatientIdBlur}
               disabled={!creatingNew}
             />
-            {existingPatientId != null && (
+            {existingPatientId && (
               <PatientIDExists patientId={existingPatientId} />
             )}
           </Grid>
