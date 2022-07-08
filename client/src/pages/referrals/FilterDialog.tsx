@@ -1,39 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import Button from '@material-ui/core/Button';
+import { DateRangePicker, FocusedInputShape } from 'react-dates';
+import {
+  IFacility,
+  IUserWithTokens,
+  OrNull,
+  ReferralFilter,
+  Referrer,
+} from 'src/shared/types';
+import React, { useEffect, useState } from 'react';
+import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api';
+import moment, { Moment } from 'moment';
+
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
+import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import moment, { Moment } from 'moment';
-import Grid from '@material-ui/core/Grid';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+import DoneIcon from '@material-ui/icons/Done';
 import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Grid from '@material-ui/core/Grid';
 import InputLabel from '@material-ui/core/InputLabel';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { DateRangePicker, FocusedInputShape } from 'react-dates';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  IFacility,
-  ReferralFilter,
-  Referrer,
-  IUserWithTokens,
-  OrNull,
-} from 'src/shared/types';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum, TrafficLightEnum } from 'src/shared/enums';
+import MenuItem from '@material-ui/core/MenuItem';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import { ReduxState } from 'src/redux/reducers';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import Select from '@material-ui/core/Select';
 import { TextField } from '@material-ui/core';
 import { TrafficLight } from 'src/shared/components/trafficLight';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import DoneIcon from '@material-ui/icons/Done';
-import ScheduleIcon from '@material-ui/icons/Schedule';
+import { TrafficLightEnum } from 'src/shared/enums';
+import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
-import { ReduxState } from 'src/redux/reducers';
 
 interface IProps {
   open: boolean;
@@ -117,23 +118,28 @@ export const FilterDialog = ({
   const [isAssessed, setIsAssessed] = useState<string>();
 
   useEffect(() => {
-    apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)
-      .then((resp) => resp.json())
-      .then((jsonResp: IFacility[]) => {
-        const facilities = jsonResp.map((f) => f.healthFacilityName);
-        setHealthFacilities(facilities);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    apiFetch(API_URL + EndpointEnum.USER_VHTS)
-      .then((resp) => resp.json())
-      .then((jsonResp) => {
-        setReferrers(jsonResp);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    const fetchHealthFacilities = async () => {
+      try {
+        const facilities = await getHealthFacilitiesAsync();
+
+        setHealthFacilities(
+          facilities.map((facility: IFacility) => facility.healthFacilityName)
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    const fetchUserVhts = async () => {
+      try {
+        setReferrers(await getUserVhtsAsync());
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchHealthFacilities();
+    fetchUserVhts();
   }, []);
 
   useEffect(() => {

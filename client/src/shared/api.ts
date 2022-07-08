@@ -15,6 +15,7 @@ import {
   PatientPregnancyInfo,
   PatientStatistics,
   Pregnancy,
+  Referrer,
 } from './types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from './enums';
 
@@ -477,6 +478,12 @@ export const saveReferralAsync = async (referral: any) => {
     method: 'POST',
     body: JSON.stringify(referral),
   });
+
+  return response.json();
+};
+
+export const getUserVhtsAsync = async (): Promise<Referrer[]> => {
+  const response = await apiFetch(API_URL + EndpointEnum.USER_VHTS);
 
   return response.json();
 };
