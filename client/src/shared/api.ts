@@ -6,6 +6,7 @@ import {
   CForm,
   FilterRequestBody,
   FormTemplate,
+  IFacility,
   IUser,
   IUserWithIndex,
   MedicalRecord,
@@ -17,7 +18,6 @@ import {
 } from './types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from './enums';
 
-import { IFacility } from 'src/pages/admin/manageFacilities/state';
 import { PasswordField } from 'src/app/topBar/changePassword/state';
 import { UserField } from 'src/pages/admin/manageUsers/state';
 import jwt_decode from 'jwt-decode';
@@ -116,14 +116,27 @@ export const changePasswordAsync = async (
   return apiFetch(API_URL + EndpointEnum.CHANGE_PASS, init);
 };
 
-export const createHealthFacilityAsync = async (facility: IFacility) =>
+export const saveHealthFacilityAsync = async (facility: IFacility) =>
   apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES, {
     method: 'POST',
     body: JSON.stringify(facility),
   });
 
-export const getFacilitiesAsync = async (): Promise<IFacility[]> =>
-  (await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)).json();
+export const getHealthFacilitiesAsync = async (): Promise<IFacility[]> => {
+  const response = await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES);
+
+  return response.json();
+};
+
+export const getHealthFacilityAsync = async (
+  healthFacility?: string
+): Promise<IFacility> => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.HEALTH_FACILITIES + `/${healthFacility}`
+  );
+
+  return response.json();
+};
 
 export const archiveFormTemplateAsync = async (template: FormTemplate) =>
   apiFetch(
@@ -135,7 +148,7 @@ export const archiveFormTemplateAsync = async (template: FormTemplate) =>
     false
   );
 
-export const createFormTemplateWithFileAsync = async (file: File) => {
+export const saveFormTemplateWithFileAsync = async (file: File) => {
   const data: FormData = new FormData();
   data.append('file', file);
 
@@ -446,6 +459,24 @@ export const getPatientPregnancyInfoAsync = async (
       patientId +
       EndpointEnum.PATIENT_INFO
   );
+
+  return response.json();
+};
+
+export const saveReadingAsync = async (reading: any) => {
+  const response = await apiFetch(API_URL + EndpointEnum.READINGS, {
+    method: 'POST',
+    body: JSON.stringify(reading),
+  });
+
+  return response.json();
+};
+
+export const saveReferralAsync = async (referral: any) => {
+  const response = await apiFetch(API_URL + EndpointEnum.REFERRALS, {
+    method: 'POST',
+    body: JSON.stringify(referral),
+  });
 
   return response.json();
 };

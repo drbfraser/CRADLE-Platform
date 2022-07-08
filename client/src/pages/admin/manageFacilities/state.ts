@@ -6,15 +6,7 @@ export enum FacilityField {
   name = 'healthFacilityName',
   phoneNumber = 'healthFacilityPhoneNumber',
   location = 'location',
-}
-
-export interface IFacility {
-  [FacilityField.about]: string;
-  [FacilityField.type]: string;
-  [FacilityField.name]: string;
-  [FacilityField.phoneNumber]: string;
-  [FacilityField.location]: string;
-  index: number;
+  newReferrals = 'newReferrals',
 }
 
 export const getValidationSchema = (existingNames: string[]) => {
@@ -44,6 +36,7 @@ export const facilityTemplate = {
   [FacilityField.name]: '',
   [FacilityField.phoneNumber]: '',
   [FacilityField.location]: '',
+  [FacilityField.newReferrals]: 0,
 };
 
 export const facilityTypes = ['HCF_2', 'HCF_3', 'HCF_4', 'HOSPITAL'];

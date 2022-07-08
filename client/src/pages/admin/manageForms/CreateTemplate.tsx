@@ -13,8 +13,8 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { OrNull } from 'src/shared/types';
 import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
-import { createFormTemplateWithFileAsync } from 'src/shared/api';
 import { isString } from 'lodash';
+import { saveFormTemplateWithFileAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
@@ -40,7 +40,7 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
   const handleClickUpload = async (fileObj: FileObject) => {
     if (fileObj) {
       try {
-        await createFormTemplateWithFileAsync(fileObj.file);
+        await saveFormTemplateWithFileAsync(fileObj.file);
 
         setUploadSuccess(`${fileObj.file.name} uploaded successfully`);
         setShowSuccess(true);

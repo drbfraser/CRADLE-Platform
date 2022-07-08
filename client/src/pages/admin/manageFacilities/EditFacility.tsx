@@ -12,7 +12,6 @@ import {
 } from '@material-ui/core';
 import {
   FacilityField,
-  IFacility,
   facilityTemplate,
   facilityTypes,
   getValidationSchema,
@@ -22,6 +21,7 @@ import React, { useState } from 'react';
 import { Select, TextField } from 'formik-material-ui';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { IFacility } from 'src/shared/types';
 
 interface IProps {
   open: boolean;
@@ -39,7 +39,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
     { setSubmitting }: FormikHelpers<IFacility>
   ) => {
     try {
-      await api.createHealthFacilityAsync(values);
+      await api.saveHealthFacilityAsync(values);
 
       onClose();
     } catch (e) {

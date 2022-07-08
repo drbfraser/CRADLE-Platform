@@ -1,6 +1,5 @@
 import { FormikProps } from 'formik';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import { getPatientMedicalHistoryAsync } from 'src/shared/api';
 
 export enum ReadingField {
   // symptoms
@@ -83,17 +82,12 @@ export type ReadingState = typeof initialState;
 export const getReadingState = async (
   patientId: string
 ): Promise<ReadingState> => {
-  await apiFetch(
-    API_URL +
-      EndpointEnum.PATIENTS +
-      `/${patientId}` +
-      EndpointEnum.MEDICAL_HISTORY
-  )
-    .then((resp) => resp.json())
-    .then(
-      (info) => (initialState[ReadingField.drugHistory] = info.drugHistory)
-    );
-  return { ...initialState };
+  const medicalHistory = await getPatientMedicalHistoryAsync(patientId);
+
+  return {
+    ...initialState,
+    [ReadingField.drugHistory]: medicalHistory.drugHistory!,
+  };
 };
 
 export interface FormPageProps {

@@ -7,7 +7,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import CreateIcon from '@material-ui/icons/Create';
 import EditFacility from './EditFacility';
-import { IFacility } from './state';
+import { IFacility } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAdminStyles } from '../adminStyles';
@@ -56,9 +56,9 @@ export const ManageFacilities = () => {
 
   const getFacilities = async () => {
     try {
-      const resp: IFacility[] = await api.getFacilitiesAsync();
+      const resp: IFacility[] = await api.getHealthFacilitiesAsync();
 
-      setFacilities(resp.map((facility, index) => ({ ...facility, index })));
+      setFacilities(resp);
       setLoading(false);
     } catch (e) {
       setErrorLoading(true);
@@ -85,7 +85,6 @@ export const ManageFacilities = () => {
         f.healthFacilityName,
         f.healthFacilityPhoneNumber,
         f.location,
-        f.index,
       ]);
     setTableData(rows);
   }, [facilities, search]);

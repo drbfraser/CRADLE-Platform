@@ -1,13 +1,13 @@
-import React, { useState, useRef } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { EndpointEnum } from 'src/shared/enums';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { IUserWithTokens, OrNull } from 'src/shared/types';
-import { useSelector } from 'react-redux';
-import { ReduxState } from 'src/redux/reducers';
+import { IFacility, IUserWithTokens, OrNull } from 'src/shared/types';
+import React, { useState } from 'react';
+
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { ReduxState } from 'src/redux/reducers';
 import Typography from '@material-ui/core/Typography';
+import { getHealthFacilityAsync } from 'src/shared/api';
+import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
 
 interface IProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
@@ -28,7 +28,7 @@ export const AutoRefresher = ({
 
   const [progress, setProgress] = useState<number>(0);
   const [ifAutoRefreshOn, setIfAutoRefreshOn] = useState<boolean>(true);
-  const userFacility = useRef('');
+  const [healthFacilityName, setHealthFacilityName] = useState<string>();
 
   const { user } = useSelector(
     ({ user }: ReduxState): SelectorState => ({
@@ -37,84 +37,56 @@ export const AutoRefresher = ({
   );
 
   React.useEffect(() => {
-    if (user) {
-      userFacility.current = user.healthFacilityName;
-    }
-    const newReferrals = true;
-    const params = new URLSearchParams({
-      newReferrals: newReferrals.toString(),
-    });
-    apiFetch(
-      API_URL +
-        EndpointEnum.HEALTH_FACILITIES +
-        '/' +
-        userFacility.current +
-        '?' +
-        params
-    )
-      .then((resp) => resp.json())
-      .then((jsonResp: string) => {
-        const lastRefreshTime = sessionStorage.getItem('lastRefreshTime');
-        if (lastRefreshTime === '0') {
-          sessionStorage.setItem('lastRefreshTime', jsonResp);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    user && setHealthFacilityName(user?.healthFacilityName);
   }, [user]);
 
   React.useEffect(() => {
-    const newReferrals = true;
-    const params = new URLSearchParams({
-      newReferrals: newReferrals.toString(),
-    });
-
     setProgress(0);
-    const timePerSlice = refreshTimer * 10;
-    const timer = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress >= 100) {
-          apiFetch(
-            API_URL +
-              EndpointEnum.HEALTH_FACILITIES +
-              '/' +
-              userFacility.current +
-              '?' +
-              params
-          )
-            .then((resp) => resp.json())
-            .then((jsonResp: string) => {
-              const remoteTimestamp = Number(jsonResp);
-              const lastRefreshTime = sessionStorage.getItem('lastRefreshTime');
-              if (Number(lastRefreshTime) < remoteTimestamp) {
-                setRefresh((prevRefresh) => {
-                  return !prevRefresh;
-                });
-                sessionStorage.setItem('lastRefreshTime', jsonResp);
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-          return 0;
-        } else {
-          return prevProgress + 1;
-        }
-      });
-    }, timePerSlice);
+
     if (refreshTimer === 0) {
-      clearInterval(timer);
-      setProgress(0);
       setIfAutoRefreshOn(false);
-    } else {
-      setIfAutoRefreshOn(true);
+      return;
     }
 
-    return () => {
-      clearInterval(timer);
+    setIfAutoRefreshOn(true);
+
+    const timePerSlice = refreshTimer * 10;
+
+    const refreshFacilities = async () => {
+      const healthFacility: IFacility = await getHealthFacilityAsync(
+        healthFacilityName
+      );
+
+      const lastRefreshTime = sessionStorage.getItem('lastRefreshTime');
+
+      if (Number(lastRefreshTime) < healthFacility.newReferrals) {
+        setRefresh((prevRefresh) => !prevRefresh);
+
+        sessionStorage.setItem(
+          'lastRefreshTime',
+          healthFacility.newReferrals.toString()
+        );
+      }
     };
-  }, [refreshTimer, setRefresh]);
+
+    const timer = setInterval(
+      async () =>
+        setProgress((progress) => {
+          if (progress < 100) {
+            return progress + 1;
+          }
+
+          refreshFacilities();
+
+          return 0;
+        }),
+      timePerSlice
+    );
+
+    return () => {
+      timer && clearInterval(timer);
+    };
+  }, [refreshTimer, setRefresh, healthFacilityName]);
 
   return (
     <div className={classes.autoRefreshWrapper}>
@@ -152,7 +124,7 @@ export const AutoRefresher = ({
   );
 };
 
-export const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles(() => ({
   enableBtn: {
     verticalAlign: 'middle',
     display: 'inline-block',
