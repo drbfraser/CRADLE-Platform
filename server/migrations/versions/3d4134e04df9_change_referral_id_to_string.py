@@ -29,11 +29,13 @@ def upgrade():
 
     connection = op.get_bind()
     results = connection.execute("SELECT id FROM referral")
-    for (existing_id,) in results:
-        new_id = str(uuid.uuid4())
-        results = connection.execute(
-            f"UPDATE referral SET id='{new_id}' WHERE id='{existing_id}'"
-        )
+
+    if results is not None:
+        for (existing_id,) in results:
+            new_id = str(uuid.uuid4())
+            results = connection.execute(
+                f"UPDATE referral SET id='{new_id}' WHERE id='{existing_id}'"
+            )
 
 
 def downgrade():
