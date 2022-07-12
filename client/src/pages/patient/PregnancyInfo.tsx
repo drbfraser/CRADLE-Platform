@@ -17,7 +17,7 @@ import {
 import { getNumOfWeeksNumeric, getYearToDisplay } from 'src/shared/utils';
 
 import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
-import { RedirectButton } from 'src/shared/components/redirectButton';
+import { RedirectButton } from 'src/shared/components/Button';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import { makeStyles } from '@material-ui/core/styles';
@@ -100,16 +100,18 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
       <div>
         {info!.isPregnant ? (
           <RedirectButton
-            text="Edit/Close"
-            redirectUrl={`/patients/${patientId}/edit/pregnancyInfo/${
+            url={`/patients/${patientId}/edit/pregnancyInfo/${
               info!.pregnancyId
             }`}
-          />
+            className={classes.rightButton}>
+            Edit / Close
+          </RedirectButton>
         ) : (
           <RedirectButton
-            text="Add"
-            redirectUrl={`/pregnancies/new/${patientId}`}
-          />
+            url={`/pregnancies/new/${patientId}`}
+            className={classes.rightButton}>
+            Add
+          </RedirectButton>
         )}
         <h4>Current Pregnancy</h4>
         <p>
@@ -172,9 +174,10 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             <div>
               <div>
                 <RedirectButton
-                  text="Add"
-                  redirectUrl={`/pregnancies/new/${patientId}`}
-                />
+                  url={`/pregnancies/new/${patientId}`}
+                  style={{ float: 'right' }}>
+                  Add
+                </RedirectButton>
                 <h4> Previous Obstetric History</h4>
               </div>
               <br />
@@ -258,5 +261,8 @@ const useStyles = makeStyles({
   inline: {
     display: 'flex',
     flexDirection: 'row',
+  },
+  rightButton: {
+    float: 'right',
   },
 });

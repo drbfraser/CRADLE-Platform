@@ -1,20 +1,21 @@
-import { makeStyles } from '@material-ui/core';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import { TextField as FormikTextField } from 'formik-material-ui';
-import { Field, Form, Formik } from 'formik';
 import {
   Autocomplete,
   AutocompleteRenderInputParams,
 } from 'formik-material-ui-lab';
+import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
+import { ReferralField, initialState, validationSchema } from './state';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
+import Box from '@material-ui/core/Box';
+import { TextField as FormikTextField } from 'formik-material-ui';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import { PrimaryButton } from 'src/shared/components/Button';
+import TextField from '@material-ui/core/TextField';
 import { handleSubmit } from './handlers';
-import { initialState, ReferralField, validationSchema } from './state';
+import { makeStyles } from '@material-ui/core';
+import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 
 interface IProps {
   patientId: string;
@@ -84,15 +85,12 @@ export const ReferralForm = ({ patientId }: IProps) => {
               </Box>
             </Paper>
             <br />
-            <Button
+            <PrimaryButton
               className={classes.right}
-              color="primary"
-              variant="contained"
-              size="large"
               type="submit"
               disabled={isSubmitting}>
               Submit Referral
-            </Button>
+            </PrimaryButton>
           </Form>
         )}
       </Formik>

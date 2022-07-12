@@ -1,23 +1,24 @@
+import { API_URL, apiFetch } from 'src/shared/api';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from '@material-ui/core';
-import Alert from '@material-ui/lab/Alert';
-import { Formik, Form, Field } from 'formik';
-import { TextField } from 'formik-material-ui';
-import React, { useState } from 'react';
-import { Toast } from 'src/shared/components/toast';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import { Field, Form, Formik } from 'formik';
 import {
-  initialValues,
   IPasswordForm,
   PasswordField,
+  initialValues,
   validationSchema,
 } from './state';
+import React, { useState } from 'react';
+
+import Alert from '@material-ui/lab/Alert';
+import { EndpointEnum } from 'src/shared/enums';
+import { TextField } from 'formik-material-ui';
+import { Toast } from 'src/shared/components/toast';
 
 interface IProps {
   open: boolean;
@@ -74,7 +75,12 @@ const ChangePassword = ({ open, onClose }: IProps) => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}>
             {({ isSubmitting }) => (
-              <Form>
+              <Form
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  rowGap: '10px',
+                }}>
                 <Field
                   component={TextField}
                   type="password"
@@ -84,8 +90,6 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                   label="Current Password"
                   name={PasswordField.currentPass}
                 />
-                <br />
-                <br />
                 <Field
                   component={TextField}
                   type="password"
@@ -95,8 +99,6 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                   label="New Password"
                   name={PasswordField.newPass}
                 />
-                <br />
-                <br />
                 <Field
                   component={TextField}
                   type="password"
@@ -107,12 +109,12 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                   name={PasswordField.confirmNewPass}
                 />
                 <DialogActions>
-                  <Button type="button" onClick={onClose}>
+                  <CancelButton type="button" onClick={onClose}>
                     Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  </CancelButton>
+                  <PrimaryButton type="submit" disabled={isSubmitting}>
                     Change
-                  </Button>
+                  </PrimaryButton>
                 </DialogActions>
               </Form>
             )}
