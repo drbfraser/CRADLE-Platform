@@ -18,7 +18,7 @@ build
 .env.development.local
 .env.test.local
 .env.production.local
-
+server/report.xml
 .eslintcache
 
 npm-debug.log*
