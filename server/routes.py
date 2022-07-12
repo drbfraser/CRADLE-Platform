@@ -255,7 +255,7 @@ def init(api):
 
     api.add_resource(
         FormClassification, "/api/forms/classifications", endpoint="form_classifications"
-    )  # [POST]
+    )  # [GET, POST]
     
     api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]
     api.add_resource(

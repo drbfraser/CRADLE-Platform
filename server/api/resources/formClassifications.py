@@ -85,3 +85,17 @@ class Root(Resource):
         crud.create(formClassification, refresh=True)
 
         return marshal.marshal(formClassification, shallow=True), 201
+
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/form-classifications-post.yml",
+        methods=["GET"],
+        endpoint="form_classifications",
+    )
+    def get():
+
+        form_classifications = crud.read_all(FormClassification)
+
+        return [marshal.marshal(f, shallow=True) for f in form_classifications], 200
+
