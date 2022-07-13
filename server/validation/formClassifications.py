@@ -35,5 +35,3 @@ def validate_template(request_body: dict) -> Optional[str]:
     error = values_correct_type(request_body, ["id", "name"], str)
     if error:
         return error
-
-

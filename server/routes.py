@@ -256,9 +256,9 @@ def init(api):
     )  # [GET]
 
     api.add_resource(
-        FormClassification, 
-        "/api/forms/classifications", 
-        endpoint="form_classifications"
+        FormClassification,
+        "/api/forms/classifications",
+        endpoint="form_classifications",
     )  # [GET, POST]
     api.add_resource(
         SingleFormClassification,
@@ -266,11 +266,11 @@ def init(api):
         endpoint="single_form_classification",
     )  # [GET, PUT]
     api.add_resource(
-        FormClassificationSummary, 
-        "/api/forms/classifications/summary", 
-        endpoint="form_classification_summary"
+        FormClassificationSummary,
+        "/api/forms/classifications/summary",
+        endpoint="form_classification_summary",
     )  # [GET]
-    
+
     api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]
     api.add_resource(
         SingleForm, "/api/forms/responses/<string:form_id>", endpoint="single_form"

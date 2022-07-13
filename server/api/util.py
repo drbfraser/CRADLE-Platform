@@ -16,7 +16,14 @@ import flask_jwt_extended as jwt
 import utils
 from data.crud import M
 from flask import Request
-from models import Form, FormTemplate, FormClassification, QRelationalEnum, QuestionTypeEnum, User
+from models import (
+    Form,
+    FormTemplate,
+    FormClassification,
+    QRelationalEnum,
+    QuestionTypeEnum,
+    User,
+)
 
 from api.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,

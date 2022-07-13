@@ -110,11 +110,13 @@ class SingleFormClassification(Resource):
         endpoint="single_form_classification",
     )
     def get(form_classification_id: str):
-        
+
         form_classification = crud.read(FormClassification, id=form_classification_id)
-        
+
         if not form_classification:
-            abort(400, message=f"No form classification with id {form_classification_id}")
+            abort(
+                400, message=f"No form classification with id {form_classification_id}"
+            )
 
         return marshal.marshal(form_classification), 200
 
@@ -130,7 +132,9 @@ class SingleFormClassification(Resource):
         form_classification = crud.read(FormClassification, id=form_classification_id)
 
         if not form_classification:
-            abort(400, message=f"No form classification with id {form_classification_id}")
+            abort(
+                400, message=f"No form classification with id {form_classification_id}"
+            )
 
         req = request.get_json()
         if req.get("name") is not None:
@@ -139,6 +143,7 @@ class SingleFormClassification(Resource):
             data.db_session.refresh(form_classification)
 
         return marshal.marshal(form_classification, True), 201
+
 
 # /api/forms/classifications/summary
 class FormClassificationSummary(Resource):
@@ -152,20 +157,23 @@ class FormClassificationSummary(Resource):
     def get():
         form_classifications = crud.read_all(FormClassification)
         result_templates = []
-        
+
         for form_classification in form_classifications:
-            possible_templates = crud.find(FormTemplate, FormTemplate.formClassificationId == form_classification.id)
-            
+            possible_templates = crud.find(
+                FormTemplate,
+                FormTemplate.formClassificationId == form_classification.id,
+            )
+
             if len(possible_templates) == 0:
                 continue
-            
+
             result_template = None
             for possible_template in possible_templates:
                 if result_template == None:
                     result_template = possible_template
                 elif possible_template.dateCreated > result_template.dateCreated:
                     result_template = possible_template
-            
+
             result_templates.append(result_template)
-        
+
         return [marshal.marshal(f, shallow=True) for f in result_templates], 200
