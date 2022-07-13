@@ -139,3 +139,33 @@ class SingleFormClassification(Resource):
             data.db_session.refresh(form_classification)
 
         return marshal.marshal(form_classification, True), 201
+
+# /api/forms/classifications/summary
+class FormClassificationSummary(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/form-classification-summary-get.yml",
+        methods=["GET"],
+        endpoint="form_classification_summary",
+    )
+    def get():
+        form_classifications = crud.read_all(FormClassification)
+        result_templates = []
+        
+        for form_classification in form_classifications:
+            possible_templates = crud.find(FormTemplate, FormTemplate.formClassificationId == form_classification.id)
+            
+            if len(possible_templates) == 0:
+                continue
+            
+            result_template = None
+            for possible_template in possible_templates:
+                if result_template == None:
+                    result_template = possible_template
+                elif possible_template.dateCreated > result_template.dateCreated:
+                    result_template = possible_template
+            
+            result_templates.append(result_template)
+        
+        return [marshal.marshal(f, shallow=True) for f in result_templates], 200

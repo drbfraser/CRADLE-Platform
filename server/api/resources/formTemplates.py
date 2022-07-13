@@ -65,7 +65,7 @@ class Root(Resource):
 
         if req.get("id") is not None:
             if crud.read(FormTemplate, id=req["id"]):
-                abort(404, message="Form template already exist")
+                abort(409, message="Form template already exist")
 
         error_message = formTemplates.validate_template(req)
         if error_message:
@@ -84,7 +84,7 @@ class Root(Resource):
                 version=req["version"],
             ):
                 abort(
-                    404,
+                    409,
                     message="Form template with the same version already exists - change the version to upload",
                 )
 
