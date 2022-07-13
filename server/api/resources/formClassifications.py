@@ -65,16 +65,16 @@ class Root(Resource):
 
         if req.get("id") is not None:
             if crud.read(FormClassification, id=req["id"]):
-                abort(404, message="Form classification already exists")
+                abort(409, message="Form classification already exists")
 
         error_message = formClassifications.validate_template(req)
         if error_message:
-            abort(404, message=error_message)
+            abort(400, message=error_message)
 
         if req.get("name") is not None:
             if crud.read(FormClassification, id=req["name"]):
                 abort(
-                    404,
+                    409,
                     message="Form classification with the same name already exists",
                 )
 
@@ -99,3 +99,43 @@ class Root(Resource):
 
         return [marshal.marshal(f, shallow=True) for f in form_classifications], 200
 
+
+# /api/forms/classifications/<string:form_classification_id>
+class SingleFormClassification(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-form-classification-get.yml",
+        methods=["GET"],
+        endpoint="single_form_classification",
+    )
+    def get(form_classification_id: str):
+        
+        form_classification = crud.read(FormClassification, id=form_classification_id)
+        
+        if not form_classification:
+            abort(400, message=f"No form classification with id {form_classification_id}")
+
+        return marshal.marshal(form_classification), 200
+
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-form-classification-put.yml",
+        methods=["PUT"],
+        endpoint="single_form_classification",
+    )
+    def put(form_classification_id: str):
+
+        form_classification = crud.read(FormClassification, id=form_classification_id)
+
+        if not form_classification:
+            abort(400, message=f"No form classification with id {form_classification_id}")
+
+        req = request.get_json()
+        if req.get("name") is not None:
+            form_classification.name = req.get("name")
+            data.db_session.commit()
+            data.db_session.refresh(form_classification)
+
+        return marshal.marshal(form_classification, True), 201
