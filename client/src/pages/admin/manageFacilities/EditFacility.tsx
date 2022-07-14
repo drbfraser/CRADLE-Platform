@@ -1,7 +1,7 @@
 import * as api from 'src/shared/api';
 
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -120,12 +120,14 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                   name={FacilityField.about}
                 />
                 <DialogActions>
-                  <Button type="button" onClick={onClose}>
+                  <CancelButton type="button" onClick={onClose}>
                     Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting || !isValid}>
+                  </CancelButton>
+                  <PrimaryButton
+                    type="submit"
+                    disabled={isSubmitting || !isValid}>
                     {creatingNew ? 'Create' : 'Save'}
-                  </Button>
+                  </PrimaryButton>
                 </DialogActions>
               </Form>
             )}

@@ -1,11 +1,11 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { makeStyles } from '@material-ui/core/styles';
+import { CancelButton, SecondaryButton } from 'src/shared/components/Button';
 
 interface IProps {
   open: boolean;
@@ -83,15 +83,15 @@ export const RefreshDialog = ({
         <p className={classes.inlineBlock}>seconds.</p>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onStop} color="primary">
+        <SecondaryButton onClick={onStop} color="primary">
           Stop Auto-Refresh
-        </Button>
-        <Button onClick={onClose} color="primary">
+        </SecondaryButton>
+        <CancelButton onClick={onClose} color="primary">
           Cancel
-        </Button>
-        <Button onClick={onConfirm} color="primary">
+        </CancelButton>
+        <SecondaryButton onClick={onConfirm} color="primary">
           Confirm
-        </Button>
+        </SecondaryButton>
       </DialogActions>
     </Dialog>
   );

@@ -2,8 +2,8 @@ import {
   Autocomplete,
   AutocompleteRenderInputParams,
 } from 'formik-material-ui-lab';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
-  Button,
   Checkbox,
   Dialog,
   DialogActions,
@@ -201,12 +201,14 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                   </>
                 )}
                 <DialogActions>
-                  <Button type="button" onClick={onClose}>
+                  <CancelButton type="button" onClick={onClose}>
                     Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting || !isValid}>
+                  </CancelButton>
+                  <PrimaryButton
+                    type="submit"
+                    disabled={isSubmitting || !isValid}>
                     {creatingNew ? 'Create' : 'Save'}
-                  </Button>
+                  </PrimaryButton>
                 </DialogActions>
               </Form>
             )}

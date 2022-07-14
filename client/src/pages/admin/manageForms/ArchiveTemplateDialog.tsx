@@ -1,5 +1,5 @@
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -56,8 +56,8 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
           <p>Are you sure you want to archive this form template?</p>
         </DialogContent>
         <DialogActions className={classes.actions}>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={archiveForm}>Archive</Button>
+          <CancelButton onClick={onClose}>Cancel</CancelButton>
+          <PrimaryButton onClick={archiveForm}>Archive</PrimaryButton>
         </DialogActions>
       </Dialog>
     </>

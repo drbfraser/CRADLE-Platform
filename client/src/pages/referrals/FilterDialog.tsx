@@ -1,3 +1,8 @@
+import {
+  CancelButton,
+  PrimaryButton,
+  SecondaryButton,
+} from 'src/shared/components/Button';
 import { DateRangePicker, FocusedInputShape } from 'react-dates';
 import {
   IFacility,
@@ -12,7 +17,6 @@ import moment, { Moment } from 'moment';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import Dialog from '@material-ui/core/Dialog';
@@ -281,9 +285,7 @@ export const FilterDialog = ({
       <DialogContent className={classes.content}>
         <Grid container spacing={3}>
           <Grid item md={12} sm={12} xs={12}>
-            <b>Health Facility</b>
-            <br />
-            <br />
+            <h4>Health Facility</h4>
             <Autocomplete
               id="facility-select"
               onChange={onFacilitySelect}
@@ -311,9 +313,7 @@ export const FilterDialog = ({
           </Grid>
 
           <Grid item md={12} sm={12} xs={12}>
-            <b>Date Range</b>
-            <br />
-            <br />
+            <h4>Date Range</h4>
             <DateRangePicker
               regular={true}
               startDate={startDate}
@@ -372,21 +372,17 @@ export const FilterDialog = ({
                 </MenuItem>
               </Select>
             </FormControl>
-            <Button
-              variant="contained"
+            <SecondaryButton
               onClick={() => {
                 setStartDate(null);
                 setEndDate(null);
                 setPresetDateRange(undefined);
-              }}
-              color="default">
+              }}>
               Clear
-            </Button>
+            </SecondaryButton>
           </Grid>
           <Grid item md={12} sm={12} xs={12}>
-            <b>Referrer</b>
-            <br />
-            <br />
+            <h4>Referrer</h4>
             <Autocomplete
               id="referrer-select"
               onChange={onReferrerSelect}
@@ -415,8 +411,7 @@ export const FilterDialog = ({
             </Box>
           </Grid>
           <Grid item>
-            <b>Cradle Readings</b>
-            <br />
+            <h4>Cradle Readings</h4>
             {vitalSigns.map((vitalSign, index) => (
               <FormControlLabel
                 control={
@@ -457,12 +452,11 @@ export const FilterDialog = ({
             ))}
           </Grid>
           <Grid item md={6} sm={6}>
-            <b>Pregnant</b>
-            <br />
+            <h4>Pregnant</h4>
             <RadioGroup
               aria-label="isPregnant"
               value={isPregnant}
-              onChange={(event, value) => setIsPregnant(value)}>
+              onChange={(_, value) => setIsPregnant(value)}>
               <FormControlLabel
                 value="1"
                 control={
@@ -490,12 +484,11 @@ export const FilterDialog = ({
             </RadioGroup>
           </Grid>
           <Grid item md={6} sm={6}>
-            <b>Assessment Status</b>
-            <br />
+            <h4>Assessment Status</h4>
             <RadioGroup
               aria-label="isAssessed"
               value={isAssessed}
-              onChange={(event, value) => setIsAssessed(value)}>
+              onChange={(_, value) => setIsAssessed(value)}>
               <FormControlLabel
                 value="1"
                 control={
@@ -533,21 +526,15 @@ export const FilterDialog = ({
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" onClick={onClose} color="default">
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={clearFilter} color="default">
-          Clear All
-        </Button>
-        <Button variant="contained" onClick={onConfirm} color="primary">
-          Apply Filter
-        </Button>
+        <CancelButton onClick={onClose}>Cancel</CancelButton>
+        <SecondaryButton onClick={clearFilter}>Clear All</SecondaryButton>
+        <PrimaryButton onClick={onConfirm}>Apply Filter</PrimaryButton>
       </DialogActions>
     </Dialog>
   );
 };
 
-export const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((_) => ({
   root: {
     width: '100%',
     margin: 0,

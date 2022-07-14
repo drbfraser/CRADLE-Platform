@@ -7,9 +7,9 @@ import { Typography, makeStyles } from '@material-ui/core';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Alert from '@material-ui/lab/Alert';
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import { PrimaryButton } from 'src/shared/components/Button';
 import { assessmentFormValidationSchema } from './validation';
 import { handleSubmit } from './handlers';
 
@@ -80,6 +80,10 @@ export const AssessmentForm = ({
             <Paper>
               <Box p={2}>
                 <h2>Assessment</h2>
+                <Typography color="primary" variant="subtitle1">
+                  At least one of Investigation Results, Final Diagnosis,
+                  Treatment / Operation, and Drug History must be entered
+                </Typography>
                 <Box pt={1} pl={3} pr={3}>
                   <Grid container spacing={3}>
                     <Grid item sm={12} md={6}>
@@ -160,15 +164,12 @@ export const AssessmentForm = ({
               </Box>
             </Paper>
             <br />
-            <Button
+            <PrimaryButton
               className={classes.right}
-              color="primary"
-              variant="contained"
-              size="large"
               type="submit"
               disabled={isSubmitting}>
               {assessmentId === undefined ? 'Create' : 'Save Changes'}
-            </Button>
+            </PrimaryButton>
           </Form>
         )}
       </Formik>

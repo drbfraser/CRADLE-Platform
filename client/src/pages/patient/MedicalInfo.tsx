@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { OrNull } from 'src/shared/types';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
-import { RedirectButton } from 'src/shared/components/redirectButton';
+import { RedirectButton } from 'src/shared/components/Button';
 import { getPatientMedicalHistoryAsync } from 'src/shared/api';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -51,14 +51,16 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         <b style={{ flex: 1 }}> {title} </b>
         {medicalRecordId ? (
           <RedirectButton
-            text="Update"
-            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
-          />
+            className={classes.redirectButton}
+            url={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}>
+            Update
+          </RedirectButton>
         ) : (
           <RedirectButton
-            text="Add"
-            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}`}
-          />
+            className={classes.redirectButton}
+            url={`/patients/${patient?.patientId}/edit/${editId}`}>
+            Add
+          </RedirectButton>
         )}
       </div>
       <div className={classes.historyItem}>
@@ -129,5 +131,8 @@ const useStyles = makeStyles({
   },
   historyItem: {
     marginBottom: '15px',
+  },
+  redirectButton: {
+    float: 'right',
   },
 });

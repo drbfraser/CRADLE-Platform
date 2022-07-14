@@ -13,10 +13,10 @@ import {
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import { TextField as FormikTextField } from 'formik-material-ui';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import { PrimaryButton } from 'src/shared/components/Button';
 import TextField from '@material-ui/core/TextField';
 import { goBackWithFallback } from 'src/shared/utils';
 import { makeStyles } from '@material-ui/core';
@@ -112,15 +112,12 @@ export const ReferralForm = ({ patientId }: IProps) => {
               </Box>
             </Paper>
             <br />
-            <Button
+            <PrimaryButton
               className={classes.right}
-              color="primary"
-              variant="contained"
-              size="large"
               type="submit"
               disabled={isSubmitting}>
               Submit Referral
-            </Button>
+            </PrimaryButton>
           </Form>
         )}
       </Formik>

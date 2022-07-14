@@ -1,8 +1,8 @@
 import '../index.css';
 
+import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 
-import Button from '@material-ui/core/Button';
 import MobileStepper from '@material-ui/core/MobileStepper';
 import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
@@ -85,20 +85,16 @@ function ResourceTabPage(props: IProps): JSX.Element {
             activeStep={activeStep}
             className={classes.root}
             nextButton={
-              <Button
-                size="small"
-                onClick={handleNext}
-                disabled={activeStep === maxSteps - 1}>
+              <PrimaryButton
+                disabled={activeStep === maxSteps - 1}
+                onClick={handleNext}>
                 Next
-              </Button>
+              </PrimaryButton>
             }
             backButton={
-              <Button
-                size="small"
-                onClick={handleBack}
-                disabled={activeStep === 0}>
+              <SecondaryButton disabled={activeStep === 0} onClick={handleBack}>
                 Back
-              </Button>
+              </SecondaryButton>
             }
           />
           {/* <img alt="education" className="education-img" src={props.posterImgSrc} /> */}

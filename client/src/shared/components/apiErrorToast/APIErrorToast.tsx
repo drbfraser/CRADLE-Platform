@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,6 +9,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { Toast } from '../toast';
+import { CancelButton } from '../Button';
 
 interface IProps {
   open: boolean;
@@ -81,7 +81,7 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setDialogOpen(false)}>Close</Button>
+        <CancelButton onClick={() => setDialogOpen(false)}>Close</CancelButton>
       </DialogActions>
     </Dialog>
   );

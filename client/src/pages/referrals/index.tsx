@@ -1,11 +1,10 @@
 import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import React, { useState } from 'react';
 import { debounce, parseInt } from 'lodash';
 
 import { APITable } from 'src/shared/components/apiTable';
 import { AutoRefresher } from './AutoRefresher';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
 import { EndpointEnum } from 'src/shared/enums';
 import { FilterDialog } from './FilterDialog';
 import Paper from '@material-ui/core/Paper';
@@ -31,7 +30,6 @@ export const ReferralsPage = () => {
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
-
   const isBigScreen = useMediaQuery('(min-width:440px)');
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
@@ -77,48 +75,40 @@ export const ReferralsPage = () => {
           isTransformed={isTransformed}
           setIsPromptShown={setIsPromptShown}
         />
-        <ButtonGroup
-          orientation="vertical"
-          color="primary"
-          aria-label="vertical contained primary button group"
-          variant="text"
-          className={classes.right}>
-          <Button
-            onClick={() => {
-              setIsFilterDialogOpen(true);
-            }}>
-            Advanced Search
-          </Button>
+        <div className={isBigScreen ? classes.search : classes.searchThin}>
+          <div>
+            <TextField
+              label="Search"
+              placeholder="Patient ID, Name or Village"
+              variant="outlined"
+              onChange={(e) => debounceSetSearch(e.target.value)}
+            />
+            {isPromptShown && (
+              <div>
+                <Typography color="textSecondary" variant="caption">
+                  Currently filtered to your health facility.
+                  <br />
+                  Click Clear Filter to see all.
+                </Typography>
+              </div>
+            )}
+          </div>
 
-          {filter && (
-            <Button
-              onClick={() => {
-                setFilter(undefined);
-                setIsPromptShown(false);
-              }}>
-              Clear Filter
-            </Button>
-          )}
-        </ButtonGroup>
-        <div className={isBigScreen ? classes.right : classes.searchThin}>
-          <TextField
-            label="Search"
-            placeholder="Patient ID, Name or Village"
-            variant="outlined"
-            onChange={(e) => debounceSetSearch(e.target.value)}
-          />
-          {isPromptShown && (
-            <>
-              <br />
-              <Typography color="textSecondary" variant="caption">
-                Currently filtered to your health facility.
-                <br />
-                Click Clear Filter to see all.
-              </Typography>
-            </>
-          )}
+          <PrimaryButton onClick={() => setIsFilterDialogOpen(true)}>
+            Filter Search
+          </PrimaryButton>
+
+          <CancelButton
+            onClick={() => {
+              setFilter(undefined);
+              setIsPromptShown(false);
+            }}
+            className="mx-auto">
+            Clear Filter
+          </CancelButton>
         </div>
       </div>
+
       <div className={classes.table}>
         <APITable
           endpoint={EndpointEnum.REFERRALS}
@@ -149,14 +139,16 @@ const useStyles = makeStyles({
   title: {
     display: 'inline-block',
   },
-  right: {
+  search: {
     float: 'right',
-    padding: 10,
+    display: 'flex',
+    alignItems: 'self-start',
+    columnGap: '10px',
   },
   searchThin: {
-    float: 'left',
-    marginLeft: 1,
-    width: '500px',
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '10px',
   },
   table: {
     clear: 'right',

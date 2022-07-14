@@ -1,5 +1,5 @@
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -122,13 +122,12 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
             <SampleTemplateLink />
           </div>
           <DialogActions>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button
+            <CancelButton onClick={onClose}>Cancel</CancelButton>
+            <PrimaryButton
               disabled={!fileObject}
-              color="primary"
               onClick={() => fileObject && handleClickUpload(fileObject)}>
               Upload
-            </Button>
+            </PrimaryButton>
           </DialogActions>
         </DialogContent>
       </Dialog>

@@ -14,9 +14,9 @@ import React, { useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import { PrimaryButton } from 'src/shared/components/Button';
 import TextField from '@material-ui/core/TextField';
 import { getFormTemplateLangsAsync } from 'src/shared/api';
 import { handleSubmit } from './handlers';
@@ -147,15 +147,12 @@ export const SelectHeaderForm = ({
                 </Box>
               </Box>
             </Paper>
-            <Button
+            <PrimaryButton
               className={classes.right}
-              color="primary"
-              variant="contained"
-              size="large"
               type="submit"
               disabled={isSubmitting}>
               Fetch Form
-            </Button>
+            </PrimaryButton>
           </Form>
         )}
       </Formik>

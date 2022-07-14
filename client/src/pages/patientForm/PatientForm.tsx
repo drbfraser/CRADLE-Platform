@@ -1,35 +1,40 @@
-import React, { useState } from 'react';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
-import { PersonalInfoForm } from './personalInfo';
-import { PregnancyInfoForm } from './pregnancyInfo';
-import { MedicalInfoForm } from './medicalInfo';
-import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
-import Stepper from '@material-ui/core/Stepper/Stepper';
-import Typography from '@material-ui/core/Typography';
-import StepLabel from '@material-ui/core/StepLabel/StepLabel';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import Step from '@material-ui/core/Step/Step';
-import { PatientState } from './state';
 import {
-  handleSubmit,
-  handlePregnancyInfo,
-  handleMedicalRecordInfo,
-  handleDeleteRecord,
-} from './handlers';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { personalInfoValidationSchema } from './personalInfo/validation';
-import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
-import { useHistory } from 'react-router-dom';
+  CancelButton,
+  PrimaryButton,
+  SecondaryButton,
+} from 'src/shared/components/Button';
+import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
+import React, { useState } from 'react';
 import {
   drugHistoryValidationSchema,
   medicalHistoryValidationSchema,
 } from './medicalInfo/validation';
-import { goBackWithFallback } from 'src/shared/utils';
+import {
+  handleDeleteRecord,
+  handleMedicalRecordInfo,
+  handlePregnancyInfo,
+  handleSubmit,
+} from './handlers';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
+import IconButton from '@material-ui/core/IconButton';
+import { MedicalInfoForm } from './medicalInfo';
+import { PatientState } from './state';
+import { PersonalInfoForm } from './personalInfo';
+import { PregnancyInfoForm } from './pregnancyInfo';
+import Step from '@material-ui/core/Step/Step';
+import StepLabel from '@material-ui/core/StepLabel/StepLabel';
+import Stepper from '@material-ui/core/Stepper/Stepper';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+import { goBackWithFallback } from 'src/shared/utils';
+import { personalInfoValidationSchema } from './personalInfo/validation';
+import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
+import { useHistory } from 'react-router-dom';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface PatientFormProps {
   editId: string;
@@ -205,22 +210,17 @@ export const PatientForm = ({
             />
             <br />
             {creatingNew && (
-              <Button
-                variant="outlined"
-                color="primary"
+              <SecondaryButton
                 onClick={() => setPageNum(pageNum - 1)}
                 disabled={pageNum === 0 || formikProps.isSubmitting}>
                 Back
-              </Button>
+              </SecondaryButton>
             )}
             {editId && universalRecordId && (
               <>
-                <Button
-                  variant="contained"
-                  color="default"
-                  onClick={() => setIsDialogOpen(true)}>
+                <CancelButton onClick={() => setIsDialogOpen(true)}>
                   Delete
-                </Button>
+                </CancelButton>
                 <ConfirmDialog
                   title="Delete Record?"
                   content="Are you sure you want to delete this record?"
@@ -240,9 +240,7 @@ export const PatientForm = ({
                 />
               </>
             )}
-            <Button
-              variant="contained"
-              color="primary"
+            <PrimaryButton
               className={classes.right}
               type="submit"
               disabled={formikProps.isSubmitting}>
@@ -251,7 +249,7 @@ export const PatientForm = ({
                 : isFinalPage
                 ? 'Create'
                 : 'Next'}
-            </Button>
+            </PrimaryButton>
           </Form>
         )}
       </Formik>

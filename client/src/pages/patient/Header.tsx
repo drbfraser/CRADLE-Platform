@@ -1,14 +1,9 @@
-import {
-  Button,
-  Grid,
-  IconButton,
-  Tooltip,
-  Typography,
-} from '@material-ui/core';
+import { Grid, IconButton, Tooltip, Typography } from '@material-ui/core';
 
-import AddIcon from '@material-ui/icons/Add';
+import { Add } from '@material-ui/icons';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Patient } from 'src/shared/types';
+import { PrimaryButton } from 'src/shared/components/Button';
 import React from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { goBackWithFallback } from 'src/shared/utils';
@@ -61,7 +56,7 @@ export const Header = ({
               <ChevronLeftIcon color="inherit" fontSize="large" />
             </IconButton>
           </Tooltip>
-          <Typography variant="h4">
+          <Typography variant="h3">
             {patient ? (
               `Patient Summary for ${patient.patientName}`
             ) : (
@@ -72,34 +67,18 @@ export const Header = ({
       </Grid>
       <Grid item>
         <Grid container alignItems="center" style={{ gap: 5 }}>
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={handleSubmitNewFormClick}>
-            <AddIcon />
-            Submit New Form
-          </Button>
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={handleAddReadingClick}>
-            <AddIcon />
-            Add New Reading
-          </Button>
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={handleCreateReferralClick}>
-            <AddIcon />
-            Create Referral
-          </Button>
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={handlePerformAssessmentClick}>
-            <AddIcon />
-            Perform Assessment
-          </Button>
+          <PrimaryButton onClick={handleSubmitNewFormClick}>
+            <Add /> Submit New Form
+          </PrimaryButton>
+          <PrimaryButton onClick={handleAddReadingClick}>
+            <Add /> Add New Reading
+          </PrimaryButton>
+          <PrimaryButton onClick={handleCreateReferralClick}>
+            <Add /> Create Referral
+          </PrimaryButton>
+          <PrimaryButton onClick={handlePerformAssessmentClick}>
+            <Add /> Perform Assessment
+          </PrimaryButton>
         </Grid>
       </Grid>
     </Grid>

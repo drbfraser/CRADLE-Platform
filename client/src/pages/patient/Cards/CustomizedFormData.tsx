@@ -1,9 +1,10 @@
 import React from 'react';
-import { Typography, Button } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { CustomizedForm } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import { PrimaryButton } from '../../../shared/components/Button/index';
 
 interface IProps {
   form: CustomizedForm;
@@ -33,12 +34,9 @@ export const CustomizedFormData = ({ form }: IProps) => {
           {`Category : ${form.category}`}
         </Typography>
 
-        <Button
-          color="primary"
-          variant="outlined"
-          onClick={handleEditFormClick}>
+        <PrimaryButton onClick={handleEditFormClick}>
           View & Edit Form
-        </Button>
+        </PrimaryButton>
       </>
     </>
   );

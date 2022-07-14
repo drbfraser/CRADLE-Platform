@@ -1,5 +1,5 @@
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -69,7 +69,12 @@ const ChangePassword = ({ open, onClose }: IProps) => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}>
             {({ isSubmitting }) => (
-              <Form>
+              <Form
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  rowGap: '10px',
+                }}>
                 <Field
                   component={TextField}
                   type="password"
@@ -79,8 +84,6 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                   label="Current Password"
                   name={PasswordField.currentPass}
                 />
-                <br />
-                <br />
                 <Field
                   component={TextField}
                   type="password"
@@ -90,8 +93,6 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                   label="New Password"
                   name={PasswordField.newPass}
                 />
-                <br />
-                <br />
                 <Field
                   component={TextField}
                   type="password"
@@ -102,12 +103,12 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                   name={PasswordField.confirmNewPass}
                 />
                 <DialogActions>
-                  <Button type="button" onClick={onClose}>
+                  <CancelButton type="button" onClick={onClose}>
                     Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  </CancelButton>
+                  <PrimaryButton type="submit" disabled={isSubmitting}>
                     Change
-                  </Button>
+                  </PrimaryButton>
                 </DialogActions>
               </Form>
             )}

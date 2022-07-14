@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Paper, Typography } from '@material-ui/core';
+import { Box, Divider, Paper, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import {
   getAppFileAsync,
@@ -8,6 +8,7 @@ import {
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Alert } from '@material-ui/lab';
+import { PrimaryButton } from 'src/shared/components/Button';
 import { formatBytes } from 'src/shared/utils';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -101,13 +102,7 @@ export const ManageRelayApp = () => {
           <div className={classes.root}>No file available.</div>
         )}
         {hasFile && (
-          <Button
-            color="primary"
-            variant="contained"
-            component="span"
-            onClick={handleClickDownload}>
-            Download
-          </Button>
+          <PrimaryButton onClick={handleClickDownload}>Download</PrimaryButton>
         )}
       </Box>
       <Box p={3}>
@@ -118,13 +113,7 @@ export const ManageRelayApp = () => {
         <div className={classes.root}>
           <input type="file" name="file" onChange={handleChange} />
         </div>
-        <Button
-          color="primary"
-          variant="contained"
-          component="span"
-          onClick={handleClickUpload}>
-          Upload
-        </Button>
+        <PrimaryButton onClick={handleClickUpload}>Upload</PrimaryButton>
         {uploadError ? (
           <Alert severity="error">Upload failed - {uploadError}</Alert>
         ) : (
