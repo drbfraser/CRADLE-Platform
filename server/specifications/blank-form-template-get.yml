@@ -19,12 +19,9 @@ responses:
             id:
               type: string
               example: "adas-d82314-27822-63150"
-            name:
+            version:
               type: string | null
-              example: "NEMS Ambulance Request - 2022"
-            category:
-              type: string | null
-              example: "NEMS Ambulance Request"
+              example: "V1"
             lang:
               type: string (not provided in full version)
               example: "chinese"

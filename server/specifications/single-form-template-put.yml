@@ -16,14 +16,8 @@ requestBody:
       schema:
         type: object
         properties:
-          name:
-            type: string | null - optional
-            example: "NEMS Ambulance Request - 2022"
-          category:
-            type: string | null - optional
-            example: "NEMS Ambulance Request"
           version:
-            type: string | null - optional
+            type: string | null
             example: "V1"
           questions:
             type: array
@@ -105,21 +99,12 @@ responses:
             id:
               type: string
               example: "adas-d82314-27822-63150"
-            name:
-              type: string | null
-              example: "NEMS Ambulance Request - 2022"
-            category:
-              type: string | null
-              example: "NEMS Ambulance Request"
             version:
               type: string | null
               example: "V1"
             dateCreated:
               type: Unix timestamp
               example: 1551447833
-            lastEdited:
-              type: Unix timestamp
-              example: 1551600000
   400:
     description: |
       Bad request: required fields are missing or invalid.

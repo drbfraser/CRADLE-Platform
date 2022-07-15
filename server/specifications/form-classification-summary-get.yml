@@ -1,10 +1,10 @@
-Get list of forms available
+Get list of every classification's latest form template
 ---
 tags:
-  - Form Templates
+  - Form Classifications
 responses:
   200:
-    description: Response from GET request for /api/forms/templates
+    description: Response from GET request for /api/forms/classifications/summary
     content:
       application/json:
         schema:
@@ -19,8 +19,5 @@ responses:
                 type: string | null
                 example: "V1"
               dateCreated:
-                type: Unix timestamp | Null
-                example: 1551447833
-              lastEdited:
                 type: Unix timestamp | Null
                 example: 1551447833

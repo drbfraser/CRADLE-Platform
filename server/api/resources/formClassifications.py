@@ -89,7 +89,7 @@ class Root(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/form-classifications-post.yml",
+        "../../specifications/form-classifications-get.yml",
         methods=["GET"],
         endpoint="form_classifications",
     )
