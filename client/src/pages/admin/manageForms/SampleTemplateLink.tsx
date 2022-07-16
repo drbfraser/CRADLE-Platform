@@ -1,5 +1,4 @@
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,6 +9,8 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import React, { useState } from 'react';
+
+import { PrimaryButton } from 'src/shared/components/Button';
 
 const SampleTemplateLink = () => {
   const styles = useStyles();
@@ -89,7 +90,9 @@ const SampleTemplateLink = () => {
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setDialogOpen(false)}>Close</Button>
+        <PrimaryButton onClick={() => setDialogOpen(false)}>
+          Close
+        </PrimaryButton>
       </DialogActions>
     </Dialog>
   );

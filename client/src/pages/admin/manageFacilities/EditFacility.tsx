@@ -1,26 +1,27 @@
-import React, { useState } from 'react';
+import { API_URL, apiFetch } from 'src/shared/api';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
-  MenuItem,
   InputLabel,
+  MenuItem,
 } from '@material-ui/core';
 import {
   FacilityField,
-  facilityTemplate,
-  getValidationSchema,
   IFacility,
+  facilityTemplate,
   facilityTypes,
+  getValidationSchema,
 } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { TextField, Select } from 'formik-material-ui';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import React, { useState } from 'react';
+import { Select, TextField } from 'formik-material-ui';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { EndpointEnum } from 'src/shared/enums';
 
 interface IProps {
   open: boolean;
@@ -122,12 +123,14 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                   name={FacilityField.about}
                 />
                 <DialogActions>
-                  <Button type="button" onClick={onClose}>
+                  <CancelButton type="button" onClick={onClose}>
                     Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting || !isValid}>
+                  </CancelButton>
+                  <PrimaryButton
+                    type="submit"
+                    disabled={isSubmitting || !isValid}>
                     {creatingNew ? 'Create' : 'Save'}
-                  </Button>
+                  </PrimaryButton>
                 </DialogActions>
               </Form>
             )}

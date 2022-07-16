@@ -1,17 +1,17 @@
-import Button from '@material-ui/core/Button';
-import AddIcon from '@material-ui/icons/Add';
+import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
+import React, { useState } from 'react';
+
+import { APITable } from 'src/shared/components/apiTable';
+import { EndpointEnum } from 'src/shared/enums';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
+import { PatientRow } from './PatientRow';
+import { PrimaryButton } from 'src/shared/components/Button';
+import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@material-ui/core/TextField';
 import { debounce } from 'lodash';
-import React, { useState } from 'react';
-import { APITable } from 'src/shared/components/apiTable';
-import { PatientRow } from './PatientRow';
+import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
-import { EndpointEnum } from 'src/shared/enums';
-import { COLUMNS, BREAKPOINT, SORTABLE_COLUMNS } from './constants';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { SortDir } from 'src/shared/components/apiTable/types';
 
 export const PatientsPage = () => {
   const classes = useStyles();
@@ -34,21 +34,15 @@ export const PatientsPage = () => {
         <h2 className={classes.title}>Patients</h2>
         <div className={isBigScreen ? classes.right : ''}>
           <TextField
-            className={isBigScreen ? '' : classes.searchThin}
+            size="small"
             label="Search"
-            placeholder="Patient ID or Name"
+            placeholder="PatientID or Name"
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
-          <Button
-            className={isBigScreen ? classes.button : classes.buttonThin}
-            color="primary"
-            variant="contained"
-            size="large"
-            onClick={handleNewPatientClick}>
-            <AddIcon />
+          <PrimaryButton onClick={handleNewPatientClick}>
             New Patient
-          </Button>
+          </PrimaryButton>
         </div>
       </div>
       <APITable

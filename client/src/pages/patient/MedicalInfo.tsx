@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Divider, Box } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import RecentActorsIcon from '@material-ui/icons/RecentActors';
+import { API_URL, apiFetch } from 'src/shared/api';
 import { Alert, Skeleton } from '@material-ui/lab';
+import { Box, Divider, Paper, Typography } from '@material-ui/core';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+
 import { EndpointEnum } from 'src/shared/enums';
+import { Link } from 'react-router-dom';
 import { OrNull } from 'src/shared/types';
-import { RedirectButton } from 'src/shared/components/redirectButton';
+import RecentActorsIcon from '@material-ui/icons/RecentActors';
+import { RedirectButton } from 'src/shared/components/Button';
+import { makeStyles } from '@material-ui/core/styles';
 
 interface IProps {
   patient?: Patient;
@@ -55,14 +56,16 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         <b style={{ flex: 1 }}> {title} </b>
         {medicalRecordId ? (
           <RedirectButton
-            text="Update"
-            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}
-          />
+            className={classes.redirectButton}
+            url={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}>
+            Update
+          </RedirectButton>
         ) : (
           <RedirectButton
-            text="Add"
-            redirectUrl={`/patients/${patient?.patientId}/edit/${editId}`}
-          />
+            className={classes.redirectButton}
+            url={`/patients/${patient?.patientId}/edit/${editId}`}>
+            Add
+          </RedirectButton>
         )}
       </div>
       <div className={classes.historyItem}>
@@ -133,5 +136,8 @@ const useStyles = makeStyles({
   },
   historyItem: {
     marginBottom: '15px',
+  },
+  redirectButton: {
+    float: 'right',
   },
 });

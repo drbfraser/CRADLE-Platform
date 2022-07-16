@@ -1,24 +1,25 @@
+import { API_URL, apiFetch } from 'src/shared/api';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from '@material-ui/core';
-import { Formik, Form, Field } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { Toast } from 'src/shared/components/toast';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
-import { IUser } from 'src/shared/types';
 import {
+  UserField,
   fieldLabels,
   passwordValidationSchema,
   resetPasswordTemplate,
-  UserField,
 } from './state';
+
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { EndpointEnum } from 'src/shared/enums';
+import { IUser } from 'src/shared/types';
+import { TextField } from 'formik-material-ui';
+import { Toast } from 'src/shared/components/toast';
 
 interface IProps {
   open: boolean;
@@ -76,7 +77,12 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
             validationSchema={passwordValidationSchema}
             onSubmit={handleSubmit}>
             {({ isSubmitting }) => (
-              <Form>
+              <Form
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  rowGap: '10px',
+                }}>
                 <Field
                   component={TextField}
                   type="password"
@@ -86,8 +92,6 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
                   label={fieldLabels[UserField.password]}
                   name={UserField.password}
                 />
-                <br />
-                <br />
                 <Field
                   component={TextField}
                   type="password"
@@ -98,12 +102,12 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
                   name={UserField.confirmPassword}
                 />
                 <DialogActions>
-                  <Button type="button" onClick={onClose}>
+                  <CancelButton type="button" onClick={onClose}>
                     Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  </CancelButton>
+                  <PrimaryButton type="submit" disabled={isSubmitting}>
                     Reset
-                  </Button>
+                  </PrimaryButton>
                 </DialogActions>
               </Form>
             )}

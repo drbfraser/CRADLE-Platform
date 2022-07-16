@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import { API_URL, apiFetch } from 'src/shared/api';
 import {
-  Button,
+  Autocomplete,
+  AutocompleteRenderInputParams,
+} from 'formik-material-ui-lab';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import {
   Checkbox,
   Dialog,
   DialogActions,
@@ -9,24 +13,20 @@ import {
   MenuItem,
   TextField,
 } from '@material-ui/core';
+import { EndpointEnum, UserRoleEnum } from 'src/shared/enums';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
+import React, { useState } from 'react';
 import {
   UserField,
+  fieldLabels,
   newEditValidationSchema,
   newUserTemplate,
-  fieldLabels,
 } from './state';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { TextField as FormikTextField } from 'formik-material-ui';
-import {
-  Autocomplete,
-  AutocompleteRenderInputParams,
-} from 'formik-material-ui-lab';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
-import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
-import { IUser } from 'src/shared/types';
-import { UserRoleEnum } from 'src/shared/enums';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { TextField as FormikTextField } from 'formik-material-ui';
+import { IUser } from 'src/shared/types';
+import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { userRoleLabels } from 'src/shared/constants';
 
 interface IProps {
@@ -215,12 +215,14 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                   </>
                 )}
                 <DialogActions>
-                  <Button type="button" onClick={onClose}>
+                  <CancelButton type="button" onClick={onClose}>
                     Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting || !isValid}>
+                  </CancelButton>
+                  <PrimaryButton
+                    type="submit"
+                    disabled={isSubmitting || !isValid}>
                     {creatingNew ? 'Create' : 'Save'}
-                  </Button>
+                  </PrimaryButton>
                 </DialogActions>
               </Form>
             )}

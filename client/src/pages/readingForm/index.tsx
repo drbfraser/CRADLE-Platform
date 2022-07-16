@@ -1,26 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { useRouteMatch } from 'react-router-dom';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import Typography from '@material-ui/core/Typography';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import { Button } from '@material-ui/core';
-import { Symptoms } from './symptoms';
-import { VitalSigns } from './vitalSigns';
-import { Confirmation } from './confirmation';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
-import Stepper from '@material-ui/core/Stepper/Stepper';
-import StepLabel from '@material-ui/core/StepLabel/StepLabel';
-import Step from '@material-ui/core/Step/Step';
-import { getReadingState, ReadingState } from './state';
-import { vitalSignsValidationSchema } from './vitalSigns/validation';
-import { handleSubmit } from './handlers';
-import { goBackWithFallback } from 'src/shared/utils';
+import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
+import React, { useEffect, useState } from 'react';
+import { ReadingState, getReadingState } from './state';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { useTheme } from '@material-ui/core/styles';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import { Confirmation } from './confirmation';
+import IconButton from '@material-ui/core/IconButton';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Step from '@material-ui/core/Step/Step';
+import StepLabel from '@material-ui/core/StepLabel/StepLabel';
+import Stepper from '@material-ui/core/Stepper/Stepper';
+import { Symptoms } from './symptoms';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+import { VitalSigns } from './vitalSigns';
+import { goBackWithFallback } from 'src/shared/utils';
+import { handleSubmit } from './handlers';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useRouteMatch } from 'react-router-dom';
+import { vitalSignsValidationSchema } from './vitalSigns/validation';
 
 type RouteParams = {
   patientId: string;
@@ -121,21 +121,17 @@ export const ReadingFormPage = () => {
             <Form>
               <PageComponent formikProps={formikProps} />
               <br />
-              <Button
-                variant="outlined"
-                color="primary"
+              <SecondaryButton
                 onClick={() => setPageNum(pageNum - 1)}
                 disabled={pageNum === 0 || formikProps.isSubmitting}>
                 Back
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
+              </SecondaryButton>
+              <PrimaryButton
                 className={classes.right}
                 type="submit"
                 disabled={formikProps.isSubmitting}>
                 {isFinalPage ? 'Create' : 'Next'}
-              </Button>
+              </PrimaryButton>
             </Form>
           )}
         </Formik>

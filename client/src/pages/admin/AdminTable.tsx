@@ -1,4 +1,3 @@
-import { Button, TextField } from '@material-ui/core';
 import MUIDataTable, {
   MUIDataTableColumnDef,
   MUIDataTableProps,
@@ -6,8 +5,10 @@ import MUIDataTable, {
 import { ThemeProvider, createTheme } from '@material-ui/core/styles';
 
 import AddIcon from '@material-ui/icons/Add';
+import { PrimaryButton } from 'src/shared/components/Button';
 import React from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
+import { TextField } from '@material-ui/core';
 import { useAdminStyles } from './adminStyles';
 
 interface IProps {
@@ -46,14 +47,10 @@ const AdminTable = (props: IProps) => {
         value={props.search}
         onChange={(e) => props.setSearch(e.target.value)}
       />
-      <Button
-        className={styles.button}
-        color="primary"
-        variant="contained"
-        onClick={props.newBtnOnClick}>
+      <PrimaryButton className={styles.button} onClick={props.newBtnOnClick}>
         <AddIcon />
         {props.newBtnLabel}
-      </Button>
+      </PrimaryButton>
     </div>
   );
 

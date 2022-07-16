@@ -1,7 +1,7 @@
 """redesign FormTemplate and create FormClassification
 
 Revision ID: 3451c3010032
-Revises: 5bd241bc95c4
+Revises: 725404868513
 Create Date: 2022-06-17 03:47:55.068483
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
 revision = "3451c3010032"
-down_revision = "5bd241bc95c4"
+down_revision = "725404868513"
 branch_labels = None
 depends_on = None
 
@@ -46,7 +46,6 @@ def upgrade():
     op.drop_column("form_template", "category")
     op.drop_column("form_template", "lastEdited")
     op.drop_column("form_template", "name")
-    op.add_column("form_template", sa.Column("archived", sa.Boolean(), nullable=False))
     # ### end Alembic commands ###
 
 
@@ -70,5 +69,4 @@ def downgrade():
     op.drop_column("form_template", "formClassificationId")
     op.drop_index(op.f("ix_form_classification_name"), table_name="form_classification")
     op.drop_table("form_classification")
-    op.drop_column("form_template", "archived")
     # ### end Alembic commands ###

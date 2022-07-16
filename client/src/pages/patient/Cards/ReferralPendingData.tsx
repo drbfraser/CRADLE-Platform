@@ -1,9 +1,8 @@
-import React from 'react';
-import { Typography, Button, Grid } from '@material-ui/core';
-import red from '@material-ui/core/colors/red';
-import { ThemeProvider } from '@material-ui/styles';
-import { createTheme } from '@material-ui/core/styles';
+import { CancelButton, SecondaryButton } from 'src/shared/components/Button';
+import { Grid, Typography } from '@material-ui/core';
+
 import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
+import React from 'react';
 import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
@@ -14,7 +13,6 @@ interface IProps {
 
 export const ReferralPendingData = ({ referral }: IProps) => {
   const history = useHistory();
-  const redTheme = createTheme({ palette: { primary: red } });
 
   const handlePerformAssessmentClick = () => {
     if (referral) {
@@ -57,33 +55,17 @@ export const ReferralPendingData = ({ referral }: IProps) => {
           </div>
         )}
 
-        {/* // //////////////////////////// */}
         <Grid item>
           <Grid container alignItems="flex-start" style={{ gap: 7 }}>
-            <Button
-              color="primary"
-              variant="outlined"
-              onClick={handlePerformAssessmentClick}>
+            <SecondaryButton onClick={handlePerformAssessmentClick}>
               Assess Referral
-            </Button>
-            <Button
-              color="primary"
-              variant="outlined"
-              onClick={handleReferralNotAttend}>
+            </SecondaryButton>
+            <SecondaryButton onClick={handleReferralNotAttend}>
               Did Not Attend
-            </Button>
-
-            <ThemeProvider theme={redTheme}>
-              <Button
-                color="primary"
-                variant="outlined"
-                onClick={handleReferralCancel}>
-                Cancel
-              </Button>
-            </ThemeProvider>
+            </SecondaryButton>
+            <CancelButton onClick={handleReferralCancel}>Cancel</CancelButton>
           </Grid>
         </Grid>
-        {/* // //////////////////////////// */}
       </>
     </>
   );
