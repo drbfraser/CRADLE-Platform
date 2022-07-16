@@ -1,5 +1,5 @@
 import { AnswerTypeEnum, QuestionTypeEnum } from 'src/shared/enums';
-import { CForm, QAnswer } from 'src/shared/types';
+import { CForm, QAnswer, Question } from 'src/shared/types';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import {
