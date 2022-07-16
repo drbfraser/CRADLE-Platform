@@ -178,6 +178,6 @@ class FormClassificationSummary(Resource):
                 result_templates.append(result_template)
 
         return [
-            marshal.marshal(f, shallow=True, if_include_versions=True)
+            marshal.marshal(f, shallow=False, if_include_versions=True)
             for f in result_templates
         ], 200
