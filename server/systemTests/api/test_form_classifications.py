@@ -30,8 +30,8 @@ def test_form_classification_created(
         response_body = response.json()
         assert len(response_body) == existing + 2
     finally:
-        crud.delete_by(FormClassification, name="fc1")
-        crud.delete_by(FormClassification, name="fc2")
+        crud.delete_all(FormClassification, name="fc1")
+        crud.delete_all(FormClassification, name="fc2")
 
 
 def test_form_classification_updated(
@@ -63,8 +63,8 @@ def test_form_classification_updated(
         response_body = response.json()
         assert response_body["name"] == form_classification_2["name"]
     finally:
-        crud.delete_by(FormClassification, name="fc1")
-        crud.delete_by(FormClassification, name="fc2")
+        crud.delete_all(FormClassification, name="fc1")
+        crud.delete_all(FormClassification, name="fc2")
 
 
 def test_form_classification_summary(
@@ -95,21 +95,21 @@ def test_form_classification_summary(
         database.session.commit()
         assert response.status_code == 201 or response.status_code == 409
 
-        crud.delete_by(FormTemplate, id="ft1")
+        crud.delete_all(FormTemplate, id="ft1")
         response = api_post(endpoint="/api/forms/templates", json=form_template_1)
         database.session.commit()
         assert response.status_code == 201
 
         time.sleep(1)
 
-        crud.delete_by(FormTemplate, id="ft2")
+        crud.delete_all(FormTemplate, id="ft2")
         response = api_post(endpoint="/api/forms/templates", json=form_template_2)
         database.session.commit()
         assert response.status_code == 201
 
         time.sleep(1)
 
-        crud.delete_by(FormTemplate, id="ft3")
+        crud.delete_all(FormTemplate, id="ft3")
         response = api_post(endpoint="/api/forms/templates", json=form_template_3)
         database.session.commit()
         assert response.status_code == 201
@@ -136,11 +136,11 @@ def test_form_classification_summary(
         assert filtered[0]["id"] == "ft3"
 
     finally:
-        crud.delete_by(FormClassification, name="fc1")
-        crud.delete_by(FormClassification, name="fc2")
-        crud.delete_by(FormTemplate, id="ft1")
-        crud.delete_by(FormTemplate, id="ft2")
-        crud.delete_by(FormTemplate, id="ft3")
+        crud.delete_all(FormClassification, name="fc1")
+        crud.delete_all(FormClassification, name="fc2")
+        crud.delete_all(FormTemplate, id="ft1")
+        crud.delete_all(FormTemplate, id="ft2")
+        crud.delete_all(FormTemplate, id="ft3")
 
 
 @pytest.fixture

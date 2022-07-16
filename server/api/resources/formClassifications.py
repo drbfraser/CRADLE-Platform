@@ -174,6 +174,10 @@ class FormClassificationSummary(Resource):
                 elif possible_template.dateCreated > result_template.dateCreated:
                     result_template = possible_template
 
-            result_templates.append(result_template)
+            if result_template is not None:
+                result_templates.append(result_template)
 
-        return [marshal.marshal(f, shallow=True) for f in result_templates], 200
+        return [
+            marshal.marshal(f, shallow=True, if_include_versions=True)
+            for f in result_templates
+        ], 200
