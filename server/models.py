@@ -523,9 +523,20 @@ class Form(db.Model):
     )
     lastEditedBy = db.Column(db.ForeignKey(User.id, ondelete="SET NULL"), nullable=True)
 
+    formClassificationId = db.Column(
+        db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
+        nullable=True,
+    )
+    archived = db.Column(db.Boolean, nullable=False, default=False)
+
     # RELATIONSHIPS
     patient = db.relationship(
         "Patient",
+        backref=db.backref("forms", cascade="all, delete", lazy=True),
+    )
+
+    classification = db.relationship(
+        "FormClassification",
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
 
