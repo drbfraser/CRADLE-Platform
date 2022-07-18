@@ -1,14 +1,19 @@
-import { makeStyles } from '@material-ui/core';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import { TextField as FormikTextField } from 'formik-material-ui';
 import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
+import { SingleReason, SingleReasonField, initialState } from './state';
+import {
+  setReferralCancelStatusAsync,
+  setReferralNotAttendedAsync,
+} from 'src/shared/api';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { handleSubmit } from './handlers';
-import { initialState, SingleReasonField } from './state';
+import Box from '@material-ui/core/Box';
+import { TextField as FormikTextField } from 'formik-material-ui';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
+import { goBackWithFallback } from 'src/shared/utils';
+import { makeStyles } from '@material-ui/core';
 
 interface IProps {
   referralId: string;
@@ -23,13 +28,31 @@ export const SingleReasonForm = ({ referralId, type }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
 
+  const handleSubmit = async (values: SingleReason, { setSubmitting }: any) => {
+    try {
+      if (type === 'cancel_referral' || type === 'undo_cancel_referral') {
+        setReferralCancelStatusAsync(
+          referralId,
+          values.comment,
+          type === 'cancel_referral'
+        );
+      } else if (type === 'not_attend_referral') {
+        setReferralNotAttendedAsync(referralId, values.comment);
+      }
+
+      goBackWithFallback('/patients');
+    } catch (e) {
+      console.error(e);
+      setSubmitError(true);
+      setSubmitting(false);
+    }
+  };
+
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      <Formik
-        initialValues={initialState}
-        onSubmit={handleSubmit(referralId, type, setSubmitError)}>
-        {({ touched, errors, isSubmitting }) => (
+      <Formik initialValues={initialState} onSubmit={handleSubmit}>
+        {({ isSubmitting }) => (
           <Form>
             <Paper>
               <Box p={2}>
