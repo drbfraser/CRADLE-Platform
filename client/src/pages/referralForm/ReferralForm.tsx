@@ -37,10 +37,10 @@ export const ReferralForm = ({ patientId }: IProps) => {
     values: ReferralState,
     { setSubmitting }: any
   ) => {
-    const postBody = JSON.stringify({
+    const postBody = {
       patientId: patientId,
       ...values,
-    });
+    };
 
     try {
       await saveReferralAsync(postBody);
