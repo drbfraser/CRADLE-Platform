@@ -9,6 +9,7 @@ import {
   IFacility,
   IUser,
   IUserWithIndex,
+  IVHT,
   MedicalRecord,
   NewAssessment,
   PatientMedicalInfo,
@@ -19,6 +20,7 @@ import {
 } from './types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from './enums';
 
+import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PasswordField } from 'src/app/topBar/changePassword/state';
 import { UserField } from 'src/pages/admin/manageUsers/state';
 import jwt_decode from 'jwt-decode';
@@ -311,7 +313,7 @@ export const getDrugHistoryAsync = async (patientId: string) => {
 };
 
 export const saveReferralAssessmentAsync = async (referralId: string) =>
-  apiFetch(API_URL + EndpointEnum.REFERRALS_ASSESS + `/${referralId}`, {
+  apiFetch(API_URL + EndpointEnum.REFERRALS + `/assess/${referralId}`, {
     method: 'PUT',
   });
 
@@ -474,16 +476,104 @@ export const saveReadingAsync = async (reading: any) => {
 };
 
 export const saveReferralAsync = async (referral: any) => {
-  const response = await apiFetch(API_URL + EndpointEnum.REFERRALS, {
-    method: 'POST',
-    body: JSON.stringify(referral),
-  });
+  const response = await apiFetch(
+    API_URL + EndpointEnum.REFERRALS,
+    {
+      method: 'POST',
+      body: JSON.stringify(referral),
+    },
+    false,
+    true
+  );
 
   return response.json();
 };
 
 export const getUserVhtsAsync = async (): Promise<Referrer[]> => {
   const response = await apiFetch(API_URL + EndpointEnum.USER_VHTS);
+
+  return response.json();
+};
+
+export const getVHTsAsync = async (): Promise<IVHT[]> => {
+  const response = await apiFetch(API_URL + EndpointEnum.ALL_VHTS);
+
+  return response.json();
+};
+
+export const setReferralCancelStatusAsync = async (
+  referralId: string,
+  comment: string,
+  isCancelled: boolean
+) =>
+  await apiFetch(
+    API_URL + EndpointEnum.REFERRALS + '/cancel-status-switch/' + referralId,
+    {
+      method: 'PUT',
+      body: JSON.stringify({
+        cancelReason: comment,
+        isCancelled,
+      }),
+    }
+  );
+
+export const setReferralNotAttendedAsync = async (
+  referralId: string,
+  comment: string
+) =>
+  await apiFetch(
+    API_URL + EndpointEnum.REFERRALS + '/not-attend/' + referralId,
+    {
+      method: 'PUT',
+      body: JSON.stringify({
+        notAttendReason: comment,
+      }),
+    }
+  );
+
+export const getUserStatisticsExportAsync = async (
+  user: string,
+  from: number,
+  to: number
+): Promise<IExportStatRow[]> => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.STATS_USER_EXPORT + `/${user}?from=${from}&to=${to}`
+  );
+
+  return response.json();
+};
+
+export const getUserStatisticsAsync = async (
+  user: string,
+  from: number,
+  to: number
+): Promise<IExportStatRow[]> => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.STATS_USER + `/${user}?from=${from}&to=${to}`
+  );
+
+  return response.json();
+};
+
+export const getFacilityStatisticsAsync = async (
+  facility: string,
+  from: number,
+  to: number
+): Promise<IExportStatRow[]> => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.STATS_FACILITY + `/${facility}?from=${from}&to=${to}`
+  );
+
+  return response.json();
+};
+
+export const getAllStatisticsAsync = async (
+  from: number,
+  to: number
+): Promise<IExportStatRow[]> => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`
+  );
 
   return response.json();
 };

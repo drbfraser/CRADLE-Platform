@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { useEffect } from 'react';
-import { IFacility } from 'src/shared/types';
+import {
+  getFacilityStatisticsAsync,
+  getHealthFacilitiesAsync,
+} from 'src/shared/api';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { StatisticDashboard } from './utils/StatisticDashboard';
+import Divider from '@material-ui/core/Divider';
+import FormControl from '@material-ui/core/FormControl';
+import { IFacility } from 'src/shared/types';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
-import { useStatisticsStyles } from './utils/statisticStyles';
-import FormControl from '@material-ui/core/FormControl';
+import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
+import { useEffect } from 'react';
+import { useStatisticsStyles } from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -30,10 +33,7 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
   useEffect(() => {
     const getAllFacilities = async () => {
       try {
-        const response: IFacility[] = await (
-          await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)
-        ).json();
-        setFacilities(response);
+        setFacilities(await getHealthFacilitiesAsync());
       } catch (e) {
         setErrorLoading(true);
       }
@@ -68,11 +68,7 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
             <Divider className={classes.divider} />
             <br />
             <StatisticDashboard
-              url={
-                API_URL +
-                EndpointEnum.STATS_FACILITY +
-                `/${facility}?from=${from}&to=${to}`
-              }
+              getData={() => getFacilityStatisticsAsync(facility, from, to)}
             />
           </div>
         )}
