@@ -1,5 +1,3 @@
-import * as api from 'src/shared/api';
-
 import { IconButton, Tooltip } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 
@@ -9,6 +7,7 @@ import CreateIcon from '@material-ui/icons/Create';
 import EditFacility from './EditFacility';
 import { IFacility } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import { getHealthFacilitiesAsync } from 'src/shared/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAdminStyles } from '../adminStyles';
 import { useDispatch } from 'react-redux';
@@ -56,7 +55,7 @@ export const ManageFacilities = () => {
 
   const getFacilities = async () => {
     try {
-      const resp: IFacility[] = await api.getHealthFacilitiesAsync();
+      const resp: IFacility[] = await getHealthFacilitiesAsync();
 
       setFacilities(resp);
       setLoading(false);

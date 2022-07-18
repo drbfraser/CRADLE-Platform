@@ -133,7 +133,6 @@ export const TransferQAnswerToPostBody = (
 
       qs[ans_with_qidx.qidx].shouldHidden = undefined;
       qs[ans_with_qidx.qidx].id = undefined;
-      //form's questions should be TQuestion type, but we use Question type to match it(when doing APIFetch). need to notice the possbile tailling bugs
       qs[ans_with_qidx.qidx].questionId = undefined;
     });
 

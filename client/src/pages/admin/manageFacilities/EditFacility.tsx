@@ -1,5 +1,3 @@
-import * as api from 'src/shared/api';
-
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   Dialog,
@@ -22,6 +20,7 @@ import { Select, TextField } from 'formik-material-ui';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IFacility } from 'src/shared/types';
+import { saveHealthFacilityAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
@@ -39,7 +38,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
     { setSubmitting }: FormikHelpers<IFacility>
   ) => {
     try {
-      await api.saveHealthFacilityAsync(values);
+      await saveHealthFacilityAsync(values);
 
       onClose();
     } catch (e) {
