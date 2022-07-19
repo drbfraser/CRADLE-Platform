@@ -1,9 +1,10 @@
+import { CancelButton, PrimaryButton } from '../Button';
+
 import Alert from '@material-ui/lab/Alert';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { PrimaryButton } from '../Button';
 import React from 'react';
 
 interface IProps {
@@ -28,12 +29,8 @@ export const ConfirmDialog = ({
         <Alert severity="warning">{content}</Alert>
       </DialogContent>
       <DialogActions>
-        <PrimaryButton onClick={onClose} color="primary">
-          No
-        </PrimaryButton>
-        <PrimaryButton onClick={onConfirm} color="default">
-          Yes
-        </PrimaryButton>
+        <CancelButton onClick={onClose}>No</CancelButton>
+        <PrimaryButton onClick={onConfirm}>Yes</PrimaryButton>
       </DialogActions>
     </Dialog>
   );
