@@ -1,4 +1,3 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   Dialog,
@@ -9,44 +8,36 @@ import {
 } from '@material-ui/core';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { EndpointEnum } from 'src/shared/enums';
-import { IFormTemplate } from './state';
+import { FormTemplate } from 'src/shared/types';
 import React from 'react';
 import { Toast } from 'src/shared/components/toast';
+import { archiveFormTemplateAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  form?: IFormTemplate;
+  template?: FormTemplate;
 }
 
-const ArchiveTemplateDialog = ({ open, onClose, form }: IProps) => {
+const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = React.useState(false);
   const [submitSuccess, setSubmitSuccess] = React.useState(false);
 
   const archiveForm = async () => {
-    if (!form?.id) {
+    if (!template?.id) {
       return;
     }
 
+    template.archived = true;
+
     try {
-      form.archived = true;
-      const url = API_URL + EndpointEnum.FORM_TEMPLATES + '/' + String(form.id);
-      await apiFetch(
-        url,
-        {
-          method: 'PUT',
-          body: JSON.stringify(form),
-        },
-        false
-      );
+      await archiveFormTemplateAsync(template);
 
       setSubmitSuccess(true);
       onClose();
     } catch (e) {
       setSubmitError(true);
-      console.log(e);
     }
   };
 

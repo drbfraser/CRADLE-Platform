@@ -1,4 +1,3 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import {
   Autocomplete,
   AutocompleteRenderInputParams,
@@ -13,7 +12,6 @@ import {
   MenuItem,
   TextField,
 } from '@material-ui/core';
-import { EndpointEnum, UserRoleEnum } from 'src/shared/enums';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import React, { useState } from 'react';
 import {
@@ -26,6 +24,8 @@ import {
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { TextField as FormikTextField } from 'formik-material-ui';
 import { IUser } from 'src/shared/types';
+import { UserRoleEnum } from 'src/shared/enums';
+import { saveUserAsync } from 'src/shared/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { userRoleLabels } from 'src/shared/constants';
 
@@ -45,25 +45,11 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
     .map((u) => u.email);
 
   const handleSubmit = async (
-    values: IUser,
+    user: IUser,
     { setSubmitting }: FormikHelpers<IUser>
   ) => {
     try {
-      const url =
-        API_URL +
-        (editUser
-          ? EndpointEnum.USER + String(editUser.userId)
-          : EndpointEnum.USER_REGISTER);
-
-      const init = {
-        method: creatingNew ? 'POST' : 'PUT',
-        body: JSON.stringify({
-          ...values,
-          supervises: values.role === UserRoleEnum.CHO ? values.supervises : [],
-        }),
-      };
-
-      await apiFetch(url, init);
+      await saveUserAsync(user, editUser?.userId);
 
       onClose();
     } catch (e) {

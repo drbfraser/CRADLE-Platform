@@ -1,11 +1,9 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import {
   CancelButton,
   PrimaryButton,
   SecondaryButton,
-} from '../../shared/components/Button/index';
+} from 'src/shared/components/Button';
 import { DateRangePicker, FocusedInputShape } from 'react-dates';
-import { EndpointEnum, TrafficLightEnum } from 'src/shared/enums';
 import {
   IFacility,
   IUserWithTokens,
@@ -14,6 +12,7 @@ import {
   Referrer,
 } from 'src/shared/types';
 import React, { useEffect, useState } from 'react';
+import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api';
 import moment, { Moment } from 'moment';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -37,6 +36,7 @@ import ScheduleIcon from '@material-ui/icons/Schedule';
 import Select from '@material-ui/core/Select';
 import { TextField } from '@material-ui/core';
 import { TrafficLight } from 'src/shared/components/trafficLight';
+import { TrafficLightEnum } from 'src/shared/enums';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 
@@ -122,23 +122,28 @@ export const FilterDialog = ({
   const [isAssessed, setIsAssessed] = useState<string>();
 
   useEffect(() => {
-    apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES)
-      .then((resp) => resp.json())
-      .then((jsonResp: IFacility[]) => {
-        const facilities = jsonResp.map((f) => f.healthFacilityName);
-        setHealthFacilities(facilities);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    apiFetch(API_URL + EndpointEnum.USER_VHTS)
-      .then((resp) => resp.json())
-      .then((jsonResp) => {
-        setReferrers(jsonResp);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    const fetchHealthFacilities = async () => {
+      try {
+        const facilities = await getHealthFacilitiesAsync();
+
+        setHealthFacilities(
+          facilities.map((facility: IFacility) => facility.healthFacilityName)
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    const fetchUserVhts = async () => {
+      try {
+        setReferrers(await getUserVhtsAsync());
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchHealthFacilities();
+    fetchUserVhts();
   }, []);
 
   useEffect(() => {

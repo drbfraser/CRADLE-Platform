@@ -1,4 +1,3 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   Dialog,
@@ -11,7 +10,6 @@ import {
 } from '@material-ui/core';
 import {
   FacilityField,
-  IFacility,
   facilityTemplate,
   facilityTypes,
   getValidationSchema,
@@ -21,7 +19,8 @@ import React, { useState } from 'react';
 import { Select, TextField } from 'formik-material-ui';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { EndpointEnum } from 'src/shared/enums';
+import { IFacility } from 'src/shared/types';
+import { saveHealthFacilityAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
@@ -39,10 +38,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
     { setSubmitting }: FormikHelpers<IFacility>
   ) => {
     try {
-      await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES, {
-        method: 'POST',
-        body: JSON.stringify(values),
-      });
+      await saveHealthFacilityAsync(values);
 
       onClose();
     } catch (e) {

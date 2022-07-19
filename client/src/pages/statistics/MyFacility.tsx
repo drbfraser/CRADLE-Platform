@@ -1,12 +1,12 @@
-import React from 'react';
-import { StatisticDashboard } from './utils/StatisticDashboard';
-import { useSelector } from 'react-redux';
-import { ReduxState } from 'src/redux/reducers';
 import { IUserWithTokens, OrNull } from 'src/shared/types';
-import { API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
-import Typography from '@material-ui/core/Typography';
+
 import Divider from '@material-ui/core/Divider';
+import React from 'react';
+import { ReduxState } from 'src/redux/reducers';
+import { StatisticDashboard } from './utils/StatisticDashboard';
+import Typography from '@material-ui/core/Typography';
+import { getFacilityStatisticsAsync } from 'src/shared/api';
+import { useSelector } from 'react-redux';
 import { useStatisticsStyles } from './utils/statisticStyles';
 
 interface IProps {
@@ -34,11 +34,7 @@ export const MyFacility: React.FC<IProps> = ({ from, to }) => {
       <Divider className={classes.divider} />
       <br />
       <StatisticDashboard
-        url={
-          API_URL +
-          EndpointEnum.STATS_FACILITY +
-          `/${facilityName}?from=${from}&to=${to}`
-        }
+        getData={() => getFacilityStatisticsAsync(facilityName, from, to)}
       />
     </div>
   );

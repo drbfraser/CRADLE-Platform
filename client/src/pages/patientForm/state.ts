@@ -4,10 +4,15 @@ import {
   getNumOfWeeksDaysNumeric,
   getPrettyDateTime,
 } from 'src/shared/utils';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { GestationalAgeUnitEnum, EndpointEnum } from 'src/shared/enums';
-import { gestationalAgeUnitLabels } from 'src/shared/constants';
+import {
+  getMedicalRecordAsync,
+  getPatientPregnancyInfoAsync,
+  getPregnancyAsync,
+} from 'src/shared/api';
+
 import { FormikProps } from 'formik';
+import { GestationalAgeUnitEnum } from 'src/shared/enums';
+import { gestationalAgeUnitLabels } from 'src/shared/constants';
 
 export const gestationalAgeUnitOptions = [
   {
@@ -66,51 +71,30 @@ export const initialState = {
 
 export type PatientState = typeof initialState;
 
-type Page = {
-  endpoint: string;
-};
-
 export const getPatientState = async (
   patientId: string | undefined,
   universalMedicalId: string | undefined,
   editId: string | undefined
 ) => {
   //Return when creating new patient
-  if (patientId === undefined) {
-    return { ...initialState };
-  }
-
-  //Return when creating new pregnancy
-  if (patientId && editId === undefined) {
-    return { ...initialState };
-  }
-
-  //Return when creating new medical/drug history record
   if (
-    patientId &&
-    (editId === 'medicalHistory' || editId === 'drugHistory') &&
-    universalMedicalId === undefined
+    !patientId ||
+    !editId ||
+    (editId !== 'personalInfo' && !universalMedicalId)
   ) {
     return { ...initialState };
   }
 
-  const pages: { [key: string]: Page } = {
-    personalInfo: {
-      endpoint:
-        EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO,
-    },
-    pregnancyInfo: {
-      endpoint: EndpointEnum.PREGNANCIES + '/' + universalMedicalId,
-    },
-    drugHistory: {
-      endpoint: EndpointEnum.MEDICAL_RECORDS + '/' + universalMedicalId,
-    },
-    medicalHistory: {
-      endpoint: EndpointEnum.MEDICAL_RECORDS + '/' + universalMedicalId,
-    },
+  const pages: { [key: string]: (id: string) => Promise<any> } = {
+    personalInfo: getPatientPregnancyInfoAsync,
+    pregnancyInfo: getPregnancyAsync,
+    drugHistory: getMedicalRecordAsync,
+    medicalHistory: getMedicalRecordAsync,
   };
 
-  const data = await (await apiFetch(API_URL + pages[editId!].endpoint)).json();
+  const data = await pages[editId!](
+    editId === 'personalInfo' ? patientId : universalMedicalId!
+  );
 
   const patientState: PatientState = {
     [PatientField.patientId]: data.patientId,

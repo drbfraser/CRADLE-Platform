@@ -60,13 +60,17 @@ export const AssessmentForm = ({
       <Formik
         initialValues={initialState}
         name={'assessmentForm'}
-        onSubmit={handleSubmit(
-          patientId,
-          assessmentId,
-          referralId,
-          drugHistory,
-          setSubmitError
-        )}
+        onSubmit={(values: AssessmentState, { setSubmitting }: any) =>
+          handleSubmit(
+            patientId,
+            assessmentId,
+            referralId,
+            drugHistory,
+            setSubmitError,
+            values,
+            setSubmitting
+          )
+        }
         validate={validate}
         validateOnChange={false}
         validateOnBlur={false}

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import IconButton from '@material-ui/core/IconButton';
+import { SingleReasonForm } from './SingleReasonForm';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+import { goBackWithFallback } from 'src/shared/utils';
 import { makeStyles } from '@material-ui/core/styles';
 import { useRouteMatch } from 'react-router-dom';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import Typography from '@material-ui/core/Typography';
-import { SingleReasonForm } from './SingleReasonForm';
-import { goBackWithFallback } from 'src/shared/utils';
 
 type RouteParams = {
   referralId: string;
@@ -20,14 +21,19 @@ export const SingleReasonFormPage = () => {
   const [title, setTitle] = useState('');
 
   React.useEffect(() => {
-    if (type === 'cancel_referral') {
-      setTitle('Reason for Cancelling');
-    } else if (type === 'undo_cancel_referral') {
-      setTitle('Reason for Undo Cancelling');
-    } else if (type === 'not_attend_referral') {
-      setTitle('Reason for Not Attend');
-    } else {
-      //illegal card. no handling
+    switch (type) {
+      case 'cancel_referral':
+        setTitle('Reason for Cancelling');
+        break;
+      case 'not_attend_referral':
+        setTitle('Reason for Undo Cancelling');
+        break;
+      case 'undo_cancel_referral':
+        setTitle('Reason for Not Attend');
+        break;
+      default:
+        setTitle('');
+        break;
     }
   }, [type]);
 

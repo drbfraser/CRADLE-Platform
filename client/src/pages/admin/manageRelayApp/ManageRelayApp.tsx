@@ -1,10 +1,13 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { Box, Divider, Paper, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
+import {
+  getAppFileAsync,
+  getAppFileHeadAsync,
+  uploadAppFileAsync,
+} from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Alert } from '@material-ui/lab';
-import { EndpointEnum } from 'src/shared/enums';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { formatBytes } from 'src/shared/utils';
 import { makeStyles } from '@material-ui/core/styles';
@@ -20,7 +23,6 @@ export const ManageRelayApp = () => {
   const [uploadError, setUploadError] = useState<string>();
   const [errorLoading, setErrorLoading] = useState(false);
 
-  const url = API_URL + EndpointEnum.UPLOAD_ADMIN;
   const filename = 'cradle_sms_relay.apk';
   const errorMessages: { [name: number]: string } = {
     400: 'Invalid file',
@@ -33,64 +35,49 @@ export const ManageRelayApp = () => {
     setSelectedFile(event.target.files[0]);
   };
 
-  const handleClickUpload = () => {
+  const handleClickUpload = async () => {
     if (selectedFile) {
-      const data = new FormData();
-      data.append('file', selectedFile);
-      apiFetch(
-        url,
-        {
-          method: 'POST',
-          body: data,
-        },
-        true
-      )
-        .then(() => {
-          setNumFileUploaded(numFileUploaded + 1);
-          setIsUploadOk(true);
-          setTimeout(() => setIsUploadOk(false), 3000);
-        })
-        .catch((e) => {
-          setUploadError(errorMessages[e]);
-          setTimeout(() => setUploadError(''), 3000);
-        });
+      try {
+        await uploadAppFileAsync(selectedFile);
+
+        setNumFileUploaded(numFileUploaded + 1);
+        setIsUploadOk(true);
+        setTimeout(() => setIsUploadOk(false), 3000);
+      } catch (e) {
+        setUploadError(errorMessages[e]);
+        setTimeout(() => setUploadError(''), 3000);
+      }
     }
   };
 
-  const handleClickDownload = () => {
-    apiFetch(url + '?' + Date.now())
-      .then((resp) => resp.blob())
-      .then((file) => {
-        const objectURL = URL.createObjectURL(file);
-        const link = document.createElement('a');
-        link.href = objectURL;
-        link.setAttribute('download', filename);
-        link.click();
-      })
-      .catch(() => {
-        setErrorLoading(true);
-      });
+  const handleClickDownload = async () => {
+    try {
+      const file = await getAppFileAsync();
+
+      const objectURL = URL.createObjectURL(file);
+
+      const link = document.createElement('a');
+      link.href = objectURL;
+      link.setAttribute('download', filename);
+      link.click();
+    } catch (e) {
+      setErrorLoading(true);
+    }
   };
 
   useEffect(() => {
-    apiFetch(API_URL + EndpointEnum.UPLOAD_ADMIN + '?' + Date.now(), {
-      method: 'HEAD',
-    })
+    getAppFileHeadAsync()
       .then((resp) => {
         const size = resp.headers.get('Content-Length');
-        if (size) {
-          setFileSize(formatBytes(parseInt(size)));
-        }
+        size && setFileSize(formatBytes(parseInt(size)));
+
         const date = resp.headers.get('Last-Modified');
-        if (date) {
-          setFileLastModified(date);
-        }
+        date && setFileLastModified(date);
+
         setHasFile(true);
       })
       .catch((e) => {
-        if (e !== 404) {
-          setErrorLoading(true);
-        }
+        e !== 404 && setErrorLoading(true);
       });
   }, [numFileUploaded]);
 

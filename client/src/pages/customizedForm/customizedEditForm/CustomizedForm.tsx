@@ -511,7 +511,6 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
           answers,
           setSubmitError,
           setMultiSelectValidationFailed,
-          setAnswers,
           isEditForm,
           fm
         )}>

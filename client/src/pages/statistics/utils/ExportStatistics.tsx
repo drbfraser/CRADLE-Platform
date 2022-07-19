@@ -1,3 +1,4 @@
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import React, { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -8,15 +9,13 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { IExportStatRow } from './index';
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { SexEnum } from 'src/shared/enums';
-import { apiFetch } from 'src/shared/api';
 
 interface IProps {
-  url: string;
+  getData: () => Promise<IExportStatRow[]>;
 }
 
-export const ExportStatistics = ({ url }: IProps) => {
+export const ExportStatistics = ({ getData }: IProps) => {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -37,7 +36,7 @@ export const ExportStatistics = ({ url }: IProps) => {
         <DialogContent>
           <DialogContentText component={'div'}>
             Please click on the following link to download the CSV file.
-            {open && <DownloadCSV url={url} />}
+            {open && <DownloadCSV getData={getData} />}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -50,7 +49,7 @@ export const ExportStatistics = ({ url }: IProps) => {
   );
 };
 
-const DownloadCSV = ({ url }: IProps) => {
+const DownloadCSV = ({ getData }: IProps) => {
   const headers = [
     { label: 'Referral Date', key: 'parsed_date' },
     { label: 'Referral Time', key: 'parsed_time' },
@@ -71,20 +70,20 @@ const DownloadCSV = ({ url }: IProps) => {
   useEffect(() => {
     const getExportData = async () => {
       try {
-        const response: IExportStatRow[] = await (await apiFetch(url)).json();
+        const data: IExportStatRow[] = await getData();
 
-        response.forEach((row) => {
+        data.forEach((row) => {
           parseRow(row);
         });
 
-        setData(response);
+        setData(data);
       } catch (e) {
         setErrorLoading(true);
       }
     };
 
     getExportData();
-  }, [url]);
+  }, [getData]);
 
   return (
     <div>
@@ -107,10 +106,8 @@ function parseRow(row: IExportStatRow) {
   const date = new Date(row.referral_date * 1000);
   row.parsed_date = date.toLocaleDateString();
   row.parsed_time = date.toLocaleTimeString();
+  row.parsed_pregnant = '';
 
-  if (row.sex === SexEnum.FEMALE) {
-    row.parsed_pregnant = row.pregnant ? 'Yes' : 'No';
-  } else {
-    row.parsed_pregnant = '';
-  }
+  row.sex === SexEnum.FEMALE &&
+    (row.parsed_pregnant = row.pregnant ? 'Yes' : 'No');
 }

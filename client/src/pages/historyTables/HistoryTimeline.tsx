@@ -1,19 +1,19 @@
+import { Alert, Skeleton } from '@material-ui/lab';
+import { Box, Divider, Paper, Typography, makeStyles } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
+
+import CircularProgress from '@material-ui/core/CircularProgress';
+import HistoryIcon from '@material-ui/icons/History';
 import Timeline from '@material-ui/lab/Timeline';
-import TimelineItem from '@material-ui/lab/TimelineItem';
-import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
 import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
-import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import TimelineDot from '@material-ui/lab/TimelineDot';
-import { Alert, Skeleton } from '@material-ui/lab';
-import { Paper, makeStyles, Box, Typography, Divider } from '@material-ui/core';
+import TimelineItem from '@material-ui/lab/TimelineItem';
+import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
 import { TimelineRecord } from 'src/shared/types';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
+import { getPatientTimelineAsync } from 'src/shared/api';
 import { getPrettyDateTime } from 'src/shared/utils';
-import HistoryIcon from '@material-ui/icons/History';
 
 interface IProps {
   patientId: string;
@@ -22,61 +22,40 @@ interface IProps {
 
 export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
   const classes = useStyles();
-  const [records, setRecords] = useState<TimelineRecord[]>();
-  const [page, setPage] = useState(1);
+  const [records, setRecords] = useState<TimelineRecord[]>([]);
+  const [page, setPage] = useState<number>(1);
   const [endOfData, setEndOfData] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [errorLoading, setErrorLoading] = useState(false);
-  const url =
-    API_URL +
-    EndpointEnum.PATIENTS +
-    `/${patientId}` +
-    EndpointEnum.PATIENT_TIMELINE;
 
   useEffect(() => {
-    getRecords(url);
-    // eslint-disable-next-line
-  }, [url]);
+    const getRecords = async () => {
+      setIsFetching(true);
+
+      try {
+        const timeline = await getPatientTimelineAsync(patientId, page);
+
+        timeline.length === 0 && setEndOfData(true);
+
+        setRecords((records) => [...records, ...timeline]);
+      } catch (e) {
+        setErrorLoading(true);
+      }
+
+      setIsFetching(false);
+    };
+
+    getRecords();
+  }, [patientId, page]);
 
   const handleScroll = (event: any) => {
     const { scrollHeight, scrollTop, clientHeight } = event.target;
     const scroll = scrollHeight - scrollTop - clientHeight;
 
     //User has reached the end of the scroll bar
-    if (scroll === 0 && !endOfData) {
-      getRecords(url);
-    }
-  };
+    scroll === 0 && !endOfData && setPage(page + 1);
 
-  const getRecords = (url: string) => {
-    setIsFetching(true);
-    const params =
-      '?' +
-      new URLSearchParams({
-        limit: '20',
-        page: page.toString(),
-      });
-    apiFetch(url + params)
-      .then(async (resp) => {
-        const json = await resp.json();
-        if (
-          (page > 1 && json.length === 0) ||
-          (page === 1 && json.length > 0 && json.length < 20)
-        ) {
-          setEndOfData(true);
-        }
-        if (!records) {
-          setRecords(json);
-        } else {
-          setRecords([...records, ...json]);
-        }
-        setIsFetching(false);
-        setPage(page + 1);
-      })
-      .catch(() => {
-        setIsFetching(false);
-        setErrorLoading(true);
-      });
+    return true;
   };
 
   return (

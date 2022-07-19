@@ -1,4 +1,3 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { IconButton, TableRow, Tooltip } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 
@@ -7,12 +6,11 @@ import AdminTable from '../AdminTable';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import CreateTemplate from './CreateTemplate';
 import DeleteForever from '@material-ui/icons/DeleteForever';
-import { EndpointEnum } from 'src/shared/enums';
-import { IFormTemplate } from './state';
+import { FormTemplate } from 'src/shared/types';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
+import { getFormTemplatesAsync } from 'src/shared/api';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
-// import { FormTemplate } from 'src/shared/types';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ManageFormTemplates = () => {
@@ -20,11 +18,11 @@ export const ManageFormTemplates = () => {
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const [formTemplates, setFormTemplates] = useState<IFormTemplate[]>([]);
+  const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [createPopupOpen, setCreatePopupOpen] = useState(false);
   const [archievePopupOpen, setArchievePopupOpen] = useState(false);
-  const [popupForm, setPopupForm] = useState<IFormTemplate>();
+  const [popupForm, setPopupForm] = useState<FormTemplate>();
   const isTransformed = useMediaQuery('(min-width:900px)');
 
   const columns = [
@@ -60,7 +58,7 @@ export const ManageFormTemplates = () => {
       tooltip: 'Archive Form Template',
       setOpen: setArchievePopupOpen,
       Icon: DeleteForever,
-      isVisible: (form: IFormTemplate) => {
+      isVisible: (form: FormTemplate) => {
         return form.archived === false;
       },
     },
@@ -68,9 +66,7 @@ export const ManageFormTemplates = () => {
 
   const getFormTemplates = async () => {
     try {
-      const resp: IFormTemplate[] = await (
-        await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES)
-      ).json();
+      const resp: FormTemplate[] = await getFormTemplatesAsync();
 
       setFormTemplates(
         resp.map((form_template, index) => ({ ...form_template, index }))
@@ -88,7 +84,7 @@ export const ManageFormTemplates = () => {
   useEffect(() => {
     const searchLowerCase = search.toLowerCase().trim();
 
-    const formTemplateFilter = (form_template: IFormTemplate) => {
+    const formTemplateFilter = (form_template: FormTemplate) => {
       return (
         form_template.classification.name
           .toLowerCase()
@@ -170,7 +166,7 @@ export const ManageFormTemplates = () => {
           setArchievePopupOpen(false);
           getFormTemplates();
         }}
-        form={popupForm}
+        template={popupForm}
       />
       <AdminTable
         title="Form Templates"
