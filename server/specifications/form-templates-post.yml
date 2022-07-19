@@ -13,14 +13,8 @@ requestBody:
           id:
             type: string - optional
             example: "asdsd-sdsw1231"
-          name:
-            type: string | null - optional
-            example: "NEMS Ambulance Request - 2022"
-          category:
-            type: string | null - optional
-            example: "NEMS Ambulance Request"
           version:
-            type: string | null - optional
+            type: string | null
             example: "V1"
           questions:
             type: array
@@ -99,19 +93,10 @@ responses:
             id:
               type: string
               example: "adas-d82314-27822-63150"
-            name:
-              type: string | null
-              example: "NEMS Ambulance Request - 2022"
-            category:
-              type: string | null
-              example: "NEMS Ambulance Request"
             version:
               type: string | null
               example: "V1"
             dateCreated:
-              type: Unix timestamp
-              example: 1551447833
-            lastEdited:
               type: Unix timestamp
               example: 1551447833
   400:
@@ -125,3 +110,14 @@ responses:
             message:
               type: string
               example: The request body key {questionType} is required.
+  409:
+    description: |
+      Conflict: an object with the same values for a unique field already exists in the database.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: The request body key {version} provided already exists.

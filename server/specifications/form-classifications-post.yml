@@ -1,0 +1,55 @@
+Create a new form classification
+---
+tags:
+  - Form Classifications
+requestBody:
+  required: true
+  description: POST request body for /api/forms/classifications
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          id:
+            type: string - optional
+            example: "asdsd-sdsw1231"
+          name:
+            type: string | null
+            example: "NEMS Ambulance Request"
+            
+responses:
+  201:
+    description: Response from POST request for /api/forms/templates
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "adas-d82314-27822-63150"
+            name:
+              type: string | null
+              example: "NEMS Ambulance Request"
+  400:
+    description: |
+      Bad request: required fields are missing or invalid.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: The request body key {name} is required.
+  409:
+    description: |
+      Conflict: an object with the same values for a unique field already exists in the database.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: The request body key {name} provided already exists.

@@ -1,0 +1,20 @@
+Get list of all form classifications
+---
+tags:
+  - Form Classifications
+responses:
+  200:
+    description: Response from GET request for /api/forms/classifications
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: "adas-d82314-27822-63150"
+              name:
+                type: string | null
+                example: "NEMS Ambulance Request"

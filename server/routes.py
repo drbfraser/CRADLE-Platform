@@ -56,6 +56,11 @@ from api.resources.formTemplates import (
     BlankFormTemplate,
     SingleTemplateVersion,
 )
+from api.resources.formClassifications import (
+    Root as FormClassification,
+    SingleFormClassification,
+    FormClassificationSummary,
+)
 from api.resources.forms import (
     Root as Forms,
     SingleForm,
@@ -248,6 +253,22 @@ def init(api):
         BlankFormTemplate,
         "/api/forms/templates/blank/<string:form_template_id>",
         endpoint="blank_form_template",
+    )  # [GET]
+
+    api.add_resource(
+        FormClassification,
+        "/api/forms/classifications",
+        endpoint="form_classifications",
+    )  # [GET, POST]
+    api.add_resource(
+        SingleFormClassification,
+        "/api/forms/classifications/<string:form_classification_id>",
+        endpoint="single_form_classification",
+    )  # [GET, PUT]
+    api.add_resource(
+        FormClassificationSummary,
+        "/api/forms/classifications/summary",
+        endpoint="form_classification_summary",
     )  # [GET]
 
     api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]

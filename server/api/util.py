@@ -16,7 +16,14 @@ import flask_jwt_extended as jwt
 import utils
 from data.crud import M
 from flask import Request
-from models import Form, FormTemplate, QRelationalEnum, QuestionTypeEnum, User
+from models import (
+    Form,
+    FormTemplate,
+    FormClassification,
+    QRelationalEnum,
+    QuestionTypeEnum,
+    User,
+)
 
 from api.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,
@@ -211,6 +218,9 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
         req["id"] = utils.get_uuid()
 
     id = req["id"]
+
+    if model is FormClassification:
+        return
 
     # assign question id and formId or formTemplateId.
     # assign lang version qid.
