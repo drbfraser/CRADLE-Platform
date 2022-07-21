@@ -2,13 +2,31 @@ stages:
   - build
   - test
   - format
+  - build-docker
   - deploy
 
 variables:
   DEV_BRANCH: "master"
   STG_BRANCH: "staging"
+  PROD_BRANCH: "production"
   NODE_IMAGE: "node:16"
   PYTHON_IMAGE: "python:3.9.1-buster"
+
+
+build info:
+  # Always runs: allows pipeline execution to happen even if no other tasks run.
+  stage: build
+  image: alpine:latest
+  tags:
+    - docker
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "push"
+  script:
+    - echo "This task give the CI/CD pipeline something to (almost always) run."
+    - echo "  CI_PIPELINE_SOURCE  = $CI_PIPELINE_SOURCE"
+    - echo "  CI_MERGE_REQUEST_ID = $CI_MERGE_REQUEST_ID"
+    - echo "  CI_COMMIT_BRANCH    = $CI_COMMIT_BRANCH"
+
 
 frontend build:
   stage: build
@@ -25,6 +43,9 @@ frontend build:
     # always run if deploying
     - if: '$CI_COMMIT_BRANCH == $DEV_BRANCH || $CI_COMMIT_BRANCH == $STG_BRANCH'
       when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     - cd client
     - npm ci
@@ -48,6 +69,9 @@ backend unit tests:
       changes:
         - server/**/*
       when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     - cd server
     - pip install --upgrade pip
@@ -71,6 +95,9 @@ backend system tests:
       changes:
         - server/**/*
       when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
   variables:
     DB_USERNAME: "root"
     DB_PASSWORD: "ci-password"
@@ -111,6 +138,9 @@ frontend lint:
       changes:
         - client/**/*
       when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     - cd client
     - npm ci
@@ -128,6 +158,9 @@ frontend format:
       changes:
         - client/**/*
       when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     # Prettier version here should match version in package.json
     - npm install prettier@2.3.0 --global
@@ -145,6 +178,9 @@ backend format:
       changes:
         - server/**/*
       when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     - cd server
     - pip install --upgrade pip
@@ -152,15 +188,96 @@ backend format:
     - pip install -r requirements.txt
   script:
     - black --check --exclude 'server/migrations/.*' .
+    
 
-.deploy-script: &deploy-script
+.deploy-script: &export_image_tag
+  # Set IMAGE_TAG to encode the date and SHA of the most recent commit.
+  - export IMAGE_TAG=v$(git show -s --format=%cs $CI_COMMIT_SHA).`git rev-parse --short=8 $CI_COMMIT_SHA`
+  # Display some useful info for understanding / debugging the pipeline
+  - echo "Docker hub user ='$HUB_USER',     version='$IMAGE_TAG'"
+  - echo "Full tag (backend) is               = $HUB_USER/$HUB_REPO_BACKEND:$IMAGE_TAG"
+  - echo "Full tag (rev-proxy & frontend) is  = $HUB_USER/$HUB_REPO_FRONTEND:$IMAGE_TAG"
+  - docker images
+
+
+build-docker publish-docker-images:
+  stage: build-docker
+  tags:
+    # Run on CI/CD server so it does not interfere with containers in active use on dev server.
+    - deploy-dockerhub-shell
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $DEV_BRANCH"
+    - if: $CI_PIPELINE_SOURCE == "web"
+  script:
+    # Required environment variables defined by GitLab's settings:
+    #   HUB_USER:           Docker Hub user
+    #   HUB_TOKEN:          Docker Hub token (likely GitLab will "Mask")
+    #   HUB_REPO_BACKEND:   Docker Hub project name for backend
+    #   HUB_REPO_FRONTEND:  Docker Hub project name for frontend / caddy
+
+    # Build images (tagged by docker-composition*.yml using IMAGE_TAG)
+    - *export_image_tag
+    - docker compose -f docker-compose.yml -f docker-compose.deploy.yml build
+    
+    # Push images to Docker Hub 
+    - docker images
+    - docker login -u $HUB_USER -p $HUB_TOKEN
+    - docker push $HUB_USER/$HUB_REPO_BACKEND:$IMAGE_TAG
+    - docker push $HUB_USER/$HUB_REPO_FRONTEND:$IMAGE_TAG
+    - docker logout
+
+    # Cleanup the image and any tags of that image
+    # Run on the CI/CD server, so it can force delete these images because it does not run any of them as containers
+    - docker images -a | grep -e "$HUB_REPO_BACKEND" -e "$HUB_REPO_FRONTEND" | awk '{print $3}' | xargs docker rmi --force
+    - docker images
+
+
+.deploy-script: &deploy-from-dockerhub
+  - *export_image_tag
   - cp /var/cradle/.env ./.env
-  - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml build
-  - docker-compose -f docker-compose.yml -f docker-compose.deploy.yml up --force-recreate -d
-  - docker image prune -f # remove unused images since we just built new ones
-  - bash -c 'sleep 15' # wait for MySQL to restart
+  - docker compose -f docker-compose.yml -f docker-compose.deploy.yml pull
+  - docker compose -f docker-compose.yml -f docker-compose.deploy.yml up -d
+  - docker image prune -f      # remove unused images since we just downloaded new ones
+  - bash -c 'sleep 15'
   - docker exec cradle_flask flask db upgrade
+  - docker images
+  - docker ps -a
+  - docker volume ls
 
+.deploy-script: &retag-and-upload-dockerhub
+  # Required environment variables passed into this function:
+  #   BRANCH_TAG:         Determined by which branch we are building off: "dev", "staging", "prod"
+  - *export_image_tag
+
+  # Download images (docker skips if already be present)
+  - echo "Trying to tag images of version '$IMAGE_TAG' with new tag '$BRANCH_TAG'"
+  - | 
+    echo "If you get 'Error response from daemon - manifest for ... not found - manifest unknown - manifest unknown'"
+    echo "   it likely means the pipeline did not build and deploy a docker image for this commit."
+    echo "   Was there a MR to this branch that did not get build for use on Dev server?"
+  - echo "Downloading image = $HUB_USER/$HUB_REPO_BACKEND, tag = $IMAGE_TAG'..."
+  - docker pull $HUB_USER/$HUB_REPO_BACKEND:$IMAGE_TAG
+  - docker pull $HUB_USER/$HUB_REPO_FRONTEND:$IMAGE_TAG
+
+  # Retag
+  - docker tag $HUB_USER/$HUB_REPO_BACKEND:$IMAGE_TAG   $HUB_USER/$HUB_REPO_BACKEND:$BRANCH_TAG
+  - docker tag $HUB_USER/$HUB_REPO_FRONTEND:$IMAGE_TAG  $HUB_USER/$HUB_REPO_FRONTEND:$BRANCH_TAG
+
+  # Upload tags
+  - docker images
+  - docker login -u $HUB_USER -p $HUB_TOKEN
+  - docker push $HUB_USER/$HUB_REPO_BACKEND:$BRANCH_TAG
+  - docker push $HUB_USER/$HUB_REPO_FRONTEND:$BRANCH_TAG
+  - docker logout
+
+  # Cleanup (if in use as a container this will fail, so we tolerate failures)
+  - docker rmi $HUB_USER/$HUB_REPO_BACKEND:$BRANCH_TAG || true
+  - docker rmi $HUB_USER/$HUB_REPO_FRONTEND:$BRANCH_TAG || true
+  - docker rmi $HUB_USER/$HUB_REPO_BACKEND:$IMAGE_TAG || true
+  - docker rmi $HUB_USER/$HUB_REPO_FRONTEND:$IMAGE_TAG || true
+  - docker images
+
+  
 deploy development:
   stage: deploy
   environment:
@@ -168,12 +285,16 @@ deploy development:
     url: https://cradle-dev.cmpt.sfu.ca
   tags:
     - deploy-development
+  variables:
+    BRANCH_TAG: "dev"
   rules:
-    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $DEV_BRANCH'
-      when: on_success
-    - when: never
+    - if: "$CI_COMMIT_BRANCH == $DEV_BRANCH"
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
   script:
-    - *deploy-script
+    # After images are built, deploy to dev-server & tag with "dev"
+    - *deploy-from-dockerhub
+    - *retag-and-upload-dockerhub
 
 deploy staging:
   stage: deploy
@@ -182,9 +303,26 @@ deploy staging:
     url: https://cradle-stg.cmpt.sfu.ca
   tags:
     - deploy-staging
+  variables:
+    BRANCH_TAG: "staging"
   rules:
-    - if: '$CI_MERGE_REQUEST_ID == null && $CI_COMMIT_BRANCH == $STG_BRANCH'
-      when: on_success
-    - when: never
+    - if: "$CI_COMMIT_BRANCH == $STG_BRANCH"
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
   script:
-    - *deploy-script
+    - *deploy-from-dockerhub
+    - *retag-and-upload-dockerhub
+
+deploy production:
+  stage: deploy
+  tags:
+    - deploy-dockerhub-shell
+  variables:
+    BRANCH_TAG: "prod"
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $PROD_BRANCH"
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+  script:
+    - *retag-and-upload-dockerhub
+    # Production server's admin must manually log into the server and run the /root/update.sh script
