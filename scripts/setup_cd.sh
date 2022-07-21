@@ -8,7 +8,7 @@ COLOR_OFF='\033[0m'
 set -e
 
 echo -e "${BLUE}"
-echo -e "Cradle Continuous Deployment Setup"
+echo -e "Cradle Platfrom - Continuous Deployment Setup Script"
 echo -e "This script must be run as root or with sudo. It is only supported on Ubuntu Server 20.04."
 echo -e "${COLOR_OFF}${RED}"
 echo -e "NOTE: This script only supports having 1 Gitlab runner for the development deployment and 1 Gitlab runner for the staging deployment."
