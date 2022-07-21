@@ -1,4 +1,3 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   Dialog,
@@ -16,10 +15,10 @@ import {
 } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { EndpointEnum } from 'src/shared/enums';
 import { IUser } from 'src/shared/types';
 import { TextField } from 'formik-material-ui';
 import { Toast } from 'src/shared/components/toast';
+import { resetUserPasswordAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
@@ -36,21 +35,8 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
       return;
     }
 
-    const init = {
-      method: 'POST',
-      body: JSON.stringify({
-        [UserField.password]: values[UserField.password],
-      }),
-    };
-
     try {
-      const url =
-        API_URL +
-        EndpointEnum.USER +
-        String(resetUser.userId) +
-        EndpointEnum.RESET_PASS;
-
-      await apiFetch(url, init);
+      await resetUserPasswordAsync(resetUser, values[UserField.password]);
 
       setSubmitError(false);
       setSubmitSuccess(true);

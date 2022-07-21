@@ -1,20 +1,16 @@
+import { Bar, Line } from 'react-chartjs-2';
+import { Box, Divider, Paper, Typography, makeStyles } from '@material-ui/core';
+import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
 import React, { useEffect, useState } from 'react';
-import { Paper, Typography, Divider, Box, makeStyles } from '@material-ui/core';
-import { Form, Select, InputOnChangeData } from 'semantic-ui-react';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import { Line, Bar } from 'react-chartjs-2';
-import { apiFetch, API_URL } from 'src/shared/api';
+import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
+import { statsUnitLabels, trafficLightColors } from 'src/shared/constants';
+
 import Alert from '@material-ui/lab/Alert';
-import { Skeleton } from '@material-ui/lab';
-import { PatientStatistics } from 'src/shared/types';
-import {
-  EndpointEnum,
-  TrafficLightEnum,
-  StatsOptionEnum,
-} from 'src/shared/enums';
-import { statsUnitLabels } from 'src/shared/constants';
-import { trafficLightColors } from 'src/shared/constants';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 import { Menu } from 'semantic-ui-react';
+import { PatientStatistics } from 'src/shared/types';
+import { Skeleton } from '@material-ui/lab';
+import { getPatientStatisticsAsync } from 'src/shared/api';
 
 interface IProps {
   patientId: string;
@@ -40,13 +36,18 @@ export const PatientStats = ({ patientId }: IProps) => {
   }));
 
   useEffect(() => {
-    apiFetch(
-      API_URL +
-        `${EndpointEnum.PATIENTS}/${patientId}${EndpointEnum.STATISTICS}`
-    )
-      .then((resp) => resp.json())
-      .then((stats) => setPatientStats(stats))
-      .catch(() => setErrorLoading(true));
+    const loadPatientStats = async () => {
+      try {
+        const stats: PatientStatistics = await getPatientStatisticsAsync(
+          patientId
+        );
+        setPatientStats(stats);
+      } catch (e) {
+        setErrorLoading(true);
+      }
+    };
+
+    loadPatientStats();
   }, [patientId]);
 
   const handleCurrentStatsUnitChange = (

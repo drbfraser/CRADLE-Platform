@@ -1,4 +1,3 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   Dialog,
@@ -11,11 +10,11 @@ import { DropzoneAreaBase, FileObject } from 'material-ui-dropzone';
 import React, { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { EndpointEnum } from 'src/shared/enums';
 import { OrNull } from 'src/shared/types';
 import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
 import { isString } from 'lodash';
+import { saveFormTemplateWithFileAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
@@ -32,7 +31,6 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
   const [uploadSuccess, setUploadSuccess] = useState<string>('');
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
-  const url = API_URL + EndpointEnum.FORM_TEMPLATES;
   const errorMessages: { [name: number]: string } = {
     413: 'File too large',
     422: 'Unsupported file type',
@@ -41,18 +39,8 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
 
   const handleClickUpload = async (fileObj: FileObject) => {
     if (fileObj) {
-      const data = new FormData();
-      data.append('file', fileObj.file);
       try {
-        await apiFetch(
-          url,
-          {
-            method: 'POST',
-            body: data,
-          },
-          true,
-          true
-        );
+        await saveFormTemplateWithFileAsync(fileObj.file);
 
         setUploadSuccess(`${fileObj.file.name} uploaded successfully`);
         setShowSuccess(true);

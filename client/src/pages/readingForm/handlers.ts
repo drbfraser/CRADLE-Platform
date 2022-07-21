@@ -1,6 +1,6 @@
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
 import { ReadingField, ReadingState } from './state';
+import { saveDrugHistoryAsync, saveReadingAsync } from 'src/shared/api';
+
 import { getSymptomsFromFormState } from './symptoms/symptoms';
 
 // TODO: not sure why the GUID is being generated client side... this should be moved server side
@@ -46,30 +46,13 @@ export const handleSubmit = async (
   drugHistory: string
 ) => {
   const submitValues = getSubmitObject(patientId, values);
-  console.log('TESTING: submitValues: ' + JSON.stringify(submitValues));
-  const url = API_URL + EndpointEnum.READINGS;
 
   try {
-    await apiFetch(url, {
-      method: 'POST',
-      body: JSON.stringify(submitValues),
-    });
+    await saveReadingAsync(submitValues);
 
     const newDrugHistory = values[ReadingField.drugHistory];
-    if (drugHistory !== newDrugHistory) {
-      await apiFetch(
-        API_URL +
-          EndpointEnum.PATIENTS +
-          `/${patientId}` +
-          EndpointEnum.MEDICAL_RECORDS,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            [ReadingField.drugHistory]: newDrugHistory,
-          }),
-        }
-      );
-    }
+    drugHistory !== newDrugHistory &&
+      (await saveDrugHistoryAsync(patientId, newDrugHistory));
   } catch (e) {
     console.error(e);
     return false;

@@ -1,9 +1,10 @@
+import { PatientState, getPatientState } from './state';
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { PatientForm } from './PatientForm';
-import { useRouteMatch } from 'react-router-dom';
-import { getPatientState, PatientState } from './state';
+
 import LinearProgress from '@material-ui/core/LinearProgress';
+import { PatientForm } from './PatientForm';
+import { makeStyles } from '@material-ui/core/styles';
+import { useRouteMatch } from 'react-router-dom';
 
 type RouteParams = {
   patientId: string | undefined;

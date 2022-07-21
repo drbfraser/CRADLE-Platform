@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
-import { useEffect } from 'react';
-import { IUser } from 'src/shared/types';
+import {
+  getUserStatisticsAsync,
+  getUserStatisticsExportAsync,
+  getUsersAsync,
+} from 'src/shared/api';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { StatisticDashboard } from './utils/StatisticDashboard';
+import Box from '@material-ui/core/Box';
+import Divider from '@material-ui/core/Divider';
+import { ExportStatistics } from './utils/ExportStatistics';
+import FormControl from '@material-ui/core/FormControl';
+import { IUser } from 'src/shared/types';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { useStatisticsStyles } from './utils/statisticStyles';
-import FormControl from '@material-ui/core/FormControl';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import Box from '@material-ui/core/Box';
-import { ExportStatistics } from './utils/ExportStatistics';
+import { useEffect } from 'react';
+import { useStatisticsStyles } from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -32,14 +36,12 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
   useEffect(() => {
     const getAllUsers = async () => {
       try {
-        const response: IUser[] = await (
-          await apiFetch(API_URL + EndpointEnum.USER_ALL)
-        ).json();
-        setUsers(response);
+        setUsers(await getUsersAsync());
       } catch (e) {
         setErrorLoading(true);
       }
     };
+
     getAllUsers();
   }, []);
 
@@ -57,11 +59,7 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
       <Box className={classes.floatRight}>
         {user !== '' && (
           <ExportStatistics
-            url={
-              API_URL +
-              EndpointEnum.STATS_USER_EXPORT +
-              `/${user}?from=${from}&to=${to}`
-            }
+            getData={() => getUserStatisticsExportAsync(user, from, to)}
           />
         )}
       </Box>
@@ -83,11 +81,7 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
           <Divider className={classes.divider} />
           <br />
           <StatisticDashboard
-            url={
-              API_URL +
-              EndpointEnum.STATS_USER +
-              `/${user}?from=${from}&to=${to}`
-            }
+            getData={() => getUserStatisticsAsync(user, from, to)}
           />
         </div>
       )}

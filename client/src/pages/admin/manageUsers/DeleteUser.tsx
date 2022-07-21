@@ -1,32 +1,29 @@
 import React, { useState } from 'react';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { Toast } from 'src/shared/components/toast';
-import { apiFetch, API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
-import { IUser } from 'src/shared/types';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
+import { IUser } from 'src/shared/types';
+import { Toast } from 'src/shared/components/toast';
+import { deleteUserAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  deleteUser: IUser | undefined;
+  user: IUser | undefined;
 }
 
-const DeleteUser = ({ open, onClose, deleteUser }: IProps) => {
+const DeleteUser = ({ open, onClose, user }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const name = deleteUser?.firstName ?? '';
+  const name = user?.firstName ?? '';
 
   const handleDelete = async () => {
-    if (!deleteUser) {
+    if (!user) {
       return;
     }
 
     try {
-      const url = API_URL + EndpointEnum.USER + String(deleteUser.userId);
-      await apiFetch(url, {
-        method: 'DELETE',
-      });
+      await deleteUserAsync(user);
 
       setSubmitError(false);
       setSubmitSuccess(true);

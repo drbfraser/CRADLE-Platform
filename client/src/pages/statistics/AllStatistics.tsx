@@ -1,10 +1,9 @@
+import Divider from '@material-ui/core/Divider';
 import React from 'react';
 import { StatisticDashboard } from './utils/StatisticDashboard';
-import { API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
 import Typography from '@material-ui/core/Typography';
+import { getAllStatisticsAsync } from 'src/shared/api';
 import { useStatisticsStyles } from './utils/statisticStyles';
-import Divider from '@material-ui/core/Divider';
 
 interface IProps {
   from: number;
@@ -21,9 +20,7 @@ export const AllStatistics: React.FC<IProps> = ({ from, to }) => {
       </Typography>
       <Divider className={classes.divider} />
       <br />
-      <StatisticDashboard
-        url={API_URL + EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`}
-      />
+      <StatisticDashboard getData={() => getAllStatisticsAsync(from, to)} />
     </div>
   );
 };

@@ -1,12 +1,7 @@
-import { API_URL, apiFetch } from 'src/shared/api';
 import { Alert, Skeleton } from '@material-ui/lab';
 import { Box, Divider, Paper, TableBody, Typography } from '@material-ui/core';
-import {
-  EndpointEnum,
-  GestationalAgeUnitEnum,
-  SexEnum,
-} from 'src/shared/enums';
 import { Form, InputOnChangeData, Select, TableCell } from 'semantic-ui-react';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 import { Link, useHistory } from 'react-router-dom';
 import { PastPregnancy, PatientPregnancyInfo } from 'src/shared/types';
 import React, { useEffect, useState } from 'react';
@@ -20,6 +15,7 @@ import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
 import { RedirectButton } from 'src/shared/components/Button';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
+import { getPatientPregnancySummaryAsync } from 'src/shared/api';
 import { makeStyles } from '@material-ui/core/styles';
 
 interface IProps {
@@ -30,6 +26,7 @@ interface IProps {
 export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   const classes = useStyles();
   const history = useHistory();
+
   const [currentPregnancyUnit, setCurrentPregnancyUnit] = useState(
     GestationalAgeUnitEnum.WEEKS
   );
@@ -41,17 +38,19 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   const [errorLoading, setErrorLoading] = useState(false);
 
   useEffect(() => {
-    const url = `${API_URL}${EndpointEnum.PATIENTS}/${patientId}${EndpointEnum.PREGNANCY_SUMMARY}`;
+    const loadPregnancyHistory = async () => {
+      try {
+        setInfo(await getPatientPregnancySummaryAsync(patientId));
+      } catch (e) {
+        setErrorLoading(true);
+      }
+    };
 
-    apiFetch(url)
-      .then((resp) => resp.json())
-      .then((info) => setInfo(info))
-      .catch(() => setErrorLoading(true));
+    loadPregnancyHistory();
   }, [patientId]);
 
-  const handleClick = (pregnancyId: string) => {
+  const handleClick = (pregnancyId: string) =>
     history.push(`/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`);
-  };
 
   const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
     key: unit,
@@ -62,17 +61,11 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   const handleCurrentPregnancyUnitChange = (
     _: React.ChangeEvent<HTMLInputElement>,
     { value }: InputOnChangeData
-  ) => {
-    setCurrentPregnancyUnit(value as GestationalAgeUnitEnum);
-  };
-
+  ) => setCurrentPregnancyUnit(value as GestationalAgeUnitEnum);
   const handlePreviousPregnancyUnitChange = (
     _: React.ChangeEvent<HTMLInputElement>,
     { value }: InputOnChangeData
-  ) => {
-    setPreviousPregnancyUnit(value as GestationalAgeUnitEnum);
-  };
-
+  ) => setPreviousPregnancyUnit(value as GestationalAgeUnitEnum);
   const CurrentPregnancyStatus = () => {
     const status = info!.isPregnant ? 'Yes' : 'No';
 

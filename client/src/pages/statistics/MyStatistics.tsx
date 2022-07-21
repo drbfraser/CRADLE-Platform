@@ -1,15 +1,18 @@
-import React from 'react';
-import { StatisticDashboard } from './utils/StatisticDashboard';
-import { useSelector } from 'react-redux';
-import { ReduxState } from 'src/redux/reducers';
 import { IUserWithTokens, OrNull } from 'src/shared/types';
-import { useStatisticsStyles } from './utils/statisticStyles';
-import { API_URL } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
-import Typography from '@material-ui/core/Typography';
-import { ExportStatistics } from './utils/ExportStatistics';
+import {
+  getUserStatisticsAsync,
+  getUserStatisticsExportAsync,
+} from 'src/shared/api';
+
 import Box from '@material-ui/core/Box';
 import Divider from '@material-ui/core/Divider';
+import { ExportStatistics } from './utils/ExportStatistics';
+import React from 'react';
+import { ReduxState } from 'src/redux/reducers';
+import { StatisticDashboard } from './utils/StatisticDashboard';
+import Typography from '@material-ui/core/Typography';
+import { useSelector } from 'react-redux';
+import { useStatisticsStyles } from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -37,13 +40,13 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
         </Typography>
       </Box>
       <Box className={classes.floatRight}>
-        <ExportStatistics
-          url={
-            API_URL +
-            EndpointEnum.STATS_USER_EXPORT +
-            `/${userId}?from=${from}&to=${to}`
-          }
-        />
+        {userId && (
+          <ExportStatistics
+            getData={() =>
+              getUserStatisticsExportAsync(userId.toString(), from, to)
+            }
+          />
+        )}
       </Box>
 
       <br />
@@ -51,11 +54,11 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
 
       <Divider className={classes.divider} />
       <br />
-      <StatisticDashboard
-        url={
-          API_URL + EndpointEnum.STATS_USER + `/${userId}?from=${from}&to=${to}`
-        }
-      />
+      {userId && (
+        <StatisticDashboard
+          getData={() => getUserStatisticsAsync(userId.toString(), from, to)}
+        />
+      )}
     </div>
   );
 };

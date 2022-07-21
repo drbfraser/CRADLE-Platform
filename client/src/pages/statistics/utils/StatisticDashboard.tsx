@@ -1,19 +1,19 @@
-import { Statistic } from 'semantic-ui-react';
-import React, { useState, useEffect } from 'react';
-import { useStatisticsStyles } from './statisticStyles';
-import { Bar } from 'react-chartjs-2';
+import React, { useEffect, useState } from 'react';
+import { initialColorReading, initialStatsData } from '../utils';
+
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { initialStatsData, initialColorReading } from '../utils';
+import { Bar } from 'react-chartjs-2';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { apiFetch } from 'src/shared/api';
-import { trafficLightColors } from 'src/shared/constants';
+import { Statistic } from 'semantic-ui-react';
 import { TrafficLightEnum } from 'src/shared/enums';
+import { trafficLightColors } from 'src/shared/constants';
+import { useStatisticsStyles } from './statisticStyles';
 
 interface IProps {
-  url: string;
+  getData: () => Promise<any>;
 }
 
-export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
+export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
   const classes = useStatisticsStyles();
 
   const [data, setData] = useState(initialStatsData);
@@ -23,17 +23,21 @@ export const StatisticDashboard: React.FC<IProps> = ({ url }) => {
 
   useEffect(() => {
     setloaded(false);
-    apiFetch(url)
-      .then((response) => response.json())
-      .then((response) => {
-        setData(response);
-        setColorReading(response.color_readings);
+    const loadData = async () => {
+      try {
+        const data = await getData();
+
+        setData(data);
+        setColorReading(data.color_readings);
+
         setloaded(true);
-      })
-      .catch(() => {
+      } catch (e) {
         setErrorLoading(true);
-      });
-  }, [url]);
+      }
+    };
+
+    loadData();
+  }, [getData]);
 
   const barData = {
     labels: ['Green', 'Yellow Up', 'Yellow Down', 'Red Up', 'Red Down'],

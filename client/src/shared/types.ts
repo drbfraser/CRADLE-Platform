@@ -5,6 +5,8 @@ import {
   UserRoleEnum,
 } from 'src/shared/enums';
 
+import { FacilityField } from 'src/pages/admin/manageFacilities/state';
+
 export type Callback<T, U = void> = (args: T) => U;
 
 export type OrNull<T> = T | null;
@@ -125,7 +127,6 @@ export interface IUser {
   healthFacilityName: string;
   role: UserRoleEnum;
   supervises: number[];
-  index: number;
 }
 
 export interface IUserWithIndex extends IUser {
@@ -142,11 +143,13 @@ export interface IForm {
 }
 
 export interface IFacility {
-  about: string;
-  facilityType: string;
-  healthFacilityName: string;
-  healthFacilityPhoneNumber: string;
-  location: string;
+  [FacilityField.about]: string;
+  [FacilityField.type]: string;
+  [FacilityField.name]: string;
+  [FacilityField.newReferrals]: number;
+  [FacilityField.phoneNumber]: string;
+  [FacilityField.location]: string;
+  index: number;
 }
 
 export interface IUserWithTokens extends IUser {
@@ -265,6 +268,7 @@ export interface FormTemplate {
   category: string;
   id: string;
   version: string;
+  archived: boolean;
 }
 
 export interface FormTemplateWithQuestions extends FormTemplate {
@@ -378,4 +382,19 @@ export type CustomizedForm = {
   lastEditedBy: number;
   category: string;
   name: string;
+};
+
+export type FilterRequestBody = {
+  referrals: boolean;
+  readings: boolean;
+  assessments: boolean;
+  forms: boolean;
+};
+
+export type FilterRequestKey = keyof FilterRequestBody;
+
+export type Filter = {
+  //parameter is for net request;display_title is for UI display
+  parameter: FilterRequestKey;
+  display_title: string;
 };

@@ -4,7 +4,12 @@ import {
 } from 'formik-material-ui-lab';
 import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
-import { ReferralField, initialState, validationSchema } from './state';
+import {
+  ReferralField,
+  ReferralState,
+  initialState,
+  validationSchema,
+} from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@material-ui/core/Box';
@@ -13,8 +18,9 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import TextField from '@material-ui/core/TextField';
-import { handleSubmit } from './handlers';
+import { goBackWithFallback } from 'src/shared/utils';
 import { makeStyles } from '@material-ui/core';
+import { saveReferralAsync } from 'src/shared/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 
 interface IProps {
@@ -23,8 +29,29 @@ interface IProps {
 
 export const ReferralForm = ({ patientId }: IProps) => {
   const classes = useStyles();
+
   const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
+
+  const handleSubmit = async (
+    values: ReferralState,
+    { setSubmitting }: any
+  ) => {
+    const postBody = {
+      patientId: patientId,
+      ...values,
+    };
+
+    try {
+      await saveReferralAsync(postBody);
+
+      goBackWithFallback('/patients');
+    } catch (e) {
+      console.error(e);
+      setSubmitError(true);
+      setSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -32,7 +59,7 @@ export const ReferralForm = ({ patientId }: IProps) => {
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit(patientId, setSubmitError)}>
+        onSubmit={handleSubmit}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
             <Paper>
