@@ -24,7 +24,7 @@ export const CustomizedFormData = ({ form }: IProps) => {
       <>
         <Typography variant="h5">
           <>
-            <AssignmentIcon fontSize="large" /> {form.name}
+            <AssignmentIcon fontSize="large" /> {form.classification.name}
           </>
         </Typography>
         <Typography variant="subtitle1">

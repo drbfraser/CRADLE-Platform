@@ -270,6 +270,9 @@ def marshal_template_to_single_version(f: FormTemplate, version: str) -> dict:
 def __marshal_form(f: Form, shallow) -> dict:
     d = vars(f).copy()
     __pre_process(d)
+    
+    d["classification"] = __marshal_form_classification(f.classification)
+
     # Remove relationship object
     if d.get("patient"):
         del d["patient"]
