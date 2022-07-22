@@ -30,9 +30,6 @@ export const CustomizedFormData = ({ form }: IProps) => {
         <Typography variant="subtitle1">
           {`Last Edit : ${getPrettyDateTime(form.lastEdited)}`}
         </Typography>
-        <Typography variant="subtitle1">
-          {`Category : ${form.category}`}
-        </Typography>
 
         <PrimaryButton onClick={handleEditFormClick}>
           View & Edit Form
