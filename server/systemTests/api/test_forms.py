@@ -1,35 +1,59 @@
 import pytest
 
 import data.crud as crud
-from models import Question
+from models import Question, Form, FormTemplate, FormClassification
 
 
-def test_form_created(database, form, create_patient, api_post, api_put):
-    create_patient()
+def test_form_created(
+    database,
+    form,
+    form_template,
+    form_classification,
+    create_patient,
+    api_post,
+    api_put,
+):
+    try:
+        create_patient()
 
-    response = api_post(endpoint="/api/forms/responses", json=form)
-    database.session.commit()
-    assert response.status_code == 201
+        response = api_post(
+            endpoint="/api/forms/classifications", json=form_classification
+        )
+        database.session.commit()
+        assert response.status_code == 201
 
-    form_id = "f1"
-    question = crud.read(
-        Question, formId=form_id, questionText="How the patient's condition?"
-    )
-    assert question != None
-    response = api_put(
-        endpoint=f"/api/forms/responses/{form_id}", json=form_put(question.id)
-    )
-    database.session.commit()
-    assert response.status_code == 201
+        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        database.session.commit()
+        assert response.status_code == 201
+
+        response = api_post(endpoint="/api/forms/responses", json=form)
+        database.session.commit()
+        assert response.status_code == 201
+
+        form_id = "f9"
+        question = crud.read(
+            Question, formId=form_id, questionText="How the patient's condition?"
+        )
+        assert question != None
+        response = api_put(
+            endpoint=f"/api/forms/responses/{form_id}",
+            json=form_question_put(question.id),
+        )
+        database.session.commit()
+        assert response.status_code == 201
+    finally:
+        crud.delete_all(Form, id="f9")
+        crud.delete_all(FormTemplate, id="ft9")
+        crud.delete_all(FormClassification, name="fc9")
 
 
 @pytest.fixture
 def form(patient_id):
     return {
-        "id": "f1",
+        "id": "f9",
         "lang": "english",
-        "name": "NEMS Ambulance Request - sys test",
-        "category": "Referred",
+        "formTemplateId": "ft9",
+        "formClassificationId": "fc9",
         "patientId": patient_id,
         "questions": [
             {
@@ -66,7 +90,25 @@ def form(patient_id):
     }
 
 
-def form_put(qid):
+@pytest.fixture
+def form_classification():
+    return {
+        "id": "fc9",
+        "name": "fc9",
+    }
+
+
+@pytest.fixture
+def form_template():
+    return {
+        "classification": {"name": "fc9"},
+        "id": "ft9",
+        "version": "V1",
+        "questions": [],
+    }
+
+
+def form_question_put(qid):
     return {
         "questions": [
             {
