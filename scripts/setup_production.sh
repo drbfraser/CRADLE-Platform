@@ -136,23 +136,33 @@ echo -e "${BLUE}Upgrading database schema...${COLOR_OFF}\n"
 docker exec cradle_flask flask db upgrade
 
 echo -e "\n${BLUE}"
-echo -e "Data seeding options:"
-echo -e "   0: No data seeding"
-echo -e "   1: seed_minimal"
-echo -e "   2: seed_test_data"
-echo -e "   3: seed\n"
+echo -e "Data seeding options (initial users, health facilities, etc.):"
+echo -e "   0: No data seeding; must add admin via the database  (NOT recommended: manual)"
+echo -e "   1: Create one admin user and a default hospital      (RECOMMENDED)"
+echo -e "   2: Create some default test data                     (NOT recommended: insecure)"
+echo -e "   3: Create a full set of default data                 (NOT recommended: insecure)\n"
 read -p "Enter an option: " OPTION
 echo -e "${COLOR_OFF}"
 
 case $OPTION in
     1)
-        docker exec cradle_flask python ./manage.py seed_minimal
+        echo -e "\n${BLUE}Enter admin user info; make password secure (>10 characters, numbers, letters, symbols)${COLOR_OFF}"
+        echo -e "(CTRL+C to cancel)"
+        read -p "Enter admin email: " EMAIL
+        read -p "Enter admin password: " PASSWORD
+        read -p "Enter facility name: " FACILITY_NAME
+        docker exec cradle_flask python ./manage.py seed_minimal --email="$EMAIL" --password="$PASSWORD" --facility_name="$FACILITY_NAME"
+        echo -e "\nAdmin user created. Please write down the email and password you entered."
         ;;
     2)
         docker exec cradle_flask python ./manage.py seed_test_data
+        echo -e "\n${RED}Warning: Default data created, included well-known user IDs and passwords.${COLOR_OFF}"
+        echo -e "If this is a production system, you must _now_ log in and change all user passwords."
         ;;
     3)
         docker exec cradle_flask python ./manage.py seed
+        echo -e "\n${RED}Warning: Default data created, included well-known user IDs and passwords.${COLOR_OFF}"
+        echo -e "If this is a production system, you must _now_ log in and change all user passwords."
         ;;
 esac
 

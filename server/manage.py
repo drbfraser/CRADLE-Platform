@@ -37,24 +37,27 @@ def drop_all_tables():
 
 # USAGE: python manage.py seed_minimal
 @manager.command
-def seed_minimal(email="admin123@admin.com", password="admin123"):
+def seed_minimal(
+    email="admin123@admin.com", password="admin123", facility_name="H0000"
+):
     """
     Seeds the database with the minimum amount of data required for it to be functional.
 
-    The data inserted into the database is deterministic so it is suitable for testing
+    The default data inserted into the database is deterministic so it is suitable for testing
     off of.
 
     The minimal set of data is as follows:
+     - A single health facility (default name 'H0000')
+     - A single admin user      (default email 'admin123@admin.com')
 
-     - A single health facility named: H0000
-     - The set of predefined user roles
-     - A single admin user
+    Defaults can be overridden, such as:
+       python ./manage.py seed_minimal --email="abc@test.com" --password="TeyHo5@e!0B" --facility_name="Sunny Creek"
     """
     print("Seeding health facility...")
-    create_health_facility("H0000")
+    create_health_facility(facility_name)
 
     print("Creating admin user...")
-    create_user(email, "Admin", password, "H0000", RoleEnum.ADMIN.value)
+    create_user(email, "Admin", password, facility_name, RoleEnum.ADMIN.value)
 
     print("Finished seeding minimal data set")
 
