@@ -1,5 +1,5 @@
 import { ManageFacilities } from './manageFacilities/ManageFacilities';
-import { ManageFormTemplates } from './manageForms/ManageForms';
+import { ManageFormTemplates } from './manageFormTemplates/ManageFormTemplates';
 import { ManageRelayApp } from './manageRelayApp/ManageRelayApp';
 import { ManageUsers } from './manageUsers/ManageUsers';
 import React from 'react';
