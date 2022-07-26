@@ -25,7 +25,7 @@ class Root(Resource):
 
         if req.get("id") is not None:
             if crud.read(Form, id=req["id"]):
-                return "Form already exist"
+                abort(409, message="Form already exists")
 
         error_message = forms.validate_form(req)
         if error_message is not None:
@@ -33,17 +33,19 @@ class Root(Resource):
 
         patient = crud.read(Patient, patientId=req["patientId"])
         if not patient:
-            abort(400, message="Patient does not exist")
+            abort(404, message="Patient does not exist")
 
         if req.get("formTemplateId") is not None:
             form_template = crud.read(FormTemplate, id=req["formTemplateId"])
             if not form_template:
-                abort(400, message="Form template does not exist")
+                abort(404, message="Form template does not exist")
+            elif form_template.formClassificationId != req["formClassificationId"]:
+                abort(404, message="Form classification does not match template")
 
         if req.get("lastEditedBy") is not None:
             user = crud.read(User, id=req["lastEditedBy"])
             if not user:
-                abort(400, message="User does not exist")
+                abort(404, message="User does not exist")
         else:
             user = get_jwt_identity()
             user_id = int(user["userId"])

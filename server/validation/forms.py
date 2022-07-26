@@ -21,8 +21,6 @@ def validate_form(request_body: dict) -> Optional[str]:
     """
     required_fields = [
         "lang",
-        "name",
-        "category",
         "patientId",
         "questions",
     ]
@@ -30,9 +28,11 @@ def validate_form(request_body: dict) -> Optional[str]:
     all_fields = [
         "id",
         "formTemplateId",
+        "formClassificationId",
         "dateCreated",
         "lastEdited",
         "lastEditedBy",
+        "archived",
     ] + required_fields
 
     error_message = None
@@ -47,7 +47,7 @@ def validate_form(request_body: dict) -> Optional[str]:
 
     error = values_correct_type(
         request_body,
-        ["id", "lang", "name", "category", "patientId", "formTemplateId"],
+        ["id", "lang", "patientId", "formTemplateId", "formClassificationId"],
         str,
     )
     if error:
@@ -60,6 +60,10 @@ def validate_form(request_body: dict) -> Optional[str]:
         return error
 
     error = values_correct_type(request_body, ["questions"], list)
+    if error:
+        return error
+
+    error = values_correct_type(request_body, ["archived"], bool)
     if error:
         return error
 
