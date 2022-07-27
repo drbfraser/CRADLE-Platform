@@ -8,6 +8,8 @@ export const useAdminStyles = makeStyles({
     '& .MuiTableSortLabel-icon': {
       marginTop: 15,
     },
+    display: 'flex',
+    flexDirection: 'column',
   },
   row: {
     borderBottom: '1px solid #ddd',

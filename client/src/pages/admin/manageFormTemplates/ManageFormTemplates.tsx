@@ -1,28 +1,42 @@
-import { IconButton, TableRow, Tooltip } from '@material-ui/core';
+import {
+  FormControlLabel,
+  IconButton,
+  Switch,
+  TableRow,
+  Tooltip,
+} from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
+import { getFormTemplateCsvAsync, getFormTemplatesAsync } from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
+import { CloudDownloadOutlined } from '@material-ui/icons';
 import CreateTemplate from './CreateTemplate';
 import DeleteForever from '@material-ui/icons/DeleteForever';
 import { FormTemplate } from 'src/shared/types';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
-import { getFormTemplatesAsync } from 'src/shared/api';
 import { getPrettyDateTime } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ManageFormTemplates = () => {
   const styles = useAdminStyles();
+
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
+
   const [search, setSearch] = useState('');
+  const [showArchivedTemplates, setShowArchivedTemplates] = useState(false);
+
   const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
-  const [createPopupOpen, setCreatePopupOpen] = useState(false);
-  const [archievePopupOpen, setArchievePopupOpen] = useState(false);
+
+  const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
+  const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
+
   const [popupForm, setPopupForm] = useState<FormTemplate>();
+
   const isTransformed = useMediaQuery('(min-width:900px)');
 
   const columns = [
@@ -56,17 +70,42 @@ export const ManageFormTemplates = () => {
   const rowActions = [
     {
       tooltip: 'Archive Form Template',
-      setOpen: setArchievePopupOpen,
       Icon: DeleteForever,
-      isVisible: (form: FormTemplate) => {
-        return form.archived === false;
+      isVisible: async (formTemplate: FormTemplate) => !formTemplate.archived,
+      onClick: (formTemplate: FormTemplate) => {
+        setPopupForm(formTemplate);
+        setIsArchivePopupOpen(true);
+      },
+    },
+    {
+      tooltip: 'Download CSV',
+      Icon: CloudDownloadOutlined,
+      isVisible: (formTemplate: FormTemplate) => !formTemplate.archived,
+      onClick: async (formTemplate: FormTemplate) => {
+        try {
+          const file = await getFormTemplateCsvAsync(formTemplate.id);
+
+          const objectURL = URL.createObjectURL(file);
+
+          const link = document.createElement('a');
+          link.href = objectURL;
+          link.setAttribute(
+            'download',
+            `${formTemplate.classification.name}.csv`
+          );
+          link.click();
+        } catch (e) {
+          setErrorLoading(true);
+        }
       },
     },
   ];
 
-  const getFormTemplates = async () => {
+  const getFormTemplates = async (showArchivedTemplates: boolean) => {
     try {
-      const resp: FormTemplate[] = await getFormTemplatesAsync();
+      const resp: FormTemplate[] = await getFormTemplatesAsync(
+        showArchivedTemplates
+      );
 
       setFormTemplates(
         resp.map((form_template, index) => ({ ...form_template, index }))
@@ -76,10 +115,9 @@ export const ManageFormTemplates = () => {
       setErrorLoading(true);
     }
   };
-
   useEffect(() => {
-    getFormTemplates();
-  }, []);
+    getFormTemplates(showArchivedTemplates);
+  }, [showArchivedTemplates, isCreatePopupOpen, isArchivePopupOpen]);
 
   useEffect(() => {
     const searchLowerCase = search.toLowerCase().trim();
@@ -128,8 +166,7 @@ export const ManageFormTemplates = () => {
                 title={action.tooltip}>
                 <IconButton
                   onClick={() => {
-                    setPopupForm(formTemplate);
-                    action.setOpen(true);
+                    action.onClick(formTemplate);
                   }}>
                   <action.Icon />
                 </IconButton>
@@ -154,18 +191,12 @@ export const ManageFormTemplates = () => {
         onClose={() => setErrorLoading(false)}
       />
       <CreateTemplate
-        open={createPopupOpen}
-        onClose={() => {
-          setCreatePopupOpen(false);
-          getFormTemplates();
-        }}
+        open={isCreatePopupOpen}
+        onClose={() => setIsCreatePopupOpen(false)}
       />
       <ArchiveTemplateDialog
-        open={archievePopupOpen}
-        onClose={() => {
-          setArchievePopupOpen(false);
-          getFormTemplates();
-        }}
+        open={isArchivePopupOpen}
+        onClose={() => setIsArchivePopupOpen(false)}
         template={popupForm}
       />
       <AdminTable
@@ -177,10 +208,26 @@ export const ManageFormTemplates = () => {
         isTransformed={isTransformed}
         newBtnLabel={'New Form Template'}
         newBtnOnClick={() => {
-          setCreatePopupOpen(true);
+          setIsCreatePopupOpen(true);
         }}
         search={search}
         setSearch={setSearch}
+      />
+
+      <FormControlLabel
+        style={{
+          marginTop: '10px',
+          marginLeft: 'auto',
+          marginRight: '10px',
+          display: 'flex',
+        }}
+        control={
+          <Switch
+            onClick={() => setShowArchivedTemplates(!showArchivedTemplates)}
+            checked={showArchivedTemplates}
+          />
+        }
+        label="Show Archived Templates"
       />
     </div>
   );

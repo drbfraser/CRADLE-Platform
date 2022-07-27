@@ -166,8 +166,16 @@ export const saveFormTemplateWithFileAsync = async (file: File) => {
   );
 };
 
-export const getFormTemplatesAsync = async (): Promise<FormTemplate[]> =>
-  (await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES)).json();
+export const getFormTemplatesAsync = async (
+  includeArchived: boolean
+): Promise<FormTemplate[]> =>
+  (
+    await apiFetch(
+      API_URL +
+        EndpointEnum.FORM_TEMPLATES +
+        `?includeArchived=${includeArchived}`
+    )
+  ).json();
 
 export const getFormTemplateLangAsync = async (
   formTemplateId: string,
@@ -185,6 +193,16 @@ export const getFormTemplateLangsAsync = async (formTemplateId: string) =>
       API_URL + EndpointEnum.FORM_TEMPLATE + `/${formTemplateId}/versions`
     )
   ).json();
+
+export const getFormTemplateCsvAsync = async (
+  formTemplateId: string
+): Promise<Blob> => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.FORM_TEMPLATE + `/${formTemplateId}/csv`
+  );
+
+  return response.blob();
+};
 
 export const uploadAppFileAsync = async (file: File) => {
   const data = new FormData();

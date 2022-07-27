@@ -27,7 +27,7 @@ export const CustomizedFormPage = () => {
   };
 
   const updateFormTemplates = async () =>
-    setFormTemplates(await getFormTemplatesAsync());
+    setFormTemplates(await getFormTemplatesAsync(false));
 
   useEffect(() => {
     try {

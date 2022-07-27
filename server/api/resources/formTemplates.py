@@ -1,6 +1,7 @@
 from email import message
 import json
 from pprint import pp
+import string
 
 import api.util as util
 import data
@@ -111,7 +112,7 @@ class Root(Resource):
 
         if (
             params.get("include_archived") is None
-            or params.get("include_archived") == 0
+            or params.get("include_archived") == "false"
         ):
             filters["archived"] = 0
 
@@ -137,6 +138,32 @@ class SingleTemplateVersion(Resource):
         lang_list = crud.read_form_template_versions(form_template)
 
         return {"lang_versions": lang_list}
+
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-form-template-version-get-dev.yml",
+        methods=["GET"],
+        endpoint="single_form_template_csv",
+    )
+    def get(form_template_id: str):
+        csv: string = 'Name,Temp - 2 Langs,Languages:,"English, French",,,,,,,,,,,,\
+                    `Version,V1,,,,,,,,,,,,,,\
+                    ,,,,,,,Integer/Decimal only,,String Only,MC Only,,Answers (data sent to server),,,\
+                    Question ID,Question Text,Type,Language,Required,Units,Visible If…,Min,Max,# Lines,Options,,Value,Text,MC Index,Comments\
+                    ,,,,,,,,,,,,,,,\
+                    ,Referred by,Category,English,,,,,,,,,,,,\
+                    ,Referred by - French,Category,French,,,,,,,,,,,,\
+                    referred-by-name,Name / ID,String,English,,,,,,,,,,,,\
+                    ,Name / ID - French,String,French,,,,,,,,,,,,\
+                    referred-by-position,Position,String,English,,,,,,,,,,,,\
+                    ,Position - French,String,French,,,,,,,,,,,,'
+
+        return Response(
+            csv,
+            mimetype="text/csv",
+            headers={"Content-disposition": "attachment; filename=myplot.csv"},
+        )
 
 
 # /api/forms/templates/<string:form_template_id>

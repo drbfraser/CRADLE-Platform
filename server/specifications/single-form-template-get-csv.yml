@@ -1,0 +1,26 @@
+Get a form template
+---
+tags:
+  - Form Templates
+parameters:
+- in: path
+  name: form_template_id
+  required: true
+  schema:
+    type: string
+responses:
+  200:
+    description: Response from GET request for /api/forms/templates/<string:form_template_id>/csv
+    content:
+      application/csv:
+        Name,Temp - 2 Langs,Languages:,"English, French",,,,,,,,,,,,
+        Version,V1,,,,,,,,,,,,,,
+        ,,,,,,,Integer/Decimal only,,String Only,MC Only,,Answers (data sent to server),,,
+        Question ID,Question Text,Type,Language,Required,Units,Visible If…,Min,Max,# Lines,Options,,Value,Text,MC Index,Comments
+        ,,,,,,,,,,,,,,,
+        ,Referred by,Category,English,,,,,,,,,,,,
+        ,Referred by - French,Category,French,,,,,,,,,,,,
+        referred-by-name,Name / ID,String,English,,,,,,,,,,,,
+        ,Name / ID - French,String,French,,,,,,,,,,,,
+        referred-by-position,Position,String,English,,,,,,,,,,,,
+        ,Position - French,String,French,,,,,,,,,,,,

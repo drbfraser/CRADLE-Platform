@@ -250,6 +250,11 @@ def init(api):
         endpoint="single_form_template",
     )  # [GET, PUT]
     api.add_resource(
+        SingleFormTemplate,
+        "/api/forms/templates/<string:form_template_id>/csv",
+        endpoint="single_form_template_csv",
+    )  # [GET, PUT]
+    api.add_resource(
         BlankFormTemplate,
         "/api/forms/templates/blank/<string:form_template_id>",
         endpoint="blank_form_template",
