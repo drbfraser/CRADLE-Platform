@@ -1,5 +1,6 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 
+import { AppRoutes } from './routes';
 import { ContextProvider } from 'src/context';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { DimensionsContextProvider } from './context';
@@ -8,14 +9,13 @@ import { LogoutMenuItem } from './logout';
 import { Pathname } from 'history';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { UserRoleEnum } from 'src/shared/enums';
-import { Routes } from './routes';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
+import { UserRoleEnum } from 'src/shared/enums';
 import { routesNames } from './routes/utils';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 type SelectorState = {
   loggedIn: boolean;
@@ -90,7 +90,7 @@ export const App: React.FC = () => {
               />
             </Drawer>
           ) : null}
-          <Routes topBarOffset={topBar.current?.offsetHeight} />
+          <AppRoutes topBarOffset={topBar.current?.offsetHeight} />
         </div>
       </DimensionsContextProvider>
     </ContextProvider>

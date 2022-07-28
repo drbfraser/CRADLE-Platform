@@ -14,7 +14,6 @@ import { ReadingFormPage } from 'src/pages/readingForm';
 import { ReferralFormPage } from 'src/pages/referralForm';
 import { ReferralsPage } from 'src/pages/referrals';
 import { ResourcesPage } from 'src/pages/resources';
-import { RouteComponentProps } from 'react-router-dom';
 import SchoolIcon from '@material-ui/icons/School';
 import SendIcon from '@material-ui/icons/Send';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -24,9 +23,7 @@ import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
 
 export type AppRoute = {
-  component:
-    | React.ComponentType<RouteComponentProps<any>>
-    | React.ComponentType<any>;
+  component: React.ComponentType<any>;
   exactPath: boolean;
   id: string;
   inNavigation: boolean;
@@ -34,7 +31,7 @@ export type AppRoute = {
   icon?: React.ReactNode;
   name?: string;
   title?: string;
-  to?: string;
+  to: string;
 };
 
 // * Order here is important must match order of side bar for relevant routes
@@ -239,6 +236,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
+    to: `/not-found`,
   },
 ];
 
@@ -246,7 +244,7 @@ type RoutesNames = Record<string, string>;
 
 export const routesNames: RoutesNames = appRoutes.reduce(
   (routes: RoutesNames, route: AppRoute): RoutesNames => {
-    routes[route.to ?? ``] = route.name ?? ``;
+    routes[route.to] = route.name ?? '';
     return routes;
   },
   {}
