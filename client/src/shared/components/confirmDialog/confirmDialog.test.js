@@ -9,13 +9,13 @@ describe("Testing the rendering and the components of confirmDialog",()=>{
         render(<ConfirmDialog open = {true}/>)
     })
 
-    test("Rendering of the primary Button inside the dialoge",()=>{
+    test("Rendering of the primary button inside the dialoge",()=>{
         const { getByText } = render(<ConfirmDialog open = {true}/>)
         const yesPrimaryButton = getByText("Yes")
         expect(yesPrimaryButton.textContent).toBe("Yes")
     })
 
-    test("Rendering of the cancel Button inside the dialog", ()=>{
+    test("Rendering of the cancel button inside the dialog", ()=>{
         const { getByText } = render(<ConfirmDialog open = {true}/>)
         const noCancelButton = getByText("No")
         expect(noCancelButton.textContent).toBe("No")
