@@ -10,7 +10,7 @@ test("Rendering of the patients page", ()=> {
     render(<PatientsPage />)
 })
 
-test("Testing the primary Button - New Patient", ()=>{
+test("Rendering of the primary Button - New Patient", ()=>{
     const handleNewPatientClick = jest.fn()
     const { getByText } =  render(<PatientsPage />)
     const newPatientButton = getByText("New Patient")
@@ -18,7 +18,7 @@ test("Testing the primary Button - New Patient", ()=>{
    
 })
 
-test("Testing the text field - Search", ()=> {
+test("Rednering of the text field - Search", ()=> {
     const { getByTestId } =  render(<PatientsPage />)
     const searchTextfield = getByTestId("search-input")
 })
