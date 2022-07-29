@@ -41,7 +41,9 @@ export const PatientsPage = () => {
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
-          <PrimaryButton onClick={handleNewPatientClick} data-testid = "new patient button" >
+          <PrimaryButton
+            onClick={handleNewPatientClick}
+            data-testid="new patient button">
             New Patient
           </PrimaryButton>
         </div>
@@ -60,7 +62,6 @@ export const PatientsPage = () => {
     </Paper>
   );
 };
-
 
 const useStyles = makeStyles({
   wrapper: {
