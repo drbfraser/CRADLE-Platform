@@ -5,7 +5,6 @@ import { PrimaryButton } from "src/shared/components/Button";
 import { TextField } from "formik-material-ui";
 import { Paper } from "@material-ui/core";
 import { PatientsPage } from ".";
-//import 'jest-dom/extend-expect'
 
 test("Rendering of the patients page", ()=> {
     render(<PatientsPage />)
