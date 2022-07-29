@@ -34,13 +34,14 @@ export const PatientsPage = () => {
         <h2 className={classes.title}>Patients</h2>
         <div className={isBigScreen ? classes.right : ''}>
           <TextField
+            data-testid="search-input"
             size="small"
             label="Search"
             placeholder="PatientID or Name"
             variant="outlined"
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
-          <PrimaryButton onClick={handleNewPatientClick}>
+          <PrimaryButton onClick={handleNewPatientClick} data-testid = "new patient button" >
             New Patient
           </PrimaryButton>
         </div>
@@ -59,6 +60,7 @@ export const PatientsPage = () => {
     </Paper>
   );
 };
+
 
 const useStyles = makeStyles({
   wrapper: {
