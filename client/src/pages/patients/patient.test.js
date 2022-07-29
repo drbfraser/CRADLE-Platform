@@ -15,17 +15,6 @@ test("Testing the primary Button - New Patient", ()=>{
     const { getByText } =  render(<PatientsPage />)
     const newPatientButton = getByText("New Patient")
     expect(newPatientButton.textContent).toBe("New Patient")
-    //fireEvent.click(newPatientButton)
-    //expect(handleNewPatientClick).toHaveBeenCalledTimes(1);
-    /*
-    const handleNewPatientClick = jest.fn()
-    const { getByText } = render(<PrimaryButton onClick={handleNewPatientClick}/>)
-    const newPatientButton = getByText("New Patient")
-    console.log(newPatientButton)
-    expect(newPatientButton.textContent).toBe("New Patient")
-    fireEvent.click(newPatientButton)
-    expect(handleNewPatientClick).toHaveBeenCalledTimes(1);
-    */
    
 })
 
