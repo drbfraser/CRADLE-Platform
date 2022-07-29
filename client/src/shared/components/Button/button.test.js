@@ -2,7 +2,7 @@
 import React from "react";
 import { fireEvent, render } from "@testing-library/react";
 import { screen } from "@testing-library/react";
-import { CancelButton, PrimaryButton, RedirectButton, SecondaryButton } from "..";
+import { CancelButton, PrimaryButton, RedirectButton, SecondaryButton } from ".";
 
 describe("Rendering and testing all types of buttons", ()=>{
 

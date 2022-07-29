@@ -26,7 +26,7 @@ export const ConfirmDialog = ({
     <Dialog open={open} onClose={onClose} aria-labelledby="confirm-dialog">
       <DialogTitle id="confirm-dialog">{title}</DialogTitle>
       <DialogContent>
-        <Alert severity="warning">{content}</Alert>
+        <Alert severity="warning" data-testid = "warningAlert">{content}</Alert>
       </DialogContent>
       <DialogActions>
         <CancelButton onClick={onClose}>No</CancelButton>
