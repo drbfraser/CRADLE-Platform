@@ -11,7 +11,7 @@ test("Rendering of the patients page", ()=> {
 })
 
 test("Testing the primary Button - New Patient", ()=>{
-
+    const handleNewPatientClick = jest.fn()
     const { getByText } =  render(<PatientsPage />)
     const newPatientButton = getByText("New Patient")
     expect(newPatientButton.textContent).toBe("New Patient")
