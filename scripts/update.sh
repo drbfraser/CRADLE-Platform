@@ -56,6 +56,7 @@ export COMMIT_SHA=`git show -s --format=%H`
 export IMAGE_TAG=v`git show -s --format=%cs $COMMIT_SHA`.`git rev-parse --short=8 $COMMIT_SHA`
 echo "Most recent Git commit SHA: $COMMIT_SHA"
 echo "Release tag:                $IMAGE_TAG"
+docker compose -f docker-compose.yml -f docker-compose.deploy.yml pull
 docker compose -f docker-compose.yml -f docker-compose.deploy.yml up -d
 
 
