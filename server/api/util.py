@@ -209,11 +209,11 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     Assign lang version qid.
     Therefore, we can create the form or template one time.
     """
-    if (
-        req.get("classification") is not None
-        and req.get("classification").get("id") is None
-    ):
-        req["classification"]["id"] = utils.get_uuid()
+    if req.get("classification") is not None:
+        if req.get("classification").get("id") is None:
+            req["classification"]["id"] = utils.get_uuid()
+        if req.get("formClassificationId") is None:
+            req["formClassificationId"] = req.get("classification").get("id")
 
     # assign form id if not provided.
     if req.get("id") is None:

@@ -377,6 +377,7 @@ export type CustomizedForm = {
   id: number;
   patientId: string;
   formTemplateId: number;
+  classification: IFormClassification;
   dateCreated: number;
   lastEdited: number;
   lastEditedBy: number;

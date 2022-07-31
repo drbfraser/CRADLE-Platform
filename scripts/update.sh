@@ -38,13 +38,13 @@ fi
 echo -e "\n${BLUE}Updating code to latest from GitHub...${COLOR_OFF}\n"
 
 cd ~
-if [ ! -d cradle-platfrom ]; then
+if [ ! -d cradle-platform ]; then
     echo -e "${COLOR_OFF}${RED}"
     echo -e "ERROR: Must install using the 'setup_production.sh' script before running this."
     echo -e "${COLOR_OFF}"
     exit 1
 fi    
-cd ~/cradle-platfrom/
+cd ~/cradle-platform/
 git pull
 git checkout production
 
@@ -56,6 +56,7 @@ export COMMIT_SHA=`git show -s --format=%H`
 export IMAGE_TAG=v`git show -s --format=%cs $COMMIT_SHA`.`git rev-parse --short=8 $COMMIT_SHA`
 echo "Most recent Git commit SHA: $COMMIT_SHA"
 echo "Release tag:                $IMAGE_TAG"
+docker compose -f docker-compose.yml -f docker-compose.deploy.yml pull
 docker compose -f docker-compose.yml -f docker-compose.deploy.yml up -d
 
 
