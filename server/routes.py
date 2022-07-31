@@ -249,7 +249,7 @@ def init(api):
         TemplateVersion,
         "/api/forms/templates/<string:form_template_id>/versions",
         endpoint="single_form_template_version",
-    ) # [GET]
+    )  # [GET]
     api.add_resource(
         TemplateVersionCsv,
         "/api/forms/templates/<string:form_template_id>/versions/<string:version>/csv",
