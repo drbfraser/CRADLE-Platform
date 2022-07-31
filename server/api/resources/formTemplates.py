@@ -1,7 +1,4 @@
-from email import message
 import json
-from pprint import pp
-import string
 
 import api.util as util
 import data
@@ -10,12 +7,11 @@ import data.marshal as marshal
 import service.serialize as serialize
 from api.decorator import roles_required
 from flasgger import swag_from
-from flask import request
+from flask import request, make_response
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 from models import ContentTypeEnum, FormClassification, FormTemplate, Question, RoleEnum
-from utils import get_current_time, pprint
-import utils
+from utils import pprint
 from validation import formTemplates
 from werkzeug.datastructures import FileStorage
 
@@ -122,7 +118,7 @@ class Root(Resource):
 
 
 # /api/forms/templates/<string:form_template_id>/versions
-class SingleTemplateVersion(Resource):
+class TemplateVersion(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
@@ -139,6 +135,8 @@ class SingleTemplateVersion(Resource):
 
         return {"lang_versions": lang_list}
 
+
+class TemplateVersionCsv(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
@@ -146,28 +144,32 @@ class SingleTemplateVersion(Resource):
         methods=["GET"],
         endpoint="single_form_template_csv",
     )
-    def get(form_template_id: str):
-        csv: string = 'Name,Temp - 2 Langs,Languages:,"English, French",,,,,,,,,,,,\
-                    `Version,V1,,,,,,,,,,,,,,\
-                    ,,,,,,,Integer/Decimal only,,String Only,MC Only,,Answers (data sent to server),,,\
-                    Question ID,Question Text,Type,Language,Required,Units,Visible If…,Min,Max,# Lines,Options,,Value,Text,MC Index,Comments\
-                    ,,,,,,,,,,,,,,,\
-                    ,Referred by,Category,English,,,,,,,,,,,,\
-                    ,Referred by - French,Category,French,,,,,,,,,,,,\
-                    referred-by-name,Name / ID,String,English,,,,,,,,,,,,\
-                    ,Name / ID - French,String,French,,,,,,,,,,,,\
-                    referred-by-position,Position,String,English,,,,,,,,,,,,\
-                    ,Position - French,String,French,,,,,,,,,,,,'
+    def get(form_template_id: str, version: str):
+        filters: dict = {
+            "id": form_template_id,
+            "version": version,
+        }
 
-        return Response(
-            csv,
-            mimetype="text/csv",
-            headers={"Content-disposition": "attachment; filename=myplot.csv"},
+        form_template = crud.read(
+            FormTemplate,
+            **filters,
         )
+
+        if not form_template:
+            abort(404, message=f"No form with id {form_template_id}")
+
+        csv: str = util.getCsvFromFormTemplate(form_template)
+
+        response = make_response(csv)
+        response.headers[
+            "Content-Disposition"
+        ] = "attachment; filename=form_template.csv"
+        response.headers["Content-Type"] = "text/csv"
+        return response
 
 
 # /api/forms/templates/<string:form_template_id>
-class SingleFormTemplate(Resource):
+class FormTemplateResource(Resource):
     @staticmethod
     @jwt_required
     @swag_from(

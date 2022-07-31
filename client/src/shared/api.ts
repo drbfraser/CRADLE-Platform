@@ -195,10 +195,13 @@ export const getFormTemplateLangsAsync = async (formTemplateId: string) =>
   ).json();
 
 export const getFormTemplateCsvAsync = async (
-  formTemplateId: string
+  formTemplateId: string,
+  version: string
 ): Promise<Blob> => {
   const response = await apiFetch(
-    API_URL + EndpointEnum.FORM_TEMPLATE + `/${formTemplateId}/csv`
+    API_URL +
+      EndpointEnum.FORM_TEMPLATE +
+      `/${formTemplateId}/versions/${version}/csv`
   );
 
   return response.blob();

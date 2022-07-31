@@ -83,7 +83,10 @@ export const ManageFormTemplates = () => {
       isVisible: (formTemplate: FormTemplate) => !formTemplate.archived,
       onClick: async (formTemplate: FormTemplate) => {
         try {
-          const file = await getFormTemplateCsvAsync(formTemplate.id);
+          const file = await getFormTemplateCsvAsync(
+            formTemplate.id,
+            formTemplate.version
+          );
 
           const objectURL = URL.createObjectURL(file);
 
