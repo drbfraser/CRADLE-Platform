@@ -17,31 +17,16 @@ const redTheme = createTheme({ palette: { primary: red } });
 
 export const CancelButton = (otherProps: ButtonProps) => (
   <ThemeProvider theme={redTheme}>
-    <Button
-      size="large"
-      {...otherProps}
-      color="primary"
-      variant="text"
-    />
+    <Button size="large" {...otherProps} color="primary" variant="text" />
   </ThemeProvider>
 );
 
 export const PrimaryButton = (props: ButtonProps) => (
-  <Button
-    size="large"
-    {...props}
-    color="primary"
-    variant="contained"
-  />
+  <Button size="large" {...props} color="primary" variant="contained" />
 );
 
 export const SecondaryButton = (props: ButtonProps) => (
-  <Button
-    size="large"
-    {...props}
-    color="primary"
-    variant="outlined"
-  />
+  <Button size="large" {...props} color="primary" variant="outlined" />
 );
 
 export const RedirectButton = ({ url, ...props }: RedirectButtonProps) => {
