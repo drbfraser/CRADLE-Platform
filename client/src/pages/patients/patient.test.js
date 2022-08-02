@@ -18,7 +18,7 @@ test("Rendering of the primary Button - New Patient", ()=>{
    
 })
 
-test("Rednering of the text field - Search", ()=> {
+test("Rendering of the text field - Search", ()=> {
     const { getByTestId } =  render(<PatientsPage />)
     const searchTextfield = getByTestId("search-input")
 })

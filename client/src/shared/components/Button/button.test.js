@@ -14,19 +14,12 @@ describe("Rendering and testing all types of buttons", ()=>{
 
         test("onCLick property of Primary Button", ()=>{
             const handlePrimaryButtonClick = jest.fn()
-            const { getByTestId } = render(<PrimaryButton onClick={handlePrimaryButtonClick} />)
+            const { getByTestId } = render(<PrimaryButton data-testid="primary" onClick={handlePrimaryButtonClick} />)
             const primaryButton = getByTestId("primary")
             fireEvent.click(primaryButton)
             expect(handlePrimaryButtonClick).toHaveBeenCalledTimes(1)
         })
 
-        test("colour of the primary button",()=>{
-            const { getByTestId } = render(<PrimaryButton />)
-            const primaryButton = getByTestId("primary")
-            const buttonStyle = window.getComputedStyle(primaryButton)
-            const backgroundColor = buttonStyle["color"]
-            expect(backgroundColor).toEqual("rgb(255, 255, 255)");
-        })
 })
 
     describe("testing the rendering, and all the components of the Secondary Button",()=>{
@@ -36,18 +29,10 @@ describe("Rendering and testing all types of buttons", ()=>{
 
         test("onCLick property of Secondary Button", ()=>{
             const handleSecondaryButtonClick = jest.fn()
-            const { getByTestId } = render(<SecondaryButton onClick={handleSecondaryButtonClick} />)
+            const { getByTestId } = render(<SecondaryButton data-testid="secondary" onClick={handleSecondaryButtonClick} />)
             const secondaryButton = getByTestId("secondary")
             fireEvent.click(secondaryButton)
             expect(handleSecondaryButtonClick).toHaveBeenCalledTimes(1)
-        })
-
-        test("colour of the secondary button",()=>{
-            const { getByTestId } = render(<SecondaryButton />)
-            const secondaryButton = getByTestId("secondary")
-            const buttonStyle = window.getComputedStyle(secondaryButton)
-            const backgroundColor = buttonStyle["color"]
-            expect(backgroundColor).toEqual("rgb(63, 81, 181)");
         })
 
     })
@@ -60,19 +45,12 @@ describe("Rendering and testing all types of buttons", ()=>{
 
         test("onCLick property of Cancel Button", ()=>{
             const handleCancelButtonClick = jest.fn()
-            const { getByTestId } = render(<CancelButton onClick={handleCancelButtonClick} />)
+            const { getByTestId } = render(<CancelButton data-testid="cancel" onClick={handleCancelButtonClick} />)
             const cancelButton = getByTestId("cancel")
             fireEvent.click(cancelButton)
             expect(handleCancelButtonClick).toHaveBeenCalledTimes(1)
         })
 
-        test("colour of the cancel button",()=>{
-            const { getByTestId } = render(<CancelButton />)
-            const cancelButton = getByTestId("cancel")
-            const buttonStyle = window.getComputedStyle(cancelButton)
-            const backgroundColor = buttonStyle["color"]
-            expect(backgroundColor).toEqual("rgb(244, 67, 54)");
-        })
     })
 
     describe("Testing the rendering of the redirect button",()=>{

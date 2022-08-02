@@ -22,7 +22,6 @@ export const CancelButton = (otherProps: ButtonProps) => (
       {...otherProps}
       color="primary"
       variant="text"
-      data-testid="cancel"
     />
   </ThemeProvider>
 );
@@ -33,7 +32,6 @@ export const PrimaryButton = (props: ButtonProps) => (
     {...props}
     color="primary"
     variant="contained"
-    data-testid="primary"
   />
 );
 
@@ -43,7 +41,6 @@ export const SecondaryButton = (props: ButtonProps) => (
     {...props}
     color="primary"
     variant="outlined"
-    data-testid="secondary"
   />
 );
 
