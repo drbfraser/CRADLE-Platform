@@ -21,6 +21,8 @@
     "format": "npm run prettier && npm run lint"
   },
   "devDependencies": {
+    "@testing-library/dom": "^8.16.0",
+    "@testing-library/react": "^13.3.0",
     "@types/jquery": "^3.5.5",
     "@types/jwt-decode": "^2.2.1",
     "@types/lodash": "^4.14.168",
