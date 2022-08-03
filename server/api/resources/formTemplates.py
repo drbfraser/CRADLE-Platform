@@ -1,6 +1,4 @@
-from email import message
 import json
-from pprint import pp
 
 import api.util as util
 import data
@@ -9,12 +7,11 @@ import data.marshal as marshal
 import service.serialize as serialize
 from api.decorator import roles_required
 from flasgger import swag_from
-from flask import request
+from flask import request, make_response
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 from models import ContentTypeEnum, FormClassification, FormTemplate, Question, RoleEnum
-from utils import get_current_time, pprint
-import utils
+from utils import pprint
 from validation import formTemplates
 from werkzeug.datastructures import FileStorage
 
@@ -111,7 +108,7 @@ class Root(Resource):
 
         if (
             params.get("include_archived") is None
-            or params.get("include_archived") == 0
+            or params.get("include_archived") == "false"
         ):
             filters["archived"] = 0
 
@@ -121,7 +118,7 @@ class Root(Resource):
 
 
 # /api/forms/templates/<string:form_template_id>/versions
-class SingleTemplateVersion(Resource):
+class TemplateVersion(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
@@ -139,8 +136,40 @@ class SingleTemplateVersion(Resource):
         return {"lang_versions": lang_list}
 
 
+class TemplateVersionCsv(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/single-form-template-version-get-dev.yml",
+        methods=["GET"],
+        endpoint="single_form_template_csv",
+    )
+    def get(form_template_id: str, version: str):
+        filters: dict = {
+            "id": form_template_id,
+            "version": version,
+        }
+
+        form_template = crud.read(
+            FormTemplate,
+            **filters,
+        )
+
+        if not form_template:
+            abort(404, message=f"No form with id {form_template_id}")
+
+        csv: str = util.getCsvFromFormTemplate(form_template)
+
+        response = make_response(csv)
+        response.headers[
+            "Content-Disposition"
+        ] = "attachment; filename=form_template.csv"
+        response.headers["Content-Type"] = "text/csv"
+        return response
+
+
 # /api/forms/templates/<string:form_template_id>
-class SingleFormTemplate(Resource):
+class FormTemplateResource(Resource):
     @staticmethod
     @jwt_required
     @swag_from(

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 import pprint
 
 """
@@ -21,6 +22,7 @@ from models import (
     FormTemplate,
     FormClassification,
     QRelationalEnum,
+    Question,
     QuestionTypeEnum,
     User,
 )
@@ -327,39 +329,37 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
 
 
 def getFormTemplateDictFromCSV(csvData: str):
+    """
+    Returns a dictionary of form templates from a CSV file.
+    """
 
-    result: dict = dict()
+    # Helper functions
+    def isRowEmpty(row: Iterable) -> bool:
 
-    csv_reader = csv.reader(csvData.splitlines())
-    rows = []
+        return all(map(lambda val: val == "", row))
 
-    isRowEmpty: Callable[[Iterable], bool] = lambda row: reduce(
-        (lambda isEmpty, val: isEmpty and val == ""), row, True
-    )
+    def isQuestionRequired(required: str) -> bool:
+        return len(required) > 0 and required.upper()[0] == "Y"
 
-    isQuestionRequired: Callable[[str], bool] = (
-        lambda required: len(required) > 0 and required.upper()[0] == "Y"
-    )
+    def toNumberOrNone(strVal: str) -> int | float | None:
+        if strVal == "":
+            return None
 
-    toNumberOrNone: Callable[[str], int | float | None] = (
-        lambda strVal: None
-        if strVal == ""
-        else float(strVal)
-        if "." in strVal
-        else int(strVal)
-    )
+        return float(strVal) if "." in strVal else int(strVal)
 
-    toMcOptions: Callable[[str], list[dict[str, int | str]]] = lambda strVal: [
-        {"mcid": index, "opt": opt.strip()}
-        for index, opt in enumerate(strVal.split(","))
-        if len(opt.strip()) > 0
-    ]
+    def toMcOptions(strVal: str) -> list[dict[str, int | str]]:
+        return [
+            {"mcid": index, "opt": opt.strip()}
+            for index, opt in enumerate(strVal.split(","))
+            if len(opt.strip()) > 0
+        ]
 
-    getQuestionLanguageVersionFromRow: Callable[[Iterable], dict] = lambda row: {
-        "questionText": row[FORM_TEMPLATE_QUESTION_TEXT_COL],
-        "mcOptions": toMcOptions(row[FORM_TEMPLATE_QUESTION_OPTIONS_COL]),
-        "lang": row[FORM_TEMPLATE_LANGUAGES_COL].strip(),
-    }
+    def getQuestionLanguageVersionFromRow(row: list) -> dict:
+        return {
+            "questionText": row[FORM_TEMPLATE_QUESTION_TEXT_COL],
+            "mcOptions": toMcOptions(row[FORM_TEMPLATE_QUESTION_OPTIONS_COL]),
+            "lang": row[FORM_TEMPLATE_LANGUAGES_COL].strip(),
+        }
 
     def findCategoryIndex(
         categoryList: list[dict[str, any]], categoryText: str
@@ -372,12 +372,17 @@ def getFormTemplateDictFromCSV(csvData: str):
 
         return None
 
-    for row in csv_reader:
+    result: dict = dict()
+
+    csv_reader = csv.reader(csvData.splitlines())
+    rows = []
+
+    for index, row in enumerate(csv_reader):
         if len(row) != FORM_TEMPLATE_ROW_LENGTH:
             raise RuntimeError(
-                message="All Rows must have {} columns".format(
-                    FORM_TEMPLATE_ROW_LENGTH
-                ),
+                "All Rows must have {} columns. Row {} has {} columns.".format(
+                    FORM_TEMPLATE_ROW_LENGTH, index, len(row)
+                )
             )
 
         rows.append(row)
@@ -500,3 +505,167 @@ def getFormTemplateDictFromCSV(csvData: str):
         questionIndex += 1
 
     return result
+
+
+def getCsvFromFormTemplate(form_template: FormTemplate):
+    """
+    Returns a CSV string from a FormTemplate object.
+    """
+
+    # Helper functions
+    def get_question_lang_list(question: Question):
+        lang_list = []
+        for lang in question.lang_versions:
+            lang_list.append(lang.lang)
+        return lang_list
+
+    def list_to_csv(rows: list):
+        csv_str = ""
+
+        def format_cell(cell: str):
+            return '"{}"'.format(cell if cell is not None else "")
+
+        for row in rows:
+            row = [format_cell(cell) for cell in row]
+
+            csv_str += ",".join(row)
+            csv_str += "\n"
+
+        return csv_str
+
+    def mcoptions_to_str(mcoptions: str):
+        mcoptions = json.loads(mcoptions)
+        options = [option["opt"] for option in mcoptions]
+
+        return ",".join(options) if mcoptions is not None else ""
+
+    def get_visible_condition_options(
+        visible_condition: str, questions: list[Question]
+    ):
+        visible_conditions = json.loads(visible_condition)
+
+        if visible_conditions is None or len(visible_conditions) == 0:
+            return ""
+
+        visible_condition = visible_conditions[0]
+        parent_question_id = visible_condition["qidx"]
+        parent_question = questions[parent_question_id]
+
+        if parent_question is None:
+            return ""
+
+        mc_options = json.loads(parent_question.lang_versions[0].mcOptions)
+
+        optionIndices = visible_condition["answers"]["mcidArray"]
+
+        options = [mc_options[i]["opt"] for i in optionIndices]
+
+        return ",".join(options) if visible_condition is not None else ""
+
+    questions: list[Question] = form_template.questions
+
+    questions = sorted(questions, key=lambda q: q.questionIndex)
+
+    rows = [
+        [
+            "Name",
+            form_template.classification.name,
+            "Languages",
+            ",".join(get_question_lang_list(questions[0])),
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+        ],
+        [
+            "Version",
+            form_template.version,
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+        ],
+        [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "Integer/Decimal only",
+            "",
+            "String Only",
+            "MC Only",
+        ],
+        [
+            "Question ID",
+            "Question Text",
+            "Type",
+            "Language",
+            "Required",
+            "Units",
+            "Visible If",
+            "Min",
+            "Max",
+            "# Lines",
+            "Options",
+        ],
+        [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+        ],
+    ]
+
+    for question in questions:
+        row = [
+            question.questionId,
+            question.lang_versions[0].questionText,
+            question.questionType.value,
+            question.lang_versions[0].lang,
+            "Y" if question.required else "N",
+            question.units,
+            get_visible_condition_options(
+                question.visibleCondition, questions=questions
+            ),
+            question.numMin,
+            question.numMax,
+            question.stringMaxLength,
+            mcoptions_to_str(question.lang_versions[0].mcOptions),
+        ]
+        rows.append(row)
+
+        for lang in question.lang_versions[1:]:
+            row = [
+                "",
+                lang.questionText,
+                "",
+                lang.lang,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                mcoptions_to_str(lang.mcOptions),
+            ]
+            rows.append(row)
+
+    return list_to_csv(rows)
