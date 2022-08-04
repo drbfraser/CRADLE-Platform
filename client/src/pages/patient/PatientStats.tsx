@@ -100,7 +100,7 @@ export const PatientStats = ({ patientId }: IProps) => {
                 />
                 <Line
                   data={getVitalsData(patientStats, currentStatsUnit)}
-                  options={{ maintainAspectRatio: false }}
+                  options={{ maintainAspectRatio: true }}
                 />
               </>
             )}
@@ -222,7 +222,7 @@ const getTrafficLightData = (stats: PatientStatistics) => ({
 });
 
 const barChartOptions = {
-  maintainAspectRatio: false,
+  maintainAspectRatio: true,
   legend: {
     display: false,
   },
