@@ -187,7 +187,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                           }>
                           <TableCell>
                             {getYearToDisplay(pastPregnancy.pregnancyEndDate)}
-                            {" => Pregnancy carried to "}
+                            {' => Pregnancy carried to '}
                             {gestationalAgeUnitFormatters[
                               previousPregnancyUnit ??
                                 GestationalAgeUnitEnum.WEEKS
