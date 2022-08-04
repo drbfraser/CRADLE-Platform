@@ -87,7 +87,7 @@ export const PatientStats = ({ patientId }: IProps) => {
             Please try refreshing.
           </Alert>
         ) : patientStats ? (
-          <div className={styles.graph}>
+          <div>
             {chartSelected === ChartOption.VITALS && (
               <>
                 <h4 className={styles.noMargin}>Average Vitals</h4>
@@ -98,10 +98,12 @@ export const PatientStats = ({ patientId }: IProps) => {
                   placeholder={statsUnitLabels[currentStatsUnit]}
                   onChange={handleCurrentStatsUnitChange}
                 />
-                <Line
-                  data={getVitalsData(patientStats, currentStatsUnit)}
-                  options={{ maintainAspectRatio: false }}
-                />
+                <div className={styles.graph}>
+                  <Line
+                    data={getVitalsData(patientStats, currentStatsUnit)}
+                    options={{ maintainAspectRatio: false }}
+                  />
+                </div>
               </>
             )}
             {chartSelected === ChartOption.TRAFFIC_LIGHTS && (
@@ -109,10 +111,12 @@ export const PatientStats = ({ patientId }: IProps) => {
                 <h4 className={styles.noMargin}>
                   Traffic Lights From All Readings:
                 </h4>
-                <Bar
-                  data={getTrafficLightData(patientStats)}
-                  options={barChartOptions}
-                />
+                <div className={styles.graph}>
+                  <Bar
+                    data={getTrafficLightData(patientStats)}
+                    options={barChartOptions}
+                  />
+                </div>
               </>
             )}
           </div>
@@ -129,8 +133,7 @@ const useStyles = makeStyles({
     margin: 0,
   },
   graph: {
-    margin: 0,
-    maxHeight: 400,
+    height: '400px',
   },
 });
 
