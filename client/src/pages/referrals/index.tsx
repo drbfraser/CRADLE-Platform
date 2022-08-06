@@ -15,6 +15,7 @@ import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import { useDimensionsContext } from 'src/app/context/hooks';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 export const ReferralsPage = () => {
@@ -30,7 +31,7 @@ export const ReferralsPage = () => {
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
-  const isBigScreen = useMediaQuery('(min-width:440px)');
+  const { isBigScreen } = useDimensionsContext();
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   React.useEffect(() => {

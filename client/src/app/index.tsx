@@ -57,8 +57,9 @@ export const App: React.FC = () => {
   return (
     <ContextProvider>
       <DimensionsContextProvider
-        drawerWidth={drawerWidth.current}
-        offsetFromTop={offsetFromTop.current}>
+        drawerWidth={drawerWidth}
+        offsetFromTop={offsetFromTop}
+        isBigScreen={isBigScreen}>
         <CssBaseline />
         <div className={classes.root}>
           <TopBar
@@ -66,10 +67,9 @@ export const App: React.FC = () => {
             user={user}
             setActiveItem={setActiveItem}
             isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-            isBigScreen={isBigScreen}
+            setIsSidebarOpen={handleSidebarOpen}
           />
-          {loggedIn && isSidebarOpen ? (
+          {loggedIn ? (
             <Drawer
               className={classes.drawer}
               variant={isBigScreen ? 'persistent' : 'temporary'}

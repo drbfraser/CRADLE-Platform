@@ -23,8 +23,8 @@ export const SidebarRoute: React.FC<IProps> = ({
   updateActiveItem,
   appendedRoute,
 }) => {
-  const { drawerWidth, offsetFromTop } = useDimensionsContext();
-  const classes = useStyles({ drawerWidth, offsetFromTop });
+  const { drawerWidth } = useDimensionsContext();
+  const classes = useStyles({ drawerWidth });
 
   if (!route.to) {
     return null;

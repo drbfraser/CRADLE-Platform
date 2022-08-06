@@ -4,7 +4,6 @@ import { OrUndefined } from 'src/shared/types';
 
 interface IProps {
   drawerWidth?: number;
-  offsetFromTop?: number;
 }
 
 export const useStyles = makeStyles((theme: Theme) => ({

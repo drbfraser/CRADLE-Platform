@@ -9,9 +9,8 @@ import { useDimensionsContext } from '../context/hooks';
 import { useDispatch } from 'react-redux';
 import { useStyles } from '../styles';
 
-export const LogoutMenuItem: React.FC = () => {
-  const { drawerWidth, offsetFromTop } = useDimensionsContext();
-  const classes = useStyles({ drawerWidth, offsetFromTop });
+  const { drawerWidth } = useDimensionsContext();
+  const classes = useStyles({ drawerWidth });
 
   const dispatch = useDispatch();
 
