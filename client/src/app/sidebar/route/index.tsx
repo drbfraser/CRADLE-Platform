@@ -15,6 +15,7 @@ interface IProps {
   route: AppRoute;
   updateActiveItem: Callback<OrUndefined<OrNull<string>>, () => void>;
   appendedRoute?: React.ReactNode;
+  isSidebarOpen: boolean;
 }
 
 export const SidebarRoute: React.FC<IProps> = ({
@@ -22,6 +23,7 @@ export const SidebarRoute: React.FC<IProps> = ({
   route,
   updateActiveItem,
   appendedRoute,
+  isSidebarOpen,
 }) => {
   const { drawerWidth } = useDimensionsContext();
   const classes = useStyles({ drawerWidth });
@@ -42,13 +44,15 @@ export const SidebarRoute: React.FC<IProps> = ({
         <ListItemIcon classes={{ root: classes.icon }}>
           {route.icon}
         </ListItemIcon>
-        <ListItemText
-          disableTypography={true}
-          className={classes.itemText}
-          primary={
-            <Typography className={classes.sidebar}>{route.title}</Typography>
-          }
-        />
+        {isSidebarOpen && (
+          <ListItemText
+            disableTypography={true}
+            className={classes.itemText}
+            primary={
+              <Typography className={classes.sidebar}>{route.title}</Typography>
+            }
+          />
+        )}
       </ListItem>
       {appendedRoute}
     </>
