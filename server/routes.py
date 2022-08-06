@@ -52,9 +52,10 @@ from api.resources.medicalRecords import (
 )
 from api.resources.formTemplates import (
     Root as FormTemplate,
-    SingleFormTemplate,
+    FormTemplateResource,
     BlankFormTemplate,
-    SingleTemplateVersion,
+    TemplateVersion,
+    TemplateVersionCsv,
 )
 from api.resources.formClassifications import (
     Root as FormClassification,
@@ -240,14 +241,19 @@ def init(api):
         FormTemplate, "/api/forms/templates", endpoint="form_templates"
     )  # [GET, POST]
     api.add_resource(
-        SingleTemplateVersion,
-        "/api/forms/templates/<string:form_template_id>/versions",
-        endpoint="single_form_template_version",
-    )
-    api.add_resource(
-        SingleFormTemplate,
+        FormTemplateResource,
         "/api/forms/templates/<string:form_template_id>",
         endpoint="single_form_template",
+    )  # [GET, PUT]
+    api.add_resource(
+        TemplateVersion,
+        "/api/forms/templates/<string:form_template_id>/versions",
+        endpoint="single_form_template_version",
+    )  # [GET]
+    api.add_resource(
+        TemplateVersionCsv,
+        "/api/forms/templates/<string:form_template_id>/versions/<string:version>/csv",
+        endpoint="single_form_template_csv",
     )  # [GET, PUT]
     api.add_resource(
         BlankFormTemplate,
