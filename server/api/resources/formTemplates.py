@@ -10,8 +10,7 @@ from flasgger import swag_from
 from flask import request, make_response
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-from models import ContentTypeEnum, FormClassification, FormTemplate, Question, RoleEnum
-from utils import pprint
+from models import ContentTypeEnum, FormClassification, FormTemplate, RoleEnum
 from validation import formTemplates
 from werkzeug.datastructures import FileStorage
 
@@ -48,7 +47,6 @@ class Root(Resource):
                 except RuntimeError as err:
                     abort(400, message=err.args[0])
                 except TypeError as err:
-                    pprint(err)
                     abort(400, message=err.args[0])
                 except:
                     abort(
@@ -73,7 +71,6 @@ class Root(Resource):
         )
 
         if classification is not None:
-            req["classification"]["id"] = classification.id
 
             if crud.read(
                 FormTemplate,
@@ -84,6 +81,10 @@ class Root(Resource):
                     409,
                     message="Form template with the same version already exists - change the version to upload",
                 )
+
+            del req["classification"]
+
+            req["formClassificationId"] = classification.id
 
         util.assign_form_or_template_ids(FormTemplate, req)
 
