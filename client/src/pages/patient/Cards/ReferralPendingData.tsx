@@ -4,7 +4,7 @@ import { Grid, Typography } from '@material-ui/core';
 import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import React from 'react';
 import { Referral } from 'src/shared/types';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 
 interface IProps {
@@ -41,7 +41,7 @@ export const ReferralPendingData = ({ referral }: IProps) => {
           </>
         </Typography>
         <Typography variant="subtitle1">
-          Referred on {getPrettyDateTime(referral.dateReferred)}
+          Referred on {getPrettyDate(referral.dateReferred)}
         </Typography>
         <Typography variant="subtitle1">
           Referred to {referral.referralHealthFacilityName}

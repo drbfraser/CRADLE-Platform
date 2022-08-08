@@ -1,7 +1,7 @@
 import React from 'react';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 import { Pregnancy } from 'src/shared/types';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
@@ -38,12 +38,12 @@ export const PregnancyRecordRow = ({
       <TableCell
         label={PREGNANCY_RECORD_COLUMNS.startDate}
         isTransformed={isTransformed}>
-        {getPrettyDateTime(row.startDate)}
+        {getPrettyDate(row.startDate)}
       </TableCell>
       <TableCell
         label={PREGNANCY_RECORD_COLUMNS.endDate}
         isTransformed={isTransformed}>
-        {row.endDate ? getPrettyDateTime(row.endDate) : 'Ongoing'}
+        {row.endDate ? getPrettyDate(row.endDate) : 'Ongoing'}
       </TableCell>
       <TableCell
         label={PREGNANCY_RECORD_COLUMNS.gestation}
