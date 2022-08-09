@@ -1,12 +1,12 @@
 import React from 'react';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import { Field } from 'formik';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import { FormPageProps, ReadingField } from '../state';
 import { symptomNames } from './symptoms';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 
 interface ICheckboxCol {
   symptoms: [string, string][];

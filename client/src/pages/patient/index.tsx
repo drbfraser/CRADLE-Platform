@@ -7,7 +7,7 @@ import {
   ReferralNotAttendedCard,
   ReferralPendingCard,
 } from './Cards/Cards';
-import { Divider, Grid, Paper } from '@material-ui/core';
+import { Divider, Grid, Paper } from '@mui/material';
 import { Filter, FilterRequestBody, Patient, Referral } from 'src/shared/types';
 import React, { useEffect, useState } from 'react';
 import {
@@ -18,17 +18,17 @@ import {
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@mui/material/Checkbox';
 import { ConfirmDialog } from '../../shared/components/confirmDialog';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { Header } from './Header';
 import { MedicalInfo } from './MedicalInfo';
 import { PatientStats } from './PatientStats';
 import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
 import { SexEnum } from 'src/shared/enums';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@mui/material/Typography';
+import makeStyles from '@mui/styles/makeStyles';
 
 type RouteParams = {
   patientId: string;

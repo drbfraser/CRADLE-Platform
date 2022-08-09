@@ -15,26 +15,28 @@ import {
   handlePregnancyInfo,
   handleSubmit,
 } from './handlers';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { useTheme } from '@mui/material/styles';
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 import { MedicalInfoForm } from './medicalInfo';
 import { PatientState } from './state';
 import { PersonalInfoForm } from './personalInfo';
 import { PregnancyInfoForm } from './pregnancyInfo';
-import Step from '@material-ui/core/Step/Step';
-import StepLabel from '@material-ui/core/StepLabel/StepLabel';
-import Stepper from '@material-ui/core/Stepper/Stepper';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import Step from '@mui/material/Step/Step';
+import StepLabel from '@mui/material/StepLabel/StepLabel';
+import Stepper from '@mui/material/Stepper/Stepper';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import { goBackWithFallback } from 'src/shared/utils';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { useHistory } from 'react-router-dom';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 interface PatientFormProps {
   editId: string;
@@ -168,93 +170,92 @@ export const PatientForm = ({
     }
   };
 
-  return (
-    <>
-      <APIErrorToast
-        open={submitError}
-        onClose={() => setSubmitError(false)}
-        errorMessage={errorMessage}
-      />
-      <div className={classes.title}>
-        <Tooltip title="Go back" placement="top">
-          <IconButton
-            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}>
-            <ChevronLeftIcon color="inherit" fontSize="large" />
-          </IconButton>
-        </Tooltip>
-        <Typography variant="h4">{pages[pageNum].title}</Typography>
-      </div>
-      {creatingNew && !creatingNewPregnancy && (
-        <Stepper
-          activeStep={pageNum}
-          orientation={isBigScreen ? 'horizontal' : 'vertical'}>
-          {pages.map((page, idx) => (
-            <Step key={idx}>
-              <StepLabel>{page.name}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+  return <>
+    <APIErrorToast
+      open={submitError}
+      onClose={() => setSubmitError(false)}
+      errorMessage={errorMessage}
+    />
+    <div className={classes.title}>
+      <Tooltip title="Go back" placement="top">
+        <IconButton
+          onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}
+          size="large">
+          <ChevronLeftIcon color="inherit" fontSize="large" />
+        </IconButton>
+      </Tooltip>
+      <Typography variant="h4">{pages[pageNum].title}</Typography>
+    </div>
+    {creatingNew && !creatingNewPregnancy && (
+      <Stepper
+        activeStep={pageNum}
+        orientation={isBigScreen ? 'horizontal' : 'vertical'}>
+        {pages.map((page, idx) => (
+          <Step key={idx}>
+            <StepLabel>{page.name}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+    )}
+    <br />
+    <Formik
+      initialValues={initialState}
+      onSubmit={handleNext}
+      validationSchema={pages[pageNum].validationSchema}>
+      {(formikProps: FormikProps<PatientState>) => (
+        <Form>
+          <PageComponent
+            formikProps={formikProps}
+            creatingNew={creatingNew}
+            isDrugRecord={pages[pageNum].isDrugRecord}
+            creatingNewPregnancy={creatingNewPregnancy}
+          />
+          <br />
+          {creatingNew && (
+            <SecondaryButton
+              onClick={() => setPageNum(pageNum - 1)}
+              disabled={pageNum === 0 || formikProps.isSubmitting}>
+              Back
+            </SecondaryButton>
+          )}
+          {editId && universalRecordId && (
+            <>
+              <CancelButton onClick={() => setIsDialogOpen(true)}>
+                Delete
+              </CancelButton>
+              <ConfirmDialog
+                title="Delete Record?"
+                content="Are you sure you want to delete this record?"
+                open={isDialogOpen}
+                onClose={() => {
+                  setIsDialogOpen(false);
+                }}
+                onConfirm={() =>
+                  handleDeleteRecord(
+                    editId,
+                    universalRecordId,
+                    history,
+                    setSubmitError,
+                    formikProps.setSubmitting
+                  ).then(() => setIsDialogOpen(false))
+                }
+              />
+            </>
+          )}
+          <PrimaryButton
+            className={classes.right}
+            type="submit"
+            disabled={formikProps.isSubmitting}>
+            {editId || creatingNewPregnancy
+              ? 'Save'
+              : isFinalPage
+              ? 'Create'
+              : 'Next'}
+          </PrimaryButton>
+        </Form>
       )}
-      <br />
-      <Formik
-        initialValues={initialState}
-        onSubmit={handleNext}
-        validationSchema={pages[pageNum].validationSchema}>
-        {(formikProps: FormikProps<PatientState>) => (
-          <Form>
-            <PageComponent
-              formikProps={formikProps}
-              creatingNew={creatingNew}
-              isDrugRecord={pages[pageNum].isDrugRecord}
-              creatingNewPregnancy={creatingNewPregnancy}
-            />
-            <br />
-            {creatingNew && (
-              <SecondaryButton
-                onClick={() => setPageNum(pageNum - 1)}
-                disabled={pageNum === 0 || formikProps.isSubmitting}>
-                Back
-              </SecondaryButton>
-            )}
-            {editId && universalRecordId && (
-              <>
-                <CancelButton onClick={() => setIsDialogOpen(true)}>
-                  Delete
-                </CancelButton>
-                <ConfirmDialog
-                  title="Delete Record?"
-                  content="Are you sure you want to delete this record?"
-                  open={isDialogOpen}
-                  onClose={() => {
-                    setIsDialogOpen(false);
-                  }}
-                  onConfirm={() =>
-                    handleDeleteRecord(
-                      editId,
-                      universalRecordId,
-                      history,
-                      setSubmitError,
-                      formikProps.setSubmitting
-                    ).then(() => setIsDialogOpen(false))
-                  }
-                />
-              </>
-            )}
-            <PrimaryButton
-              className={classes.right}
-              type="submit"
-              disabled={formikProps.isSubmitting}>
-              {editId || creatingNewPregnancy
-                ? 'Save'
-                : isFinalPage
-                ? 'Create'
-                : 'Next'}
-            </PrimaryButton>
-          </Form>
-        )}
-      </Formik>
-    </>
-  );
+    </Formik>
+  </>;
 };
 
 const useStyles = makeStyles({

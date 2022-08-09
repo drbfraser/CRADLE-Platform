@@ -3,7 +3,7 @@ import { fireEvent, render } from "@testing-library/react";
 import { screen } from "@testing-library/react";
 import { PrimaryButton } from "src/shared/components/Button";
 import { TextField } from "formik-material-ui";
-import { Paper } from "@material-ui/core";
+import { Paper } from "@mui/material";
 import { PatientsPage } from ".";
 
 test("Rendering of the patients page", ()=> {

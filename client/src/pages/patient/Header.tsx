@@ -1,11 +1,11 @@
-import { Grid, IconButton, Tooltip, Typography } from '@material-ui/core';
+import { Grid, IconButton, Tooltip, Typography } from '@mui/material';
 
-import { Add } from '@material-ui/icons';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import { Add } from '@mui/icons-material';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Patient } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';
 import React from 'react';
-import Skeleton from '@material-ui/lab/Skeleton';
+import Skeleton from '@mui/material/Skeleton';
 import { goBackWithFallback } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 
@@ -52,7 +52,7 @@ export const Header = ({
       <Grid item>
         <Grid container alignItems="center">
           <Tooltip title="Go back" placement="top">
-            <IconButton onClick={() => goBackWithFallback('/patients')}>
+            <IconButton onClick={() => goBackWithFallback('/patients')} size="large">
               <ChevronLeftIcon color="inherit" fontSize="large" />
             </IconButton>
           </Tooltip>

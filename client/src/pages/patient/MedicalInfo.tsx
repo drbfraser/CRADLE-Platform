@@ -1,14 +1,14 @@
-import { Alert, Skeleton } from '@material-ui/lab';
-import { Box, Divider, Paper, Typography } from '@material-ui/core';
+import { Alert, Skeleton } from '@mui/material';
+import { Box, Divider, Paper, Typography } from '@mui/material';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
 import React, { useEffect, useState } from 'react';
 
 import { Link } from 'react-router-dom';
 import { OrNull } from 'src/shared/types';
-import RecentActorsIcon from '@material-ui/icons/RecentActors';
+import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { RedirectButton } from 'src/shared/components/Button';
 import { getPatientMedicalHistoryAsync } from 'src/shared/api';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   patient?: Patient;
@@ -117,7 +117,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
             />
           </div>
         ) : (
-          <Skeleton variant="rect" height={200} />
+          <Skeleton variant="rectangular" height={200} />
         )}
       </Box>
     </Paper>

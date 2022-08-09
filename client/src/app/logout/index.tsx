@@ -1,9 +1,9 @@
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { useDimensionsContext } from '../context/hooks';
 import { useDispatch } from 'react-redux';

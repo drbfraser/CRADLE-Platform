@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import IconButton from '@material-ui/core/IconButton';
-import VerticalAlignTopIcon from '@material-ui/icons/VerticalAlignTop';
+import makeStyles from '@mui/styles/makeStyles';
+import IconButton from '@mui/material/IconButton';
+import VerticalAlignTopIcon from '@mui/icons-material/VerticalAlignTop';
 
 const ScrollArrow = () => {
   const classes = useStyles();
@@ -26,7 +26,8 @@ const ScrollArrow = () => {
     <IconButton
       className={classes.iconButton}
       onClick={scrollToTop}
-      style={{ display: isBigOffset ? 'flex' : 'none' }}>
+      style={{ display: isBigOffset ? 'flex' : 'none' }}
+      size="large">
       <VerticalAlignTopIcon />
     </IconButton>
   );

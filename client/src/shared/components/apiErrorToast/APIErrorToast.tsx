@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Link,
-  makeStyles,
-  Typography,
-} from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Link, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { Toast } from '../toast';
 import { CancelButton } from '../Button';
 
@@ -33,7 +26,8 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
             onClose();
             setDialogOpen(true);
           }}
-          className={styles.alertLink}>
+          className={styles.alertLink}
+          underline="hover">
           troubleshooting steps
         </Link>
         .

@@ -1,11 +1,11 @@
 import React from 'react';
-import IconButton from '@material-ui/core/IconButton';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import { makeStyles } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import makeStyles from '@mui/styles/makeStyles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 interface IProps {
   dataLen: number;
@@ -32,16 +32,20 @@ const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
       Records {startRecordNum} - {endRecordNum}.{isBigScreen ? ' ' : <br />}Rows
       per page: &nbsp;
       <Select
+        variant="standard"
         value={limit}
         onChange={(e) => setLimit(e.target.value as number)}>
         <MenuItem value={10}>10</MenuItem>
         <MenuItem value={25}>25</MenuItem>
         <MenuItem value={50}>50</MenuItem>
       </Select>
-      <IconButton disabled={!canPageBackward} onClick={() => setPage(page - 1)}>
+      <IconButton
+        disabled={!canPageBackward}
+        onClick={() => setPage(page - 1)}
+        size="large">
         <NavigateBeforeIcon />
       </IconButton>
-      <IconButton disabled={!canPageForward} onClick={() => setPage(page + 1)}>
+      <IconButton disabled={!canPageForward} onClick={() => setPage(page + 1)} size="large">
         <NavigateNextIcon />
       </IconButton>
     </div>

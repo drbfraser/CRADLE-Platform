@@ -4,12 +4,12 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-} from '@material-ui/core';
+} from '@mui/material';
 import { Reading } from 'src/shared/types';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { getPrettyDateTime } from 'src/shared/utils';
-import AssessmentIcon from '@material-ui/icons/Assessment';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 interface IProps {
   reading: Reading;

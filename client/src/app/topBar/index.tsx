@@ -1,19 +1,19 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 import { useDispatch, useSelector } from 'react-redux';
 
-import AppBar from '@material-ui/core/AppBar';
+import AppBar from '@mui/material/AppBar';
 import AppImg from './img/app_icon.png';
 import { Icon } from 'semantic-ui-react';
-import IconButton from '@material-ui/core/IconButton';
-import MenuOpenIcon from '@material-ui/icons/MenuOpen';
-import MenuIcon from '@material-ui/icons/Menu';
+import IconButton from '@mui/material/IconButton';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import MenuIcon from '@mui/icons-material/Menu';
 import React, { useState } from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 import { push } from 'connected-react-router';
 import { useStyles } from './styles';
-import { Menu, MenuItem } from '@material-ui/core';
+import { Menu, MenuItem } from '@mui/material';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import ChangePassword from './changePassword/ChangePassword';
 import { userRoleLabels } from 'src/shared/constants';
@@ -80,7 +80,7 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
       <AppBar className={classes.appBar} position="fixed" ref={ref}>
         <Toolbar>
           {loggedIn && (
-            <IconButton onClick={toggleSidebar} color="inherit">
+            <IconButton onClick={toggleSidebar} color="inherit" size="large">
               {isSidebarOpen ? <MenuOpenIcon /> : <MenuIcon />}
             </IconButton>
           )}
@@ -96,7 +96,8 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
               <IconButton
                 className={classes.toolbarButtons}
                 color="inherit"
-                onClick={(e) => setMenuAnchorEl(e.currentTarget)}>
+                onClick={(e) => setMenuAnchorEl(e.currentTarget)}
+                size="large">
                 <Icon name="user circle" size="large" />
                 {isBigScreen && showUserDetails()}
               </IconButton>
@@ -128,7 +129,8 @@ export const TopBar = React.forwardRef<HTMLElement, IProps>(
               <IconButton
                 className={classes.toolbarButtonsPadded}
                 onClick={navigateToHelpPage}
-                color="inherit">
+                color="inherit"
+                size="large">
                 <Icon name="help" size="small" />
               </IconButton>
             </div>

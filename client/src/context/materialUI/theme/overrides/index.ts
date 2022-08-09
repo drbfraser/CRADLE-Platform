@@ -1,6 +1,4 @@
-//@ts-nocheck
-
-import { Overrides } from '@material-ui/core/styles/overrides';
+import { Overrides } from '@mui/material/styles';
 
 export const overrides: Overrides = {
   MuiButton: {

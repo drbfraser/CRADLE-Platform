@@ -1,4 +1,4 @@
-import { Box, Divider, Paper, Typography } from '@material-ui/core';
+import { Box, Divider, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import {
   getAppFileAsync,
@@ -7,10 +7,10 @@ import {
 } from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { Alert } from '@material-ui/lab';
+import { Alert } from '@mui/material';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { formatBytes } from 'src/shared/utils';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 export const ManageRelayApp = () => {
   const classes = useStyles();

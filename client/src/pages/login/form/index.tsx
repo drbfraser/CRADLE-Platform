@@ -12,7 +12,7 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
-import { makeStyles } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
 import { useFormik } from 'formik';
 
 export const LoginForm: React.FC = () => {

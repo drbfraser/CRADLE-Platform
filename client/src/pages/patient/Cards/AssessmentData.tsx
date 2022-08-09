@@ -1,8 +1,8 @@
-import DiagnosisIcon from '@material-ui/icons/LocalHospital';
+import DiagnosisIcon from '@mui/icons-material/LocalHospital';
 import { FollowUp } from 'src/shared/types';
 import React from 'react';
 import { RedirectButton } from 'src/shared/components/Button';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { getPrettyDateTime } from 'src/shared/utils';
 
 interface IProps {

@@ -1,9 +1,9 @@
-import { createTheme } from '@material-ui/core/styles';
-import cyan from '@material-ui/core/colors/cyan';
-import indigo from '@material-ui/core/colors/indigo';
+import { createTheme, adaptV4Theme } from '@mui/material/styles';
 import { overrides } from './overrides';
 
-export const theme = createTheme({
+import { cyan, indigo } from '@mui/material/colors';
+
+export const theme = createTheme(adaptV4Theme({
   overrides,
   palette: {
     primary: {
@@ -13,4 +13,4 @@ export const theme = createTheme({
       main: cyan[500],
     },
   },
-});
+}));

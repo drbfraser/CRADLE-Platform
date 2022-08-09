@@ -6,15 +6,15 @@ import moment, { Moment } from 'moment';
 
 import { AllStatistics } from './AllStatistics';
 import { FacilityStatistics } from './FacilityStatistics';
-import FormControl from '@material-ui/core/FormControl';
-import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
 import { MyFacility } from './MyFacility';
 import { MyStatistics } from './MyStatistics';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import Select from '@material-ui/core/Select';
+import Select from '@mui/material/Select';
 import { Tab } from 'semantic-ui-react';
 import { Toast } from 'src/shared/components/toast';
 import { UserRoleEnum } from 'src/shared/enums';
@@ -148,6 +148,7 @@ export function StatisticsPage() {
             Preset date ranges
           </InputLabel>
           <Select
+            variant="standard"
             value={presetDateRange ? presetDateRange : ''}
             onChange={handleChange}
             label="Preset date ranges">

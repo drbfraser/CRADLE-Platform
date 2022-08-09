@@ -3,7 +3,7 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import image from './img/splash_screen_4.png';
 import { useStyles } from './styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const LoginPage: React.FC = () => {
   const classes = useStyles();

@@ -1,15 +1,16 @@
 import { Bar, Line } from 'react-chartjs-2';
-import { Box, Divider, Paper, Typography, makeStyles } from '@material-ui/core';
+import { Box, Divider, Paper, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
 import React, { useEffect, useState } from 'react';
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
 import { statsUnitLabels, trafficLightColors } from 'src/shared/constants';
 
-import Alert from '@material-ui/lab/Alert';
-import FavoriteIcon from '@material-ui/icons/Favorite';
+import Alert from '@mui/material/Alert';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Menu } from 'semantic-ui-react';
 import { PatientStatistics } from 'src/shared/types';
-import { Skeleton } from '@material-ui/lab';
+import { Skeleton } from '@mui/material';
 import { getPatientStatisticsAsync } from 'src/shared/api';
 
 interface IProps {

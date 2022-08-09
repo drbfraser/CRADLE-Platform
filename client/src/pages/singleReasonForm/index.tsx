@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import IconButton from '@material-ui/core/IconButton';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import IconButton from '@mui/material/IconButton';
 import { SingleReasonForm } from './SingleReasonForm';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import { goBackWithFallback } from 'src/shared/utils';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
 
 type RouteParams = {
@@ -41,7 +41,7 @@ export const SingleReasonFormPage = () => {
     <div className={classes.container}>
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
-          <IconButton onClick={() => goBackWithFallback('/patients')}>
+          <IconButton onClick={() => goBackWithFallback('/patients')} size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>

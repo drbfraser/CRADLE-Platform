@@ -1,5 +1,5 @@
 import { AppRoute, appRoutes } from '../routes/utils';
-import List from '@material-ui/core/List';
+import List from '@mui/material/List';
 import { OrNull } from 'src/shared/types';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';

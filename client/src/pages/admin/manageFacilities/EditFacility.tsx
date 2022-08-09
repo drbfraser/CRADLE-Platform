@@ -7,7 +7,7 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   FacilityField,
   facilityTemplate,
