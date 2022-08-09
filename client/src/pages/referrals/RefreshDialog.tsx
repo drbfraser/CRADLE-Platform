@@ -1,11 +1,12 @@
-import React from 'react';
-import TextField from '@mui/material/TextField';
+import { CancelButton, SecondaryButton } from 'src/shared/components/Button';
+
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import React from 'react';
+import TextField from '@mui/material/TextField';
 import makeStyles from '@mui/styles/makeStyles';
-import { CancelButton, SecondaryButton } from 'src/shared/components/Button';
 
 interface IProps {
   open: boolean;
@@ -71,7 +72,8 @@ export const RefreshDialog = ({
           id="min-input"
           defaultValue={timer_min}
           onChange={handleMinChange}
-          type="number" />
+          type="number"
+        />
         <p className={classes.inlineBlock}>minutes and </p>
         <TextField
           variant="standard"
@@ -79,7 +81,8 @@ export const RefreshDialog = ({
           id="sec-input"
           defaultValue={timer_sec}
           onChange={handleSecChange}
-          type="number" />
+          type="number"
+        />
         <p className={classes.inlineBlock}>seconds.</p>
       </DialogContent>
       <DialogActions>

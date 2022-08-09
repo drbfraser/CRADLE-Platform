@@ -1,6 +1,7 @@
 import { AppRoute, appRoutes } from './utils';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
+import { PrivateRoute } from './privateRoute';
 import React from 'react';
 import { useStyles } from './styles';
 
@@ -13,18 +14,29 @@ export const AppRoutes: React.FC<IProps> = ({ topBarOffset }) => {
 
   return (
     <main className={classes.content}>
-      <Routes>
-        {appRoutes
-          .filter((route) => !!route.to)
-          .map(
-            (route: AppRoute): JSX.Element => (
-              // TODO: add private route here
-              <Route key={route.id} path={route.to!}>
-                <route.component />
-              </Route>
-            )
-          )}
-      </Routes>
+      <Switch>
+        {appRoutes.map((route: AppRoute): JSX.Element => {
+          if (route.private) {
+            return (
+              <PrivateRoute
+                key={route.id}
+                exact={route.exactPath}
+                path={route.to}
+                component={route.component}
+              />
+            );
+          }
+
+          return (
+            <Route
+              key={route.id}
+              exact={route.exactPath}
+              path={route.to}
+              component={route.component}
+            />
+          );
+        })}
+      </Switch>
     </main>
   );
 };

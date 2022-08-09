@@ -2,9 +2,6 @@ import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import React, { useEffect, useState } from 'react';
 import { ReadingState, getReadingState } from './state';
-import { useTheme } from '@mui/material/styles';
-
-import makeStyles from '@mui/styles/makeStyles';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -20,8 +17,10 @@ import Typography from '@mui/material/Typography';
 import { VitalSigns } from './vitalSigns';
 import { goBackWithFallback } from 'src/shared/utils';
 import { handleSubmit } from './handlers';
+import makeStyles from '@mui/styles/makeStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouteMatch } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
 
 type RouteParams = {
@@ -92,7 +91,9 @@ export const ReadingFormPage = () => {
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
-          <IconButton onClick={() => goBackWithFallback(`/patients/${patientId}`)} size="large">
+          <IconButton
+            onClick={() => goBackWithFallback(`/patients/${patientId}`)}
+            size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>

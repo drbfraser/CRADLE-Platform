@@ -57,7 +57,7 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
             variant="standard"
             value={facility}
             onChange={handleChange}
-            labelWidth={20}>
+            autoWidth>
             {facilities.map((f, idx) => (
               <MenuItem value={f.healthFacilityName} key={idx}>
                 {`${f.healthFacilityName}`}

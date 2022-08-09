@@ -1,21 +1,21 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
+import { Menu, MenuItem } from '@mui/material';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import AppBar from '@mui/material/AppBar';
 import AppImg from './img/app_icon.png';
+import ChangePassword from './changePassword/ChangePassword';
 import { Icon } from 'semantic-ui-react';
 import IconButton from '@mui/material/IconButton';
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import MenuIcon from '@mui/icons-material/Menu';
-import React, { useState } from 'react';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import { ReduxState } from 'src/redux/reducers';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { push } from 'connected-react-router';
 import { useStyles } from './styles';
-import { Menu, MenuItem } from '@mui/material';
-import { logoutUser } from 'src/redux/reducers/user/currentUser';
-import ChangePassword from './changePassword/ChangePassword';
 import { userRoleLabels } from 'src/shared/constants';
 
 interface IProps {

@@ -41,7 +41,9 @@ export const SingleReasonFormPage = () => {
     <div className={classes.container}>
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
-          <IconButton onClick={() => goBackWithFallback('/patients')} size="large">
+          <IconButton
+            onClick={() => goBackWithFallback('/patients')}
+            size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>

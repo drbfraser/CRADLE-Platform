@@ -2,7 +2,7 @@ import {
   CurrentUserState,
   getCurrentUser,
 } from 'src/redux/reducers/user/currentUser';
-import { Navigate, Route } from 'react-router-dom';
+import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Loader } from 'src/shared/components/loader';
@@ -11,7 +11,9 @@ import { ReduxState } from 'src/redux/reducers';
 import { UserRoleEnum } from 'src/shared/enums';
 
 interface IProps {
-  component: React.ComponentType<any>;
+  component:
+    | React.ComponentType<RouteComponentProps<any>>
+    | React.ComponentType<any>;
   exact?: boolean;
   path?: string;
 }
@@ -35,7 +37,7 @@ export const PrivateRoute: React.FC<IProps> = (props) => {
   }, [dispatch, currentUser.data]);
 
   if (currentUser.error) {
-    return <Navigate to="/" />;
+    return <Redirect to="/" />;
   }
 
   if (currentUser.loggedIn) {
@@ -48,7 +50,7 @@ export const PrivateRoute: React.FC<IProps> = (props) => {
         props.path as string
       )
     ) {
-      return <Navigate to="/" />;
+      return <Redirect to="/" />;
     }
 
     return <Route {...props} />;

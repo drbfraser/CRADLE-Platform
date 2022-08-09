@@ -10,7 +10,6 @@ export const DimensionsContext = React.createContext<
 >({});
 
 interface IProps {
-  children: React.ReactNode;
   drawerWidth: number;
   offsetFromTop: number;
   children: React.ReactNode;

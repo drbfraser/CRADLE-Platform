@@ -1,6 +1,10 @@
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from '@mui/material';
 import { DropzoneAreaBase, FileObject } from 'material-ui-dropzone';
 import React, { useEffect, useState } from 'react';
 
@@ -9,6 +13,7 @@ import { OrNull } from 'src/shared/types';
 import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
 import { isString } from 'lodash';
+import makeStyles from '@mui/styles/makeStyles';
 import { saveFormTemplateWithFileAsync } from 'src/shared/api';
 
 interface IProps {

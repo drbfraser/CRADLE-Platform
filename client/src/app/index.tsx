@@ -18,7 +18,6 @@ import { ReduxState } from 'src/redux/reducers';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
 import { UserRoleEnum } from 'src/shared/enums';
-import makeStyles from '@mui/styles/makeStyles';
 import { routesNames } from './routes/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';

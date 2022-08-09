@@ -1,9 +1,9 @@
-import React from 'react';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import React from 'react';
+import Select from '@mui/material/Select';
 import makeStyles from '@mui/styles/makeStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
@@ -45,7 +45,10 @@ const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
         size="large">
         <NavigateBeforeIcon />
       </IconButton>
-      <IconButton disabled={!canPageForward} onClick={() => setPage(page + 1)} size="large">
+      <IconButton
+        disabled={!canPageForward}
+        onClick={() => setPage(page + 1)}
+        size="large">
         <NavigateNextIcon />
       </IconButton>
     </div>

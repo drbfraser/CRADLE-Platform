@@ -1,8 +1,16 @@
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Link,
+  Typography,
+} from '@mui/material';
 import React, { useState } from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Link, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { Toast } from '../toast';
+
 import { CancelButton } from '../Button';
+import { Toast } from '../toast';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   open: boolean;

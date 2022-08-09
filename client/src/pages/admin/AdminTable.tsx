@@ -2,7 +2,12 @@ import MUIDataTable, {
   MUIDataTableColumnDef,
   MUIDataTableProps,
 } from 'mui-datatables';
-import { ThemeProvider, Theme, StyledEngineProvider, createTheme } from '@mui/material/styles';
+import {
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider,
+  createTheme,
+} from '@mui/material/styles';
 
 import AddIcon from '@mui/icons-material/Add';
 import { PrimaryButton } from 'src/shared/components/Button';
@@ -11,12 +16,10 @@ import Skeleton from '@mui/material/Skeleton';
 import { TextField } from '@mui/material';
 import { useAdminStyles } from './adminStyles';
 
-
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
 }
-
 
 interface IProps {
   title: string;
@@ -84,7 +87,11 @@ const AdminTable = (props: IProps) => {
             textLabels: {
               body: {
                 noMatch: props.loading ? (
-                  <Skeleton variant="rectangular" component="span" height={40} />
+                  <Skeleton
+                    variant="rectangular"
+                    component="span"
+                    height={40}
+                  />
                 ) : (
                   'Sorry, no matching records found.'
                 ),

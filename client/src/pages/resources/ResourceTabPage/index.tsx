@@ -1,16 +1,15 @@
 import '../index.css';
 
 import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
-import { Theme } from '@mui/material/styles';
-
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
 
 import MobileStepper from '@mui/material/MobileStepper';
 import Paper from '@mui/material/Paper';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Theme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 interface IProps {
