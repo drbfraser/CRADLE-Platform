@@ -8,7 +8,7 @@ import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useDimensionsContext } from 'src/app/context/hooks';
 
 interface IProps {
   posterImgSrc: any[];
@@ -48,7 +48,7 @@ function ResourceTabPage(props: IProps): JSX.Element {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const maxSteps = props.posterImgSrc.length;
-  const isBigScreen = useMediaQuery('(min-width:800px)');
+  const { isBigScreen } = useDimensionsContext();
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);

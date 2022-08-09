@@ -15,7 +15,6 @@ import {
   handlePregnancyInfo,
   handleSubmit,
 } from './handlers';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -31,10 +30,11 @@ import Stepper from '@material-ui/core/Stepper/Stepper';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { goBackWithFallback } from 'src/shared/utils';
+import { makeStyles } from '@material-ui/core/styles';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
+import { useDimensionsContext } from 'src/app/context/hooks';
 import { useHistory } from 'react-router-dom';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface PatientFormProps {
   editId: string;
@@ -56,9 +56,8 @@ export const PatientForm = ({
   creatingNewPregnancy,
 }: PatientFormProps) => {
   const classes = useStyles();
-  const theme = useTheme();
   const history = useHistory();
-  const isBigScreen = useMediaQuery(theme.breakpoints.up('sm'));
+  const { isBigScreen } = useDimensionsContext();
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
