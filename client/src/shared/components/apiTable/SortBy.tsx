@@ -1,12 +1,12 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import IconButton from '@material-ui/core/IconButton';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import makeStyles from '@mui/styles/makeStyles';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import IconButton from '@mui/material/IconButton';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { SortDir } from './types';
 
 interface SortByProps {
@@ -32,9 +32,9 @@ const SortBy = ({
 
   return (
     <div>
-      <FormControl className={classes.formControl}>
+      <FormControl variant="standard" className={classes.formControl}>
         <InputLabel>Sort by</InputLabel>
-        <Select value={sortBy} onChange={handleChange}>
+        <Select variant="standard" value={sortBy} onChange={handleChange}>
           {Object.entries(columns).map(
             ([col, name], index) =>
               sortableColumns[index] && (
@@ -47,7 +47,8 @@ const SortBy = ({
       </FormControl>
       <IconButton
         className={classes.iconButton}
-        onClick={() => handleSort(sortBy)}>
+        onClick={() => handleSort(sortBy)}
+        size="large">
         {sortDir === SortDir.ASC ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
       </IconButton>
     </div>

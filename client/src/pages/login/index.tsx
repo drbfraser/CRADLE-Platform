@@ -1,8 +1,8 @@
 import { LoginForm } from './form';
-import { Navigate } from 'react-router-dom';
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import image from './img/splash_screen_4.png';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { useStyles } from './styles';
 
 export const LoginPage: React.FC = () => {
@@ -12,7 +12,7 @@ export const LoginPage: React.FC = () => {
   // if the user has reached the login page, they likely came directly here
   // therefore Redux will be empty and we must check local storage for a token
   if (localStorage.getItem('token') !== null) {
-    return <Navigate to="/referrals" />;
+    return <Redirect to="/referrals" />;
   }
 
   return (

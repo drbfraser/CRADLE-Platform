@@ -1,20 +1,20 @@
-import { IconButton, Tooltip } from '@material-ui/core';
+import { IconButton, Tooltip } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
-import CreateIcon from '@material-ui/icons/Create';
-import DeleteForever from '@material-ui/icons/DeleteForever';
+import CreateIcon from '@mui/icons-material/Create';
+import DeleteForever from '@mui/icons-material/DeleteForever';
 import DeleteUser from './DeleteUser';
 import EditUser from './EditUser';
 import { IUserWithIndex } from 'src/shared/types';
 import { ReduxState } from 'src/redux/reducers';
 import ResetPassword from './ResetPassword';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
-import VpnKeyIcon from '@material-ui/icons/VpnKey';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { getUsersAsync } from 'src/shared/api';
 import { useAdminStyles } from '../adminStyles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { userRoleLabels } from 'src/shared/constants';
 
@@ -158,7 +158,8 @@ export const ManageUsers = () => {
                 onClick={() => {
                   setPopupUser(user);
                   action.setOpen(true);
-                }}>
+                }}
+                size="large">
                 <action.Icon />
               </IconButton>
             </Tooltip>

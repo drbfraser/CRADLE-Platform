@@ -13,6 +13,7 @@ interface IProps {
   children: React.ReactNode;
   drawerWidth: number;
   offsetFromTop: number;
+  children: React.ReactNode;
 }
 
 export const DimensionsContextProvider: React.FC<IProps> = ({

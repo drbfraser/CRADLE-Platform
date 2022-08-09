@@ -1,25 +1,27 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { ReduxState } from 'src/redux/reducers';
-import { Toast } from 'src/shared/components/toast';
-import { useState } from 'react';
-import { Tab } from 'semantic-ui-react';
-import moment, { Moment } from 'moment';
 import 'react-dates/initialize';
 import 'react-dates/lib/css/_datepicker.css';
+
 import { DateRangePicker, FocusedInputShape } from 'react-dates';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Grid from '@material-ui/core/Grid';
-import { UserRoleEnum } from 'src/shared/enums';
-import { MyStatistics } from './MyStatistics';
-import { VHTStatistics } from './VHTStatistics';
-import { MyFacility } from './MyFacility';
+import moment, { Moment } from 'moment';
+
 import { AllStatistics } from './AllStatistics';
-import { UserStatistics } from './UserStatistics';
 import { FacilityStatistics } from './FacilityStatistics';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import { MyFacility } from './MyFacility';
+import { MyStatistics } from './MyStatistics';
+import React from 'react';
+import { ReduxState } from 'src/redux/reducers';
+import Select from '@mui/material/Select';
+import { Tab } from 'semantic-ui-react';
+import { Toast } from 'src/shared/components/toast';
+import { UserRoleEnum } from 'src/shared/enums';
+import { UserStatistics } from './UserStatistics';
+import { VHTStatistics } from './VHTStatistics';
+import { useSelector } from 'react-redux';
+import { useState } from 'react';
 import { useStatisticsStyles } from './utils/statisticStyles';
 
 const allPanes = [
@@ -74,8 +76,9 @@ export function StatisticsPage() {
     moment().startOf('day').subtract(29, 'days')
   );
   const [endDate, setEndDate] = useState<Moment | null>(moment().endOf('day'));
-  const [focusedInput, setFocusedInput] =
-    useState<FocusedInputShape | null>(null);
+  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
+    null
+  );
   const [presetDateRange, setPresetDateRange] = useState();
 
   const handleFocusChange = (arg: FocusedInputShape | null) => {
@@ -145,6 +148,7 @@ export function StatisticsPage() {
             Preset date ranges
           </InputLabel>
           <Select
+            variant="standard"
             value={presetDateRange ? presetDateRange : ''}
             onChange={handleChange}
             label="Preset date ranges">

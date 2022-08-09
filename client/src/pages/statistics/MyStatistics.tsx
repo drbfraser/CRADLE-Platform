@@ -4,13 +4,13 @@ import {
   getUserStatisticsExportAsync,
 } from 'src/shared/api';
 
-import Box from '@material-ui/core/Box';
-import Divider from '@material-ui/core/Divider';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 import { ExportStatistics } from './utils/ExportStatistics';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { StatisticDashboard } from './utils/StatisticDashboard';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { useSelector } from 'react-redux';
 import { useStatisticsStyles } from './utils/statisticStyles';
 

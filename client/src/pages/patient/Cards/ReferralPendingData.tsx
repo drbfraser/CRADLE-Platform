@@ -1,7 +1,7 @@
 import { CancelButton, SecondaryButton } from 'src/shared/components/Button';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Typography } from '@mui/material';
 
-import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 import React from 'react';
 import { Referral } from 'src/shared/types';
 import { getPrettyDateTime } from 'src/shared/utils';

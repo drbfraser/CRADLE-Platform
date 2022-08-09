@@ -1,5 +1,5 @@
-import { Alert, Skeleton } from '@material-ui/lab';
-import { Box, Divider, Paper, TableBody, Typography } from '@material-ui/core';
+import { Alert, Skeleton } from '@mui/material';
+import { Box, Divider, Paper, TableBody, Typography } from '@mui/material';
 import { Form, InputOnChangeData, Select, TableCell } from 'semantic-ui-react';
 import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 import { Link, useHistory } from 'react-router-dom';
@@ -11,12 +11,12 @@ import {
 } from 'src/shared/constants';
 import { getNumOfWeeksNumeric, getYearToDisplay } from 'src/shared/utils';
 
-import PregnantWomanIcon from '@material-ui/icons/PregnantWoman';
+import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
 import { RedirectButton } from 'src/shared/components/Button';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
+import Table from '@mui/material/Table';
+import TableRow from '@mui/material/TableRow';
 import { getPatientPregnancySummaryAsync } from 'src/shared/api';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   patientId: string;
@@ -226,7 +226,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             </div>
           </>
         ) : (
-          <Skeleton variant="rect" height={200} />
+          <Skeleton variant="rectangular" height={200} />
         )}
       </Box>
     </Paper>

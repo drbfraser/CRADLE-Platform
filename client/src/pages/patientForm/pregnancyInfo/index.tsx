@@ -1,7 +1,7 @@
 import React from 'react';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import { Field, FormikProps } from 'formik';
 import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
 import {
@@ -10,11 +10,11 @@ import {
   PatientState,
 } from '../state';
 import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
-import MenuItem from '@material-ui/core/MenuItem';
-import { InputAdornment, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import MenuItem from '@mui/material/MenuItem';
+import { InputAdornment, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { handleChangeCustom } from '../handlers';
 
 interface IProps {

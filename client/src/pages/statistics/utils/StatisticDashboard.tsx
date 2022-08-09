@@ -3,7 +3,7 @@ import { initialColorReading, initialStatsData } from '../utils';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Bar } from 'react-chartjs-2';
-import Skeleton from '@material-ui/lab/Skeleton';
+import Skeleton from '@mui/material/Skeleton';
 import { Statistic } from 'semantic-ui-react';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { trafficLightColors } from 'src/shared/constants';
@@ -92,7 +92,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
         onClose={() => setErrorLoading(false)}
       />
       {!loaded ? (
-        <Skeleton variant="rect" height={700} />
+        <Skeleton variant="rectangular" height={700} />
       ) : (
         <div className={classes.center}>
           <Statistic.Group className={classes.statisticGroup}>

@@ -1,11 +1,6 @@
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  makeStyles,
-} from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { DropzoneAreaBase, FileObject } from 'material-ui-dropzone';
 import React, { useEffect, useState } from 'react';
 

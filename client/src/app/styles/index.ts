@@ -1,4 +1,6 @@
-import { Theme, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import { OrUndefined } from 'src/shared/types';
 
@@ -47,6 +49,6 @@ export const useStyles = makeStyles((theme: Theme) => ({
   },
   itemText: {
     color: `white`,
-    paddingBlockStart: `${theme.spacing()}px`,
+    paddingBlockStart: theme.spacing(),
   },
 }));

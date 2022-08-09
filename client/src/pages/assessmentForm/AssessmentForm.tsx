@@ -2,13 +2,15 @@ import { AssessmentField, AssessmentState } from './state';
 import { CheckboxWithLabel, TextField } from 'formik-material-ui';
 import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
-import { Typography, makeStyles } from '@material-ui/core';
+import { Typography } from '@mui/material';
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Alert from '@material-ui/lab/Alert';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { assessmentFormValidationSchema } from './validation';
 import { handleSubmit } from './handlers';

@@ -6,15 +6,15 @@ import {
 } from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Box from '@material-ui/core/Box';
-import Divider from '@material-ui/core/Divider';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 import { ExportStatistics } from './utils/ExportStatistics';
-import FormControl from '@material-ui/core/FormControl';
+import FormControl from '@mui/material/FormControl';
 import { IUser } from 'src/shared/types';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticDashboard';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
 import { useStatisticsStyles } from './utils/statisticStyles';
 
@@ -64,8 +64,8 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
         )}
       </Box>
 
-      <FormControl className={classes.formControl}>
-        <Select value={user} onChange={handleChange}>
+      <FormControl variant="standard" className={classes.formControl}>
+        <Select variant="standard" value={user} onChange={handleChange}>
           {users.map((user, idx) => (
             <MenuItem value={user.userId} key={idx}>
               {`${user.firstName} (${user.email})`}

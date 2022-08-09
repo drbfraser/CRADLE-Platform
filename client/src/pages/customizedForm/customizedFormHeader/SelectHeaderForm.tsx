@@ -13,14 +13,14 @@ import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@mui/material/TextField';
 import { getFormTemplateLangsAsync } from 'src/shared/api';
 import { handleSubmit } from './handlers';
-import { makeStyles } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   setForm: (form: CForm) => void;

@@ -1,10 +1,16 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
+import {
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider,
+  createTheme,
+} from '@mui/material/styles';
 
 import { AppRoutes } from './routes';
 import { ContextProvider } from 'src/context';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { DimensionsContextProvider } from './context';
-import Drawer from '@material-ui/core/Drawer';
+import Drawer from '@mui/material/Drawer';
 import { LogoutMenuItem } from './logout';
 import { Pathname } from 'history';
 import React from 'react';
@@ -12,10 +18,18 @@ import { ReduxState } from 'src/redux/reducers';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
 import { UserRoleEnum } from 'src/shared/enums';
+import makeStyles from '@mui/styles/makeStyles';
 import { routesNames } from './routes/utils';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
+const theme = createTheme();
 
 type SelectorState = {
   loggedIn: boolean;
@@ -55,44 +69,48 @@ export const App: React.FC = () => {
   const handleCloseSidebar = () => setIsSidebarOpen(false);
 
   return (
-    <ContextProvider>
-      <DimensionsContextProvider
-        drawerWidth={drawerWidth.current}
-        offsetFromTop={offsetFromTop.current}>
-        <CssBaseline />
-        <div className={classes.root}>
-          <TopBar
-            ref={topBar}
-            user={user}
-            setActiveItem={setActiveItem}
-            isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-            isBigScreen={isBigScreen}
-          />
-          {loggedIn && isSidebarOpen ? (
-            <Drawer
-              className={classes.drawer}
-              variant={isBigScreen ? 'persistent' : 'temporary'}
-              classes={{
-                paper: classes.drawerPaper,
-              }}
-              open={isSidebarOpen}
-              onClose={handleCloseSidebar}
-              anchor="left">
-              <div className={classes.toolbar} />
-              <Sidebar
-                activeItem={activeItem}
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <ContextProvider>
+          <DimensionsContextProvider
+            drawerWidth={drawerWidth.current}
+            offsetFromTop={offsetFromTop.current}>
+            <CssBaseline />
+            <div className={classes.root}>
+              <TopBar
+                ref={topBar}
+                user={user}
                 setActiveItem={setActiveItem}
-                logout={{
-                  index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
-                  component: <LogoutMenuItem />,
-                }}
+                isSidebarOpen={isSidebarOpen}
+                setIsSidebarOpen={setIsSidebarOpen}
+                isBigScreen={isBigScreen}
               />
-            </Drawer>
-          ) : null}
-          <AppRoutes topBarOffset={topBar.current?.offsetHeight} />
-        </div>
-      </DimensionsContextProvider>
-    </ContextProvider>
+              {loggedIn && isSidebarOpen ? (
+                <Drawer
+                  className={classes.drawer}
+                  variant={isBigScreen ? 'persistent' : 'temporary'}
+                  classes={{
+                    paper: classes.drawerPaper,
+                  }}
+                  open={isSidebarOpen}
+                  onClose={handleCloseSidebar}
+                  anchor="left">
+                  <div className={classes.toolbar} />
+                  <Sidebar
+                    activeItem={activeItem}
+                    setActiveItem={setActiveItem}
+                    logout={{
+                      index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
+                      component: <LogoutMenuItem />,
+                    }}
+                  />
+                </Drawer>
+              ) : null}
+              <AppRoutes topBarOffset={topBar.current?.offsetHeight} />
+            </div>
+          </DimensionsContextProvider>
+        </ContextProvider>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 };

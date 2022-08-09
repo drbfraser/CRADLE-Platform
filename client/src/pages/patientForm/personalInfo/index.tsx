@@ -3,18 +3,18 @@ import { PatientField, PatientState } from '../state';
 import React, { useState } from 'react';
 import { Select, TextField } from 'formik-material-ui';
 
-import Box from '@material-ui/core/Box';
-import FormControl from '@material-ui/core/FormControl';
-import Grid from '@material-ui/core/Grid/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
+import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid/Grid';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
 import { PatientIDExists } from './PatientIDExists';
-import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButton from '@mui/material/ToggleButton';
 import { ToggleButtonGroup } from 'formik-material-ui-lab';
 import { getPatientPregnancyInfoAsync } from 'src/shared/api';
 import { handleChangeCustom } from '../handlers';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { sexOptions } from 'src/shared/constants';
 
 interface IProps {
@@ -25,8 +25,9 @@ interface IProps {
 export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
   const classes = useStyles();
   // for *new* patients only, track whether the patient ID already exists
-  const [existingPatientId, setExistingPatientId] =
-    useState<string | null>(null);
+  const [existingPatientId, setExistingPatientId] = useState<string | null>(
+    null
+  );
 
   const handlePatientIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     formikProps.handleBlur(e);

@@ -1,10 +1,10 @@
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { ReactComponent as GreenTraffic } from './icons/green.svg';
 import React from 'react';
 import { ReactComponent as RedTraffic } from './icons/red.svg';
 import { TrafficLightEnum } from 'src/shared/enums';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { ReactComponent as YellowTraffic } from './icons/yellow.svg';
 import { ReactComponent as NoneIcon } from './icons/none.svg';
 

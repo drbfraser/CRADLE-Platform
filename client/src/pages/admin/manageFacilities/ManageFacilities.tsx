@@ -1,9 +1,9 @@
-import { IconButton, Tooltip } from '@material-ui/core';
+import { IconButton, Tooltip } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
-import CreateIcon from '@material-ui/icons/Create';
+import CreateIcon from '@mui/icons-material/Create';
 import EditFacility from './EditFacility';
 import { IFacility } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
@@ -11,7 +11,7 @@ import { getHealthFacilitiesAsync } from 'src/shared/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAdminStyles } from '../adminStyles';
 import { useDispatch } from 'react-redux';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const ManageFacilities = () => {
   const styles = useAdminStyles();
@@ -109,7 +109,8 @@ export const ManageFacilities = () => {
               onClick={() => {
                 setFacilityToEdit(facility);
                 setEditPopupOpen(true);
-              }}>
+              }}
+              size="large">
               <CreateIcon />
             </IconButton>
           </Tooltip>
