@@ -9,9 +9,13 @@ import { useDimensionsContext } from '../context/hooks';
 import { useDispatch } from 'react-redux';
 import { useStyles } from '../styles';
 
-export const LogoutMenuItem: React.FC = () => {
-  const { drawerWidth, offsetFromTop } = useDimensionsContext();
-  const classes = useStyles({ drawerWidth, offsetFromTop });
+interface IProps {
+  isSidebarOpen: boolean;
+}
+
+export const LogoutMenuItem: React.FC<IProps> = ({ isSidebarOpen }) => {
+  const { drawerWidth } = useDimensionsContext();
+  const classes = useStyles({ drawerWidth });
 
   const dispatch = useDispatch();
 
@@ -24,11 +28,13 @@ export const LogoutMenuItem: React.FC = () => {
       <ListItemIcon classes={{ root: classes.icon }}>
         <ExitToAppIcon fontSize="large" />
       </ListItemIcon>
-      <ListItemText
-        disableTypography
-        className={classes.itemText}
-        primary={<Typography className={classes.sidebar}>Logout</Typography>}
-      />
+      {isSidebarOpen && (
+        <ListItemText
+          disableTypography
+          className={classes.itemText}
+          primary={<Typography className={classes.sidebar}>Logout</Typography>}
+        />
+      )}
     </ListItem>
   );
 };

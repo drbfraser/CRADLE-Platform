@@ -1,11 +1,11 @@
-import React from 'react';
 import IconButton from '@material-ui/core/IconButton';
 import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import React from 'react';
+import Select from '@material-ui/core/Select';
 import { makeStyles } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useDimensionsContext } from 'src/app/context/hooks';
 
 interface IProps {
   dataLen: number;
@@ -25,7 +25,7 @@ const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
   // guess that if we're at the limit there are more
   const canPageForward = dataLen === limit;
 
-  const isBigScreen = useMediaQuery('(min-width:560px)');
+  const { isBigScreen } = useDimensionsContext();
 
   return (
     <div className={isBigScreen ? classes.wrapper : classes.wrapperThin}>
