@@ -3,6 +3,7 @@ import { CForm, QAnswer, Question } from 'src/shared/types';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import {
+  getPrettyDate,
   getPrettyDateTime,
   getTimestampFromStringDate,
 } from 'src/shared/utils';
@@ -115,6 +116,10 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
         ans.qtype = QuestionTypeEnum.DATE;
         ans.anstype = AnswerTypeEnum.NUM;
         ans.val = question.answers?.number ?? null;
+      } else if (question.questionType === QuestionTypeEnum.DATETIME) {
+        ans.qtype = QuestionTypeEnum.DATETIME;
+        ans.anstype = AnswerTypeEnum.NUM;
+        ans.val = question.answers?.number ?? null;
       } else if (question.questionType === QuestionTypeEnum.STRING) {
         ans.qtype = QuestionTypeEnum.STRING;
         ans.anstype = AnswerTypeEnum.TEXT;
@@ -199,7 +204,9 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
                 (questions[parentQidx].questionType ===
                   QuestionTypeEnum.INTEGER ||
                   questions[parentQidx].questionType ===
-                    QuestionTypeEnum.DATE) &&
+                    QuestionTypeEnum.DATE ||
+                  questions[parentQidx].questionType ===
+                    QuestionTypeEnum.DATETIME) &&
                 Number(parentAnswer.val) === Number(condition.answers.number)
               ) {
                 console.log(parentAnswer.val);
@@ -461,7 +468,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
 
               <Field
                 component={TextField}
-                defaultValue={answer.val ? getPrettyDateTime(answer.val) : null}
+                defaultValue={answer.val ? getPrettyDate(answer.val) : null}
                 fullWidth
                 required={required}
                 variant="outlined"
@@ -483,8 +490,46 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
       } else {
         return <></>;
       }
+    } else if (type === QuestionTypeEnum.DATETIME) {
+      if (question.shouldHidden === false && answer) {
+        return (
+          <>
+            <Grid item md={12} sm={12}>
+              <FormLabel>
+                <Typography variant="h6">
+                  <span>&#9679;&nbsp;</span>
+                  {`${question.questionText}`}
+                  {required ? ' *' : ''}
+                </Typography>
+              </FormLabel>
+
+              <Field
+                component={TextField}
+                defaultValue={answer.val ? getPrettyDateTime(answer.val) : null}
+                fullWidth
+                required={required}
+                variant="outlined"
+                type="datetime"
+                label="Date and Time (YYYY/MM/DD hh:mm:ss)"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onChange={(event: any) => {
+                  const timestamp = getTimestampFromStringDate(
+                    event.target.value
+                  );
+                  updateAnswersByValue(qid, timestamp);
+                }}
+              />
+            </Grid>
+          </>
+        );
+      } else {
+        return <></>;
+      }
     } else {
-      console.log('INVALID QUESTION TYPE!!');
+      console.log('INVALID QUESTION TYPE!');
+      console.log(type);
       return <></>;
     }
   }

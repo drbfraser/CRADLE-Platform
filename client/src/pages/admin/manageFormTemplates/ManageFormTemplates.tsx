@@ -16,7 +16,7 @@ import CreateTemplate from './CreateTemplate';
 import DeleteForever from '@material-ui/icons/DeleteForever';
 import { FormTemplate } from 'src/shared/types';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
@@ -158,7 +158,7 @@ export const ManageFormTemplates = () => {
           {formTemplate.version}
         </TableCell>
         <TableCell label="Date Created" isTransformed={isTransformed}>
-          {getPrettyDateTime(formTemplate.dateCreated)}
+          {getPrettyDate(formTemplate.dateCreated)}
         </TableCell>
         <TableCell label="Actions" isTransformed={isTransformed}>
           {rowActions.map((action) =>
