@@ -14,14 +14,14 @@ export const assessmentFormValidationSchema = Yup.object()
   .test(
     'atLeastOneRequired',
     'One of first 4 fields required',
-    function (values) {
+    function (values: any) {
       const isValid = [
         AssessmentField.investigation,
         AssessmentField.finalDiagnosis,
         AssessmentField.treatment,
         AssessmentField.drugHistory,
       ].some((field) => {
-        return !!values[field]?.trim();
+        return !!values && values[field]?.trim();
       });
 
       if (!isValid) {

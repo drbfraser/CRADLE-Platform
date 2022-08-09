@@ -108,8 +108,9 @@ export const FilterDialog = ({
   const [startDate, setStartDate] = useState<Moment | null>(null);
   const [endDate, setEndDate] = useState<Moment | null>(null);
   const [presetDateRange, setPresetDateRange] = useState();
-  const [focusedInput, setFocusedInput] =
-    useState<FocusedInputShape | null>(null);
+  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
+    null
+  );
 
   const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
   const [referrers, setReferrers] = useState<Referrer[]>([]);

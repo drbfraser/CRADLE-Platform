@@ -8,14 +8,14 @@ import { LogoutMenuItem } from './logout';
 import { Pathname } from 'history';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { UserRoleEnum } from 'src/shared/enums';
 import { Routes } from './routes';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
+import { UserRoleEnum } from 'src/shared/enums';
 import { routesNames } from './routes/utils';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 type SelectorState = {
   loggedIn: boolean;

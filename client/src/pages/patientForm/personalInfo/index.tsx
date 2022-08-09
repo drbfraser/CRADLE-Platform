@@ -25,8 +25,9 @@ interface IProps {
 export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
   const classes = useStyles();
   // for *new* patients only, track whether the patient ID already exists
-  const [existingPatientId, setExistingPatientId] =
-    useState<string | null>(null);
+  const [existingPatientId, setExistingPatientId] = useState<string | null>(
+    null
+  );
 
   const handlePatientIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     formikProps.handleBlur(e);

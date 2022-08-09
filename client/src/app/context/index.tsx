@@ -12,6 +12,7 @@ export const DimensionsContext = React.createContext<
 interface IProps {
   drawerWidth: number;
   offsetFromTop: number;
+  children: React.ReactNode;
 }
 
 export const DimensionsContextProvider: React.FC<IProps> = ({
