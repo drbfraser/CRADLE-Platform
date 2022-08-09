@@ -15,6 +15,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { push } from 'connected-react-router';
+import { useDimensionsContext } from '../context/hooks';
 import { useStyles } from './styles';
 import { userRoleLabels } from 'src/shared/constants';
 
@@ -23,14 +24,11 @@ interface IProps {
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isBigScreen: boolean;
 }
 
 export const TopBar = React.forwardRef<HTMLElement, IProps>(
-  (
-    { user, setActiveItem, isSidebarOpen, setIsSidebarOpen, isBigScreen },
-    ref
-  ) => {
+  ({ user, setActiveItem, isSidebarOpen, setIsSidebarOpen }, ref) => {
+    const { isBigScreen } = useDimensionsContext();
     const loggedIn = useSelector(({ user }: ReduxState): boolean => {
       return user.current.loggedIn;
     });

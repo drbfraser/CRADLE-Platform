@@ -33,9 +33,8 @@ import { goBackWithFallback } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
+import { useDimensionsContext } from 'src/app/context/hooks';
 import { useHistory } from 'react-router-dom';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
 
 interface PatientFormProps {
   editId: string;
@@ -57,9 +56,8 @@ export const PatientForm = ({
   creatingNewPregnancy,
 }: PatientFormProps) => {
   const classes = useStyles();
-  const theme = useTheme();
   const history = useHistory();
-  const isBigScreen = useMediaQuery(theme.breakpoints.up('sm'));
+  const { isBigScreen } = useDimensionsContext();
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);

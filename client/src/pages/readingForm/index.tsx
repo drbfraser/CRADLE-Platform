@@ -18,9 +18,8 @@ import { VitalSigns } from './vitalSigns';
 import { goBackWithFallback } from 'src/shared/utils';
 import { handleSubmit } from './handlers';
 import makeStyles from '@mui/styles/makeStyles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { useDimensionsContext } from 'src/app/context/hooks';
 import { useRouteMatch } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
 
 type RouteParams = {
@@ -29,8 +28,7 @@ type RouteParams = {
 
 export const ReadingFormPage = () => {
   const classes = useStyles();
-  const theme = useTheme();
-  const isBigScreen = useMediaQuery(theme.breakpoints.up('sm'));
+  const { isBigScreen } = useDimensionsContext();
 
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);

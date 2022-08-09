@@ -1,10 +1,11 @@
 import { AppRoute, appRoutes } from '../routes/utils';
+
 import List from '@mui/material/List';
 import { OrNull } from 'src/shared/types';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
-import { UserRoleEnum } from 'src/shared/enums';
 import { SidebarRoute } from './route';
+import { UserRoleEnum } from 'src/shared/enums';
 import { makeUniqueId } from 'src/shared/utils';
 import { useDimensionsContext } from '../context/hooks';
 import { useSelector } from 'react-redux';
@@ -15,6 +16,7 @@ type CustomRoute = {
 };
 
 interface IProps {
+  isSidebarOpen: boolean;
   activeItem: OrNull<string>;
   logout: CustomRoute;
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
@@ -26,6 +28,7 @@ type SelectorState = {
 };
 
 export const Sidebar: React.FC<IProps> = ({
+  isSidebarOpen,
   activeItem,
   logout,
   setActiveItem,
@@ -63,6 +66,7 @@ export const Sidebar: React.FC<IProps> = ({
                 appendedRoute={logout.component}
                 route={route}
                 updateActiveItem={updateActiveItem}
+                isSidebarOpen={isSidebarOpen}
               />
             );
           }
@@ -78,6 +82,7 @@ export const Sidebar: React.FC<IProps> = ({
               activeItem={activeItem}
               route={route}
               updateActiveItem={updateActiveItem}
+              isSidebarOpen={isSidebarOpen}
             />
           );
         })}

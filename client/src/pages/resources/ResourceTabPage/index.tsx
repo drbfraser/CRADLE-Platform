@@ -10,7 +10,6 @@ import { Theme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import createStyles from '@mui/styles/createStyles';
 import makeStyles from '@mui/styles/makeStyles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 interface IProps {
   posterImgSrc: any[];
@@ -50,7 +49,7 @@ function ResourceTabPage(props: IProps): JSX.Element {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const maxSteps = props.posterImgSrc.length;
-  const isBigScreen = useMediaQuery('(min-width:800px)');
+  const { isBigScreen } = useDimensionsContext();
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
