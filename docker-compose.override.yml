@@ -42,4 +42,4 @@ services:
     #         PMA_PASSWORD: ${DB_PASSWORD}
     mysql:
         ports:
-            - 13306:3306
+            - 3306:3306
