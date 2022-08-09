@@ -510,7 +510,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
                 required={required}
                 variant="outlined"
                 type="datetime"
-                label="DateTime"
+                label="Date and Time (YYYY/MM/DD hh:mm:ss)"
                 InputLabelProps={{
                   shrink: true,
                 }}
