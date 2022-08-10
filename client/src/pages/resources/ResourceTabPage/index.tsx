@@ -10,6 +10,7 @@ import { Theme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import createStyles from '@mui/styles/createStyles';
 import makeStyles from '@mui/styles/makeStyles';
+import { useDimensionsContext } from 'src/app/context/hooks';
 
 interface IProps {
   posterImgSrc: any[];

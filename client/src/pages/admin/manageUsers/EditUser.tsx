@@ -1,9 +1,5 @@
 import {
-  Autocomplete,
   AutocompleteRenderInputParams,
-} from 'formik-material-ui-lab';
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import {
   Checkbox,
   Dialog,
   DialogActions,
@@ -12,6 +8,7 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import React, { useState } from 'react';
 import {
@@ -22,7 +19,8 @@ import {
 } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { TextField as FormikTextField } from 'formik-material-ui';
+import { Autocomplete } from 'formik-mui';
+import { TextField as FormikTextField } from 'formik-mui';
 import { IUser } from 'src/shared/types';
 import { UserRoleEnum } from 'src/shared/enums';
 import { saveUserAsync } from 'src/shared/api';

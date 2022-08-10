@@ -1,10 +1,11 @@
-import React from 'react';
+import { Field, FormikProps } from 'formik';
+import { PatientField, PatientState } from '../state';
+
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { Field, FormikProps } from 'formik';
-import { TextField } from 'formik-material-ui';
-import { PatientField, PatientState } from '../state';
+import React from 'react';
+import { TextField } from 'formik-mui';
 
 interface IProps {
   formikProps: FormikProps<PatientState>;

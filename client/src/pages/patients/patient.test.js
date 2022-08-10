@@ -1,10 +1,11 @@
-import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import { screen } from '@testing-library/react';
-import { PrimaryButton } from 'src/shared/components/Button';
-import { TextField } from 'formik-material-ui';
+
 import { Paper } from '@mui/material';
 import { PatientsPage } from '.';
+import { PrimaryButton } from 'src/shared/components/Button';
+import React from 'react';
+import { TextField } from 'formik-mui';
+import { screen } from '@testing-library/react';
 
 test('Rendering of the patients page', () => {
   render(<PatientsPage />);

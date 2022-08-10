@@ -1,8 +1,6 @@
-import { Theme } from '@mui/material/styles';
-
-import makeStyles from '@mui/styles/makeStyles';
-
 import { OrUndefined } from 'src/shared/types';
+import { Theme } from '@mui/material/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   drawerWidth?: number;
@@ -32,7 +30,10 @@ export const useStyles = makeStyles((theme: Theme) => ({
       return drawerWidth;
     },
   },
-  toolbar: theme.mixins.toolbar,
+  toolbar: {
+    ...theme.mixins.toolbar,
+    height: theme.spacing(6),
+  },
   listItem: {
     display: `flex`,
     flexDirection: `column`,

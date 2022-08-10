@@ -26,115 +26,117 @@ interface IProps {
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const TopBar = React.forwardRef<HTMLElement, IProps>(
-  ({ user, setActiveItem, isSidebarOpen, setIsSidebarOpen }, ref) => {
-    const { isBigScreen } = useDimensionsContext();
-    const loggedIn = useSelector(({ user }: ReduxState): boolean => {
-      return user.current.loggedIn;
-    });
+export const TopBar = ({
+  user,
+  setActiveItem,
+  isSidebarOpen,
+  setIsSidebarOpen,
+}: IProps) => {
+  const { isBigScreen } = useDimensionsContext();
+  const loggedIn = useSelector(({ user }: ReduxState): boolean => {
+    return user.current.loggedIn;
+  });
 
-    const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
-    const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
-    const classes = useStyles();
+  const classes = useStyles();
 
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-    const navigateToHelpPage = (): void => {
-      setActiveItem(`Resources`);
-      dispatch(push(`/resources`));
-    };
+  const navigateToHelpPage = (): void => {
+    setActiveItem(`Resources`);
+    dispatch(push(`/resources`));
+  };
 
-    const handleChangePassword = () => {
-      setMenuAnchorEl(null);
-      setChangePasswordOpen(true);
-    };
+  const handleChangePassword = () => {
+    setMenuAnchorEl(null);
+    setChangePasswordOpen(true);
+  };
 
-    const handleLogout = () => {
-      setMenuAnchorEl(null);
-      dispatch(logoutUser());
-    };
+  const handleLogout = () => {
+    setMenuAnchorEl(null);
+    dispatch(logoutUser());
+  };
 
-    const toggleSidebar = () => {
-      setIsSidebarOpen(!isSidebarOpen);
-    };
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
-    const showUserDetails = () => {
-      return (
-        <div>
-          <Typography variant="body1" noWrap>
-            {user?.firstName} ({user ? userRoleLabels[user.role] : ''})
-          </Typography>
-          {user?.healthFacilityName && (
-            <Typography variant="body2" noWrap>
-              Healthcare Facility: {user?.healthFacilityName}
-            </Typography>
-          )}
-        </div>
-      );
-    };
-
+  const showUserDetails = () => {
     return (
-      <AppBar className={classes.appBar} position="fixed" ref={ref}>
-        <Toolbar>
-          {loggedIn && (
-            <IconButton onClick={toggleSidebar} color="inherit" size="large">
-              {isSidebarOpen ? <MenuOpenIcon /> : <MenuIcon />}
-            </IconButton>
-          )}
-
-          <img alt="appIcon" src={AppImg} className="appIcon" />
-          {isBigScreen && (
-            <Typography className={classes.title} noWrap={true}>
-              CRADLE
-            </Typography>
-          )}
-          {loggedIn && (
-            <div className={classes.navRightIcons}>
-              <IconButton
-                className={classes.toolbarButtons}
-                color="inherit"
-                onClick={(e) => setMenuAnchorEl(e.currentTarget)}
-                size="large">
-                <Icon name="user circle" size="large" />
-                {isBigScreen && showUserDetails()}
-              </IconButton>
-              <Menu
-                anchorEl={menuAnchorEl}
-                open={Boolean(menuAnchorEl)}
-                onClose={() => setMenuAnchorEl(null)}
-                getContentAnchorEl={null}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'center',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'center',
-                }}>
-                {!isBigScreen && (
-                  <MenuItem disabled>{showUserDetails()}</MenuItem>
-                )}
-                <MenuItem onClick={handleChangePassword}>
-                  Change Password
-                </MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
-              <ChangePassword
-                open={changePasswordOpen}
-                onClose={() => setChangePasswordOpen(false)}
-              />
-              <IconButton
-                className={classes.toolbarButtonsPadded}
-                onClick={navigateToHelpPage}
-                color="inherit"
-                size="large">
-                <Icon name="help" size="small" />
-              </IconButton>
-            </div>
-          )}
-        </Toolbar>
-      </AppBar>
+      <div>
+        <Typography variant="body1" noWrap>
+          {user?.firstName} ({user ? userRoleLabels[user.role] : ''})
+        </Typography>
+        {user?.healthFacilityName && (
+          <Typography variant="body2" noWrap>
+            Healthcare Facility: {user?.healthFacilityName}
+          </Typography>
+        )}
+      </div>
     );
-  }
-);
+  };
+
+  return (
+    <AppBar className={classes.appBar} position="fixed">
+      <Toolbar>
+        {loggedIn && (
+          <IconButton onClick={toggleSidebar} color="inherit" size="large">
+            {isSidebarOpen ? <MenuOpenIcon /> : <MenuIcon />}
+          </IconButton>
+        )}
+
+        <img alt="appIcon" src={AppImg} className="appIcon" />
+        {isBigScreen && (
+          <Typography className={classes.title} noWrap={true}>
+            CRADLE
+          </Typography>
+        )}
+        {loggedIn && (
+          <div className={classes.navRightIcons}>
+            <IconButton
+              className={classes.toolbarButtons}
+              color="inherit"
+              onClick={(e) => setMenuAnchorEl(e.currentTarget)}
+              size="large">
+              <Icon name="user circle" size="large" />
+              {isBigScreen && showUserDetails()}
+            </IconButton>
+            <Menu
+              anchorEl={menuAnchorEl}
+              open={Boolean(menuAnchorEl)}
+              onClose={() => setMenuAnchorEl(null)}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}>
+              {!isBigScreen && (
+                <MenuItem disabled>{showUserDetails()}</MenuItem>
+              )}
+              <MenuItem onClick={handleChangePassword}>
+                Change Password
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </Menu>
+            <ChangePassword
+              open={changePasswordOpen}
+              onClose={() => setChangePasswordOpen(false)}
+            />
+            <IconButton
+              className={classes.toolbarButtonsPadded}
+              onClick={navigateToHelpPage}
+              color="inherit"
+              size="large">
+              <Icon name="help" size="small" />
+            </IconButton>
+          </div>
+        )}
+      </Toolbar>
+    </AppBar>
+  );
+};

@@ -1,7 +1,4 @@
-import {
-  Autocomplete,
-  AutocompleteRenderInputParams,
-} from 'formik-material-ui-lab';
+import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
 import {
@@ -13,7 +10,7 @@ import {
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
-import { TextField as FormikTextField } from 'formik-material-ui';
+import { TextField as FormikTextField } from 'formik-mui';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';

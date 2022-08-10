@@ -1,21 +1,22 @@
-import React from 'react';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
+import { CheckboxWithLabel, Select, TextField } from 'formik-mui';
 import { Field, FormikProps } from 'formik';
-import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
+import { InputAdornment, Typography } from '@mui/material';
 import {
   PatientField,
-  gestationalAgeUnitOptions,
   PatientState,
+  gestationalAgeUnitOptions,
 } from '../state';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
-import InputLabel from '@mui/material/InputLabel';
+
+import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import { InputAdornment, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import Paper from '@mui/material/Paper';
+import React from 'react';
 import { handleChangeCustom } from '../handlers';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   formikProps: FormikProps<PatientState>;

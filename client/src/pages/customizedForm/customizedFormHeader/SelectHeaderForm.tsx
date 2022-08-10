@@ -1,7 +1,4 @@
-import {
-  Autocomplete,
-  AutocompleteRenderInputParams,
-} from 'formik-material-ui-lab';
+import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { CForm, FormTemplate } from 'src/shared/types';
 import {
   CustomizedFormField,

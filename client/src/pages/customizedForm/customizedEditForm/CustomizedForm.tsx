@@ -20,7 +20,7 @@ import Paper from '@mui/material/Paper';
 import PollOutlinedIcon from '@mui/icons-material/PollOutlined';
 import { PrimaryButton } from 'src/shared/components/Button';
 import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
+import { RadioGroup } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { handleSubmit } from './handlers';
@@ -297,7 +297,6 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
                   }
                   updateAnswersByValue(qid, arr);
                 }}>
-                {console.log(question)}
                 {question.mcOptions.map((McOption, index) => (
                   <FormControlLabel
                     key={index}

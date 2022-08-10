@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import { DropzoneAreaBase, FileObject } from 'material-ui-dropzone';
+import { Dropzone, FileItem, FileValidated } from '@dropzone-ui/react';
 import React, { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -23,7 +23,7 @@ interface IProps {
 
 const CreateTemplate = ({ open, onClose }: IProps) => {
   const classes = useStyles();
-  const [fileObject, setFileObject] = useState<OrNull<FileObject>>(null);
+  const [fileObject, setFileObject] = useState<OrNull<FileValidated>>(null);
 
   const [uploadError, setUploadError] = useState<string>('');
   const [showError, setShowError] = useState<boolean>(false);
@@ -37,7 +37,7 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
     500: 'Internal Server Error',
   };
 
-  const handleClickUpload = async (fileObj: FileObject) => {
+  const handleClickUpload = async (fileObj: FileValidated) => {
     if (fileObj) {
       try {
         await saveFormTemplateWithFileAsync(fileObj.file);
@@ -84,39 +84,32 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
         <DialogTitle>Create Form Template</DialogTitle>
         <DialogContent>
           <div className={classes.root}>
-            <DropzoneAreaBase
-              acceptedFiles={['application/json', 'text/csv']}
-              fileObjects={fileObject ? [fileObject] : []}
-              onAdd={(newFileObjs: FileObject[]) =>
-                setFileObject(newFileObjs.pop() ?? null)
+            <Dropzone
+              accept={['application/json', 'text/csv'].join(',')}
+              value={fileObject ? [fileObject] : []}
+              onChange={(files: FileValidated[]) =>
+                setFileObject(files.pop() ?? null)
               }
-              onDelete={() => setFileObject(null)}
-              onDropRejected={() => setFileObject(null)}
-              onAlert={(message: string, varient: string) => {
-                switch (varient) {
-                  case 'info':
-                    setUploadSuccess(message);
-                    setShowSuccess(true);
-                    break;
-                  case 'error':
-                    setUploadError(message);
-                    setShowError(true);
-                    break;
-                }
-              }}
-              showPreviews={true}
-              showFileNamesInPreview={true}
-              showPreviewsInDropzone={false}
-              useChipsForPreview
-              previewGridProps={{
-                container: { spacing: 1, direction: 'row' },
-              }}
-              showAlerts={false}
-              inputProps={{
-                multiple: false,
-              }}
-              dropzoneClass={classes.dropzone}
-            />
+              // onAlert={(message: string, varient: string) => {
+              //   switch (varient) {
+              //     case 'info':
+              //       setUploadSuccess(message);
+              //       setShowSuccess(true);
+              //       break;
+              //     case 'error':
+              //       setUploadError(message);
+              //       setShowError(true);
+              //       break;
+              //   }
+              // }}
+            >
+              {fileObject && (
+                <FileItem
+                  {...fileObject}
+                  onDelete={() => setFileObject(null)}
+                />
+              )}
+            </Dropzone>
           </div>
           <div className={classes.root}>
             <SampleTemplateLink />

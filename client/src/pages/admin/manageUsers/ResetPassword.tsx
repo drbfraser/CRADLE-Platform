@@ -16,7 +16,7 @@ import {
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IUser } from 'src/shared/types';
-import { TextField } from 'formik-material-ui';
+import { TextField } from 'formik-mui';
 import { Toast } from 'src/shared/components/toast';
 import { resetUserPasswordAsync } from 'src/shared/api';
 

@@ -4,7 +4,6 @@ import {
   StyledEngineProvider,
   Theme,
   ThemeProvider,
-  adaptV4Theme,
   createTheme,
 } from '@mui/material';
 
@@ -21,7 +20,7 @@ interface RedirectButtonProps extends ButtonProps {
   url: string;
 }
 
-const redTheme = createTheme(adaptV4Theme({ palette: { primary: red } }));
+const redTheme = createTheme({ palette: { primary: red } });
 
 export const CancelButton = (otherProps: ButtonProps) => (
   <StyledEngineProvider injectFirst>

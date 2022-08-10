@@ -1,7 +1,7 @@
 import { Field, FormikProps } from 'formik';
 import { PatientField, PatientState } from '../state';
 import React, { useState } from 'react';
-import { Select, TextField } from 'formik-material-ui';
+import { Select, TextField } from 'formik-mui';
 
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
@@ -11,7 +11,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import { PatientIDExists } from './PatientIDExists';
 import ToggleButton from '@mui/material/ToggleButton';
-import { ToggleButtonGroup } from 'formik-material-ui-lab';
+import { ToggleButtonGroup } from 'formik-mui';
 import { getPatientPregnancyInfoAsync } from 'src/shared/api';
 import { handleChangeCustom } from '../handlers';
 import makeStyles from '@mui/styles/makeStyles';

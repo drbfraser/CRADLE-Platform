@@ -15,7 +15,7 @@ import {
 import React, { useState } from 'react';
 
 import Alert from '@mui/material/Alert';
-import { TextField } from 'formik-material-ui';
+import { TextField } from 'formik-mui';
 import { Toast } from 'src/shared/components/toast';
 import { changePasswordAsync } from 'src/shared/api';
 
