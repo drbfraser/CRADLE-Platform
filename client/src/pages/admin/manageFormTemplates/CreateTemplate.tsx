@@ -85,28 +85,20 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
         <DialogContent>
           <div className={classes.root}>
             <Dropzone
+              maxFiles={1}
+              behaviour="replace"
               accept={['application/json', 'text/csv'].join(',')}
               value={fileObject ? [fileObject] : []}
               onChange={(files: FileValidated[]) =>
                 setFileObject(files.pop() ?? null)
               }
-              // onAlert={(message: string, varient: string) => {
-              //   switch (varient) {
-              //     case 'info':
-              //       setUploadSuccess(message);
-              //       setShowSuccess(true);
-              //       break;
-              //     case 'error':
-              //       setUploadError(message);
-              //       setShowError(true);
-              //       break;
-              //   }
-              // }}
-            >
+              header={false}
+              footer={false}>
               {fileObject && (
                 <FileItem
                   {...fileObject}
                   onDelete={() => setFileObject(null)}
+                  info
                 />
               )}
             </Dropzone>

@@ -32,7 +32,6 @@ export const useStyles = makeStyles((theme: Theme) => ({
   },
   toolbar: {
     ...theme.mixins.toolbar,
-    height: theme.spacing(6),
   },
   listItem: {
     display: `flex`,
