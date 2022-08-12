@@ -1,4 +1,4 @@
-import { Box, Divider, Paper, Typography } from '@mui/material';
+import { Box, Button, Divider, Input, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import {
   getAppFileAsync,
@@ -9,6 +9,7 @@ import {
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Alert } from '@mui/material';
 import { PrimaryButton } from 'src/shared/components/Button';
+import { UploadFile } from '@mui/icons-material';
 import { formatBytes } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 
@@ -66,8 +67,10 @@ export const ManageRelayApp = () => {
   };
 
   useEffect(() => {
-    getAppFileHeadAsync()
-      .then((resp) => {
+    const loadAppFile = async () => {
+      try {
+        const resp = await getAppFileHeadAsync();
+
         const size = resp.headers.get('Content-Length');
         size && setFileSize(formatBytes(parseInt(size)));
 
@@ -75,10 +78,12 @@ export const ManageRelayApp = () => {
         date && setFileLastModified(date);
 
         setHasFile(true);
-      })
-      .catch((e) => {
+      } catch (e) {
         e !== 404 && setErrorLoading(true);
-      });
+      }
+    };
+
+    loadAppFile();
   }, [numFileUploaded]);
 
   return (
@@ -111,7 +116,20 @@ export const ManageRelayApp = () => {
         </Typography>
         <Divider />
         <div className={classes.root}>
-          <input type="file" name="file" onChange={handleChange} />
+          <Button
+            color="primary"
+            aria-label="upload picture"
+            component="label"
+            endIcon={<UploadFile />}>
+            <Input
+              type="file"
+              name="file"
+              inputProps={{
+                accept: 'application/vnd.android.package-archive',
+              }}
+              onChange={handleChange}
+            />
+          </Button>
         </div>
         <PrimaryButton onClick={handleClickUpload}>Upload</PrimaryButton>
         {uploadError ? (

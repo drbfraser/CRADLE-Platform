@@ -1,3 +1,12 @@
+import {
+  BarElement,
+  CategoryScale,
+  Chart,
+  Legend,
+  LinearScale,
+  Title,
+  Tooltip,
+} from 'chart.js';
 import React, { useEffect, useState } from 'react';
 import { initialColorReading, initialStatsData } from '../utils';
 
@@ -8,6 +17,8 @@ import { Statistic } from 'semantic-ui-react';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { trafficLightColors } from 'src/shared/constants';
 import { useStatisticsStyles } from './statisticStyles';
+
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface IProps {
   getData: () => Promise<any>;
@@ -67,22 +78,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
     legend: {
       display: false,
     },
-    scales: {
-      xAxes: [
-        {
-          ticks: {
-            fontSize: 10,
-          },
-        },
-      ],
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true,
-          },
-        },
-      ],
-    },
+    scales: {},
   };
 
   return (
@@ -129,8 +125,6 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
                 )
             )}
           </Statistic.Group>
-          <br />
-
           <h2>Reading Traffic Lights</h2>
           <div className={classes.chart}>
             <Bar data={barData} options={options} />

@@ -1,7 +1,7 @@
 import { AnswerTypeEnum, QuestionTypeEnum } from 'src/shared/enums';
 import { CForm, QAnswer, Question } from 'src/shared/types';
 import { Field, Form, Formik } from 'formik';
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import {
   getPrettyDateTime,
   getTimestampFromStringDate,
@@ -494,7 +494,11 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
     for (i = 0; i < qs.length; i++) {
       const question = qs[i];
       const answer = ans[i];
-      html_arr.push(generate_html_for_one_question(question, answer));
+      html_arr.push(
+        <Fragment key={question.id}>
+          {generate_html_for_one_question(question, answer)}
+        </Fragment>
+      );
     }
     return html_arr;
   }
@@ -513,17 +517,13 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
           isEditForm,
           fm
         )}>
-        {({ touched, errors, isSubmitting }) => (
+        {({ isSubmitting }) => (
           <Form>
             <Paper>
-              <Box p={2}>
-                <Box pt={1} pl={3} pr={3}>
-                  <Grid container spacing={3}>
-                    {/* /////////////////////////////////////////////////////////////////////////////////////   */}
-                    {generate_html_of_all_questions(questions, answers)}
-                    {/* ////////////////////////////////////////////////////////////////////////////////////   */}
-                  </Grid>
-                </Box>
+              <Box p={5}>
+                <Grid container spacing={3}>
+                  {generate_html_of_all_questions(questions, answers)}
+                </Grid>
               </Box>
             </Paper>
             <br />

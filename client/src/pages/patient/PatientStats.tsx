@@ -1,6 +1,15 @@
 import { Bar, Line } from 'react-chartjs-2';
+import {
+  BarElement,
+  CategoryScale,
+  Chart,
+  Legend,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+} from 'chart.js';
 import { Box, Divider, Paper, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
 import React, { useEffect, useState } from 'react';
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
@@ -12,6 +21,17 @@ import { Menu } from 'semantic-ui-react';
 import { PatientStatistics } from 'src/shared/types';
 import { Skeleton } from '@mui/material';
 import { getPatientStatisticsAsync } from 'src/shared/api';
+import makeStyles from '@mui/styles/makeStyles';
+
+Chart.register(
+  CategoryScale,
+  BarElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  PointElement
+);
 
 interface IProps {
   patientId: string;
@@ -110,10 +130,7 @@ export const PatientStats = ({ patientId }: IProps) => {
                 <h4 className={styles.noMargin}>
                   Traffic Lights From All Readings:
                 </h4>
-                <Bar
-                  data={getTrafficLightData(patientStats)}
-                  options={barChartOptions}
-                />
+                <Bar data={getTrafficLightData(patientStats)} />
               </>
             )}
           </div>
@@ -222,28 +239,28 @@ const getTrafficLightData = (stats: PatientStatistics) => ({
   ],
 });
 
-const barChartOptions = {
-  maintainAspectRatio: true,
-  legend: {
-    display: false,
-  },
-  scales: {
-    xAxes: [
-      {
-        ticks: {
-          fontSize: 10,
-        },
-      },
-    ],
-    yAxes: [
-      {
-        ticks: {
-          beginAtZero: true,
-        },
-      },
-    ],
-  },
-};
+// const barChartOptions = {
+//   maintainAspectRatio: true,
+//   legend: {
+//     display: false,
+//   },
+//   scales: {
+//     xAxes: [
+//       {
+//         ticks: {
+//           fontSize: 10,
+//         },
+//       },
+//     ],
+//     yAxes: [
+//       {
+//         ticks: {
+//           beginAtZero: true,
+//         },
+//       },
+//     ],
+//   },
+// };
 
 const monthsLabels = [
   'Jan',
