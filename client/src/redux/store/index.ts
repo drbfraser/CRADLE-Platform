@@ -1,22 +1,23 @@
-import { applyMiddleware, createStore } from 'redux';
 import { history, rootReducer } from '../reducers';
 
-import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
+import { configureStore } from '@reduxjs/toolkit';
 import { requestMiddleware } from '../middleware';
 import { routerMiddleware } from 'connected-react-router';
 import thunk from 'redux-thunk';
-
-const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 25 });
 
 const preloadedState = {};
 
 const middleware = [thunk, routerMiddleware(history), requestMiddleware()];
 
-export const reduxStore = createStore(
-  rootReducer,
+export const reduxStore = configureStore({
+  reducer: rootReducer,
+  middleware: [...middleware],
+  devTools: process.env.NODE_ENV !== 'production' && {
+    trace: true,
+    traceLimit: 25,
+  },
   preloadedState,
-  composeEnhancers(applyMiddleware(...middleware))
-);
+});
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof reduxStore.getState>;

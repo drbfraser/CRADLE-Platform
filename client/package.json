@@ -53,6 +53,7 @@
     "@mui/lab": "^5.0.0-alpha.94",
     "@mui/material": "^5.10.0",
     "@mui/styles": "^5.9.3",
+    "@reduxjs/toolkit": "^1.8.4",
     "axios": "^0.27.2",
     "chart.js": "^3.9.1",
     "connected-react-router": "6.9.3",
