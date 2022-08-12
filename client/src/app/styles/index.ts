@@ -30,9 +30,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
       return drawerWidth;
     },
   },
-  toolbar: {
-    ...theme.mixins.toolbar,
-  },
+  toolbar: theme.mixins.toolbar,
   listItem: {
     display: `flex`,
     flexDirection: `column`,
@@ -48,6 +46,6 @@ export const useStyles = makeStyles((theme: Theme) => ({
   },
   itemText: {
     color: `white`,
-    paddingBlockStart: theme.spacing(),
+    paddingBlockStart: `${theme.spacing()}px`,
   },
 }));
