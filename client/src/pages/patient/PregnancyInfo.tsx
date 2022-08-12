@@ -1,5 +1,12 @@
-import { Alert, Skeleton } from '@mui/material';
-import { Box, Divider, Paper, TableBody, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Divider,
+  Paper,
+  Skeleton,
+  TableBody,
+  Typography,
+} from '@mui/material';
 import { Form, InputOnChangeData, Select, TableCell } from 'semantic-ui-react';
 import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 import { Link, useHistory } from 'react-router-dom';
@@ -113,7 +120,6 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
         {info?.isPregnant && (
           <>
             <GestationalAge />
-            <br />
             <div className={classes.inline}>
               <b>Gestational Age Unit View: </b>
               <Form.Field
@@ -125,16 +131,12 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                 className={classes.marginLeft}
               />
             </div>
-            <br />
           </>
         )}
         {isOverdue && (
-          <>
-            <Alert severity="warning">
-              Long term pregnancy of the patient detected
-            </Alert>
-            <br />
-          </>
+          <Alert severity="warning">
+            Long term pregnancy of the patient detected
+          </Alert>
         )}
         {!info?.isPregnant && <br />}
       </div>
@@ -173,7 +175,6 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                 </RedirectButton>
                 <h4> Previous Obstetric History</h4>
               </div>
-              <br />
               <Table className={classes.table}>
                 <TableBody>
                   {info.pastPregnancies && info.pastPregnancies.length > 0 ? (
@@ -207,7 +208,6 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
               </Table>
               {info.pastPregnancies && info.pastPregnancies.length > 0 && (
                 <div>
-                  <br />
                   <div className={classes.inline}>
                     <b>Gestational Age Unit View: </b>
                     <Form.Field
@@ -254,6 +254,10 @@ const useStyles = makeStyles({
   inline: {
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: '10px',
+    marginBottom: '10px',
   },
   rightButton: {
     float: 'right',

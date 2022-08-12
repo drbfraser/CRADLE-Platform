@@ -19,14 +19,13 @@ export const PersonalInfo = ({ patient }: IProps) => {
 
   return (
     <Paper>
-      <Box p={3}>
+      <Box p={3} mb={2}>
         <Typography component="h3" variant="h5">
           <RecentActorsIcon fontSize="large" /> &nbsp; Personal Information
         </Typography>
         <Divider />
-        <br />
         {patient ? (
-          <div>
+          <Box mt={2}>
             <p>
               <b>ID: </b> {patient.patientId} &nbsp;&nbsp;&nbsp;&nbsp;
               <b>Sex: </b> {patient.patientSex}
@@ -55,7 +54,7 @@ export const PersonalInfo = ({ patient }: IProps) => {
             <SecondaryButton onClick={handleEditClick}>
               Edit Patient
             </SecondaryButton>
-          </div>
+          </Box>
         ) : (
           <Skeleton variant="rectangular" height={200} />
         )}

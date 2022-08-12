@@ -80,12 +80,11 @@ export const PatientStats = ({ patientId }: IProps) => {
 
   return (
     <Paper>
-      <Box p={3}>
+      <Box p={3} mb={2}>
         <Typography variant="h5" component="h3">
           <FavoriteIcon fontSize="large" /> &nbsp; Patient Stats
         </Typography>
         <Divider />
-        <br />
         <Menu fluid widths={2}>
           <Menu.Item
             name={
@@ -108,7 +107,7 @@ export const PatientStats = ({ patientId }: IProps) => {
             Please try refreshing.
           </Alert>
         ) : patientStats ? (
-          <div>
+          <>
             {chartSelected === ChartOption.VITALS && (
               <>
                 <h4 className={styles.noMargin}>Average Vitals</h4>
@@ -122,7 +121,7 @@ export const PatientStats = ({ patientId }: IProps) => {
                 <div className={styles.graph}>
                   <Line
                     data={getVitalsData(patientStats, currentStatsUnit)}
-                    options={{ maintainAspectRatio: false }}
+                    options={options}
                   />
                 </div>
               </>
@@ -135,12 +134,12 @@ export const PatientStats = ({ patientId }: IProps) => {
                 <div className={styles.graph}>
                   <Bar
                     data={getTrafficLightData(patientStats)}
-                    options={barChartOptions}
+                    options={options}
                   />
                 </div>
               </>
             )}
-          </div>
+          </>
         ) : (
           <Skeleton height={400} />
         )}
@@ -245,27 +244,11 @@ const getTrafficLightData = (stats: PatientStatistics) => ({
   ],
 });
 
-const barChartOptions = {
-  maintainAspectRatio: true,
+const options = {
+  maintainAspectRatio: false,
   legend: {
     display: false,
   },
-  // scales: {
-  //   xAxes: [
-  //     {
-  //       ticks: {
-  //         fontSize: 10,
-  //       },
-  //     },
-  //   ],
-  //   yAxes: [
-  //     {
-  //       ticks: {
-  //         beginAtZero: true,
-  //       },
-  //     },
-  //   ],
-  // },
 };
 
 const monthsLabels = [

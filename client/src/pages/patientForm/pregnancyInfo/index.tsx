@@ -11,7 +11,6 @@ import {
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import React from 'react';
@@ -53,7 +52,6 @@ export const PregnancyInfoForm = ({
           )}
           <Grid item md={4} sm={12}>
             <FormControl fullWidth variant="outlined">
-              <InputLabel>Gestational Age Unit</InputLabel>
               <Field
                 component={Select}
                 fullWidth
