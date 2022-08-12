@@ -21,10 +21,10 @@
     "format": "npm run prettier && npm run lint"
   },
   "devDependencies": {
+    "@redux-devtools/extension": "^3.2.3",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.3.0",
     "@types/jquery": "^3.5.14",
-    "@types/jwt-decode": "^3.1.0",
     "@types/lodash": "^4.14.182",
     "@types/material-ui": "^0.21.12",
     "@types/mui-datatables": "^3.7.9",
@@ -43,7 +43,6 @@
     "eslint-plugin-react": "^7.30.1",
     "prettier": "^2.7.1",
     "react-scripts": "^5.0.1",
-    "redux-devtools-extension": "^2.13.9",
     "typescript": "^4.7.4"
   },
   "dependencies": {
