@@ -3,12 +3,13 @@ import {
   getCurrentUser,
 } from 'src/redux/reducers/user/currentUser';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { Loader } from 'src/shared/components/loader';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { UserRoleEnum } from 'src/shared/enums';
+import { useAppDispatch } from 'src/app/context/hooks';
+import { useSelector } from 'react-redux';
 
 interface IProps {
   component:
@@ -28,7 +29,7 @@ export const PrivateRoute: React.FC<IProps> = (props) => {
   const currentUser = useSelector(({ user }: ReduxState): CurrentUserState => {
     return user.current;
   });
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   React.useEffect((): void => {
     if (!currentUser.data) {

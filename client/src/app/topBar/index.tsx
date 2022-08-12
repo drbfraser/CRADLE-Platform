@@ -1,7 +1,7 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 import { Menu, MenuItem } from '@mui/material';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useDimensionsContext } from '../context/hooks';
 
 import AppBar from '@mui/material/AppBar';
 import AppImg from './img/app_icon.png';
@@ -15,7 +15,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { push } from 'connected-react-router';
-import { useDimensionsContext } from '../context/hooks';
+import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
 import { userRoleLabels } from 'src/shared/constants';
 
@@ -42,7 +42,7 @@ export const TopBar = ({
 
   const classes = useStyles();
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const navigateToHelpPage = (): void => {
     setActiveItem(`Resources`);

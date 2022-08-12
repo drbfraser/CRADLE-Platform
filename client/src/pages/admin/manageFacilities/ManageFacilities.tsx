@@ -10,12 +10,12 @@ import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { getHealthFacilitiesAsync } from 'src/shared/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAdminStyles } from '../adminStyles';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from 'src/app/context/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const ManageFacilities = () => {
   const styles = useAdminStyles();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
