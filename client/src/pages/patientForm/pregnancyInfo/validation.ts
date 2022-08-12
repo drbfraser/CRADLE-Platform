@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { PatientField } from '../state';
 
@@ -10,7 +11,7 @@ export const pregnancyInfoValidationSchema = () =>
       .max(6, 'Please enter a number between 0 and 6')
       .label('Days pregnant')
       .when([PatientField.isPregnant, PatientField.gestationalAgeUnit], {
-        is: (isPregnant, gestationalAgeUnit) =>
+        is: (isPregnant: boolean, gestationalAgeUnit: string) =>
           isPregnant && gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS,
         then: Yup.number()
           .integer('Please enter between 0 and 6 days.')
@@ -22,7 +23,7 @@ export const pregnancyInfoValidationSchema = () =>
       .min(0, 'Please enter a positive number')
       .label('Weeks pregnant')
       .when([PatientField.isPregnant, PatientField.gestationalAgeUnit], {
-        is: (isPregnant, gestationalAgeUnit) =>
+        is: (isPregnant: boolean, gestationalAgeUnit: string) =>
           isPregnant && gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS,
         then: Yup.number()
           .integer('Please enter between 0 and 42 weeks.')
@@ -34,7 +35,7 @@ export const pregnancyInfoValidationSchema = () =>
       .min(0, 'Please enter a positive number')
       .label('Months pregnant')
       .when([PatientField.isPregnant, PatientField.gestationalAgeUnit], {
-        is: (isPregnant, gestationalAgeUnit) =>
+        is: (isPregnant: boolean, gestationalAgeUnit: string) =>
           isPregnant && gestationalAgeUnit === GestationalAgeUnitEnum.MONTHS,
         then: Yup.number()
           .integer('Please enter between 0 and 10 months.')
