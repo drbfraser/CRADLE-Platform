@@ -9,7 +9,7 @@ variables:
   DEV_BRANCH: "master"
   STG_BRANCH: "staging"
   PROD_BRANCH: "production"
-  NODE_IMAGE: "node:16"
+  NODE_IMAGE: "node:18"
   PYTHON_IMAGE: "python:3.9.1-buster"
 
 
@@ -48,6 +48,7 @@ frontend build:
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     - cd client
+    - npm i --global npm@7
     - npm ci
   script:
     - GENERATE_SOURCEMAP=false npm run build
@@ -143,6 +144,7 @@ frontend lint:
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     - cd client
+    - npm i --global npm@7
     - npm ci
   script:
     - ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
@@ -163,6 +165,7 @@ frontend format:
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     # Prettier version here should match version in package.json
+    - npm i --global npm@7
     - npm install prettier@2.7.1 --global
   script:
     - prettier --check "client/src/**/*.{ts,tsx}"
