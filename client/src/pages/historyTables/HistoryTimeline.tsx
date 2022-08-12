@@ -14,7 +14,7 @@ import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import { TimelineRecord } from 'src/shared/types';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import { getPatientTimelineAsync } from 'src/shared/api';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 
 interface IProps {
   patientId: string;
@@ -80,7 +80,7 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
                 <TimelineOppositeContent
                   style={{ flex: isTransformed ? 0.1 : 0.2 }}>
                   <Typography variant="body2" color="textSecondary">
-                    {getPrettyDateTime(record.date)}
+                    {getPrettyDate(record.date)}
                   </Typography>
                 </TimelineOppositeContent>
                 <TimelineSeparator>

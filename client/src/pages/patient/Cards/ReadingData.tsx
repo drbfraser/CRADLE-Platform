@@ -1,15 +1,16 @@
-import React from 'react';
 import {
-  Typography,
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Typography,
 } from '@mui/material';
-import { Reading } from 'src/shared/types';
-import { TrafficLight } from 'src/shared/components/trafficLight';
-import { getPrettyDateTime } from 'src/shared/utils';
+
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import React from 'react';
+import { Reading } from 'src/shared/types';
+import { TrafficLight } from 'src/shared/components/trafficLight';
+import { getPrettyDate } from 'src/shared/utils';
 
 interface IProps {
   reading: Reading;
@@ -29,7 +30,7 @@ export const ReadingData = ({ reading }: IProps) => {
       </Typography>
       {reading.dateTimeTaken !== null && (
         <Typography variant="subtitle1">
-          Taken on {getPrettyDateTime(reading.dateTimeTaken)}
+          Taken on {getPrettyDate(reading.dateTimeTaken)}
         </Typography>
       )}
       <br />

@@ -3,7 +3,7 @@ import { CustomizedForm } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';
 import React from 'react';
 import { Typography } from '@mui/material';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 
 interface IProps {
@@ -28,7 +28,7 @@ export const CustomizedFormData = ({ form }: IProps) => {
           </>
         </Typography>
         <Typography variant="subtitle1">
-          {`Last Edit : ${getPrettyDateTime(form.lastEdited)}`}
+          {`Last Edit : ${getPrettyDate(form.lastEdited)}`}
         </Typography>
 
         <PrimaryButton onClick={handleEditFormClick}>

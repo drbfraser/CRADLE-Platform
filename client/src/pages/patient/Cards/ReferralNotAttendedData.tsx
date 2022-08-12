@@ -2,7 +2,7 @@ import React from 'react';
 import { Typography } from '@mui/material';
 import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 import { Referral } from 'src/shared/types';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 interface IProps {
   referral: Referral;
 }
@@ -17,10 +17,10 @@ export const ReferralNotAttendedData = ({ referral }: IProps) => {
           </>
         </Typography>
         <Typography variant="subtitle1">
-          Referred on {getPrettyDateTime(referral.dateReferred)}
+          Referred on {getPrettyDate(referral.dateReferred)}
         </Typography>
         <Typography variant="subtitle1">
-          Marked Not Attended on {getPrettyDateTime(referral.dateNotAttended)}
+          Marked Not Attended on {getPrettyDate(referral.dateNotAttended)}
         </Typography>
         <Typography variant="subtitle1">
           Referred to {referral.referralHealthFacilityName}

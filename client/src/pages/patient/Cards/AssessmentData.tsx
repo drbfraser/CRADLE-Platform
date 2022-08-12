@@ -3,7 +3,7 @@ import { FollowUp } from 'src/shared/types';
 import React from 'react';
 import { RedirectButton } from 'src/shared/components/Button';
 import { Typography } from '@mui/material';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 
 interface IProps {
   followUp: FollowUp;
@@ -25,7 +25,7 @@ export const AssessmentData = ({ followUp }: IProps) => (
     {Boolean(followUp && followUp.dateAssessed) && (
       <p>
         <b>Date Last Assessed:</b>
-        {getPrettyDateTime(followUp?.dateAssessed)}
+        {getPrettyDate(followUp?.dateAssessed)}
       </p>
     )}
 

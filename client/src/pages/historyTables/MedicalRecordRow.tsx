@@ -1,7 +1,7 @@
 import React from 'react';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 import { MedicalRecord } from 'src/shared/types';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -29,7 +29,7 @@ export const MedicalRecordRow = ({
       <TableCell
         label={MEDICAL_RECORD_COLUMNS.dateCreated}
         isTransformed={isTransformed}>
-        {getPrettyDateTime(row.dateCreated)}
+        {getPrettyDate(row.dateCreated)}
       </TableCell>
       <TableCell
         label={MEDICAL_RECORD_COLUMNS.information}
