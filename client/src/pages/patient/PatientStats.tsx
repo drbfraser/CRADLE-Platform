@@ -108,7 +108,7 @@ export const PatientStats = ({ patientId }: IProps) => {
             Please try refreshing.
           </Alert>
         ) : patientStats ? (
-          <div className={styles.graph}>
+          <div>
             {chartSelected === ChartOption.VITALS && (
               <>
                 <h4 className={styles.noMargin}>Average Vitals</h4>
@@ -119,10 +119,12 @@ export const PatientStats = ({ patientId }: IProps) => {
                   placeholder={statsUnitLabels[currentStatsUnit]}
                   onChange={handleCurrentStatsUnitChange}
                 />
-                <Line
-                  data={getVitalsData(patientStats, currentStatsUnit)}
-                  options={{ maintainAspectRatio: true }}
-                />
+                <div className={styles.graph}>
+                  <Line
+                    data={getVitalsData(patientStats, currentStatsUnit)}
+                    options={{ maintainAspectRatio: false }}
+                  />
+                </div>
               </>
             )}
             {chartSelected === ChartOption.TRAFFIC_LIGHTS && (
@@ -130,7 +132,12 @@ export const PatientStats = ({ patientId }: IProps) => {
                 <h4 className={styles.noMargin}>
                   Traffic Lights From All Readings:
                 </h4>
-                <Bar data={getTrafficLightData(patientStats)} />
+                <div className={styles.graph}>
+                  <Bar
+                    data={getTrafficLightData(patientStats)}
+                    options={barChartOptions}
+                  />
+                </div>
               </>
             )}
           </div>
@@ -147,8 +154,7 @@ const useStyles = makeStyles({
     margin: 0,
   },
   graph: {
-    margin: 0,
-    maxHeight: 400,
+    height: '400px',
   },
 });
 
@@ -239,28 +245,28 @@ const getTrafficLightData = (stats: PatientStatistics) => ({
   ],
 });
 
-// const barChartOptions = {
-//   maintainAspectRatio: true,
-//   legend: {
-//     display: false,
-//   },
-//   scales: {
-//     xAxes: [
-//       {
-//         ticks: {
-//           fontSize: 10,
-//         },
-//       },
-//     ],
-//     yAxes: [
-//       {
-//         ticks: {
-//           beginAtZero: true,
-//         },
-//       },
-//     ],
-//   },
-// };
+const barChartOptions = {
+  maintainAspectRatio: true,
+  legend: {
+    display: false,
+  },
+  // scales: {
+  //   xAxes: [
+  //     {
+  //       ticks: {
+  //         fontSize: 10,
+  //       },
+  //     },
+  //   ],
+  //   yAxes: [
+  //     {
+  //       ticks: {
+  //         beginAtZero: true,
+  //       },
+  //     },
+  //   ],
+  // },
+};
 
 const monthsLabels = [
   'Jan',
