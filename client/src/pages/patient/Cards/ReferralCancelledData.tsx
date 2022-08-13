@@ -4,7 +4,7 @@ import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
 import React from 'react';
 import { Referral } from 'src/shared/types';
 import { SecondaryButton } from 'src/shared/components/Button';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 
 interface IProps {
@@ -31,10 +31,10 @@ export const ReferralCancelledData = ({ referral }: IProps) => {
           </>
         </Typography>
         <Typography variant="subtitle1">
-          Referred on {getPrettyDateTime(referral.dateReferred)}
+          Referred on {getPrettyDate(referral.dateReferred)}
         </Typography>
         <Typography variant="subtitle1">
-          Cancelled on {getPrettyDateTime(referral.dateCancelled)}
+          Cancelled on {getPrettyDate(referral.dateCancelled)}
         </Typography>
         <Typography variant="subtitle1">
           Referred to {referral.referralHealthFacilityName}

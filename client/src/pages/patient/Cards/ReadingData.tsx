@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import { Reading } from 'src/shared/types';
 import { TrafficLight } from 'src/shared/components/trafficLight';
-import { getPrettyDateTime } from 'src/shared/utils';
+import { getPrettyDate } from 'src/shared/utils';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 
@@ -29,7 +29,7 @@ export const ReadingData = ({ reading }: IProps) => {
       </Typography>
       {reading.dateTimeTaken !== null && (
         <Typography variant="subtitle1">
-          Taken on {getPrettyDateTime(reading.dateTimeTaken)}
+          Taken on {getPrettyDate(reading.dateTimeTaken)}
         </Typography>
       )}
       <br />

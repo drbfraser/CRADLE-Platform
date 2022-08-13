@@ -2,7 +2,7 @@ import {
   getAgeBasedOnDOB,
   getNumOfMonthsNumeric,
   getNumOfWeeksDaysNumeric,
-  getPrettyDateTime,
+  getPrettyDate,
 } from 'src/shared/utils';
 import {
   getMedicalRecordAsync,
@@ -135,7 +135,7 @@ export const getPatientState = async (
     );
     if (data.pregnancyEndDate) {
       patientState.pregnancyEndDate = String(
-        getPrettyDateTime(data.pregnancyEndDate)
+        getPrettyDate(data.pregnancyEndDate)
       );
     }
   }

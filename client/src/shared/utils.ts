@@ -62,11 +62,10 @@ export const getTimestampFromMonthsWithEndDate = (
   return timestampSecs;
 };
 
-//Original string date format MUST be:'YYYY-MM-DD'
+//Original string date format MUST be 'YYYY-MM-DD' or 'YYYY-MM-DD HH:mm:ss'
 export const getTimestampFromStringDate = (strDate: string): number => {
-  const testDateUtc = moment.utc(strDate);
-  const localDate = testDateUtc.local();
-  return localDate.toDate().getTime() * 0.001;
+  const utcDate = moment(strDate);
+  return utcDate.toDate().getTime() * 0.001;
 };
 
 export const getNumOfWeeksDaysNumeric = (
@@ -186,13 +185,22 @@ export const calculateShockIndex = (reading: Reading): TrafficLightEnum => {
 };
 
 export const getMomentDate = (dateS: OrNull<number>): moment.Moment => {
-  return moment(dateS ?? 0);
+  // Dates are stored in the backend in UTC time
+  return moment.utc(dateS ?? 0);
+};
+
+export const getPrettyDate = (dateStr: number): string => {
+  // * Date comes in from the backend in seconds
+  // * Moment date requires milliseconds
+  return getMomentDate(dateStr * 1000).format('YYYY-MM-DD');
 };
 
 export const getPrettyDateTime = (dateStr: number): string => {
   // * Date comes in from the backend in seconds
   // * Moment date requires milliseconds
-  return getMomentDate(dateStr * 1000).format('YYYY-MM-DD');
+  return getMomentDate(dateStr * 1000)
+    .local()
+    .format('YYYY-MM-DD HH:mm:ss');
 };
 
 export const getYearToDisplay = (timestamp: number) => {

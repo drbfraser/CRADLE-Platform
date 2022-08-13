@@ -56,7 +56,11 @@ export const TransferQAnswerToAPIStandard = (
       anss.push({ qidx: q_idx, answer: { mcidArray: [...mcid_arr!] } });
     } else if (q_answer.qtype === 'STRING') {
       anss.push({ qidx: q_idx, answer: { text: q_answer.val } });
-    } else if (q_answer.qtype === 'INTEGER' || q_answer.qtype === 'DATE') {
+    } else if (
+      q_answer.qtype === 'INTEGER' ||
+      q_answer.qtype === 'DATE' ||
+      q_answer.qtype === 'DATETIME'
+    ) {
       anss.push({ qidx: q_idx, answer: { number: q_answer.val } });
     } else {
       console.log('invalid type !');

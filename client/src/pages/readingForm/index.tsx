@@ -2,7 +2,6 @@ import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import React, { useEffect, useState } from 'react';
 import { ReadingState, getReadingState } from './state';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -18,7 +17,8 @@ import Typography from '@material-ui/core/Typography';
 import { VitalSigns } from './vitalSigns';
 import { goBackWithFallback } from 'src/shared/utils';
 import { handleSubmit } from './handlers';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { makeStyles } from '@material-ui/core/styles';
+import { useDimensionsContext } from 'src/app/context/hooks';
 import { useRouteMatch } from 'react-router-dom';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
 
@@ -28,8 +28,7 @@ type RouteParams = {
 
 export const ReadingFormPage = () => {
   const classes = useStyles();
-  const theme = useTheme();
-  const isBigScreen = useMediaQuery(theme.breakpoints.up('sm'));
+  const { isBigScreen } = useDimensionsContext();
 
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);

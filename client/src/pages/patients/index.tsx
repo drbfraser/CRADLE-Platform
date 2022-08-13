@@ -10,6 +10,7 @@ import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@material-ui/core/TextField';
 import { debounce } from 'lodash';
 import { makeStyles } from '@material-ui/core/styles';
+import { useDimensionsContext } from 'src/app/context/hooks';
 import { useHistory } from 'react-router-dom';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
@@ -25,7 +26,7 @@ export const PatientsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
-  const isBigScreen = useMediaQuery('(min-width:580px)');
+  const { isBigScreen } = useDimensionsContext();
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   return (
