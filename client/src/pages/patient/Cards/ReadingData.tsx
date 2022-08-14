@@ -1,15 +1,16 @@
-import React from 'react';
 import {
-  Typography,
   Accordion,
   AccordionDetails,
   AccordionSummary,
-} from '@material-ui/core';
+  Typography,
+} from '@mui/material';
+
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import React from 'react';
 import { Reading } from 'src/shared/types';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { getPrettyDate } from 'src/shared/utils';
-import AssessmentIcon from '@material-ui/icons/Assessment';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 
 interface IProps {
   reading: Reading;

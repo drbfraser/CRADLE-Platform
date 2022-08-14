@@ -1,12 +1,12 @@
 import { IFacility, IUserWithTokens, OrNull } from 'src/shared/types';
 import React, { useState } from 'react';
 
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { ReduxState } from 'src/redux/reducers';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { getHealthFacilityAsync } from 'src/shared/api';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useSelector } from 'react-redux';
 
 interface IProps {

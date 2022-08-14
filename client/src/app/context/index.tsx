@@ -9,8 +9,11 @@ export interface IDimensionsContext {
 export const DimensionsContext = React.createContext<
   Partial<IDimensionsContext>
 >({});
+interface IProps extends IDimensionsContext {
+  children: React.ReactNode;
+}
 
-export const DimensionsContextProvider: React.FC<IDimensionsContext> = ({
+export const DimensionsContextProvider: React.FC<IProps> = ({
   children,
   drawerWidth,
   offsetFromTop,

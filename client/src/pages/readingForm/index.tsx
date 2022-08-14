@@ -4,20 +4,20 @@ import React, { useEffect, useState } from 'react';
 import { ReadingState, getReadingState } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Confirmation } from './confirmation';
-import IconButton from '@material-ui/core/IconButton';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Step from '@material-ui/core/Step/Step';
-import StepLabel from '@material-ui/core/StepLabel/StepLabel';
-import Stepper from '@material-ui/core/Stepper/Stepper';
+import IconButton from '@mui/material/IconButton';
+import LinearProgress from '@mui/material/LinearProgress';
+import Step from '@mui/material/Step/Step';
+import StepLabel from '@mui/material/StepLabel/StepLabel';
+import Stepper from '@mui/material/Stepper/Stepper';
 import { Symptoms } from './symptoms';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import { VitalSigns } from './vitalSigns';
 import { goBackWithFallback } from 'src/shared/utils';
 import { handleSubmit } from './handlers';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useDimensionsContext } from 'src/app/context/hooks';
 import { useRouteMatch } from 'react-router-dom';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
@@ -90,7 +90,8 @@ export const ReadingFormPage = () => {
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback(`/patients/${patientId}`)}>
+            onClick={() => goBackWithFallback(`/patients/${patientId}`)}
+            size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>

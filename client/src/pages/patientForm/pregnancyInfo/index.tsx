@@ -1,21 +1,21 @@
-import React from 'react';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import { CheckboxWithLabel, Select, TextField } from 'formik-mui';
 import { Field, FormikProps } from 'formik';
-import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
+import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
+import { InputAdornment, Typography } from '@mui/material';
 import {
   PatientField,
-  gestationalAgeUnitOptions,
   PatientState,
+  gestationalAgeUnitOptions,
 } from '../state';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
-import MenuItem from '@material-ui/core/MenuItem';
-import { InputAdornment, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+
+import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import React from 'react';
 import { handleChangeCustom } from '../handlers';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   formikProps: FormikProps<PatientState>;
@@ -52,7 +52,6 @@ export const PregnancyInfoForm = ({
           )}
           <Grid item md={4} sm={12}>
             <FormControl fullWidth variant="outlined">
-              <InputLabel>Gestational Age Unit</InputLabel>
               <Field
                 component={Select}
                 fullWidth

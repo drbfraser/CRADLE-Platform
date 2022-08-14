@@ -1,17 +1,9 @@
-//@ts-nocheck
-
 import { Overrides } from '@material-ui/core/styles/overrides';
 
 export const overrides: Overrides = {
   MuiButton: {
     root: {
       textTransform: `initial`,
-    },
-  },
-  MUIDataTable: {
-    responsiveBase: {
-      minHeight: `67vh`,
-      maxHeight: `67vh`,
     },
   },
   MUIDataTableToolbar: {

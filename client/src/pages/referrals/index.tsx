@@ -7,16 +7,16 @@ import { APITable } from 'src/shared/components/apiTable';
 import { AutoRefresher } from './AutoRefresher';
 import { EndpointEnum } from 'src/shared/enums';
 import { FilterDialog } from './FilterDialog';
-import Paper from '@material-ui/core/Paper';
+import Paper from '@mui/material/Paper';
 import { ReferralFilter } from 'src/shared/types';
 import { ReferralRow } from './ReferralRow';
 import { RefreshDialog } from './RefreshDialog';
 import { SortDir } from 'src/shared/components/apiTable/types';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import makeStyles from '@mui/styles/makeStyles';
 import { useDimensionsContext } from 'src/app/context/hooks';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const ReferralsPage = () => {
   const classes = useStyles();

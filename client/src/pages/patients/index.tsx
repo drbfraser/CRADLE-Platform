@@ -3,16 +3,16 @@ import React, { useState } from 'react';
 
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
-import Paper from '@material-ui/core/Paper';
+import Paper from '@mui/material/Paper';
 import { PatientRow } from './PatientRow';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { SortDir } from 'src/shared/components/apiTable/types';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@mui/material/TextField';
 import { debounce } from 'lodash';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useDimensionsContext } from 'src/app/context/hooks';
 import { useHistory } from 'react-router-dom';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const PatientsPage = () => {
   const classes = useStyles();

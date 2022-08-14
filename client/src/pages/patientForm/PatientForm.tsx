@@ -17,20 +17,20 @@ import {
 } from './handlers';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 import { MedicalInfoForm } from './medicalInfo';
 import { PatientState } from './state';
 import { PersonalInfoForm } from './personalInfo';
 import { PregnancyInfoForm } from './pregnancyInfo';
-import Step from '@material-ui/core/Step/Step';
-import StepLabel from '@material-ui/core/StepLabel/StepLabel';
-import Stepper from '@material-ui/core/Stepper/Stepper';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import Step from '@mui/material/Step/Step';
+import StepLabel from '@mui/material/StepLabel/StepLabel';
+import Stepper from '@mui/material/Stepper/Stepper';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import { goBackWithFallback } from 'src/shared/utils';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { useDimensionsContext } from 'src/app/context/hooks';
@@ -177,7 +177,8 @@ export const PatientForm = ({
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}>
+            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}
+            size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>

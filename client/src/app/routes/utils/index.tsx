@@ -8,25 +8,22 @@ import { NotFoundPage } from 'src/pages/notFound';
 import { PatientFormPage } from 'src/pages/patientForm';
 import { PatientPage } from 'src/pages/patient';
 import { PatientsPage } from 'src/pages/patients';
-import PollIcon from '@material-ui/icons/Poll';
+import PollIcon from '@mui/icons-material/Poll';
 import React from 'react';
 import { ReadingFormPage } from 'src/pages/readingForm';
 import { ReferralFormPage } from 'src/pages/referralForm';
 import { ReferralsPage } from 'src/pages/referrals';
 import { ResourcesPage } from 'src/pages/resources';
-import { RouteComponentProps } from 'react-router-dom';
-import SchoolIcon from '@material-ui/icons/School';
-import SendIcon from '@material-ui/icons/Send';
-import SettingsIcon from '@material-ui/icons/Settings';
+import SchoolIcon from '@mui/icons-material/School';
+import SendIcon from '@mui/icons-material/Send';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 import { StatisticsPage } from 'src/pages/statistics';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
 
 export type AppRoute = {
-  component:
-    | React.ComponentType<RouteComponentProps<any>>
-    | React.ComponentType<any>;
+  component: React.ComponentType<any>;
   exactPath: boolean;
   id: string;
   inNavigation: boolean;
@@ -34,7 +31,7 @@ export type AppRoute = {
   icon?: React.ReactNode;
   name?: string;
   title?: string;
-  to?: string;
+  to: string;
 };
 
 // * Order here is important must match order of side bar for relevant routes
@@ -239,6 +236,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
+    to: `/not-found`,
   },
 ];
 
@@ -246,7 +244,7 @@ type RoutesNames = Record<string, string>;
 
 export const routesNames: RoutesNames = appRoutes.reduce(
   (routes: RoutesNames, route: AppRoute): RoutesNames => {
-    routes[route.to ?? ``] = route.name ?? ``;
+    routes[route.to] = route.name ?? '';
     return routes;
   },
   {}

@@ -1,7 +1,4 @@
-import {
-  Autocomplete,
-  AutocompleteRenderInputParams,
-} from 'formik-material-ui-lab';
+import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
 import React, { useState } from 'react';
 import {
@@ -12,14 +9,14 @@ import {
 } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Box from '@material-ui/core/Box';
-import { TextField as FormikTextField } from 'formik-material-ui';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import Box from '@mui/material/Box';
+import { TextField as FormikTextField } from 'formik-mui';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@mui/material/TextField';
 import { goBackWithFallback } from 'src/shared/utils';
-import { makeStyles } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
 import { saveReferralAsync } from 'src/shared/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 

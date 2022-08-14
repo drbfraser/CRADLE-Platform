@@ -1,10 +1,10 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 
-import Divider from '@material-ui/core/Divider';
+import Divider from '@mui/material/Divider';
 import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { StatisticDashboard } from './utils/StatisticDashboard';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { getFacilityStatisticsAsync } from 'src/shared/api';
 import { useSelector } from 'react-redux';
 import { useStatisticsStyles } from './utils/statisticStyles';

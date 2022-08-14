@@ -6,8 +6,8 @@ import {
   Divider,
   Link,
   Typography,
-  makeStyles,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { useState } from 'react';
 
 import { PrimaryButton } from 'src/shared/components/Button';
@@ -21,7 +21,8 @@ const SampleTemplateLink = () => {
       onClick={() => {
         setDialogOpen(true);
       }}
-      className={styles.noteLink}>
+      className={styles.noteLink}
+      underline="hover">
       Sample Template
     </Link>
   );

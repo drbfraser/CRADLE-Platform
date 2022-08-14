@@ -1,13 +1,24 @@
+import {
+  BarElement,
+  CategoryScale,
+  Chart,
+  Legend,
+  LinearScale,
+  Title,
+  Tooltip,
+} from 'chart.js';
 import React, { useEffect, useState } from 'react';
 import { initialColorReading, initialStatsData } from '../utils';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Bar } from 'react-chartjs-2';
-import Skeleton from '@material-ui/lab/Skeleton';
+import Skeleton from '@mui/material/Skeleton';
 import { Statistic } from 'semantic-ui-react';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { trafficLightColors } from 'src/shared/constants';
 import { useStatisticsStyles } from './statisticStyles';
+
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface IProps {
   getData: () => Promise<any>;
@@ -67,22 +78,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
     legend: {
       display: false,
     },
-    scales: {
-      xAxes: [
-        {
-          ticks: {
-            fontSize: 10,
-          },
-        },
-      ],
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true,
-          },
-        },
-      ],
-    },
+    scales: {},
   };
 
   return (
@@ -92,7 +88,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
         onClose={() => setErrorLoading(false)}
       />
       {!loaded ? (
-        <Skeleton variant="rect" height={700} />
+        <Skeleton variant="rectangular" height={700} />
       ) : (
         <div className={classes.center}>
           <Statistic.Group className={classes.statisticGroup}>
@@ -129,8 +125,6 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
                 )
             )}
           </Statistic.Group>
-          <br />
-
           <h2>Reading Traffic Lights</h2>
           <div className={classes.chart}>
             <Bar data={barData} options={options} />

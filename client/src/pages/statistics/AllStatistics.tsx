@@ -1,7 +1,7 @@
-import Divider from '@material-ui/core/Divider';
+import Divider from '@mui/material/Divider';
 import React from 'react';
 import { StatisticDashboard } from './utils/StatisticDashboard';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { getAllStatisticsAsync } from 'src/shared/api';
 import { useStatisticsStyles } from './utils/statisticStyles';
 

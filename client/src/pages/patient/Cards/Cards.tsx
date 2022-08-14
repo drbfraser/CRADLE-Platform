@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Paper, Box } from '@material-ui/core';
+import { Grid, Paper, Box } from '@mui/material';
 import { Reading, Referral, FollowUp, CustomizedForm } from 'src/shared/types';
 import { ReadingData } from './ReadingData';
 import { AssessmentData } from './AssessmentData';

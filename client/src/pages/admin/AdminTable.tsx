@@ -2,13 +2,12 @@ import MUIDataTable, {
   MUIDataTableColumnDef,
   MUIDataTableProps,
 } from 'mui-datatables';
-import { ThemeProvider, createTheme } from '@material-ui/core/styles';
 
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from '@mui/icons-material/Add';
 import { PrimaryButton } from 'src/shared/components/Button';
 import React from 'react';
-import Skeleton from '@material-ui/lab/Skeleton';
-import { TextField } from '@material-ui/core';
+import Skeleton from '@mui/material/Skeleton';
+import { TextField } from '@mui/material';
 import { useAdminStyles } from './adminStyles';
 
 interface IProps {
@@ -26,16 +25,6 @@ interface IProps {
 
 const AdminTable = (props: IProps) => {
   const styles = useAdminStyles();
-
-  const theme = (createTheme as any)({
-    overrides: {
-      MUIDataTable: {
-        responsiveScroll: {
-          maxHeight: props.isTransformed ? '' : 'none',
-        },
-      },
-    },
-  });
 
   const Toolbar = () => (
     <div className={props.isTransformed ? styles.right : ''}>
@@ -55,36 +44,34 @@ const AdminTable = (props: IProps) => {
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <MUIDataTable
-        title={props.title}
-        columns={props.columns}
-        data={props.data}
-        options={{
-          elevation: 0,
-          search: false,
-          download: false,
-          print: false,
-          viewColumns: false,
-          filter: false,
-          selectToolbarPlacement: 'none',
-          selectableRows: 'none',
-          rowHover: false,
-          responsive: 'standard',
-          customToolbar: Toolbar,
-          customRowRender: (row, i) => <props.Row key={i} row={row} />,
-          textLabels: {
-            body: {
-              noMatch: props.loading ? (
-                <Skeleton variant="rect" component="span" height={40} />
-              ) : (
-                'Sorry, no matching records found.'
-              ),
-            },
+    <MUIDataTable
+      title={props.title}
+      columns={props.columns}
+      data={props.data}
+      options={{
+        elevation: 0,
+        search: false,
+        download: false,
+        print: false,
+        viewColumns: false,
+        filter: false,
+        selectToolbarPlacement: 'none',
+        selectableRows: 'none',
+        rowHover: false,
+        responsive: 'standard',
+        customToolbar: Toolbar,
+        customRowRender: (row, i) => <props.Row key={i} row={row} />,
+        textLabels: {
+          body: {
+            noMatch: props.loading ? (
+              <Skeleton variant="rectangular" component="span" height={40} />
+            ) : (
+              'Sorry, no matching records found.'
+            ),
           },
-        }}
-      />
-    </ThemeProvider>
+        },
+      }}
+    />
   );
 };
 

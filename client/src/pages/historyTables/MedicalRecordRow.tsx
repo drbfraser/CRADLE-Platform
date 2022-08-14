@@ -3,11 +3,11 @@ import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
 import { getPrettyDate } from 'src/shared/utils';
 import { MedicalRecord } from 'src/shared/types';
-import { useTheme } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { Typography, IconButton } from '@material-ui/core';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { Typography, IconButton } from '@mui/material';
 import { MEDICAL_RECORD_COLUMNS } from './constants';
-import DeleteForever from '@material-ui/icons/DeleteForever';
+import DeleteForever from '@mui/icons-material/DeleteForever';
 
 interface IProps {
   row: MedicalRecord;
@@ -50,7 +50,8 @@ export const MedicalRecordRow = ({
           onClick={() => {
             setDeletePopupOpen(true);
             setPopupRecord(row);
-          }}>
+          }}
+          size="large">
           <DeleteForever />
         </IconButton>
       </TableCell>

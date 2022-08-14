@@ -7,7 +7,7 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   FacilityField,
   facilityTemplate,
@@ -16,7 +16,7 @@ import {
 } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import React, { useState } from 'react';
-import { Select, TextField } from 'formik-material-ui';
+import { Select, TextField } from 'formik-mui';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IFacility } from 'src/shared/types';

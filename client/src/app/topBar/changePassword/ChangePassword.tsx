@@ -4,7 +4,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-} from '@material-ui/core';
+} from '@mui/material';
 import { Field, Form, Formik } from 'formik';
 import {
   IPasswordForm,
@@ -14,8 +14,8 @@ import {
 } from './state';
 import React, { useState } from 'react';
 
-import Alert from '@material-ui/lab/Alert';
-import { TextField } from 'formik-material-ui';
+import Alert from '@mui/material/Alert';
+import { TextField } from 'formik-mui';
 import { Toast } from 'src/shared/components/toast';
 import { changePasswordAsync } from 'src/shared/api';
 
