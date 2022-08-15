@@ -6,9 +6,6 @@ import {
 } from '.';
 import { fireEvent, render } from '@testing-library/react';
 
-import React from 'react';
-import { screen } from '@testing-library/react';
-
 describe('Rendering and testing all types of buttons', () => {
   describe('testing the rendering, and all the components of the Primary Button', () => {
     test('Render a primary button', () => {

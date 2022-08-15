@@ -1,16 +1,7 @@
-import { DimensionsContext, DimensionsContextProvider } from 'src/app/context';
-import { fireEvent, render } from '@testing-library/react';
-
 import { ContextProvider } from 'src/context';
-import { Paper } from '@mui/material';
+import { DimensionsContextProvider } from 'src/app/context';
 import { PatientsPage } from '.';
-import { PrimaryButton } from 'src/shared/components/Button';
-import React from 'react';
-import { TextField } from 'formik-mui';
-import { makeStyles } from '@material-ui/core/styles';
-import { screen } from '@testing-library/react';
-import { useHistory } from 'react-router-dom';
-import { useState } from 'react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 describe('Testing the rendering of the Page', () => {

@@ -17,7 +17,7 @@
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "moduleResolution": "node",
-    "types": ["node", "react", "react-dom"],
+    "types": ["node", "react", "react-dom", "jest"],
     "typeRoots": ["./src/modules", "./node_modules/@types"],
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
