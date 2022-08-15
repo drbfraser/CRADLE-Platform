@@ -1,15 +1,16 @@
-import React from 'react';
-import Box from '@material-ui/core/Box';
-import FormControl from '@material-ui/core/FormControl';
-import Grid from '@material-ui/core/Grid';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import Paper from '@material-ui/core/Paper';
-import { Field } from 'formik';
+import { CheckboxWithLabel, Select, TextField } from 'formik-mui';
 import { FormPageProps, ReadingField } from '../state';
-import { CheckboxWithLabel, Select, TextField } from 'formik-material-ui';
+
+import Box from '@mui/material/Box';
+import { Field } from 'formik';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import Grid from '@mui/material/Grid';
+import InputAdornment from '@mui/material/InputAdornment';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import React from 'react';
 
 const urineTestFields = {
   [ReadingField.leukocytes]: 'Leukocytes',

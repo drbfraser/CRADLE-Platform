@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Link,
-  makeStyles,
   Typography,
-} from '@material-ui/core';
-import { Toast } from '../toast';
+} from '@mui/material';
+import React, { useState } from 'react';
+
 import { CancelButton } from '../Button';
+import { Toast } from '../toast';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   open: boolean;
@@ -33,7 +34,8 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
             onClose();
             setDialogOpen(true);
           }}
-          className={styles.alertLink}>
+          className={styles.alertLink}
+          underline="hover">
           troubleshooting steps
         </Link>
         .

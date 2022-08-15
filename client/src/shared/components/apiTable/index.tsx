@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import makeStyles from '@mui/styles/makeStyles';
+import LinearProgress from '@mui/material/LinearProgress';
 import { SortDir } from './types';
 import Pagination from './Pagination';
 import SortBy from './SortBy';

@@ -1,15 +1,15 @@
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import moment from 'moment';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { IReferral } from './types';
-import DoneIcon from '@material-ui/icons/Done';
-import ScheduleIcon from '@material-ui/icons/Schedule';
+import DoneIcon from '@mui/icons-material/Done';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { COLUMNS, BREAKPOINT } from './constants';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 interface IProps {
   row: IReferral;

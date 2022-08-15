@@ -1,6 +1,10 @@
 import { MaterialUIContextProvider } from './materialUI';
 import React from 'react';
 
-export const ContextProvider: React.FC = ({ children }) => {
-  return <MaterialUIContextProvider>{children}</MaterialUIContextProvider>;
-};
+interface IProps {
+  children: React.ReactNode;
+}
+
+export const ContextProvider: React.FC<IProps> = ({ children }) => (
+  <MaterialUIContextProvider>{children}</MaterialUIContextProvider>
+);

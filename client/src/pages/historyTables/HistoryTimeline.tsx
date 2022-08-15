@@ -1,17 +1,18 @@
-import { Alert, Skeleton } from '@material-ui/lab';
-import { Box, Divider, Paper, Typography, makeStyles } from '@material-ui/core';
+import { Alert, Skeleton } from '@mui/material';
+import { Box, Divider, Paper, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { useEffect, useState } from 'react';
 
-import CircularProgress from '@material-ui/core/CircularProgress';
-import HistoryIcon from '@material-ui/icons/History';
-import Timeline from '@material-ui/lab/Timeline';
-import TimelineConnector from '@material-ui/lab/TimelineConnector';
-import TimelineContent from '@material-ui/lab/TimelineContent';
-import TimelineDot from '@material-ui/lab/TimelineDot';
-import TimelineItem from '@material-ui/lab/TimelineItem';
-import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
+import CircularProgress from '@mui/material/CircularProgress';
+import HistoryIcon from '@mui/icons-material/History';
+import Timeline from '@mui/lab/Timeline';
+import TimelineConnector from '@mui/lab/TimelineConnector';
+import TimelineContent from '@mui/lab/TimelineContent';
+import TimelineDot from '@mui/lab/TimelineDot';
+import TimelineItem from '@mui/lab/TimelineItem';
+import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import { TimelineRecord } from 'src/shared/types';
-import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
+import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import { getPatientTimelineAsync } from 'src/shared/api';
 import { getPrettyDate } from 'src/shared/utils';
 
@@ -72,7 +73,7 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
               try refreshing.
             </Alert>
           ) : !records ? (
-            <Skeleton variant="rect" height={200} />
+            <Skeleton variant="rectangular" height={200} />
           ) : records.length > 0 ? (
             records.map((record, index) => (
               <TimelineItem key={index}>

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Typography } from '@material-ui/core';
-import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
+import { Typography } from '@mui/material';
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 import { Referral } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
 interface IProps {

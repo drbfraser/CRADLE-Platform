@@ -1,4 +1,4 @@
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography } from '@mui/material';
 import {
   EndpointEnum,
   GestationalAgeUnitEnum,
@@ -17,21 +17,21 @@ import { deleteMedicalRecordAsync, deletePregnancyAsync } from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { APITable } from 'src/shared/components/apiTable';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 import { HistoryTimeline } from './HistoryTimeline';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 import { MedicalRecordRow } from './MedicalRecordRow';
 import { PregnancyRecordRow } from './PregnancyRecordRow';
 import { SortDir } from 'src/shared/components/apiTable/types';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@mui/material/TextField';
 import { Toast } from 'src/shared/components/toast';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@mui/material/Tooltip';
 import { debounce } from 'lodash';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
 import { goBackWithFallback } from 'src/shared/utils';
-import { makeStyles } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import makeStyles from '@mui/styles/makeStyles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouteMatch } from 'react-router-dom';
 
 type RouteParams = {
@@ -243,7 +243,8 @@ export function HistoryTablesPage() {
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}>
+            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}
+            size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>

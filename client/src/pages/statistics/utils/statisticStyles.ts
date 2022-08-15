@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 export const useStatisticsStyles = makeStyles((theme) => ({
   root: {
@@ -41,7 +41,7 @@ export const useStatisticsStyles = makeStyles((theme) => ({
     margin: 'auto',
   },
   statisticGroup: {
-    paddingBlockEnd: `${theme.spacing(2)}px`,
+    paddingBlockEnd: theme.spacing(2),
   },
   chart: {
     position: 'relative',

@@ -1,13 +1,15 @@
 import '../index.css';
 
 import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
-import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 
-import MobileStepper from '@material-ui/core/MobileStepper';
-import Paper from '@material-ui/core/Paper';
+import MobileStepper from '@mui/material/MobileStepper';
+import Paper from '@mui/material/Paper';
 import PropTypes from 'prop-types';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
+import { Theme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useDimensionsContext } from 'src/app/context/hooks';
 
 interface IProps {

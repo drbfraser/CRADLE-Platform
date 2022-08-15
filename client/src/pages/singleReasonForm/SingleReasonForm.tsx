@@ -7,13 +7,13 @@ import {
 } from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Box from '@material-ui/core/Box';
-import { TextField as FormikTextField } from 'formik-material-ui';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import Box from '@mui/material/Box';
+import { TextField as FormikTextField } from 'formik-mui';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { goBackWithFallback } from 'src/shared/utils';
-import { makeStyles } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   referralId: string;

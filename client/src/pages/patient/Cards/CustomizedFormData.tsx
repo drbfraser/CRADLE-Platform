@@ -1,8 +1,8 @@
-import AssignmentIcon from '@material-ui/icons/Assignment';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import { CustomizedForm } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';
 import React from 'react';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { getPrettyDate } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 

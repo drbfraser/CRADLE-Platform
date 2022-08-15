@@ -1,7 +1,7 @@
 import { AnswerTypeEnum, QuestionTypeEnum } from 'src/shared/enums';
 import { CForm, QAnswer, Question } from 'src/shared/types';
 import { Field, Form, Formik } from 'formik';
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import {
   getPrettyDate,
   getPrettyDateTime,
@@ -10,22 +10,22 @@ import {
 import { initialState, validationSchema } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Box from '@material-ui/core/Box';
-import Checkbox from '@material-ui/core/Checkbox';
-import Divider from '@material-ui/core/Divider';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormLabel from '@material-ui/core/FormLabel';
-import Grid from '@material-ui/core/Grid';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Paper from '@material-ui/core/Paper';
-import PollOutlinedIcon from '@material-ui/icons/PollOutlined';
+import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
+import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
+import Grid from '@mui/material/Grid';
+import InputAdornment from '@mui/material/InputAdornment';
+import Paper from '@mui/material/Paper';
+import PollOutlinedIcon from '@mui/icons-material/PollOutlined';
 import { PrimaryButton } from 'src/shared/components/Button';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
+import Radio from '@mui/material/Radio';
+import { RadioGroup } from '@mui/material';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import { handleSubmit } from './handlers';
-import { makeStyles } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   patientId: string;
@@ -304,7 +304,6 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
                   }
                   updateAnswersByValue(qid, arr);
                 }}>
-                {console.log(question)}
                 {question.mcOptions.map((McOption, index) => (
                   <FormControlLabel
                     key={index}
@@ -540,7 +539,11 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
     for (i = 0; i < qs.length; i++) {
       const question = qs[i];
       const answer = ans[i];
-      html_arr.push(generate_html_for_one_question(question, answer));
+      html_arr.push(
+        <Fragment key={question.id}>
+          {generate_html_for_one_question(question, answer)}
+        </Fragment>
+      );
     }
     return html_arr;
   }
@@ -559,17 +562,13 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
           isEditForm,
           fm
         )}>
-        {({ touched, errors, isSubmitting }) => (
+        {({ isSubmitting }) => (
           <Form>
             <Paper>
-              <Box p={2}>
-                <Box pt={1} pl={3} pr={3}>
-                  <Grid container spacing={3}>
-                    {/* /////////////////////////////////////////////////////////////////////////////////////   */}
-                    {generate_html_of_all_questions(questions, answers)}
-                    {/* ////////////////////////////////////////////////////////////////////////////////////   */}
-                  </Grid>
-                </Box>
+              <Box p={5}>
+                <Grid container spacing={3}>
+                  {generate_html_of_all_questions(questions, answers)}
+                </Grid>
               </Box>
             </Paper>
             <br />

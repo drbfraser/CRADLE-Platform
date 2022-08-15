@@ -1,15 +1,15 @@
 import { CForm, FormTemplate } from 'src/shared/types';
 import React, { useEffect, useState } from 'react'; //useRef
 
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { CustomizedForm } from './customizedEditForm/CustomizedForm';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import { getFormTemplatesAsync } from 'src/shared/api';
 import { goBackWithFallback } from 'src/shared/utils';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
 
 type RouteParams = {
@@ -41,7 +41,9 @@ export const CustomizedFormPage = () => {
     <div className={classes.container}>
       <div className={classes.title}>
         <Tooltip title="Go back" placement="top">
-          <IconButton onClick={() => goBackWithFallback('/patients')}>
+          <IconButton
+            onClick={() => goBackWithFallback('/patients')}
+            size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>

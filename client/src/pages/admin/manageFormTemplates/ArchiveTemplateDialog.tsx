@@ -4,14 +4,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  makeStyles,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { FormTemplate } from 'src/shared/types';
 import React from 'react';
 import { Toast } from 'src/shared/components/toast';
 import { archiveFormTemplateAsync } from 'src/shared/api';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   open: boolean;

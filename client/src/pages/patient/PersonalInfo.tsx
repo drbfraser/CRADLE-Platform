@@ -1,10 +1,10 @@
-import { Box, Divider, Paper, Typography } from '@material-ui/core';
+import { Box, Divider, Paper, Typography } from '@mui/material';
 
 import { Patient } from 'src/shared/types';
 import React from 'react';
-import RecentActorsIcon from '@material-ui/icons/RecentActors';
+import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { SecondaryButton } from 'src/shared/components/Button';
-import { Skeleton } from '@material-ui/lab';
+import { Skeleton } from '@mui/material';
 import { getAgeToDisplay } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';
 
@@ -19,14 +19,13 @@ export const PersonalInfo = ({ patient }: IProps) => {
 
   return (
     <Paper>
-      <Box p={3}>
+      <Box p={3} mb={2}>
         <Typography component="h3" variant="h5">
           <RecentActorsIcon fontSize="large" /> &nbsp; Personal Information
         </Typography>
         <Divider />
-        <br />
         {patient ? (
-          <div>
+          <Box mt={2}>
             <p>
               <b>ID: </b> {patient.patientId} &nbsp;&nbsp;&nbsp;&nbsp;
               <b>Sex: </b> {patient.patientSex}
@@ -55,9 +54,9 @@ export const PersonalInfo = ({ patient }: IProps) => {
             <SecondaryButton onClick={handleEditClick}>
               Edit Patient
             </SecondaryButton>
-          </div>
+          </Box>
         ) : (
-          <Skeleton variant="rect" height={200} />
+          <Skeleton variant="rectangular" height={200} />
         )}
       </Box>
     </Paper>

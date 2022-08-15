@@ -1,11 +1,12 @@
-import React from 'react';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import { makeStyles } from '@material-ui/core/styles';
 import { CancelButton, SecondaryButton } from 'src/shared/components/Button';
+
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import React from 'react';
+import TextField from '@mui/material/TextField';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   open: boolean;
@@ -66,6 +67,7 @@ export const RefreshDialog = ({
       <DialogContent>
         <p className={classes.inlineBlock}>Auto refresh every </p>
         <TextField
+          variant="standard"
           className={classes.alignCenter}
           id="min-input"
           defaultValue={timer_min}
@@ -74,6 +76,7 @@ export const RefreshDialog = ({
         />
         <p className={classes.inlineBlock}>minutes and </p>
         <TextField
+          variant="standard"
           className={classes.alignCenter}
           id="sec-input"
           defaultValue={timer_sec}

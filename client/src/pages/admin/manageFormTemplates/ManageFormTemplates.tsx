@@ -4,21 +4,21 @@ import {
   Switch,
   TableRow,
   Tooltip,
-} from '@material-ui/core';
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { getFormTemplateCsvAsync, getFormTemplatesAsync } from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
-import { CloudDownloadOutlined } from '@material-ui/icons';
+import { CloudDownloadOutlined } from '@mui/icons-material';
 import CreateTemplate from './CreateTemplate';
-import DeleteForever from '@material-ui/icons/DeleteForever';
+import DeleteForever from '@mui/icons-material/DeleteForever';
 import { FormTemplate } from 'src/shared/types';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
 import { getPrettyDate } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const ManageFormTemplates = () => {
   const styles = useAdminStyles();
@@ -170,7 +170,8 @@ export const ManageFormTemplates = () => {
                 <IconButton
                   onClick={() => {
                     action.onClick(formTemplate);
-                  }}>
+                  }}
+                  size="large">
                   <action.Icon />
                 </IconButton>
               </Tooltip>

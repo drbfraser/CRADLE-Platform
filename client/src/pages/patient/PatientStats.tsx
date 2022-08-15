@@ -1,16 +1,37 @@
 import { Bar, Line } from 'react-chartjs-2';
-import { Box, Divider, Paper, Typography, makeStyles } from '@material-ui/core';
+import {
+  BarElement,
+  CategoryScale,
+  Chart,
+  Legend,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+} from 'chart.js';
+import { Box, Divider, Paper, Typography } from '@mui/material';
 import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
 import React, { useEffect, useState } from 'react';
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
 import { statsUnitLabels, trafficLightColors } from 'src/shared/constants';
 
-import Alert from '@material-ui/lab/Alert';
-import FavoriteIcon from '@material-ui/icons/Favorite';
+import Alert from '@mui/material/Alert';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Menu } from 'semantic-ui-react';
 import { PatientStatistics } from 'src/shared/types';
-import { Skeleton } from '@material-ui/lab';
+import { Skeleton } from '@mui/material';
 import { getPatientStatisticsAsync } from 'src/shared/api';
+import makeStyles from '@mui/styles/makeStyles';
+
+Chart.register(
+  CategoryScale,
+  BarElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  PointElement
+);
 
 interface IProps {
   patientId: string;
@@ -59,12 +80,11 @@ export const PatientStats = ({ patientId }: IProps) => {
 
   return (
     <Paper>
-      <Box p={3}>
+      <Box p={3} mb={2}>
         <Typography variant="h5" component="h3">
           <FavoriteIcon fontSize="large" /> &nbsp; Patient Stats
         </Typography>
         <Divider />
-        <br />
         <Menu fluid widths={2}>
           <Menu.Item
             name={
@@ -87,7 +107,7 @@ export const PatientStats = ({ patientId }: IProps) => {
             Please try refreshing.
           </Alert>
         ) : patientStats ? (
-          <div className={styles.graph}>
+          <>
             {chartSelected === ChartOption.VITALS && (
               <>
                 <h4 className={styles.noMargin}>Average Vitals</h4>
@@ -98,10 +118,12 @@ export const PatientStats = ({ patientId }: IProps) => {
                   placeholder={statsUnitLabels[currentStatsUnit]}
                   onChange={handleCurrentStatsUnitChange}
                 />
-                <Line
-                  data={getVitalsData(patientStats, currentStatsUnit)}
-                  options={{ maintainAspectRatio: true }}
-                />
+                <div className={styles.graph}>
+                  <Line
+                    data={getVitalsData(patientStats, currentStatsUnit)}
+                    options={options}
+                  />
+                </div>
               </>
             )}
             {chartSelected === ChartOption.TRAFFIC_LIGHTS && (
@@ -109,13 +131,15 @@ export const PatientStats = ({ patientId }: IProps) => {
                 <h4 className={styles.noMargin}>
                   Traffic Lights From All Readings:
                 </h4>
-                <Bar
-                  data={getTrafficLightData(patientStats)}
-                  options={barChartOptions}
-                />
+                <div className={styles.graph}>
+                  <Bar
+                    data={getTrafficLightData(patientStats)}
+                    options={options}
+                  />
+                </div>
               </>
             )}
-          </div>
+          </>
         ) : (
           <Skeleton height={400} />
         )}
@@ -129,8 +153,7 @@ const useStyles = makeStyles({
     margin: 0,
   },
   graph: {
-    margin: 0,
-    maxHeight: 400,
+    height: '400px',
   },
 });
 
@@ -221,26 +244,10 @@ const getTrafficLightData = (stats: PatientStatistics) => ({
   ],
 });
 
-const barChartOptions = {
-  maintainAspectRatio: true,
+const options = {
+  maintainAspectRatio: false,
   legend: {
     display: false,
-  },
-  scales: {
-    xAxes: [
-      {
-        ticks: {
-          fontSize: 10,
-        },
-      },
-    ],
-    yAxes: [
-      {
-        ticks: {
-          beginAtZero: true,
-        },
-      },
-    ],
   },
 };
 

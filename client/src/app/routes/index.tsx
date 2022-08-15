@@ -9,7 +9,7 @@ interface IProps {
   topBarOffset?: number;
 }
 
-export const Routes: React.FC<IProps> = ({ topBarOffset }) => {
+export const AppRoutes: React.FC<IProps> = ({ topBarOffset }) => {
   const classes = useStyles({ topBarOffset });
 
   return (

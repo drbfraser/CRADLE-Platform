@@ -2,11 +2,11 @@ import { Callback, OrNull, OrUndefined } from 'src/shared/types';
 
 import { AppRoute } from '../../routes/utils';
 import { Link } from 'react-router-dom';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { useDimensionsContext } from 'src/app/context/hooks';
 import { useStyles } from '../../styles';
 

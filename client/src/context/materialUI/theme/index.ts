@@ -1,10 +1,17 @@
-import { createTheme } from '@material-ui/core/styles';
-import cyan from '@material-ui/core/colors/cyan';
-import indigo from '@material-ui/core/colors/indigo';
-import { overrides } from './overrides';
+import { cyan, indigo } from '@mui/material/colors';
+
+import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({
-  overrides,
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: `initial`,
+        },
+      },
+    },
+  },
   palette: {
     primary: {
       main: indigo[500],

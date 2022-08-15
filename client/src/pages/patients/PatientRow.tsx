@@ -6,7 +6,7 @@ import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { IPatient } from './types';
 import { COLUMNS, BREAKPOINT } from './constants';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { TrafficLightEnum } from 'src/shared/enums';
 
 interface IProps {

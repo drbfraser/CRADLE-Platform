@@ -5,13 +5,13 @@ import {
 } from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Divider from '@material-ui/core/Divider';
-import FormControl from '@material-ui/core/FormControl';
+import Divider from '@mui/material/Divider';
+import FormControl from '@mui/material/FormControl';
 import { IFacility } from 'src/shared/types';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticDashboard';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
 import { useStatisticsStyles } from './utils/statisticStyles';
 
@@ -52,8 +52,12 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
           Please select a facility from the list:
         </Typography>
 
-        <FormControl className={classes.formControl}>
-          <Select value={facility} onChange={handleChange} labelWidth={20}>
+        <FormControl variant="standard" className={classes.formControl}>
+          <Select
+            variant="standard"
+            value={facility}
+            onChange={handleChange}
+            autoWidth>
             {facilities.map((f, idx) => (
               <MenuItem value={f.healthFacilityName} key={idx}>
                 {`${f.healthFacilityName}`}

@@ -1,7 +1,7 @@
-import Alert from '@material-ui/lab/Alert';
+import Alert from '@mui/material/Alert';
 import React from 'react';
-import Snackbar from '@material-ui/core/Snackbar';
-import { makeStyles } from '@material-ui/core';
+import Snackbar from '@mui/material/Snackbar';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   severity: React.ComponentProps<typeof Alert>['severity'];

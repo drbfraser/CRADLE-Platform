@@ -15,29 +15,29 @@ import React, { useEffect, useState } from 'react';
 import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api';
 import moment, { Moment } from 'moment';
 
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import Box from '@material-ui/core/Box';
-import Checkbox from '@material-ui/core/Checkbox';
-import Chip from '@material-ui/core/Chip';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DoneIcon from '@material-ui/icons/Done';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
+import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
+import Chip from '@mui/material/Chip';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import DoneIcon from '@mui/icons-material/Done';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Grid from '@mui/material/Grid';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
 import { ReduxState } from 'src/redux/reducers';
-import ScheduleIcon from '@material-ui/icons/Schedule';
-import Select from '@material-ui/core/Select';
-import { TextField } from '@material-ui/core';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import Select from '@mui/material/Select';
+import { TextField } from '@mui/material';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useSelector } from 'react-redux';
 
 interface IProps {
@@ -108,8 +108,9 @@ export const FilterDialog = ({
   const [startDate, setStartDate] = useState<Moment | null>(null);
   const [endDate, setEndDate] = useState<Moment | null>(null);
   const [presetDateRange, setPresetDateRange] = useState();
-  const [focusedInput, setFocusedInput] =
-    useState<FocusedInputShape | null>(null);
+  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
+    null
+  );
 
   const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
   const [referrers, setReferrers] = useState<Referrer[]>([]);
@@ -338,6 +339,7 @@ export const FilterDialog = ({
                 Preset date ranges
               </InputLabel>
               <Select
+                variant="standard"
                 value={presetDateRange ? presetDateRange : ''}
                 onChange={handleChange}
                 label="Preset date ranges">

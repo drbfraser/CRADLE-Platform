@@ -1,7 +1,7 @@
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import { OrUndefined } from 'src/shared/types';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { useStyles } from './styles';
 
 interface IProps {

@@ -6,16 +6,16 @@ import {
 } from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Box from '@material-ui/core/Box';
-import { Divider } from '@material-ui/core';
+import Box from '@mui/material/Box';
+import { Divider } from '@mui/material';
 import { ExportStatistics } from './utils/ExportStatistics';
-import FormControl from '@material-ui/core/FormControl';
+import FormControl from '@mui/material/FormControl';
 import { IVHT } from 'src/shared/types';
-import MenuItem from '@material-ui/core/MenuItem';
+import MenuItem from '@mui/material/MenuItem';
 import { ReduxState } from 'src/redux/reducers';
-import Select from '@material-ui/core/Select';
+import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticDashboard';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { UserRoleEnum } from 'src/shared/enums';
 import { getVHTsAsync } from 'src/shared/api';
 import { useEffect } from 'react';
@@ -94,8 +94,8 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
             />
           )}
         </Box>
-        <FormControl className={classes.formControl}>
-          <Select value={vht} onChange={handleChange}>
+        <FormControl variant="standard" className={classes.formControl}>
+          <Select variant="standard" value={vht} onChange={handleChange}>
             {vhts.map((vht, idx) => (
               <MenuItem value={vht.userId} key={idx}>
                 {vht?.firstName ?? 'Unknown'} ({vht?.email ?? 'Unknown'})

@@ -1,9 +1,9 @@
 import React from 'react';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import SortIcon from '@material-ui/icons/Sort';
-import IconButton from '@material-ui/core/IconButton';
-import { makeStyles } from '@material-ui/core/styles';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import SortIcon from '@mui/icons-material/Sort';
+import IconButton from '@mui/material/IconButton';
+import makeStyles from '@mui/styles/makeStyles';
 import { SortDir } from './types';
 
 interface IProps {
@@ -29,7 +29,7 @@ export const HeaderRow = ({
         <th className={classes.cell} key={col}>
           {name}
           {sortableColumns[index] && (
-            <IconButton onClick={() => handleSort(col)}>
+            <IconButton onClick={() => handleSort(col)} size="large">
               {sortBy === col ? (
                 sortDir === SortDir.ASC ? (
                   <ArrowUpwardIcon />
