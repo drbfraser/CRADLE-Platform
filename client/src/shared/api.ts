@@ -342,7 +342,7 @@ export const saveFormResponseAsync = async (
   postBody: post_body,
   formId?: string
 ) => {
-  const url = API_URL + EndpointEnum.FORM + (formId ? formId : '');
+  const url = API_URL + EndpointEnum.FORM + (formId ? '/' + formId : '');
 
   const init = {
     method: formId ? 'PUT' : 'POST',
