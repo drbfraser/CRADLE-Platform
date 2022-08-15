@@ -41,7 +41,7 @@ export const ManageFormTemplates = () => {
 
   const columns = [
     {
-      name: 'Form Classification',
+      name: 'Name',
       options: {
         display: isTransformed ? true : false,
       },
