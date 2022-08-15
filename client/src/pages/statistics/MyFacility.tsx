@@ -1,7 +1,6 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 
 import Divider from '@mui/material/Divider';
-import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';

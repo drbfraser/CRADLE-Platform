@@ -1,16 +1,16 @@
-import React from 'react';
-import { TableCell } from 'src/shared/components/apiTable/TableCell';
-import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
-import { getPrettyDate } from 'src/shared/utils';
-import { Pregnancy } from 'src/shared/types';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { Typography, IconButton } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
+
 import CreateIcon from '@mui/icons-material/Create';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
-import { gestationalAgeUnitFormatters } from 'src/shared/constants';
 import { PREGNANCY_RECORD_COLUMNS } from './constants';
+import { Pregnancy } from 'src/shared/types';
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import { gestationalAgeUnitFormatters } from 'src/shared/constants';
+import { getPrettyDate } from 'src/shared/utils';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
+import { useTheme } from '@mui/material/styles';
 
 interface IProps {
   row: Pregnancy;

@@ -7,10 +7,10 @@ import {
   Link,
   Typography,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import React, { useState } from 'react';
 
 import { PrimaryButton } from 'src/shared/components/Button';
+import makeStyles from '@mui/styles/makeStyles';
+import { useState } from 'react';
 
 const SampleTemplateLink = () => {
   const styles = useStyles();

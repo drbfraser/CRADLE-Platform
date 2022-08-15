@@ -1,7 +1,6 @@
-import React from 'react';
-import { Typography } from '@mui/material';
 import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 import { Referral } from 'src/shared/types';
+import { Typography } from '@mui/material';
 import { getPrettyDate } from 'src/shared/utils';
 interface IProps {
   referral: Referral;

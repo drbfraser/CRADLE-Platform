@@ -4,7 +4,6 @@ import {
   SecondaryButton,
 } from 'src/shared/components/Button';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
-import React, { useState } from 'react';
 import {
   drugHistoryValidationSchema,
   medicalHistoryValidationSchema,
@@ -35,6 +34,7 @@ import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { useDimensionsContext } from 'src/app/context/hooks';
 import { useHistory } from 'react-router-dom';
+import { useState } from 'react';
 
 interface PatientFormProps {
   editId: string;

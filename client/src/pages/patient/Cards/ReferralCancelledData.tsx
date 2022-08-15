@@ -1,7 +1,6 @@
 import { Grid, Typography } from '@mui/material';
 
 import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
-import React from 'react';
 import { Referral } from 'src/shared/types';
 import { SecondaryButton } from 'src/shared/components/Button';
 import { getPrettyDate } from 'src/shared/utils';

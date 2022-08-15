@@ -63,7 +63,7 @@ describe('Rendering and testing all types of buttons', () => {
 
   describe('Testing the rendering of the redirect button', () => {
     test('Render a redirect button', () => {
-      render(<RedirectButton />);
+      render(<RedirectButton url="" />);
     });
   });
 });

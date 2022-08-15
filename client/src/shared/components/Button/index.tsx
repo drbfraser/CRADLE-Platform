@@ -7,7 +7,6 @@ import {
   createTheme,
 } from '@mui/material';
 
-import React from 'react';
 import { red } from '@mui/material/colors';
 import { useHistory } from 'react-router-dom';
 

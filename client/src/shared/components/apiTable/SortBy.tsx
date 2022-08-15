@@ -1,13 +1,13 @@
-import React from 'react';
-import makeStyles from '@mui/styles/makeStyles';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import IconButton from '@mui/material/IconButton';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { SortDir } from './types';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface SortByProps {
   columns: { [key: string]: string };
@@ -26,7 +26,10 @@ const SortBy = ({
 }: SortByProps) => {
   const classes = useStyles();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: SelectChangeEvent<string>,
+    child: React.ReactNode
+  ) => {
     handleSort(e.target.value);
   };
 

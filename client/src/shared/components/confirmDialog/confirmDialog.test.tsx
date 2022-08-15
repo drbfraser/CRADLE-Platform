@@ -60,11 +60,12 @@ describe('Testing the rendering and the components of confirmDialog', () => {
       <ConfirmDialog
         open={true}
         title={'Test'}
-        content={'Content'}
+        content={'Warning'}
         onClose={onClose}
         onConfirm={onConfirm}
       />
     );
     const warningAlert = getByTestId('warningAlert');
+    expect(warningAlert.textContent).toBe('Warning');
   });
 });

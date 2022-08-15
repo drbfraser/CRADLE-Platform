@@ -5,12 +5,12 @@ import Box from '@mui/material/Box';
 import { Field } from 'formik';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
+import { Fragment } from 'react';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
-import React from 'react';
 
 const urineTestFields = {
   [ReadingField.leukocytes]: 'Leukocytes',
@@ -94,15 +94,16 @@ export const VitalSigns = ({ formikProps }: FormPageProps) => {
             </h2>
             <Box pl={4} pr={4}>
               {Object.entries(urineTestFields).map(
-                ([name, label]: [ReadingField, string]) => {
+                ([name, label]: [string, string]) => {
                   const disabled = !formikProps.values[ReadingField.urineTest];
                   const required = !disabled;
-                  const errorMsg = formikProps.errors[name];
+                  const errorMsg = formikProps.errors[name as ReadingField];
                   const hasError =
-                    formikProps.touched[name] && Boolean(errorMsg);
+                    formikProps.touched[name as ReadingField] &&
+                    Boolean(errorMsg);
 
                   return (
-                    <React.Fragment key={name}>
+                    <Fragment key={name}>
                       <FormControl
                         fullWidth
                         variant="outlined"
@@ -127,7 +128,7 @@ export const VitalSigns = ({ formikProps }: FormPageProps) => {
                       </FormControl>
                       <br />
                       <br />
-                    </React.Fragment>
+                    </Fragment>
                   );
                 }
               )}

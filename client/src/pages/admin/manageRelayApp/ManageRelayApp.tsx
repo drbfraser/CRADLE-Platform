@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Input, Paper, Typography } from '@mui/material';
+import { Box, Button, Divider, Input, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import {
   getAppFileAsync,
@@ -44,7 +44,7 @@ export const ManageRelayApp = () => {
         setNumFileUploaded(numFileUploaded + 1);
         setIsUploadOk(true);
         setTimeout(() => setIsUploadOk(false), 3000);
-      } catch (e) {
+      } catch (e: any) {
         setUploadError(errorMessages[e]);
         setTimeout(() => setUploadError(''), 3000);
       }
@@ -87,7 +87,7 @@ export const ManageRelayApp = () => {
   }, [numFileUploaded]);
 
   return (
-    <Paper>
+    <div>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -138,7 +138,7 @@ export const ManageRelayApp = () => {
           isUploadOk && <Alert severity="success">Upload successful</Alert>
         )}
       </Box>
-    </Paper>
+    </div>
   );
 };
 

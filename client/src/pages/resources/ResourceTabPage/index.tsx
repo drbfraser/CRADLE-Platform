@@ -5,12 +5,12 @@ import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import MobileStepper from '@mui/material/MobileStepper';
 import Paper from '@mui/material/Paper';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { Theme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import createStyles from '@mui/styles/createStyles';
 import makeStyles from '@mui/styles/makeStyles';
 import { useDimensionsContext } from 'src/app/context/hooks';
+import { useState } from 'react';
 
 interface IProps {
   posterImgSrc: any[];
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 function ResourceTabPage(props: IProps): JSX.Element {
   const classes = useStyles();
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStep, setActiveStep] = useState(0);
   const maxSteps = props.posterImgSrc.length;
   const { isBigScreen } = useDimensionsContext();
 

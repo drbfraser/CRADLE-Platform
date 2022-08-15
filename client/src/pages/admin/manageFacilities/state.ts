@@ -7,6 +7,7 @@ export enum FacilityField {
   phoneNumber = 'healthFacilityPhoneNumber',
   location = 'location',
   newReferrals = 'newReferrals',
+  index = 'index',
 }
 
 export const getValidationSchema = (existingNames: string[]) => {
@@ -37,6 +38,7 @@ export const facilityTemplate = {
   [FacilityField.phoneNumber]: '',
   [FacilityField.location]: '',
   [FacilityField.newReferrals]: 0,
+  [FacilityField.index]: 0,
 };
 
 export const facilityTypes = ['HCF_2', 'HCF_3', 'HCF_4', 'HOSPITAL'];

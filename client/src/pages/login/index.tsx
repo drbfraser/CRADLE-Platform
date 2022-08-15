@@ -1,5 +1,4 @@
 import { LoginForm } from './form';
-import React from 'react';
 import { Redirect } from 'react-router-dom';
 import image from './img/splash_screen_4.png';
 import { useDimensionsContext } from 'src/app/context/hooks';

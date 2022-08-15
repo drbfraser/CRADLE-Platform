@@ -1,4 +1,4 @@
-import React from 'react';
+import { createContext } from 'react';
 
 export interface IDimensionsContext {
   drawerWidth: number;
@@ -6,9 +6,7 @@ export interface IDimensionsContext {
   isBigScreen: boolean;
 }
 
-export const DimensionsContext = React.createContext<
-  Partial<IDimensionsContext>
->({});
+export const DimensionsContext = createContext<Partial<IDimensionsContext>>({});
 interface IProps extends IDimensionsContext {
   children: React.ReactNode;
 }

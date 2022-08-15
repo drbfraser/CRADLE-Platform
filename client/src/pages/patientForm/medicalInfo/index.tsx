@@ -4,7 +4,6 @@ import { PatientField, PatientState } from '../state';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import React from 'react';
 import { TextField } from 'formik-mui';
 
 interface IProps {

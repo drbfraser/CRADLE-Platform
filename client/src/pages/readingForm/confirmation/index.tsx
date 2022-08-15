@@ -1,11 +1,11 @@
-import { TextField } from '@mui/material';
+import { FormPageProps, ReadingField } from '../state';
+
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import makeStyles from '@mui/styles/makeStyles';
-import React from 'react';
-import { FormPageProps, ReadingField } from '../state';
+import { TextField } from '@mui/material';
 import { getSymptomsFromFormState } from '../symptoms/symptoms';
+import makeStyles from '@mui/styles/makeStyles';
 
 export const Confirmation = ({ formikProps }: FormPageProps) => {
   const classes = useStyles();

@@ -7,7 +7,6 @@ import {
   validationSchema,
 } from './state';
 import { Field, Form, Formik } from 'formik';
-import React, { useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
@@ -18,6 +17,7 @@ import TextField from '@mui/material/TextField';
 import { getFormTemplateLangsAsync } from 'src/shared/api';
 import { handleSubmit } from './handlers';
 import makeStyles from '@mui/styles/makeStyles';
+import { useState } from 'react';
 
 interface IProps {
   setForm: (form: CForm) => void;

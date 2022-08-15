@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { CForm } from 'src/shared/types';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';

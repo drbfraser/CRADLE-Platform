@@ -4,7 +4,6 @@ import { Add } from '@mui/icons-material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Patient } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';
-import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import { goBackWithFallback } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';

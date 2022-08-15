@@ -1,11 +1,9 @@
-import { Callback, OrNull, OrUndefined } from 'src/shared/types';
-
 import { AppRoute } from '../../routes/utils';
 import { Link } from 'react-router-dom';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import React from 'react';
+import { OrNull } from 'src/shared/types';
 import Typography from '@mui/material/Typography';
 import { useDimensionsContext } from 'src/app/context/hooks';
 import { useStyles } from '../../styles';
@@ -13,7 +11,7 @@ import { useStyles } from '../../styles';
 interface IProps {
   activeItem: OrNull<string>;
   route: AppRoute;
-  updateActiveItem: Callback<OrUndefined<OrNull<string>>, () => void>;
+  updateActiveItem: (item?: string) => () => void;
   appendedRoute?: React.ReactNode;
   isSidebarOpen: boolean;
 }

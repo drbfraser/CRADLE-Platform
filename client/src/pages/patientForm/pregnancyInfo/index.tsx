@@ -13,7 +13,6 @@ import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
-import React from 'react';
 import { handleChangeCustom } from '../handlers';
 import makeStyles from '@mui/styles/makeStyles';
 

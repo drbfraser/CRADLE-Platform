@@ -9,7 +9,6 @@ import { PatientFormPage } from 'src/pages/patientForm';
 import { PatientPage } from 'src/pages/patient';
 import { PatientsPage } from 'src/pages/patients';
 import PollIcon from '@mui/icons-material/Poll';
-import React from 'react';
 import { ReadingFormPage } from 'src/pages/readingForm';
 import { ReferralFormPage } from 'src/pages/referralForm';
 import { ReferralsPage } from 'src/pages/referrals';

@@ -22,7 +22,7 @@ export const ReferralsPage = () => {
   const classes = useStyles();
   const [search, setSearch] = useState('');
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
-  const [filter, setFilter] = useState<ReferralFilter>();
+  const [filter, setFilter] = useState<ReferralFilter | undefined>(undefined);
   const [isPromptShown, setIsPromptShown] = useState<boolean>(true);
   const [refresh, setRefresh] = useState(false);
   const [refreshTimer, setRefreshTimer] = useState<number>(60);

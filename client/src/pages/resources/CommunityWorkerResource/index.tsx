@@ -1,6 +1,5 @@
 import '../index.css';
 
-import React from 'react';
 import ResourceTabPage from '../ResourceTabPage';
 
 // const COMMUNITY_WORKER_POSTER = 'images/education/community-poster.jpg';

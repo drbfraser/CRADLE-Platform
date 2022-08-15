@@ -6,11 +6,11 @@ import {
   Link,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
 
 import { CancelButton } from '../Button';
 import { Toast } from '../toast';
 import makeStyles from '@mui/styles/makeStyles';
+import { useState } from 'react';
 
 interface IProps {
   open: boolean;

@@ -1,13 +1,13 @@
-import moment from 'moment';
-import React from 'react';
-import { useHistory } from 'react-router-dom';
-import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
+import { BREAKPOINT, COLUMNS } from './constants';
+
+import { IPatient } from './types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { TrafficLight } from 'src/shared/components/trafficLight';
-import { IPatient } from './types';
-import { COLUMNS, BREAKPOINT } from './constants';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import { TrafficLightEnum } from 'src/shared/enums';
+import moment from 'moment';
+import { useHistory } from 'react-router-dom';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
 
 interface IProps {
   row: IPatient;

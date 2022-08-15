@@ -1,7 +1,6 @@
 import { AssessmentField, AssessmentState } from './state';
 import { CheckboxWithLabel, TextField } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
-import React, { useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Alert from '@mui/material/Alert';
@@ -13,6 +12,7 @@ import { Typography } from '@mui/material';
 import { assessmentFormValidationSchema } from './validation';
 import { handleSubmit } from './handlers';
 import makeStyles from '@mui/styles/makeStyles';
+import { useState } from 'react';
 
 interface IProps {
   initialState: AssessmentState;

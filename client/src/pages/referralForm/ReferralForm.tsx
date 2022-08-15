@@ -1,6 +1,5 @@
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
-import React, { useState } from 'react';
 import {
   ReferralField,
   ReferralState,
@@ -19,6 +18,7 @@ import { goBackWithFallback } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 import { saveReferralAsync } from 'src/shared/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
+import { useState } from 'react';
 
 interface IProps {
   patientId: string;

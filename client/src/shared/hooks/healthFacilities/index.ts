@@ -1,9 +1,9 @@
 import { HealthFacility, OrNull } from 'src/shared/types';
 
-import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAppDispatch } from 'src/app/context/hooks';
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 export const useHealthFacilities = () => {
@@ -14,7 +14,7 @@ export const useHealthFacilities = () => {
 
   const dispatch = useAppDispatch();
 
-  React.useEffect((): void => {
+  useEffect((): void => {
     if (!healthFacilities) {
       dispatch(getHealthFacilityList());
     }

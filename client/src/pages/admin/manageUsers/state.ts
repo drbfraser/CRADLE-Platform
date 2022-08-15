@@ -1,5 +1,8 @@
 import * as Yup from 'yup';
 
+import { IUser } from 'src/shared/types';
+import { UserRoleEnum } from 'src/shared/enums';
+
 export enum UserField {
   firstName = 'firstName',
   email = 'email',
@@ -8,6 +11,7 @@ export enum UserField {
   supervises = 'supervises',
   password = 'password',
   confirmPassword = 'confirmPassword',
+  id = 'userId',
 }
 
 export const fieldLabels = {
@@ -67,14 +71,13 @@ export const passwordValidationSchema = Yup.object().shape(
   passwordValidationShape
 );
 
-export const newUserTemplate = {
+export const newUserTemplate: IUser = {
   [UserField.firstName]: '',
   [UserField.email]: '',
-  [UserField.healthFacilityName]: null,
-  [UserField.role]: '',
+  [UserField.healthFacilityName]: '',
+  [UserField.role]: UserRoleEnum.VHT,
   [UserField.supervises]: [] as number[],
-  [UserField.password]: '',
-  [UserField.confirmPassword]: '',
+  [UserField.id]: 0,
 };
 
 export const resetPasswordTemplate = {

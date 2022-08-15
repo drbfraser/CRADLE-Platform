@@ -7,7 +7,6 @@ import {
 
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import React from 'react';
 import { Reading } from 'src/shared/types';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { getPrettyDate } from 'src/shared/utils';

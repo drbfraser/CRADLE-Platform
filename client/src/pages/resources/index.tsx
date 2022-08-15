@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
-
 import { CommunityWorkerResources } from './CommunityWorkerResource';
+import { Component } from 'react';
 import { HealthWorkerResources } from './HealthWorkerResources';
 import { ReduxState } from 'src/redux/reducers';
 import { Tab } from 'semantic-ui-react';

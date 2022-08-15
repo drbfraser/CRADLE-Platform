@@ -1,5 +1,4 @@
 import { Field, Form, Formik } from 'formik';
-import React, { useState } from 'react';
 import { SingleReason, SingleReasonField, initialState } from './state';
 import {
   setReferralCancelStatusAsync,
@@ -14,6 +13,7 @@ import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { goBackWithFallback } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
+import { useState } from 'react';
 
 interface IProps {
   referralId: string;

@@ -8,10 +8,10 @@ import {
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { FormTemplate } from 'src/shared/types';
-import React from 'react';
 import { Toast } from 'src/shared/components/toast';
 import { archiveFormTemplateAsync } from 'src/shared/api';
 import makeStyles from '@mui/styles/makeStyles';
+import { useState } from 'react';
 
 interface IProps {
   open: boolean;
@@ -21,8 +21,8 @@ interface IProps {
 
 const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
   const classes = useStyles();
-  const [submitError, setSubmitError] = React.useState(false);
-  const [submitSuccess, setSubmitSuccess] = React.useState(false);
+  const [submitError, setSubmitError] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const archiveForm = async () => {
     if (!template?.id) {

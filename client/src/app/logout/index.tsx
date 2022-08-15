@@ -4,7 +4,6 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import React from 'react';
 import Typography from '@mui/material/Typography';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { useStyles } from '../styles';

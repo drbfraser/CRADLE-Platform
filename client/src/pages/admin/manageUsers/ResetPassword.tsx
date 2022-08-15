@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from '@mui/material';
 import { Field, Form, Formik } from 'formik';
-import React, { useState } from 'react';
 import {
   UserField,
   fieldLabels,
@@ -19,6 +18,7 @@ import { IUser } from 'src/shared/types';
 import { TextField } from 'formik-mui';
 import { Toast } from 'src/shared/components/toast';
 import { resetUserPasswordAsync } from 'src/shared/api';
+import { useState } from 'react';
 
 interface IProps {
   open: boolean;

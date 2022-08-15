@@ -12,12 +12,12 @@ import {
   initialValues,
   validationSchema,
 } from './state';
-import React, { useState } from 'react';
 
 import Alert from '@mui/material/Alert';
 import { TextField } from 'formik-mui';
 import { Toast } from 'src/shared/components/toast';
 import { changePasswordAsync } from 'src/shared/api';
+import { useState } from 'react';
 
 interface IProps {
   open: boolean;
