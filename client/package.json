@@ -54,6 +54,8 @@
     "@mui/material": "^5.10.0",
     "@mui/styles": "^5.9.3",
     "@reduxjs/toolkit": "^1.8.4",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/user-event": "^14.4.3",
     "axios": "^0.27.2",
     "chart.js": "^3.9.1",
     "connected-react-router": "6.9.3",
@@ -86,6 +88,12 @@
   },
   "resolutions": {
     "moment": "2.24.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": [
     ">0.2%",

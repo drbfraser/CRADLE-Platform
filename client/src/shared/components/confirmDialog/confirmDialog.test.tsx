@@ -1,7 +1,7 @@
+import { ConfirmDialog } from '.';
 import React from 'react';
 import { render } from '@testing-library/react';
 import { screen } from '@testing-library/react';
-import { ConfirmDialog } from '.';
 
 describe('Testing the rendering and the components of confirmDialog', () => {
   test('Render the dialog', () => {
