@@ -1,181 +1,167 @@
 import { Answer, CForm, QAnswer, Question } from 'src/shared/types';
 
+import { QuestionTypeEnum } from 'src/shared/enums';
 import { goBackWithFallback } from 'src/shared/utils';
 import { saveFormResponseAsync } from 'src/shared/api';
 
-export type API_Answer = {
+export type ApiAnswer = {
   qidx: number;
   answer: Answer;
 };
 
-export type post_body = {
-  creat: CForm | undefined;
-  edit: API_Answer_For_Edit[] | undefined;
+export type PostBody = {
+  create: CForm | undefined;
+  edit: ApiAnswerForEdit[] | undefined;
 };
 
-export type API_Answer_For_Edit = {
+export type ApiAnswerForEdit = {
   id: string;
   answers: Answer;
 };
 
+const VALID_QUESTION_TYPES = Object.values(QuestionTypeEnum).map((value) =>
+  value.valueOf()
+);
+
 export const TransferQAnswerToAPIStandard = (
-  qans: QAnswer[],
+  answers: QAnswer[],
   questions: Question[]
 ) => {
-  if (!(qans && qans.length > 0)) {
+  if (!answers || answers.length <= 0) {
     return [];
   }
-  const qanswers = [...qans];
-  const anss: API_Answer[] = [];
-  let i; //answer -> Answer type
-  for (i = 0; i < qanswers.length; i++) {
-    const q_answer = qanswers[i];
-    const q_idx: number = q_answer.qidx;
-    //We do NOT collect answers to those 'hidden' questions!!!!!!!!!!
-    if (
-      questions[q_idx].questionType === 'CATEGORY' ||
-      questions[q_idx].shouldHidden === true
-    ) {
-      anss.push({
-        qidx: q_idx,
-        answer: { mcidArray: [], text: undefined, number: undefined },
-      });
-    } else if (
-      q_answer.qtype === 'MULTIPLE_CHOICE' ||
-      q_answer.qtype === 'MULTIPLE_SELECT'
-    ) {
-      const mcid_arr: any = [];
-      q_answer.val!.forEach((item: any) => {
-        //val IS THE 'CONTENT'(STRING) OF THE OPTION!
 
-        const q_opts = questions[q_idx].mcOptions?.map((option) => option.opt);
-        //!!!!!!!![IMPORTANT!!] WE USE INDEX TO FETCH m_option_id!!!!!!
-        const q_opts_id: number = q_opts!.indexOf(item);
-        mcid_arr.push(q_opts_id);
-      });
-      anss.push({ qidx: q_idx, answer: { mcidArray: [...mcid_arr!] } });
-    } else if (q_answer.qtype === 'STRING') {
-      anss.push({ qidx: q_idx, answer: { text: q_answer.val } });
-    } else if (
-      q_answer.qtype === 'INTEGER' ||
-      q_answer.qtype === 'DATE' ||
-      q_answer.qtype === 'DATETIME'
-    ) {
-      anss.push({ qidx: q_idx, answer: { number: q_answer.val } });
-    } else {
-      console.log('invalid type !');
-    }
-  }
-  return anss;
+  return answers
+    .filter((answer) =>
+      VALID_QUESTION_TYPES.includes(questions[answer.qidx].questionType)
+    )
+    .map((answer) => {
+      const question = questions[answer.qidx];
+      const options = question.mcOptions?.map((option) => option.opt);
+
+      const apiAnswer = {
+        qidx: answer.qidx,
+        answer: { mcidArray: [], text: undefined, number: undefined },
+      };
+
+      switch (question.questionType) {
+        case QuestionTypeEnum.CATEGORY:
+          break;
+
+        case QuestionTypeEnum.MULTIPLE_CHOICE:
+        case QuestionTypeEnum.MULTIPLE_SELECT:
+          apiAnswer.answer.mcidArray = answer.val.map((item: any) =>
+            options.indexOf(item)
+          );
+
+          break;
+        case QuestionTypeEnum.STRING:
+          apiAnswer.answer.text = answer.val;
+          break;
+
+        case QuestionTypeEnum.INTEGER:
+        case QuestionTypeEnum.DATE:
+        case QuestionTypeEnum.DATETIME:
+          apiAnswer.answer.number = answer.val;
+          break;
+
+        default:
+          console.error(`Unknown question type: ${question.questionType}`);
+      }
+
+      return apiAnswer;
+    });
 };
 
 export const TransferQAnswerToPostBody = (
-  api_anss: API_Answer[],
+  answers: ApiAnswer[],
   form: CForm,
   patientId: string,
   isEditForm: boolean
 ) => {
-  const postBody: post_body = { creat: undefined, edit: undefined };
+  const questions: Question[] = form.questions;
+  const postBody: PostBody = { create: undefined, edit: undefined };
 
-  if (isEditForm === false) {
+  if (isEditForm) {
+    //edit a form content
+    postBody.edit = answers.map((answer: ApiAnswer) => ({
+      id: questions[answer.qidx].id,
+      answers: answer.answer,
+    }));
+  } else {
     //create(/fill in) a new form
     //deep copy
-    const new_form: CForm = Object.assign(form);
-    console.log(form);
-    console.log(new_form);
-    //remove any field not needed in the post request
-    new_form.version = undefined;
-    new_form.id = undefined;
-    new_form.patientId = patientId;
+    const newForm: CForm = Object.assign(form);
 
-    const qs = Object.assign(form.questions);
-    api_anss.forEach((ans_with_qidx: API_Answer) => {
-      qs[ans_with_qidx.qidx].answers = ans_with_qidx.answer;
+    //remove any field not needed in the post request
+    newForm.version = undefined;
+    newForm.id = undefined;
+    newForm.patientId = patientId;
+
+    newForm.questions = answers.map((apiAnswer: ApiAnswer) => {
+      const question = questions[apiAnswer.qidx];
+
+      question.answers = apiAnswer.answer;
 
       //isBlank
-      if (
-        (qs[ans_with_qidx.qidx].questionType === 'MULTIPLE_CHOICE' ||
-          qs[ans_with_qidx.qidx].questionType === 'MULTIPLE_SELECT') &&
-        ans_with_qidx.answer.mcidArray!.length > 0
-      ) {
-        qs[ans_with_qidx.qidx].isBlank = false;
-      } else {
-        if (
-          ans_with_qidx.answer !== null &&
-          ans_with_qidx.answer !== undefined
-        ) {
-          qs[ans_with_qidx.qidx].isBlank = false;
-        } else {
-          qs[ans_with_qidx.qidx].isBlank = true;
-        }
+      switch (question.questionType) {
+        case QuestionTypeEnum.CATEGORY:
+          break;
+
+        case QuestionTypeEnum.MULTIPLE_CHOICE:
+        case QuestionTypeEnum.MULTIPLE_SELECT:
+          question.isBlank = apiAnswer.answer.mcidArray!.length === 0;
+
+          break;
+        case QuestionTypeEnum.STRING:
+        case QuestionTypeEnum.INTEGER:
+        case QuestionTypeEnum.DATE:
+          question.isBlank = !apiAnswer.answer;
+          break;
+
+        default:
+          console.error(`Unknown question type: ${question.questionType}`);
       }
 
       //change to numMax and numMin to float type
-      if (qs[ans_with_qidx.qidx].questionType === 'INTEGER') {
-        if (
-          !(
-            qs[ans_with_qidx.qidx].numMin === null ||
-            qs[ans_with_qidx.qidx].numMin === undefined
-          )
-        ) {
-          qs[ans_with_qidx.qidx].numMin = Number(
-            parseFloat(qs[ans_with_qidx.qidx].numMin).toFixed(2)
-          );
+      if (question.questionType === 'INTEGER') {
+        if (question.numMin) {
+          question.numMin = Number(parseFloat(question.numMin + '').toFixed(2));
         }
 
-        if (
-          !(
-            qs[ans_with_qidx.qidx].numMax === null ||
-            qs[ans_with_qidx.qidx].numMax === undefined
-          )
-        ) {
-          qs[ans_with_qidx.qidx].numMax = Number(
-            parseFloat(qs[ans_with_qidx.qidx].numMax).toFixed(2)
+        if (question.numMax) {
+          questions[apiAnswer.qidx].numMax = Number(
+            parseFloat(question.numMax + '').toFixed(2)
           );
         }
       }
 
-      qs[ans_with_qidx.qidx].shouldHidden = undefined;
-      qs[ans_with_qidx.qidx].id = undefined;
-      qs[ans_with_qidx.qidx].questionId = undefined;
+      question.shouldHidden = undefined;
+
+      return question;
     });
 
-    new_form.questions = qs;
-    postBody.creat = new_form;
-    return postBody;
-  } else {
-    //edit a form content
-    const questions: Question[] = form.questions;
-    const post_body_edit: API_Answer_For_Edit[] = [];
-    api_anss.forEach((ans_with_qidx: API_Answer) => {
-      const qid = questions[ans_with_qidx.qidx].id;
-      const api_ans_for_edit: API_Answer_For_Edit = {
-        id: qid,
-        answers: ans_with_qidx.answer,
-      };
-      post_body_edit.push(api_ans_for_edit);
-    });
-    postBody.edit = post_body_edit;
-    return postBody;
+    postBody.create = newForm;
   }
+  return postBody;
 };
 
-export const passValidation = (questions: Question[], answers: QAnswer[]) => {
+export const passValidation = (questions: Question[], answers: QAnswer[]) =>
   //check multi-selection while when clicking the submit button
-  let i;
-  for (i = 0; i < answers.length; i++) {
-    const ans = answers[i];
-    if (ans.qtype === 'MULTIPLE_SELECT') {
-      const qidx = ans.qidx;
+  !answers
+    .filter(
+      (answer) =>
+        answer.qtype === QuestionTypeEnum.MULTIPLE_CHOICE ||
+        answer.qtype === QuestionTypeEnum.MULTIPLE_SELECT
+    )
+    .some((answer) => {
+      const qidx = answer.qidx;
       const required = questions[qidx].required;
       const shouldHidden = questions[qidx].shouldHidden;
-      if (required && !shouldHidden && (!ans.val || !ans.val!.length)) {
-        return false;
-      }
-    }
-  }
-  return true;
-};
+      return (
+        required && !shouldHidden && (!answer.val || answer.val!.length > 0)
+      );
+    });
 
 export const handleSubmit = (
   patientId: string,
@@ -190,30 +176,28 @@ export const handleSubmit = (
 ) => {
   return async (values: [], { setSubmitting }: any) => {
     const questions = form.questions;
+
     if (!passValidation(questions, answers)) {
       setMultiSelectValidationFailed(true);
       return;
-    } else {
-      const anss: API_Answer[] = TransferQAnswerToAPIStandard(
-        answers,
-        questions
-      );
-      const postBody: post_body = TransferQAnswerToPostBody(
-        anss,
-        form,
-        patientId,
-        isEditForm
-      );
+    }
 
-      //Create Form(first time fill in the content into the form)
-      try {
-        await saveFormResponseAsync(postBody, form ? form.id : undefined);
-        goBackWithFallback('/patients');
-      } catch (e) {
-        console.error(e);
-        setSubmitError(true);
-        setSubmitting(false);
-      }
+    const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(answers, questions);
+    const postBody: PostBody = TransferQAnswerToPostBody(
+      anss,
+      form,
+      patientId,
+      isEditForm
+    );
+
+    //Create Form(first time fill in the content into the form)
+    try {
+      await saveFormResponseAsync(postBody, form ? form.id : undefined);
+      goBackWithFallback('/patients');
+    } catch (e) {
+      console.error(e);
+      setSubmitError(true);
+      setSubmitting(false);
     }
   };
 };

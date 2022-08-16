@@ -1,16 +1,14 @@
-import { CForm, FormTemplate } from 'src/shared/types';
-import { useEffect, useState } from 'react'; //useRef
-
+import { CForm } from 'src/shared/types';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { CustomizedForm } from './customizedEditForm/CustomizedForm';
 import IconButton from '@mui/material/IconButton';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { getFormTemplatesAsync } from 'src/shared/api';
 import { goBackWithFallback } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
+import { useState } from 'react'; //useRef
 
 type RouteParams = {
   patientId: string;
@@ -19,23 +17,7 @@ type RouteParams = {
 export const CustomizedFormPage = () => {
   const classes = useStyles();
   const { patientId } = useRouteMatch<RouteParams>().params;
-  const [form, _setForm] = useState<CForm>();
-  const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
-
-  const setForm = (form: CForm) => {
-    _setForm(form);
-  };
-
-  const updateFormTemplates = async () =>
-    setFormTemplates(await getFormTemplatesAsync(false));
-
-  useEffect(() => {
-    try {
-      updateFormTemplates();
-    } catch (e) {
-      console.log(e);
-    }
-  }, []);
+  const [form, setForm] = useState<CForm>();
 
   return (
     <div className={classes.container}>
@@ -50,8 +32,7 @@ export const CustomizedFormPage = () => {
         <Typography variant="h4">New Form for {patientId}</Typography>
       </div>
 
-      <br />
-      <SelectHeaderForm setForm={setForm} templates={formTemplates} />
+      <SelectHeaderForm setForm={setForm} />
       {form && form.questions && form!.questions!.length > 0 && (
         <CustomizedForm patientId={patientId} fm={form} isEditForm={false} />
       )}

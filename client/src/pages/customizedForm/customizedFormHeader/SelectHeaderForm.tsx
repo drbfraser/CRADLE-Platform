@@ -7,38 +7,50 @@ import {
   validationSchema,
 } from './state';
 import { Field, Form, Formik } from 'formik';
+import {
+  getFormTemplateLangAsync,
+  getFormTemplateLangsAsync,
+  getFormTemplatesAsync,
+} from 'src/shared/api';
+import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
+import { Skeleton } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import { getFormTemplateLangsAsync } from 'src/shared/api';
-import { handleSubmit } from './handlers';
 import makeStyles from '@mui/styles/makeStyles';
-import { useState } from 'react';
 
 interface IProps {
   setForm: (form: CForm) => void;
-  templates: FormTemplate[];
 }
 
-export const SelectHeaderForm = ({
-  setForm,
-  templates: formTemplates,
-}: IProps) => {
+export const SelectHeaderForm = ({ setForm }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
+  const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
 
-  const all_forms: string[] = formTemplates.map(function (item) {
+  useEffect(() => {
+    const updateFormTemplates = async () => {
+      try {
+        setFormTemplates(await getFormTemplatesAsync(false));
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    updateFormTemplates();
+  }, []);
+
+  const allForms: string[] = formTemplates.map(function (item) {
     return item.classification.name; //id is a string here
   });
 
-  const form_name_id_map = new Map<string, string>();
-  formTemplates.map((item) =>
-    form_name_id_map.set(item.classification.name, item.id)
+  const formNameIdMap = new Map<string, string>(
+    formTemplates.map((item) => [item.classification.name, item.id])
   );
 
   const fetchAllLangVersions = async (form_template_id: string) => {
@@ -51,42 +63,57 @@ export const SelectHeaderForm = ({
     }
   };
 
-  const handleSelectForm = (event: any, selectedFormName: any) => {
-    const formTemplateId = form_name_id_map.get(selectedFormName);
+  const handleSelectForm = (_: any, selectedFormName: any) => {
+    const formTemplateId = formNameIdMap.get(selectedFormName);
     formTemplateId && fetchAllLangVersions(formTemplateId);
   };
 
+  const handleSubmit = async (
+    customizedFormState: CustomizedFormState,
+    { setSubmitting }: { setSubmitting: (submitting: boolean) => void }
+  ) => {
+    const formNameIdMap = new Map<string, string>(
+      formTemplates.map((item) => [item.classification.name, item.id])
+    );
+
+    const formTemplateId: string =
+      customizedFormState.name !== null
+        ? formNameIdMap.get(customizedFormState.name) ?? ''
+        : '';
+
+    try {
+      setForm(
+        await getFormTemplateLangAsync(
+          formTemplateId,
+          customizedFormState.lang ?? ''
+        )
+      );
+    } catch (e) {
+      console.error(e);
+      setSubmitError(true);
+      setSubmitting(false);
+    }
+  };
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      <Formik
-        initialValues={initialState}
-        validationSchema={validationSchema}
-        onSubmit={(
-          customizedFormState: CustomizedFormState,
-          { setSubmitting }: any
-        ) =>
-          handleSubmit(
-            formTemplates,
-            setSubmitError,
-            setForm,
-            customizedFormState,
-            setSubmitting
-          )
-        }>
-        {({ touched, errors, isSubmitting }) => (
-          <Form>
-            <Paper>
-              <Box p={2}>
-                <h2>Form Template</h2>
-                <Box pt={1} pl={3} pr={3}>
+      {formTemplates.length > 0 ? (
+        <Formik
+          initialValues={initialState}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}>
+          {({ touched, errors, isSubmitting }) => (
+            <Form>
+              <Paper>
+                <Box p={2} m={2}>
+                  <h2>Form Template</h2>
                   <Grid container spacing={3}>
                     <Grid item xs={6}>
                       <Field
                         component={Autocomplete}
                         fullWidth
                         name={CustomizedFormField.name}
-                        options={all_forms}
+                        options={allForms}
                         disableClearable={true}
                         onInputChange={handleSelectForm}
                         renderInput={(
@@ -96,7 +123,7 @@ export const SelectHeaderForm = ({
                             {...params}
                             name={CustomizedFormField.name}
                             error={
-                              touched[CustomizedFormField.name] &&
+                              !!touched[CustomizedFormField.name] &&
                               !!errors[CustomizedFormField.name]
                             }
                             helperText={
@@ -125,7 +152,7 @@ export const SelectHeaderForm = ({
                             {...params}
                             name={CustomizedFormField.lang}
                             error={
-                              touched[CustomizedFormField.lang] &&
+                              !!touched[CustomizedFormField.lang] &&
                               !!errors[CustomizedFormField.lang]
                             }
                             helperText={
@@ -141,18 +168,21 @@ export const SelectHeaderForm = ({
                       />
                     </Grid>
                   </Grid>
+
+                  <PrimaryButton
+                    className={classes.right}
+                    type="submit"
+                    disabled={isSubmitting}>
+                    Fetch Form
+                  </PrimaryButton>
                 </Box>
-              </Box>
-            </Paper>
-            <PrimaryButton
-              className={classes.right}
-              type="submit"
-              disabled={isSubmitting}>
-              Fetch Form
-            </PrimaryButton>
-          </Form>
-        )}
-      </Formik>
+              </Paper>
+            </Form>
+          )}
+        </Formik>
+      ) : (
+        <Skeleton variant="rectangular" height={150} />
+      )}
     </>
   );
 };
