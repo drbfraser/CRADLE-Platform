@@ -1,6 +1,5 @@
-import makeStyles from '@mui/styles/makeStyles';
-import React from 'react';
 import { Link } from 'react-router-dom';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   patientId: string;

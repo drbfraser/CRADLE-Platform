@@ -2,7 +2,6 @@ import { AppRoute, appRoutes } from '../routes/utils';
 
 import List from '@mui/material/List';
 import { OrNull } from 'src/shared/types';
-import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { SidebarRoute } from './route';
 import { UserRoleEnum } from 'src/shared/enums';

@@ -2,7 +2,6 @@ import { AppRoute, appRoutes } from './utils';
 import { Route, Switch } from 'react-router-dom';
 
 import { PrivateRoute } from './privateRoute';
-import React from 'react';
 import { useStyles } from './styles';
 
 interface IProps {

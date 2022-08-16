@@ -1,12 +1,10 @@
-import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
-import { screen } from '@testing-library/react';
 import {
   CancelButton,
   PrimaryButton,
   RedirectButton,
   SecondaryButton,
 } from '.';
+import { fireEvent, render } from '@testing-library/react';
 
 describe('Rendering and testing all types of buttons', () => {
   describe('testing the rendering, and all the components of the Primary Button', () => {
@@ -65,7 +63,7 @@ describe('Rendering and testing all types of buttons', () => {
 
   describe('Testing the rendering of the redirect button', () => {
     test('Render a redirect button', () => {
-      render(<RedirectButton />);
+      render(<RedirectButton url="" />);
     });
   });
 });

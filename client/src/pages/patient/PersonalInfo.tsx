@@ -1,7 +1,6 @@
 import { Box, Divider, Paper, Typography } from '@mui/material';
 
 import { Patient } from 'src/shared/types';
-import React from 'react';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { SecondaryButton } from 'src/shared/components/Button';
 import { Skeleton } from '@mui/material';

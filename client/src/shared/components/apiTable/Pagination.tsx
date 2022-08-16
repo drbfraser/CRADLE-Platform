@@ -2,7 +2,6 @@ import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import React from 'react';
 import Select from '@mui/material/Select';
 import makeStyles from '@mui/styles/makeStyles';
 import { useDimensionsContext } from 'src/app/context/hooks';

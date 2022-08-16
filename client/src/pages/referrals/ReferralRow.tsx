@@ -1,15 +1,15 @@
+import { BREAKPOINT, COLUMNS } from './constants';
+
+import DoneIcon from '@mui/icons-material/Done';
+import { IReferral } from './types';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import { TrafficLight } from 'src/shared/components/trafficLight';
 import makeStyles from '@mui/styles/makeStyles';
 import moment from 'moment';
-import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { TrafficLight } from 'src/shared/components/trafficLight';
-import { IReferral } from './types';
-import DoneIcon from '@mui/icons-material/Done';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
-import { TableCell } from 'src/shared/components/apiTable/TableCell';
-import { COLUMNS, BREAKPOINT } from './constants';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
 
 interface IProps {
   row: IReferral;

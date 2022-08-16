@@ -1,7 +1,13 @@
-import { Alert, Skeleton } from '@mui/material';
-import { Box, Divider, Paper, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Divider,
+  Paper,
+  Skeleton,
+  Typography,
+} from '@mui/material';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Link } from 'react-router-dom';
 import { OrNull } from 'src/shared/types';

@@ -1,5 +1,4 @@
 import Divider from '@mui/material/Divider';
-import React from 'react';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';
 import { getAllStatisticsAsync } from 'src/shared/api';

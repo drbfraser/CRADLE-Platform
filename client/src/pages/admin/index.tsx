@@ -2,7 +2,6 @@ import { ManageFacilities } from './manageFacilities/ManageFacilities';
 import { ManageFormTemplates } from './manageFormTemplates/ManageFormTemplates';
 import { ManageRelayApp } from './manageRelayApp/ManageRelayApp';
 import { ManageUsers } from './manageUsers/ManageUsers';
-import React from 'react';
 import { Tab } from 'semantic-ui-react';
 import { theme } from 'src/context/materialUI/theme';
 import { useHistory } from 'react-router-dom';

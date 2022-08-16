@@ -2,11 +2,11 @@ import { AppDispatch, RootState } from 'src/redux/store';
 import { DimensionsContext, IDimensionsContext } from '..';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
-import React from 'react';
+import { useContext } from 'react';
 
 export const useDimensionsContext = (): IDimensionsContext => {
   const { drawerWidth, offsetFromTop, isBigScreen } =
-    React.useContext(DimensionsContext);
+    useContext(DimensionsContext);
 
   if (
     drawerWidth === undefined ||

@@ -1,7 +1,7 @@
 import { AnswerTypeEnum, QuestionTypeEnum } from 'src/shared/enums';
 import { CForm, QAnswer, Question } from 'src/shared/types';
 import { Field, Form, Formik } from 'formik';
-import React, { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import {
   getPrettyDate,
   getPrettyDateTime,
@@ -552,7 +552,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
-        initialValues={initialState}
+        initialValues={initialState as any}
         validationSchema={validationSchema}
         onSubmit={handleSubmit(
           patientId,

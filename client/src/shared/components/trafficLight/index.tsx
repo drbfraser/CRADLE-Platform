@@ -1,13 +1,12 @@
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { ReactComponent as GreenTraffic } from './icons/green.svg';
-import React from 'react';
+import { ReactComponent as NoneIcon } from './icons/none.svg';
 import { ReactComponent as RedTraffic } from './icons/red.svg';
 import { TrafficLightEnum } from 'src/shared/enums';
 import Typography from '@mui/material/Typography';
 import { ReactComponent as YellowTraffic } from './icons/yellow.svg';
-import { ReactComponent as NoneIcon } from './icons/none.svg';
-
+import { useCallback } from 'react';
 import { useStyles } from './styles';
 
 interface IProps {
@@ -18,7 +17,7 @@ interface IProps {
 export const TrafficLight: React.FC<IProps> = ({ className, status }) => {
   const classes = useStyles();
 
-  const renderTrafficLight = React.useCallback(
+  const renderTrafficLight = useCallback(
     (trafficLightStatus: TrafficLightEnum): JSX.Element => {
       switch (trafficLightStatus) {
         case TrafficLightEnum.RED_DOWN: {

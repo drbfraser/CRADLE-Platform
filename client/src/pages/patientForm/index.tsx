@@ -1,5 +1,5 @@
 import { PatientState, getPatientState } from './state';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import LinearProgress from '@mui/material/LinearProgress';
 import { PatientForm } from './PatientForm';

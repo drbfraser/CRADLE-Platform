@@ -5,8 +5,8 @@ import {
   TableRow,
   Tooltip,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
 import { getFormTemplateCsvAsync, getFormTemplatesAsync } from 'src/shared/api';
+import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';

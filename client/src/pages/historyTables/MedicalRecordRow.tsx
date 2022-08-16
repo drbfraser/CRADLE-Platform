@@ -1,13 +1,13 @@
-import React from 'react';
-import { TableCell } from 'src/shared/components/apiTable/TableCell';
-import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
-import { getPrettyDate } from 'src/shared/utils';
-import { MedicalRecord } from 'src/shared/types';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { Typography, IconButton } from '@mui/material';
-import { MEDICAL_RECORD_COLUMNS } from './constants';
+import { IconButton, Typography } from '@mui/material';
+
 import DeleteForever from '@mui/icons-material/DeleteForever';
+import { MEDICAL_RECORD_COLUMNS } from './constants';
+import { MedicalRecord } from 'src/shared/types';
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import { getPrettyDate } from 'src/shared/utils';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
+import { useTheme } from '@mui/material/styles';
 
 interface IProps {
   row: MedicalRecord;

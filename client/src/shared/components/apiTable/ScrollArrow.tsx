@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import IconButton from '@mui/material/IconButton';
 import VerticalAlignTopIcon from '@mui/icons-material/VerticalAlignTop';
+import makeStyles from '@mui/styles/makeStyles';
+import { useState } from 'react';
 
 const ScrollArrow = () => {
   const classes = useStyles();

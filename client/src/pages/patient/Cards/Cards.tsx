@@ -1,13 +1,13 @@
-import React from 'react';
-import { Grid, Paper, Box } from '@mui/material';
-import { Reading, Referral, FollowUp, CustomizedForm } from 'src/shared/types';
-import { ReadingData } from './ReadingData';
+import { Box, Grid, Paper } from '@mui/material';
+import { CustomizedForm, FollowUp, Reading, Referral } from 'src/shared/types';
+
 import { AssessmentData } from './AssessmentData';
+import { CustomizedFormData } from './CustomizedFormData';
+import { ReadingData } from './ReadingData';
 import { ReferralAssessedData } from './ReferralAssessedData';
 import { ReferralCancelledData } from './ReferralCancelledData';
 import { ReferralNotAttendedData } from './ReferralNotAttendedData';
 import { ReferralPendingData } from './ReferralPendingData';
-import { CustomizedFormData } from './CustomizedFormData';
 
 interface IProps_Reading {
   reading: Reading;

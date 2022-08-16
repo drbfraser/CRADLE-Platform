@@ -1,6 +1,5 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 import { Menu, MenuItem } from '@mui/material';
-import React, { useState } from 'react';
 import { useAppDispatch, useDimensionsContext } from '../context/hooks';
 
 import AppBar from '@mui/material/AppBar';
@@ -16,14 +15,15 @@ import Typography from '@mui/material/Typography';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { push } from 'connected-react-router';
 import { useSelector } from 'react-redux';
+import { useState } from 'react';
 import { useStyles } from './styles';
 import { userRoleLabels } from 'src/shared/constants';
 
 interface IProps {
   user: OrNull<IUserWithTokens>;
-  setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
+  setActiveItem: (item: string) => void;
   isSidebarOpen: boolean;
-  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsSidebarOpen: (isOpen: boolean) => void;
 }
 
 export const TopBar = ({

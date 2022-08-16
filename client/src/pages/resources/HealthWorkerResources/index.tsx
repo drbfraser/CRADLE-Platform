@@ -1,6 +1,5 @@
 import '../index.css';
 
-import React from 'react';
 import ResourceTabPage from '../ResourceTabPage';
 
 // const HEALTH_WORKER_POSTER = 'images/education/clinic-poster.jpg';

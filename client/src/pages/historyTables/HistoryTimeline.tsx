@@ -1,7 +1,12 @@
-import { Alert, Skeleton } from '@mui/material';
-import { Box, Divider, Paper, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import React, { useEffect, useState } from 'react';
+import {
+  Alert,
+  Box,
+  Divider,
+  Paper,
+  Skeleton,
+  Typography,
+} from '@mui/material';
+import { useEffect, useState } from 'react';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import HistoryIcon from '@mui/icons-material/History';
@@ -15,6 +20,7 @@ import { TimelineRecord } from 'src/shared/types';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import { getPatientTimelineAsync } from 'src/shared/api';
 import { getPrettyDate } from 'src/shared/utils';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   patientId: string;

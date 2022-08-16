@@ -1,6 +1,5 @@
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import IconButton from '@mui/material/IconButton';
-import React from 'react';
 import { ReferralForm } from './ReferralForm';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';

@@ -1,10 +1,9 @@
-import React from 'react';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import SortIcon from '@mui/icons-material/Sort';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import IconButton from '@mui/material/IconButton';
-import makeStyles from '@mui/styles/makeStyles';
 import { SortDir } from './types';
+import SortIcon from '@mui/icons-material/Sort';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   columns: any;

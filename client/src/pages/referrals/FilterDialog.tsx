@@ -11,7 +11,7 @@ import {
   ReferralFilter,
   Referrer,
 } from 'src/shared/types';
-import React, { useEffect, useState } from 'react';
+import React, { SyntheticEvent, useEffect, useState } from 'react';
 import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api';
 import moment, { Moment } from 'moment';
 
@@ -45,8 +45,8 @@ interface IProps {
   filter: ReferralFilter;
   isTransformed: boolean;
   onClose: () => void;
-  setFilter: React.Dispatch<React.SetStateAction<ReferralFilter>>;
-  setIsPromptShown: React.Dispatch<React.SetStateAction<boolean>>;
+  setFilter: (filter: ReferralFilter) => void;
+  setIsPromptShown: (isPromptShown: boolean) => void;
 }
 
 type VitalSign = {
@@ -191,14 +191,17 @@ export const FilterDialog = ({
     setFocusedInput(arg);
   };
 
-  const onFacilitySelect = (_event: any, value: string) => {
+  const onFacilitySelect = (
+    _event: SyntheticEvent<Element, Event>,
+    value: string | null
+  ) => {
     if (!value) {
       return;
     }
     setSelectedHealthFacilities([...selectedHealthFacilities, value]);
   };
 
-  const onReferrerSelect = (_event: any, value: Referrer) => {
+  const onReferrerSelect = (_event: any, value: Referrer | null) => {
     if (!value) {
       return;
     }

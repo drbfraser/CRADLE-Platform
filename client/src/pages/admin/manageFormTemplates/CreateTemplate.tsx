@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 import { Dropzone, FileItem, FileValidated } from '@dropzone-ui/react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { OrNull } from 'src/shared/types';
@@ -46,13 +46,13 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
         setShowSuccess(true);
 
         onClose();
-      } catch (e) {
+      } catch (e: any) {
         let message = '';
 
         if (e.status && errorMessages[e.status]) {
           message = errorMessages[e.status];
         } else if (!isString(e)) {
-          const err = await e.json();
+          const err = e.json();
           message = err.message;
         }
 

@@ -1,5 +1,4 @@
 import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
-import React, { useState } from 'react';
 
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
@@ -13,6 +12,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { useDimensionsContext } from 'src/app/context/hooks';
 import { useHistory } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useState } from 'react';
 
 export const PatientsPage = () => {
   const classes = useStyles();

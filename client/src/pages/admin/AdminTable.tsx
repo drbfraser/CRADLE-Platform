@@ -5,7 +5,6 @@ import MUIDataTable, {
 
 import AddIcon from '@mui/icons-material/Add';
 import { PrimaryButton } from 'src/shared/components/Button';
-import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import { TextField } from '@mui/material';
 import { useAdminStyles } from './adminStyles';

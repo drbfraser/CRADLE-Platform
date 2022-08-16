@@ -3,9 +3,9 @@ import { FormPageProps, ReadingField } from '../state';
 
 import Box from '@mui/material/Box';
 import { Field } from 'formik';
+import { Fragment } from 'react';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import React from 'react';
 import { Typography } from '@mui/material';
 import { symptomNames } from './symptoms';
 
@@ -25,7 +25,7 @@ export const Symptoms = ({ formikProps }: FormPageProps) => {
   const CheckboxColumn = ({ symptoms }: ICheckboxCol) => (
     <>
       {symptoms.map(([field, label]: [string, string]) => (
-        <React.Fragment key={field}>
+        <Fragment key={field}>
           <Field
             component={CheckboxWithLabel}
             type="checkbox"
@@ -33,7 +33,7 @@ export const Symptoms = ({ formikProps }: FormPageProps) => {
             Label={{ label }}
           />
           <br />
-        </React.Fragment>
+        </Fragment>
       ))}
     </>
   );

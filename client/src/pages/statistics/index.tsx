@@ -12,7 +12,6 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import { MyFacility } from './MyFacility';
 import { MyStatistics } from './MyStatistics';
-import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import Select from '@mui/material/Select';
 import { Tab } from 'semantic-ui-react';

@@ -8,7 +8,6 @@ import {
 
 import { OrNull } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';
-import React from 'react';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
 import makeStyles from '@mui/styles/makeStyles';

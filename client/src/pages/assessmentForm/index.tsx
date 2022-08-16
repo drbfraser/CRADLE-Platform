@@ -1,5 +1,5 @@
 import { AssessmentState, getAssessmentState } from './state';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { AssessmentForm } from './AssessmentForm';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';

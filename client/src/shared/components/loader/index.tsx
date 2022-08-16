@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
+
 import CircularProgress from '@mui/material/CircularProgress';
 import { OrUndefined } from 'src/shared/types';
-import React from 'react';
 import Typography from '@mui/material/Typography';
 import { useStyles } from './styles';
 
@@ -17,10 +18,10 @@ export const Loader: React.FC<IProps> = ({
   message,
   show,
 }) => {
-  const [showLoader, setShowLoader] = React.useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const classes = useStyles();
 
-  React.useEffect((): void | (() => void) => {
+  useEffect((): void | (() => void) => {
     if (timeout === 0) {
       setShowLoader(true);
       return;

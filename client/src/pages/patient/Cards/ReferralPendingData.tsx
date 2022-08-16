@@ -2,7 +2,6 @@ import { CancelButton, SecondaryButton } from 'src/shared/components/Button';
 import { Grid, Typography } from '@mui/material';
 
 import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
-import React from 'react';
 import { Referral } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
 import { useHistory } from 'react-router-dom';

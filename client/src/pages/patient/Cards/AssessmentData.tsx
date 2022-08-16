@@ -1,6 +1,5 @@
 import DiagnosisIcon from '@mui/icons-material/LocalHospital';
 import { FollowUp } from 'src/shared/types';
-import React from 'react';
 import { RedirectButton } from 'src/shared/components/Button';
 import { Typography } from '@mui/material';
 import { getPrettyDate } from 'src/shared/utils';

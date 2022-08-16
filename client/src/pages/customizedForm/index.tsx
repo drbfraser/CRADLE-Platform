@@ -1,5 +1,5 @@
 import { CForm, FormTemplate } from 'src/shared/types';
-import React, { useEffect, useState } from 'react'; //useRef
+import { useEffect, useState } from 'react'; //useRef
 
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { CustomizedForm } from './customizedEditForm/CustomizedForm';
