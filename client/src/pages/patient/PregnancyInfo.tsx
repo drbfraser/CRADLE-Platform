@@ -69,10 +69,12 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
     _: React.ChangeEvent<HTMLInputElement>,
     { value }: InputOnChangeData
   ) => setCurrentPregnancyUnit(value as GestationalAgeUnitEnum);
+
   const handlePreviousPregnancyUnitChange = (
     _: React.ChangeEvent<HTMLInputElement>,
     { value }: InputOnChangeData
   ) => setPreviousPregnancyUnit(value as GestationalAgeUnitEnum);
+
   const CurrentPregnancyStatus = () => {
     const status = info!.isPregnant ? 'Yes' : 'No';
 
@@ -80,47 +82,41 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
       ? getNumOfWeeksNumeric(info!.pregnancyStartDate) > 40
       : false;
 
-    const GestationalAge = () => {
-      return (
-        <div>
-          <p>
-            <b>Gestational Age: </b>
-            <span style={isOverdue ? { color: 'red' } : {}}>
-              {gestationalAgeUnitFormatters[currentPregnancyUnit](
-                info!.pregnancyStartDate,
-                null
-              )}
-            </span>
-          </p>
-        </div>
-      );
-    };
+    const GestationalAge = () => (
+      <p>
+        <b>Gestational Age: </b>
+        <span style={isOverdue ? { color: 'red' } : {}}>
+          {gestationalAgeUnitFormatters[currentPregnancyUnit](
+            info!.pregnancyStartDate,
+            null
+          )}
+        </span>
+      </p>
+    );
 
     return (
-      <div>
-        {info!.isPregnant ? (
+      <Box margin="10px">
+        <div className={classes.headerWithRightElement}>
+          <h4>Current Pregnancy</h4>
           <RedirectButton
-            url={`/patients/${patientId}/edit/pregnancyInfo/${
-              info!.pregnancyId
-            }`}
-            className={classes.rightButton}>
-            Edit / Close
+            url={
+              info!.isPregnant
+                ? `/patients/${patientId}/edit/pregnancyInfo/${
+                    info!.pregnancyId
+                  }`
+                : `/pregnancies/new/${patientId}`
+            }
+            size="small">
+            {info!.isPregnant ? 'Edit/Close' : 'Add'}
           </RedirectButton>
-        ) : (
-          <RedirectButton
-            url={`/pregnancies/new/${patientId}`}
-            className={classes.rightButton}>
-            Add
-          </RedirectButton>
-        )}
-        <h4>Current Pregnancy</h4>
+        </div>
         <p>
           <b>Pregnant: </b> {status}
         </p>
         {info?.isPregnant && (
           <>
             <GestationalAge />
-            <div className={classes.inline}>
+            <div className={classes.headerWithRightElement}>
               <b>Gestational Age Unit View: </b>
               <Form.Field
                 name="gestationalAgeUnits"
@@ -138,24 +134,25 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             Long term pregnancy of the patient detected
           </Alert>
         )}
-        {!info?.isPregnant && <br />}
-      </div>
+      </Box>
     );
   };
 
   return (
     <Paper className={classes.wrapper}>
       <Box p={3}>
-        <Typography component="h3" variant="h5">
-          <PregnantWomanIcon fontSize="large" /> Pregnancy Information
+        <div className={classes.headerWithRightElement}>
+          <Typography component="h5" variant="h5">
+            <PregnantWomanIcon fontSize="large" />
+            Pregnancy Information
+          </Typography>
           <Link
             to={
               '/history/' + patientId + '/' + patientName + '/' + SexEnum.FEMALE
-            }
-            className={classes.smallLink}>
+            }>
             View Past Records
           </Link>
-        </Typography>
+        </div>
         <Divider />
         {errorLoading ? (
           <Alert severity="error">
@@ -166,14 +163,14 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
           <>
             <CurrentPregnancyStatus />
             <Divider />
-            <div>
-              <div>
+            <Box margin="10px">
+              <div className={classes.headerWithRightElement}>
+                <h4> Previous Obstetric History</h4>
                 <RedirectButton
                   url={`/pregnancies/new/${patientId}`}
-                  style={{ float: 'right' }}>
+                  size="small">
                   Add
                 </RedirectButton>
-                <h4> Previous Obstetric History</h4>
               </div>
               <Table className={classes.table}>
                 <TableBody>
@@ -182,21 +179,29 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                       (pastPregnancy: PastPregnancy, index) => (
                         <TableRow
                           hover={true}
+                          style={{
+                            cursor: 'pointer',
+                            height: 40,
+                          }}
                           key={pastPregnancy.pregnancyId}
                           onClick={() =>
                             handleClick(pastPregnancy.pregnancyId)
                           }>
                           <TableCell>
                             {getYearToDisplay(pastPregnancy.pregnancyEndDate)}
-                            {' - Pregnancy carried to '}
+                          </TableCell>
+                          <TableCell>
+                            Pregnancy carried to{' '}
                             {gestationalAgeUnitFormatters[
                               previousPregnancyUnit ??
                                 GestationalAgeUnitEnum.WEEKS
                             ](
                               pastPregnancy.pregnancyStartDate,
                               pastPregnancy.pregnancyEndDate
-                            )}{' '}
-                            - {pastPregnancy.pregnancyOutcome ?? 'N/A'}
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {pastPregnancy.pregnancyOutcome ?? 'N/A'}
                           </TableCell>
                         </TableRow>
                       )
@@ -207,23 +212,20 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                 </TableBody>
               </Table>
               {info.pastPregnancies && info.pastPregnancies.length > 0 && (
-                <div>
-                  <div className={classes.inline}>
-                    <b>Gestational Age Unit View: </b>
-                    <Form.Field
-                      name="gestationalAgeUnits"
-                      control={Select}
-                      options={unitOptions}
-                      placeholder={
-                        gestationalAgeUnitLabels[previousPregnancyUnit]
-                      }
-                      onChange={handlePreviousPregnancyUnitChange}
-                      className={classes.marginLeft}
-                    />
-                  </div>
+                <div className={classes.headerWithRightElement}>
+                  <b>Gestational Age Unit View: </b>
+                  <Form.Field
+                    name="gestationalAgeUnits"
+                    control={Select}
+                    options={unitOptions}
+                    placeholder={
+                      gestationalAgeUnitLabels[previousPregnancyUnit]
+                    }
+                    onChange={handlePreviousPregnancyUnitChange}
+                  />
                 </div>
               )}
-            </div>
+            </Box>
           </>
         ) : (
           <Skeleton variant="rectangular" height={200} />
@@ -247,10 +249,6 @@ const useStyles = makeStyles({
     display: `flex`,
     alignItems: `center`,
   },
-  smallLink: {
-    float: 'right',
-    fontSize: 14,
-  },
   inline: {
     display: 'flex',
     flexDirection: 'row',
@@ -259,7 +257,10 @@ const useStyles = makeStyles({
     marginTop: '10px',
     marginBottom: '10px',
   },
-  rightButton: {
-    float: 'right',
+  headerWithRightElement: {
+    display: 'flex',
+    marginTop: '10px',
+    alignItems: 'center',
+    placeContent: 'space-between',
   },
 });

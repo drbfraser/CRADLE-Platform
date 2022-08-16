@@ -47,7 +47,7 @@ export const Header = ({
   };
 
   return (
-    <Grid container justifyContent="space-between">
+    <Grid container justifyContent="space-between" mb={2}>
       <Grid item>
         <Grid container alignItems="center">
           <Tooltip title="Go back" placement="top">
@@ -57,7 +57,7 @@ export const Header = ({
               <ChevronLeftIcon color="inherit" fontSize="large" />
             </IconButton>
           </Tooltip>
-          <Typography variant="h3">
+          <Typography variant="h4">
             {patient ? (
               `Patient Summary for ${patient.patientName}`
             ) : (
@@ -67,7 +67,7 @@ export const Header = ({
         </Grid>
       </Grid>
       <Grid item>
-        <Grid container alignItems="center" style={{ gap: 5 }}>
+        <Grid container alignItems="center" gap={1} alignContent="center">
           <PrimaryButton onClick={handleSubmitNewFormClick}>
             <Add /> Submit New Form
           </PrimaryButton>

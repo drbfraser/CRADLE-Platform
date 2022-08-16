@@ -80,7 +80,7 @@ export const PatientStats = ({ patientId }: IProps) => {
 
   return (
     <Paper>
-      <Box p={3} mb={2}>
+      <Box p={3}>
         <Typography variant="h5" component="h3">
           <FavoriteIcon fontSize="large" /> &nbsp; Patient Stats
         </Typography>

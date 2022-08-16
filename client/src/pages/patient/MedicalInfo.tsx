@@ -52,40 +52,41 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     editId,
     medicalRecordId,
   }: HistoryItemProps) => (
-    <div>
-      <div className={classes.historyItem}>
-        <b style={{ flex: 1 }}> {title} </b>
-        {medicalRecordId ? (
-          <RedirectButton
-            className={classes.redirectButton}
-            url={`/patients/${patient?.patientId}/edit/${editId}/${medicalRecordId}`}>
-            Update
-          </RedirectButton>
-        ) : (
-          <RedirectButton
-            className={classes.redirectButton}
-            url={`/patients/${patient?.patientId}/edit/${editId}`}>
-            Add
-          </RedirectButton>
-        )}
+    <Box m="10px">
+      <div className={classes.headerWithRightElement}>
+        <b>{title}</b>
+        <RedirectButton
+          size="small"
+          url={
+            `/patients/${patient?.patientId}/edit/${editId}` +
+            (medicalRecordId ? '' : `/${medicalRecordId}`)
+          }>
+          {medicalRecordId ? 'Update' : 'Add'}
+        </RedirectButton>
       </div>
-      <div className={classes.historyItem}>
+      <div>
         {historyRecord ? (
           <Typography style={{ whiteSpace: 'pre-line' }}>
             {historyRecord}
           </Typography>
         ) : (
-          <>No additional {title.toLowerCase()} information.</>
+          `No additional ${title.toLowerCase()} information.`
         )}
       </div>
-    </div>
+    </Box>
   );
 
   return (
     <Paper>
       <Box p={3}>
-        <Typography component="h3" variant="h5">
-          <RecentActorsIcon fontSize="large" /> &nbsp; Medical Information
+        <div className={classes.headerWithRightElement}>
+          <Typography
+            component="h3"
+            variant="h5"
+            className={classes.headerWithRightElement}>
+            <RecentActorsIcon fontSize="large" />
+            &nbsp;Medical Information
+          </Typography>
           <Link
             to={
               '/history/' +
@@ -94,34 +95,32 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
               patient?.patientName +
               '/' +
               patient?.patientSex
-            }
-            className={classes.smallLink}>
+            }>
             View Past Records
           </Link>
-        </Typography>
+        </div>
         <Divider />
-        <br />
         {errorLoading ? (
           <Alert severity="error">
             Something went wrong trying to load patient&rsquo;s medical
             information. Please try refreshing.
           </Alert>
         ) : info ? (
-          <div>
+          <>
             <HistoryItem
               title="Medical History"
               historyRecord={info?.medicalHistory}
               editId="medicalHistory"
               medicalRecordId={info.medicalHistoryId}
             />
-            <Divider className={classes.historyItem} />
+            <Divider />
             <HistoryItem
               title="Drug History"
               historyRecord={info?.drugHistory}
               editId="drugHistory"
               medicalRecordId={info.drugHistoryId}
             />
-          </div>
+          </>
         ) : (
           <Skeleton variant="rectangular" height={200} />
         )}
@@ -135,8 +134,11 @@ const useStyles = makeStyles({
     float: 'right',
     fontSize: 14,
   },
-  historyItem: {
-    marginBottom: '15px',
+  headerWithRightElement: {
+    display: 'flex',
+    marginTop: '10px',
+    alignItems: 'center',
+    placeContent: 'space-between',
   },
   redirectButton: {
     float: 'right',
