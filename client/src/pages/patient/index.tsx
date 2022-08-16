@@ -3,18 +3,18 @@ import {
   CustomizedFormCard,
   ReadingCard,
   ReferralAssessedCard,
-  ReferralCancellationCard,
+  ReferralCancelledCard,
   ReferralNotAttendedCard,
   ReferralPendingCard,
-} from './Cards/Cards';
-import { Divider, Grid, Paper } from '@mui/material';
+} from './Cards';
+import { Box, Divider, Grid, Paper } from '@mui/material';
 import { Filter, FilterRequestBody, Patient, Referral } from 'src/shared/types';
-import React, { useEffect, useState } from 'react';
 import {
   getPatientAsync,
   getPatientRecordsAsync,
   getPatientReferralsAsync,
 } from 'src/shared/api';
+import { useEffect, useState } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -121,7 +121,7 @@ export const PatientPage = () => {
             if (card.isAssessed) {
               return <ReferralAssessedCard referral={card} />;
             } else if (card.isCancelled) {
-              return <ReferralCancellationCard referral={card} />;
+              return <ReferralCancelledCard referral={card} />;
             } else if (card.notAttended) {
               return <ReferralNotAttendedCard referral={card} />;
             } else {
@@ -134,10 +134,15 @@ export const PatientPage = () => {
 
       const UpdateCardsJsx = (cards: any[]) => {
         const cardsJsx = cards.map((card) => (
-          <React.Fragment key={card.id ?? card.readingId}>
-            {mapCardToJSX(card)}
-          </React.Fragment>
+          <Grid item key={card.id ?? card.readingId} xs={12}>
+            <Paper variant="outlined">
+              <Box p={1} my={1} bgcolor={'#f9f9f9'}>
+                {mapCardToJSX(card)}
+              </Box>
+            </Paper>
+          </Grid>
         ));
+
         setCards(cardsJsx);
       };
 
@@ -179,52 +184,64 @@ export const PatientPage = () => {
         isThereAPendingReferral={hasPendingReferral}
         setConfirmDialogPerformAssessmentOpen={setConfirmDialogOpen}
       />
-      <Grid container spacing={2} className={classes.root}>
-        <Grid item xs={12} md={6}>
-          <PersonalInfo patient={patient} />
-          {patient?.patientSex === SexEnum.FEMALE ? (
-            <PregnancyInfo
-              patientId={patientId}
-              patientName={patient?.patientName}
-            />
-          ) : (
-            <MedicalInfo patient={patient} patientId={patientId} />
-          )}
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <PatientStats patientId={patientId} />
-          {patient?.patientSex === SexEnum.FEMALE && (
-            <MedicalInfo patient={patient} patientId={patientId} />
-          )}
-        </Grid>
-      </Grid>
-
-      <Paper className={classes.cardList}>
-        <Grid container justifyContent="flex-end" spacing={2}>
+      <Grid container spacing={2}>
+        <Grid container item xs={12} lg={6} direction="column" spacing={2}>
           <Grid item>
-            <Typography>Show only: </Typography>
-            {filters.map((filter) => (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filterRequestBody[filter.parameter]}
-                    onChange={(e) => {
-                      setFilterRequestBody({
-                        ...filterRequestBody,
-                        [filter.parameter]: e.target.checked,
-                      });
-                    }}
-                  />
-                }
-                label={<>{filter.display_title}</>}
-                key={filter.parameter}
+            <PersonalInfo patient={patient} />
+          </Grid>
+
+          <Grid item>
+            {patient?.patientSex === SexEnum.FEMALE ? (
+              <PregnancyInfo
+                patientId={patientId}
+                patientName={patient?.patientName}
               />
-            ))}
+            ) : (
+              <MedicalInfo patient={patient} patientId={patientId} />
+            )}
           </Grid>
         </Grid>
-      </Paper>
-      <Divider />
-      {cards}
+
+        <Grid container item xs={12} lg={6} direction="column" spacing={2}>
+          <Grid item>
+            <PatientStats patientId={patientId} />
+          </Grid>
+
+          <Grid item>
+            {patient?.patientSex === SexEnum.FEMALE && (
+              <MedicalInfo patient={patient} patientId={patientId} />
+            )}
+          </Grid>
+        </Grid>
+
+        <Grid container item xs={12} spacing={2} direction="column">
+          <Paper className={classes.cardList}>
+            <Grid item className={classes.listHeader}>
+              <Typography component={'span'}>Show only: </Typography>
+
+              {filters.map((filter) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={filterRequestBody[filter.parameter]}
+                      onChange={(e) => {
+                        setFilterRequestBody({
+                          ...filterRequestBody,
+                          [filter.parameter]: e.target.checked,
+                        });
+                      }}
+                    />
+                  }
+                  label={filter.display_title}
+                  key={filter.parameter}
+                />
+              ))}
+            </Grid>
+            <Divider />
+            {cards}
+          </Paper>
+        </Grid>
+      </Grid>
     </>
   );
 };
@@ -237,5 +254,10 @@ export const useStyles = makeStyles((theme) => ({
     width: '100%',
     padding: theme.spacing(2),
     marginTop: theme.spacing(2),
+  },
+  listHeader: {
+    display: 'flex',
+    placeContent: 'end',
+    alignItems: 'center',
   },
 }));

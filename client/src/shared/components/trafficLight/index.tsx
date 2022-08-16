@@ -9,12 +9,11 @@ import { ReactComponent as YellowTraffic } from './icons/yellow.svg';
 import { useCallback } from 'react';
 import { useStyles } from './styles';
 
-interface IProps {
-  className?: string;
+interface IProps extends React.HTMLAttributes<HTMLDivElement> {
   status: TrafficLightEnum;
 }
 
-export const TrafficLight: React.FC<IProps> = ({ className, status }) => {
+export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
   const classes = useStyles();
 
   const renderTrafficLight = useCallback(
@@ -88,5 +87,5 @@ export const TrafficLight: React.FC<IProps> = ({ className, status }) => {
     [classes.trafficLight, classes.trafficLightArrow]
   );
 
-  return <div className={className ?? ``}>{renderTrafficLight(status)}</div>;
+  return <div {...props}>{renderTrafficLight(status)}</div>;
 };
