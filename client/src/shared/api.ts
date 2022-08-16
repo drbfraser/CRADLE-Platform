@@ -22,10 +22,10 @@ import { EndpointEnum, MethodEnum, UserRoleEnum } from './enums';
 
 import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PasswordField } from 'src/app/topBar/changePassword/state';
+import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { UserField } from 'src/pages/admin/manageUsers/state';
 import jwt_decode from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
-import { post_body } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
 
 export const API_URL =
@@ -339,7 +339,7 @@ export const saveReferralAssessmentAsync = async (referralId: string) =>
   });
 
 export const saveFormResponseAsync = async (
-  postBody: post_body,
+  postBody: PostBody,
   formId?: string
 ) => {
   const url = API_URL + EndpointEnum.FORM + (formId ? '/' + formId : '');
@@ -347,7 +347,7 @@ export const saveFormResponseAsync = async (
   const init = {
     method: formId ? 'PUT' : 'POST',
     body: JSON.stringify(
-      formId ? { questions: postBody.edit } : postBody.creat
+      formId ? { questions: postBody.edit } : postBody.create
     ),
   };
 
