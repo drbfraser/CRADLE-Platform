@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import { Answer, CForm, QAnswer, Question } from 'src/shared/types';
 
 import { QuestionTypeEnum } from 'src/shared/enums';
@@ -116,6 +117,7 @@ export const TransferQAnswerToPostBody = (
         case QuestionTypeEnum.STRING:
         case QuestionTypeEnum.INTEGER:
         case QuestionTypeEnum.DATE:
+        case QuestionTypeEnum.DATETIME:
           question.isBlank = !apiAnswer.answer;
           break;
 
@@ -146,20 +148,24 @@ export const TransferQAnswerToPostBody = (
   return postBody;
 };
 
-export const passValidation = (questions: Question[], answers: QAnswer[]) =>
+export const areMcResponsesValid = (
+  questions: Question[],
+  answers: QAnswer[]
+) =>
   //check multi-selection while when clicking the submit button
-  !answers
+  answers
     .filter(
       (answer) =>
         answer.qtype === QuestionTypeEnum.MULTIPLE_CHOICE ||
         answer.qtype === QuestionTypeEnum.MULTIPLE_SELECT
     )
-    .some((answer) => {
+    .every((answer) => {
       const qidx = answer.qidx;
+      const isHidden = questions[qidx].shouldHidden;
       const required = questions[qidx].required;
-      const shouldHidden = questions[qidx].shouldHidden;
+
       return (
-        required && !shouldHidden && (!answer.val || answer.val!.length > 0)
+        isHidden || (required ? answer.val && answer.val.length > 0 : true)
       );
     });
 
@@ -177,7 +183,8 @@ export const handleSubmit = (
   return async (values: [], { setSubmitting }: any) => {
     const questions = form.questions;
 
-    if (!passValidation(questions, answers)) {
+    const isValid = areMcResponsesValid(questions, answers);
+    if (!isValid) {
       setMultiSelectValidationFailed(true);
       return;
     }

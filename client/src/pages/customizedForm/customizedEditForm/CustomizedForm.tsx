@@ -8,7 +8,11 @@ import {
 } from 'src/shared/types';
 import { Field, Form, Formik } from 'formik';
 import { Fragment, useEffect, useState } from 'react';
-import { getPrettyDate, getTimestampFromStringDate } from 'src/shared/utils';
+import {
+  getPrettyDate,
+  getPrettyDateTime,
+  getTimestampFromStringDate,
+} from 'src/shared/utils';
 import { initialState, validationSchema } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -354,7 +358,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
             <Field
               label={question.questionText}
               component={TextField}
-              defaultValue={answer.val ? getPrettyDate(answer.val) : null}
+              defaultValue={answer.val ? getPrettyDateTime(answer.val) : null}
               fullWidth
               required={required}
               variant="outlined"
