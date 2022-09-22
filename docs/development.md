@@ -16,7 +16,10 @@ Prior to cloning the repo, ensure you have registered your SSH key with GitLab (
 
 Then run:
 ```
-git clone https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git
+git clone https://csil-git1.cs.surrey.sfu.ca/415-cradle-sl/cradle-platform.git 
+
+#This had issues with the requirements.txt (try the link above)
+(previously : https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git)
 ```
 
 ## 3. Set up Environment Variables
