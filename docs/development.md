@@ -75,6 +75,7 @@ docker exec cradle_flask python manage.py seed_test_data
 ## 6. Run the NPM Dev Server
 
 NPM is not run inside Docker (due to poor filesystem performance), so you'll need to run the following to start the NPM development server:
+(Make sure you have `NPM 7`)
 
 ```
 cd client
