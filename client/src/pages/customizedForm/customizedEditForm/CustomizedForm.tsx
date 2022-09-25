@@ -362,7 +362,8 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
               fullWidth
               required={required}
               variant="outlined"
-              type="datetime"
+              type="datetime-local"
+              inputProps={{ step: 1 }}
               placeholder="YYYY/MM/DD hh:mm:ss"
               InputLabelProps={{
                 shrink: true,
