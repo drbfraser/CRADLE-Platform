@@ -6,7 +6,6 @@ import { Select, TextField } from 'formik-mui';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid/Grid';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import { PatientIDExists } from './PatientIDExists';
@@ -150,12 +149,11 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
           </Grid>
           <Grid item md={4} sm={12} xs={12}>
             <FormControl fullWidth variant="outlined">
-              <InputLabel>Gender *</InputLabel>
               <Field
                 component={Select}
                 fullWidth
                 required
-                label="Gender"
+                label="Gender *"
                 name={PatientField.patientSex}
                 onChange={handleChangeCustom(
                   formikProps.handleChange,
