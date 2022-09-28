@@ -86,6 +86,16 @@ class Root(Resource):
 
             req["formClassificationId"] = classification.id
 
+            previousTemplate = crud.read(
+                FormTemplate,
+                formClassificationId=classification.id,
+                archived=False,
+            )
+
+            if previousTemplate is not None:
+                previousTemplate.archived = True
+                data.db_session.commit()
+
         util.assign_form_or_template_ids(FormTemplate, req)
 
         formTemplate = marshal.unmarshal(FormTemplate, req)
