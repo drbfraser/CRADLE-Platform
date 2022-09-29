@@ -141,7 +141,7 @@ class TemplateVersionCsv(Resource):
     @staticmethod
     @jwt_required
     @swag_from(
-        "../../specifications/single-form-template-version-get-dev.yml",
+        "../../specifications/single-form-template-get-csv.yml",
         methods=["GET"],
         endpoint="single_form_template_csv",
     )
