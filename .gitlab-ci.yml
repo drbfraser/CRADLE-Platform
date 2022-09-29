@@ -131,7 +131,7 @@ backend system tests:
 frontend unit tests:
   stage: test
   needs: []
-  image: $PYTHON_IMAGE
+  image: $NODE_IMAGE
   tags:
     - docker
   rules:
