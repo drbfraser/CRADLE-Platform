@@ -12,6 +12,7 @@ export enum UserField {
   password = 'password',
   confirmPassword = 'confirmPassword',
   id = 'userId',
+  phoneNumber = 'phoneNumber',
 }
 
 export const fieldLabels = {
@@ -78,6 +79,7 @@ export const newUserTemplate: IUser = {
   [UserField.role]: UserRoleEnum.VHT,
   [UserField.supervises]: [] as number[],
   [UserField.id]: 0,
+  [UserField.phoneNumber]: '',
 };
 
 export const resetPasswordTemplate = {

@@ -127,6 +127,7 @@ export interface IUser {
   healthFacilityName: string;
   role: UserRoleEnum;
   supervises: number[];
+  phoneNumber: string;
 }
 
 export interface IUserWithIndex extends IUser {
