@@ -144,8 +144,10 @@ frontend unit tests:
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     - cd client 
+    - npm i --global npm@7
+    - npm ci
   script:
-    - CI=true npm run test --args a
+    - npm run test --args a
 
 frontend lint:
   stage: format
