@@ -105,6 +105,9 @@ def init(api):
     api.add_resource(
         AndroidAssessments, "/api/mobile/assessments", endpoint="android_assessments"
     )  # [GET]
+    api.add_resource(
+        AndroidForms, "/api/mobile/forms/<int:patientID>/<int:formID>", endpoint="android_forms"
+    ) # [GET]
 
     #### New Endpoints ####
     api.add_resource(

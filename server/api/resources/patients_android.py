@@ -151,3 +151,15 @@ class AndroidAssessments(Resource):
         user = get_jwt_identity()
         assessments = view.assessment_view(user)
         return [serialize.serialize_referral_or_assessment(a) for a in assessments]
+
+# /api/mobile/forms/<str:patientID>/<str:formID>
+class AndroidForms(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/android-forms-get.yml",
+        methods=["GET"],
+        endpoint="android_forms",
+    )
+    def get():
+        return {"Helloworld"}
