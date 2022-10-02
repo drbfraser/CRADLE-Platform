@@ -152,7 +152,7 @@ class AndroidAssessments(Resource):
         assessments = view.assessment_view(user)
         return [serialize.serialize_referral_or_assessment(a) for a in assessments]
 
-# /api/mobile/forms/<str:patientID>/<str:formID>
+# /api/mobile/forms/<str:patient_id>/<str:form_id>
 class AndroidForms(Resource):
     @staticmethod
     @jwt_required

@@ -15,7 +15,7 @@ parameters:
     type: string
 responses:
   200:
-    description: Response from GET request for /api/mobile/forms/<str:patientID>/<str:formID>
+    description: Response from GET request for /api/mobile/forms/<str:patient_id>/<str:form_id>
     content:
       application/json:
         schema:
