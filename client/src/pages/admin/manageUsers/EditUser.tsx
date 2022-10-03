@@ -67,6 +67,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
             onSubmit={handleSubmit}>
             {({ values, touched, errors, isSubmitting, isValid }) => (
               <Form>
+                <br />
                 <Field
                   component={FormikTextField}
                   fullWidth
@@ -86,6 +87,17 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                   variant="outlined"
                   label={fieldLabels[UserField.email]}
                   name={UserField.email}
+                />
+                <br />
+                <br />
+                <Field
+                  component={FormikTextField}
+                  fullWidth
+                  required
+                  inputProps={{ maxLength: 25 }}
+                  variant="outlined"
+                  label={fieldLabels[UserField.phoneNumber]}
+                  name={UserField.phoneNumber}
                 />
                 <br />
                 <br />

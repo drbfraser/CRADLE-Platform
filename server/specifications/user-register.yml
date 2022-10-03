@@ -18,6 +18,9 @@ requestBody:
           firstName:
             type: string
             example: Alice
+          phoneNumber:
+              type: string
+              example: 555-555-55555
           healthFacilityName:
             type: string
             example: H0000
@@ -47,6 +50,9 @@ responses:
             firstName:
               type: string
               example: Alice
+            phoneNumber:
+              type: string
+              example: 555-555-55555
             healthFacilityName:
               type: string
               example: H0000

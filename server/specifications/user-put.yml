@@ -21,6 +21,9 @@ requestBody:
           email:
             type: string
             example: test@cho.com
+          phoneNumber:
+              type: string
+              example: 555-555-55555
           healthFacilityName:
             type: string
             example: H0000
@@ -48,6 +51,9 @@ responses:
             firstName:
               type: string
               example: Bob
+            phoneNumber:
+              type: string
+              example: 555-555-55555
             healthFacilityName:
               type: string
               example: H0000

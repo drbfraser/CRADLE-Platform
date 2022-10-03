@@ -26,6 +26,9 @@ responses:
             firstName:
               type: string
               example: TestCHO
+            phoneNumber:
+              type: string
+              example: 555-555-55555
             healthFacilityName:
               type: string
               example: H0000

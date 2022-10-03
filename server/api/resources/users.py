@@ -29,6 +29,9 @@ UserParser.add_argument(
     "firstName", type=str, required=True, help="This field cannot be left blank!"
 )
 UserParser.add_argument(
+    "phoneNumber", type=str, required=True, help="This field cannot be left blank!"
+)
+UserParser.add_argument(
     "healthFacilityName",
     type=str,
     required=True,
