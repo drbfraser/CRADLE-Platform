@@ -4,7 +4,7 @@ tags:
   - Android
 parameters:
 - in: path
-  name: form_id
+  name: form_template_id
   required: true
   schema:
     type: string
@@ -15,7 +15,7 @@ parameters:
     type: string
 responses:
   200:
-    description: Response from GET request for /api/mobile/forms/<str:patient_id>/<str:form_id>
+    description: Response from GET request for /api/mobile/forms/<str:patient_id>/<str:form_template_id>
     content:
       application/json:
         schema:
