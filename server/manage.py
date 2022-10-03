@@ -357,7 +357,7 @@ def create_health_facility(
     db.session.commit()
 
 
-def create_user(email, name, password, hf_name, role, phoneNumber):
+def create_user(email, name, password, hf_name, role, phone):
     """
     Creates a user in the database.
     """
@@ -367,7 +367,7 @@ def create_user(email, name, password, hf_name, role, phoneNumber):
         "password": flask_bcrypt.generate_password_hash(password),
         "healthFacilityName": hf_name,
         "role": role,
-        "phoneNumber": phoneNumber
+        "phoneNumber": phone
     }
     user_schema = UserSchema()
     db.session.add(user_schema.load(user))
