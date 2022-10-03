@@ -57,7 +57,7 @@ def seed_minimal(
     create_health_facility(facility_name)
 
     print("Creating admin user...")
-    create_user(email, "Admin", password, facility_name, RoleEnum.ADMIN.value)
+    create_user(email, "Admin", password, facility_name, RoleEnum.ADMIN.value, "+1-123-456-7890")
 
     print("Finished seeding minimal data set")
 
@@ -77,11 +77,11 @@ def seed_test_data():
     print("Creating test health facilities and users...")
     create_health_facility("H1000")
     create_health_facility("H2000")
-    create_user("brian@admin.com", "Brian", "brian123", "H0000", RoleEnum.ADMIN.value)
-    create_user("vht@vht.com", "TestVHT", "vht123", "H0000", RoleEnum.VHT.value)
-    create_user("vht2@vht.com", "TestVHT2", "vht123", "H1000", RoleEnum.VHT.value)
-    create_user("hcw@hcw.com", "TestHCW", "hcw123", "H0000", RoleEnum.HCW.value)
-    create_user("cho@cho.com", "TestCHO", "cho123", "H0000", RoleEnum.CHO.value)
+    create_user("brian@admin.com", "Brian", "brian123", "H0000", RoleEnum.ADMIN.value, "+1-604-123-4567")
+    create_user("vht@vht.com", "TestVHT", "vht123", "H0000", RoleEnum.VHT.value, "555-555-55555")
+    create_user("vht2@vht.com", "TestVHT2", "vht123", "H1000", RoleEnum.VHT.value, "+256-415-123456")
+    create_user("hcw@hcw.com", "TestHCW", "hcw123", "H0000", RoleEnum.HCW.value, "+256-416-123456")
+    create_user("cho@cho.com", "TestCHO", "cho123", "H0000", RoleEnum.CHO.value, "+256-417-123456")
 
     print("Creating test patients, readings, referrals, and records...")
     create_patient_reading_referral_pregnancy(
@@ -357,7 +357,7 @@ def create_health_facility(
     db.session.commit()
 
 
-def create_user(email, name, password, hf_name, role):
+def create_user(email, name, password, hf_name, role, phoneNumber):
     """
     Creates a user in the database.
     """
@@ -367,6 +367,7 @@ def create_user(email, name, password, hf_name, role):
         "password": flask_bcrypt.generate_password_hash(password),
         "healthFacilityName": hf_name,
         "role": role,
+        "phoneNumber": phoneNumber
     }
     user_schema = UserSchema()
     db.session.add(user_schema.load(user))
