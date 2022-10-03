@@ -18,7 +18,7 @@ services:
     # NOTE: npm has performance issues inside Docker
     #       therefore, best to run outside Docker (for now)
     # frontend:
-    #     image: node:14.11.0-alpine3.12
+    #     image: node:18-alpine3.15
     #     tty: true                  # keep it running
     #     ports:
     #         - 3000:3000
