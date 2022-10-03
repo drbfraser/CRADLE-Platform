@@ -153,6 +153,7 @@ class AndroidAssessments(Resource):
         assessments = view.assessment_view(user)
         return [serialize.serialize_referral_or_assessment(a) for a in assessments]
 
+
 # /api/mobile/forms/<str:patient_id>/<str:form_template_id>
 class AndroidForms(Resource):
     @staticmethod
@@ -163,16 +164,18 @@ class AndroidForms(Resource):
         endpoint="android_forms",
     )
     def get(patient_id: str, form_template_id: str):
-        
+
         filters: dict = {
             "patientId": patient_id,
             "formClassificationId": form_template_id,
         }
 
         form = crud.read(Form, **filters)
-        
+
         if not form:
-            abort(404, message=f"No forms for patient with id {patient_id} and form template with id {form_template_id}")
+            abort(
+                404,
+                message=f"No forms for patient with id {patient_id} and form template with id {form_template_id}",
+            )
 
         return marshal.marshal(form, False)
-

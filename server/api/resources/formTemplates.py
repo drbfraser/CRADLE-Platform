@@ -136,7 +136,8 @@ class TemplateVersion(Resource):
 
         return {"lang_versions": lang_list}
 
-#/api/forms/templates/<string:form_template_id>/versions/<string:version>/csv
+
+# /api/forms/templates/<string:form_template_id>/versions/<string:version>/csv
 class TemplateVersionCsv(Resource):
     @staticmethod
     @jwt_required
