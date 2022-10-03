@@ -161,5 +161,5 @@ class AndroidForms(Resource):
         methods=["GET"],
         endpoint="android_forms",
     )
-    def get():
-        return {"Helloworld"}
+    def get(patient_id: str, form_id: str):
+        return "Helloworld"
