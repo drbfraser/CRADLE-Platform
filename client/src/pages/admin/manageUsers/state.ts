@@ -6,18 +6,19 @@ import { UserRoleEnum } from 'src/shared/enums';
 export enum UserField {
   firstName = 'firstName',
   email = 'email',
+  phoneNumber = 'phoneNumber',
   healthFacilityName = 'healthFacilityName',
   role = 'role',
   supervises = 'supervises',
   password = 'password',
   confirmPassword = 'confirmPassword',
   id = 'userId',
-  phoneNumber = 'phoneNumber',
 }
 
 export const fieldLabels = {
   [UserField.firstName]: 'First Name',
   [UserField.email]: 'Email',
+  [UserField.phoneNumber]: 'Phone Number',
   [UserField.healthFacilityName]: 'Health Facility',
   [UserField.role]: 'Role',
   [UserField.supervises]: 'VHTs Supervised',
@@ -75,11 +76,11 @@ export const passwordValidationSchema = Yup.object().shape(
 export const newUserTemplate: IUser = {
   [UserField.firstName]: '',
   [UserField.email]: '',
+  [UserField.phoneNumber]: '',
   [UserField.healthFacilityName]: '',
   [UserField.role]: UserRoleEnum.VHT,
   [UserField.supervises]: [] as number[],
   [UserField.id]: 0,
-  [UserField.phoneNumber]: '',
 };
 
 export const resetPasswordTemplate = {
