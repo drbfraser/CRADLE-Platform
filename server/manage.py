@@ -57,7 +57,9 @@ def seed_minimal(
     create_health_facility(facility_name)
 
     print("Creating admin user...")
-    create_user(email, "Admin", password, facility_name, RoleEnum.ADMIN.value)
+    create_user(
+        email, "Admin", password, facility_name, RoleEnum.ADMIN.value, "+1-123-456-7890"
+    )
 
     print("Finished seeding minimal data set")
 
@@ -77,11 +79,41 @@ def seed_test_data():
     print("Creating test health facilities and users...")
     create_health_facility("H1000")
     create_health_facility("H2000")
-    create_user("brian@admin.com", "Brian", "brian123", "H0000", RoleEnum.ADMIN.value)
-    create_user("vht@vht.com", "TestVHT", "vht123", "H0000", RoleEnum.VHT.value)
-    create_user("vht2@vht.com", "TestVHT2", "vht123", "H1000", RoleEnum.VHT.value)
-    create_user("hcw@hcw.com", "TestHCW", "hcw123", "H0000", RoleEnum.HCW.value)
-    create_user("cho@cho.com", "TestCHO", "cho123", "H0000", RoleEnum.CHO.value)
+    create_user(
+        "brian@admin.com",
+        "Brian",
+        "brian123",
+        "H0000",
+        RoleEnum.ADMIN.value,
+        "+1-604-123-4567",
+    )
+    create_user(
+        "vht@vht.com", "TestVHT", "vht123", "H0000", RoleEnum.VHT.value, "555-555-55555"
+    )
+    create_user(
+        "vht2@vht.com",
+        "TestVHT2",
+        "vht123",
+        "H1000",
+        RoleEnum.VHT.value,
+        "+256-415-123456",
+    )
+    create_user(
+        "hcw@hcw.com",
+        "TestHCW",
+        "hcw123",
+        "H0000",
+        RoleEnum.HCW.value,
+        "+256-416-123456",
+    )
+    create_user(
+        "cho@cho.com",
+        "TestCHO",
+        "cho123",
+        "H0000",
+        RoleEnum.CHO.value,
+        "+256-417-123456",
+    )
 
     print("Creating test patients, readings, referrals, and records...")
     create_patient_reading_referral_pregnancy(
@@ -123,20 +155,14 @@ def seed_test_data():
         "H1000",
         False,
     )
-    create_pregnancy(
-        "49300028162",
-        1547341217,
-        1570928417,
-    )
+    create_pregnancy("49300028162", 1547341217, 1570928417)
     create_medical_record(
         "49300028162",
         "Pregnancy induced hypertension\nStarted on Labetalol 200mg three times daily two weeks ago",
         False,
     )
     create_medical_record(
-        "49300028162",
-        "Aspirin 75mg\nLabetalol 200mg three times daily",
-        True,
+        "49300028162", "Aspirin 75mg\nLabetalol 200mg three times daily", True
     )
     create_patient_association("49300028162", 3)
     create_patient_association("49300028163", 4)
@@ -182,10 +208,7 @@ def seed_test_patient():
         False,
         1620640628,
     )
-    create_pregnancy(
-        "4930004967",
-        1609840628,
-    )
+    create_pregnancy("4930004967", 1609840628)
     create_pregnancy("4930004967", 1549015028, 1573379828, "SVD. Baby weighed 3kg.")
 
 
@@ -198,9 +221,7 @@ def seed():
     print("Seeding Villages...")
     village_schema = VillageSchema()
     for village in villageList:
-        v_schema = {
-            "villageNumber": village,
-        }
+        v_schema = {"villageNumber": village}
         db.session.add(village_schema.load(v_schema))
 
     # SEED health facilities
@@ -357,7 +378,7 @@ def create_health_facility(
     db.session.commit()
 
 
-def create_user(email, name, password, hf_name, role):
+def create_user(email, name, password, hf_name, role, phone):
     """
     Creates a user in the database.
     """
@@ -367,6 +388,7 @@ def create_user(email, name, password, hf_name, role):
         "password": flask_bcrypt.generate_password_hash(password),
         "healthFacilityName": hf_name,
         "role": role,
+        "phoneNumber": phone,
     }
     user_schema = UserSchema()
     db.session.add(user_schema.load(user))
@@ -459,11 +481,7 @@ def create_patient_reading_referral_pregnancy(
 
 
 def create_pregnancy(
-    patientId,
-    startDate,
-    endDate=None,
-    outcome=None,
-    defaultTimeUnit="WEEKS",
+    patientId, startDate, endDate=None, outcome=None, defaultTimeUnit="WEEKS"
 ):
     pregnancy = {
         "patientId": patientId,
@@ -490,10 +508,7 @@ def create_medical_record(patientId, info, isDrugRecord, dateCreated=1622541428)
 
 
 def create_patient_association(patientId, userId):
-    association = {
-        "patientId": patientId,
-        "userId": userId,
-    }
+    association = {"patientId": patientId, "userId": userId}
     schema = PatientAssociationsSchema()
     db.session.add(schema.load(association))
     db.session.commit()

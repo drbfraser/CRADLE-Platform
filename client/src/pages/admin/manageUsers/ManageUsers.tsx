@@ -48,6 +48,12 @@ export const ManageUsers = () => {
       },
     },
     {
+      name: 'Phone Number',
+      options: {
+        display: isTransformed ? true : false,
+      },
+    },
+    {
       name: 'Health Facility',
       options: {
         display: isTransformed ? true : false,
@@ -99,6 +105,7 @@ export const ManageUsers = () => {
       .map((u) => [
         u.firstName,
         u.email,
+        u.phoneNumber,
         u.healthFacilityName,
         userRoleLabels[u.role],
         u.index,
@@ -142,11 +149,14 @@ export const ManageUsers = () => {
         <TableCell label="Email" isTransformed={isTransformed}>
           {cells[1]}
         </TableCell>
-        <TableCell label="Health Facility" isTransformed={isTransformed}>
+        <TableCell label="Phone Number" isTransformed={isTransformed}>
           {cells[2]}
         </TableCell>
-        <TableCell label="Role" isTransformed={isTransformed}>
+        <TableCell label="Health Facility" isTransformed={isTransformed}>
           {cells[3]}
+        </TableCell>
+        <TableCell label="Role" isTransformed={isTransformed}>
+          {cells[4]}
         </TableCell>
         <TableCell label="Take Action" isTransformed={isTransformed}>
           {actions.map((action) => (
