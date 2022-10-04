@@ -4,6 +4,37 @@ import data.crud as crud
 from models import FormClassification, FormTemplate
 
 
+def test_form_template_created_with_same_classification_ids(
+    database,
+    form_template,
+    form_template3,
+    form_template4,
+    api_post,
+):
+    try:
+        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        database.session.commit()
+        assert response.status_code == 201
+        response = api_post(endpoint="/api/forms/templates", json=form_template3)
+        database.session.commit()
+        assert response.status_code == 409
+        response = api_post(endpoint="/api/forms/templates", json=form_template4)
+        database.session.commit()
+        assert response.status_code == 201
+    finally:
+        classificationId = form_template["classification"]["id"]
+        crud.delete_by(
+            FormTemplate,
+            formClassificationId=classificationId,
+            version=form_template["version"],
+        )
+        crud.delete_by(
+            FormTemplate,
+            formClassificationId=classificationId,
+            version=form_template4["version"],
+        )
+
+
 def test_form_template_created(database, form_template, form_template_2, api_post):
     try:
         response = api_post(endpoint="/api/forms/templates", json=form_template)
@@ -13,8 +44,10 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
         database.session.commit()
         assert response.status_code == 201
     finally:
-        crud.delete_by(FormClassification, name="ft1")
-        crud.delete_by(FormClassification, name="ft2")
+        crud.delete_by(FormClassification, name=form_template["classification"]["name"])
+        crud.delete_by(
+            FormClassification, name=form_template_2["classification"]["name"]
+        )
 
 
 def test_form_template_archival(
@@ -25,22 +58,21 @@ def test_form_template_archival(
         database.session.commit()
         assert response.status_code == 201
 
-        form_template_id = "ft1"
         response = api_put(
-            endpoint=f"/api/forms/templates/{form_template_id}",
+            endpoint=f"/api/forms/templates/{form_template['id']}",
             json=update_info_in_question,
         )
         database.session.commit()
         assert response.status_code == 201
 
     finally:
-        crud.delete_by(FormClassification, name="ft1")
+        crud.delete_by(FormClassification, name=form_template["classification"]["name"])
 
 
 @pytest.fixture
 def form_template():
     return {
-        "classification": {"name": "ft1"},
+        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
         "id": "ft1",
         "version": "V1",
         "questions": [
@@ -157,6 +189,60 @@ def form_template_2():
                         "lang": "chinese",
                         "questionText": "你的性别？",
                         "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
+                    },
+                ],
+            },
+        ],
+    }
+
+
+@pytest.fixture
+def form_template3():
+    return {
+        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
+        "version": "V1",
+        "questions": [
+            {
+                "questionId": "section header",
+                "categoryIndex": None,
+                "questionIndex": 0,
+                "questionType": "CATEGORY",
+                "required": True,
+                "questionLangVersions": [
+                    {
+                        "lang": "english",
+                        "questionText": "information",
+                    },
+                    {
+                        "lang": "chinese",
+                        "questionText": "信息",
+                    },
+                ],
+            },
+        ],
+    }
+
+
+@pytest.fixture
+def form_template4():
+    return {
+        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
+        "version": "V2",
+        "questions": [
+            {
+                "questionId": "section header",
+                "categoryIndex": None,
+                "questionIndex": 0,
+                "questionType": "CATEGORY",
+                "required": True,
+                "questionLangVersions": [
+                    {
+                        "lang": "english",
+                        "questionText": "information",
+                    },
+                    {
+                        "lang": "chinese",
+                        "questionText": "信息",
                     },
                 ],
             },
