@@ -1,0 +1,133 @@
+Get a specific form from a patient
+---
+tags:
+  - Android
+parameters:
+- in: path
+  name: form_template_id
+  required: true
+  schema:
+    type: string
+- in: path
+  name: patient_id
+  required: true
+  schema:
+    type: string
+responses:
+  200:
+    description: Response from GET request for /api/mobile/forms/<str:patient_id>/<str:form_template_id>
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "adas-d82314-27822-63138"
+            lang:
+              type: string
+              example: english
+            patientId:
+              type: string
+              example: "123"
+            formTemplateId:
+              type: string | null
+              example: "adas-d82314-27822-63139"
+            name:
+              type: string | null
+              example: "referral_form"
+            category:
+              type: string | null
+              example: "example"
+            dateCreated:
+              type: Unix timestamp
+              example: 1592339808
+            lastEdited:
+              type: Unix timestamp
+              example: 1592339808
+            lastEditedBy:
+              type: integer | null
+              example: 2
+            questions:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "adas-d82314-27822-63150"
+                  questionId:
+                    type: string | null
+                    example: "referred-by-name"
+                  isBlank:
+                    type: boolean
+                    example: false
+                  formId:
+                    type: string
+                    example: "adas-d82314-27822-63139"
+                  categoryIndex:
+                    type: integer | null
+                    example: 0
+                  questionIndex:
+                    type: integer
+                    example: 1
+                  questionText:
+                    type: string
+                    example: "How the patient's condition?"
+                  questionType:
+                    type: enum
+                    enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
+                    example: MULTIPLE_CHOICE
+                  hasCommentAttached:
+                    type: boolean
+                    example: false
+                  required:
+                    type: boolean
+                    example: true
+                  units:
+                    type: string | null
+                    example: "kg"
+                  visibleCondition:
+                    type: array
+                    items: object
+                    example: [{
+                      "qidx": 0,
+                      "relation": "EQUAL_TO",
+                      "answers": {
+                          "mcidArray": [
+                              0
+                          ]
+                      }
+                    }]
+                  numMin:
+                    type: float | null
+                    example: 1.0
+                  numMax:
+                    type: float | null
+                    example: 5.0
+                  stringMaxLength:
+                    type: integer | null
+                    example: 255
+                  mcOptions:
+                    type: array
+                    example: [
+                      {
+                        "mcid": 0,
+                        "opt": "Decent"
+                      }
+                    ]
+                  answers:
+                    type: object
+                    properties:
+                      number:
+                        type: integer/float | null
+                        example: null
+                      text: 
+                        type: string | null
+                        example: null
+                      mcidArray:
+                        type: array | null
+                        example: [0]
+                      comment:
+                        type: string | null
+                        example: "Was not an emergency"

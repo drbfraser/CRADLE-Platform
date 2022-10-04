@@ -2,13 +2,14 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from flask_restful import Resource
+from flask_restful import Resource, abort
 from data import crud, marshal
 import service.FilterHelper as filter
 from models import (
     Patient,
     PatientSchema,
     User,
+    Form,
     Reading,
     Referral,
     ReadingSchema,
@@ -151,3 +152,30 @@ class AndroidAssessments(Resource):
         user = get_jwt_identity()
         assessments = view.assessment_view(user)
         return [serialize.serialize_referral_or_assessment(a) for a in assessments]
+
+
+# /api/mobile/forms/<str:patient_id>/<str:form_template_id>
+class AndroidForms(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/android-forms-get.yml",
+        methods=["GET"],
+        endpoint="android_forms",
+    )
+    def get(patient_id: str, form_template_id: str):
+
+        filters: dict = {
+            "patientId": patient_id,
+            "formClassificationId": form_template_id,
+        }
+
+        form = crud.read(Form, **filters)
+
+        if not form:
+            abort(
+                404,
+                message=f"No forms for patient with id {patient_id} and form template with id {form_template_id}",
+            )
+
+        return marshal.marshal(form, False)
