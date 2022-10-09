@@ -12,6 +12,7 @@ from models import (
     SexEnum,
     GestationalAgeUnitEnum,
     TrafficLightEnum,
+    Form,
 )
 
 
@@ -402,7 +403,6 @@ def test_sync_patients_partially_successful(
         crud.delete_all(PatientAssociations, patientId=patient2_id)
         crud.delete_by(Patient, patientId=patient2_id)
 
-
 @pytest.mark.skip(
     reason="TODO crud.read_referrals_and_assessments must be fixed for this test to run"
 )
@@ -456,3 +456,73 @@ def test_sync_readings(
 
     finally:
         crud.delete_by(Reading, readingId=mobile_reading_id)
+
+def test_get_patient_form (
+    create_patient,
+    patient_id,
+    form,
+    database,
+    api_get,
+    api_post,
+):
+    
+    create_patient()
+    response = api_post(endpoint="/api/forms/responses", json=form)
+    database.session.commit()
+
+    try:
+        response = api_get(endpoint="/api/mobile/forms/87356709248/fc9")
+        assert response.status_code == 404
+        response = api_get(endpoint="/api/mobile/forms/87356709248/fc9")
+        assert response.status_code == 404
+        response = api_get(endpoint="/api/mobile/forms/87356709247/ft9")
+        assert response.status_code == 404
+        response = api_get(endpoint="/api/mobile/forms/87356709248/ft9")
+        assert response.status_code == 200
+    finally:
+        crud.delete_by(Patient, patientId=patient_id)
+        crud.delete_all(Form, id="f9")
+    
+
+
+@pytest.fixture
+def form(patient_id):
+    return {
+        "id": "f9",
+        "lang": "english",
+        "formTemplateId": "ft9",
+        "formClassificationId": "fc9",
+        "patientId": patient_id,
+        "questions": [
+            {
+                "questionId": "referred-by-name",
+                "categoryIndex": None,
+                "questionIndex": 0,
+                "questionText": "How the patient's condition?",
+                "questionType": "MULTIPLE_CHOICE",
+                "required": True,
+                "visibleCondition": [
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4.0}}
+                ],
+                "mcOptions": [
+                    {
+                        "mcid": 0,
+                        "opt": "Decent",
+                    },
+                    {
+                        "mcid": 1,
+                        "opt": "French",
+                    },
+                ],
+                "answers": {"mcidArray": [0]},
+            },
+            {
+                "questionId": None,
+                "categoryIndex": None,
+                "questionIndex": 1,
+                "questionText": "Info",
+                "questionType": "CATEGORY",
+                "required": True,
+            },
+        ],
+    }
