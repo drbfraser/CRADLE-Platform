@@ -170,6 +170,28 @@ frontend lint:
   script:
     - ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
 
+frontend unit tests:
+  stage: test
+  needs: []
+  image: cypress/browsers:node12.14.1-chrome85-ff81
+  tags:
+    - docker
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
+      changes:
+        - client/**/*
+      when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+  before_script:
+    - cd client 
+    - npm i --global npm@7
+    - npm ci
+  script:
+    - npm run start:ci &
+    - npx cypress run --browser firefox #test in chrome and firefox
+
 frontend format:
   stage: format
   needs: []
