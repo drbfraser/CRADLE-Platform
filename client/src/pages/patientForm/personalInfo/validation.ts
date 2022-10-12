@@ -20,6 +20,7 @@ export const personalInfoValidationSchema = (creatingNew: boolean) =>
             'A valid patient ID is required.',
             (pId) => String(pId).length > 0 && String(pId).length <= 15
           ),
+
     // For writing + testing Regex, see: regex101.com
     [PatientField.patientName]: Yup.string()
       .label('Name')
