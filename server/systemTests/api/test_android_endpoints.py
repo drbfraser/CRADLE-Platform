@@ -13,6 +13,8 @@ from models import (
     GestationalAgeUnitEnum,
     TrafficLightEnum,
     Form,
+    FormTemplate, 
+    FormClassification
 )
 
 
@@ -461,29 +463,61 @@ def test_get_patient_form (
     create_patient,
     patient_id,
     form,
+    form_template,
+    form_classification,
     database,
     api_get,
     api_post,
 ):
     
     create_patient()
+
+    response = api_post(
+        endpoint="/api/forms/classifications", json=form_classification
+    )
+    database.session.commit()
+    assert response.status_code == 201
+
+    response = api_post(endpoint="/api/forms/templates", json=form_template)
+    database.session.commit()
+    assert response.status_code == 201
+
     response = api_post(endpoint="/api/forms/responses", json=form)
     database.session.commit()
+    assert response.status_code == 201
 
     try:
-        response = api_get(endpoint="/api/mobile/forms/87356709248/fc9")
-        assert response.status_code == 404
-        response = api_get(endpoint="/api/mobile/forms/87356709248/fc9")
-        assert response.status_code == 404
         response = api_get(endpoint="/api/mobile/forms/87356709247/ft9")
         assert response.status_code == 404
         response = api_get(endpoint="/api/mobile/forms/87356709248/ft9")
+        assert response.status_code == 404
+        response = api_get(endpoint="/api/mobile/forms/87356709247/fc9")
+        assert response.status_code == 404
+        response = api_get(endpoint="/api/mobile/forms/87356709248/fc9")
         assert response.status_code == 200
     finally:
         crud.delete_by(Patient, patientId=patient_id)
         crud.delete_all(Form, id="f9")
+        crud.delete_all(FormTemplate, id="ft9")
+        crud.delete_all(FormClassification, name="fc9")
     
 
+@pytest.fixture
+def form_classification():
+    return {
+        "id": "fc9",
+        "name": "fc9",
+    }
+
+
+@pytest.fixture
+def form_template():
+    return {
+        "classification": {"name": "fc9"},
+        "id": "ft9",
+        "version": "V1",
+        "questions": [],
+    }
 
 @pytest.fixture
 def form(patient_id):
