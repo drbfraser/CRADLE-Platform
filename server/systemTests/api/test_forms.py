@@ -46,6 +46,7 @@ def test_form_created(
         crud.delete_all(FormTemplate, id="ft9")
         crud.delete_all(FormClassification, name="fc9")
 
+
 def form_question_put(qid):
     return {
         "questions": [

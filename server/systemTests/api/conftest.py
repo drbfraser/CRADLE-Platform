@@ -127,6 +127,7 @@ def drug_record(patient_id):
         "isDrugRecord": True,
     }
 
+
 @pytest.fixture
 def form_classification():
     return {
@@ -143,6 +144,7 @@ def form_template():
         "version": "V1",
         "questions": [],
     }
+
 
 @pytest.fixture
 def form(patient_id):
