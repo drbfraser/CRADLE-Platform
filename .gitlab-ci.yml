@@ -65,7 +65,7 @@ frontend setup:
     - key: "$CI_JOB_NAME"
         # must be inside $CI_PROJECT_DIR for gitlab-runner caching (#3)
       paths:
-        - .npm/
+        - ./client/.npm/
       when: on_success
       policy: pull-push
     # Mimic &global_cache_node_mods config but override policy
@@ -75,11 +75,11 @@ frontend setup:
     # in a yaml list is not as easy as a dictionary entry (#5)
     - key:
         files:
-            - package-lock.json
+            - ./client/package-lock.json
       paths:
-        - node_modules/
+        - ./client/node_modules/
       when: on_success
-      policy: pull-push
+      policy: pull-push 
   script:
     - cd client
     - npm i --global npm@7
