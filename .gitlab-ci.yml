@@ -46,10 +46,14 @@ frontend build:
     # Always build/test for schedule / manual "Run Pipeline" via web
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == "web"
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+    - .npm/
   before_script:
     - cd client
     - npm i --global npm@7
-    - npm ci
+    - npm ci --cache .npm --prefer-offline
   script:
     - GENERATE_SOURCEMAP=false npm run build
   after_script:
@@ -144,8 +148,6 @@ frontend unit tests:
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     - cd client 
-    - npm i --global npm@7
-    - npm ci
   script:
     - npm run test --args a
 
@@ -165,8 +167,6 @@ frontend lint:
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
     - cd client
-    - npm i --global npm@7
-    - npm ci
   script:
     - ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
 

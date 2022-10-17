@@ -143,6 +143,7 @@ button:disabled {
   margin-top: 0.25rem;
 }
 
+
 .MuiOutlinedInput-notchedOutline legend {
   overflow: hidden; /* fix scrolling issue: https://github.com/mui-org/material-ui/issues/20067 */
 }
