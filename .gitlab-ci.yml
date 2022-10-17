@@ -1,4 +1,5 @@
 stages:
+  - setup
   - build
   - test
   - format
@@ -27,9 +28,8 @@ build info:
     - echo "  CI_MERGE_REQUEST_ID = $CI_MERGE_REQUEST_ID"
     - echo "  CI_COMMIT_BRANCH    = $CI_COMMIT_BRANCH"
 
-
-frontend build:
-  stage: build
+frontend setup: 
+  stage: setup
   needs: []
   image: $NODE_IMAGE
   tags:
@@ -50,10 +50,33 @@ frontend build:
     key: $CI_COMMIT_REF_SLUG
     paths:
     - .npm/
-  before_script:
+  script:
     - cd client
     - npm i --global npm@7
     - npm ci --cache .npm --prefer-offline
+
+frontend build:
+  stage: build
+  needs: ['frontend setup']
+  image: $NODE_IMAGE
+  tags:
+    - docker
+  rules:
+    # ensure frontend builds if any frontend files have changed in the MR
+    - if: '$CI_MERGE_REQUEST_ID != null'
+      changes:
+        - client/**/*
+      when: always
+    # always run if deploying
+    - if: '$CI_COMMIT_BRANCH == $DEV_BRANCH || $CI_COMMIT_BRANCH == $STG_BRANCH'
+      when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+  before_script:
+    - cd client
+    - npm --version
+    - ls ./.npm
   script:
     - GENERATE_SOURCEMAP=false npm run build
   after_script:
@@ -134,7 +157,7 @@ backend system tests:
 
 frontend unit tests:
   stage: test
-  needs: ['frontend build']
+  needs: ['frontend setup']
   image: $NODE_IMAGE
   tags:
     - docker
@@ -153,7 +176,7 @@ frontend unit tests:
 
 frontend lint:
   stage: format
-  needs: ['frontend build']
+  needs: ['frontend setup']
   image: $NODE_IMAGE
   tags:
     - docker
@@ -172,7 +195,7 @@ frontend lint:
 
 frontend format:
   stage: format
-  needs: ['frontend build']
+  needs: ['frontend setup']
   image: $NODE_IMAGE
   tags:
     - docker
