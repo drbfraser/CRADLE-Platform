@@ -64,22 +64,22 @@ frontend setup:
     # will not be necessary for any other job
     - key: ${CI_JOB_NAME}
        # must be inside $CI_PROJECT_DIR for gitlab-runner caching (#3)
-       paths:
-         - .npm/
-       when: on_success
-       policy: pull-push
+        paths:
+          - .npm/
+        when: on_success
+        policy: pull-push
     # Mimic &global_cache_node_mods config but override policy
     # to allow this job to update the cache at the end of the job
     # and only update if it was a successful job
     # NOTE: I would use yaml anchors here but overriding the policy
     # in a yaml list is not as easy as a dictionary entry (#5)
     - key:
-       files:
-         - package-lock.json
-       paths:
-         - node_modules/
-       when: on_success
-       policy: pull-push
+        files:
+          - package-lock.json
+        paths:
+          - node_modules/
+        when: on_success
+        policy: pull-push
   script:
     - cd client
     - npm i --global npm@7
