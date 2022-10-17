@@ -134,7 +134,7 @@ backend system tests:
 
 frontend unit tests:
   stage: test
-  needs: ['build']
+  needs: ['frontend build']
   image: $NODE_IMAGE
   tags:
     - docker
@@ -153,7 +153,7 @@ frontend unit tests:
 
 frontend lint:
   stage: format
-  needs: ['build']
+  needs: ['frontend build']
   image: $NODE_IMAGE
   tags:
     - docker
@@ -172,7 +172,7 @@ frontend lint:
 
 frontend format:
   stage: format
-  needs: ['build']
+  needs: ['frontend build']
   image: $NODE_IMAGE
   tags:
     - docker
