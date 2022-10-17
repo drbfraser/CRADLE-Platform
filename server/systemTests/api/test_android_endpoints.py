@@ -13,8 +13,8 @@ from models import (
     GestationalAgeUnitEnum,
     TrafficLightEnum,
     Form,
-    FormTemplate, 
-    FormClassification
+    FormTemplate,
+    FormClassification,
 )
 
 
@@ -405,6 +405,7 @@ def test_sync_patients_partially_successful(
         crud.delete_all(PatientAssociations, patientId=patient2_id)
         crud.delete_by(Patient, patientId=patient2_id)
 
+
 @pytest.mark.skip(
     reason="TODO crud.read_referrals_and_assessments must be fixed for this test to run"
 )
@@ -459,7 +460,8 @@ def test_sync_readings(
     finally:
         crud.delete_by(Reading, readingId=mobile_reading_id)
 
-def test_get_patient_form (
+
+def test_get_patient_form(
     create_patient,
     patient_id,
     form,
@@ -469,12 +471,10 @@ def test_get_patient_form (
     api_get,
     api_post,
 ):
-    
+
     create_patient()
 
-    response = api_post(
-        endpoint="/api/forms/classifications", json=form_classification
-    )
+    response = api_post(endpoint="/api/forms/classifications", json=form_classification)
     database.session.commit()
 
     response = api_post(endpoint="/api/forms/templates", json=form_template)
@@ -496,5 +496,3 @@ def test_get_patient_form (
         crud.delete_all(Form, id="f9")
         crud.delete_all(FormTemplate, id="ft9")
         crud.delete_all(FormClassification, name="fc9")
-    
-
