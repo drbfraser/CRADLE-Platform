@@ -82,7 +82,9 @@ frontend setup:
       when: on_success
       policy: pull-push 
   script:
-    - ls ~/ -al
+    - ls /etc/
+    - ls /etc/gitlab-runner/
+    - cat /etc/gitlab-runner/config.toml
     - cd client
     - ls .npm
     - npm i --global npm@7
