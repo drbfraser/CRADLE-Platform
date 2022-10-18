@@ -10,14 +10,15 @@ stages:
 # Ensure compatibility with the install job
 # goal: the install job loads the cache and
 # all other jobs can only use it
-cache: &global_node_cache
-    # most npm libraries will only have 1 entry for the base project deps
-  - key: 
-      files:
-        - ./client/package-lock.json
-    paths:
-      - ./client/node_modules/
-    policy: pull  # prevent subsequent jobs from modifying cache
+.node_modules_cache:
+  cache:
+      # most npm libraries will only have 1 entry for the base project deps
+    - key: 
+        files:
+          - client/package-lock.json
+      paths:
+        - client/node_modules/
+      policy: pull  # prevent subsequent jobs from modifying cache
 
 variables:
   DEV_BRANCH: "master"
@@ -62,10 +63,10 @@ frontend setup:
   cache:
     # store npm cache for all branches (stores download pkg.tar.gz's)
     # will not be necessary for any other job
-    - key: "$CI_JOB_NAME"
+    - key: '$CI_JOB_NAME'
         # must be inside $CI_PROJECT_DIR for gitlab-runner caching (#3)
       paths:
-        - ./client/.npm/
+        - client/.npm/
       when: on_success
       policy: pull-push
     # Mimic &global_cache_node_mods config but override policy
@@ -75,9 +76,9 @@ frontend setup:
     # in a yaml list is not as easy as a dictionary entry (#5)
     - key:
         files:
-            - ./client/package-lock.json
+            - /client/package-lock.json
       paths:
-        - ./client/node_modules/
+        - client/node_modules/
       when: on_success
       policy: pull-push 
   script:
@@ -92,8 +93,7 @@ frontend build:
   image: $NODE_IMAGE
   tags:
     - docker
-  cache:
-    <<: *global_node_cache
+  extends: .node_modules_cache
   rules:
     # ensure frontend builds if any frontend files have changed in the MR
     - if: '$CI_MERGE_REQUEST_ID != null'
