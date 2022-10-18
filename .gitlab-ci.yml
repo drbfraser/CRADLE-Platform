@@ -10,7 +10,7 @@ stages:
 # Ensure compatibility with the install job
 # goal: the install job loads the cache and
 # all other jobs can only use it
-cache:
+cache: &global_node_cache
     # most npm libraries will only have 1 entry for the base project deps
   - key: 
       files:
@@ -92,6 +92,8 @@ frontend build:
   image: $NODE_IMAGE
   tags:
     - docker
+  cache:
+    <<: *global_node_cache
   rules:
     # ensure frontend builds if any frontend files have changed in the MR
     - if: '$CI_MERGE_REQUEST_ID != null'
@@ -111,6 +113,7 @@ frontend build:
   script:
     - GENERATE_SOURCEMAP=false npm run build
   after_script:
+    - npm run build
     - cd client/build && tar -czvf ../../frontend.tar.gz .
   artifacts:
     expire_in: 1 week
