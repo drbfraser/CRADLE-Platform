@@ -82,9 +82,6 @@ frontend setup:
       when: on_success
       policy: pull-push 
   script:
-    - ls /etc/
-    - ls /etc/gitlab-runner/
-    - cat /etc/gitlab-runner/config.toml
     - cd client
     - ls .npm
     - npm i --global npm@7
@@ -199,6 +196,7 @@ frontend unit tests:
   stage: test
   needs: ['frontend setup']
   image: $NODE_IMAGE
+  extends: .node_modules_cache
   tags:
     - docker
   rules:
@@ -210,6 +208,10 @@ frontend unit tests:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
+    - echo 'Docker vol:'
+    - ls /var/lib/docker/volumes
+    - echo 'work dir:'
+    - ls -la
     - cd client 
   script:
     - npm run test --args a
@@ -218,6 +220,7 @@ frontend lint:
   stage: format
   needs: ['frontend setup']
   image: $NODE_IMAGE
+  extends: .node_modules_cache
   tags:
     - docker
   rules:
