@@ -82,7 +82,7 @@ frontend setup:
       when: on_success
       policy: pull-push 
   script:
-    - ls ~/.gitlab-runner
+    - ls ~/ -al
     - cd client
     - ls .npm
     - npm i --global npm@7
@@ -111,7 +111,7 @@ frontend build:
   before_script:
     - cd client
     - npm --version
-    - ls ./.npm
+    - ls ./ -la
   script:
     - GENERATE_SOURCEMAP=false npm run build
   after_script:
