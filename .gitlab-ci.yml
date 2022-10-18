@@ -76,7 +76,7 @@ frontend setup:
     # in a yaml list is not as easy as a dictionary entry (#5)
     - key:
         files:
-            - /client/package-lock.json
+            - client/package-lock.json
       paths:
         - client/node_modules/
       when: on_success
