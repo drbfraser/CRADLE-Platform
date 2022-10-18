@@ -82,13 +82,14 @@ frontend setup:
       when: on_success
       policy: pull-push 
   script:
+    - cat ~/.gitlab-runner/config.toml
+    - ls ~/.gitlab-runner
     - cd client
+    - ls .npm
     - npm i --global npm@7
     - npm ci --cache .npm --prefer-offline
     - ls .npm
-    - cat ~/.gitlab-runner/config.toml
-    - cat /etc/gitlab-runner/config.toml
-    
+
 frontend build:
   stage: build
   needs: ['frontend setup']
