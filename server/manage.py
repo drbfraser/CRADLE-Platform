@@ -4,7 +4,6 @@ import uuid
 import datetime
 import time
 import numpy as np
-import sys
 import json
 from random import randrange
 from datetime import timedelta, datetime
@@ -15,7 +14,6 @@ from random import randint, choice
 from string import ascii_lowercase, digits
 import data.crud as crud
 import data.marshal as marshal
-import service.invariant as invariant
 
 
 manager = Manager(app)
@@ -666,6 +664,9 @@ def getFacilityAbout():
 
 if __name__ == "__main__":
     NUM_OF_PATIENTS = 250
+    # This is used to get random dates to generate readings for patients.
+    # TODO: This should be updated once in a while, for readings to be displayed in the frontend.
+    START_DATE = "1/1/2022 12:01 AM"
 
     patientList = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
     random.shuffle(patientList)
@@ -695,6 +696,6 @@ if __name__ == "__main__":
     bpDiastolicList = np.clip(np.random.normal(80, 25, 1000).astype(int), 30, 200)
     heartRateList = np.clip(np.random.normal(60, 17, 1000).astype(int), 30, 250)
 
-    d1 = datetime.strptime("1/1/2019 12:01 AM", "%m/%d/%Y %I:%M %p")
+    d1 = datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
     d2 = datetime.today().replace(microsecond=0)
     manager.run()
