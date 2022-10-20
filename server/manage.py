@@ -168,8 +168,8 @@ def seed_test_data():
     create_patient_association("49300028163", 4)
 
     print("Creating form template, form classification, and forms...")
-    create_form_classification
-    create_form_template
+    create_form_classification()
+    create_form_template()
     create_form("49300028162")
 
     print("Finished seeding minimal test data")
@@ -522,8 +522,8 @@ def create_patient_association(patientId, userId):
 
 def create_form_classification():
     form_classification = {
-        "id": "fc9",
-        "name": "fc9",
+        "id": "dc9",
+        "name": "dc9",
     }
     form_classification_schema = FormClassificationSchema()
     db.session.add(form_classification_schema.load(form_classification))
@@ -531,53 +531,10 @@ def create_form_classification():
 
 def create_form_template():
     form_template = {
-        "classification": {"id": "fc9", "name": "fc9"},
-        "id": "ft9",
+        "classification": {"name": "dc9", "id": "dc9"},
+        "id": "dt9",
         "version": "V1",
-        "questions": [
-            {
-                "questionId": "section header",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionType": "CATEGORY",
-                "required": True,
-                "questionLangVersions": [
-                    {
-                        "lang": "english",
-                        "questionText": "information",
-                    },
-                    {
-                        "lang": "chinese",
-                        "questionText": "信息",
-                    },
-                ],
-            },
-            {
-                "questionId": "referred-by-name",
-                "categoryIndex": 0,
-                "questionIndex": 1,
-                "questionType": "MULTIPLE_CHOICE",
-                "required": True,
-                "visibleCondition": [
-                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
-                ],
-                "questionLangVersions": [
-                    {
-                        "lang": "english",
-                        "questionText": "what's your sex?",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "male"},
-                            {"mcid": 1, "opt": "female"},
-                        ],
-                    },
-                    {
-                        "lang": "chinese",
-                        "questionText": "你的性别？",
-                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
-                    },
-                ],
-            },
-        ],
+        "questions": [],
     }
     form_template_schema = FormTemplateSchema()
     db.session.add(form_template_schema.load(form_template))
@@ -585,43 +542,12 @@ def create_form_template():
 
 def create_form(patient_id):
     form = {
-        "id": "f9",
+        "id": "d9",
         "lang": "english",
-        "formTemplateId": "ft9",
-        "formClassificationId": "fc9",
+        "formTemplateId": "dt9",
+        "formClassificationId": "dc9",
         "patientId": patient_id,
-        "questions": [
-            {
-                "questionId": "referred-by-name",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionText": "How the patient's condition?",
-                "questionType": "MULTIPLE_CHOICE",
-                "required": True,
-                "visibleCondition": [
-                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4.0}}
-                ],
-                "mcOptions": [
-                    {
-                        "mcid": 0,
-                        "opt": "Decent",
-                    },
-                    {
-                        "mcid": 1,
-                        "opt": "French",
-                    },
-                ],
-                "answers": {"mcidArray": [0]},
-            },
-            {
-                "questionId": None,
-                "categoryIndex": None,
-                "questionIndex": 1,
-                "questionText": "Info",
-                "questionType": "CATEGORY",
-                "required": True,
-            },
-        ],
+        "questions": [],
     }
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
