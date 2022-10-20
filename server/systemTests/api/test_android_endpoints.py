@@ -473,4 +473,3 @@ def test_get_patient_form(
     assert response.status_code == 404
     response = api_get(endpoint="/api/mobile/forms/49300028162/dc9")
     assert response.status_code == 200
-

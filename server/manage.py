@@ -529,6 +529,7 @@ def create_form_classification():
     db.session.add(form_classification_schema.load(form_classification))
     db.session.commit()
 
+
 def create_form_template():
     form_template = {
         "classification": {"name": "dc9", "id": "dc9"},
@@ -539,6 +540,7 @@ def create_form_template():
     form_template_schema = FormTemplateSchema()
     db.session.add(form_template_schema.load(form_template))
     db.session.commit()
+
 
 def create_form(patient_id):
     form = {
@@ -552,8 +554,6 @@ def create_form(patient_id):
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
     db.session.commit()
-
-
 
 
 def getRandomInitials():
@@ -704,6 +704,7 @@ def getFacilityType():
 
 def getFacilityAbout():
     return random.choice(facilityAbout)
+
 
 if __name__ == "__main__":
     NUM_OF_PATIENTS = 250
