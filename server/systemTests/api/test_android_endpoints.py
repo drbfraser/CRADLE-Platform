@@ -12,9 +12,6 @@ from models import (
     SexEnum,
     GestationalAgeUnitEnum,
     TrafficLightEnum,
-    Form,
-    FormTemplate,
-    FormClassification,
 )
 
 
@@ -468,16 +465,12 @@ def test_get_patient_form(
 
     create_patient()
 
-    try:
-        response = api_get(endpoint="/api/mobile/forms/87356709247/ft9")
-        assert response.status_code == 404
-        response = api_get(endpoint="/api/mobile/forms/87356709248/ft9")
-        assert response.status_code == 404
-        response = api_get(endpoint="/api/mobile/forms/87356709247/fc9")
-        assert response.status_code == 404
-        response = api_get(endpoint="/api/mobile/forms/87356709248/fc9")
-        assert response.status_code == 200
-    finally:
-        crud.delete_all(Form, id="f9")
-        crud.delete_all(FormTemplate, id="ft9")
-        crud.delete_all(FormClassification, name="fc9")
+    response = api_get(endpoint="/api/mobile/forms/87356709247/ft9")
+    assert response.status_code == 404
+    response = api_get(endpoint="/api/mobile/forms/49300028162/ft9")
+    assert response.status_code == 404
+    response = api_get(endpoint="/api/mobile/forms/87356709247/fc9")
+    assert response.status_code == 404
+    response = api_get(endpoint="/api/mobile/forms/49300028162/fc9")
+    assert response.status_code == 200
+
