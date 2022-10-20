@@ -166,6 +166,12 @@ def seed_test_data():
     )
     create_patient_association("49300028162", 3)
     create_patient_association("49300028163", 4)
+
+    print("Creating form template, form classification, and forms...")
+    create_form_classification
+    create_form_template
+    create_form(87356709248)
+
     print("Finished seeding minimal test data")
 
 
@@ -514,6 +520,73 @@ def create_patient_association(patientId, userId):
     db.session.commit()
 
 
+def create_form_classification():
+    form_classification = {
+        "id": "fc9",
+        "name": "fc9",
+    }
+    form_classification_schema = FormClassificationSchema()
+    db.session.add(form_classification_schema.load(form_classification))
+    db.session.commit()
+
+def create_form_template():
+    form_template = {
+        "classification": {"name": "fc9"},
+        "id": "ft9",
+        "version": "V1",
+        "questions": [],
+    }
+    form_template_schema = FormTemplateSchema()
+    db.session.add(form_template_schema.load(form_template))
+    db.session.commit()
+
+def create_form(patient_id):
+    form = {
+        "id": "f9",
+        "lang": "english",
+        "formTemplateId": "ft9",
+        "formClassificationId": "fc9",
+        "patientId": patient_id,
+        "questions": [
+            {
+                "questionId": "referred-by-name",
+                "categoryIndex": None,
+                "questionIndex": 0,
+                "questionText": "How the patient's condition?",
+                "questionType": "MULTIPLE_CHOICE",
+                "required": True,
+                "visibleCondition": [
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4.0}}
+                ],
+                "mcOptions": [
+                    {
+                        "mcid": 0,
+                        "opt": "Decent",
+                    },
+                    {
+                        "mcid": 1,
+                        "opt": "French",
+                    },
+                ],
+                "answers": {"mcidArray": [0]},
+            },
+            {
+                "questionId": None,
+                "categoryIndex": None,
+                "questionIndex": 1,
+                "questionText": "Info",
+                "questionType": "CATEGORY",
+                "required": True,
+            },
+        ],
+    }
+    form_schema = FormSchema()
+    db.session.add(form_schema.load(form))
+    db.session.commit()
+
+
+
+
 def getRandomInitials():
     return (
         random.choice(string.ascii_letters) + random.choice(string.ascii_letters)
@@ -662,7 +735,6 @@ def getFacilityType():
 
 def getFacilityAbout():
     return random.choice(facilityAbout)
-
 
 if __name__ == "__main__":
     NUM_OF_PATIENTS = 250

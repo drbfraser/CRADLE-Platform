@@ -463,25 +463,10 @@ def test_sync_readings(
 
 def test_get_patient_form(
     create_patient,
-    patient_id,
-    form,
-    form_template,
-    form_classification,
-    database,
     api_get,
-    api_post,
 ):
 
     create_patient()
-
-    response = api_post(endpoint="/api/forms/classifications", json=form_classification)
-    database.session.commit()
-
-    response = api_post(endpoint="/api/forms/templates", json=form_template)
-    database.session.commit()
-
-    response = api_post(endpoint="/api/forms/responses", json=form)
-    database.session.commit()
 
     try:
         response = api_get(endpoint="/api/mobile/forms/87356709247/ft9")
