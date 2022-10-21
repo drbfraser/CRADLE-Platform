@@ -164,6 +164,12 @@ def seed_test_data():
     )
     create_patient_association("49300028162", 3)
     create_patient_association("49300028163", 4)
+
+    print("Creating form template, form classification, and forms...")
+    create_form_classification()
+    create_form_template()
+    create_form("49300028162")
+
     print("Finished seeding minimal test data")
 
 
@@ -509,6 +515,42 @@ def create_patient_association(patientId, userId):
     association = {"patientId": patientId, "userId": userId}
     schema = PatientAssociationsSchema()
     db.session.add(schema.load(association))
+    db.session.commit()
+
+
+def create_form_classification():
+    form_classification = {
+        "id": "dc9",
+        "name": "dc9",
+    }
+    form_classification_schema = FormClassificationSchema()
+    db.session.add(form_classification_schema.load(form_classification))
+    db.session.commit()
+
+
+def create_form_template():
+    form_template = {
+        "classification": {"name": "dc9", "id": "dc9"},
+        "id": "dt9",
+        "version": "V1",
+        "questions": [],
+    }
+    form_template_schema = FormTemplateSchema()
+    db.session.add(form_template_schema.load(form_template))
+    db.session.commit()
+
+
+def create_form(patient_id):
+    form = {
+        "id": "d9",
+        "lang": "english",
+        "formTemplateId": "dt9",
+        "formClassificationId": "dc9",
+        "patientId": patient_id,
+        "questions": [],
+    }
+    form_schema = FormSchema()
+    db.session.add(form_schema.load(form))
     db.session.commit()
 
 

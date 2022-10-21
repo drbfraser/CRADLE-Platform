@@ -456,3 +456,20 @@ def test_sync_readings(
 
     finally:
         crud.delete_by(Reading, readingId=mobile_reading_id)
+
+
+def test_get_patient_form(
+    create_patient,
+    api_get,
+):
+
+    create_patient()
+
+    response = api_get(endpoint="/api/mobile/forms/87356709247/dt9")
+    assert response.status_code == 404
+    response = api_get(endpoint="/api/mobile/forms/49300028162/dt9")
+    assert response.status_code == 404
+    response = api_get(endpoint="/api/mobile/forms/87356709247/dc9")
+    assert response.status_code == 404
+    response = api_get(endpoint="/api/mobile/forms/49300028162/dc9")
+    assert response.status_code == 200

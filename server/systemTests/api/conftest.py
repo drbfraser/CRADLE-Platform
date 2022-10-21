@@ -126,3 +126,64 @@ def drug_record(patient_id):
         "information": "Labetalol 300mg three times daily.",
         "isDrugRecord": True,
     }
+
+
+@pytest.fixture
+def form_classification():
+    return {
+        "id": "fc9",
+        "name": "fc9",
+    }
+
+
+@pytest.fixture
+def form_template():
+    return {
+        "classification": {"name": "fc9"},
+        "id": "ft9",
+        "version": "V1",
+        "questions": [],
+    }
+
+
+@pytest.fixture
+def form(patient_id):
+    return {
+        "id": "f9",
+        "lang": "english",
+        "formTemplateId": "ft9",
+        "formClassificationId": "fc9",
+        "patientId": patient_id,
+        "questions": [
+            {
+                "questionId": "referred-by-name",
+                "categoryIndex": None,
+                "questionIndex": 0,
+                "questionText": "How the patient's condition?",
+                "questionType": "MULTIPLE_CHOICE",
+                "required": True,
+                "visibleCondition": [
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4.0}}
+                ],
+                "mcOptions": [
+                    {
+                        "mcid": 0,
+                        "opt": "Decent",
+                    },
+                    {
+                        "mcid": 1,
+                        "opt": "French",
+                    },
+                ],
+                "answers": {"mcidArray": [0]},
+            },
+            {
+                "questionId": None,
+                "categoryIndex": None,
+                "questionIndex": 1,
+                "questionText": "Info",
+                "questionType": "CATEGORY",
+                "required": True,
+            },
+        ],
+    }
