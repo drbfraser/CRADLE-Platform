@@ -28,190 +28,190 @@ build info:
     - echo "  CI_COMMIT_BRANCH    = $CI_COMMIT_BRANCH"
 
 
-frontend build:
-  stage: build
-  needs: []
-  image: $NODE_IMAGE
-  tags:
-    - docker
-  rules:
-    # ensure frontend builds if any frontend files have changed in the MR
-    - if: '$CI_MERGE_REQUEST_ID != null'
-      changes:
-        - client/**/*
-      when: always
-    # always run if deploying
-    - if: '$CI_COMMIT_BRANCH == $DEV_BRANCH || $CI_COMMIT_BRANCH == $STG_BRANCH'
-      when: always
-    # Always build/test for schedule / manual "Run Pipeline" via web
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_PIPELINE_SOURCE == "web"
-  before_script:
-    - cd client
-    - npm i --global npm@7
-    - npm ci
-  script:
-    - GENERATE_SOURCEMAP=false npm run build
-  after_script:
-    - cd client/build && tar -czvf ../../frontend.tar.gz .
-  artifacts:
-    expire_in: 1 week
-    paths:
-      - frontend.tar.gz
+# frontend build:
+#   stage: build
+#   needs: []
+#   image: $NODE_IMAGE
+#   tags:
+#     - docker
+#   rules:
+#     # ensure frontend builds if any frontend files have changed in the MR
+#     - if: '$CI_MERGE_REQUEST_ID != null'
+#       changes:
+#         - client/**/*
+#       when: always
+#     # always run if deploying
+#     - if: '$CI_COMMIT_BRANCH == $DEV_BRANCH || $CI_COMMIT_BRANCH == $STG_BRANCH'
+#       when: always
+#     # Always build/test for schedule / manual "Run Pipeline" via web
+#     - if: $CI_PIPELINE_SOURCE == "schedule"
+#     - if: $CI_PIPELINE_SOURCE == "web"
+#   before_script:
+#     - cd client
+#     - npm i --global npm@7
+#     - npm ci
+#   script:
+#     - GENERATE_SOURCEMAP=false npm run build
+#   after_script:
+#     - cd client/build && tar -czvf ../../frontend.tar.gz .
+#   artifacts:
+#     expire_in: 1 week
+#     paths:
+#       - frontend.tar.gz
 
-backend unit tests:
-  stage: test
-  needs: []
-  image: $PYTHON_IMAGE
-  tags:
-    - docker
-  rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
-      changes:
-        - server/**/*
-      when: always
-    # Always build/test for schedule / manual "Run Pipeline" via web
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_PIPELINE_SOURCE == "web"
-  before_script:
-    - cd server
-    - pip install --upgrade pip
-    - pip install -r requirements.txt
-  script:
-    - python -m pytest --junitxml=report.xml tests
-  artifacts:
-    when: always
-    expire_in: 1 week
-    reports:
-      junit: server/report.xml
+# backend unit tests:
+#   stage: test
+#   needs: []
+#   image: $PYTHON_IMAGE
+#   tags:
+#     - docker
+#   rules:
+#     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
+#       changes:
+#         - server/**/*
+#       when: always
+#     # Always build/test for schedule / manual "Run Pipeline" via web
+#     - if: $CI_PIPELINE_SOURCE == "schedule"
+#     - if: $CI_PIPELINE_SOURCE == "web"
+#   before_script:
+#     - cd server
+#     - pip install --upgrade pip
+#     - pip install -r requirements.txt
+#   script:
+#     - python -m pytest --junitxml=report.xml tests
+#   artifacts:
+#     when: always
+#     expire_in: 1 week
+#     reports:
+#       junit: server/report.xml
 
-backend system tests:
-  stage: test
-  needs: []
-  image: $PYTHON_IMAGE
-  tags:
-    - docker
-  rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
-      changes:
-        - server/**/*
-      when: always
-    # Always build/test for schedule / manual "Run Pipeline" via web
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_PIPELINE_SOURCE == "web"
-  variables:
-    DB_USERNAME: "root"
-    DB_PASSWORD: "ci-password"
-    DB_HOSTNAME: "mysql"
-    DB_PORT: "3306"
-    DB_NAME: "cradle"
-    PORT: "5000"
-    MYSQL_DATABASE: "cradle"
-    MYSQL_ROOT_PASSWORD: "ci-password"
-    JWT_SECRET_KEY: "testkey"
-  services:
-    - mysql:5.7
-  before_script:
-    - apt-get update -y
-    - apt-get install default-mysql-client -y
-    - cd server
-    - pip install --upgrade pip
-    - pip install -r requirements.txt
-    - python3 app.py &
-    - python3 db.py rebuild --no-docker
-    - python3 manage.py seed_test_data
-  script:
-    - python -m pytest --junitxml=report.xml systemTests
-  artifacts:
-    when: always
-    expire_in: 1 week
-    reports:
-      junit: server/report.xml
+# backend system tests:
+#   stage: test
+#   needs: []
+#   image: $PYTHON_IMAGE
+#   tags:
+#     - docker
+#   rules:
+#     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
+#       changes:
+#         - server/**/*
+#       when: always
+#     # Always build/test for schedule / manual "Run Pipeline" via web
+#     - if: $CI_PIPELINE_SOURCE == "schedule"
+#     - if: $CI_PIPELINE_SOURCE == "web"
+#   variables:
+#     DB_USERNAME: "root"
+#     DB_PASSWORD: "ci-password"
+#     DB_HOSTNAME: "mysql"
+#     DB_PORT: "3306"
+#     DB_NAME: "cradle"
+#     PORT: "5000"
+#     MYSQL_DATABASE: "cradle"
+#     MYSQL_ROOT_PASSWORD: "ci-password"
+#     JWT_SECRET_KEY: "testkey"
+#   services:
+#     - mysql:5.7
+#   before_script:
+#     - apt-get update -y
+#     - apt-get install default-mysql-client -y
+#     - cd server
+#     - pip install --upgrade pip
+#     - pip install -r requirements.txt
+#     - python3 app.py &
+#     - python3 db.py rebuild --no-docker
+#     - python3 manage.py seed_test_data
+#   script:
+#     - python -m pytest --junitxml=report.xml systemTests
+#   artifacts:
+#     when: always
+#     expire_in: 1 week
+#     reports:
+#       junit: server/report.xml
 
-frontend unit tests:
-  stage: test
-  needs: []
-  image: $NODE_IMAGE
-  tags:
-    - docker
-  rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
-      changes:
-        - client/**/*
-      when: always
-    # Always build/test for schedule / manual "Run Pipeline" via web
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_PIPELINE_SOURCE == "web"
-  before_script:
-    - cd client 
-    - npm i --global npm@7
-    - npm ci
-  script:
-    - npm run test --args a
+# frontend unit tests:
+#   stage: test
+#   needs: []
+#   image: $NODE_IMAGE
+#   tags:
+#     - docker
+#   rules:
+#     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
+#       changes:
+#         - client/**/*
+#       when: always
+#     # Always build/test for schedule / manual "Run Pipeline" via web
+#     - if: $CI_PIPELINE_SOURCE == "schedule"
+#     - if: $CI_PIPELINE_SOURCE == "web"
+#   before_script:
+#     - cd client 
+#     - npm i --global npm@7
+#     - npm ci
+#   script:
+#     - npm run test --args a
 
-frontend lint:
-  stage: format
-  needs: []
-  image: $NODE_IMAGE
-  tags:
-    - docker
-  rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
-      changes:
-        - client/**/*
-      when: always
-    # Always build/test for schedule / manual "Run Pipeline" via web
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_PIPELINE_SOURCE == "web"
-  before_script:
-    - cd client
-    - npm i --global npm@7
-    - npm ci
-  script:
-    - ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
+# frontend lint:
+#   stage: format
+#   needs: []
+#   image: $NODE_IMAGE
+#   tags:
+#     - docker
+#   rules:
+#     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
+#       changes:
+#         - client/**/*
+#       when: always
+#     # Always build/test for schedule / manual "Run Pipeline" via web
+#     - if: $CI_PIPELINE_SOURCE == "schedule"
+#     - if: $CI_PIPELINE_SOURCE == "web"
+#   before_script:
+#     - cd client
+#     - npm i --global npm@7
+#     - npm ci
+#   script:
+#     - ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
 
-frontend format:
-  stage: format
-  needs: []
-  image: $NODE_IMAGE
-  tags:
-    - docker
-  rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
-      changes:
-        - client/**/*
-      when: always
-    # Always build/test for schedule / manual "Run Pipeline" via web
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_PIPELINE_SOURCE == "web"
-  before_script:
-    # Prettier version here should match version in package.json
-    - npm i --global npm@7
-    - npm install prettier@2.7.1 --global
-  script:
-    - prettier --check "client/src/**/*.{ts,tsx}"
+# frontend format:
+#   stage: format
+#   needs: []
+#   image: $NODE_IMAGE
+#   tags:
+#     - docker
+#   rules:
+#     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
+#       changes:
+#         - client/**/*
+#       when: always
+#     # Always build/test for schedule / manual "Run Pipeline" via web
+#     - if: $CI_PIPELINE_SOURCE == "schedule"
+#     - if: $CI_PIPELINE_SOURCE == "web"
+#   before_script:
+#     # Prettier version here should match version in package.json
+#     - npm i --global npm@7
+#     - npm install prettier@2.7.1 --global
+#   script:
+#     - prettier --check "client/src/**/*.{ts,tsx}"
 
-backend format:
-  stage: format
-  needs: []
-  image: $PYTHON_IMAGE
-  tags:
-    - docker
-  rules:
-    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
-      changes:
-        - server/**/*
-      when: always
-    # Always build/test for schedule / manual "Run Pipeline" via web
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_PIPELINE_SOURCE == "web"
-  before_script:
-    - cd server
-    - pip install --upgrade pip
-    # Ensure we get the same version of Black used by the project
-    - pip install -r requirements.txt
-  script:
-    - black --check --exclude 'server/migrations/.*' .
+# backend format:
+#   stage: format
+#   needs: []
+#   image: $PYTHON_IMAGE
+#   tags:
+#     - docker
+#   rules:
+#     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
+#       changes:
+#         - server/**/*
+#       when: always
+#     # Always build/test for schedule / manual "Run Pipeline" via web
+#     - if: $CI_PIPELINE_SOURCE == "schedule"
+#     - if: $CI_PIPELINE_SOURCE == "web"
+#   before_script:
+#     - cd server
+#     - pip install --upgrade pip
+#     # Ensure we get the same version of Black used by the project
+#     - pip install -r requirements.txt
+#   script:
+#     - black --check --exclude 'server/migrations/.*' .
     
 
 .deploy-script: &export_image_tag
@@ -225,6 +225,7 @@ backend format:
 
 test:
   stage: build-docker
+  needs: []
   tags:
     - deploy-dockerhub-shell
   script:
