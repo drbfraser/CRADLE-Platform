@@ -390,7 +390,7 @@ def create_user(email, name, password, hf_name, role, phone):
         "healthFacilityName": hf_name,
         "role": role,
         "phoneNumber": phone,
-        "secretKey": encryptor.generate_key()
+        "secretKey": encryptor.generate_key(),
     }
     user_schema = UserSchema()
     db.session.add(user_schema.load(user))
