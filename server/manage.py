@@ -428,6 +428,7 @@ def create_patient_reading_referral_pregnancy(
             "isPregnant": "true",
             "dob": dob,
             "isExactDob": False,
+            "isArchived": False,
         }
         pregnancy = {
             "patientId": patientId,
@@ -443,6 +444,7 @@ def create_patient_reading_referral_pregnancy(
             "isPregnant": "false",
             "dob": dob,
             "isExactDob": False,
+            "isArchived": False,
         }
         pregnancy = None
 
