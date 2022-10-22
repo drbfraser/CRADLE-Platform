@@ -223,6 +223,13 @@ backend format:
   - echo "Full tag (rev-proxy & frontend) is  = $HUB_USER/$HUB_REPO_FRONTEND:$IMAGE_TAG"
   - docker images
 
+test:
+  stage: build-docker
+  tags:
+    - deploy-dockerhub-shell
+  script:
+    - echo "test"
+    - docker -v
 
 build-docker publish-docker-images:
   stage: build-docker
