@@ -68,7 +68,7 @@ def get_global_search_patients(current_user, search):
     return [to_global_search_patient(p) for p in patients_query]
 
 
-# URI: api/patient/global/<string:search>
+# URI: api/patients/global/<string:search>
 # [GET]: Get a list of ALL patients and their basic information
 #        (information necessary for the patient page)
 #        if they match search criteria

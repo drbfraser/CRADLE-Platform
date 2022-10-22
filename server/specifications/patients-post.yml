@@ -67,8 +67,8 @@ responses:
           type: object
           properties:
             patientId:
-              type: integer
-              example: 191919
+              type: string
+              example: "5529adaf-016f-4c03-8cb0-42728138f378"
             isPregnant:
               type: boolean
               example: true

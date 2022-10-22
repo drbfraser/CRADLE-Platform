@@ -91,7 +91,7 @@ def init(api):
     api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]
 
     api.add_resource(
-        AndroidPatientGlobalSearch, "/api/patient/global/<string:search>"
+        AndroidPatientGlobalSearch, "/api/patients/global/<string:search>"
     )  # [GET]
     api.add_resource(
         AndroidPatients, "/api/mobile/patients", endpoint="android_patient"
