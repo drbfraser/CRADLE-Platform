@@ -54,6 +54,9 @@ requestBody:
           isExactDob:
             type: boolean
             example: true
+          isArchived:
+              type: boolean
+              example: false
           
 responses:
   201:
@@ -123,4 +126,7 @@ responses:
             base:
               type: Unix timestamp
               example: 1592339808
+            isArchived:
+              type: boolean
+              example: false
 

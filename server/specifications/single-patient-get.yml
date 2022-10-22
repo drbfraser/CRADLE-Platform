@@ -81,6 +81,9 @@ responses:
             base: 
               type: Unix timestamp | Null
               example: 1622337702
+            isArchived:
+              type: boolean
+              example: false
             readings:
               type: array
               items:
