@@ -116,6 +116,8 @@ frontend build:
   after_script:
     - ls /cache
     - ls -Rla /cache/415-cradle-sl
+    - unzip /cache/415-cradle-sl/112-cache-dependencies-7
+    - ls -Rla /cache
     # - npm run build
     # - cd client/build && tar -czvf ../../frontend.tar.gz .
   artifacts:
