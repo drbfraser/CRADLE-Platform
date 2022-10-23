@@ -230,7 +230,7 @@ test:
     - deploy-dockerhub-shell
   script:
     - echo "test"
-    - docker -v
+    - docker compose -f docker-compose.yml -f docker-compose.deploy.yml build
 
 build-docker publish-docker-images:
   stage: build-docker
