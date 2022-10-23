@@ -12,6 +12,7 @@ from config import app, db, flask_bcrypt
 from models import *
 from random import randint, choice
 from string import ascii_lowercase, digits
+import service.encryptor as encryptor
 import data.crud as crud
 import data.marshal as marshal
 
@@ -393,6 +394,7 @@ def create_user(email, name, password, hf_name, role, phone):
         "healthFacilityName": hf_name,
         "role": role,
         "phoneNumber": phone,
+        "secretKey": encryptor.generate_key(),
     }
     user_schema = UserSchema()
     db.session.add(user_schema.load(user))
