@@ -22,19 +22,19 @@ services:
             - flask_logs:/var/log
     mysql:
         restart: always
-    caddy:
-        container_name: cradle_caddy
-        image: drbfraser/cradle_platfrom-revproxy_frontend:$IMAGE_TAG
-        build:
-            context: .
-            dockerfile: caddy/Dockerfile
-        restart: always
-        environment:
-            - DOMAIN=${DOMAIN}
-            - API_HOSTNAME=cradle_flask
-        ports:
-            - 80:80
-            - 443:443
+    # caddy:
+    #     container_name: cradle_caddy
+    #     image: drbfraser/cradle_platfrom-revproxy_frontend:$IMAGE_TAG
+    #     build:
+    #         context: .
+    #         dockerfile: caddy/Dockerfile
+    #     restart: always
+    #     environment:
+    #         - DOMAIN=${DOMAIN}
+    #         - API_HOSTNAME=cradle_flask
+    #     ports:
+    #         - 80:80
+    #         - 443:443
 
 volumes:
     flask_logs:
