@@ -12,7 +12,7 @@ services:
     flask:
         command: python app.py
         volumes:
-            - ./server:/usr/src/server
+            - ./server:/home/myflask
         ports:
             - 5000:5000
     # NOTE: npm has performance issues inside Docker

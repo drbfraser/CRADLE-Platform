@@ -19,7 +19,7 @@ services:
         restart: always
         command: gunicorn -c ./prod/gunicorn.conf.py app:app
         volumes:
-            - flask_logs:/var/log
+            - flask_logs:/home/myflask/logs
     mysql:
         restart: always
     caddy:
@@ -30,7 +30,7 @@ services:
             dockerfile: caddy/Dockerfile
         restart: always
         volumes:
-            - caddy_data:/data   # persist certificates
+            - caddy_data:/home/caddyUser/data   # persist certificates
         environment:
             - DOMAIN=${DOMAIN}
             - API_HOSTNAME=cradle_flask

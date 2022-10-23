@@ -1,5 +1,3 @@
-# ** If this file is changed, also change Dockerfile.deploy (no way to extend Dockerfiles :/) **
-
 FROM python:3.9.1-buster
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -9,8 +7,13 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-RUN useradd --create-home flaskUser
-WORKDIR /home/flaskUser
-USER flaskUser
+RUN mkdir -p /var/log; \
+    mkdir -p /uploads; \
+    useradd --create-home myflask; \
+    chown -R myflask:myflask /var/log; \
+    chown -R myflask:myflask /uploads;
+
+WORKDIR /home/myflask
+USER myflask
 
 COPY . .
