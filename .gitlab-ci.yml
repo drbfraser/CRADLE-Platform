@@ -84,6 +84,7 @@ frontend setup:
   script:
     - cd client
     - ls .npm
+    - ls -rla /cache
     - npm i --global npm@7
     - npm ci --cache .npm --prefer-offline
     - ls .npm
@@ -115,9 +116,9 @@ frontend build:
     - GENERATE_SOURCEMAP=false npm run build
   after_script:
     - ls /cache
-    - docker volume ls
-    - npm run build
-    - cd client/build && tar -czvf ../../frontend.tar.gz .
+    - ls -rla /cache/415-cradle-sl
+    # - npm run build
+    # - cd client/build && tar -czvf ../../frontend.tar.gz .
   artifacts:
     expire_in: 1 week
     paths:
