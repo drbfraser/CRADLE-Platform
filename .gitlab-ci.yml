@@ -83,7 +83,6 @@ frontend setup:
       policy: pull-push 
   script:
     - cd client
-    - ls .npm
     - ls -Rla /cache
     - npm i --global npm@7
     - npm ci --cache .npm --prefer-offline
