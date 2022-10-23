@@ -19,7 +19,7 @@ services:
         restart: always
         command: gunicorn -c ./prod/gunicorn.conf.py app:app
         volumes:
-            - flask_logs:/home/myflask/logs
+            - flask_logs:/home/myflask/logs # I don't know where this is used. From the commit message, looks like it was/is used in Vultr server in prod?
     mysql:
         restart: always
     caddy:

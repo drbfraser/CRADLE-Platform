@@ -1,9 +1,9 @@
-# #########################################
-# # This is the base Docker file          #
-# # It includes the following containers: #
-# #  - Flask                              #
-# #  - MySQL                              #
-# #########################################
+#########################################
+# This is the base Docker file          #
+# It includes the following containers: #
+#  - Flask                              #
+#  - MySQL                              #
+#########################################
 
 version: "3.9"
 services:
