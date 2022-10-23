@@ -84,6 +84,8 @@ frontend setup:
   script:
     - cd client
     - ls -Rla /cache
+    - unzip /cache/415-cradle-sl/cradle-platform/112-cache-dependencies-7/cache.zip
+    - ls -Rla /cache
     - npm i --global npm@7
     - npm ci --cache .npm --prefer-offline
     - ls .npm
@@ -116,7 +118,7 @@ frontend build:
   after_script:
     - ls /cache
     - ls -Rla /cache/415-cradle-sl
-    - unzip /cache/415-cradle-sl/112-cache-dependencies-7/cache.zip
+    - unzip /cache/415-cradle-sl/cradle-platform/112-cache-dependencies-7/cache.zip
     - ls -Rla /cache
     # - npm run build
     # - cd client/build && tar -czvf ../../frontend.tar.gz .
