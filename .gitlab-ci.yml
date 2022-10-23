@@ -230,6 +230,7 @@ test:
     - deploy-dockerhub-shell
   script:
     - echo "test"
+    - *export_image_tag
     - docker compose -f docker-compose.yml -f docker-compose.deploy.yml build
 
 build-docker publish-docker-images:
