@@ -19,7 +19,6 @@ export const ManagePatients = () => {
   const styles = useAdminStyles();
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
-  const [patient, setPatient] = useState<Patient>();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [search, setSearch] = useState('');
   const [tableData, setTableData] = useState<(string | number | boolean)[][]>(
