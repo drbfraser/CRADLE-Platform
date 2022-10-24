@@ -1,13 +1,13 @@
 import { IconButton, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useRouteMatch } from 'react-router-dom';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import ArchivePatient from './ArchivePatient';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { Patient } from 'src/shared/types';
-import { getAllPatientsAsync, getPatientInfoAsync } from 'src/shared/api';
+import { getAllPatientsAsync } from 'src/shared/api';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
@@ -62,6 +62,7 @@ export const ManagePatients = () => {
     try {
       const patients: Patient[] = await getAllPatientsAsync();
       setPatients(patients);
+      setLoading(false);
     } catch (e) {
       setErrorLoading(true);
     }
