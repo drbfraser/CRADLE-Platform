@@ -1,26 +1,33 @@
 import { IconButton, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
-
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import ArchivePatient from './ArchivePatient';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { Patient } from 'src/shared/types';
-import { getAllPatientsAsync } from 'src/shared/api';
+import { getAllPatientsAsync, getPatientInfoAsync } from 'src/shared/api';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+
+type RouteParams = {
+  patientId: string;
+};
+
 
 export const ManagePatients = () => {
   const styles = useAdminStyles();
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
+  const [patient, setPatient] = useState<Patient>();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [search, setSearch] = useState('');
-  const [tableData, setTableData] = useState<(string | number)[][]>([]);
+  const [tableData, setTableData] = useState<(string | number | boolean)[][]>([]);
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
   const [popupPatient, setPopupPatient] = useState<Patient>();
   const isTransformed = useMediaQuery('(min-width:800px)');
+  const { patientId } = useRouteMatch<RouteParams>().params;
 
   const columns = [
     {
@@ -52,10 +59,8 @@ export const ManagePatients = () => {
 
   const getPatients = async () => {
     try {
-      const resp: Patient[] = await getAllPatientsAsync();
-
-      setPatients(resp);
-      setLoading(false);
+      const patients: Patient[] = await getAllPatientsAsync();
+      setPatients(patients);
     } catch (e) {
       setErrorLoading(true);
     }
@@ -63,7 +68,7 @@ export const ManagePatients = () => {
 
   useEffect(() => {
     getPatients();
-  }, []);
+  }, [patientId]);
 
   useEffect(() => {
     const searchLowerCase = search.toLowerCase().trim();
@@ -80,13 +85,14 @@ export const ManagePatients = () => {
       .map((p) => [
         p.patientName,
         p.patientId,
+        p.isArchived
       ]);
     setTableData(rows);
   }, [patients, search]);
 
   const Row = ({ row }: { row: (string | number)[] }) => {
     const cells = row.slice(0, -1);
-
+    const patient = patients[row.slice(-1)[0] as number];
     return (
       <tr className={styles.row}>
         <TableCell label="Patient Name" isTransformed={isTransformed}>
@@ -103,6 +109,7 @@ export const ManagePatients = () => {
             <IconButton
               onClick={() => {
                 setArchivePopupOpen(true);
+                setPopupPatient(patient);
               }}
               size="large">
               <DeleteForever />
@@ -126,7 +133,6 @@ export const ManagePatients = () => {
           getPatients();
         }}
         patient = {popupPatient}
-        patients={patients}
       />
       <AdminTable
         title="Patients"

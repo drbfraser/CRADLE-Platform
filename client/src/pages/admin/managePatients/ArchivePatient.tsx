@@ -9,12 +9,12 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   patient: Patient | undefined;
-  patients: Patient[];
 }
 
 const ArchivePatient = ({ open, onClose, patient }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const name = patient?.patientName;
 
 
   const handleDelete = async () => {
@@ -43,9 +43,8 @@ const ArchivePatient = ({ open, onClose, patient }: IProps) => {
       />
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <ConfirmDialog
-        title={`Archive Patient: ${patient?.patientName}`}
-        content={`Are you sure you want to archive ${patient?.patientName}'s account? This action
-                  is permanent and cannot be undone.`}
+        title={`Archive Patient: ${name}`}
+        content={`Are you sure you want to archive ${name}'s account? `}
         open={open}
         onClose={onClose}
         onConfirm={handleDelete}

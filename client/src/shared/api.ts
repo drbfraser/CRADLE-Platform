@@ -451,6 +451,14 @@ export const getPatientAsync = async (patientId: string) => {
   return response.json();
 };
 
+export const getPatientInfoAsync = async (patientId: string) => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.PATIENTS + `/${patientId}` + '/info'
+  );
+
+  return response.json();
+};
+
 export const getPatientRecordsAsync = async (
   patientId: string,
   filterRequestBody: FilterRequestBody
