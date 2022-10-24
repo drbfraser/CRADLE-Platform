@@ -15,7 +15,6 @@ type RouteParams = {
   patientId: string;
 };
 
-
 export const ManagePatients = () => {
   const styles = useAdminStyles();
   const [loading, setLoading] = useState(true);
@@ -23,7 +22,9 @@ export const ManagePatients = () => {
   const [patient, setPatient] = useState<Patient>();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [search, setSearch] = useState('');
-  const [tableData, setTableData] = useState<(string | number | boolean)[][]>([]);
+  const [tableData, setTableData] = useState<(string | number | boolean)[][]>(
+    []
+  );
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
   const [popupPatient, setPopupPatient] = useState<Patient>();
   const isTransformed = useMediaQuery('(min-width:800px)');
@@ -82,11 +83,7 @@ export const ManagePatients = () => {
 
     const rows = patients
       .filter(patientFilter)
-      .map((p) => [
-        p.patientName,
-        p.patientId,
-        p.isArchived
-      ]);
+      .map((p) => [p.patientName, p.patientId, p.isArchived]);
     setTableData(rows);
   }, [patients, search]);
 
@@ -132,7 +129,7 @@ export const ManagePatients = () => {
           setArchivePopupOpen(false);
           getPatients();
         }}
-        patient = {popupPatient}
+        patient={popupPatient}
       />
       <AdminTable
         title="Patients"

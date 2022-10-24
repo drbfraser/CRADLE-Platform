@@ -421,15 +421,12 @@ export const getPatientMedicalHistoryAsync = async (
 };
 
 export const getAllPatientsAsync = async () => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.PATIENTS
-  );
+  const response = await apiFetch(API_URL + EndpointEnum.PATIENTS);
 
   return response.json();
 };
 
-export const archivePatientAsync = 
-async (patientId: string,) => {
+export const archivePatientAsync = async (patientId: string) => {
   const response = await apiFetch(
     API_URL + EndpointEnum.PATIENTS + '/' + patientId + '/info',
     {

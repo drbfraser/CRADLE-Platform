@@ -16,7 +16,6 @@ const ArchivePatient = ({ open, onClose, patient }: IProps) => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const name = patient?.patientName;
 
-
   const handleDelete = async () => {
     if (!patient) {
       return;
