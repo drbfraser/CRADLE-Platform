@@ -20,7 +20,7 @@ describe('login spec', () => {
     cy.get('input[name=email]').type('admin123@admin.com')
     cy.get('input[name=password]').type('admin123')
     cy.get('.MuiButtonBase-root').contains('Login').click()
-    .wait(5000)
+    .wait(1000)
     cy.get('.makeStyles-toolbarButtons-13 > div > .MuiTypography-body1').should('contain', 'Admin (Admin)') 
   });
 

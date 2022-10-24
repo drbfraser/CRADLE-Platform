@@ -18,14 +18,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "npm run lint --fix",
     "format:safe": "npm run prettier && npm run lint:fix",
-    "format": "npm run prettier && npm run lint",
-    "e2e": "cypress run",
-    "e2e:chrome": "cypress run --browser chrome",
-    "e2e:record": "cypress run --record",
-    "e2e:record:chrome": "cypress run --record --browser chrome",
-    "e2e:record:edge": "cypress run --record --browser edge",
-    "e2e:record:firefox": "cypress run --record --browser firefox",
-    "e2e:record:parallel": "cypress run --record --parallel"
+    "format": "npm run prettier && npm run lint"
   },
   "devDependencies": {
     "@redux-devtools/extension": "^3.2.3",
