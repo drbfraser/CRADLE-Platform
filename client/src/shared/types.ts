@@ -96,6 +96,7 @@ export type Patient = {
   zone: OrNull<string>;
   isExactDob: boolean;
   householdNumber: OrNull<string>;
+  isArchived: boolean;
 };
 
 export type PatientMedicalInfo = {

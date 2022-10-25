@@ -420,9 +420,37 @@ export const getPatientMedicalHistoryAsync = async (
   return response.json();
 };
 
+export const getAllPatientsAsync = async () => {
+  const response = await apiFetch(API_URL + EndpointEnum.PATIENTS);
+
+  return response.json();
+};
+
+export const archivePatientAsync = async (patientId: string) => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.PATIENTS + '/' + patientId + '/info',
+    {
+      method: 'PUT',
+      body: JSON.stringify({
+        isArchived: true,
+      }),
+    }
+  );
+
+  return response.json();
+};
+
 export const getPatientAsync = async (patientId: string) => {
   const response = await apiFetch(
     API_URL + EndpointEnum.PATIENTS + `/${patientId}`
+  );
+
+  return response.json();
+};
+
+export const getPatientInfoAsync = async (patientId: string) => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.PATIENTS + `/${patientId}` + '/info'
   );
 
   return response.json();

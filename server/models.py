@@ -230,6 +230,7 @@ class Patient(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
+    isArchived = db.Column(db.Boolean)
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

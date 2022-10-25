@@ -2,6 +2,7 @@ import { ManageFacilities } from './manageFacilities/ManageFacilities';
 import { ManageFormTemplates } from './manageFormTemplates/ManageFormTemplates';
 import { ManageRelayApp } from './manageRelayApp/ManageRelayApp';
 import { ManageUsers } from './manageUsers/ManageUsers';
+import { ManagePatients } from './managePatients/ManagePatients';
 import { Tab } from 'semantic-ui-react';
 import { theme } from 'src/context/materialUI/theme';
 import { useHistory } from 'react-router-dom';
@@ -26,6 +27,11 @@ const pages = [
     name: 'Relay App',
     Component: ManageRelayApp,
     route: '/admin/app',
+  },
+  {
+    name: 'Patients',
+    Component: ManagePatients,
+    route: '/admin/patients',
   },
 ];
 

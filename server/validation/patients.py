@@ -24,6 +24,7 @@ def validate(request_body: dict) -> Optional[str]:
                             "drugHistory": "too much tylenol",
                             "medicalHistory": "not enough advil",
                             "allergy": "seafood",
+                            "isArchived": false
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
     """
@@ -115,6 +116,7 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
         "base",
         "isExactDob",
         "allergy",
+        "isArchived",
     ]
     for key in request_body:
         if key not in patient_keys:
