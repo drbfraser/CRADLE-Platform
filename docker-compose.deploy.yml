@@ -16,8 +16,6 @@ version: "3.9"
 services:
     flask:
         image: drbfraser/cradle_platfrom-backend:$IMAGE_TAG
-        build:
-            dockerfile: Dockerfile.deploy
         restart: always
         command: gunicorn -c ./prod/gunicorn.conf.py app:app
         volumes:
