@@ -89,12 +89,8 @@ export const ManageFacilities = () => {
   }, [facilities, search]);
 
   const Row = ({ row }: { row: (string | number)[] }) => {
-    console.log("row", row);
     const cells = row.slice(0, -1);
-    console.log("cells", cells);
-    console.log("facilities", facilities);
     const facility = facilities[row.slice(-1)[0] as number];
-    console.log("facility", facility);
 
     return (
       <tr className={styles.row}>

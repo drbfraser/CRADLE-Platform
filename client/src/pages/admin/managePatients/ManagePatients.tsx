@@ -64,7 +64,7 @@ export const ManagePatients = () => {
       setPatients(patientsInfo.map((patient, index) => ({ ...patient, index })));
       // console.log(patientsInfo);
       // patients only updated after clicked once.
-      console.log(patients)
+      // console.log(patients)
       setLoading(false);
     } catch (e) {
       setErrorLoading(true);
@@ -86,17 +86,17 @@ export const ManagePatients = () => {
     };
     const rows = patients
       .filter(patientFilter)
-      .map((p) => [p.patientName, p.patientId, p.isArchived, p.index]);
+      .map((p) => [p.patientName, p.patientId, p.isArchived.toString(), p.index]);
     setTableData(rows);
   }, [patients, search]);
 
   const Row = ({ row }: { row: (string | number | boolean)[] }) => {
-    console.log("row", row);
+    //console.log("row", row);
     const cells = row.slice(0, -1);
-    console.log("cells", cells);
-    console.log("patients", patients)
+    //console.log("cells", cells);
+    //console.log("patients", patients)
     const patient = patients[row.slice(-1)[0] as number];
-    console.log("patient", patient);
+    //console.log("patient", patient);
     return (
       <tr className={styles.row}>
         <TableCell label="Patient Name" isTransformed={isTransformed}>
@@ -114,9 +114,9 @@ export const ManagePatients = () => {
               onClick={() => {
                 setArchivePopupOpen(true);
                 console.log("in onclick");
-                console.log(patient)
+                console.log("patient", patient)
                 setPopupPatient(patient);
-                console.log(popupPatient);
+                console.log("popupPatient", popupPatient);
               }}
               size="large">
               <DeleteForever />
