@@ -240,7 +240,6 @@ def read_patient_list(
             and_(
                 Patient.patientId == rd.patientId,
                 Reading.dateTimeTaken < rd.dateTimeTaken,
-                
             ),
         )
         .filter(rd.dateTimeTaken == None, Patient.isArchived == False)
@@ -257,6 +256,7 @@ def read_patient_list(
     else:
         return query.all()
 
+
 def read_admin_patient(
     user_id: Optional[int] = None, is_cho: bool = False, **kwargs
 ) -> List[Any]:
@@ -270,12 +270,10 @@ def read_admin_patient(
     :return: A list of patients
     """
     rd = aliased(Reading)
-    query = (
-        db_session.query(
-            Patient.patientId,
-            Patient.patientName,
-            Patient.isArchived,
-        )
+    query = db_session.query(
+        Patient.patientId,
+        Patient.patientName,
+        Patient.isArchived,
     )
 
     limit = kwargs.get("limit")

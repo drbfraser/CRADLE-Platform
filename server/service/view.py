@@ -134,6 +134,7 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowU
         user, crud.read_referrals_or_assessments, model=FollowUp, last_edited=last_sync
     )
 
+
 def admin_patient_view(user: dict, **kwargs) -> List[Any]:
     """
     Returns a list of patients filtered by query criteria in keyword arguments.

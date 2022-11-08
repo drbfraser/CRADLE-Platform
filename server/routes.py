@@ -194,10 +194,8 @@ def init(api):
         endpoint="patient_get_all_records",
     )  # [GET]
     api.add_resource(
-        PatientsAdmin,
-        "/api/patients/admin",
-        endpoint='patients_admin'
-    ) # [GET]
+        PatientsAdmin, "/api/patients/admin", endpoint="patients_admin"
+    )  # [GET]
 
     api.add_resource(Readings, "/api/readings", endpoint="readings")  # [POST]
     api.add_resource(
