@@ -242,7 +242,10 @@ def read_patient_list(
                 Reading.dateTimeTaken < rd.dateTimeTaken,
             ),
         )
-        .filter(rd.dateTimeTaken == None, Patient.isArchived == False or Patient.isArchived == None)
+        .filter(
+            rd.dateTimeTaken == None,
+            Patient.isArchived == False or Patient.isArchived == None,
+        )
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
