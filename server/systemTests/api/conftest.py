@@ -23,7 +23,6 @@ def patient_info(patient_id):
         "dob": "1998-01-01",
         "isExactDob": False,
         "villageNumber": "1001",
-        "isArchived": False,
     }
 
 
