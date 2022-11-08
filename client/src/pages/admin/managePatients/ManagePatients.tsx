@@ -86,7 +86,7 @@ export const ManagePatients = () => {
     };
     const rows = patients
       .filter(patientFilter)
-      .map((p) => [p.patientName, p.patientId, p.isArchived.toString(), p.index]);
+      .map((p) => [p.patientName, p.patientId, p.isArchived.toString().toUpperCase(), p.index]);
     setTableData(rows);
   }, [patients, search]);
 
@@ -146,7 +146,7 @@ export const ManagePatients = () => {
         newBtnLabel="New Patient"
         newBtnOnClick={() => {
           setPopupPatient(undefined);
-          setArchivePopupOpen(true);
+          //setArchivePopupOpen(true);
         }}
         search={search}
         setSearch={setSearch}

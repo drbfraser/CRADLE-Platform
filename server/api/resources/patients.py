@@ -26,6 +26,7 @@ class Root(Resource):
     @swag_from(
         "../../specifications/patients-get.yml", methods=["GET"], endpoint="patients"
     )
+    # gets all UNARCHIVED patients
     def get():
         user = get_jwt_identity()
         params = util.get_query_params(request)
