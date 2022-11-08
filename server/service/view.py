@@ -134,6 +134,16 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowU
         user, crud.read_referrals_or_assessments, model=FollowUp, last_edited=last_sync
     )
 
+def admin_patient_view(user: dict, **kwargs) -> List[Any]:
+    """
+    Returns a list of patients filtered by query criteria in keyword arguments.
+
+    :param user: JWT identity
+    :param **kwargs: Optional query criteria
+    :return: A list of patients each with the fields patientId, patientName, isArchived
+    """
+    return __get_view(user, crud.read_admin_patient, **kwargs)
+
 
 def __get_view(user: dict, func: Callable, **kwargs) -> List[Any]:
     role = user["role"]

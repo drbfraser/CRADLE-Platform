@@ -421,3 +421,17 @@ class PatientAllRecords(Resource):
         params = util.get_query_params(request)
         records = crud.read_patient_all_records(patient_id, **params)
         return [marshal.marshal_with_type(r) for r in records]
+
+# /api/patients/admin
+class PatientsAdmin(Resource):
+    @staticmethod
+    @jwt_required
+    @swag_from(
+        "../../specifications/patients-admin-get.yml", methods=["GET"], endpoint="patients_admin"
+    )
+    # gets all patients, including archived, for admin use
+    def get():
+        user = get_jwt_identity()
+        params = util.get_query_params(request)
+        patients = view.admin_patient_view(user, **params)
+        return serialize.serialize_patients_admin(patients)

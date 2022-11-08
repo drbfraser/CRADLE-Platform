@@ -257,6 +257,34 @@ def read_patient_list(
     else:
         return query.all()
 
+def read_admin_patient(
+    user_id: Optional[int] = None, is_cho: bool = False, **kwargs
+) -> List[Any]:
+    """
+    Queries the database for patients filtered by query criteria in keyword arguments.
+
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
+    patients associated with all users
+    :param kwargs: Query params including search_text, order_by, direction, limit, page
+
+    :return: A list of patients
+    """
+    rd = aliased(Reading)
+    query = (
+        db_session.query(
+            Patient.patientId,
+            Patient.patientName,
+            Patient.isArchived,
+        )
+    )
+
+    limit = kwargs.get("limit")
+    if limit:
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
+    else:
+        return query.all()
+
 
 def read_referral_list(
     user_id: Optional[int] = None, is_cho: bool = False, **kwargs

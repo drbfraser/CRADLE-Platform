@@ -32,6 +32,16 @@ def serialize_patient_list(patients: List[Any]) -> dict:
         for p in patients
     ]
 
+def serialize_patients_admin(patients: List[Any]) -> dict:
+    return [
+        {
+            "patientId": p.patientId,
+            "patientName": p.patientName,
+            "isArchived": p.isArchived,
+        }
+        for p in patients
+    ]
+
 
 def serialize_referral_list(referrals: List[Any]) -> dict:
     return [
