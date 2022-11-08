@@ -6,7 +6,7 @@ import DeleteForever from '@mui/icons-material/DeleteForever';
 import ArchivePatient from './ArchivePatient';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { PatientWithIndex } from 'src/shared/types';
-import { getAllPatientsAsync, getPatientInfoAsync } from 'src/shared/api';
+import { getPatientsAdminAsync } from 'src/shared/api';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 export const ManagePatients = () => {
@@ -53,15 +53,8 @@ export const ManagePatients = () => {
 
   const getPatients = async () => {
     try {
-      const resp: PatientWithIndex[] = await getAllPatientsAsync();
-      var patientsInfo = new Array();
-      for (let i = 0; i < resp.length; i++) {
-          let patient = resp[i];
-          let patient_info = await getPatientInfoAsync(patient.patientId);
-          patientsInfo.push(patient_info);
-      }
-
-      setPatients(patientsInfo.map((patient, index) => ({ ...patient, index })));
+      const resp: PatientWithIndex[] = await getPatientsAdminAsync();
+      setPatients(resp.map((patient, index) => ({ ...patient, index })));
       // console.log(patientsInfo);
       // patients only updated after clicked once.
       // console.log(patients)
