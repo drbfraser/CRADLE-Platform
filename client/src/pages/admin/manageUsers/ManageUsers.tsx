@@ -134,12 +134,8 @@ export const ManageUsers = () => {
   ];
 
   const Row = ({ row }: { row: (string | number)[] }) => {
-    console.log('row', row);
     const cells = row.slice(0, -1);
-    console.log('cells', cells);
-    console.log('users', users);
     const user = users[row.slice(-1)[0] as number];
-    console.log('user', user);
     const isCurrentUser = user?.userId === currentUserId;
     const actions = isCurrentUser
       ? rowActions.filter((a) => !a.disableForCurrentUser)
