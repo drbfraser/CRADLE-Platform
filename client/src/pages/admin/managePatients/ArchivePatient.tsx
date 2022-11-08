@@ -13,7 +13,6 @@ interface IProps {
 
 const ArchivePatient = ({ open, onClose, patient }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
   const name = patient?.patientName;
 
   const handleDelete = async () => {
@@ -25,7 +24,6 @@ const ArchivePatient = ({ open, onClose, patient }: IProps) => {
       await archivePatientAsync(patient.patientId);
 
       setSubmitError(false);
-      setSubmitSuccess(true);
       onClose();
     } catch (e) {
       setSubmitError(true);
@@ -37,8 +35,8 @@ const ArchivePatient = ({ open, onClose, patient }: IProps) => {
       <Toast
         severity="success"
         message="Patient successfully archived!"
-        open={submitSuccess}
-        onClose={() => setSubmitSuccess(false)}
+        open={!submitError}
+        onClose={() => setSubmitError(false)}
       />
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <ConfirmDialog

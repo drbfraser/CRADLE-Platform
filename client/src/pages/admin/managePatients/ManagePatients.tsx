@@ -22,7 +22,6 @@ export const ManagePatients = () => {
   const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
   const isTransformed = useMediaQuery('(min-width:800px)');
 
-
   const columns = [
     {
       name: 'Patient Name',
@@ -55,9 +54,6 @@ export const ManagePatients = () => {
     try {
       const resp: PatientWithIndex[] = await getPatientsAdminAsync();
       setPatients(resp.map((patient, index) => ({ ...patient, index })));
-      // console.log(patientsInfo);
-      // patients only updated after clicked once.
-      // console.log(patients)
       setLoading(false);
     } catch (e) {
       setErrorLoading(true);
@@ -74,22 +70,23 @@ export const ManagePatients = () => {
     const patientFilter = (patient: PatientWithIndex) => {
       return (
         patient.patientName.toLowerCase().startsWith(searchLowerCase) ||
-        patient.patientId.toLowerCase().startsWith(searchLowerCase) 
+        patient.patientId.toLowerCase().startsWith(searchLowerCase)
       );
     };
     const rows = patients
       .filter(patientFilter)
-      .map((p) => [p.patientName, p.patientId, p.isArchived.toString().toUpperCase(), p.index]);
+      .map((p) => [
+        p.patientName,
+        p.patientId,
+        p.isArchived.toString().toUpperCase(),
+        p.index,
+      ]);
     setTableData(rows);
   }, [patients, search]);
 
   const Row = ({ row }: { row: (string | number | boolean)[] }) => {
-    //console.log("row", row);
     const cells = row.slice(0, -1);
-    //console.log("cells", cells);
-    //console.log("patients", patients)
     const patient = patients[row.slice(-1)[0] as number];
-    //console.log("patient", patient);
     return (
       <tr className={styles.row}>
         <TableCell label="Patient Name" isTransformed={isTransformed}>
@@ -106,10 +103,7 @@ export const ManagePatients = () => {
             <IconButton
               onClick={() => {
                 setArchivePopupOpen(true);
-                console.log("in onclick");
-                console.log("patient", patient)
                 setPopupPatient(patient);
-                console.log("popupPatient", popupPatient);
               }}
               size="large">
               <DeleteForever />
@@ -139,7 +133,6 @@ export const ManagePatients = () => {
         newBtnLabel="New Patient"
         newBtnOnClick={() => {
           setPopupPatient(undefined);
-          //setArchivePopupOpen(true);
         }}
         search={search}
         setSearch={setSearch}
