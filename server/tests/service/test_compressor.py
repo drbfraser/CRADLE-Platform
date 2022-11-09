@@ -1,6 +1,6 @@
 import pytest
 
-import server.service.compressor as compressor
+import service.compressor as compressor
 
 
 @pytest.mark.parametrize("message", [("test")])
