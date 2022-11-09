@@ -244,7 +244,7 @@ def read_patient_list(
         )
         .filter(
             rd.dateTimeTaken == None,
-            Patient.isArchived == False or Patient.isArchived == None,
+            Patient.isArchived == False,
         )
     )
 
