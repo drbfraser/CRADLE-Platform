@@ -8,7 +8,7 @@ def compress(data):
     return gzip.compress(data)
 
 
-# Decompreses bytes to bytes
+# Decompresses bytes to bytes
 def decompress(data):
     return gzip.decompress(data)
 
@@ -18,6 +18,6 @@ def compress_from_string(string):
     return gzip.compress(bytes(string, "utf-8"))
 
 
-# Decompreses bytes to strings
+# Decompresses bytes to strings
 def decompress_to_string(data):
     return gzip.decompress(data).decode("utf-8")
