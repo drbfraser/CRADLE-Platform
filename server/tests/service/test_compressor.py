@@ -14,7 +14,7 @@ def test_compressor(message):
     assert type(result) == bytes
     assert result == message_bytes
 
-    result_string = message.decode("utf-8")
+    result_string = result.decode("utf-8")
     assert result_string == message
 
 
@@ -25,4 +25,4 @@ def test_compressor_string(message):
 
     result_string = compressor.decompress_to_string(data)
     assert type(result_string) == str
-    assert result_string == string
+    assert result_string == message
