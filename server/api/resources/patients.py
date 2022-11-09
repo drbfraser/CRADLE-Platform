@@ -60,6 +60,7 @@ class Root(Resource):
         creation_time = get_current_time()
         patient.created = creation_time
         patient.lastEdited = creation_time
+        patient.isArchived = False
 
         crud.create(patient, refresh=True)
 

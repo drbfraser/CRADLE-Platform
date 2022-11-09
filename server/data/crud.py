@@ -1,5 +1,5 @@
 from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
@@ -244,7 +244,7 @@ def read_patient_list(
         )
         .filter(
             rd.dateTimeTaken == None,
-            Patient.isArchived == False,
+            or_(Patient.isArchived == False, Patient.isArchived == None),
         )
     )
 
@@ -272,7 +272,6 @@ def read_admin_patient(
 
     :return: A list of patients
     """
-    rd = aliased(Reading)
     query = db_session.query(
         Patient.patientId,
         Patient.patientName,
