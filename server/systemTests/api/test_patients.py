@@ -41,6 +41,24 @@ def test_get_patient_list(create_patient, patient_info, reading_factory, api_get
     assert patient["dateTimeTaken"] == date2
 
 
+def test_get_patients_admin(create_patient, patient_info, api_get):
+    create_patient()
+    patient_id = patient_info["patientId"]
+
+    response = api_get(endpoint="/api/patients/admin")
+
+    assert response.status_code == 200
+
+    patient = None
+    for p in response.json():
+        if p["patientId"] == patient_id:
+            patient = p
+            break
+
+    assert patient["patientName"] == patient_info["patientName"]
+    assert patient["isArchived"] == patient_info["isArchived"]
+
+
 def test_get_patient(
     create_patient,
     patient_info,

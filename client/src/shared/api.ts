@@ -426,6 +426,12 @@ export const getAllPatientsAsync = async () => {
   return response.json();
 };
 
+export const getPatientsAdminAsync = async () => {
+  const response = await apiFetch(API_URL + EndpointEnum.PATIENTS + '/admin');
+
+  return response.json();
+};
+
 export const archivePatientAsync = async (patientId: string) => {
   const response = await apiFetch(
     API_URL + EndpointEnum.PATIENTS + '/' + patientId + '/info',

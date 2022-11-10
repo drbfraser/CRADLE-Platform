@@ -1,33 +1,26 @@
 import { IconButton, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useRouteMatch } from 'react-router-dom';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import ArchivePatient from './ArchivePatient';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
-import { Patient } from 'src/shared/types';
-import { getAllPatientsAsync } from 'src/shared/api';
+import { PatientWithIndex } from 'src/shared/types';
+import { getPatientsAdminAsync } from 'src/shared/api';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-
-type RouteParams = {
-  patientId: string;
-};
-
 export const ManagePatients = () => {
   const styles = useAdminStyles();
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
-  const [patients, setPatients] = useState<Patient[]>([]);
+  const [patients, setPatients] = useState<PatientWithIndex[]>([]);
   const [search, setSearch] = useState('');
   const [tableData, setTableData] = useState<(string | number | boolean)[][]>(
     []
   );
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
-  const [popupPatient, setPopupPatient] = useState<Patient>();
+  const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
   const isTransformed = useMediaQuery('(min-width:800px)');
-  const { patientId } = useRouteMatch<RouteParams>().params;
 
   const columns = [
     {
@@ -59,8 +52,8 @@ export const ManagePatients = () => {
 
   const getPatients = async () => {
     try {
-      const patients: Patient[] = await getAllPatientsAsync();
-      setPatients(patients);
+      const resp: PatientWithIndex[] = await getPatientsAdminAsync();
+      setPatients(resp.map((patient, index) => ({ ...patient, index })));
       setLoading(false);
     } catch (e) {
       setErrorLoading(true);
@@ -69,25 +62,29 @@ export const ManagePatients = () => {
 
   useEffect(() => {
     getPatients();
-  }, [patientId]);
+  }, []);
 
   useEffect(() => {
     const searchLowerCase = search.toLowerCase().trim();
 
-    const patientFilter = (patient: Patient) => {
+    const patientFilter = (patient: PatientWithIndex) => {
       return (
         patient.patientName.toLowerCase().startsWith(searchLowerCase) ||
         patient.patientId.toLowerCase().startsWith(searchLowerCase)
       );
     };
-
     const rows = patients
       .filter(patientFilter)
-      .map((p) => [p.patientName, p.patientId, p.isArchived]);
+      .map((p) => [
+        p.patientName,
+        p.patientId,
+        p.isArchived.toString().toUpperCase(),
+        p.index,
+      ]);
     setTableData(rows);
   }, [patients, search]);
 
-  const Row = ({ row }: { row: (string | number)[] }) => {
+  const Row = ({ row }: { row: (string | number | boolean)[] }) => {
     const cells = row.slice(0, -1);
     const patient = patients[row.slice(-1)[0] as number];
     return (
@@ -136,7 +133,6 @@ export const ManagePatients = () => {
         newBtnLabel="New Patient"
         newBtnOnClick={() => {
           setPopupPatient(undefined);
-          setArchivePopupOpen(true);
         }}
         search={search}
         setSearch={setSearch}

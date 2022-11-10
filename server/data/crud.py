@@ -1,5 +1,5 @@
 from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
@@ -242,12 +242,41 @@ def read_patient_list(
                 Reading.dateTimeTaken < rd.dateTimeTaken,
             ),
         )
-        .filter(rd.dateTimeTaken == None)
+        .filter(
+            rd.dateTimeTaken == None,
+            or_(Patient.isArchived == False, Patient.isArchived == None),
+        )
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
     query = __filter_by_patient_search(query, **kwargs)
     query = __order_by_column(query, [Patient, Reading], **kwargs)
+
+    limit = kwargs.get("limit")
+    if limit:
+        page = kwargs.get("page", 1)
+        return query.slice(*__get_slice_indexes(page, limit))
+    else:
+        return query.all()
+
+
+def read_admin_patient(
+    user_id: Optional[int] = None, is_cho: bool = False, **kwargs
+) -> List[Any]:
+    """
+    Queries the database for patients filtered by query criteria in keyword arguments.
+
+    :param user_id: ID of user to filter patients wrt patient associations; None to get
+    patients associated with all users
+    :param kwargs: Query params including search_text, order_by, direction, limit, page
+
+    :return: A list of patients
+    """
+    query = db_session.query(
+        Patient.patientId,
+        Patient.patientName,
+        Patient.isArchived,
+    )
 
     limit = kwargs.get("limit")
     if limit:

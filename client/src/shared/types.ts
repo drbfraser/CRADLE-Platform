@@ -99,6 +99,10 @@ export type Patient = {
   isArchived: boolean;
 };
 
+export interface PatientWithIndex extends Patient {
+  index: number;
+}
+
 export type PatientMedicalInfo = {
   medicalHistoryId: string;
   medicalHistory: OrNull<string>;
