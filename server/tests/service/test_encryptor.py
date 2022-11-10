@@ -2,6 +2,7 @@ import pytest
 
 import service.encryptor as encryptor
 import service.compressor as compressor
+import cryptography.fernet as fernet
 
 
 @pytest.mark.parametrize("message", [("test")])
@@ -29,7 +30,7 @@ def test_encryptor_wrong_key(message):
     try:
         decrypted_data = encryptor.decrypt(encrypted_data, second_key)
         assert decrypted_data != message_bytes
-    except cryptography.fernet.InvalidToken:
+    except fernet.InvalidToken:
         decrypted_data2 = encryptor.decrypt(encrypted_data, key)
         assert decrypted_data2 == message_bytes
     except Exception as err:
