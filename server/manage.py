@@ -293,7 +293,7 @@ def seed():
             "isPregnant": pregnant,
             "dob": getRandomDOB(),
             "isExactDob": bool(random.getrandbits(1)),
-            "isArchived": False
+            "isArchived": False,
         }
 
         db.session.add(patient_schema.load(p1))
