@@ -28,6 +28,8 @@ services:
         image: mysql:5.7
         volumes:
             - mysql_data:/var/lib/mysql
+            - mysql_logs:/var/log
+            - "./:/etc/mysql/conf.d"
         environment:
             MYSQL_DATABASE: cradle
             MYSQL_USER: ${DB_USERNAME}
@@ -37,3 +39,4 @@ services:
 volumes:
     flask_uploads:
     mysql_data:
+    mysql_logs:
