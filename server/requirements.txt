@@ -61,4 +61,3 @@ typing_extensions==4.2.0
 urllib3==1.26.9
 uWSGI==2.0.19.1
 Werkzeug==1.0.1
-flask-log-request-ID==0.10.1
