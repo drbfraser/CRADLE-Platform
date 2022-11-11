@@ -12,12 +12,12 @@ from environs import Env
 import environs
 from flask_bcrypt import Bcrypt
 from flasgger import Swagger
+import logging.config
 
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-
 
 class Config(object):
     env = Env()
@@ -49,15 +49,17 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
-
     LOGGING = {
         "version": 1,
         "disable_existing_loggers":False,
         "filters": {
-            "backend_filter": {"backend_module": "backend"}
+            "backend_filter": {"backend_module": "backend"},
+            "request_id": {
+                '()': 'utils.RequestIdFilter',
+             }
         },
         "formatters": {
-            "standard": {"format": "%(asctime)s %(name)-12s %(levelname) -8s %(message)s"},
+            "standard": {"format": "%(asctime)s %(name)-12s %(levelname) -8s - %(request_id)s %(message)s"},
             "compact": {"format": "%(asctime)s %(message)s"}
         },
         "handlers":{
@@ -65,12 +67,13 @@ class Config(object):
                 "class": "logging.StreamHandler",
                 "level": "DEBUG",
                 "formatter": "standard",
+                "filters": ['request_id'],
                 "stream": "ext://sys.stdout",#print to CLI
             },
             "file":{
                 "class": "logging.handlers.TimedRotatingFileHandler",
                 "level": "DEBUG",
-                "filename": "backend.log",
+                "filename": "/var/log/cradle-application.log",
                 "when": "D",
                 "interval": 1,
                 "formatter": "standard" #print to file
@@ -78,9 +81,9 @@ class Config(object):
         },
         "loggers": {
             "": {"handlers": ["console","file"], "level":"DEBUG"},
-            "flask": {"level":"WARNING"},
-            "sqlalchemy": {"level":"WARNING"},
-            "werkzeug":{"level":"WARNING"},
+            "flask": {"level":"INFO"},
+            "sqlalchemy": {"level":"INFO"},
+            "werkzeug":{"level":"INFO"},
         }
     }
 
@@ -117,3 +120,6 @@ app.json_encoder = JSONEncoder
 db = SQLAlchemy(app)
 migrate = Migrate(app, db, compare_type=True)
 ma = Marshmallow(app)
+
+
+

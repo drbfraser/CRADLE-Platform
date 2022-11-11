@@ -11,6 +11,9 @@ from utils import get_current_time
 from validation import forms
 from models import Patient, Form, FormTemplate, User
 import api.util as util
+import logging
+LOGGER = logging.getLogger(__name__)
+
 
 
 # /api/forms/responses

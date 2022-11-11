@@ -12,6 +12,9 @@ from models import MedicalRecord
 from validation import medicalRecords
 from utils import get_current_time
 from api.decorator import patient_association_required
+import logging
+LOGGER = logging.getLogger(__name__)
+
 
 
 # /api/patients/<string:patient_id>/medical_records
@@ -115,7 +118,10 @@ class SingleMedicalRecord(Resource):
     )
     def delete(record_id: str):
         record = _get_medical_record(record_id)
+        user = util.current_user()
+        LOGGER.warning(f"{record_id} has been deleted by User {user.id}")
         crud.delete(record)
+
 
         return {"message": "Medical record deleted"}
 
