@@ -34,7 +34,7 @@ def test_encryptor_wrong_key(message):
     with pytest.raises(fernet.InvalidToken):
         decrypted_data = encryptor.decrypt(encrypted_data, second_key)
         assert decrypted_data != message_bytes
-    
+
     decrypted_data2 = encryptor.decrypt(encrypted_data, key)
     assert decrypted_data2 == message_bytes
 
