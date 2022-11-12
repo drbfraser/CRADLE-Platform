@@ -22,7 +22,7 @@ from datetime import date
 # /api/patients
 class Root(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patients-get.yml", methods=["GET"], endpoint="patients"
     )
@@ -34,7 +34,7 @@ class Root(Resource):
         return serialize.serialize_patient_list(patients)
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patients-post.yml", methods=["POST"], endpoint="patients"
     )
@@ -90,7 +90,7 @@ class Root(Resource):
 # /api/patients/<string:patient_id>
 class SinglePatient(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-patient-get.yml",
         methods=["GET"],
@@ -111,7 +111,7 @@ class SinglePatient(Resource):
 # /api/patients/<string:patient_id>/info
 class PatientInfo(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patient-info-get.yml",
         methods=["GET"],
@@ -124,7 +124,7 @@ class PatientInfo(Resource):
         return marshal.marshal(patient, shallow=True)
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patient-info-put.yml",
         methods=["PUT"],
@@ -172,7 +172,7 @@ class PatientInfo(Resource):
 # /api/patients/<string:patient_id>/stats
 class PatientStats(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patient-stats-get.yml",
         methods=["GET"],
@@ -258,7 +258,7 @@ class PatientStats(Resource):
 # /api/patients/<string:patient_id>/readings
 class PatientReadings(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patient-readings-get.yml",
         methods=["GET"],
@@ -272,7 +272,7 @@ class PatientReadings(Resource):
 # /api/patients/<string:patient_id>/most_recent_reading
 class PatientMostRecentReading(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patient-most-recent-reading-get.yml",
         methods=["GET"],
@@ -293,7 +293,7 @@ class PatientMostRecentReading(Resource):
 # /api/patients/<string:patient_id>/referrals
 class PatientReferrals(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patient-referrals-get.yml",
         methods=["GET"],
@@ -307,7 +307,7 @@ class PatientReferrals(Resource):
 # /api/patients/<string:patient_id>/forms
 class PatientForms(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patient-forms-get.yml",
         methods=["GET"],
@@ -365,7 +365,7 @@ class PatientTimeline(Resource):
 # /api/patients/reading-assessment
 class ReadingAssessment(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/reading-assessment-post.yml",
         methods=["POST"],
@@ -412,7 +412,7 @@ class ReadingAssessment(Resource):
 # /api/patients/<string:patient_id>/get_all_records
 class PatientAllRecords(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patient-all-records-get.yml",
         methods=["GET"],
@@ -427,7 +427,7 @@ class PatientAllRecords(Resource):
 # /api/patients/admin
 class PatientsAdmin(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patients-admin-get.yml",
         methods=["GET"],

@@ -105,7 +105,7 @@ class Root(Resource):
         return marshal.marshal(formTemplate, shallow=True), 201
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/form-templates-get.yml",
         methods=["GET"],
@@ -131,7 +131,7 @@ class Root(Resource):
 # /api/forms/templates/<string:form_template_id>/versions
 class TemplateVersion(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-form-template-version-get.yml",
         methods=["GET"],
@@ -150,7 +150,7 @@ class TemplateVersion(Resource):
 # /api/forms/templates/<string:form_template_id>/versions/<string:version>/csv
 class TemplateVersionCsv(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-form-template-get-csv.yml",
         methods=["GET"],
@@ -183,7 +183,7 @@ class TemplateVersionCsv(Resource):
 # /api/forms/templates/<string:form_template_id>
 class FormTemplateResource(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-form-template-get.yml",
         methods=["GET"],
@@ -214,7 +214,7 @@ class FormTemplateResource(Resource):
         return marshal.marshal_template_to_single_version(form_template, version)
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-form-template-put.yml",
         methods=["PUT"],
@@ -239,7 +239,7 @@ class FormTemplateResource(Resource):
 # /api/forms/templates/blank/<string:form_template_id>
 class BlankFormTemplate(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/blank-form-template-get.yml",
         methods=["GET"],

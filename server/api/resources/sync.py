@@ -32,7 +32,7 @@ class ModelData(NamedTuple):
 # /api/sync/patients
 class SyncPatients(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     def post():
         user = get_jwt_identity()
         last_sync = request.args.get("since", None, type=int)
@@ -174,7 +174,7 @@ class SyncPatients(Resource):
 # /api/sync/readings
 class SyncReadings(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     def post():
         last_sync: int = request.args.get("since", None, type=int)
         if not last_sync:
@@ -216,7 +216,7 @@ class SyncReadings(Resource):
 # /api/sync/referrals
 class SyncReferrals(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     def post():
         last_sync: int = request.args.get("since", None, type=int)
         if not last_sync:
@@ -257,7 +257,7 @@ class SyncReferrals(Resource):
 # /api/sync/assessments
 class SyncAssessments(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     def post():
         last_sync: int = request.args.get("since", None, type=int)
         if not last_sync:
