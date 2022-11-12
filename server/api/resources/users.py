@@ -21,6 +21,7 @@ from api.util import (
 )
 import service.encryptor as encryptor
 import logging
+
 LOGGER = logging.getLogger(__name__)
 
 # Building a parser that will be used over several apis for Users

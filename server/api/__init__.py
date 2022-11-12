@@ -1,5 +1,6 @@
 from flask_restful import Api
 
+
 def init_routes(api: Api):
     """
     Configures all API routes for the resources in this module's sub-modules.

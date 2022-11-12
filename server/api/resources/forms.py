@@ -13,7 +13,6 @@ from models import Patient, Form, FormTemplate, User
 import api.util as util
 
 
-
 # /api/forms/responses
 class Root(Resource):
     @staticmethod

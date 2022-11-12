@@ -23,8 +23,6 @@ from logging.config import dictConfig
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
 
-
-
 app = config.app
 routes.init(config.api)
 

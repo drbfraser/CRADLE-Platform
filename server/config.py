@@ -19,6 +19,7 @@ app_version = "1.0.0"
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 class Config(object):
     env = Env()
     env.read_env()
@@ -51,40 +52,42 @@ class Config(object):
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
     LOGGING = {
         "version": 1,
-        "disable_existing_loggers":False,
+        "disable_existing_loggers": False,
         "filters": {
             "backend_filter": {"backend_module": "backend"},
             "request_id": {
-                '()': 'utils.RequestIdFilter',
-             }
+                "()": "utils.RequestIdFilter",
+            },
         },
         "formatters": {
-            "standard": {"format": "%(asctime)s %(name)-12s %(levelname) -8s %(request_id)s - %(message)s"},
-            "compact": {"format": "%(asctime)s %(message)s"}
+            "standard": {
+                "format": "%(asctime)s %(name)-12s %(levelname) -8s %(request_id)s - %(message)s"
+            },
+            "compact": {"format": "%(asctime)s %(message)s"},
         },
-        "handlers":{
-            "console":{
+        "handlers": {
+            "console": {
                 "class": "logging.StreamHandler",
                 "level": "DEBUG",
                 "formatter": "standard",
-                "filters": ['request_id'],
-                "stream": "ext://sys.stdout",#print to CLI
+                "filters": ["request_id"],
+                "stream": "ext://sys.stdout",  # print to CLI
             },
-            "file":{
+            "file": {
                 "class": "logging.handlers.TimedRotatingFileHandler",
                 "level": "DEBUG",
                 "filename": "/var/log/cradle-application.log",
                 "when": "D",
                 "interval": 1,
-                "formatter": "standard" #print to file
-            }
+                "formatter": "standard",  # print to file
+            },
         },
         "loggers": {
-            "": {"handlers": ["console","file"], "level":"DEBUG"},
-            "flask": {"level":"INFO"},
-            "sqlalchemy": {"level":"INFO"},
-            "werkzeug":{"level":"INFO"},
-        }
+            "": {"handlers": ["console", "file"], "level": "DEBUG"},
+            "flask": {"level": "INFO"},
+            "sqlalchemy": {"level": "INFO"},
+            "werkzeug": {"level": "INFO"},
+        },
     }
 
 
@@ -120,6 +123,3 @@ app.json_encoder = JSONEncoder
 db = SQLAlchemy(app)
 migrate = Migrate(app, db, compare_type=True)
 ma = Marshmallow(app)
-
-
-
