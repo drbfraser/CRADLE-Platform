@@ -72,7 +72,7 @@ class Root(Resource):
 # /api/medical_records/<string:record_id>
 class SingleMedicalRecord(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-medical-record-get.yml",
         methods=["GET"],
@@ -84,7 +84,7 @@ class SingleMedicalRecord(Resource):
         return marshal.marshal(record)
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-medical-record-put.yml",
         methods=["PUT"],
@@ -110,7 +110,7 @@ class SingleMedicalRecord(Resource):
         return marshal.marshal(new_record)
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-medical-record-delete.yml",
         methods=["DELETE"],

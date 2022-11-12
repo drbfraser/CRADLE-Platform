@@ -5,7 +5,6 @@ from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
-    jwt_refresh_token_required,
     get_jwt_identity,
 )
 from flasgger import swag_from
@@ -154,7 +153,7 @@ class UserPasswordChange(Resource):
         "new_password", type=str, required=True, help="This field cannot be left blank!"
     )
 
-    @jwt_required
+    @jwt_required()
     @swag_from("../../specifications/user-change-pass.yml", methods=["POST"])
     def post(self):
         data = self.parser.parse_args()
@@ -282,7 +281,7 @@ class UserAuthApi(Resource):
 
 # api/user/auth/refresh_token
 class UserAuthTokenRefreshApi(Resource):
-    @jwt_refresh_token_required
+    @jwt_required(refresh=True)
     @swag_from("../../specifications/user-auth-refresh.yml", methods=["POST"])
     def post(self):
         current_user = get_jwt_identity()
@@ -293,7 +292,7 @@ class UserAuthTokenRefreshApi(Resource):
 # /api/user/current
 # Get identity of current user with jwt token
 class UserTokenApi(Resource):
-    @jwt_required
+    @jwt_required()
     @swag_from("../../specifications/user-current.yml", methods=["GET"])
     def get(self):
         tokenData = get_jwt_identity()
@@ -335,7 +334,7 @@ class UserApi(Resource):
 
         return getDictionaryOfUserInfo(id)
 
-    @jwt_required
+    @jwt_required()
     @swag_from("../../specifications/user-get.yml", methods=["GET"])
     def get(self, id):
 
