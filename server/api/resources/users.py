@@ -20,6 +20,9 @@ from api.util import (
     doesUserExist,
 )
 import service.encryptor as encryptor
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 # Building a parser that will be used over several apis for Users
 UserParser = reqparse.RequestParser()
@@ -270,9 +273,10 @@ class UserAuthApi(Resource):
             refresh_token = create_refresh_token(identity=data)
             data["token"] = access_token
             data["refresh"] = refresh_token
-
+            LOGGER.info(f"{user.id} has logged in")
             return data, 200
         else:
+            LOGGER.warning(f"Log in attempt for user {user.id}")
             return {"message": "Invalid email or password"}, 401
 
 

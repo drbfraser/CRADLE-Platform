@@ -12,6 +12,7 @@ from environs import Env
 import environs
 from flask_bcrypt import Bcrypt
 from flasgger import Swagger
+import logging.config
 
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"
@@ -49,6 +50,45 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "filters": {
+            "backend_filter": {"backend_module": "backend"},
+            "request_id": {
+                "()": "utils.RequestIdFilter",
+            },
+        },
+        "formatters": {
+            "standard": {
+                "format": "%(asctime)s %(name)-12s %(levelname) -8s %(request_id)s - %(message)s"
+            },
+            "compact": {"format": "%(asctime)s %(message)s"},
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "DEBUG",
+                "formatter": "standard",
+                "filters": ["request_id"],
+                "stream": "ext://sys.stdout",  # print to CLI
+            },
+            "file": {
+                "class": "logging.handlers.TimedRotatingFileHandler",
+                "level": "DEBUG",
+                "filename": "/var/log/cradle-application.log",
+                "when": "D",
+                "interval": 1,
+                "formatter": "standard",  # print to file
+            },
+        },
+        "loggers": {
+            "": {"handlers": ["console", "file"], "level": "DEBUG"},
+            "flask": {"level": "INFO"},
+            "sqlalchemy": {"level": "INFO"},
+            "werkzeug": {"level": "INFO"},
+        },
+    }
 
 
 class JSONEncoder(json.JSONEncoder):

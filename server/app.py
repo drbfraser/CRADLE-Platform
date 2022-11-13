@@ -16,6 +16,13 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import config
 import routes
 
+import logging
+from config import Config
+from logging.config import dictConfig
+
+dictConfig(Config.LOGGING)
+LOGGER = logging.getLogger(__name__)
+
 app = config.app
 routes.init(config.api)
 
