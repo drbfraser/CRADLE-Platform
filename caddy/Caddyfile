@@ -1,3 +1,14 @@
+{
+    # Global caddy configuration for logging
+    log global-caddy {
+        output file /var/log/global.log { # You can also set domain specific log config under site block for access logs.
+            roll_keep_days 60
+        }
+        format json
+        level INFO
+    }
+}
+
 {$DOMAIN} {
     encode gzip
 

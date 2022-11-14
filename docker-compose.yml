@@ -28,12 +28,25 @@ services:
         image: mysql:5.7
         volumes:
             - mysql_data:/var/lib/mysql
+            - mysql_logs:/var/log
+            - "./:/etc/mysql/conf.d"
         environment:
             MYSQL_DATABASE: cradle
             MYSQL_USER: ${DB_USERNAME}
             MYSQL_PASSWORD: ${DB_PASSWORD}
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    fluentbit:
+        container_name: cradle_fluentbit
+        image: fluent/fluent-bit:2.0.5
+        volumes:
+            - ${DOCKER_VOLUME_HOME:-/var/lib/docker/volumes}/cradle-platform_flask_logs/_data:/flask/logs
+            - ${DOCKER_VOLUME_HOME:-/var/lib/docker/volumes}/cradle-platform_caddy_logs/_data:/caddy/logs
+            - ${DOCKER_VOLUME_HOME:-/var/lib/docker/volumes}/cradle-platform_mysql_logs/_data:/mysql/logs
+            - ./fluentbit/logs:/output/
+            - ./fluentbit/config:/fluent-bit/etc
+            - ./fluentbit/config/fluent-${ENV:-local}.conf:/fluent-bit/etc/fluent-bit.conf
 
 volumes:
     flask_uploads:
     mysql_data:
+    mysql_logs:

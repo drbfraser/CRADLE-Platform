@@ -150,3 +150,7 @@ client/.idea/
 **/certbot/conf
 **/certbot/www
 client/request.http
+
+#------------------------
+# fluenbit local output logs
+fluentbit/logs/*

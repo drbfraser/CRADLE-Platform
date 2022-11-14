@@ -76,7 +76,7 @@ class Config(object):
             "file": {
                 "class": "logging.handlers.TimedRotatingFileHandler",
                 "level": "DEBUG",
-                "filename": "/var/log/cradle-application.log",
+                "filename": "/var/log/application.log",
                 "when": "D",
                 "interval": 1,
                 "formatter": "standard",  # print to file

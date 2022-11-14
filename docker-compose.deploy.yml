@@ -35,6 +35,9 @@ services:
         ports:
             - 80:80
             - 443:443
+        volumes:
+            - caddy_logs:/var/log
 
 volumes:
     flask_logs:
+    caddy_logs:
