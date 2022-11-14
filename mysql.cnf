@@ -1,7 +1,7 @@
 [mysqld]
-log_error       =/var/log/mysql/mysql_error.log
+log_error       =/var/log/error.log
 general_log     =ON
-general_log_file=/var/log/mysql/mysql_general.log
+general_log_file=/var/log/general.log
 slow_query_log  =ON
-slow_query_log_file=/var/log/mysql/mysql_slow.log
+slow_query_log_file=/var/log/slow.log
 long_query_time =5

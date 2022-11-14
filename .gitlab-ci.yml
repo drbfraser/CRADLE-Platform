@@ -311,6 +311,7 @@ build-docker publish-docker-images:
   - *export_image_tag
   - cp /var/cradle/.env ./.env
   - docker compose -f docker-compose.yml -f docker-compose.deploy.yml pull
+  - export ENV=$CI_ENVIRONMENT_NAME
   - docker compose -f docker-compose.yml -f docker-compose.deploy.yml up -d
   - docker image prune -f      # remove unused images since we just downloaded new ones
   - bash -c 'sleep 15'

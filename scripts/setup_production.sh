@@ -109,6 +109,7 @@ if [ ! -f .env ]; then
     echo "JWT_SECRET_KEY=${RAND_SECRET}" >> .env
     echo "DB_USERNAME=user" >> .env
     echo "DB_PASSWORD=${RAND_PASSWORD}" >> .env
+    echo "ENV=prod" >> .env
 
     # this is necessary because the DB password has now been changed
     echo -e "\n${BLUE}Removing previous Docker containers and volumes...${COLOR_OFF}\n"
