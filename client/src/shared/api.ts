@@ -446,6 +446,20 @@ export const archivePatientAsync = async (patientId: string) => {
   return response.json();
 };
 
+export const unarchivePatientAsync = async (patientId: string) => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.PATIENTS + '/' + patientId + '/info',
+    {
+      method: 'PUT',
+      body: JSON.stringify({
+        isArchived: false,
+      }),
+    }
+  );
+
+  return response.json();
+};
+
 export const getPatientAsync = async (patientId: string) => {
   const response = await apiFetch(
     API_URL + EndpointEnum.PATIENTS + `/${patientId}`
