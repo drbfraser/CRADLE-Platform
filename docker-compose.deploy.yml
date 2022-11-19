@@ -37,6 +37,10 @@ services:
             - 443:443
         volumes:
             - caddy_logs:/var/log
+    fluentbit:
+        volumes:
+            - flask_logs:/flask/logs:ro
+            - caddy_logs:/caddy/logs:ro
 
 volumes:
     flask_logs:
