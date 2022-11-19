@@ -39,15 +39,14 @@ If you want to build caddy contianer locally, you need frontend.tar.gz. You can 
 Run fluentbit contianer separately from the rest. This is to test if the fluentbit container is properly recording where it stopped collecting logs with `DB` field.
 
 To run just Fluentbit: \
-`DOCKER_VOLUME_HOME=/mnt/wsl/docker-desktop-data/version-pack-data/community/docker/volumes IMAGE_TAG=log DOMAIN=localhost  docker compose -f docker-compose.yml -f docker-compose.deploy.yml up --build fluentbit`
+`IMAGE_TAG=log DOMAIN=localhost  docker compose -f docker-compose.yml -f docker-compose.deploy.yml up --build fluentbit`
 
 To run the rest services: \
-`DOCKER_VOLUME_HOME=/mnt/wsl/docker-desktop-data/version-pack-data/community/docker/volumes IMAGE_TAG=log DOMAIN=localhost  docker compose -f docker-compose.yml -f docker-compose.deploy.yml up --build flask caddy mysql`
+`IMAGE_TAG=log DOMAIN=localhost  docker compose -f docker-compose.yml -f docker-compose.deploy.yml up --build flask caddy mysql`
 
 You should see that fluentbit is collecting its logs under `fluentbit/logs`. 
 
 **NOTE:**
-* If you are running on Linux, no need to declare `DOCKER_VOLUME_HOME`. 
 * If you have already built the image, you don't need `--build` flag.
 
 

@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import DeleteForever from '@mui/icons-material/DeleteForever';
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import ArchivePatient from './ArchivePatient';
+import UnarchivePatient from './UnarchivePatient';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { PatientWithIndex } from 'src/shared/types';
 import { getPatientsAdminAsync } from 'src/shared/api';
@@ -19,6 +21,7 @@ export const ManagePatients = () => {
     []
   );
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
+  const [unarchivePopupOpen, setUnarchivePopupOpen] = useState(false);
   const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
   const isTransformed = useMediaQuery('(min-width:800px)');
 
@@ -109,6 +112,16 @@ export const ManagePatients = () => {
               <DeleteForever />
             </IconButton>
           </Tooltip>
+          <Tooltip placement="top" title="Unarchive Patient">
+            <IconButton
+              onClick={() => {
+                setUnarchivePopupOpen(true);
+                setPopupPatient(patient);
+              }}
+              size="large">
+              <RestoreFromTrashIcon />
+            </IconButton>
+          </Tooltip>
         </TableCell>
       </tr>
     );
@@ -124,6 +137,14 @@ export const ManagePatients = () => {
         open={archivePopupOpen}
         onClose={() => {
           setArchivePopupOpen(false);
+          getPatients();
+        }}
+        patient={popupPatient}
+      />
+      <UnarchivePatient
+        open={unarchivePopupOpen}
+        onClose={() => {
+          setUnarchivePopupOpen(false);
           getPatients();
         }}
         patient={popupPatient}
