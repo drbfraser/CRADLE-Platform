@@ -22,6 +22,7 @@ _VAR = os.path.join(_ROOT, "var")
 loglevel = "info"
 errorlog = os.path.join(_VAR, "log/error.log")
 accesslog = os.path.join(_VAR, "log/access.log")
+applicationlog = os.path.join(_VAR, "log/application.log")
 
 workers = multiprocessing.cpu_count() * 2 + 1
 
