@@ -7,7 +7,6 @@ import numpy as np
 import json
 from random import randrange
 from datetime import timedelta, datetime
-from flask_script import Manager
 from config import app, db, flask_bcrypt
 from models import *
 from random import randint, choice
@@ -15,12 +14,13 @@ from string import ascii_lowercase, digits
 import service.encryptor as encryptor
 import data.crud as crud
 import data.marshal as marshal
+from flask.cli import FlaskGroup
+import click
 
-
-manager = Manager(app)
+cli = FlaskGroup(app)
 
 # USAGE: python manage.py reset_db
-@manager.command
+@cli.command("reset_db")
 def reset_db():
     db.drop_all()
     db.create_all()
@@ -28,14 +28,14 @@ def reset_db():
 
 
 # USAGE: python manage.py drop_all_tables
-@manager.command
+@cli.command("drop_all_tables")
 def drop_all_tables():
     db.drop_all()
     db.session.commit()
 
 
 # USAGE: python manage.py seed_minimal
-@manager.command
+@cli.command("seed_minimal")
 def seed_minimal(
     email="admin123@admin.com", password="admin123", facility_name="H0000"
 ):
@@ -64,15 +64,16 @@ def seed_minimal(
 
 
 # USAGE: python manage.py seed_test_data
-@manager.command
-def seed_test_data():
+@cli.command("seed_test_data")
+@click.pass_context
+def seed_test_data(ctx):
     """
     Seeds data for testing.
 
     The data inserted here should be deterministically generated to ease testing.
     """
     # Start with a minimal setup.
-    seed_minimal()
+    ctx.invoke(seed_minimal)
 
     # Add the rest of the users.
     print("Creating test health facilities and users...")
@@ -175,7 +176,7 @@ def seed_test_data():
 
 
 # USAGE: python manage.py seed_test_patient
-@manager.command
+@cli.command("seed_test_patient")
 def seed_test_patient():
     create_patient_reading_referral_pregnancy(
         "4930004967",
@@ -218,8 +219,9 @@ def seed_test_patient():
 
 
 # USAGE: python manage.py seed
-@manager.command
-def seed():
+@cli.command("seed")
+@click.pass_context
+def seed(ctx):
     start = time.time()
 
     # SEED villages
@@ -244,7 +246,7 @@ def seed():
         }
         db.session.add(healthfacility_schema.load(hf_schema))
 
-    seed_test_data()
+    ctx.invoke(seed_test_data)
 
     print("Seeding Patients with readings and referrals...")
     # seed patients with readings and referrals
@@ -745,4 +747,5 @@ if __name__ == "__main__":
 
     d1 = datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
     d2 = datetime.today().replace(microsecond=0)
-    manager.run()
+
+    cli()
