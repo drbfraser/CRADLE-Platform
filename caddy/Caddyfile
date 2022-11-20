@@ -1,11 +1,12 @@
 {
     # Global caddy configuration for logging
-    log global-caddy {
-        output file /var/log/global.log { # You can also set domain specific log config under site block for access logs.
-            roll_keep_days 60
+    log caddy-runtime {
+        output file /var/log/runtime.log {
+            roll_keep_for 60d
         }
         format json
         level INFO
+        exclude http.log.access
     }
 }
 
@@ -28,5 +29,13 @@
 
         # If there is a 404, serve index.html (required for React)
         try_files {path} index.html
+    }
+
+    log {
+	    output file /var/log/access.log {
+            roll_keep_for 60d
+        }
+        format json
+        level INFO
     }
 }
