@@ -19,7 +19,6 @@ Flask-JWT-Extended==4.3.0
 flask-marshmallow==0.14.0
 Flask-Migrate==2.7.0
 Flask-RESTful==0.3.9
-Flask-Script==2.0.6
 Flask-SQLAlchemy==2.4.4
 Flask-Testing==0.8.1
 gunicorn==20.0.4
