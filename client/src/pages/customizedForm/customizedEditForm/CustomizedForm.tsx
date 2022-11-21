@@ -47,7 +47,9 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
     useState(false);
 
   const [answers, setAnswers] = useState<QAnswer[]>([]);
-  const formTitle = isEditForm ? 'Update Form' : 'Submit Form';
+  const isViewMode = false;
+  let formTitle = isEditForm ? 'Update Form' : 'Submit Form';
+  formTitle = isViewMode ? 'Edit Form' : formTitle;
 
   const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
     setMultiSelectValidationFailed(ValidationFailed);
