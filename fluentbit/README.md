@@ -4,20 +4,25 @@
 
 ## Logs we keep track of:
 1. Flask logs (`${DOCKER_VOLUME_HOME}/cradle-platform_flask_logs/_data`):\
-    Configured in `server/gunicorn.conf.py` and `server/config.py`
-   - ./access.log - Records http requests
-   - ./error.log
-   - ./application.log 
+    Configured in `server/gunicorn.conf.py` and `server/config.py` \
+    Gunicorn doc: https://docs.gunicorn.org/en/stable/settings.html#logging \
+    Only application.log is configured to output to both files and sdtout at the moment. \
+    All worker process is logging to the same application.log file. It's not separated. 
+   - ./access.log - Http requests (Can be formatted) Configured at `server/gunicorn.conf.py`
+   - ./error.log - Configured at `server/gunicorn.conf.py`
+   - ./application.log - Configured at `server/config.py`
 
 2. Caddy logs (`${DOCKER_VOLUME_HOME}/cradle-platform_caddy_logs/_data`):\
    Configured in `caddy/Caddyfile`
-   - ./global.log
+   Not possible to have multiple log outputs when configured with Caddyfile(https://caddy.community/t/multiple-log-files/11295/2). We need to use JSON configuration.
+   - ./runtime.log - Caddy's runtime log like start up logs (Configured at a global block) https://caddyserver.com/docs/caddyfile/options#log 
+   - ./access.log - Http requests logs (Configured at a site(domain) block) https://caddyserver.com/docs/caddyfile/directives/log#output-modules
 
 3. MySQL logs (`${DOCKER_VOLUME_HOME}/cradle-platform_mysql_logs/_data`):\
    Configured in `mysql.cnf`
-   - ./general.log
-   - ./slow.log - Records slow queries
-   - ./error.logs
+   - ./general.log - Established client connections and statements received from clients (Can be output to a file or DB table)
+   - ./slow.log - Queries that took more than long_query_time seconds to execute (Can be output to a file or DB table)
+   - ./error.logs - Problems encountered starting, running, or stopping mysqld (Can be output to a file, stderr, etc)
 
 
 ## ENV VARIABLE:
@@ -39,15 +44,18 @@ If you want to build caddy contianer locally, you need frontend.tar.gz. You can 
 Run fluentbit contianer separately from the rest. This is to test if the fluentbit container is properly recording where it stopped collecting logs with `DB` field.
 
 To run just Fluentbit: \
-`DOCKER_VOLUME_HOME=/mnt/wsl/docker-desktop-data/version-pack-data/community/docker/volumes IMAGE_TAG=log DOMAIN=localhost  docker compose -f docker-compose.yml -f docker-compose.deploy.yml up --build fluentbit`
+`IMAGE_TAG=log DOMAIN=localhost  docker compose -f docker-compose.yml -f docker-compose.deploy.yml up --build fluentbit`
 
 To run the rest services: \
-`DOCKER_VOLUME_HOME=/mnt/wsl/docker-desktop-data/version-pack-data/community/docker/volumes IMAGE_TAG=log DOMAIN=localhost  docker compose -f docker-compose.yml -f docker-compose.deploy.yml up --build flask caddy mysql`
+`IMAGE_TAG=log DOMAIN=localhost  docker compose -f docker-compose.yml -f docker-compose.deploy.yml up --build flask caddy mysql`
 
 You should see that fluentbit is collecting its logs under `fluentbit/logs`. 
 
+You can generate more logs by interacticng with the frontend using Caddy. Access it with `http://${DOMAIN}`. For example, in this case, it will be `http://localhost`.
+
+If this is your first time, you'll see an error page saying "Your connection isn't private". Click on "Advanced" button on the left bottom of that message and click on "Continue to localhost (unsafe)".
+
 **NOTE:**
-* If you are running on Linux, no need to declare `DOCKER_VOLUME_HOME`. 
 * If you have already built the image, you don't need `--build` flag.
 
 
