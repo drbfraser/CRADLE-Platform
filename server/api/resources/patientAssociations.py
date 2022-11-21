@@ -13,7 +13,7 @@ from validation import associations
 # /api/patientAssociations
 class Root(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/patientAssociations-post.yml",
         methods=["POST"],

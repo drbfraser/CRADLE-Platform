@@ -64,7 +64,7 @@ class Root(Resource):
 # /api/pregnancies/<string:pregnancy_id>
 class SinglePregnancy(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-pregnancy-get.yml",
         methods=["GET"],
@@ -76,7 +76,7 @@ class SinglePregnancy(Resource):
         return marshal.marshal(pregnancy)
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-pregnancy-put.yml",
         methods=["PUT"],
@@ -108,7 +108,7 @@ class SinglePregnancy(Resource):
         return marshal.marshal(new_pregnancy)
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-pregnancy-delete.yml",
         methods=["DELETE"],

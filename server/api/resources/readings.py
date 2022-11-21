@@ -16,7 +16,7 @@ from validation import readings
 # /api/readings
 class Root(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/readings-post.yml", methods=["POST"], endpoint="readings"
     )
@@ -72,7 +72,7 @@ class Root(Resource):
 # /api/readings/<string:id>
 class SingleReading(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-reading-get.yml",
         methods=["GET"],

@@ -16,7 +16,7 @@ import api.util as util
 # /api/forms/responses
 class Root(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/forms-post.yml", methods=["POST"], endpoint="forms"
     )
@@ -66,7 +66,7 @@ class Root(Resource):
 # /api/forms/responses/<string:form_id>
 class SingleForm(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-form-get.yml",
         methods=["GET"],
@@ -80,7 +80,7 @@ class SingleForm(Resource):
         return marshal.marshal(form, False)
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-form-put.yml",
         methods=["PUT"],
