@@ -21,6 +21,7 @@ import service.view as view
 import service.serialize as serialize
 import service.compressor as compressor
 import service.encryptor as encryptor
+import cryptography.fernet as fernet
 
 # /api/sms_relay
 class SMSRelay(Resource):
@@ -41,5 +42,17 @@ class SMSRelay(Resource):
         methods=["PUT"],
         endpoint="sms_relay",
     )
-    def put():
-        return
+    def put(data):
+        
+        phone_number = "";
+        user = crud.read(User, phoneNumber=phone_number)
+
+        if (!user):
+            abort(401, message=f"Invalid Phone Number")
+
+        try:
+            encryptor.decrypt(data, user.secretKey)
+        except fernet.InvalidToken:
+            abort(401, message=f"Invalid Key")
+
+        return {"message": "Data received"}, 200
