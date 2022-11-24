@@ -104,7 +104,7 @@ export const CustomizedFormCard = ({ form }: ICustomizedFormCardProps) => (
       </Typography>
     </Box>
 
-    <RedirectButton url={`/forms/edit/${form.patientId}/${form.id}`}>
+    <RedirectButton url={`/forms/view/${form.patientId}/${form.id}`}>
       View Form
     </RedirectButton>
   </>

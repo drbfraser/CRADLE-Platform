@@ -2,6 +2,7 @@ import { AdminPage } from 'src/pages/admin';
 import { AssessmentFormPage } from 'src/pages/assessmentForm';
 import { CustomizedEditFormPage } from 'src/pages/customizedForm/customizedEditForm';
 import { CustomizedFormPage } from 'src/pages/customizedForm';
+import { CustomizedViewFormPage } from 'src/pages/customizedForm/customizedViewForm';
 import { HistoryTablesPage } from 'src/pages/historyTables';
 import { LoginPage } from 'src/pages/login';
 import { NotFoundPage } from 'src/pages/notFound';
@@ -82,6 +83,14 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/forms/edit/:patientId/:formId`,
+  },
+  {
+    component: CustomizedViewFormPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/forms/view/:patientId/:formId`,
   },
   {
     component: ReadingFormPage,
