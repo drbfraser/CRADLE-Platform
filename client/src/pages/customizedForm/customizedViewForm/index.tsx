@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { CForm } from 'src/shared/types';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { CustomizedForm } from '../customizedEditForm/CustomizedForm';
+import { CustomizedViewForm } from './customizedViewForm';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -42,10 +42,10 @@ export const CustomizedViewFormPage = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">Edit Form for {patientId}</Typography>
+        <Typography variant="h4">View Form for {patientId}</Typography>
       </div>
       {form && form.questions && form!.questions!.length > 0 && (
-        <CustomizedForm patientId={patientId} fm={form} isEditForm={true} />
+        <CustomizedViewForm patientId={patientId} fm={form}/>
       )}
     </div>
   );

@@ -13,7 +13,7 @@ import {
   getPrettyDateTime,
   getTimestampFromStringDate,
 } from 'src/shared/utils';
-import { initialState, validationSchema } from './state';
+import { initialState, validationSchema } from '../customizedEditForm/state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
@@ -30,17 +30,15 @@ import Radio from '@mui/material/Radio';
 import { RadioGroup } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { handleSubmit } from './handlers';
+import { handleSubmit } from '../customizedEditForm/handlers';
 import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   patientId: string;
   fm: CForm;
-  isEditForm: boolean;
-  isViewForm: boolean; 
 }
 
-export const CustomizedForm = ({ patientId, fm, isEditForm, isViewForm }: IProps) => {
+export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
@@ -48,9 +46,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm, isViewForm }: IProps
     useState(false);
 
   const [answers, setAnswers] = useState<QAnswer[]>([]);
-  const isViewMode = false;
-  let formTitle = isEditForm ? 'Update Form' : 'Submit Form';
-  formTitle = isViewMode ? 'Edit Form' : formTitle;
+  let formTitle = 'Edit Form';
 
   const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
     setMultiSelectValidationFailed(ValidationFailed);
@@ -431,7 +427,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm, isViewForm }: IProps
           answers,
           setSubmitError,
           handleMultiSelectValidationFailed,
-          isEditForm,
+          true,
           fm
         )}>
         {({ isSubmitting }) => (

@@ -34,7 +34,7 @@ export const CustomizedFormPage = () => {
 
       <SelectHeaderForm setForm={setForm} />
       {form && form.questions && form!.questions!.length > 0 && (
-        <CustomizedForm patientId={patientId} fm={form} isEditForm={false} />
+        <CustomizedForm patientId={patientId} fm={form} isEditForm={false} isViewForm={false} />
       )}
     </div>
   );
