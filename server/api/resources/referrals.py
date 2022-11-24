@@ -20,7 +20,7 @@ import service.serialize as serialize
 # /api/referrals
 class Root(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/referrals-get.yml", methods=["GET"], endpoint="referrals"
     )
@@ -35,7 +35,7 @@ class Root(Resource):
         return serialize.serialize_referral_list(referrals)
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/referrals-post.yml",
         methods=["POST"],
@@ -85,7 +85,7 @@ class Root(Resource):
 # /api/referrals/<int:referral_id>
 class SingleReferral(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-referral-get.yml",
         methods=["GET"],
@@ -102,7 +102,7 @@ class SingleReferral(Resource):
 # /api/referrals/assess/<string:referral_id>
 class AssessReferral(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/referrals-assess-update-put.yml",
         methods=["PUT"],
@@ -125,7 +125,7 @@ class AssessReferral(Resource):
 # /api/referrals/cancel-status-switch/<string:referral_id>
 class ReferralCancelStatus(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/referrals-cancel-update-put.yml",
         methods=["PUT"],
@@ -159,7 +159,7 @@ class ReferralCancelStatus(Resource):
 # /api/referrals/not-attend/<string:referral_id>
 class ReferralNotAttend(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/referrals-not-attend-update-put.yml",
         methods=["PUT"],
