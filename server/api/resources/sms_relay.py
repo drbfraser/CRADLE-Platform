@@ -19,12 +19,13 @@ from flasgger import swag_from
 import api.util as util
 import service.view as view
 import service.serialize as serialize
-
+import service.compressor as compressor
+import service.encryptor as encryptor
 
 # /api/sms_relay
 class SMSRelay(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/sms-relay-get.yml",
         methods=["GET"],
@@ -34,7 +35,7 @@ class SMSRelay(Resource):
         return
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/sms-relay-put.yml",
         methods=["PUT"],
