@@ -87,7 +87,7 @@ class Root(Resource):
         return marshal.marshal(formClassification, shallow=True), 201
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/form-classifications-get.yml",
         methods=["GET"],
@@ -103,7 +103,7 @@ class Root(Resource):
 # /api/forms/classifications/<string:form_classification_id>
 class SingleFormClassification(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-form-classification-get.yml",
         methods=["GET"],
@@ -121,7 +121,7 @@ class SingleFormClassification(Resource):
         return marshal.marshal(form_classification), 200
 
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/single-form-classification-put.yml",
         methods=["PUT"],
@@ -148,7 +148,7 @@ class SingleFormClassification(Resource):
 # /api/forms/classifications/summary
 class FormClassificationSummary(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/form-classification-summary-get.yml",
         methods=["GET"],

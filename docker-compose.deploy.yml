@@ -22,6 +22,9 @@ services:
             - flask_logs:/var/log
     mysql:
         restart: always
+        volumes:
+            - mysql_logs:/var/log
+            - "./:/etc/mysql/conf.d"
     caddy:
         container_name: cradle_caddy
         image: drbfraser/cradle_platfrom-revproxy_frontend:$IMAGE_TAG
@@ -38,10 +41,19 @@ services:
         volumes:
             - caddy_logs:/var/log
     fluentbit:
+        container_name: cradle_fluentbit
+        image: fluent/fluent-bit:2.0.5
         volumes:
             - flask_logs:/flask/logs:ro
             - caddy_logs:/caddy/logs:ro
+            - mysql_logs:/mysql/logs:ro
+            - ./fluentbit/logs:/output/
+            - ./fluentbit/config:/fluent-bit/etc
+            - ./fluentbit/config/fluent-${ENV:-local}.conf:/fluent-bit/etc/fluent-bit.conf
+        environment:
+            GRAFANA_API_KEY: ${GRAFANA_API_KEY}
 
 volumes:
     flask_logs:
     caddy_logs:
+    mysql_logs:

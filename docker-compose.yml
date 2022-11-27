@@ -28,26 +28,11 @@ services:
         image: mysql:5.7
         volumes:
             - mysql_data:/var/lib/mysql
-            - mysql_logs:/var/log
-            - "./:/etc/mysql/conf.d"
         environment:
             MYSQL_DATABASE: cradle
             MYSQL_USER: ${DB_USERNAME}
             MYSQL_PASSWORD: ${DB_PASSWORD}
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-    fluentbit:
-        container_name: cradle_fluentbit
-        image: fluent/fluent-bit:2.0.5
-        volumes:
-            - flask_uploads:/flask/logs:ro
-            - mysql_logs:/mysql/logs:ro
-            - ./fluentbit/logs:/output/
-            - ./fluentbit/config:/fluent-bit/etc
-            - ./fluentbit/config/fluent-${ENV:-local}.conf:/fluent-bit/etc/fluent-bit.conf
-        environment:
-            GRAFANA_API_KEY: ${GRAFANA_API_KEY}
-
 volumes:
     flask_uploads:
     mysql_data:
-    mysql_logs:

@@ -78,7 +78,7 @@ def get_global_search_patients(current_user, search):
 class AndroidPatientGlobalSearch(Resource):
 
     # get all patient information (patientinfo, readings, and referrals)
-    @jwt_required
+    @jwt_required()
     @swag_from("../../specifications/patient-search-get.yml", methods=["GET"])
     def get(self, search):
         current_user = get_jwt_identity()
@@ -95,7 +95,7 @@ class AndroidPatientGlobalSearch(Resource):
 # /api/mobile/patients/
 class AndroidPatients(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/android-patients-get.yml",
         methods=["GET"],
@@ -111,7 +111,7 @@ class AndroidPatients(Resource):
 # /api/mobile/readings
 class AndroidReadings(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/android-readings-get.yml",
         methods=["GET"],
@@ -127,7 +127,7 @@ class AndroidReadings(Resource):
 # /api/mobile/referrals
 class AndroidReferrals(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/android-referrals-get.yml",
         methods=["GET"],
@@ -142,7 +142,7 @@ class AndroidReferrals(Resource):
 # /api/mobile/assessments
 class AndroidAssessments(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/android-assessments-get.yml",
         methods=["GET"],
@@ -157,7 +157,7 @@ class AndroidAssessments(Resource):
 # /api/mobile/forms/<str:patient_id>/<str:form_template_id>
 class AndroidForms(Resource):
     @staticmethod
-    @jwt_required
+    @jwt_required()
     @swag_from(
         "../../specifications/android-forms-get.yml",
         methods=["GET"],

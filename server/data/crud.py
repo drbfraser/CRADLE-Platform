@@ -328,6 +328,9 @@ def read_referral_list(
         )
         .outerjoin(Referral, and_(Referral.patientId == Patient.patientId))
         .outerjoin(Reading, and_(Reading.readingId == reading_subquery))
+        .filter(
+            or_(Patient.isArchived == False, Patient.isArchived == None),
+        )
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
