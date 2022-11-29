@@ -50,6 +50,9 @@ services:
             - ./fluentbit/logs:/output/
             - ./fluentbit/config:/fluent-bit/etc
             - ./fluentbit/config/fluent-${ENV:-local}.conf:/fluent-bit/etc/fluent-bit.conf
+        environment:
+            GRAFANA_API_KEY: ${GRAFANA_API_KEY}
+
 volumes:
     flask_logs:
     caddy_logs:
