@@ -25,13 +25,13 @@ import FormLabel from '@mui/material/FormLabel';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import Paper from '@mui/material/Paper';
-import { PrimaryButton } from 'src/shared/components/Button';
 import Radio from '@mui/material/Radio';
 import { RadioGroup } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { handleSubmit } from '../customizedEditForm/handlers';
 import makeStyles from '@mui/styles/makeStyles';
+import { RedirectButton } from 'src/shared/components/Button';
 
 interface IProps {
   patientId: string;
@@ -46,7 +46,6 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
     useState(false);
 
   const [answers, setAnswers] = useState<QAnswer[]>([]);
-  let buttonName = 'Edit Form';
 
   const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
     setMultiSelectValidationFailed(ValidationFailed);
@@ -430,24 +429,24 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
           true,
           fm
         )}>
-        {({ isSubmitting }) => (
+        {(
           <Form>
             <Paper>
               <Box p={4} pt={6} m={2}>
                 <Grid container spacing={3}>
                   {generateHtmlForQuestions(questions, answers)}
                 </Grid>
-                <PrimaryButton
-                  className={classes.right}
-                  type="submit"
-                  disabled={isSubmitting}>
-                  {buttonName}
-                </PrimaryButton>
+                  <RedirectButton 
+                    url={`/forms/edit/${patientId}/${fm.id}`}
+                    className={classes.right}>
+                    Edit Form
+                  </RedirectButton>
               </Box>
             </Paper>
           </Form>
         )}
       </Formik>
+      
     </>
   );
 };
