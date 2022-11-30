@@ -45,7 +45,7 @@ export const CustomizedEditFormPage = () => {
         <Typography variant="h4">Edit Form for {patientId}</Typography>
       </div>
       {form && form.questions && form!.questions!.length > 0 && (
-        <CustomizedForm patientId={patientId} fm={form} isEditForm={true}/>
+        <CustomizedForm patientId={patientId} fm={form} isEditForm={true} />
       )}
     </div>
   );
