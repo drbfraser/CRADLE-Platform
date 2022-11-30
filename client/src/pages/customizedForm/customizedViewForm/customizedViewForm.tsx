@@ -11,7 +11,6 @@ import { Fragment, useEffect, useState } from 'react';
 import {
   getPrettyDate,
   getPrettyDateTime,
-  getTimestampFromStringDate,
 } from 'src/shared/utils';
 import { initialState, validationSchema } from '../customizedEditForm/state';
 
@@ -163,13 +162,6 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
     });
   };
 
-  function updateAnswersByValue(index: number, newValue: any) {
-    const ans = [...answers];
-    ans[index].val = newValue;
-    updateQuestionsConditionHidden(questions, ans);
-    setAnswers(ans);
-  }
-
   //currently, only ME(checkboxes need manually added validation, others' validations are handled automatically by formik)
   const generateValidationLine = (
     question: Question,
@@ -207,7 +199,6 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
     }
 
     const type = question.questionType;
-    const qid = question.questionIndex;
     const required = question.required;
 
     switch (type) {
@@ -235,9 +226,7 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
               row
               aria-labelledby={`question_${question.questionIndex}`}
               value={answer.val ? answer.val[0] : ''}
-              onChange={function (_, value) {
-                updateAnswersByValue(qid, [value]);
-              }}>
+              >
               {question.mcOptions.map((McOption, index) => (
                 <FormControlLabel
                   key={index}
@@ -266,19 +255,6 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
                   <Checkbox
                     value={McOption.opt}
                     defaultChecked={answer.val?.indexOf(McOption.opt) > -1}
-                    onChange={(event, checked) => {
-                      if (checked) {
-                        const new_val = [...answer.val, event.target.value];
-                        updateAnswersByValue(qid, new_val);
-                      } else {
-                        const original_val = [...answer.val];
-                        const i = original_val.indexOf(event.target.value);
-                        if (i > -1) {
-                          original_val.splice(i, 1);
-                        }
-                        updateAnswersByValue(qid, original_val);
-                      }
-                    }}
                   />
                 }
                 label={McOption.opt}
@@ -318,9 +294,6 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
                       : Number.MAX_SAFE_INTEGER,
                 },
               }}
-              onChange={(event: any) => {
-                updateAnswersByValue(qid, Number(event.target.value));
-              }}
             />
           </Grid>
         );
@@ -342,10 +315,6 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
                     ? question.stringMaxLength
                     : Number.MAX_SAFE_INTEGER,
               }}
-              onChange={(event: any) => {
-                //it is originally a string type!! need transfer
-                updateAnswersByValue(qid, event.target.value);
-              }}
             />
           </Grid>
         );
@@ -366,12 +335,6 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
               InputLabelProps={{
                 shrink: true,
               }}
-              onChange={(event: any) => {
-                const timestamp = getTimestampFromStringDate(
-                  event.target.value
-                );
-                updateAnswersByValue(qid, timestamp);
-              }}
             />
           </Grid>
         );
@@ -389,12 +352,6 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
               type="date"
               InputLabelProps={{
                 shrink: true,
-              }}
-              onChange={(event: any) => {
-                const timestamp = getTimestampFromStringDate(
-                  event.target.value
-                );
-                updateAnswersByValue(qid, timestamp);
               }}
             />
           </Grid>
