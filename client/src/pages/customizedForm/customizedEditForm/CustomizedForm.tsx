@@ -37,10 +37,9 @@ interface IProps {
   patientId: string;
   fm: CForm;
   isEditForm: boolean;
-  isViewForm: boolean; 
 }
 
-export const CustomizedForm = ({ patientId, fm, isEditForm, isViewForm }: IProps) => {
+export const CustomizedForm = ({ patientId, fm, isEditForm}: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
@@ -48,9 +47,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm, isViewForm }: IProps
     useState(false);
 
   const [answers, setAnswers] = useState<QAnswer[]>([]);
-  const isViewMode = false;
   let formTitle = isEditForm ? 'Update Form' : 'Submit Form';
-  formTitle = isViewMode ? 'Edit Form' : formTitle;
 
   const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
     setMultiSelectValidationFailed(ValidationFailed);

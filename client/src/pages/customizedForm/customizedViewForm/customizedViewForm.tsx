@@ -46,7 +46,7 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
     useState(false);
 
   const [answers, setAnswers] = useState<QAnswer[]>([]);
-  let formTitle = 'Edit Form';
+  let buttonName = 'Edit Form';
 
   const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
     setMultiSelectValidationFailed(ValidationFailed);
@@ -441,7 +441,7 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
                   className={classes.right}
                   type="submit"
                   disabled={isSubmitting}>
-                  {formTitle}
+                  {buttonName}
                 </PrimaryButton>
               </Box>
             </Paper>
