@@ -2,6 +2,7 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
+from flask import redirect
 from flask_restful import Resource, abort
 from data import crud, marshal
 import service.FilterHelper as filter
