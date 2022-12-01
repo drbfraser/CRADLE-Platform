@@ -39,7 +39,7 @@ interface IProps {
   isEditForm: boolean;
 }
 
-export const CustomizedForm = ({ patientId, fm, isEditForm}: IProps) => {
+export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);

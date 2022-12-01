@@ -8,10 +8,7 @@ import {
 } from 'src/shared/types';
 import { Field, Form, Formik } from 'formik';
 import { Fragment, useEffect, useState } from 'react';
-import {
-  getPrettyDate,
-  getPrettyDateTime,
-} from 'src/shared/utils';
+import { getPrettyDate, getPrettyDateTime } from 'src/shared/utils';
 import { initialState, validationSchema } from '../customizedEditForm/state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -37,7 +34,7 @@ interface IProps {
   fm: CForm;
 }
 
-export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
+export const CustomizedViewForm = ({ patientId, fm }: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
@@ -225,8 +222,7 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
             <RadioGroup
               row
               aria-labelledby={`question_${question.questionIndex}`}
-              value={answer.val ? answer.val[0] : ''}
-              >
+              value={answer.val ? answer.val[0] : ''}>
               {question.mcOptions.map((McOption, index) => (
                 <FormControlLabel
                   key={index}
@@ -386,24 +382,23 @@ export const CustomizedViewForm = ({ patientId, fm}: IProps) => {
           true,
           fm
         )}>
-        {(
+        {
           <Form>
             <Paper>
               <Box p={4} pt={6} m={2}>
                 <Grid container spacing={3}>
                   {generateHtmlForQuestions(questions, answers)}
                 </Grid>
-                  <RedirectButton 
-                    url={`/forms/edit/${patientId}/${fm.id}`}
-                    className={classes.right}>
-                    Edit Form
-                  </RedirectButton>
+                <RedirectButton
+                  url={`/forms/edit/${patientId}/${fm.id}`}
+                  className={classes.right}>
+                  Edit Form
+                </RedirectButton>
               </Box>
             </Paper>
           </Form>
-        )}
+        }
       </Formik>
-      
     </>
   );
 };

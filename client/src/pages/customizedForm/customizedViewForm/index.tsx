@@ -45,7 +45,7 @@ export const CustomizedViewFormPage = () => {
         <Typography variant="h4">View Form for {patientId}</Typography>
       </div>
       {form && form.questions && form!.questions!.length > 0 && (
-        <CustomizedViewForm patientId={patientId} fm={form}/>
+        <CustomizedViewForm patientId={patientId} fm={form} />
       )}
     </div>
   );
