@@ -67,6 +67,9 @@ from api.resources.forms import (
     Root as Forms,
     SingleForm,
 )
+from api.resources.sms_relay import (
+    Root as SmsRelay
+)
 from api.resources.users import *
 from api.resources.upload import Root as Upload
 
@@ -299,5 +302,7 @@ def init(api):
     api.add_resource(
         Upload, "/api/upload/admin", endpoint="upload_admin"
     )  # [GET, POST]
+
+    api.add_resource(SmsRelay, "/api/sms_relay", endpoint="sms_relay") # [GET, PUT]
 
     new_api.init_routes(api)

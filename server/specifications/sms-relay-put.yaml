@@ -1,0 +1,27 @@
+Assess SMS relay message
+---
+tags:
+  - SMS Relay
+requestBody:
+  required: true
+  description: PUT request body for /api/sms_relay
+  parameters:
+    - name: phoneNumber
+      descrption: Phone number of sender
+      required: true
+      schema:
+        type: string
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        properties:
+            data:
+              type: string
+              format: binary
+
+responses:
+  200:
+    description: PUT request body for /api/sms_relay
+
+  
