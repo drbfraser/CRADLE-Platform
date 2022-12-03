@@ -52,6 +52,7 @@ services:
             - ./fluentbit/config/fluent-${ENV:-local}.conf:/fluent-bit/etc/fluent-bit.conf
         environment:
             GRAFANA_API_KEY: ${GRAFANA_API_KEY}
+            PROMETHEUS_API_KEY: ${PROMETHEUS_API_KEY}
 
 volumes:
     flask_logs:
