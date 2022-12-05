@@ -1,11 +1,5 @@
 import { AnswerTypeEnum, QuestionTypeEnum } from 'src/shared/enums';
-import {
-  CForm,
-  McOption,
-  QAnswer,
-  QCondition,
-  Question,
-} from 'src/shared/types';
+import { CForm, McOption, QAnswer, Question } from 'src/shared/types';
 import { Field, Form, Formik } from 'formik';
 import { Fragment, useEffect, useState } from 'react';
 import { getPrettyDate, getPrettyDateTime } from 'src/shared/utils';
@@ -108,56 +102,8 @@ export const CustomizedViewForm = ({ patientId, fm }: IProps) => {
       questions.map((question: Question) => getAnswerFromQuestion(question));
 
     const answers: QAnswer[] = getAnswers(questions);
-    updateQuestionsConditionHidden(questions, answers);
     setAnswers(answers);
   }, [questions, setAnswers]);
-
-  const updateQuestionsConditionHidden = (
-    questions: Question[],
-    answers: QAnswer[]
-  ) => {
-    questions.forEach((question) => {
-      question.shouldHidden =
-        question.questionType !== QuestionTypeEnum.CATEGORY &&
-        question.visibleCondition?.length !== 0 &&
-        question.visibleCondition.some((condition: QCondition) => {
-          const parentQuestion: Question = questions[condition.qidx];
-          const parentAnswer: QAnswer = answers[parentQuestion.questionIndex];
-
-          if (!parentAnswer.val) {
-            return true;
-          }
-
-          let isConditionMet = true;
-          switch (parentQuestion.questionType) {
-            case QuestionTypeEnum.MULTIPLE_CHOICE:
-            case QuestionTypeEnum.MULTIPLE_SELECT:
-              isConditionMet =
-                condition.answers.mcidArray!.length > 0 &&
-                parentAnswer.val?.length > 0 &&
-                parentAnswer.val?.length ===
-                  condition.answers.mcidArray?.length &&
-                condition.answers.mcidArray!.every((item) =>
-                  parentAnswer.val?.includes(parentQuestion.mcOptions[item].opt)
-                );
-              break;
-
-            case QuestionTypeEnum.STRING:
-              isConditionMet = parentAnswer.val === condition.answers.text;
-              break;
-
-            case QuestionTypeEnum.INTEGER:
-            case QuestionTypeEnum.DATE:
-            case QuestionTypeEnum.DATETIME:
-              isConditionMet =
-                Number(parentAnswer.val) === Number(condition.answers.number);
-              break;
-          }
-
-          return !isConditionMet;
-        });
-    });
-  };
 
   //currently, only ME(checkboxes need manually added validation, others' validations are handled automatically by formik)
   const generateValidationLine = (
@@ -227,7 +173,7 @@ export const CustomizedViewForm = ({ patientId, fm }: IProps) => {
                 <FormControlLabel
                   key={index}
                   value={McOption.opt}
-                  control={<Radio color="primary" />}
+                  control={<Radio color="primary" disabled />}
                   label={McOption.opt}
                 />
               ))}
@@ -255,6 +201,7 @@ export const CustomizedViewForm = ({ patientId, fm }: IProps) => {
                 }
                 label={McOption.opt}
                 key={index}
+                disabled
               />
             ))}
           </Grid>
@@ -270,6 +217,7 @@ export const CustomizedViewForm = ({ patientId, fm }: IProps) => {
               variant="outlined"
               type="number"
               fullWidth
+              disabled="disabled"
               required={required}
               InputProps={{
                 endAdornment: Boolean(question.units) &&
@@ -305,6 +253,7 @@ export const CustomizedViewForm = ({ patientId, fm }: IProps) => {
               variant="outlined"
               fullWidth
               multiline
+              disabled="disabled"
               inputProps={{
                 maxLength:
                   question.stringMaxLength! > 0
@@ -328,6 +277,7 @@ export const CustomizedViewForm = ({ patientId, fm }: IProps) => {
               type="datetime-local"
               inputProps={{ step: 1 }}
               placeholder="YYYY/MM/DD hh:mm:ss"
+              disabled="disabled"
               InputLabelProps={{
                 shrink: true,
               }}
@@ -346,6 +296,7 @@ export const CustomizedViewForm = ({ patientId, fm }: IProps) => {
               required={required}
               variant="outlined"
               type="date"
+              disabled="disabled"
               InputLabelProps={{
                 shrink: true,
               }}
