@@ -1,7 +1,5 @@
 [mysqld]
-log_error       =/var/log/error.log
-general_log     =ON
-general_log_file=/var/log/general.log
-slow_query_log  =ON
-slow_query_log_file=/var/log/slow.log
-long_query_time =5
+# Below is to track slow query log. Not active for now.
+# slow_query_log  =ON
+# slow_query_log_file=/var/log/slow.log 
+# long_query_time =5

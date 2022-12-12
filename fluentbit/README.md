@@ -8,7 +8,6 @@
     Gunicorn doc: https://docs.gunicorn.org/en/stable/settings.html#logging \
     Only application.log is configured to output to both files and sdtout at the moment. \
     All worker process is logging to the same application.log file. It's not separated. 
-   - ./access.log - Http requests (Can be formatted) Configured at `server/gunicorn.conf.py`
    - ./error.log - Configured at `server/gunicorn.conf.py`
    - ./application.log - Configured at `server/config.py`
 
@@ -20,10 +19,8 @@
 
 3. MySQL logs (`${DOCKER_VOLUME_HOME}/cradle-platform_mysql_logs/_data`):\
    Configured in `mysql.cnf`
-   - ./general.log - Established client connections and statements received from clients (Can be output to a file or DB table)
-   - ./slow.log - Queries that took more than long_query_time seconds to execute (Can be output to a file or DB table)
-   - ./error.logs - Problems encountered starting, running, or stopping mysqld (Can be output to a file, stderr, etc)
-
+   - error_logs - Problems encountered starting, running, or stopping mysqld - Outputted to `stderr`
+   Mysql's error log is transmitted by fluentd docker logging driver. The `docker-input.conf` listens to the tcp request from mysql container. 
 
 ## ENV VARIABLE:
 [INPUT] \
