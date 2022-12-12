@@ -41,22 +41,6 @@ class Root(Resource):
 
         encrypted_data = base64.b64decode(json_request['encryptedData'])
 
-        test = "abc"
-
-        dict2 = {
-            "patientId": "1" 
-        }
-        request_string = json.dumps(dict2)
-
-        dict1 = {
-            "endpoint": "patients",
-            "request": request_string
-        }
-        comp = compressor.compress_from_string(json.dumps(dict1))
-        encrypted = encryptor.encrypt(comp, user.secretKey)
-
-        # abort(400, message=base64.b64encode(encrypted).decode('utf-8'))
-
         # Decryption
         try:
             decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
@@ -67,7 +51,6 @@ class Root(Resource):
 
         # Decompression
         data = compressor.decompress(decrypted_data)
-        # abort(400, message=data.decode('utf-8'))
 
         # Object Parsing
         string_data = data.decode('utf-8')
