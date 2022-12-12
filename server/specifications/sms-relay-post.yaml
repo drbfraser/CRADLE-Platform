@@ -19,7 +19,7 @@ requestBody:
           phoneNumber:
             type: string
             example: 555-555-5555
-          data:
+          encryptedData:
             type: Base64
 
 responses:

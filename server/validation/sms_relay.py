@@ -2,7 +2,7 @@ from typing import Optional
 from validation.validate import required_keys_present, values_correct_type
 
 
-def validate_put_request(request_body: dict) -> Optional[str]:
+def validate_post_request(request_body: dict) -> Optional[str]:
     """
     Returns an error message if the /api/sms_relay POST
     request is not valid. Else, returns None.
@@ -19,7 +19,7 @@ def validate_put_request(request_body: dict) -> Optional[str]:
 def __validate(request_body):
     sms_relay_keys = [
         "phoneNumber",
-        "data",
+        "encryptedData",
     ]
 
     for key in request_body:
