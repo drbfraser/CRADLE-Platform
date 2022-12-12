@@ -11,7 +11,7 @@ import service.encryptor as encryptor
 import base64
 
 
-def test_create_patient_with_nested_readings(database, api_post):
+def test_create_patient_with_sms_relay(database, api_post):
     patient_id = "5390160146141"
     reading_ids = [
         "65acfe28-b0d6-4a63-a484-eceb3277fb4e",
@@ -51,3 +51,18 @@ def create_sms_relay_json(endpoint, request):
     base64_data = base64.b64encode(encrypted_data)
 
     return {"phoneNumber": user.phoneNumber, "encryptedData": base64_data}
+
+def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
+    return {
+        "patientId": patient_id,
+        "patientName": "TEST",
+        "patientSex": "FEMALE",
+        "isPregnant": False,
+        "dob": "2004-01-01",
+        "isExactDob": False,
+        "villageNumber": "1",
+        "zone": "1",
+        "readings": [
+            __make_reading_no_extra_vitals(r, patient_id) for r in reading_ids
+        ],
+    }
