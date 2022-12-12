@@ -50,7 +50,7 @@ def create_sms_relay_json(endpoint, request):
     encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
 
     base64_data = base64.b64encode(encrypted_data)
-    base64_string = base64_data.decode('utf-8')
+    base64_string = base64_data.decode("utf-8")
 
     return {"phoneNumber": user.phoneNumber, "encryptedData": base64_string}
 
