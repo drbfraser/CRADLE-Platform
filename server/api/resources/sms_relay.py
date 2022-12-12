@@ -1,7 +1,4 @@
-from flask_jwt_extended import (
-    jwt_required,
-    get_jwt_identity,
-)
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import redirect, request, url_for
 from flask_restful import Resource, abort
 from data import crud, marshal
@@ -27,7 +24,7 @@ class Root(Resource):
         json_request = request.get_json(force=True)
 
         error = sms_relay.validate_post_request(json_request)
-        
+
         if error:
             abort(400, message=error)
 
@@ -39,7 +36,7 @@ class Root(Resource):
         if user.phoneNumber != json_request["phoneNumber"]:
             abort(401, message=f"Invalid Phone Number")
 
-        encrypted_data = base64.b64decode(json_request['encryptedData'])
+        encrypted_data = base64.b64decode(json_request["encryptedData"])
 
         # Decryption
         try:
@@ -53,12 +50,12 @@ class Root(Resource):
         data = compressor.decompress(decrypted_data)
 
         # Object Parsing
-        string_data = data.decode('utf-8')
+        string_data = data.decode("utf-8")
         json_dict = json.loads(string_data)
-        
+
         endpoint = json_dict["endpoint"]
         json_request = json_dict["request"]
-        
+
         # HTTP Redirect
         response = redirect(url_for(endpoint, sms_data=json_request), 307)
         return response
