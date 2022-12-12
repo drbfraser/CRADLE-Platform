@@ -2,10 +2,11 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from flask import redirect, request
+from flask import redirect, request, url_for
 from flask_restful import Resource, abort
 from data import crud, marshal
 from flasgger import swag_from
+from models import User
 import service.compressor as compressor
 import service.encryptor as encryptor
 import cryptography.fernet as fernet
@@ -40,8 +41,18 @@ class Root(Resource):
 
         encrypted_data = base64.b64decode(json_request['encryptedData'])
 
-        test = "abc123"
-        comp = compressor.compress_from_string(test)
+        test = "abc"
+
+        dict2 = {
+            "patientId": "1" 
+        }
+        request_string = json.dumps(dict2)
+
+        dict1 = {
+            "endpoint": "patients",
+            "request": request_string
+        }
+        comp = compressor.compress_from_string(json.dumps(dict1))
         encrypted = encryptor.encrypt(comp, user.secretKey)
 
         # abort(400, message=base64.b64encode(encrypted).decode('utf-8'))
@@ -60,14 +71,11 @@ class Root(Resource):
 
         # Object Parsing
         string_data = data.decode('utf-8')
-        json_data = json.dumps(string_data)
+        json_dict = json.loads(string_data)
         
-        endpoint = json_data["endpoint"]
-        json_request = json_data["request"]
+        endpoint = json_dict["endpoint"]
+        json_request = json_dict["request"]
         
         # HTTP Redirect
-        return redirect(
-            endpoint,
-            302,
-            json_request,
-        )
+        response = redirect(url_for(endpoint, sms_data=json_request), 307)
+        return response
