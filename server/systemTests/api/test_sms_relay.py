@@ -9,6 +9,7 @@ from pprint import pformat
 import service.compressor as compressor
 import service.encryptor as encryptor
 import base64
+import json
 
 
 def test_create_patient_with_sms_relay(database, api_post):
@@ -52,6 +53,7 @@ def create_sms_relay_json(endpoint, request):
 
     return {"phoneNumber": user.phoneNumber, "encryptedData": base64_data}
 
+
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
     return {
         "patientId": patient_id,
@@ -66,6 +68,7 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
             __make_reading_no_extra_vitals(r, patient_id) for r in reading_ids
         ],
     }
+
 
 def __make_reading_no_extra_vitals(reading_id: str, patient_id: str) -> dict:
     return {
