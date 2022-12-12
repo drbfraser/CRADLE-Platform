@@ -47,7 +47,7 @@ def create_sms_relay_json(endpoint, request):
 
     data = {"endpoint": endpoint, "request": request_string}
     compressed_data = compressor.compress_from_string(json.dumps(data))
-    encrypted_data = encryptor.encrypt(comp, user.secretKey)
+    encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
 
     base64_data = base64.b64encode(encrypted_data)
 
