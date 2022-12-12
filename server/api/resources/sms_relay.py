@@ -23,34 +23,34 @@ import service.serialize as serialize
 import service.compressor as compressor
 import service.encryptor as encryptor
 import cryptography.fernet as fernet
+from validation import sms_relay
+import base64
+import json
 
 # /api/sms_relay
 class Root(Resource):
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/sms-relay-get.yaml",
-        methods=["GET"],
+        "../../specifications/sms-relay-post.yaml",
+        methods=["POST"],
         endpoint="sms_relay",
     )
-    def get():
-        return
+    def post():
+        json_request = request.get_json(force=True)
 
-    @staticmethod
-    @jwt_required()
-    @swag_from(
-        "../../specifications/sms-relay-put.yaml",
-        methods=["PUT"],
-        endpoint="sms_relay",
-    )
-    def put():
-        data = request.files
-        phone_number = request.args["phoneNumber"]
-        user = crud.read(User, phoneNumber=phone_number)
+        error = sms_relay.validate_post_request(json)
+        if error:
+            abort(400, message=error)
+        
+        user = get_jwt_identity()
+        # user = crud.read(User, phoneNumber=request_body['phoneNumber'])
 
-        if (user == None):
+        if (user.phoneNumber is not json_request['phoneNumber']):
             abort(401, message=f"Invalid Phone Number")
 
+        data = base64.b64decode(json_request['data'])
+        
         try:
             encryptor.decrypt(data, user.secretKey)
         except fernet.InvalidToken:
@@ -58,4 +58,10 @@ class Root(Resource):
         except:
             abort(401, message=f"Invalid data")
 
-        return {"message": "Data received"}, 200
+        
+
+        return redirect(
+            endpoint,
+            302,
+            json_data
+        )

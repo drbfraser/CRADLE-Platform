@@ -4,7 +4,7 @@ tags:
   - SMS Relay
 requestBody:
   required: true
-  description: PUT request body for /api/sms_relay
+  description: POST request body for /api/sms_relay
   parameters:
     - name: phoneNumber
       descrption: Phone number of sender
@@ -12,16 +12,18 @@ requestBody:
       schema:
         type: string
   content:
-    multipart/form-data:
+    application/json:
       schema:
         type: object
         properties:
-            data:
-              type: string
-              format: binary
+          phoneNumber:
+            type: string
+            example: 555-555-5555
+          data:
+            type: Base64
 
 responses:
   200:
-    description: PUT request body for /api/sms_relay
+    description: POST request body for /api/sms_relay
 
   
