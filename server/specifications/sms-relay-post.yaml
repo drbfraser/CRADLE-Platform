@@ -18,8 +18,8 @@ requestBody:
             example: "Z0FBQUFBQmpsNHlacWZ4NkFSTU=="
 
 responses:
-  200:
-    description: Sucessful Post
+  201:
+    description: Updated
   401:
     description: Unauthorized user
 
