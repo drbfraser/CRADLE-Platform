@@ -40,7 +40,9 @@ def test_create_patient_with_sms_relay(database, api_post):
         crud.delete_by(Patient, patientId=patient_id)
 
 
-def test_create_referral_with_sms_relay(database, api_post):
+def test_create_referral_with_sms_relay(database, api_post, create_patient, patient_info):
+    create_patient()
+    patient_id = patient_info["patientId"]
     referral_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
 
     referral_json = __make_referral(referral_id)
@@ -101,10 +103,10 @@ def __make_readings(reading_id: str, patient_id: str) -> dict:
     }
 
 
-def __make_referral(referral_id: str) -> dict:
+def __make_referral(referral_id: str, patient_id: str) -> dict:
     return {
         "id": referral_id,
         "comment": "here is a comment",
-        "patientId": "5390160146141",
+        "patientId": patient_id,
         "referralHealthFacilityName": "H0000",
     }
