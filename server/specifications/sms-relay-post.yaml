@@ -5,12 +5,6 @@ tags:
 requestBody:
   required: true
   description: POST request body for /api/sms_relay
-  parameters:
-    - name: phoneNumber
-      descrption: Phone number of sender
-      required: true
-      schema:
-        type: string
   content:
     application/json:
       schema:
@@ -20,10 +14,13 @@ requestBody:
             type: string
             example: 555-555-5555
           encryptedData:
-            type: Base64
+            type: string
+            example: "Z0FBQUFBQmpsNHlacWZ4NkFSTU=="
 
 responses:
   200:
-    description: POST request body for /api/sms_relay
+    description: Sucessful Post
+  401:
+    description: Unauthorized user
 
   
