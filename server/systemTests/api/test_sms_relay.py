@@ -40,7 +40,9 @@ def test_create_patient_with_sms_relay(database, api_post):
         crud.delete_by(Patient, patientId=patient_id)
 
 
-def test_create_referral_with_sms_relay(database, api_post, create_patient, patient_info):
+def test_create_referral_with_sms_relay(
+    database, api_post, create_patient, patient_info
+):
     create_patient()
     patient_id = patient_info["patientId"]
     referral_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
@@ -59,6 +61,29 @@ def test_create_referral_with_sms_relay(database, api_post, create_patient, pati
 
     finally:
         crud.delete_by(Referral, id=referral_id)
+
+
+def test_create_readings_with_sms_relay(
+    database, api_post, create_patient, patient_info
+):
+    create_patient()
+    patient_id = patient_info["patientId"]
+    reading_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
+
+    referral_json = __make_reading(patient_id, reading_id)
+    endpoint = "readings"
+
+    json_request = __make_sms_relay_json(endpoint, referral_json)
+
+    response = api_post(endpoint="/api/sms_relay", json=json_request)
+    database.session.commit()
+
+    try:
+        assert response.status_code == 201
+        assert crud.read(Reading, readingId=reading_id) is not None
+
+    finally:
+        crud.delete_by(Reading, readingId=reading_id)
 
 
 def __make_sms_relay_json(endpoint, request):
@@ -86,11 +111,11 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
         "isExactDob": False,
         "villageNumber": "1",
         "zone": "1",
-        "readings": [__make_readings(r, patient_id) for r in reading_ids],
+        "readings": [__make_reading(r, patient_id) for r in reading_ids],
     }
 
 
-def __make_readings(reading_id: str, patient_id: str) -> dict:
+def __make_reading(reading_id: str, patient_id: str) -> dict:
     return {
         "readingId": reading_id,
         "bpSystolic": 99,
