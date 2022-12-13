@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  LogGroupPrefix:
+    Type: String
+Resources:
+  FluentBitUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Join ["-", ["FluentBitUser", !Ref LogGroupPrefix]]
+      Policies:
+        - PolicyName: !Join ["-", ["PolicyForFluentBitUser", !Ref LogGroupPrefix]]
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LogGroupPrefix}/*"
+
+# When deploying, it'll ask for stack name and LogGroupPrefix.
+# e.g. stack name = "log-cradle-staging", LogGroupPrefix = "cradle-staging"

@@ -63,6 +63,9 @@ services:
             # Used in DEV environment
             GRAFANA_API_KEY: ${GRAFANA_API_KEY}
             PROMETHEUS_API_KEY: ${PROMETHEUS_API_KEY}
+            # Used in staging/prod environment
+            AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+            AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
 
 volumes:
     flask_logs:
