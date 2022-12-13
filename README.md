@@ -71,4 +71,5 @@ the previously mentioned admin user is added along with a few additional users:
 | Henry Fang | fanghaof@sfu.ca |
 | Hao Wu | colewu9712@gmail.com |
 | Jason Aritanto | jaritant@sfu.ca |
+| Travis Chan | travis_chan@sfu.ca |
 
