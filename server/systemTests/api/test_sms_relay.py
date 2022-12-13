@@ -70,7 +70,7 @@ def test_create_readings_with_sms_relay(
     patient_id = patient_info["patientId"]
     reading_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
 
-    referral_json = __make_reading(patient_id, reading_id)
+    referral_json = __make_reading(reading_id, patient_id)
     endpoint = "readings"
 
     json_request = __make_sms_relay_json(endpoint, referral_json)
