@@ -17,7 +17,7 @@ from validation import patients, readings, assessments
 from utils import get_current_time
 from api.decorator import patient_association_required
 from datetime import date
-
+import json as json_tool
 
 # /api/patients
 class Root(Resource):
@@ -40,6 +40,8 @@ class Root(Resource):
     )
     def post():
         json = request.get_json(force=True)
+        if json.get("encryptedData", None):
+            json = json_tool.loads(request.args.get("sms_data"))
 
         if "gestationalTimestamp" in json:
             # Changing the key that comes from the android app to work with validation

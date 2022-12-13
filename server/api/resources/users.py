@@ -259,6 +259,7 @@ class UserAuthApi(Resource):
             data["healthFacilityName"] = user.healthFacilityName
             data["isLoggedIn"] = True
             data["userId"] = user.id
+            data["phoneNumber"] = user.phoneNumber
 
             vhtList = []
             data["supervises"] = []

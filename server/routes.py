@@ -6,16 +6,8 @@
 import api as new_api
 from api.resources.patients_android import *
 from api.resources.version import *
-from api.resources.assessments import (
-    Root as Assessments,
-    SingleAssessment,
-)
-from api.resources.stats import (
-    AllStats,
-    FacilityReadings,
-    UserReadings,
-    ExportStats,
-)
+from api.resources.assessments import Root as Assessments, SingleAssessment
+from api.resources.stats import AllStats, FacilityReadings, UserReadings, ExportStats
 
 from api.resources.patientAssociations import Root as PatientAssociations
 from api.resources.facilities import Root as Facilities, SingleFacility
@@ -43,14 +35,8 @@ from api.resources.referrals import (
     ReferralCancelStatus,
     ReferralNotAttend,
 )
-from api.resources.pregnancies import (
-    Root as Pregnancies,
-    SinglePregnancy,
-)
-from api.resources.medicalRecords import (
-    Root as MedicalRecords,
-    SingleMedicalRecord,
-)
+from api.resources.pregnancies import Root as Pregnancies, SinglePregnancy
+from api.resources.medicalRecords import Root as MedicalRecords, SingleMedicalRecord
 from api.resources.formTemplates import (
     Root as FormTemplate,
     FormTemplateResource,
@@ -63,10 +49,8 @@ from api.resources.formClassifications import (
     SingleFormClassification,
     FormClassificationSummary,
 )
-from api.resources.forms import (
-    Root as Forms,
-    SingleForm,
-)
+from api.resources.forms import Root as Forms, SingleForm
+from api.resources.sms_relay import Root as SmsRelay
 from api.resources.users import *
 from api.resources.upload import Root as Upload
 
@@ -204,9 +188,7 @@ def init(api):
 
     api.add_resource(Referrals, "/api/referrals", endpoint="referrals")  # [GET, POST]
     api.add_resource(
-        SingleReferral,
-        "/api/referrals/<int:referral_id>",
-        endpoint="single_referral",
+        SingleReferral, "/api/referrals/<int:referral_id>", endpoint="single_referral"
     )  # [GET]
     api.add_resource(
         AssessReferral,
@@ -299,5 +281,7 @@ def init(api):
     api.add_resource(
         Upload, "/api/upload/admin", endpoint="upload_admin"
     )  # [GET, POST]
+
+    api.add_resource(SmsRelay, "/api/sms_relay", endpoint="sms_relay")  # [GET, PUT]
 
     new_api.init_routes(api)

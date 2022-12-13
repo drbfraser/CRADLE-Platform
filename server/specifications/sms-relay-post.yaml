@@ -1,0 +1,29 @@
+Assess SMS relay message
+---
+tags:
+  - SMS Relay
+requestBody:
+  required: true
+  description: POST request body for /api/sms_relay
+  parameters:
+    - name: phoneNumber
+      descrption: Phone number of sender
+      required: true
+      schema:
+        type: string
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          phoneNumber:
+            type: string
+            example: 555-555-5555
+          encryptedData:
+            type: Base64
+
+responses:
+  200:
+    description: POST request body for /api/sms_relay
+
+  
