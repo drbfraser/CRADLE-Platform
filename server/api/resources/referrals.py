@@ -43,6 +43,9 @@ class Root(Resource):
     )
     def post():
         json = request.get_json(force=True)
+        if json.get("encryptedData", None):
+            json = json_tool.loads(request.args.get("sms_data"))
+
         error_message = referrals.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
