@@ -15,6 +15,7 @@ import service.view as view
 from models import HealthFacility, Referral, Patient
 from validation import referrals
 import service.serialize as serialize
+import json as json_tool
 
 
 # /api/referrals
@@ -43,6 +44,9 @@ class Root(Resource):
     )
     def post():
         json = request.get_json(force=True)
+        if json.get("encryptedData", None):
+            json = json_tool.loads(request.args.get("sms_data"))
+
         error_message = referrals.validate(json)
         if error_message is not None:
             abort(400, message=error_message)

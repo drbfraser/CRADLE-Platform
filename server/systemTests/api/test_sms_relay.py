@@ -3,7 +3,7 @@ import time
 from typing import List
 
 import data.crud as crud
-from models import Reading, Patient, User, TrafficLightEnum
+from models import Reading, Patient, User, TrafficLightEnum, Referral
 from pprint import pformat
 
 import service.compressor as compressor
@@ -18,11 +18,11 @@ def test_create_patient_with_sms_relay(database, api_post):
         "65acfe28-b0d6-4a63-a484-eceb3277fb4e",
         "90293637-d763-494a-8cc7-85a88d023f3e",
     ]
-    patient_json = __make_patient(patient_id, reading_ids)
 
+    patient_json = __make_patient(patient_id, reading_ids)
     endpoint = "patients"
 
-    json_request = create_sms_relay_json(endpoint, patient_json)
+    json_request = __make_sms_relay_json(endpoint, patient_json)
     response = api_post(endpoint="/api/sms_relay", json=json_request)
     database.session.commit()
 
@@ -40,7 +40,53 @@ def test_create_patient_with_sms_relay(database, api_post):
         crud.delete_by(Patient, patientId=patient_id)
 
 
-def create_sms_relay_json(endpoint, request):
+def test_create_referral_with_sms_relay(
+    database, api_post, create_patient, patient_info
+):
+    create_patient()
+    patient_id = patient_info["patientId"]
+    referral_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
+
+    referral_json = __make_referral(referral_id, patient_id)
+    endpoint = "referrals"
+
+    json_request = __make_sms_relay_json(endpoint, referral_json)
+
+    response = api_post(endpoint="/api/sms_relay", json=json_request)
+    database.session.commit()
+
+    try:
+        assert response.status_code == 201
+        assert crud.read(Referral, id=referral_id) is not None
+
+    finally:
+        crud.delete_by(Referral, id=referral_id)
+
+
+def test_create_readings_with_sms_relay(
+    database, api_post, create_patient, patient_info
+):
+    create_patient()
+    patient_id = patient_info["patientId"]
+    reading_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
+
+    referral_json = __make_reading(reading_id, patient_id)
+    endpoint = "readings"
+
+    json_request = __make_sms_relay_json(endpoint, referral_json)
+
+    response = api_post(endpoint="/api/sms_relay", json=json_request)
+    database.session.commit()
+
+    try:
+        assert response.status_code == 201
+        assert crud.read(Reading, readingId=reading_id) is not None
+
+    finally:
+        crud.delete_by(Reading, readingId=reading_id)
+
+
+def __make_sms_relay_json(endpoint, request):
     user = crud.read(User, id=1)
 
     request_string = json.dumps(request)
@@ -65,13 +111,11 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
         "isExactDob": False,
         "villageNumber": "1",
         "zone": "1",
-        "readings": [
-            __make_reading_no_extra_vitals(r, patient_id) for r in reading_ids
-        ],
+        "readings": [__make_reading(r, patient_id) for r in reading_ids],
     }
 
 
-def __make_reading_no_extra_vitals(reading_id: str, patient_id: str) -> dict:
+def __make_reading(reading_id: str, patient_id: str) -> dict:
     return {
         "readingId": reading_id,
         "bpSystolic": 99,
@@ -81,4 +125,13 @@ def __make_reading_no_extra_vitals(reading_id: str, patient_id: str) -> dict:
         "dateTimeTaken": 100,
         "userId": 1,
         "patientId": patient_id,
+    }
+
+
+def __make_referral(referral_id: str, patient_id: str) -> dict:
+    return {
+        "id": referral_id,
+        "comment": "here is a comment",
+        "patientId": patient_id,
+        "referralHealthFacilityName": "H0000",
     }

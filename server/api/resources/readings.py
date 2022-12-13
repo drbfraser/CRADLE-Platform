@@ -11,6 +11,7 @@ import service.assoc as assoc
 import service.invariant as invariant
 from models import HealthFacility, Referral, Reading, Patient
 from validation import readings
+import json as json_tool
 
 
 # /api/readings
@@ -22,6 +23,9 @@ class Root(Resource):
     )
     def post():
         json = request.get_json(force=True)
+        if json.get("encryptedData", None):
+            json = json_tool.loads(request.args.get("sms_data"))
+
         error_message = readings.validate(json)
         if error_message is not None:
             abort(400, message=error_message)
