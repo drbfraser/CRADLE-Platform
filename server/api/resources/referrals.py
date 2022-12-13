@@ -15,6 +15,7 @@ import service.view as view
 from models import HealthFacility, Referral, Patient
 from validation import referrals
 import service.serialize as serialize
+import json as json_tool
 
 
 # /api/referrals
