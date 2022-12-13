@@ -105,6 +105,6 @@ def __make_referral(referral_id: str) -> dict:
     return {
         "id": referral_id,
         "comment": "here is a comment",
-        "patientId": "123",
-        "referralHealthFacilityName": "H0000",
+        "patientId": "4706",
+        "referralHealthFacilityName": "H6503",
     }
