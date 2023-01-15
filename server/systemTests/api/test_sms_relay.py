@@ -86,6 +86,23 @@ def test_create_readings_with_sms_relay(
         crud.delete_by(Reading, readingId=reading_id)
 
 
+def test_update_patient_name_with_sms_relay(patient_factory, api_put):
+    patient_id = "64164134514"
+    patient_factory.create(patientId=patient_id, patientName="AB")
+
+    patient_update_json = {"patientName": "CD"}
+    endpoint = "patients"
+
+    json_request = __make_sms_relay_json(endpoint, patient_update_json)
+
+    response = api_put(
+        endpoint="/api/sms_relay", json=json_request
+    )
+
+    assert response.status_code == 200
+    assert crud.read(Patient, patientId=patient_id).patientName == "CD"
+
+
 def __make_sms_relay_json(endpoint, request):
     user = crud.read(User, id=1)
 
