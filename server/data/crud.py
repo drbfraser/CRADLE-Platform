@@ -624,6 +624,7 @@ def read_patients(
             MedicalHistory.information.label("medicalHistory"),
             DrugHistory.id.label("drugHistoryId"),
             DrugHistory.information.label("drugHistory"),
+            Patient.isArchived
         )
         .outerjoin(
             Pregnancy,
