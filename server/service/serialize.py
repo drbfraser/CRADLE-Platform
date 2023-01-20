@@ -121,6 +121,7 @@ def serialize_patient(
         "assessments": [serialize_referral_or_assessment(a) for a in assessments]
         if assessments
         else [],
+        "isArchived": patient.isArchived,
     }
     return {k: v for k, v in p.items() if v or v == False}
 
@@ -159,6 +160,7 @@ def deserialize_patient(
         "villageNumber": data.get("villageNumber"),
         "householdNumber": data.get("householdNumber"),
         "allergy": data.get("allergy"),
+        "isArchived": data.get("isArchived"),
     }
     if partial:
         if err := schema().validate(d, partial=True):
