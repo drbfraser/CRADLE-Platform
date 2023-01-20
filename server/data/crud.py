@@ -339,8 +339,7 @@ def read_referral_list(
 
     health_facilities = kwargs.get("health_facilities")
     if health_facilities:
-        query = query.filter(
-            Referral.referralHealthFacilityName.in_(health_facilities))
+        query = query.filter(Referral.referralHealthFacilityName.in_(health_facilities))
 
     referrers = kwargs.get("referrers")
     if referrers:
@@ -562,8 +561,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
             assessment_list[assessment_pos].dateAssessed if assessment_cond else -1
         )
         cur_form_t = form_list[form_pos].dateCreated if form_cond else -1
-        max_t = max(cur_reading_t, cur_referral_t,
-                    cur_assessment_t, cur_form_t)
+        max_t = max(cur_reading_t, cur_referral_t, cur_assessment_t, cur_form_t)
         if cur_reading_t == max_t:
             final_list.append(reading_list[reading_pos])
             reading_pos += 1
@@ -626,12 +624,11 @@ def read_patients(
             MedicalHistory.information.label("medicalHistory"),
             DrugHistory.id.label("drugHistoryId"),
             DrugHistory.information.label("drugHistory"),
-            Patient.isArchived
+            Patient.isArchived,
         )
         .outerjoin(
             Pregnancy,
-            and_(Patient.patientId == Pregnancy.patientId,
-                 Pregnancy.endDate == None),
+            and_(Patient.patientId == Pregnancy.patientId, Pregnancy.endDate == None),
         )
         .outerjoin(
             pr,
@@ -832,8 +829,7 @@ def has_conflicting_pregnancy_record(
     end_date: Optional[int] = None,
     pregnancy_id: Optional[int] = None,
 ) -> bool:
-    query = db_session.query(Pregnancy).filter(
-        Pregnancy.patientId == patient_id)
+    query = db_session.query(Pregnancy).filter(Pregnancy.patientId == patient_id)
 
     if pregnancy_id:
         query = query.filter(Pregnancy.id != pregnancy_id)
@@ -848,12 +844,9 @@ def has_conflicting_pregnancy_record(
                 and_(
                     Pregnancy.startDate <= start_date, Pregnancy.endDate >= start_date
                 ),
-                and_(Pregnancy.startDate >= start_date,
-                     Pregnancy.endDate <= end_date),
-                and_(Pregnancy.startDate <= end_date,
-                     Pregnancy.endDate >= end_date),
-                and_(Pregnancy.startDate <= start_date,
-                     Pregnancy.endDate == None),
+                and_(Pregnancy.startDate >= start_date, Pregnancy.endDate <= end_date),
+                and_(Pregnancy.startDate <= end_date, Pregnancy.endDate >= end_date),
+                and_(Pregnancy.startDate <= start_date, Pregnancy.endDate == None),
                 and_(
                     Pregnancy.startDate >= start_date,
                     Pregnancy.startDate <= end_date,
