@@ -11,7 +11,8 @@ from validation import sms_relay
 import base64
 import json
 
-def sms_relay():
+
+def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
     error = sms_relay.validate_post_request(json_request)
@@ -50,6 +51,7 @@ def sms_relay():
     # HTTP Redirect
     return redirect(url_for(endpoint, sms_data=json_request), 307)
 
+
 # /api/sms_relay
 class Root(Resource):
     @staticmethod
@@ -60,15 +62,12 @@ class Root(Resource):
         endpoint="sms_relay",
     )
     def post():
-        return sms_relay()
+        return sms_relay_procedure()
 
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/sms-relay-put.yaml",
-        methods=["PUT"],
-        endpoint="sms_relay",
+        "../../specifications/sms-relay-put.yaml", methods=["PUT"], endpoint="sms_relay"
     )
     def put():
-        return sms_relay()
-    
+        return sms_relay_procedure()
