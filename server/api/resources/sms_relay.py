@@ -11,6 +11,45 @@ from validation import sms_relay
 import base64
 import json
 
+def sms_relay():
+    json_request = request.get_json(force=True)
+
+    error = sms_relay.validate_post_request(json_request)
+
+    if error:
+        abort(400, message=error)
+
+    # Authorization Check
+    current_user = get_jwt_identity()
+
+    user = crud.read(User, id=current_user["userId"])
+
+    if user.phoneNumber != json_request["phoneNumber"]:
+        abort(401, message=f"Invalid Phone Number")
+
+    encrypted_data = base64.b64decode(json_request["encryptedData"])
+
+    # Decryption
+    try:
+        decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
+    except fernet.InvalidToken:
+        abort(401, message=f"Invalid Key")
+    except:
+        abort(401, message=f"Invalid Data")
+
+    # Decompression
+    data = compressor.decompress(decrypted_data)
+
+    # Object Parsing
+    string_data = data.decode("utf-8")
+    json_dict = json.loads(string_data)
+
+    endpoint = json_dict["endpoint"]
+    json_request = json_dict["request"]
+
+    # HTTP Redirect
+    return redirect(url_for(endpoint, sms_data=json_request), 307)
+
 # /api/sms_relay
 class Root(Resource):
     @staticmethod
@@ -21,41 +60,15 @@ class Root(Resource):
         endpoint="sms_relay",
     )
     def post():
-        json_request = request.get_json(force=True)
+        return sms_relay()
 
-        error = sms_relay.validate_post_request(json_request)
-
-        if error:
-            abort(400, message=error)
-
-        # Authorization Check
-        current_user = get_jwt_identity()
-
-        user = crud.read(User, id=current_user["userId"])
-
-        if user.phoneNumber != json_request["phoneNumber"]:
-            abort(401, message=f"Invalid Phone Number")
-
-        encrypted_data = base64.b64decode(json_request["encryptedData"])
-
-        # Decryption
-        try:
-            decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
-        except fernet.InvalidToken:
-            abort(401, message=f"Invalid Key")
-        except:
-            abort(401, message=f"Invalid Data")
-
-        # Decompression
-        data = compressor.decompress(decrypted_data)
-
-        # Object Parsing
-        string_data = data.decode("utf-8")
-        json_dict = json.loads(string_data)
-
-        endpoint = json_dict["endpoint"]
-        json_request = json_dict["request"]
-
-        # HTTP Redirect
-        response = redirect(url_for(endpoint, sms_data=json_request), 307)
-        return response
+    @staticmethod
+    @jwt_required()
+    @swag_from(
+        "../../specifications/sms-relay-put.yaml",
+        methods=["PUT"],
+        endpoint="sms_relay",
+    )
+    def put():
+        return sms_relay()
+    
