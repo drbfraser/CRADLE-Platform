@@ -10,6 +10,7 @@ import { getFormResponseAsync } from 'src/shared/api';
 import { goBackWithFallback } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
+import { FormRenderStateEnum } from 'src/shared/enums';
 
 type RouteParams = {
   patientId: string;
@@ -45,7 +46,11 @@ export const CustomizedEditFormPage = () => {
         <Typography variant="h4">Edit Form for {patientId}</Typography>
       </div>
       {form && form.questions && form!.questions!.length > 0 && (
-        <CustomizedForm patientId={patientId} fm={form} isEditForm={true} />
+        <CustomizedForm
+          patientId={patientId}
+          fm={form}
+          renderState={FormRenderStateEnum.EDIT}
+        />
       )}
     </div>
   );
