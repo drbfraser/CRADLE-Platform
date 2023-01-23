@@ -1,3 +1,9 @@
+export enum FormRenderStateEnum {
+  EDIT = 'EDIT',
+  VIEW = 'VIEW',
+  FIRST_SUBMIT = 'FIRST_SUBMIT',
+}
+
 export enum SexEnum {
   MALE = 'MALE',
   FEMALE = 'FEMALE',

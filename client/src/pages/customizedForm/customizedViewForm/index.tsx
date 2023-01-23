@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { CForm } from 'src/shared/types';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { CustomizedViewForm } from './customizedViewForm';
+import { CustomizedForm } from '../customizedEditForm/CustomizedForm';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -10,6 +10,7 @@ import { getFormResponseAsync } from 'src/shared/api';
 import { goBackWithFallback } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
+import { FormRenderStateEnum } from 'src/shared/enums';
 
 type RouteParams = {
   patientId: string;
@@ -45,7 +46,11 @@ export const CustomizedViewFormPage = () => {
         <Typography variant="h4">View Form for {patientId}</Typography>
       </div>
       {form && form.questions && form!.questions!.length > 0 && (
-        <CustomizedViewForm patientId={patientId} fm={form} />
+        <CustomizedForm
+          patientId={patientId}
+          fm={form}
+          renderState={FormRenderStateEnum.VIEW}
+        />
       )}
     </div>
   );

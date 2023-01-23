@@ -8,7 +8,8 @@ import Typography from '@mui/material/Typography';
 import { goBackWithFallback } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
-import { useState } from 'react'; //useRef
+import { useState } from 'react';
+import { FormRenderStateEnum } from 'src/shared/enums';
 
 type RouteParams = {
   patientId: string;
@@ -34,7 +35,11 @@ export const CustomizedFormPage = () => {
 
       <SelectHeaderForm setForm={setForm} />
       {form && form.questions && form!.questions!.length > 0 && (
-        <CustomizedForm patientId={patientId} fm={form} isEditForm={false} />
+        <CustomizedForm
+          patientId={patientId}
+          fm={form}
+          renderState={FormRenderStateEnum.FIRST_SUBMIT}
+        />
       )}
     </div>
   );

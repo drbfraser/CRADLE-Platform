@@ -25,21 +25,22 @@ import FormLabel from '@mui/material/FormLabel';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import Paper from '@mui/material/Paper';
-import { PrimaryButton } from 'src/shared/components/Button';
+import { PrimaryButton, RedirectButton } from 'src/shared/components/Button';
 import Radio from '@mui/material/Radio';
 import { RadioGroup } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { handleSubmit } from './handlers';
 import makeStyles from '@mui/styles/makeStyles';
+import { FormRenderStateEnum } from 'src/shared/enums';
 
 interface IProps {
   patientId: string;
   fm: CForm;
-  isEditForm: boolean;
+  renderState: FormRenderStateEnum;
 }
 
-export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
+export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
@@ -47,7 +48,17 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
     useState(false);
 
   const [answers, setAnswers] = useState<QAnswer[]>([]);
-  const formTitle = isEditForm ? 'Update Form' : 'Submit Form';
+  let formTitle: string;
+  switch (renderState) {
+    case FormRenderStateEnum.EDIT:
+      formTitle = 'Update Form';
+      break;
+    case FormRenderStateEnum.VIEW:
+      formTitle = 'Edit Form';
+      break;
+    case FormRenderStateEnum.FIRST_SUBMIT:
+      formTitle = 'Submit Form';
+  }
 
   const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
     setMultiSelectValidationFailed(ValidationFailed);
@@ -203,7 +214,11 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
     }
   };
 
-  const generateHtmlForQuestion = (question: Question, answer: QAnswer) => {
+  const generateHtmlForQuestion = (
+    question: Question,
+    answer: QAnswer,
+    renderState: FormRenderStateEnum
+  ) => {
     if (question.shouldHidden || !answer) {
       return <></>;
     }
@@ -244,7 +259,12 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
                 <FormControlLabel
                   key={index}
                   value={McOption.opt}
-                  control={<Radio color="primary" />}
+                  control={
+                    <Radio
+                      color="primary"
+                      disabled={renderState === FormRenderStateEnum.VIEW}
+                    />
+                  }
                   label={McOption.opt}
                 />
               ))}
@@ -285,6 +305,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
                 }
                 label={McOption.opt}
                 key={index}
+                disabled={renderState === FormRenderStateEnum.VIEW}
               />
             ))}
           </Grid>
@@ -300,6 +321,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
               variant="outlined"
               type="number"
               fullWidth
+              disabled={renderState === FormRenderStateEnum.VIEW}
               required={required}
               InputProps={{
                 endAdornment: Boolean(question.units) &&
@@ -337,6 +359,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
               required={required}
               variant="outlined"
               fullWidth
+              disabled={renderState === FormRenderStateEnum.VIEW}
               multiline
               inputProps={{
                 maxLength:
@@ -360,6 +383,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
               component={TextField}
               defaultValue={answer.val ? getPrettyDateTime(answer.val) : null}
               fullWidth
+              disabled={renderState === FormRenderStateEnum.VIEW}
               required={required}
               variant="outlined"
               type="datetime-local"
@@ -386,6 +410,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
               component={TextField}
               defaultValue={answer.val ? getPrettyDate(answer.val) : null}
               fullWidth
+              disabled={renderState === FormRenderStateEnum.VIEW}
               required={required}
               variant="outlined"
               type="date"
@@ -409,11 +434,12 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
 
   const generateHtmlForQuestions = (
     questions: Question[],
-    answers: QAnswer[]
+    answers: QAnswer[],
+    renderState: FormRenderStateEnum
   ) =>
     questions.map((question: Question, index) => (
       <Fragment key={question.id}>
-        {generateHtmlForQuestion(question, answers[index])}
+        {generateHtmlForQuestion(question, answers[index], renderState)}
       </Fragment>
     ));
 
@@ -428,7 +454,7 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
           answers,
           setSubmitError,
           handleMultiSelectValidationFailed,
-          isEditForm,
+          renderState === FormRenderStateEnum.EDIT,
           fm
         )}>
         {({ isSubmitting }) => (
@@ -436,14 +462,23 @@ export const CustomizedForm = ({ patientId, fm, isEditForm }: IProps) => {
             <Paper>
               <Box p={4} pt={6} m={2}>
                 <Grid container spacing={3}>
-                  {generateHtmlForQuestions(questions, answers)}
+                  {generateHtmlForQuestions(questions, answers, renderState)}
                 </Grid>
-                <PrimaryButton
-                  className={classes.right}
-                  type="submit"
-                  disabled={isSubmitting}>
-                  {formTitle}
-                </PrimaryButton>
+                {renderState === FormRenderStateEnum.VIEW ? (
+                  <RedirectButton
+                    type="button" //This makes the button not trigger onSubmit function
+                    url={`/forms/edit/${patientId}/${fm.id}`}
+                    className={classes.right}>
+                    {formTitle}
+                  </RedirectButton>
+                ) : (
+                  <PrimaryButton
+                    className={classes.right}
+                    type="submit"
+                    disabled={isSubmitting}>
+                    {formTitle}
+                  </PrimaryButton>
+                )}
               </Box>
             </Paper>
           </Form>
