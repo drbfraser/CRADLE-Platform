@@ -134,6 +134,10 @@ class PatientInfo(Resource):
     )
     def put(patient_id: str):
         json = request.get_json(force=True)
+
+        if json.get("encryptedData", None):
+            json = json_tool.loads(request.args.get("sms_data"))
+
         error_message = patients.validate_put_request(json, patient_id)
         if error_message is not None:
             abort(400, message=error_message)
