@@ -48,8 +48,10 @@ def sms_relay_procedure():
     endpoint = json_dict["endpoint"]
     json_request = json_dict["request"]
 
+    request_dict = {"sms_data": json_request}
+
     # HTTP Redirect
-    return redirect(url_for(endpoint, sms_data=json_request), 307)
+    return redirect(url_for(endpoint, **request_dict), 307)
 
 
 # /api/sms_relay
