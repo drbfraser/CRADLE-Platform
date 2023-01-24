@@ -93,7 +93,9 @@ def test_update_patient_name_with_sms_relay(patient_factory, api_put):
     patient_update_json = {"patientName": "CD"}
     endpoint = "patient_info"
 
-    json_request = __make_sms_relay_json(endpoint, patient_update_json)
+    parameter = {"patient_id": "64164134514"}
+
+    json_request = __make_sms_relay_json(endpoint, patient_update_json, parameter)
 
     response = api_put(endpoint="/api/sms_relay", json=json_request)
 
@@ -101,12 +103,17 @@ def test_update_patient_name_with_sms_relay(patient_factory, api_put):
     assert crud.read(Patient, patientId=patient_id).patientName == "CD"
 
 
-def __make_sms_relay_json(endpoint, request):
+def __make_sms_relay_json(endpoint, request, parameter=None):
     user = crud.read(User, id=1)
 
     request_string = json.dumps(request)
 
     data = {"endpoint": endpoint, "request": request_string}
+
+    if parameter:
+        parameter_string = json.dumps(parameter)
+        data["parameter"] = parameter_string
+
     compressed_data = compressor.compress_from_string(json.dumps(data))
     encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
 
