@@ -48,9 +48,9 @@ def sms_relay_procedure():
     endpoint = json_dict["endpoint"]
     json_request = json_dict["request"]
 
-    if "parameters" in json_dict:
-        parameters_json = json_dict["parameters"]
-        request_dict = json.loads(parameters_json)
+    if "arguments" in json_dict:
+        arguments_json = json_dict["arguments"]
+        request_dict = json.loads(arguments_json)
     else:
         request_dict = {}
 
