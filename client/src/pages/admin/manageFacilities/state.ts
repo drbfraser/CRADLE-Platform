@@ -13,9 +13,7 @@ export enum FacilityField {
 export const getValidationSchema = (existingNames: string[]) => {
   return Yup.object().shape({
     [FacilityField.about]: Yup.string(),
-    [FacilityField.type]: Yup.string()
-        .label('Facility Type')
-        .required(),
+    [FacilityField.type]: Yup.string().label('Facility Type').required(),
     [FacilityField.name]: Yup.string()
       .label('Facility Name')
       .max(50)
