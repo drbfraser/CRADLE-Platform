@@ -4,8 +4,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  InputLabel,
   MenuItem,
 } from '@mui/material';
 import {
@@ -15,7 +13,7 @@ import {
   getValidationSchema,
 } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { Select, TextField } from 'formik-mui';
+import { TextField } from 'formik-mui';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IFacility } from 'src/shared/types';
@@ -73,20 +71,19 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                 />
                 <br />
                 <br />
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>Facility Type</InputLabel>
-                  <Field
-                    component={Select}
-                    fullWidth
-                    label="Facility Type"
-                    name={FacilityField.type}>
-                    {facilityTypes.map((facilityType) => (
-                      <MenuItem key={facilityType} value={facilityType}>
-                        {facilityType}
-                      </MenuItem>
-                    ))}
-                  </Field>
-                </FormControl>
+                <Field
+                  component={TextField}
+                  fullWidth
+                  select
+                  required
+                  label="Facility Type"
+                  name={FacilityField.type}>
+                  {facilityTypes.map((facilityType) => (
+                    <MenuItem key={facilityType} value={facilityType}>
+                      {facilityType}
+                    </MenuItem>
+                  ))}
+                </Field>
                 <br />
                 <br />
                 <Field
