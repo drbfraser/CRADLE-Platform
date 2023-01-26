@@ -80,10 +80,11 @@ export const ManageFacilities = () => {
 
     const rows = facilities
       .filter(facilityFilter)
-      .map((f) => [
+      .map((f, idx) => [
         f.healthFacilityName,
         f.healthFacilityPhoneNumber,
         f.location,
+        idx,
       ]);
     setTableData(rows);
   }, [facilities, search]);
