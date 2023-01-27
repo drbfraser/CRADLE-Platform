@@ -86,12 +86,36 @@ def test_create_readings_with_sms_relay(
         crud.delete_by(Reading, readingId=reading_id)
 
 
-def __make_sms_relay_json(endpoint, request):
+def test_update_patient_name_with_sms_relay(database, patient_factory, api_put):
+    patient_id = "64164134515"
+    patient_factory.create(patientId=patient_id, patientName="AB")
+    new_patient_name = "CD"
+
+    patient_update_json = {"patientName": new_patient_name}
+    endpoint = "patient_info"
+
+    arguments = {"patient_id": patient_id}
+
+    json_request = __make_sms_relay_json(endpoint, patient_update_json, arguments)
+
+    response = api_put(endpoint="/api/sms_relay", json=json_request)
+    database.session.commit()
+
+    assert response.status_code == 200
+    assert crud.read(Patient, patientId=patient_id).patientName == new_patient_name
+
+
+def __make_sms_relay_json(endpoint, request, arguments=None):
     user = crud.read(User, id=1)
 
     request_string = json.dumps(request)
 
     data = {"endpoint": endpoint, "request": request_string}
+
+    if arguments:
+        arguments_string = json.dumps(arguments)
+        data["arguments"] = arguments_string
+
     compressed_data = compressor.compress_from_string(json.dumps(data))
     encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
 
