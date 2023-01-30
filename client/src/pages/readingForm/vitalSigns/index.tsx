@@ -1,14 +1,12 @@
-import { CheckboxWithLabel, Select, TextField } from 'formik-mui';
+import { CheckboxWithLabel, TextField } from 'formik-mui';
 import { FormPageProps, ReadingField } from '../state';
 
 import Box from '@mui/material/Box';
 import { Field } from 'formik';
 import FormControl from '@mui/material/FormControl';
-import FormHelperText from '@mui/material/FormHelperText';
 import { Fragment } from 'react';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 
@@ -110,11 +108,12 @@ export const VitalSigns = ({ formikProps }: FormPageProps) => {
                         disabled={disabled}
                         required={required}
                         error={hasError}>
-                        <InputLabel>{label}</InputLabel>
                         <Field
-                          component={Select}
+                          component={TextField}
+                          select
                           label={label}
                           name={name}
+                          required={required}
                           disabled={disabled}>
                           {urineTestOptions.map((option) => (
                             <MenuItem key={option} value={option}>
@@ -122,9 +121,6 @@ export const VitalSigns = ({ formikProps }: FormPageProps) => {
                             </MenuItem>
                           ))}
                         </Field>
-                        {hasError && (
-                          <FormHelperText>{errorMsg}</FormHelperText>
-                        )}
                       </FormControl>
                       <br />
                       <br />
