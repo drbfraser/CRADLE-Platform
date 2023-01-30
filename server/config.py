@@ -61,9 +61,9 @@ class Config(object):
         },
         "formatters": {
             "standard": {
-                "format": "%(name)-12s %(levelname) -8s %(request_id)s - %(message)s"
+                "format": "%(asctime)s %(name)-12s %(levelname) -8s %(request_id)s - %(message)s"
             },
-            "compact": {"format": "%(message)s"},
+            "compact": {"format": "%(asctime)s %(message)s"},
         },
         "handlers": {
             "console": {
