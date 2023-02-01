@@ -96,47 +96,6 @@ class Config(object):
     logger.debug("Debug message")
     logger.info("Info message")
 
-#    LOGGING = {
-#        "version": 1,
-#        "disable_existing_loggers": False,
-#        "filters": {
-#            "backend_filter": {"backend_module": "backend"},
-#            "request_id": {
-#                "()": "utils.RequestIdFilter",
-#            },
-#        },
-#        "formatters": {
-#            "standard": {
-#                "format": "%(asctime)s %(name)-12s %(levelname) -8s %(request_id)s - %(message)s"
-#            },
-#            "compact": {"format": "%(asctime)s %(message)s"},
-#        },
-#        "handlers": {
-#            "console": {
-#                "class": "logging.StreamHandler",
-#                "level": "DEBUG",
-#                "formatter": "standard",
-#                "filters": ["request_id"],
-#                "stream": "ext://sys.stdout",  # print to CLI
-#            },
-#            "file": {
-#                "class": "logging.handlers.TimedRotatingFileHandler",
-#                "level": "DEBUG",
-#                "filename": "/var/log/application.log",
-#                "when": "D",
-#                "interval": 1,
-#                "formatter": "standard",  # print to file
-#            },
-#        },
-#        "loggers": {
-#            "": {"handlers": ["console", "file"], "level": "DEBUG"},
-#            "flask": {"level": "INFO"},
-#            "sqlalchemy": {"level": "INFO"},
-#            "werkzeug": {"level": "INFO"},
-#        },
-#    }
-
-
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
