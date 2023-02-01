@@ -78,7 +78,7 @@ class Config(object):
                 "class": "logging.handlers.TimedRotatingFileHandler",
                 "level": "DEBUG",
                 "formatter": "json_formatter",
-                "filename": "/var/log/application.log", # print to file
+                "filename": "/var/log/application.log",  # print to file
                 "when": "D",
                 "interval": 1,
             },
@@ -95,6 +95,7 @@ class Config(object):
 
     logger.debug("Debug message")
     logger.info("Info message")
+
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
