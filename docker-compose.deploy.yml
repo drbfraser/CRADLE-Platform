@@ -49,6 +49,7 @@ services:
     fluentbit:
         container_name: cradle_fluentbit
         image: fluent/fluent-bit:2.0.5
+        restart: always
         volumes:
             - caddy_logs:/logs/caddy:ro
             - mysql_logs:/logs/mysql:ro
