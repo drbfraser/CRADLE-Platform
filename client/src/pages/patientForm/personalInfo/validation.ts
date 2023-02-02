@@ -4,7 +4,7 @@ import { PatientField } from '../state';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
 
 const ageIsValid = (age: number): boolean => {
-  return age >= 0;
+  return Math.floor(age) >= 0;
 };
 
 export const personalInfoValidationSchema = (creatingNew: boolean) =>
@@ -38,6 +38,7 @@ export const personalInfoValidationSchema = (creatingNew: boolean) =>
     [PatientField.estimatedAge]: Yup.number().when(PatientField.isExactDob, {
       is: false,
       then: Yup.number()
+        .transform((value) => Math.floor(parseInt(value)))
         .integer('Please enter a valid age.')
         .test(
           'valid-age',
