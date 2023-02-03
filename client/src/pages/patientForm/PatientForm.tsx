@@ -20,6 +20,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 import IconButton from '@mui/material/IconButton';
 import { MedicalInfoForm } from './medicalInfo';
+import { PatientField } from './state';
 import { PatientState } from './state';
 import { PersonalInfoForm } from './personalInfo';
 import { PregnancyInfoForm } from './pregnancyInfo';
@@ -90,6 +91,11 @@ export const PatientForm = ({
         ? editId === 'drugHistory'
           ? drugHistoryValidationSchema
           : medicalHistoryValidationSchema
+        : undefined,
+      preFilledText: editId
+        ? editId === 'drugHistory'
+          ? PatientField.drugHistory
+          : PatientField.medicalHistory
         : undefined,
       isDrugRecord: editId
         ? editId === 'drugHistory'
