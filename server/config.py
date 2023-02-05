@@ -13,6 +13,7 @@ import environs
 from flask_bcrypt import Bcrypt
 from flasgger import Swagger
 import logging.config
+from pythonjsonlogger import jsonlogger
 
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"
@@ -60,26 +61,26 @@ class Config(object):
             },
         },
         "formatters": {
-            "standard": {
-                "format": "%(asctime)s %(name)-12s %(levelname) -8s %(request_id)s - %(message)s"
-            },
-            "compact": {"format": "%(asctime)s %(message)s"},
+            "json_formatter": {
+                "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+                "fmt": "%(asctime) %(name)-12s %(levelname)-8s %(request_id)s - %(message)s",
+            }
         },
         "handlers": {
             "console": {
                 "class": "logging.StreamHandler",
                 "level": "DEBUG",
-                "formatter": "standard",
+                "formatter": "json_formatter",
                 "filters": ["request_id"],
                 "stream": "ext://sys.stdout",  # print to CLI
             },
             "file": {
                 "class": "logging.handlers.TimedRotatingFileHandler",
                 "level": "DEBUG",
-                "filename": "/var/log/application.log",
+                "formatter": "json_formatter",
+                "filename": "/var/log/application.log",  # print to file
                 "when": "D",
                 "interval": 1,
-                "formatter": "standard",  # print to file
             },
         },
         "loggers": {
@@ -89,6 +90,11 @@ class Config(object):
             "werkzeug": {"level": "INFO"},
         },
     }
+    logging.config.dictConfig(LOGGING)
+    logger = logging.getLogger(__name__)
+
+    logger.debug("Debug message")
+    logger.info("Info message")
 
 
 class JSONEncoder(json.JSONEncoder):
