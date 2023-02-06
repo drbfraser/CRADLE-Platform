@@ -102,26 +102,30 @@ export const ManagePatients = () => {
           {cells[2]}
         </TableCell>
         <TableCell label="Take Action" isTransformed={isTransformed}>
-          <Tooltip placement="top" title="Archive Patient">
-            <IconButton
-              onClick={() => {
-                setArchivePopupOpen(true);
-                setPopupPatient(patient);
-              }}
-              size="large">
-              <DeleteForever />
-            </IconButton>
-          </Tooltip>
-          <Tooltip placement="top" title="Unarchive Patient">
-            <IconButton
-              onClick={() => {
-                setUnarchivePopupOpen(true);
-                setPopupPatient(patient);
-              }}
-              size="large">
-              <RestoreFromTrashIcon />
-            </IconButton>
-          </Tooltip>
+          {cells[2] === 'TRUE' ? (
+            <Tooltip placement="top" title="Archive Patient">
+              <IconButton
+                onClick={() => {
+                  setArchivePopupOpen(true);
+                  setPopupPatient(patient);
+                }}
+                size="large">
+                <DeleteForever />
+              </IconButton>
+            </Tooltip>
+          ) : null}
+          {cells[2] === 'FALSE' ? (
+            <Tooltip placement="top" title="Unarchive Patient">
+              <IconButton
+                onClick={() => {
+                  setUnarchivePopupOpen(true);
+                  setPopupPatient(patient);
+                }}
+                size="large">
+                <RestoreFromTrashIcon />
+              </IconButton>
+            </Tooltip>
+          ) : null}
         </TableCell>
       </tr>
     );
