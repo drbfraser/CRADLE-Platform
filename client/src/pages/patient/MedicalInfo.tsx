@@ -58,8 +58,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         <RedirectButton
           size="small"
           url={
-            `/patients/${patient?.patientId}/edit/${editId}` +
-            (medicalRecordId ? '' : `/${medicalRecordId}`)
+            `/patients/${patient?.patientId}/edit/${editId}`
           }>
           {medicalRecordId ? 'Update' : 'Add'}
         </RedirectButton>
