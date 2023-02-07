@@ -105,7 +105,7 @@ export const ManagePatients = () => {
           {cells[2]}
         </TableCell>
         <TableCell label="Take Action" isTransformed={isTransformed}>
-          {cells[2] === 'TRUE' ? (
+          {cells[2] === 'FALSE' ? (
             <Tooltip placement="top" title="Archive Patient">
               <IconButton
                 onClick={() => {
@@ -117,7 +117,7 @@ export const ManagePatients = () => {
               </IconButton>
             </Tooltip>
           ) : null}
-          {cells[2] === 'FALSE' ? (
+          {cells[2] === 'TRUE' ? (
             <Tooltip placement="top" title="Unarchive Patient">
               <IconButton
                 onClick={() => {
