@@ -183,7 +183,7 @@ export const ManagePatients = () => {
             checked={showArchivedPatients}
           />
         }
-        label="Show Archived Templates"
+        label="Show Archived Patients"
       />
     </div>
   );
