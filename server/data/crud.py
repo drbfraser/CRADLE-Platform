@@ -277,6 +277,12 @@ def read_admin_patient(
         Patient.patientName,
         Patient.isArchived,
     )
+    include_archived = kwargs.get("include_archived")
+
+    if include_archived == "false":
+        query = query.filter(
+            or_(Patient.isArchived == False, Patient.isArchived == None),
+        )
 
     limit = kwargs.get("limit")
     if limit:
