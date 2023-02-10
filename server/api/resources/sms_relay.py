@@ -12,6 +12,15 @@ import base64
 import json
 
 
+def get_json(force):
+    json_request = request.get_json(force=force)
+
+    if json_request.get("encryptedData", None):
+        return json.loads(request.args.get("sms_data"))
+    else:
+        return json_request
+
+
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
