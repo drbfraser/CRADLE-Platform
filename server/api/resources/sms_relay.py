@@ -12,7 +12,7 @@ import base64
 import json
 
 
-def get_json(force):
+def get_json(force: bool):
     json_request = request.get_json(force=force)
 
     if json_request.get("encryptedData", None):
