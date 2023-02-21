@@ -147,3 +147,112 @@ invalid_type_questions = {
 def test_validate_form(json, output):
     message = validate_form(json)
     assert type(message) == output
+
+
+empty_questions = []
+single_question = [
+    {
+        "answers": {
+            "comment": None,
+            "mcidArray": [0],
+            "number": None,
+            "text": "today",
+        },
+        "categoryIndex": 0,
+        "hasCommentAttached": False,
+        "mcOptions": [{"mcid": 0, "opt": "Decent"}],
+        "numMax": None,
+        "numMin": None,
+        "questionId": "referred-by-name",
+        "questionIndex": 1,
+        "questionText": "How the patient's condition?",
+        "questionType": "MULTIPLE_CHOICE",
+        "required": True,
+        "stringMaxLength": None,
+        "units": None,
+        "visibleCondition": [
+            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"}
+        ],
+    }
+]
+multi_question = [
+    {
+        "answers": {
+            "comment": None,
+            "mcidArray": [0],
+            "number": None,
+            "text": "today",
+        },
+        "categoryIndex": 0,
+        "hasCommentAttached": False,
+        "mcOptions": [{"mcid": 0, "opt": "Decent"}],
+        "numMax": None,
+        "numMin": None,
+        "questionId": "referred-by-name",
+        "questionIndex": 1,
+        "questionText": "How the patient's condition?",
+        "questionType": "MULTIPLE_CHOICE",
+        "required": True,
+        "stringMaxLength": None,
+        "units": None,
+        "visibleCondition": [
+            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"}
+        ],
+    },
+    {
+        "answers": {
+            "comment": None,
+            "mcidArray": [0],
+            "number": None,
+            "text": "today",
+        },
+        "categoryIndex": 0,
+        "hasCommentAttached": False,
+        "mcOptions": [{"mcid": 0, "opt": "Decent"}],
+        "numMax": None,
+        "numMin": None,
+        "questionId": "referred-by-name",
+        "questionIndex": 1,
+        "questionText": "How the patient's condition?",
+        "questionType": "MULTIPLE_CHOICE",
+        "required": True,
+        "stringMaxLength": None,
+        "units": None,
+        "visibleCondition": [
+            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"}
+        ],
+    },
+]
+
+invalid_question = [{}]
+
+
+@pytest.mark.parametrize(
+    "json, output",
+    [
+        (empty_questions, type(None)),
+        (single_question, type(None)),
+        (multi_question, type(None)),
+        (invalid_question, str),
+    ],
+)
+def test_validate_questions(json, output):
+    message = validate_questions(json)
+    assert type(message) == output
+
+
+valid_put_request = {"questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}]}
+
+invalid_keys_put_request = {
+    "test": "test",
+    "questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}],
+}
+
+
+@pytest.mark.parametrize(
+    "json, output",
+    [(valid_put_request, type(None)), (invalid_keys_put_request, str)],
+)
+def test_validate_put_request(json, output):
+    message = validate_put_request(json)
+    assert type(message) == output
