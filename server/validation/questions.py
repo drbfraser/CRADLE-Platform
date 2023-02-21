@@ -1,6 +1,6 @@
 from typing import Optional
 
-from models import QRelationalEnum, QuestionTypeEnum
+from enums import QuestionTypeEnum, QRelationalEnum
 from validation.validate import (
     check_invalid_keys_present,
     required_keys_present,

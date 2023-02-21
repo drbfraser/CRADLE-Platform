@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from models import User
 
 from api.decorator import roles_required
-from models import TrafficLightEnum, RoleEnum
+from enums import RoleEnum, TrafficLightEnum
 import data.crud as crud
 
 

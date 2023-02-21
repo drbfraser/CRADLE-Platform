@@ -3,7 +3,8 @@ import time
 from typing import List
 
 import data.crud as crud
-from models import Reading, Patient, User, TrafficLightEnum, Referral
+from models import Reading, Patient, User, Referral
+from enums import TrafficLightEnum
 from pprint import pformat
 
 import service.compressor as compressor

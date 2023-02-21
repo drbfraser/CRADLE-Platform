@@ -10,7 +10,7 @@ import data.marshal as marshal
 from models import HealthFacility
 
 from api.decorator import roles_required
-from models import RoleEnum
+from enums import RoleEnum
 
 
 # /api/facilities

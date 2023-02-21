@@ -7,7 +7,6 @@ import operator
 
 from data import db_session
 from models import (
-    TrafficLightEnum,
     FollowUp,
     Patient,
     Referral,
@@ -22,6 +21,7 @@ from models import (
     Form,
     FormTemplate,
 )
+from enums import TrafficLightEnum
 import service.invariant as invariant
 
 M = TypeVar("M")

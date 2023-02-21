@@ -1,4 +1,4 @@
-from models import TrafficLightEnum
+from enums import TrafficLightEnum
 
 
 def test_get_referral_list(

@@ -3,7 +3,8 @@ import time
 from typing import List
 
 import data.crud as crud
-from models import MedicalRecord, Patient, Pregnancy, Reading, TrafficLightEnum
+from models import MedicalRecord, Patient, Pregnancy, Reading
+from enums import TrafficLightEnum
 from pprint import pformat
 
 from utils import get_current_time
