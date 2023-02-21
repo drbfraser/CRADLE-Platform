@@ -1,5 +1,4 @@
 import pytest
-import pytest
 from validation.forms import validate_form, validate_questions, validate_put_request
 
 valid_form_json_empty_questions = {
