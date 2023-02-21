@@ -1,6 +1,5 @@
 from typing import Optional
 
-import data.crud as crud
 from models import QRelationalEnum, QuestionTypeEnum
 from validation.validate import (
     check_invalid_keys_present,

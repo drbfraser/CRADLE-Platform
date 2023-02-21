@@ -1,6 +1,5 @@
 from typing import Optional
 
-from models import Form
 from validation.validate import (
     required_keys_present,
     values_correct_type,
