@@ -65,3 +65,23 @@ def test_validate_post_request(json, patient_id, output):
 def test_validate_put_request(json, record_id, output):
     message = validate_put_request(json, record_id)
     assert type(message) == output
+
+
+valid_empty_list = []
+valid_subset_list = ["id", "medicalHistory"]
+invalid_extra_key_list = ["test"]
+invalid_extra_key_subset_list = ["id", "medicalHistory", "test"]
+
+
+@pytest.mark.parametrize(
+    "json, output",
+    [
+        (valid_empty_list, type(None)),
+        (valid_subset_list, type(None)),
+        (invalid_extra_key_list, str),
+        (invalid_extra_key_subset_list, str),
+    ],
+)
+def test___validate(json, output):
+    message = __validate(json)
+    assert type(message) == output
