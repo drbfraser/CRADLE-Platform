@@ -10,18 +10,25 @@ def validate_post_request(request_body: dict, patient_id: str) -> Optional[str]:
     :param request_body: The request body as a dict object
                         {
                             "patientId": "120000",
-                            "medicalHistory" or "drugHistroy": "Aspirin 75mg", - required
+                            "medicalHistory" or "drugHistory": "Aspirin 75mg", - required
                         }
+    :param patient_id: The id of the patient, used to validate request_body input
     :return: An error message if request body in invalid in some way. None otherwise.
     """
     error = __validate(request_body)
     if error:
         return error
 
+    # if drugHistory is not present, then we check if medicalHistory is not present
+    # if both are not present, then return an error
     if required_keys_present(request_body, ["drugHistory"]):
         error = required_keys_present(request_body, ["medicalHistory"])
         if error:
             return error
+
+    error = values_correct_type(request_body, ["medicalHistory", "drugHistory"], str)
+    if error:
+        return error
 
     error = values_correct_type(request_body, ["patientId"], int)
     if error:
