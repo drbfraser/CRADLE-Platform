@@ -6,7 +6,8 @@ from flask_jwt_extended import (
 )
 
 import data.crud as crud
-from models import PatientAssociations, RoleEnum
+from models import PatientAssociations
+from enums import RoleEnum
 
 
 def roles_required(accepted_roles):
