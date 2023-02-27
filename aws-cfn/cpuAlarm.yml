@@ -1,0 +1,21 @@
+Resources:
+  CradleStagingHighCPUUsageAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: Cradle Staging High CPU Usage
+      AlarmDescription: CPU Usage >90%
+      ActionsEnabled: true
+      OKActions: []
+      AlarmActions:
+        - arn:aws:sns:${AWS::Region}:${AWS::AccountId}:Alarm
+      InsufficientDataActions: []
+      MetricName: cpu_p
+      Namespace: cradle-staging/metrics
+      Statistic: Average
+      Dimensions: []
+      Period: 60
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 0.9
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: missing

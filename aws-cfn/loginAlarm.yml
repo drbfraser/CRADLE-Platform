@@ -1,0 +1,21 @@
+Resources:
+  CradleStagingHighLoginAttempt:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+        AlarmName: LoginAttemptAlarm
+        ActionsEnabled: true
+        OKActions: []
+        AlarmActions:
+            - arn:aws:sns:${AWS::Region}:${AWS::AccountId}:LoginAlarm
+        InsufficientDataActions: []
+        MetricName: UserLoginAttempts
+        Namespace: cradle_stg/login_attempt
+        Statistic: Sum
+        Dimensions: []
+        Period: 60
+        EvaluationPeriods: 1
+        DatapointsToAlarm: 1
+        Threshold: 10
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        TreatMissingData: missing
+
