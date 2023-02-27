@@ -9,10 +9,8 @@ from models import (
     Reading,
     Pregnancy,
     MedicalRecord,
-    SexEnum,
-    GestationalAgeUnitEnum,
-    TrafficLightEnum,
 )
+from enums import SexEnum, GestationalAgeUnitEnum, TrafficLightEnum
 
 
 def test_download_patients(

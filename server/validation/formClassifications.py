@@ -5,8 +5,6 @@ from validation.validate import (
     required_keys_present,
     values_correct_type,
 )
-from validation.questions import validate_template_question_post
-from service import questionTree
 
 
 def validate_template(request_body: dict) -> Optional[str]:

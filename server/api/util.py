@@ -21,11 +21,10 @@ from models import (
     Form,
     FormTemplate,
     FormClassification,
-    QRelationalEnum,
     Question,
-    QuestionTypeEnum,
     User,
 )
+from enums import QuestionTypeEnum, QRelationalEnum
 
 from api.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,

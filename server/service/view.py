@@ -24,11 +24,11 @@ from models import (
     FollowUp,
     Reading,
     Referral,
-    RoleEnum,
     Pregnancy,
     MedicalRecord,
     UrineTest,
 )
+from enums import RoleEnum
 
 
 def patient_list_view(user: dict, **kwargs) -> List[Any]:

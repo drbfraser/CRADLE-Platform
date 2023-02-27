@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
-from models import User, RoleEnum
+from models import User
+from enums import RoleEnum
 from config import flask_bcrypt
 from flask_jwt_extended import (
     create_access_token,

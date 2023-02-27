@@ -7,7 +7,8 @@ import numpy as np
 import json
 from random import randrange
 from datetime import timedelta, datetime
-from config import app, db, flask_bcrypt
+from config import app, flask_bcrypt
+from enums import RoleEnum
 from models import *
 from random import randint, choice
 from string import ascii_lowercase, digits
