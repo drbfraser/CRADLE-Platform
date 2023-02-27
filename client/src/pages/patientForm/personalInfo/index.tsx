@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Field, FormikProps } from 'formik';
 import { PatientField, PatientState } from '../state';
 import React, { useState } from 'react';
