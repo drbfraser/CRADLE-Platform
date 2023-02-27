@@ -1,6 +1,6 @@
 import json
 from discord_webhook import DiscordWebhook, DiscordEmbed
-
+import osA
 
 def send_discord_alert(webhook_url):
     webhook = DiscordWebhook(url=webhook_url)
@@ -21,7 +21,7 @@ def send_discord_alert(webhook_url):
 
 def lambda_handler(event, context):
     # Get the webhook URL and message from the event
-    webhook_url = "https://discord.com/api/webhooks/1078436205777125416/4ogwGKRjMSyufI3H9mv0801zXTnaqYKuIF6Ql9g_XwMnTvEztN74AVzwySsXf3PXb77j"
+    webhook_url = os.environ.get('webhook_url')
     # Send the Discord alert
     response = send_discord_alert(webhook_url)
 
