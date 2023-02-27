@@ -13,13 +13,13 @@ export const personalInfoValidationSchema = (creatingNew: boolean) =>
     [PatientField.patientId]: !creatingNew
       ? Yup.string()
       : Yup.number()
-        .typeError('A valid patient ID is required.')
-        .integer('A valid patient ID is required.')
-        .test(
-          'length',
-          'A valid patient ID is required.',
-          (pId) => String(pId).length > 0 && String(pId).length <= 15
-        ),
+          .typeError('A valid patient ID is required.')
+          .integer('A valid patient ID is required.')
+          .test(
+            'length',
+            'A valid patient ID is required.',
+            (pId) => String(pId).length > 0 && String(pId).length <= 15
+          ),
 
     // For writing + testing Regex, see: regex101.com
     [PatientField.patientName]: Yup.string()
