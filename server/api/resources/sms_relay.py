@@ -29,7 +29,6 @@ def sms_relay_procedure():
     if error:
         abort(400, message=error)
 
-
     phoneNumber = json_request["phoneNumber"]
 
     if not phoneNumber:
