@@ -29,8 +29,14 @@ def sms_relay_procedure():
     if error:
         abort(400, message=error)
 
+
+    phoneNumber = json_request["phoneNumber"]
+
+    if not phoneNumber:
+        abort(401, message=f"Invalid JSON")
+
     # Authorization Check
-    user = crud.read(User, phoneNumber=json_request["phoneNumber"])
+    user = crud.read(User, phoneNumber=phoneNumber)
 
     if not user:
         abort(401, message=f"Invalid Phone Number")
