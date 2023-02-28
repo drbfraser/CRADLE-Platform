@@ -217,7 +217,7 @@ export const getLatestReading = (readings: Array<Reading>): Reading => {
 };
 
 export const getAgeBasedOnDOB = (value: string) => {
-  return Math.trunc(moment().diff(value, 'years', true));
+  return Math.floor(moment().diff(value, 'years', true));
 };
 
 export const getAgeToDisplay = (dob: string, isExactDob: boolean) => {
