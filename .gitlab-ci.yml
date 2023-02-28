@@ -195,6 +195,7 @@ frontend integration tests:
     - npx wait-on http://localhost:3000
     - npm run e2e
   artifacts:
+    when: on_failure
     paths:
        - client/cypress/screenshots/**/*.png
        - client/cypress/videos/**/*.mp4
