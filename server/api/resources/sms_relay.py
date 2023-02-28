@@ -29,12 +29,15 @@ def sms_relay_procedure():
     if error:
         abort(400, message=error)
 
+    phoneNumber = json_request["phoneNumber"]
+
+    if not phoneNumber:
+        abort(401, message=f"Invalid JSON")
+
     # Authorization Check
-    current_user = get_jwt_identity()
+    user = crud.read(User, phoneNumber=phoneNumber)
 
-    user = crud.read(User, id=current_user["userId"])
-
-    if user.phoneNumber != json_request["phoneNumber"]:
+    if not user:
         abort(401, message=f"Invalid Phone Number")
 
     encrypted_data = base64.b64decode(json_request["encryptedData"])
