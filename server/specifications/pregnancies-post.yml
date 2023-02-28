@@ -16,6 +16,9 @@ requestBody:
       schema:
         type: object
         properties:
+          patientId:
+            type: integer
+            example: 1689392434
           pregnancyStartDate:
             type: Unix timestamp | Null
             example: 1620000002
