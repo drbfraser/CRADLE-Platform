@@ -3,7 +3,7 @@ import time
 from typing import List
 
 import data.crud as crud
-from models import Reading, Patient, User, Referral
+from models import Reading, Patient, User, Referral, FollowUp
 from enums import TrafficLightEnum
 from pprint import pformat
 
@@ -106,6 +106,51 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_put):
     assert crud.read(Patient, patientId=patient_id).patientName == new_patient_name
 
 
+def test_create_assessments_with_sms_relay(
+    database, create_patient, patient_info, api_post
+):
+    create_patient()
+    patient_id = patient_info["patientId"]
+
+    endpoint = "assessment"
+    assessment_json = __make_assessment(patient_id)
+    json_request = __make_sms_relay_json(endpoint, assessment_json)
+
+    response = api_post(endpoint="/api/sms_relay", json=json_request)
+    database.session.commit()
+
+    followupInstructions = assessment_json["followupInstructions"]
+
+    assert response.status_code == 201
+    assert (
+        crud.read(FollowUp, patientId=patient_id).followupInstructions
+        == followupInstructions
+    )
+
+
+def test_update_assessments_with_sms_relay(
+    database, patient_factory, followup_factory, api_put
+):
+    patient_id = "64164134515"
+    patient_factory.create(patientId=patient_id, patientName="AB")
+
+    assessment_json = __make_assessment(patient_id)
+    followup_factory.create(patientId=patient_id)
+    assessment_id = crud.read(FollowUp, patientId=patient_id).id
+
+    endpoint = "single_assessment"
+    newInstructions = "II"
+    assessment_json["followupInstructions"] = newInstructions
+    arguments = {"assessment_id": assessment_id}
+
+    json_request = __make_sms_relay_json(endpoint, assessment_json, arguments)
+    response = api_put(endpoint="/api/sms_relay", json=json_request)
+    database.session.commit()
+
+    assert response.status_code == 200
+    assert crud.read(FollowUp, id=assessment_id).followupInstructions == newInstructions
+
+
 def __make_sms_relay_json(endpoint, request, arguments=None):
     user = crud.read(User, id=1)
 
@@ -159,4 +204,16 @@ def __make_referral(referral_id: str, patient_id: str) -> dict:
         "comment": "here is a comment",
         "patientId": patient_id,
         "referralHealthFacilityName": "H0000",
+    }
+
+
+def __make_assessment(patient_id: str) -> dict:
+    return {
+        "patientId": patient_id,
+        "diagnosis": "D",
+        "treatment": "T",
+        "medicationPrescribed": "M",
+        "specialInvestigations": "S",
+        "followupInstructions": "I",
+        "followupNeeded": True,
     }
