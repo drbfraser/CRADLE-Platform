@@ -319,6 +319,7 @@ build-docker publish-docker-images:
   - docker images
   - docker ps -a
   - docker volume ls
+  - docker restart cradle_fluentbit #fluentbit needs a restart after every changes made
 
 .deploy-script: &retag-and-upload-dockerhub
   # Required environment variables passed into this function:
