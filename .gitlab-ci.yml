@@ -195,6 +195,7 @@ frontend integration tests:
     - npx wait-on http://localhost:3000
     - npm run e2e
   artifacts:
+    when: on_failure
     paths:
        - client/cypress/screenshots/**/*.png
        - client/cypress/videos/**/*.mp4
@@ -319,6 +320,7 @@ build-docker publish-docker-images:
   - docker images
   - docker ps -a
   - docker volume ls
+  - docker restart cradle_fluentbit #fluentbit needs a restart after every changes made
 
 .deploy-script: &retag-and-upload-dockerhub
   # Required environment variables passed into this function:
