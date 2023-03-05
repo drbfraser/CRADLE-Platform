@@ -84,7 +84,7 @@ export const ManagePatients = () => {
       .map((p) => [
         p.patientName,
         p.patientId,
-        p.isArchived.toString().toUpperCase(),
+        p.isArchived === null ? 'FALSE' : p.isArchived.toString().toUpperCase(),
         p.index,
       ]);
     setTableData(rows);
