@@ -59,10 +59,8 @@ def sms_relay_procedure():
     # Decryption
     try:
         decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
-    except fernet.InvalidToken:
-        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
     except:
-        abort(400, message=corrupted_message.format(type="Base64"))
+        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
 
     # Decompression
     try:
