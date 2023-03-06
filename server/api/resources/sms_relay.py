@@ -11,6 +11,20 @@ from validation import sms_relay
 import base64
 import json
 
+corrupted_message = (
+    "Server detected invalid message format ({type}); "
+    "message may have been corrupted. "
+    "Retry the action or contact your administrator."
+)
+
+invalid_message = (
+    "Unable to verify message from ({phoneNumber}). "
+    "Either the phone number is not associated with a user, "
+    "or the App and server don’t agree on the security key, "
+    "or the message was corrupted. Retry the action or resync "
+    "with the server using an internet connection (WiFi, 3G, …) "
+)
+
 
 def get_json(force: bool):
     json_request = request.get_json(force=force)
@@ -25,20 +39,6 @@ def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
     error = sms_relay.validate_post_request(json_request)
-
-    corrupted_message = (
-        "Server detected invalid message format ({type}); "
-        "message may have been corrupted. "
-        "Retry the action or contact your administrator."
-    )
-
-    invalid_message = (
-        "Unable to verify message from ({phoneNumber}). "
-        "Either the phone number is not associated with a user, "
-        "or the App and server don’t agree on the security key, "
-        "or the message was corrupted. Retry the action or resync "
-        "with the server using an internet connection (WiFi, 3G, …) "
-    )
 
     if error:
         abort(400, message=corrupted_message.format(type="JSON"))
