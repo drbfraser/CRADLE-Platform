@@ -1,16 +1,16 @@
 import pytest
-import time
 from typing import List
 
 import data.crud as crud
 from models import Reading, Patient, User, Referral, FollowUp
 from enums import TrafficLightEnum
-from pprint import pformat
 
 import service.compressor as compressor
 import service.encryptor as encryptor
 import base64
 import json
+
+sms_relay_endpoint = "/api/sms_relay"
 
 
 def test_create_patient_with_sms_relay(database, api_post):
@@ -24,7 +24,7 @@ def test_create_patient_with_sms_relay(database, api_post):
     endpoint = "patients"
 
     json_request = __make_sms_relay_json(endpoint, patient_json)
-    response = api_post(endpoint="/api/sms_relay", json=json_request)
+    response = api_post(endpoint=sms_relay_endpoint, json=json_request)
     database.session.commit()
 
     try:
@@ -53,7 +53,7 @@ def test_create_referral_with_sms_relay(
 
     json_request = __make_sms_relay_json(endpoint, referral_json)
 
-    response = api_post(endpoint="/api/sms_relay", json=json_request)
+    response = api_post(endpoint=sms_relay_endpoint, json=json_request)
     database.session.commit()
 
     try:
@@ -76,7 +76,7 @@ def test_create_readings_with_sms_relay(
 
     json_request = __make_sms_relay_json(endpoint, referral_json)
 
-    response = api_post(endpoint="/api/sms_relay", json=json_request)
+    response = api_post(endpoint=sms_relay_endpoint, json=json_request)
     database.session.commit()
 
     try:
@@ -99,7 +99,7 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_put):
 
     json_request = __make_sms_relay_json(endpoint, patient_update_json, arguments)
 
-    response = api_put(endpoint="/api/sms_relay", json=json_request)
+    response = api_put(endpoint=sms_relay_endpoint, json=json_request)
     database.session.commit()
 
     assert response.status_code == 200
@@ -116,7 +116,7 @@ def test_create_assessments_with_sms_relay(
     assessment_json = __make_assessment(patient_id)
     json_request = __make_sms_relay_json(endpoint, assessment_json)
 
-    response = api_post(endpoint="/api/sms_relay", json=json_request)
+    response = api_post(endpoint=sms_relay_endpoint, json=json_request)
     database.session.commit()
 
     followupInstructions = assessment_json["followupInstructions"]
@@ -144,7 +144,7 @@ def test_update_assessments_with_sms_relay(
     arguments = {"assessment_id": assessment_id}
 
     json_request = __make_sms_relay_json(endpoint, assessment_json, arguments)
-    response = api_put(endpoint="/api/sms_relay", json=json_request)
+    response = api_put(endpoint=sms_relay_endpoint, json=json_request)
     database.session.commit()
 
     assert response.status_code == 200
