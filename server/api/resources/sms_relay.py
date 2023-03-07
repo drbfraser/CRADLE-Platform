@@ -11,6 +11,20 @@ from validation import sms_relay
 import base64
 import json
 
+corrupted_message = (
+    "Server detected invalid message format ({type}); "
+    "message may have been corrupted. "
+    "Retry the action or contact your administrator."
+)
+
+invalid_message = (
+    "Unable to verify message from ({phoneNumber}). "
+    "Either the phone number is not associated with a user, "
+    "or the App and server don’t agree on the security key, "
+    "or the message was corrupted. Retry the action or resync "
+    "with the server using an internet connection (WiFi, 3G, …) "
+)
+
 
 def get_json(force: bool):
     json_request = request.get_json(force=force)
@@ -27,31 +41,32 @@ def sms_relay_procedure():
     error = sms_relay.validate_post_request(json_request)
 
     if error:
-        abort(400, message=error)
+        abort(400, message=corrupted_message.format(type="JSON"))
 
     phoneNumber = json_request["phoneNumber"]
 
     if not phoneNumber:
-        abort(401, message=f"Invalid JSON")
+        abort(400, message=corrupted_message.format(type="JSON"))
 
     # Authorization Check
     user = crud.read(User, phoneNumber=phoneNumber)
 
     if not user:
-        abort(401, message=f"Invalid Phone Number")
+        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
 
     encrypted_data = base64.b64decode(json_request["encryptedData"])
 
     # Decryption
     try:
         decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
-    except fernet.InvalidToken:
-        abort(401, message=f"Invalid Key")
     except:
-        abort(401, message=f"Invalid Data")
+        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
 
     # Decompression
-    data = compressor.decompress(decrypted_data)
+    try:
+        data = compressor.decompress(decrypted_data)
+    except:
+        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
 
     # Object Parsing
     string_data = data.decode("utf-8")
