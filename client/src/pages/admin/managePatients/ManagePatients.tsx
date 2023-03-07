@@ -158,10 +158,6 @@ export const ManagePatients = () => {
       />
       <AdminTable
         title="Patients"
-        newBtnLabel="New Patient"
-        newBtnOnClick={() => {
-          setPopupPatient(undefined);
-        }}
         search={search}
         setSearch={setSearch}
         columns={columns}
