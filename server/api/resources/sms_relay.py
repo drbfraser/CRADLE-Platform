@@ -1,5 +1,5 @@
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import redirect, request, url_for
+from flask import redirect, request, url_for, make_response, Response
 from flask_restful import Resource, abort
 from data import crud, marshal
 from flasgger import swag_from
@@ -84,7 +84,26 @@ def sms_relay_procedure():
     request_dict["sms_data"] = json_request
 
     # HTTP Redirect
-    return redirect(url_for(endpoint, **request_dict), 307)
+    redirect_response = redirect(url_for(endpoint, **request_dict), 307)
+    return sms_relay_response(redirect_response, user)
+
+
+def sms_relay_response(response: Response, user: User):
+    response_dict = {"code": response.status_code, "body": response.get_data()}
+
+    response_json = json.dumps(response_dict)
+
+    compressed_data = compressor.compress_from_string(response_json)
+    encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
+
+    base64_data = base64.b64encode(encrypted_data)
+    base64_string = base64_data.decode("utf-8")
+
+    new_response = make_response("SMS Relay Response")
+    new_response.status_code = 200
+    new_response.set_data(base64_string)
+
+    return new_response
 
 
 # /api/sms_relay
