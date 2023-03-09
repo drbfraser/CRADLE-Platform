@@ -1,0 +1,26 @@
+Assess SMS relay message
+---
+tags:
+  - SMS Relay
+requestBody:
+  required: true
+  description: GET request body for /api/sms_relay
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          phoneNumber:
+            type: string
+            example: 555-555-5555
+          encryptedData:
+            type: string
+            example: "Z0FBQUFBQmpsNHlacWZ4NkFSTU=="
+
+responses:
+  201:
+    description: Updated
+  401:
+    description: Unauthorized user
+
+  

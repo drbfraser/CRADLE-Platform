@@ -125,3 +125,12 @@ class Root(Resource):
     )
     def put():
         return sms_relay_procedure()
+
+
+    @staticmethod
+    @jwt_required()
+    @swag_from(
+        "../../specifications/sms-relay-get.yaml", methods=["GET"], endpoint="sms_relay"
+    )
+    def get():
+        return sms_relay_procedure()
