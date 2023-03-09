@@ -20,7 +20,7 @@ corrupted_message = (
 invalid_message = (
     "Unable to verify message from ({phoneNumber}). "
     "Either the phone number is not associated with a user, "
-    "or the App and server don’t agree on the security key, "
+    "or the App and server don't agree on the security key, "
     "or the message was corrupted. Retry the action or resync "
     "with the server using an internet connection (WiFi, 3G, …) "
 )
@@ -35,7 +35,7 @@ def get_json(force: bool):
         return json_request
 
 
-def sms_relay_procedure():
+def __sms_relay_procedure():
     json_request = request.get_json(force=True)
 
     error = sms_relay.validate_post_request(json_request)
@@ -85,10 +85,10 @@ def sms_relay_procedure():
 
     # HTTP Redirect
     redirect_response = redirect(url_for(endpoint, **request_dict), 307)
-    return sms_relay_response(redirect_response, user)
+    return __sms_relay_response(redirect_response, user)
 
 
-def sms_relay_response(response: Response, user: User):
+def __sms_relay_response(response: Response, user: User):
     response_dict = {"code": response.status_code, "body": response.get_data()}
 
     response_json = json.dumps(response_dict)
@@ -116,7 +116,7 @@ class Root(Resource):
         endpoint="sms_relay",
     )
     def post():
-        return sms_relay_procedure()
+        return __sms_relay_procedure()
 
     @staticmethod
     @jwt_required()
@@ -124,8 +124,7 @@ class Root(Resource):
         "../../specifications/sms-relay-put.yaml", methods=["PUT"], endpoint="sms_relay"
     )
     def put():
-        return sms_relay_procedure()
-
+        return __sms_relay_procedure()
 
     @staticmethod
     @jwt_required()
@@ -133,4 +132,4 @@ class Root(Resource):
         "../../specifications/sms-relay-get.yaml", methods=["GET"], endpoint="sms_relay"
     )
     def get():
-        return sms_relay_procedure()
+        return __sms_relay_procedure()
