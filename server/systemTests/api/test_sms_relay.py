@@ -1,6 +1,7 @@
 import pytest
 from typing import List
 
+import requests
 import data.crud as crud
 from models import Reading, Patient, User, Referral, FollowUp
 from enums import TrafficLightEnum
@@ -151,7 +152,22 @@ def test_update_assessments_with_sms_relay(
     assert crud.read(FollowUp, id=assessment_id).followupInstructions == newInstructions
 
 
-def __make_sms_relay_json(endpoint, request, arguments=None):
+def test_get_single_patient_with_sms_relay(database, patient_factory, api_get):
+    patient_id = "64164134516"
+    patient_factory.create(patientId=patient_id, patientName="AB")
+
+    endpoint = "patient_info"
+    arguments = {"patient_id": patient_id}
+    json_request = __make_sms_relay_json(endpoint=endpoint, arguments=arguments)
+    response = api_get(endpoint=sms_relay_endpoint, json=json_request)
+
+    assert response.status_code == 200
+
+    response_dict = __get_sms_relay_response(response)
+    assert response_dict
+
+
+def __make_sms_relay_json(endpoint: str, request: dict={}, arguments: dict=None) -> dict:
     user = crud.read(User, id=1)
 
     request_string = json.dumps(request)
@@ -170,6 +186,17 @@ def __make_sms_relay_json(endpoint, request, arguments=None):
 
     return {"phoneNumber": user.phoneNumber, "encryptedData": base64_string}
 
+
+def __get_sms_relay_response(response: requests.Response) -> dict:
+    user = crud.read(User, id=1)
+    assert response.text == None
+    encrypted_data = base64.b64decode(response.text)
+    decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
+
+    data = compressor.decompress(decrypted_data)
+    string_data = data.decode("utf-8")
+
+    return json.loads(string_data)
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
     return {
