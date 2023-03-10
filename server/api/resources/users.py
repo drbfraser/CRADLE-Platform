@@ -20,6 +20,10 @@ from api.util import (
 )
 import service.encryptor as encryptor
 import logging
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask import Flask
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -236,6 +240,14 @@ class UserRegisterApi(Resource):
 # api/user/auth [POST]
 class UserAuthApi(Resource):
 
+    app = Flask(__name__)
+
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=["10 per minute","20 per hour","50 per day"],
+    )
+
     parser = reqparse.RequestParser()
     parser.add_argument(
         "email", type=str, required=True, help="This field cannot be left blank!"
@@ -246,6 +258,7 @@ class UserAuthApi(Resource):
 
     # login to account
     @swag_from("../../specifications/user-auth.yml", methods=["POST"])
+    @limiter.limit("10 per minute, 20 per hour, 30 per day",error_message="Login attempt limit reached please try again later.")
     def post(self):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
