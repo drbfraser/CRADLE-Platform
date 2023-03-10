@@ -35,7 +35,7 @@ def get_json(force: bool):
         return json_request
 
 
-def __sms_relay_procedure():
+def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
     error = sms_relay.validate_post_request(json_request)
@@ -85,11 +85,11 @@ def __sms_relay_procedure():
 
     # HTTP Redirect
     redirect_response = redirect(url_for(endpoint, **request_dict), 307)
-    return __sms_relay_response(redirect_response, user)
+    return sms_relay_response(redirect_response, user)
 
 
-def __sms_relay_response(response: Response, user: User):
-    response_dict = {"code": response.status_code, "body": response.get_data()}
+def sms_relay_response(response: Response, user: User) -> Response:
+    response_dict = {"code": response.status_code, "body": response.get_data(as_text=True)}
 
     response_json = json.dumps(response_dict)
 
@@ -99,11 +99,9 @@ def __sms_relay_response(response: Response, user: User):
     base64_data = base64.b64encode(encrypted_data)
     base64_string = base64_data.decode("utf-8")
 
-    new_response = make_response("SMS Relay Response")
-    new_response.status_code = 200
-    new_response.set_data(base64_string)
+    response.set_data(base64_string)
 
-    return new_response
+    return response
 
 
 # /api/sms_relay
@@ -116,7 +114,7 @@ class Root(Resource):
         endpoint="sms_relay",
     )
     def post():
-        return __sms_relay_procedure()
+        return sms_relay_procedure()
 
     @staticmethod
     @jwt_required()
@@ -124,7 +122,7 @@ class Root(Resource):
         "../../specifications/sms-relay-put.yaml", methods=["PUT"], endpoint="sms_relay"
     )
     def put():
-        return __sms_relay_procedure()
+        return sms_relay_procedure()
 
     @staticmethod
     @jwt_required()
@@ -132,4 +130,4 @@ class Root(Resource):
         "../../specifications/sms-relay-get.yaml", methods=["GET"], endpoint="sms_relay"
     )
     def get():
-        return __sms_relay_procedure()
+        return sms_relay_procedure()
