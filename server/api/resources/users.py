@@ -246,7 +246,7 @@ class UserAuthApi(Resource):
     limiter = Limiter(
         get_remote_address,
         app=app,
-        default_limits=["10 per minute","20 per hour","50 per day"],
+        default_limits=["10 per minute", "20 per hour", "50 per day"],
     )
 
     parser = reqparse.RequestParser()
@@ -259,7 +259,10 @@ class UserAuthApi(Resource):
 
     # login to account
     @swag_from("../../specifications/user-auth.yml", methods=["POST"])
-    @limiter.limit("10 per minute, 20 per hour, 30 per day",error_message="Login attempt limit reached please try again later.")
+    @limiter.limit(
+        "10 per minute, 20 per hour, 30 per day",
+        error_message="Login attempt limit reached please try again later.",
+    )
     def post(self):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
