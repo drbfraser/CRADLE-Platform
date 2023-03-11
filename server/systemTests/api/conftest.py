@@ -2,7 +2,7 @@ import pytest
 
 from enums import SexEnum, GestationalAgeUnitEnum
 from flask_limiter import Limiter
-from flask_limiter import Limiter
+from config import app
 
 
 def remove_limiter_middleware(app):
