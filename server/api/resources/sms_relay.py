@@ -1,6 +1,8 @@
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import redirect, request, url_for
 from flask_restful import Resource, abort
+import requests
+
 from data import crud, marshal
 from flasgger import swag_from
 from models import User
@@ -33,6 +35,13 @@ def get_json(force: bool):
         return json.loads(request.args.get("sms_data"))
     else:
         return json_request
+
+
+def jwt_token():
+    payload = {"email": "admin123@admin.com", "password": "admin123"}
+    response = requests.post("http://localhost:5000/api/user/auth", json=payload)
+    resp_json = response.json()
+    return resp_json["token"]
 
 
 def sms_relay_procedure():
@@ -82,7 +91,9 @@ def sms_relay_procedure():
         request_dict = {}
 
     request_dict["sms_data"] = json_request
-
+    
+    token = jwt_token()
+    abort(400, message=token)
     # HTTP Redirect
     return redirect(url_for(endpoint, **request_dict), 307)
 
