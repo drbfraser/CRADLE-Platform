@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from '@mui/material';
+import { FormControlLabel, IconButton, Switch, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
@@ -23,6 +23,7 @@ export const ManagePatients = () => {
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
   const [unarchivePopupOpen, setUnarchivePopupOpen] = useState(false);
   const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
+  const [showArchivedPatients, setShowArchivedPatients] = useState(true);
   const isTransformed = useMediaQuery('(min-width:800px)');
 
   const columns = [
@@ -53,9 +54,11 @@ export const ManagePatients = () => {
     },
   ];
 
-  const getPatients = async () => {
+  const getPatients = async (showArchivedPatients: boolean) => {
     try {
-      const resp: PatientWithIndex[] = await getPatientsAdminAsync();
+      const resp: PatientWithIndex[] = await getPatientsAdminAsync(
+        showArchivedPatients
+      );
       setPatients(resp.map((patient, index) => ({ ...patient, index })));
       setLoading(false);
     } catch (e) {
@@ -64,8 +67,8 @@ export const ManagePatients = () => {
   };
 
   useEffect(() => {
-    getPatients();
-  }, []);
+    getPatients(showArchivedPatients);
+  }, [showArchivedPatients]);
 
   useEffect(() => {
     const searchLowerCase = search.toLowerCase().trim();
@@ -81,7 +84,7 @@ export const ManagePatients = () => {
       .map((p) => [
         p.patientName,
         p.patientId,
-        p.isArchived.toString().toUpperCase(),
+        p.isArchived === null ? 'FALSE' : p.isArchived.toString().toUpperCase(),
         p.index,
       ]);
     setTableData(rows);
@@ -102,26 +105,30 @@ export const ManagePatients = () => {
           {cells[2]}
         </TableCell>
         <TableCell label="Take Action" isTransformed={isTransformed}>
-          <Tooltip placement="top" title="Archive Patient">
-            <IconButton
-              onClick={() => {
-                setArchivePopupOpen(true);
-                setPopupPatient(patient);
-              }}
-              size="large">
-              <DeleteForever />
-            </IconButton>
-          </Tooltip>
-          <Tooltip placement="top" title="Unarchive Patient">
-            <IconButton
-              onClick={() => {
-                setUnarchivePopupOpen(true);
-                setPopupPatient(patient);
-              }}
-              size="large">
-              <RestoreFromTrashIcon />
-            </IconButton>
-          </Tooltip>
+          {cells[2] === 'FALSE' ? (
+            <Tooltip placement="top" title="Archive Patient">
+              <IconButton
+                onClick={() => {
+                  setArchivePopupOpen(true);
+                  setPopupPatient(patient);
+                }}
+                size="large">
+                <DeleteForever />
+              </IconButton>
+            </Tooltip>
+          ) : null}
+          {cells[2] === 'TRUE' ? (
+            <Tooltip placement="top" title="Unarchive Patient">
+              <IconButton
+                onClick={() => {
+                  setUnarchivePopupOpen(true);
+                  setPopupPatient(patient);
+                }}
+                size="large">
+                <RestoreFromTrashIcon />
+              </IconButton>
+            </Tooltip>
+          ) : null}
         </TableCell>
       </tr>
     );
@@ -137,7 +144,7 @@ export const ManagePatients = () => {
         open={archivePopupOpen}
         onClose={() => {
           setArchivePopupOpen(false);
-          getPatients();
+          getPatients(showArchivedPatients);
         }}
         patient={popupPatient}
       />
@@ -145,16 +152,12 @@ export const ManagePatients = () => {
         open={unarchivePopupOpen}
         onClose={() => {
           setUnarchivePopupOpen(false);
-          getPatients();
+          getPatients(showArchivedPatients);
         }}
         patient={popupPatient}
       />
       <AdminTable
         title="Patients"
-        newBtnLabel="New Patient"
-        newBtnOnClick={() => {
-          setPopupPatient(undefined);
-        }}
         search={search}
         setSearch={setSearch}
         columns={columns}
@@ -162,6 +165,21 @@ export const ManagePatients = () => {
         data={tableData}
         loading={loading}
         isTransformed={isTransformed}
+      />
+      <FormControlLabel
+        style={{
+          marginTop: '10px',
+          marginLeft: 'auto',
+          marginRight: '10px',
+          display: 'flex',
+        }}
+        control={
+          <Switch
+            onClick={() => setShowArchivedPatients(!showArchivedPatients)}
+            checked={showArchivedPatients}
+          />
+        }
+        label="Show Archived Patients"
       />
     </div>
   );

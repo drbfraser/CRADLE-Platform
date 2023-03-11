@@ -11,8 +11,8 @@ import { useAdminStyles } from './adminStyles';
 
 interface IProps {
   title: string;
-  newBtnLabel: string;
-  newBtnOnClick: () => void;
+  newBtnLabel?: string;
+  newBtnOnClick?: () => void;
   search: string;
   setSearch: (search: string) => void;
   columns: MUIDataTableColumnDef[];
@@ -35,10 +35,12 @@ const AdminTable = (props: IProps) => {
         value={props.search}
         onChange={(e) => props.setSearch(e.target.value)}
       />
-      <PrimaryButton className={styles.button} onClick={props.newBtnOnClick}>
-        <AddIcon />
-        {props.newBtnLabel}
-      </PrimaryButton>
+      {props.newBtnLabel && (
+        <PrimaryButton className={styles.button} onClick={props.newBtnOnClick}>
+          <AddIcon />
+          {props.newBtnLabel}
+        </PrimaryButton>
+      )}
     </div>
   );
 

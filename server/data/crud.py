@@ -7,7 +7,6 @@ import operator
 
 from data import db_session
 from models import (
-    TrafficLightEnum,
     FollowUp,
     Patient,
     Referral,
@@ -22,6 +21,7 @@ from models import (
     Form,
     FormTemplate,
 )
+from enums import TrafficLightEnum
 import service.invariant as invariant
 
 M = TypeVar("M")
@@ -277,6 +277,12 @@ def read_admin_patient(
         Patient.patientName,
         Patient.isArchived,
     )
+    include_archived = kwargs.get("include_archived")
+
+    if include_archived == "false":
+        query = query.filter(
+            or_(Patient.isArchived == False, Patient.isArchived == None),
+        )
 
     limit = kwargs.get("limit")
     if limit:

@@ -32,6 +32,7 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
   const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
+  const [resetLanguage, setResetLanguage] = useState<boolean>(false);
 
   useEffect(() => {
     const updateFormTemplates = async () => {
@@ -58,6 +59,7 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
       const formTemplate = await getFormTemplateLangsAsync(form_template_id);
 
       setAvailableLanguages(formTemplate.lang_versions);
+      setResetLanguage(!resetLanguage);
     } catch (e) {
       console.log('Error Loading !!!!!!');
     }
@@ -140,6 +142,8 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
                     </Grid>
                     <Grid item xs={6}>
                       <Field
+                        key={resetLanguage}
+                        value={undefined}
                         component={Autocomplete}
                         fullWidth
                         name={CustomizedFormField.lang}

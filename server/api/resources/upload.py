@@ -2,7 +2,7 @@ import os
 from flask import current_app, request, send_from_directory
 from flask_restful import Resource, abort
 
-from models import RoleEnum
+from enums import RoleEnum
 from api.decorator import roles_required
 
 

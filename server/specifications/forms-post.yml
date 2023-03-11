@@ -22,12 +22,9 @@ requestBody:
           formTemplateId:
             type: string | null - optional
             example: "adas-d82314-27822-63139"
-          name:
-            type: string - required
-            example: "referral_form"
-          category:
-            type: string - required
-            example: "example"
+          formClassificationId:
+            type: string | null - optional
+            example: "adas-d82314-27822-63139"
           dateCreated:
             type: Unix timestamp - optional
             example: 1592339808
@@ -37,6 +34,9 @@ requestBody:
           lastEditedBy:
             type: integer - optional
             example: 2
+          archived:
+            type: boolean
+            example: true
           questions:
             type: array
             items:

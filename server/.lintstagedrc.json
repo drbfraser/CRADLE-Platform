@@ -1,0 +1,3 @@
+{
+    "!(migrations/**/*)*.py": "black"
+}

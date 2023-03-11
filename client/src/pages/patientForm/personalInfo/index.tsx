@@ -124,6 +124,7 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
                 type="number"
                 label="Patient Age"
                 name={PatientField.estimatedAge}
+                inputProps={{ pattern: '[0-200]*' }}
               />
             )}
           </Grid>

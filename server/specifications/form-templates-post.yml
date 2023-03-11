@@ -16,6 +16,15 @@ requestBody:
           version:
             type: string | null
             example: "V1"
+          classification:
+            type: object
+            properties:
+              id:
+                type: string - required
+                example: "123"
+              name:
+                type: string - required
+                example: "example_name"
           questions:
             type: array
             items:

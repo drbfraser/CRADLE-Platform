@@ -426,8 +426,13 @@ export const getAllPatientsAsync = async () => {
   return response.json();
 };
 
-export const getPatientsAdminAsync = async () => {
-  const response = await apiFetch(API_URL + EndpointEnum.PATIENTS + '/admin');
+export const getPatientsAdminAsync = async (includeArchived: boolean) => {
+  const response = await apiFetch(
+    API_URL +
+      EndpointEnum.PATIENTS +
+      '/admin' +
+      `?includeArchived=${includeArchived}`
+  );
 
   return response.json();
 };
