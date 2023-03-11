@@ -1,24 +1,6 @@
 import pytest
 
 from enums import SexEnum, GestationalAgeUnitEnum
-from flask_limiter import Limiter
-from flask import Flask
-
-
-def app():
-    app = Flask(__name__)
-    yield app
-
-
-def remove_limiter_middleware(app):
-    for middleware in app.wsgi_app.middleware:
-        if isinstance(middleware, Limiter):
-            app.wsgi_app.middleware.remove(middleware)
-
-
-@pytest.fixture(autouse=True)
-def disable_limiter(app):
-    remove_limiter_middleware(app)
 
 
 @pytest.fixture
