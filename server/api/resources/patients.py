@@ -40,7 +40,7 @@ class Root(Resource):
         "../../specifications/patients-post.yml", methods=["POST"], endpoint="patients"
     )
     def post():
-        json = sms_relay.get_json(force=True)
+        json = request.get_json(force=True)
 
         if "gestationalTimestamp" in json:
             # Changing the key that comes from the android app to work with validation

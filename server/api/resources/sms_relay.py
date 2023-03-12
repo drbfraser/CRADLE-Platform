@@ -1,5 +1,5 @@
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import redirect, request, url_for
+from flask import redirect, request, url_for, make_response
 from flask_restful import Resource, abort
 import requests
 
@@ -93,9 +93,14 @@ def sms_relay_procedure():
     request_dict["sms_data"] = json_request
     
     token = jwt_token()
-    abort(400, message=token)
+    header = {"Authorization": f"Bearer {token}"}
+    response = requests.post("http://localhost:5000/api/patients", headers=header, json=json.loads(json_request))
+    flask_response = make_response()
+    flask_response.status_code = 201
+    flask_response.set_data(json.dumps(response.json()))
     # HTTP Redirect
-    return redirect(url_for(endpoint, **request_dict), 307)
+    return flask_response
+    # return redirect(url_for(endpoint, **request_dict), 307)
 
 
 # /api/sms_relay
