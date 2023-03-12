@@ -4,7 +4,6 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 import api.util as util
-import api.resources.sms_relay as sms_relay
 import data
 import data.crud as crud
 import data.marshal as marshal
@@ -23,7 +22,7 @@ class Root(Resource):
         endpoint="assessments",
     )
     def post():
-        json = sms_relay.get_json(force=True)
+        json = request.get_json(force=True)
 
         # Populate the dateAssessed and healthCareWorkerId fields of the followup
         json["dateAssessed"] = get_current_time()
@@ -78,7 +77,7 @@ class SingleAssessment(Resource):
     def put(assessment_id: str):
         if not assessment_id:
             abort(404, message=f"Assessment id is required")
-        json = sms_relay.get_json(force=True)
+        json = request.get_json(force=True)
 
         json["dateAssessed"] = get_current_time()
 

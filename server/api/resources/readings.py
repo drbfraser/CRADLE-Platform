@@ -9,10 +9,8 @@ import data.crud as crud
 import data.marshal as marshal
 import service.assoc as assoc
 import service.invariant as invariant
-import api.resources.sms_relay as sms_relay
 from models import HealthFacility, Referral, Reading, Patient
 from validation import readings
-import json as json_tool
 
 
 # /api/readings
@@ -23,7 +21,7 @@ class Root(Resource):
         "../../specifications/readings-post.yml", methods=["POST"], endpoint="readings"
     )
     def post():
-        json = sms_relay.get_json(force=True)
+        json = request.get_json(force=True)
 
         error_message = readings.validate(json)
         if error_message is not None:
