@@ -93,11 +93,9 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_put):
     new_patient_name = "CD"
 
     patient_update_json = {"patientName": new_patient_name}
-    endpoint = "patient_info"
+    endpoint = "patients/{patient_id}/info".format(patient_id=patient_id)
 
-    arguments = {"patient_id": patient_id}
-
-    json_request = __make_sms_relay_json(endpoint, patient_update_json, arguments)
+    json_request = __make_sms_relay_json(endpoint, patient_update_json)
 
     response = api_put(endpoint=sms_relay_endpoint, json=json_request)
     database.session.commit()
@@ -112,7 +110,7 @@ def test_create_assessments_with_sms_relay(
     create_patient()
     patient_id = patient_info["patientId"]
 
-    endpoint = "assessment"
+    endpoint = "assessments"
     assessment_json = __make_assessment(patient_id)
     json_request = __make_sms_relay_json(endpoint, assessment_json)
 
@@ -138,12 +136,11 @@ def test_update_assessments_with_sms_relay(
     followup_factory.create(patientId=patient_id)
     assessment_id = crud.read(FollowUp, patientId=patient_id).id
 
-    endpoint = "single_assessment"
+    endpoint = "assessments/{}".format(assessment_id)
     newInstructions = "II"
     assessment_json["followupInstructions"] = newInstructions
-    arguments = {"assessment_id": assessment_id}
 
-    json_request = __make_sms_relay_json(endpoint, assessment_json, arguments)
+    json_request = __make_sms_relay_json(endpoint, assessment_json)
     response = api_put(endpoint=sms_relay_endpoint, json=json_request)
     database.session.commit()
 
@@ -151,16 +148,12 @@ def test_update_assessments_with_sms_relay(
     assert crud.read(FollowUp, id=assessment_id).followupInstructions == newInstructions
 
 
-def __make_sms_relay_json(endpoint, request, arguments=None):
+def __make_sms_relay_json(endpoint, request):
     user = crud.read(User, id=1)
 
     request_string = json.dumps(request)
 
     data = {"endpoint": endpoint, "request": request_string}
-
-    if arguments:
-        arguments_string = json.dumps(arguments)
-        data["arguments"] = arguments_string
 
     compressed_data = compressor.compress_from_string(json.dumps(data))
     encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
