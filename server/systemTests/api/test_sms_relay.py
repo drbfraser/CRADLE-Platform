@@ -24,7 +24,7 @@ def test_create_patient_with_sms_relay(database, api_post):
 
     method = "post"
     endpoint = "patients"
-    
+
     json_request = __make_sms_relay_json(method, endpoint, patient_json)
     response = api_post(endpoint=sms_relay_endpoint, json=json_request)
     database.session.commit()
@@ -77,7 +77,7 @@ def test_create_readings_with_sms_relay(
 
     method = "post"
     endpoint = "readings"
-    
+
     json_request = __make_sms_relay_json(method, endpoint, referral_json)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_request)
@@ -100,7 +100,7 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
 
     method = "put"
     endpoint = "patients/{patient_id}/info".format(patient_id=patient_id)
-    
+
     json_request = __make_sms_relay_json(method, endpoint, patient_update_json)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_request)
