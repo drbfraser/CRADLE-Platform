@@ -30,15 +30,6 @@ invalid_message = (
 api_url = "http://localhost:5000/api/{endpoint}"
 
 
-def get_json(force: bool):
-    json_request = request.get_json(force=force)
-
-    if json_request.get("encryptedData", None):
-        return json.loads(request.args.get("sms_data"))
-    else:
-        return json_request
-
-
 def jwt_token():
     payload = {"email": "admin123@admin.com", "password": "admin123"}
     response = requests.post("http://localhost:5000/api/user/auth", json=payload)
@@ -46,7 +37,7 @@ def jwt_token():
     return resp_json["token"]
 
 
-def sms_relay_procedure(method):
+def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
     error = sms_relay.validate_post_request(json_request)
@@ -85,6 +76,7 @@ def sms_relay_procedure(method):
 
     endpoint = json_dict["endpoint"]
     json_request = json_dict["request"]
+    method = json_dict["method"]
 
     # Sending request to endpoint
     token = jwt_token()
@@ -116,12 +108,4 @@ class Root(Resource):
         endpoint="sms_relay",
     )
     def post():
-        return sms_relay_procedure(method="post")
-
-    @staticmethod
-    @jwt_required()
-    @swag_from(
-        "../../specifications/sms-relay-put.yaml", methods=["PUT"], endpoint="sms_relay"
-    )
-    def put():
-        return sms_relay_procedure(method="put")
+        return sms_relay_procedure()
