@@ -1049,14 +1049,15 @@ def get_export_data(user_id, filter):
     """Queries the database for statistics data for exporting
 
     :return: list of data for a VHT"""
+
     query = """
-        SELECT R.dateReferred,R.patientId, P.patientName, P.patientSex, P.dob, P.isPregnant, RD.bpSystolic, RD.bpDiastolic, RD.heartRateBPM, RD.trafficLightStatus 
-        FROM referral R
-        JOIN reading RD on R.readingId = RD.readingId
-        JOIN patient P on P.patientId = R.patientId
-        WHERE R.userId = %s AND R.dateReferred BETWEEN %s AND %s
-        ORDER BY R.patientId  DESC
-    """ % (
+            SELECT R.dateReferred,R.patientId, P.patientName, P.patientSex, P.dob, P.isPregnant, RD.bpSystolic, RD.bpDiastolic, RD.heartRateBPM, RD.trafficLightStatus
+            FROM patient P
+            JOIN referral R on P.patientId = R.patientId
+            JOIN reading RD on P.patientId = RD.patientId
+            WHERE R.userId = %s AND R.dateReferred BETWEEN %s AND %s
+            ORDER BY R.patientId DESC
+        """ % (
         str(user_id),
         filter.get("from"),
         filter.get("to"),
