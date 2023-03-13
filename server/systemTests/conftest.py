@@ -4,18 +4,11 @@ import pytest
 import requests
 
 import systemTests.mock.factory as factory
-from flask import Flask
-from flask_limiter import Limiter
-
 
 
 #
 # database Fixtures
 #
-
-app = Flask(__name__)
-app.config["RATELIMIT_ENABLED"] = False
-limiter = Limiter(app)
 
 
 @pytest.fixture

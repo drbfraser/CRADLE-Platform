@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from models import User
 from enums import RoleEnum
-from config import flask_bcrypt
+from config import flask_bcrypt, app
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -24,6 +24,7 @@ import logging
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import Flask
+import os
 
 
 LOGGER = logging.getLogger(__name__)
@@ -243,10 +244,14 @@ class UserAuthApi(Resource):
 
     app = Flask(__name__)
 
+    def exempt_when():
+        return os.environ.get("CI_PIPELINE_STAGE") == "test"
+
     limiter = Limiter(
         get_remote_address,
         app=app,
         default_limits=["10 per minute", "20 per hour", "50 per day"],
+        exempt_when=exempt_when,
     )
 
     parser = reqparse.RequestParser()
