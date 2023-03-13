@@ -1049,28 +1049,42 @@ def get_export_data(user_id, filter):
     """Queries the database for statistics data for exporting
 
     :return: list of data for a VHT"""
-
-    query = """
-            SELECT R.dateReferred,R.patientId, P.patientName, P.patientSex, P.dob, P.isPregnant, RD.bpSystolic, RD.bpDiastolic, RD.heartRateBPM, RD.trafficLightStatus
-            FROM patient P
-            JOIN referral R on P.patientId = R.patientId
-            JOIN reading RD on P.patientId = RD.patientId
-            WHERE R.userId = %s AND R.dateReferred BETWEEN %s AND %s
-            ORDER BY R.patientId DESC
-        """ % (
-        str(user_id),
-        filter.get("from"),
-        filter.get("to"),
+    query = (
+        (
+            db_session.query(
+                Referral.dateReferred,
+                Referral.patientId,
+                Patient.patientName,
+                Patient.patientSex,
+                Patient.dob,
+                Patient.isPregnant,
+                Reading.bpSystolic,
+                Reading.bpDiastolic,
+                Reading.heartRateBPM,
+                Reading.trafficLightStatus,
+            )
+        )
+        .outerjoin(
+            Patient,
+            and_(Patient.patientId == Reading.patientId),
+        )
+        .outerjoin(
+            Referral,
+            and_(Referral.patientId == Patient.patientId),
+        )
+        .filter(
+            Reading.userId == user_id,
+            Referral.dateReferred >= filter.get("from"),
+            Referral.dateReferred <= filter.get("to"),
+        )
     )
 
     try:
-        resultproxy = db_session.execute(query)
-        row = {}
+        resultproxy = query.all()
         result = []
         # Transform ResultProxy into a dict of items
         for rowproxy in resultproxy:
-            for col, val in rowproxy.items():
-                row = {**row, **{col: val}}
+            row = dict(zip(rowproxy.keys(), rowproxy))
             result.append(row)
         return result
     except Exception as e:
