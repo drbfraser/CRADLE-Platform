@@ -244,14 +244,10 @@ class UserAuthApi(Resource):
 
     app = Flask(__name__)
 
-    def exempt_when():
-        return os.environ.get("CI_PIPELINE_STAGE") == "test"
-
     limiter = Limiter(
         get_remote_address,
         app=app,
         default_limits=["10 per minute", "20 per hour", "50 per day"],
-        exempt_when=exempt_when,
     )
 
     parser = reqparse.RequestParser()
@@ -267,6 +263,8 @@ class UserAuthApi(Resource):
     @limiter.limit(
         "10 per minute, 20 per hour, 30 per day",
         error_message="Login attempt limit reached please try again later.",
+        exempt_when lambda: os.environ.get("CI_PIPELINE_STAGE") == "test"
+
     )
     def post(self):
         data = self.parser.parse_args()
