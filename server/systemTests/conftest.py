@@ -10,6 +10,8 @@ import systemTests.mock.factory as factory
 # database Fixtures
 #
 
+RATELIMIT_ENABLED = False
+
 
 @pytest.fixture
 def database():
