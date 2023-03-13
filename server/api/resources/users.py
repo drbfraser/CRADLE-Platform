@@ -242,12 +242,11 @@ class UserRegisterApi(Resource):
 # api/user/auth [POST]
 class UserAuthApi(Resource):
 
-    app = Flask(__name__)
-
     limiter = Limiter(
         get_remote_address,
         app=app,
         default_limits=["10 per minute", "20 per hour", "50 per day"],
+        # parsed by flask limiter library https://flask-limiter.readthedocs.io/en/stable/
     )
 
     parser = reqparse.RequestParser()
@@ -263,8 +262,8 @@ class UserAuthApi(Resource):
     @limiter.limit(
         "10 per minute, 20 per hour, 30 per day",
         error_message="Login attempt limit reached please try again later.",
-        exempt_when=lambda: os.environ.get("CI_PIPELINE_STAGE") == "test"
-
+        exempt_when=lambda: os.environ.get("CI_PIPELINE_STAGE")
+        == "test",  # disable limiter during testing stage
     )
     def post(self):
         data = self.parser.parse_args()
