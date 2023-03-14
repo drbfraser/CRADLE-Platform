@@ -27,7 +27,7 @@ invalid_message = (
     "with the server using an internet connection (WiFi, 3G, …) "
 )
 
-api_url = "http://localhost:5000/api/{endpoint}"
+api_url = "http://localhost:5000/{endpoint}"
 
 
 def jwt_token():
@@ -94,8 +94,6 @@ def sms_relay_procedure():
     flask_response.set_data(json.dumps(response.json()))
 
     return flask_response
-    # HTTP Redirect
-    # return redirect(url_for(endpoint, **request_dict), 307)
 
 
 # /api/sms_relay
