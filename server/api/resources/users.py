@@ -241,6 +241,7 @@ class UserRegisterApi(Resource):
 
 # api/user/auth [POST]
 class UserAuthApi(Resource):
+    app = Flask(__name__)
 
     limiter = Limiter(
         get_remote_address,
