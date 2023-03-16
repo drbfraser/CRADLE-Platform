@@ -12,13 +12,11 @@ import service.invariant as invariant
 import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
-import api.resources.sms_relay as sms_relay
 from models import Patient, Pregnancy, Reading, FollowUp, Referral
 from validation import patients, readings, assessments
 from utils import get_current_time
 from api.decorator import patient_association_required
 from datetime import date
-import json as json_tool
 
 # /api/patients
 class Root(Resource):
@@ -40,7 +38,7 @@ class Root(Resource):
         "../../specifications/patients-post.yml", methods=["POST"], endpoint="patients"
     )
     def post():
-        json = sms_relay.get_json(force=True)
+        json = request.get_json(force=True)
 
         if "gestationalTimestamp" in json:
             # Changing the key that comes from the android app to work with validation
@@ -132,7 +130,7 @@ class PatientInfo(Resource):
         endpoint="patient_info",
     )
     def put(patient_id: str):
-        json = sms_relay.get_json(force=True)
+        json = request.get_json(force=True)
 
         error_message = patients.validate_put_request(json, patient_id)
         if error_message is not None:

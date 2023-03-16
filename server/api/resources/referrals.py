@@ -12,11 +12,9 @@ import data.marshal as marshal
 from utils import get_current_time
 import service.assoc as assoc
 import service.view as view
-import api.resources.sms_relay as sms_relay
 from models import HealthFacility, Referral, Patient
 from validation import referrals
 import service.serialize as serialize
-import json as json_tool
 
 
 # /api/referrals
@@ -44,7 +42,7 @@ class Root(Resource):
         endpoint="referrals",
     )
     def post():
-        json = sms_relay.get_json(force=True)
+        json = request.get_json(force=True)
 
         error_message = referrals.validate(json)
         if error_message is not None:
