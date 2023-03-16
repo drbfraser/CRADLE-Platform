@@ -37,6 +37,24 @@ def jwt_token():
     return resp_json["token"]
 
 
+def sms_relay_response(response: requests.Response, user: User) -> Response:
+    response_dict = {"code": response.status_code, "body": json.dumps(response.json())}
+
+    response_json = json.dumps(response_dict)
+
+    compressed_data = compressor.compress_from_string(response_json)
+    encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
+
+    base64_data = base64.b64encode(encrypted_data)
+    base64_string = base64_data.decode("utf-8")
+
+    flask_response = make_response()
+    flask_response.set_data(base64_string)
+    flask_response.status_code = 200
+
+    return flask_response
+
+
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
@@ -89,28 +107,9 @@ def sms_relay_procedure():
     )
 
     # Creating Response
-    flask_response = make_response()
-    flask_response.status_code = response.status_code
-    flask_response.set_data(json.dumps(response.json()))
-
-    # HTTP Redirect
+    flask_response = sms_relay_response(response, user)
     return flask_response
 
-
-def sms_relay_response(response: Response, user: User) -> Response:
-    response_dict = {"code": response.status_code, "body": response.get_data(as_text=True)}
-
-    response_json = json.dumps(response_dict)
-
-    compressed_data = compressor.compress_from_string(response_json)
-    encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
-
-    base64_data = base64.b64encode(encrypted_data)
-    base64_string = base64_data.decode("utf-8")
-
-    response.set_data(base64_string)
-
-    return response
 
 # /api/sms_relay
 class Root(Resource):
