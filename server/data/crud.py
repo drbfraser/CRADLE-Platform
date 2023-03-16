@@ -1076,7 +1076,8 @@ def get_export_data(user_id, filter):
             Reading.userId == user_id,
             Referral.dateReferred >= filter.get("from"),
             Referral.dateReferred <= filter.get("to"),
-    ).order_by(Referral.patientId.desc())
+        )
+        .order_by(Referral.patientId.desc())
     )
 
     try:
