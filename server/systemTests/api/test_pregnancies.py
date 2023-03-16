@@ -1,5 +1,10 @@
 import data.crud as crud
 from models import Pregnancy
+import datetime
+
+
+approx_8_months = int(datetime.timedelta(days=8 * 30).total_seconds())
+approx_1_month = int(datetime.timedelta(days=30).total_seconds())
 
 
 def test_get_pregnancy(create_patient, pregnancy_factory, pregnancy_earlier, api_get):
@@ -30,7 +35,7 @@ def test_put_pregnancy(create_patient, pregnancy_factory, pregnancy_later, api_p
     pregnancy_factory.create(**pregnancy_later)
 
     pregnancy_id = pregnancy_later["id"]
-    end_date = pregnancy_later["startDate"] + 2e7
+    end_date = pregnancy_later["startDate"] + approx_8_months
     outcome = "Baby born at 8 months."
     response = api_put(
         endpoint=f"/api/pregnancies/{pregnancy_id}",
@@ -112,7 +117,7 @@ def test_invalid_pregnancy_not_updated(
     pregnancy_factory.create(**pregnancy_later)
 
     pregnancy_id = pregnancy_later["id"]
-    start_date = pregnancy_earlier["endDate"] - 3e6
+    start_date = pregnancy_earlier["endDate"] - approx_1_month
     response = api_put(
         endpoint=f"/api/pregnancies/{pregnancy_id}",
         json={"pregnancyStartDate": start_date},
@@ -124,7 +129,7 @@ def test_invalid_pregnancy_not_updated(
     assert pregnancy.startDate == pregnancy_later["startDate"]
 
     pregnancy_id = pregnancy_earlier["id"]
-    end_date = pregnancy_later["startDate"] + 3e6
+    end_date = pregnancy_later["startDate"] + approx_1_month
     response = api_put(
         endpoint=f"/api/pregnancies/{pregnancy_id}",
         json={"pregnancyEndDate": end_date},
@@ -143,7 +148,7 @@ def test_invalid_pregnancy_not_created(
     pregnancy_factory.create(**pregnancy_earlier)
     unit = pregnancy_earlier["defaultTimeUnit"]
 
-    start_date = pregnancy_earlier["endDate"] + int(3e6)
+    start_date = pregnancy_earlier["endDate"] + approx_1_month
     pregnancy = {
         "id": pregnancy_earlier["id"],
         "pregnancyStartDate": start_date,
@@ -157,7 +162,7 @@ def test_invalid_pregnancy_not_created(
     assert response.status_code == 409
     assert crud.read(Pregnancy, patientId=patient_id, startDate=start_date) is None
 
-    start_date = pregnancy_earlier["endDate"] - int(3e6)
+    start_date = pregnancy_earlier["endDate"] - approx_1_month
     pregnancy = {
         "pregnancyStartDate": start_date,
         "gestationalAgeUnit": unit,
@@ -170,8 +175,8 @@ def test_invalid_pregnancy_not_created(
     assert response.status_code == 409
     assert crud.read(Pregnancy, patientId=patient_id, startDate=start_date) is None
 
-    end_date = pregnancy_earlier["startDate"] + int(3e6)
-    start_date = end_date - int(2e7)
+    end_date = pregnancy_earlier["startDate"] + approx_1_month
+    start_date = end_date - approx_8_months
     pregnancy = {
         "pregnancyStartDate": start_date,
         "gestationalAgeUnit": unit,
