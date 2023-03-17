@@ -259,13 +259,13 @@ class UserAuthApi(Resource):
     )
 
     # login to account
-    @swag_from("../../specifications/user-auth.yml", methods=["POST"])
     @limiter.limit(
         "10 per minute, 20 per hour, 30 per day",
         error_message="Login attempt limit reached please try again later.",
         exempt_when=lambda: os.environ.get("CI_PIPELINE_STAGE")
         == "test",  # disable limiter during testing stage
     )
+    @swag_from("../../specifications/user-auth.yml", methods=["POST"])
     def post(self):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
