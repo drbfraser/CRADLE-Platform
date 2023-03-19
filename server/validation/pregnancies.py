@@ -9,7 +9,7 @@ def validate_post_request(request_body: dict, patient_id: str) -> Optional[str]:
 
     :param request_body: The request body as a dict object
                         {
-                            "patientId": "120000",
+                            "patientId": 120000,
                             "pregnancyStartDate": 1620000002, - required
                             "gestationalAgeUnit": "WEEKS", - required
                             "pregnancyEndDate": 1620000002,
@@ -31,7 +31,15 @@ def validate_post_request(request_body: dict, patient_id: str) -> Optional[str]:
     if error:
         return error
 
-    error = values_correct_type(request_body, ["patientId"], int)
+    error = values_correct_type(
+        request_body, ["patientId", "pregnancyStartDate", "pregnancyEndDate"], int
+    )
+    if error:
+        return error
+
+    error = values_correct_type(
+        request_body, ["gestationalAgeUnit, pregnancyOutcome"], str
+    )
     if error:
         return error
 
