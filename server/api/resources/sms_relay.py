@@ -1,6 +1,8 @@
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import redirect, request, url_for
+from flask import redirect, request, url_for, make_response
 from flask_restful import Resource, abort
+import requests
+
 from data import crud, marshal
 from flasgger import swag_from
 from models import User
@@ -25,14 +27,14 @@ invalid_message = (
     "with the server using an internet connection (WiFi, 3G, …) "
 )
 
+api_url = "http://localhost:5000/{endpoint}"
 
-def get_json(force: bool):
-    json_request = request.get_json(force=force)
 
-    if json_request.get("encryptedData", None):
-        return json.loads(request.args.get("sms_data"))
-    else:
-        return json_request
+def jwt_token():
+    payload = {"email": "admin123@admin.com", "password": "admin123"}
+    response = requests.post("http://localhost:5000/api/user/auth", json=payload)
+    resp_json = response.json()
+    return resp_json["token"]
 
 
 def sms_relay_procedure():
@@ -74,17 +76,24 @@ def sms_relay_procedure():
 
     endpoint = json_dict["endpoint"]
     json_request = json_dict["request"]
+    method = json_dict["method"]
 
-    if "arguments" in json_dict:
-        arguments_json = json_dict["arguments"]
-        request_dict = json.loads(arguments_json)
-    else:
-        request_dict = {}
+    # Sending request to endpoint
+    token = jwt_token()
+    header = {"Authorization": f"Bearer {token}"}
+    response = requests.request(
+        method=method,
+        url=api_url.format(endpoint=endpoint),
+        headers=header,
+        json=json.loads(json_request),
+    )
 
-    request_dict["sms_data"] = json_request
+    # Creating Response
+    flask_response = make_response()
+    flask_response.status_code = response.status_code
+    flask_response.set_data(json.dumps(response.json()))
 
-    # HTTP Redirect
-    return redirect(url_for(endpoint, **request_dict), 307)
+    return flask_response
 
 
 # /api/sms_relay
@@ -97,12 +106,4 @@ class Root(Resource):
         endpoint="sms_relay",
     )
     def post():
-        return sms_relay_procedure()
-
-    @staticmethod
-    @jwt_required()
-    @swag_from(
-        "../../specifications/sms-relay-put.yaml", methods=["PUT"], endpoint="sms_relay"
-    )
-    def put():
         return sms_relay_procedure()
