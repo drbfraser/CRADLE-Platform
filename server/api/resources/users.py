@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from models import User
 from enums import RoleEnum
-from config import flask_bcrypt
+from config import flask_bcrypt, app
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -21,6 +21,11 @@ from api.util import (
 )
 import service.encryptor as encryptor
 import logging
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask import Flask
+import os
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -236,6 +241,14 @@ class UserRegisterApi(Resource):
 
 # api/user/auth [POST]
 class UserAuthApi(Resource):
+    app = Flask(__name__)
+
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=["10 per minute", "20 per hour", "50 per day"],
+        # parsed by flask limiter library https://flask-limiter.readthedocs.io/en/stable/
+    )
 
     parser = reqparse.RequestParser()
     parser.add_argument(
@@ -246,6 +259,12 @@ class UserAuthApi(Resource):
     )
 
     # login to account
+    @limiter.limit(
+        "10 per minute, 20 per hour, 30 per day",
+        error_message="Login attempt limit reached please try again later.",
+        exempt_when=lambda: os.environ.get("CI_PIPELINE_STAGE")
+        == "test",  # disable limiter during testing stage
+    )
     @swag_from("../../specifications/user-auth.yml", methods=["POST"])
     def post(self):
         data = self.parser.parse_args()
