@@ -58,7 +58,7 @@ def sms_relay_response(response: requests.Response, user: User) -> Response:
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
-    error = sms_relay.validate_post_request(json_request)
+    error = sms_relay.validate_request(json_request)
 
     if error:
         abort(400, message=corrupted_message.format(type="JSON"))
