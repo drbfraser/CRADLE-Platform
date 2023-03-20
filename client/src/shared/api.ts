@@ -85,9 +85,9 @@ export const apiFetch = async (
   const contentType = isFormData
     ? undefined
     : {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    };
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      };
 
   return fetch(input, {
     ...init,
@@ -172,8 +172,8 @@ export const getFormTemplatesAsync = async (
   (
     await apiFetch(
       API_URL +
-      EndpointEnum.FORM_TEMPLATES +
-      `?includeArchived=${includeArchived}`
+        EndpointEnum.FORM_TEMPLATES +
+        `?includeArchived=${includeArchived}`
     )
   ).json();
 
@@ -200,8 +200,8 @@ export const getFormTemplateCsvAsync = async (
 ): Promise<Blob> => {
   const response = await apiFetch(
     API_URL +
-    EndpointEnum.FORM_TEMPLATE +
-    `/${formTemplateId}/versions/${version}/csv`
+      EndpointEnum.FORM_TEMPLATE +
+      `/${formTemplateId}/versions/${version}/csv`
   );
 
   return response.blob();
@@ -309,9 +309,9 @@ export const saveDrugHistoryAsync = async (
 ) =>
   apiFetch(
     API_URL +
-    EndpointEnum.PATIENTS +
-    `/${patientId}` +
-    EndpointEnum.MEDICAL_RECORDS,
+      EndpointEnum.PATIENTS +
+      `/${patientId}` +
+      EndpointEnum.MEDICAL_RECORDS,
     {
       method: 'POST',
       body: JSON.stringify({
@@ -323,9 +323,9 @@ export const saveDrugHistoryAsync = async (
 export const getDrugHistoryAsync = async (patientId: string) => {
   const response = await apiFetch(
     API_URL +
-    EndpointEnum.PATIENTS +
-    `/${patientId}` +
-    EndpointEnum.MEDICAL_HISTORY
+      EndpointEnum.PATIENTS +
+      `/${patientId}` +
+      EndpointEnum.MEDICAL_HISTORY
   );
 
   const assessment = await response.json();
@@ -372,11 +372,11 @@ export const getPatientTimelineAsync = async (
   return (
     await apiFetch(
       API_URL +
-      EndpointEnum.PATIENTS +
-      `/${patientId}` +
-      EndpointEnum.PATIENT_TIMELINE +
-      '?' +
-      params
+        EndpointEnum.PATIENTS +
+        `/${patientId}` +
+        EndpointEnum.PATIENT_TIMELINE +
+        '?' +
+        params
     )
   ).json();
 };
@@ -397,15 +397,15 @@ export const deletePregnancyAsync = async (pregnancy: Pregnancy) =>
 export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
   apiFetch(
     API_URL +
-    EndpointEnum.MEDICAL_RECORDS +
-    `/${medicalRecord.medicalRecordId}`,
+      EndpointEnum.MEDICAL_RECORDS +
+      `/${medicalRecord.medicalRecordId}`,
     {
       method: 'DELETE',
     }
   );
 
 export const getMedicalRecordAsync = async (medicalRecordId: string) => {
-  apiFetch(
+  const response = await apiFetch(
     API_URL + EndpointEnum.MEDICAL_RECORDS + `/${medicalRecordId}`
   );
   return response.json();
@@ -417,9 +417,9 @@ export const getPatientMedicalHistoryAsync = async (
 ): Promise<PatientMedicalInfo> => {
   const response = await apiFetch(
     API_URL +
-    EndpointEnum.PATIENTS +
-    `/${patientId}` +
-    EndpointEnum.MEDICAL_HISTORY
+      EndpointEnum.PATIENTS +
+      `/${patientId}` +
+      EndpointEnum.MEDICAL_HISTORY
   );
 
   return response.json();
@@ -434,9 +434,9 @@ export const getAllPatientsAsync = async () => {
 export const getPatientsAdminAsync = async (includeArchived: boolean) => {
   const response = await apiFetch(
     API_URL +
-    EndpointEnum.PATIENTS +
-    '/admin' +
-    `?includeArchived=${includeArchived}`
+      EndpointEnum.PATIENTS +
+      '/admin' +
+      `?includeArchived=${includeArchived}`
   );
 
   return response.json();
@@ -491,8 +491,10 @@ export const getPatientRecordsAsync = async (
   filterRequestBody: FilterRequestBody
 ) => {
   const response = await apiFetch(
-    `${API_URL}${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${filterRequestBody.readings ? 1 : 0
-    }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${filterRequestBody.assessments ? 1 : 0
+    `${API_URL}${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${
+      filterRequestBody.readings ? 1 : 0
+    }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${
+      filterRequestBody.assessments ? 1 : 0
     }&forms=${filterRequestBody.forms ? 1 : 0}`
   );
   return response.json();
@@ -521,9 +523,9 @@ export const getPatientPregnancySummaryAsync = async (
 ): Promise<PatientPregnancyInfo> => {
   const response = await apiFetch(
     API_URL +
-    EndpointEnum.PATIENTS +
-    `/${patientId}` +
-    EndpointEnum.PREGNANCY_SUMMARY
+      EndpointEnum.PATIENTS +
+      `/${patientId}` +
+      EndpointEnum.PREGNANCY_SUMMARY
   );
 
   return response.json();
@@ -534,10 +536,10 @@ export const getPatientPregnancyInfoAsync = async (
 ): Promise<PatientPregnancyInfo> => {
   const response = await apiFetch(
     API_URL +
-    EndpointEnum.PATIENTS +
-    '/' +
-    patientId +
-    EndpointEnum.PATIENT_INFO
+      EndpointEnum.PATIENTS +
+      '/' +
+      patientId +
+      EndpointEnum.PATIENT_INFO
   );
 
   return response.json();
