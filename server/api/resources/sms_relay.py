@@ -93,7 +93,7 @@ def sms_relay_procedure():
     json_dict = json.loads(string_data)
 
     endpoint = json_dict["endpoint"]
-    json_request = json_dict["request"]
+    json_body = json_dict["body"]
     method = json_dict["method"]
 
     # Sending request to endpoint
@@ -103,7 +103,7 @@ def sms_relay_procedure():
         method=method,
         url=api_url.format(endpoint=endpoint),
         headers=header,
-        json=json.loads(json_request),
+        json=json.loads(json_body),
     )
 
     # Creating Response
