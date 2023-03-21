@@ -21,7 +21,7 @@ services:
             DB_USERNAME: ${DB_USERNAME}
             DB_PASSWORD: ${DB_PASSWORD}
             JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-            limiterDisabled: ${limiterDisabled:-False}
+            LIMITER_DISABLED: ${LIMITER_DISABLED:-False}
         depends_on: 
             - mysql
     mysql:
