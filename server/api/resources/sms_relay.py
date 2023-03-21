@@ -39,8 +39,19 @@ def jwt_token():
     return resp_json["token"]
 
 
-def sms_relay_response(code: int, body: str, user: User) -> Response:
-    response_dict = {"code": code, "body": body }
+def send_request_to_endpoint(method: str, endpoint: str, header: dict, body: str, user: User) -> requests.Response:
+    token = jwt_token()
+    headers = {"Authorization": f"Bearer {token}"}
+    return requests.request(
+        method=method,
+        url=api_url.format(endpoint=endpoint),
+        headers=headers,
+        json=json.loads(body)
+    )
+
+
+def create_flask_response(code: int, body: str, user: User) -> Response:
+    response_dict = {"code": code, "body": body}
 
     response_json = json.dumps(response_dict)
 
@@ -103,20 +114,12 @@ def sms_relay_procedure():
         abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
     
     # Sending request to endpoint
-    token = jwt_token()
-    header = {"Authorization": f"Bearer {token}"}
-    response = requests.request(
-        method=method,
-        url=api_url.format(endpoint=endpoint),
-        headers=header,
-        json=json.loads(json_body),
-    )
+    response = send_request_to_endpoint(method, endpoint, {}, json_body, user)
 
     # Creating Response
-    code = response.status_code
-    body = json.dump(response.json())
-    flask_response = sms_relay_response(code, body, user)
-    return flask_response
+    response_code = response.status_code
+    response_body = json.dumps(response.json())
+    return create_flask_response(response_code, response_body, user)
 
 
 # /api/sms_relay
