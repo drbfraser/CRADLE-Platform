@@ -29,6 +29,7 @@ Create a file named `.env` (extension only file) in the `cradle-platform` direct
 JWT_SECRET_KEY=[A_SECRET_KEY]
 DB_USERNAME=[A_DATABASE_USERNAME]
 DB_PASSWORD=[A_DATABASE_PASSWORD]
+LIMITER_DISABLED=[True to disable or False to enable]
 ```
 
 For example:
@@ -37,6 +38,7 @@ For example:
 JWT_SECRET_KEY=supersecretkey
 DB_USERNAME=user
 DB_PASSWORD=abcd1234
+LIMITER_DISABLED=True
 ```
 
 Note you may set these to any arbitrary values.
