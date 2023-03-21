@@ -30,6 +30,8 @@ invalid_message = (
 api_url = "http://localhost:5000/{endpoint}"
 
 
+http_methods = {"GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "PATCH"}
+
 def jwt_token():
     payload = {"email": "admin123@admin.com", "password": "admin123"}
     response = requests.post("http://localhost:5000/api/user/auth", json=payload)
@@ -94,8 +96,12 @@ def sms_relay_procedure():
 
     endpoint = json_dict["endpoint"]
     json_body = json_dict["body"]
+
     method = json_dict["method"]
 
+    if method not in http_methods:
+        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
+    
     # Sending request to endpoint
     token = jwt_token()
     header = {"Authorization": f"Bearer {token}"}
