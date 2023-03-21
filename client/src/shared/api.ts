@@ -404,8 +404,12 @@ export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
     }
   );
 
-export const getMedicalRecordAsync = async (medicalRecordId: string) =>
-  apiFetch(API_URL + EndpointEnum.MEDICAL_RECORDS + `/${medicalRecordId}`);
+export const getMedicalRecordAsync = async (medicalRecordId: string) => {
+  const response = await apiFetch(
+    API_URL + EndpointEnum.MEDICAL_RECORDS + `/${medicalRecordId}`
+  );
+  return response.json();
+};
 
 export const getPatientMedicalHistoryAsync = async (
   patientId: string
