@@ -265,7 +265,9 @@ class UserAuthApi(Resource):
         exempt_when=lambda: os.environ.get("LIMITER_DISABLED")
         == "True",  # disable limiter during testing stage
     )
-    @swag_from("../../specifications/user-auth.yml", methods=["POST"])
+    @swag_from(
+        "../../specifications/user-auth.yml", methods=["POST"]
+    )  # needs to be below limiter since it will point to limiter/... path
     def post(self):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
