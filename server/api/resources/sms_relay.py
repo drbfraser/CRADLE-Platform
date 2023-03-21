@@ -1,5 +1,5 @@
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import redirect, request, url_for, make_response
+from flask import redirect, request, url_for, make_response, Response
 from flask_restful import Resource, abort
 import requests
 
@@ -22,7 +22,7 @@ corrupted_message = (
 invalid_message = (
     "Unable to verify message from ({phoneNumber}). "
     "Either the phone number is not associated with a user, "
-    "or the App and server don’t agree on the security key, "
+    "or the App and server don't agree on the security key, "
     "or the message was corrupted. Retry the action or resync "
     "with the server using an internet connection (WiFi, 3G, …) "
 )
@@ -35,6 +35,24 @@ def jwt_token():
     response = requests.post("http://localhost:5000/api/user/auth", json=payload)
     resp_json = response.json()
     return resp_json["token"]
+
+
+def sms_relay_response(response: requests.Response, user: User) -> Response:
+    response_dict = {"code": response.status_code, "body": json.dumps(response.json())}
+
+    response_json = json.dumps(response_dict)
+
+    compressed_data = compressor.compress_from_string(response_json)
+    encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
+
+    base64_data = base64.b64encode(encrypted_data)
+    base64_string = base64_data.decode("utf-8")
+
+    flask_response = make_response()
+    flask_response.set_data(base64_string)
+    flask_response.status_code = 200
+
+    return flask_response
 
 
 def sms_relay_procedure():
@@ -89,10 +107,7 @@ def sms_relay_procedure():
     )
 
     # Creating Response
-    flask_response = make_response()
-    flask_response.status_code = response.status_code
-    flask_response.set_data(json.dumps(response.json()))
-
+    flask_response = sms_relay_response(response, user)
     return flask_response
 
 
