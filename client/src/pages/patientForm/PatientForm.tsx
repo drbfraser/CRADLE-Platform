@@ -96,11 +96,14 @@ export const PatientForm = ({
           ? true
           : false
         : undefined,
-      title: editId
-        ? editId === 'drugHistory'
-          ? 'Add/Update Drug History'
-          : 'Add/Update Medical History'
-        : 'New Patient',
+      title:
+        editId === 'drugHistory'
+          ? initialState.drugHistory
+            ? 'Update Drug History'
+            : 'Add Drug History'
+          : initialState.medicalHistory
+          ? 'Update Medical History'
+          : 'Add Medical History',
     },
   ];
 
