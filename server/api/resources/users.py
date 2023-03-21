@@ -263,7 +263,8 @@ class UserAuthApi(Resource):
     @limiter.limit(
         "10 per minute, 20 per hour, 30 per day",
         error_message="Login attempt limit reached please try again later.",
-        exempt_when=lambda: os.environ.get("limiterDisabled") == "True",  # disable limiter during testing stage
+        exempt_when=lambda: os.environ.get("limiterDisabled")
+        == "True",  # disable limiter during testing stage
     )
     def post(self):
         data = self.parser.parse_args()
