@@ -109,7 +109,7 @@ backend system tests:
     MYSQL_DATABASE: "cradle"
     MYSQL_ROOT_PASSWORD: "ci-password"
     JWT_SECRET_KEY: "testkey"
-    CI_PIPELINE_STAGE: "test"
+    LIMITER_DISABLED: "True"
   services:
     - mysql:5.7
   before_script:
