@@ -23,7 +23,7 @@ def test_create_patient_with_sms_relay(database, api_post):
 
     patient_json = __make_patient(patient_id, reading_ids)
 
-    method = "post"
+    method = "POST"
     endpoint = "api/patients"
 
     json_body = __make_sms_relay_json(method, endpoint, patient_json)
@@ -54,7 +54,7 @@ def test_create_referral_with_sms_relay(
     referral_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_referral(referral_id, patient_id)
 
-    method = "post"
+    method = "POST"
     endpoint = "api/referrals"
 
     json_body = __make_sms_relay_json(method, endpoint, referral_json)
@@ -80,7 +80,7 @@ def test_create_readings_with_sms_relay(
     reading_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_reading(reading_id, patient_id)
 
-    method = "post"
+    method = "POST"
     endpoint = "api/readings"
 
     json_body = __make_sms_relay_json(method, endpoint, referral_json)
@@ -105,7 +105,7 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
 
     patient_update_json = {"patientName": new_patient_name}
 
-    method = "put"
+    method = "PUT"
     endpoint = "api/patients/{patient_id}/info".format(patient_id=patient_id)
 
     json_body = __make_sms_relay_json(method, endpoint, patient_update_json)
@@ -126,7 +126,7 @@ def test_create_assessments_with_sms_relay(
     patient_id = patient_info["patientId"]
     assessment_json = __make_assessment(patient_id)
 
-    method = "post"
+    method = "POST"
     endpoint = "api/assessments"
 
     json_body = __make_sms_relay_json(method, endpoint, assessment_json)
@@ -158,7 +158,7 @@ def test_update_assessments_with_sms_relay(
     newInstructions = "II"
     assessment_json["followupInstructions"] = newInstructions
 
-    method = "put"
+    method = "PUT"
     endpoint = "api/assessments/{}".format(assessment_id)
 
     json_body = __make_sms_relay_json(method, endpoint, assessment_json)

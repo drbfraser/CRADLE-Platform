@@ -39,8 +39,8 @@ def jwt_token():
     return resp_json["token"]
 
 
-def sms_relay_response(response: requests.Response, user: User) -> Response:
-    response_dict = {"code": response.status_code, "body": json.dumps(response.json())}
+def sms_relay_response(code: int, body: str, user: User) -> Response:
+    response_dict = {"code": code, "body": body }
 
     response_json = json.dumps(response_dict)
 
@@ -113,7 +113,9 @@ def sms_relay_procedure():
     )
 
     # Creating Response
-    flask_response = sms_relay_response(response, user)
+    code = response.status_code
+    body = json.dump(response.json())
+    flask_response = sms_relay_response(code, body, user)
     return flask_response
 
 
