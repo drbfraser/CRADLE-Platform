@@ -44,11 +44,11 @@ def send_request_to_endpoint(
     method: str, endpoint: str, header: dict, body: str, user: User
 ) -> requests.Response:
     token = jwt_token()
-    headers = {"Authorization": f"Bearer {token}"}
+    header["Authorization"] = f"Bearer {token}"
     return requests.request(
         method=method,
         url=api_url.format(endpoint=endpoint),
-        headers=headers,
+        headers=header,
         json=json.loads(body),
     )
 
@@ -111,16 +111,28 @@ def sms_relay_procedure():
         error_message = "Invalid JSON Request Structure; " + error
         return create_flask_response(400, error_message, user)
 
-    endpoint = json_dict["endpoint"]
-    json_body = json_dict["body"]
+    request_number = json_dict["requestNumber"]
+    if request_number > 999999:
+        error_message = "Invalid Request Number; Must be between 0-999999"
+        return create_flask_response(400, error_message, user)
 
     method = json_dict["method"]
-
     if method not in http_methods:
-        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
+        error_message = "Invalid Method;"
+        return create_flask_response(400, error_message, user)
+
+    endpoint = json_dict["endpoint"]
+
+    header = json_dict.get("header")
+    if not header:
+        header = {}
+
+    json_body = json_dict.get("body")
+    if not json_body:
+        json_body = "{}"
 
     # Sending request to endpoint
-    response = send_request_to_endpoint(method, endpoint, {}, json_body, user)
+    response = send_request_to_endpoint(method, endpoint, header, json_body, user)
 
     # Creating Response
     response_code = response.status_code
