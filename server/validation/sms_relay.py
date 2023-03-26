@@ -1,5 +1,5 @@
 from typing import Optional
-from validation.validate import required_keys_present, values_correct_type
+from validation.validate import required_keys_present, check_invalid_keys_present
 
 
 def validate_request(request_body: dict) -> Optional[str]:
@@ -11,11 +11,15 @@ def validate_request(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    sms_relay_keys = [
+    required_keys = [
         "phoneNumber",
         "encryptedData",
     ]
 
-    for key in request_body:
-        if key not in sms_relay_keys:
-            return f"{key} is not a valid key in sms relay."
+    error_message = required_keys_present(request_body, required_keys)
+    if error_message is not None:
+        return error_message
+
+    error_message = check_invalid_keys_present(request_body, required_keys)
+    if error_message is not None:
+        return error_message

@@ -71,15 +71,13 @@ def create_flask_response(code: int, body: str, user: User) -> Response:
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
+    # Erroring Checking
     error = sms_relay.validate_request(json_request)
 
     if error:
         abort(400, message=corrupted_message.format(type="JSON"))
 
     phoneNumber = json_request["phoneNumber"]
-
-    if not phoneNumber:
-        abort(400, message=corrupted_message.format(type="JSON"))
 
     # Authorization Check
     user = crud.read(User, phoneNumber=phoneNumber)
