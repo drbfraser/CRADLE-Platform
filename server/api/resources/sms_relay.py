@@ -103,6 +103,11 @@ def sms_relay_procedure():
     string_data = data.decode("utf-8")
     json_dict = json.loads(string_data)
 
+    error = sms_relay.validate_encrypted_body(json_dict)
+    if error:
+        error_message =  "Invalid JSON Request Structure; " + error
+        return create_flask_response(400, error_message, user)
+
     endpoint = json_dict["endpoint"]
     json_body = json_dict["body"]
 

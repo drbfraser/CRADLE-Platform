@@ -176,7 +176,12 @@ def __make_sms_relay_json(method, endpoint, body):
 
     body_string = json.dumps(body)
 
-    data = {"method": method, "endpoint": endpoint, "body": body_string}
+    data = {
+        "requestNumber": 1,
+        "method": method, 
+        "endpoint": endpoint, 
+        "body": body_string
+    }
 
     compressed_data = compressor.compress_from_string(json.dumps(data))
     encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
