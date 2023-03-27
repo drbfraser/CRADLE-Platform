@@ -26,10 +26,10 @@ def test_create_patient_with_sms_relay(database, api_post):
     method = "POST"
     endpoint = "api/patients"
 
-    json_body = __make_sms_relay_json(method, endpoint, patient_json)
+    json_body = make_sms_relay_json(1, method, endpoint, body=patient_json)
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = __get_sms_relay_response(response)
+    response_dict = get_sms_relay_response(response)
 
     try:
         assert response.status_code == 200
@@ -57,11 +57,11 @@ def test_create_referral_with_sms_relay(
     method = "POST"
     endpoint = "api/referrals"
 
-    json_body = __make_sms_relay_json(method, endpoint, referral_json)
+    json_body = make_sms_relay_json(2, method, endpoint, body=referral_json)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = __get_sms_relay_response(response)
+    response_dict = get_sms_relay_response(response)
 
     try:
         assert response.status_code == 200
@@ -83,11 +83,11 @@ def test_create_readings_with_sms_relay(
     method = "POST"
     endpoint = "api/readings"
 
-    json_body = __make_sms_relay_json(method, endpoint, referral_json)
+    json_body = make_sms_relay_json(3, method, endpoint, body=referral_json)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = __get_sms_relay_response(response)
+    response_dict = get_sms_relay_response(response)
 
     try:
         assert response.status_code == 200
@@ -108,11 +108,11 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
     method = "PUT"
     endpoint = "api/patients/{patient_id}/info".format(patient_id=patient_id)
 
-    json_body = __make_sms_relay_json(method, endpoint, patient_update_json)
+    json_body = make_sms_relay_json(4, method, endpoint, body=patient_update_json)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = __get_sms_relay_response(response)
+    response_dict = get_sms_relay_response(response)
 
     assert response.status_code == 200
     assert response_dict["code"] == 200
@@ -129,13 +129,13 @@ def test_create_assessments_with_sms_relay(
     method = "POST"
     endpoint = "api/assessments"
 
-    json_body = __make_sms_relay_json(method, endpoint, assessment_json)
+    json_body = make_sms_relay_json(5, method, endpoint, body=assessment_json)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
 
     followupInstructions = assessment_json["followupInstructions"]
-    response_dict = __get_sms_relay_response(response)
+    response_dict = get_sms_relay_response(response)
 
     assert response.status_code == 200
     assert response_dict["code"] == 201
@@ -161,27 +161,33 @@ def test_update_assessments_with_sms_relay(
     method = "PUT"
     endpoint = "api/assessments/{}".format(assessment_id)
 
-    json_body = __make_sms_relay_json(method, endpoint, assessment_json)
+    json_body = make_sms_relay_json(6, method, endpoint, body=assessment_json)
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = __get_sms_relay_response(response)
+    response_dict = get_sms_relay_response(response)
 
     assert response.status_code == 200
     assert response_dict["code"] == 200
     assert crud.read(FollowUp, id=assessment_id).followupInstructions == newInstructions
 
 
-def __make_sms_relay_json(method, endpoint, body):
+def make_sms_relay_json(
+    request_number: int,
+    method: str,
+    endpoint: str,
+    header: str = None,
+    body: str = None,
+) -> dict:
     user = crud.read(User, id=1)
 
-    body_string = json.dumps(body)
+    data = {"requestNumber": request_number, "method": method, "endpoint": endpoint}
 
-    data = {
-        "requestNumber": 1,
-        "method": method,
-        "endpoint": endpoint,
-        "body": body_string,
-    }
+    if header:
+        data["header"] = header
+
+    if body:
+        body_string = json.dumps(body)
+        data["body"] = body_string
 
     compressed_data = compressor.compress_from_string(json.dumps(data))
     encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
@@ -192,7 +198,7 @@ def __make_sms_relay_json(method, endpoint, body):
     return {"phoneNumber": user.phoneNumber, "encryptedData": base64_string}
 
 
-def __get_sms_relay_response(response: requests.Response) -> dict:
+def get_sms_relay_response(response: requests.Response) -> dict:
     user = crud.read(User, id=1)
 
     encrypted_data = base64.b64decode(response.text)
