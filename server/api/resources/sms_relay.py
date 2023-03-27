@@ -13,6 +13,13 @@ from validation import sms_relay
 import base64
 import json
 
+
+api_url = "http://localhost:5000/{endpoint}"
+
+
+http_methods = {"GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "PATCH"}
+
+
 corrupted_message = (
     "Server detected invalid message format ({type}); "
     "message may have been corrupted. "
@@ -27,10 +34,19 @@ invalid_message = (
     "with the server using an internet connection (WiFi, 3G, …) "
 )
 
-api_url = "http://localhost:5000/{endpoint}"
+
+invalid_json = "Invalid JSON Request Structure; {error}"
 
 
-http_methods = {"GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "PATCH"}
+invalid_req_number = "Invalid Request Number; {error}"
+
+
+error_req_range = "Must be between 0-999999"
+
+
+invalid_method = (
+    "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, OPTIONS, or PATCH"
+)
 
 
 def jwt_token():
@@ -108,18 +124,21 @@ def sms_relay_procedure():
 
     error = sms_relay.validate_encrypted_body(json_dict)
     if error:
-        error_message = "Invalid JSON Request Structure; " + error
-        return create_flask_response(400, error_message, user)
+        return create_flask_response(400, invalid_json.format(error=error), user)
 
     request_number = json_dict["requestNumber"]
-    if request_number > 999999:
-        error_message = "Invalid Request Number; Must be between 0-999999"
-        return create_flask_response(400, error_message, user)
+    if (
+        not isinstance(request_number, int)
+        or request_number < 0
+        or request_number > 999999
+    ):
+        return create_flask_response(
+            400, invalid_req_number.format(error=error_req_range), user
+        )
 
     method = json_dict["method"]
     if method not in http_methods:
-        error_message = "Invalid Method;"
-        return create_flask_response(400, error_message, user)
+        return create_flask_response(400, invalid_method, user)
 
     endpoint = json_dict["endpoint"]
 
