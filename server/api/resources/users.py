@@ -14,11 +14,7 @@ from api.util import isGoodPassword
 from data import crud
 from data import marshal
 from models import User
-from api.util import (
-    filterPairsWithNone,
-    getDictionaryOfUserInfo,
-    doesUserExist,
-)
+from api.util import filterPairsWithNone, getDictionaryOfUserInfo, doesUserExist
 import service.encryptor as encryptor
 import logging
 from flask_limiter import Limiter
@@ -136,9 +132,10 @@ class AdminPasswordChange(Resource):
 
         # check if password given is suitable
         if not isGoodPassword(data["password"]):
-            return {
-                "message": "The new password must be at least 8 characters long"
-            }, 400
+            return (
+                {"message": "The new password must be at least 8 characters long"},
+                400,
+            )
 
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
@@ -166,9 +163,10 @@ class UserPasswordChange(Resource):
 
         # check if password given is suitable
         if not isGoodPassword(data["new_password"]):
-            return {
-                "message": "The new password must be at least 8 characters long"
-            }, 400
+            return (
+                {"message": "The new password must be at least 8 characters long"},
+                400,
+            )
 
         identity = get_jwt_identity()
 
@@ -258,6 +256,7 @@ def get_user_data_for_token(user: User) -> dict:
             data["supervises"] = vhtList
     return data
 
+
 # api/user/auth [POST]
 class UserAuthApi(Resource):
     app = Flask(__name__)
@@ -291,18 +290,20 @@ class UserAuthApi(Resource):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
 
-        if user and flask_bcrypt.check_password_hash(user.password, data["password"]):
-            # setup any extra user params
-            user_data = get_user_data_for_token(user)
-            
-            user_data["token"] = create_access_token(identity=user_data)
-            user_data["refresh"] = create_refresh_token(identity=user_data)
-
-            LOGGER.info(f"{user.id} has logged in")
-            return user_data, 200
-        else:
+        if not user or not flask_bcrypt.check_password_hash(
+            user.password, data["password"]
+        ):
             LOGGER.warning(f"Log in attempt for user {user.id}")
             return {"message": "Invalid email or password"}, 401
+
+        # setup any extra user params
+        user_data = get_user_data_for_token(user)
+
+        user_data["token"] = create_access_token(identity=user_data)
+        user_data["refresh"] = create_refresh_token(identity=user_data)
+
+        LOGGER.info(f"{user.id} has logged in")
+        return user_data, 200
 
 
 # api/user/auth/refresh_token
