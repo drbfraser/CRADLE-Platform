@@ -239,6 +239,25 @@ class UserRegisterApi(Resource):
         return getDictionaryOfUserInfo(createdUserId), 200
 
 
+def get_user_data_for_token(user: User) -> dict:
+    data = {}
+    data["email"] = user.email
+    data["role"] = user.role
+    data["firstName"] = user.firstName
+    data["healthFacilityName"] = user.healthFacilityName
+    data["isLoggedIn"] = True
+    data["userId"] = user.id
+    data["phoneNumber"] = user.phoneNumber
+
+    vhtList = []
+    data["supervises"] = []
+    if data["role"] == RoleEnum.CHO.value:
+        if user.vhtList:
+            for user in user.vhtList:
+                vhtList.append(user.id)
+            data["supervises"] = vhtList
+    return data
+
 # api/user/auth [POST]
 class UserAuthApi(Resource):
     app = Flask(__name__)
@@ -273,30 +292,14 @@ class UserAuthApi(Resource):
         user = crud.read(User, email=data["email"])
 
         if user and flask_bcrypt.check_password_hash(user.password, data["password"]):
-            del data["password"]
-
             # setup any extra user params
-            data["role"] = user.role
-            data["firstName"] = user.firstName
-            data["healthFacilityName"] = user.healthFacilityName
-            data["isLoggedIn"] = True
-            data["userId"] = user.id
-            data["phoneNumber"] = user.phoneNumber
+            user_data = get_user_data_for_token(user)
+            
+            user_data["token"] = create_access_token(identity=user_data)
+            user_data["refresh"] = create_refresh_token(identity=user_data)
 
-            vhtList = []
-            data["supervises"] = []
-            if data["role"] == RoleEnum.CHO.value:
-                if user.vhtList:
-                    for user in user.vhtList:
-                        vhtList.append(user.id)
-                    data["supervises"] = vhtList
-
-            access_token = create_access_token(identity=data)
-            refresh_token = create_refresh_token(identity=data)
-            data["token"] = access_token
-            data["refresh"] = refresh_token
             LOGGER.info(f"{user.id} has logged in")
-            return data, 200
+            return user_data, 200
         else:
             LOGGER.warning(f"Log in attempt for user {user.id}")
             return {"message": "Invalid email or password"}, 401
