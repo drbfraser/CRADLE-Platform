@@ -257,6 +257,14 @@ def get_user_data_for_token(user: User) -> dict:
     return data
 
 
+def get_access_token(data: dict) -> str:
+    return create_access_token(identity=data)
+
+
+def get_refresh_token(data: dict) -> str:
+    return create_refresh_token(identity=data)
+
+
 # api/user/auth [POST]
 class UserAuthApi(Resource):
     app = Flask(__name__)
@@ -299,8 +307,8 @@ class UserAuthApi(Resource):
         # setup any extra user params
         user_data = get_user_data_for_token(user)
 
-        user_data["token"] = create_access_token(identity=user_data)
-        user_data["refresh"] = create_refresh_token(identity=user_data)
+        user_data["token"] = get_access_token(user_data)
+        user_data["refresh"] = get_refresh_token(user_data)
 
         LOGGER.info(f"{user.id} has logged in")
         return user_data, 200
