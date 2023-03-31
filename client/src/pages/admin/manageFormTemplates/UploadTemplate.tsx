@@ -21,7 +21,7 @@ interface IProps {
   onClose: () => void;
 }
 
-const CreateTemplate = ({ open, onClose }: IProps) => {
+const UploadTemplate = ({ open, onClose }: IProps) => {
   const classes = useStyles();
   const [fileObject, setFileObject] = useState<OrNull<FileValidated>>(null);
 
@@ -81,7 +81,7 @@ const CreateTemplate = ({ open, onClose }: IProps) => {
       />
 
       <Dialog open={open} maxWidth="sm" fullWidth>
-        <DialogTitle>Create Form Template</DialogTitle>
+        <DialogTitle>Upload Form Template</DialogTitle>
         <DialogContent>
           <div className={classes.root}>
             <Dropzone
@@ -134,4 +134,4 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default CreateTemplate;
+export default UploadTemplate;
