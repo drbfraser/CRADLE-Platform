@@ -210,8 +210,12 @@ export const ManageFormTemplates = () => {
         data={tableData}
         loading={loading}
         isTransformed={isTransformed}
-        newBtnLabel={'Upload Form Template'}
+        newBtnLabel={'Create Form Template'}
         newBtnOnClick={() => {
+          console.log('temp for form creation');
+        }}
+        uploadBtnLabel={'Upload Form Template'}
+        uploadBtnLabelOnClick={() => {
           setIsCreatePopupOpen(true);
         }}
         search={search}
