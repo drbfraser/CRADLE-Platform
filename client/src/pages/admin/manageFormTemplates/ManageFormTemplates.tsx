@@ -19,6 +19,7 @@ import { TableCell } from '../../../shared/components/apiTable/TableCell';
 import { getPrettyDate } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useHistory } from 'react-router-dom';
 
 export const ManageFormTemplates = () => {
   const styles = useAdminStyles();
@@ -103,6 +104,12 @@ export const ManageFormTemplates = () => {
       },
     },
   ];
+
+  const history = useHistory();
+
+  const handleNewPatientClick = () => {
+    history.push('/admin/form-templates/new');
+  };
 
   const getFormTemplates = async (showArchivedTemplates: boolean) => {
     try {
@@ -212,7 +219,7 @@ export const ManageFormTemplates = () => {
         isTransformed={isTransformed}
         newBtnLabel={'Create Form Template'}
         newBtnOnClick={() => {
-          console.log('temp for form creation');
+          handleNewPatientClick();
         }}
         uploadBtnLabel={'Upload Form Template'}
         uploadBtnLabelOnClick={() => {
