@@ -201,6 +201,7 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/admin/form-templates/new`,
+    title: 'Create New Template',
   },
   {
     component: AdminPage,

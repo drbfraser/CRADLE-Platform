@@ -8,25 +8,25 @@ import Typography from '@mui/material/Typography';
 import APIErrorToast from '../../../../shared/components/apiErrorToast/APIErrorToast';
 import { useState } from 'react';
 import makeStyles from '@mui/styles/makeStyles';
+import { Grid } from '@mui/material';
+// import {FormikProps} from "formik";
+import { CForm } from '../../../../shared/types';
+import { FormRenderStateEnum } from '../../../../shared/enums';
+// import {Grid, TextField} from "@mui/material";
+// import { Field, FormikProps } from 'formik';
+// import {TextField} from "formik-mui";
 
-export const EditFormPage = () => {
+interface IProps {
+  patientId: string;
+  fm: CForm;
+  renderState: FormRenderStateEnum;
+}
+
+export const EditFormPage = ({ patientId, fm, renderState }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
-  const useStyles = makeStyles({
-    container: {
-      maxWidth: 1250,
-      margin: '0 auto',
-    },
-    title: {
-      display: `flex`,
-      alignItems: `center`,
-    },
-    right: {
-      float: 'right',
-      margin: 5,
-    },
-  });
-  const classes = useStyles();
   // const [errorMessage, setErrorMessage] = useState<string>('');
+  const classes = useStyles();
+
   return (
     <>
       <APIErrorToast
@@ -46,8 +46,43 @@ export const EditFormPage = () => {
       </div>
 
       <Paper>
-        <Box p={2}>Hello</Box>
+        <Box p={2}>
+          <Grid container spacing={2}>
+            <Grid item md={4} sm={12}>
+              {/*<Field*/}
+              {/*    component={TextField}*/}
+              {/*    // fullWidth*/}
+              {/*/>*/}
+              {/*        fullWidth*/}
+              {/*        required*/}
+              {/*        inputProps={{ maxLength: 50 }}*/}
+              {/*        variant="outlined"*/}
+              {/*        label="Title"*/}
+              {/*        name={"Title Name"}*/}
+              {/*        // onBlur={handlePatientIdBlur}*/}
+              {/*        // disabled={!creatingNew}*/}
+              {/*    /!*{existingPatientId && (*!/*/}
+              {/*    /!*    <PatientIDExists patientId={existingPatientId} />*!/*/}
+              {/*    /!*)}*!/*/}
+            </Grid>
+          </Grid>
+        </Box>
       </Paper>
     </>
   );
 };
+
+const useStyles = makeStyles({
+  container: {
+    maxWidth: 1250,
+    margin: '0 auto',
+  },
+  title: {
+    display: `flex`,
+    alignItems: `center`,
+  },
+  right: {
+    float: 'right',
+    margin: 5,
+  },
+});
