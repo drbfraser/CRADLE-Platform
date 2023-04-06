@@ -44,9 +44,7 @@ invalid_req_number = "Invalid Request Number; {error}"
 error_req_range = "Must be between 0-999999"
 
 
-invalid_method = (
-    "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
-)
+invalid_method = "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
 
 
 def jwt_token():
