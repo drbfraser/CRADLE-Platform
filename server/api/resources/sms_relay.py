@@ -17,7 +17,7 @@ import json
 api_url = "http://localhost:5000/{endpoint}"
 
 
-http_methods = {"GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "PATCH"}
+http_methods = {"GET", "POST", "HEAD", "PUT", "DELETE", "PATCH"}
 
 
 corrupted_message = (
@@ -45,7 +45,7 @@ error_req_range = "Must be between 0-999999"
 
 
 invalid_method = (
-    "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, OPTIONS, or PATCH"
+    "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
 )
 
 
