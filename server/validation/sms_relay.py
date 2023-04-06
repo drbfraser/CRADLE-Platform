@@ -1,8 +1,8 @@
 from typing import Optional
-from validation.validate import required_keys_present, values_correct_type
+from validation.validate import required_keys_present, check_invalid_keys_present
 
 
-def validate_post_request(request_body: dict) -> Optional[str]:
+def validate_request(request_body: dict) -> Optional[str]:
     """
     Returns an error message if the /api/sms_relay POST
     request is not valid. Else, returns None.
@@ -11,17 +11,34 @@ def validate_post_request(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    error = __validate(request_body)
-    if error:
-        return error
+    required_keys = ["phoneNumber", "encryptedData"]
+
+    error_message = required_keys_present(request_body, required_keys)
+    if error_message is not None:
+        return error_message
+
+    error_message = check_invalid_keys_present(request_body, required_keys)
+    if error_message is not None:
+        return error_message
 
 
-def __validate(request_body):
-    sms_relay_keys = [
-        "phoneNumber",
-        "encryptedData",
-    ]
+def validate_encrypted_body(body: dict) -> Optional[str]:
+    """
+    Returns an error message if the sms relay body
+    is not valid. Else, returns None.
 
-    for key in request_body:
-        if key not in sms_relay_keys:
-            return f"{key} is not a valid key in sms relay."
+    :param body: The sms relay body as a dict object
+
+    :return: An error message if body in invalid in some way. None otherwise.
+    """
+    required_keys = ["requestNumber", "method", "endpoint"]
+
+    error_message = required_keys_present(body, required_keys)
+    if error_message is not None:
+        return error_message
+
+    all_keys = ["requestNumber", "method", "endpoint", "headers", "body"]
+
+    error_message = check_invalid_keys_present(body, all_keys)
+    if error_message is not None:
+        return error_message

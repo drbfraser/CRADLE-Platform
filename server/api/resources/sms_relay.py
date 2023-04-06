@@ -13,6 +13,13 @@ from validation import sms_relay
 import base64
 import json
 
+
+api_url = "http://localhost:5000/{endpoint}"
+
+
+http_methods = {"GET", "POST", "HEAD", "PUT", "DELETE", "PATCH"}
+
+
 corrupted_message = (
     "Server detected invalid message format ({type}); "
     "message may have been corrupted. "
@@ -27,7 +34,17 @@ invalid_message = (
     "with the server using an internet connection (WiFi, 3G, …) "
 )
 
-api_url = "http://localhost:5000/{endpoint}"
+
+invalid_json = "Invalid JSON Request Structure; {error}"
+
+
+invalid_req_number = "Invalid Request Number; {error}"
+
+
+error_req_range = "Must be between 0-999999"
+
+
+invalid_method = "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
 
 
 def jwt_token():
@@ -37,8 +54,21 @@ def jwt_token():
     return resp_json["token"]
 
 
-def sms_relay_response(response: requests.Response, user: User) -> Response:
-    response_dict = {"code": response.status_code, "body": json.dumps(response.json())}
+def send_request_to_endpoint(
+    method: str, endpoint: str, header: dict, body: str, user: User
+) -> requests.Response:
+    token = jwt_token()
+    header["Authorization"] = f"Bearer {token}"
+    return requests.request(
+        method=method,
+        url=api_url.format(endpoint=endpoint),
+        headers=header,
+        json=json.loads(body),
+    )
+
+
+def create_flask_response(code: int, body: str, user: User) -> Response:
+    response_dict = {"code": code, "body": body}
 
     response_json = json.dumps(response_dict)
 
@@ -58,15 +88,13 @@ def sms_relay_response(response: requests.Response, user: User) -> Response:
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
-    error = sms_relay.validate_post_request(json_request)
+    # Erroring Checking
+    error = sms_relay.validate_request(json_request)
 
     if error:
         abort(400, message=corrupted_message.format(type="JSON"))
 
     phoneNumber = json_request["phoneNumber"]
-
-    if not phoneNumber:
-        abort(400, message=corrupted_message.format(type="JSON"))
 
     # Authorization Check
     user = crud.read(User, phoneNumber=phoneNumber)
@@ -92,23 +120,41 @@ def sms_relay_procedure():
     string_data = data.decode("utf-8")
     json_dict = json.loads(string_data)
 
-    endpoint = json_dict["endpoint"]
-    json_request = json_dict["request"]
+    error = sms_relay.validate_encrypted_body(json_dict)
+    if error:
+        return create_flask_response(400, invalid_json.format(error=error), user)
+
+    request_number = json_dict["requestNumber"]
+    if (
+        not isinstance(request_number, int)
+        or request_number < 0
+        or request_number > 999999
+    ):
+        return create_flask_response(
+            400, invalid_req_number.format(error=error_req_range), user
+        )
+
     method = json_dict["method"]
+    if method not in http_methods:
+        return create_flask_response(400, invalid_method, user)
+
+    endpoint = json_dict["endpoint"]
+
+    header = json_dict.get("header")
+    if not header:
+        header = {}
+
+    json_body = json_dict.get("body")
+    if not json_body:
+        json_body = "{}"
 
     # Sending request to endpoint
-    token = jwt_token()
-    header = {"Authorization": f"Bearer {token}"}
-    response = requests.request(
-        method=method,
-        url=api_url.format(endpoint=endpoint),
-        headers=header,
-        json=json.loads(json_request),
-    )
+    response = send_request_to_endpoint(method, endpoint, header, json_body, user)
 
     # Creating Response
-    flask_response = sms_relay_response(response, user)
-    return flask_response
+    response_code = response.status_code
+    response_body = json.dumps(response.json())
+    return create_flask_response(response_code, response_body, user)
 
 
 # /api/sms_relay
