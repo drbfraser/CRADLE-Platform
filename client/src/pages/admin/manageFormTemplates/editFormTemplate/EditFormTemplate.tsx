@@ -12,11 +12,18 @@ import { Grid } from '@mui/material';
 // import {FormikProps} from "formik";
 import { CForm } from '../../../../shared/types';
 import { FormRenderStateEnum } from '../../../../shared/enums';
+import { TextField } from 'formik-mui';
+import { Field, Form, FormikProps } from 'formik';
 // import {Grid, TextField} from "@mui/material";
 // import { Field, FormikProps } from 'formik';
 // import {TextField} from "formik-mui";
 
+export const initialState = {};
+
+export type FormState = typeof initialState;
+
 interface IProps {
+  formikProps: FormikProps<FormState>;
   patientId: string;
   fm: CForm;
   renderState: FormRenderStateEnum;
@@ -28,7 +35,7 @@ export const EditFormPage = ({ patientId, fm, renderState }: IProps) => {
   const classes = useStyles();
 
   return (
-    <>
+    <Form>
       <APIErrorToast
         open={submitError}
         onClose={() => setSubmitError(false)}
@@ -49,10 +56,16 @@ export const EditFormPage = ({ patientId, fm, renderState }: IProps) => {
         <Box p={2}>
           <Grid container spacing={2}>
             <Grid item md={4} sm={12}>
-              {/*<Field*/}
-              {/*    component={TextField}*/}
-              {/*    // fullWidth*/}
-              {/*/>*/}
+              <Field
+                component={TextField}
+                onChangeText={() => {
+                  console.log('temp');
+                }}
+                onBlur={() => {
+                  console.log('temp');
+                }}
+                // fullWidth
+              />
               {/*        fullWidth*/}
               {/*        required*/}
               {/*        inputProps={{ maxLength: 50 }}*/}
@@ -68,7 +81,7 @@ export const EditFormPage = ({ patientId, fm, renderState }: IProps) => {
           </Grid>
         </Box>
       </Paper>
-    </>
+    </Form>
   );
 };
 
