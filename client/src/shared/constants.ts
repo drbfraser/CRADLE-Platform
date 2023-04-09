@@ -44,6 +44,9 @@ export const sexOptions = {
   [SexEnum.FEMALE]: 'Female',
 };
 
+export const languageOptions = ['English', 'French', 'Chinese'];
+// export const languageOptions = {"English": "English", "French": "French", "Chinese": "Chinese"}
+
 export const trafficLightColors = {
   [TrafficLightEnum.GREEN]: '#8ACA55',
   [TrafficLightEnum.YELLOW_UP]: '#E6DA4F',
