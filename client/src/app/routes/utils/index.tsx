@@ -21,7 +21,7 @@ import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
-import { EditFormPage } from '../../../pages/admin/manageFormTemplates/editFormTemplate/EditFormTemplate';
+import { CustomFormPage } from '../../../pages/admin/manageFormTemplates/editFormTemplate/CustomFormPage';
 
 export type AppRoute = {
   component: React.ComponentType<any>;
@@ -195,7 +195,7 @@ export const appRoutes: Array<AppRoute> = [
     to: `/resources`,
   },
   {
-    component: EditFormPage,
+    component: CustomFormPage,
     exactPath: false,
     id: makeUniqueId(),
     inNavigation: false,
