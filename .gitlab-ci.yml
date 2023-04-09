@@ -59,6 +59,33 @@ frontend build:
     paths:
       - frontend.tar.gz
 
+update aws:
+  stage: deploy
+  needs: []
+  image: amazon/aws-cli
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
+      changes:
+        - aws/**/*
+      when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+  before_script:
+    - cd aws
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region us-west-2
+  script:
+    # Deploy the CloudFormation stack
+      -  aws cloudformation deploy --template-file aws-cfn/fluentbit-user-iam.yml --stack-name log-cradle-staging --region $AWS_DEFAULT_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides LogGroupPrefix=cradle-staging
+      -  aws cloudformation deploy --template-file aws-cfn/gitlab-ci-iam.yml --stack-name cradle-gitlab-ci --region $AWS_DEFAULT_REGION --capabilities CAPABILITY_NAMED_IAM 
+
+    # Update the Lambda function code
+    - zip aws-lambda/cpuAlarmLambda.py cpuAlarmLambda.zip
+    - aws lambda update-function-code --function-name CPUAlarms --zip-file fileb://cpuAlarmLambda.zip --region us-west-2
+
+
 backend unit tests:
   stage: test
   needs: []

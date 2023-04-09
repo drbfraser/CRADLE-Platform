@@ -17,6 +17,9 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
+                  - cloudwatch:PutMetricData
+                  - cloudwatch:StartMetricStreams
+
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LogGroupPrefix}/*"
 
 # When deploying, it'll ask for stack name and LogGroupPrefix.
