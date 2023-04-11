@@ -29,6 +29,10 @@ import { languageOptions } from '../../../../shared/constants';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import ListItemText from '@mui/material/ListItemText';
 import InputLabel from '@mui/material/InputLabel';
+import AddIcon from '@mui/icons-material/Add';
+import { PrimaryButton } from '../../../../shared/components/Button';
+import { Check } from '@mui/icons-material';
+import EditField from './EditField';
 // import MenuItem from "@mui/material/MenuItem";
 // import {languageOptions} from "../../../../shared/constants";
 // import MenuItem from "@mui/material/MenuItem";
@@ -58,6 +62,7 @@ export type FormState = typeof initialState;
 export const CustomFormTemplate = () => {
   const [submitError, setSubmitError] = useState(false);
   const [language, setLanguage] = useState<string[]>([]);
+  const [editPopupOpen, setEditPopupOpen] = useState(false);
 
   // const [errorMessage, setErrorMessage] = useState<string>('');
   const classes = useStyles();
@@ -88,6 +93,12 @@ export const CustomFormTemplate = () => {
         onClose={() => setSubmitError(false)}
         // errorMessage={errorMessage}
       />
+      <EditField
+        open={editPopupOpen}
+        onClose={() => {
+          setEditPopupOpen(false);
+        }}
+      />
       <Formik
         initialValues={initialState}
         onSubmit={() => {
@@ -100,6 +111,26 @@ export const CustomFormTemplate = () => {
           <Form>
             <Paper>
               <Box p={4} pt={6} m={2}>
+                <Grid container spacing={3}>
+                  <h2>Custom Form Properties</h2>
+                  <PrimaryButton
+                    className={classes.button}
+                    onClick={() => {
+                      setEditPopupOpen(true);
+                    }}>
+                    <AddIcon />
+                    {'Create New Field'}
+                  </PrimaryButton>
+
+                  <PrimaryButton
+                    className={classes.button}
+                    onClick={() => {
+                      console.log('Submit button clicked');
+                    }}>
+                    <Check />
+                    {'Submit Form Template'}
+                  </PrimaryButton>
+                </Grid>
                 <Grid container spacing={3}>
                   <Grid item sm={12} md={6} lg={4}>
                     <Field
@@ -219,5 +250,9 @@ const useStyles = makeStyles({
   right: {
     float: 'right',
     margin: 5,
+  },
+  button: {
+    height: '100%',
+    marginLeft: 10,
   },
 });
