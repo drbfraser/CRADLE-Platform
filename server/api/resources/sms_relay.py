@@ -12,6 +12,7 @@ import cryptography.fernet as fernet
 from validation import sms_relay
 import base64
 import json
+from api.resources.users import get_user_data_for_token, get_access_token
 
 
 api_url = "http://localhost:5000/{endpoint}"
@@ -47,17 +48,11 @@ error_req_range = "Must be between 0-999999"
 invalid_method = "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
 
 
-def jwt_token():
-    payload = {"email": "admin123@admin.com", "password": "admin123"}
-    response = requests.post("http://localhost:5000/api/user/auth", json=payload)
-    resp_json = response.json()
-    return resp_json["token"]
-
-
 def send_request_to_endpoint(
     method: str, endpoint: str, header: dict, body: str, user: User
 ) -> requests.Response:
-    token = jwt_token()
+    data = get_user_data_for_token(user)
+    token = get_access_token(data)
     header["Authorization"] = f"Bearer {token}"
     return requests.request(
         method=method,

@@ -14,11 +14,7 @@ from api.util import isGoodPassword
 from data import crud
 from data import marshal
 from models import User
-from api.util import (
-    filterPairsWithNone,
-    getDictionaryOfUserInfo,
-    doesUserExist,
-)
+from api.util import filterPairsWithNone, getDictionaryOfUserInfo, doesUserExist
 import service.encryptor as encryptor
 import logging
 from flask_limiter import Limiter
@@ -136,9 +132,10 @@ class AdminPasswordChange(Resource):
 
         # check if password given is suitable
         if not isGoodPassword(data["password"]):
-            return {
-                "message": "The new password must be at least 8 characters long"
-            }, 400
+            return (
+                {"message": "The new password must be at least 8 characters long"},
+                400,
+            )
 
         data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
@@ -166,9 +163,10 @@ class UserPasswordChange(Resource):
 
         # check if password given is suitable
         if not isGoodPassword(data["new_password"]):
-            return {
-                "message": "The new password must be at least 8 characters long"
-            }, 400
+            return (
+                {"message": "The new password must be at least 8 characters long"},
+                400,
+            )
 
         identity = get_jwt_identity()
 
@@ -239,6 +237,34 @@ class UserRegisterApi(Resource):
         return getDictionaryOfUserInfo(createdUserId), 200
 
 
+def get_user_data_for_token(user: User) -> dict:
+    data = {}
+    data["email"] = user.email
+    data["role"] = user.role
+    data["firstName"] = user.firstName
+    data["healthFacilityName"] = user.healthFacilityName
+    data["isLoggedIn"] = True
+    data["userId"] = user.id
+    data["phoneNumber"] = user.phoneNumber
+
+    vhtList = []
+    data["supervises"] = []
+    if data["role"] == RoleEnum.CHO.value:
+        if user.vhtList:
+            for user in user.vhtList:
+                vhtList.append(user.id)
+            data["supervises"] = vhtList
+    return data
+
+
+def get_access_token(data: dict) -> str:
+    return create_access_token(identity=data)
+
+
+def get_refresh_token(data: dict) -> str:
+    return create_refresh_token(identity=data)
+
+
 # api/user/auth [POST]
 class UserAuthApi(Resource):
     app = Flask(__name__)
@@ -272,34 +298,20 @@ class UserAuthApi(Resource):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
 
-        if user and flask_bcrypt.check_password_hash(user.password, data["password"]):
-            del data["password"]
-
-            # setup any extra user params
-            data["role"] = user.role
-            data["firstName"] = user.firstName
-            data["healthFacilityName"] = user.healthFacilityName
-            data["isLoggedIn"] = True
-            data["userId"] = user.id
-            data["phoneNumber"] = user.phoneNumber
-
-            vhtList = []
-            data["supervises"] = []
-            if data["role"] == RoleEnum.CHO.value:
-                if user.vhtList:
-                    for user in user.vhtList:
-                        vhtList.append(user.id)
-                    data["supervises"] = vhtList
-
-            access_token = create_access_token(identity=data)
-            refresh_token = create_refresh_token(identity=data)
-            data["token"] = access_token
-            data["refresh"] = refresh_token
-            LOGGER.info(f"{user.id} has logged in")
-            return data, 200
-        else:
+        if not user or not flask_bcrypt.check_password_hash(
+            user.password, data["password"]
+        ):
             LOGGER.warning(f"Log in attempt for user {user.id}")
             return {"message": "Invalid email or password"}, 401
+
+        # setup any extra user params
+        user_data = get_user_data_for_token(user)
+
+        user_data["token"] = get_access_token(user_data)
+        user_data["refresh"] = get_refresh_token(user_data)
+
+        LOGGER.info(f"{user.id} has logged in")
+        return user_data, 200
 
 
 # api/user/auth/refresh_token
