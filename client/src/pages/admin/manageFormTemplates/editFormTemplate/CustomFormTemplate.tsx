@@ -98,6 +98,7 @@ export const CustomFormTemplate = () => {
         onClose={() => {
           setEditPopupOpen(false);
         }}
+        inputLanguages={language}
       />
       <Formik
         initialValues={initialState}
@@ -188,44 +189,6 @@ export const CustomFormTemplate = () => {
                           </MenuItem>
                         ))}
                       </Field>
-
-                      {/*{languageOptions.map((value) => (*/}
-                      {/*    <MenuItem key={value} value={value}>*/}
-                      {/*      {value}*/}
-                      {/*    </MenuItem>*/}
-                      {/*))}*/}
-                      {/*</Field>*/}
-                      {/*<Field*/}
-                      {/*    component={TextField}*/}
-                      {/*    variant="outlined"*/}
-                      {/*    fullWidth*/}
-                      {/*    select*/}
-                      {/*    SelectProps={{*/}
-                      {/*      multiple: true,*/}
-                      {/*      renderValue: (ids: string[]) =>*/}
-                      {/*          ids*/}
-                      {/*              .map(*/}
-                      {/*                  (id) =>*/}
-                      {/*                      languageOptions.find((u) => u === id) ??*/}
-                      {/*                      'Unknown'*/}
-                      {/*              )*/}
-                      {/*              .join(', '),*/}
-                      {/*    }}*/}
-                      {/*    required*/}
-                      {/*    label={"Language *"}*/}
-                      {/*    name={"Language"}>*/}
-                      {/*  {languageOptions.map((language) => (*/}
-                      {/*          <MenuItem key={language} value={language}>*/}
-                      {/*            <Checkbox*/}
-                      {/*                // checked={*/}
-                      {/*                //     // values.supervises.indexOf(user.userId) >= 0*/}
-                      {/*                //   () => {}*/}
-                      {/*                // }*/}
-                      {/*            />*/}
-                      {/*            {language}*/}
-                      {/*          </MenuItem>*/}
-                      {/*      ))}*/}
-                      {/*</Field>*/}
                     </FormControl>
                   </Grid>
                 </Grid>
