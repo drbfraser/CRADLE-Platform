@@ -28,6 +28,7 @@ import TextField from '@mui/material/TextField';
 import { languageOptions } from '../../../../shared/constants';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import ListItemText from '@mui/material/ListItemText';
+import InputLabel from '@mui/material/InputLabel';
 // import MenuItem from "@mui/material/MenuItem";
 // import {languageOptions} from "../../../../shared/constants";
 // import MenuItem from "@mui/material/MenuItem";
@@ -136,12 +137,15 @@ export const CustomFormTemplate = () => {
                   </Grid>
                   <Grid item sm={12} md={6} lg={4}>
                     <FormControl fullWidth variant="outlined">
-                      <Select
+                      <InputLabel>Language *</InputLabel>
+                      <Field
+                        label={'Language'}
+                        component={Select}
                         fullWidth
-                        required
-                        label="Language *"
-                        name={'Language'}
+                        required={true}
                         multiple
+                        multiline
+                        variant="outlined"
                         onChange={handleChange}
                         value={language}
                         renderValue={(selected: any[]) => selected.join(', ')}>
@@ -152,7 +156,7 @@ export const CustomFormTemplate = () => {
                             <ListItemText primary={value} />
                           </MenuItem>
                         ))}
-                      </Select>
+                      </Field>
 
                       {/*{languageOptions.map((value) => (*/}
                       {/*    <MenuItem key={value} value={value}>*/}
