@@ -10,6 +10,9 @@ import {
   Grid,
   Radio,
   RadioGroup,
+  Table,
+  TableCell,
+  TableRow,
   // MenuItem,
 } from '@mui/material';
 import {
@@ -20,6 +23,7 @@ import {
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { SetStateAction, useState } from 'react';
+import { TableHeader } from 'semantic-ui-react';
 // import InputLabel from '@mui/material/InputLabel';
 // import { SelectChangeEvent } from '@mui/material/Select';
 // import ListItemText from '@mui/material/ListItemText';
@@ -87,63 +91,78 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
       <Dialog open={open} maxWidth="lg" fullWidth>
         <DialogTitle>Create Field</DialogTitle>
         <DialogContent>
-          <Grid container spacing={3}>
-            <Grid item sm={12} md={6} lg={4}>
-              <TextField
-                label={'Field Name'}
-                // defaultValue={'Title'}
-                required={true}
-                variant="outlined"
-                fullWidth
-                multiline
-                inputProps={{
-                  maxLength: Number.MAX_SAFE_INTEGER,
-                }}
-                onChange={(event: any) => {
-                  //it is originally a string type!! need transfer
-                }}
-              />
-            </Grid>
-            <Grid item sm={12} md={6} lg={4}>
-              <TextField
-                label={'Question ID'}
-                // defaultValue={'Title'}
-                required={true}
-                variant="outlined"
-                fullWidth
-                multiline
-                inputProps={{
-                  maxLength: Number.MAX_SAFE_INTEGER,
-                }}
-                onChange={(event: any) => {
-                  //it is originally a string type!! need transfer
-                }}
-              />
-            </Grid>
-            {/*<Grid item sm={12} md={6} lg={4}>*/}
-            {/*  <FormControl fullWidth variant="outlined">*/}
-            {/*    <InputLabel>Language *</InputLabel>*/}
-            {/*    <Select*/}
-            {/*      label={'Language'}*/}
-            {/*      fullWidth*/}
-            {/*      required={true}*/}
-            {/*      multiple*/}
-            {/*      multiline*/}
-            {/*      variant="outlined"*/}
-            {/*      onChange={handleChange}*/}
-            {/*      value={language}*/}
-            {/*      renderValue={(selected: any[]) => selected.join(', ')}>*/}
-            {/*      {inputLanguages.map((value) => (*/}
-            {/*        <MenuItem key={value} value={value}>*/}
-            {/*          /!*{value}*!/*/}
-            {/*          <Checkbox checked={language.indexOf(value) > -1} />*/}
-            {/*          <ListItemText primary={value} />*/}
-            {/*        </MenuItem>*/}
-            {/*      ))}*/}
-            {/*    </Select>*/}
-            {/*  </FormControl>*/}
-            {/*</Grid>*/}
-          </Grid>
+          {/*<Grid container spacing={3}>*/}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {inputLanguages.map((lang) => (
+                  <TableCell key={lang + '-title'}>{lang}</TableCell>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableRow>
+              {inputLanguages.map((lang) => (
+                <TableCell size="small" key={lang + '-body'}>
+                  <TextField
+                    key={lang + '-field-name'}
+                    label={'Field Name'}
+                    // defaultValue={'Title'}
+                    required={true}
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    size="small"
+                    inputProps={{
+                      maxLength: Number.MAX_SAFE_INTEGER,
+                    }}
+                    onChange={(event: any) => {
+                      //it is originally a string type!! need transfer
+                    }}
+                  />
+                  <TextField
+                    label={'Question ID'}
+                    key={lang + '-question-id'}
+                    // defaultValue={'Title'}
+                    required={true}
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    size="small"
+                    inputProps={{
+                      maxLength: Number.MAX_SAFE_INTEGER,
+                    }}
+                    onChange={(event: any) => {
+                      //it is originally a string type!! need transfer
+                    }}
+                  />
+                </TableCell>
+              ))}
+            </TableRow>
+          </Table>
+          {/*<Grid item sm={12} md={6} lg={4}>*/}
+          {/*  <FormControl fullWidth variant="outlined">*/}
+          {/*    <InputLabel>Language *</InputLabel>*/}
+          {/*    <Select*/}
+          {/*      label={'Language'}*/}
+          {/*      fullWidth*/}
+          {/*      required={true}*/}
+          {/*      multiple*/}
+          {/*      multiline*/}
+          {/*      variant="outlined"*/}
+          {/*      onChange={handleChange}*/}
+          {/*      value={language}*/}
+          {/*      renderValue={(selected: any[]) => selected.join(', ')}>*/}
+          {/*      {inputLanguages.map((value) => (*/}
+          {/*        <MenuItem key={value} value={value}>*/}
+          {/*          /!*{value}*!/*/}
+          {/*          <Checkbox checked={language.indexOf(value) > -1} />*/}
+          {/*          <ListItemText primary={value} />*/}
+          {/*        </MenuItem>*/}
+          {/*      ))}*/}
+          {/*    </Select>*/}
+          {/*  </FormControl>*/}
+          {/*</Grid>*/}
+          {/*</Grid>*/}
           {/*<Grid container spacing={3}>*/}
           <br />
           <Grid container spacing={3}>

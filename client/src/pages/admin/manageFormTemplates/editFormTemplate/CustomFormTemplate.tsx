@@ -63,6 +63,7 @@ export const CustomFormTemplate = () => {
   const [submitError, setSubmitError] = useState(false);
   const [language, setLanguage] = useState<string[]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // const [errorMessage, setErrorMessage] = useState<string>('');
   const classes = useStyles();
@@ -91,7 +92,7 @@ export const CustomFormTemplate = () => {
       <APIErrorToast
         open={submitError}
         onClose={() => setSubmitError(false)}
-        // errorMessage={errorMessage}
+        errorMessage={errorMessage}
       />
       <EditField
         open={editPopupOpen}
@@ -114,17 +115,31 @@ export const CustomFormTemplate = () => {
               <Box p={4} pt={6} m={2}>
                 <Grid container spacing={3}>
                   <h2>Custom Form Properties</h2>
+                  {/*<Tooltip title="Select at least one language" placement="top">*/}
+                  {/*<div>*/}
                   <PrimaryButton
                     className={classes.button}
+                    // disabled={language.length == 0}
                     onClick={() => {
-                      setEditPopupOpen(true);
+                      if (language.length != 0) {
+                        setEditPopupOpen(true);
+                      } else {
+                        setSubmitError(true);
+                        setErrorMessage(
+                          'Select at least one language before creating a field'
+                        );
+                      }
                     }}>
                     <AddIcon />
                     {'Create New Field'}
                   </PrimaryButton>
+                  {/*</div>*/}
+
+                  {/*</Tooltip>*/}
 
                   <PrimaryButton
                     className={classes.button}
+                    disabled
                     onClick={() => {
                       console.log('Submit button clicked');
                     }}>
