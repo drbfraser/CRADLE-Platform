@@ -1,23 +1,30 @@
 import {
-  Checkbox,
+  // Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
+  FormControlLabel,
+  FormLabel,
+  // FormControl,
   Grid,
-  MenuItem,
+  Radio,
+  RadioGroup,
+  // MenuItem,
 } from '@mui/material';
 import {
   CancelButton,
   PrimaryButton,
 } from '../../../../shared/components/Button';
-import { Tab } from 'semantic-ui-react';
+// import {ListItem } from 'semantic-ui-react';
 import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import ListItemText from '@mui/material/ListItemText';
-import { useEffect, useState } from 'react';
+import Typography from '@mui/material/Typography';
+import { SetStateAction, useState } from 'react';
+// import InputLabel from '@mui/material/InputLabel';
+// import { SelectChangeEvent } from '@mui/material/Select';
+// import ListItemText from '@mui/material/ListItemText';
+// import { useEffect, useState } from 'react';
+// import makeStyles from "@mui/styles/makeStyles";
 
 interface IProps {
   open: boolean;
@@ -27,44 +34,51 @@ interface IProps {
   // editUser?: IUser;
 }
 
-const panes = [
-  {
-    menuItem: 'Category',
-    render: () => <Tab.Pane></Tab.Pane>,
-  },
-  {
-    menuItem: 'Number',
-    render: () => <Tab.Pane></Tab.Pane>,
-  },
-  {
-    menuItem: 'Text',
-    render: () => <Tab.Pane></Tab.Pane>,
-  },
-  {
-    menuItem: 'Multiple Choice',
-    render: () => <Tab.Pane></Tab.Pane>,
-  },
-  {
-    menuItem: 'Date',
-    render: () => <Tab.Pane></Tab.Pane>,
-  },
-];
+// const panes = [
+//   {
+//     menuItem: 'Category',
+//     render: () => <Tab.Pane></Tab.Pane>,
+//   },
+//   {
+//     menuItem: 'Number',
+//     render: () => <Tab.Pane></Tab.Pane>,
+//   },
+//   {
+//     menuItem: 'Text',
+//     render: () => <Tab.Pane></Tab.Pane>,
+//   },
+//   {
+//     menuItem: 'Multiple Choice',
+//     render: () => <Tab.Pane></Tab.Pane>,
+//   },
+//   {
+//     menuItem: 'Date',
+//     render: () => <Tab.Pane></Tab.Pane>,
+//   },
+// ];
 
 const EditField = ({ open, onClose, inputLanguages }: IProps) => {
-  const [language, setLanguage] = useState<string[]>([]);
+  // const classes = useStyles();
+  // const [language, setLanguage] = useState<string[]>([]);
+  const [fieldType, setFieldType] = useState<string>();
 
-  useEffect(() => {
-    setLanguage([]);
-  }, [inputLanguages]);
+  // useEffect(() => {
+  //   setLanguage([]);
+  // }, [inputLanguages]);
 
-  const handleChange = (event: SelectChangeEvent<typeof language>) => {
-    const {
-      target: { value },
-    } = event;
-    setLanguage(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value
-    );
+  // const handleChange = (event: SelectChangeEvent<typeof language>) => {
+  //   const {
+  //     target: { value },
+  //   } = event;
+  //   setLanguage(
+  //     // On autofill we get a stringified value.
+  //     typeof value === 'string' ? value.split(',') : value
+  //   );
+  // };
+  const handleRadioChange = (event: {
+    target: { value: SetStateAction<string | undefined> };
+  }) => {
+    setFieldType(event.target.value);
   };
 
   return (
@@ -106,42 +120,89 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                 }}
               />
             </Grid>
-            <Grid item sm={12} md={6} lg={4}>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>Language *</InputLabel>
-                <Select
-                  label={'Language'}
-                  fullWidth
-                  required={true}
-                  multiple
-                  multiline
-                  variant="outlined"
-                  onChange={handleChange}
-                  value={language}
-                  renderValue={(selected: any[]) => selected.join(', ')}>
-                  {inputLanguages.map((value) => (
-                    <MenuItem key={value} value={value}>
-                      {/*{value}*/}
-                      <Checkbox checked={language.indexOf(value) > -1} />
-                      <ListItemText primary={value} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            {/*<Grid item sm={12} md={6} lg={4}>*/}
+            {/*  <FormControl fullWidth variant="outlined">*/}
+            {/*    <InputLabel>Language *</InputLabel>*/}
+            {/*    <Select*/}
+            {/*      label={'Language'}*/}
+            {/*      fullWidth*/}
+            {/*      required={true}*/}
+            {/*      multiple*/}
+            {/*      multiline*/}
+            {/*      variant="outlined"*/}
+            {/*      onChange={handleChange}*/}
+            {/*      value={language}*/}
+            {/*      renderValue={(selected: any[]) => selected.join(', ')}>*/}
+            {/*      {inputLanguages.map((value) => (*/}
+            {/*        <MenuItem key={value} value={value}>*/}
+            {/*          /!*{value}*!/*/}
+            {/*          <Checkbox checked={language.indexOf(value) > -1} />*/}
+            {/*          <ListItemText primary={value} />*/}
+            {/*        </MenuItem>*/}
+            {/*      ))}*/}
+            {/*    </Select>*/}
+            {/*  </FormControl>*/}
+            {/*</Grid>*/}
+          </Grid>
+          {/*<Grid container spacing={3}>*/}
+          <br />
+          <Grid container spacing={3}>
+            <Grid item sm={12} md={2} lg={2}>
+              <FormLabel id="field-type-label">
+                <Typography variant="h6">Field Type</Typography>
+              </FormLabel>
+            </Grid>
+            <Grid item sm={12} md={6} lg={6}>
+              <RadioGroup
+                aria-labelledby="field-type-label"
+                // defaultValue="category"
+                name="field-type-group"
+                row
+                onChange={handleRadioChange}>
+                <FormControlLabel
+                  value="category"
+                  control={<Radio />}
+                  label="Category"
+                />
+                <FormControlLabel
+                  value="number"
+                  control={<Radio />}
+                  label="Number"
+                />
+                <FormControlLabel
+                  value="text"
+                  control={<Radio />}
+                  label="Text"
+                />
+                <FormControlLabel
+                  value="multiple_choice"
+                  control={<Radio />}
+                  label="Multiple Choice"
+                />
+                <FormControlLabel
+                  value="date"
+                  control={<Radio />}
+                  label="Date"
+                />
+              </RadioGroup>
             </Grid>
           </Grid>
-          <Tab
-            menu={{
-              secondary: true,
-              pointing: true,
-              className: {
-                display: `fluid`,
-                flexDirection: `row`,
-                flexWrap: `wrap`,
-              },
-            }}
-            panes={panes}
-          />
+          {fieldType}
+
+          {/*</Grid>*/}
+
+          {/*<Tab*/}
+          {/*  menu={{*/}
+          {/*    secondary: true,*/}
+          {/*    pointing: true,*/}
+          {/*    className: {*/}
+          {/*      display: `fluid`,*/}
+          {/*      flexDirection: `row`,*/}
+          {/*      flexWrap: `wrap`,*/}
+          {/*    },*/}
+          {/*  }}*/}
+          {/*  panes={panes}*/}
+          {/*/>*/}
         </DialogContent>
         <DialogActions>
           <CancelButton type="button" onClick={onClose}>
@@ -157,5 +218,13 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
     </>
   );
 };
+
+// const useStyles = makeStyles({
+//   horizontal_bullet: {
+//     display: 'flex',
+//     flexDirection: 'row',
+//     // padding: 0,
+//   }
+// });
 
 export default EditField;
