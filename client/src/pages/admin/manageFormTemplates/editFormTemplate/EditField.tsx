@@ -15,6 +15,7 @@ import {
   TableRow,
   // MenuItem,
 } from '@mui/material';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import {
   CancelButton,
   PrimaryButton,
@@ -38,28 +39,11 @@ interface IProps {
   // editUser?: IUser;
 }
 
-// const panes = [
-//   {
-//     menuItem: 'Category',
-//     render: () => <Tab.Pane></Tab.Pane>,
-//   },
-//   {
-//     menuItem: 'Number',
-//     render: () => <Tab.Pane></Tab.Pane>,
-//   },
-//   {
-//     menuItem: 'Text',
-//     render: () => <Tab.Pane></Tab.Pane>,
-//   },
-//   {
-//     menuItem: 'Multiple Choice',
-//     render: () => <Tab.Pane></Tab.Pane>,
-//   },
-//   {
-//     menuItem: 'Date',
-//     render: () => <Tab.Pane></Tab.Pane>,
-//   },
-// ];
+// interface IFieldTypes {
+//   value: string,
+//   label: string,
+//   render?: () => React.ReactNode
+// }
 
 const EditField = ({ open, onClose, inputLanguages }: IProps) => {
   // const classes = useStyles();
@@ -79,6 +63,64 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
   //     typeof value === 'string' ? value.split(',') : value
   //   );
   // };
+
+  const fieldTypes = {
+    category: {
+      value: 'category',
+      label: 'Category',
+      render: () => <>category goes here</>,
+    },
+    number: {
+      value: 'number',
+      label: 'Number',
+      render: () => <>number goes here</>,
+    },
+    text: {
+      value: 'text',
+      label: 'Text',
+      render: () => <>text goes here</>,
+    },
+    mult_choice: {
+      value: 'mult_choice',
+      label: 'Multiple Choice',
+      render: () => (
+        <Table>
+          <TableRow>
+            {inputLanguages.map((lang) => (
+              <TableCell size="small" key={lang + 'mult-choice-option-1-body'}>
+                <TextField
+                  key={lang + '-field-name-mult-choice-option1'}
+                  label={lang + ' Option 1'}
+                  // defaultValue={'Title'}
+                  required={true}
+                  variant="outlined"
+                  fullWidth
+                  multiline
+                  size="small"
+                  inputProps={{
+                    maxLength: Number.MAX_SAFE_INTEGER,
+                  }}
+                  onChange={(event: any) => {
+                    //it is originally a string type!! need transfer
+                  }}
+                />
+              </TableCell>
+            ))}
+            <TableCell>
+              <CancelButton>
+                <RemoveCircleOutlineIcon />
+              </CancelButton>
+            </TableCell>
+          </TableRow>
+        </Table>
+      ),
+    },
+    date: {
+      value: 'date',
+      label: 'Date',
+      render: () => <>date goes here</>,
+    },
+  };
   const handleRadioChange = (event: {
     target: { value: SetStateAction<string | undefined> };
   }) => {
@@ -105,23 +147,7 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                 <TableCell size="small" key={lang + '-body'}>
                   <TextField
                     key={lang + '-field-name'}
-                    label={'Field Name'}
-                    // defaultValue={'Title'}
-                    required={true}
-                    variant="outlined"
-                    fullWidth
-                    multiline
-                    size="small"
-                    inputProps={{
-                      maxLength: Number.MAX_SAFE_INTEGER,
-                    }}
-                    onChange={(event: any) => {
-                      //it is originally a string type!! need transfer
-                    }}
-                  />
-                  <TextField
-                    label={'Question ID'}
-                    key={lang + '-question-id'}
+                    label={lang + ' Field Name'}
                     // defaultValue={'Title'}
                     required={true}
                     variant="outlined"
@@ -138,32 +164,27 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                 </TableCell>
               ))}
             </TableRow>
+            <TableRow>
+              <TableCell key="question-id-cell">
+                <TextField
+                  label={'Question ID'}
+                  key={'question-id'}
+                  // defaultValue={'Title'}
+                  required={true}
+                  variant="outlined"
+                  fullWidth
+                  multiline
+                  size="small"
+                  inputProps={{
+                    maxLength: Number.MAX_SAFE_INTEGER,
+                  }}
+                  onChange={(event: any) => {
+                    //it is originally a string type!! need transfer
+                  }}
+                />
+              </TableCell>
+            </TableRow>
           </Table>
-          {/*<Grid item sm={12} md={6} lg={4}>*/}
-          {/*  <FormControl fullWidth variant="outlined">*/}
-          {/*    <InputLabel>Language *</InputLabel>*/}
-          {/*    <Select*/}
-          {/*      label={'Language'}*/}
-          {/*      fullWidth*/}
-          {/*      required={true}*/}
-          {/*      multiple*/}
-          {/*      multiline*/}
-          {/*      variant="outlined"*/}
-          {/*      onChange={handleChange}*/}
-          {/*      value={language}*/}
-          {/*      renderValue={(selected: any[]) => selected.join(', ')}>*/}
-          {/*      {inputLanguages.map((value) => (*/}
-          {/*        <MenuItem key={value} value={value}>*/}
-          {/*          /!*{value}*!/*/}
-          {/*          <Checkbox checked={language.indexOf(value) > -1} />*/}
-          {/*          <ListItemText primary={value} />*/}
-          {/*        </MenuItem>*/}
-          {/*      ))}*/}
-          {/*    </Select>*/}
-          {/*  </FormControl>*/}
-          {/*</Grid>*/}
-          {/*</Grid>*/}
-          {/*<Grid container spacing={3}>*/}
           <br />
           <Grid container spacing={3}>
             <Grid item sm={12} md={2} lg={2}>
@@ -178,50 +199,22 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                 name="field-type-group"
                 row
                 onChange={handleRadioChange}>
-                <FormControlLabel
-                  value="category"
-                  control={<Radio />}
-                  label="Category"
-                />
-                <FormControlLabel
-                  value="number"
-                  control={<Radio />}
-                  label="Number"
-                />
-                <FormControlLabel
-                  value="text"
-                  control={<Radio />}
-                  label="Text"
-                />
-                <FormControlLabel
-                  value="multiple_choice"
-                  control={<Radio />}
-                  label="Multiple Choice"
-                />
-                <FormControlLabel
-                  value="date"
-                  control={<Radio />}
-                  label="Date"
-                />
+                {Object.values(fieldTypes).map((field) => (
+                  <FormControlLabel
+                    key={field.label}
+                    value={field.value}
+                    control={<Radio />}
+                    label={field.label}
+                  />
+                ))}
               </RadioGroup>
             </Grid>
           </Grid>
-          {fieldType}
 
-          {/*</Grid>*/}
-
-          {/*<Tab*/}
-          {/*  menu={{*/}
-          {/*    secondary: true,*/}
-          {/*    pointing: true,*/}
-          {/*    className: {*/}
-          {/*      display: `fluid`,*/}
-          {/*      flexDirection: `row`,*/}
-          {/*      flexWrap: `wrap`,*/}
-          {/*    },*/}
-          {/*  }}*/}
-          {/*  panes={panes}*/}
-          {/*/>*/}
+          {fieldType
+            ? // @ts-ignore
+              fieldTypes[fieldType].render()
+            : ''}
         </DialogContent>
         <DialogActions>
           <CancelButton type="button" onClick={onClose}>
