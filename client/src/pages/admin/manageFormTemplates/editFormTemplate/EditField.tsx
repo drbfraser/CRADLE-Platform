@@ -1,84 +1,63 @@
 import {
-  // Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
   FormLabel,
-  // FormControl,
   Grid,
   Radio,
   RadioGroup,
   Table,
   TableCell,
   TableRow,
-  // MenuItem,
 } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import {
   CancelButton,
   PrimaryButton,
 } from '../../../../shared/components/Button';
-// import {ListItem } from 'semantic-ui-react';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { SetStateAction, useState } from 'react';
 import { TableHeader } from 'semantic-ui-react';
-// import InputLabel from '@mui/material/InputLabel';
-// import { SelectChangeEvent } from '@mui/material/Select';
-// import ListItemText from '@mui/material/ListItemText';
-// import { useEffect, useState } from 'react';
-// import makeStyles from "@mui/styles/makeStyles";
 
 interface IProps {
   open: boolean;
   onClose: () => void;
   inputLanguages: string[];
-  // users: IUser[];
-  // editUser?: IUser;
 }
 
-// interface IFieldTypes {
-//   value: string,
-//   label: string,
-//   render?: () => React.ReactNode
-// }
-
 const EditField = ({ open, onClose, inputLanguages }: IProps) => {
-  // const classes = useStyles();
-  // const [language, setLanguage] = useState<string[]>([]);
   const [fieldType, setFieldType] = useState<string>();
-
-  // useEffect(() => {
-  //   setLanguage([]);
-  // }, [inputLanguages]);
-
-  // const handleChange = (event: SelectChangeEvent<typeof language>) => {
-  //   const {
-  //     target: { value },
-  //   } = event;
-  //   setLanguage(
-  //     // On autofill we get a stringified value.
-  //     typeof value === 'string' ? value.split(',') : value
-  //   );
-  // };
 
   const fieldTypes = {
     category: {
       value: 'category',
       label: 'Category',
-      render: () => <>category goes here</>,
+      render: () => (
+        <>
+          {/*TODO: Handle what is displayed when Category field type is selected*/}
+        </>
+      ),
     },
     number: {
       value: 'number',
       label: 'Number',
-      render: () => <>number goes here</>,
+      render: () => (
+        <>
+          {/*TODO: Handle what is displayed when Number field type is selected*/}
+        </>
+      ),
     },
     text: {
       value: 'text',
       label: 'Text',
-      render: () => <>text goes here</>,
+      render: () => (
+        <>
+          {/*TODO: Handle what is displayed when Text field type is selected*/}
+        </>
+      ),
     },
     mult_choice: {
       value: 'mult_choice',
@@ -88,20 +67,18 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
           <TableRow>
             {inputLanguages.map((lang) => (
               <TableCell size="small" key={lang + 'mult-choice-option-1-body'}>
+                {/*TODO: Create ability to create multiple options in multiple choice*/}
                 <TextField
                   key={lang + '-field-name-mult-choice-option1'}
                   label={lang + ' Option 1'}
-                  // defaultValue={'Title'}
                   required={true}
                   variant="outlined"
                   fullWidth
                   multiline
                   size="small"
                   inputProps={{
+                    // TODO: Determine what types of input restrictions we should have for multiple choice option
                     maxLength: Number.MAX_SAFE_INTEGER,
-                  }}
-                  onChange={(event: any) => {
-                    //it is originally a string type!! need transfer
                   }}
                 />
               </TableCell>
@@ -118,7 +95,11 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
     date: {
       value: 'date',
       label: 'Date',
-      render: () => <>date goes here</>,
+      render: () => (
+        <>
+          {/*TODO: Handle what is displayed when Date field type is selected*/}
+        </>
+      ),
     },
   };
   const handleRadioChange = (event: {
@@ -129,11 +110,9 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
 
   return (
     <>
-      {/*<APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />*/}
       <Dialog open={open} maxWidth="lg" fullWidth>
         <DialogTitle>Create Field</DialogTitle>
         <DialogContent>
-          {/*<Grid container spacing={3}>*/}
           <Table>
             <TableHeader>
               <TableRow>
@@ -148,7 +127,6 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                   <TextField
                     key={lang + '-field-name'}
                     label={lang + ' Field Name'}
-                    // defaultValue={'Title'}
                     required={true}
                     variant="outlined"
                     fullWidth
@@ -156,9 +134,6 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                     size="small"
                     inputProps={{
                       maxLength: Number.MAX_SAFE_INTEGER,
-                    }}
-                    onChange={(event: any) => {
-                      //it is originally a string type!! need transfer
                     }}
                   />
                 </TableCell>
@@ -169,7 +144,6 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                 <TextField
                   label={'Question ID'}
                   key={'question-id'}
-                  // defaultValue={'Title'}
                   required={true}
                   variant="outlined"
                   fullWidth
@@ -177,9 +151,6 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                   size="small"
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
-                  }}
-                  onChange={(event: any) => {
-                    //it is originally a string type!! need transfer
                   }}
                 />
               </TableCell>
@@ -195,7 +166,6 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
             <Grid item sm={12} md={6} lg={6}>
               <RadioGroup
                 aria-labelledby="field-type-label"
-                // defaultValue="category"
                 name="field-type-group"
                 row
                 onChange={handleRadioChange}>
@@ -212,7 +182,8 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
           </Grid>
 
           {fieldType
-            ? // @ts-ignore
+            ? // TODO: Remove @ts-ignore
+              // @ts-ignore
               fieldTypes[fieldType].render()
             : ''}
         </DialogContent>
@@ -230,13 +201,5 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
     </>
   );
 };
-
-// const useStyles = makeStyles({
-//   horizontal_bullet: {
-//     display: 'flex',
-//     flexDirection: 'row',
-//     // padding: 0,
-//   }
-// });
 
 export default EditField;

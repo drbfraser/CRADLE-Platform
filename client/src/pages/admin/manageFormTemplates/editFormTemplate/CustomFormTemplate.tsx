@@ -1,5 +1,3 @@
-// import Box from '@mui/material/Box';
-// import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import { goBackWithFallback } from '../../../../shared/utils';
@@ -8,11 +6,6 @@ import Typography from '@mui/material/Typography';
 import APIErrorToast from '../../../../shared/components/apiErrorToast/APIErrorToast';
 import { useState } from 'react';
 import makeStyles from '@mui/styles/makeStyles';
-// import { Grid } from '@mui/material';
-// import {FormikProps} from "formik";
-// import { CForm } from '../../../../shared/types';
-// import { FormRenderStateEnum } from '../../../../shared/enums';
-// import { TextField } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
 import {
   Box,
@@ -23,8 +16,6 @@ import {
   Paper,
 } from '@mui/material';
 import TextField from '@mui/material/TextField';
-
-// import {Select} from "formik-mui";
 import { languageOptions } from '../../../../shared/constants';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import ListItemText from '@mui/material/ListItemText';
@@ -33,17 +24,6 @@ import AddIcon from '@mui/icons-material/Add';
 import { PrimaryButton } from '../../../../shared/components/Button';
 import { Check } from '@mui/icons-material';
 import EditField from './EditField';
-// import MenuItem from "@mui/material/MenuItem";
-// import {languageOptions} from "../../../../shared/constants";
-// import MenuItem from "@mui/material/MenuItem";
-// import Select from "@mui/material/Select";
-// import {fieldLabels, UserField} from "../../manageUsers/state";
-// import {UserRoleEnum} from "../../../../shared/enums";
-// import {handleChangeCustom} from "../../../patientForm/handlers";
-// import {CustomForm} from "./CustomForm";
-// import {Grid, TextField} from "@mui/material";
-// import { Field, FormikProps } from 'formik';
-// import {TextField} from "formik-mui";
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -57,17 +37,16 @@ export const initialState = {
   [FormEditMainComponents.languages]: '',
 };
 
-export type FormState = typeof initialState;
-
 export const CustomFormTemplate = () => {
   const [submitError, setSubmitError] = useState(false);
   const [language, setLanguage] = useState<string[]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // const [errorMessage, setErrorMessage] = useState<string>('');
   const classes = useStyles();
-  const handleChange = (event: SelectChangeEvent<typeof language>) => {
+
+  // handles the change of the multi-select language
+  const handleLanguageChange = (event: SelectChangeEvent<typeof language>) => {
     const {
       target: { value },
     } = event;
@@ -87,6 +66,7 @@ export const CustomFormTemplate = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
+        {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
         <Typography variant="h4">{'Create New Template'}</Typography>
       </div>
       <APIErrorToast
@@ -104,9 +84,11 @@ export const CustomFormTemplate = () => {
       <Formik
         initialValues={initialState}
         onSubmit={() => {
+          // TODO: Handle Form Template create/edit form submission
           console.log('Temp');
         }}
         validationSchema={() => {
+          // TODO: Create a validation schema to ensure that all the values are filled in as expected
           console.log('Temp');
         }}>
         {() => (
@@ -115,8 +97,6 @@ export const CustomFormTemplate = () => {
               <Box p={4} pt={6} m={2}>
                 <Grid container spacing={3}>
                   <h2>Custom Form Properties</h2>
-                  {/*<Tooltip title="Select at least one language" placement="top">*/}
-                  {/*<div>*/}
                   <PrimaryButton
                     className={classes.button}
                     // disabled={language.length == 0}
@@ -133,14 +113,12 @@ export const CustomFormTemplate = () => {
                     <AddIcon />
                     {'Create New Field'}
                   </PrimaryButton>
-                  {/*</div>*/}
-
-                  {/*</Tooltip>*/}
 
                   <PrimaryButton
                     className={classes.button}
                     disabled
                     onClick={() => {
+                      // TODO: Make submit button have the ability to submit the form
                       console.log('Submit button clicked');
                     }}>
                     <Check />
@@ -152,16 +130,13 @@ export const CustomFormTemplate = () => {
                     <Field
                       label={'Title'}
                       component={TextField}
-                      // defaultValue={'Title'}
                       required={true}
                       variant="outlined"
                       fullWidth
                       multiline
                       inputProps={{
+                        // TODO: Determine what types of input restrictions we should have for title
                         maxLength: Number.MAX_SAFE_INTEGER,
-                      }}
-                      onChange={(event: any) => {
-                        //it is originally a string type!! need transfer
                       }}
                     />
                   </Grid>
@@ -169,16 +144,13 @@ export const CustomFormTemplate = () => {
                     <Field
                       label={'Version'}
                       component={TextField}
-                      // defaultValue={'1'}
                       required={true}
                       variant="outlined"
                       fullWidth
                       multiline
                       inputProps={{
+                        // TODO: Determine what types of input restrictions we should have for version
                         maxLength: Number.MAX_SAFE_INTEGER,
-                      }}
-                      onChange={(event: any) => {
-                        // temp
                       }}
                     />
                   </Grid>
@@ -193,12 +165,11 @@ export const CustomFormTemplate = () => {
                         multiple
                         multiline
                         variant="outlined"
-                        onChange={handleChange}
+                        onChange={handleLanguageChange}
                         value={language}
                         renderValue={(selected: any[]) => selected.join(', ')}>
                         {languageOptions.map((value) => (
                           <MenuItem key={value} value={value}>
-                            {/*{value}*/}
                             <Checkbox checked={language.indexOf(value) > -1} />
                             <ListItemText primary={value} />
                           </MenuItem>
