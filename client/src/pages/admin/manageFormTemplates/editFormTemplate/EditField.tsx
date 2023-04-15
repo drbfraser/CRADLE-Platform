@@ -19,7 +19,7 @@ import {
 } from '../../../../shared/components/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { SetStateAction, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import { TableHeader } from 'semantic-ui-react';
 
 interface IProps {
@@ -30,6 +30,11 @@ interface IProps {
 
 const EditField = ({ open, onClose, inputLanguages }: IProps) => {
   const [fieldType, setFieldType] = useState<string>();
+
+  // reset chosen field to nothing once dialog is closed
+  useEffect(() => {
+    setFieldType('');
+  }, [open]);
 
   const fieldTypes = {
     category: {
