@@ -19,6 +19,9 @@ Resources:
                   - cloudformation:CreateStack
                   - cloudformation:UpdateStack
                   - cloudformation:DescribeStacks
+                  - cloudformation:CreateChangeStacks
+                  - lambda:GetFunction
+                  - lambda:UpdateFunctionCode
                 Resource:
                   - arn:aws:logs:*:*:log-group:*cradle*
                   - arn:aws:cloudformation:*:*:stack/*cradle*

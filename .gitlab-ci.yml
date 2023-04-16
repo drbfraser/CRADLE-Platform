@@ -72,14 +72,14 @@ update aws:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
-    - cd aws
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set default.region us-west-2
   script:
+    - cd aws
     # Deploy the CloudFormation stack
-    -  aws cloudformation deploy --template-file aws-cfn/fluentbit-user-iam.yml --stack-name log-cradle-staging --region us-west-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides LogGroupPrefix=cradle-staging
-    -  aws cloudformation deploy --template-file aws-cfn/gitlab-ci-iam.yml --stack-name cradle-gitlab-ci --region us-west-1 --capabilities CAPABILITY_NAMED_IAM 
+    -  aws cloudformation deploy --template-file aws-cfn/fluentbit-user-iam.yml --stack-name log-cradle-staging --region us-east-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides LogGroupPrefix=cradle-staging
+    -  aws cloudformation deploy --template-file aws-cfn/gitlab-ci-iam.yml --stack-name cradle-gitlab-ci --region us-east-1 --capabilities CAPABILITY_NAMED_IAM 
 
     # Update the Lambda function code
     - zip aws-lambda/cpuAlarmLambda.py cpuAlarmLambda.zip
