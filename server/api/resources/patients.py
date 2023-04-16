@@ -86,6 +86,30 @@ class Root(Resource):
         )
 
 
+# Decorator function
+def patient_association_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        user_id = get_jwt_identity()["userId"]
+        patient_id = kwargs.get('patient_id')
+
+        if patient_id is None:
+            abort(400, message="Patient ID is required")
+
+        user = crud.read(User, userId=user_id)
+        patient = crud.read(Patient, patientId=patient_id)
+
+        if patient is None:
+            abort(404, message=f"No patient with id {patient_id}")
+
+        if not assoc.user_has_association_with_patient(user, patient):
+            abort(403, message="User is not authorized to access this patient's information")
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
 # /api/patients/<string:patient_id>
 class SinglePatient(Resource):
     @staticmethod
