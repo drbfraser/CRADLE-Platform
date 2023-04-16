@@ -3,7 +3,7 @@ Resources:
   GitLabCICradle:
     Type: AWS::IAM::User
     Properties:
-      UserName: GitLab-CI-Cradle
+      UserName: Cradle-GitLab-CI
       Policies:
         - PolicyName: "PolicyFor-GitLab-CI-Cradle"
           PolicyDocument:
