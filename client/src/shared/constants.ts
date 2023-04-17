@@ -44,6 +44,18 @@ export const sexOptions = {
   [SexEnum.FEMALE]: 'Female',
 };
 
+// TODO: Remove these placeholder languages and automatically obtain all existing languages using a library or API.
+export const languageOptions = [
+  'English',
+  'French',
+  'Chinese',
+  'Hindi',
+  'Spanish',
+  'Arabic',
+  'Russian',
+  'Indonesian',
+];
+
 export const trafficLightColors = {
   [TrafficLightEnum.GREEN]: '#8ACA55',
   [TrafficLightEnum.YELLOW_UP]: '#E6DA4F',

@@ -4,6 +4,7 @@ import MUIDataTable, {
 } from 'mui-datatables';
 
 import AddIcon from '@mui/icons-material/Add';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { PrimaryButton } from 'src/shared/components/Button';
 import Skeleton from '@mui/material/Skeleton';
 import { TextField } from '@mui/material';
@@ -13,6 +14,8 @@ interface IProps {
   title: string;
   newBtnLabel?: string;
   newBtnOnClick?: () => void;
+  uploadBtnLabel?: string;
+  uploadBtnLabelOnClick?: () => void;
   search: string;
   setSearch: (search: string) => void;
   columns: MUIDataTableColumnDef[];
@@ -39,6 +42,14 @@ const AdminTable = (props: IProps) => {
         <PrimaryButton className={styles.button} onClick={props.newBtnOnClick}>
           <AddIcon />
           {props.newBtnLabel}
+        </PrimaryButton>
+      )}
+      {props.uploadBtnLabel && (
+        <PrimaryButton
+          className={styles.button}
+          onClick={props.uploadBtnLabelOnClick}>
+          <FileUploadIcon />
+          {props.uploadBtnLabel}
         </PrimaryButton>
       )}
     </div>

@@ -12,13 +12,14 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import { CloudDownloadOutlined } from '@mui/icons-material';
-import CreateTemplate from './CreateTemplate';
+import UploadTemplate from './UploadTemplate';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import { FormTemplate } from 'src/shared/types';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
 import { getPrettyDate } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useHistory } from 'react-router-dom';
 
 export const ManageFormTemplates = () => {
   const styles = useAdminStyles();
@@ -103,6 +104,12 @@ export const ManageFormTemplates = () => {
       },
     },
   ];
+
+  const history = useHistory();
+
+  const handleNewPatientClick = () => {
+    history.push('/admin/form-templates/new');
+  };
 
   const getFormTemplates = async (showArchivedTemplates: boolean) => {
     try {
@@ -194,7 +201,7 @@ export const ManageFormTemplates = () => {
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      <CreateTemplate
+      <UploadTemplate
         open={isCreatePopupOpen}
         onClose={() => setIsCreatePopupOpen(false)}
       />
@@ -210,8 +217,12 @@ export const ManageFormTemplates = () => {
         data={tableData}
         loading={loading}
         isTransformed={isTransformed}
-        newBtnLabel={'New Form Template'}
+        newBtnLabel={'Create Form Template'}
         newBtnOnClick={() => {
+          handleNewPatientClick();
+        }}
+        uploadBtnLabel={'Upload Form Template'}
+        uploadBtnLabelOnClick={() => {
           setIsCreatePopupOpen(true);
         }}
         search={search}
