@@ -21,6 +21,7 @@ Resources:
                   - cloudwatch:StartMetricStreams
 
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LogGroupPrefix}/*"
+    UpdateReplacePolicy: Retain
 
 # When deploying, it'll ask for stack name and LogGroupPrefix.
 # e.g. stack name = "log-cradle-staging", LogGroupPrefix = "cradle-staging"
