@@ -20,8 +20,10 @@ Resources:
                   - cloudformation:UpdateStack
                   - cloudformation:DescribeStacks
                   - cloudformation:CreateChangeStacks
+                  - cloudformation:GetTemplateSummary
                   - lambda:GetFunction
                   - lambda:UpdateFunctionCode
+                  - iam:GetUser
                 Resource:
                   - arn:aws:logs:*:*:log-group:*cradle*
                   - arn:aws:cloudformation:*:*:stack/*cradle*
