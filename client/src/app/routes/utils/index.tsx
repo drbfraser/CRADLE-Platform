@@ -21,7 +21,6 @@ import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
-import { CustomFormTemplate } from '../../../pages/admin/manageFormTemplates/editFormTemplate/CustomFormTemplate';
 
 export type AppRoute = {
   component: React.ComponentType<any>;
@@ -193,15 +192,6 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     title: `Resources`,
     to: `/resources`,
-  },
-  {
-    component: CustomFormTemplate,
-    exactPath: false,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/admin/form-templates/new`,
-    title: 'Create New Template',
   },
   {
     component: AdminPage,
