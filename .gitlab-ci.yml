@@ -78,9 +78,8 @@ update aws:
   script:
     - cd aws
     # Deploy the CloudFormation stack
-    - aws cloudformation describe-stack-events --stack-name log-cradle-staging
-    - aws cloudformation deploy --template-file aws-cfn/fluentbit-user-iam.yml --stack-name log-cradle-staging --region us-west-2 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides LogGroupPrefix=cradle-staging
-    - aws cloudformation deploy --template-file aws-cfn/gitlab-ci-iam.yml --stack-name cradle-gitlab-ci --region us-west-2 --capabilities CAPABILITY_NAMED_IAM 
+    - aws cloudformation update-stack --template-file aws-cfn/fluentbit-user-iam.yml --stack-name log-cradle-staging --region us-east-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides LogGroupPrefix=cradle-staging
+    - aws cloudformation update-stack --template-file aws-cfn/gitlab-ci-iam.yml --stack-name cradle-gitlab-ci --region us-east-1 --capabilities CAPABILITY_NAMED_IAM 
 
     # Update the Lambda function code
     - zip cpuAlarmLambda.zip aws-lambda/cpuAlarmLambda.py 
