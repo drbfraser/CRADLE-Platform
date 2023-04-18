@@ -60,7 +60,7 @@ frontend build:
       - frontend.tar.gz
 
 update aws:
-  stage: deploy
+  stage: build
   needs: []
   image: ubuntu:latest
   rules:
