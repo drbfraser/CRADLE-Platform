@@ -44,7 +44,8 @@ def patient_association_required():
             verify_jwt_in_request()
 
             identity = get_jwt_identity()
-            if identity["role"] == RoleEnum.VHT.value:
+            user_role = identity["role"]
+            if user_role in (RoleEnum.VHT.value, RoleEnum.HCW.value):
                 user_id = identity["userId"]
                 if not crud.read(
                     PatientAssociations, patientId=patient_id, userId=user_id
@@ -54,7 +55,7 @@ def patient_association_required():
                     print(
                         f"User {user_id} accessed patient {patient_id} at {current_time}"
                     )
-                    # return {"message": "Unauthorized to access this patient."}, 403
+                    return {"message": "Unauthorized to access this patient."}, 403
 
             return fn(patient_id, *args, **kwargs)
 
