@@ -62,7 +62,7 @@ frontend build:
 update aws:
   stage: deploy
   needs: []
-  image: amazon/aws-cli
+  image: ubuntu:latest
   rules:
     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
       changes:
@@ -72,6 +72,10 @@ update aws:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == "web"
   before_script:
+    - apt install -y unzip zip
+    - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    - unzip awscliv2.zip
+    - ./aws/install
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set default.region us-west-2
