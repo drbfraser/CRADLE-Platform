@@ -29,6 +29,7 @@ Resources:
                   - arn:aws:logs:*:*:log-group:*cradle*
                   - arn:aws:cloudformation:*:*:stack/*cradle*
                   - arn:aws:lambda:*:*:function:*
+    UpdateReplacePolicy: Retain
 
 
 # When deploying, it'll ask for stack name
