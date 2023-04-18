@@ -96,8 +96,6 @@ backend unit tests:
   stage: test
   needs: []
   image: $PYTHON_IMAGE
-  tags:
-    - docker
   rules:
     - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
       changes:
