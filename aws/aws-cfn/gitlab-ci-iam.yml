@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  GitLabCICradle:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: Cradle-GitLab-CI
+      Policies:
+        - PolicyName: "PolicyFor-GitLab-CI-Cradle"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - cloudwatch:PutMetricData
+                  - cloudwatch:StartMetricStreams
+                  - cloudformation:CreateStack
+                  - cloudformation:UpdateStack
+                  - cloudformation:DescribeStacks
+                  - cloudformation:CreateChangeStacks
+                  - cloudformation:GetTemplateSummary
+                  - cloudformation:CreateChangeSet
+                  - lambda:GetFunction
+                  - lambda:UpdateFunctionCode
+                  - iam:GetUser
+                Resource:
+                  - arn:aws:logs:*:*:log-group:*cradle*
+                  - arn:aws:cloudformation:*:*:stack/*cradle*
+                  - arn:aws:lambda:*:*:function:*
+    UpdateReplacePolicy: Retain
+
+
+# When deploying, it'll ask for stack name
+# e.g. stack name = "cradle-gitlab-ci"

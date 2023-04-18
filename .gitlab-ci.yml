@@ -59,6 +59,40 @@ frontend build:
     paths:
       - frontend.tar.gz
 
+update aws:
+  stage: build
+  needs: []
+  image: ubuntu:latest
+  tags:
+    - docker
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID != null || $CI_COMMIT_BRANCH == $DEV_BRANCH'
+      changes:
+        - aws/**/*
+      when: always
+    # Always build/test for schedule / manual "Run Pipeline" via web
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+  before_script:
+    - apt update
+    - apt install -y unzip zip curl
+    - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    - unzip awscliv2.zip
+    - ./aws/install
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region us-west-2
+  script:
+    - cd aws
+    # Deploy the CloudFormation stack
+    - aws cloudformation deploy --template-file aws-cfn/fluentbit-user-iam.yml --stack-name logs-cradle-staging --region us-east-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides LogGroupPrefix=cradle-staging --no-fail-on-empty-changeset
+    - aws cloudformation deploy --template-file aws-cfn/gitlab-ci-iam.yml --stack-name cradle-gitlab-ci --region us-east-1 --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset --no-fail-on-empty-changeset
+
+    # Update the Lambda function code
+    - zip cpuAlarmLambda.zip aws-lambda/cpuAlarmLambda.py 
+    - aws lambda update-function-code --function-name CPUAlarms --zip-file fileb://cpuAlarmLambda.zip --region us-west-2
+
+
 backend unit tests:
   stage: test
   needs: []
