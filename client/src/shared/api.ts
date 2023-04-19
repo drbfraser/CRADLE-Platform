@@ -27,6 +27,7 @@ import { UserField } from 'src/pages/admin/manageUsers/state';
 import jwt_decode from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { reduxStore } from 'src/redux/store';
+import { showMessage } from 'src/redux/actions/messageActions';
 
 export const API_URL =
   process.env.NODE_ENV === `development`
@@ -385,7 +386,6 @@ export const getPregnancyAsync = async (pregnancyId: string) => {
   const response = await apiFetch(
     API_URL + EndpointEnum.PREGNANCIES + `/${pregnancyId}`
   );
-
   return response.json();
 };
 
@@ -404,9 +404,9 @@ export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
     }
   );
 
-export const getMedicalRecordAsync = async (medicalRecordId: string) =>
+export const getMedicalRecordAsync = async (medicalRecordId: string) => {
   apiFetch(API_URL + EndpointEnum.MEDICAL_RECORDS + `/${medicalRecordId}`);
-
+};
 export const getPatientMedicalHistoryAsync = async (
   patientId: string
 ): Promise<PatientMedicalInfo> => {
@@ -466,11 +466,22 @@ export const unarchivePatientAsync = async (patientId: string) => {
 };
 
 export const getPatientAsync = async (patientId: string) => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.PATIENTS + `/${patientId}`
-  );
-
-  return response.json();
+  try {
+    const response = await apiFetch(
+      API_URL + EndpointEnum.PATIENTS + `/${patientId}`
+    );
+    return response.json();
+  } catch (error: any) {
+    if (error.status === 403) {
+      reduxStore.dispatch(
+        showMessage(
+          "User is not authorized to access this patient's information"
+        )
+      );
+    }
+    // Handle other error cases if necessary
+    throw error;
+  }
 };
 
 export const getPatientInfoAsync = async (patientId: string) => {
