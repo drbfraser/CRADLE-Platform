@@ -17,6 +17,8 @@ from validation import patients, readings, assessments
 from utils import get_current_time
 from api.decorator import patient_association_required
 from datetime import date
+from models import UserSchema
+from functools import wraps
 
 # /api/patients
 class Root(Resource):
@@ -85,34 +87,10 @@ class Root(Resource):
             201,
         )
 
-
-# Decorator function
-def patient_association_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        user_id = get_jwt_identity()["userId"]
-        patient_id = kwargs.get('patient_id')
-
-        if patient_id is None:
-            abort(400, message="Patient ID is required")
-
-        user = crud.read(User, userId=user_id)
-        patient = crud.read(Patient, patientId=patient_id)
-
-        if patient is None:
-            abort(404, message=f"No patient with id {patient_id}")
-
-        if not assoc.user_has_association_with_patient(user, patient):
-            abort(403, message="User is not authorized to access this patient's information")
-
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
 # /api/patients/<string:patient_id>
 class SinglePatient(Resource):
     @staticmethod
+    @patient_association_required()
     @jwt_required()
     @swag_from(
         "../../specifications/single-patient-get.yml",
@@ -134,6 +112,7 @@ class SinglePatient(Resource):
 # /api/patients/<string:patient_id>/info
 class PatientInfo(Resource):
     @staticmethod
+    @patient_association_required()
     @jwt_required()
     @swag_from(
         "../../specifications/patient-info-get.yml",
@@ -196,6 +175,7 @@ class PatientInfo(Resource):
 # /api/patients/<string:patient_id>/stats
 class PatientStats(Resource):
     @staticmethod
+    @patient_association_required()
     @jwt_required()
     @swag_from(
         "../../specifications/patient-stats-get.yml",
