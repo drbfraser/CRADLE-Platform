@@ -32,7 +32,7 @@ type HealthFacilitiesAction =
       type: HealthFacilitiesActionEnum.CLEAR_REQUEST_OUTCOME;
     };
 
- // Action creators
+// Action creators
 const getHealthFacilityListRequested = (): HealthFacilitiesAction => ({
   type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUESTED,
 });
