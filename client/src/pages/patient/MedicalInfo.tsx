@@ -65,7 +65,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     editId,
     medicalRecordId,
   }: HistoryItemProps) => (
-    <Box m="10px">
+    <Box m="20px">
       <div className={classes.headerWithRightElement}>
         <b>{title}</b>
         {/* Render a redirect button for adding or updating the medical record */}

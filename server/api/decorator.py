@@ -6,7 +6,7 @@ from flask_jwt_extended import (
 )
 
 import data.crud as crud
-from models import PatientAssociations
+from models import PatientAssociations, User
 from enums import RoleEnum
 
 
@@ -37,6 +37,33 @@ def roles_required(accepted_roles):
     return wrapper
 
 
+# def patient_association_required():
+#     def wrapper(fn):
+#         @wraps(fn)
+#         def decorator(patient_id, *args, **kwargs):
+#             verify_jwt_in_request()
+
+#             identity = get_jwt_identity()
+#             user_role = identity["role"]
+#             if user_role in (RoleEnum.VHT.value, RoleEnum.HCW.value):
+#                 user_id = identity["userId"]
+#                 if not crud.read(
+#                     PatientAssociations, patientId=patient_id, userId=user_id
+#                 ):
+#                     # TODO: convert print statement to system logging
+#                     current_time = datetime.now().strftime("%H:%M:%S")
+#                     print(
+#                         f"User {user_id} accessed patient {patient_id} at {current_time}"
+#                     )
+#                     return {"message": "Unauthorized to access this patient."}, 403
+
+#             return fn(patient_id, *args, **kwargs)
+
+#         return decorator
+
+#     return wrapper
+
+
 def patient_association_required():
     def wrapper(fn):
         @wraps(fn)
@@ -44,7 +71,8 @@ def patient_association_required():
             verify_jwt_in_request()
 
             identity = get_jwt_identity()
-            if identity["role"] == RoleEnum.VHT.value:
+            user_role = identity["role"]
+            if user_role == RoleEnum.VHT.value:  # Changed the condition here
                 user_id = identity["userId"]
                 if not crud.read(
                     PatientAssociations, patientId=patient_id, userId=user_id
@@ -54,7 +82,7 @@ def patient_association_required():
                     print(
                         f"User {user_id} accessed patient {patient_id} at {current_time}"
                     )
-                    # return {"message": "Unauthorized to access this patient."}, 403
+                    return {"message": "Unauthorized to access this patient."}, 403
 
             return fn(patient_id, *args, **kwargs)
 

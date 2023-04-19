@@ -17,6 +17,8 @@ from validation import patients, readings, assessments
 from utils import get_current_time
 from api.decorator import patient_association_required
 from datetime import date
+from models import UserSchema
+from functools import wraps
 
 # /api/patients
 class Root(Resource):
@@ -89,6 +91,7 @@ class Root(Resource):
 # /api/patients/<string:patient_id>
 class SinglePatient(Resource):
     @staticmethod
+    @patient_association_required()
     @jwt_required()
     @swag_from(
         "../../specifications/single-patient-get.yml",
@@ -110,6 +113,7 @@ class SinglePatient(Resource):
 # /api/patients/<string:patient_id>/info
 class PatientInfo(Resource):
     @staticmethod
+    @patient_association_required()
     @jwt_required()
     @swag_from(
         "../../specifications/patient-info-get.yml",
@@ -172,6 +176,7 @@ class PatientInfo(Resource):
 # /api/patients/<string:patient_id>/stats
 class PatientStats(Resource):
     @staticmethod
+    @patient_association_required()
     @jwt_required()
     @swag_from(
         "../../specifications/patient-stats-get.yml",
