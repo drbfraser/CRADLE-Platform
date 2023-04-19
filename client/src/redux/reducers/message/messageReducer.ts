@@ -28,4 +28,3 @@ export const messageReducer = (state = initialState, action: any) => {
       return state;
   }
 };
-
