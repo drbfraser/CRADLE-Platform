@@ -87,6 +87,7 @@ class Root(Resource):
             201,
         )
 
+
 # /api/patients/<string:patient_id>
 class SinglePatient(Resource):
     @staticmethod

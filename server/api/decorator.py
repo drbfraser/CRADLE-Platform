@@ -63,6 +63,7 @@ def roles_required(accepted_roles):
 
 #     return wrapper
 
+
 def patient_association_required():
     def wrapper(fn):
         @wraps(fn)
