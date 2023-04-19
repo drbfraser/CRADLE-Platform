@@ -4,6 +4,7 @@ import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 import { Dispatch } from 'redux';
 import { EndpointEnum } from 'src/shared/enums';
 
+// Define action types for health facilities
 enum HealthFacilitiesActionEnum {
   GET_HEALTH_FACILITY_REQUESTED = 'healthFacility/GET_HEALTH_FACILITY_REQUESTED',
   GET_HEALTH_FACILITY_SUCCESS = 'healthFacility/GET_HEALTH_FACILITY_SUCCESS',
@@ -11,10 +12,12 @@ enum HealthFacilitiesActionEnum {
   CLEAR_REQUEST_OUTCOME = 'healthFacility/CLEAR_REQUEST_OUTCOME',
 }
 
+// Define action payloads
 type ErrorPayload = {
   message: string;
 };
 
+// Define action objects with their corresponding payloads
 type HealthFacilitiesAction =
   | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUESTED }
   | {
@@ -29,10 +32,12 @@ type HealthFacilitiesAction =
       type: HealthFacilitiesActionEnum.CLEAR_REQUEST_OUTCOME;
     };
 
+ // Action creators
 const getHealthFacilityListRequested = (): HealthFacilitiesAction => ({
   type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUESTED,
 });
 
+// Async action creator to get health facility list
 export const getHealthFacilityList = (): ((
   dispatch: Dispatch
 ) => ServerRequestAction) => {
@@ -61,22 +66,26 @@ export const getHealthFacilityList = (): ((
   };
 };
 
+// Action creator to clear health facilities request outcome
 export const clearHealthFacilitiesRequestOutcome = () => ({
   type: HealthFacilitiesActionEnum.CLEAR_REQUEST_OUTCOME,
 });
 
+// Define the HealthFacilitiesState type
 export type HealthFacilitiesState = {
   isLoading: boolean;
   data: OrNull<Array<HealthFacility>>;
   error: OrNull<string>;
 };
 
+// Initial state for the health facilities reducer
 const initialState: HealthFacilitiesState = {
   isLoading: false,
   data: null,
   error: null,
 };
 
+// healthFacilitiesReducer handles actions and updates the state accordingly
 export const healthFacilitiesReducer = (
   state = initialState,
   action: HealthFacilitiesAction

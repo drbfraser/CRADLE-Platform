@@ -23,6 +23,7 @@ import { Skeleton } from '@mui/material';
 import { getPatientStatisticsAsync } from 'src/shared/api';
 import makeStyles from '@mui/styles/makeStyles';
 
+// Register Chart.js components
 Chart.register(
   CategoryScale,
   BarElement,
@@ -33,15 +34,18 @@ Chart.register(
   PointElement
 );
 
+// Define interface for the props
 interface IProps {
   patientId: string;
 }
 
+// Define the chart options
 enum ChartOption {
   VITALS = 'vitals',
   TRAFFIC_LIGHTS = 'traffic_lights',
 }
 
+// PatientStats component definition
 export const PatientStats = ({ patientId }: IProps) => {
   const styles = useStyles();
   const [errorLoading, setErrorLoading] = useState(false);
@@ -50,12 +54,15 @@ export const PatientStats = ({ patientId }: IProps) => {
   const [currentStatsUnit, setCurrentStatsUnit] = useState(
     StatsOptionEnum.THIS_YEAR
   );
+
+  // Create unit options for the Select component
   const unitOptions = Object.values(StatsOptionEnum).map((unit) => ({
     key: unit,
     text: statsUnitLabels[unit],
     value: unit,
   }));
 
+  // Fetch patient statistics when patientId changes
   useEffect(() => {
     const loadPatientStats = async () => {
       try {
@@ -71,6 +78,7 @@ export const PatientStats = ({ patientId }: IProps) => {
     loadPatientStats();
   }, [patientId]);
 
+  // Handle changing the stats unit
   const handleCurrentStatsUnitChange = (
     _: React.ChangeEvent<HTMLInputElement>,
     { value }: InputOnChangeData
@@ -78,6 +86,7 @@ export const PatientStats = ({ patientId }: IProps) => {
     setCurrentStatsUnit(value as StatsOptionEnum);
   };
 
+  // Render the component
   return (
     <Paper>
       <Box p={3}>
@@ -148,6 +157,7 @@ export const PatientStats = ({ patientId }: IProps) => {
   );
 };
 
+// Define custom styles for the component
 const useStyles = makeStyles({
   noMargin: {
     margin: 0,
@@ -157,10 +167,12 @@ const useStyles = makeStyles({
   },
 });
 
+// Function to get vitals data for the chart
 const getVitalsData = (
   stats: PatientStatistics,
   currentStatsUnit: StatsOptionEnum
 ) => {
+  // Rest of the getVitalsData function implementation
   const MONTHS_IN_YEAR = 12;
   const monthLabelForLastTwelveMonths = [
     ...monthsLabels.slice(stats.currentMonth, 12),
@@ -226,6 +238,7 @@ const getVitalsData = (
   };
 };
 
+// Function to get traffic light data for the chart
 const getTrafficLightData = (stats: PatientStatistics) => ({
   labels: Object.values(TrafficLightEnum)
     .filter((value) => value !== TrafficLightEnum.NONE)
@@ -244,13 +257,14 @@ const getTrafficLightData = (stats: PatientStatistics) => ({
   ],
 });
 
+// Define the chart options
 const options = {
   maintainAspectRatio: false,
   legend: {
     display: false,
   },
 };
-
+// Define the traffic light colors
 const monthsLabels = [
   'Jan',
   'Feb',

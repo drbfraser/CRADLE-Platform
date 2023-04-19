@@ -1,3 +1,4 @@
+// Import necessary components from Material UI
 import {
   Alert,
   Box,
@@ -6,9 +7,12 @@ import {
   Skeleton,
   Typography,
 } from '@mui/material';
+// Import patient types definition
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
+// Import useEffect and useState hooks
 import { useEffect, useState } from 'react';
 
+// Import other necessary components and utilities
 import { Link } from 'react-router-dom';
 import { OrNull } from 'src/shared/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
@@ -16,28 +20,36 @@ import { RedirectButton } from 'src/shared/components/Button';
 import { getPatientMedicalHistoryAsync } from 'src/shared/api';
 import makeStyles from '@mui/styles/makeStyles';
 
+// Define the props interface for the MedicalInfo component
 interface IProps {
   patient?: Patient;
   patientId: string;
 }
 
+// MedicalInfo functional component
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
   const classes = useStyles();
+  // State for storing patient medical information
   const [info, setInfo] = useState<PatientMedicalInfo>();
+  // State for handling errors during data loading
   const [errorLoading, setErrorLoading] = useState(false);
 
+  // useEffect hook to load patient medical history
   useEffect(() => {
     const loadMedicalHistory = async () => {
       try {
+        // Fetch patient medical history
         setInfo(await getPatientMedicalHistoryAsync(patientId));
       } catch (e) {
         setErrorLoading(true);
       }
     };
 
+    // Call loadMedicalHistory function
     loadMedicalHistory();
   }, [patientId]);
 
+  // Define the props interface for the HistoryItem component
   interface HistoryItemProps {
     title: string;
     historyRecord: OrNull<string> | undefined;
@@ -46,6 +58,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     divider?: boolean;
   }
 
+  // HistoryItem functional component
   const HistoryItem = ({
     title,
     historyRecord,
@@ -55,6 +68,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     <Box m="20px">
       <div className={classes.headerWithRightElement}>
         <b>{title}</b>
+        {/* Render a redirect button for adding or updating the medical record */}
         <RedirectButton
           size="small"
           url={
@@ -65,6 +79,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         </RedirectButton>
       </div>
       <div>
+        {/* Render the history record or a message if it is not available */}
         {historyRecord ? (
           <Typography style={{ whiteSpace: 'pre-line' }}>
             {historyRecord}
@@ -76,6 +91,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     </Box>
   );
 
+  // Render the MedicalInfo component
   return (
     <Paper>
       <Box p={3}>
