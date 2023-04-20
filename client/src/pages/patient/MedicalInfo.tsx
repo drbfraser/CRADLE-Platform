@@ -1,4 +1,4 @@
-// Import necessary components from Material UI
+
 import {
   Alert,
   Box,
@@ -7,12 +7,8 @@ import {
   Skeleton,
   Typography,
 } from '@mui/material';
-// Import patient types definition
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
-// Import useEffect and useState hooks
 import { useEffect, useState } from 'react';
-
-// Import other necessary components and utilities
 import { Link } from 'react-router-dom';
 import { OrNull } from 'src/shared/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
@@ -20,7 +16,10 @@ import { RedirectButton } from 'src/shared/components/Button';
 import { getPatientMedicalHistoryAsync } from 'src/shared/api';
 import makeStyles from '@mui/styles/makeStyles';
 
-// Define the props interface for the MedicalInfo component
+// Define the props interface for the MedicalInfo component. This interface
+// specifies the properties that the MedicalInfo component expects to receive
+// as input. The 'patient' property is an optional Patient object, and the
+// 'patientId' property is a string that uniquely identifies the patient.
 interface IProps {
   patient?: Patient;
   patientId: string;
@@ -45,11 +44,20 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
       }
     };
 
-    // Call loadMedicalHistory function
+    // Call the loadMedicalHistory function to fetch and set the patient's
+    // medical history. This function is called when the component is mounted
+    // or when the 'patientId' prop changes.
     loadMedicalHistory();
   }, [patientId]);
 
-  // Define the props interface for the HistoryItem component
+  // Props (short for "properties") are a way to pass data from one component
+  // to another in a React application, allowing components to communicate with
+  // each other and share data or configuration. The 'editId' property is a string used to
+  // construct the URL for editing the record. The 'medicalRecordId' property is
+  // an optional string that represents the unique identifier of the medical
+  // record, used to determine whether to display an "Update" or "Add" button in this case.
+  // The 'divider' property is an optional boolean that determines whether a
+  // divider should be rendered between history items.
   interface HistoryItemProps {
     title: string;
     historyRecord: OrNull<string> | undefined;

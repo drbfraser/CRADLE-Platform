@@ -264,7 +264,7 @@ const options = {
     display: false,
   },
 };
-// Define the traffic light colors
+// Define the months labels for the chart
 const monthsLabels = [
   'Jan',
   'Feb',
