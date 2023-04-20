@@ -21,15 +21,15 @@ export const messageReducer = (state = initialState, action: any) => {
     case SHOW_MESSAGE:
       return {
         ...state,
-        message: action.payload, 
-        showMessage: true, 
+        message: action.payload,
+        showMessage: true,
       };
     // If the action is to hide a message
     case HIDE_MESSAGE:
       return {
         ...state,
-        message: '', 
-        showMessage: false, 
+        message: '',
+        showMessage: false,
       };
     // If the action type doesn't match any known types, return the current state unchanged
     default:
