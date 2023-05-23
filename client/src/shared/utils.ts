@@ -1,3 +1,4 @@
+import ISO6391 from 'iso-639-1';
 import { OrNull, Reading } from 'src/shared/types';
 
 import { TrafficLightEnum } from 'src/shared/enums';
@@ -251,4 +252,8 @@ export const formatBytes = (bytes: number) => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+export const getLanguages = (): (string | undefined)[] => {
+  return ISO6391.getAllNames();
 };

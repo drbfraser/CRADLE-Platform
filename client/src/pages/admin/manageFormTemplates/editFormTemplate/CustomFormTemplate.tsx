@@ -1,6 +1,6 @@
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import { goBackWithFallback } from '../../../../shared/utils';
+import { getLanguages, goBackWithFallback } from '../../../../shared/utils';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Typography from '@mui/material/Typography';
 import APIErrorToast from '../../../../shared/components/apiErrorToast/APIErrorToast';
@@ -16,7 +16,6 @@ import {
   Paper,
 } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import { languageOptions } from '../../../../shared/constants';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import ListItemText from '@mui/material/ListItemText';
 import InputLabel from '@mui/material/InputLabel';
@@ -42,6 +41,7 @@ export const CustomFormTemplate = () => {
   const [language, setLanguage] = useState<string[]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const languageOptions = getLanguages();
 
   const classes = useStyles();
 
@@ -168,12 +168,19 @@ export const CustomFormTemplate = () => {
                         onChange={handleLanguageChange}
                         value={language}
                         renderValue={(selected: any[]) => selected.join(', ')}>
-                        {languageOptions.map((value) => (
-                          <MenuItem key={value} value={value}>
-                            <Checkbox checked={language.indexOf(value) > -1} />
-                            <ListItemText primary={value} />
-                          </MenuItem>
-                        ))}
+                        {languageOptions.map((value) => {
+                          if (value === undefined) {
+                            return <></>;
+                          }
+                          return (
+                            <MenuItem key={value} value={value}>
+                              <Checkbox
+                                checked={language.indexOf(value) > -1}
+                              />
+                              <ListItemText primary={value} />
+                            </MenuItem>
+                          );
+                        })}
                       </Field>
                     </FormControl>
                   </Grid>
