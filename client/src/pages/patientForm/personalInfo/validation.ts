@@ -2,9 +2,22 @@ import * as Yup from 'yup';
 
 import { PatientField } from '../state';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
+import { getPatientPregnancyInfoAsync } from 'src/shared/api';
 
 const ageIsValid = (age: number): boolean => {
   return Math.floor(age) >= 0;
+};
+
+const isUniqueId = async (pId: number | undefined): Promise<boolean> => {
+  console.log(pId);
+  if (pId) {
+    try {
+      await getPatientPregnancyInfoAsync(pId.toString());
+    } catch (e) {
+      return true;
+    }
+  }
+  return false;
 };
 
 export const personalInfoValidationSchema = (creatingNew: boolean) =>
@@ -18,7 +31,10 @@ export const personalInfoValidationSchema = (creatingNew: boolean) =>
           .test(
             'length',
             'A valid patient ID is required.',
-            (pId) => String(pId).length > 0 && String(pId).length <= 15
+            (pId) =>
+              String(pId).length > 0 &&
+              String(pId).length <= 15 &&
+              isUniqueId(pId)
           ),
 
     // For writing + testing Regex, see: regex101.com
