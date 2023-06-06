@@ -20,6 +20,8 @@ import { PrimaryButton } from '../../../../shared/components/Button';
 import { Check } from '@mui/icons-material';
 import EditField from './EditField';
 import { LanguageModalProps } from 'src/shared/types';
+import { FormTemplate } from 'src/shared/types';
+import { useLocation } from 'react-router-dom';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -40,6 +42,9 @@ export const CustomFormTemplate = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const classes = useStyles();
+
+  const location = useLocation<FormTemplate>();
+  const targetFrom = location.state;
 
   return (
     <>
@@ -117,6 +122,7 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
+                      defaultValue={targetFrom ? targetFrom.id : ''}
                       fullWidth
                       multiline
                       inputProps={{
@@ -131,6 +137,7 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
+                      defaultValue={targetFrom ? targetFrom.version : ''}
                       fullWidth
                       multiline
                       inputProps={{

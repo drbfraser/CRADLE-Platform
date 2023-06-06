@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
-import { CloudDownloadOutlined } from '@mui/icons-material';
+import { CloudDownloadOutlined, Edit } from '@mui/icons-material';
 import UploadTemplate from './UploadTemplate';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import { FormTemplate } from 'src/shared/types';
@@ -69,6 +69,20 @@ export const ManageFormTemplates = () => {
   ];
 
   const rowActions = [
+    {
+      tooltip: 'edit From Template',
+      Icon: Edit,
+      isVisible: async (formTemplate: FormTemplate) => !formTemplate.archived,
+      onClick: (formTemplate: FormTemplate) => {
+        history.push({
+          pathname: '/admin/form-templates/new',
+          search: `id=${formTemplate.id}&version=${formTemplate.version}`,
+          state: {
+            ...formTemplate,
+          },
+        });
+      },
+    },
     {
       tooltip: 'Archive Form Template',
       Icon: DeleteForever,
