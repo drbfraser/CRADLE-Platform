@@ -20,6 +20,8 @@ import { getPrettyDate } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useHistory } from 'react-router-dom';
+import { Unarchive } from '@mui/icons-material';
+import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 
 export const ManageFormTemplates = () => {
   const styles = useAdminStyles();
@@ -35,8 +37,10 @@ export const ManageFormTemplates = () => {
 
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
+  const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
 
-  const [popupForm, setPopupForm] = useState<FormTemplate>();
+  const [archivePopupForm, setArchivePopupForm] = useState<FormTemplate>();
+  const [unarchivePopupForm, setUnarchivePopupForm] = useState<FormTemplate>();
 
   const isTransformed = useMediaQuery('(min-width:900px)');
 
@@ -70,9 +74,9 @@ export const ManageFormTemplates = () => {
 
   const rowActions = [
     {
-      tooltip: 'edit From Template',
+      tooltip: 'Edit From Template',
       Icon: Edit,
-      isVisible: async (formTemplate: FormTemplate) => !formTemplate.archived,
+      isVisible: (formTemplate: FormTemplate) => !formTemplate.archived,
       onClick: (formTemplate: FormTemplate) => {
         history.push({
           pathname: '/admin/form-templates/new',
@@ -86,9 +90,9 @@ export const ManageFormTemplates = () => {
     {
       tooltip: 'Archive Form Template',
       Icon: DeleteForever,
-      isVisible: async (formTemplate: FormTemplate) => !formTemplate.archived,
+      isVisible: (formTemplate: FormTemplate) => !formTemplate.archived,
       onClick: (formTemplate: FormTemplate) => {
-        setPopupForm(formTemplate);
+        setArchivePopupForm(formTemplate);
         setIsArchivePopupOpen(true);
       },
     },
@@ -117,6 +121,15 @@ export const ManageFormTemplates = () => {
         }
       },
     },
+    {
+      tooltip: 'Unrchive Form Template',
+      Icon: Unarchive,
+      isVisible: (formTemplate: FormTemplate) => formTemplate.archived,
+      onClick: (formTemplate: FormTemplate) => {
+        setUnarchivePopupForm(formTemplate);
+        setIsUnarchivePopupOpen(true);
+      },
+    },
   ];
 
   const history = useHistory();
@@ -141,7 +154,12 @@ export const ManageFormTemplates = () => {
   };
   useEffect(() => {
     getFormTemplates(showArchivedTemplates);
-  }, [showArchivedTemplates, isCreatePopupOpen, isArchivePopupOpen]);
+  }, [
+    showArchivedTemplates,
+    isCreatePopupOpen,
+    isArchivePopupOpen,
+    isUnarchivePopupOpen,
+  ]);
 
   useEffect(() => {
     const searchLowerCase = search.toLowerCase().trim();
@@ -222,7 +240,12 @@ export const ManageFormTemplates = () => {
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}
         onClose={() => setIsArchivePopupOpen(false)}
-        template={popupForm}
+        template={archivePopupForm}
+      />
+      <UnarchiveTemplateDialog
+        open={isUnarchivePopupOpen}
+        onClose={() => setIsUnarchivePopupOpen(false)}
+        template={unarchivePopupForm}
       />
       <AdminTable
         title="Form Templates"

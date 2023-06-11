@@ -152,6 +152,16 @@ export const archiveFormTemplateAsync = async (template: FormTemplate) =>
     false
   );
 
+export const unarchiveFormTemplateAsync = async (template: FormTemplate) =>
+  apiFetch(
+    API_URL + EndpointEnum.FORM_TEMPLATES + '/' + template.id,
+    {
+      method: 'PUT',
+      body: JSON.stringify(template),
+    },
+    false
+  );
+
 export const saveFormTemplateWithFileAsync = async (file: File) => {
   const data: FormData = new FormData();
   data.append('file', file);
