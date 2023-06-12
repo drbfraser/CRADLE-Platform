@@ -48,11 +48,11 @@ def test_sms_relay_invalid_encryption_key(api_post):
     phoneNumber = user.phoneNumber
 
     user_key = user.secretKey
-    new_key = encryptor.generate_key()
+    new_key = encryptor.generate_key(user.email)
 
     # The very low chance that the 2 generated keys are the same
     while new_key == user_key:
-        new_key = encryptor.generate_key()
+        new_key = encryptor.generate_key(user.email)
 
     data = {"endpoint": None, "body": None}
     json_data = json.dumps(data)

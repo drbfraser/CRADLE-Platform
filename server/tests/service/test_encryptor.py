@@ -7,7 +7,7 @@ import cryptography.fernet as fernet
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor(message):
-    key = encryptor.generate_key()
+    key = encryptor.generate_key("test@test.com")
 
     message_bytes = bytes(message, "utf-8")
 
@@ -21,15 +21,15 @@ def test_encryptor(message):
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor_wrong_key(message):
-    key = encryptor.generate_key()
+    key = encryptor.generate_key("test@test.com")
 
     message_bytes = bytes(message, "utf-8")
     encrypted_data = encryptor.encrypt(message_bytes, key)
-    second_key = encryptor.generate_key()
+    second_key = encryptor.generate_key("test2@test.com")
 
     # The very low chance that the 2 generated keys are the same
     while second_key == key:
-        second_key = encryptor.generate_key()
+        second_key = encryptor.generate_key("test2@test.com")
 
     with pytest.raises(fernet.InvalidToken):
         decrypted_data = encryptor.decrypt(encrypted_data, second_key)
@@ -41,7 +41,7 @@ def test_encryptor_wrong_key(message):
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor_compressor(message):
-    key = encryptor.generate_key()
+    key = encryptor.generate_key("test@test.com")
 
     compressed_data = compressor.compress_from_string(message)
     encrypted_data = encryptor.encrypt(compressed_data, key)
