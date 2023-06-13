@@ -99,7 +99,7 @@ export const ManageFormTemplates = () => {
     {
       tooltip: 'Download CSV',
       Icon: CloudDownloadOutlined,
-      isVisible: (formTemplate: FormTemplate) => !formTemplate.archived,
+      isVisible: (formTemplate: FormTemplate) => true,
       onClick: async (formTemplate: FormTemplate) => {
         try {
           const file = await getFormTemplateCsvAsync(
@@ -122,7 +122,7 @@ export const ManageFormTemplates = () => {
       },
     },
     {
-      tooltip: 'Unrchive Form Template',
+      tooltip: 'Unarchive Form Template',
       Icon: Unarchive,
       isVisible: (formTemplate: FormTemplate) => formTemplate.archived,
       onClick: (formTemplate: FormTemplate) => {
@@ -279,7 +279,7 @@ export const ManageFormTemplates = () => {
             checked={showArchivedTemplates}
           />
         }
-        label="Show Archived Templates"
+        label="View Archived Templates"
       />
     </div>
   );

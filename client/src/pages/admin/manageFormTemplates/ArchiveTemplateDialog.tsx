@@ -9,7 +9,7 @@ import {
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { FormTemplate } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
-import { archiveFormTemplateAsync } from 'src/shared/api';
+import { handleArchiveFormTemplateAsync } from 'src/shared/api';
 import makeStyles from '@mui/styles/makeStyles';
 import { useState } from 'react';
 
@@ -32,7 +32,7 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
     template.archived = true;
 
     try {
-      await archiveFormTemplateAsync(template);
+      await handleArchiveFormTemplateAsync(template);
 
       setSubmitSuccess(true);
       onClose();

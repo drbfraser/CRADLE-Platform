@@ -142,17 +142,7 @@ export const getHealthFacilityAsync = async (
   return response.json();
 };
 
-export const archiveFormTemplateAsync = async (template: FormTemplate) =>
-  apiFetch(
-    API_URL + EndpointEnum.FORM_TEMPLATES + '/' + template.id,
-    {
-      method: 'PUT',
-      body: JSON.stringify(template),
-    },
-    false
-  );
-
-export const unarchiveFormTemplateAsync = async (template: FormTemplate) =>
+export const handleArchiveFormTemplateAsync = async (template: FormTemplate) =>
   apiFetch(
     API_URL + EndpointEnum.FORM_TEMPLATES + '/' + template.id,
     {
