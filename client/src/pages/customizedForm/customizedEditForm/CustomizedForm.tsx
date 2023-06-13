@@ -473,7 +473,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                 {renderState === FormRenderStateEnum.FINISH ? (
                   <Grid container spacing={3}>
                     <h2>Current Form</h2>
-                    <Divider/>
+                    <Divider />
                   </Grid>
                 ) : (
                   <></>
