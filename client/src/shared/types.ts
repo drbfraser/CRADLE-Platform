@@ -406,3 +406,7 @@ export type Filter = {
   parameter: FilterRequestKey;
   display_title: string;
 };
+export type LanguageModalProps = {
+  language: string[];
+  setLanguage: React.Dispatch<React.SetStateAction<string[]>>;
+};

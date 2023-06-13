@@ -3,31 +3,29 @@ import { CustomizedForm } from '../../../customizedForm/customizedEditForm/Custo
 
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import { goBackWithFallback } from '../../../../shared/utils';
+import { getLanguages, goBackWithFallback } from '../../../../shared/utils';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Typography from '@mui/material/Typography';
 import APIErrorToast from '../../../../shared/components/apiErrorToast/APIErrorToast';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import makeStyles from '@mui/styles/makeStyles';
 import { Field, Form, Formik } from 'formik';
-import {
-  Box,
-  Checkbox,
-  FormControl,
-  Grid,
-  MenuItem,
-  Paper,
-} from '@mui/material';
+import { Box, Checkbox, FormControl, Grid, Paper } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
-import { languageOptions } from '../../../../shared/constants';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import ListItemText from '@mui/material/ListItemText';
-import InputLabel from '@mui/material/InputLabel';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import AddIcon from '@mui/icons-material/Add';
 import { PrimaryButton } from '../../../../shared/components/Button';
 import { Check } from '@mui/icons-material';
 import EditField from './EditField';
 import { FormRenderStateEnum } from 'src/shared/enums';
+import { LanguageModalProps } from 'src/shared/types';
+import { FormTemplate } from 'src/shared/types';
+import { useLocation } from 'react-router-dom';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -49,16 +47,8 @@ export const CustomFormTemplate = () => {
 
   const classes = useStyles();
 
-  // handles the change of the multi-select language
-  const handleLanguageChange = (event: SelectChangeEvent<typeof language>) => {
-    const {
-      target: { value },
-    } = event;
-    setLanguage(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value
-    );
-  };
+  const location = useLocation<FormTemplate>();
+  const targetFrom = location.state;
 
   const [form, setForm] = useState<CForm>({
     dateCreated: 0,
@@ -150,6 +140,7 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
+                      defaultValue={targetFrom ? targetFrom.id : ''}
                       fullWidth
                       multiline
                       inputProps={{
@@ -164,6 +155,7 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
+                      defaultValue={targetFrom ? targetFrom.version : ''}
                       fullWidth
                       multiline
                       inputProps={{
@@ -173,27 +165,10 @@ export const CustomFormTemplate = () => {
                     />
                   </Grid>
                   <Grid item sm={12} md={6} lg={4}>
-                    <FormControl fullWidth variant="outlined">
-                      <InputLabel>Language *</InputLabel>
-                      <Field
-                        label={'Language'}
-                        component={Select}
-                        fullWidth
-                        required={true}
-                        multiple
-                        multiline
-                        variant="outlined"
-                        onChange={handleLanguageChange}
-                        value={language}
-                        renderValue={(selected: any[]) => selected.join(', ')}>
-                        {languageOptions.map((value) => (
-                          <MenuItem key={value} value={value}>
-                            <Checkbox checked={language.indexOf(value) > -1} />
-                            <ListItemText primary={value} />
-                          </MenuItem>
-                        ))}
-                      </Field>
-                    </FormControl>
+                    <LanguageModal
+                      language={language}
+                      setLanguage={setLanguage}
+                    />
                   </Grid>
                 </Grid>
               </Box>
@@ -208,6 +183,87 @@ export const CustomFormTemplate = () => {
           </Form>
         )}
       </Formik>
+    </>
+  );
+};
+
+const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const languageOptions = getLanguages();
+
+  const classes = useStyles();
+
+  // handles the change of the multi-select language
+  const handleLanguageChange = (
+    target: string,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event.target.checked) {
+      setLanguage((prevState) => {
+        return [...prevState, target];
+      });
+    } else {
+      setLanguage((prevState) => {
+        const newLanguage = prevState.filter((language) => language !== target);
+        return [...newLanguage];
+      });
+    }
+  };
+  return (
+    <>
+      <TextField
+        aria-readonly
+        label={'Language'}
+        fullWidth
+        required={true}
+        focused={showModal}
+        multiline
+        variant="outlined"
+        value={language.join(', ')}
+        onClick={() => setShowModal(true)}
+      />
+      <Dialog
+        fullWidth
+        maxWidth={'md'}
+        onClose={() => setShowModal(false)}
+        open={showModal}>
+        <DialogTitle>Language *</DialogTitle>
+        <DialogContent dividers={true}>
+          <FormControl fullWidth variant="outlined">
+            <FormGroup>
+              <Grid container spacing={3} className={classes.modal}>
+                {languageOptions.map((value) => {
+                  if (value === undefined) {
+                    return <></>;
+                  }
+                  return (
+                    <Grid key={value} xs={4}>
+                      <FormControlLabel
+                        label={value}
+                        control={
+                          <Checkbox
+                            onChange={(
+                              event: React.ChangeEvent<HTMLInputElement>
+                            ) => handleLanguageChange(value, event)}
+                            checked={language.indexOf(value) > -1}
+                          />
+                        }
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </FormGroup>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <PrimaryButton
+            className={classes.button}
+            onClick={() => setShowModal(false)}>
+            Close
+          </PrimaryButton>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
@@ -228,5 +284,9 @@ const useStyles = makeStyles({
   button: {
     height: '100%',
     marginLeft: 10,
+  },
+  modal: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
 });
