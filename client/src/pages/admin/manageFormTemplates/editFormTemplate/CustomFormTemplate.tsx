@@ -1,3 +1,6 @@
+import { CForm } from 'src/shared/types';
+import { CustomizedForm } from '../../../customizedForm/customizedEditForm/CustomizedForm';
+
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import { goBackWithFallback } from '../../../../shared/utils';
@@ -24,6 +27,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { PrimaryButton } from '../../../../shared/components/Button';
 import { Check } from '@mui/icons-material';
 import EditField from './EditField';
+import { FormRenderStateEnum } from 'src/shared/enums';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -56,6 +60,18 @@ export const CustomFormTemplate = () => {
     );
   };
 
+  const [form, setForm] = useState<CForm>({
+    dateCreated: 0,
+    id: undefined,
+    version: undefined,
+    patientId: undefined,
+    category: 'string',
+    lastEdited: 0,
+    name: 'string',
+    lang: 'string',
+    questions: [],
+  });
+
   return (
     <>
       <div className={classes.title}>
@@ -80,6 +96,8 @@ export const CustomFormTemplate = () => {
           setEditPopupOpen(false);
         }}
         inputLanguages={language}
+        setForm={setForm}
+        form={form}
       />
       <Formik
         initialValues={initialState}
@@ -180,6 +198,13 @@ export const CustomFormTemplate = () => {
                 </Grid>
               </Box>
             </Paper>
+            {form && form.questions && form!.questions!.length > 0 && (
+              <CustomizedForm
+                patientId={''}
+                fm={form}
+                renderState={FormRenderStateEnum.FINISH}
+              />
+            )}
           </Form>
         )}
       </Formik>

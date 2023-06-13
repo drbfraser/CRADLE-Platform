@@ -58,6 +58,13 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
       break;
     case FormRenderStateEnum.FIRST_SUBMIT:
       formTitle = 'Submit Form';
+      break;
+    case FormRenderStateEnum.FINISH:
+      formTitle = 'Finish Form';
+      break;
+    default:
+      formTitle = 'error!!!!!';
+      break;
   }
 
   const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
@@ -437,11 +444,13 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
     answers: QAnswer[],
     renderState: FormRenderStateEnum
   ) =>
-    questions.map((question: Question, index) => (
-      <Fragment key={question.id}>
-        {generateHtmlForQuestion(question, answers[index], renderState)}
-      </Fragment>
-    ));
+    questions.map((question: Question, index) => {
+      return (
+        <Fragment key={question.id}>
+          {generateHtmlForQuestion(question, answers[index], renderState)}
+        </Fragment>
+      );
+    });
 
   return (
     <>
@@ -461,6 +470,14 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
           <Form>
             <Paper>
               <Box p={4} pt={6} m={2}>
+                {renderState === FormRenderStateEnum.FINISH ? (
+                  <Grid container spacing={3}>
+                    <h2>Current Form</h2>
+                    <Divider/>
+                  </Grid>
+                ) : (
+                  <></>
+                )}
                 <Grid container spacing={3}>
                   {generateHtmlForQuestions(questions, answers, renderState)}
                 </Grid>
@@ -471,6 +488,14 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                     className={classes.right}>
                     {formTitle}
                   </RedirectButton>
+                ) : renderState === FormRenderStateEnum.FINISH ? (
+                  <PrimaryButton
+                    className={classes.right}
+                    onClick={() => console.log('click finish button')}
+                    // TO DO: clicking "finish" saves the form.
+                    type="button">
+                    {formTitle}
+                  </PrimaryButton>
                 ) : (
                   <PrimaryButton
                     className={classes.right}

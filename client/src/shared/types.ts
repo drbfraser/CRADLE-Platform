@@ -1,5 +1,6 @@
 import {
   GestationalAgeUnitEnum,
+  QuestionTypeEnum,
   SexEnum,
   TrafficLightEnum,
   UserRoleEnum,
@@ -319,7 +320,7 @@ export type Question = {
   isBlank: boolean;
   questionIndex: number;
   questionText: string;
-  questionType: string;
+  questionType: QuestionTypeEnum;
   required: boolean;
 
   numMin: OrNull<number>;

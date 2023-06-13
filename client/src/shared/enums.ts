@@ -2,6 +2,7 @@ export enum FormRenderStateEnum {
   EDIT = 'EDIT',
   VIEW = 'VIEW',
   FIRST_SUBMIT = 'FIRST_SUBMIT',
+  FINISH = 'FINISH',
 }
 
 export enum SexEnum {
