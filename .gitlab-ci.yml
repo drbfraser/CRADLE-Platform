@@ -216,11 +216,12 @@ frontend integration tests:
     - apt-get install default-mysql-client python3-pip python3-venv -y
     - apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y #cypress dependencies
     - cd server
-    - pip3 install --upgrade pip
-    - pip3 install -r requirements.txt
-    - python3 app.py &
-    - python3 db.py rebuild --no-docker
-    - python3 manage.py seed_test_data
+    - python3 -m venv /venv
+    - /venv/bin/pip3 install --upgrade pip
+    - /venv/bin/pip3 install -r requirements.txt
+    - /venv/bin/python3 app.py &
+    - /venv/bin/python3 db.py rebuild --no-docker
+    - /venv/bin/python3 manage.py seed_test_data
     - cd ../client
     - npm i --global npm@7
     - npm ci
