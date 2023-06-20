@@ -1,6 +1,4 @@
-import { CForm } from 'src/shared/types';
-import { CustomizedForm } from '../../../customizedForm/customizedEditForm/CustomizedForm';
-
+import { FormTemplateWithQuestions } from 'src/shared/types';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import { getLanguages, goBackWithFallback } from '../../../../shared/utils';
@@ -26,6 +24,7 @@ import { FormRenderStateEnum } from 'src/shared/enums';
 import { LanguageModalProps } from 'src/shared/types';
 import { FormTemplate } from 'src/shared/types';
 import { useLocation } from 'react-router-dom';
+import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -50,15 +49,13 @@ export const CustomFormTemplate = () => {
   const location = useLocation<FormTemplate>();
   const targetFrom = location.state;
 
-  const [form, setForm] = useState<CForm>({
+  const [form, setForm] = useState<FormTemplateWithQuestions>({
+    classification: { id: 'string', name: 'string' },
     dateCreated: 0,
-    id: undefined,
-    version: undefined,
-    patientId: undefined,
     category: 'string',
-    lastEdited: 0,
-    name: 'string',
-    lang: 'string',
+    id: 'string',
+    version: 'string',
+    archived: false,
     questions: [],
   });
 
@@ -174,9 +171,9 @@ export const CustomFormTemplate = () => {
               </Box>
             </Paper>
             {form && form.questions && form!.questions!.length > 0 && (
-              <CustomizedForm
-                patientId={''}
+              <CustomizedFormWQuestions
                 fm={form}
+                language="english"
                 renderState={FormRenderStateEnum.FINISH}
               />
             )}

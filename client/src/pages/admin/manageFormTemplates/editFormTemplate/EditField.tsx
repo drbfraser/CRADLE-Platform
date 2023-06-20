@@ -21,15 +21,15 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { TableHeader } from 'semantic-ui-react';
-import { CForm } from 'src/shared/types';
+import { FormTemplateWithQuestions } from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
   inputLanguages: string[];
-  setForm: Dispatch<SetStateAction<CForm>>;
-  form: CForm;
+  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  form: FormTemplateWithQuestions;
 }
 
 interface FieldTypes {
@@ -230,20 +230,19 @@ const EditField = ({
                   id: questionId,
                   isBlank: false,
                   questionIndex: form.questions.length + 1,
-                  questionText: fieldName,
+                  questionLangVersions: [
+                    { lang: 'english', mcOptions: [], questionText: fieldName },
+                  ],
                   questionType: fieldTypes[fieldType].type,
                   required: false,
                   numMin: null,
                   numMax: null,
                   stringMaxLength: null,
                   units: null,
-                  answers: undefined,
                   visibleCondition: [],
-                  formTemplateId: '',
-                  mcOptions: [],
-                  hasCommentAttached: false,
                   shouldHidden: false,
-                  dependencies: undefined,
+                  categoryId: null,
+                  questionId: 'questionid',
                 });
                 form.questions = [...form.questions];
                 return form;
