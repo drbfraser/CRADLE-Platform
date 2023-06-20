@@ -216,7 +216,8 @@ frontend integration tests:
     - apt-get install default-mysql-client python3-pip python3-venv -y
     - apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y #cypress dependencies
     - cd server
-    - python3 -m venv /venv
+    - python3 -m venv /venv                         # Python 3.11+ does not allow pip to install into global context; use a virtual environment instead.
+    - export PATH=$PATH:/venv/bin/                  # Add virtual environment to path so app's call to `flask` succeed
     - /venv/bin/pip3 install --upgrade pip
     - /venv/bin/pip3 install -r requirements.txt
     - /venv/bin/python3 app.py &
