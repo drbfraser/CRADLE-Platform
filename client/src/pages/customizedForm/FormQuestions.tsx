@@ -34,7 +34,12 @@ interface IProps {
   handleAnswers: (answers: QAnswer[]) => void;
 }
 
-export const FormQuestions = ({ questions, renderState, language, handleAnswers }: IProps) => {
+export const FormQuestions = ({
+  questions,
+  renderState,
+  language,
+  handleAnswers,
+}: IProps) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
 
   function isQuestion(x: any): x is Question {

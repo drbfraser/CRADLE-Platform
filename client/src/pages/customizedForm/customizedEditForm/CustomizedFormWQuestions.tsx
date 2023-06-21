@@ -75,7 +75,9 @@ export const CustomizedFormWQuestions = ({
                     questions={questions}
                     renderState={renderState}
                     language={language}
-                    handleAnswers={ () => {}}
+                    handleAnswers={() => {
+                      // pass
+                    }}
                   />
                 </Grid>
                 <PrimaryButton
