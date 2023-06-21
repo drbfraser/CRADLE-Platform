@@ -72,7 +72,6 @@ class Root(Resource):
         )
 
         if classification is not None:
-
             if crud.read(
                 FormTemplate,
                 formClassificationId=classification.id,
@@ -113,7 +112,6 @@ class Root(Resource):
         endpoint="form_templates",
     )
     def get():
-
         params = util.get_query_params(request)
 
         filters: dict = {}
@@ -123,6 +121,8 @@ class Root(Resource):
             or params.get("include_archived") == "false"
         ):
             filters["archived"] = 0
+        elif params.get("include_archived") == "true":
+            filters["archived"] = 1
 
         form_templates = crud.read_all(FormTemplate, **filters)
 
@@ -222,7 +222,6 @@ class FormTemplateResource(Resource):
         endpoint="single_form_template",
     )
     def put(form_template_id: str):
-
         form_template = crud.read(FormTemplate, id=form_template_id)
 
         if not form_template:
