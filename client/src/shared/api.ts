@@ -6,6 +6,7 @@ import {
   CForm,
   FilterRequestBody,
   FormTemplate,
+  FormTemplateWithQuestions,
   IFacility,
   IUser,
   IUserWithIndex,
@@ -161,6 +162,20 @@ export const saveFormTemplateWithFileAsync = async (file: File) => {
     {
       method: 'POST',
       body: data,
+    },
+    true,
+    true
+  );
+};
+
+export const submitFormTemplateAsync = async (
+  form: FormTemplateWithQuestions
+) => {
+  return apiFetch(
+    API_URL + EndpointEnum.FORM_TEMPLATES,
+    {
+      method: 'POST',
+      body: JSON.stringify(form),
     },
     true,
     true

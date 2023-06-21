@@ -50,12 +50,8 @@ export const CustomFormTemplate = () => {
   const targetFrom = location.state;
 
   const [form, setForm] = useState<FormTemplateWithQuestions>({
-    classification: { id: 'string', name: 'string' },
-    dateCreated: 0,
-    category: 'string',
-    id: 'string',
+    classification: { name: 'string' },
     version: 'string',
-    archived: false,
     questions: [],
   });
 
@@ -118,17 +114,6 @@ export const CustomFormTemplate = () => {
                     <AddIcon />
                     {'Create New Field'}
                   </PrimaryButton>
-
-                  <PrimaryButton
-                    className={classes.button}
-                    disabled
-                    onClick={() => {
-                      // TODO: Make submit button have the ability to submit the form
-                      console.log('Submit button clicked');
-                    }}>
-                    <Check />
-                    {'Submit Form Template'}
-                  </PrimaryButton>
                 </Grid>
                 <Grid container spacing={3}>
                   <Grid item sm={12} md={6} lg={4}>
@@ -144,6 +129,9 @@ export const CustomFormTemplate = () => {
                         // TODO: Determine what types of input restrictions we should have for title
                         maxLength: Number.MAX_SAFE_INTEGER,
                       }}
+                      onChange={(e: any) => {
+                        form.classification.name = e.target.value;
+                      }}
                     />
                   </Grid>
                   <Grid item sm={12} md={6} lg={4}>
@@ -158,6 +146,9 @@ export const CustomFormTemplate = () => {
                       inputProps={{
                         // TODO: Determine what types of input restrictions we should have for version
                         maxLength: Number.MAX_SAFE_INTEGER,
+                      }}
+                      onChange={(e: any) => {
+                        form.version = e.target.value;
                       }}
                     />
                   </Grid>

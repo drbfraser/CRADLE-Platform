@@ -227,8 +227,6 @@ const EditField = ({
             onClick={() => {
               setForm((form) => {
                 form.questions.push({
-                  id: questionId,
-                  isBlank: false,
                   questionIndex: form.questions.length + 1,
                   questionLangVersions: [
                     { lang: 'english', mcOptions: [], questionText: fieldName },
@@ -240,8 +238,7 @@ const EditField = ({
                   stringMaxLength: null,
                   units: null,
                   visibleCondition: [],
-                  shouldHidden: false,
-                  categoryId: null,
+                  categoryIndex: null,
                   questionId: 'questionid',
                 });
                 form.questions = [...form.questions];

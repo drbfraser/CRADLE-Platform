@@ -269,6 +269,10 @@ export interface IFormClassification {
   name: string;
 }
 
+export interface INewFormClassification {
+  name: string;
+}
+
 export interface FormTemplate {
   classification: IFormClassification;
   dateCreated: number;
@@ -278,7 +282,9 @@ export interface FormTemplate {
   archived: boolean;
 }
 
-export interface FormTemplateWithQuestions extends FormTemplate {
+export interface FormTemplateWithQuestions {
+  classification: INewFormClassification;
+  version: string;
   questions: TQuestion[];
 }
 
@@ -342,31 +348,17 @@ export type Question = {
 //TQuestion will be only used in template
 // with * options will be used in creating template
 export interface TQuestion {
-  categoryId: OrNull<number> | undefined;
+  categoryIndex: OrNull<number> | undefined;
   questionId: string | undefined;
   questionLangVersions: QuestionLangVersion[];
-
-  id: string;
-  isBlank: boolean;
   questionIndex: number;
   questionType: QuestionTypeEnum;
   required: boolean;
-
   numMin?: OrNull<number>;
   numMax?: OrNull<number>;
   stringMaxLength?: OrNull<number>;
   units?: OrNull<string>;
-
   visibleCondition: QCondition[];
-
-  /////////// only in form
-  // formTemplateId: string;
-  // mcOptions?: OrNull<McOption> | undefined; //only used in form
-  // hasCommentAttached: boolean;
-  ////////////
-
-  shouldHidden?: OrNull<boolean> | undefined;
-  // dependencies?: OrNull<[]> | undefined;
 }
 
 export interface QuestionLangVersion {

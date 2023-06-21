@@ -180,7 +180,7 @@ export const FormQuestions = ({
     renderState: FormRenderStateEnum
   ) => {
     console.log(answer);
-    if (question.shouldHidden || (isQuestion(question) && !answer)) {
+    if (isQuestion(question) && !answer) {
       return <></>;
     }
 
@@ -417,7 +417,7 @@ export const FormQuestions = ({
   ) =>
     questions.map((question: Question | TQuestion, index) => {
       return (
-        <Fragment key={question.id}>
+        <Fragment key={question.questionIndex}>
           {generateHtmlForQuestion(question, answers[index], renderState)}
         </Fragment>
       );
