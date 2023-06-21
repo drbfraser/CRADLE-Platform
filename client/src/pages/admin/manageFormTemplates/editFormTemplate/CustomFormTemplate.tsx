@@ -174,7 +174,7 @@ export const CustomFormTemplate = () => {
               <CustomizedFormWQuestions
                 fm={form}
                 language="english"
-                renderState={FormRenderStateEnum.FINISH}
+                renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
               />
             )}
           </Form>

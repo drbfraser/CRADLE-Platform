@@ -40,8 +40,8 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
     case FormRenderStateEnum.FIRST_SUBMIT:
       formTitle = 'Submit Form';
       break;
-    case FormRenderStateEnum.FINISH:
-      formTitle = 'Finish Form';
+    case FormRenderStateEnum.SUBMIT_TEMPLATE:
+      formTitle = 'Submit Form Template';
       break;
     default:
       formTitle = 'error!!!!!';
@@ -101,7 +101,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
           <Form>
             <Paper>
               <Box p={4} pt={6} m={2}>
-                {renderState === FormRenderStateEnum.FINISH ? (
+                {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
                   <Grid container spacing={3}>
                     <h2>Current Form</h2>
                     <Divider />
@@ -123,7 +123,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                     className={classes.right}>
                     {formTitle}
                   </RedirectButton>
-                ) : renderState === FormRenderStateEnum.FINISH ? (
+                ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
                   <PrimaryButton
                     className={classes.right}
                     onClick={() => console.log('click finish button')}

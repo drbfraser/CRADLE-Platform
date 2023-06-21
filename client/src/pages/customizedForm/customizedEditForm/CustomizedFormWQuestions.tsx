@@ -41,7 +41,7 @@ export const CustomizedFormWQuestions = ({
     case FormRenderStateEnum.FIRST_SUBMIT:
       formTitle = 'Submit Form';
       break;
-    case FormRenderStateEnum.FINISH:
+    case FormRenderStateEnum.SUBMIT_TEMPLATE:
       formTitle = 'Finish Form';
       break;
     default:
