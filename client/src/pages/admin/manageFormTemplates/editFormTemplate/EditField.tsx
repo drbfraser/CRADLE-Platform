@@ -19,36 +19,57 @@ import {
 } from '../../../../shared/components/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { TableHeader } from 'semantic-ui-react';
+import { FormTemplateWithQuestions } from 'src/shared/types';
+import { QuestionTypeEnum } from 'src/shared/enums';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
   inputLanguages: string[];
+  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  form: FormTemplateWithQuestions;
 }
 
-const EditField = ({ open, onClose, inputLanguages }: IProps) => {
-  const [fieldType, setFieldType] = useState<string>();
+interface FieldTypes {
+  [key: string]: {
+    value: string;
+    label: string;
+    type: QuestionTypeEnum;
+    render: () => JSX.Element;
+  };
+}
+
+const EditField = ({
+  open,
+  onClose,
+  inputLanguages,
+  setForm,
+  form,
+}: IProps) => {
+  const [fieldType, setFieldType] = useState<string>('');
+  const [fieldName, setFieldName] = useState<string>('');
+  const [questionId, setQuestionId] = useState<string>('');
 
   // reset chosen field to nothing once dialog is closed
   useEffect(() => {
     setFieldType('');
+    setFieldName('');
+    setQuestionId('');
   }, [open]);
 
-  const fieldTypes = {
+  const fieldTypes: FieldTypes = {
     category: {
       value: 'category',
       label: 'Category',
-      render: () => (
-        <>
-          {/*TODO: Handle what is displayed when Category field type is selected*/}
-        </>
-      ),
+      type: QuestionTypeEnum.CATEGORY,
+      render: () => <></>,
     },
     number: {
       value: 'number',
       label: 'Number',
+      type: QuestionTypeEnum.INTEGER,
       render: () => (
         <>
           {/*TODO: Handle what is displayed when Number field type is selected*/}
@@ -58,6 +79,7 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
     text: {
       value: 'text',
       label: 'Text',
+      type: QuestionTypeEnum.STRING,
       render: () => (
         <>
           {/*TODO: Handle what is displayed when Text field type is selected*/}
@@ -67,6 +89,7 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
     mult_choice: {
       value: 'mult_choice',
       label: 'Multiple Choice',
+      type: QuestionTypeEnum.MULTIPLE_CHOICE,
       render: () => (
         <Table>
           <TableRow>
@@ -100,6 +123,7 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
     date: {
       value: 'date',
       label: 'Date',
+      type: QuestionTypeEnum.DATE,
       render: () => (
         <>
           {/*TODO: Handle what is displayed when Date field type is selected*/}
@@ -108,7 +132,7 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
     },
   };
   const handleRadioChange = (event: {
-    target: { value: SetStateAction<string | undefined> };
+    target: { value: SetStateAction<string> };
   }) => {
     setFieldType(event.target.value);
   };
@@ -140,6 +164,7 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                     inputProps={{
                       maxLength: Number.MAX_SAFE_INTEGER,
                     }}
+                    onChange={(e) => setFieldName(e.target.value)}
                   />
                 </TableCell>
               ))}
@@ -157,6 +182,7 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
+                  onChange={(e) => setQuestionId(e.target.value)}
                 />
               </TableCell>
             </TableRow>
@@ -168,7 +194,7 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
                 <Typography variant="h6">Field Type</Typography>
               </FormLabel>
             </Grid>
-            <Grid item sm={12} md={6} lg={6}>
+            <Grid item sm={12} md={10} lg={10}>
               <RadioGroup
                 aria-labelledby="field-type-label"
                 name="field-type-group"
@@ -196,7 +222,33 @@ const EditField = ({ open, onClose, inputLanguages }: IProps) => {
           <CancelButton type="button" onClick={onClose}>
             Cancel
           </CancelButton>
-          <PrimaryButton type="submit">
+          <PrimaryButton
+            type="submit"
+            onClick={() => {
+              setForm((form) => {
+                form.questions.push({
+                  id: questionId,
+                  isBlank: false,
+                  questionIndex: form.questions.length + 1,
+                  questionLangVersions: [
+                    { lang: 'english', mcOptions: [], questionText: fieldName },
+                  ],
+                  questionType: fieldTypes[fieldType].type,
+                  required: false,
+                  numMin: null,
+                  numMax: null,
+                  stringMaxLength: null,
+                  units: null,
+                  visibleCondition: [],
+                  shouldHidden: false,
+                  categoryId: null,
+                  questionId: 'questionid',
+                });
+                form.questions = [...form.questions];
+                return form;
+              });
+              onClose();
+            }}>
             {/* disabled={isSubmitting || !isValid}>*/}
             {/* {creatingNew ? 'Create' : 'Save'}*/}
             {'Save'}

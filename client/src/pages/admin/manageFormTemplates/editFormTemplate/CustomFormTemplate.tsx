@@ -1,3 +1,4 @@
+import { FormTemplateWithQuestions } from 'src/shared/types';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import { getLanguages, goBackWithFallback } from '../../../../shared/utils';
@@ -19,9 +20,11 @@ import AddIcon from '@mui/icons-material/Add';
 import { PrimaryButton } from '../../../../shared/components/Button';
 import { Check } from '@mui/icons-material';
 import EditField from './EditField';
+import { FormRenderStateEnum } from 'src/shared/enums';
 import { LanguageModalProps } from 'src/shared/types';
 import { FormTemplate } from 'src/shared/types';
 import { useLocation } from 'react-router-dom';
+import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -45,6 +48,16 @@ export const CustomFormTemplate = () => {
 
   const location = useLocation<FormTemplate>();
   const targetFrom = location.state;
+
+  const [form, setForm] = useState<FormTemplateWithQuestions>({
+    classification: { id: 'string', name: 'string' },
+    dateCreated: 0,
+    category: 'string',
+    id: 'string',
+    version: 'string',
+    archived: false,
+    questions: [],
+  });
 
   return (
     <>
@@ -70,6 +83,8 @@ export const CustomFormTemplate = () => {
           setEditPopupOpen(false);
         }}
         inputLanguages={language}
+        setForm={setForm}
+        form={form}
       />
       <Formik
         initialValues={initialState}
@@ -155,6 +170,13 @@ export const CustomFormTemplate = () => {
                 </Grid>
               </Box>
             </Paper>
+            {form && form.questions && form!.questions!.length > 0 && (
+              <CustomizedFormWQuestions
+                fm={form}
+                language="english"
+                renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
+              />
+            )}
           </Form>
         )}
       </Formik>

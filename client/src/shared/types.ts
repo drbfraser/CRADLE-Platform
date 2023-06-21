@@ -1,5 +1,6 @@
 import {
   GestationalAgeUnitEnum,
+  QuestionTypeEnum,
   SexEnum,
   TrafficLightEnum,
   UserRoleEnum,
@@ -319,7 +320,7 @@ export type Question = {
   isBlank: boolean;
   questionIndex: number;
   questionText: string;
-  questionType: string;
+  questionType: QuestionTypeEnum;
   required: boolean;
 
   numMin: OrNull<number>;
@@ -343,12 +344,12 @@ export type Question = {
 export interface TQuestion {
   categoryId: OrNull<number> | undefined;
   questionId: string | undefined;
-  questionLangVersions: OrNull<QuestionLangVersion[]> | undefined;
+  questionLangVersions: QuestionLangVersion[];
 
   id: string;
   isBlank: boolean;
   questionIndex: number;
-  questionType: string;
+  questionType: QuestionTypeEnum;
   required: boolean;
 
   numMin?: OrNull<number>;
@@ -356,7 +357,7 @@ export interface TQuestion {
   stringMaxLength?: OrNull<number>;
   units?: OrNull<string>;
 
-  visibleCondition?: QCondition[] | undefined;
+  visibleCondition: QCondition[];
 
   /////////// only in form
   // formTemplateId: string;
@@ -364,13 +365,13 @@ export interface TQuestion {
   // hasCommentAttached: boolean;
   ////////////
 
-  // shouldHidden?: OrNull<boolean> | undefined;
+  shouldHidden?: OrNull<boolean> | undefined;
   // dependencies?: OrNull<[]> | undefined;
 }
 
 export interface QuestionLangVersion {
   lang: string;
-  mcOptions?: OrNull<McOption[]> | undefined;
+  mcOptions: McOption[];
   questionText: string;
 }
 
