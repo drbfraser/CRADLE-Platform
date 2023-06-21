@@ -19,17 +19,17 @@ interface IProps {
   template?: FormTemplate;
 }
 
-const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
+const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const archiveForm = async () => {
+  const unarchiveForm = async () => {
     if (!template?.id) {
       return;
     }
 
-    template.archived = true;
+    template.archived = false;
 
     try {
       await handleArchiveFormTemplateAsync(template);
@@ -45,26 +45,26 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
     <>
       <Toast
         severity="success"
-        message="Form Template Archived!"
+        message="Form Template Unarchived!"
         open={submitSuccess}
         onClose={() => setSubmitSuccess(false)}
       />
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Archive Form Template</DialogTitle>
+        <DialogTitle>Unarchive Form Template</DialogTitle>
         <DialogContent>
-          <p>Are you sure you want to archive this form template?</p>
+          <p>Are you sure you want to unarchive this form template?</p>
         </DialogContent>
         <DialogActions className={classes.actions}>
           <CancelButton onClick={onClose}>Cancel</CancelButton>
-          <PrimaryButton onClick={archiveForm}>Archive</PrimaryButton>
+          <PrimaryButton onClick={unarchiveForm}>Unarchive</PrimaryButton>
         </DialogActions>
       </Dialog>
     </>
   );
 };
 
-export default ArchiveTemplateDialog;
+export default UnarchiveTemplateDialog;
 
 const useStyles = makeStyles((theme) => ({
   actions: {
