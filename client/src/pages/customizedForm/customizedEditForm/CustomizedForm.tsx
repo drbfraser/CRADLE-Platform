@@ -1,5 +1,4 @@
-import { QuestionTypeEnum } from 'src/shared/enums';
-import { CForm, QAnswer, Question } from 'src/shared/types';
+import { CForm, QAnswer } from 'src/shared/types';
 import { Form, Formik } from 'formik';
 import { useState } from 'react';
 import { initialState, validationSchema } from './state';
@@ -9,7 +8,6 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton, RedirectButton } from 'src/shared/components/Button';
-import Typography from '@mui/material/Typography';
 import { handleSubmit } from './handlers';
 import makeStyles from '@mui/styles/makeStyles';
 import { FormRenderStateEnum } from 'src/shared/enums';
@@ -25,8 +23,8 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
-  const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
-    useState(false);
+  // const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
+  //   useState(false);
 
   const [answers, setAnswers] = useState<QAnswer[]>([]);
   let formTitle: string;
@@ -48,40 +46,40 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
       break;
   }
 
-  const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
-    setMultiSelectValidationFailed(ValidationFailed);
-  };
+  // const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
+  //   setMultiSelectValidationFailed(ValidationFailed);
+  // };
 
   //currently, only ME(checkboxes need manually added validation, others' validations are handled automatically by formik)
-  const generateValidationLine = (
-    question: Question,
-    answer: QAnswer,
-    type: any,
-    required: boolean
-  ) => {
-    if (!multiSelectValidationFailed) {
-      return null;
-    }
-    if (type === QuestionTypeEnum.MULTIPLE_SELECT && !question.shouldHidden) {
-      if (!answer.val!.length) {
-        return (
-          <>
-            <Typography
-              variant="overline"
-              style={{ color: '#FF0000', fontWeight: 600 }}>
-              {' '}
-              (Must Select At Least One Option !)
-            </Typography>
-          </>
-        );
-      } else {
-        return null;
-      }
-    } else {
-      console.log('INVALID QUESTION TYPE!!');
-      return null;
-    }
-  };
+  // const generateValidationLine = (
+  //   question: Question,
+  //   answer: QAnswer,
+  //   type: any,
+  //   required: boolean
+  // ) => {
+  //   if (!multiSelectValidationFailed) {
+  //     return null;
+  //   }
+  //   if (type === QuestionTypeEnum.MULTIPLE_SELECT && !question.shouldHidden) {
+  //     if (!answer.val!.length) {
+  //       return (
+  //         <>
+  //           <Typography
+  //             variant="overline"
+  //             style={{ color: '#FF0000', fontWeight: 600 }}>
+  //             {' '}
+  //             (Must Select At Least One Option !)
+  //           </Typography>
+  //         </>
+  //       );
+  //     } else {
+  //       return null;
+  //     }
+  //   } else {
+  //     console.log('INVALID QUESTION TYPE!!');
+  //     return null;
+  //   }
+  // };
 
   return (
     <>
@@ -93,7 +91,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
           patientId,
           answers,
           setSubmitError,
-          handleMultiSelectValidationFailed,
+          // handleMultiSelectValidationFailed,
           renderState === FormRenderStateEnum.EDIT,
           fm
         )}>
@@ -114,6 +112,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                     questions={questions}
                     renderState={renderState}
                     language="english"
+                    handleAnswers={setAnswers}
                   />
                 </Grid>
                 {renderState === FormRenderStateEnum.VIEW ? (

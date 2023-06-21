@@ -31,9 +31,10 @@ interface IProps {
   questions: Question[] | TQuestion[];
   renderState: FormRenderStateEnum;
   language: string;
+  handleAnswers: (answers: QAnswer[]) => void;
 }
 
-export const FormQuestions = ({ questions, renderState, language }: IProps) => {
+export const FormQuestions = ({ questions, renderState, language, handleAnswers }: IProps) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
 
   function isQuestion(x: any): x is Question {
@@ -107,6 +108,7 @@ export const FormQuestions = ({ questions, renderState, language }: IProps) => {
       const answers: QAnswer[] = getAnswers(questions);
       updateQuestionsConditionHidden(questions, answers);
       setAnswers(answers);
+      handleAnswers(answers);
     }
   }, [questions, setAnswers]);
 
@@ -116,6 +118,7 @@ export const FormQuestions = ({ questions, renderState, language }: IProps) => {
       ans[index].val = newValue;
       updateQuestionsConditionHidden(questions, ans);
       setAnswers(ans);
+      handleAnswers(ans);
     }
   }
 
@@ -249,7 +252,7 @@ export const FormQuestions = ({ questions, renderState, language }: IProps) => {
               <Typography variant="h6">
                 {`${text}`}
                 {required ? ' *' : ''}
-                {/* {generateValidationLine(question, answer, type, required)} */}
+                {/* { generateValidationLine(question, answer, type, required) } */}
               </Typography>
             </FormLabel>
             {mcOptions!.map((McOption, index) => (

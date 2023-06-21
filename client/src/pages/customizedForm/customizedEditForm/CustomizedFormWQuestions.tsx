@@ -27,8 +27,8 @@ export const CustomizedFormWQuestions = ({
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
-  const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
-    useState(false);
+  // const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
+  //   useState(false);
 
   let formTitle: string;
   switch (renderState) {
@@ -49,9 +49,9 @@ export const CustomizedFormWQuestions = ({
       break;
   }
 
-  const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
-    setMultiSelectValidationFailed(ValidationFailed);
-  };
+  // const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
+  //   setMultiSelectValidationFailed(ValidationFailed);
+  // };
 
   return (
     <>
@@ -67,7 +67,7 @@ export const CustomizedFormWQuestions = ({
             <Paper>
               <Box p={4} pt={6} m={2}>
                 <Grid container spacing={3}>
-                  <h2>Current Form</h2>
+                  <h2>Current Form</h2>f
                   <Divider />
                 </Grid>
                 <Grid container spacing={3}>
@@ -75,6 +75,7 @@ export const CustomizedFormWQuestions = ({
                     questions={questions}
                     renderState={renderState}
                     language={language}
+                    handleAnswers={ () => {}}
                   />
                 </Grid>
                 <PrimaryButton
