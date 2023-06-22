@@ -27,13 +27,8 @@ def test_encryptor_wrong_key(message):
     encrypted_data = encryptor.encrypt(message_bytes, key)
     second_key = encryptor.generate_key("test2@test.com")
 
-    # The very low chance that the 2 generated keys are the same
-    while second_key == key:
-        second_key = encryptor.generate_key("test2@test.com")
-
-    with pytest.raises(fernet.InvalidToken):
-        decrypted_data = encryptor.decrypt(encrypted_data, second_key)
-        assert decrypted_data != message_bytes
+    with pytest.raises(ValueError):
+        assert encryptor.decrypt(encrypted_data, second_key)
 
     decrypted_data2 = encryptor.decrypt(encrypted_data, key)
     assert decrypted_data2 == message_bytes

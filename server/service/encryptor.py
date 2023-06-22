@@ -12,6 +12,7 @@ def generateRandomIV():
     return os.urandom(ivSize)
 
 
+# generate fixed Key(user key)
 def generate_key(email):
     hashed_key = hashlib.sha256(email.encode("utf-8")).hexdigest()
     user_key = hashed_key[:keySize]
@@ -25,7 +26,7 @@ def encrypt(token, key):
     encryptor = cipher.encryptor()
 
     padder = padding.PKCS7(128).padder()
-    padded_data = padder.update(token.encode()) + padder.finalize()
+    padded_data = padder.update(token) + padder.finalize()
 
     encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
     combined = iv + encrypted_data
@@ -40,9 +41,11 @@ def decrypt(combined, key):
 
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
     decryptor = cipher.decryptor()
+    try:
+        decrypted_data = decryptor.update(cipher_text) + decryptor.finalize()
 
-    decrypted_data = decryptor.update(cipher_text) + decryptor.finalize()
-
-    unpadder = padding.PKCS7(128).unpadder()
-    unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
-    return unpadded_data.decode()
+        unpadder = padding.PKCS7(128).unpadder()
+        unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
+        return unpadded_data
+    except:
+        raise ValueError("Invalid Key")
