@@ -219,7 +219,7 @@ class UserRegisterApi(Resource):
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
         listOfVhts = new_user.pop("supervises", None)
 
-        new_user["secretKey"] = encryptor.generate_key()
+        new_user["secretKey"] = encryptor.generate_key(new_user["email"])
 
         # Create the new user
         userModel = marshal.unmarshal(User, new_user)
