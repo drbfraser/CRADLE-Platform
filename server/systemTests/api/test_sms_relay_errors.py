@@ -47,7 +47,7 @@ def test_sms_relay_invalid_encryption_key(api_post):
     user = crud.read(User, id=1)
     phoneNumber = user.phoneNumber
 
-    new_key = encryptor.generate_key("invalid@emial.com")
+    new_key = encryptor.generate_key("invalid@email.com")
 
     data = {"endpoint": None, "body": None}
     json_data = json.dumps(data)
